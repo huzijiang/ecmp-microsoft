@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.InvoiceInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.InvoiceInfo" id="InvoiceInfoResult">
+        <result property="invoiceId"    column="invoice_id"    />
+        <result property="amount"    column="amount"    />
+        <result property="header"    column="header"    />
+        <result property="tin"    column="tin"    />
+        <result property="bankName"    column="bank_name"    />
+        <result property="bankCardNo"    column="bank_card_no"    />
+        <result property="registedAddress"    column="registed_address"    />
+        <result property="telephone"    column="telephone"    />
+        <result property="acceptAddress"    column="accept_address"    />
+        <result property="applyer"    column="applyer"    />
+        <result property="content"    column="content"    />
+        <result property="type"    column="type"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectInvoiceInfoVo">
+        select invoice_id, amount, header, tin, bank_name, bank_card_no, registed_address, telephone, accept_address, applyer, content, type, status, create_by, create_time, update_by, update_time from invoice_info
+    </sql>
+
+    <select id="selectInvoiceInfoList" parameterType="com.hq.ecmp.mscore.domain.InvoiceInfo" resultMap="InvoiceInfoResult">
+        <include refid="selectInvoiceInfoVo"/>
+        <where>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="header != null  and header != ''"> and header = #{header}</if>
+            <if test="tin != null  and tin != ''"> and tin = #{tin}</if>
+            <if test="bankName != null  and bankName != ''"> and bank_name like concat('%', #{bankName}, '%')</if>
+            <if test="bankCardNo != null  and bankCardNo != ''"> and bank_card_no = #{bankCardNo}</if>
+            <if test="registedAddress != null  and registedAddress != ''"> and registed_address = #{registedAddress}</if>
+            <if test="telephone != null  and telephone != ''"> and telephone = #{telephone}</if>
+            <if test="acceptAddress != null  and acceptAddress != ''"> and accept_address = #{acceptAddress}</if>
+            <if test="applyer != null "> and applyer = #{applyer}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="selectInvoiceInfoById" parameterType="Long" resultMap="InvoiceInfoResult">
+        <include refid="selectInvoiceInfoVo"/>
+        where invoice_id = #{invoiceId}
+    </select>
+
+    <insert id="insertInvoiceInfo" parameterType="com.hq.ecmp.mscore.domain.InvoiceInfo">
+        insert into invoice_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="invoiceId != null ">invoice_id,</if>
+            <if test="amount != null ">amount,</if>
+            <if test="header != null  and header != ''">header,</if>
+            <if test="tin != null  and tin != ''">tin,</if>
+            <if test="bankName != null  and bankName != ''">bank_name,</if>
+            <if test="bankCardNo != null  and bankCardNo != ''">bank_card_no,</if>
+            <if test="registedAddress != null  and registedAddress != ''">registed_address,</if>
+            <if test="telephone != null  and telephone != ''">telephone,</if>
+            <if test="acceptAddress != null  and acceptAddress != ''">accept_address,</if>
+            <if test="applyer != null ">applyer,</if>
+            <if test="content != null  and content != ''">content,</if>
+            <if test="type != null  and type != ''">type,</if>
+            <if test="status != null  and status != ''">status,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="invoiceId != null ">#{invoiceId},</if>
+            <if test="amount != null ">#{amount},</if>
+            <if test="header != null  and header != ''">#{header},</if>
+            <if test="tin != null  and tin != ''">#{tin},</if>
+            <if test="bankName != null  and bankName != ''">#{bankName},</if>
+            <if test="bankCardNo != null  and bankCardNo != ''">#{bankCardNo},</if>
+            <if test="registedAddress != null  and registedAddress != ''">#{registedAddress},</if>
+            <if test="telephone != null  and telephone != ''">#{telephone},</if>
+            <if test="acceptAddress != null  and acceptAddress != ''">#{acceptAddress},</if>
+            <if test="applyer != null ">#{applyer},</if>
+            <if test="content != null  and content != ''">#{content},</if>
+            <if test="type != null  and type != ''">#{type},</if>
+            <if test="status != null  and status != ''">#{status},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateInvoiceInfo" parameterType="com.hq.ecmp.mscore.domain.InvoiceInfo">
+        update invoice_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="amount != null ">amount = #{amount},</if>
+            <if test="header != null  and header != ''">header = #{header},</if>
+            <if test="tin != null  and tin != ''">tin = #{tin},</if>
+            <if test="bankName != null  and bankName != ''">bank_name = #{bankName},</if>
+            <if test="bankCardNo != null  and bankCardNo != ''">bank_card_no = #{bankCardNo},</if>
+            <if test="registedAddress != null  and registedAddress != ''">registed_address = #{registedAddress},</if>
+            <if test="telephone != null  and telephone != ''">telephone = #{telephone},</if>
+            <if test="acceptAddress != null  and acceptAddress != ''">accept_address = #{acceptAddress},</if>
+            <if test="applyer != null ">applyer = #{applyer},</if>
+            <if test="content != null  and content != ''">content = #{content},</if>
+            <if test="type != null  and type != ''">type = #{type},</if>
+            <if test="status != null  and status != ''">status = #{status},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where invoice_id = #{invoiceId}
+    </update>
+
+    <delete id="deleteInvoiceInfoById" parameterType="Long">
+        delete from invoice_info where invoice_id = #{invoiceId}
+    </delete>
+
+    <delete id="deleteInvoiceInfoByIds" parameterType="String">
+        delete from invoice_info where invoice_id in
+        <foreach item="invoiceId" collection="array" open="(" separator="," close=")">
+            #{invoiceId}
+        </foreach>
+    </delete>
+
+</mapper>

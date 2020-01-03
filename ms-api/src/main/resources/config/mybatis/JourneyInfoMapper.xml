@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.JourneyInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.JourneyInfo" id="JourneyInfoResult">
+        <result property="journeyId"    column="journey_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="regimenId"    column="regimen_id"    />
+        <result property="serviceType"    column="service_type"    />
+        <result property="useCarMode"    column="use_car_mode"    />
+        <result property="useCarTime"    column="use_car_time"    />
+        <result property="itIsReturn"    column="it_is_return"    />
+        <result property="estimatePrice"    column="estimate_price"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="flightNumber"    column="flight_number"    />
+        <result property="useTime"    column="use_time"    />
+        <result property="waitTimeLong"    column="wait_time_long"    />
+        <result property="charterCarType"    column="charter_car_type"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectJourneyInfoVo">
+        select journey_id, user_id, regimen_id, service_type, use_car_mode, use_car_time, it_is_return, estimate_price, project_id, flight_number, use_time, wait_time_long, charter_car_type, create_by, create_time, update_by, update_time from journey_info
+    </sql>
+
+    <select id="selectJourneyInfoList" parameterType="com.hq.ecmp.mscore.domain.JourneyInfo" resultMap="JourneyInfoResult">
+        <include refid="selectJourneyInfoVo"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="regimenId != null "> and regimen_id = #{regimenId}</if>
+            <if test="serviceType != null  and serviceType != ''"> and service_type = #{serviceType}</if>
+            <if test="useCarMode != null  and useCarMode != ''"> and use_car_mode = #{useCarMode}</if>
+            <if test="useCarTime != null  and useCarTime != ''"> and use_car_time = #{useCarTime}</if>
+            <if test="itIsReturn != null  and itIsReturn != ''"> and it_is_return = #{itIsReturn}</if>
+            <if test="estimatePrice != null  and estimatePrice != ''"> and estimate_price = #{estimatePrice}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="flightNumber != null  and flightNumber != ''"> and flight_number = #{flightNumber}</if>
+            <if test="useTime != null  and useTime != ''"> and use_time = #{useTime}</if>
+            <if test="waitTimeLong != null  and waitTimeLong != ''"> and wait_time_long = #{waitTimeLong}</if>
+            <if test="charterCarType != null  and charterCarType != ''"> and charter_car_type = #{charterCarType}</if>
+        </where>
+    </select>
+
+    <select id="selectJourneyInfoById" parameterType="Long" resultMap="JourneyInfoResult">
+        <include refid="selectJourneyInfoVo"/>
+        where journey_id = #{journeyId}
+    </select>
+
+    <insert id="insertJourneyInfo" parameterType="com.hq.ecmp.mscore.domain.JourneyInfo">
+        insert into journey_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="journeyId != null ">journey_id,</if>
+            <if test="userId != null ">user_id,</if>
+            <if test="regimenId != null ">regimen_id,</if>
+            <if test="serviceType != null  and serviceType != ''">service_type,</if>
+            <if test="useCarMode != null  and useCarMode != ''">use_car_mode,</if>
+            <if test="useCarTime != null  and useCarTime != ''">use_car_time,</if>
+            <if test="itIsReturn != null  and itIsReturn != ''">it_is_return,</if>
+            <if test="estimatePrice != null  and estimatePrice != ''">estimate_price,</if>
+            <if test="projectId != null ">project_id,</if>
+            <if test="flightNumber != null  and flightNumber != ''">flight_number,</if>
+            <if test="useTime != null  and useTime != ''">use_time,</if>
+            <if test="waitTimeLong != null  and waitTimeLong != ''">wait_time_long,</if>
+            <if test="charterCarType != null  and charterCarType != ''">charter_car_type,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="journeyId != null ">#{journeyId},</if>
+            <if test="userId != null ">#{userId},</if>
+            <if test="regimenId != null ">#{regimenId},</if>
+            <if test="serviceType != null  and serviceType != ''">#{serviceType},</if>
+            <if test="useCarMode != null  and useCarMode != ''">#{useCarMode},</if>
+            <if test="useCarTime != null  and useCarTime != ''">#{useCarTime},</if>
+            <if test="itIsReturn != null  and itIsReturn != ''">#{itIsReturn},</if>
+            <if test="estimatePrice != null  and estimatePrice != ''">#{estimatePrice},</if>
+            <if test="projectId != null ">#{projectId},</if>
+            <if test="flightNumber != null  and flightNumber != ''">#{flightNumber},</if>
+            <if test="useTime != null  and useTime != ''">#{useTime},</if>
+            <if test="waitTimeLong != null  and waitTimeLong != ''">#{waitTimeLong},</if>
+            <if test="charterCarType != null  and charterCarType != ''">#{charterCarType},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateJourneyInfo" parameterType="com.hq.ecmp.mscore.domain.JourneyInfo">
+        update journey_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null ">user_id = #{userId},</if>
+            <if test="regimenId != null ">regimen_id = #{regimenId},</if>
+            <if test="serviceType != null  and serviceType != ''">service_type = #{serviceType},</if>
+            <if test="useCarMode != null  and useCarMode != ''">use_car_mode = #{useCarMode},</if>
+            <if test="useCarTime != null  and useCarTime != ''">use_car_time = #{useCarTime},</if>
+            <if test="itIsReturn != null  and itIsReturn != ''">it_is_return = #{itIsReturn},</if>
+            <if test="estimatePrice != null  and estimatePrice != ''">estimate_price = #{estimatePrice},</if>
+            <if test="projectId != null ">project_id = #{projectId},</if>
+            <if test="flightNumber != null  and flightNumber != ''">flight_number = #{flightNumber},</if>
+            <if test="useTime != null  and useTime != ''">use_time = #{useTime},</if>
+            <if test="waitTimeLong != null  and waitTimeLong != ''">wait_time_long = #{waitTimeLong},</if>
+            <if test="charterCarType != null  and charterCarType != ''">charter_car_type = #{charterCarType},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where journey_id = #{journeyId}
+    </update>
+
+    <delete id="deleteJourneyInfoById" parameterType="Long">
+        delete from journey_info where journey_id = #{journeyId}
+    </delete>
+
+    <delete id="deleteJourneyInfoByIds" parameterType="String">
+        delete from journey_info where journey_id in
+        <foreach item="journeyId" collection="array" open="(" separator="," close=")">
+            #{journeyId}
+        </foreach>
+    </delete>
+
+</mapper>

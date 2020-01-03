@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.OrderInvoiceInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.OrderInvoiceInfo" id="OrderInvoiceInfoResult">
+        <result property="invoiceId"    column="invoice_id"    />
+        <result property="accountId"    column="account_id"    />
+    </resultMap>
+
+    <sql id="selectOrderInvoiceInfoVo">
+        select invoice_id, account_id from order_invoice_info
+    </sql>
+
+    <select id="selectOrderInvoiceInfoList" parameterType="com.hq.ecmp.mscore.domain.OrderInvoiceInfo" resultMap="OrderInvoiceInfoResult">
+        <include refid="selectOrderInvoiceInfoVo"/>
+        <where>
+            <if test="invoiceId != null "> and invoice_id = #{invoiceId}</if>
+            <if test="accountId != null "> and account_id = #{accountId}</if>
+        </where>
+    </select>
+
+    <select id="selectOrderInvoiceInfoById" parameterType="Long" resultMap="OrderInvoiceInfoResult">
+        <include refid="selectOrderInvoiceInfoVo"/>
+        where invoice_id = #{invoiceId}
+    </select>
+
+    <insert id="insertOrderInvoiceInfo" parameterType="com.hq.ecmp.mscore.domain.OrderInvoiceInfo">
+        insert into order_invoice_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="invoiceId != null ">invoice_id,</if>
+            <if test="accountId != null ">account_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="invoiceId != null ">#{invoiceId},</if>
+            <if test="accountId != null ">#{accountId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateOrderInvoiceInfo" parameterType="com.hq.ecmp.mscore.domain.OrderInvoiceInfo">
+        update order_invoice_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="accountId != null ">account_id = #{accountId},</if>
+        </trim>
+        where invoice_id = #{invoiceId}
+    </update>
+
+    <delete id="deleteOrderInvoiceInfoById" parameterType="Long">
+        delete from order_invoice_info where invoice_id = #{invoiceId}
+    </delete>
+
+    <delete id="deleteOrderInvoiceInfoByIds" parameterType="String">
+        delete from order_invoice_info where invoice_id in
+        <foreach item="invoiceId" collection="array" open="(" separator="," close=")">
+            #{invoiceId}
+        </foreach>
+    </delete>
+
+</mapper>

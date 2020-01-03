@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.ApplyInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.ApplyInfo" id="ApplyInfoResult">
+        <result property="applyId"    column="apply_id"    />
+        <result property="journeyId"    column="journey_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="regimenId"    column="regimen_id"    />
+        <result property="approverName"    column="approver_name"    />
+        <result property="costCenter"    column="cost_center"    />
+        <result property="state"    column="state"    />
+        <result property="reason"    column="reason"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectApplyInfoVo">
+        select apply_id, journey_id, project_id, regimen_id, approver_name, cost_center, state, reason, create_by, create_time, update_by, update_time from apply_info
+    </sql>
+
+    <select id="selectApplyInfoList" parameterType="com.hq.ecmp.mscore.domain.ApplyInfo" resultMap="ApplyInfoResult">
+        <include refid="selectApplyInfoVo"/>
+        <where>
+            <if test="journeyId != null "> and journey_id = #{journeyId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="regimenId != null "> and regimen_id = #{regimenId}</if>
+            <if test="approverName != null  and approverName != ''"> and approver_name like concat('%', #{approverName}, '%')</if>
+            <if test="costCenter != null "> and cost_center = #{costCenter}</if>
+            <if test="state != null  and state != ''"> and state = #{state}</if>
+            <if test="reason != null  and reason != ''"> and reason = #{reason}</if>
+        </where>
+    </select>
+
+    <select id="selectApplyInfoById" parameterType="Long" resultMap="ApplyInfoResult">
+        <include refid="selectApplyInfoVo"/>
+        where apply_id = #{applyId}
+    </select>
+
+    <insert id="insertApplyInfo" parameterType="com.hq.ecmp.mscore.domain.ApplyInfo">
+        insert into apply_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="applyId != null ">apply_id,</if>
+            <if test="journeyId != null ">journey_id,</if>
+            <if test="projectId != null ">project_id,</if>
+            <if test="regimenId != null ">regimen_id,</if>
+            <if test="approverName != null  and approverName != ''">approver_name,</if>
+            <if test="costCenter != null ">cost_center,</if>
+            <if test="state != null  and state != ''">state,</if>
+            <if test="reason != null  and reason != ''">reason,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applyId != null ">#{applyId},</if>
+            <if test="journeyId != null ">#{journeyId},</if>
+            <if test="projectId != null ">#{projectId},</if>
+            <if test="regimenId != null ">#{regimenId},</if>
+            <if test="approverName != null  and approverName != ''">#{approverName},</if>
+            <if test="costCenter != null ">#{costCenter},</if>
+            <if test="state != null  and state != ''">#{state},</if>
+            <if test="reason != null  and reason != ''">#{reason},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateApplyInfo" parameterType="com.hq.ecmp.mscore.domain.ApplyInfo">
+        update apply_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="journeyId != null ">journey_id = #{journeyId},</if>
+            <if test="projectId != null ">project_id = #{projectId},</if>
+            <if test="regimenId != null ">regimen_id = #{regimenId},</if>
+            <if test="approverName != null  and approverName != ''">approver_name = #{approverName},</if>
+            <if test="costCenter != null ">cost_center = #{costCenter},</if>
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="reason != null  and reason != ''">reason = #{reason},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where apply_id = #{applyId}
+    </update>
+
+    <delete id="deleteApplyInfoById" parameterType="Long">
+        delete from apply_info where apply_id = #{applyId}
+    </delete>
+
+    <delete id="deleteApplyInfoByIds" parameterType="String">
+        delete from apply_info where apply_id in
+        <foreach item="applyId" collection="array" open="(" separator="," close=")">
+            #{applyId}
+        </foreach>
+    </delete>
+
+</mapper>

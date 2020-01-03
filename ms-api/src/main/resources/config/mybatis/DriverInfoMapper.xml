@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.DriverInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.DriverInfo" id="DriverInfoResult">
+        <result property="driverId"    column="driver_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="driverName"    column="driver_name"    />
+        <result property="country"    column="country"    />
+        <result property="nation"    column="nation"    />
+        <result property="idCard"    column="id_card"    />
+        <result property="birthday"    column="birthday"    />
+        <result property="gender"    column="gender"    />
+        <result property="mobile"    column="mobile"    />
+        <result property="address"    column="address"    />
+        <result property="emergencyContactA"    column="emergency_contact_a"    />
+        <result property="emergencyContactB"    column="emergency_contact_b"    />
+        <result property="emergencyContactC"    column="emergency_contact_c"    />
+        <result property="itIsFullTime"    column="it_is_full_time"    />
+        <result property="licenseType"    column="license_type"    />
+        <result property="licenseIssueDate"    column="license_issue_date"    />
+        <result property="licenseInitIssueDate"    column="license_init_issue_date"    />
+        <result property="licenseNumber"    column="license_number"    />
+        <result property="licenseArchivesNumber"    column="license_archives_number"    />
+        <result property="licenseExpireDate"    column="license_expire_date"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectDriverInfoVo">
+        select driver_id, user_id, driver_name, country, nation, id_card, birthday, gender, mobile, address, emergency_contact_a, emergency_contact_b, emergency_contact_c, it_is_full_time, license_type, license_issue_date, license_init_issue_date, license_number, license_archives_number, license_expire_date, create_by, create_time, update_by, update_time from driver_info
+    </sql>
+
+    <select id="selectDriverInfoList" parameterType="com.hq.ecmp.mscore.domain.DriverInfo" resultMap="DriverInfoResult">
+        <include refid="selectDriverInfoVo"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="driverName != null  and driverName != ''"> and driver_name like concat('%', #{driverName}, '%')</if>
+            <if test="country != null  and country != ''"> and country = #{country}</if>
+            <if test="nation != null  and nation != ''"> and nation = #{nation}</if>
+            <if test="idCard != null  and idCard != ''"> and id_card = #{idCard}</if>
+            <if test="birthday != null "> and birthday = #{birthday}</if>
+            <if test="gender != null  and gender != ''"> and gender = #{gender}</if>
+            <if test="mobile != null  and mobile != ''"> and mobile = #{mobile}</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="emergencyContactA != null  and emergencyContactA != ''"> and emergency_contact_a = #{emergencyContactA}</if>
+            <if test="emergencyContactB != null  and emergencyContactB != ''"> and emergency_contact_b = #{emergencyContactB}</if>
+            <if test="emergencyContactC != null  and emergencyContactC != ''"> and emergency_contact_c = #{emergencyContactC}</if>
+            <if test="itIsFullTime != null  and itIsFullTime != ''"> and it_is_full_time = #{itIsFullTime}</if>
+            <if test="licenseType != null  and licenseType != ''"> and license_type = #{licenseType}</if>
+            <if test="licenseIssueDate != null "> and license_issue_date = #{licenseIssueDate}</if>
+            <if test="licenseInitIssueDate != null "> and license_init_issue_date = #{licenseInitIssueDate}</if>
+            <if test="licenseNumber != null  and licenseNumber != ''"> and license_number = #{licenseNumber}</if>
+            <if test="licenseArchivesNumber != null  and licenseArchivesNumber != ''"> and license_archives_number = #{licenseArchivesNumber}</if>
+            <if test="licenseExpireDate != null "> and license_expire_date = #{licenseExpireDate}</if>
+        </where>
+    </select>
+
+    <select id="selectDriverInfoById" parameterType="Long" resultMap="DriverInfoResult">
+        <include refid="selectDriverInfoVo"/>
+        where driver_id = #{driverId}
+    </select>
+
+    <insert id="insertDriverInfo" parameterType="com.hq.ecmp.mscore.domain.DriverInfo">
+        insert into driver_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="driverId != null ">driver_id,</if>
+            <if test="userId != null ">user_id,</if>
+            <if test="driverName != null  and driverName != ''">driver_name,</if>
+            <if test="country != null  and country != ''">country,</if>
+            <if test="nation != null  and nation != ''">nation,</if>
+            <if test="idCard != null  and idCard != ''">id_card,</if>
+            <if test="birthday != null ">birthday,</if>
+            <if test="gender != null  and gender != ''">gender,</if>
+            <if test="mobile != null  and mobile != ''">mobile,</if>
+            <if test="address != null  and address != ''">address,</if>
+            <if test="emergencyContactA != null  and emergencyContactA != ''">emergency_contact_a,</if>
+            <if test="emergencyContactB != null  and emergencyContactB != ''">emergency_contact_b,</if>
+            <if test="emergencyContactC != null  and emergencyContactC != ''">emergency_contact_c,</if>
+            <if test="itIsFullTime != null  and itIsFullTime != ''">it_is_full_time,</if>
+            <if test="licenseType != null  and licenseType != ''">license_type,</if>
+            <if test="licenseIssueDate != null ">license_issue_date,</if>
+            <if test="licenseInitIssueDate != null ">license_init_issue_date,</if>
+            <if test="licenseNumber != null  and licenseNumber != ''">license_number,</if>
+            <if test="licenseArchivesNumber != null  and licenseArchivesNumber != ''">license_archives_number,</if>
+            <if test="licenseExpireDate != null ">license_expire_date,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="driverId != null ">#{driverId},</if>
+            <if test="userId != null ">#{userId},</if>
+            <if test="driverName != null  and driverName != ''">#{driverName},</if>
+            <if test="country != null  and country != ''">#{country},</if>
+            <if test="nation != null  and nation != ''">#{nation},</if>
+            <if test="idCard != null  and idCard != ''">#{idCard},</if>
+            <if test="birthday != null ">#{birthday},</if>
+            <if test="gender != null  and gender != ''">#{gender},</if>
+            <if test="mobile != null  and mobile != ''">#{mobile},</if>
+            <if test="address != null  and address != ''">#{address},</if>
+            <if test="emergencyContactA != null  and emergencyContactA != ''">#{emergencyContactA},</if>
+            <if test="emergencyContactB != null  and emergencyContactB != ''">#{emergencyContactB},</if>
+            <if test="emergencyContactC != null  and emergencyContactC != ''">#{emergencyContactC},</if>
+            <if test="itIsFullTime != null  and itIsFullTime != ''">#{itIsFullTime},</if>
+            <if test="licenseType != null  and licenseType != ''">#{licenseType},</if>
+            <if test="licenseIssueDate != null ">#{licenseIssueDate},</if>
+            <if test="licenseInitIssueDate != null ">#{licenseInitIssueDate},</if>
+            <if test="licenseNumber != null  and licenseNumber != ''">#{licenseNumber},</if>
+            <if test="licenseArchivesNumber != null  and licenseArchivesNumber != ''">#{licenseArchivesNumber},</if>
+            <if test="licenseExpireDate != null ">#{licenseExpireDate},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDriverInfo" parameterType="com.hq.ecmp.mscore.domain.DriverInfo">
+        update driver_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null ">user_id = #{userId},</if>
+            <if test="driverName != null  and driverName != ''">driver_name = #{driverName},</if>
+            <if test="country != null  and country != ''">country = #{country},</if>
+            <if test="nation != null  and nation != ''">nation = #{nation},</if>
+            <if test="idCard != null  and idCard != ''">id_card = #{idCard},</if>
+            <if test="birthday != null ">birthday = #{birthday},</if>
+            <if test="gender != null  and gender != ''">gender = #{gender},</if>
+            <if test="mobile != null  and mobile != ''">mobile = #{mobile},</if>
+            <if test="address != null  and address != ''">address = #{address},</if>
+            <if test="emergencyContactA != null  and emergencyContactA != ''">emergency_contact_a = #{emergencyContactA},</if>
+            <if test="emergencyContactB != null  and emergencyContactB != ''">emergency_contact_b = #{emergencyContactB},</if>
+            <if test="emergencyContactC != null  and emergencyContactC != ''">emergency_contact_c = #{emergencyContactC},</if>
+            <if test="itIsFullTime != null  and itIsFullTime != ''">it_is_full_time = #{itIsFullTime},</if>
+            <if test="licenseType != null  and licenseType != ''">license_type = #{licenseType},</if>
+            <if test="licenseIssueDate != null ">license_issue_date = #{licenseIssueDate},</if>
+            <if test="licenseInitIssueDate != null ">license_init_issue_date = #{licenseInitIssueDate},</if>
+            <if test="licenseNumber != null  and licenseNumber != ''">license_number = #{licenseNumber},</if>
+            <if test="licenseArchivesNumber != null  and licenseArchivesNumber != ''">license_archives_number = #{licenseArchivesNumber},</if>
+            <if test="licenseExpireDate != null ">license_expire_date = #{licenseExpireDate},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where driver_id = #{driverId}
+    </update>
+
+    <delete id="deleteDriverInfoById" parameterType="Long">
+        delete from driver_info where driver_id = #{driverId}
+    </delete>
+
+    <delete id="deleteDriverInfoByIds" parameterType="String">
+        delete from driver_info where driver_id in
+        <foreach item="driverId" collection="array" open="(" separator="," close=")">
+            #{driverId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.EcmpUserFeedbackInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo" id="EcmpUserFeedbackInfoResult">
+        <result property="feedbackId"    column="feedback_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="orderId"    column="order_id"    />
+        <result property="type"    column="type"    />
+        <result property="content"    column="content"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEcmpUserFeedbackInfoVo">
+        select feedback_id, user_id, order_id, type, content, create_by, create_time, update_by, update_time from ecmp_user_feedback_info
+    </sql>
+
+    <select id="selectEcmpUserFeedbackInfoList" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo" resultMap="EcmpUserFeedbackInfoResult">
+        <include refid="selectEcmpUserFeedbackInfoVo"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="orderId != null "> and order_id = #{orderId}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+        </where>
+    </select>
+
+    <select id="selectEcmpUserFeedbackInfoById" parameterType="Long" resultMap="EcmpUserFeedbackInfoResult">
+        <include refid="selectEcmpUserFeedbackInfoVo"/>
+        where feedback_id = #{feedbackId}
+    </select>
+
+    <insert id="insertEcmpUserFeedbackInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo">
+        insert into ecmp_user_feedback_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="feedbackId != null ">feedback_id,</if>
+            <if test="userId != null ">user_id,</if>
+            <if test="orderId != null ">order_id,</if>
+            <if test="type != null  and type != ''">type,</if>
+            <if test="content != null  and content != ''">content,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="feedbackId != null ">#{feedbackId},</if>
+            <if test="userId != null ">#{userId},</if>
+            <if test="orderId != null ">#{orderId},</if>
+            <if test="type != null  and type != ''">#{type},</if>
+            <if test="content != null  and content != ''">#{content},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEcmpUserFeedbackInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo">
+        update ecmp_user_feedback_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null ">user_id = #{userId},</if>
+            <if test="orderId != null ">order_id = #{orderId},</if>
+            <if test="type != null  and type != ''">type = #{type},</if>
+            <if test="content != null  and content != ''">content = #{content},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where feedback_id = #{feedbackId}
+    </update>
+
+    <delete id="deleteEcmpUserFeedbackInfoById" parameterType="Long">
+        delete from ecmp_user_feedback_info where feedback_id = #{feedbackId}
+    </delete>
+
+    <delete id="deleteEcmpUserFeedbackInfoByIds" parameterType="String">
+        delete from ecmp_user_feedback_info where feedback_id in
+        <foreach item="feedbackId" collection="array" open="(" separator="," close=")">
+            #{feedbackId}
+        </foreach>
+    </delete>
+
+</mapper>
