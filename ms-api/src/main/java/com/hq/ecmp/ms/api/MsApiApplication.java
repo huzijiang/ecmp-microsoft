@@ -3,20 +3,20 @@ package com.hq.ecmp.ms.api;
 import com.github.xiaoymin.swaggerbootstrapui.annotations.EnableSwaggerBootstrapUI;
 import com.hq.core.config.DruidConfig;
 import com.hq.core.config.properties.DruidProperties;
+import io.swagger.annotations.SwaggerDefinition;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Import;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-
+@SwaggerDefinition
 @EnableSwaggerBootstrapUI
-@EnableSwagger2
 @Import({DruidConfig.class,DruidProperties.class})
-@SpringBootApplication()
+@SpringBootApplication(scanBasePackages ={"com.hq.*"},exclude={DataSourceAutoConfiguration.class})
 public class MsApiApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(MsApiApplication.class, args);
     }
 

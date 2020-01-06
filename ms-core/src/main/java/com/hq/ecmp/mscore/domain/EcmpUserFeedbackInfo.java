@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpUserFeedbackInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -34,64 +36,8 @@ public class EcmpUserFeedbackInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String content;
 
-    public void setFeedbackId(Long feedbackId)
-    {
-        this.feedbackId = feedbackId;
-    }
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String result;
 
-    public Long getFeedbackId()
-    {
-        return feedbackId;
-    }
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
-
-    public Long getUserId()
-    {
-        return userId;
-    }
-    public void setOrderId(Long orderId)
-    {
-        this.orderId = orderId;
-    }
-
-    public Long getOrderId()
-    {
-        return orderId;
-    }
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
-    public String getType()
-    {
-        return type;
-    }
-    public void setContent(String content)
-    {
-        this.content = content;
-    }
-
-    public String getContent()
-    {
-        return content;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("feedbackId", getFeedbackId())
-            .append("userId", getUserId())
-            .append("orderId", getOrderId())
-            .append("type", getType())
-            .append("content", getContent())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
-    }
 }

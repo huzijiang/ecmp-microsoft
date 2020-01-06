@@ -1,4 +1,4 @@
-package com.hq.ecmp.ms.api.dto.base;
+package com.hq.ecmp.ms.api.dto.car;
 
 import io.swagger.annotations.ApiParam;
 import lombok.Data;
@@ -7,16 +7,15 @@ import javax.validation.constraints.NotEmpty;
 
 /**
  * @Author: zj.hu
- * @Date: 2020-01-02 18:26
+ * @Date: 2020-01-06 15:14
  */
 @Data
-public class RegimeDto {
+public class EmergencyContactDto {
+
     /**
-     * 用车制度编号
+     * 紧急联系人 电话
      */
     @NotEmpty
     @ApiParam(required = true)
-    Long regimeId;
-
-
+    private  String emergencyContactPhone;
 }
