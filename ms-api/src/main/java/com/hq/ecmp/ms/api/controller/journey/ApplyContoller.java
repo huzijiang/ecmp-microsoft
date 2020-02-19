@@ -28,25 +28,25 @@ public class ApplyContoller {
 
     /**
      * 员工提交行程申请
-     * @param  jouneyApplyDto  行程申请信息
+     * @param  journeyApplyDto  行程申请信息
      * @param  userDto    申请用户信息
      * @return
      */
     @ApiOperation(value = "applyCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
     @PostMapping("/applyCommit")
-    public ApiResponse   applyCommit(JourneyApplyDto jouneyApplyDto, UserDto userDto){
+    public ApiResponse   applyCommit(JourneyApplyDto journeyApplyDto, UserDto userDto){
 
         return null;
     }
 
     /**
      * 获取行程申请 对应的审批流信息
-     * @param jouneyApplyDto  申请信息
+     * @param journeyApplyDto  申请信息
      * @return
      */
-    @ApiOperation(value = "getApplyApproverNodesInfo",notes = "获取行程申请 对应的审批流信息 ",httpMethod ="POST")
-    @PostMapping("/getApplyApproverNodesInfo")
-    public ApiResponse   getApplyApproverNodesInfo(JourneyApplyDto jouneyApplyDto){
+    @ApiOperation(value = "getApplyApproveNodesInfo",notes = "获取行程申请 对应的审批流信息 ",httpMethod ="POST")
+    @PostMapping("/getApplyApproveNodesInfo")
+    public ApiResponse   getApplyApproveNodesInfo(JourneyApplyDto journeyApplyDto){
         return null;
     }
 
@@ -55,9 +55,9 @@ public class ApplyContoller {
      * @param regimeDto  申请信息
      * @return
      */
-    @ApiOperation(value = "getApplyApproverNodesInfoByRegimeInfo",notes = "获取用车制度 对应的审批流信息 ",httpMethod ="POST")
-    @PostMapping("/getApplyApproverNodesInfoByRegimeInfo")
-    public ApiResponse   getApplyApproverNodesInfoByApproveTemplate(RegimeDto regimeDto){
+    @ApiOperation(value = "getApplyApproveNodesInfoByRegimeInfo",notes = "获取用车制度 对应的审批流信息 ",httpMethod ="POST")
+    @PostMapping("/getApplyApproveNodesInfoByRegimeInfo")
+    public ApiResponse   getApplyApproveNodesInfoByApproveTemplate(RegimeDto regimeDto){
 
         return null;
     }
@@ -68,9 +68,9 @@ public class ApplyContoller {
      * @param userDto  审批员信息
      * @return
      */
-    @ApiOperation(value = "getWaitApproveApplys",notes = "获取等待当前用户审批的行程申请列表 ",httpMethod ="POST")
-    @PostMapping("/getWaitApproveApplys")
-    public ApiResponse<List<ApplyInfo>>   getWaitApproveApplys(UserDto userDto){
+    @ApiOperation(value = "getWaitApproveApplies",notes = "获取等待当前用户审批的行程申请列表 ",httpMethod ="POST")
+    @PostMapping("/getWaitApproveApplies")
+    public ApiResponse<List<ApplyInfo>>   getWaitApproveApplies(UserDto userDto){
 
         return null;
     }
@@ -93,34 +93,34 @@ public class ApplyContoller {
      * @param userDto  审批员信息
      * @return
      */
-    @ApiOperation(value = "getPassengerOwnerApplys",notes = "获取乘客自身 行程申请列表 ",httpMethod ="POST")
-    @PostMapping("/getPassengerOwnerApplys")
-    public ApiResponse   getPassengerOwnerApplys(UserDto userDto){
+    @ApiOperation(value = "getPassengerOwnerApplies",notes = "获取乘客自身 行程申请列表 ",httpMethod ="POST")
+    @PostMapping("/getPassengerOwnerApplies")
+    public ApiResponse   getPassengerOwnerApplies(UserDto userDto){
 
         return null;
     }
 
     /**
      * 获取乘客自身 行程申请详细信息
-     * @param jouneyApplyDto  审批员信息
+     * @param journeyApplyDto  审批员信息
      * @return
      */
-    @ApiOperation(value = "getPassengerOwnerApplysDetailInfo",notes = "获取乘客自身的行程申请详细信息 ",httpMethod ="POST")
-    @PostMapping("/getPassengerOwnerApplysDetailInfo")
-    public ApiResponse   getPassengerOwnerApplysDetailInfo(JourneyApplyDto jouneyApplyDto){
+    @ApiOperation(value = "getPassengerOwnerAppliesDetailInfo",notes = "获取乘客自身的行程申请详细信息 ",httpMethod ="POST")
+    @PostMapping("/getPassengerOwnerAppliesDetailInfo")
+    public ApiResponse   getPassengerOwnerAppliesDetailInfo(JourneyApplyDto journeyApplyDto){
 
         return null;
     }
 
     /**
      * 行程申请-审核通过
-     * @param jouneyApplyDto  审批员信息
+     * @param journeyApplyDto  审批员信息
      * @param userDto  审批人信息
      * @return
      */
     @ApiOperation(value = "applyPass",notes = "行程申请-审核通过 ",httpMethod ="POST")
     @PostMapping("/applyPass")
-    public ApiResponse   applyPass(JourneyApplyDto jouneyApplyDto,UserDto userDto){
+    public ApiResponse   applyPass(JourneyApplyDto journeyApplyDto,UserDto userDto){
 
         return null;
     }
@@ -128,13 +128,13 @@ public class ApplyContoller {
 
     /**
      * 行程申请-驳回
-     * @param jouneyApplyDto  行程申请信息
+     * @param journeyApplyDto  行程申请信息
      * @param userDto  审批人信息
      * @return
      */
     @ApiOperation(value = "applyReject",notes = "行程申请-驳回",httpMethod ="POST")
     @PostMapping("/applyReject")
-    public ApiResponse   applyReject(JourneyApplyDto jouneyApplyDto,UserDto userDto){
+    public ApiResponse   applyReject(JourneyApplyDto journeyApplyDto,UserDto userDto){
 
         return null;
     }
@@ -142,12 +142,12 @@ public class ApplyContoller {
 
     /**
      * 获取行程申请的审批详情
-     * @param jouneyApplyDto  行程申请信息
+     * @param journeyApplyDto  行程申请信息
      * @return
      */
     @ApiOperation(value = "getApplyApproveDetailInfo",notes = "获取行程申请的审批详情",httpMethod ="POST")
     @PostMapping("/getApplyApproveDetailInfo")
-    public ApiResponse   getApplyApproveDetailInfo(JourneyApplyDto jouneyApplyDto){
+    public ApiResponse   getApplyApproveDetailInfo(JourneyApplyDto journeyApplyDto){
 
         return null;
     }

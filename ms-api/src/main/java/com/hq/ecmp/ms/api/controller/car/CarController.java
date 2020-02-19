@@ -30,7 +30,7 @@ public class CarController {
      * @param  orderDto  订单信息
      * @return
      */
-    @ApiOperation(value = "getDispatchableCar",notes = "获取可调度的车辆信息",httpMethod ="POST")
+    @ApiOperation(value = "getDispatcheableCar",notes = "获取可调度的车辆信息",httpMethod ="POST")
     @PostMapping("/getDispatchableCar")
     public ApiResponse<List<CarInfo>> getDispatchableCar(OrderDto orderDto){
 
@@ -68,7 +68,7 @@ public class CarController {
      * @param  carDto  车辆信息
      * @return
      */
-    @ApiOperation(value = "reportCarLocation",notes = "确认还车-车辆回到公司车库",httpMethod ="POST")
+    @ApiOperation(value = "reportCarLocation",notes = "上报车辆位置",httpMethod ="POST")
     @PostMapping("/reportCarLocation")
     public ApiResponse<List<CarInfo>> reportCarLocation(CarDto carDto){
 

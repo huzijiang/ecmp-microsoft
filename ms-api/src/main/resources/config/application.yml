@@ -1,9 +1,11 @@
 # 项目相关配置
-ecmpms:
+ecmpbase:
   # 名称
   name: 企业公车管理平台-微服务层
   # 版本
   version: 1.0.0
+  #API url头部前缀
+  apiUrlHeader:
   # 版权年份
   copyrightYear: 2019
   # 实例演示开关

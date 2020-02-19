@@ -24,9 +24,9 @@ public class ProjectController {
      * @param userDto  审批人信息
      * @return
      */
-    @ApiOperation(value = "getProjectesByUser",notes = "查询用户 所在（子）公司的项目信息 ",httpMethod ="POST")
-    @PostMapping("/getProjectesByUser")
-    public ApiResponse<List<ProjectInfo>> getProjectesByUser(UserDto userDto){
+    @ApiOperation(value = "getProjectsByUser",notes = "查询用户 所在（子）公司的项目信息 ",httpMethod ="POST")
+    @PostMapping("/getProjectsByUser")
+    public ApiResponse<List<ProjectInfo>> getProjectsByUser(UserDto userDto){
 
         return null;
     }

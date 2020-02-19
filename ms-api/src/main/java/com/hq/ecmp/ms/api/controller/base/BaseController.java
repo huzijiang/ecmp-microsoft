@@ -23,7 +23,7 @@ public class BaseController {
      * @param  userDto
      * @return
      */
-    @ApiOperation(value = "getSmsVerifyCode",notes = "查询公告详细信息",httpMethod ="POST")
+    @ApiOperation(value = "getSmsVerifyCode",notes = "获取短信验证码",httpMethod ="POST")
     @PostMapping("/getSmsVerifyCode")
     public ApiResponse<EcmpNotice> getSmsVerifyCode(UserDto userDto){
 

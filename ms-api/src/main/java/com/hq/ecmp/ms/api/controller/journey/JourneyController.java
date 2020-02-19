@@ -124,9 +124,9 @@ public class JourneyController {
      * @param  journeyApplyDto  行程申请信息
      * @return
      */
-    @ApiOperation(value = "getJourneyOrderes",notes = "获取行程的用车权限 ",httpMethod ="POST")
-    @PostMapping("/getJourneyOrderes")
-    public ApiResponse<JourneyInfo> getJourneyOrderes(JourneyApplyDto journeyApplyDto){
+    @ApiOperation(value = "getJourneyOrders",notes = "获取行程的用车权限 ",httpMethod ="POST")
+    @PostMapping("/getJourneyOrders")
+    public ApiResponse<JourneyInfo> getJourneyOrders(JourneyApplyDto journeyApplyDto){
 
         return null;
     }

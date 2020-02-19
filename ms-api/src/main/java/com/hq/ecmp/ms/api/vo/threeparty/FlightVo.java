@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.vo.threeparty;
 
+import io.swagger.annotations.ApiParam;
 import lombok.Data;
 
 /**
@@ -10,5 +11,9 @@ import lombok.Data;
 @Data
 public class FlightVo {
 
+    /**
+     * 航班号
+     */
+    @ApiParam(required = true)
     private String fltNo;
 }

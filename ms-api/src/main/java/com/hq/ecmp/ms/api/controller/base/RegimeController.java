@@ -30,7 +30,7 @@ public class RegimeController {
      * @param userDto userDto
      * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
      */
-    @ApiOperation(value = "getUserRegimes",notes = "根据用户信息查询用户的用车制度信息",httpMethod ="GET")
+    @ApiOperation(value = "getUserRegimes",notes = "根据用户信息查询用户的用车制度信息",httpMethod ="POST")
     @PostMapping("/getUserRegimes")
     public ApiResponse<List<RegimeInfo>> getUserRegimes(UserDto userDto){
 
@@ -43,7 +43,7 @@ public class RegimeController {
      * @param
      * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
      */
-    @ApiOperation(value = "getAllRegimes",notes = "查询所有的用车制度信息",httpMethod ="GET")
+    @ApiOperation(value = "getAllRegimes",notes = "查询所有的用车制度信息",httpMethod ="POST")
     @PostMapping("/getAllRegimes")
     public ApiResponse<List<RegimeInfo>> getAllRegimes(){
 
@@ -55,7 +55,7 @@ public class RegimeController {
      * @param regimeDto regimeDto
      * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
      */
-    @ApiOperation(value = "getRegimeInfo",notes = "通过用车制度编号,查询用车制度的详细信息",httpMethod ="GET")
+    @ApiOperation(value = "getRegimeInfo",notes = "通过用车制度编号,查询用车制度的详细信息",httpMethod ="POST")
     @PostMapping("/getRegimeInfo")
     public ApiResponse<RegimeInfo> getRegimeInfo(RegimeDto regimeDto){
 

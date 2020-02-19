@@ -36,12 +36,12 @@ public class LbsController {
     /**
      * 查询行程节点列表，
      * 方便端上进行地图描图   LbsAddress 可以根据需要简化
-     * @param jouneyApplyDto  行程申请信息
+     * @param journeyApplyDto  行程申请信息
      * @return
      */
-    @ApiOperation(value = "getAddressByJouneyInfo",notes = "查询用户 所在（子）公司的项目信息 ",httpMethod ="POST")
-    @PostMapping("/getAddressByJouneyInfo")
-    public ApiResponse<List<LbsAddress>> getAddressByJouneyInfo(JourneyApplyDto jouneyApplyDto){
+    @ApiOperation(value = "getAddressByJourneyInfo",notes = "查询行程节点列表",httpMethod ="POST")
+    @PostMapping("/getAddressByJourneyInfo")
+    public ApiResponse<List<LbsAddress>> getAddressByJourneyInfo(JourneyApplyDto journeyApplyDto){
 
         return null;
     }

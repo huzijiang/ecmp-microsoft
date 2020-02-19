@@ -44,7 +44,7 @@ public class DriverController {
      * @param  driverDto  司机信息
      * @return
      */
-    @ApiOperation(value = "getDispatchedJourneyTask",notes = "获取可调度的司机信息",httpMethod ="POST")
+    @ApiOperation(value = "getDispatchedJourneyTask",notes = "获取 调派给自己(司机)的行程任务",httpMethod ="POST")
     @PostMapping("/getDispatchedJourneyTask")
     public ApiResponse<List<DriverInfo>> getDispatchedJourneyTask(DriverDto driverDto){
 
@@ -58,8 +58,8 @@ public class DriverController {
      * @param  emergencyContactDto 司机信息
      * @return
      */
-    @ApiOperation(value = "getUserInfo",notes = "司机设置紧急联系人",httpMethod ="POST")
-    @PostMapping("/getUserInfo")
+    @ApiOperation(value = "setEmergencyContact",notes = "司机设置紧急联系人",httpMethod ="POST")
+    @PostMapping("/setEmergencyContact")
     public ApiResponse setEmergencyContact(DriverDto driverDto, EmergencyContactDto emergencyContactDto){
 
         return null;
