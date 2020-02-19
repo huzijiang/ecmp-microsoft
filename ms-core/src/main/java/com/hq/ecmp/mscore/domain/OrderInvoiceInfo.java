@@ -1,52 +1,54 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 order_invoice_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class OrderInvoiceInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("order_invoice_info")
+public class OrderInvoiceInfo extends BaseEntity<OrderInvoiceInfo> {
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private static final long serialVersionUID=1L;
+
     private Long invoiceId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long accountId;
 
-    public void setInvoiceId(Long invoiceId)
-    {
-        this.invoiceId = invoiceId;
-    }
 
-    public Long getInvoiceId()
-    {
-        return invoiceId;
-    }
-    public void setAccountId(Long accountId)
-    {
-        this.accountId = accountId;
-    }
+    public static final String INVOICE_ID = "invoice_id";
 
-    public Long getAccountId()
-    {
-        return accountId;
-    }
+    public static final String ACCOUNT_ID = "account_id";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("invoiceId", getInvoiceId())
-            .append("accountId", getAccountId())
-            .toString();
+    protected Serializable pkVal() {
+        return null;
     }
+
 }

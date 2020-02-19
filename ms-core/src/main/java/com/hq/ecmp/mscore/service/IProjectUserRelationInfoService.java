@@ -1,62 +1,16 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
-
-import java.util.List;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
- * 【请填写功能名称】Service接口
+ * <p>
+ *  服务类
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public interface IProjectUserRelationInfoService
-{
-    /**
-     * 查询【请填写功能名称】
-     *
-     * @param projectId 【请填写功能名称】ID
-     * @return 【请填写功能名称】
-     */
-    public ProjectUserRelationInfo selectProjectUserRelationInfoById(Long projectId);
+public interface IProjectUserRelationInfoService extends IService<ProjectUserRelationInfo> {
 
-    /**
-     * 查询【请填写功能名称】列表
-     *
-     * @param projectUserRelationInfo 【请填写功能名称】
-     * @return 【请填写功能名称】集合
-     */
-    public List<ProjectUserRelationInfo> selectProjectUserRelationInfoList(ProjectUserRelationInfo projectUserRelationInfo);
-
-    /**
-     * 新增【请填写功能名称】
-     *
-     * @param projectUserRelationInfo 【请填写功能名称】
-     * @return 结果
-     */
-    public int insertProjectUserRelationInfo(ProjectUserRelationInfo projectUserRelationInfo);
-
-    /**
-     * 修改【请填写功能名称】
-     *
-     * @param projectUserRelationInfo 【请填写功能名称】
-     * @return 结果
-     */
-    public int updateProjectUserRelationInfo(ProjectUserRelationInfo projectUserRelationInfo);
-
-    /**
-     * 批量删除【请填写功能名称】
-     *
-     * @param projectIds 需要删除的【请填写功能名称】ID
-     * @return 结果
-     */
-    public int deleteProjectUserRelationInfoByIds(Long[] projectIds);
-
-    /**
-     * 删除【请填写功能名称】信息
-     *
-     * @param projectId 【请填写功能名称】ID
-     * @return 结果
-     */
-    public int deleteProjectUserRelationInfoById(Long projectId);
 }

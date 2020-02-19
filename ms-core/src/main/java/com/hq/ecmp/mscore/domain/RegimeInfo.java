@@ -1,96 +1,123 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
 import lombok.Data;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 regime_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
 @Data
-public class RegimeInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("regime_info")
+public class RegimeInfo extends BaseEntity<RegimeInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "regimen_id", type = IdType.AUTO)
     private Long regimenId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long templateId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long approveTemplateId;
 
+    private String applyType;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String  applyType;
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String name;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String allowCity;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String allowTime;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String setoutAddress;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String arriveAddress;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String allowDate;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String setoutEqualArrive;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String serviceType;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long approvalProcess;
+    private Integer approvalProcess;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long projectNeed;
+    private Integer projectNeed;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long canUseCarMode;
+    private String canUseCarMode;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String canUseCarLevel;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String remind;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long allowDateRoundTravel;
+    private Integer allowDateRoundTravel;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String allowCityRoundTravel;
+
+
+    public static final String REGIMEN_ID = "regimen_id";
+
+    public static final String TEMPLATE_ID = "template_id";
+
+    public static final String APPROVE_TEMPLATE_ID = "approve_template_id";
+
+    public static final String APPLY_TYPE = "apply_type";
+
+    public static final String NAME = "name";
+
+    public static final String ALLOW_CITY = "allow_city";
+
+    public static final String ALLOW_TIME = "allow_time";
+
+    public static final String SETOUT_ADDRESS = "setout_address";
+
+    public static final String ARRIVE_ADDRESS = "arrive_address";
+
+    public static final String ALLOW_DATE = "allow_date";
+
+    public static final String SETOUT_EQUAL_ARRIVE = "setout_equal_arrive";
+
+    public static final String SERVICE_TYPE = "service_type";
+
+    public static final String APPROVAL_PROCESS = "approval_process";
+
+    public static final String PROJECT_NEED = "project_need";
+
+    public static final String CAN_USE_CAR_MODE = "can_use_car_mode";
+
+    public static final String CAN_USE_CAR_LEVEL = "can_use_car_level";
+
+    public static final String REMIND = "remind";
+
+    public static final String ALLOW_DATE_ROUND_TRAVEL = "allow_date_round_travel";
+
+    public static final String ALLOW_CITY_ROUND_TRAVEL = "allow_city_round_travel";
+
+    @Override
+    protected Serializable pkVal() {
+        return this.regimenId;
+    }
 
 }

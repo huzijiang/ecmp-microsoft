@@ -1,62 +1,16 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
-
-import java.util.List;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
- * 【请填写功能名称】Service接口
+ * <p>
+ *  服务类
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public interface IUserRegimeRelationInfoService
-{
-    /**
-     * 查询【请填写功能名称】
-     *
-     * @param userId 【请填写功能名称】ID
-     * @return 【请填写功能名称】
-     */
-    public UserRegimeRelationInfo selectUserRegimeRelationInfoById(Long userId);
+public interface IUserRegimeRelationInfoService extends IService<UserRegimeRelationInfo> {
 
-    /**
-     * 查询【请填写功能名称】列表
-     *
-     * @param userRegimeRelationInfo 【请填写功能名称】
-     * @return 【请填写功能名称】集合
-     */
-    public List<UserRegimeRelationInfo> selectUserRegimeRelationInfoList(UserRegimeRelationInfo userRegimeRelationInfo);
-
-    /**
-     * 新增【请填写功能名称】
-     *
-     * @param userRegimeRelationInfo 【请填写功能名称】
-     * @return 结果
-     */
-    public int insertUserRegimeRelationInfo(UserRegimeRelationInfo userRegimeRelationInfo);
-
-    /**
-     * 修改【请填写功能名称】
-     *
-     * @param userRegimeRelationInfo 【请填写功能名称】
-     * @return 结果
-     */
-    public int updateUserRegimeRelationInfo(UserRegimeRelationInfo userRegimeRelationInfo);
-
-    /**
-     * 批量删除【请填写功能名称】
-     *
-     * @param userIds 需要删除的【请填写功能名称】ID
-     * @return 结果
-     */
-    public int deleteUserRegimeRelationInfoByIds(Long[] userIds);
-
-    /**
-     * 删除【请填写功能名称】信息
-     *
-     * @param userId 【请填写功能名称】ID
-     * @return 结果
-     */
-    public int deleteUserRegimeRelationInfoById(Long userId);
 }

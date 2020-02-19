@@ -1,55 +1,55 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 approve_template_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class ApproveTemplateInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("approve_template_info")
+public class ApproveTemplateInfo extends BaseEntity<ApproveTemplateInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "approve_template_id", type = IdType.AUTO)
     private Long approveTemplateId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String name;
 
-    public void setApproveTemplateId(Long approveTemplateId)
-    {
-        this.approveTemplateId = approveTemplateId;
-    }
 
-    public Long getApproveTemplateId()
-    {
-        return approveTemplateId;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+    public static final String APPROVE_TEMPLATE_ID = "approve_template_id";
 
-    public String getName()
-    {
-        return name;
-    }
+    public static final String NAME = "name";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("approveTemplateId", getApproveTemplateId())
-            .append("name", getName())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.approveTemplateId;
     }
+
 }

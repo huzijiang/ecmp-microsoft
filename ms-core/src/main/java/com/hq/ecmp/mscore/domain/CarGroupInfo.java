@@ -1,97 +1,67 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 car_group_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class CarGroupInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("car_group_info")
+public class CarGroupInfo extends BaseEntity<CarGroupInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "car_group_id", type = IdType.AUTO)
     private Long carGroupId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long city;
+    private Integer city;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String cityName;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long ownerOrg;
+    private Integer ownerOrg;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long leader;
+    private Integer leader;
 
-    public void setCarGroupId(Long carGroupId)
-    {
-        this.carGroupId = carGroupId;
-    }
 
-    public Long getCarGroupId()
-    {
-        return carGroupId;
-    }
-    public void setCity(Long city)
-    {
-        this.city = city;
-    }
+    public static final String CAR_GROUP_ID = "car_group_id";
 
-    public Long getCity()
-    {
-        return city;
-    }
-    public void setCityName(String cityName)
-    {
-        this.cityName = cityName;
-    }
+    public static final String CITY = "city";
 
-    public String getCityName()
-    {
-        return cityName;
-    }
-    public void setOwnerOrg(Long ownerOrg)
-    {
-        this.ownerOrg = ownerOrg;
-    }
+    public static final String CITY_NAME = "city_name";
 
-    public Long getOwnerOrg()
-    {
-        return ownerOrg;
-    }
-    public void setLeader(Long leader)
-    {
-        this.leader = leader;
-    }
+    public static final String OWNER_ORG = "owner_org";
 
-    public Long getLeader()
-    {
-        return leader;
-    }
+    public static final String LEADER = "leader";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("carGroupId", getCarGroupId())
-            .append("city", getCity())
-            .append("cityName", getCityName())
-            .append("ownerOrg", getOwnerOrg())
-            .append("leader", getLeader())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.carGroupId;
     }
+
 }

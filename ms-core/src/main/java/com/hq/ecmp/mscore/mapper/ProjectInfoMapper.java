@@ -1,62 +1,16 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ProjectInfo;
-
-import java.util.List;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
- * 【请填写功能名称】Mapper接口
+ * <p>
+ *  Mapper 接口
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public interface ProjectInfoMapper
-{
-    /**
-     * 查询【请填写功能名称】
-     *
-     * @param projectId 【请填写功能名称】ID
-     * @return 【请填写功能名称】
-     */
-    public ProjectInfo selectProjectInfoById(Long projectId);
+public interface ProjectInfoMapper extends BaseMapper<ProjectInfo> {
 
-    /**
-     * 查询【请填写功能名称】列表
-     *
-     * @param projectInfo 【请填写功能名称】
-     * @return 【请填写功能名称】集合
-     */
-    public List<ProjectInfo> selectProjectInfoList(ProjectInfo projectInfo);
-
-    /**
-     * 新增【请填写功能名称】
-     *
-     * @param projectInfo 【请填写功能名称】
-     * @return 结果
-     */
-    public int insertProjectInfo(ProjectInfo projectInfo);
-
-    /**
-     * 修改【请填写功能名称】
-     *
-     * @param projectInfo 【请填写功能名称】
-     * @return 结果
-     */
-    public int updateProjectInfo(ProjectInfo projectInfo);
-
-    /**
-     * 删除【请填写功能名称】
-     *
-     * @param projectId 【请填写功能名称】ID
-     * @return 结果
-     */
-    public int deleteProjectInfoById(Long projectId);
-
-    /**
-     * 批量删除【请填写功能名称】
-     *
-     * @param projectIds 需要删除的数据ID
-     * @return 结果
-     */
-    public int deleteProjectInfoByIds(Long[] projectIds);
 }

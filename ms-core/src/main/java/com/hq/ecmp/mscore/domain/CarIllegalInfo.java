@@ -1,97 +1,67 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 car_illegal_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class CarIllegalInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("car_illegal_info")
+public class CarIllegalInfo extends BaseEntity<CarIllegalInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "illegal_id", type = IdType.AUTO)
     private Long illegalId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String address;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String score;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String driverId;
 
-    public void setIllegalId(Long illegalId)
-    {
-        this.illegalId = illegalId;
-    }
 
-    public Long getIllegalId()
-    {
-        return illegalId;
-    }
-    public void setCarId(Long carId)
-    {
-        this.carId = carId;
-    }
+    public static final String ILLEGAL_ID = "illegal_id";
 
-    public Long getCarId()
-    {
-        return carId;
-    }
-    public void setAddress(String address)
-    {
-        this.address = address;
-    }
+    public static final String CAR_ID = "car_id";
 
-    public String getAddress()
-    {
-        return address;
-    }
-    public void setScore(String score)
-    {
-        this.score = score;
-    }
+    public static final String ADDRESS = "address";
 
-    public String getScore()
-    {
-        return score;
-    }
-    public void setDriverId(String driverId)
-    {
-        this.driverId = driverId;
-    }
+    public static final String SCORE = "score";
 
-    public String getDriverId()
-    {
-        return driverId;
-    }
+    public static final String DRIVER_ID = "driver_id";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("illegalId", getIllegalId())
-            .append("carId", getCarId())
-            .append("address", getAddress())
-            .append("score", getScore())
-            .append("driverId", getDriverId())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.illegalId;
     }
+
 }

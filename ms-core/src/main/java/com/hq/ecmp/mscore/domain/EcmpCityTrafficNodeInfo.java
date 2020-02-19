@@ -1,125 +1,76 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import java.math.BigDecimal;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 ecmp_city_traffic_node_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class EcmpCityTrafficNodeInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("ecmp_city_traffic_node_info")
+public class EcmpCityTrafficNodeInfo extends BaseEntity<EcmpCityTrafficNodeInfo> {
 
-    /** $column.columnComment */
-    private Long trafficNodeId;
+    private static final long serialVersionUID=1L;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long cityId;
+    @TableId(value = "traffic_node_id", type = IdType.AUTO)
+    private Integer trafficNodeId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Integer cityId;
+
     private String cityLevel;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String name;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String type;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long longitude;
+    private BigDecimal longitude;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long latitude;
+    private BigDecimal latitude;
 
-    public void setTrafficNodeId(Long trafficNodeId)
-    {
-        this.trafficNodeId = trafficNodeId;
-    }
 
-    public Long getTrafficNodeId()
-    {
-        return trafficNodeId;
-    }
-    public void setCityId(Long cityId)
-    {
-        this.cityId = cityId;
-    }
+    public static final String TRAFFIC_NODE_ID = "traffic_node_id";
 
-    public Long getCityId()
-    {
-        return cityId;
-    }
-    public void setCityLevel(String cityLevel)
-    {
-        this.cityLevel = cityLevel;
-    }
+    public static final String CITY_ID = "city_id";
 
-    public String getCityLevel()
-    {
-        return cityLevel;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+    public static final String CITY_LEVEL = "city_level";
 
-    public String getName()
-    {
-        return name;
-    }
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+    public static final String NAME = "name";
 
-    public String getType()
-    {
-        return type;
-    }
-    public void setLongitude(Long longitude)
-    {
-        this.longitude = longitude;
-    }
+    public static final String TYPE = "type";
 
-    public Long getLongitude()
-    {
-        return longitude;
-    }
-    public void setLatitude(Long latitude)
-    {
-        this.latitude = latitude;
-    }
+    public static final String LONGITUDE = "longitude";
 
-    public Long getLatitude()
-    {
-        return latitude;
-    }
+    public static final String LATITUDE = "latitude";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("trafficNodeId", getTrafficNodeId())
-            .append("cityId", getCityId())
-            .append("cityLevel", getCityLevel())
-            .append("name", getName())
-            .append("type", getType())
-            .append("longitude", getLongitude())
-            .append("latitude", getLatitude())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.trafficNodeId;
     }
+
 }

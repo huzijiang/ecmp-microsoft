@@ -1,98 +1,75 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
-import java.util.Date;
+import java.math.BigDecimal;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import java.time.LocalDateTime;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 car_insurance_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class CarInsuranceInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("car_insurance_info")
+public class CarInsuranceInfo extends BaseEntity<CarInsuranceInfo> {
 
-    /** $column.columnComment */
-    private Long carInsuranceId;
+    private static final long serialVersionUID=1L;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @TableId(value = "car_insurance_id", type = IdType.AUTO)
+    private Integer carInsuranceId;
+
     private Long carId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date insuranceBeginDate;
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    private LocalDateTime insuranceBeginDate;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date insuranceEndDate;
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    private LocalDateTime insuranceEndDate;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long price;
+    private BigDecimal price;
 
-    public void setCarInsuranceId(Long carInsuranceId)
-    {
-        this.carInsuranceId = carInsuranceId;
-    }
 
-    public Long getCarInsuranceId()
-    {
-        return carInsuranceId;
-    }
-    public void setCarId(Long carId)
-    {
-        this.carId = carId;
-    }
+    public static final String CAR_INSURANCE_ID = "car_insurance_id";
 
-    public Long getCarId()
-    {
-        return carId;
-    }
-    public void setInsuranceBeginDate(Date insuranceBeginDate)
-    {
-        this.insuranceBeginDate = insuranceBeginDate;
-    }
+    public static final String CAR_ID = "car_id";
 
-    public Date getInsuranceBeginDate()
-    {
-        return insuranceBeginDate;
-    }
-    public void setInsuranceEndDate(Date insuranceEndDate)
-    {
-        this.insuranceEndDate = insuranceEndDate;
-    }
+    public static final String INSURANCE_BEGIN_DATE = "insurance_begin_date";
 
-    public Date getInsuranceEndDate()
-    {
-        return insuranceEndDate;
-    }
-    public void setPrice(Long price)
-    {
-        this.price = price;
-    }
+    public static final String INSURANCE_END_DATE = "insurance_end_date";
 
-    public Long getPrice()
-    {
-        return price;
-    }
+    public static final String PRICE = "price";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("carInsuranceId", getCarInsuranceId())
-            .append("carId", getCarId())
-            .append("insuranceBeginDate", getInsuranceBeginDate())
-            .append("insuranceEndDate", getInsuranceEndDate())
-            .append("price", getPrice())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.carInsuranceId;
     }
+
 }

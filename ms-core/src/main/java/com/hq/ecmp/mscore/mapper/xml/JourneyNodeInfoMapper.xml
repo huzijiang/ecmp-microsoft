@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.JourneyNodeInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hq.ecmp.mscore.domain.JourneyNodeInfo">
+        <id column="node_id" property="nodeId" />
+    <result column="create_by" property="createBy" />
+    <result column="create_time" property="createTime" />
+    <result column="update_by" property="updateBy" />
+    <result column="update_time" property="updateTime" />
+        <result column="journey_id" property="journeyId" />
+        <result column="user_id" property="userId" />
+        <result column="plan_begin_address" property="planBeginAddress" />
+        <result column="plan_end_address" property="planEndAddress" />
+        <result column="plan_setout_time" property="planSetoutTime" />
+        <result column="plan_arrive_time" property="planArriveTime" />
+        <result column="plan_begin_longitude" property="planBeginLongitude" />
+        <result column="plan_begin_latitude" property="planBeginLatitude" />
+        <result column="plan_end_longitude" property="planEndLongitude" />
+        <result column="plan_end_latitude" property="planEndLatitude" />
+        <result column="it_is_via_point" property="itIsViaPoint" />
+        <result column="vehicle" property="vehicle" />
+        <result column="duration" property="duration" />
+        <result column="distance" property="distance" />
+        <result column="wait_duration" property="waitDuration" />
+        <result column="node_state" property="nodeState" />
+        <result column="number" property="number" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        node_id, journey_id, user_id, plan_begin_address, plan_end_address, plan_setout_time, plan_arrive_time, plan_begin_longitude, plan_begin_latitude, plan_end_longitude, plan_end_latitude, it_is_via_point, vehicle, duration, distance, wait_duration, node_state, number
+    </sql>
+
+</mapper>

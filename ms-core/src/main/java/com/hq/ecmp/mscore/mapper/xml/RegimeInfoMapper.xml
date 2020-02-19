@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.RegimeInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hq.ecmp.mscore.domain.RegimeInfo">
+        <id column="regimen_id" property="regimenId" />
+    <result column="create_by" property="createBy" />
+    <result column="create_time" property="createTime" />
+    <result column="update_by" property="updateBy" />
+    <result column="update_time" property="updateTime" />
+        <result column="template_id" property="templateId" />
+        <result column="approve_template_id" property="approveTemplateId" />
+        <result column="apply_type" property="applyType" />
+        <result column="name" property="name" />
+        <result column="allow_city" property="allowCity" />
+        <result column="allow_time" property="allowTime" />
+        <result column="setout_address" property="setoutAddress" />
+        <result column="arrive_address" property="arriveAddress" />
+        <result column="allow_date" property="allowDate" />
+        <result column="setout_equal_arrive" property="setoutEqualArrive" />
+        <result column="service_type" property="serviceType" />
+        <result column="approval_process" property="approvalProcess" />
+        <result column="project_need" property="projectNeed" />
+        <result column="can_use_car_mode" property="canUseCarMode" />
+        <result column="can_use_car_level" property="canUseCarLevel" />
+        <result column="remind" property="remind" />
+        <result column="allow_date_round_travel" property="allowDateRoundTravel" />
+        <result column="allow_city_round_travel" property="allowCityRoundTravel" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        regimen_id, template_id, approve_template_id, apply_type, name, allow_city, allow_time, setout_address, arrive_address, allow_date, setout_equal_arrive, service_type, approval_process, project_need, can_use_car_mode, can_use_car_level, remind, allow_date_round_travel, allow_city_round_travel
+    </sql>
+
+</mapper>

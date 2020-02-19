@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.ApplyInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hq.ecmp.mscore.domain.ApplyInfo">
+        <id column="apply_id" property="applyId" />
+    <result column="create_by" property="createBy" />
+    <result column="create_time" property="createTime" />
+    <result column="update_by" property="updateBy" />
+    <result column="update_time" property="updateTime" />
+        <result column="journey_id" property="journeyId" />
+        <result column="project_id" property="projectId" />
+        <result column="regimen_id" property="regimenId" />
+        <result column="apply_type" property="applyType" />
+        <result column="approver_name" property="approverName" />
+        <result column="cost_center" property="costCenter" />
+        <result column="state" property="state" />
+        <result column="reason" property="reason" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        apply_id, journey_id, project_id, regimen_id, apply_type, approver_name, cost_center, state, reason
+    </sql>
+
+</mapper>

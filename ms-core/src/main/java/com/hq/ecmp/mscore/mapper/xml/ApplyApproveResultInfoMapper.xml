@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.ApplyApproveResultInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hq.ecmp.mscore.domain.ApplyApproveResultInfo">
+        <id column="approve_result_id" property="approveResultId" />
+    <result column="create_by" property="createBy" />
+    <result column="create_time" property="createTime" />
+    <result column="update_by" property="updateBy" />
+    <result column="update_time" property="updateTime" />
+        <result column="apply_id" property="applyId" />
+        <result column="approve_template_id" property="approveTemplateId" />
+        <result column="approve_node_id" property="approveNodeId" />
+        <result column="approver" property="approver" />
+        <result column="approver_mobile" property="approverMobile" />
+        <result column="approve_result" property="approveResult" />
+        <result column="state" property="state" />
+        <result column="content" property="content" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        approve_result_id, apply_id, approve_template_id, approve_node_id, approver, approver_mobile, approve_result, state, content
+    </sql>
+
+</mapper>

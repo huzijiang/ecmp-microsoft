@@ -1,97 +1,67 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 car_yearly_check_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class CarYearlyCheckInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("car_yearly_check_info")
+public class CarYearlyCheckInfo extends BaseEntity<CarYearlyCheckInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "yearly_check_id", type = IdType.AUTO)
     private Long yearlyCheckId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String yearCheckNextDate;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String yearCheckState;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String result;
 
-    public void setYearlyCheckId(Long yearlyCheckId)
-    {
-        this.yearlyCheckId = yearlyCheckId;
-    }
 
-    public Long getYearlyCheckId()
-    {
-        return yearlyCheckId;
-    }
-    public void setCarId(Long carId)
-    {
-        this.carId = carId;
-    }
+    public static final String YEARLY_CHECK_ID = "yearly_check_id";
 
-    public Long getCarId()
-    {
-        return carId;
-    }
-    public void setYearCheckNextDate(String yearCheckNextDate)
-    {
-        this.yearCheckNextDate = yearCheckNextDate;
-    }
+    public static final String CAR_ID = "car_id";
 
-    public String getYearCheckNextDate()
-    {
-        return yearCheckNextDate;
-    }
-    public void setYearCheckState(String yearCheckState)
-    {
-        this.yearCheckState = yearCheckState;
-    }
+    public static final String YEAR_CHECK_NEXT_DATE = "year_check_next_date";
 
-    public String getYearCheckState()
-    {
-        return yearCheckState;
-    }
-    public void setResult(String result)
-    {
-        this.result = result;
-    }
+    public static final String YEAR_CHECK_STATE = "year_check_state";
 
-    public String getResult()
-    {
-        return result;
-    }
+    public static final String RESULT = "result";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("yearlyCheckId", getYearlyCheckId())
-            .append("carId", getCarId())
-            .append("yearCheckNextDate", getYearCheckNextDate())
-            .append("yearCheckState", getYearCheckState())
-            .append("result", getResult())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.yearlyCheckId;
     }
+
 }

@@ -1,98 +1,68 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import java.time.LocalDate;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 driver_work_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class DriverWorkInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("driver_work_info")
+public class DriverWorkInfo extends BaseEntity<DriverWorkInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "work_id", type = IdType.AUTO)
     private Long workId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long driverId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String leaveStatus;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String leaveConfirmStatus;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date caledarDate;
+    private LocalDate caledarDate;
 
-    public void setWorkId(Long workId)
-    {
-        this.workId = workId;
-    }
 
-    public Long getWorkId()
-    {
-        return workId;
-    }
-    public void setDriverId(Long driverId)
-    {
-        this.driverId = driverId;
-    }
+    public static final String WORK_ID = "work_id";
 
-    public Long getDriverId()
-    {
-        return driverId;
-    }
-    public void setLeaveStatus(String leaveStatus)
-    {
-        this.leaveStatus = leaveStatus;
-    }
+    public static final String DRIVER_ID = "driver_id";
 
-    public String getLeaveStatus()
-    {
-        return leaveStatus;
-    }
-    public void setLeaveConfirmStatus(String leaveConfirmStatus)
-    {
-        this.leaveConfirmStatus = leaveConfirmStatus;
-    }
+    public static final String LEAVE_STATUS = "leave_status";
 
-    public String getLeaveConfirmStatus()
-    {
-        return leaveConfirmStatus;
-    }
-    public void setCaledarDate(Date caledarDate)
-    {
-        this.caledarDate = caledarDate;
-    }
+    public static final String LEAVE_CONFIRM_STATUS = "leave_confirm_status";
 
-    public Date getCaledarDate()
-    {
-        return caledarDate;
-    }
+    public static final String CALEDAR_DATE = "caledar_date";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("workId", getWorkId())
-            .append("driverId", getDriverId())
-            .append("leaveStatus", getLeaveStatus())
-            .append("leaveConfirmStatus", getLeaveConfirmStatus())
-            .append("caledarDate", getCaledarDate())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.workId;
     }
+
 }

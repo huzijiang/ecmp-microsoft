@@ -1,93 +1,68 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import java.math.BigDecimal;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 journey_plan_price_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class JourneyPlanPriceInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("journey_plan_price_info")
+public class JourneyPlanPriceInfo extends BaseEntity<JourneyPlanPriceInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "price_id", type = IdType.AUTO)
     private Long priceId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long journeyId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long nodeId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carTypeId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long price;
+    private BigDecimal price;
 
-    public void setPriceId(Long priceId)
-    {
-        this.priceId = priceId;
-    }
 
-    public Long getPriceId()
-    {
-        return priceId;
-    }
-    public void setJourneyId(Long journeyId)
-    {
-        this.journeyId = journeyId;
-    }
+    public static final String PRICE_ID = "price_id";
 
-    public Long getJourneyId()
-    {
-        return journeyId;
-    }
-    public void setNodeId(Long nodeId)
-    {
-        this.nodeId = nodeId;
-    }
+    public static final String JOURNEY_ID = "journey_id";
 
-    public Long getNodeId()
-    {
-        return nodeId;
-    }
-    public void setCarTypeId(Long carTypeId)
-    {
-        this.carTypeId = carTypeId;
-    }
+    public static final String NODE_ID = "node_id";
 
-    public Long getCarTypeId()
-    {
-        return carTypeId;
-    }
-    public void setPrice(Long price)
-    {
-        this.price = price;
-    }
+    public static final String CAR_TYPE_ID = "car_type_id";
 
-    public Long getPrice()
-    {
-        return price;
-    }
+    public static final String PRICE = "price";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("priceId", getPriceId())
-            .append("journeyId", getJourneyId())
-            .append("nodeId", getNodeId())
-            .append("carTypeId", getCarTypeId())
-            .append("price", getPrice())
-            .toString();
+    protected Serializable pkVal() {
+        return this.priceId;
     }
+
 }

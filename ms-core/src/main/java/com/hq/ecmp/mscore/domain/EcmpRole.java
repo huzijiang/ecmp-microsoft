@@ -1,125 +1,91 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 角色信息对象 ecmp_role
+ * <p>
+ * 角色信息表
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class EcmpRole extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("ecmp_role")
+public class EcmpRole extends BaseEntity<EcmpRole> {
 
-    /** 角色ID */
+    private static final long serialVersionUID=1L;
+
+    /**
+     * 角色ID
+     */
+    @TableId(value = "role_id", type = IdType.AUTO)
     private Long roleId;
 
-    /** 角色名称 */
-    @Excel(name = "角色名称")
+    /**
+     * 角色名称
+     */
     private String roleName;
 
-    /** 角色权限字符串 */
-    @Excel(name = "角色权限字符串")
+    /**
+     * 角色权限字符串
+     */
     private String roleKey;
 
-    /** 显示顺序 */
-    @Excel(name = "显示顺序")
+    /**
+     * 显示顺序
+     */
     private Integer roleSort;
 
-    /** 数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限） */
-    @Excel(name = "数据范围", readConverterExp = "1=：全部数据权限,2=：自定数据权限,3=：本部门数据权限,4=：本部门及以下数据权限")
-    private String dataScope;
-
-    /** 角色状态（0正常 1停用） */
-    @Excel(name = "角色状态", readConverterExp = "0=正常,1=停用")
+    /**
+     * 角色状态（0正常 1停用）
+     */
+    @TableLogic
     private String status;
 
-    /** 删除标志（0代表存在 2代表删除） */
+    /**
+     * 删除标志（0代表存在 2代表删除）
+     */
     private String delFlag;
 
-    public void setRoleId(Long roleId)
-    {
-        this.roleId = roleId;
-    }
 
-    public Long getRoleId()
-    {
-        return roleId;
-    }
-    public void setRoleName(String roleName)
-    {
-        this.roleName = roleName;
-    }
+    public static final String ROLE_ID = "role_id";
 
-    public String getRoleName()
-    {
-        return roleName;
-    }
-    public void setRoleKey(String roleKey)
-    {
-        this.roleKey = roleKey;
-    }
+    public static final String ROLE_NAME = "role_name";
 
-    public String getRoleKey()
-    {
-        return roleKey;
-    }
-    public void setRoleSort(Integer roleSort)
-    {
-        this.roleSort = roleSort;
-    }
+    public static final String ROLE_KEY = "role_key";
 
-    public Integer getRoleSort()
-    {
-        return roleSort;
-    }
-    public void setDataScope(String dataScope)
-    {
-        this.dataScope = dataScope;
-    }
+    public static final String ROLE_SORT = "role_sort";
 
-    public String getDataScope()
-    {
-        return dataScope;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
+    public static final String STATUS = "status";
 
-    public String getStatus()
-    {
-        return status;
-    }
-    public void setDelFlag(String delFlag)
-    {
-        this.delFlag = delFlag;
-    }
-
-    public String getDelFlag()
-    {
-        return delFlag;
-    }
+    public static final String DEL_FLAG = "del_flag";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("roleId", getRoleId())
-            .append("roleName", getRoleName())
-            .append("roleKey", getRoleKey())
-            .append("roleSort", getRoleSort())
-            .append("dataScope", getDataScope())
-            .append("status", getStatus())
-            .append("delFlag", getDelFlag())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("remark", getRemark())
-            .toString();
+    protected Serializable pkVal() {
+        return this.roleId;
     }
+
 }

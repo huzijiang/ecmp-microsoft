@@ -1,97 +1,20 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.List;
-import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.mapper.EcmpNoticeMapper;
 import com.hq.ecmp.mscore.service.IEcmpNoticeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
-
 /**
- * 通知公告Service业务层处理
+ * <p>
+ * 通知公告表 服务实现类
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
 @Service
-public class EcmpNoticeServiceImpl implements IEcmpNoticeService
-{
-    @Autowired
-    private EcmpNoticeMapper ecmpNoticeMapper;
+public class EcmpNoticeServiceImpl extends ServiceImpl<EcmpNoticeMapper, EcmpNotice> implements IEcmpNoticeService {
 
-    /**
-     * 查询通知公告
-     *
-     * @param noticeId 通知公告ID
-     * @return 通知公告
-     */
-    @Override
-    public EcmpNotice selectEcmpNoticeById(Integer noticeId)
-    {
-        return ecmpNoticeMapper.selectEcmpNoticeById(noticeId);
-    }
-
-    /**
-     * 查询通知公告列表
-     *
-     * @param ecmpNotice 通知公告
-     * @return 通知公告
-     */
-    @Override
-    public List<EcmpNotice> selectEcmpNoticeList(EcmpNotice ecmpNotice)
-    {
-        return ecmpNoticeMapper.selectEcmpNoticeList(ecmpNotice);
-    }
-
-    /**
-     * 新增通知公告
-     *
-     * @param ecmpNotice 通知公告
-     * @return 结果
-     */
-    @Override
-    public int insertEcmpNotice(EcmpNotice ecmpNotice)
-    {
-        ecmpNotice.setCreateTime(DateUtils.getNowDate());
-        return ecmpNoticeMapper.insertEcmpNotice(ecmpNotice);
-    }
-
-    /**
-     * 修改通知公告
-     *
-     * @param ecmpNotice 通知公告
-     * @return 结果
-     */
-    @Override
-    public int updateEcmpNotice(EcmpNotice ecmpNotice)
-    {
-        ecmpNotice.setUpdateTime(DateUtils.getNowDate());
-        return ecmpNoticeMapper.updateEcmpNotice(ecmpNotice);
-    }
-
-    /**
-     * 批量删除通知公告
-     *
-     * @param noticeIds 需要删除的通知公告ID
-     * @return 结果
-     */
-    @Override
-    public int deleteEcmpNoticeByIds(Integer[] noticeIds)
-    {
-        return ecmpNoticeMapper.deleteEcmpNoticeByIds(noticeIds);
-    }
-
-    /**
-     * 删除通知公告信息
-     *
-     * @param noticeId 通知公告ID
-     * @return 结果
-     */
-    @Override
-    public int deleteEcmpNoticeById(Integer noticeId)
-    {
-        return ecmpNoticeMapper.deleteEcmpNoticeById(noticeId);
-    }
 }

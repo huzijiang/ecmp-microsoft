@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.GenTableMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hq.ecmp.mscore.domain.GenTable">
+        <id column="table_id" property="tableId" />
+    <result column="create_by" property="createBy" />
+    <result column="create_time" property="createTime" />
+    <result column="update_by" property="updateBy" />
+    <result column="update_time" property="updateTime" />
+    <result column="remark" property="remark" />
+        <result column="table_name" property="tableName" />
+        <result column="table_comment" property="tableComment" />
+        <result column="class_name" property="className" />
+        <result column="tpl_category" property="tplCategory" />
+        <result column="package_name" property="packageName" />
+        <result column="module_name" property="moduleName" />
+        <result column="business_name" property="businessName" />
+        <result column="function_name" property="functionName" />
+        <result column="function_author" property="functionAuthor" />
+        <result column="options" property="options" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        remark,
+        table_id, table_name, table_comment, class_name, tpl_category, package_name, module_name, business_name, function_name, function_author, options
+    </sql>
+
+</mapper>

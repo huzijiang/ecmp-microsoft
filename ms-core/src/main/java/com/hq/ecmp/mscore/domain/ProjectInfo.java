@@ -1,111 +1,71 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 project_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class ProjectInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("project_info")
+public class ProjectInfo extends BaseEntity<ProjectInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "project_id", type = IdType.AUTO)
     private Long projectId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String name;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long leader;
+    private Integer leader;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String projectCode;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String startDate;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String closeDate;
 
-    public void setProjectId(Long projectId)
-    {
-        this.projectId = projectId;
-    }
 
-    public Long getProjectId()
-    {
-        return projectId;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+    public static final String PROJECT_ID = "project_id";
 
-    public String getName()
-    {
-        return name;
-    }
-    public void setLeader(Long leader)
-    {
-        this.leader = leader;
-    }
+    public static final String NAME = "name";
 
-    public Long getLeader()
-    {
-        return leader;
-    }
-    public void setProjectCode(String projectCode)
-    {
-        this.projectCode = projectCode;
-    }
+    public static final String LEADER = "leader";
 
-    public String getProjectCode()
-    {
-        return projectCode;
-    }
-    public void setStartDate(String startDate)
-    {
-        this.startDate = startDate;
-    }
+    public static final String PROJECT_CODE = "project_code";
 
-    public String getStartDate()
-    {
-        return startDate;
-    }
-    public void setCloseDate(String closeDate)
-    {
-        this.closeDate = closeDate;
-    }
+    public static final String START_DATE = "start_date";
 
-    public String getCloseDate()
-    {
-        return closeDate;
-    }
+    public static final String CLOSE_DATE = "close_date";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("projectId", getProjectId())
-            .append("name", getName())
-            .append("leader", getLeader())
-            .append("projectCode", getProjectCode())
-            .append("startDate", getStartDate())
-            .append("closeDate", getCloseDate())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.projectId;
     }
+
 }

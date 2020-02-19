@@ -1,209 +1,99 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 journey_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class JourneyInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("journey_info")
+public class JourneyInfo extends BaseEntity<JourneyInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "journey_id", type = IdType.AUTO)
     private Long journeyId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long userId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long regimenId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String serviceType;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String useCarMode;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String useCarTime;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsReturn;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String estimatePrice;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long projectId;
+    private Integer projectId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String flightNumber;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String useTime;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String waitTimeLong;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String charterCarType;
 
-    public void setJourneyId(Long journeyId)
-    {
-        this.journeyId = journeyId;
-    }
 
-    public Long getJourneyId()
-    {
-        return journeyId;
-    }
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
+    public static final String JOURNEY_ID = "journey_id";
 
-    public Long getUserId()
-    {
-        return userId;
-    }
-    public void setRegimenId(Long regimenId)
-    {
-        this.regimenId = regimenId;
-    }
+    public static final String USER_ID = "user_id";
 
-    public Long getRegimenId()
-    {
-        return regimenId;
-    }
-    public void setServiceType(String serviceType)
-    {
-        this.serviceType = serviceType;
-    }
+    public static final String REGIMEN_ID = "regimen_id";
 
-    public String getServiceType()
-    {
-        return serviceType;
-    }
-    public void setUseCarMode(String useCarMode)
-    {
-        this.useCarMode = useCarMode;
-    }
+    public static final String SERVICE_TYPE = "service_type";
 
-    public String getUseCarMode()
-    {
-        return useCarMode;
-    }
-    public void setUseCarTime(String useCarTime)
-    {
-        this.useCarTime = useCarTime;
-    }
+    public static final String USE_CAR_MODE = "use_car_mode";
 
-    public String getUseCarTime()
-    {
-        return useCarTime;
-    }
-    public void setItIsReturn(String itIsReturn)
-    {
-        this.itIsReturn = itIsReturn;
-    }
+    public static final String USE_CAR_TIME = "use_car_time";
 
-    public String getItIsReturn()
-    {
-        return itIsReturn;
-    }
-    public void setEstimatePrice(String estimatePrice)
-    {
-        this.estimatePrice = estimatePrice;
-    }
+    public static final String IT_IS_RETURN = "it_is_return";
 
-    public String getEstimatePrice()
-    {
-        return estimatePrice;
-    }
-    public void setProjectId(Long projectId)
-    {
-        this.projectId = projectId;
-    }
+    public static final String ESTIMATE_PRICE = "estimate_price";
 
-    public Long getProjectId()
-    {
-        return projectId;
-    }
-    public void setFlightNumber(String flightNumber)
-    {
-        this.flightNumber = flightNumber;
-    }
+    public static final String PROJECT_ID = "project_id";
 
-    public String getFlightNumber()
-    {
-        return flightNumber;
-    }
-    public void setUseTime(String useTime)
-    {
-        this.useTime = useTime;
-    }
+    public static final String FLIGHT_NUMBER = "flight_number";
 
-    public String getUseTime()
-    {
-        return useTime;
-    }
-    public void setWaitTimeLong(String waitTimeLong)
-    {
-        this.waitTimeLong = waitTimeLong;
-    }
+    public static final String USE_TIME = "use_time";
 
-    public String getWaitTimeLong()
-    {
-        return waitTimeLong;
-    }
-    public void setCharterCarType(String charterCarType)
-    {
-        this.charterCarType = charterCarType;
-    }
+    public static final String WAIT_TIME_LONG = "wait_time_long";
 
-    public String getCharterCarType()
-    {
-        return charterCarType;
-    }
+    public static final String CHARTER_CAR_TYPE = "charter_car_type";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("journeyId", getJourneyId())
-            .append("userId", getUserId())
-            .append("regimenId", getRegimenId())
-            .append("serviceType", getServiceType())
-            .append("useCarMode", getUseCarMode())
-            .append("useCarTime", getUseCarTime())
-            .append("itIsReturn", getItIsReturn())
-            .append("estimatePrice", getEstimatePrice())
-            .append("projectId", getProjectId())
-            .append("flightNumber", getFlightNumber())
-            .append("useTime", getUseTime())
-            .append("waitTimeLong", getWaitTimeLong())
-            .append("charterCarType", getCharterCarType())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.journeyId;
     }
+
 }

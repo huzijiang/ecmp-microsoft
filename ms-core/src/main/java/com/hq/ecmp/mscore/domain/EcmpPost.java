@@ -1,98 +1,84 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 岗位信息对象 ecmp_post
+ * <p>
+ * 岗位信息表
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class EcmpPost extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("ecmp_post")
+public class EcmpPost extends BaseEntity<EcmpPost> {
 
-    /** 岗位ID */
+    private static final long serialVersionUID=1L;
+
+    /**
+     * 岗位ID
+     */
+    @TableId(value = "post_id", type = IdType.AUTO)
     private Long postId;
 
-    /** 岗位编码 */
-    @Excel(name = "岗位编码")
+    /**
+     * 岗位编码
+     */
     private String postCode;
 
-    /** 岗位名称 */
-    @Excel(name = "岗位名称")
+    /**
+     * 岗位名称
+     */
     private String postName;
 
-    /** 显示顺序 */
-    @Excel(name = "显示顺序")
+    /**
+     * 显示顺序
+     */
     private Integer postSort;
 
-    /** 状态（0正常 1停用） */
-    @Excel(name = "状态", readConverterExp = "0=正常,1=停用")
+    /**
+     * 状态（0正常 1停用）
+     */
+    @TableLogic
     private String status;
 
-    public void setPostId(Long postId)
-    {
-        this.postId = postId;
-    }
 
-    public Long getPostId()
-    {
-        return postId;
-    }
-    public void setPostCode(String postCode)
-    {
-        this.postCode = postCode;
-    }
+    public static final String POST_ID = "post_id";
 
-    public String getPostCode()
-    {
-        return postCode;
-    }
-    public void setPostName(String postName)
-    {
-        this.postName = postName;
-    }
+    public static final String POST_CODE = "post_code";
 
-    public String getPostName()
-    {
-        return postName;
-    }
-    public void setPostSort(Integer postSort)
-    {
-        this.postSort = postSort;
-    }
+    public static final String POST_NAME = "post_name";
 
-    public Integer getPostSort()
-    {
-        return postSort;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
+    public static final String POST_SORT = "post_sort";
 
-    public String getStatus()
-    {
-        return status;
-    }
+    public static final String STATUS = "status";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("postId", getPostId())
-            .append("postCode", getPostCode())
-            .append("postName", getPostName())
-            .append("postSort", getPostSort())
-            .append("status", getStatus())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("remark", getRemark())
-            .toString();
+    protected Serializable pkVal() {
+        return this.postId;
     }
+
 }

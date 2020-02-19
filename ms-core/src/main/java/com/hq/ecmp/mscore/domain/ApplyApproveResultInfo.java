@@ -1,153 +1,83 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 apply_approve_result_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class ApplyApproveResultInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("apply_approve_result_info")
+public class ApplyApproveResultInfo extends BaseEntity<ApplyApproveResultInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "approve_result_id", type = IdType.AUTO)
     private Long approveResultId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long applyId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long approveTemplateId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long approveNodeId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String approver;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String approverMobile;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String approveResult;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String state;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String content;
 
-    public void setApproveResultId(Long approveResultId)
-    {
-        this.approveResultId = approveResultId;
-    }
 
-    public Long getApproveResultId()
-    {
-        return approveResultId;
-    }
-    public void setApplyId(Long applyId)
-    {
-        this.applyId = applyId;
-    }
+    public static final String APPROVE_RESULT_ID = "approve_result_id";
 
-    public Long getApplyId()
-    {
-        return applyId;
-    }
-    public void setApproveTemplateId(Long approveTemplateId)
-    {
-        this.approveTemplateId = approveTemplateId;
-    }
+    public static final String APPLY_ID = "apply_id";
 
-    public Long getApproveTemplateId()
-    {
-        return approveTemplateId;
-    }
-    public void setApproveNodeId(Long approveNodeId)
-    {
-        this.approveNodeId = approveNodeId;
-    }
+    public static final String APPROVE_TEMPLATE_ID = "approve_template_id";
 
-    public Long getApproveNodeId()
-    {
-        return approveNodeId;
-    }
-    public void setApprover(String approver)
-    {
-        this.approver = approver;
-    }
+    public static final String APPROVE_NODE_ID = "approve_node_id";
 
-    public String getApprover()
-    {
-        return approver;
-    }
-    public void setApproverMobile(String approverMobile)
-    {
-        this.approverMobile = approverMobile;
-    }
+    public static final String APPROVER = "approver";
 
-    public String getApproverMobile()
-    {
-        return approverMobile;
-    }
-    public void setApproveResult(String approveResult)
-    {
-        this.approveResult = approveResult;
-    }
+    public static final String APPROVER_MOBILE = "approver_mobile";
 
-    public String getApproveResult()
-    {
-        return approveResult;
-    }
-    public void setState(String state)
-    {
-        this.state = state;
-    }
+    public static final String APPROVE_RESULT = "approve_result";
 
-    public String getState()
-    {
-        return state;
-    }
-    public void setContent(String content)
-    {
-        this.content = content;
-    }
+    public static final String STATE = "state";
 
-    public String getContent()
-    {
-        return content;
-    }
+    public static final String CONTENT = "content";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("approveResultId", getApproveResultId())
-            .append("applyId", getApplyId())
-            .append("approveTemplateId", getApproveTemplateId())
-            .append("approveNodeId", getApproveNodeId())
-            .append("approver", getApprover())
-            .append("approverMobile", getApproverMobile())
-            .append("approveResult", getApproveResult())
-            .append("state", getState())
-            .append("content", getContent())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.approveResultId;
     }
+
 }

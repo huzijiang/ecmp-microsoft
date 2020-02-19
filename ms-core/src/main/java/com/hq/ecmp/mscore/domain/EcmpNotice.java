@@ -1,98 +1,84 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 通知公告对象 ecmp_notice
+ * <p>
+ * 通知公告表
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class EcmpNotice extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("ecmp_notice")
+public class EcmpNotice extends BaseEntity<EcmpNotice> {
 
-    /** 公告ID */
+    private static final long serialVersionUID=1L;
+
+    /**
+     * 公告ID
+     */
+    @TableId(value = "notice_id", type = IdType.AUTO)
     private Integer noticeId;
 
-    /** 公告标题 */
-    @Excel(name = "公告标题")
+    /**
+     * 公告标题
+     */
     private String noticeTitle;
 
-    /** 公告类型（1通知 2公告） */
-    @Excel(name = "公告类型", readConverterExp = "1=通知,2=公告")
+    /**
+     * 公告类型（1通知 2公告）
+     */
     private String noticeType;
 
-    /** 公告内容 */
-    @Excel(name = "公告内容")
+    /**
+     * 公告内容
+     */
     private String noticeContent;
 
-    /** 公告状态（0正常 1关闭） */
-    @Excel(name = "公告状态", readConverterExp = "0=正常,1=关闭")
+    /**
+     * 公告状态（0正常 1关闭）
+     */
+    @TableLogic
     private String status;
 
-    public void setNoticeId(Integer noticeId)
-    {
-        this.noticeId = noticeId;
-    }
 
-    public Integer getNoticeId()
-    {
-        return noticeId;
-    }
-    public void setNoticeTitle(String noticeTitle)
-    {
-        this.noticeTitle = noticeTitle;
-    }
+    public static final String NOTICE_ID = "notice_id";
 
-    public String getNoticeTitle()
-    {
-        return noticeTitle;
-    }
-    public void setNoticeType(String noticeType)
-    {
-        this.noticeType = noticeType;
-    }
+    public static final String NOTICE_TITLE = "notice_title";
 
-    public String getNoticeType()
-    {
-        return noticeType;
-    }
-    public void setNoticeContent(String noticeContent)
-    {
-        this.noticeContent = noticeContent;
-    }
+    public static final String NOTICE_TYPE = "notice_type";
 
-    public String getNoticeContent()
-    {
-        return noticeContent;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
+    public static final String NOTICE_CONTENT = "notice_content";
 
-    public String getStatus()
-    {
-        return status;
-    }
+    public static final String STATUS = "status";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("noticeId", getNoticeId())
-            .append("noticeTitle", getNoticeTitle())
-            .append("noticeType", getNoticeType())
-            .append("noticeContent", getNoticeContent())
-            .append("status", getStatus())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("remark", getRemark())
-            .toString();
+    protected Serializable pkVal() {
+        return this.noticeId;
     }
+
 }

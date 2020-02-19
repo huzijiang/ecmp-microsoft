@@ -1,209 +1,102 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import java.math.BigDecimal;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 invoice_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class InvoiceInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("invoice_info")
+public class InvoiceInfo extends BaseEntity<InvoiceInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "invoice_id", type = IdType.AUTO)
     private Long invoiceId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long amount;
+    private BigDecimal amount;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String header;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String tin;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String bankName;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String bankCardNo;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String registedAddress;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String telephone;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String acceptAddress;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long applyer;
+    private Integer applyer;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String content;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String type;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @TableLogic
     private String status;
 
-    public void setInvoiceId(Long invoiceId)
-    {
-        this.invoiceId = invoiceId;
-    }
 
-    public Long getInvoiceId()
-    {
-        return invoiceId;
-    }
-    public void setAmount(Long amount)
-    {
-        this.amount = amount;
-    }
+    public static final String INVOICE_ID = "invoice_id";
 
-    public Long getAmount()
-    {
-        return amount;
-    }
-    public void setHeader(String header)
-    {
-        this.header = header;
-    }
+    public static final String AMOUNT = "amount";
 
-    public String getHeader()
-    {
-        return header;
-    }
-    public void setTin(String tin)
-    {
-        this.tin = tin;
-    }
+    public static final String HEADER = "header";
 
-    public String getTin()
-    {
-        return tin;
-    }
-    public void setBankName(String bankName)
-    {
-        this.bankName = bankName;
-    }
+    public static final String TIN = "tin";
 
-    public String getBankName()
-    {
-        return bankName;
-    }
-    public void setBankCardNo(String bankCardNo)
-    {
-        this.bankCardNo = bankCardNo;
-    }
+    public static final String BANK_NAME = "bank_name";
 
-    public String getBankCardNo()
-    {
-        return bankCardNo;
-    }
-    public void setRegistedAddress(String registedAddress)
-    {
-        this.registedAddress = registedAddress;
-    }
+    public static final String BANK_CARD_NO = "bank_card_no";
 
-    public String getRegistedAddress()
-    {
-        return registedAddress;
-    }
-    public void setTelephone(String telephone)
-    {
-        this.telephone = telephone;
-    }
+    public static final String REGISTED_ADDRESS = "registed_address";
 
-    public String getTelephone()
-    {
-        return telephone;
-    }
-    public void setAcceptAddress(String acceptAddress)
-    {
-        this.acceptAddress = acceptAddress;
-    }
+    public static final String TELEPHONE = "telephone";
 
-    public String getAcceptAddress()
-    {
-        return acceptAddress;
-    }
-    public void setApplyer(Long applyer)
-    {
-        this.applyer = applyer;
-    }
+    public static final String ACCEPT_ADDRESS = "accept_address";
 
-    public Long getApplyer()
-    {
-        return applyer;
-    }
-    public void setContent(String content)
-    {
-        this.content = content;
-    }
+    public static final String APPLYER = "applyer";
 
-    public String getContent()
-    {
-        return content;
-    }
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+    public static final String CONTENT = "content";
 
-    public String getType()
-    {
-        return type;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
+    public static final String TYPE = "type";
 
-    public String getStatus()
-    {
-        return status;
-    }
+    public static final String STATUS = "status";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("invoiceId", getInvoiceId())
-            .append("amount", getAmount())
-            .append("header", getHeader())
-            .append("tin", getTin())
-            .append("bankName", getBankName())
-            .append("bankCardNo", getBankCardNo())
-            .append("registedAddress", getRegistedAddress())
-            .append("telephone", getTelephone())
-            .append("acceptAddress", getAcceptAddress())
-            .append("applyer", getApplyer())
-            .append("content", getContent())
-            .append("type", getType())
-            .append("status", getStatus())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.invoiceId;
     }
+
 }

@@ -1,83 +1,63 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 ecmp_user_feedback_image
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class EcmpUserFeedbackImage extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("ecmp_user_feedback_image")
+public class EcmpUserFeedbackImage extends BaseEntity<EcmpUserFeedbackImage> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "image_id", type = IdType.AUTO)
     private Long imageId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long feedbackId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long userId;
+    private Integer userId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String imageUrl;
 
-    public void setImageId(Long imageId)
-    {
-        this.imageId = imageId;
-    }
 
-    public Long getImageId()
-    {
-        return imageId;
-    }
-    public void setFeedbackId(Long feedbackId)
-    {
-        this.feedbackId = feedbackId;
-    }
+    public static final String IMAGE_ID = "image_id";
 
-    public Long getFeedbackId()
-    {
-        return feedbackId;
-    }
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
+    public static final String FEEDBACK_ID = "feedback_id";
 
-    public Long getUserId()
-    {
-        return userId;
-    }
-    public void setImageUrl(String imageUrl)
-    {
-        this.imageUrl = imageUrl;
-    }
+    public static final String USER_ID = "user_id";
 
-    public String getImageUrl()
-    {
-        return imageUrl;
-    }
+    public static final String IMAGE_URL = "image_url";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("imageId", getImageId())
-            .append("feedbackId", getFeedbackId())
-            .append("userId", getUserId())
-            .append("imageUrl", getImageUrl())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.imageId;
     }
+
 }

@@ -1,50 +1,61 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 角色和部门关联对象 ecmp_role_dept
+ * <p>
+ * 角色和部门关联表
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class EcmpRoleDept extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("ecmp_role_dept")
+public class EcmpRoleDept extends BaseEntity<EcmpRoleDept> {
 
-    /** 角色ID */
+    private static final long serialVersionUID=1L;
+
+    /**
+     * 角色ID
+     */
+    @TableId(value = "role_id", type = IdType.AUTO)
     private Long roleId;
 
-    /** 部门ID */
+    /**
+     * 部门ID
+     */
     private Long deptId;
 
-    public void setRoleId(Long roleId)
-    {
-        this.roleId = roleId;
-    }
 
-    public Long getRoleId()
-    {
-        return roleId;
-    }
-    public void setDeptId(Long deptId)
-    {
-        this.deptId = deptId;
-    }
+    public static final String ROLE_ID = "role_id";
 
-    public Long getDeptId()
-    {
-        return deptId;
-    }
+    public static final String DEPT_ID = "dept_id";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("roleId", getRoleId())
-            .append("deptId", getDeptId())
-            .toString();
+    protected Serializable pkVal() {
+        return this.roleId;
     }
+
 }

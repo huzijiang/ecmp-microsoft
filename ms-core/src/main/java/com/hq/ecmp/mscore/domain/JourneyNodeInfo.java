@@ -1,280 +1,127 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
-import java.util.Date;
+import java.math.BigDecimal;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import java.time.LocalDateTime;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 journey_node_info
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class JourneyNodeInfo extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("journey_node_info")
+public class JourneyNodeInfo extends BaseEntity<JourneyNodeInfo> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "node_id", type = IdType.AUTO)
     private Long nodeId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long journeyId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long userId;
+    private Integer userId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String planBeginAddress;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String planEndAddress;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date planSetoutTime;
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    private LocalDateTime planSetoutTime;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date planArriveTime;
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    private LocalDateTime planArriveTime;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long planBeginLongitude;
+    private BigDecimal planBeginLongitude;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String planBeginLatitude;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long planEndLongitude;
+    private BigDecimal planEndLongitude;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String planEndLatitude;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsViaPoint;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String vehicle;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String duration;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String distance;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String waitDuration;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String nodeState;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long number;
+    private Integer number;
 
-    public void setNodeId(Long nodeId)
-    {
-        this.nodeId = nodeId;
-    }
 
-    public Long getNodeId()
-    {
-        return nodeId;
-    }
-    public void setJourneyId(Long journeyId)
-    {
-        this.journeyId = journeyId;
-    }
+    public static final String NODE_ID = "node_id";
 
-    public Long getJourneyId()
-    {
-        return journeyId;
-    }
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
+    public static final String JOURNEY_ID = "journey_id";
 
-    public Long getUserId()
-    {
-        return userId;
-    }
-    public void setPlanBeginAddress(String planBeginAddress)
-    {
-        this.planBeginAddress = planBeginAddress;
-    }
+    public static final String USER_ID = "user_id";
 
-    public String getPlanBeginAddress()
-    {
-        return planBeginAddress;
-    }
-    public void setPlanEndAddress(String planEndAddress)
-    {
-        this.planEndAddress = planEndAddress;
-    }
+    public static final String PLAN_BEGIN_ADDRESS = "plan_begin_address";
 
-    public String getPlanEndAddress()
-    {
-        return planEndAddress;
-    }
-    public void setPlanSetoutTime(Date planSetoutTime)
-    {
-        this.planSetoutTime = planSetoutTime;
-    }
+    public static final String PLAN_END_ADDRESS = "plan_end_address";
 
-    public Date getPlanSetoutTime()
-    {
-        return planSetoutTime;
-    }
-    public void setPlanArriveTime(Date planArriveTime)
-    {
-        this.planArriveTime = planArriveTime;
-    }
+    public static final String PLAN_SETOUT_TIME = "plan_setout_time";
 
-    public Date getPlanArriveTime()
-    {
-        return planArriveTime;
-    }
-    public void setPlanBeginLongitude(Long planBeginLongitude)
-    {
-        this.planBeginLongitude = planBeginLongitude;
-    }
+    public static final String PLAN_ARRIVE_TIME = "plan_arrive_time";
 
-    public Long getPlanBeginLongitude()
-    {
-        return planBeginLongitude;
-    }
-    public void setPlanBeginLatitude(String planBeginLatitude)
-    {
-        this.planBeginLatitude = planBeginLatitude;
-    }
+    public static final String PLAN_BEGIN_LONGITUDE = "plan_begin_longitude";
 
-    public String getPlanBeginLatitude()
-    {
-        return planBeginLatitude;
-    }
-    public void setPlanEndLongitude(Long planEndLongitude)
-    {
-        this.planEndLongitude = planEndLongitude;
-    }
+    public static final String PLAN_BEGIN_LATITUDE = "plan_begin_latitude";
 
-    public Long getPlanEndLongitude()
-    {
-        return planEndLongitude;
-    }
-    public void setPlanEndLatitude(String planEndLatitude)
-    {
-        this.planEndLatitude = planEndLatitude;
-    }
+    public static final String PLAN_END_LONGITUDE = "plan_end_longitude";
 
-    public String getPlanEndLatitude()
-    {
-        return planEndLatitude;
-    }
-    public void setItIsViaPoint(String itIsViaPoint)
-    {
-        this.itIsViaPoint = itIsViaPoint;
-    }
+    public static final String PLAN_END_LATITUDE = "plan_end_latitude";
 
-    public String getItIsViaPoint()
-    {
-        return itIsViaPoint;
-    }
-    public void setVehicle(String vehicle)
-    {
-        this.vehicle = vehicle;
-    }
+    public static final String IT_IS_VIA_POINT = "it_is_via_point";
 
-    public String getVehicle()
-    {
-        return vehicle;
-    }
-    public void setDuration(String duration)
-    {
-        this.duration = duration;
-    }
+    public static final String VEHICLE = "vehicle";
 
-    public String getDuration()
-    {
-        return duration;
-    }
-    public void setDistance(String distance)
-    {
-        this.distance = distance;
-    }
+    public static final String DURATION = "duration";
 
-    public String getDistance()
-    {
-        return distance;
-    }
-    public void setWaitDuration(String waitDuration)
-    {
-        this.waitDuration = waitDuration;
-    }
+    public static final String DISTANCE = "distance";
 
-    public String getWaitDuration()
-    {
-        return waitDuration;
-    }
-    public void setNodeState(String nodeState)
-    {
-        this.nodeState = nodeState;
-    }
+    public static final String WAIT_DURATION = "wait_duration";
 
-    public String getNodeState()
-    {
-        return nodeState;
-    }
-    public void setNumber(Long number)
-    {
-        this.number = number;
-    }
+    public static final String NODE_STATE = "node_state";
 
-    public Long getNumber()
-    {
-        return number;
-    }
+    public static final String NUMBER = "number";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("nodeId", getNodeId())
-            .append("journeyId", getJourneyId())
-            .append("userId", getUserId())
-            .append("planBeginAddress", getPlanBeginAddress())
-            .append("planEndAddress", getPlanEndAddress())
-            .append("planSetoutTime", getPlanSetoutTime())
-            .append("planArriveTime", getPlanArriveTime())
-            .append("planBeginLongitude", getPlanBeginLongitude())
-            .append("planBeginLatitude", getPlanBeginLatitude())
-            .append("planEndLongitude", getPlanEndLongitude())
-            .append("planEndLatitude", getPlanEndLatitude())
-            .append("itIsViaPoint", getItIsViaPoint())
-            .append("vehicle", getVehicle())
-            .append("duration", getDuration())
-            .append("distance", getDistance())
-            .append("waitDuration", getWaitDuration())
-            .append("nodeState", getNodeState())
-            .append("number", getNumber())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.nodeId;
     }
+
 }

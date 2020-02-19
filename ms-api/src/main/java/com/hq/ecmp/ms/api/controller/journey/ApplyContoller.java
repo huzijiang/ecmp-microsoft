@@ -35,6 +35,7 @@ public class ApplyContoller {
     @ApiOperation(value = "applyCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
     @PostMapping("/applyCommit")
     public ApiResponse   applyCommit(JourneyApplyDto journeyApplyDto, UserDto userDto){
+        ApplyInfo.builder().approverName("测试").build().insert();
 
         return null;
     }

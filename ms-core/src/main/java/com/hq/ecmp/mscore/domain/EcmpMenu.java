@@ -1,182 +1,124 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 菜单权限对象 ecmp_menu
+ * <p>
+ * 菜单权限表
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class EcmpMenu extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("ecmp_menu")
+public class EcmpMenu extends BaseEntity<EcmpMenu> {
 
-    /** 菜单ID */
+    private static final long serialVersionUID=1L;
+
+    /**
+     * 菜单ID
+     */
+    @TableId(value = "menu_id", type = IdType.AUTO)
     private Long menuId;
 
-    /** 菜单名称 */
-    @Excel(name = "菜单名称")
+    /**
+     * 菜单名称
+     */
     private String menuName;
 
-    /** 父菜单ID */
-    @Excel(name = "父菜单ID")
+    /**
+     * 父菜单ID
+     */
     private Long parentId;
 
-    /** 显示顺序 */
-    @Excel(name = "显示顺序")
+    /**
+     * 显示顺序
+     */
     private Integer orderNum;
 
-    /** 路由地址 */
-    @Excel(name = "路由地址")
+    /**
+     * 路由地址
+     */
     private String path;
 
-    /** 组件路径 */
-    @Excel(name = "组件路径")
+    /**
+     * 组件路径
+     */
     private String component;
 
-    /** 是否为外链（0是 1否） */
-    @Excel(name = "是否为外链", readConverterExp = "0=是,1=否")
+    /**
+     * 是否为外链（0是 1否）
+     */
     private Integer isFrame;
 
-    /** 菜单类型（M目录 C菜单 F按钮） */
-    @Excel(name = "菜单类型", readConverterExp = "M=目录,C=菜单,F=按钮")
+    /**
+     * 菜单类型（M目录 C菜单 F按钮）
+     */
     private String menuType;
 
-    /** 菜单状态（0显示 1隐藏） */
-    @Excel(name = "菜单状态", readConverterExp = "0=显示,1=隐藏")
+    /**
+     * 菜单状态（0显示 1隐藏）
+     */
     private String visible;
 
-    /** 权限标识 */
-    @Excel(name = "权限标识")
+    /**
+     * 权限标识
+     */
     private String perms;
 
-    /** 菜单图标 */
-    @Excel(name = "菜单图标")
+    /**
+     * 菜单图标
+     */
     private String icon;
 
-    public void setMenuId(Long menuId)
-    {
-        this.menuId = menuId;
-    }
 
-    public Long getMenuId()
-    {
-        return menuId;
-    }
-    public void setMenuName(String menuName)
-    {
-        this.menuName = menuName;
-    }
+    public static final String MENU_ID = "menu_id";
 
-    public String getMenuName()
-    {
-        return menuName;
-    }
-    public void setParentId(Long parentId)
-    {
-        this.parentId = parentId;
-    }
+    public static final String MENU_NAME = "menu_name";
 
-    public Long getParentId()
-    {
-        return parentId;
-    }
-    public void setOrderNum(Integer orderNum)
-    {
-        this.orderNum = orderNum;
-    }
+    public static final String PARENT_ID = "parent_id";
 
-    public Integer getOrderNum()
-    {
-        return orderNum;
-    }
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+    public static final String ORDER_NUM = "order_num";
 
-    public String getPath()
-    {
-        return path;
-    }
-    public void setComponent(String component)
-    {
-        this.component = component;
-    }
+    public static final String PATH = "path";
 
-    public String getComponent()
-    {
-        return component;
-    }
-    public void setIsFrame(Integer isFrame)
-    {
-        this.isFrame = isFrame;
-    }
+    public static final String COMPONENT = "component";
 
-    public Integer getIsFrame()
-    {
-        return isFrame;
-    }
-    public void setMenuType(String menuType)
-    {
-        this.menuType = menuType;
-    }
+    public static final String IS_FRAME = "is_frame";
 
-    public String getMenuType()
-    {
-        return menuType;
-    }
-    public void setVisible(String visible)
-    {
-        this.visible = visible;
-    }
+    public static final String MENU_TYPE = "menu_type";
 
-    public String getVisible()
-    {
-        return visible;
-    }
-    public void setPerms(String perms)
-    {
-        this.perms = perms;
-    }
+    public static final String VISIBLE = "visible";
 
-    public String getPerms()
-    {
-        return perms;
-    }
-    public void setIcon(String icon)
-    {
-        this.icon = icon;
-    }
+    public static final String PERMS = "perms";
 
-    public String getIcon()
-    {
-        return icon;
-    }
+    public static final String ICON = "icon";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("menuId", getMenuId())
-            .append("menuName", getMenuName())
-            .append("parentId", getParentId())
-            .append("orderNum", getOrderNum())
-            .append("path", getPath())
-            .append("component", getComponent())
-            .append("isFrame", getIsFrame())
-            .append("menuType", getMenuType())
-            .append("visible", getVisible())
-            .append("perms", getPerms())
-            .append("icon", getIcon())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("remark", getRemark())
-            .toString();
+    protected Serializable pkVal() {
+        return this.menuId;
     }
+
 }

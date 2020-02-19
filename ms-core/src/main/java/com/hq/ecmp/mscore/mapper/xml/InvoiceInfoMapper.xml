@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.InvoiceInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hq.ecmp.mscore.domain.InvoiceInfo">
+        <id column="invoice_id" property="invoiceId" />
+    <result column="create_by" property="createBy" />
+    <result column="create_time" property="createTime" />
+    <result column="update_by" property="updateBy" />
+    <result column="update_time" property="updateTime" />
+        <result column="amount" property="amount" />
+        <result column="header" property="header" />
+        <result column="tin" property="tin" />
+        <result column="bank_name" property="bankName" />
+        <result column="bank_card_no" property="bankCardNo" />
+        <result column="registed_address" property="registedAddress" />
+        <result column="telephone" property="telephone" />
+        <result column="accept_address" property="acceptAddress" />
+        <result column="applyer" property="applyer" />
+        <result column="content" property="content" />
+        <result column="type" property="type" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        invoice_id, amount, header, tin, bank_name, bank_card_no, registed_address, telephone, accept_address, applyer, content, type, status
+    </sql>
+
+</mapper>

@@ -1,125 +1,75 @@
 package com.hq.ecmp.mscore.domain;
+/**update2**/
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.hq.core.aspectj.lang.annotation.Excel;
-import com.hq.core.web.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
+import java.io.Serializable;
+import lombok.Data;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
- * 【请填写功能名称】对象 journey_user_car_power
+ * <p>
+ * 
+ * </p>
  *
- * @author hqer
- * @date 2020-01-02
+ * @author crk
+ * @since 2020-02-20
  */
-public class JourneyUserCarPower extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@TableName("journey_user_car_power")
+public class JourneyUserCarPower extends BaseEntity<JourneyUserCarPower> {
 
-    /** $column.columnComment */
+    private static final long serialVersionUID=1L;
+
+    @TableId(value = "power_id", type = IdType.AUTO)
     private Long powerId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long applyId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long nodeId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long journeyId;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String state;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String type;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsReturn;
 
-    public void setPowerId(Long powerId)
-    {
-        this.powerId = powerId;
-    }
 
-    public Long getPowerId()
-    {
-        return powerId;
-    }
-    public void setApplyId(Long applyId)
-    {
-        this.applyId = applyId;
-    }
+    public static final String POWER_ID = "power_id";
 
-    public Long getApplyId()
-    {
-        return applyId;
-    }
-    public void setNodeId(Long nodeId)
-    {
-        this.nodeId = nodeId;
-    }
+    public static final String APPLY_ID = "apply_id";
 
-    public Long getNodeId()
-    {
-        return nodeId;
-    }
-    public void setJourneyId(Long journeyId)
-    {
-        this.journeyId = journeyId;
-    }
+    public static final String NODE_ID = "node_id";
 
-    public Long getJourneyId()
-    {
-        return journeyId;
-    }
-    public void setState(String state)
-    {
-        this.state = state;
-    }
+    public static final String JOURNEY_ID = "journey_id";
 
-    public String getState()
-    {
-        return state;
-    }
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+    public static final String STATE = "state";
 
-    public String getType()
-    {
-        return type;
-    }
-    public void setItIsReturn(String itIsReturn)
-    {
-        this.itIsReturn = itIsReturn;
-    }
+    public static final String TYPE = "type";
 
-    public String getItIsReturn()
-    {
-        return itIsReturn;
-    }
+    public static final String IT_IS_RETURN = "it_is_return";
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("powerId", getPowerId())
-            .append("applyId", getApplyId())
-            .append("nodeId", getNodeId())
-            .append("journeyId", getJourneyId())
-            .append("state", getState())
-            .append("type", getType())
-            .append("itIsReturn", getItIsReturn())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+    protected Serializable pkVal() {
+        return this.powerId;
     }
+
 }
