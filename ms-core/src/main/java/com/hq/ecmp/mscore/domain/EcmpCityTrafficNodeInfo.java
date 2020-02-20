@@ -1,71 +1,125 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 ecmp_city_traffic_node_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("ecmp_city_traffic_node_info")
-public class EcmpCityTrafficNodeInfo extends MicBaseEntity<EcmpCityTrafficNodeInfo> {
+public class EcmpCityTrafficNodeInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
+    /** $column.columnComment */
+    private Long trafficNodeId;
 
-    @TableId(value = "traffic_node_id", type = IdType.AUTO)
-    private Integer trafficNodeId;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long cityId;
 
-    private Integer cityId;
-
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String cityLevel;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String name;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String type;
 
-    private BigDecimal longitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long longitude;
 
-    private BigDecimal latitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long latitude;
 
-
-    public static final String TRAFFIC_NODE_ID = "traffic_node_id";
-
-    public static final String CITY_ID = "city_id";
-
-    public static final String CITY_LEVEL = "city_level";
-
-    public static final String NAME = "name";
-
-    public static final String TYPE = "type";
-
-    public static final String LONGITUDE = "longitude";
-
-    public static final String LATITUDE = "latitude";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.trafficNodeId;
+    public void setTrafficNodeId(Long trafficNodeId)
+    {
+        this.trafficNodeId = trafficNodeId;
     }
 
+    public Long getTrafficNodeId()
+    {
+        return trafficNodeId;
+    }
+    public void setCityId(Long cityId)
+    {
+        this.cityId = cityId;
+    }
+
+    public Long getCityId()
+    {
+        return cityId;
+    }
+    public void setCityLevel(String cityLevel)
+    {
+        this.cityLevel = cityLevel;
+    }
+
+    public String getCityLevel()
+    {
+        return cityLevel;
+    }
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+    public void setType(String type)
+    {
+        this.type = type;
+    }
+
+    public String getType()
+    {
+        return type;
+    }
+    public void setLongitude(Long longitude)
+    {
+        this.longitude = longitude;
+    }
+
+    public Long getLongitude()
+    {
+        return longitude;
+    }
+    public void setLatitude(Long latitude)
+    {
+        this.latitude = latitude;
+    }
+
+    public Long getLatitude()
+    {
+        return latitude;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("trafficNodeId", getTrafficNodeId())
+            .append("cityId", getCityId())
+            .append("cityLevel", getCityLevel())
+            .append("name", getName())
+            .append("type", getType())
+            .append("longitude", getLongitude())
+            .append("latitude", getLatitude())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

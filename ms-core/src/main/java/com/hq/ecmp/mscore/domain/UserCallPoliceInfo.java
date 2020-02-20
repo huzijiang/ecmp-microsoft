@@ -1,83 +1,167 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 user_call_police_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("user_call_police_info")
-public class UserCallPoliceInfo extends MicBaseEntity<UserCallPoliceInfo> {
+public class UserCallPoliceInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long id;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String userId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String userPhone;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String area;
 
-    private BigDecimal longitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long longitude;
 
-    private BigDecimal latitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long latitude;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carLicense;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String journeyId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String state;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String result;
 
-
-    public static final String ID = "id";
-
-    public static final String USER_ID = "user_id";
-
-    public static final String USER_PHONE = "user_phone";
-
-    public static final String AREA = "area";
-
-    public static final String LONGITUDE = "longitude";
-
-    public static final String LATITUDE = "latitude";
-
-    public static final String CAR_LICENSE = "car_license";
-
-    public static final String JOURNEY_ID = "journey_id";
-
-    public static final String STATE = "state";
-
-    public static final String RESULT = "result";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.id;
+    public void setId(Long id)
+    {
+        this.id = id;
     }
 
+    public Long getId()
+    {
+        return id;
+    }
+    public void setUserId(String userId)
+    {
+        this.userId = userId;
+    }
+
+    public String getUserId()
+    {
+        return userId;
+    }
+    public void setUserPhone(String userPhone)
+    {
+        this.userPhone = userPhone;
+    }
+
+    public String getUserPhone()
+    {
+        return userPhone;
+    }
+    public void setArea(String area)
+    {
+        this.area = area;
+    }
+
+    public String getArea()
+    {
+        return area;
+    }
+    public void setLongitude(Long longitude)
+    {
+        this.longitude = longitude;
+    }
+
+    public Long getLongitude()
+    {
+        return longitude;
+    }
+    public void setLatitude(Long latitude)
+    {
+        this.latitude = latitude;
+    }
+
+    public Long getLatitude()
+    {
+        return latitude;
+    }
+    public void setCarLicense(String carLicense)
+    {
+        this.carLicense = carLicense;
+    }
+
+    public String getCarLicense()
+    {
+        return carLicense;
+    }
+    public void setJourneyId(String journeyId)
+    {
+        this.journeyId = journeyId;
+    }
+
+    public String getJourneyId()
+    {
+        return journeyId;
+    }
+    public void setState(String state)
+    {
+        this.state = state;
+    }
+
+    public String getState()
+    {
+        return state;
+    }
+    public void setResult(String result)
+    {
+        this.result = result;
+    }
+
+    public String getResult()
+    {
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("id", getId())
+            .append("userId", getUserId())
+            .append("userPhone", getUserPhone())
+            .append("area", getArea())
+            .append("longitude", getLongitude())
+            .append("latitude", getLatitude())
+            .append("carLicense", getCarLicense())
+            .append("journeyId", getJourneyId())
+            .append("state", getState())
+            .append("result", getResult())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

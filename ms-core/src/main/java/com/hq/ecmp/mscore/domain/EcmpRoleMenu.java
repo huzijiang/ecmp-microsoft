@@ -1,56 +1,50 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 角色和菜单关联表
- * </p>
+ * 角色和菜单关联对象 ecmp_role_menu
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("ecmp_role_menu")
-public class EcmpRoleMenu extends MicBaseEntity<EcmpRoleMenu> {
+public class EcmpRoleMenu extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    /**
-     * 角色ID
-     */
-    @TableId(value = "role_id", type = IdType.AUTO)
+    /** 角色ID */
     private Long roleId;
 
-    /**
-     * 菜单ID
-     */
+    /** 菜单ID */
     private Long menuId;
 
-
-    public static final String ROLE_ID = "role_id";
-
-    public static final String MENU_ID = "menu_id";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.roleId;
+    public void setRoleId(Long roleId)
+    {
+        this.roleId = roleId;
     }
 
+    public Long getRoleId()
+    {
+        return roleId;
+    }
+    public void setMenuId(Long menuId)
+    {
+        this.menuId = menuId;
+    }
+
+    public Long getMenuId()
+    {
+        return menuId;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("roleId", getRoleId())
+            .append("menuId", getMenuId())
+            .toString();
+    }
 }

@@ -1,141 +1,336 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import java.time.LocalDateTime;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
+import java.util.Date;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 car_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("car_info")
-public class CarInfo extends MicBaseEntity<CarInfo> {
+public class CarInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "car_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long carId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carGroupId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long deptId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carTypeId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carLicense;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String state;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carType;
 
-    private Integer seatNum;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long seatNum;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carColor;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carLicenseColor;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String powerType;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carType01;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String engineNumber;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String engineCc;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String enginePower;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carNumber;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carImgaeUrl;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carDrivingLicenseImagesUrl;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carLicenseImageUrl;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime buyDate;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date buyDate;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime rentEndDate;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date rentEndDate;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String ownerOrgId;
 
-
-    public static final String CAR_ID = "car_id";
-
-    public static final String CAR_GROUP_ID = "car_group_id";
-
-    public static final String DEPT_ID = "dept_id";
-
-    public static final String CAR_TYPE_ID = "car_type_id";
-
-    public static final String CAR_LICENSE = "car_license";
-
-    public static final String STATE = "state";
-
-    public static final String CAR_TYPE = "car_type";
-
-    public static final String SEAT_NUM = "seat_num";
-
-    public static final String CAR_COLOR = "car_color";
-
-    public static final String CAR_LICENSE_COLOR = "car_license_color";
-
-    public static final String POWER_TYPE = "power_type";
-
-    public static final String CAR_TYPE_01 = "car_type_01";
-
-    public static final String ENGINE_NUMBER = "engine_number";
-
-    public static final String ENGINE_CC = "engine_cc";
-
-    public static final String ENGINE_POWER = "engine_power";
-
-    public static final String CAR_NUMBER = "car_number";
-
-    public static final String CAR_IMGAE_URL = "car_imgae_url";
-
-    public static final String CAR_DRIVING_LICENSE_IMAGES_URL = "car_driving_license_images_url";
-
-    public static final String CAR_LICENSE_IMAGE_URL = "car_license_image_url";
-
-    public static final String BUY_DATE = "buy_date";
-
-    public static final String RENT_END_DATE = "rent_end_date";
-
-    public static final String OWNER_ORG_ID = "owner_org_id";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.carId;
+    public void setCarId(Long carId)
+    {
+        this.carId = carId;
     }
 
+    public Long getCarId()
+    {
+        return carId;
+    }
+    public void setCarGroupId(Long carGroupId)
+    {
+        this.carGroupId = carGroupId;
+    }
+
+    public Long getCarGroupId()
+    {
+        return carGroupId;
+    }
+    public void setDeptId(Long deptId)
+    {
+        this.deptId = deptId;
+    }
+
+    public Long getDeptId()
+    {
+        return deptId;
+    }
+    public void setCarTypeId(Long carTypeId)
+    {
+        this.carTypeId = carTypeId;
+    }
+
+    public Long getCarTypeId()
+    {
+        return carTypeId;
+    }
+    public void setCarLicense(String carLicense)
+    {
+        this.carLicense = carLicense;
+    }
+
+    public String getCarLicense()
+    {
+        return carLicense;
+    }
+    public void setState(String state)
+    {
+        this.state = state;
+    }
+
+    public String getState()
+    {
+        return state;
+    }
+    public void setCarType(String carType)
+    {
+        this.carType = carType;
+    }
+
+    public String getCarType()
+    {
+        return carType;
+    }
+    public void setSeatNum(Long seatNum)
+    {
+        this.seatNum = seatNum;
+    }
+
+    public Long getSeatNum()
+    {
+        return seatNum;
+    }
+    public void setCarColor(String carColor)
+    {
+        this.carColor = carColor;
+    }
+
+    public String getCarColor()
+    {
+        return carColor;
+    }
+    public void setCarLicenseColor(String carLicenseColor)
+    {
+        this.carLicenseColor = carLicenseColor;
+    }
+
+    public String getCarLicenseColor()
+    {
+        return carLicenseColor;
+    }
+    public void setPowerType(String powerType)
+    {
+        this.powerType = powerType;
+    }
+
+    public String getPowerType()
+    {
+        return powerType;
+    }
+    public void setCarType01(String carType01)
+    {
+        this.carType01 = carType01;
+    }
+
+    public String getCarType01()
+    {
+        return carType01;
+    }
+    public void setEngineNumber(String engineNumber)
+    {
+        this.engineNumber = engineNumber;
+    }
+
+    public String getEngineNumber()
+    {
+        return engineNumber;
+    }
+    public void setEngineCc(String engineCc)
+    {
+        this.engineCc = engineCc;
+    }
+
+    public String getEngineCc()
+    {
+        return engineCc;
+    }
+    public void setEnginePower(String enginePower)
+    {
+        this.enginePower = enginePower;
+    }
+
+    public String getEnginePower()
+    {
+        return enginePower;
+    }
+    public void setCarNumber(String carNumber)
+    {
+        this.carNumber = carNumber;
+    }
+
+    public String getCarNumber()
+    {
+        return carNumber;
+    }
+    public void setCarImgaeUrl(String carImgaeUrl)
+    {
+        this.carImgaeUrl = carImgaeUrl;
+    }
+
+    public String getCarImgaeUrl()
+    {
+        return carImgaeUrl;
+    }
+    public void setCarDrivingLicenseImagesUrl(String carDrivingLicenseImagesUrl)
+    {
+        this.carDrivingLicenseImagesUrl = carDrivingLicenseImagesUrl;
+    }
+
+    public String getCarDrivingLicenseImagesUrl()
+    {
+        return carDrivingLicenseImagesUrl;
+    }
+    public void setCarLicenseImageUrl(String carLicenseImageUrl)
+    {
+        this.carLicenseImageUrl = carLicenseImageUrl;
+    }
+
+    public String getCarLicenseImageUrl()
+    {
+        return carLicenseImageUrl;
+    }
+    public void setBuyDate(Date buyDate)
+    {
+        this.buyDate = buyDate;
+    }
+
+    public Date getBuyDate()
+    {
+        return buyDate;
+    }
+    public void setRentEndDate(Date rentEndDate)
+    {
+        this.rentEndDate = rentEndDate;
+    }
+
+    public Date getRentEndDate()
+    {
+        return rentEndDate;
+    }
+    public void setOwnerOrgId(String ownerOrgId)
+    {
+        this.ownerOrgId = ownerOrgId;
+    }
+
+    public String getOwnerOrgId()
+    {
+        return ownerOrgId;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("carId", getCarId())
+            .append("carGroupId", getCarGroupId())
+            .append("deptId", getDeptId())
+            .append("carTypeId", getCarTypeId())
+            .append("carLicense", getCarLicense())
+            .append("state", getState())
+            .append("carType", getCarType())
+            .append("seatNum", getSeatNum())
+            .append("carColor", getCarColor())
+            .append("carLicenseColor", getCarLicenseColor())
+            .append("powerType", getPowerType())
+            .append("carType01", getCarType01())
+            .append("engineNumber", getEngineNumber())
+            .append("engineCc", getEngineCc())
+            .append("enginePower", getEnginePower())
+            .append("carNumber", getCarNumber())
+            .append("carImgaeUrl", getCarImgaeUrl())
+            .append("carDrivingLicenseImagesUrl", getCarDrivingLicenseImagesUrl())
+            .append("carLicenseImageUrl", getCarLicenseImageUrl())
+            .append("buyDate", getBuyDate())
+            .append("rentEndDate", getRentEndDate())
+            .append("ownerOrgId", getOwnerOrgId())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

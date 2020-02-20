@@ -1,58 +1,83 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 ecmp_user_feedback_image
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("ecmp_user_feedback_image")
-public class EcmpUserFeedbackImage extends MicBaseEntity<EcmpUserFeedbackImage> {
+public class EcmpUserFeedbackImage extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "image_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long imageId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long feedbackId;
 
-    private Integer userId;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long userId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String imageUrl;
 
-
-    public static final String IMAGE_ID = "image_id";
-
-    public static final String FEEDBACK_ID = "feedback_id";
-
-    public static final String USER_ID = "user_id";
-
-    public static final String IMAGE_URL = "image_url";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.imageId;
+    public void setImageId(Long imageId)
+    {
+        this.imageId = imageId;
     }
 
+    public Long getImageId()
+    {
+        return imageId;
+    }
+    public void setFeedbackId(Long feedbackId)
+    {
+        this.feedbackId = feedbackId;
+    }
+
+    public Long getFeedbackId()
+    {
+        return feedbackId;
+    }
+    public void setUserId(Long userId)
+    {
+        this.userId = userId;
+    }
+
+    public Long getUserId()
+    {
+        return userId;
+    }
+    public void setImageUrl(String imageUrl)
+    {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getImageUrl()
+    {
+        return imageUrl;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("imageId", getImageId())
+            .append("feedbackId", getFeedbackId())
+            .append("userId", getUserId())
+            .append("imageUrl", getImageUrl())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

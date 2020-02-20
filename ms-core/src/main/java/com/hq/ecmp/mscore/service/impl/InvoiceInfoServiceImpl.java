@@ -1,20 +1,96 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.List;
+import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
 import com.hq.ecmp.mscore.mapper.InvoiceInfoMapper;
 import com.hq.ecmp.mscore.service.IInvoiceInfoService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * <p>
- *  服务实现类
- * </p>
+ * 【请填写功能名称】Service业务层处理
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
 @Service
-public class InvoiceInfoServiceImpl extends ServiceImpl<InvoiceInfoMapper, InvoiceInfo> implements IInvoiceInfoService {
+public class InvoiceInfoServiceImpl implements IInvoiceInfoService
+{
+    @Autowired
+    private InvoiceInfoMapper invoiceInfoMapper;
 
+    /**
+     * 查询【请填写功能名称】
+     *
+     * @param invoiceId 【请填写功能名称】ID
+     * @return 【请填写功能名称】
+     */
+    @Override
+    public InvoiceInfo selectInvoiceInfoById(Long invoiceId)
+    {
+        return invoiceInfoMapper.selectInvoiceInfoById(invoiceId);
+    }
+
+    /**
+     * 查询【请填写功能名称】列表
+     *
+     * @param invoiceInfo 【请填写功能名称】
+     * @return 【请填写功能名称】
+     */
+    @Override
+    public List<InvoiceInfo> selectInvoiceInfoList(InvoiceInfo invoiceInfo)
+    {
+        return invoiceInfoMapper.selectInvoiceInfoList(invoiceInfo);
+    }
+
+    /**
+     * 新增【请填写功能名称】
+     *
+     * @param invoiceInfo 【请填写功能名称】
+     * @return 结果
+     */
+    @Override
+    public int insertInvoiceInfo(InvoiceInfo invoiceInfo)
+    {
+        invoiceInfo.setCreateTime(DateUtils.getNowDate());
+        return invoiceInfoMapper.insertInvoiceInfo(invoiceInfo);
+    }
+
+    /**
+     * 修改【请填写功能名称】
+     *
+     * @param invoiceInfo 【请填写功能名称】
+     * @return 结果
+     */
+    @Override
+    public int updateInvoiceInfo(InvoiceInfo invoiceInfo)
+    {
+        invoiceInfo.setUpdateTime(DateUtils.getNowDate());
+        return invoiceInfoMapper.updateInvoiceInfo(invoiceInfo);
+    }
+
+    /**
+     * 批量删除【请填写功能名称】
+     *
+     * @param invoiceIds 需要删除的【请填写功能名称】ID
+     * @return 结果
+     */
+    @Override
+    public int deleteInvoiceInfoByIds(Long[] invoiceIds)
+    {
+        return invoiceInfoMapper.deleteInvoiceInfoByIds(invoiceIds);
+    }
+
+    /**
+     * 删除【请填写功能名称】信息
+     *
+     * @param invoiceId 【请填写功能名称】ID
+     * @return 结果
+     */
+    @Override
+    public int deleteInvoiceInfoById(Long invoiceId)
+    {
+        return invoiceInfoMapper.deleteInvoiceInfoById(invoiceId);
+    }
 }

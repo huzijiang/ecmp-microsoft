@@ -1,48 +1,56 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 car_group_driver_relation
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("car_group_driver_relation")
-public class CarGroupDriverRelation extends MicBaseEntity<CarGroupDriverRelation> {
+public class CarGroupDriverRelation extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long driverId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carGroupId;
 
-
-    public static final String DRIVER_ID = "driver_id";
-
-    public static final String CAR_GROUP_ID = "car_group_id";
-
-    @Override
-    protected Serializable pkVal() {
-        return null;
+    public void setDriverId(Long driverId)
+    {
+        this.driverId = driverId;
     }
 
+    public Long getDriverId()
+    {
+        return driverId;
+    }
+    public void setCarGroupId(Long carGroupId)
+    {
+        this.carGroupId = carGroupId;
+    }
+
+    public Long getCarGroupId()
+    {
+        return carGroupId;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("driverId", getDriverId())
+            .append("carGroupId", getCarGroupId())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

@@ -1,68 +1,111 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 enterprise_car_type_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("enterprise_car_type_info")
-public class EnterpriseCarTypeInfo extends MicBaseEntity<EnterpriseCarTypeInfo> {
+public class EnterpriseCarTypeInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "car_type_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long carTypeId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long enterpriseId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long countryCarTypeId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String name;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String level;
 
-    @TableLogic
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String status;
 
-
-    public static final String CAR_TYPE_ID = "car_type_id";
-
-    public static final String ENTERPRISE_ID = "enterprise_id";
-
-    public static final String COUNTRY_CAR_TYPE_ID = "country_car_type_id";
-
-    public static final String NAME = "name";
-
-    public static final String LEVEL = "level";
-
-    public static final String STATUS = "status";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.carTypeId;
+    public void setCarTypeId(Long carTypeId)
+    {
+        this.carTypeId = carTypeId;
     }
 
+    public Long getCarTypeId()
+    {
+        return carTypeId;
+    }
+    public void setEnterpriseId(Long enterpriseId)
+    {
+        this.enterpriseId = enterpriseId;
+    }
+
+    public Long getEnterpriseId()
+    {
+        return enterpriseId;
+    }
+    public void setCountryCarTypeId(Long countryCarTypeId)
+    {
+        this.countryCarTypeId = countryCarTypeId;
+    }
+
+    public Long getCountryCarTypeId()
+    {
+        return countryCarTypeId;
+    }
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+    public void setLevel(String level)
+    {
+        this.level = level;
+    }
+
+    public String getLevel()
+    {
+        return level;
+    }
+    public void setStatus(String status)
+    {
+        this.status = status;
+    }
+
+    public String getStatus()
+    {
+        return status;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("carTypeId", getCarTypeId())
+            .append("enterpriseId", getEnterpriseId())
+            .append("countryCarTypeId", getCountryCarTypeId())
+            .append("name", getName())
+            .append("level", getLevel())
+            .append("status", getStatus())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

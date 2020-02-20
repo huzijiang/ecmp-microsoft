@@ -1,72 +1,84 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 字典类型表
- * </p>
+ * 字典类型对象 ecmp_dict_type
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("ecmp_dict_type")
-public class EcmpDictType extends MicBaseEntity<EcmpDictType> {
+public class EcmpDictType extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    /**
-     * 字典主键
-     */
-    @TableId(value = "dict_id", type = IdType.AUTO)
+    /** 字典主键 */
     private Long dictId;
 
-    /**
-     * 字典名称
-     */
+    /** 字典名称 */
+    @Excel(name = "字典名称")
     private String dictName;
 
-    /**
-     * 字典类型
-     */
+    /** 字典类型 */
+    @Excel(name = "字典类型")
     private String dictType;
 
-    /**
-     * 状态（0正常 1停用）
-     */
-    @TableLogic
+    /** 状态（0正常 1停用） */
+    @Excel(name = "状态", readConverterExp = "0=正常,1=停用")
     private String status;
 
-
-    public static final String DICT_ID = "dict_id";
-
-    public static final String DICT_NAME = "dict_name";
-
-    public static final String DICT_TYPE = "dict_type";
-
-    public static final String STATUS = "status";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.dictId;
+    public void setDictId(Long dictId)
+    {
+        this.dictId = dictId;
     }
 
+    public Long getDictId()
+    {
+        return dictId;
+    }
+    public void setDictName(String dictName)
+    {
+        this.dictName = dictName;
+    }
+
+    public String getDictName()
+    {
+        return dictName;
+    }
+    public void setDictType(String dictType)
+    {
+        this.dictType = dictType;
+    }
+
+    public String getDictType()
+    {
+        return dictType;
+    }
+    public void setStatus(String status)
+    {
+        this.status = status;
+    }
+
+    public String getStatus()
+    {
+        return status;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("dictId", getDictId())
+            .append("dictName", getDictName())
+            .append("dictType", getDictType())
+            .append("status", getStatus())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .append("remark", getRemark())
+            .toString();
+    }
 }

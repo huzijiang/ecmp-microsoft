@@ -1,107 +1,154 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 字典数据表
- * </p>
+ * 字典数据对象 ecmp_dict_data
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("ecmp_dict_data")
-public class EcmpDictData extends MicBaseEntity<EcmpDictData> {
+public class EcmpDictData extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    /**
-     * 字典编码
-     */
-    @TableId(value = "dict_code", type = IdType.AUTO)
+    /** 字典编码 */
     private Long dictCode;
 
-    /**
-     * 字典排序
-     */
+    /** 字典排序 */
+    @Excel(name = "字典排序")
     private Integer dictSort;
 
-    /**
-     * 字典标签
-     */
+    /** 字典标签 */
+    @Excel(name = "字典标签")
     private String dictLabel;
 
-    /**
-     * 字典键值
-     */
+    /** 字典键值 */
+    @Excel(name = "字典键值")
     private String dictValue;
 
-    /**
-     * 字典类型
-     */
+    /** 字典类型 */
+    @Excel(name = "字典类型")
     private String dictType;
 
-    /**
-     * 样式属性（其他样式扩展）
-     */
+    /** 样式属性（其他样式扩展） */
+    @Excel(name = "样式属性", readConverterExp = "其=他样式扩展")
     private String cssClass;
 
-    /**
-     * 表格回显样式
-     */
+    /** 表格回显样式 */
+    @Excel(name = "表格回显样式")
     private String listClass;
 
-    /**
-     * 是否默认（Y是 N否）
-     */
+    /** 是否默认（Y是 N否） */
+    @Excel(name = "是否默认", readConverterExp = "Y=是,N=否")
     private String isDefault;
 
-    /**
-     * 状态（0正常 1停用）
-     */
-    @TableLogic
+    /** 状态（0正常 1停用） */
+    @Excel(name = "状态", readConverterExp = "0=正常,1=停用")
     private String status;
 
-
-    public static final String DICT_CODE = "dict_code";
-
-    public static final String DICT_SORT = "dict_sort";
-
-    public static final String DICT_LABEL = "dict_label";
-
-    public static final String DICT_VALUE = "dict_value";
-
-    public static final String DICT_TYPE = "dict_type";
-
-    public static final String CSS_CLASS = "css_class";
-
-    public static final String LIST_CLASS = "list_class";
-
-    public static final String IS_DEFAULT = "is_default";
-
-    public static final String STATUS = "status";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.dictCode;
+    public void setDictCode(Long dictCode)
+    {
+        this.dictCode = dictCode;
     }
 
+    public Long getDictCode()
+    {
+        return dictCode;
+    }
+    public void setDictSort(Integer dictSort)
+    {
+        this.dictSort = dictSort;
+    }
+
+    public Integer getDictSort()
+    {
+        return dictSort;
+    }
+    public void setDictLabel(String dictLabel)
+    {
+        this.dictLabel = dictLabel;
+    }
+
+    public String getDictLabel()
+    {
+        return dictLabel;
+    }
+    public void setDictValue(String dictValue)
+    {
+        this.dictValue = dictValue;
+    }
+
+    public String getDictValue()
+    {
+        return dictValue;
+    }
+    public void setDictType(String dictType)
+    {
+        this.dictType = dictType;
+    }
+
+    public String getDictType()
+    {
+        return dictType;
+    }
+    public void setCssClass(String cssClass)
+    {
+        this.cssClass = cssClass;
+    }
+
+    public String getCssClass()
+    {
+        return cssClass;
+    }
+    public void setListClass(String listClass)
+    {
+        this.listClass = listClass;
+    }
+
+    public String getListClass()
+    {
+        return listClass;
+    }
+    public void setIsDefault(String isDefault)
+    {
+        this.isDefault = isDefault;
+    }
+
+    public String getIsDefault()
+    {
+        return isDefault;
+    }
+    public void setStatus(String status)
+    {
+        this.status = status;
+    }
+
+    public String getStatus()
+    {
+        return status;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("dictCode", getDictCode())
+            .append("dictSort", getDictSort())
+            .append("dictLabel", getDictLabel())
+            .append("dictValue", getDictValue())
+            .append("dictType", getDictType())
+            .append("cssClass", getCssClass())
+            .append("listClass", getListClass())
+            .append("isDefault", getIsDefault())
+            .append("status", getStatus())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .append("remark", getRemark())
+            .toString();
+    }
 }

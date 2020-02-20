@@ -1,93 +1,122 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 定时任务调度日志表
- * </p>
+ * 定时任务调度日志对象 ecmp_job_log
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("ecmp_job_log")
-public class EcmpJobLog extends MicBaseEntity<EcmpJobLog> {
+public class EcmpJobLog extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    /**
-     * 任务日志ID
-     */
-    @TableId(value = "job_log_id", type = IdType.AUTO)
+    /** 任务日志ID */
     private Long jobLogId;
 
-    /**
-     * 任务名称
-     */
+    /** 任务名称 */
+    @Excel(name = "任务名称")
     private String jobName;
 
-    /**
-     * 任务组名
-     */
+    /** 任务组名 */
+    @Excel(name = "任务组名")
     private String jobGroup;
 
-    /**
-     * 调用目标字符串
-     */
+    /** 调用目标字符串 */
+    @Excel(name = "调用目标字符串")
     private String invokeTarget;
 
-    /**
-     * 日志信息
-     */
+    /** 日志信息 */
+    @Excel(name = "日志信息")
     private String jobMessage;
 
-    /**
-     * 执行状态（0正常 1失败）
-     */
-    @TableLogic
+    /** 执行状态（0正常 1失败） */
+    @Excel(name = "执行状态", readConverterExp = "0=正常,1=失败")
     private String status;
 
-    /**
-     * 异常信息
-     */
+    /** 异常信息 */
+    @Excel(name = "异常信息")
     private String exceptionInfo;
 
-
-    public static final String JOB_LOG_ID = "job_log_id";
-
-    public static final String JOB_NAME = "job_name";
-
-    public static final String JOB_GROUP = "job_group";
-
-    public static final String INVOKE_TARGET = "invoke_target";
-
-    public static final String JOB_MESSAGE = "job_message";
-
-    public static final String STATUS = "status";
-
-    public static final String EXCEPTION_INFO = "exception_info";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.jobLogId;
+    public void setJobLogId(Long jobLogId)
+    {
+        this.jobLogId = jobLogId;
     }
 
+    public Long getJobLogId()
+    {
+        return jobLogId;
+    }
+    public void setJobName(String jobName)
+    {
+        this.jobName = jobName;
+    }
+
+    public String getJobName()
+    {
+        return jobName;
+    }
+    public void setJobGroup(String jobGroup)
+    {
+        this.jobGroup = jobGroup;
+    }
+
+    public String getJobGroup()
+    {
+        return jobGroup;
+    }
+    public void setInvokeTarget(String invokeTarget)
+    {
+        this.invokeTarget = invokeTarget;
+    }
+
+    public String getInvokeTarget()
+    {
+        return invokeTarget;
+    }
+    public void setJobMessage(String jobMessage)
+    {
+        this.jobMessage = jobMessage;
+    }
+
+    public String getJobMessage()
+    {
+        return jobMessage;
+    }
+    public void setStatus(String status)
+    {
+        this.status = status;
+    }
+
+    public String getStatus()
+    {
+        return status;
+    }
+    public void setExceptionInfo(String exceptionInfo)
+    {
+        this.exceptionInfo = exceptionInfo;
+    }
+
+    public String getExceptionInfo()
+    {
+        return exceptionInfo;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("jobLogId", getJobLogId())
+            .append("jobName", getJobName())
+            .append("jobGroup", getJobGroup())
+            .append("invokeTarget", getInvokeTarget())
+            .append("jobMessage", getJobMessage())
+            .append("status", getStatus())
+            .append("exceptionInfo", getExceptionInfo())
+            .append("createTime", getCreateTime())
+            .toString();
+    }
 }

@@ -1,66 +1,107 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 order_car_trace_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("order_car_trace_info")
-public class OrderCarTraceInfo extends MicBaseEntity<OrderCarTraceInfo> {
+public class OrderCarTraceInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "id", type = IdType.AUTO)
+    /** $column.columnComment */
     private String id;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String longitude;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String latitude;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carLicense;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long orderId;
 
-
-    public static final String ID = "id";
-
-    public static final String CAR_ID = "car_id";
-
-    public static final String LONGITUDE = "longitude";
-
-    public static final String LATITUDE = "latitude";
-
-    public static final String CAR_LICENSE = "car_license";
-
-    public static final String ORDER_ID = "order_id";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.id;
+    public void setId(String id)
+    {
+        this.id = id;
     }
 
+    public String getId()
+    {
+        return id;
+    }
+    public void setCarId(String carId)
+    {
+        this.carId = carId;
+    }
+
+    public String getCarId()
+    {
+        return carId;
+    }
+    public void setLongitude(String longitude)
+    {
+        this.longitude = longitude;
+    }
+
+    public String getLongitude()
+    {
+        return longitude;
+    }
+    public void setLatitude(String latitude)
+    {
+        this.latitude = latitude;
+    }
+
+    public String getLatitude()
+    {
+        return latitude;
+    }
+    public void setCarLicense(String carLicense)
+    {
+        this.carLicense = carLicense;
+    }
+
+    public String getCarLicense()
+    {
+        return carLicense;
+    }
+    public void setOrderId(Long orderId)
+    {
+        this.orderId = orderId;
+    }
+
+    public Long getOrderId()
+    {
+        return orderId;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("id", getId())
+            .append("carId", getCarId())
+            .append("longitude", getLongitude())
+            .append("latitude", getLatitude())
+            .append("carLicense", getCarLicense())
+            .append("orderId", getOrderId())
+            .toString();
+    }
 }

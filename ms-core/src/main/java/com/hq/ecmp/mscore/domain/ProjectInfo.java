@@ -1,66 +1,111 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 project_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("project_info")
-public class ProjectInfo extends MicBaseEntity<ProjectInfo> {
+public class ProjectInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "project_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long projectId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String name;
 
-    private Integer leader;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long leader;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String projectCode;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String startDate;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String closeDate;
 
-
-    public static final String PROJECT_ID = "project_id";
-
-    public static final String NAME = "name";
-
-    public static final String LEADER = "leader";
-
-    public static final String PROJECT_CODE = "project_code";
-
-    public static final String START_DATE = "start_date";
-
-    public static final String CLOSE_DATE = "close_date";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.projectId;
+    public void setProjectId(Long projectId)
+    {
+        this.projectId = projectId;
     }
 
+    public Long getProjectId()
+    {
+        return projectId;
+    }
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+    public void setLeader(Long leader)
+    {
+        this.leader = leader;
+    }
+
+    public Long getLeader()
+    {
+        return leader;
+    }
+    public void setProjectCode(String projectCode)
+    {
+        this.projectCode = projectCode;
+    }
+
+    public String getProjectCode()
+    {
+        return projectCode;
+    }
+    public void setStartDate(String startDate)
+    {
+        this.startDate = startDate;
+    }
+
+    public String getStartDate()
+    {
+        return startDate;
+    }
+    public void setCloseDate(String closeDate)
+    {
+        this.closeDate = closeDate;
+    }
+
+    public String getCloseDate()
+    {
+        return closeDate;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("projectId", getProjectId())
+            .append("name", getName())
+            .append("leader", getLeader())
+            .append("projectCode", getProjectCode())
+            .append("startDate", getStartDate())
+            .append("closeDate", getCloseDate())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

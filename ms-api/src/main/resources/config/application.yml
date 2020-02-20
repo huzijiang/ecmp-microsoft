@@ -46,16 +46,16 @@ mybatis:
   # 搜索指定包别名
   typeAliasesPackage: com.hq.**.domain
   # 配置mapper的扫描，找到所有的mapper.xml映射文件
-  mapperLocations: classpath*:config/mybatis/**/*Mapper.xml
+  mapperLocations: classpath*:/config/mybatis/**/*Mapper.xml
   # 加载全局的配置文件
-#  configLocation: classpath:config/mybatis/mybatis-config.xml
+  configLocation: classpath:config/mybatis/mybatis-config.xml
 
 # PageHelper分页插件
-#pagehelper:
-#  helperDialect: mysql
-#  reasonable: true
-#  supportMethodsArguments: true
-#  params: count=countSql
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
 
 # 防止XSS攻击
 xss:
@@ -76,22 +76,3 @@ gen:
   autoRemovePre: false
   # 表前缀（生成类名不会包含表前缀，多个用逗号分隔）
   tablePrefix: ecmp_
-
-mybatis-plus:
-  configuration:
-    cache-enabled: true
-    lazyLoadingEnabled: true
-    #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #mybatis原生的sql打印
-    map-underscore-to-camel-case: true
-    multipleResultSetsEnabled: true
-  global-config:
-    db-column-underline: true
-    field-strategy: 2
-    id-type: 3
-    refresh-mapper: true
-    db-config:
-      logic-delete-value: 0
-      logic-not-delete-value: 1
-  mapper-locations: classpath*:config/mybatis/**/*Mapper.xml
-  type-aliases-package: com.hq.**.domain.*
-#  typeEnumsPackage: com.winsun.affiliation.modular.*.enums

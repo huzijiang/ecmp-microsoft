@@ -1,64 +1,98 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-
-import java.time.LocalDate;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
+import java.util.Date;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 driver_work_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("driver_work_info")
-public class DriverWorkInfo extends MicBaseEntity<DriverWorkInfo> {
+public class DriverWorkInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "work_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long workId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long driverId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String leaveStatus;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String leaveConfirmStatus;
 
-    private LocalDate caledarDate;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date caledarDate;
 
-
-    public static final String WORK_ID = "work_id";
-
-    public static final String DRIVER_ID = "driver_id";
-
-    public static final String LEAVE_STATUS = "leave_status";
-
-    public static final String LEAVE_CONFIRM_STATUS = "leave_confirm_status";
-
-    public static final String CALEDAR_DATE = "caledar_date";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.workId;
+    public void setWorkId(Long workId)
+    {
+        this.workId = workId;
     }
 
+    public Long getWorkId()
+    {
+        return workId;
+    }
+    public void setDriverId(Long driverId)
+    {
+        this.driverId = driverId;
+    }
+
+    public Long getDriverId()
+    {
+        return driverId;
+    }
+    public void setLeaveStatus(String leaveStatus)
+    {
+        this.leaveStatus = leaveStatus;
+    }
+
+    public String getLeaveStatus()
+    {
+        return leaveStatus;
+    }
+    public void setLeaveConfirmStatus(String leaveConfirmStatus)
+    {
+        this.leaveConfirmStatus = leaveConfirmStatus;
+    }
+
+    public String getLeaveConfirmStatus()
+    {
+        return leaveConfirmStatus;
+    }
+    public void setCaledarDate(Date caledarDate)
+    {
+        this.caledarDate = caledarDate;
+    }
+
+    public Date getCaledarDate()
+    {
+        return caledarDate;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("workId", getWorkId())
+            .append("driverId", getDriverId())
+            .append("leaveStatus", getLeaveStatus())
+            .append("leaveConfirmStatus", getLeaveConfirmStatus())
+            .append("caledarDate", getCaledarDate())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

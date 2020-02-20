@@ -1,48 +1,52 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 order_invoice_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("order_invoice_info")
-public class OrderInvoiceInfo extends MicBaseEntity<OrderInvoiceInfo> {
+public class OrderInvoiceInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long invoiceId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long accountId;
 
-
-    public static final String INVOICE_ID = "invoice_id";
-
-    public static final String ACCOUNT_ID = "account_id";
-
-    @Override
-    protected Serializable pkVal() {
-        return null;
+    public void setInvoiceId(Long invoiceId)
+    {
+        this.invoiceId = invoiceId;
     }
 
+    public Long getInvoiceId()
+    {
+        return invoiceId;
+    }
+    public void setAccountId(Long accountId)
+    {
+        this.accountId = accountId;
+    }
+
+    public Long getAccountId()
+    {
+        return accountId;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("invoiceId", getInvoiceId())
+            .append("accountId", getAccountId())
+            .toString();
+    }
 }

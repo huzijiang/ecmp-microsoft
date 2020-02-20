@@ -1,128 +1,194 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 部门表
- * </p>
+ * 部门对象 ecmp_org
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("ecmp_org")
-public class EcmpOrg extends MicBaseEntity<EcmpOrg> {
+public class EcmpOrg extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    /**
-     * 组织id
-     */
-    @TableId(value = "dept_id", type = IdType.AUTO)
+    /** 组织id */
     private Long deptId;
 
-    /**
-     * 上级组织id
-     */
+    /** 上级组织id */
+    @Excel(name = "上级组织id")
     private Long parentId;
 
-    /**
-     * 公司ID
-     */
+    /** 公司ID */
+    @Excel(name = "公司ID")
     private Long companyId;
 
-    /**
-     * 祖级列表
-     */
+    /** 祖级列表 */
+    @Excel(name = "祖级列表")
     private String ancestors;
 
-    /**
-     * 组织名称
-     */
+    /** 组织名称 */
+    @Excel(name = "组织名称")
     private String deptName;
 
-    /**
-     * 组织类别（1 公司 2 部门 3 车队）
-     */
+    /** 组织类别（1 公司 2 部门 3 车队） */
+    @Excel(name = "组织类别", readConverterExp = "1=,公=司,2=,部=门,3=,车=队")
     private String deptType;
 
-    /**
-     * 显示顺序
-     */
+    /** 显示顺序 */
+    @Excel(name = "显示顺序")
     private Integer orderNum;
 
-    /**
-     * 负责人
-     */
+    /** 负责人 */
+    @Excel(name = "负责人")
     private String leader;
 
-    /**
-     * 联系电话
-     */
+    /** 联系电话 */
+    @Excel(name = "联系电话")
     private String phone;
 
-    /**
-     * 邮箱
-     */
+    /** 邮箱 */
+    @Excel(name = "邮箱")
     private String email;
 
-    /**
-     * 部门状态（0正常 1停用）
-     */
-    @TableLogic
+    /** 部门状态（0正常 1停用） */
+    @Excel(name = "部门状态", readConverterExp = "0=正常,1=停用")
     private String status;
 
-    /**
-     * 删除标志（0代表存在 2代表删除）
-     */
+    /** 删除标志（0代表存在 2代表删除） */
     private String delFlag;
 
-
-    public static final String DEPT_ID = "dept_id";
-
-    public static final String PARENT_ID = "parent_id";
-
-    public static final String COMPANY_ID = "company_id";
-
-    public static final String ANCESTORS = "ancestors";
-
-    public static final String DEPT_NAME = "dept_name";
-
-    public static final String DEPT_TYPE = "dept_type";
-
-    public static final String ORDER_NUM = "order_num";
-
-    public static final String LEADER = "leader";
-
-    public static final String PHONE = "phone";
-
-    public static final String EMAIL = "email";
-
-    public static final String STATUS = "status";
-
-    public static final String DEL_FLAG = "del_flag";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.deptId;
+    public void setDeptId(Long deptId)
+    {
+        this.deptId = deptId;
     }
 
+    public Long getDeptId()
+    {
+        return deptId;
+    }
+    public void setParentId(Long parentId)
+    {
+        this.parentId = parentId;
+    }
+
+    public Long getParentId()
+    {
+        return parentId;
+    }
+    public void setCompanyId(Long companyId)
+    {
+        this.companyId = companyId;
+    }
+
+    public Long getCompanyId()
+    {
+        return companyId;
+    }
+    public void setAncestors(String ancestors)
+    {
+        this.ancestors = ancestors;
+    }
+
+    public String getAncestors()
+    {
+        return ancestors;
+    }
+    public void setDeptName(String deptName)
+    {
+        this.deptName = deptName;
+    }
+
+    public String getDeptName()
+    {
+        return deptName;
+    }
+    public void setDeptType(String deptType)
+    {
+        this.deptType = deptType;
+    }
+
+    public String getDeptType()
+    {
+        return deptType;
+    }
+    public void setOrderNum(Integer orderNum)
+    {
+        this.orderNum = orderNum;
+    }
+
+    public Integer getOrderNum()
+    {
+        return orderNum;
+    }
+    public void setLeader(String leader)
+    {
+        this.leader = leader;
+    }
+
+    public String getLeader()
+    {
+        return leader;
+    }
+    public void setPhone(String phone)
+    {
+        this.phone = phone;
+    }
+
+    public String getPhone()
+    {
+        return phone;
+    }
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+
+    public String getEmail()
+    {
+        return email;
+    }
+    public void setStatus(String status)
+    {
+        this.status = status;
+    }
+
+    public String getStatus()
+    {
+        return status;
+    }
+    public void setDelFlag(String delFlag)
+    {
+        this.delFlag = delFlag;
+    }
+
+    public String getDelFlag()
+    {
+        return delFlag;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("deptId", getDeptId())
+            .append("parentId", getParentId())
+            .append("companyId", getCompanyId())
+            .append("ancestors", getAncestors())
+            .append("deptName", getDeptName())
+            .append("deptType", getDeptType())
+            .append("orderNum", getOrderNum())
+            .append("leader", getLeader())
+            .append("phone", getPhone())
+            .append("email", getEmail())
+            .append("status", getStatus())
+            .append("delFlag", getDelFlag())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

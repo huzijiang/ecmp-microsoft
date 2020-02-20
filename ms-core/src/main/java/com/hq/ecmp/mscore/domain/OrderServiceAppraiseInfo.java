@@ -1,58 +1,83 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 order_service_appraise_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("order_service_appraise_info")
-public class OrderServiceAppraiseInfo extends MicBaseEntity<OrderServiceAppraiseInfo> {
+public class OrderServiceAppraiseInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "appraise_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long appraiseId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long orderId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long journeyId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String content;
 
-
-    public static final String APPRAISE_ID = "appraise_id";
-
-    public static final String ORDER_ID = "order_id";
-
-    public static final String JOURNEY_ID = "journey_id";
-
-    public static final String CONTENT = "content";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.appraiseId;
+    public void setAppraiseId(Long appraiseId)
+    {
+        this.appraiseId = appraiseId;
     }
 
+    public Long getAppraiseId()
+    {
+        return appraiseId;
+    }
+    public void setOrderId(Long orderId)
+    {
+        this.orderId = orderId;
+    }
+
+    public Long getOrderId()
+    {
+        return orderId;
+    }
+    public void setJourneyId(Long journeyId)
+    {
+        this.journeyId = journeyId;
+    }
+
+    public Long getJourneyId()
+    {
+        return journeyId;
+    }
+    public void setContent(String content)
+    {
+        this.content = content;
+    }
+
+    public String getContent()
+    {
+        return content;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("appraiseId", getAppraiseId())
+            .append("orderId", getOrderId())
+            .append("journeyId", getJourneyId())
+            .append("content", getContent())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

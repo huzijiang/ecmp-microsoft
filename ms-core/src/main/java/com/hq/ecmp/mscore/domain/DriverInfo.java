@@ -1,139 +1,308 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import java.time.LocalDateTime;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
+import java.util.Date;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 driver_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("driver_info")
-public class DriverInfo extends MicBaseEntity<DriverInfo> {
+public class DriverInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "driver_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long driverId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long userId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String driverName;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String country;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String nation;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String idCard;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime birthday;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date birthday;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String gender;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String mobile;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String address;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String emergencyContactA;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String emergencyContactB;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String emergencyContactC;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsFullTime;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String licenseType;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime licenseIssueDate;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date licenseIssueDate;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime licenseInitIssueDate;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date licenseInitIssueDate;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String licenseNumber;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String licenseArchivesNumber;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime licenseExpireDate;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date licenseExpireDate;
 
-
-    public static final String DRIVER_ID = "driver_id";
-
-    public static final String USER_ID = "user_id";
-
-    public static final String DRIVER_NAME = "driver_name";
-
-    public static final String COUNTRY = "country";
-
-    public static final String NATION = "nation";
-
-    public static final String ID_CARD = "id_card";
-
-    public static final String BIRTHDAY = "birthday";
-
-    public static final String GENDER = "gender";
-
-    public static final String MOBILE = "mobile";
-
-    public static final String ADDRESS = "address";
-
-    public static final String EMERGENCY_CONTACT_A = "emergency_contact_a";
-
-    public static final String EMERGENCY_CONTACT_B = "emergency_contact_b";
-
-    public static final String EMERGENCY_CONTACT_C = "emergency_contact_c";
-
-    public static final String IT_IS_FULL_TIME = "it_is_full_time";
-
-    public static final String LICENSE_TYPE = "license_type";
-
-    public static final String LICENSE_ISSUE_DATE = "license_issue_date";
-
-    public static final String LICENSE_INIT_ISSUE_DATE = "license_init_issue_date";
-
-    public static final String LICENSE_NUMBER = "license_number";
-
-    public static final String LICENSE_ARCHIVES_NUMBER = "license_archives_number";
-
-    public static final String LICENSE_EXPIRE_DATE = "license_expire_date";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.driverId;
+    public void setDriverId(Long driverId)
+    {
+        this.driverId = driverId;
     }
 
+    public Long getDriverId()
+    {
+        return driverId;
+    }
+    public void setUserId(Long userId)
+    {
+        this.userId = userId;
+    }
+
+    public Long getUserId()
+    {
+        return userId;
+    }
+    public void setDriverName(String driverName)
+    {
+        this.driverName = driverName;
+    }
+
+    public String getDriverName()
+    {
+        return driverName;
+    }
+    public void setCountry(String country)
+    {
+        this.country = country;
+    }
+
+    public String getCountry()
+    {
+        return country;
+    }
+    public void setNation(String nation)
+    {
+        this.nation = nation;
+    }
+
+    public String getNation()
+    {
+        return nation;
+    }
+    public void setIdCard(String idCard)
+    {
+        this.idCard = idCard;
+    }
+
+    public String getIdCard()
+    {
+        return idCard;
+    }
+    public void setBirthday(Date birthday)
+    {
+        this.birthday = birthday;
+    }
+
+    public Date getBirthday()
+    {
+        return birthday;
+    }
+    public void setGender(String gender)
+    {
+        this.gender = gender;
+    }
+
+    public String getGender()
+    {
+        return gender;
+    }
+    public void setMobile(String mobile)
+    {
+        this.mobile = mobile;
+    }
+
+    public String getMobile()
+    {
+        return mobile;
+    }
+    public void setAddress(String address)
+    {
+        this.address = address;
+    }
+
+    public String getAddress()
+    {
+        return address;
+    }
+    public void setEmergencyContactA(String emergencyContactA)
+    {
+        this.emergencyContactA = emergencyContactA;
+    }
+
+    public String getEmergencyContactA()
+    {
+        return emergencyContactA;
+    }
+    public void setEmergencyContactB(String emergencyContactB)
+    {
+        this.emergencyContactB = emergencyContactB;
+    }
+
+    public String getEmergencyContactB()
+    {
+        return emergencyContactB;
+    }
+    public void setEmergencyContactC(String emergencyContactC)
+    {
+        this.emergencyContactC = emergencyContactC;
+    }
+
+    public String getEmergencyContactC()
+    {
+        return emergencyContactC;
+    }
+    public void setItIsFullTime(String itIsFullTime)
+    {
+        this.itIsFullTime = itIsFullTime;
+    }
+
+    public String getItIsFullTime()
+    {
+        return itIsFullTime;
+    }
+    public void setLicenseType(String licenseType)
+    {
+        this.licenseType = licenseType;
+    }
+
+    public String getLicenseType()
+    {
+        return licenseType;
+    }
+    public void setLicenseIssueDate(Date licenseIssueDate)
+    {
+        this.licenseIssueDate = licenseIssueDate;
+    }
+
+    public Date getLicenseIssueDate()
+    {
+        return licenseIssueDate;
+    }
+    public void setLicenseInitIssueDate(Date licenseInitIssueDate)
+    {
+        this.licenseInitIssueDate = licenseInitIssueDate;
+    }
+
+    public Date getLicenseInitIssueDate()
+    {
+        return licenseInitIssueDate;
+    }
+    public void setLicenseNumber(String licenseNumber)
+    {
+        this.licenseNumber = licenseNumber;
+    }
+
+    public String getLicenseNumber()
+    {
+        return licenseNumber;
+    }
+    public void setLicenseArchivesNumber(String licenseArchivesNumber)
+    {
+        this.licenseArchivesNumber = licenseArchivesNumber;
+    }
+
+    public String getLicenseArchivesNumber()
+    {
+        return licenseArchivesNumber;
+    }
+    public void setLicenseExpireDate(Date licenseExpireDate)
+    {
+        this.licenseExpireDate = licenseExpireDate;
+    }
+
+    public Date getLicenseExpireDate()
+    {
+        return licenseExpireDate;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("driverId", getDriverId())
+            .append("userId", getUserId())
+            .append("driverName", getDriverName())
+            .append("country", getCountry())
+            .append("nation", getNation())
+            .append("idCard", getIdCard())
+            .append("birthday", getBirthday())
+            .append("gender", getGender())
+            .append("mobile", getMobile())
+            .append("address", getAddress())
+            .append("emergencyContactA", getEmergencyContactA())
+            .append("emergencyContactB", getEmergencyContactB())
+            .append("emergencyContactC", getEmergencyContactC())
+            .append("itIsFullTime", getItIsFullTime())
+            .append("licenseType", getLicenseType())
+            .append("licenseIssueDate", getLicenseIssueDate())
+            .append("licenseInitIssueDate", getLicenseInitIssueDate())
+            .append("licenseNumber", getLicenseNumber())
+            .append("licenseArchivesNumber", getLicenseArchivesNumber())
+            .append("licenseExpireDate", getLicenseExpireDate())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

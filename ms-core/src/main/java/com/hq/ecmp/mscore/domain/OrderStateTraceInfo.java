@@ -1,67 +1,111 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 order_state_trace_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("order_state_trace_info")
-public class OrderStateTraceInfo extends MicBaseEntity<OrderStateTraceInfo> {
+public class OrderStateTraceInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "trace_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long traceId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long orderId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String state;
 
-    private BigDecimal driverLongitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long driverLongitude;
 
-    private BigDecimal driverLatitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long driverLatitude;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String content;
 
-
-    public static final String TRACE_ID = "trace_id";
-
-    public static final String ORDER_ID = "order_id";
-
-    public static final String STATE = "state";
-
-    public static final String DRIVER_LONGITUDE = "driver_longitude";
-
-    public static final String DRIVER_LATITUDE = "driver_latitude";
-
-    public static final String CONTENT = "content";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.traceId;
+    public void setTraceId(Long traceId)
+    {
+        this.traceId = traceId;
     }
 
+    public Long getTraceId()
+    {
+        return traceId;
+    }
+    public void setOrderId(Long orderId)
+    {
+        this.orderId = orderId;
+    }
+
+    public Long getOrderId()
+    {
+        return orderId;
+    }
+    public void setState(String state)
+    {
+        this.state = state;
+    }
+
+    public String getState()
+    {
+        return state;
+    }
+    public void setDriverLongitude(Long driverLongitude)
+    {
+        this.driverLongitude = driverLongitude;
+    }
+
+    public Long getDriverLongitude()
+    {
+        return driverLongitude;
+    }
+    public void setDriverLatitude(Long driverLatitude)
+    {
+        this.driverLatitude = driverLatitude;
+    }
+
+    public Long getDriverLatitude()
+    {
+        return driverLatitude;
+    }
+    public void setContent(String content)
+    {
+        this.content = content;
+    }
+
+    public String getContent()
+    {
+        return content;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("traceId", getTraceId())
+            .append("orderId", getOrderId())
+            .append("state", getState())
+            .append("driverLongitude", getDriverLongitude())
+            .append("driverLatitude", getDriverLatitude())
+            .append("content", getContent())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

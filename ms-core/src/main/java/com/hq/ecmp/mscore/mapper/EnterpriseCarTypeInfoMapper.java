@@ -1,16 +1,62 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
- * <p>
- *  Mapper 接口
- * </p>
+ * 【请填写功能名称】Mapper接口
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-public interface EnterpriseCarTypeInfoMapper extends BaseMapper<EnterpriseCarTypeInfo> {
+public interface EnterpriseCarTypeInfoMapper
+{
+    /**
+     * 查询【请填写功能名称】
+     *
+     * @param carTypeId 【请填写功能名称】ID
+     * @return 【请填写功能名称】
+     */
+    public EnterpriseCarTypeInfo selectEnterpriseCarTypeInfoById(Long carTypeId);
 
+    /**
+     * 查询【请填写功能名称】列表
+     *
+     * @param enterpriseCarTypeInfo 【请填写功能名称】
+     * @return 【请填写功能名称】集合
+     */
+    public List<EnterpriseCarTypeInfo> selectEnterpriseCarTypeInfoList(EnterpriseCarTypeInfo enterpriseCarTypeInfo);
+
+    /**
+     * 新增【请填写功能名称】
+     *
+     * @param enterpriseCarTypeInfo 【请填写功能名称】
+     * @return 结果
+     */
+    public int insertEnterpriseCarTypeInfo(EnterpriseCarTypeInfo enterpriseCarTypeInfo);
+
+    /**
+     * 修改【请填写功能名称】
+     *
+     * @param enterpriseCarTypeInfo 【请填写功能名称】
+     * @return 结果
+     */
+    public int updateEnterpriseCarTypeInfo(EnterpriseCarTypeInfo enterpriseCarTypeInfo);
+
+    /**
+     * 删除【请填写功能名称】
+     *
+     * @param carTypeId 【请填写功能名称】ID
+     * @return 结果
+     */
+    public int deleteEnterpriseCarTypeInfoById(Long carTypeId);
+
+    /**
+     * 批量删除【请填写功能名称】
+     *
+     * @param carTypeIds 需要删除的数据ID
+     * @return 结果
+     */
+    public int deleteEnterpriseCarTypeInfoByIds(Long[] carTypeIds);
 }

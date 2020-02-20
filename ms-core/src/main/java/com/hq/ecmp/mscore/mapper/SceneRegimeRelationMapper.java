@@ -1,16 +1,62 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
- * <p>
- *  Mapper 接口
- * </p>
+ * 【请填写功能名称】Mapper接口
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-public interface SceneRegimeRelationMapper extends BaseMapper<SceneRegimeRelation> {
+public interface SceneRegimeRelationMapper
+{
+    /**
+     * 查询【请填写功能名称】
+     *
+     * @param sceneId 【请填写功能名称】ID
+     * @return 【请填写功能名称】
+     */
+    public SceneRegimeRelation selectSceneRegimeRelationById(Long sceneId);
 
+    /**
+     * 查询【请填写功能名称】列表
+     *
+     * @param sceneRegimeRelation 【请填写功能名称】
+     * @return 【请填写功能名称】集合
+     */
+    public List<SceneRegimeRelation> selectSceneRegimeRelationList(SceneRegimeRelation sceneRegimeRelation);
+
+    /**
+     * 新增【请填写功能名称】
+     *
+     * @param sceneRegimeRelation 【请填写功能名称】
+     * @return 结果
+     */
+    public int insertSceneRegimeRelation(SceneRegimeRelation sceneRegimeRelation);
+
+    /**
+     * 修改【请填写功能名称】
+     *
+     * @param sceneRegimeRelation 【请填写功能名称】
+     * @return 结果
+     */
+    public int updateSceneRegimeRelation(SceneRegimeRelation sceneRegimeRelation);
+
+    /**
+     * 删除【请填写功能名称】
+     *
+     * @param sceneId 【请填写功能名称】ID
+     * @return 结果
+     */
+    public int deleteSceneRegimeRelationById(Long sceneId);
+
+    /**
+     * 批量删除【请填写功能名称】
+     *
+     * @param sceneIds 需要删除的数据ID
+     * @return 结果
+     */
+    public int deleteSceneRegimeRelationByIds(Long[] sceneIds);
 }

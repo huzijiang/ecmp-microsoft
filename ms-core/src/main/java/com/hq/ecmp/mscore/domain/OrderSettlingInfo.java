@@ -1,63 +1,97 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 order_settling_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("order_settling_info")
-public class OrderSettlingInfo extends MicBaseEntity<OrderSettlingInfo> {
+public class OrderSettlingInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "bill_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long billId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long orderId;
 
-    private BigDecimal amount;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long amount;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String amountDetail;
 
-    private BigDecimal outPrice;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long outPrice;
 
-
-    public static final String BILL_ID = "bill_id";
-
-    public static final String ORDER_ID = "order_id";
-
-    public static final String AMOUNT = "amount";
-
-    public static final String AMOUNT_DETAIL = "amount_detail";
-
-    public static final String OUT_PRICE = "out_price";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.billId;
+    public void setBillId(Long billId)
+    {
+        this.billId = billId;
     }
 
+    public Long getBillId()
+    {
+        return billId;
+    }
+    public void setOrderId(Long orderId)
+    {
+        this.orderId = orderId;
+    }
+
+    public Long getOrderId()
+    {
+        return orderId;
+    }
+    public void setAmount(Long amount)
+    {
+        this.amount = amount;
+    }
+
+    public Long getAmount()
+    {
+        return amount;
+    }
+    public void setAmountDetail(String amountDetail)
+    {
+        this.amountDetail = amountDetail;
+    }
+
+    public String getAmountDetail()
+    {
+        return amountDetail;
+    }
+    public void setOutPrice(Long outPrice)
+    {
+        this.outPrice = outPrice;
+    }
+
+    public Long getOutPrice()
+    {
+        return outPrice;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("billId", getBillId())
+            .append("orderId", getOrderId())
+            .append("amount", getAmount())
+            .append("amountDetail", getAmountDetail())
+            .append("outPrice", getOutPrice())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

@@ -1,20 +1,97 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.List;
+import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
 import com.hq.ecmp.mscore.mapper.DriverWorkInfoMapper;
 import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 /**
- * <p>
- *  服务实现类
- * </p>
+ * 【请填写功能名称】Service业务层处理
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
 @Service
-public class DriverWorkInfoServiceImpl extends ServiceImpl<DriverWorkInfoMapper, DriverWorkInfo> implements IDriverWorkInfoService {
+public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
+{
+    @Autowired
+    private DriverWorkInfoMapper driverWorkInfoMapper;
 
+    /**
+     * 查询【请填写功能名称】
+     *
+     * @param workId 【请填写功能名称】ID
+     * @return 【请填写功能名称】
+     */
+    @Override
+    public DriverWorkInfo selectDriverWorkInfoById(Long workId)
+    {
+        return driverWorkInfoMapper.selectDriverWorkInfoById(workId);
+    }
+
+    /**
+     * 查询【请填写功能名称】列表
+     *
+     * @param driverWorkInfo 【请填写功能名称】
+     * @return 【请填写功能名称】
+     */
+    @Override
+    public List<DriverWorkInfo> selectDriverWorkInfoList(DriverWorkInfo driverWorkInfo)
+    {
+        return driverWorkInfoMapper.selectDriverWorkInfoList(driverWorkInfo);
+    }
+
+    /**
+     * 新增【请填写功能名称】
+     *
+     * @param driverWorkInfo 【请填写功能名称】
+     * @return 结果
+     */
+    @Override
+    public int insertDriverWorkInfo(DriverWorkInfo driverWorkInfo)
+    {
+        driverWorkInfo.setCreateTime(DateUtils.getNowDate());
+        return driverWorkInfoMapper.insertDriverWorkInfo(driverWorkInfo);
+    }
+
+    /**
+     * 修改【请填写功能名称】
+     *
+     * @param driverWorkInfo 【请填写功能名称】
+     * @return 结果
+     */
+    @Override
+    public int updateDriverWorkInfo(DriverWorkInfo driverWorkInfo)
+    {
+        driverWorkInfo.setUpdateTime(DateUtils.getNowDate());
+        return driverWorkInfoMapper.updateDriverWorkInfo(driverWorkInfo);
+    }
+
+    /**
+     * 批量删除【请填写功能名称】
+     *
+     * @param workIds 需要删除的【请填写功能名称】ID
+     * @return 结果
+     */
+    @Override
+    public int deleteDriverWorkInfoByIds(Long[] workIds)
+    {
+        return driverWorkInfoMapper.deleteDriverWorkInfoByIds(workIds);
+    }
+
+    /**
+     * 删除【请填写功能名称】信息
+     *
+     * @param workId 【请填写功能名称】ID
+     * @return 结果
+     */
+    @Override
+    public int deleteDriverWorkInfoById(Long workId)
+    {
+        return driverWorkInfoMapper.deleteDriverWorkInfoById(workId);
+    }
 }

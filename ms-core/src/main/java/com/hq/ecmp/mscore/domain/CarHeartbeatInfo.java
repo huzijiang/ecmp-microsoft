@@ -1,52 +1,51 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableField;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 car_heartbeat_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("car_heartbeat_info")
-public class CarHeartbeatInfo extends MicBaseEntity<CarHeartbeatInfo> {
+public class CarHeartbeatInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "car_heartbeat_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private String carHeartbeatId;
 
-    @TableField("Attribute9")
-    private String Attribute9;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String attribute9;
 
-
-    public static final String CAR_HEARTBEAT_ID = "car_heartbeat_id";
-
-    public static final String ATTRIBUTE9 = "Attribute9";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.carHeartbeatId;
+    public void setCarHeartbeatId(String carHeartbeatId)
+    {
+        this.carHeartbeatId = carHeartbeatId;
     }
 
+    public String getCarHeartbeatId()
+    {
+        return carHeartbeatId;
+    }
+    public void setAttribute9(String attribute9)
+    {
+        this.attribute9 = attribute9;
+    }
+
+    public String getAttribute9()
+    {
+        return attribute9;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("carHeartbeatId", getCarHeartbeatId())
+            .append("attribute9", getAttribute9())
+            .toString();
+    }
 }

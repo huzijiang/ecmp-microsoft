@@ -1,146 +1,322 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import java.time.LocalDateTime;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
+import java.util.Date;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 order_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("order_info")
-public class OrderInfo extends MicBaseEntity<OrderInfo> {
+public class OrderInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "order_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long orderId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long journeyId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long nodeId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long powerId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long driverId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String useCarMode;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String state;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String actualSetoutAddress;
 
-    private String actualSetoutAddressLong;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long actualSetoutLongitude;
 
-    private BigDecimal actualSetoutLongitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long actualSetoutLatitude;
 
-    private BigDecimal actualSetoutLatitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date actualSetoutTime;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime actualSetoutTime;
-
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String actualArriveAddress;
 
-    private String actualArriveAddressLong;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long actualArriveLongitude;
 
-    private BigDecimal actualArriveLongitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long actualArriveLatitude;
 
-    private BigDecimal actualArriveLatitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date actualArriveTime;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime actualArriveTime;
-
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String tripartiteOrderId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String tripartitePlatformCode;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String driverName;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String driverMobile;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carLicense;
 
-
-    public static final String ORDER_ID = "order_id";
-
-    public static final String JOURNEY_ID = "journey_id";
-
-    public static final String NODE_ID = "node_id";
-
-    public static final String POWER_ID = "power_id";
-
-    public static final String DRIVER_ID = "driver_id";
-
-    public static final String CAR_ID = "car_id";
-
-    public static final String USE_CAR_MODE = "use_car_mode";
-
-    public static final String STATE = "state";
-
-    public static final String ACTUAL_SETOUT_ADDRESS = "actual_setout_address";
-
-    public static final String ACTUAL_SETOUT_ADDRESS_LONG = "actual_setout_address_long";
-
-    public static final String ACTUAL_SETOUT_LONGITUDE = "actual_setout_longitude";
-
-    public static final String ACTUAL_SETOUT_LATITUDE = "actual_setout_latitude";
-
-    public static final String ACTUAL_SETOUT_TIME = "actual_setout_time";
-
-    public static final String ACTUAL_ARRIVE_ADDRESS = "actual_arrive_address";
-
-    public static final String ACTUAL_ARRIVE_ADDRESS_LONG = "actual_arrive_address_long";
-
-    public static final String ACTUAL_ARRIVE_LONGITUDE = "actual_arrive_longitude";
-
-    public static final String ACTUAL_ARRIVE_LATITUDE = "actual_arrive_latitude";
-
-    public static final String ACTUAL_ARRIVE_TIME = "actual_arrive_time";
-
-    public static final String TRIPARTITE_ORDER_ID = "tripartite_order_id";
-
-    public static final String TRIPARTITE_PLATFORM_CODE = "tripartite_platform_code";
-
-    public static final String DRIVER_NAME = "driver_name";
-
-    public static final String DRIVER_MOBILE = "driver_mobile";
-
-    public static final String CAR_LICENSE = "car_license";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.orderId;
+    public void setOrderId(Long orderId)
+    {
+        this.orderId = orderId;
     }
 
+    public Long getOrderId()
+    {
+        return orderId;
+    }
+    public void setJourneyId(Long journeyId)
+    {
+        this.journeyId = journeyId;
+    }
+
+    public Long getJourneyId()
+    {
+        return journeyId;
+    }
+    public void setNodeId(Long nodeId)
+    {
+        this.nodeId = nodeId;
+    }
+
+    public Long getNodeId()
+    {
+        return nodeId;
+    }
+    public void setPowerId(Long powerId)
+    {
+        this.powerId = powerId;
+    }
+
+    public Long getPowerId()
+    {
+        return powerId;
+    }
+    public void setDriverId(Long driverId)
+    {
+        this.driverId = driverId;
+    }
+
+    public Long getDriverId()
+    {
+        return driverId;
+    }
+    public void setCarId(Long carId)
+    {
+        this.carId = carId;
+    }
+
+    public Long getCarId()
+    {
+        return carId;
+    }
+    public void setUseCarMode(String useCarMode)
+    {
+        this.useCarMode = useCarMode;
+    }
+
+    public String getUseCarMode()
+    {
+        return useCarMode;
+    }
+    public void setState(String state)
+    {
+        this.state = state;
+    }
+
+    public String getState()
+    {
+        return state;
+    }
+    public void setActualSetoutAddress(String actualSetoutAddress)
+    {
+        this.actualSetoutAddress = actualSetoutAddress;
+    }
+
+    public String getActualSetoutAddress()
+    {
+        return actualSetoutAddress;
+    }
+    public void setActualSetoutLongitude(Long actualSetoutLongitude)
+    {
+        this.actualSetoutLongitude = actualSetoutLongitude;
+    }
+
+    public Long getActualSetoutLongitude()
+    {
+        return actualSetoutLongitude;
+    }
+    public void setActualSetoutLatitude(Long actualSetoutLatitude)
+    {
+        this.actualSetoutLatitude = actualSetoutLatitude;
+    }
+
+    public Long getActualSetoutLatitude()
+    {
+        return actualSetoutLatitude;
+    }
+    public void setActualSetoutTime(Date actualSetoutTime)
+    {
+        this.actualSetoutTime = actualSetoutTime;
+    }
+
+    public Date getActualSetoutTime()
+    {
+        return actualSetoutTime;
+    }
+    public void setActualArriveAddress(String actualArriveAddress)
+    {
+        this.actualArriveAddress = actualArriveAddress;
+    }
+
+    public String getActualArriveAddress()
+    {
+        return actualArriveAddress;
+    }
+    public void setActualArriveLongitude(Long actualArriveLongitude)
+    {
+        this.actualArriveLongitude = actualArriveLongitude;
+    }
+
+    public Long getActualArriveLongitude()
+    {
+        return actualArriveLongitude;
+    }
+    public void setActualArriveLatitude(Long actualArriveLatitude)
+    {
+        this.actualArriveLatitude = actualArriveLatitude;
+    }
+
+    public Long getActualArriveLatitude()
+    {
+        return actualArriveLatitude;
+    }
+    public void setActualArriveTime(Date actualArriveTime)
+    {
+        this.actualArriveTime = actualArriveTime;
+    }
+
+    public Date getActualArriveTime()
+    {
+        return actualArriveTime;
+    }
+    public void setTripartiteOrderId(String tripartiteOrderId)
+    {
+        this.tripartiteOrderId = tripartiteOrderId;
+    }
+
+    public String getTripartiteOrderId()
+    {
+        return tripartiteOrderId;
+    }
+    public void setTripartitePlatformCode(String tripartitePlatformCode)
+    {
+        this.tripartitePlatformCode = tripartitePlatformCode;
+    }
+
+    public String getTripartitePlatformCode()
+    {
+        return tripartitePlatformCode;
+    }
+    public void setDriverName(String driverName)
+    {
+        this.driverName = driverName;
+    }
+
+    public String getDriverName()
+    {
+        return driverName;
+    }
+    public void setDriverMobile(String driverMobile)
+    {
+        this.driverMobile = driverMobile;
+    }
+
+    public String getDriverMobile()
+    {
+        return driverMobile;
+    }
+    public void setCarLicense(String carLicense)
+    {
+        this.carLicense = carLicense;
+    }
+
+    public String getCarLicense()
+    {
+        return carLicense;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("orderId", getOrderId())
+            .append("journeyId", getJourneyId())
+            .append("nodeId", getNodeId())
+            .append("powerId", getPowerId())
+            .append("driverId", getDriverId())
+            .append("carId", getCarId())
+            .append("useCarMode", getUseCarMode())
+            .append("state", getState())
+            .append("actualSetoutAddress", getActualSetoutAddress())
+            .append("actualSetoutLongitude", getActualSetoutLongitude())
+            .append("actualSetoutLatitude", getActualSetoutLatitude())
+            .append("actualSetoutTime", getActualSetoutTime())
+            .append("actualArriveAddress", getActualArriveAddress())
+            .append("actualArriveLongitude", getActualArriveLongitude())
+            .append("actualArriveLatitude", getActualArriveLatitude())
+            .append("actualArriveTime", getActualArriveTime())
+            .append("tripartiteOrderId", getTripartiteOrderId())
+            .append("tripartitePlatformCode", getTripartitePlatformCode())
+            .append("driverName", getDriverName())
+            .append("driverMobile", getDriverMobile())
+            .append("carLicense", getCarLicense())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

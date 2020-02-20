@@ -1,16 +1,62 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
- * <p>
- *  Mapper 接口
- * </p>
+ * 【请填写功能名称】Mapper接口
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-public interface JourneyUserCarPowerMapper extends BaseMapper<JourneyUserCarPower> {
+public interface JourneyUserCarPowerMapper
+{
+    /**
+     * 查询【请填写功能名称】
+     *
+     * @param powerId 【请填写功能名称】ID
+     * @return 【请填写功能名称】
+     */
+    public JourneyUserCarPower selectJourneyUserCarPowerById(Long powerId);
 
+    /**
+     * 查询【请填写功能名称】列表
+     *
+     * @param journeyUserCarPower 【请填写功能名称】
+     * @return 【请填写功能名称】集合
+     */
+    public List<JourneyUserCarPower> selectJourneyUserCarPowerList(JourneyUserCarPower journeyUserCarPower);
+
+    /**
+     * 新增【请填写功能名称】
+     *
+     * @param journeyUserCarPower 【请填写功能名称】
+     * @return 结果
+     */
+    public int insertJourneyUserCarPower(JourneyUserCarPower journeyUserCarPower);
+
+    /**
+     * 修改【请填写功能名称】
+     *
+     * @param journeyUserCarPower 【请填写功能名称】
+     * @return 结果
+     */
+    public int updateJourneyUserCarPower(JourneyUserCarPower journeyUserCarPower);
+
+    /**
+     * 删除【请填写功能名称】
+     *
+     * @param powerId 【请填写功能名称】ID
+     * @return 结果
+     */
+    public int deleteJourneyUserCarPowerById(Long powerId);
+
+    /**
+     * 批量删除【请填写功能名称】
+     *
+     * @param powerIds 需要删除的数据ID
+     * @return 结果
+     */
+    public int deleteJourneyUserCarPowerByIds(Long[] powerIds);
 }

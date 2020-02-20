@@ -1,63 +1,97 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 driver_heartbeat_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("driver_heartbeat_info")
-public class DriverHeartbeatInfo extends MicBaseEntity<DriverHeartbeatInfo> {
+public class DriverHeartbeatInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "heart_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long heartId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long driverId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long orderId;
 
-    private BigDecimal longitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long longitude;
 
-    private BigDecimal latitude;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long latitude;
 
-
-    public static final String HEART_ID = "heart_id";
-
-    public static final String DRIVER_ID = "driver_id";
-
-    public static final String ORDER_ID = "order_id";
-
-    public static final String LONGITUDE = "longitude";
-
-    public static final String LATITUDE = "latitude";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.heartId;
+    public void setHeartId(Long heartId)
+    {
+        this.heartId = heartId;
     }
 
+    public Long getHeartId()
+    {
+        return heartId;
+    }
+    public void setDriverId(Long driverId)
+    {
+        this.driverId = driverId;
+    }
+
+    public Long getDriverId()
+    {
+        return driverId;
+    }
+    public void setOrderId(Long orderId)
+    {
+        this.orderId = orderId;
+    }
+
+    public Long getOrderId()
+    {
+        return orderId;
+    }
+    public void setLongitude(Long longitude)
+    {
+        this.longitude = longitude;
+    }
+
+    public Long getLongitude()
+    {
+        return longitude;
+    }
+    public void setLatitude(Long latitude)
+    {
+        this.latitude = latitude;
+    }
+
+    public Long getLatitude()
+    {
+        return latitude;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("heartId", getHeartId())
+            .append("driverId", getDriverId())
+            .append("orderId", getOrderId())
+            .append("longitude", getLongitude())
+            .append("latitude", getLatitude())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

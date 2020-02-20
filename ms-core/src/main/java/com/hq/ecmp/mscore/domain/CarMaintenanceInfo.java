@@ -1,71 +1,98 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import java.math.BigDecimal;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import java.time.LocalDateTime;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
+import java.util.Date;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 car_maintenance_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("car_maintenance_info")
-public class CarMaintenanceInfo extends MicBaseEntity<CarMaintenanceInfo> {
+public class CarMaintenanceInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
+    /** $column.columnComment */
+    private Long maintenanceId;
 
-    @TableId(value = "maintenance_id", type = IdType.AUTO)
-    private Integer maintenanceId;
-
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String maintenanceAddress;
 
-    private BigDecimal price;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long price;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime nextMaintenanceDate;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date nextMaintenanceDate;
 
-
-    public static final String MAINTENANCE_ID = "maintenance_id";
-
-    public static final String CAR_ID = "car_id";
-
-    public static final String MAINTENANCE_ADDRESS = "maintenance_address";
-
-    public static final String PRICE = "price";
-
-    public static final String NEXT_MAINTENANCE_DATE = "next_maintenance_date";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.maintenanceId;
+    public void setMaintenanceId(Long maintenanceId)
+    {
+        this.maintenanceId = maintenanceId;
     }
 
+    public Long getMaintenanceId()
+    {
+        return maintenanceId;
+    }
+    public void setCarId(Long carId)
+    {
+        this.carId = carId;
+    }
+
+    public Long getCarId()
+    {
+        return carId;
+    }
+    public void setMaintenanceAddress(String maintenanceAddress)
+    {
+        this.maintenanceAddress = maintenanceAddress;
+    }
+
+    public String getMaintenanceAddress()
+    {
+        return maintenanceAddress;
+    }
+    public void setPrice(Long price)
+    {
+        this.price = price;
+    }
+
+    public Long getPrice()
+    {
+        return price;
+    }
+    public void setNextMaintenanceDate(Date nextMaintenanceDate)
+    {
+        this.nextMaintenanceDate = nextMaintenanceDate;
+    }
+
+    public Date getNextMaintenanceDate()
+    {
+        return nextMaintenanceDate;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("maintenanceId", getMaintenanceId())
+            .append("carId", getCarId())
+            .append("maintenanceAddress", getMaintenanceAddress())
+            .append("price", getPrice())
+            .append("nextMaintenanceDate", getNextMaintenanceDate())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

@@ -1,77 +1,98 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 参数配置表
- * </p>
+ * 参数配置对象 ecmp_config
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("ecmp_config")
-public class EcmpConfig extends MicBaseEntity<EcmpConfig> {
+public class EcmpConfig extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    /**
-     * 参数主键
-     */
-    @TableId(value = "config_id", type = IdType.AUTO)
+    /** 参数主键 */
     private Integer configId;
 
-    /**
-     * 参数名称
-     */
+    /** 参数名称 */
+    @Excel(name = "参数名称")
     private String configName;
 
-    /**
-     * 参数键名
-     */
+    /** 参数键名 */
+    @Excel(name = "参数键名")
     private String configKey;
 
-    /**
-     * 参数键值
-     */
+    /** 参数键值 */
+    @Excel(name = "参数键值")
     private String configValue;
 
-    /**
-     * 系统内置（Y是 N否）
-     */
+    /** 系统内置（Y是 N否） */
+    @Excel(name = "系统内置", readConverterExp = "Y=是,N=否")
     private String configType;
 
-
-    public static final String CONFIG_ID = "config_id";
-
-    public static final String CONFIG_NAME = "config_name";
-
-    public static final String CONFIG_KEY = "config_key";
-
-    public static final String CONFIG_VALUE = "config_value";
-
-    public static final String CONFIG_TYPE = "config_type";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.configId;
+    public void setConfigId(Integer configId)
+    {
+        this.configId = configId;
     }
 
+    public Integer getConfigId()
+    {
+        return configId;
+    }
+    public void setConfigName(String configName)
+    {
+        this.configName = configName;
+    }
+
+    public String getConfigName()
+    {
+        return configName;
+    }
+    public void setConfigKey(String configKey)
+    {
+        this.configKey = configKey;
+    }
+
+    public String getConfigKey()
+    {
+        return configKey;
+    }
+    public void setConfigValue(String configValue)
+    {
+        this.configValue = configValue;
+    }
+
+    public String getConfigValue()
+    {
+        return configValue;
+    }
+    public void setConfigType(String configType)
+    {
+        this.configType = configType;
+    }
+
+    public String getConfigType()
+    {
+        return configType;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("configId", getConfigId())
+            .append("configName", getConfigName())
+            .append("configKey", getConfigKey())
+            .append("configValue", getConfigValue())
+            .append("configType", getConfigType())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .append("remark", getRemark())
+            .toString();
+    }
 }

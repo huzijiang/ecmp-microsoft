@@ -1,62 +1,97 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 invoice_address
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("invoice_address")
-public class InvoiceAddress extends MicBaseEntity<InvoiceAddress> {
+public class InvoiceAddress extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "address_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long addressId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String accepter;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String mobile;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String address;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsDefault;
 
-
-    public static final String ADDRESS_ID = "address_id";
-
-    public static final String ACCEPTER = "accepter";
-
-    public static final String MOBILE = "mobile";
-
-    public static final String ADDRESS = "address";
-
-    public static final String IT_IS_DEFAULT = "it_is_default";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.addressId;
+    public void setAddressId(Long addressId)
+    {
+        this.addressId = addressId;
     }
 
+    public Long getAddressId()
+    {
+        return addressId;
+    }
+    public void setAccepter(String accepter)
+    {
+        this.accepter = accepter;
+    }
+
+    public String getAccepter()
+    {
+        return accepter;
+    }
+    public void setMobile(String mobile)
+    {
+        this.mobile = mobile;
+    }
+
+    public String getMobile()
+    {
+        return mobile;
+    }
+    public void setAddress(String address)
+    {
+        this.address = address;
+    }
+
+    public String getAddress()
+    {
+        return address;
+    }
+    public void setItIsDefault(String itIsDefault)
+    {
+        this.itIsDefault = itIsDefault;
+    }
+
+    public String getItIsDefault()
+    {
+        return itIsDefault;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("addressId", getAddressId())
+            .append("accepter", getAccepter())
+            .append("mobile", getMobile())
+            .append("address", getAddress())
+            .append("itIsDefault", getItIsDefault())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }

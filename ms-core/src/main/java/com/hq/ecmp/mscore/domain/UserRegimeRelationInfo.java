@@ -1,48 +1,52 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 user_regime_relation_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("user_regime_relation_info")
-public class UserRegimeRelationInfo extends MicBaseEntity<UserRegimeRelationInfo> {
+public class UserRegimeRelationInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long userId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long regimenId;
 
-
-    public static final String USER_ID = "user_id";
-
-    public static final String REGIMEN_ID = "regimen_id";
-
-    @Override
-    protected Serializable pkVal() {
-        return null;
+    public void setUserId(Long userId)
+    {
+        this.userId = userId;
     }
 
+    public Long getUserId()
+    {
+        return userId;
+    }
+    public void setRegimenId(Long regimenId)
+    {
+        this.regimenId = regimenId;
+    }
+
+    public Long getRegimenId()
+    {
+        return regimenId;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("userId", getUserId())
+            .append("regimenId", getRegimenId())
+            .toString();
+    }
 }

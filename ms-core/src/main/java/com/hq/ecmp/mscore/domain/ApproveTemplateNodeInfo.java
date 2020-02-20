@@ -1,66 +1,111 @@
 package com.hq.ecmp.mscore.domain;
-/**update2**/
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.core.web.domain.BaseEntity;
 
 /**
- * <p>
- * 
- * </p>
+ * 【请填写功能名称】对象 approve_template_node_info
  *
- * @author crk
- * @since 2020-02-20
+ * @author hqer
+ * @date 2020-01-02
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Accessors(chain = true)
-@TableName("approve_template_node_info")
-public class ApproveTemplateNodeInfo extends MicBaseEntity<ApproveTemplateNodeInfo> {
+public class ApproveTemplateNodeInfo extends BaseEntity
+{
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID=1L;
-
-    @TableId(value = "approve_node_id", type = IdType.AUTO)
+    /** $column.columnComment */
     private Long approveNodeId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long approveTemplateId;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String approverType;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String leaderLevel;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String roleId;
 
-    private Integer userId;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long userId;
 
-
-    public static final String APPROVE_NODE_ID = "approve_node_id";
-
-    public static final String APPROVE_TEMPLATE_ID = "approve_template_id";
-
-    public static final String APPROVER_TYPE = "approver_type";
-
-    public static final String LEADER_LEVEL = "leader_level";
-
-    public static final String ROLE_ID = "role_id";
-
-    public static final String USER_ID = "user_id";
-
-    @Override
-    protected Serializable pkVal() {
-        return this.approveNodeId;
+    public void setApproveNodeId(Long approveNodeId)
+    {
+        this.approveNodeId = approveNodeId;
     }
 
+    public Long getApproveNodeId()
+    {
+        return approveNodeId;
+    }
+    public void setApproveTemplateId(Long approveTemplateId)
+    {
+        this.approveTemplateId = approveTemplateId;
+    }
+
+    public Long getApproveTemplateId()
+    {
+        return approveTemplateId;
+    }
+    public void setApproverType(String approverType)
+    {
+        this.approverType = approverType;
+    }
+
+    public String getApproverType()
+    {
+        return approverType;
+    }
+    public void setLeaderLevel(String leaderLevel)
+    {
+        this.leaderLevel = leaderLevel;
+    }
+
+    public String getLeaderLevel()
+    {
+        return leaderLevel;
+    }
+    public void setRoleId(String roleId)
+    {
+        this.roleId = roleId;
+    }
+
+    public String getRoleId()
+    {
+        return roleId;
+    }
+    public void setUserId(Long userId)
+    {
+        this.userId = userId;
+    }
+
+    public Long getUserId()
+    {
+        return userId;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("approveNodeId", getApproveNodeId())
+            .append("approveTemplateId", getApproveTemplateId())
+            .append("approverType", getApproverType())
+            .append("leaderLevel", getLeaderLevel())
+            .append("roleId", getRoleId())
+            .append("userId", getUserId())
+            .append("createBy", getCreateBy())
+            .append("createTime", getCreateTime())
+            .append("updateBy", getUpdateBy())
+            .append("updateTime", getUpdateTime())
+            .toString();
+    }
 }
