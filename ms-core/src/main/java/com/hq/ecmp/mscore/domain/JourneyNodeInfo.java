@@ -4,8 +4,7 @@ package com.hq.ecmp.mscore.domain;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
 import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
@@ -35,7 +34,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("journey_node_info")
-public class JourneyNodeInfo extends BaseEntity<JourneyNodeInfo> {
+public class JourneyNodeInfo extends MicBaseEntity<JourneyNodeInfo> {
 
     private static final long serialVersionUID=1L;
 

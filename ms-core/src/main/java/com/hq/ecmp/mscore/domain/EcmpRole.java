@@ -3,8 +3,7 @@ package com.hq.ecmp.mscore.domain;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import java.io.Serializable;
@@ -12,10 +11,6 @@ import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
@@ -34,7 +29,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("ecmp_role")
-public class EcmpRole extends BaseEntity<EcmpRole> {
+public class EcmpRole extends MicBaseEntity<EcmpRole> {
 
     private static final long serialVersionUID=1L;
 

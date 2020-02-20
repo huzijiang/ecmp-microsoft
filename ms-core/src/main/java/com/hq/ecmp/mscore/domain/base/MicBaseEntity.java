@@ -16,7 +16,7 @@ import java.util.Map;
  * 
  */
 @Data
-public class BaseEntity<T extends Model> extends Model<T> implements Serializable
+public class MicBaseEntity<T extends Model> extends Model<T> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 

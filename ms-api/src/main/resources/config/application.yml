@@ -44,9 +44,9 @@ logging:
 # MyBatis配置
 mybatis:
   # 搜索指定包别名
-  typeAliasesPackage: com.hq.ecmp.**.domain
+  typeAliasesPackage: com.hq.**.domain
   # 配置mapper的扫描，找到所有的mapper.xml映射文件
-  mapperLocations: classpath*:com/hq/ecmp/mscore/mapper/xml/*Mapper.xml
+  mapperLocations: classpath*:config/mybatis/**/*Mapper.xml
   # 加载全局的配置文件
 #  configLocation: classpath:config/mybatis/mybatis-config.xml
 
@@ -92,6 +92,6 @@ mybatis-plus:
     db-config:
       logic-delete-value: 0
       logic-not-delete-value: 1
-  mapper-locations: classpath*:com/hq/ecmp/mscore/mapper/xml/*Mapper.xml
-  type-aliases-package: com.hq.ecmp.*.domain.*
+  mapper-locations: classpath*:config/mybatis/**/*Mapper.xml
+  type-aliases-package: com.hq.**.domain.*
 #  typeEnumsPackage: com.winsun.affiliation.modular.*.enums

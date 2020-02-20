@@ -3,8 +3,7 @@ package com.hq.ecmp.mscore.domain;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
 import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
@@ -34,7 +33,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("driver_info")
-public class DriverInfo extends BaseEntity<DriverInfo> {
+public class DriverInfo extends MicBaseEntity<DriverInfo> {
 
     private static final long serialVersionUID=1L;
 

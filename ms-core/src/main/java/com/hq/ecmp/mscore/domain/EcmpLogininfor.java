@@ -3,8 +3,7 @@ package com.hq.ecmp.mscore.domain;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableLogic;
@@ -35,7 +34,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("ecmp_logininfor")
-public class EcmpLogininfor extends BaseEntity<EcmpLogininfor> {
+public class EcmpLogininfor extends MicBaseEntity<EcmpLogininfor> {
 
     private static final long serialVersionUID=1L;
 

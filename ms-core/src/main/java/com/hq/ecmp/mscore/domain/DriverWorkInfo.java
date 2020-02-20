@@ -3,19 +3,15 @@ package com.hq.ecmp.mscore.domain;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
+
 import java.time.LocalDate;
-import com.hq.ecmp.mscore.domain.base.BaseEntity;
+import com.hq.ecmp.mscore.domain.base.MicBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
@@ -34,7 +30,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("driver_work_info")
-public class DriverWorkInfo extends BaseEntity<DriverWorkInfo> {
+public class DriverWorkInfo extends MicBaseEntity<DriverWorkInfo> {
 
     private static final long serialVersionUID=1L;
 
