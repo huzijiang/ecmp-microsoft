@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CarInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.CarInfo" id="CarInfoResult">
+        <result property="carId"    column="car_id"    />
+        <result property="carGroupId"    column="car_group_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="carTypeId"    column="car_type_id"    />
+        <result property="carLicense"    column="car_license"    />
+        <result property="state"    column="state"    />
+        <result property="carType"    column="car_type"    />
+        <result property="seatNum"    column="seat_num"    />
+        <result property="carColor"    column="car_color"    />
+        <result property="carLicenseColor"    column="car_license_color"    />
+        <result property="powerType"    column="power_type"    />
+        <result property="carType01"    column="car_type_01"    />
+        <result property="engineNumber"    column="engine_number"    />
+        <result property="engineCc"    column="engine_cc"    />
+        <result property="enginePower"    column="engine_power"    />
+        <result property="carNumber"    column="car_number"    />
+        <result property="carImgaeUrl"    column="car_imgae_url"    />
+        <result property="carDrivingLicenseImagesUrl"    column="car_driving_license_images_url"    />
+        <result property="carLicenseImageUrl"    column="car_license_image_url"    />
+        <result property="buyDate"    column="buy_date"    />
+        <result property="rentEndDate"    column="rent_end_date"    />
+        <result property="ownerOrgId"    column="owner_org_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCarInfoVo">
+        select car_id, car_group_id, dept_id, car_type_id, car_license, state, car_type, seat_num, car_color, car_license_color, power_type, car_type_01, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, owner_org_id, create_by, create_time, update_by, update_time from car_info
+    </sql>
+
+    <select id="selectCarInfoList" parameterType="com.hq.ecmp.mscore.domain.CarInfo" resultMap="CarInfoResult">
+        <include refid="selectCarInfoVo"/>
+        <where>
+            <if test="carGroupId != null "> and car_group_id = #{carGroupId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="carTypeId != null "> and car_type_id = #{carTypeId}</if>
+            <if test="carLicense != null  and carLicense != ''"> and car_license = #{carLicense}</if>
+            <if test="state != null  and state != ''"> and state = #{state}</if>
+            <if test="carType != null  and carType != ''"> and car_type = #{carType}</if>
+            <if test="seatNum != null "> and seat_num = #{seatNum}</if>
+            <if test="carColor != null  and carColor != ''"> and car_color = #{carColor}</if>
+            <if test="carLicenseColor != null  and carLicenseColor != ''"> and car_license_color = #{carLicenseColor}</if>
+            <if test="powerType != null  and powerType != ''"> and power_type = #{powerType}</if>
+            <if test="carType01 != null  and carType01 != ''"> and car_type_01 = #{carType01}</if>
+            <if test="engineNumber != null  and engineNumber != ''"> and engine_number = #{engineNumber}</if>
+            <if test="engineCc != null  and engineCc != ''"> and engine_cc = #{engineCc}</if>
+            <if test="enginePower != null  and enginePower != ''"> and engine_power = #{enginePower}</if>
+            <if test="carNumber != null  and carNumber != ''"> and car_number = #{carNumber}</if>
+            <if test="carImgaeUrl != null  and carImgaeUrl != ''"> and car_imgae_url = #{carImgaeUrl}</if>
+            <if test="carDrivingLicenseImagesUrl != null  and carDrivingLicenseImagesUrl != ''"> and car_driving_license_images_url = #{carDrivingLicenseImagesUrl}</if>
+            <if test="carLicenseImageUrl != null  and carLicenseImageUrl != ''"> and car_license_image_url = #{carLicenseImageUrl}</if>
+            <if test="buyDate != null "> and buy_date = #{buyDate}</if>
+            <if test="rentEndDate != null "> and rent_end_date = #{rentEndDate}</if>
+            <if test="ownerOrgId != null  and ownerOrgId != ''"> and owner_org_id = #{ownerOrgId}</if>
+        </where>
+    </select>
+
+    <select id="selectCarInfoById" parameterType="Long" resultMap="CarInfoResult">
+        <include refid="selectCarInfoVo"/>
+        where car_id = #{carId}
+    </select>
+
+    <insert id="insertCarInfo" parameterType="com.hq.ecmp.mscore.domain.CarInfo">
+        insert into car_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="carId != null ">car_id,</if>
+            <if test="carGroupId != null ">car_group_id,</if>
+            <if test="deptId != null ">dept_id,</if>
+            <if test="carTypeId != null ">car_type_id,</if>
+            <if test="carLicense != null  and carLicense != ''">car_license,</if>
+            <if test="state != null  and state != ''">state,</if>
+            <if test="carType != null  and carType != ''">car_type,</if>
+            <if test="seatNum != null ">seat_num,</if>
+            <if test="carColor != null  and carColor != ''">car_color,</if>
+            <if test="carLicenseColor != null  and carLicenseColor != ''">car_license_color,</if>
+            <if test="powerType != null  and powerType != ''">power_type,</if>
+            <if test="carType01 != null  and carType01 != ''">car_type_01,</if>
+            <if test="engineNumber != null  and engineNumber != ''">engine_number,</if>
+            <if test="engineCc != null  and engineCc != ''">engine_cc,</if>
+            <if test="enginePower != null  and enginePower != ''">engine_power,</if>
+            <if test="carNumber != null  and carNumber != ''">car_number,</if>
+            <if test="carImgaeUrl != null  and carImgaeUrl != ''">car_imgae_url,</if>
+            <if test="carDrivingLicenseImagesUrl != null  and carDrivingLicenseImagesUrl != ''">car_driving_license_images_url,</if>
+            <if test="carLicenseImageUrl != null  and carLicenseImageUrl != ''">car_license_image_url,</if>
+            <if test="buyDate != null ">buy_date,</if>
+            <if test="rentEndDate != null ">rent_end_date,</if>
+            <if test="ownerOrgId != null  and ownerOrgId != ''">owner_org_id,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="carId != null ">#{carId},</if>
+            <if test="carGroupId != null ">#{carGroupId},</if>
+            <if test="deptId != null ">#{deptId},</if>
+            <if test="carTypeId != null ">#{carTypeId},</if>
+            <if test="carLicense != null  and carLicense != ''">#{carLicense},</if>
+            <if test="state != null  and state != ''">#{state},</if>
+            <if test="carType != null  and carType != ''">#{carType},</if>
+            <if test="seatNum != null ">#{seatNum},</if>
+            <if test="carColor != null  and carColor != ''">#{carColor},</if>
+            <if test="carLicenseColor != null  and carLicenseColor != ''">#{carLicenseColor},</if>
+            <if test="powerType != null  and powerType != ''">#{powerType},</if>
+            <if test="carType01 != null  and carType01 != ''">#{carType01},</if>
+            <if test="engineNumber != null  and engineNumber != ''">#{engineNumber},</if>
+            <if test="engineCc != null  and engineCc != ''">#{engineCc},</if>
+            <if test="enginePower != null  and enginePower != ''">#{enginePower},</if>
+            <if test="carNumber != null  and carNumber != ''">#{carNumber},</if>
+            <if test="carImgaeUrl != null  and carImgaeUrl != ''">#{carImgaeUrl},</if>
+            <if test="carDrivingLicenseImagesUrl != null  and carDrivingLicenseImagesUrl != ''">#{carDrivingLicenseImagesUrl},</if>
+            <if test="carLicenseImageUrl != null  and carLicenseImageUrl != ''">#{carLicenseImageUrl},</if>
+            <if test="buyDate != null ">#{buyDate},</if>
+            <if test="rentEndDate != null ">#{rentEndDate},</if>
+            <if test="ownerOrgId != null  and ownerOrgId != ''">#{ownerOrgId},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCarInfo" parameterType="com.hq.ecmp.mscore.domain.CarInfo">
+        update car_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="carGroupId != null ">car_group_id = #{carGroupId},</if>
+            <if test="deptId != null ">dept_id = #{deptId},</if>
+            <if test="carTypeId != null ">car_type_id = #{carTypeId},</if>
+            <if test="carLicense != null  and carLicense != ''">car_license = #{carLicense},</if>
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="carType != null  and carType != ''">car_type = #{carType},</if>
+            <if test="seatNum != null ">seat_num = #{seatNum},</if>
+            <if test="carColor != null  and carColor != ''">car_color = #{carColor},</if>
+            <if test="carLicenseColor != null  and carLicenseColor != ''">car_license_color = #{carLicenseColor},</if>
+            <if test="powerType != null  and powerType != ''">power_type = #{powerType},</if>
+            <if test="carType01 != null  and carType01 != ''">car_type_01 = #{carType01},</if>
+            <if test="engineNumber != null  and engineNumber != ''">engine_number = #{engineNumber},</if>
+            <if test="engineCc != null  and engineCc != ''">engine_cc = #{engineCc},</if>
+            <if test="enginePower != null  and enginePower != ''">engine_power = #{enginePower},</if>
+            <if test="carNumber != null  and carNumber != ''">car_number = #{carNumber},</if>
+            <if test="carImgaeUrl != null  and carImgaeUrl != ''">car_imgae_url = #{carImgaeUrl},</if>
+            <if test="carDrivingLicenseImagesUrl != null  and carDrivingLicenseImagesUrl != ''">car_driving_license_images_url = #{carDrivingLicenseImagesUrl},</if>
+            <if test="carLicenseImageUrl != null  and carLicenseImageUrl != ''">car_license_image_url = #{carLicenseImageUrl},</if>
+            <if test="buyDate != null ">buy_date = #{buyDate},</if>
+            <if test="rentEndDate != null ">rent_end_date = #{rentEndDate},</if>
+            <if test="ownerOrgId != null  and ownerOrgId != ''">owner_org_id = #{ownerOrgId},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where car_id = #{carId}
+    </update>
+
+    <delete id="deleteCarInfoById" parameterType="Long">
+        delete from car_info where car_id = #{carId}
+    </delete>
+
+    <delete id="deleteCarInfoByIds" parameterType="String">
+        delete from car_info where car_id in
+        <foreach item="carId" collection="array" open="(" separator="," close=")">
+            #{carId}
+        </foreach>
+    </delete>
+
+</mapper>

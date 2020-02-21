@@ -13,12 +13,18 @@ import java.util.List;
 public interface IRegimeInfoService
 {
     /**
-     * 查询【请填写功能名称】
+     * 根据用车制度id查询用车值得详细信息
      *
      * @param regimenId 【请填写功能名称】ID
      * @return 【请填写功能名称】
      */
     public RegimeInfo selectRegimeInfoById(Long regimenId);
+
+    /**
+     * 查询所有用车制度信息
+     * @return
+     */
+    List<RegimeInfo> selectAll();
 
     /**
      * 查询【请填写功能名称】列表
@@ -59,4 +65,14 @@ public interface IRegimeInfoService
      * @return 结果
      */
     public int deleteRegimeInfoById(Long regimenId);
+
+    /**
+     * 根据用户id查询用车制度集合
+     * @param userId
+     * @return
+     */
+    List<RegimeInfo> findRegimeInfoListByUserId(Long userId);
+
+
 }
+

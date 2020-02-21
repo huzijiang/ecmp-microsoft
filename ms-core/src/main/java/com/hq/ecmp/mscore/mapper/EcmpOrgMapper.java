@@ -10,8 +10,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
-public interface EcmpOrgMapper
-{
+public interface EcmpOrgMapper {
     /**
      * 查询部门
      *
@@ -19,6 +18,13 @@ public interface EcmpOrgMapper
      * @return 部门
      */
     public EcmpOrg selectEcmpOrgById(Long deptId);
+
+    /**
+     * 根据公司id查询部门对象列表
+     * @param companyId
+     * @return
+     */
+    public List<EcmpOrg> selectEcmpOrgsByCompanyId(Long companyId);
 
     /**
      * 查询部门列表

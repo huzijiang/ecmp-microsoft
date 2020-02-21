@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.EcmpRoleDeptMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.EcmpRoleDept" id="EcmpRoleDeptResult">
+        <result property="roleId"    column="role_id"    />
+        <result property="deptId"    column="dept_id"    />
+    </resultMap>
+
+    <sql id="selectEcmpRoleDeptVo">
+        select role_id, dept_id from ecmp_role_dept
+    </sql>
+
+    <select id="selectEcmpRoleDeptList" parameterType="com.hq.ecmp.mscore.domain.EcmpRoleDept" resultMap="EcmpRoleDeptResult">
+        <include refid="selectEcmpRoleDeptVo"/>
+        <where>
+        </where>
+    </select>
+
+    <select id="selectEcmpRoleDeptById" parameterType="Long" resultMap="EcmpRoleDeptResult">
+        <include refid="selectEcmpRoleDeptVo"/>
+        where role_id = #{roleId}
+    </select>
+
+    <insert id="insertEcmpRoleDept" parameterType="com.hq.ecmp.mscore.domain.EcmpRoleDept">
+        insert into ecmp_role_dept
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="roleId != null ">role_id,</if>
+            <if test="deptId != null ">dept_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="roleId != null ">#{roleId},</if>
+            <if test="deptId != null ">#{deptId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEcmpRoleDept" parameterType="com.hq.ecmp.mscore.domain.EcmpRoleDept">
+        update ecmp_role_dept
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null ">dept_id = #{deptId},</if>
+        </trim>
+        where role_id = #{roleId}
+    </update>
+
+    <delete id="deleteEcmpRoleDeptById" parameterType="Long">
+        delete from ecmp_role_dept where role_id = #{roleId}
+    </delete>
+
+    <delete id="deleteEcmpRoleDeptByIds" parameterType="String">
+        delete from ecmp_role_dept where role_id in
+        <foreach item="roleId" collection="array" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </delete>
+
+</mapper>

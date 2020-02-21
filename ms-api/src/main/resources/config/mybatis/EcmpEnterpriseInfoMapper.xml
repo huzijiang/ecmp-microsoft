@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.EcmpEnterpriseInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo" id="EcmpEnterpriseInfoResult">
+        <result property="enterpriseId"    column="enterprise_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="name"    column="name"    />
+        <result property="address"    column="address"    />
+        <result property="mobile"    column="mobile"    />
+        <result property="uscc"    column="uscc"    />
+    </resultMap>
+
+    <sql id="selectEcmpEnterpriseInfoVo">
+        select enterprise_id, dept_id, name, address, mobile, uscc from ecmp_enterprise_info
+    </sql>
+
+    <select id="selectEcmpEnterpriseInfoList" parameterType="com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo" resultMap="EcmpEnterpriseInfoResult">
+        <include refid="selectEcmpEnterpriseInfoVo"/>
+        <where>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="mobile != null  and mobile != ''"> and mobile = #{mobile}</if>
+            <if test="uscc != null  and uscc != ''"> and uscc = #{uscc}</if>
+        </where>
+    </select>
+
+    <select id="selectEcmpEnterpriseInfoById" parameterType="Long" resultMap="EcmpEnterpriseInfoResult">
+        <include refid="selectEcmpEnterpriseInfoVo"/>
+        where enterprise_id = #{enterpriseId}
+    </select>
+
+    <insert id="insertEcmpEnterpriseInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo">
+        insert into ecmp_enterprise_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="enterpriseId != null ">enterprise_id,</if>
+            <if test="deptId != null ">dept_id,</if>
+            <if test="name != null  and name != ''">name,</if>
+            <if test="address != null  and address != ''">address,</if>
+            <if test="mobile != null  and mobile != ''">mobile,</if>
+            <if test="uscc != null  and uscc != ''">uscc,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="enterpriseId != null ">#{enterpriseId},</if>
+            <if test="deptId != null ">#{deptId},</if>
+            <if test="name != null  and name != ''">#{name},</if>
+            <if test="address != null  and address != ''">#{address},</if>
+            <if test="mobile != null  and mobile != ''">#{mobile},</if>
+            <if test="uscc != null  and uscc != ''">#{uscc},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEcmpEnterpriseInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo">
+        update ecmp_enterprise_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null ">dept_id = #{deptId},</if>
+            <if test="name != null  and name != ''">name = #{name},</if>
+            <if test="address != null  and address != ''">address = #{address},</if>
+            <if test="mobile != null  and mobile != ''">mobile = #{mobile},</if>
+            <if test="uscc != null  and uscc != ''">uscc = #{uscc},</if>
+        </trim>
+        where enterprise_id = #{enterpriseId}
+    </update>
+
+    <delete id="deleteEcmpEnterpriseInfoById" parameterType="Long">
+        delete from ecmp_enterprise_info where enterprise_id = #{enterpriseId}
+    </delete>
+
+    <delete id="deleteEcmpEnterpriseInfoByIds" parameterType="String">
+        delete from ecmp_enterprise_info where enterprise_id in
+        <foreach item="enterpriseId" collection="array" open="(" separator="," close=")">
+            #{enterpriseId}
+        </foreach>
+    </delete>
+
+</mapper>

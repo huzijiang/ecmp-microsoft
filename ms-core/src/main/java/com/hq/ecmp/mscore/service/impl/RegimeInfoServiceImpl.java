@@ -1,12 +1,15 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
+import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -15,21 +18,31 @@ import org.springframework.stereotype.Service;
  * @date 2020-01-02
  */
 @Service
-public class RegimeInfoServiceImpl implements IRegimeInfoService
-{
+public class RegimeInfoServiceImpl implements IRegimeInfoService {
+
+    @Autowired
+    private UserRegimeRelationInfoMapper userRegimeRelationInfoMapper;
     @Autowired
     private RegimeInfoMapper regimeInfoMapper;
 
     /**
-     * 查询【请填写功能名称】
+     * 根据用车制度id查询用车值得详细信息
      *
      * @param regimenId 【请填写功能名称】ID
      * @return 【请填写功能名称】
      */
     @Override
-    public RegimeInfo selectRegimeInfoById(Long regimenId)
-    {
+    public RegimeInfo selectRegimeInfoById(Long regimenId) {
         return regimeInfoMapper.selectRegimeInfoById(regimenId);
+    }
+
+    /**
+     * 查询所有用车制度信息
+     * @return
+     */
+    @Override
+    public List<RegimeInfo> selectAll() {
+        return regimeInfoMapper.selectAll();
     }
 
     /**
@@ -39,8 +52,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService
      * @return 【请填写功能名称】
      */
     @Override
-    public List<RegimeInfo> selectRegimeInfoList(RegimeInfo regimeInfo)
-    {
+    public List<RegimeInfo> selectRegimeInfoList(RegimeInfo regimeInfo) {
         return regimeInfoMapper.selectRegimeInfoList(regimeInfo);
     }
 
@@ -51,8 +63,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService
      * @return 结果
      */
     @Override
-    public int insertRegimeInfo(RegimeInfo regimeInfo)
-    {
+    public int insertRegimeInfo(RegimeInfo regimeInfo) {
         regimeInfo.setCreateTime(DateUtils.getNowDate());
         return regimeInfoMapper.insertRegimeInfo(regimeInfo);
     }
@@ -64,8 +75,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService
      * @return 结果
      */
     @Override
-    public int updateRegimeInfo(RegimeInfo regimeInfo)
-    {
+    public int updateRegimeInfo(RegimeInfo regimeInfo) {
         regimeInfo.setUpdateTime(DateUtils.getNowDate());
         return regimeInfoMapper.updateRegimeInfo(regimeInfo);
     }
@@ -77,8 +87,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService
      * @return 结果
      */
     @Override
-    public int deleteRegimeInfoByIds(Long[] regimenIds)
-    {
+    public int deleteRegimeInfoByIds(Long[] regimenIds) {
         return regimeInfoMapper.deleteRegimeInfoByIds(regimenIds);
     }
 
@@ -89,8 +98,22 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService
      * @return 结果
      */
     @Override
-    public int deleteRegimeInfoById(Long regimenId)
-    {
+    public int deleteRegimeInfoById(Long regimenId) {
         return regimeInfoMapper.deleteRegimeInfoById(regimenId);
+    }
+
+    /**
+     * 根据用户id查询用车制度集合
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<RegimeInfo> findRegimeInfoListByUserId(Long userId) {
+        //根据userId查询regimeId集合
+        List<Long> regimeIds = userRegimeRelationInfoMapper.selectIdsByUserId(userId);
+        //根据regimeId集合查询RegimeInfo集合
+        List<RegimeInfo> regimeInfoList = regimeIds.stream().map(regimeId->regimeInfoMapper.selectRegimeInfoById(regimeId)).collect(Collectors.toList());
+        return regimeInfoList;
     }
 }

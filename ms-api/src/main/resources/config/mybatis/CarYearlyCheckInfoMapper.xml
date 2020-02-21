@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CarYearlyCheckInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.CarYearlyCheckInfo" id="CarYearlyCheckInfoResult">
+        <result property="yearlyCheckId"    column="yearly_check_id"    />
+        <result property="carId"    column="car_id"    />
+        <result property="yearCheckNextDate"    column="year_check_next_date"    />
+        <result property="yearCheckState"    column="year_check_state"    />
+        <result property="result"    column="result"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCarYearlyCheckInfoVo">
+        select yearly_check_id, car_id, year_check_next_date, year_check_state, result, create_by, create_time, update_by, update_time from car_yearly_check_info
+    </sql>
+
+    <select id="selectCarYearlyCheckInfoList" parameterType="com.hq.ecmp.mscore.domain.CarYearlyCheckInfo" resultMap="CarYearlyCheckInfoResult">
+        <include refid="selectCarYearlyCheckInfoVo"/>
+        <where>
+            <if test="carId != null "> and car_id = #{carId}</if>
+            <if test="yearCheckNextDate != null  and yearCheckNextDate != ''"> and year_check_next_date = #{yearCheckNextDate}</if>
+            <if test="yearCheckState != null  and yearCheckState != ''"> and year_check_state = #{yearCheckState}</if>
+            <if test="result != null  and result != ''"> and result = #{result}</if>
+        </where>
+    </select>
+
+    <select id="selectCarYearlyCheckInfoById" parameterType="Long" resultMap="CarYearlyCheckInfoResult">
+        <include refid="selectCarYearlyCheckInfoVo"/>
+        where yearly_check_id = #{yearlyCheckId}
+    </select>
+
+    <insert id="insertCarYearlyCheckInfo" parameterType="com.hq.ecmp.mscore.domain.CarYearlyCheckInfo">
+        insert into car_yearly_check_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yearlyCheckId != null ">yearly_check_id,</if>
+            <if test="carId != null ">car_id,</if>
+            <if test="yearCheckNextDate != null  and yearCheckNextDate != ''">year_check_next_date,</if>
+            <if test="yearCheckState != null  and yearCheckState != ''">year_check_state,</if>
+            <if test="result != null  and result != ''">result,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yearlyCheckId != null ">#{yearlyCheckId},</if>
+            <if test="carId != null ">#{carId},</if>
+            <if test="yearCheckNextDate != null  and yearCheckNextDate != ''">#{yearCheckNextDate},</if>
+            <if test="yearCheckState != null  and yearCheckState != ''">#{yearCheckState},</if>
+            <if test="result != null  and result != ''">#{result},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCarYearlyCheckInfo" parameterType="com.hq.ecmp.mscore.domain.CarYearlyCheckInfo">
+        update car_yearly_check_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="carId != null ">car_id = #{carId},</if>
+            <if test="yearCheckNextDate != null  and yearCheckNextDate != ''">year_check_next_date = #{yearCheckNextDate},</if>
+            <if test="yearCheckState != null  and yearCheckState != ''">year_check_state = #{yearCheckState},</if>
+            <if test="result != null  and result != ''">result = #{result},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where yearly_check_id = #{yearlyCheckId}
+    </update>
+
+    <delete id="deleteCarYearlyCheckInfoById" parameterType="Long">
+        delete from car_yearly_check_info where yearly_check_id = #{yearlyCheckId}
+    </delete>
+
+    <delete id="deleteCarYearlyCheckInfoByIds" parameterType="String">
+        delete from car_yearly_check_info where yearly_check_id in
+        <foreach item="yearlyCheckId" collection="array" open="(" separator="," close=")">
+            #{yearlyCheckId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.OrderCarTraceInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.OrderCarTraceInfo" id="OrderCarTraceInfoResult">
+        <result property="id"    column="id"    />
+        <result property="carId"    column="car_id"    />
+        <result property="longitude"    column="longitude"    />
+        <result property="latitude"    column="latitude"    />
+        <result property="carLicense"    column="car_license"    />
+        <result property="orderId"    column="order_id"    />
+    </resultMap>
+
+    <sql id="selectOrderCarTraceInfoVo">
+        select id, car_id, longitude, latitude, car_license, order_id from order_car_trace_info
+    </sql>
+
+    <select id="selectOrderCarTraceInfoList" parameterType="com.hq.ecmp.mscore.domain.OrderCarTraceInfo" resultMap="OrderCarTraceInfoResult">
+        <include refid="selectOrderCarTraceInfoVo"/>
+        <where>
+            <if test="carId != null  and carId != ''"> and car_id = #{carId}</if>
+            <if test="longitude != null  and longitude != ''"> and longitude = #{longitude}</if>
+            <if test="latitude != null  and latitude != ''"> and latitude = #{latitude}</if>
+            <if test="carLicense != null  and carLicense != ''"> and car_license = #{carLicense}</if>
+            <if test="orderId != null "> and order_id = #{orderId}</if>
+        </where>
+    </select>
+
+    <select id="selectOrderCarTraceInfoById" parameterType="String" resultMap="OrderCarTraceInfoResult">
+        <include refid="selectOrderCarTraceInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertOrderCarTraceInfo" parameterType="com.hq.ecmp.mscore.domain.OrderCarTraceInfo">
+        insert into order_car_trace_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''">id,</if>
+            <if test="carId != null  and carId != ''">car_id,</if>
+            <if test="longitude != null  and longitude != ''">longitude,</if>
+            <if test="latitude != null  and latitude != ''">latitude,</if>
+            <if test="carLicense != null  and carLicense != ''">car_license,</if>
+            <if test="orderId != null ">order_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''">#{id},</if>
+            <if test="carId != null  and carId != ''">#{carId},</if>
+            <if test="longitude != null  and longitude != ''">#{longitude},</if>
+            <if test="latitude != null  and latitude != ''">#{latitude},</if>
+            <if test="carLicense != null  and carLicense != ''">#{carLicense},</if>
+            <if test="orderId != null ">#{orderId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateOrderCarTraceInfo" parameterType="com.hq.ecmp.mscore.domain.OrderCarTraceInfo">
+        update order_car_trace_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="carId != null  and carId != ''">car_id = #{carId},</if>
+            <if test="longitude != null  and longitude != ''">longitude = #{longitude},</if>
+            <if test="latitude != null  and latitude != ''">latitude = #{latitude},</if>
+            <if test="carLicense != null  and carLicense != ''">car_license = #{carLicense},</if>
+            <if test="orderId != null ">order_id = #{orderId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOrderCarTraceInfoById" parameterType="String">
+        delete from order_car_trace_info where id = #{id}
+    </delete>
+
+    <delete id="deleteOrderCarTraceInfoByIds" parameterType="String">
+        delete from order_car_trace_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

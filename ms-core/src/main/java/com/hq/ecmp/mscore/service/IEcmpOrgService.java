@@ -21,6 +21,13 @@ public interface IEcmpOrgService
     public EcmpOrg selectEcmpOrgById(Long deptId);
 
     /**
+     *  根据公司id查询部门对象列表
+     * @param companyId
+     * @return
+     */
+    List<EcmpOrg> selectEcmpOrgsByCompanyId(Long companyId);
+
+    /**
      * 查询部门列表
      *
      * @param ecmpOrg 部门
@@ -59,4 +66,6 @@ public interface IEcmpOrgService
      * @return 结果
      */
     public int deleteEcmpOrgById(Long deptId);
+
+
 }

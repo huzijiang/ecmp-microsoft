@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CarRefuelInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.CarRefuelInfo" id="CarRefuelInfoResult">
+        <result property="refuelId"    column="refuel_id"    />
+        <result property="carId"    column="car_id"    />
+        <result property="address"    column="address"    />
+        <result property="price"    column="price"    />
+        <result property="fuelType"    column="fuel_type"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCarRefuelInfoVo">
+        select refuel_id, car_id, address, price, fuel_type, create_by, create_time, update_by, update_time from car_refuel_info
+    </sql>
+
+    <select id="selectCarRefuelInfoList" parameterType="com.hq.ecmp.mscore.domain.CarRefuelInfo" resultMap="CarRefuelInfoResult">
+        <include refid="selectCarRefuelInfoVo"/>
+        <where>
+            <if test="carId != null "> and car_id = #{carId}</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="price != null  and price != ''"> and price = #{price}</if>
+            <if test="fuelType != null  and fuelType != ''"> and fuel_type = #{fuelType}</if>
+        </where>
+    </select>
+
+    <select id="selectCarRefuelInfoById" parameterType="Long" resultMap="CarRefuelInfoResult">
+        <include refid="selectCarRefuelInfoVo"/>
+        where refuel_id = #{refuelId}
+    </select>
+
+    <insert id="insertCarRefuelInfo" parameterType="com.hq.ecmp.mscore.domain.CarRefuelInfo">
+        insert into car_refuel_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="refuelId != null ">refuel_id,</if>
+            <if test="carId != null ">car_id,</if>
+            <if test="address != null  and address != ''">address,</if>
+            <if test="price != null  and price != ''">price,</if>
+            <if test="fuelType != null  and fuelType != ''">fuel_type,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="refuelId != null ">#{refuelId},</if>
+            <if test="carId != null ">#{carId},</if>
+            <if test="address != null  and address != ''">#{address},</if>
+            <if test="price != null  and price != ''">#{price},</if>
+            <if test="fuelType != null  and fuelType != ''">#{fuelType},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCarRefuelInfo" parameterType="com.hq.ecmp.mscore.domain.CarRefuelInfo">
+        update car_refuel_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="carId != null ">car_id = #{carId},</if>
+            <if test="address != null  and address != ''">address = #{address},</if>
+            <if test="price != null  and price != ''">price = #{price},</if>
+            <if test="fuelType != null  and fuelType != ''">fuel_type = #{fuelType},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where refuel_id = #{refuelId}
+    </update>
+
+    <delete id="deleteCarRefuelInfoById" parameterType="Long">
+        delete from car_refuel_info where refuel_id = #{refuelId}
+    </delete>
+
+    <delete id="deleteCarRefuelInfoByIds" parameterType="String">
+        delete from car_refuel_info where refuel_id in
+        <foreach item="refuelId" collection="array" open="(" separator="," close=")">
+            #{refuelId}
+        </foreach>
+    </delete>
+
+</mapper>

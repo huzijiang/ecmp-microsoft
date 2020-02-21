@@ -1,11 +1,13 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.FeedBackDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +23,8 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
+    @Autowired
+    private TokenService tokenService;
     /**
      * 用户登陆
      * @param  userDto
@@ -29,8 +33,7 @@ public class UserController {
     @ApiOperation(value = "login",notes = "用户登陆",httpMethod ="POST")
     @PostMapping("/login")
     public ApiResponse login(UserDto userDto){
-
-        return null;
+        return ApiResponse.success();
     }
 
     /**

@@ -10,10 +10,11 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
-public interface IEcmpUserService
-{
+public interface IEcmpUserService {
+
+
     /**
-     * 查询用户信息
+     * 根据用户id查询用户信息
      *
      * @param userId 用户信息ID
      * @return 用户信息
@@ -59,4 +60,6 @@ public interface IEcmpUserService
      * @return 结果
      */
     public int deleteEcmpUserById(Long userId);
+
+
 }

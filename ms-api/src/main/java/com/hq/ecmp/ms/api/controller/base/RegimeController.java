@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -33,8 +34,8 @@ public class RegimeController {
     @ApiOperation(value = "getUserRegimes",notes = "根据用户信息查询用户的用车制度信息",httpMethod ="POST")
     @PostMapping("/getUserRegimes")
     public ApiResponse<List<RegimeInfo>> getUserRegimes(UserDto userDto){
-
-        return null;
+        List<RegimeInfo> regimeInfoList = regimeInfoService.findRegimeInfoListByUserId(userDto.getUserId());
+        return ApiResponse.success(regimeInfoList);
     }
 
     /**
@@ -46,8 +47,8 @@ public class RegimeController {
     @ApiOperation(value = "getAllRegimes",notes = "查询所有的用车制度信息",httpMethod ="POST")
     @PostMapping("/getAllRegimes")
     public ApiResponse<List<RegimeInfo>> getAllRegimes(){
-
-        return null;
+        List<RegimeInfo> all = regimeInfoService.selectAll();
+        return ApiResponse.success(all);
     }
 
     /**
@@ -58,8 +59,9 @@ public class RegimeController {
     @ApiOperation(value = "getRegimeInfo",notes = "通过用车制度编号,查询用车制度的详细信息",httpMethod ="POST")
     @PostMapping("/getRegimeInfo")
     public ApiResponse<RegimeInfo> getRegimeInfo(RegimeDto regimeDto){
+        RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(regimeDto.getRegimeId());
+        return ApiResponse.success(regimeInfo);
 
-        return null;
     }
 
 

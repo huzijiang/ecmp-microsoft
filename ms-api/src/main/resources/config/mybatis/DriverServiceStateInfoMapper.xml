@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.DriverServiceStateInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.DriverServiceStateInfo" id="DriverServiceStateInfoResult">
+        <result property="id"    column="id"    />
+        <result property="driverId"    column="driver_id"    />
+        <result property="state"    column="state"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectDriverServiceStateInfoVo">
+        select id, driver_id, state, create_by, create_time, update_by, update_time from driver_service_state_info
+    </sql>
+
+    <select id="selectDriverServiceStateInfoList" parameterType="com.hq.ecmp.mscore.domain.DriverServiceStateInfo" resultMap="DriverServiceStateInfoResult">
+        <include refid="selectDriverServiceStateInfoVo"/>
+        <where>
+            <if test="driverId != null "> and driver_id = #{driverId}</if>
+            <if test="state != null  and state != ''"> and state = #{state}</if>
+        </where>
+    </select>
+
+    <select id="selectDriverServiceStateInfoById" parameterType="Long" resultMap="DriverServiceStateInfoResult">
+        <include refid="selectDriverServiceStateInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertDriverServiceStateInfo" parameterType="com.hq.ecmp.mscore.domain.DriverServiceStateInfo">
+        insert into driver_service_state_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">id,</if>
+            <if test="driverId != null ">driver_id,</if>
+            <if test="state != null  and state != ''">state,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="driverId != null ">#{driverId},</if>
+            <if test="state != null  and state != ''">#{state},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDriverServiceStateInfo" parameterType="com.hq.ecmp.mscore.domain.DriverServiceStateInfo">
+        update driver_service_state_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="driverId != null ">driver_id = #{driverId},</if>
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDriverServiceStateInfoById" parameterType="Long">
+        delete from driver_service_state_info where id = #{id}
+    </delete>
+
+    <delete id="deleteDriverServiceStateInfoByIds" parameterType="String">
+        delete from driver_service_state_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

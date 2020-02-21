@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.RegimeInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.RegimeInfo" id="RegimeInfoResult">
+        <result property="regimenId"    column="regimen_id"    />
+        <result property="templateId"    column="template_id"    />
+        <result property="approveTemplateId"    column="approve_templateId_id" />
+        <result property="applyType"    column="apply_type"    />
+        <result property="name"    column="name"    />
+        <result property="allowCity"    column="allow_city"    />
+        <result property="allowTime"    column="allow_time"    />
+        <result property="setoutAddress"    column="setout_address"    />
+        <result property="arriveAddress"    column="arrive_address"    />
+        <result property="allowDate"    column="allow_date"    />
+        <result property="setoutEqualArrive"    column="setout_equal_arrive"    />
+        <result property="serviceType"    column="service_type"    />
+        <result property="approvalProcess"    column="approval_process"    />
+        <result property="projectNeed"    column="project_need"    />
+        <result property="canUseCarMode"    column="can_use_car_mode"    />
+        <result property="canUseCarLevel"    column="can_use_car_level"    />
+        <result property="remind"    column="remind"    />
+        <result property="allowDateRoundTravel"    column="allow_date_round_travel"    />
+        <result property="allowCityRoundTravel"    column="allow_city_round_travel"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRegimeInfoVo">
+        select regimen_id, template_id, approve_template_id, apply_type, name, allow_city, allow_time, setout_address, arrive_address, allow_date, setout_equal_arrive, service_type, approval_process, project_need, can_use_car_mode, can_use_car_level, remind, allow_date_round_travel, allow_city_round_travel, create_by, create_time, update_by, update_time from regime_info
+    </sql>
+
+    <select id="selectRegimeInfoList" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo" resultMap="RegimeInfoResult">
+        <include refid="selectRegimeInfoVo"/>
+        <where>
+            <if test="templateId != null "> and template_id = #{templateId}</if>
+            <if test="sceneFlowId != null "> and scene_flow_id = #{sceneFlowId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="allowCity != null  and allowCity != ''"> and allow_city = #{allowCity}</if>
+            <if test="allowTime != null  and allowTime != ''"> and allow_time = #{allowTime}</if>
+            <if test="setoutAddress != null  and setoutAddress != ''"> and setout_address = #{setoutAddress}</if>
+            <if test="arriveAddress != null  and arriveAddress != ''"> and arrive_address = #{arriveAddress}</if>
+            <if test="allowDate != null  and allowDate != ''"> and allow_date = #{allowDate}</if>
+            <if test="setoutEqualArrive != null  and setoutEqualArrive != ''"> and setout_equal_arrive = #{setoutEqualArrive}</if>
+            <if test="serviceType != null  and serviceType != ''"> and service_type = #{serviceType}</if>
+            <if test="approvalProcess != null "> and approval_process = #{approvalProcess}</if>
+            <if test="projectNeed != null "> and project_need = #{projectNeed}</if>
+            <if test="canUseCarMode != null "> and can_use_car_mode = #{canUseCarMode}</if>
+            <if test="canUseCarLevel != null  and canUseCarLevel != ''"> and can_use_car_level = #{canUseCarLevel}</if>
+            <if test="remind != null  and remind != ''"> and remind = #{remind}</if>
+            <if test="allowDateRoundTravel != null "> and allow_date_round_travel = #{allowDateRoundTravel}</if>
+            <if test="allowCityRoundTravel != null  and allowCityRoundTravel != ''"> and allow_city_round_travel = #{allowCityRoundTravel}</if>
+        </where>
+    </select>
+
+    <select id="selectRegimeInfoById" parameterType="Long" resultMap="RegimeInfoResult">
+        <include refid="selectRegimeInfoVo"/>
+        where regimen_id = #{regimenId}
+    </select>
+
+    <insert id="insertRegimeInfo" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo">
+        insert into regime_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="regimenId != null ">regimen_id,</if>
+            <if test="templateId != null ">template_id,</if>
+            <if test="sceneFlowId != null ">scene_flow_id,</if>
+            <if test="name != null  and name != ''">name,</if>
+            <if test="allowCity != null  and allowCity != ''">allow_city,</if>
+            <if test="allowTime != null  and allowTime != ''">allow_time,</if>
+            <if test="setoutAddress != null  and setoutAddress != ''">setout_address,</if>
+            <if test="arriveAddress != null  and arriveAddress != ''">arrive_address,</if>
+            <if test="allowDate != null  and allowDate != ''">allow_date,</if>
+            <if test="setoutEqualArrive != null  and setoutEqualArrive != ''">setout_equal_arrive,</if>
+            <if test="serviceType != null  and serviceType != ''">service_type,</if>
+            <if test="approvalProcess != null ">approval_process,</if>
+            <if test="projectNeed != null ">project_need,</if>
+            <if test="canUseCarMode != null ">can_use_car_mode,</if>
+            <if test="canUseCarLevel != null  and canUseCarLevel != ''">can_use_car_level,</if>
+            <if test="remind != null  and remind != ''">remind,</if>
+            <if test="allowDateRoundTravel != null ">allow_date_round_travel,</if>
+            <if test="allowCityRoundTravel != null  and allowCityRoundTravel != ''">allow_city_round_travel,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="regimenId != null ">#{regimenId},</if>
+            <if test="templateId != null ">#{templateId},</if>
+            <if test="sceneFlowId != null ">#{sceneFlowId},</if>
+            <if test="name != null  and name != ''">#{name},</if>
+            <if test="allowCity != null  and allowCity != ''">#{allowCity},</if>
+            <if test="allowTime != null  and allowTime != ''">#{allowTime},</if>
+            <if test="setoutAddress != null  and setoutAddress != ''">#{setoutAddress},</if>
+            <if test="arriveAddress != null  and arriveAddress != ''">#{arriveAddress},</if>
+            <if test="allowDate != null  and allowDate != ''">#{allowDate},</if>
+            <if test="setoutEqualArrive != null  and setoutEqualArrive != ''">#{setoutEqualArrive},</if>
+            <if test="serviceType != null  and serviceType != ''">#{serviceType},</if>
+            <if test="approvalProcess != null ">#{approvalProcess},</if>
+            <if test="projectNeed != null ">#{projectNeed},</if>
+            <if test="canUseCarMode != null ">#{canUseCarMode},</if>
+            <if test="canUseCarLevel != null  and canUseCarLevel != ''">#{canUseCarLevel},</if>
+            <if test="remind != null  and remind != ''">#{remind},</if>
+            <if test="allowDateRoundTravel != null ">#{allowDateRoundTravel},</if>
+            <if test="allowCityRoundTravel != null  and allowCityRoundTravel != ''">#{allowCityRoundTravel},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRegimeInfo" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo">
+        update regime_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="templateId != null ">template_id = #{templateId},</if>
+            <if test="sceneFlowId != null ">scene_flow_id = #{sceneFlowId},</if>
+            <if test="name != null  and name != ''">name = #{name},</if>
+            <if test="allowCity != null  and allowCity != ''">allow_city = #{allowCity},</if>
+            <if test="allowTime != null  and allowTime != ''">allow_time = #{allowTime},</if>
+            <if test="setoutAddress != null  and setoutAddress != ''">setout_address = #{setoutAddress},</if>
+            <if test="arriveAddress != null  and arriveAddress != ''">arrive_address = #{arriveAddress},</if>
+            <if test="allowDate != null  and allowDate != ''">allow_date = #{allowDate},</if>
+            <if test="setoutEqualArrive != null  and setoutEqualArrive != ''">setout_equal_arrive = #{setoutEqualArrive},</if>
+            <if test="serviceType != null  and serviceType != ''">service_type = #{serviceType},</if>
+            <if test="approvalProcess != null ">approval_process = #{approvalProcess},</if>
+            <if test="projectNeed != null ">project_need = #{projectNeed},</if>
+            <if test="canUseCarMode != null ">can_use_car_mode = #{canUseCarMode},</if>
+            <if test="canUseCarLevel != null  and canUseCarLevel != ''">can_use_car_level = #{canUseCarLevel},</if>
+            <if test="remind != null  and remind != ''">remind = #{remind},</if>
+            <if test="allowDateRoundTravel != null ">allow_date_round_travel = #{allowDateRoundTravel},</if>
+            <if test="allowCityRoundTravel != null  and allowCityRoundTravel != ''">allow_city_round_travel = #{allowCityRoundTravel},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where regimen_id = #{regimenId}
+    </update>
+
+    <!--根据用车制度id查询-->
+    <delete id="deleteRegimeInfoById" parameterType="Long">
+        delete from regime_info where regimen_id = #{regimenId}
+    </delete>
+
+    <delete id="deleteRegimeInfoByIds" parameterType="String">
+        delete from regime_info where regimen_id in
+        <foreach item="regimenId" collection="array" open="(" separator="," close=")">
+            #{regimenId}
+        </foreach>
+    </delete>
+
+    <!--查询所有-->
+    <select id="selectAll" resultMap="RegimeInfoResult">
+        <include refid="selectRegimeInfoVo"/>
+    </select>
+
+</mapper>

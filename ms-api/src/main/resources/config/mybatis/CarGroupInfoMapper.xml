@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CarGroupInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.CarGroupInfo" id="CarGroupInfoResult">
+        <result property="carGroupId"    column="car_group_id"    />
+        <result property="city"    column="city"    />
+        <result property="cityName"    column="city_name"    />
+        <result property="ownerOrg"    column="owner_org"    />
+        <result property="leader"    column="leader"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCarGroupInfoVo">
+        select car_group_id, city, city_name, owner_org, leader, create_by, create_time, update_by, update_time from car_group_info
+    </sql>
+
+    <select id="selectCarGroupInfoList" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo" resultMap="CarGroupInfoResult">
+        <include refid="selectCarGroupInfoVo"/>
+        <where>
+            <if test="city != null "> and city = #{city}</if>
+            <if test="cityName != null  and cityName != ''"> and city_name like concat('%', #{cityName}, '%')</if>
+            <if test="ownerOrg != null "> and owner_org = #{ownerOrg}</if>
+            <if test="leader != null "> and leader = #{leader}</if>
+        </where>
+    </select>
+
+    <select id="selectCarGroupInfoById" parameterType="Long" resultMap="CarGroupInfoResult">
+        <include refid="selectCarGroupInfoVo"/>
+        where car_group_id = #{carGroupId}
+    </select>
+
+    <insert id="insertCarGroupInfo" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+        insert into car_group_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="carGroupId != null ">car_group_id,</if>
+            <if test="city != null ">city,</if>
+            <if test="cityName != null  and cityName != ''">city_name,</if>
+            <if test="ownerOrg != null ">owner_org,</if>
+            <if test="leader != null ">leader,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="carGroupId != null ">#{carGroupId},</if>
+            <if test="city != null ">#{city},</if>
+            <if test="cityName != null  and cityName != ''">#{cityName},</if>
+            <if test="ownerOrg != null ">#{ownerOrg},</if>
+            <if test="leader != null ">#{leader},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCarGroupInfo" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+        update car_group_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="city != null ">city = #{city},</if>
+            <if test="cityName != null  and cityName != ''">city_name = #{cityName},</if>
+            <if test="ownerOrg != null ">owner_org = #{ownerOrg},</if>
+            <if test="leader != null ">leader = #{leader},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where car_group_id = #{carGroupId}
+    </update>
+
+    <delete id="deleteCarGroupInfoById" parameterType="Long">
+        delete from car_group_info where car_group_id = #{carGroupId}
+    </delete>
+
+    <delete id="deleteCarGroupInfoByIds" parameterType="String">
+        delete from car_group_info where car_group_id in
+        <foreach item="carGroupId" collection="array" open="(" separator="," close=")">
+            #{carGroupId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -10,8 +10,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
-public interface UserRegimeRelationInfoMapper
-{
+public interface UserRegimeRelationInfoMapper {
     /**
      * 查询【请填写功能名称】
      *
@@ -19,6 +18,14 @@ public interface UserRegimeRelationInfoMapper
      * @return 【请填写功能名称】
      */
     public UserRegimeRelationInfo selectUserRegimeRelationInfoById(Long userId);
+
+    /**
+     * 根据用户id查询制度id集合
+     *
+     * @param userId
+     * @return
+     */
+    List<Long> selectIdsByUserId(Long userId);
 
     /**
      * 查询【请填写功能名称】列表
@@ -59,4 +66,7 @@ public interface UserRegimeRelationInfoMapper
      * @return 结果
      */
     public int deleteUserRegimeRelationInfoByIds(Long[] userIds);
+
+
 }
+

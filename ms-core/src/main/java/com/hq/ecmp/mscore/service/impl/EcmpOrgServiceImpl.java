@@ -1,12 +1,13 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 部门Service业务层处理
@@ -15,8 +16,7 @@ import org.springframework.stereotype.Service;
  * @date 2020-01-02
  */
 @Service
-public class EcmpOrgServiceImpl implements IEcmpOrgService
-{
+public class EcmpOrgServiceImpl implements IEcmpOrgService {
     @Autowired
     private EcmpOrgMapper ecmpOrgMapper;
 
@@ -27,9 +27,19 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService
      * @return 部门
      */
     @Override
-    public EcmpOrg selectEcmpOrgById(Long deptId)
-    {
+    public EcmpOrg selectEcmpOrgById(Long deptId) {
         return ecmpOrgMapper.selectEcmpOrgById(deptId);
+    }
+
+    /**
+     * 根据公司id查询部门对象列表
+     *
+     * @param companyId
+     * @return
+     */
+    @Override
+    public List<EcmpOrg> selectEcmpOrgsByCompanyId(Long companyId) {
+        return ecmpOrgMapper.selectEcmpOrgsByCompanyId(companyId);
     }
 
     /**
@@ -39,8 +49,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService
      * @return 部门
      */
     @Override
-    public List<EcmpOrg> selectEcmpOrgList(EcmpOrg ecmpOrg)
-    {
+    public List<EcmpOrg> selectEcmpOrgList(EcmpOrg ecmpOrg) {
         return ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
     }
 
@@ -51,8 +60,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService
      * @return 结果
      */
     @Override
-    public int insertEcmpOrg(EcmpOrg ecmpOrg)
-    {
+    public int insertEcmpOrg(EcmpOrg ecmpOrg) {
         ecmpOrg.setCreateTime(DateUtils.getNowDate());
         return ecmpOrgMapper.insertEcmpOrg(ecmpOrg);
     }
@@ -64,8 +72,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService
      * @return 结果
      */
     @Override
-    public int updateEcmpOrg(EcmpOrg ecmpOrg)
-    {
+    public int updateEcmpOrg(EcmpOrg ecmpOrg) {
         ecmpOrg.setUpdateTime(DateUtils.getNowDate());
         return ecmpOrgMapper.updateEcmpOrg(ecmpOrg);
     }
@@ -77,8 +84,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService
      * @return 结果
      */
     @Override
-    public int deleteEcmpOrgByIds(Long[] deptIds)
-    {
+    public int deleteEcmpOrgByIds(Long[] deptIds) {
         return ecmpOrgMapper.deleteEcmpOrgByIds(deptIds);
     }
 
@@ -89,8 +95,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService
      * @return 结果
      */
     @Override
-    public int deleteEcmpOrgById(Long deptId)
-    {
+    public int deleteEcmpOrgById(Long deptId) {
         return ecmpOrgMapper.deleteEcmpOrgById(deptId);
     }
 }
