@@ -59,4 +59,17 @@ public interface IEcmpNoticeService
      * @return 结果
      */
     public int deleteEcmpNoticeById(Integer noticeId);
+
+    /**
+     * 查询所有的公公告信息
+     * @return
+     */
+    List<EcmpNotice> selectAll();
+
+    /**
+     * 根据用户Id查询公告详细信息
+     * @param userId
+     * @return
+     */
+    EcmpNotice selectNoticeDetailByUserId(Long userId);
 }
