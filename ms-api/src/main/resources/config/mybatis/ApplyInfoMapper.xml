@@ -20,7 +20,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectApplyInfoVo">
-        select apply_id, journey_id, project_id, regimen_id, approver_name, cost_center, state, reason, create_by, create_time, update_by, update_time from apply_info
+        select apply_id, journey_id, project_id, regimen_id,apply_type, approver_name, cost_center, state, reason, create_by, create_time, update_by, update_time from apply_info
     </sql>
 
     <select id="selectApplyInfoList" parameterType="com.hq.ecmp.mscore.domain.ApplyInfo" resultMap="ApplyInfoResult">
@@ -41,13 +41,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where apply_id = #{applyId}
     </select>
 
-    <insert id="insertApplyInfo" parameterType="com.hq.ecmp.mscore.domain.ApplyInfo">
+    <insert id="insertApplyInfo" parameterType="com.hq.ecmp.mscore.domain.ApplyInfo" useGeneratedKeys="true" keyProperty="applyId">
         insert into apply_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="applyId != null ">apply_id,</if>
             <if test="journeyId != null ">journey_id,</if>
             <if test="projectId != null ">project_id,</if>
             <if test="regimenId != null ">regimen_id,</if>
+            <if test="applyType != null ">apply_type,</if>
             <if test="approverName != null  and approverName != ''">approver_name,</if>
             <if test="costCenter != null ">cost_center,</if>
             <if test="state != null  and state != ''">state,</if>
@@ -62,6 +63,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="journeyId != null ">#{journeyId},</if>
             <if test="projectId != null ">#{projectId},</if>
             <if test="regimenId != null ">#{regimenId},</if>
+            <if test="applyType != null ">#{applyType},</if>
             <if test="approverName != null  and approverName != ''">#{approverName},</if>
             <if test="costCenter != null ">#{costCenter},</if>
             <if test="state != null  and state != ''">#{state},</if>

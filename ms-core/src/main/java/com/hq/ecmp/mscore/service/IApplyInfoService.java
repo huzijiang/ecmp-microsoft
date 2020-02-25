@@ -1,6 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
+import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
+import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 
 import java.util.List;
 
@@ -59,4 +62,22 @@ public interface IApplyInfoService
      * @return 结果
      */
     public int deleteApplyInfoById(Long applyId);
+
+    /**
+     * 提交行程申请
+     * @param journeyCommitApplyDto
+     */
+    public void applyCommit(JourneyCommitApplyDto journeyCommitApplyDto);
+
+    /**
+     * 提交公务行程申请
+     * @param officialCommitApply
+     */
+    void applyOfficialCommit(ApplyOfficialRequest officialCommitApply);
+
+    /**
+     * 提交差旅行程申请
+     * @param travelCommitApply
+     */
+    void applytravliCommit(ApplyTravelRequest travelCommitApply);
 }

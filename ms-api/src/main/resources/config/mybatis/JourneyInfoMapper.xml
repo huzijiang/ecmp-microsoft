@@ -51,7 +51,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where journey_id = #{journeyId}
     </select>
 
-    <insert id="insertJourneyInfo" parameterType="com.hq.ecmp.mscore.domain.JourneyInfo">
+    <insert id="insertJourneyInfo" parameterType="com.hq.ecmp.mscore.domain.JourneyInfo" >
+        <selectKey keyColumn="journey_id" keyProperty="journeyId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into journey_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">journey_id,</if>
