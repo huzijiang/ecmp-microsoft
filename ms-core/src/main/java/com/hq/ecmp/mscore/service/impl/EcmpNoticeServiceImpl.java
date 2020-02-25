@@ -94,4 +94,14 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
     {
         return ecmpNoticeMapper.deleteEcmpNoticeById(noticeId);
     }
+
+    @Override
+    public List<EcmpNotice> selectAll() {
+        return null;
+    }
+
+    @Override
+    public EcmpNotice selectNoticeDetailByUserId(Long userId) {
+        return null;
+    }
 }
