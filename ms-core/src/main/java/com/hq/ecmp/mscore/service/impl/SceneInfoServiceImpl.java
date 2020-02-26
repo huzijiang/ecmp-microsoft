@@ -93,4 +93,9 @@ public class SceneInfoServiceImpl implements ISceneInfoService
     {
         return sceneInfoMapper.deleteSceneInfoById(sceneId);
     }
+
+	@Override
+	public List<SceneInfo> selectAllSceneSort(Long userId) {
+		return sceneInfoMapper.selectAllSceneSort(userId);
+	}
 }
