@@ -4,9 +4,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyNodeDto;
-import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +26,7 @@ public class JourneyController {
      */
     @ApiOperation(value = "createJourneyApply",notes = "创建行程",httpMethod ="POST")
     @PostMapping("/createJourneyApply")
-    public ApiResponse createJourneyApply(JourneyApplyDto journeyApplyDto,UserDto userDto){
+    public ApiResponse createJourneyApply(JourneyApplyDto journeyApplyDto, UserDto userDto){
 
         return null;
     }

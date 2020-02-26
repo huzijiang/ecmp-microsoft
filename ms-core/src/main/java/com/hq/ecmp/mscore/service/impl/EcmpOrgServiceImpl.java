@@ -2,7 +2,9 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
+import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
+import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import java.util.List;
 public class EcmpOrgServiceImpl implements IEcmpOrgService {
     @Autowired
     private EcmpOrgMapper ecmpOrgMapper;
+    @Autowired
+    private EcmpUserMapper ecmpUserMapper;
 
     /**
      * 查询部门
@@ -39,7 +43,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      */
     @Override
     public List<EcmpOrg> selectEcmpOrgsByCompanyId(Long companyId) {
-        return ecmpOrgMapper.selectEcmpOrgsByCompanyId(companyId);
+        return null;
     }
 
     /**
@@ -97,5 +101,25 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     @Override
     public int deleteEcmpOrgById(Long deptId) {
         return ecmpOrgMapper.deleteEcmpOrgById(deptId);
+    }
+
+    /**
+     * (根据部门名称模糊)查询用户 所在（子）公司的 部门列表
+     * @param userId
+     * @param name
+     * @return
+     */
+    @Override
+    public List<EcmpOrg> selectUserOwnCompanyDept(Long userId, String name) {
+        ///根据userId查询用户信息
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(userId);
+        //根据用户的部门id查询用户部门对象
+        EcmpOrg userEcmpOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
+        //根据公司id（以及部门名称模糊）查询部门对象列表
+        EcmpOrg ecmpOrg = new EcmpOrg();
+        ecmpOrg.setDeptName(name);
+        ecmpOrg.setCompanyId(userEcmpOrg.getCompanyId());
+        List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
+        return ecmpOrgs;
     }
 }

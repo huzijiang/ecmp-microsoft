@@ -68,4 +68,11 @@ public interface IEcmpOrgService
     public int deleteEcmpOrgById(Long deptId);
 
 
+    /**
+     * (根据部门名称模糊)查询用户 所在（子）公司的 部门列表
+     * @param userId
+     * @param name
+     * @return
+     */
+    List<EcmpOrg> selectUserOwnCompanyDept(Long userId, String name);
 }

@@ -1,11 +1,9 @@
 package com.hq.ecmp.ms.api.controller.threeparty;
 
 import com.hq.common.core.api.ApiResponse;
-import com.hq.core.web.domain.AjaxResult;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.mscore.bo.LbsAddress;
-import com.hq.ecmp.mscore.domain.ProjectInfo;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

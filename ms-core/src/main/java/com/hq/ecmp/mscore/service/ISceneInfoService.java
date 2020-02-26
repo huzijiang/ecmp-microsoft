@@ -59,4 +59,11 @@ public interface ISceneInfoService
      * @return 结果
      */
     public int deleteSceneInfoById(Long sceneId);
+    
+    /**
+     * 获取用户的用车场景
+     * @param userDto
+     * @return
+     */
+    public List<SceneInfo> selectAllSceneSort(Long userId);
 }

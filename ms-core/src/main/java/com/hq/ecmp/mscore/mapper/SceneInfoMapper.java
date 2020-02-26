@@ -59,4 +59,7 @@ public interface SceneInfoMapper
      * @return 结果
      */
     public int deleteSceneInfoByIds(Long[] sceneIds);
+    
+    
+	public List<SceneInfo> selectAllSceneSort(Long userId);
 }

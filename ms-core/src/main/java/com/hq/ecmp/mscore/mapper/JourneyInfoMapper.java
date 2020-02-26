@@ -29,7 +29,7 @@ public interface JourneyInfoMapper
     public List<JourneyInfo> selectJourneyInfoList(JourneyInfo journeyInfo);
 
     /**
-     * 新增【请填写功能名称】
+     * 新增行程信息
      *
      * @param journeyInfo 【请填写功能名称】
      * @return 结果

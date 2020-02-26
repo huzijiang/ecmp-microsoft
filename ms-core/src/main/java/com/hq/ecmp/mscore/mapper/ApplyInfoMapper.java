@@ -29,7 +29,7 @@ public interface ApplyInfoMapper
     public List<ApplyInfo> selectApplyInfoList(ApplyInfo applyInfo);
 
     /**
-     * 新增【请填写功能名称】
+     * 新增申请信息
      *
      * @param applyInfo 【请填写功能名称】
      * @return 结果

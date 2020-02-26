@@ -1,17 +1,18 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -24,6 +25,8 @@ public class RegimeController {
 
     @Autowired
     private IRegimeInfoService regimeInfoService;
+    @Autowired
+    private TokenService tokenService;
 
 
     /**
@@ -33,7 +36,13 @@ public class RegimeController {
      */
     @ApiOperation(value = "getUserRegimes",notes = "根据用户信息查询用户的用车制度信息",httpMethod ="POST")
     @PostMapping("/getUserRegimes")
-    public ApiResponse<List<RegimeInfo>> getUserRegimes(UserDto userDto){
+    public ApiResponse<List<RegimeInfo>> getUserRegimes(@RequestBody(required = false)UserDto userDto){
+        //如果没传递userId，则查询登录用户的的用车制度。如果传递了userId，则查询指定用户的用车制度
+        if(userDto.getUserId() == null){
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            userDto.setUserId(loginUser.getUser().getUserId());
+        }
         List<RegimeInfo> regimeInfoList = regimeInfoService.findRegimeInfoListByUserId(userDto.getUserId());
         return ApiResponse.success(regimeInfoList);
     }

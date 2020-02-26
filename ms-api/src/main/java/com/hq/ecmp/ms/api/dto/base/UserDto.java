@@ -45,5 +45,10 @@ public class UserDto {
      */
     String latitude;
 
+    /**
+     * 用户所在部门
+     */
+    String deptName;
+
 
 }

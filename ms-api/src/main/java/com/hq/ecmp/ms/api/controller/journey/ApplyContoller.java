@@ -1,14 +1,23 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
+import com.github.pagehelper.PageHelper;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
+import com.hq.ecmp.mscore.service.IJourneyInfoService;
+import com.hq.ecmp.mscore.service.IOrderInfoService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +34,12 @@ public class ApplyContoller {
 
     @Autowired
     private IApplyInfoService applyInfoService;
+
+    @Autowired
+    private IJourneyInfoService journeyInfoService;
+
+    @Autowired
+    private IOrderInfoService orderInfoService;
 
     /**
      * 员工提交行程申请
@@ -70,9 +85,11 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "getWaitApproveApplies",notes = "获取等待当前用户审批的行程申请列表 ",httpMethod ="POST")
     @PostMapping("/getWaitApproveApplies")
-    public ApiResponse<List<ApplyInfo>>   getWaitApproveApplies(UserDto userDto){
-
-        return null;
+    public ApiResponse   getWaitApproveApplies(UserDto userDto){
+        JourneyInfo journeyInfo = JourneyInfo.builder().userId(userDto.getUserId()).build();
+        // PageHelper.startPage(userDto.get)
+        List<JourneyInfo> journeyInfos = journeyInfoService.selectJourneyInfoList(journeyInfo);
+        return ApiResponse.success("查询单前用户可审批行程单列表成功",journeyInfos);
     }
 
     /**
@@ -120,9 +137,28 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "applyPass",notes = "行程申请-审核通过 ",httpMethod ="POST")
     @PostMapping("/applyPass")
-    public ApiResponse   applyPass(JourneyApplyDto journeyApplyDto,UserDto userDto){
-
-        return null;
+    @Transactional
+    public ApiResponse applyPass(JourneyApplyDto journeyApplyDto,UserDto userDto){
+        //1.校验信息
+        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
+        if (ObjectUtils.isEmpty(journeyInfo)){
+            return ApiResponse.error("行程申请单不存在!");
+        }
+        ApplyInfo applyInfo = ApplyInfo.builder().journeyId(journeyApplyDto.getJouneyId()).build();
+        List<ApplyInfo> applyInfos = applyInfoService.selectApplyInfoList(applyInfo);
+        if (CollectionUtils.isNotEmpty(applyInfos)){
+            return ApiResponse.error("行程申请单已审批！");
+        }
+        //2.生成行程单审批信息
+        applyInfo = ApplyInfo.builder().applyId(Long.MAX_VALUE).applyType("").approverName("").journeyId(journeyInfo.getJourneyId()).costCenter(userDto.getUserId()).projectId(userDto.getUserId()).
+                approverName("").reason("").state("").regimenId(Long.MAX_VALUE).build();
+        applyInfo.setCreateBy(userDto.getUserName());
+        applyInfo.setCreateTime(DateUtils.getNowDate());
+        applyInfoService.insertApplyInfo(applyInfo);
+        //3.默认生成订单
+        OrderInfo orderInfo = OrderInfo.builder().orderId(Long.MAX_VALUE).journeyId(journeyInfo.getJourneyId()).build();
+        orderInfoService.insertOrderInfo(orderInfo);
+        return ApiResponse.success("行程申请单审批通过");
     }
 
 
@@ -148,8 +184,8 @@ public class ApplyContoller {
     @ApiOperation(value = "getApplyApproveDetailInfo",notes = "获取行程申请的审批详情",httpMethod ="POST")
     @PostMapping("/getApplyApproveDetailInfo")
     public ApiResponse   getApplyApproveDetailInfo(JourneyApplyDto journeyApplyDto){
-
-        return null;
+        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
+        return ApiResponse.success("查询申请单详情成功",journeyInfo);
     }
 
 }
