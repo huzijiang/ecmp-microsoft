@@ -87,6 +87,30 @@ public class JourneyNodeInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long number;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String planBeginLongAddress;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String planEndLongAddress;
+
+    public String getPlanEndLongAddress() {
+        return planEndLongAddress;
+    }
+
+    public void setPlanEndLongAddress(String planEndLongAddress) {
+        this.planEndLongAddress = planEndLongAddress;
+    }
+
+    public String getPlanBeginLongAddress() {
+        return planBeginLongAddress;
+    }
+
+    public void setPlanBeginLongAddress(String planBeginLongAddress) {
+        this.planBeginLongAddress = planBeginLongAddress;
+    }
+
     public void setNodeId(Long nodeId)
     {
         this.nodeId = nodeId;

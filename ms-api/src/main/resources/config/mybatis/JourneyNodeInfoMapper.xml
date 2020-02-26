@@ -9,7 +9,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="journeyId"    column="journey_id"    />
         <result property="userId"    column="user_id"    />
         <result property="planBeginAddress"    column="plan_begin_address"    />
+        <result property="planBeginLongAddress"    column="plan_begin_long_address"    />
         <result property="planEndAddress"    column="plan_end_address"    />
+        <result property="planEndLongAddress"    column="plan_end_long_address"    />
         <result property="planSetoutTime"    column="plan_setout_time"    />
         <result property="planArriveTime"    column="plan_arrive_time"    />
         <result property="planBeginLongitude"    column="plan_begin_longitude"    />
@@ -30,7 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectJourneyNodeInfoVo">
-        select node_id, journey_id, user_id, plan_begin_address, plan_end_address, plan_setout_time, plan_arrive_time, plan_begin_longitude, plan_begin_latitude, plan_end_longitude, plan_end_latitude, it_is_via_point, vehicle, duration, distance, wait_duration, node_state, number, create_by, create_time, update_by, update_time from journey_node_info
+        select node_id, journey_id, user_id, plan_begin_address,plan_begin_long_address, plan_end_address,plan_end_long_address, plan_setout_time, plan_arrive_time, plan_begin_longitude, plan_begin_latitude, plan_end_longitude, plan_end_latitude, it_is_via_point, vehicle, duration, distance, wait_duration, node_state, number, create_by, create_time, update_by, update_time from journey_node_info
     </sql>
 
     <select id="selectJourneyNodeInfoList" parameterType="com.hq.ecmp.mscore.domain.JourneyNodeInfo" resultMap="JourneyNodeInfoResult">

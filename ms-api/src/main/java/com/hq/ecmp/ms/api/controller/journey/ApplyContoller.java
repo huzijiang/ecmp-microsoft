@@ -7,13 +7,12 @@ import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
+import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
+import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
 
 import java.util.List;
 
@@ -42,16 +44,46 @@ public class ApplyContoller {
     private IOrderInfoService orderInfoService;
 
     /**
-     * 员工提交行程申请
-     * @param  journeyApplyDto  行程申请信息
-     * @param  userDto    申请用户信息
+     * 员工提交行程申请     弃用。公务跟差旅申请分两个接口实现
+     * @param  journeyCommitApplyDto  行程申请信息
+     * @param
      * @return
      */
+    @Deprecated()
     @ApiOperation(value = "applyCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
     @PostMapping("/applyCommit")
-    public ApiResponse   applyCommit(JourneyApplyDto journeyApplyDto, UserDto userDto){
+    public ApiResponse   applyCommit(JourneyCommitApplyDto journeyCommitApplyDto){
+        //提交行程申请
+        applyInfoService.applyCommit(journeyCommitApplyDto);
+        return ApiResponse.success();
+    }
 
-        return null;
+    /**
+     * 员工提交公务行程申请
+     * @param  officialCommitApply  行程申请信息
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "applyOfficialCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
+    @PostMapping("/applyOfficialCommit")
+    public ApiResponse   applyOfficialCommit(ApplyOfficialRequest officialCommitApply){
+        //提交公务行程申请
+        applyInfoService.applyOfficialCommit(officialCommitApply);
+        return ApiResponse.success();
+    }
+
+    /**
+     * 员工提交差旅行程申请
+     * @param  travelCommitApply  行程申请信息
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "applyOfficialCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
+    @PostMapping("/applyOfficialCommit")
+    public ApiResponse   applyTravelCommit(ApplyTravelRequest travelCommitApply){
+        //提交差旅行程申请
+        applyInfoService.applytravliCommit(travelCommitApply);
+        return ApiResponse.success();
     }
 
     /**
