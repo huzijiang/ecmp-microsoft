@@ -1,6 +1,5 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
-import com.github.pagehelper.PageHelper;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
@@ -13,7 +12,6 @@ import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -172,7 +170,28 @@ public class ApplyContoller {
     @PostMapping("/applyReject")
     public ApiResponse   applyReject(JourneyApplyDto journeyApplyDto,UserDto userDto){
 
-        return null;
+        //1.校验消息
+        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
+        if (ObjectUtils.isEmpty(journeyInfo)){
+            return ApiResponse.error("行程申请单不存在！");
+        }
+        ApplyInfo applyInfo = ApplyInfo.builder().journeyId(journeyApplyDto.getJouneyId()).build();
+        List<ApplyInfo> applyInfos = applyInfoService.selectApplyInfoList(applyInfo);
+        if (CollectionUtils.isNotEmpty(applyInfos)){
+            return ApiResponse.error("行程申请单已审批");
+        }
+        //2.生成行程单审批信息
+        //state审批状态(1表示审批通过，0表示审批驳回)
+        applyInfo = ApplyInfo.builder().applyId(Long.MAX_VALUE).applyType("").approverName("").journeyId(journeyInfo.getJourneyId()).costCenter(userDto.getUserId()).projectId(userDto.getUserId())
+                .approverName("").reason("").state("").regimenId(Long.MAX_VALUE).build();
+        applyInfo.setCreateBy(userDto.getUserName());
+        applyInfo.setCreateTime(DateUtils.getNowDate());
+        applyInfoService.insertApplyInfo(applyInfo);
+        //3.默认生成订单
+        OrderInfo orderInfo = OrderInfo.builder().orderId(Long.MAX_VALUE).journeyId(journeyInfo.getJourneyId()).build();
+        orderInfoService.insertOrderInfo(orderInfo);
+        return ApiResponse.success("行程申请单审批驳回");
+
     }
 
 
