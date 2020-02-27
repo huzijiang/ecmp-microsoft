@@ -12,6 +12,7 @@ import com.hq.ecmp.mscore.service.IProjectUserRelationInfoService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,7 +40,6 @@ public class ProjectController {
     @ApiOperation(value = "getProjectsByUser",notes = "查询用户 所在（子）公司的项目信息 ",httpMethod ="POST")
     @PostMapping("/getProjectsByUser")
     public ApiResponse<List<ProjectInfo>> getProjectsByUser(UserDto userDto){
-
         //根据用户Id查询项目对象
         ProjectUserRelationInfo projectUserRelationInfo = iProjectUserRelationInfoService.selectProjectUserRelationInfoById(userDto.getUserId());
         //根据项目id查询项目信息
