@@ -1,8 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
-import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
-
 import java.util.List;
+import java.util.Map;
+
+import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
 
 /**
  * 【请填写功能名称】Service接口
@@ -59,4 +60,11 @@ public interface IJourneyUserCarPowerService
      * @return 结果
      */
     public int deleteJourneyUserCarPowerById(Long powerId);
+    
+    /**
+     * 查询指定行程的接机  送机   市内用车对应的剩余次数
+     * @param journeyId
+     * @return
+     */
+    public Map<String,Integer> selectStatusCount(Long journeyId);
 }
