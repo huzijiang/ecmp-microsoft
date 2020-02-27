@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -14,6 +15,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @date 2020-01-02
  */
 @Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class JourneyInfo extends BaseEntity
 {

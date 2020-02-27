@@ -1,7 +1,11 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
 import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
 import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
@@ -93,4 +97,28 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     {
         return journeyUserCarPowerMapper.deleteJourneyUserCarPowerById(powerId);
     }
+
+	@Override
+	public Map<String, Integer> selectStatusCount(Long journeyId) {
+		Map<String, Integer> map =new HashMap<>();
+		JourneyUserCarPower journeyUserCarPower = new JourneyUserCarPower();
+		//查询未使用的次数
+		journeyUserCarPower.setState(CarConstant.NOT_USER_USE_CAR);
+		journeyUserCarPower.setJourneyId(journeyId);;
+		List<JourneyUserCarPower> list = selectJourneyUserCarPowerList(journeyUserCarPower);
+		if(null !=list && list.size()>0){
+			//对三种类型的分组统计次数
+			for (JourneyUserCarPower j : list) {
+				String type = j.getType();
+				Integer sum = map.get(type);
+				if(null ==sum){
+					sum=1;
+				}else{
+					sum++;
+				}
+				map.put(type, sum);
+			}
+		}
+		return map;
+	}
 }
