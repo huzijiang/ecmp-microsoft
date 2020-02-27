@@ -86,6 +86,7 @@ public class JourneyNodeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long number;
+    
 
     public void setNodeId(Long nodeId)
     {
