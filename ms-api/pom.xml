@@ -22,6 +22,12 @@
     <dependencies>
         <dependency>
             <groupId>com.hq.ecmp</groupId>
+            <artifactId>ecmp-base</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.hq.ecmp</groupId>
             <artifactId>ms-core</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
