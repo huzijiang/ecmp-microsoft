@@ -59,4 +59,6 @@ public interface JourneyNodeInfoMapper
      * @return 结果
      */
     public int deleteJourneyNodeInfoByIds(Long[] nodeIds);
+    
+    public JourneyNodeInfo selectMaxAndMinDate(Long journeyId);
 }

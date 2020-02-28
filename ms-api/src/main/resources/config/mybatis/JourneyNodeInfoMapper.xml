@@ -153,5 +153,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{nodeId}
         </foreach>
     </delete>
+    
+    
+    <select id="selectMaxAndMinDate" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.JourneyNodeInfo">
+    SELECT
+	MAX(plan_arrive_time) AS planArriveTime,
+	MIN(plan_setout_time) AS planSetoutTime
+FROM
+	journey_node_info
+WHERE
+	journey_id = #{journeyId}
+    </select>
 
 </mapper>
