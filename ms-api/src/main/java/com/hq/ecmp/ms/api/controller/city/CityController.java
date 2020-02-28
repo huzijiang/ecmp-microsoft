@@ -26,7 +26,7 @@ public class CityController {
 		return null;
 	}
 	
-	/*@ApiOperation(value = "getIndexInfo", notes = "获取首页信息 ", httpMethod = "POST")
+	@ApiOperation(value = "getIndexInfo", notes = "获取首页信息 ", httpMethod = "POST")
 	@PostMapping("/getIndexInfo")
 	public ApiResponse<WeatherAndCity> getIndexInfo(Map<String, Object> map) {
 		WeatherAndCity weatherAndCity = new WeatherAndCity();
@@ -40,5 +40,5 @@ public class CityController {
 		weatherAndCity.setCityName("北京");
 		weatherAndCity.setWeather("16 ℃ 晴");
 		return ApiResponse.success(weatherAndCity);
-	}*/
+	}
 }
