@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
@@ -78,7 +79,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     }
 
     /**
-     * 修改【请填写功能名称】
+     * 修改陈情表信息（撤销行程申请）
      *
      * @param applyInfo 【请填写功能名称】
      * @return 结果
@@ -159,7 +160,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             //3.5 plan_setout_time 计划出发时间
             journeyNodeInfo.setPlanSetoutTime(travelRequest.getStartDate());  // TODO 出差某一节点开始日期
             //3.6 plan_arrive_time 计划到达时间
-            journeyNodeInfo.setPlanArriveTime(travelRequest.getEndDate());  // TODO 出差某一节点开始日期
+            journeyNodeInfo.setPlanArriveTime(travelRequest.getEndDate());  // TODO 出差某一节点结束日期
             //3.7 plan_begin_longitude 出发坐标
             journeyNodeInfo.setPlanBeginLongitude(null);   // TODO 差旅是城市代码、城市id
             //3.8 plan_begin_latitude
@@ -173,7 +174,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             //3.12 vehicle 交通工具 T001  飞机 T101  火车 T201  汽车 T301  轮渡 T999  其他
             journeyNodeInfo.setVehicle(travelRequest.getVehicle());
             //3.13 duration 行程节点 预估用时， X 小时 X 分钟
-            journeyNodeInfo.setDuration(null);   // TODO 节点时长多少天字段没有？但前端传过来了
+            journeyNodeInfo.setDuration(String.valueOf(travelRequest.getCountDate()));   // TODO 差旅节点时长是多少天字段。公务应该是X 小时 X 分钟
             //3.14 distance 行程节点 预估里程 单位公：里
             journeyNodeInfo.setDistance(null);
             //3.15 wait_duration 航班到达后等待多时时间  用车，单位 分钟 M010 10分钟 M020 20分钟 M030 30分钟 H100 一小时 H130 一个半小时
@@ -184,7 +185,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             ///3.17 number 节点在 在整个行程 中的顺序编号 从  1  开始
             journeyNodeInfo.setNumber(i);
             //3.18 create_by 创建者
-            journeyNodeInfo.setCreateBy(travelCommitApply.getApplyUser().getUserName());
+            journeyNodeInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
             //3.19 create_time 创建时间
             journeyNodeInfo.setCreateTime(new Date());
             //3.20 update_by 更新者
@@ -219,7 +220,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //4.4 it_is_peer 是否是同行者 00   是   01   否
         journeyPassengerInfo.setItIsPeer("01");   // TODO 枚举
         //4.5 create_by 创建者
-        journeyPassengerInfo.setCreateBy(travelCommitApply.getApplyUser().getUserName());
+        journeyPassengerInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
         //4.6 create_time 创建时间
         journeyPassengerInfo.setCreateTime(new Date());
         //4.7 update_by 更新者
@@ -243,7 +244,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.3 regimen_id 非空
         applyInfo.setRegimenId(Long.valueOf(travelCommitApply.getRegimenId()));  // TODO 判空
         //2.4 apply_type 用车申请类型；A001:  公务用车 A002:  差旅用车
-        applyInfo.setApplyType(String.valueOf(travelCommitApply.getApplyType()));     //TODO 枚举
+        applyInfo.setApplyType(String.valueOf(travelCommitApply.getApplyType()));
         //2.5 approver_name 第一审批阶段 审批人列表，前两位
         List<UserVO> approvers = travelCommitApply.getApprovers();
         String approversName = null;
@@ -258,11 +259,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.6 cost_center 成本中心 从组织机构表 中获取
         applyInfo.setCostCenter(Long.valueOf(travelCommitApply.getCostCenter())); //TODO 判空
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
-        applyInfo.setState("S003"); //TODO 枚举
+        applyInfo.setState("S001"); //TODO 枚举
         //2.8 reason 行程原因
         applyInfo.setReason(travelCommitApply.getReason());
         //2.9 create_by 创建者
-        applyInfo.setCreateBy(travelCommitApply.getApplyUser().getUserName());
+        applyInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
         //2.10 create_time 创建时间
         applyInfo.setCreateTime(new Date());
         //2.11 update_by 更新者
@@ -303,7 +304,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //1.12 charter_car_type 包车类型：T000  非包车 T001 半日租（4小时）T002 整日租（8小时）
         journeyInfo.setCharterCarType(null);
         //1.13 create_by 创建者
-        journeyInfo.setCreateBy(travelCommitApply.getApplyUser().getUserName());
+        journeyInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
         //1.14 create_time 创建时间
         journeyInfo.setCreateTime(new Date());
         //1.15 update_by 更新者
@@ -320,9 +321,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Override
     @Transactional
     public void applyOfficialCommit(ApplyOfficialRequest officialCommitApply) {
+
         //1.保存乘客行程信息 journey_info表
         JourneyInfo journeyInfo = new JourneyInfo();
-        //1.1 userId          非空
         //提交公务行程表信息
         journeyOfficialCommit(officialCommitApply, journeyInfo);
         Long journeyId = journeyInfo.getJourneyId();
@@ -358,9 +359,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //4.3 mobile
         journeyPassengerInfo.setMobile(officialCommitApply.getPassenger().getUserPhone());
         //4.4 it_is_peer 是否是同行者 00   是   01   否
-        journeyPassengerInfo.setItIsPeer("00");   // TODO 新建枚举
+        journeyPassengerInfo.setItIsPeer("01");   // TODO 新建枚举
         //4.5 create_by 创建者
-        journeyPassengerInfo.setCreateBy(officialCommitApply.getApplyUser().getUserName());
+        journeyPassengerInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));
         //4.6 create_time 创建时间
         journeyPassengerInfo.setCreateTime(new Date());
         //4.7 update_by 更新者
@@ -375,11 +376,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         if (!CollectionUtils.isEmpty(partners)){
             for (UserVO partner : partners) {
                 journeyPartner = new JourneyPassengerInfo();
-                journeyPartner.setJourneyId(journeyId); //TODO journeyId上面保存后产生
+                journeyPartner.setJourneyId(journeyId);
                 journeyPartner.setName(partner.getUserName());
                 journeyPartner.setMobile(partner.getUserPhone());
-                journeyPartner.setItIsPeer("01");  //TODO 枚举
-                journeyPartner.setCreateBy(officialCommitApply.getApplyUser().getUserName());
+                journeyPartner.setItIsPeer("00");  //TODO 枚举
+                journeyPartner.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));
                 journeyPartner.setCreateTime(new Date());
                 journeyPartner.setUpdateBy(null);
                 journeyPartner.setUpdateTime(null);
@@ -400,21 +401,23 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //3.2 user_id 行程申请人 编号
         journeyNodeInfo.setUserId(Long.valueOf(officialCommitApply.getApplyUser().getUserId())); //TODO 判空
         //3.3 plan_begin_address 计划上车地址  非空
-        journeyNodeInfo.setPlanBeginAddress(officialCommitApply.getStartAddr().getStartAddr());
+        journeyNodeInfo.setPlanBeginAddress(officialCommitApply.getStartAddr().getAddress());
+        journeyNodeInfo.setPlanBeginLongAddress(officialCommitApply.getStartAddr().getLongAddress());
         //3.4 plan_end_address 计划下车地址    非空
-        journeyNodeInfo.setPlanEndAddress(officialCommitApply.getEndAddr().getEndAddr());
+        journeyNodeInfo.setPlanEndAddress(officialCommitApply.getEndAddr().getAddress());
+        journeyNodeInfo.setPlanEndLongAddress(officialCommitApply.getEndAddr().getLongAddress());
         //3.5 plan_setout_time 计划出发时间
         journeyNodeInfo.setPlanSetoutTime(officialCommitApply.getApplyDate());    // TODO 跟差旅申请记录时间不一样
         //3.6 plan_arrive_time 计划到达时间
         journeyNodeInfo.setPlanArriveTime(null);   // TODO 差旅申请
         //3.7 plan_begin_longitude 出发坐标
-        journeyNodeInfo.setPlanBeginLongitude(null);  // TODO StartAddrPoint()是经度还是纬度
+        journeyNodeInfo.setPlanBeginLongitude(null);  // TODO 待定
         //3.8 plan_begin_latitude
-        journeyNodeInfo.setPlanBeginLatitude(null);  // TODO StartAddrPoint()是经度还是纬度
+        journeyNodeInfo.setPlanBeginLatitude(null);  // TODO 待定
         //3.9 plan_end_longitude
-        journeyNodeInfo.setPlanEndLongitude(null);   // TODO StartAddrPoint()是经度还是纬度
+        journeyNodeInfo.setPlanEndLongitude(null);   // TODO 待定
         //3.10 plan_end_latitude
-        journeyNodeInfo.setPlanEndLongitude(null);   // TODO StartAddrPoint()是经度还是纬度
+        journeyNodeInfo.setPlanEndLongitude(null);   // TODO 待定
         //3.11 it_is_via_point 是否是途经点  途经点仅仅用于 地图描点  和  导航使用;途经点  同样具有顺序
         journeyNodeInfo.setItIsViaPoint(null);       // TODO 这个途径点是怎么判断的呢
         //3.12 vehicle 交通工具 T001  飞机 T101  火车 T201  汽车 T301  轮渡 T999  其他
@@ -427,11 +430,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyNodeInfo.setWaitDuration(officialCommitApply.getWaitDurition());   // TODO 新增参数
         //3.16 node_state 行程节点状态 订单---->用车权限----->行程节点   反推  节点任务是否已完成 失效 也算已经  节点任务已经完成
         //P000   有效中  P444   已失效
-        journeyNodeInfo.setNodeState(null);
+        journeyNodeInfo.setNodeState("P000");   // TODO 枚举
         ///3.17 number 节点在 在整个行程 中的顺序编号 从  1  开始
         journeyNodeInfo.setNumber(1l);    // TODO 差旅才有多个节点
         //3.18 create_by 创建者
-        journeyNodeInfo.setCreateBy(officialCommitApply.getApplyUser().getUserName());  //TODO 申请人 和 创建人
+        journeyNodeInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));  //TODO 申请人 和 创建人
         //3.19 create_time 创建时间
         journeyNodeInfo.setCreateTime(new Date());
         //3.20 update_by 更新者
@@ -454,7 +457,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.2 project_id
         applyInfo.setProjectId(Long.valueOf(officialCommitApply.getProjectNumber())); //TODO 要判空
         //2.3 regimen_id 非空
-        applyInfo.setRegimenId(Long.valueOf(officialCommitApply.getApplyType()));
+        applyInfo.setRegimenId(Long.valueOf(officialCommitApply.getRegimenId()));
         //2.4 apply_type 用车申请类型；A001:  公务用车 A002:  差旅用车
         applyInfo.setApplyType(String.valueOf(officialCommitApply.getApplyType())); //TODO 跟用车制度id重合了
         //2.5 approver_name 第一审批阶段 审批人列表，前两位
@@ -471,11 +474,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.6 cost_center 成本中心 从组织机构表 中获取
         applyInfo.setCostCenter(Long.valueOf(officialCommitApply.getCostCenter())); //TODO 要判空
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
-        applyInfo.setState("S003");  // TODO 定义枚举
+        applyInfo.setState("S001");  // TODO 定义枚举
         //2.8 reason 行程原因
         applyInfo.setReason(officialCommitApply.getReason());
         //2.9 create_by 创建者
-        applyInfo.setCreateBy(officialCommitApply.getApplyUser().getUserName()); //TODO 创建者 与 申请人区别
+        applyInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId())); //TODO 创建者 与 申请人区别
         //2.10 create_time 创建时间
         applyInfo.setCreateTime(new Date());
         //2.11 update_by 更新者
@@ -491,15 +494,19 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param journeyInfo
      */
     private void journeyOfficialCommit(ApplyOfficialRequest officialCommitApply, JourneyInfo journeyInfo) {
+        //1.1 userId          非空
         journeyInfo.setUserId(Long.valueOf(officialCommitApply.getApplyUser().getUserId()));
         //1.2 用车制度id        非空
         journeyInfo.setRegimenId(Long.valueOf(officialCommitApply.getRegimenId()));  //TODO 新增字段
         //1.3 service_type 预约、接机、送机、包车 1000预约 2001接机 2002送机 3000包车
-        journeyInfo.setServiceType(String.valueOf(officialCommitApply.getServiceType()));
+        journeyInfo.setServiceType(officialCommitApply.getServiceType());
         //1.4 use_car_mode 用车方式（自有、网约车）
         journeyInfo.setUseCarMode(officialCommitApply.getUseType());
         //1.5 use_car_time 用车时间
-        journeyInfo.setUseCarTime(String.valueOf(officialCommitApply.getApplyDate()));
+        Date applyDate = officialCommitApply.getApplyDate();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        String date = dateFormat.format(applyDate);
+        journeyInfo.setUseCarTime(date);
         //1.6 it_is_return 是否往返 Y000 N444
         journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());
         //1.7 estimate_price 预估价格     非空
@@ -515,7 +522,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //1.12 charter_car_type 包车类型：T000  非包车 T001 半日租（4小时）T002 整日租（8小时）
         journeyInfo.setCharterCarType(String.valueOf(officialCommitApply.getCharterType()));
         //1.13 create_by 创建者
-        journeyInfo.setCreateBy(officialCommitApply.getApplyUser().getUserName());
+        journeyInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));  //TODO 数据库中是int
         //1.14 create_time 创建时间
         journeyInfo.setCreateTime(new Date());
         //1.15 update_by 更新者

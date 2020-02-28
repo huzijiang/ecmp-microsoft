@@ -93,4 +93,6 @@ public class  ApplyTravelRequest {
      */
     @ApiModelProperty(name = "approvers", value = "审批人", required = false, position = 12)
     private List<UserVO> approvers;  // TODO 新增
+
+
 }

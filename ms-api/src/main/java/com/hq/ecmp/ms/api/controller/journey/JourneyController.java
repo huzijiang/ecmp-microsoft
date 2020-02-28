@@ -4,7 +4,9 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyNodeDto;
+import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ public class JourneyController {
 
     @Autowired
     private IJourneyInfoService journeyInfoService;
+    @Autowired
+    private IApplyInfoService applyInfoService;
     /**
      * 创建行程
      * @param  journeyApplyDto  行程申请信息
@@ -43,8 +47,14 @@ public class JourneyController {
     @ApiOperation(value = "cancelJourney",notes = "撤消行程",httpMethod ="POST")
     @PostMapping("/cancelJourney")
     public ApiResponse cancelJourneyApply(JourneyApplyDto journeyApplyDto){
-
-        return null;
+        //撤销行程申请
+        ApplyInfo applyInfo = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state("S004").build();
+        int i = applyInfoService.updateApplyInfo(applyInfo);
+        if(i == 1){
+            return ApiResponse.success("撤销成功");
+        }else {
+            return ApiResponse.error("撤销申请失败，请重试");
+        }
     }
 
     /**

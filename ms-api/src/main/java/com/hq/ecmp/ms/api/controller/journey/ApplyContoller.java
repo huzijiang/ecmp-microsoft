@@ -11,18 +11,23 @@ import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.vo.AddressVO;
+import com.hq.ecmp.mscore.vo.UserVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,9 +70,14 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "applyOfficialCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
     @PostMapping("/applyOfficialCommit")
-    public ApiResponse   applyOfficialCommit(ApplyOfficialRequest officialCommitApply){
+    public ApiResponse   applyOfficialCommit(@RequestBody ApplyOfficialRequest officialCommitApply){
         //提交公务行程申请
-        applyInfoService.applyOfficialCommit(officialCommitApply);
+        try {
+            applyInfoService.applyOfficialCommit(officialCommitApply);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("提交公务申请失败");
+        }
         return ApiResponse.success();
     }
 
@@ -77,11 +87,16 @@ public class ApplyContoller {
      * @param
      * @return
      */
-    @ApiOperation(value = "applyOfficialCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
-    @PostMapping("/applyOfficialCommit")
-    public ApiResponse   applyTravelCommit(ApplyTravelRequest travelCommitApply){
+    @ApiOperation(value = "applyTravelCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
+    @PostMapping("/applyTravelCommit")
+    public ApiResponse   applyTravelCommit(@RequestBody ApplyTravelRequest travelCommitApply){
         //提交差旅行程申请
-        applyInfoService.applytravliCommit(travelCommitApply);
+        try {
+            applyInfoService.applytravliCommit(travelCommitApply);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("提交差旅申请失败");
+        }
         return ApiResponse.success();
     }
 
@@ -240,4 +255,63 @@ public class ApplyContoller {
         return ApiResponse.success("查询申请单详情成功",journeyInfo);
     }
 
-}
+    public static void main(String[] args) {
+
+
+
+        ApplyOfficialRequest applyOfficialRequest = new ApplyOfficialRequest();
+        applyOfficialRequest.setApplyDate(new Date());
+        applyOfficialRequest.setApplyType("公务用车");
+        UserVO userVO = new UserVO();
+        UserVO userVO2 = new UserVO();
+        UserVO userVO4 = new UserVO();
+        UserVO userVO5 = new UserVO();
+        userVO4.setUserName("张飞");
+        userVO4.setUserPhone("1900000000");
+        List<UserVO> userVOList0 = new ArrayList<>();
+        userVOList0.add(userVO4);
+        //同行人
+        applyOfficialRequest.setPartner(userVOList0);
+        //乘客
+        applyOfficialRequest.setPassenger(userVO);
+        userVO5.setUserName("曹操");
+        UserVO userVO23 = new UserVO();
+        userVO.setUserId(101);
+        userVO.setUserName("张三");
+        userVO.setUserPhone("15000000000");
+        //申请人
+        applyOfficialRequest.setApplyUser(userVO);
+        userVO2.setUserPhone("16000000000");
+        userVO2.setUserName("队长");
+        userVO23.setUserName("局长");
+        List<UserVO> userVOList = new ArrayList<>();
+        userVOList.add(userVO2);
+        userVOList.add(userVO23);
+        //审批人
+        applyOfficialRequest.setApprovers(userVOList);
+        applyOfficialRequest.setCharterType(2);
+        applyOfficialRequest.setCostCenter("技术部");
+        AddressVO addressVO = new AddressVO();
+        AddressVO addressVO2 = new AddressVO();
+        addressVO.setAddressPoint("北京市朝阳区");
+        addressVO.setAddress("朝阳公园站");
+        addressVO.setAddressPoint("301123,4241432");
+        addressVO2.setLongAddress("山东省青岛市");
+        addressVO2.setAddress("大龙虾饭店");
+        applyOfficialRequest.setStartAddr(addressVO2);
+        applyOfficialRequest.setEndAddr(addressVO);
+        applyOfficialRequest.setEstimatePrice(300l);
+        applyOfficialRequest.setIsGoBack("否");
+        applyOfficialRequest.setFlightNumber("FZ0201");
+        applyOfficialRequest.setProjectNumber("0001");
+        applyOfficialRequest.setPassedAddress(null);   // TODO 途径地
+        applyOfficialRequest.setRegimenId(888);
+        applyOfficialRequest.setWaitDurition("30分钟");
+        applyOfficialRequest.setUseType("自有车");
+
+
+
+    }
+
+
+    }

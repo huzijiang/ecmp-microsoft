@@ -14,24 +14,28 @@ import lombok.Data;
 public class AddressVO {
 
     /**
-     * 上车地址
+     * 长地址
      */
-    @ApiModelProperty(name = "startAddrPoint",value = "上车地点坐标")
-    private String startAddrPoint;
+    @ApiModelProperty(name = "longAddress",value = "长地址")
+    private String longAddress;
+
     /**
-     * 上车坐标
+     * 短地址（具体地址）
      */
-    @ApiModelProperty(name = "startAddr",value = "上车地点")
-    private String startAddr;
+    @ApiModelProperty(name = "address",value = "具体地点")
+    private String address;
+
     /**
-     * 下车坐标
+     * 地点坐标
      */
-    @ApiModelProperty(name = "endAddrPoint",value = "下车地点坐标")
-    private String endAddrPoint;
+    @ApiModelProperty(name = "addressPoint",value = "地点坐标")
+    private String addressPoint;
+
+
     /**
      * 下车地址
      */
-    @ApiModelProperty(name = "endAddr",value = "下车地点")
-    private String endAddr;
+    @ApiModelProperty(name = "longitude",value = "经度")
+    private String longitude;
 
 }

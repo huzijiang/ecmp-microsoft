@@ -69,7 +69,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="nodeId != null ">node_id,</if>
             <if test="journeyId != null ">journey_id,</if>
             <if test="userId != null ">user_id,</if>
+            <if test="planBeginLongAddress != null  and planBeginLongAddress != ''">plan_begin_long_address,</if>
             <if test="planBeginAddress != null  and planBeginAddress != ''">plan_begin_address,</if>
+            <if test="planEndLongAddress != null  and planEndLongAddress != ''">plan_end_long_address,</if>
             <if test="planEndAddress != null  and planEndAddress != ''">plan_end_address,</if>
             <if test="planSetoutTime != null ">plan_setout_time,</if>
             <if test="planArriveTime != null ">plan_arrive_time,</if>
@@ -93,7 +95,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="nodeId != null ">#{nodeId},</if>
             <if test="journeyId != null ">#{journeyId},</if>
             <if test="userId != null ">#{userId},</if>
+            <if test="planBeginLongAddress != null  and planBeginLongAddress != ''">#{planBeginLongAddress},</if>
             <if test="planBeginAddress != null  and planBeginAddress != ''">#{planBeginAddress},</if>
+            <if test="planEndLongAddress != null  and planEndLongAddress != ''">#{planEndLongAddress},</if>
             <if test="planEndAddress != null  and planEndAddress != ''">#{planEndAddress},</if>
             <if test="planSetoutTime != null ">#{planSetoutTime},</if>
             <if test="planArriveTime != null ">#{planArriveTime},</if>

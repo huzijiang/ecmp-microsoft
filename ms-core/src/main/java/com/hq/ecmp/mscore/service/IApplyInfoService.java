@@ -40,7 +40,7 @@ public interface IApplyInfoService
     public int insertApplyInfo(ApplyInfo applyInfo);
 
     /**
-     * 修改【请填写功能名称】
+     * 修改申请表信息（撤销行程申请）
      *
      * @param applyInfo 【请填写功能名称】
      * @return 结果

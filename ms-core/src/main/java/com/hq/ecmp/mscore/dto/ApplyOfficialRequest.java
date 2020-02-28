@@ -28,7 +28,7 @@ public class ApplyOfficialRequest {
      * 服务类型 eg 预约、接机、送机、包车
      */
     @ApiModelProperty(name = "serviceType", value = "服务类型", required = true, position = 2, example = "预约")
-    private Integer serviceType;
+    private String serviceType;   // TODO Integer 改 String
     /**
      * 用车类型 eg 自有/网约车
      */
@@ -40,7 +40,6 @@ public class ApplyOfficialRequest {
      */
     @ApiModelProperty(name = "applyDate", value = "用车时间", required = true, position = 4)
     private Date applyDate;
-
     /**
      * 上车地址
      */
