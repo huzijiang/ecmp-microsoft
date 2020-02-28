@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,9 +39,9 @@ public class SceneController {
 	 * @param userDto
 	 * @return
 	 */
-	@ApiOperation(value = "getAll", notes = "获取用车场景", httpMethod = "POST")
-	@PostMapping("/getAll")
-	public ApiResponse<List<SceneInfo>> getAllScene(@RequestBody UserDto userDto) {
+	@ApiOperation(value = "getAll", notes = "获取用车场景", httpMethod ="GET")
+	@GetMapping("/getAll")
+	public ApiResponse<List<SceneInfo>> getAllScene() {
 		//获取登录用户
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
