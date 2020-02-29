@@ -29,9 +29,9 @@ public interface JourneyNodeInfoMapper
     public List<JourneyNodeInfo> selectJourneyNodeInfoList(JourneyNodeInfo journeyNodeInfo);
 
     /**
-     * 新增【请填写功能名称】
+     * 新增行程节点信息
      *
-     * @param journeyNodeInfo 【请填写功能名称】
+     * @param journeyNodeInfo 行程节点信息
      * @return 结果
      */
     public int insertJourneyNodeInfo(JourneyNodeInfo journeyNodeInfo);
@@ -59,4 +59,6 @@ public interface JourneyNodeInfoMapper
      * @return 结果
      */
     public int deleteJourneyNodeInfoByIds(Long[] nodeIds);
+    
+    public JourneyNodeInfo selectMaxAndMinDate(Long journeyId);
 }

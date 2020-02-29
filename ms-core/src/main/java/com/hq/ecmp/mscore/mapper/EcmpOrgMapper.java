@@ -22,9 +22,10 @@ public interface EcmpOrgMapper {
     /**
      * 根据公司id查询部门对象列表
      * @param companyId
+     * @param name
      * @return
      */
-    public List<EcmpOrg> selectEcmpOrgsByCompanyId(Long companyId);
+    public List<EcmpOrg> selectEcmpOrgsByCompanyId(Long companyId,String name);
 
     /**
      * 查询部门列表

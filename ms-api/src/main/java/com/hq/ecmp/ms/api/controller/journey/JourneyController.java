@@ -4,10 +4,12 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyNodeDto;
-import com.hq.ecmp.ms.api.dto.order.OrderDto;
+import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
+import com.hq.ecmp.mscore.service.IApplyInfoService;
+import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +22,10 @@ import java.util.List;
 @RestController
 public class JourneyController {
 
-
+    @Autowired
+    private IJourneyInfoService journeyInfoService;
+    @Autowired
+    private IApplyInfoService applyInfoService;
     /**
      * 创建行程
      * @param  journeyApplyDto  行程申请信息
@@ -28,7 +33,7 @@ public class JourneyController {
      */
     @ApiOperation(value = "createJourneyApply",notes = "创建行程",httpMethod ="POST")
     @PostMapping("/createJourneyApply")
-    public ApiResponse createJourneyApply(JourneyApplyDto journeyApplyDto,UserDto userDto){
+    public ApiResponse createJourneyApply(JourneyApplyDto journeyApplyDto, UserDto userDto){
 
         return null;
     }
@@ -42,8 +47,14 @@ public class JourneyController {
     @ApiOperation(value = "cancelJourney",notes = "撤消行程",httpMethod ="POST")
     @PostMapping("/cancelJourney")
     public ApiResponse cancelJourneyApply(JourneyApplyDto journeyApplyDto){
-
-        return null;
+        //撤销行程申请
+        ApplyInfo applyInfo = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state("S004").build();
+        int i = applyInfoService.updateApplyInfo(applyInfo);
+        if(i == 1){
+            return ApiResponse.success("撤销成功");
+        }else {
+            return ApiResponse.error("撤销申请失败，请重试");
+        }
     }
 
     /**
@@ -65,8 +76,11 @@ public class JourneyController {
     @ApiOperation(value = "getUserAllJourneyNumbers",notes = "查询用户当前进行中的行程信息 ",httpMethod ="POST")
     @PostMapping("/getUserAllJourneyNumbers")
     public ApiResponse getUserAllJourneyNumbers(UserDto userDto){
-
-        return null;
+        //查询用户所有行程信息
+        JourneyInfo journeyInfo = new JourneyInfo();
+        journeyInfo.setUserId(userDto.getUserId());
+        List<JourneyInfo> journeyInfoList = journeyInfoService.selectJourneyInfoList(journeyInfo);
+        return ApiResponse.success(journeyInfoList);
     }
 
 
@@ -91,8 +105,9 @@ public class JourneyController {
     @ApiOperation(value = "getUserJourneysDetail",notes = "查询用户当前进行中的行程详细信息 ",httpMethod ="POST")
     @PostMapping("/getUserJourneysDetail")
     public ApiResponse<JourneyInfo> getUserJourneysDetail(JourneyApplyDto journeyApplyDto){
-
-        return null;
+        //根据行程id查询行程信息
+        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
+        return ApiResponse.success(journeyInfo);
     }
 
     /**

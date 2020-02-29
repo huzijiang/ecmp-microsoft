@@ -3,8 +3,11 @@ package com.hq.ecmp.mscore.domain;
 import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
+import com.github.pagehelper.util.StringUtil;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
+import com.hq.ecmp.constant.CarConstant;
 
 /**
  * 【请填写功能名称】对象 regime_info
@@ -92,5 +95,18 @@ public class RegimeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String allowCityRoundTravel;
+    
+    public String parseApplyType(){
+    	if(StringUtil.isEmpty(this.applyType)){
+    		return "";
+    	}
+    	if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(this.applyType)){
+    		return "公务用车";
+    	}
+    	if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(this.applyType)){
+    		return "差旅用车";
+    	}
+    	return "未知类型的用车";
+    }
 
 }

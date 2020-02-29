@@ -31,7 +31,5 @@ public class JourneyApplyDto {
     @NotNull
     private Long jouneyId;
 
-    private ApplyInfo applyInfo;                     //TODO 新增的
-    private List<JourneyInfo> journeyInfoList;      //TODO 新增的
 
 }

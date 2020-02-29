@@ -29,9 +29,9 @@ public interface JourneyPassengerInfoMapper
     public List<JourneyPassengerInfo> selectJourneyPassengerInfoList(JourneyPassengerInfo journeyPassengerInfo);
 
     /**
-     * 新增【请填写功能名称】
+     * 新增行程乘客信息
      *
-     * @param journeyPassengerInfo 【请填写功能名称】
+     * @param journeyPassengerInfo 行程乘客信息
      * @return 结果
      */
     public int insertJourneyPassengerInfo(JourneyPassengerInfo journeyPassengerInfo);

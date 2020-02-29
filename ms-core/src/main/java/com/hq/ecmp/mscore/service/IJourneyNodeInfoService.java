@@ -59,4 +59,19 @@ public interface IJourneyNodeInfoService
      * @return 结果
      */
     public int deleteJourneyNodeInfoById(Long nodeId);
+    
+    /**
+     * 获取差旅所有的城市名称
+     * @param journeyId
+     * @return
+     */
+    public List<String> selectAllCity(Long journeyId);
+    
+    
+    /**
+     * 获取指定行程下的所有行程节点中的最早开始时间   和最晚结束时间
+     * @param journeyId
+     * @return
+     */
+    public JourneyNodeInfo selectMaxAndMinDate(Long journeyId);
 }

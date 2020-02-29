@@ -24,6 +24,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
     private UserRegimeRelationInfoMapper userRegimeRelationInfoMapper;
     @Autowired
     private RegimeInfoMapper regimeInfoMapper;
+  
 
     /**
      * 根据用车制度id查询用车值得详细信息

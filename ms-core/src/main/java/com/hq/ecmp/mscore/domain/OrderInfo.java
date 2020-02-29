@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Builder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -12,6 +13,7 @@ import java.util.Date;
  * @author hqer
  * @date 2020-01-02
  */
+@Builder
 public class OrderInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;

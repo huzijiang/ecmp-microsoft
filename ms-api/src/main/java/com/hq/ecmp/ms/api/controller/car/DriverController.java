@@ -8,7 +8,10 @@ import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.service.IDriverInfoService;
+import com.hq.ecmp.mscore.service.IOrderInfoService;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +27,6 @@ import java.util.List;
 @RequestMapping("/driver")
 public class DriverController {
 
-
     /**
      * 获取可调度的司机信息
      * 注意：
@@ -35,7 +37,6 @@ public class DriverController {
     @ApiOperation(value = "getDispatchableDriver",notes = "获取可调度的司机信息",httpMethod ="POST")
     @PostMapping("/getDispatchableDriver")
     public ApiResponse<List<DriverInfo>> getDispatchableDriver(OrderDto orderDto){
-
         return null;
     }
 

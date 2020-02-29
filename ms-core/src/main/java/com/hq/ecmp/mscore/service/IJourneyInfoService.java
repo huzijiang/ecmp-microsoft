@@ -1,8 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-
 import java.util.List;
+
+import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
+import com.hq.ecmp.mscore.domain.JourneyInfo;
 
 /**
  * 【请填写功能名称】Service接口
@@ -59,4 +60,6 @@ public interface IJourneyInfoService
      * @return 结果
      */
     public int deleteJourneyInfoById(Long journeyId);
+    
+    public List<CarAuthorityInfo> getUserCarAuthorityList(Integer userId);
 }

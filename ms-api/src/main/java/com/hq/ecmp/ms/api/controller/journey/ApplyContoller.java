@@ -1,18 +1,33 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
+import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
+import com.hq.ecmp.mscore.service.IJourneyInfoService;
+import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.vo.AddressVO;
+import com.hq.ecmp.mscore.vo.UserVO;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
+import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,17 +41,63 @@ public class ApplyContoller {
     @Autowired
     private IApplyInfoService applyInfoService;
 
+    @Autowired
+    private IJourneyInfoService journeyInfoService;
+
+    @Autowired
+    private IOrderInfoService orderInfoService;
+
     /**
-     * 员工提交行程申请
-     * @param  journeyApplyDto  行程申请信息
-     * @param  userDto    申请用户信息
+     * 员工提交行程申请     弃用。公务跟差旅申请分两个接口实现
+     * @param  journeyCommitApplyDto  行程申请信息
+     * @param
      * @return
      */
+    @Deprecated()
     @ApiOperation(value = "applyCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
     @PostMapping("/applyCommit")
-    public ApiResponse   applyCommit(JourneyApplyDto journeyApplyDto, UserDto userDto){
+    public ApiResponse   applyCommit(JourneyCommitApplyDto journeyCommitApplyDto){
+        //提交行程申请
+        applyInfoService.applyCommit(journeyCommitApplyDto);
+        return ApiResponse.success();
+    }
 
-        return null;
+    /**
+     * 员工提交公务行程申请
+     * @param  officialCommitApply  行程申请信息
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "applyOfficialCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
+    @PostMapping("/applyOfficialCommit")
+    public ApiResponse   applyOfficialCommit(@RequestBody ApplyOfficialRequest officialCommitApply){
+        //提交公务行程申请
+        try {
+            applyInfoService.applyOfficialCommit(officialCommitApply);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("提交公务申请失败");
+        }
+        return ApiResponse.success();
+    }
+
+    /**
+     * 员工提交差旅行程申请
+     * @param  travelCommitApply  行程申请信息
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "applyTravelCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
+    @PostMapping("/applyTravelCommit")
+    public ApiResponse   applyTravelCommit(@RequestBody ApplyTravelRequest travelCommitApply){
+        //提交差旅行程申请
+        try {
+            applyInfoService.applytravliCommit(travelCommitApply);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("提交差旅申请失败");
+        }
+        return ApiResponse.success();
     }
 
     /**
@@ -70,9 +131,11 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "getWaitApproveApplies",notes = "获取等待当前用户审批的行程申请列表 ",httpMethod ="POST")
     @PostMapping("/getWaitApproveApplies")
-    public ApiResponse<List<ApplyInfo>>   getWaitApproveApplies(UserDto userDto){
-
-        return null;
+    public ApiResponse   getWaitApproveApplies(UserDto userDto){
+        JourneyInfo journeyInfo = JourneyInfo.builder().userId(userDto.getUserId()).build();
+        // PageHelper.startPage(userDto.get)
+        List<JourneyInfo> journeyInfos = journeyInfoService.selectJourneyInfoList(journeyInfo);
+        return ApiResponse.success("查询单前用户可审批行程单列表成功",journeyInfos);
     }
 
     /**
@@ -120,9 +183,28 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "applyPass",notes = "行程申请-审核通过 ",httpMethod ="POST")
     @PostMapping("/applyPass")
-    public ApiResponse   applyPass(JourneyApplyDto journeyApplyDto,UserDto userDto){
-
-        return null;
+    @Transactional
+    public ApiResponse applyPass(JourneyApplyDto journeyApplyDto,UserDto userDto){
+        //1.校验信息
+        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
+        if (ObjectUtils.isEmpty(journeyInfo)){
+            return ApiResponse.error("行程申请单不存在!");
+        }
+        ApplyInfo applyInfo = ApplyInfo.builder().journeyId(journeyApplyDto.getJouneyId()).build();
+        List<ApplyInfo> applyInfos = applyInfoService.selectApplyInfoList(applyInfo);
+        if (CollectionUtils.isNotEmpty(applyInfos)){
+            return ApiResponse.error("行程申请单已审批！");
+        }
+        //2.生成行程单审批信息
+        applyInfo = ApplyInfo.builder().applyId(Long.MAX_VALUE).applyType("").approverName("").journeyId(journeyInfo.getJourneyId()).costCenter(userDto.getUserId()).projectId(userDto.getUserId()).
+                approverName("").reason("").state("").regimenId(Long.MAX_VALUE).build();
+        applyInfo.setCreateBy(userDto.getUserName());
+        applyInfo.setCreateTime(DateUtils.getNowDate());
+        applyInfoService.insertApplyInfo(applyInfo);
+        //3.默认生成订单
+        OrderInfo orderInfo = OrderInfo.builder().orderId(Long.MAX_VALUE).journeyId(journeyInfo.getJourneyId()).build();
+        orderInfoService.insertOrderInfo(orderInfo);
+        return ApiResponse.success("行程申请单审批通过");
     }
 
 
@@ -136,7 +218,28 @@ public class ApplyContoller {
     @PostMapping("/applyReject")
     public ApiResponse   applyReject(JourneyApplyDto journeyApplyDto,UserDto userDto){
 
-        return null;
+        //1.校验消息
+        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
+        if (ObjectUtils.isEmpty(journeyInfo)){
+            return ApiResponse.error("行程申请单不存在！");
+        }
+        ApplyInfo applyInfo = ApplyInfo.builder().journeyId(journeyApplyDto.getJouneyId()).build();
+        List<ApplyInfo> applyInfos = applyInfoService.selectApplyInfoList(applyInfo);
+        if (CollectionUtils.isNotEmpty(applyInfos)){
+            return ApiResponse.error("行程申请单已审批");
+        }
+        //2.生成行程单审批信息
+        //state审批状态(1表示审批通过，0表示审批驳回)
+        applyInfo = ApplyInfo.builder().applyId(Long.MAX_VALUE).applyType("").approverName("").journeyId(journeyInfo.getJourneyId()).costCenter(userDto.getUserId()).projectId(userDto.getUserId())
+                .approverName("").reason("").state("").regimenId(Long.MAX_VALUE).build();
+        applyInfo.setCreateBy(userDto.getUserName());
+        applyInfo.setCreateTime(DateUtils.getNowDate());
+        applyInfoService.insertApplyInfo(applyInfo);
+        //3.默认生成订单
+        OrderInfo orderInfo = OrderInfo.builder().orderId(Long.MAX_VALUE).journeyId(journeyInfo.getJourneyId()).build();
+        orderInfoService.insertOrderInfo(orderInfo);
+        return ApiResponse.success("行程申请单审批驳回");
+
     }
 
 
@@ -148,8 +251,67 @@ public class ApplyContoller {
     @ApiOperation(value = "getApplyApproveDetailInfo",notes = "获取行程申请的审批详情",httpMethod ="POST")
     @PostMapping("/getApplyApproveDetailInfo")
     public ApiResponse   getApplyApproveDetailInfo(JourneyApplyDto journeyApplyDto){
-
-        return null;
+        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
+        return ApiResponse.success("查询申请单详情成功",journeyInfo);
     }
 
-}
+    public static void main(String[] args) {
+
+
+
+        ApplyOfficialRequest applyOfficialRequest = new ApplyOfficialRequest();
+        applyOfficialRequest.setApplyDate(new Date());
+        applyOfficialRequest.setApplyType("公务用车");
+        UserVO userVO = new UserVO();
+        UserVO userVO2 = new UserVO();
+        UserVO userVO4 = new UserVO();
+        UserVO userVO5 = new UserVO();
+        userVO4.setUserName("张飞");
+        userVO4.setUserPhone("1900000000");
+        List<UserVO> userVOList0 = new ArrayList<>();
+        userVOList0.add(userVO4);
+        //同行人
+        applyOfficialRequest.setPartner(userVOList0);
+        //乘客
+        applyOfficialRequest.setPassenger(userVO);
+        userVO5.setUserName("曹操");
+        UserVO userVO23 = new UserVO();
+        userVO.setUserId(101);
+        userVO.setUserName("张三");
+        userVO.setUserPhone("15000000000");
+        //申请人
+        applyOfficialRequest.setApplyUser(userVO);
+        userVO2.setUserPhone("16000000000");
+        userVO2.setUserName("队长");
+        userVO23.setUserName("局长");
+        List<UserVO> userVOList = new ArrayList<>();
+        userVOList.add(userVO2);
+        userVOList.add(userVO23);
+        //审批人
+        applyOfficialRequest.setApprovers(userVOList);
+        applyOfficialRequest.setCharterType(2);
+        applyOfficialRequest.setCostCenter("技术部");
+        AddressVO addressVO = new AddressVO();
+        AddressVO addressVO2 = new AddressVO();
+        addressVO.setAddressPoint("北京市朝阳区");
+        addressVO.setAddress("朝阳公园站");
+        addressVO.setAddressPoint("301123,4241432");
+        addressVO2.setLongAddress("山东省青岛市");
+        addressVO2.setAddress("大龙虾饭店");
+        applyOfficialRequest.setStartAddr(addressVO2);
+        applyOfficialRequest.setEndAddr(addressVO);
+        applyOfficialRequest.setEstimatePrice(300l);
+        applyOfficialRequest.setIsGoBack("否");
+        applyOfficialRequest.setFlightNumber("FZ0201");
+        applyOfficialRequest.setProjectNumber("0001");
+        applyOfficialRequest.setPassedAddress(null);   // TODO 途径地
+        applyOfficialRequest.setRegimenId(888);
+        applyOfficialRequest.setWaitDurition("30分钟");
+        applyOfficialRequest.setUseType("自有车");
+
+
+
+    }
+
+
+    }

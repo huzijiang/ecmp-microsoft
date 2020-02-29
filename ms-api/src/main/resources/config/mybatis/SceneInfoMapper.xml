@@ -87,4 +87,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+	<select id="selectAllSceneSort" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.SceneInfo">
+		SELECT
+		b. NAME AS NAME,
+		b.icon AS icon
+		FROM
+		scene_regime_relation a
+		LEFT JOIN scene_info b ON a.scene_id = b.scene_id
+		LEFT JOIN user_regime_relation_info c ON a.regimen_id = c.regimen_id
+		WHERE
+		c.user_id = #{userId}
+		AND b.effect_status = '0'
+		ORDER BY
+		b.sort_no
+	</select>
+
 </mapper>
