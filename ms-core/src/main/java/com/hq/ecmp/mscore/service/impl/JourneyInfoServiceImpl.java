@@ -121,10 +121,10 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
     }
 
 	@Override
-	public List<CarAuthorityInfo> getUserCarAuthorityList(Integer userId) {
+	public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId) {
 		List<CarAuthorityInfo> carAuthorityInfoList=new ArrayList<>();
 		JourneyInfo query = new JourneyInfo();
-		query.setUserId(Long.valueOf(userId));
+		query.setUserId(userId);
 		List<JourneyInfo> journeyInfoList = selectJourneyInfoList(query);
 		if(null !=journeyInfoList && journeyInfoList.size()>0){
 			for (JourneyInfo journeyInfo : journeyInfoList) {
@@ -161,6 +161,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 						applyInfo.setJourneyId(journeyInfo.getJourneyId());
 						List<ApplyInfo> applyInfoList = applyInfoService.selectApplyInfoList(applyInfo);
 						carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
+						
 					}
 				}
 				carAuthorityInfoList.add(carAuthorityInfo);	
