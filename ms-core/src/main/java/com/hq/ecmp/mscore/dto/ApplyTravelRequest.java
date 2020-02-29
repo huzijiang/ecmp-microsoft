@@ -79,19 +79,19 @@ public class  ApplyTravelRequest {
     /**
      * 出差总天数
      */
-    @ApiModelProperty(name = "useTotalTime", value = "出差总天数", required = false, position = 10)
+    @ApiModelProperty(name = "useTotalTime", value = "出差总天数", required = false, position = 11)
     private String useTotalTime;  //TODO 新增
 
     /**
      * 申请类型 eg 公务、差旅
      */
-    @ApiModelProperty(name = "applyType", value = "申请类型", required = true, position = 11, example = "公务")
+    @ApiModelProperty(name = "applyType", value = "申请类型", required = true, position = 12, example = "公务")
     private String applyType;   //TODO 新增   Integer 改字符串
 
     /**
      * 审批人
      */
-    @ApiModelProperty(name = "approvers", value = "审批人", required = false, position = 12)
+    @ApiModelProperty(name = "approvers", value = "审批人", required = false, position = 13)
     private List<UserVO> approvers;  // TODO 新增
 
 

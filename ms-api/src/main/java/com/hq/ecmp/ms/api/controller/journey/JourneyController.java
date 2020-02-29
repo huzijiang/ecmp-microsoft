@@ -11,6 +11,7 @@ import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public class JourneyController {
      */
     @ApiOperation(value = "cancelJourney",notes = "撤消行程",httpMethod ="POST")
     @PostMapping("/cancelJourney")
-    public ApiResponse cancelJourneyApply(JourneyApplyDto journeyApplyDto){
+    public ApiResponse cancelJourneyApply(@RequestBody JourneyApplyDto journeyApplyDto){
         //撤销行程申请
         ApplyInfo applyInfo = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state("S004").build();
         int i = applyInfoService.updateApplyInfo(applyInfo);
