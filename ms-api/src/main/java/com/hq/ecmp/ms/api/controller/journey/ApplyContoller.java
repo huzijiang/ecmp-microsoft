@@ -78,7 +78,7 @@ public class ApplyContoller {
             e.printStackTrace();
             return ApiResponse.error("提交公务申请失败");
         }
-        return ApiResponse.success();
+        return ApiResponse.success("提交申请成功");
     }
 
     /**
@@ -97,7 +97,7 @@ public class ApplyContoller {
             e.printStackTrace();
             return ApiResponse.error("提交差旅申请失败");
         }
-        return ApiResponse.success();
+        return ApiResponse.success("提交申请成功");
     }
 
     /**
@@ -255,63 +255,5 @@ public class ApplyContoller {
         return ApiResponse.success("查询申请单详情成功",journeyInfo);
     }
 
-    public static void main(String[] args) {
 
-
-
-        ApplyOfficialRequest applyOfficialRequest = new ApplyOfficialRequest();
-        applyOfficialRequest.setApplyDate(new Date());
-        applyOfficialRequest.setApplyType("公务用车");
-        UserVO userVO = new UserVO();
-        UserVO userVO2 = new UserVO();
-        UserVO userVO4 = new UserVO();
-        UserVO userVO5 = new UserVO();
-        userVO4.setUserName("张飞");
-        userVO4.setUserPhone("1900000000");
-        List<UserVO> userVOList0 = new ArrayList<>();
-        userVOList0.add(userVO4);
-        //同行人
-        applyOfficialRequest.setPartner(userVOList0);
-        //乘客
-        applyOfficialRequest.setPassenger(userVO);
-        userVO5.setUserName("曹操");
-        UserVO userVO23 = new UserVO();
-        userVO.setUserId(101);
-        userVO.setUserName("张三");
-        userVO.setUserPhone("15000000000");
-        //申请人
-        applyOfficialRequest.setApplyUser(userVO);
-        userVO2.setUserPhone("16000000000");
-        userVO2.setUserName("队长");
-        userVO23.setUserName("局长");
-        List<UserVO> userVOList = new ArrayList<>();
-        userVOList.add(userVO2);
-        userVOList.add(userVO23);
-        //审批人
-        applyOfficialRequest.setApprovers(userVOList);
-        applyOfficialRequest.setCharterType(2);
-        applyOfficialRequest.setCostCenter("技术部");
-        AddressVO addressVO = new AddressVO();
-        AddressVO addressVO2 = new AddressVO();
-        addressVO.setAddressPoint("北京市朝阳区");
-        addressVO.setAddress("朝阳公园站");
-        addressVO.setAddressPoint("301123,4241432");
-        addressVO2.setLongAddress("山东省青岛市");
-        addressVO2.setAddress("大龙虾饭店");
-        applyOfficialRequest.setStartAddr(addressVO2);
-        applyOfficialRequest.setEndAddr(addressVO);
-        applyOfficialRequest.setEstimatePrice(300l);
-        applyOfficialRequest.setIsGoBack("否");
-        applyOfficialRequest.setFlightNumber("FZ0201");
-        applyOfficialRequest.setProjectNumber("0001");
-        applyOfficialRequest.setPassedAddress(null);   // TODO 途径地
-        applyOfficialRequest.setRegimenId(888);
-        applyOfficialRequest.setWaitDurition("30分钟");
-        applyOfficialRequest.setUseType("自有车");
-
-
-
-    }
-
-
-    }
+}

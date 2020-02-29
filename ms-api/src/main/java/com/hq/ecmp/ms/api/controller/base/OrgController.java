@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,10 +44,13 @@ public class OrgController {
         //获取登录用户
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-
         //(根据用户及部门名称模糊)查询用户 所在（子）公司的 部门列表
         List<EcmpOrg> ecmpOrgs = orgService.selectUserOwnCompanyDept(loginUser.getUser().getUserId(),userDto.getDeptName());
-        return ApiResponse.success(ecmpOrgs);
+       if(CollectionUtils.isNotEmpty(ecmpOrgs)){
+           return ApiResponse.success(ecmpOrgs);
+       }else {
+           return ApiResponse.error("未查询到指定部门");
+       }
     }
 
 
