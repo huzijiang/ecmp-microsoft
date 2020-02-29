@@ -61,5 +61,5 @@ public interface IJourneyInfoService
      */
     public int deleteJourneyInfoById(Long journeyId);
     
-    public List<CarAuthorityInfo> getUserCarAuthorityList(Integer userId);
+    public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId);
 }
