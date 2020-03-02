@@ -38,7 +38,6 @@ public class NoticeController {
         List<EcmpNotice> ecmpNoticeList = iEcmpNoticeService.selectAll();
         return ApiResponse.success(ecmpNoticeList);
     }
-
     /**
      * 查询公告详细信息
      * @param
@@ -50,6 +49,18 @@ public class NoticeController {
 
         EcmpNotice ecmpNotice = iEcmpNoticeService.selectNoticeDetailByUserId(userDto.getUserId());
         return ApiResponse.success(ecmpNotice);
+    }
+
+    /**
+     * 查询消息列表
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getNoticeList",notes = "查询消息列表",httpMethod ="POST")
+    @PostMapping("/getNoticeList")
+    public ApiResponse<List<EcmpNotice>> getNoticeList(EcmpNotice ecmpNotice){
+        List<EcmpNotice> ecmpNoticeList = iEcmpNoticeService.selectEcmpNoticeList(ecmpNotice);
+        return ApiResponse.success(ecmpNoticeList);
     }
 
 }

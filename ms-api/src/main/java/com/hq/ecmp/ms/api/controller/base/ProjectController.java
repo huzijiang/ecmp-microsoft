@@ -44,13 +44,17 @@ public class ProjectController {
     @ApiOperation(value = "getProjectsByUser",notes = "查询用户 所在（子）公司的项目信息 ",httpMethod ="POST")
     @PostMapping("/getProjectsByUser")
     public ApiResponse<List<ProjectInfo>> getProjectsByUser(UserDto userDto){
-        //根据用户Id查询项目对象
+        //根据用户Id查询用户和项目关联关系对象
         ProjectUserRelationInfo projectUserRelationInfo = iProjectUserRelationInfoService.selectProjectUserRelationInfoById(userDto.getUserId());
-        //根据项目id查询项目信息
+        //根据项目id查询项目对象
         ProjectInfo projectInfo = iProjectInfoService.selectProjectInfoById(projectUserRelationInfo.getProjectId());
         //根据项目对象查询项目信息列表
         List<ProjectInfo> projectInfoList = iProjectInfoService.selectProjectInfoList(projectInfo);
-        return ApiResponse.success(projectInfoList);
+        if (CollectionUtils.isNotEmpty(projectInfoList)){
+            return ApiResponse.success(projectInfoList);
+        }else {
+            return ApiResponse.error("未查询到项目对象");
+        }
     }
     /**
      * 查询用户所在的所有项目列表
