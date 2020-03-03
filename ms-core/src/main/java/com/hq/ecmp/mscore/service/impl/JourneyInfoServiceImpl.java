@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.hq.ecmp.constant.CarConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
@@ -129,6 +130,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 		if(null !=journeyInfoList && journeyInfoList.size()>0){
 			for (JourneyInfo journeyInfo : journeyInfoList) {
 				CarAuthorityInfo carAuthorityInfo = new CarAuthorityInfo();
+				carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
 				//获取是差旅还是公务
 				RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
 				if(null !=regimeInfo){
@@ -168,5 +170,25 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 			}
 		}
 		return carAuthorityInfoList;
+	}
+
+	@Override
+	public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
+		List<UserAuthorityGroupCity> userAuthorityGroupCityList=new ArrayList<UserAuthorityGroupCity>();
+		
+		//根据行程查询下面的行程节点
+		JourneyNodeInfo journeyNodeQuery = new JourneyNodeInfo();
+		journeyNodeQuery.setJourneyId(journeyId);
+		List<JourneyNodeInfo> journeyNodeInfoList = journeyNodeInfoService.selectJourneyNodeInfoList(journeyNodeQuery);
+		if(null !=journeyNodeInfoList && journeyNodeInfoList.size()>0){
+			for (JourneyNodeInfo journeyNodeInfo : journeyNodeInfoList) {
+				UserAuthorityGroupCity userAuthorityGroupCity = new UserAuthorityGroupCity();
+				userAuthorityGroupCity.setCityName(journeyNodeInfo.getPlanBeginAddress());
+				//获取行程节点下的所有用户用车权限
+				userAuthorityGroupCity.setUserCarAuthorityList(journeyUserCarPowerService.queryNoteAllUserAuthority(journeyNodeInfo.getNodeId()));
+				userAuthorityGroupCityList.add(userAuthorityGroupCity);
+			}
+		}
+		return userAuthorityGroupCityList;
 	}
 }
