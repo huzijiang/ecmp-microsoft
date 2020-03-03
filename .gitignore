@@ -1,1 +1,8 @@
 /bin/
+*.project
+.gitignore/
+*.settings/
+target/
+proxy-api/log/
+*.classpath
+
