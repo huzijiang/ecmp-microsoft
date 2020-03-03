@@ -1,4 +1,4 @@
-package com.hq.ecmp.mscore.vo;
+package com.hq.ecmp.ms.api.dto.car;
 
 import lombok.Data;
 
@@ -26,4 +26,12 @@ public class ApprovalVO {
      */
     private String approvalPhone;
 
+    public ApprovalVO() {
+    }
+
+    public ApprovalVO(Integer approvalId, String approvalName, String approvalPhone) {
+        this.approvalId = approvalId;
+        this.approvalName = approvalName;
+        this.approvalPhone = approvalPhone;
+    }
 }

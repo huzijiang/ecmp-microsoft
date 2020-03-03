@@ -72,4 +72,11 @@ public interface IEcmpNoticeService
      * @return
      */
     EcmpNotice selectNoticeDetailByUserId(Long userId);
+
+    /**
+     * 根据用户Id获取有效期内的最新公告
+     * @param userId
+     * @return
+     */
+    EcmpNotice selectExpirationDateNewNotice(Long userId);
 }
