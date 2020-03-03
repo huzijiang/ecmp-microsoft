@@ -63,4 +63,16 @@ public class NoticeController {
         return ApiResponse.success(ecmpNoticeList);
     }
 
+    /**
+     * 根据用户Id获取有效期内的最新公告
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getExpirationDateNewNotice",notes = "获取有效期内的最新公告",httpMethod ="POST")
+    @PostMapping("/getExpirationDateNewNotice")
+    public ApiResponse getExpirationDateNewNotice(UserDto userDto){
+        EcmpNotice ecmpNotice = iEcmpNoticeService.selectExpirationDateNewNotice(userDto.getUserId());
+        return ApiResponse.success(ecmpNotice);
+    }
+
 }

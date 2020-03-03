@@ -21,8 +21,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select notice_id, notice_title, notice_type, notice_content, status, create_by, create_time, update_by, update_time, remark from ecmp_notice
     </sql>
 
+    <select id="selectExpirationDateNewNotice" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">
+        select * from ecmp_notice where create_time between and update_time order by create_time desc limit 1,1
+    </select>
+
     <select id="selectAll" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">
-      select notice_title,notice_content,notice_type from ecmp_notice
+      select * from ecmp_notice where notice_id = #{noticeId}
     </select>
 
     <select id="selectEcmpNoticeList" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">

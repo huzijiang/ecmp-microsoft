@@ -53,7 +53,7 @@ public class ProjectController {
         if (CollectionUtils.isNotEmpty(projectInfoList)){
             return ApiResponse.success(projectInfoList);
         }else {
-            return ApiResponse.error("未查询到项目对象");
+            return ApiResponse.error("未查询到项目信息列表");
         }
     }
     /**
