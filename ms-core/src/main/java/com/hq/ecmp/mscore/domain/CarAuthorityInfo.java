@@ -12,6 +12,8 @@ import lombok.Data;
  */
 @Data
 public class CarAuthorityInfo {
+		
+	  Long journeyId;//行程编号
        String type;//差旅/公务
        List<String> cityName;
        Date startDate;

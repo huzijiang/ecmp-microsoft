@@ -96,5 +96,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{powerId}
         </foreach>
     </delete>
+    
+    <select id="queryNoteAllUserAuthority" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.UserCarAuthority">
+    SELECT
+	b.state AS state,
+	a.state AS authorityUse,
+	a.type AS type
+FROM
+	journey_user_car_power a
+LEFT JOIN order_info b ON a.power_id = b.power_id
+WHERE
+	a.node_id = #{nodeId}
+    </select>
 
 </mapper>

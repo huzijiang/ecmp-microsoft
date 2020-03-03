@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.UserCarAuthority;
 
 import java.util.List;
 
@@ -59,4 +60,7 @@ public interface JourneyUserCarPowerMapper
      * @return 结果
      */
     public int deleteJourneyUserCarPowerByIds(Long[] powerIds);
+    
+    
+    public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId);
 }

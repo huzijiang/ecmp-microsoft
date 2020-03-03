@@ -13,11 +13,9 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
-import com.hq.ecmp.mscore.domain.CarInfo;
+import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
-import com.hq.ecmp.mscore.service.impl.JourneyInfoServiceImpl;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -43,6 +41,10 @@ public class CarAuthorityController {
 	}
 	
 	
-	
+	@ApiOperation(value = "user", notes = "获取指定行程下的的所有行程节点生成的用车权限", httpMethod = "POST")
+	@PostMapping("/user")
+	public ApiResponse<List<UserAuthorityGroupCity>> getUserCarAuthority(Long journeyId) {
+		 return ApiResponse.success(journeyInfoService.getUserCarAuthority(journeyId));
+	}
 
 }
