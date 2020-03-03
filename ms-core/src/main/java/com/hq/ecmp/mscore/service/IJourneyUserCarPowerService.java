@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.UserCarAuthority;
 
 /**
  * 【请填写功能名称】Service接口
@@ -67,4 +68,12 @@ public interface IJourneyUserCarPowerService
      * @return
      */
     public Map<String,Integer> selectStatusCount(Long journeyId);
+    
+    
+    /**
+     * 获取行程节点下的用户用车权限
+     * @param nodeId
+     * @return
+     */
+    public List<UserCarAuthority>  queryNoteAllUserAuthority(Long nodeId);
 }

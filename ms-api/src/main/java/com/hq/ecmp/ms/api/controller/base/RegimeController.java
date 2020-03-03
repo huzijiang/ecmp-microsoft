@@ -36,13 +36,15 @@ public class RegimeController {
      */
     @ApiOperation(value = "getUserRegimes",notes = "根据用户信息查询用户的用车制度信息",httpMethod ="POST")
     @PostMapping("/getUserRegimes")
-    public ApiResponse<List<RegimeInfo>> getUserRegimes(@RequestBody(required = false)UserDto userDto){
+    public ApiResponse<List<RegimeInfo>> getUserRegimes(@RequestParam(required = false)UserDto userDto){
         //如果没传递userId，则查询登录用户的的用车制度。如果传递了userId，则查询指定用户的用车制度
-        if(userDto.getUserId() == null){
+        if(userDto == null || userDto.getUserId() == null){
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
+            userDto = new UserDto();
             userDto.setUserId(loginUser.getUser().getUserId());
         }
+        //根据用户id查询用车制度
         List<RegimeInfo> regimeInfoList = regimeInfoService.findRegimeInfoListByUserId(userDto.getUserId());
         return ApiResponse.success(regimeInfoList);
     }
@@ -69,10 +71,12 @@ public class RegimeController {
     @PostMapping("/getRegimeInfo")
     public ApiResponse<RegimeInfo> getRegimeInfo(RegimeDto regimeDto){
         RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(regimeDto.getRegimeId());
-        return ApiResponse.success(regimeInfo);
+        if(regimeInfo == null){
+            return ApiResponse.error("暂无数据");
+        }else {
+            return ApiResponse.success(regimeInfo);
+        }
 
     }
-
-
 
 }

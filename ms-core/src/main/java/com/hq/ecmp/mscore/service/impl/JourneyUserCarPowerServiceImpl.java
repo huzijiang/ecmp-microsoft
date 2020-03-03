@@ -7,6 +7,7 @@ import java.util.Map;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.UserCarAuthority;
 import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
 import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,5 +121,17 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			}
 		}
 		return map;
+	}
+
+	@Override
+	public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId) {
+		List<UserCarAuthority> list = journeyUserCarPowerMapper.queryNoteAllUserAuthority(nodeId);
+		if(null !=list && list.size()>0){
+			for (UserCarAuthority userCarAuthority : list) {
+				//获取接机or送机剩余次数
+				userCarAuthority.handCount();
+			}
+		}
+		return list;
 	}
 }

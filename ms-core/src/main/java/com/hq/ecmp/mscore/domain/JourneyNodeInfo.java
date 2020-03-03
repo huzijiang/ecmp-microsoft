@@ -45,7 +45,7 @@ public class JourneyNodeInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long planBeginLongitude;
+    private String planBeginLongitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -53,7 +53,7 @@ public class JourneyNodeInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long planEndLongitude;
+    private String planEndLongitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -175,12 +175,12 @@ public class JourneyNodeInfo extends BaseEntity
     {
         return planArriveTime;
     }
-    public void setPlanBeginLongitude(Long planBeginLongitude)
+    public void setPlanBeginLongitude(String planBeginLongitude)
     {
         this.planBeginLongitude = planBeginLongitude;
     }
 
-    public Long getPlanBeginLongitude()
+    public String getPlanBeginLongitude()
     {
         return planBeginLongitude;
     }
@@ -193,12 +193,12 @@ public class JourneyNodeInfo extends BaseEntity
     {
         return planBeginLatitude;
     }
-    public void setPlanEndLongitude(Long planEndLongitude)
+    public void setPlanEndLongitude(String planEndLongitude)
     {
         this.planEndLongitude = planEndLongitude;
     }
 
-    public Long getPlanEndLongitude()
+    public String getPlanEndLongitude()
     {
         return planEndLongitude;
     }

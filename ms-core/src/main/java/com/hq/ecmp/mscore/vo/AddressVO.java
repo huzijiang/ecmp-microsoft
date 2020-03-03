@@ -26,14 +26,15 @@ public class AddressVO {
     private String address;
 
     /**
-     * 地点坐标
+     * 纬度
      */
-    @ApiModelProperty(name = "addressPoint",value = "地点坐标")
-    private String addressPoint;
+    @ApiModelProperty(name = "latitude",value = "纬度")
+    private String latitude;
+
 
 
     /**
-     * 下车地址
+     * 经度
      */
     @ApiModelProperty(name = "longitude",value = "经度")
     private String longitude;

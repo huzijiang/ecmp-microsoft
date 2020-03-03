@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
+import com.hq.ecmp.mscore.domain.UserCarAuthority;
 
 /**
  * 【请填写功能名称】Service接口
@@ -62,4 +64,12 @@ public interface IJourneyInfoService
     public int deleteJourneyInfoById(Long journeyId);
     
     public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId);
+    
+    /**
+     * 获取指定差旅行程下所有行程节点生成的用车权限
+     * @param userId
+     * @param journeyId
+     * @return
+     */
+    public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId);
 }

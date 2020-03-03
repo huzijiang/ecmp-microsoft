@@ -3,11 +3,15 @@ package com.hq.ecmp.mscore.service.impl;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import com.hq.ecmp.mscore.dto.ApplyInfoDto;
 import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
 import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
@@ -162,7 +166,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             //3.6 plan_arrive_time 计划到达时间
             journeyNodeInfo.setPlanArriveTime(travelRequest.getEndDate());  // TODO 出差某一节点结束日期
             //3.7 plan_begin_longitude 出发坐标
-            journeyNodeInfo.setPlanBeginLongitude(null);   // TODO 差旅是城市代码、城市id
+            journeyNodeInfo.setPlanBeginLongitude(travelRequest.getStartCity().getCityName());   // TODO 差旅是城市代码、城市id
             //3.8 plan_begin_latitude
             journeyNodeInfo.setPlanBeginLatitude(null);
             //3.9 plan_end_longitude
@@ -202,6 +206,22 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         // 提交差旅乘客信息表
         journeyPassengerInfoCommit(travelCommitApply, journeyId, journeyPassengerInfo);
 
+    }
+
+    /**
+     * 分页查询用户申请列表
+     * @param userId  用户id
+     * @param pageNum 查询页码
+     * @return
+     */
+    @Override
+    public List<ApplyInfo> selectApplyInfoListByPage(Long userId, Integer pageNum,Integer pageSize) {
+        //分页查询申请列表
+        PageHelper.startPage(pageNum,pageSize);
+        ApplyInfo applyInfo = new ApplyInfo();
+        applyInfo.setCreateBy(String.valueOf(userId));
+        List<ApplyInfo> all = applyInfoMapper.selectApplyInfoList(applyInfo);
+        return all;
     }
 
     /**
@@ -270,6 +290,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setUpdateBy(null);
         //2.12 update_time 更新时间
         applyInfo.setUpdateTime(null);
+        applyInfo.setStartDate(null);       //TODO 新增 出差开始时间  需要前端提供
+        applyInfo.setEndDate(null);        //TODO 新增 出差最终结束时间  需要前端提供
+        applyInfo.setTravelPickupCity(null);  //TODO 新增 出差需接送机城市  需要前端提供 ！！！
+        applyInfo.setTravelCitiesStr(null);  //TODO 新增 出差需市内用车城市  需要前端提供
+        applyInfo.setPickupTimes(null);    // TODO 新增 出差接送机总次数  需要前端提供
+        applyInfo.setTitle(null);  // TODO 新增 出差标题  需要前端提供    北京-上海、南京
         applyInfoMapper.insertApplyInfo(applyInfo);
     }
 
@@ -298,7 +324,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //1.9 flight_number 航班编号
         journeyInfo.setFlightNumber(null);
         //1.10 use_time 行程总时长  多少天
-        journeyInfo.setUseTime(travelCommitApply.getUseTotalTime());        // TODO 新增字段
+        journeyInfo.setUseTime(String.valueOf(travelCommitApply.getTravelCount()));
         //1.11 wait_time_long 预计等待时间，出发地 第一个节点 等待时长
         journeyInfo.setWaitTimeLong(null);
         //1.12 charter_car_type 包车类型：T000  非包车 T001 半日租（4小时）T002 整日租（8小时）
@@ -411,13 +437,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //3.6 plan_arrive_time 计划到达时间
         journeyNodeInfo.setPlanArriveTime(null);   // TODO 差旅申请
         //3.7 plan_begin_longitude 出发坐标
-        journeyNodeInfo.setPlanBeginLongitude(null);  // TODO 待定
+        journeyNodeInfo.setPlanBeginLongitude(officialCommitApply.getStartAddr().getLongitude());
         //3.8 plan_begin_latitude
-        journeyNodeInfo.setPlanBeginLatitude(null);  // TODO 待定
+        journeyNodeInfo.setPlanBeginLatitude(officialCommitApply.getStartAddr().getLatitude());
         //3.9 plan_end_longitude
-        journeyNodeInfo.setPlanEndLongitude(null);   // TODO 待定
+        journeyNodeInfo.setPlanEndLongitude(officialCommitApply.getEndAddr().getLongitude());
         //3.10 plan_end_latitude
-        journeyNodeInfo.setPlanEndLongitude(null);   // TODO 待定
+        journeyNodeInfo.setPlanEndLatitude(officialCommitApply.getEndAddr().getLatitude());
         //3.11 it_is_via_point 是否是途经点  途经点仅仅用于 地图描点  和  导航使用;途经点  同样具有顺序
         journeyNodeInfo.setItIsViaPoint(null);       // TODO 这个途径点是怎么判断的呢
         //3.12 vehicle 交通工具 T001  飞机 T101  火车 T201  汽车 T301  轮渡 T999  其他
@@ -485,6 +511,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setUpdateBy(null);
         //2.12 update_time 更新时间
         applyInfo.setUpdateTime(null);
+        applyInfo.setStartDate(officialCommitApply.getApplyDate());  //TODO 新增 行程开始时间，用车时间
+        applyInfo.setEndDate(null);    //TODO 新增 公务行程结束时间，未知。也用不着
+        applyInfo.setTitle(officialCommitApply.getReason());     //TODO 新增 公务title为reason
+        applyInfo.setTravelCitiesStr(null);   // TODO 新增 出差市内用车城市为空
+        applyInfo.setPickupTimes(null);   //TODO 新增 出差接送机总次数为空
+        applyInfo.setTravelPickupCity(null);  //TODO 新增 出差需接送机城市为空
         applyInfoMapper.insertApplyInfo(applyInfo);
     }
 
