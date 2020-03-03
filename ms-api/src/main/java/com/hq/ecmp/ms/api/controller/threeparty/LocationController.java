@@ -1,20 +1,15 @@
 package com.hq.ecmp.ms.api.controller.threeparty;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.hq.common.core.api.ApiResponse;
+import com.hq.ecmp.ms.api.vo.threeparty.LocationInfoVo;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hq.common.core.api.ApiResponse;
-import com.hq.ecmp.ms.api.dto.threeparty.FlightDto;
-import com.hq.ecmp.ms.api.vo.threeparty.FlightVo;
-import com.hq.ecmp.ms.api.vo.threeparty.LocationInfoVo;
-
-import io.swagger.annotations.ApiOperation;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/location")

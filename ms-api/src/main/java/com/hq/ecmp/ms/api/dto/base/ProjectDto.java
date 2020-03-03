@@ -6,13 +6,13 @@ import lombok.Data;
 import javax.validation.constraints.NotEmpty;
 
 /**
- * @Author: zj.hu
- * @Date: 2020-01-02 18:26
+ * @Author: caobj
+ * @Date: 2020-03-02 18:26
  */
 @Data
 public class ProjectDto {
     /**
-     * 用车制度编号
+     * 项目编号/名
      */
     String projectName;
 
