@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.dto.ApplyInfoDto;
 import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
 import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
@@ -80,4 +81,12 @@ public interface IApplyInfoService
      * @param travelCommitApply
      */
     void applytravliCommit(ApplyTravelRequest travelCommitApply);
+
+    /**
+     * 分页查询用户申请列表
+     * @param userId
+     * @param pageNum
+     * @return
+     */
+    List<ApplyInfo> selectApplyInfoListByPage(Long userId, Integer pageNum,Integer pageSize);
 }

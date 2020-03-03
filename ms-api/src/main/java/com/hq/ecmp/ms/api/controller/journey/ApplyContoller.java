@@ -1,13 +1,16 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
+import com.github.pagehelper.Page;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
-import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
-import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
@@ -20,10 +23,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,6 +47,9 @@ public class ApplyContoller {
 
     @Autowired
     private IOrderInfoService orderInfoService;
+
+    @Autowired
+    private TokenService tokenService;
 
     /**
      * 员工提交行程申请     弃用。公务跟差旅申请分两个接口实现
@@ -158,14 +164,21 @@ public class ApplyContoller {
 
     /**
      * 获取乘客自身 行程申请列表
-     * @param userDto  审批员信息
+     * @param
      * @return
      */
     @ApiOperation(value = "getPassengerOwnerApplies",notes = "获取乘客自身 行程申请列表 ",httpMethod ="POST")
     @PostMapping("/getPassengerOwnerApplies")
-    public ApiResponse   getPassengerOwnerApplies(UserDto userDto){
-
-        return null;
+    public ApiResponse<List<ApplyInfo>>   getPassengerOwnerApplies(@RequestBody PageRequest applyPage){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        //分页查询乘客申请列表
+        List<ApplyInfo> applyInfoList = applyInfoService.selectApplyInfoListByPage(loginUser.getUser()
+                .getUserId(),applyPage.getPageNum(),applyPage.getPageSize());
+        if(CollectionUtils.isEmpty(applyInfoList)){
+            return ApiResponse.error("未查到申请列表数据");
+        }
+        return ApiResponse.success(applyInfoList);
     }
 
     /**

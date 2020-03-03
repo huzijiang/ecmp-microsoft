@@ -1,7 +1,10 @@
 package com.hq.ecmp.mscore.dto;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -12,45 +15,36 @@ import java.util.Date;
  * ecmp-proxy.
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ApplyInfoDto {
-
-    /**
-     * 用车权限ID
-     */
-    private Integer ticketId;
-
-
-    /**
-     * 用车制度ID
-     */
-    private Integer regulationId;
-
-    /**
-     * 申请类型名称 eg:公务、差旅
-     */
-    private String applyTypeName;
 
     /**
      * 申请ID
      */
     private Integer applyId;
-
     /**
      * 申请原因|名称（如果是差旅 eg显示城市的顺序）
      */
-    private String reason;
-
+    private String title;   // TODO  reason改动
     /**
      * 状态
      */
-    private Integer status;
+    private String state; //TODO Integer status改动
     /**
-     * 申请日期
+     * 申请用车日期
      */
-    private Date applyDate;
+    private Date startDate; //TODO applyDate改動
+
+    /**
+     * 结束日期
+     */
+    private Date endDate;
 
     /**
      * 申请类型 eg：公务、差旅
      */
-    private Integer type;
+    private String applyType;   //TODO Integer type改动
+
 }

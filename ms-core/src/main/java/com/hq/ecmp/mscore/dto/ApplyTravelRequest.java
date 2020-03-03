@@ -77,12 +77,6 @@ public class  ApplyTravelRequest {
     private Integer regimenId;  //TODO 新增
 
     /**
-     * 出差总天数
-     */
-    @ApiModelProperty(name = "useTotalTime", value = "出差总天数", required = false, position = 11)
-    private String useTotalTime;  //TODO 新增
-
-    /**
      * 申请类型 eg 公务、差旅
      */
     @ApiModelProperty(name = "applyType", value = "申请类型", required = true, position = 12, example = "公务")
