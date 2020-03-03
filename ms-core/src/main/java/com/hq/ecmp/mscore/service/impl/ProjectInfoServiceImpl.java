@@ -93,4 +93,14 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     {
         return projectInfoMapper.deleteProjectInfoById(projectId);
     }
+
+    /**
+     * 根据用户ID查询用户所在的所有项目列表
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<ProjectInfo> getListByUserId(Long userId,String projectName) {
+        return projectInfoMapper.getListByUserId(userId,projectName);
+    }
 }

@@ -92,4 +92,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <!--手动编写sql start-->
+    <select id="getListByUserId" parameterType="Object" resultMap="ProjectInfoResult">
+        <include refid="selectProjectInfoVo"/>
+        where project_id in(select project_id from project_user_relation_info where user_id=#{userId})
+        <if test="projectName !=null and projectName!=''">
+            and (name like CONCAT('%',#{projectName},'%') or project_code = #{projectName})
+        </if>
+    </select>
+
 </mapper>

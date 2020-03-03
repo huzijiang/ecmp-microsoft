@@ -21,6 +21,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select notice_id, notice_title, notice_type, notice_content, status, create_by, create_time, update_by, update_time, remark from ecmp_notice
     </sql>
 
+    <select id="selectAll" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">
+      select notice_title,notice_content,notice_type from ecmp_notice
+    </select>
+
     <select id="selectEcmpNoticeList" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">
         <include refid="selectEcmpNoticeVo"/>
         <where>
