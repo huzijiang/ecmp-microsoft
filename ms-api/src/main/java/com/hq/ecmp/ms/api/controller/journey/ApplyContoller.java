@@ -16,6 +16,7 @@ import com.hq.ecmp.mscore.vo.UserVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -105,7 +106,11 @@ public class ApplyContoller {
     @ApiOperation(value = "getApplyApproveNodesInfo",notes = "获取行程申请 对应的审批流信息 ",httpMethod ="POST")
     @PostMapping("/getApplyApproveNodesInfo")
     public ApiResponse   getApplyApproveNodesInfo(JourneyApplyDto journeyApplyDto){
-        return null;
+        if (ObjectUtils.isNotEmpty(journeyApplyDto)){
+            JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
+            return ApiResponse.success(journeyInfo);
+        }
+        return ApiResponse.error("获取行程申请对应的审批流信息异常");
     }
 
     /**
@@ -116,8 +121,11 @@ public class ApplyContoller {
     @ApiOperation(value = "getApplyApproveNodesInfoByRegimeInfo",notes = "获取用车制度 对应的审批流信息 ",httpMethod ="POST")
     @PostMapping("/getApplyApproveNodesInfoByRegimeInfo")
     public ApiResponse   getApplyApproveNodesInfoByApproveTemplate(RegimeDto regimeDto){
-
-        return null;
+        if (ObjectUtils.isNotEmpty(regimeDto)){
+            ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(regimeDto.getRegimeId());
+            return ApiResponse.success(applyInfo);
+        }
+        return ApiResponse.error("获取用车制度对应的审批流信息异常");
     }
 
 
@@ -194,7 +202,7 @@ public class ApplyContoller {
         }
         //2.生成行程单审批信息
         applyInfo = ApplyInfo.builder().applyId(Long.MAX_VALUE).applyType("").approverName("").journeyId(journeyInfo.getJourneyId()).costCenter(userDto.getUserId()).projectId(userDto.getUserId()).
-                approverName("").reason("").state("").regimenId(Long.MAX_VALUE).build();
+                approverName("").reason("").state("1").regimenId(Long.MAX_VALUE).build();
         applyInfo.setCreateBy(userDto.getUserName());
         applyInfo.setCreateTime(DateUtils.getNowDate());
         applyInfoService.insertApplyInfo(applyInfo);
@@ -228,7 +236,7 @@ public class ApplyContoller {
         //2.生成行程单审批信息
         //state审批状态(1表示审批通过，0表示审批驳回)
         applyInfo = ApplyInfo.builder().applyId(Long.MAX_VALUE).applyType("").approverName("").journeyId(journeyInfo.getJourneyId()).costCenter(userDto.getUserId()).projectId(userDto.getUserId())
-                .approverName("").reason("").state("").regimenId(Long.MAX_VALUE).build();
+                .approverName("").reason("").state("0").regimenId(Long.MAX_VALUE).build();
         applyInfo.setCreateBy(userDto.getUserName());
         applyInfo.setCreateTime(DateUtils.getNowDate());
         applyInfoService.insertApplyInfo(applyInfo);

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.vo.ApprovalVO;
 
 import java.util.List;
 
@@ -73,6 +74,11 @@ public interface IRegimeInfoService
      */
     List<RegimeInfo> findRegimeInfoListByUserId(Long userId);
 
-
+    /**
+     * 根据用车制度Id,查询审批人列表
+     * @param regimenId
+     * @return
+     */
+    List<ApprovalVO> selectApprovalByRegimenId(Long regimenId);
 }
 

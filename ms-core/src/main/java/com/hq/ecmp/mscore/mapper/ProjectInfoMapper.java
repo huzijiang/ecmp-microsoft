@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ProjectInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -59,4 +60,11 @@ public interface ProjectInfoMapper
      * @return 结果
      */
     public int deleteProjectInfoByIds(Long[] projectIds);
+
+    /**
+     * 根据用户ID查询用户所包含的所有项目
+     * @param userId
+     * @return
+     */
+    List<ProjectInfo> getListByUserId(@Param("userId") Long userId,@Param("projectName") String projectName);
 }

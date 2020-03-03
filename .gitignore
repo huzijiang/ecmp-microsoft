@@ -5,4 +5,7 @@
 target/
 proxy-api/log/
 *.classpath
+.idea/
+.settings
+*.iml
 
