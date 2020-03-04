@@ -4,7 +4,10 @@ import com.hq.ecmp.mscore.vo.AddressVO;
 import com.hq.ecmp.mscore.vo.UserVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
@@ -16,6 +19,9 @@ import java.util.List;
  */
 @Data
 @ApiModel(description = "申请单添加对象")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ApplyOfficialRequest {
 
     /**
@@ -125,21 +131,19 @@ public class ApplyOfficialRequest {
     /**
      * 往返开启后 等待 多长时间 返程用车
      */
-    @ApiModelProperty(name = "returnWaitTime", value = "等待时长", required = false, position = 18)
+    @ApiModelProperty(name = "returnWaitTime", value = "等待时长", required = false, position = 19)
     private String returnWaitTime;    //TODO 新增
 
     /**
      * 审批人
      */
-    @ApiModelProperty(name = "approvers", value = "审批人", required = false, position = 19)
+    @ApiModelProperty(name = "approvers", value = "审批人", required = false, position = 20)
     private List<UserVO> approvers;  // TODO 新增
 
     /**
      * 用车制度id
      */
-    @ApiModelProperty(name = "regimeId", value = "用车制度id", required = true, position = 20)
+    @ApiModelProperty(name = "regimeId", value = "用车制度id", required = true, position = 21)
     private Integer regimenId;  // TODO 新增
-
-
 
 }

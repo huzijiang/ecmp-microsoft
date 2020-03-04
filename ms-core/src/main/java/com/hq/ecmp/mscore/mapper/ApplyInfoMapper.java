@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 
 import java.util.List;
 
@@ -59,4 +60,11 @@ public interface ApplyInfoMapper
      * @return 结果
      */
     public int deleteApplyInfoByIds(Long[] applyIds);
+
+    /**
+     * 分页查询申请列表
+     * @param userId
+     * @return
+     */
+    List<ApplyInfoDTO> selectApplyInfoListByPage(Long userId);
 }

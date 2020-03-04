@@ -169,11 +169,11 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "getPassengerOwnerApplies",notes = "获取乘客自身 行程申请列表 ",httpMethod ="POST")
     @PostMapping("/getPassengerOwnerApplies")
-    public ApiResponse<List<ApplyInfo>>   getPassengerOwnerApplies(@RequestBody PageRequest applyPage){
+    public ApiResponse<List<ApplyInfoDTO>>   getPassengerOwnerApplies(@RequestBody PageRequest applyPage){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         //分页查询乘客申请列表
-        List<ApplyInfo> applyInfoList = applyInfoService.selectApplyInfoListByPage(loginUser.getUser()
+        List<ApplyInfoDTO> applyInfoList = applyInfoService.selectApplyInfoListByPage(loginUser.getUser()
                 .getUserId(),applyPage.getPageNum(),applyPage.getPageSize());
         if(CollectionUtils.isEmpty(applyInfoList)){
             return ApiResponse.error("未查到申请列表数据");

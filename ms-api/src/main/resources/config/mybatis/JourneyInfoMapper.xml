@@ -70,6 +70,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="useTime != null  and useTime != ''">use_time,</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">wait_time_long,</if>
             <if test="charterCarType != null  and charterCarType != ''">charter_car_type,</if>
+            <if test="startDate != null  and startDate != ''">start_date,</if>
+            <if test="endDate != null  and endDate != ''">end_date,</if>
+            <if test="travelPickupCity != null  and travelPickupCity != ''">travel_pickup_city,</if>
+            <if test="pickupTimes != null  and pickupTimes != ''">pickup_times,</if>
+            <if test="travelCitiesStr != null  and travelCitiesStr != ''">travel_cities_str,</if>
+            <if test="title != null  and title != ''">title,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -89,6 +95,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="useTime != null  and useTime != ''">#{useTime},</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">#{waitTimeLong},</if>
             <if test="charterCarType != null  and charterCarType != ''">#{charterCarType},</if>
+            <if test="startDate != null  and startDate != ''">#{startDate},</if>
+            <if test="endDate != null  and endDate != ''">#{endDate},</if>
+            <if test="travelPickupCity != null  and travelPickupCity != ''">#{travelPickupCity},</if>
+            <if test="pickupTimes != null  and pickupTimes != ''">#{pickupTimes},</if>
+            <if test="travelCitiesStr != null  and travelCitiesStr != ''">#{travelCitiesStr},</if>
+            <if test="title != null  and title != ''">#{title},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>

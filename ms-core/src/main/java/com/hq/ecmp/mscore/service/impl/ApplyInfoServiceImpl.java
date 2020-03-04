@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONArray;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
@@ -11,15 +14,18 @@ import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
-import com.hq.ecmp.mscore.dto.ApplyInfoDto;
+import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
 import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
+import com.hq.ecmp.mscore.vo.AddressVO;
+import com.hq.ecmp.mscore.vo.TravelPickupCity;
 import com.hq.ecmp.mscore.vo.TravelRequest;
 import com.hq.ecmp.mscore.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -149,56 +155,57 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
 
         //3.保存行程节点信息(差旅相关) journey_node_info表
         JourneyNodeInfo journeyNodeInfo = null;
-        // TODO 没有往返的情况下。如果有往返，算几个节点?目前算一个
-        Long i = 1L;
-        for (TravelRequest travelRequest : travelCommitApply.getTravelRequests()) {
+        // TODO 没有往返的情况下。有往返则两个行程节点，一个去程，一个返程
+        List<TravelRequest> travelRequests = travelCommitApply.getTravelRequests();
+        int i = 1;
+        for (TravelRequest travelRequest : travelRequests) {
             journeyNodeInfo = new JourneyNodeInfo();
-            //3.1 journey_id 非空
-            journeyNodeInfo.setJourneyId(journeyId);
-            //3.2 user_id 行程申请人 编号
-            journeyNodeInfo.setUserId(Long.valueOf(travelCommitApply.getApplyUser().getUserId())); //TODO 判空
-            //3.3 plan_begin_address 计划上车地址  非空
-            journeyNodeInfo.setPlanBeginAddress(travelRequest.getStartCity().getCityName());
-            //3.4 plan_end_address 计划下车地址    非空
-            journeyNodeInfo.setPlanEndAddress(travelRequest.getEndCity().getCityName());
-            //3.5 plan_setout_time 计划出发时间
-            journeyNodeInfo.setPlanSetoutTime(travelRequest.getStartDate());  // TODO 出差某一节点开始日期
-            //3.6 plan_arrive_time 计划到达时间
-            journeyNodeInfo.setPlanArriveTime(travelRequest.getEndDate());  // TODO 出差某一节点结束日期
-            //3.7 plan_begin_longitude 出发坐标
-            journeyNodeInfo.setPlanBeginLongitude(travelRequest.getStartCity().getCityName());   // TODO 差旅是城市代码、城市id
-            //3.8 plan_begin_latitude
-            journeyNodeInfo.setPlanBeginLatitude(null);
-            //3.9 plan_end_longitude
-            journeyNodeInfo.setPlanEndLongitude(null);
-            //3.10 plan_end_latitude
-            journeyNodeInfo.setPlanEndLatitude(null);
-            //3.11 it_is_via_point 是否是途经点  途经点仅仅用于 地图描点  和  导航使用;途经点  同样具有顺序
-            journeyNodeInfo.setItIsViaPoint(null);
-            //3.12 vehicle 交通工具 T001  飞机 T101  火车 T201  汽车 T301  轮渡 T999  其他
-            journeyNodeInfo.setVehicle(travelRequest.getVehicle());
-            //3.13 duration 行程节点 预估用时， X 小时 X 分钟
-            journeyNodeInfo.setDuration(String.valueOf(travelRequest.getCountDate()));   // TODO 差旅节点时长是多少天字段。公务应该是X 小时 X 分钟
-            //3.14 distance 行程节点 预估里程 单位公：里
-            journeyNodeInfo.setDistance(null);
-            //3.15 wait_duration 航班到达后等待多时时间  用车，单位 分钟 M010 10分钟 M020 20分钟 M030 30分钟 H100 一小时 H130 一个半小时
-            journeyNodeInfo.setWaitDuration(null);
-            //3.16 node_state 行程节点状态 订单---->用车权限----->行程节点   反推  节点任务是否已完成 失效 也算已经  节点任务已经完成
-            //P000   有效中  P444   已失效
-            journeyNodeInfo.setNodeState(null);  // TODO 申请通过前节点无状态
-            ///3.17 number 节点在 在整个行程 中的顺序编号 从  1  开始
-            journeyNodeInfo.setNumber(i);
-            //3.18 create_by 创建者
-            journeyNodeInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
-            //3.19 create_time 创建时间
-            journeyNodeInfo.setCreateTime(new Date());
-            //3.20 update_by 更新者
-            journeyNodeInfo.setUpdateBy(null);
-            //3.21 update_time 更新时间
-            journeyNodeInfo.setUpdateTime(null);
+            //设置差旅行程节点表信息
+            SetTravelJourneyNode(travelCommitApply, journeyId, journeyNodeInfo, i, travelRequest);
             i++;
             journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
         }
+        //如果有往返，则创建返程节点。返程 出发地为最初目的地，返程目的地为最初出发地。返程开始时间为去程结束时间
+        if("Y000".equals(travelCommitApply.getIsGoBack())) {
+            ApplyTravelRequest applyTravelRequest = ApplyTravelRequest.builder().applyType(travelCommitApply.getApplyType())
+                    .applyUser(travelCommitApply.getApplyUser())
+                    .approvers(travelCommitApply.getApprovers())
+                    .costCenter(travelCommitApply.getCostCenter())
+                    .endDate(travelCommitApply.getEndDate())
+                    .isGoBack(travelCommitApply.getIsGoBack())
+                    .passenger(travelCommitApply.getPassenger())
+                    .pickupTimes(travelCommitApply.getPickupTimes())
+                    .projectNumber(travelCommitApply.getProjectNumber())
+                    .reason(travelCommitApply.getReason())
+                    .regimenId(travelCommitApply.getRegimenId())
+                    .startDate(travelCommitApply.getStartDate())
+                    .travelCitiesStr(travelCommitApply.getTravelCitiesStr())
+                    .travelCount(travelCommitApply.getTravelCount())
+                    .travelPickupCity(travelCommitApply.getTravelPickupCity())
+                    .travelRequests(travelCommitApply.getTravelRequests())
+                    .useType(travelCommitApply.getUseType())
+                    .build();
+            List<TravelRequest> travelRequestsRev = applyTravelRequest.getTravelRequests();
+            //得到去程节点
+            TravelRequest travelRequest = travelRequestsRev.get(0);
+            TravelRequest travelRequestSetout = travelRequests.get(0);
+            //设置返程出发地为最初目的地
+            travelRequest.setStartCity(travelRequestSetout.getEndCity());
+            //设置返程目的地为最初出发地
+            travelRequest.setEndCity(travelRequestSetout.getStartCity());
+            //设置返程开始日期为去程结束日期
+            travelRequest.setStartDate(travelRequestSetout.getEndDate());
+            //设置返程结束日期为空
+            travelRequest.setEndDate(null);
+            //设置返程节点时长为空
+            travelRequest.setCountDate(null);
+            //TODO 返程交通工具暂不做修改
+            journeyNodeInfo = new JourneyNodeInfo();
+            SetTravelJourneyNode(applyTravelRequest, journeyId, journeyNodeInfo, i + 1, travelRequest);
+            //新增返程节点
+            journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
+        }
+
 
         //4.保存行程乘客信息 journey_passenger_info表
         // 差旅只有乘车人，没有同行人
@@ -209,18 +216,74 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     }
 
     /**
+     * 设置差旅行程节点表信息
+     * @param travelCommitApply
+     * @param journeyId
+     * @param journeyNodeInfo
+     * @param i
+     * @param travelRequest
+     */
+    private void SetTravelJourneyNode(ApplyTravelRequest travelCommitApply, Long journeyId, JourneyNodeInfo journeyNodeInfo, int i, TravelRequest travelRequest) {
+        //3.1 journey_id 非空
+        journeyNodeInfo.setJourneyId(journeyId);
+        //3.2 user_id 行程申请人 编号
+        journeyNodeInfo.setUserId(Long.valueOf(travelCommitApply.getApplyUser().getUserId())); //TODO 判空
+        //3.3 plan_begin_address 计划上车地址  非空
+        journeyNodeInfo.setPlanBeginLongAddress(null);
+        journeyNodeInfo.setPlanBeginAddress(travelRequest.getStartCity().getCityName());
+        journeyNodeInfo.setPlanBeginCityCode(String.valueOf(travelRequest.getStartCity().getCityCode()));
+        //3.4 plan_end_address 计划下车地址    非空
+        journeyNodeInfo.setPlanEndLongAddress(null);
+        journeyNodeInfo.setPlanEndAddress(travelRequest.getEndCity().getCityName());
+        journeyNodeInfo.setPlanEndCityCode(String.valueOf(travelRequest.getEndCity().getCityCode()));
+        //3.5 plan_setout_time 计划出发时间
+        journeyNodeInfo.setPlanSetoutTime(travelRequest.getStartDate());  // TODO 出差某一节点开始日期
+        //3.6 plan_arrive_time 计划到达时间
+        journeyNodeInfo.setPlanArriveTime(travelRequest.getEndDate());  // TODO 出差某一节点结束日期
+        //3.7 plan_begin_longitude 出发坐标
+        journeyNodeInfo.setPlanBeginLongitude(null);   // TODO 差旅是城市代码、城市id
+        //3.8 plan_begin_latitude
+        journeyNodeInfo.setPlanBeginLatitude(null);
+        //3.9 plan_end_longitude
+        journeyNodeInfo.setPlanEndLongitude(null);
+        //3.10 plan_end_latitude
+        journeyNodeInfo.setPlanEndLatitude(null);
+        //3.11 it_is_via_point 是否是途经点  途经点仅仅用于 地图描点  和  导航使用;途经点  同样具有顺序
+        journeyNodeInfo.setItIsViaPoint(null);
+        //3.12 vehicle 交通工具 T001  飞机 T101  火车 T201  汽车 T301  轮渡 T999  其他
+        journeyNodeInfo.setVehicle(travelRequest.getVehicle());
+        //3.13 duration 行程节点 预估用时， X 小时 X 分钟
+        journeyNodeInfo.setDuration(String.valueOf(travelRequest.getCountDate()));   // TODO 差旅节点时长是多少天字段。公务应该是X 小时 X 分钟
+        //3.14 distance 行程节点 预估里程 单位公：里
+        journeyNodeInfo.setDistance(null);
+        //3.15 wait_duration 航班到达后等待多时时间  用车，单位 分钟 M010 10分钟 M020 20分钟 M030 30分钟 H100 一小时 H130 一个半小时
+        journeyNodeInfo.setWaitDuration(null);
+        //3.16 node_state 行程节点状态 订单---->用车权限----->行程节点   反推  节点任务是否已完成 失效 也算已经  节点任务已经完成
+        //P000   有效中  P444   已失效
+        journeyNodeInfo.setNodeState("P000");  // TODO 申请通过前节点算是有效吗？待确认
+        ///3.17 number 节点在 在整个行程 中的顺序编号 从  1  开始
+        journeyNodeInfo.setNumber(i);
+        //3.18 create_by 创建者
+        journeyNodeInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
+        //3.19 create_time 创建时间
+        journeyNodeInfo.setCreateTime(new Date());
+        //3.20 update_by 更新者
+        journeyNodeInfo.setUpdateBy(null);
+        //3.21 update_time 更新时间
+        journeyNodeInfo.setUpdateTime(null);
+    }
+
+    /**
      * 分页查询用户申请列表
      * @param userId  用户id
      * @param pageNum 查询页码
      * @return
      */
     @Override
-    public List<ApplyInfo> selectApplyInfoListByPage(Long userId, Integer pageNum,Integer pageSize) {
+    public List<ApplyInfoDTO> selectApplyInfoListByPage(Long userId, Integer pageNum, Integer pageSize) {
         //分页查询申请列表
         PageHelper.startPage(pageNum,pageSize);
-        ApplyInfo applyInfo = new ApplyInfo();
-        applyInfo.setCreateBy(String.valueOf(userId));
-        List<ApplyInfo> all = applyInfoMapper.selectApplyInfoList(applyInfo);
+        List<ApplyInfoDTO> all = applyInfoMapper.selectApplyInfoListByPage(userId);
         return all;
     }
 
@@ -238,7 +301,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //4.3 mobile
         journeyPassengerInfo.setMobile(travelCommitApply.getProjectNumber());
         //4.4 it_is_peer 是否是同行者 00   是   01   否
-        journeyPassengerInfo.setItIsPeer("01");   // TODO 枚举
+        journeyPassengerInfo.setItIsPeer("01");   // TODO 常量 差旅没有同行人
         //4.5 create_by 创建者
         journeyPassengerInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
         //4.6 create_time 创建时间
@@ -290,12 +353,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setUpdateBy(null);
         //2.12 update_time 更新时间
         applyInfo.setUpdateTime(null);
-        applyInfo.setStartDate(null);       //TODO 新增 出差开始时间  需要前端提供
-        applyInfo.setEndDate(null);        //TODO 新增 出差最终结束时间  需要前端提供
-        applyInfo.setTravelPickupCity(null);  //TODO 新增 出差需接送机城市  需要前端提供 ！！！
-        applyInfo.setTravelCitiesStr(null);  //TODO 新增 出差需市内用车城市  需要前端提供
-        applyInfo.setPickupTimes(null);    // TODO 新增 出差接送机总次数  需要前端提供
-        applyInfo.setTitle(null);  // TODO 新增 出差标题  需要前端提供    北京-上海、南京
+
         applyInfoMapper.insertApplyInfo(applyInfo);
     }
 
@@ -337,6 +395,15 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUpdateBy(null);
         //1.16 update_time 更新时间
         journeyInfo.setUpdateTime(null);
+        journeyInfo.setStartDate(travelCommitApply.getStartDate());       //TODO 新增 出差开始时间  需要前端提供
+        journeyInfo.setEndDate(travelCommitApply.getEndDate());        //TODO 新增 出差最终结束时间  需要前端提供
+        List<TravelPickupCity> travelPickupCityList = travelCommitApply.getTravelPickupCity();
+        String travelPickupCityStr  = JSONArray.toJSON(travelCommitApply).toString();
+        journeyInfo.setTravelPickupCity(travelPickupCityStr);  //TODO 新增 出差需接送机城市数组  需要前端提供
+        journeyInfo.setTravelCitiesStr(travelCommitApply.getTravelCitiesStr());  //TODO 新增 出差需市内用车城市  需要前端提供
+        journeyInfo.setPickupTimes(travelCommitApply.getPickupTimes());    // TODO 新增 出差接送机总次数  需要前端提供
+        String firstCityName = travelCommitApply.getTravelRequests().get(0).getStartCity().getCityName();
+        journeyInfo.setTitle(firstCityName+"-"+travelCommitApply.getTravelCitiesStr());  // TODO 新增 出差标题  需要前端提供    北京-上海、南京。需要判断
         journeyInfoMapper.insertJourneyInfo(journeyInfo);
     }
 
@@ -359,11 +426,113 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //提交公务申请表信息
         applyInfoOfficialCommit(officialCommitApply, journeyId, applyInfo);
 
+        //复制参数对象
+        ApplyOfficialRequest applyOfficialRequest = ApplyOfficialRequest.builder().
+                applyDate(officialCommitApply.getApplyDate())
+               .applyType(officialCommitApply.getApplyType())
+               .applyUser(officialCommitApply.getApplyUser())
+               .approvers(officialCommitApply.getApprovers())
+               .charterType(officialCommitApply.getCharterType())
+               .costCenter(officialCommitApply.getCostCenter())
+               .endAddr(officialCommitApply.getEndAddr())
+               .estimatePrice(officialCommitApply.getEstimatePrice())
+               .flightNumber(officialCommitApply.getFlightNumber())
+               .isGoBack(officialCommitApply.getIsGoBack())
+               .partner(officialCommitApply.getPartner())
+               .passedAddress(officialCommitApply.getPassedAddress())
+               .passenger(officialCommitApply.getPassenger())
+               .projectNumber(officialCommitApply.getProjectNumber())
+               .reason(officialCommitApply.getReason())
+               .regimenId(officialCommitApply.getRegimenId())
+               .returnWaitTime(officialCommitApply.getReturnWaitTime())
+               .serviceType(officialCommitApply.getServiceType())
+               .startAddr(officialCommitApply.getStartAddr())
+               .useType(officialCommitApply.getUseType())
+               .waitDurition(officialCommitApply.getWaitDurition()).build();
         //3.保存行程节点信息 journey_node_info表
-        JourneyNodeInfo journeyNodeInfo = new JourneyNodeInfo();
+        JourneyNodeInfo journeyNodeInfo = null;
         // TODO 公务是一个行程  如果往返，需要创建两个行程节点还是一个？此处创建一个
-        //提交行程节点信息表
-        journeyNodeOfficialCommit(officialCommitApply, journeyId, journeyNodeInfo);
+        // 遍历途径地
+        List<AddressVO> passedAddressList = officialCommitApply.getPassedAddress();
+        // 途径地数量为size个
+        // 第一个节点出发地是出发地，目的地是第一个途径地，
+        // 第二个节点出发地是第一个途径地，目的地是第二个途径地
+        // 第n个节点的出发地是第n-1个途径地，目的地是第n个途径地
+        // 最后一个节点的出发地是最后一个途径地，目的地是目的地
+        int size = passedAddressList.size();
+        //节点编号
+        int n = 1;
+        //如果没有途经点 就只有一个行程节点
+        if(size == 0){
+            journeyNodeInfo = new JourneyNodeInfo();
+            //设置行程节点信息表
+            journeyNodeOfficialCommit(applyOfficialRequest, journeyId, journeyNodeInfo);
+            //判断是否途经点
+            journeyNodeInfo.setItIsViaPoint("NO");  // TODO 常量
+            //节点编号
+            journeyNodeInfo.setNumber(n);
+            //保存数据
+            journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
+        }else {
+            //A...提交第一个节点 把第一个途经点作为目的地
+            journeyNodeInfo = new JourneyNodeInfo();
+            AddressVO firstEndAddr = passedAddressList.get(0);
+            applyOfficialRequest.setEndAddr(firstEndAddr);
+            //设置行程节点信息表
+            journeyNodeOfficialCommit(applyOfficialRequest, journeyId, journeyNodeInfo);
+            //判断是否途经点
+            journeyNodeInfo.setItIsViaPoint("YES");   //TODO 常量
+            //节点编号
+            journeyNodeInfo.setNumber(n);
+            //保存数据
+            journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
+            //B...提交最后一个节点
+            journeyNodeInfo = new JourneyNodeInfo();
+            //把最后一个途径地作为起点
+            AddressVO lastStartAddr = passedAddressList.get(size-1);
+            applyOfficialRequest.setStartAddr(lastStartAddr);
+            //目的地为参数传递目的地
+            applyOfficialRequest.setEndAddr(officialCommitApply.getEndAddr());
+            //设置行程节点信息表
+            journeyNodeOfficialCommit(applyOfficialRequest, journeyId, journeyNodeInfo);
+            //判断是否途经点
+            journeyNodeInfo.setItIsViaPoint("NO");  //TODO 常量
+            //节点编号
+            journeyNodeInfo.setNumber(n+size);
+            //保存数据
+            journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
+            for (int i = 0; i < size - 1; i++) {
+                journeyNodeInfo = new JourneyNodeInfo();
+                //C...提交第 n 个节点， 第 n 个节点的起点是 第 n-1个途径地，目的地是 第 n 个途径地
+                AddressVO setoutAddress = passedAddressList.get(i);
+                applyOfficialRequest.setStartAddr(setoutAddress);
+                AddressVO endAddr = passedAddressList.get(i+1);
+                applyOfficialRequest.setEndAddr(endAddr);
+                //设置行程节点信息表
+                journeyNodeOfficialCommit(applyOfficialRequest, journeyId, journeyNodeInfo);
+                //判断是否途经点
+                journeyNodeInfo.setItIsViaPoint("YES");  // TODO 常量
+                //设置节点编号
+                journeyNodeInfo.setNumber(n+i+1);
+                //保存数据
+                journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
+            }
+            //如果有往返，追加一个返程节点。
+            if("Y000".equals(officialCommitApply.getIsGoBack())) {
+                journeyNodeInfo = new JourneyNodeInfo();
+                //出发地是目的地，返回地是起始地
+                applyOfficialRequest.setStartAddr(officialCommitApply.getEndAddr());
+                applyOfficialRequest.setEndAddr(officialCommitApply.getStartAddr());
+                //设置行程节点信息表
+                journeyNodeOfficialCommit(applyOfficialRequest, journeyId, journeyNodeInfo);
+                //判断是否途经点
+                journeyNodeInfo.setItIsViaPoint("NO");  // TODO 常量
+                //设置节点编号
+                journeyNodeInfo.setNumber(n+size+1);
+                //保存数据
+                journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
+            }
+        }
 
         //4.保存行程乘客信息 journey_passenger_info表
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
@@ -416,7 +585,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     }
 
     /**
-     * 提交公务行程节点信息表
+     * 设置公务行程节点信息表
      * @param officialCommitApply
      * @param journeyId
      * @param journeyNodeInfo
@@ -429,9 +598,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //3.3 plan_begin_address 计划上车地址  非空
         journeyNodeInfo.setPlanBeginAddress(officialCommitApply.getStartAddr().getAddress());
         journeyNodeInfo.setPlanBeginLongAddress(officialCommitApply.getStartAddr().getLongAddress());
+        journeyNodeInfo.setPlanBeginCityCode(null);
         //3.4 plan_end_address 计划下车地址    非空
         journeyNodeInfo.setPlanEndAddress(officialCommitApply.getEndAddr().getAddress());
         journeyNodeInfo.setPlanEndLongAddress(officialCommitApply.getEndAddr().getLongAddress());
+        journeyNodeInfo.setPlanEndCityCode(null);
         //3.5 plan_setout_time 计划出发时间
         journeyNodeInfo.setPlanSetoutTime(officialCommitApply.getApplyDate());    // TODO 跟差旅申请记录时间不一样
         //3.6 plan_arrive_time 计划到达时间
@@ -445,7 +616,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //3.10 plan_end_latitude
         journeyNodeInfo.setPlanEndLatitude(officialCommitApply.getEndAddr().getLatitude());
         //3.11 it_is_via_point 是否是途经点  途经点仅仅用于 地图描点  和  导航使用;途经点  同样具有顺序
-        journeyNodeInfo.setItIsViaPoint(null);       // TODO 这个途径点是怎么判断的呢
+        journeyNodeInfo.setItIsViaPoint(null);       // TODO 这个途径点提出来单独判断
         //3.12 vehicle 交通工具 T001  飞机 T101  火车 T201  汽车 T301  轮渡 T999  其他
         journeyNodeInfo.setVehicle(null);           // TODO 差旅申请才有
         //3.13 duration 行程节点 预估用时， X 小时 X 分钟
@@ -458,7 +629,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //P000   有效中  P444   已失效
         journeyNodeInfo.setNodeState("P000");   // TODO 枚举
         ///3.17 number 节点在 在整个行程 中的顺序编号 从  1  开始
-        journeyNodeInfo.setNumber(1l);    // TODO 差旅才有多个节点
+        journeyNodeInfo.setNumber(null);    // TODO 节点编号单独判断
         //3.18 create_by 创建者
         journeyNodeInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));  //TODO 申请人 和 创建人
         //3.19 create_time 创建时间
@@ -467,8 +638,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyNodeInfo.setUpdateBy(null);
         //3.21 update_time 更新时间
         journeyNodeInfo.setUpdateTime(null);
-        //保存数据
-        journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
+
     }
 
     /**
@@ -488,15 +658,19 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setApplyType(String.valueOf(officialCommitApply.getApplyType())); //TODO 跟用车制度id重合了
         //2.5 approver_name 第一审批阶段 审批人列表，前两位
         List<UserVO> approvers = officialCommitApply.getApprovers();
-        String approversName = null;
-        if(approvers.size() == 1){
-            approversName = approvers.get(0).getUserName();
-        }else if (approvers.size()>1){
-            for (int i = 0; i < 2; i++) {
-                approversName = approvers.get(0).getUserName() +"、"+ approvers.get(1).getUserName();
+        if(approvers == null){
+            applyInfo.setApproverName(null);
+        }else {
+            String approversName = null;
+            if(approvers.size() == 1){
+                approversName = approvers.get(0).getUserName();
+            }else if (approvers.size()>1){
+                for (int i = 0; i < 2; i++) {
+                    approversName = approvers.get(0).getUserName() +"、"+ approvers.get(1).getUserName();
+                }
             }
+            applyInfo.setApproverName(approversName);
         }
-        applyInfo.setApproverName(approversName);
         //2.6 cost_center 成本中心 从组织机构表 中获取
         applyInfo.setCostCenter(Long.valueOf(officialCommitApply.getCostCenter())); //TODO 要判空
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
@@ -511,12 +685,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setUpdateBy(null);
         //2.12 update_time 更新时间
         applyInfo.setUpdateTime(null);
-        applyInfo.setStartDate(officialCommitApply.getApplyDate());  //TODO 新增 行程开始时间，用车时间
-        applyInfo.setEndDate(null);    //TODO 新增 公务行程结束时间，未知。也用不着
-        applyInfo.setTitle(officialCommitApply.getReason());     //TODO 新增 公务title为reason
-        applyInfo.setTravelCitiesStr(null);   // TODO 新增 出差市内用车城市为空
-        applyInfo.setPickupTimes(null);   //TODO 新增 出差接送机总次数为空
-        applyInfo.setTravelPickupCity(null);  //TODO 新增 出差需接送机城市为空
+
         applyInfoMapper.insertApplyInfo(applyInfo);
     }
 
@@ -536,11 +705,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUseCarMode(officialCommitApply.getUseType());
         //1.5 use_car_time 用车时间
         Date applyDate = officialCommitApply.getApplyDate();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");  //TODO 时间方法改动下
         String date = dateFormat.format(applyDate);
         journeyInfo.setUseCarTime(date);
         //1.6 it_is_return 是否往返 Y000 N444
-        journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());
+        journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());    //TODO  有往返的话，创建两个行程
         //1.7 estimate_price 预估价格     非空
         journeyInfo.setEstimatePrice(String.valueOf(officialCommitApply.getEstimatePrice()));
         //1.8 project_id  项目编号
@@ -550,7 +719,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //1.10 use_time 行程总时长  多少天
         journeyInfo.setUseTime(null);     // TODO 该字段未使用（差旅的）
         //1.11 wait_time_long 预计等待时间，出发地 第一个节点 等待时长
-        journeyInfo.setWaitTimeLong(null);  // TODO 该字段未使用
+        journeyInfo.setWaitTimeLong(officialCommitApply.getReturnWaitTime());  // TODO 新增 往返，返回等待时长
         //1.12 charter_car_type 包车类型：T000  非包车 T001 半日租（4小时）T002 整日租（8小时）
         journeyInfo.setCharterCarType(String.valueOf(officialCommitApply.getCharterType()));
         //1.13 create_by 创建者
@@ -561,8 +730,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUpdateBy(null);
         //1.16 update_time 更新时间
         journeyInfo.setUpdateBy(null);
+        journeyInfo.setStartDate(officialCommitApply.getApplyDate());       //TODO 新增 行程开始时间，用车时间
+        journeyInfo.setEndDate(null);        //TODO 新增 公务行程结束时间，未知。也用不着
+        journeyInfo.setTravelPickupCity(null);  //TODO 新增 出差需接送机城市为空
+        journeyInfo.setTravelCitiesStr(null);  //TODO 新增 出差市内用车城市为空
+        journeyInfo.setPickupTimes(null);    // TODO 新增 出差接送机总次数为空
+        journeyInfo.setTitle(officialCommitApply.getReason());  // TODO 新增 公务title为reason
         journeyInfoMapper.insertJourneyInfo(journeyInfo);
     }
-
 
 }
