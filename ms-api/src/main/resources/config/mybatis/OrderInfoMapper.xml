@@ -60,6 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="driverMobile != null  and driverMobile != ''"> and driver_mobile = #{driverMobile}</if>
             <if test="carLicense != null  and carLicense != ''"> and car_license = #{carLicense}</if>
         </where>
+        order by actualSetoutTime desc
     </select>
 
     <select id="selectOrderInfoById" parameterType="Long" resultMap="OrderInfoResult">
@@ -166,5 +167,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{orderId}
         </foreach>
     </delete>
+    
+    <select id="getOrderList" parameterType="Long"  resultType="com.hq.ecmp.mscore.domain.OrderListInfo">
+        select
+            o.order_id orderId,
+            ecti.`level`,
+            o.use_car_mode useCarMode,
+            o.state,
+            jn.service_type serviceType,
+            IFNULL(o.actual_setout_time,jni.plan_setout_time) setOutTime,
+            IFNULL(o.actual_setout_address,jni.plan_begin_address) setOutAddress,
+            IFNULL(o.actual_arrive_address,jni.plan_end_address) arriveAddress
+            from order_info o
+            inner join journey_info jn on o.journey_id=jn.journey_id
+            inner join journey_node_info jni on  jni.node_id=o.node_id
+            left join car_info ci on ci.car_id=o.car_id
+            left join enterprise_car_type_info ecti on ecti.car_type_id=ci.car_type_id
+            where jn.user_id=#{userId}
+        order by o.create_time  desc
+    </select>
 
 </mapper>

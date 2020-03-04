@@ -2,7 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.OrderInfo;
 
-import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.OrderListInfo;
 
 import java.util.List;
 
@@ -61,4 +61,11 @@ public interface OrderInfoMapper
      * @return 结果
      */
     public int deleteOrderInfoByIds(Long[] orderIds);
+
+    /**
+     * 获取乘客端我的行程订单列表
+     * @param userId
+     * @return
+     */
+    public List<OrderListInfo> getOrderList(Long userId);
 }

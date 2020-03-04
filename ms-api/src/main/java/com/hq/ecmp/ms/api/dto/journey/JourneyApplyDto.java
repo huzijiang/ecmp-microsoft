@@ -1,13 +1,10 @@
 package com.hq.ecmp.ms.api.dto.journey;
 
-import com.hq.ecmp.mscore.domain.ApplyInfo;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
 import io.swagger.annotations.ApiParam;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * @Author: zj.hu
