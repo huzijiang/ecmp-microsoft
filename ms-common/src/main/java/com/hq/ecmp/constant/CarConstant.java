@@ -14,4 +14,9 @@ public interface CarConstant {
 	String USE_CAR_AIRPORT_DROP_OFF="C009";//送机
 	
 	String CITY_USE_CAR="C222";//市内用车
+
+	/*********************************用车方式*********************************************************/
+	static  final String USR_CARD_MODE_NET = "W200"; //网约车
+	static  final  String  USR_CARD_MODE_HAVE = "W100";//自有车
+	/**********************************用车方式********************************************************/
 }
