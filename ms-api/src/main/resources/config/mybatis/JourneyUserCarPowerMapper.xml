@@ -108,5 +108,34 @@ LEFT JOIN order_info b ON a.power_id = b.power_id
 WHERE
 	a.node_id = #{nodeId}
     </select>
+    
+    <select id="queryUserAuthorityFromService" parameterType="com.hq.ecmp.mscore.domain.JourneyUserCarPower" resultType="com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority">
+    SELECT
+	a.plan_begin_address AS cityName,
+	count(1) AS surplusCount,
+	b.power_id AS powerId
+FROM
+	journey_node_info a
+LEFT JOIN journey_user_car_power b ON a.node_id = b.node_id
+WHERE
+	a.journey_id = #{journeyId}
+AND b.state = #{state}
+AND b.type = #{type}
+GROUP BY
+	a.plan_begin_address
+    </select>
+    
+    <select id="querySurplusNum" parameterType="com.hq.ecmp.mscore.domain.JourneyUserCarPower" resultType="java.lang.Integer">
+    SELECT
+	count(1)
+FROM
+	journey_user_car_power a
+LEFT JOIN journey_node_info b ON a.node_id = b.node_id
+WHERE
+	b.journey_id = #{journeyId}
+AND b.plan_begin_address = #{cityName}
+AND a.state = 'U000'
+AND a.type = #{type}
+    </select>
 
 </mapper>

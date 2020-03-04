@@ -1,17 +1,21 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
 import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
+import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
 import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -24,6 +28,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 {
     @Autowired
     private JourneyUserCarPowerMapper journeyUserCarPowerMapper;
+    @Autowired
+    private IJourneyNodeInfoService journeyNodeInfoService;
 
     /**
      * 查询【请填写功能名称】
@@ -130,6 +136,29 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			for (UserCarAuthority userCarAuthority : list) {
 				//获取接机or送机剩余次数
 				userCarAuthority.handCount();
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public List<ServiceTypeCarAuthority> queryUserAuthorityFromService(String type, Long journeyId) {
+		List<ServiceTypeCarAuthority> list = new ArrayList<ServiceTypeCarAuthority>();
+		// 获取出差城市(去重后的)
+		List<String> cityList = journeyNodeInfoService.queryGroupCity(journeyId);
+		if (null != cityList && cityList.size() > 0) {
+			JourneyUserCarPower query = new JourneyUserCarPower();
+			query.setJourneyId(journeyId);
+			query.setType(type);
+			for (String cityName : cityList) {
+				ServiceTypeCarAuthority serviceTypeCarAuthority = new ServiceTypeCarAuthority();
+				query.setCityName(cityName);
+				serviceTypeCarAuthority.setCityName(cityName);
+				//获取剩余次数
+				serviceTypeCarAuthority.setSurplusCount(journeyUserCarPowerMapper.querySurplusNum(query));
+				//状态
+				serviceTypeCarAuthority.setState("S299");
+				list.add(serviceTypeCarAuthority);
 			}
 		}
 		return list;

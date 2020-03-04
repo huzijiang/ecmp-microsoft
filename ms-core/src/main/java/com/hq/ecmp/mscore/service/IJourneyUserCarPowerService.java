@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
 
 /**
@@ -76,4 +77,12 @@ public interface IJourneyUserCarPowerService
      * @return
      */
     public List<UserCarAuthority>  queryNoteAllUserAuthority(Long nodeId);
+    
+    /**
+     * 查询行程下指定服务类型的用车权限
+     * @param type  C001 -接机    C009  -送机     C222  -市内用车
+     * @param journeyId
+     * @return
+     */
+    public List<ServiceTypeCarAuthority> queryUserAuthorityFromService(String type,Long journeyId);
 }

@@ -168,5 +168,9 @@ FROM
 WHERE
 	journey_id = #{journeyId}
     </select>
+    
+    <select id="queryGroupCity" parameterType="java.lang.Long" resultType="string">
+    select plan_begin_address from journey_node_info where journey_id=#{journeyId} GROUP BY plan_begin_address
+    </select>
 
 </mapper>

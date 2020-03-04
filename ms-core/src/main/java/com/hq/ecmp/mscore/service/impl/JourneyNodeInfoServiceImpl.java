@@ -103,7 +103,7 @@ public class JourneyNodeInfoServiceImpl implements IJourneyNodeInfoService
 		List<JourneyNodeInfo> list = selectJourneyNodeInfoList(query);
 		if(null !=list && list.size()>0){
 			for (JourneyNodeInfo journeyNodeInfo : list) {
-				cityList.add(journeyNodeInfo.getPlanEndAddress());
+				cityList.add(journeyNodeInfo.getPlanBeginAddress());
 			}
 		}
 		return cityList;
@@ -112,5 +112,11 @@ public class JourneyNodeInfoServiceImpl implements IJourneyNodeInfoService
 	@Override
 	public JourneyNodeInfo selectMaxAndMinDate(Long journeyId) {
 		return journeyNodeInfoMapper.selectMaxAndMinDate(journeyId);
+	}
+
+	@Override
+	public List<String> queryGroupCity(Long journeyId) {
+		
+		return journeyNodeInfoMapper.queryGroupCity(journeyId);
 	}
 }

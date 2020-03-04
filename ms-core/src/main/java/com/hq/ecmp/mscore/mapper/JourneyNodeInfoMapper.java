@@ -61,4 +61,7 @@ public interface JourneyNodeInfoMapper
     public int deleteJourneyNodeInfoByIds(Long[] nodeIds);
     
     public JourneyNodeInfo selectMaxAndMinDate(Long journeyId);
+    
+    
+    public List<String> queryGroupCity(Long journeyId);
 }

@@ -18,6 +18,8 @@ public class UserCarAuthority {
      
      Integer sendCount=0;//送机剩余次数
      
+    String cityName;
+     
      
      /**
       * 获取接机or送机剩余次数

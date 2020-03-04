@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
 
 import java.util.List;
@@ -63,4 +64,9 @@ public interface JourneyUserCarPowerMapper
     
     
     public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId);
+    
+	public List<ServiceTypeCarAuthority> queryUserAuthorityFromService(JourneyUserCarPower JourneyUserCarPower);
+
+	public Integer querySurplusNum(JourneyUserCarPower journeyUserCarPower);
+
 }
