@@ -1,17 +1,23 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.FeedBackDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
+import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
+import com.hq.ecmp.mscore.service.IEcmpUserService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.List;
 
@@ -22,6 +28,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+
+    @Autowired
+    private IEcmpUserService iEcmpUserService;
 
     @Autowired
     private TokenService tokenService;
@@ -58,7 +67,13 @@ public class UserController {
     @PostMapping("/register")
     public ApiResponse register(UserDto userDto){
 
-        return null;
+        EcmpUser ecmpUser = iEcmpUserService.selectEcmpUserById(userDto.getUserId());
+        int i = iEcmpUserService.insertEcmpUser(ecmpUser);
+        if (i == 1){
+            return ApiResponse.success("添加用户成功");
+        }else {
+            return ApiResponse.error("添加用户失败");
+        }
     }
 
     /**
