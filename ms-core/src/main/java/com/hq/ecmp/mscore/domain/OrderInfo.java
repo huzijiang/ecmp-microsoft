@@ -106,6 +106,8 @@ public class OrderInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carLicense;
+    /**取消理由**/
+    private String cancelReason;
 
     @Override
     public String toString() {
@@ -135,6 +137,8 @@ public class OrderInfo extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
+            .append("cancelReason",getCancelReason()
+            )
             .toString();
     }
 }

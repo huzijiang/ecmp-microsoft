@@ -1,10 +1,10 @@
 package com.hq.ecmp.ms.api.controller.order;
 
-import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
@@ -15,9 +15,11 @@ import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.*;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -266,8 +268,27 @@ public class OrderController {
     @ApiOperation(value = "cancelOrder",notes = "用户取消订单 ",httpMethod ="POST")
     @PostMapping("/cancelOrder")
     public ApiResponse cancelOrder(OrderDto orderDto,UserDto userDto){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            OrderInfo orderInfoOld = iOrderInfoService.selectOrderInfoById(orderDto.getOrderId());
+            String useCarMode = orderInfoOld.getUseCarMode();
+            String state = orderInfoOld.getState();
+            if(useCarMode.equals(CarConstant.USR_CARD_MODE_NET)){
+                //TODO 调用网约车的取消订单接口
 
-        return null;
+            }
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setState(OrderState.ORDERCLOSE.getState());
+            orderInfo.setCancelReason(orderDto.getCancelReason());
+            orderInfo.setUpdateBy(String.valueOf(userId));
+            iOrderInfoService.updateOrderInfo(orderInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("订单取消失败");
+        }
+        return ApiResponse.success("订单取消成功");
     }
 
 
