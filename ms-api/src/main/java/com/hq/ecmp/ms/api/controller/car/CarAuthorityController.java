@@ -14,8 +14,10 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
+import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
+import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -29,6 +31,8 @@ import io.swagger.annotations.ApiOperation;
 public class CarAuthorityController {
 	@Autowired
 	private IJourneyInfoService journeyInfoService;
+	@Autowired
+	private IJourneyUserCarPowerService journeyUserCarPowerService;
 	@Autowired
     private TokenService tokenService;
 	
@@ -46,5 +50,11 @@ public class CarAuthorityController {
 	public ApiResponse<List<UserAuthorityGroupCity>> getUserCarAuthority(Long journeyId) {
 		 return ApiResponse.success(journeyInfoService.getUserCarAuthority(journeyId));
 	}
-
+	
+	@ApiOperation(value = "getAuthorityFromService", notes = "获取指定服务类型下的用户用车权限", httpMethod = "POST")
+	@PostMapping("/getAuthorityFromService")
+	public ApiResponse<List<ServiceTypeCarAuthority>> getAuthorityFromService(String type,Long journeyId) {
+		 return ApiResponse.success(journeyUserCarPowerService.queryUserAuthorityFromService(type,journeyId));
+	}
+	
 }

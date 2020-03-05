@@ -1,6 +1,9 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -14,6 +17,9 @@ import java.util.Date;
  * @date 2020-01-02
  */
 @Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -100,196 +106,8 @@ public class OrderInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carLicense;
-
-    public void setOrderId(Long orderId)
-    {
-        this.orderId = orderId;
-    }
-
-    public Long getOrderId()
-    {
-        return orderId;
-    }
-    public void setJourneyId(Long journeyId)
-    {
-        this.journeyId = journeyId;
-    }
-
-    public Long getJourneyId()
-    {
-        return journeyId;
-    }
-    public void setNodeId(Long nodeId)
-    {
-        this.nodeId = nodeId;
-    }
-
-    public Long getNodeId()
-    {
-        return nodeId;
-    }
-    public void setPowerId(Long powerId)
-    {
-        this.powerId = powerId;
-    }
-
-    public Long getPowerId()
-    {
-        return powerId;
-    }
-    public void setDriverId(Long driverId)
-    {
-        this.driverId = driverId;
-    }
-
-    public Long getDriverId()
-    {
-        return driverId;
-    }
-    public void setCarId(Long carId)
-    {
-        this.carId = carId;
-    }
-
-    public Long getCarId()
-    {
-        return carId;
-    }
-    public void setUseCarMode(String useCarMode)
-    {
-        this.useCarMode = useCarMode;
-    }
-
-    public String getUseCarMode()
-    {
-        return useCarMode;
-    }
-    public void setState(String state)
-    {
-        this.state = state;
-    }
-
-    public String getState()
-    {
-        return state;
-    }
-    public void setActualSetoutAddress(String actualSetoutAddress)
-    {
-        this.actualSetoutAddress = actualSetoutAddress;
-    }
-
-    public String getActualSetoutAddress()
-    {
-        return actualSetoutAddress;
-    }
-    public void setActualSetoutLongitude(Long actualSetoutLongitude)
-    {
-        this.actualSetoutLongitude = actualSetoutLongitude;
-    }
-
-    public Long getActualSetoutLongitude()
-    {
-        return actualSetoutLongitude;
-    }
-    public void setActualSetoutLatitude(Long actualSetoutLatitude)
-    {
-        this.actualSetoutLatitude = actualSetoutLatitude;
-    }
-
-    public Long getActualSetoutLatitude()
-    {
-        return actualSetoutLatitude;
-    }
-    public void setActualSetoutTime(Date actualSetoutTime)
-    {
-        this.actualSetoutTime = actualSetoutTime;
-    }
-
-    public Date getActualSetoutTime()
-    {
-        return actualSetoutTime;
-    }
-    public void setActualArriveAddress(String actualArriveAddress)
-    {
-        this.actualArriveAddress = actualArriveAddress;
-    }
-
-    public String getActualArriveAddress()
-    {
-        return actualArriveAddress;
-    }
-    public void setActualArriveLongitude(Long actualArriveLongitude)
-    {
-        this.actualArriveLongitude = actualArriveLongitude;
-    }
-
-    public Long getActualArriveLongitude()
-    {
-        return actualArriveLongitude;
-    }
-    public void setActualArriveLatitude(Long actualArriveLatitude)
-    {
-        this.actualArriveLatitude = actualArriveLatitude;
-    }
-
-    public Long getActualArriveLatitude()
-    {
-        return actualArriveLatitude;
-    }
-    public void setActualArriveTime(Date actualArriveTime)
-    {
-        this.actualArriveTime = actualArriveTime;
-    }
-
-    public Date getActualArriveTime()
-    {
-        return actualArriveTime;
-    }
-    public void setTripartiteOrderId(String tripartiteOrderId)
-    {
-        this.tripartiteOrderId = tripartiteOrderId;
-    }
-
-    public String getTripartiteOrderId()
-    {
-        return tripartiteOrderId;
-    }
-    public void setTripartitePlatformCode(String tripartitePlatformCode)
-    {
-        this.tripartitePlatformCode = tripartitePlatformCode;
-    }
-
-    public String getTripartitePlatformCode()
-    {
-        return tripartitePlatformCode;
-    }
-    public void setDriverName(String driverName)
-    {
-        this.driverName = driverName;
-    }
-
-    public String getDriverName()
-    {
-        return driverName;
-    }
-    public void setDriverMobile(String driverMobile)
-    {
-        this.driverMobile = driverMobile;
-    }
-
-    public String getDriverMobile()
-    {
-        return driverMobile;
-    }
-    public void setCarLicense(String carLicense)
-    {
-        this.carLicense = carLicense;
-    }
-
-    public String getCarLicense()
-    {
-        return carLicense;
-    }
+    /**取消理由**/
+    private String cancelReason;
 
     @Override
     public String toString() {
@@ -319,6 +137,8 @@ public class OrderInfo extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
+            .append("cancelReason",getCancelReason()
+            )
             .toString();
     }
 }

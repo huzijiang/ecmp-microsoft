@@ -1,12 +1,20 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
+import com.hq.ecmp.mscore.service.IJourneyInfoService;
+import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -19,6 +27,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 {
     @Autowired
     private OrderInfoMapper orderInfoMapper;
+
+    @Resource
+    private IJourneyInfoService iJourneyInfoService;
+
+    @Resource
+    private IJourneyNodeInfoService iJourneyNodeInfoService;
+
+    @Resource
+    private IOrderInfoService iOrderInfoService;
 
     /**
      * 查询【请填写功能名称】
@@ -92,5 +109,17 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public int deleteOrderInfoById(Long orderId)
     {
         return orderInfoMapper.deleteOrderInfoById(orderId);
+    }
+
+
+    /**
+     * 获取乘客订单列表
+     * @param userId
+     * @return
+     */
+    public List<OrderListInfo>  getOrderList(Long userId, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum,pageSize);
+        List<OrderListInfo> orderList = orderInfoMapper.getOrderList(userId);
+        return orderList;
     }
 }

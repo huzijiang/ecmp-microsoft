@@ -1,6 +1,8 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.domain.EcmpUser;
@@ -25,6 +27,9 @@ public class NoticeController {
 
     @Autowired
     private IEcmpNoticeService iEcmpNoticeService;
+
+    @Autowired
+    TokenService tokenService;
 
     /**
      * 查询所有的公公告信息
@@ -70,8 +75,9 @@ public class NoticeController {
      */
     @ApiOperation(value = "getExpirationDateNewNotice",notes = "获取有效期内的最新公告",httpMethod ="POST")
     @PostMapping("/getExpirationDateNewNotice")
-    public ApiResponse getExpirationDateNewNotice(UserDto userDto){
-        EcmpNotice ecmpNotice = iEcmpNoticeService.selectExpirationDateNewNotice(userDto.getUserId());
+    public ApiResponse getExpirationDateNewNotice(){
+        Long userId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId();
+        EcmpNotice ecmpNotice = iEcmpNoticeService.selectExpirationDateNewNotice(userId);
         return ApiResponse.success(ecmpNotice);
     }
 

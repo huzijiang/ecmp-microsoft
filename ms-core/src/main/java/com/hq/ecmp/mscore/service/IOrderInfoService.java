@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
+import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.OrderListInfo;
 
 import java.util.List;
 
@@ -10,8 +12,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
-public interface IOrderInfoService
-{
+public interface IOrderInfoService {
     /**
      * 查询【请填写功能名称】
      *
@@ -59,4 +60,15 @@ public interface IOrderInfoService
      * @return 结果
      */
     public int deleteOrderInfoById(Long orderId);
+
+    /**
+     * 我的行程订单列表
+     *
+     * @param userId
+     * @return
+     */
+    public List<OrderListInfo> getOrderList(Long userId, int pageNum, int pageSize);
+
+
 }
+

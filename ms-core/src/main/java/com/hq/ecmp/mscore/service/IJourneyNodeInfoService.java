@@ -74,4 +74,9 @@ public interface IJourneyNodeInfoService
      * @return
      */
     public JourneyNodeInfo selectMaxAndMinDate(Long journeyId);
+    
+    
+    public List<String> queryGroupCity(Long journeyId);
+    
+  
 }

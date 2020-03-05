@@ -41,6 +41,8 @@ public class JourneyUserCarPower extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsReturn;
+    
+    private String cityName;
 
     public void setPowerId(Long powerId)
     {
@@ -105,8 +107,18 @@ public class JourneyUserCarPower extends BaseEntity
     {
         return itIsReturn;
     }
+    
+    
 
-    @Override
+    public String getCityName() {
+		return cityName;
+	}
+
+	public void setCityName(String cityName) {
+		this.cityName = cityName;
+	}
+
+	@Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("powerId", getPowerId())

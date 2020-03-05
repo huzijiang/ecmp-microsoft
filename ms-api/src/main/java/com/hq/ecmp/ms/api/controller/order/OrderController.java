@@ -1,18 +1,33 @@
 package com.hq.ecmp.ms.api.controller.order;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
+<<<<<<< HEAD
 import com.hq.ecmp.mscore.domain.OrderInfo;
+=======
+import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.service.*;
+>>>>>>> dev
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,6 +37,24 @@ import java.util.List;
 @RestController
 @RequestMapping("/order")
 public class OrderController {
+
+    @Resource
+    private TokenService tokenService;
+
+    @Resource
+    private IOrderInfoService iOrderInfoService;
+
+    @Resource
+    private IJourneyNodeInfoService iJourneyNodeInfoService;
+
+    @Resource
+    private IJourneyInfoService iJourneyInfoService;
+
+    @Resource
+    private IApplyInfoService iApplyInfoService;
+
+    @Resource
+    private IJourneyUserCarPowerService iJourneyUserCarPowerService;
 
     /**
      * 初始化订单-创建订单
@@ -33,8 +66,58 @@ public class OrderController {
     @ApiOperation(value = "initOrder",notes = "初始化订单-创建订单",httpMethod ="POST")
     @PostMapping("/initOrder")
     public ApiResponse initOrder(JourneyApplyDto journeyApplyDto){
-
-        return null;
+        try {
+            //获取调用接口的用户信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            //申请表id
+            Long applyId = journeyApplyDto.getApplyId();
+            //行程id
+            Long jouneyId = journeyApplyDto.getJouneyId();
+            //获取行程节点信息
+            JourneyNodeInfo journeyNodeInfo = new JourneyNodeInfo();
+            journeyNodeInfo.setJourneyId(jouneyId);
+            List<JourneyNodeInfo> journeyNodeInfos = iJourneyNodeInfoService.selectJourneyNodeInfoList(journeyNodeInfo);
+            //获取行程主表信息
+            JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(jouneyId);
+            //获取申请表信息
+            ApplyInfo applyInfo = iApplyInfoService.selectApplyInfoById(applyId);
+            //插入订单初始信息
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setJourneyId(jouneyId);
+            orderInfo.setDriverId(null);
+            orderInfo.setCarId(null);
+            //使用汽车的方式，自由和网约
+            orderInfo.setUseCarMode(journeyInfo.getUseCarMode());
+            orderInfo.setCreateBy(String.valueOf(userId));
+            orderInfo.setCreateTime(new Date());
+            String applyType = applyInfo.getApplyType();
+            //如果是公务用车则状态直接为待派单，如果是差旅用车状态为初始化
+            if("A001".equals(applyType)){
+                orderInfo.setState(OrderState.WAITINGLIST.getState());
+            }else{
+                orderInfo.setState(OrderState.INITIALIZING.getState());
+            }
+            //有多少节点创建多少订单（注意往返以及差旅的室内用车）
+            for (int i = 0; i < journeyNodeInfos.size(); i++) {
+                //通过行程节点与申请id以及行程id唯一确定用户权限id
+                Long nodeId = journeyNodeInfos.get(i).getNodeId();
+                JourneyUserCarPower journeyUserCarPower = new JourneyUserCarPower();
+                journeyUserCarPower.setApplyId(applyId);
+                journeyUserCarPower.setNodeId(nodeId);
+                journeyUserCarPower.setJourneyId(jouneyId);
+                List<JourneyUserCarPower> journeyUserCarPowers = iJourneyUserCarPowerService.selectJourneyUserCarPowerList(journeyUserCarPower);
+                Long powerId = journeyUserCarPowers.get(0).getPowerId();
+                orderInfo.setNodeId(nodeId);
+                orderInfo.setPowerId(powerId);// TODO: 2020/3/3  权限表何时去创建？ 申请审批通过以后创建用车权限表记录，一个行程节点对应一个用车权限，一个用车权限可能对应多个行程节点
+                iOrderInfoService.insertOrderInfo(orderInfo);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("提交公务申请失败");
+        }
+        return ApiResponse.success("订单初始化成功");
     }
 
 
@@ -48,8 +131,19 @@ public class OrderController {
     @ApiOperation(value = "applyDispatchOrder",notes = "请求订单 调派车辆 ",httpMethod ="POST")
     @PostMapping("/applyDispatchOrder")
     public ApiResponse applyDispatchOrder(OrderDto orderDto){
-
-        return null;
+        try {
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setOrderId(orderDto.getOrderId());
+            orderInfo.setState(OrderState.WAITINGLIST.getState());
+            int i = iOrderInfoService.updateOrderInfo(orderInfo);
+            if(i != 1){
+                return ApiResponse.error("'订单状态改为【待派单失败】");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("'订单状态改为【待派单失败】");
+        }
+        return ApiResponse.success("订单状态修改成功");
     }
 
 
@@ -62,8 +156,19 @@ public class OrderController {
     @ApiOperation(value = "letUserCallTaxi",notes = " 手动约车-让用户自己召唤网约车 改变订单的状态为  去约车",httpMethod ="POST")
     @PostMapping("/letUserCallTaxi")
     public ApiResponse letUserCallTaxi(OrderDto orderDto){
-
-        return null;
+        try {
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setOrderId(orderDto.getOrderId());
+            orderInfo.setState(OrderState.GETARIDE.getState());
+            int i = iOrderInfoService.updateOrderInfo(orderInfo);
+            if(i != 1){
+                return ApiResponse.error("'订单状态改为【去约车失败】");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("'订单状态改为【去约车失败】");
+        }
+        return ApiResponse.success("订单状态修改成功");
     }
 
 
@@ -77,8 +182,23 @@ public class OrderController {
     @ApiOperation(value = "letPlatCallTaxi",notes = "自动约车-向网约车平台发起约车请求 改变订单的状态为  约车中-->已派单",httpMethod ="POST")
     @PostMapping("/letPlatCallTaxi")
     public ApiResponse letPlatCallTaxi(OrderDto orderDto){
-
-        return null;
+        try {
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setOrderId(orderDto.getOrderId());
+            orderInfo.setState(OrderState.SENDINGCARS.getState());
+            int i = iOrderInfoService.updateOrderInfo(orderInfo);
+            if(i != 1){
+                return ApiResponse.error("'订单状态改为【约车中失败】");
+            }
+            do{
+                //TODO 循环约车？？？ 待完善
+                break;
+            }while(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("'订单状态改为【去约车失败】");
+        }
+        return ApiResponse.success("订单状态修改成功");
     }
 
 
@@ -152,8 +272,27 @@ public class OrderController {
     @ApiOperation(value = "cancelOrder",notes = "用户取消订单 ",httpMethod ="POST")
     @PostMapping("/cancelOrder")
     public ApiResponse cancelOrder(OrderDto orderDto,UserDto userDto){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            OrderInfo orderInfoOld = iOrderInfoService.selectOrderInfoById(orderDto.getOrderId());
+            String useCarMode = orderInfoOld.getUseCarMode();
+            String state = orderInfoOld.getState();
+            if(useCarMode.equals(CarConstant.USR_CARD_MODE_NET)){
+                //TODO 调用网约车的取消订单接口
 
-        return null;
+            }
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setState(OrderState.ORDERCLOSE.getState());
+            orderInfo.setCancelReason(orderDto.getCancelReason());
+            orderInfo.setUpdateBy(String.valueOf(userId));
+            iOrderInfoService.updateOrderInfo(orderInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("订单取消失败");
+        }
+        return ApiResponse.success("订单取消成功");
     }
 
 
@@ -217,7 +356,26 @@ public class OrderController {
         return null;
     }
 
-
-
-
+    /**
+    *   @author yj
+    *   @Description  //TODO 获取乘客订单列表
+    *   @Date 10:11 2020/3/4
+    *   @Param  []
+    *   @return com.hq.common.core.api.ApiResponse
+    **/
+        @ApiOperation(value = "我的行程订单列表",httpMethod = "POST")
+    @RequestMapping("/getOrderList")
+    public ApiResponse<List<OrderListInfo>> getIncompleteOrderList(@RequestBody PageRequest orderPage){
+        List<OrderListInfo>  orderList;
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            orderList = iOrderInfoService.getOrderList(userId,orderPage.getPageNum(),orderPage.getPageSize());
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("加载订单列表失败");
+        }
+        return ApiResponse.success(orderList);
+    }
 }
