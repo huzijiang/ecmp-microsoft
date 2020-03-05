@@ -107,6 +107,8 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
 
     @Override
     public EcmpNotice selectExpirationDateNewNotice(Long userId) {
-        return null;
+        return ecmpNoticeMapper.selectNewEcmpNotice();
+
     }
+
 }
