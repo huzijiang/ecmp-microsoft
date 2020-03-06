@@ -1,7 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
-
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import org.springframework.stereotype.Repository;
@@ -71,6 +71,14 @@ public interface OrderInfoMapper
      * @return
      */
     public List<OrderListInfo> getOrderList(Long userId);
+
+    /**
+     * 通过司机id获取司机的任务列表
+     * @param driverId
+     * @return
+     */
+    public List<OrderDriverListInfo> getDriverOrderList(long driverId);
+
 
     MessageDto getOrderMessage(Long userId);
 }

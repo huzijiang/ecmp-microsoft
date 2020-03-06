@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarPowerEnum;
 import com.hq.ecmp.constant.HintEnum;
@@ -15,6 +14,7 @@ import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
@@ -24,10 +24,12 @@ import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
+import com.hq.ecmp.mscore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -54,6 +56,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Resource
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
+
+    @Resource
+    private IDriverInfoService iDriverInfoService;
 
     /**
      * 查询【请填写功能名称】
@@ -142,7 +147,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     /**
-     * 订单状态修改方法
+     * 订单状态修改方法getOrderList
      * @param orderId
      * @param updateState
      * @return
@@ -155,6 +160,23 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderStateTraceInfo.setCreateBy(userId);
         int i = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         return  i;
+    }
+
+    /**
+     * 获取司机的任务列表
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize) {
+        DriverInfo driverInfoCondition = new DriverInfo();
+        driverInfoCondition.setUserId(userId);
+        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(driverInfoCondition);
+        DriverInfo driverInfo = driverInfos.get(0);
+        Long driverId = driverInfo.getDriverId();
+        PageHelper.startPage(pageNum,pageSize);
+        List<OrderDriverListInfo> driverOrderList = orderInfoMapper.getDriverOrderList(driverId);
+        return driverOrderList;
     }
 
     @Override

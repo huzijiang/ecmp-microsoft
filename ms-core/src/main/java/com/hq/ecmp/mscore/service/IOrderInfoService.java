@@ -1,6 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
-import com.github.pagehelper.PageInfo;
+import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
@@ -80,6 +80,12 @@ public interface IOrderInfoService {
      */
     public  int insertOrderStateTrace(String orderId,String updateState,String userId);
 
+    /**
+     *  通过用户id查询司机的任务列表
+     * @param userId
+     * @return
+     */
+    public  List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize);
 
     /**
      * 获取订单详情
