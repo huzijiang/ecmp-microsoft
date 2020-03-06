@@ -71,6 +71,15 @@ public interface IOrderInfoService {
      */
     public List<OrderListInfo> getOrderList(Long userId, int pageNum, int pageSize);
 
+    /**
+     * 订单轨迹表添加通用方法
+     * @param orderId
+     * @param updateState
+     * @param userId
+     * @return
+     */
+    public  int insertOrderStateTrace(String orderId,String updateState,String userId);
+
 
     /**
      * 获取订单详情

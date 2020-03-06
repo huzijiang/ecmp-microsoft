@@ -1,32 +1,37 @@
 package com.hq.ecmp.ms.api.controller.order;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.ResignOrderTraceState;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
+import com.hq.ecmp.ms.api.dto.order.OrderDetailDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: zj.hu
@@ -53,6 +58,18 @@ public class OrderController {
 
     @Resource
     private IJourneyUserCarPowerService iJourneyUserCarPowerService;
+
+    @Resource
+    private IOrderStateTraceInfoService iOrderStateTraceInfoService;
+
+    @Value("${thirdService.enterpriseId}") //企业编号
+    private String enterpriseId;
+
+    @Value("${thirdService.licenseContent}") //企业证书信息
+    private String  licenseContent;
+
+    @Value("${thirdService.apiUrl}")//三方平台的接口前地址
+    private String  apiUrl;
 
     /**
      * 初始化订单-创建订单
@@ -110,6 +127,12 @@ public class OrderController {
                 orderInfo.setNodeId(nodeId);
                 orderInfo.setPowerId(powerId);// TODO: 2020/3/3  权限表何时去创建？ 申请审批通过以后创建用车权限表记录，一个行程节点对应一个用车权限，一个用车权限可能对应多个行程节点
                 iOrderInfoService.insertOrderInfo(orderInfo);
+                //插入订单轨迹表
+                if("A001".equals(applyType)){
+                    iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()),OrderState.WAITINGLIST.getState(),String.valueOf(userId));
+                }else{
+                    iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()),OrderState.INITIALIZING.getState(),String.valueOf(userId));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -256,39 +279,85 @@ public class OrderController {
      */
     @ApiOperation(value = "affirmOrder",notes = "用户确认订单 ",httpMethod ="POST")
     @PostMapping("/affirmOrder")
-    public ApiResponse affirmOrder(OrderDto orderDto,UserDto userDto){
-
-        return null;
+    public ApiResponse affirmOrder(@RequestBody  OrderDto orderDto){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setOrderId(orderDto.getOrderId());
+            orderInfo.setUpdateBy(String.valueOf(userId));
+            orderInfo.setState(OrderState.ORDERCLOSE.getState());
+            int re = iOrderInfoService.updateOrderInfo(orderInfo);
+            if(re != 1){
+                return ApiResponse.error("行程确认失败");
+            }
+            //插入订单轨迹表
+            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()),OrderState.ORDERCLOSE.getState(),String.valueOf(userId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("行程确认失败");
+        }
+        return ApiResponse.success();
     }
 
     /**
-     * 用户取消订单
+     * 用户取消订单:
+     *
+     * 逻辑：1.订单状态为未约到车的状态，直接更改订单状态为订单关闭。
+     *       2. 订单状态为约到车未服务的状态 《1》：如果是网约车，调用网约车取消订单接口，取消订单，然后修改订单状态为订单关闭。
+     *                                        《2》：如果是自有车，直接更改订单状态为订单关闭，成功以后给司机发送订单取消的消息通知。
+     *      3. 插入订单状态变化轨迹表数据
+     *
      *    改变订单的状态为 订单关闭
      * @param  orderDto  行程申请信息
      * @return
      */
     @ApiOperation(value = "cancelOrder",notes = "用户取消订单 ",httpMethod ="POST")
     @PostMapping("/cancelOrder")
-    public ApiResponse cancelOrder(OrderDto orderDto,UserDto userDto){
+    public ApiResponse cancelOrder(@RequestBody OrderDto orderDto){
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
             OrderInfo orderInfoOld = iOrderInfoService.selectOrderInfoById(orderDto.getOrderId());
+            if(orderInfoOld == null){
+                throw new Exception("未查询到订单号【"+orderDto.getOrderId()+"】对应的订单信息");
+            }
             String useCarMode = orderInfoOld.getUseCarMode();
             String state = orderInfoOld.getState();
-            if(useCarMode.equals(CarConstant.USR_CARD_MODE_NET)){
+            Long orderId = orderInfoOld.getOrderId();
+            //状态为约到车未服务的状态，用车方式为网约车，调用三方取消订单接口
+            if(OrderState.getContractedCar().contains(state) && useCarMode.equals(CarConstant.USR_CARD_MODE_NET)){
                 //TODO 调用网约车的取消订单接口
-
+                List<String> macList = MacTools.getMacList();
+                String macAdd = macList.get(0);
+                Map<String,String> paramMap = new HashMap<>();
+                paramMap.put("enterpriseId",enterpriseId);
+                paramMap.put("enterpriseOrderId",String.valueOf(orderId));
+                paramMap.put("licenseContent",licenseContent);
+                paramMap.put("mac",macAdd);
+                paramMap.put("reason",orderDto.getCancelReason());
+                String result = OkHttpUtil.postJson(apiUrl + "/service/cancelOrder", paramMap);
+                JSONObject jsonObject = JSONObject.parseObject(result);
+                if(!"0".equals(jsonObject.get("CODE"))){
+                    throw new Exception("调用三方取消订单服务-》取消失败");
+                }
             }
             OrderInfo orderInfo = new OrderInfo();
             orderInfo.setState(OrderState.ORDERCLOSE.getState());
             orderInfo.setCancelReason(orderDto.getCancelReason());
             orderInfo.setUpdateBy(String.valueOf(userId));
-            iOrderInfoService.updateOrderInfo(orderInfo);
+            int suc = iOrderInfoService.updateOrderInfo(orderInfo);
+            //自有车，且状态变更成功
+            if(suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
+                //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
+            }
+            //插入订单轨迹表
+            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()),OrderState.ORDERCLOSE.getState(),String.valueOf(userId));
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("订单取消失败");
+            return ApiResponse.error("订单取消失败->"+e.getMessage());
         }
         return ApiResponse.success("订单取消成功");
     }
@@ -375,6 +444,50 @@ public class OrderController {
             return  ApiResponse.error("加载订单列表失败");
         }
         return ApiResponse.success(orderList);
+    }
+
+    @ApiOperation(value = "查询订单详情列表",httpMethod ="POST")
+    @RequestMapping("/orderDetail")
+    public ApiResponse<OrderDetailDto> orderDetail(@RequestHeader("token") String token, @RequestParam("orderNo") String orderId){
+
+            return ApiResponse.success();
+    }
+
+    @ApiOperation(value = "改派订单",httpMethod = "POST")
+    @RequestMapping("/reassign")
+    public ApiResponse reassign(@RequestParam(value = "orderNo") String orderNo,
+                                @RequestParam(value = "rejectReason") String rejectReason,
+                                @RequestParam(value = "status") String status){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            if("1".equals(status)){
+                OrderInfo orderInfo = new OrderInfo();
+                orderInfo.setState(OrderState.WAITINGLIST.getState());
+                orderInfo.setUpdateBy(String.valueOf(userId));
+                orderInfo.setOrderId(Long.parseLong(orderNo));
+                iOrderInfoService.updateOrderInfo(orderInfo);
+                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+                orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+                orderStateTraceInfo.setState(ResignOrderTraceState.AGREE.getState());
+                orderStateTraceInfo.setOrderId(Long.parseLong(orderNo));
+                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            }else if("2".equals(status)){
+                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+                orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+                orderStateTraceInfo.setState(ResignOrderTraceState.DISAGREE.getState());
+                orderStateTraceInfo.setOrderId(Long.parseLong(orderNo));
+                orderStateTraceInfo.setContent(rejectReason);
+                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            }else{
+                throw new Exception("操作异常");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success();
+
     }
 
     /**
