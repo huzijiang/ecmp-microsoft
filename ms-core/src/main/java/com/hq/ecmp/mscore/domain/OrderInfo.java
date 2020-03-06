@@ -108,6 +108,8 @@ public class OrderInfo extends BaseEntity
     private String carLicense;
     /**取消理由**/
     private String cancelReason;
+    
+    private String orderTraceState;
 
     @Override
     public String toString() {

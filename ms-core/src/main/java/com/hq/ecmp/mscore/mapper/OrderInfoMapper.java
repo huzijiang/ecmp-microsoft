@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 
 import com.hq.ecmp.mscore.domain.OrderListInfo;
@@ -68,4 +69,9 @@ public interface OrderInfoMapper
      * @return
      */
     public List<OrderListInfo> getOrderList(Long userId);
+    
+    
+    public List<DispatchOrderInfo> queryOrderRelateInfo(OrderInfo orderInfo);
+    
+    
 }

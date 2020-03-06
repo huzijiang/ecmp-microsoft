@@ -362,15 +362,14 @@ public class OrderController {
 
 
     /**
-     * 获取所有等待 调度员 调派 的订单信息
+     * 获取所有等待 调度员 调派 的订单信息(包含改派订单)
      * @param  userDto  调度员用户信息
      * @return
      */
     @ApiOperation(value = "getAllWaitDispatchOrder",notes = "获取所有等待 调度员 调派 的订单信息 ",httpMethod ="POST")
     @PostMapping("/getAllWaitDispatchOrder")
-    public ApiResponse<List<OrderInfo>> getAllWaitDispatchOrder(UserDto userDto){
-
-        return null;
+    public ApiResponse<List<DispatchOrderInfo>> getAllWaitDispatchOrder(UserDto userDto){
+        return ApiResponse.success(iOrderInfoService.queryWaitDispatchList());
     }
 
     /**
@@ -381,7 +380,7 @@ public class OrderController {
     @ApiOperation(value = "getUserDispatchedOrder",notes = "获取已经完成调派的订单信息 ",httpMethod ="POST")
     @PostMapping("/getUserDispatchedOrder")
     public ApiResponse<List<OrderInfo>> getUserDispatchedOrder(UserDto userDto){
-
+     
         return null;
     }
 
@@ -487,4 +486,8 @@ public class OrderController {
         return ApiResponse.success();
 
     }
+    
+    
+    
+    
 }

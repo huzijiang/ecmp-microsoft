@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.github.pagehelper.PageInfo;
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 
@@ -77,6 +78,19 @@ public interface IOrderInfoService {
      * @return
      */
     public  int insertOrderStateTrace(String orderId,String updateState,String userId);
+    
+    
+    /**
+     * 查询所有待调度的订单(包含待改派)
+     * @return
+     */
+    public List<DispatchOrderInfo> queryWaitDispatchList();
+    
+    /**
+     * 查询所有已完成调度的订单
+     * @return
+     */
+    public List<DispatchOrderInfo> queryCompleteDispatchOrder();
 
 
 }
