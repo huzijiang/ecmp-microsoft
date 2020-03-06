@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpDictData;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,8 +11,16 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface EcmpDictDataMapper
 {
+    /**
+     * 根据字典类型查询字典数据
+     *
+     * @param dictType 字典类型
+     * @return 字典数据集合
+     */
+    public List<EcmpDictData> selectEcmpDictDataByType(String dictType);
     /**
      * 查询字典数据
      *

@@ -27,6 +27,13 @@ public interface EcmpNoticeMapper
      * @return 通知公告集合
      */
     public List<EcmpNotice> selectEcmpNoticeList(EcmpNotice ecmpNotice);
+    /**
+     * 获取最新公告
+     *
+     * @param userId 通知公告
+     * @return 通知公告集合
+     */
+    public EcmpNotice selectNewEcmpNotice();
 
     /**
      * 新增通知公告

@@ -1,20 +1,28 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
+
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
+
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+
+import com.hq.ecmp.mscore.domain.*;
+
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
-import com.hq.ecmp.mscore.service.IJourneyInfoService;
-import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -36,6 +44,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Resource
     private IOrderInfoService iOrderInfoService;
+
+    @Resource
+    private IOrderStateTraceInfoService iOrderStateTraceInfoService;
+
+    @Resource
+    private IDriverInfoService iDriverInfoService;
 
     /**
      * 查询【请填写功能名称】
@@ -122,4 +136,68 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         List<OrderListInfo> orderList = orderInfoMapper.getOrderList(userId);
         return orderList;
     }
+
+    /**
+     * 订单状态修改方法getOrderList
+     * @param orderId
+     * @param updateState
+     * @return
+     */
+    public  int insertOrderStateTrace(String orderId,String updateState,String userId){
+        OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+        orderStateTraceInfo.setOrderId(Long.parseLong(orderId));
+        orderStateTraceInfo.setState(updateState);
+        orderStateTraceInfo.setContent(null);
+        orderStateTraceInfo.setCreateBy(userId);
+        int i = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+        return  i;
+    }
+
+
+	@Override
+	public List<DispatchOrderInfo> queryWaitDispatchList() {
+		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
+		//查询所有处于待派单的订单及关联的信息
+		OrderInfo query = new OrderInfo();
+		query.setState(OrderState.SENDINGCARS.getState());
+		List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
+		if(null !=waitDispatchOrder && waitDispatchOrder.size()>0){
+			result.addAll(waitDispatchOrder);
+		}
+		//查询所有处于待改派(订单状态为已派车,已发起改派申请)的订单及关联的信息
+		query.setState(OrderState.ALREADYSENDING.getState());
+		query.setOrderTraceState(OrderStateTrace.APPLYREASSIGNMENT.getState());
+		List<DispatchOrderInfo> reassignmentOrder = orderInfoMapper.queryOrderRelateInfo(query);
+		if(null !=reassignmentOrder && reassignmentOrder.size()>0){
+			for (DispatchOrderInfo dispatchOrderInfo : reassignmentOrder) {
+				dispatchOrderInfo.setState(OrderState.REASSIGNMENT.getState());
+			}
+			result.addAll(reassignmentOrder);
+		}
+		return result;
+	}
+
+	@Override
+	public List<DispatchOrderInfo> queryCompleteDispatchOrder() {
+		
+		return null;
+	}
+
+    /**
+     * 获取司机的任务列表
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize) {
+        DriverInfo driverInfoCondition = new DriverInfo();
+        driverInfoCondition.setUserId(userId);
+        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(driverInfoCondition);
+        DriverInfo driverInfo = driverInfos.get(0);
+        Long driverId = driverInfo.getDriverId();
+        PageHelper.startPage(pageNum,pageSize);
+        List<OrderDriverListInfo> driverOrderList = orderInfoMapper.getDriverOrderList(driverId);
+        return driverOrderList;
+    }
+
 }
