@@ -184,6 +184,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             left join car_info ci on ci.car_id=o.car_id
             left join enterprise_car_type_info ecti on ecti.car_type_id=ci.car_type_id
             where jn.user_id=#{userId}
+            and o.state in('S200','S299','S600','S616','S699','S900')
         order by o.create_time  desc
     </select>
 

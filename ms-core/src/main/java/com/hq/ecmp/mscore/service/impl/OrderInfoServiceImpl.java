@@ -5,12 +5,15 @@ import java.util.List;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +39,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Resource
     private IOrderInfoService iOrderInfoService;
+
+    @Resource
+    private IOrderStateTraceInfoService iOrderStateTraceInfoService;
 
     /**
      * 查询【请填写功能名称】
@@ -121,5 +127,21 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         PageHelper.startPage(pageNum,pageSize);
         List<OrderListInfo> orderList = orderInfoMapper.getOrderList(userId);
         return orderList;
+    }
+
+    /**
+     * 订单状态修改方法
+     * @param orderId
+     * @param updateState
+     * @return
+     */
+    public  int insertOrderStateTrace(String orderId,String updateState,String userId){
+        OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+        orderStateTraceInfo.setOrderId(Long.parseLong(orderId));
+        orderStateTraceInfo.setState(updateState);
+        orderStateTraceInfo.setContent(null);
+        orderStateTraceInfo.setCreateBy(userId);
+        int i = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+        return  i;
     }
 }
