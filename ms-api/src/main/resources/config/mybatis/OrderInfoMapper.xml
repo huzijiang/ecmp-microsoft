@@ -190,6 +190,39 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and o.state in('S200','S299','S600','S616','S699','S900')
         order by o.create_time  desc
     </select>
+
+    
+    <select id="queryOrderRelateInfo" parameterType="com.hq.ecmp.mscore.domain.OrderInfo" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
+    SELECT
+	a.order_id AS orderId,
+	a.state,
+	d.apply_type AS applyType,
+	b.type AS serverType,
+	c.plan_begin_address AS useCarCity,
+	e.nick_name AS applyUserName,
+	e.nick_name AS useCarUserName,
+	a.actual_setout_address AS startSite,
+	a.actual_setout_time AS useCarDate,
+	a.actual_arrive_address AS endSite,
+	a.actual_arrive_time AS endDate,
+	a.use_car_mode AS useCarMode
+FROM
+	order_info a
+LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
+LEFT JOIN journey_node_info c ON a.node_id = c.node_id 
+LEFT JOIN journey_info h ON h.journey_id=a.journey_id
+LEFT JOIN apply_info d ON b.apply_id = d.apply_id
+LEFT JOIN ecmp_user e ON e.user_id = c.user_id
+<if test="orderTraceState != null  and orderTraceState != ''">LEFT JOIN order_state_trace_info f on a.order_id=f.order_id</if>
+ <where>
+            <if test="state != null  and state != ''"> and a.state = #{state}</if>
+             <if test="orderTraceState != null  and orderTraceState != ''"> and f.state = #{orderTraceState}</if>
+        </where>
+  order by a.actualSetoutTime desc
+    </select>
+    
+    
+   
     <select id="getDriverOrderList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">
         	select
 					 o.order_id orderId,
@@ -207,5 +240,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 				where o.driver_id=#{driverId}
 				 order by o.create_time  desc
     </select>
+
 
 </mapper>
