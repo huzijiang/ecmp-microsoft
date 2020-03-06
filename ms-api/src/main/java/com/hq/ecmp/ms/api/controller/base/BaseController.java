@@ -5,7 +5,11 @@ import com.hq.ecmp.ms.api.dto.base.FeedBackDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
+import com.hq.ecmp.mscore.service.IEcmpUserFeedbackImageService;
+import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/base")
 public class BaseController {
+
+    @Autowired
+    private IEcmpUserFeedbackImageService ecmpUserFeedbackImageService;
+
+    @Autowired
+    private IEcmpUserFeedbackInfoService iEcmpUserFeedbackInfoService;
 
     /**
      * 获取短信验证码
@@ -49,11 +59,17 @@ public class BaseController {
      * @param  feedBackDto
      * @return
      */
-    @ApiOperation(value = "createFeedback",notes = "意见反馈",httpMethod ="POST")
+    @ApiOperation(value = "createFeedback",notes = "新增意见反馈",httpMethod ="POST")
     @PostMapping("/createFeedback")
     public ApiResponse createFeedback(FeedBackDto feedBackDto){
 
-        return null;
+        EcmpUserFeedbackInfo ecmpUserFeedbackInfo = iEcmpUserFeedbackInfoService.selectEcmpUserFeedbackInfoById(feedBackDto.getUserId());
+        int i = iEcmpUserFeedbackInfoService.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
+        if (i == 1){
+            return ApiResponse.success("创建意见反馈成功");
+        }else {
+            return ApiResponse.success("创建意见反馈失败");
+        }
     }
 
     /**
@@ -65,10 +81,11 @@ public class BaseController {
     @PostMapping("/getFeedbackInfo")
     public ApiResponse<EcmpUserFeedbackInfo> getFeedbackInfo(UserDto userDto){
 
-        return null;
+        EcmpUserFeedbackInfo ecmpUserFeedbackInfo = iEcmpUserFeedbackInfoService.selectEcmpUserFeedbackInfoById(userDto.getUserId());
+        if (ObjectUtils.isNotEmpty(ecmpUserFeedbackInfo)){
+            return ApiResponse.success(ecmpUserFeedbackInfo);
+        }else {
+            return ApiResponse.error("获取意见反馈信息异常");
+        }
     }
-
-
-
-
 }
