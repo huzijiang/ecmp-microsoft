@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
 
 import java.util.List;
 
@@ -59,4 +60,6 @@ public interface ApplyApproveResultInfoMapper
      * @return 结果
      */
     public int deleteApplyApproveResultInfoByIds(Long[] approveResultIds);
+
+    MessageDto getApproveMessage(Long userId);
 }

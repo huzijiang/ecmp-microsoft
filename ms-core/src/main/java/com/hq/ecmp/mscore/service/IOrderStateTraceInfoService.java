@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
 
 import java.util.List;
 
@@ -59,4 +60,6 @@ public interface IOrderStateTraceInfoService
      * @return 结果
      */
     public int deleteOrderStateTraceInfoById(Long traceId);
+
+    MessageDto getTraceMessage(Long userId);
 }

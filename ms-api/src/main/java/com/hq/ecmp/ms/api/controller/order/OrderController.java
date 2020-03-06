@@ -15,6 +15,8 @@ import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.vo.OrderVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -374,4 +376,61 @@ public class OrderController {
         }
         return ApiResponse.success(orderList);
     }
+
+    /**
+     *   @author caobj
+     *   @Description 获取待服务详情
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "获取待服务详情",httpMethod = "POST")
+    @RequestMapping("/orderBeServiceDetail")
+    public ApiResponse<OrderVO> orderBeServiceDetail(@RequestBody OrderDto orderDto){
+        try {
+            OrderVO  orderVO = iOrderInfoService.orderBeServiceDetail(orderDto.getOrderId());
+            return ApiResponse.success(orderVO);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("加载订单列表失败");
+        }
+    }
+
+    /**
+     *   @author caobj
+     *   @Description 轮询获取提示语
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "轮询获取提示语",httpMethod = "POST")
+    @RequestMapping("/getOrderHint")
+    public ApiResponse<String> getOrderHint(@RequestBody OrderDto orderDto){
+        try {
+            String res = iOrderInfoService.orderHint(orderDto.getOrderId());
+            return ApiResponse.success("获取成功",res);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("获取提示语异常!");
+        }
+    }
+
+    /**
+     *   @author caobj
+     *   @Description 保存行程异议
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "保存行程异议",httpMethod = "POST")
+    @RequestMapping("/saveObjectionItinerary")
+    public ApiResponse<String> saveObjectionItinerary(@RequestBody OrderDto orderDto){
+        try {
+            return ApiResponse.success();
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("保存行程异议异常!");
+        }
+    }
+
 }

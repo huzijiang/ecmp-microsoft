@@ -23,7 +23,7 @@ public class OrderDto {
     /**
      * 取消原因
      */
-    @NotNull
-    @ApiParam(required = true)
+//    @NotNull
+//    @ApiParam(required = true)
     private  String cancelReason;
 }

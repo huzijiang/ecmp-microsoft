@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,5 +93,10 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
     public int deleteOrderStateTraceInfoById(Long traceId)
     {
         return orderStateTraceInfoMapper.deleteOrderStateTraceInfoById(traceId);
+    }
+
+    @Override
+    public MessageDto getTraceMessage(Long userId) {
+        return orderStateTraceInfoMapper.getTraceMessage(userId,"S279");
     }
 }

@@ -92,4 +92,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+
+    <!--手动编写sql start-->
+    <select id="getTraceMessage" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+       SELECT  messageId,messageType,'改派' messageTypeStr,count(*) messageCount from (
+        select trace_id as messageId,5 as messageType from order_state_trace_info
+        where order_id in (select order_id from order_info
+        where journey_id in (select journey_id from journey_info where user_id = #{userId}) and (state='S101' or state='S100' or state='S200'))
+         ) a  group by a.messageType
+    </select>
 </mapper>

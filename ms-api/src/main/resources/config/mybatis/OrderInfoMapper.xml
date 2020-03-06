@@ -187,4 +187,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         order by o.create_time  desc
     </select>
 
+    <select id="getOrderMessage" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+         SELECT messageId,messageType,messageTypeStr,count(*) messageCount from (
+            select order_id as messageId,4 as messageType,'派车'as messageTypeStr from order_info
+            where state='S100' or state='S101'or state='S000') a group by a.messageType
+    </select>
+
 </mapper>

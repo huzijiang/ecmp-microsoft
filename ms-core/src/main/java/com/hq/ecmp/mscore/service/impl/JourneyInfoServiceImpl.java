@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.hq.ecmp.mscore.dto.MessageDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -190,5 +191,10 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 			}
 		}
 		return userAuthorityGroupCityList;
+	}
+
+	@Override
+	public MessageDto getJourneyMessage(Long userId) {
+		return journeyInfoMapper.getJourneyMessage(userId);
 	}
 }

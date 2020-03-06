@@ -3,6 +3,8 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 
 import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -12,6 +14,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface OrderInfoMapper
 {
     /**
@@ -68,4 +71,6 @@ public interface OrderInfoMapper
      * @return
      */
     public List<OrderListInfo> getOrderList(Long userId);
+
+    MessageDto getOrderMessage(Long userId);
 }

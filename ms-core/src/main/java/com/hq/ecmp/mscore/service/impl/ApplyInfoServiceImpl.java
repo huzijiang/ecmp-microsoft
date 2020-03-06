@@ -11,10 +11,7 @@ import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
-import com.hq.ecmp.mscore.dto.ApplyInfoDto;
-import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
-import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
-import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.vo.TravelRequest;
@@ -222,6 +219,20 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setCreateBy(String.valueOf(userId));
         List<ApplyInfo> all = applyInfoMapper.selectApplyInfoList(applyInfo);
         return all;
+    }
+
+    @Override
+    public List<MessageDto> getOrderCount(Long userId) {
+        List<MessageDto> list= applyInfoMapper.getOrderCount(userId);
+        return list;
+    }
+
+    //获取申请通知
+    @Override
+    public MessageDto getApplyMessage(Long userId) {
+        String[] states=new String[]{"S299","S600","S616","S699","S900"};//排除订单已派车后的申请单
+        MessageDto applyMessage = applyInfoMapper.getApplyMessage(userId, states);
+        return applyMessage;
     }
 
     /**
