@@ -53,9 +53,8 @@ public class BaseController {
         return null;
     }
 
-
     /**
-     * 意见反馈
+     * 新增意见反馈
      * @param  feedBackDto
      * @return
      */
@@ -73,7 +72,7 @@ public class BaseController {
     }
 
     /**
-     * 意见反馈
+     * 获取意见反馈信息
      * @param  userDto
      * @return
      */

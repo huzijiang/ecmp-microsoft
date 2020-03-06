@@ -69,6 +69,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertOrderInfo" parameterType="com.hq.ecmp.mscore.domain.OrderInfo">
+        <selectKey keyColumn="order_id" keyProperty="orderId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into order_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="orderId != null ">order_id,</if>
@@ -186,6 +189,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             where jn.user_id=#{userId}
             and o.state in('S200','S299','S600','S616','S699','S900')
         order by o.create_time  desc
+    </select>
+    <select id="getDriverOrderList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">
+        	select
+					 o.order_id orderId,
+					 o.state,
+					 jn.service_type serviceType,
+					 jn.flight_number flightNumber,
+					 jn.it_is_return itIsReturn,
+					 jn.charter_car_type charterCarTye,
+					 IFNULL(o.actual_setout_time,jni.plan_setout_time) useCarTime,
+					 IFNULL(o.actual_setout_address,jni.plan_begin_address) startAddr,
+                     IFNULL(o.actual_arrive_address,jni.plan_end_address) endAddr
+				from order_info o
+				inner join journey_info jn on o.journey_id=jn.journey_id
+                inner join journey_node_info jni on  jni.node_id=o.node_id
+				where o.driver_id=#{driverId}
+				 order by o.create_time  desc
     </select>
 
 </mapper>
