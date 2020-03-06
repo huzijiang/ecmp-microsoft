@@ -29,8 +29,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       select * from ecmp_notice where notice_id = #{noticeId}
     </select>
 
-    <select id="selectEcmpNoticeList" parameterType="long" resultMap="EcmpNoticeResult">
+    <select id="selectEcmpNoticeList" parameterType="string" resultMap="EcmpNoticeResult">
         <include refid="selectEcmpNoticeVo"/>
+        where notice_type = #{noticeType}
 
     </select>
     <select id="selectNewEcmpNotice" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">

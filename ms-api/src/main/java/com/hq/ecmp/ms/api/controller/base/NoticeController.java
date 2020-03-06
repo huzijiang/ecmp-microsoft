@@ -63,8 +63,8 @@ public class NoticeController {
      */
     @ApiOperation(value = "getNoticeList",notes = "查询消息列表",httpMethod ="POST")
     @PostMapping("/getNoticeList")
-    public ApiResponse<List<EcmpNotice>> getNoticeList(EcmpNotice ecmpNotice){
-        List<EcmpNotice> ecmpNoticeList = iEcmpNoticeService.selectEcmpNoticeList(ecmpNotice);
+    public ApiResponse<List<EcmpNotice>> getNoticeList(String noticeType){
+        List<EcmpNotice> ecmpNoticeList = iEcmpNoticeService.selectEcmpNoticeList(EcmpNotice.builder().noticeType(noticeType).build());
         return ApiResponse.success(ecmpNoticeList);
     }
 
