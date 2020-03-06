@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
+
 import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
+import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 
@@ -92,6 +94,12 @@ public interface IOrderInfoService {
      */
     public List<DispatchOrderInfo> queryCompleteDispatchOrder();
 
+    /**
+     *  通过用户id查询司机的任务列表
+     * @param userId
+     * @return
+     */
+    public  List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize);
 
 }
 
