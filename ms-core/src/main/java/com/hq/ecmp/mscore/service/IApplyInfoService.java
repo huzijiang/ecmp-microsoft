@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
 import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
+import com.hq.ecmp.mscore.vo.ApplyDetailVO;
 
 import java.util.List;
 
@@ -91,4 +92,11 @@ public interface IApplyInfoService
      * @return
      */
     List<ApplyInfoDTO> selectApplyInfoListByPage(Long userId, Integer pageNum, Integer pageSize);
+
+    /**
+     * 查询申请单详情
+     * @param applyId
+     * @return
+     */
+    ApplyDetailVO selectApplyDetail(Long applyId);
 }

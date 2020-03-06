@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.dto;
 
+import com.hq.ecmp.mscore.vo.ApprovalVO;
 import com.hq.ecmp.mscore.vo.TravelPickupCity;
 import com.hq.ecmp.mscore.vo.TravelRequest;
 import com.hq.ecmp.mscore.vo.UserVO;
@@ -94,7 +95,7 @@ public class  ApplyTravelRequest {
      * 审批人
      */
     @ApiModelProperty(name = "approvers", value = "审批人", required = false, position = 13)
-    private List<UserVO> approvers;  // TODO 新增
+    private List<ApprovalVO> approvers;  // TODO 新增  guo进UserVO改为了ApprovalVO
 
     /**
      * 出差市内用车城市

@@ -82,6 +82,22 @@ public class JourneyInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Date endDate;   // TODO 新增。行程最终结束时间
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String travelPickupCity;   // TODO 新增。出差需接送机城市
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String travelCitiesStr;   // TODO 新增。出差需市内用车城市
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Integer pickupTimes;   // TODO 新增。接送机总次数
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String title;   // TODO 新增。标题
+
     public Date getStartDate() {
         return startDate;
     }
@@ -130,21 +146,7 @@ public class JourneyInfo extends BaseEntity
         this.title = title;
     }
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String travelPickupCity;   // TODO 新增。出差需接送机城市
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String travelCitiesStr;   // TODO 新增。出差需市内用车城市
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Integer pickupTimes;   // TODO 新增。接送机总次数
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String title;   // TODO 新增。标题
 
     public void setJourneyId(Long journeyId)
     {

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.dto;
 
 import com.hq.ecmp.mscore.vo.AddressVO;
+import com.hq.ecmp.mscore.vo.ApprovalVO;
 import com.hq.ecmp.mscore.vo.UserVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -138,7 +139,7 @@ public class ApplyOfficialRequest {
      * 审批人
      */
     @ApiModelProperty(name = "approvers", value = "审批人", required = false, position = 20)
-    private List<UserVO> approvers;  // TODO 新增
+    private List<ApprovalVO> approvers;  // TODO 新增
 
     /**
      * 用车制度id

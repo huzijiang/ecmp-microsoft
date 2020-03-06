@@ -15,6 +15,7 @@ import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.vo.AddressVO;
+import com.hq.ecmp.mscore.vo.ApplyDetailVO;
 import com.hq.ecmp.mscore.vo.UserVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
@@ -22,11 +23,14 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.ServletRequestDataBinder;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -93,7 +97,7 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "applyTravelCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
     @PostMapping("/applyTravelCommit")
-    public ApiResponse   applyTravelCommit(@RequestBody ApplyTravelRequest travelCommitApply){
+    public ApiResponse  applyTravelCommit(@RequestBody ApplyTravelRequest travelCommitApply){
         //提交差旅行程申请
         try {
             applyInfoService.applytravliCommit(travelCommitApply);
@@ -128,7 +132,7 @@ public class ApplyContoller {
     @PostMapping("/getApplyApproveNodesInfoByRegimeInfo")
     public ApiResponse   getApplyApproveNodesInfoByApproveTemplate(RegimeDto regimeDto){
         if (ObjectUtils.isNotEmpty(regimeDto)){
-            ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(regimeDto.getRegimeId());
+            ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(regimeDto.getRegimenId());
             return ApiResponse.success(applyInfo);
         }
         return ApiResponse.error("获取用车制度对应的审批流信息异常");
@@ -188,9 +192,13 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "getPassengerOwnerAppliesDetailInfo",notes = "获取乘客自身的行程申请详细信息 ",httpMethod ="POST")
     @PostMapping("/getPassengerOwnerAppliesDetailInfo")
-    public ApiResponse   getPassengerOwnerAppliesDetailInfo(JourneyApplyDto journeyApplyDto){
-
-        return null;
+    public ApiResponse<ApplyDetailVO>   getPassengerOwnerAppliesDetailInfo(@RequestBody JourneyApplyDto journeyApplyDto){
+        //根据applyId查询申请详情
+        ApplyDetailVO  applyDetailVO = applyInfoService.selectApplyDetail(journeyApplyDto.getApplyId());
+        if (applyDetailVO == null){
+            return ApiResponse.error("查询申请详情异常");
+        }
+        return ApiResponse.success(applyDetailVO);
     }
 
     /**
