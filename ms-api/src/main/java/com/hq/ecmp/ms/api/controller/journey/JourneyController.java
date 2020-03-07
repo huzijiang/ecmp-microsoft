@@ -1,6 +1,9 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyNodeDto;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -27,6 +31,8 @@ public class JourneyController {
     private IJourneyInfoService journeyInfoService;
     @Autowired
     private IApplyInfoService applyInfoService;
+    @Autowired
+    private TokenService tokenService;
     /**
      * 创建行程
      * @param  journeyApplyDto  行程申请信息
@@ -65,7 +71,10 @@ public class JourneyController {
      */
     @ApiOperation(value = "getUserRunningJourneyNumbers",notes = "查询用户当前进行中的行程信息 ",httpMethod ="POST")
     @PostMapping("/getUserRunningJourneyNumbers")
-    public ApiResponse getUserRunningJourneyNumbers(UserDto userDto){
+    public ApiResponse getUserRunningJourneyNumbers(@RequestBody(required = false) UserDto userDto){
+        //查询用户进行中的行程个数及申请id
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
 
         return null;
     }

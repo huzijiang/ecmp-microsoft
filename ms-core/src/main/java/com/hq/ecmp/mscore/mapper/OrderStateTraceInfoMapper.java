@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.SendCarInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
@@ -69,6 +70,10 @@ public interface OrderStateTraceInfoMapper
 
 
     public DispatchDriverInfo queryDispatchDriverInfo(Long orderId);
+    
+    public List<SendCarInfo> queryStateInfo(Long orderId);
+
+
 
 
 

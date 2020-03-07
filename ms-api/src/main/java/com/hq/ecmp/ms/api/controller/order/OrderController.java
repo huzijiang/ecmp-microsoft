@@ -444,15 +444,14 @@ public class OrderController {
     }
 
     /**
-     * 获取系统已经完成调派的订单详细信息(包含待改派的)
+     * 获取系统已经完成调派的订单详细信息(包含改派的)
      *
      * @return
      */
     @ApiOperation(value = "getCompleteDispatchOrderDetailInfo", notes = "获取系统所有已经完成调派的订单详细信息 ", httpMethod = "POST")
     @PostMapping("/getCompleteDispatchOrderDetailInfo")
-    public ApiResponse<List<DispatchOrderInfo>> getCompleteDispatchOrderDetailInfo() {
-         
-        return null;
+    public ApiResponse<DispatchOrderInfo> getCompleteDispatchOrderDetailInfo(Long orderId) {
+    	return ApiResponse.success(iOrderInfoService.getCompleteDispatchOrderDetailInfo(orderId));
     }
 
     /**

@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.SendCarInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
 
 import java.util.List;
@@ -81,6 +82,15 @@ public interface IOrderStateTraceInfoService
      * @return
      */
     public DispatchDriverInfo queryDispatchDriverInfo(Long orderId);
+    
+    /**
+     * 查询调度已完成的订单派车信息
+     * @param orderId
+     * @return
+     */
+    List<SendCarInfo> queryStateInfo(Long orderId);
+
+
 
 
 

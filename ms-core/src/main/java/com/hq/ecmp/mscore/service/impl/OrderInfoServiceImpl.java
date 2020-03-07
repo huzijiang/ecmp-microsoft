@@ -229,6 +229,20 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		return dispatchOrderInfo;
 	}
 
+	@Override
+	public DispatchOrderInfo getCompleteDispatchOrderDetailInfo(Long orderId) {
+		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.queryCompleteDispatchOrderDetail(orderId);
+		if(iOrderStateTraceInfoService.isReassignment(orderId)){
+			//是改派过的单子  则查询改派详情
+			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryDispatchDriverInfo(orderId);
+			dispatchOrderInfo.setDispatchDriverInfo(dispatchDriverInfo);
+		}
+		//查询派车信息
+		List<SendCarInfo> sendCarInfoList = iOrderStateTraceInfoService.queryStateInfo(orderId);
+		dispatchOrderInfo.setSendCarInfoList(sendCarInfoList);
+		return dispatchOrderInfo;
+	}
+
     @Override
     public OrderVO orderBeServiceDetail(Long orderId) {
         OrderVO vo=new OrderVO();

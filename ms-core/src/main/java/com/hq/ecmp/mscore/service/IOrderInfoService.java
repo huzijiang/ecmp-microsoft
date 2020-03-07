@@ -111,6 +111,13 @@ public interface IOrderInfoService {
     public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
 
     /**
+     * 查询已完成的订单详情(包含待改派的)
+     * @param orderId
+     * @return
+     */
+    public DispatchOrderInfo getCompleteDispatchOrderDetailInfo(Long orderId);
+
+    /**
      * 获取订单详情
      * @param orderId
      * @return
