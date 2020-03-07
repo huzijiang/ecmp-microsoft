@@ -80,8 +80,6 @@ public interface OrderInfoMapper
      */
     public List<DispatchOrderInfo> queryCompleteDispatchOrder();
     
-
-
     /**
      * 通过司机id获取司机的任务列表
      * @param driverId
@@ -91,6 +89,8 @@ public interface OrderInfoMapper
     
     
     public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
+    
+    public DispatchOrderInfo queryCompleteDispatchOrderDetail(Long orderId);
 
 
 }

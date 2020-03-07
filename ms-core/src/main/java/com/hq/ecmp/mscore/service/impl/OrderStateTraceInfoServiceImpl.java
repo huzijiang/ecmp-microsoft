@@ -9,6 +9,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.SendCarInfo;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 
@@ -119,5 +120,10 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 	@Override
 	public DispatchDriverInfo queryDispatchDriverInfo(Long orderId) {
 		return orderStateTraceInfoMapper.queryDispatchDriverInfo(orderId);
+	}
+
+	@Override
+	public List<SendCarInfo> queryStateInfo(Long orderId) {
+		return orderStateTraceInfoMapper.queryStateInfo(orderId);
 	}
 }

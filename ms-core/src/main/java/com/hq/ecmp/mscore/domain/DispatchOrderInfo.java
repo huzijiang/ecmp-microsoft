@@ -44,8 +44,14 @@ public class DispatchOrderInfo {
        	
        
        	String carType;//车型
+       	String carLicense;//车牌号
        	
-       	DispatchDriverInfo DispatchDriverInfo;//驾驶员信息 派车完成后
+       	String driverName;//驾驶员名字
+    	
+    	String driverTel;//驾驶员电话号码
+       	
+       	
+       	DispatchDriverInfo DispatchDriverInfo;//驾驶员车辆信息 派车完成后
        	
        	List<SendCarInfo> sendCarInfoList;//派车信息
        	

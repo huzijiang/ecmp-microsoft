@@ -2,11 +2,14 @@ package com.hq.ecmp.mscore.domain;
 
 import java.util.Date;
 
+import lombok.Data;
+
 /**
  * 派车信息
  * @author cm
  *
  */
+@Data
 public class SendCarInfo {
 		String optUserName;//操作用户名字
 		

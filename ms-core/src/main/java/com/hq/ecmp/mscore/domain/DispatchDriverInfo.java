@@ -2,6 +2,11 @@ package com.hq.ecmp.mscore.domain;
 
 import lombok.Data;
 
+/**
+ * 
+ * @author 改派信息
+ *
+ */
 @Data
 public class DispatchDriverInfo {
 	String driverName;//驾驶员名字
