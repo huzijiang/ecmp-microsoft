@@ -9,11 +9,6 @@ import com.hq.common.utils.DateUtils;
 
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-
 import com.hq.ecmp.mscore.domain.*;
 
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
@@ -179,8 +174,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
 	@Override
 	public List<DispatchOrderInfo> queryCompleteDispatchOrder() {
-		
-		return null;
+		//获取系统里已经完成调度的订单
+		return orderInfoMapper.queryCompleteDispatchOrder();
 	}
 
     /**
@@ -199,5 +194,17 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         List<OrderDriverListInfo> driverOrderList = orderInfoMapper.getDriverOrderList(driverId);
         return driverOrderList;
     }
+
+	@Override
+	public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId) {
+		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
+		//判断该订单是否改派过
+		if(iOrderStateTraceInfoService.isReassignment(orderId)){
+			//是改派过的单子  则查询改派详情
+			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryDispatchDriverInfo(orderId);
+			dispatchOrderInfo.setDispatchDriverInfo(dispatchDriverInfo);
+		}
+		return dispatchOrderInfo;
+	}
 
 }
