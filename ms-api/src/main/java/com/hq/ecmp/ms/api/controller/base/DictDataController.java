@@ -84,8 +84,8 @@ public class DictDataController {
      * @param  ecmpDictData  数据字典类型修改
      * @return
      */
-    @ApiOperation(value = "applyDictCommit",notes = "数据字典修改",httpMethod ="POST")
-    @PostMapping("/applyDictCommit")
+    @ApiOperation(value = "applyDicUpdate",notes = "数据字典修改",httpMethod ="POST")
+    @PostMapping("/applyDicUpdate")
     public ApiResponse  applyDicUpdate(@RequestBody EcmpDictData ecmpDictData){
         //新增数据字典类型
         try {
@@ -102,8 +102,8 @@ public class DictDataController {
      * @param  ecmpDictData  数据字典类型删除
      * @return
      */
-    @ApiOperation(value = "applyDictCommit",notes = "数据字典删除 ",httpMethod ="POST")
-    @PostMapping("/applyDictCommit")
+    @ApiOperation(value = "applyDicDelete",notes = "数据字典删除 ",httpMethod ="POST")
+    @PostMapping("/applyDicDelete")
     public ApiResponse  applyDicDelete(@RequestBody EcmpDictData ecmpDictData){
         //新增数据字典类型
         try {
