@@ -71,8 +71,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null ">user_id,</if>
             <if test="planBeginLongAddress != null  and planBeginLongAddress != ''">plan_begin_long_address,</if>
             <if test="planBeginAddress != null  and planBeginAddress != ''">plan_begin_address,</if>
+            <if test="planBeginCityCode != null  and planBeginCityCode != ''">plan_begin_city_code,</if>
             <if test="planEndLongAddress != null  and planEndLongAddress != ''">plan_end_long_address,</if>
             <if test="planEndAddress != null  and planEndAddress != ''">plan_end_address,</if>
+            <if test="planEndCityCode != null  and planEndCityCode != ''">plan_end_city_code,</if>
             <if test="planSetoutTime != null ">plan_setout_time,</if>
             <if test="planArriveTime != null ">plan_arrive_time,</if>
             <if test="planBeginLongitude != null ">plan_begin_longitude,</if>
@@ -97,8 +99,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null ">#{userId},</if>
             <if test="planBeginLongAddress != null  and planBeginLongAddress != ''">#{planBeginLongAddress},</if>
             <if test="planBeginAddress != null  and planBeginAddress != ''">#{planBeginAddress},</if>
+            <if test="planBeginCityCode != null  and planBeginCityCode != ''">#{planBeginCityCode},</if>
             <if test="planEndLongAddress != null  and planEndLongAddress != ''">#{planEndLongAddress},</if>
             <if test="planEndAddress != null  and planEndAddress != ''">#{planEndAddress},</if>
+            <if test="planEndCityCode != null  and planEndCityCode != ''">#{planEndCityCode},</if>
             <if test="planSetoutTime != null ">#{planSetoutTime},</if>
             <if test="planArriveTime != null ">#{planArriveTime},</if>
             <if test="planBeginLongitude != null ">#{planBeginLongitude},</if>

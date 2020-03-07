@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
+
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
@@ -69,11 +71,17 @@ public interface OrderInfoMapper
      */
     public List<OrderListInfo> getOrderList(Long userId);
 
+
+    public List<DispatchOrderInfo> queryOrderRelateInfo(OrderInfo orderInfo);
+    
+
+
     /**
      * 通过司机id获取司机的任务列表
      * @param driverId
      * @return
      */
     public List<OrderDriverListInfo> getDriverOrderList(long driverId);
+
 
 }

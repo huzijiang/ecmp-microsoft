@@ -108,5 +108,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{dictCode}
         </foreach>
     </delete>
+    <!--根据数据字典类型dictType查询数据字典信息-->
+   <select id="selectEcmpDictDataByType" parameterType="com.hq.ecmp.mscore.domain.EcmpDictData" resultType="String">
+    select dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, update_by, update_time, remark from ecmp_dict_data
+    where dict_type = #{dictType}
+   </select>
 
 </mapper>
