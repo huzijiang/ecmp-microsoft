@@ -131,6 +131,6 @@ public interface IOrderInfoService {
      */
     String orderHint(Long orderId);
 
-    MessageDto getOrderMessage(Long userId);
+    MessageDto getOrderMessage(Long userId,String states,Long driveId);
 }
 

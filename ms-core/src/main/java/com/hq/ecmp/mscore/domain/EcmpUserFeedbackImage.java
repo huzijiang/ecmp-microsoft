@@ -67,6 +67,13 @@ public class EcmpUserFeedbackImage extends BaseEntity
         return imageUrl;
     }
 
+    public EcmpUserFeedbackImage() {
+    }
+
+    public EcmpUserFeedbackImage(Long feedbackId) {
+        this.feedbackId = feedbackId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

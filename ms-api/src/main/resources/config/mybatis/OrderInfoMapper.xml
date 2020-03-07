@@ -308,8 +308,22 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="getOrderMessage" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
          SELECT messageId,messageType,messageTypeStr,count(*) messageCount from (
-            select order_id as messageId,4 as messageType,'派车'as messageTypeStr from order_info
-            where state='S100' or state='S101'or state='S000') a group by a.messageType
+            select order_id as messageId
+             <if test="userId!=null and driveId==null">
+                 ,4 as messageType,'派车'as messageTypeStr
+             </if>
+            <if test="driveId!=null and userId==null">
+                 ,1 as messageType,'新任务'as messageTypeStr
+             </if>
+             from order_info
+            where find_in_set(state,#{states})
+            <if test="driveId!=null and userId==null">
+            and driver_id=#{driveId}
+            </if>
+            <if test="userId!=null and driveId==null">
+            and user_id=#{userId}
+            </if>
+            ) a group by a.messageType
     </select>
 
 </mapper>

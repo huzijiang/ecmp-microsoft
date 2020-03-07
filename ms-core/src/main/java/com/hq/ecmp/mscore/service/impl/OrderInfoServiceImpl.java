@@ -10,16 +10,19 @@ import java.util.List;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.constant.CarPowerEnum;
-import com.hq.ecmp.constant.HintEnum;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 
 import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+
 import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.*;
 
@@ -253,18 +256,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         BeanUtils.copyProperties(orderInfo,vo);
         //查询车辆信息
         CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
-        if (carInfo!=null)
+        if (carInfo!=null){
             BeanUtils.copyProperties(carInfo,vo);
+        }
         vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
         //TODO 是否需要车队信息
-       // 提示语状态
-//        String format = HintEnum.format(orderInfo.getState());
-//        vo.setHint(String.format(format, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,orderInfo.getActualSetoutTime())));
-        //TODO 暂时无司机评分字段
         //是否添加联系人
 //        DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
-        vo.setDriverScore("4颗星");
-        vo.setDriverType("企业驾驶员");
+        vo.setDriverScore("4.5");
+        vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
+        vo.setState(orderInfo.getState());
+        //TODO 客服电话暂时写死
+        vo.setCustomerServicePhone("010-88888888");
         return vo;
     }
 
@@ -284,7 +287,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    public MessageDto getOrderMessage(Long userId) {
-        return orderInfoMapper.getOrderMessage(userId);
+    public MessageDto getOrderMessage(Long userId,String states,Long driveId) {
+        return orderInfoMapper.getOrderMessage(userId,states,driveId);
     }
 }

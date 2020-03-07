@@ -15,7 +15,7 @@ public class OrderVO {
 
     private Long orderId;
     @ApiModelProperty(name = "driverMobile",value = "司机手机")
-    private String driverPhone;
+    private String driverMobile;
     @ApiModelProperty(name = "driverName",value = "司机姓名")
     private String driverName;
     @ApiModelProperty(name = "driverScore",value = "司机评分")
@@ -40,5 +40,8 @@ public class OrderVO {
     private String isAddContact;
     @ApiModelProperty(name = "driverType",value = "司机类型(企业驾驶员/网约驾驶员)")
     private String driverType;
+    @ApiModelProperty(name = "customerServicePhone",value = "客服电话")
+    private String customerServicePhone;
+
 
 }

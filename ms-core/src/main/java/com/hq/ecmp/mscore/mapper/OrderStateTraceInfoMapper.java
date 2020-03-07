@@ -73,9 +73,6 @@ public interface OrderStateTraceInfoMapper
     
     public List<SendCarInfo> queryStateInfo(Long orderId);
 
-
-
-
-
+    /**查询当前登录人改派消息通知*/
     MessageDto getTraceMessage(@Param("userId") Long userId, @Param("state")String state);
 }

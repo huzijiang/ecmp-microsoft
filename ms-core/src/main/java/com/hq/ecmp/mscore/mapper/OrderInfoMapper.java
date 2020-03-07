@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -90,12 +91,10 @@ public interface OrderInfoMapper
      */
     public List<OrderDriverListInfo> getDriverOrderList(long driverId);
 
-
     public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
 
     public DispatchOrderInfo queryCompleteDispatchOrderDetail(Long orderId);
 
-
-
-    MessageDto getOrderMessage(Long userId);
+    /**获取调度员派车通知*/
+    MessageDto getOrderMessage(@Param("userId") Long userId, @Param("states") String states,@Param("driveId")Long driveId);
 }

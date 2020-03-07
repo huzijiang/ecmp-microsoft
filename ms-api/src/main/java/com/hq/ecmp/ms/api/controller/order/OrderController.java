@@ -2,7 +2,6 @@ package com.hq.ecmp.ms.api.controller.order;
 
 import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
-import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
@@ -17,14 +16,13 @@ import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDetailDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
+import com.hq.ecmp.ms.api.dto.order.OrderEvaluationDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.ParallelOrderDto;
 import com.hq.ecmp.mscore.service.*;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.MacTools;
-import io.netty.handler.codec.json.JsonObjectDecoder;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -599,24 +597,6 @@ public class OrderController {
         }catch (Exception e){
             e.printStackTrace();
             return  ApiResponse.error("获取提示语异常!");
-        }
-    }
-
-    /**
-     *   @author caobj
-     *   @Description 保存行程异议
-     *   @Date 10:11 2020/3/4
-     *   @Param  []
-     *   @return com.hq.common.core.api.ApiResponse
-     **/
-    @ApiOperation(value = "保存行程异议",httpMethod = "POST")
-    @RequestMapping("/saveObjectionItinerary")
-    public ApiResponse<String> saveObjectionItinerary(@RequestBody OrderDto orderDto){
-        try {
-            return ApiResponse.success();
-        }catch (Exception e){
-            e.printStackTrace();
-            return  ApiResponse.error("保存行程异议异常!");
         }
     }
 

@@ -100,7 +100,6 @@ public interface IApplyInfoService
      * @return
      */
     ApplyDetailVO selectApplyDetail(Long applyId);
-    List<ApplyInfo> selectApplyInfoListByPage(Long userId, Integer pageNum,Integer pageSize);
 
     List<MessageDto> getOrderCount(Long userId);
 
