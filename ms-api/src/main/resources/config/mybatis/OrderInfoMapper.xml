@@ -35,6 +35,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <sql id="selectOrderInfoVo">
         select order_id, journey_id, node_id, power_id, driver_id, car_id, use_car_mode, state, actual_setout_address, actual_setout_longitude, actual_setout_latitude, actual_setout_time, actual_arrive_address, actual_arrive_longitude, actual_arrive_latitude, actual_arrive_time, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, create_by, create_time, update_by, update_time from order_info
     </sql>
+    
+    <sql id="queryDispatchAchieve">
+    SELECT
+	a.order_id AS orderId,
+	a.state,
+	d.apply_type AS applyType,
+	b.type AS serverType,
+	c.plan_begin_address AS useCarCity,
+	e.nick_name AS applyUserName,
+	e.nick_name AS useCarUserName,
+	a.actual_setout_address AS startSite,
+	a.actual_setout_time AS useCarDate,
+	a.actual_arrive_address AS endSite,
+	a.actual_arrive_time AS endDate,
+	a.use_car_mode AS useCarMode,
+	a.driver_name AS driverName,
+	a.driver_mobile AS driverTel,
+	f.car_type as carType,
+	f.car_license AS carLicense
+FROM
+	order_info a
+LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
+LEFT JOIN journey_node_info c ON a.node_id = c.node_id 
+LEFT JOIN apply_info d ON b.apply_id = d.apply_id
+LEFT JOIN ecmp_user e ON e.user_id = c.user_id
+LEFT JOIN car_info f  ON a.car_id=f.car_id
+    </sql>
 
     <select id="selectOrderInfoList" parameterType="com.hq.ecmp.mscore.domain.OrderInfo" resultMap="OrderInfoResult">
         <include refid="selectOrderInfoVo"/>
@@ -240,32 +267,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 				where o.driver_id=#{driverId}
 				 order by o.create_time  desc
     </select>
-    
-    
-     <select id="queryCompleteDispatchOrder"  resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
-    SELECT
-	a.order_id AS orderId,
-	a.state,
-	d.apply_type AS applyType,
-	b.type AS serverType,
-	c.plan_begin_address AS useCarCity,
-	e.nick_name AS applyUserName,
-	e.nick_name AS useCarUserName,
-	a.actual_setout_address AS startSite,
-	a.actual_setout_time AS useCarDate,
-	a.actual_arrive_address AS endSite,
-	a.actual_arrive_time AS endDate,
-	a.use_car_mode AS useCarMode,
-	f.car_type as carType
-FROM
-	order_info a
-LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
-LEFT JOIN journey_node_info c ON a.node_id = c.node_id 
-LEFT JOIN apply_info d ON b.apply_id = d.apply_id
-LEFT JOIN ecmp_user e ON e.user_id = c.user_id
-LEFT JOIN car_info f  ON a.car_id=f.car_id
-where a.state in ('S299','S600','S616','S699','S900')
-    </select>
+
+
+	<select id="queryCompleteDispatchOrder" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
+		<include refid="queryDispatchAchieve" />
+		where a.state in ('S299','S600','S616','S699','S900')
+	</select>
     
     <select id="getWaitDispatchOrderDetailInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
     SELECT
@@ -291,6 +298,12 @@ LEFT JOIN apply_info d ON b.apply_id = d.apply_id
 LEFT JOIN ecmp_user e ON e.user_id = c.user_id
  where a.order_id=#{orderId}
     </select>
+    
+	<select id="queryCompleteDispatchOrderDetail" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
+		<include refid="queryDispatchAchieve" />
+		where a.order_id=#{orderId}
+	</select>
 
 
 </mapper>

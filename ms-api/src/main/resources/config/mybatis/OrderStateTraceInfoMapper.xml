@@ -115,5 +115,36 @@ WHERE
 	a.order_id = #{orderId}
 AND a.state = 'S270'
    </select>
+   
+   <select id="queryStateInfo" parameterType="java.lang.Long"  resultType="com.hq.ecmp.mscore.domain.SendCarInfo">
+   		SELECT
+	CASE state
+WHEN 'S200' THEN
+	'已提交用车申请'
+WHEN 'S299' THEN
+	'派车成功'
+WHEN 'S270' THEN
+	'已提交改派申请'
+WHEN 'S277' THEN
+	'改派驳回'
+ELSE
+	'其他'
+END AS optType,
+ b.nick_name AS driverName,
+ a.create_time AS optDate
+FROM
+	order_state_trace_info a
+LEFT JOIN ecmp_user b ON a.create_by = b.user_id
+WHERE
+	a.state IN (
+		'S200',
+		'S299',
+		'S270',
+		'S277'
+	)
+AND order_id = #{orderId}
+ORDER BY
+	a.create_time
+   </select>
 
 </mapper>

@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.SendCarInfo;
 
 import java.util.List;
 
@@ -66,6 +67,8 @@ public interface OrderStateTraceInfoMapper
     
     
     public DispatchDriverInfo queryDispatchDriverInfo(Long orderId);
+    
+    public List<SendCarInfo> queryStateInfo(Long orderId);
     
     
 }
