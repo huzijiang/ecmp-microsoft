@@ -1,6 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.SendCarInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
 
 import java.util.List;
 
@@ -59,4 +62,37 @@ public interface IOrderStateTraceInfoService
      * @return 结果
      */
     public int deleteOrderStateTraceInfoById(Long traceId);
+
+    /**
+     * 订单是否改派过
+     * @param orderId
+     * @return
+     */
+    public boolean isReassignment(Long orderId);
+
+    /**
+     * 查询订单所有的流转状态
+     * @param orderId
+     * @return
+     */
+    public List<String> queryOrderAllState(Long orderId);
+
+    /**
+     * 查询驾驶员发起改派的信息
+     * @return
+     */
+    public DispatchDriverInfo queryDispatchDriverInfo(Long orderId);
+    
+    /**
+     * 查询调度已完成的订单派车信息
+     * @param orderId
+     * @return
+     */
+    List<SendCarInfo> queryStateInfo(Long orderId);
+
+
+
+
+
+    MessageDto getTraceMessage(Long userId);
 }

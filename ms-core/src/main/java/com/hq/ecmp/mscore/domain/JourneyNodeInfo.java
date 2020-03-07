@@ -85,7 +85,7 @@ public class JourneyNodeInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long number;
+    private Integer number;
     
 
     /** $column.columnComment */
@@ -95,6 +95,30 @@ public class JourneyNodeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String planEndLongAddress;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String planBeginCityCode;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String planEndCityCode;
+
+    public String getPlanBeginCityCode() {
+        return planBeginCityCode;
+    }
+
+    public void setPlanBeginCityCode(String planBeginCityCode) {
+        this.planBeginCityCode = planBeginCityCode;
+    }
+
+    public String getPlanEndCityCode() {
+        return planEndCityCode;
+    }
+
+    public void setPlanEndCityCode(String planEndCityCode) {
+        this.planEndCityCode = planEndCityCode;
+    }
 
     public String getPlanEndLongAddress() {
         return planEndLongAddress;
@@ -265,12 +289,12 @@ public class JourneyNodeInfo extends BaseEntity
     {
         return nodeState;
     }
-    public void setNumber(Long number)
+    public void setNumber(Integer number)
     {
         this.number = number;
     }
 
-    public Long getNumber()
+    public Integer getNumber()
     {
         return number;
     }

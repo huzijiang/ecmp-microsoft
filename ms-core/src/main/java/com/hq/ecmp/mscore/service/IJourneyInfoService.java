@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
+import com.hq.ecmp.mscore.dto.MessageDto;
 
 /**
  * 【请填写功能名称】Service接口
@@ -72,4 +73,6 @@ public interface IJourneyInfoService
      * @return
      */
     public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId);
+
+    MessageDto getJourneyMessage(Long userId);
 }

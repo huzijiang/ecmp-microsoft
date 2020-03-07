@@ -107,4 +107,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+
+    <!--手动编写sql start-->
+    <select id="getApproveMessage" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+        SELECT messageId,messageType,messageTypeStr,count(*) messageCount from (
+        select approve_result_id as messageId,3 as messageType,'审批'as messageTypeStr from apply_approve_result_info
+        where state!='ST01' and approve_node_id in (select approve_node_id from approve_template_node_info where user_id = #{userId})
+           )  a group by a.messageType
+    </select>
 </mapper>

@@ -1,12 +1,18 @@
 package com.hq.ecmp.mscore.dto;
 
+import com.hq.ecmp.mscore.vo.ApprovalVO;
+import com.hq.ecmp.mscore.vo.TravelPickupCity;
 import com.hq.ecmp.mscore.vo.TravelRequest;
 import com.hq.ecmp.mscore.vo.UserVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,6 +22,9 @@ import java.util.List;
  */
 @Data
 @ApiModel(description = "申请单添加对象")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class  ApplyTravelRequest {
 
     /**
@@ -86,7 +95,43 @@ public class  ApplyTravelRequest {
      * 审批人
      */
     @ApiModelProperty(name = "approvers", value = "审批人", required = false, position = 13)
-    private List<UserVO> approvers;  // TODO 新增
+    private List<ApprovalVO> approvers;  // TODO 新增  guo进UserVO改为了ApprovalVO
+
+    /**
+     * 出差市内用车城市
+     */
+    @ApiModelProperty(name = "travelCitiesStr", value = "市内用车城市", required = false, position = 13,example = "北京、上海")
+    private String travelCitiesStr;  // TODO 新增
+
+    /**
+     * 接送机/站服务总次数
+     */
+    @ApiModelProperty(name = "pickupTimes", value = "接送机/站服务总次数", required = false, position = 14)
+    private Integer pickupTimes;  // TODO 新增
+
+    /**
+     * 接送机/站服务城市及接送情況   [{"city":"北京",“pickup”:0，"dropOff":0},{"city":"上海",“pickup”:1，"dropOff":0}]
+     */
+    @ApiModelProperty(name = "travelPickupCity", value = "接送机/站服务城市数组", required = false, position = 15)
+    private List<TravelPickupCity> travelPickupCity;  // TODO 新增
+
+    /**
+     * 標題   北京-长沙、上海、南京
+     */
+    //  @ApiModelProperty(name = "title", value = "行程路经城市", required = false, position = 16)
+    //  private String title;  // TODO 新增
+
+    /**
+     * 第一个行程开始时间
+     */
+    @ApiModelProperty(name = "startDate", value = "行程最小开始时间", required = false, position = 17)
+    private Date startDate;  // TODO 新增
+
+    /**
+     * 最后一个行程结束时间
+     */
+    @ApiModelProperty(name = "endDate", value = "行程最后结束时间", required = false, position = 18)
+    private Date endDate;  // TODO 新增
 
 
 }

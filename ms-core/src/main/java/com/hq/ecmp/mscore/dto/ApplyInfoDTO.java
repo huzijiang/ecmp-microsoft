@@ -18,7 +18,7 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApplyInfoDto {
+public class ApplyInfoDTO {
 
     /**
      * 申请ID

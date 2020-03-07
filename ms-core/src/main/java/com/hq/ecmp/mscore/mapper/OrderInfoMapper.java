@@ -1,8 +1,13 @@
 package com.hq.ecmp.mscore.mapper;
 
-import com.hq.ecmp.mscore.domain.OrderInfo;
 
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
+import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -12,6 +17,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface OrderInfoMapper
 {
     /**
@@ -68,4 +74,27 @@ public interface OrderInfoMapper
      * @return
      */
     public List<OrderListInfo> getOrderList(Long userId);
+
+
+    public List<DispatchOrderInfo> queryOrderRelateInfo(OrderInfo orderInfo);
+
+    /**
+     * 查询已完成调度的订单
+     * @return
+     */
+    public List<DispatchOrderInfo> queryCompleteDispatchOrder();
+
+    /**
+     * 通过司机id获取司机的任务列表
+     * @param driverId
+     * @return
+     */
+    public List<OrderDriverListInfo> getDriverOrderList(long driverId);
+
+    public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
+
+    public DispatchOrderInfo queryCompleteDispatchOrderDetail(Long orderId);
+
+    /**获取调度员派车通知*/
+    MessageDto getOrderMessage(@Param("userId") Long userId, @Param("states") String states,@Param("driveId")Long driveId);
 }

@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.ApplyApproveResultInfoMapper;
 import com.hq.ecmp.mscore.service.IApplyApproveResultInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,5 +94,10 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
     public int deleteApplyApproveResultInfoById(Long approveResultId)
     {
         return applyApproveResultInfoMapper.deleteApplyApproveResultInfoById(approveResultId);
+    }
+
+    @Override
+    public MessageDto getApproveMessage(Long userId) {
+        return applyApproveResultInfoMapper.getApproveMessage(userId);
     }
 }

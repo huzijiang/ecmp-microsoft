@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +12,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface JourneyInfoMapper
 {
     /**
@@ -59,4 +62,6 @@ public interface JourneyInfoMapper
      * @return 结果
      */
     public int deleteJourneyInfoByIds(Long[] journeyIds);
+
+    MessageDto getJourneyMessage(Long userId);
 }

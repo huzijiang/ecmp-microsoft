@@ -1,8 +1,13 @@
 package com.hq.ecmp.mscore.service;
 
+
 import com.github.pagehelper.PageInfo;
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
+import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.OrderVO;
 
 import java.util.List;
 
@@ -69,6 +74,63 @@ public interface IOrderInfoService {
      */
     public List<OrderListInfo> getOrderList(Long userId, int pageNum, int pageSize);
 
+    /**
+     * 订单轨迹表添加通用方法
+     * @param orderId
+     * @param updateState
+     * @param userId
+     * @return
+     */
+    public  int insertOrderStateTrace(String orderId,String updateState,String userId);
+    
+    
+    /**
+     * 查询所有待调度的订单(包含待改派)
+     * @return
+     */
+    public List<DispatchOrderInfo> queryWaitDispatchList();
+    
+    /**
+     * 查询所有已完成调度的订单
+     * @return
+     */
+    public List<DispatchOrderInfo> queryCompleteDispatchOrder();
 
+    /**
+     *  通过用户id查询司机的任务列表
+     * @param userId
+     * @return
+     */
+    public  List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize);
+
+    /**
+     * 查询待调单的订单详情(包含待改派的)
+     * @param orderId
+     * @return
+     */
+    public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
+
+    /**
+     * 查询已完成的订单详情(包含待改派的)
+     * @param orderId
+     * @return
+     */
+    public DispatchOrderInfo getCompleteDispatchOrderDetailInfo(Long orderId);
+
+    /**
+     * 获取订单详情
+     * @param orderId
+     * @return
+     */
+    OrderVO orderBeServiceDetail(Long orderId);
+
+    /**
+     * 获取服务提示语
+     * @param orderId
+     * @return
+     */
+    String orderHint(Long orderId);
+
+    MessageDto getOrderMessage(Long userId,String states,Long driveId);
 }
 
