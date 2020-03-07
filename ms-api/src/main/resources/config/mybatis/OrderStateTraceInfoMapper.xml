@@ -94,5 +94,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{traceId}
         </foreach>
     </delete>
+    
+    <select id="queryOrderAllState" parameterType="java.lang.Long" resultType="string">
+    select state from order_state_trace_info where order_id=#{orderId}
+    </select>
+    
+   <select id="queryDispatchDriverInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchDriverInfo">
+   SELECT
+	b.nick_name AS driverName,
+	b.phonenumber AS driverTel,
+	a.content AS reassignmentApplyReason,
+	d.car_license AS carLicense,
+	d.car_type AS carType
+FROM
+	order_state_trace_info a
+LEFT JOIN ecmp_user b ON a.create_by = b.user_id
+LEFT JOIN order_info c ON c.order_id = a.order_id
+LEFT JOIN car_info d ON d.car_id = c.car_id
+WHERE
+	a.order_id = #{orderId}
+AND a.state = 'S270'
+   </select>
 
 </mapper>
