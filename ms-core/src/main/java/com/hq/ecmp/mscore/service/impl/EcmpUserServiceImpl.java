@@ -88,4 +88,10 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     public int deleteEcmpUserById(Long userId) {
         return ecmpUserMapper.deleteEcmpUserById(userId);
     }
+
+	@Override
+	public boolean isDispatcher(Long userId) {
+		Integer count = ecmpUserMapper.queryDispatcher(userId);
+		return count>0;
+	}
 }

@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
 import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
+import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.ApplyDetailVO;
 
 import java.util.List;
@@ -99,4 +100,8 @@ public interface IApplyInfoService
      * @return
      */
     ApplyDetailVO selectApplyDetail(Long applyId);
+
+    List<MessageDto> getOrderCount(Long userId);
+
+    MessageDto getApplyMessage(Long userId);
 }

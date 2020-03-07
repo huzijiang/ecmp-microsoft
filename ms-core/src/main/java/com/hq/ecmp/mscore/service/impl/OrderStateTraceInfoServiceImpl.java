@@ -1,12 +1,18 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
-import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
-import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.SendCarInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
+import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -92,5 +98,38 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
     public int deleteOrderStateTraceInfoById(Long traceId)
     {
         return orderStateTraceInfoMapper.deleteOrderStateTraceInfoById(traceId);
+    }
+
+	@Override
+	public boolean isReassignment(Long orderId) {
+		List<String> list = queryOrderAllState(orderId);
+		if(null !=list && list.size()>0){
+			if(list.contains(OrderStateTrace.APPLYREASSIGNMENT.getState())){
+				return true;
+			}
+
+		}
+		return false;
+	}
+
+	@Override
+	public List<String> queryOrderAllState(Long orderId) {
+
+		return orderStateTraceInfoMapper.queryOrderAllState(orderId);
+	}
+
+	@Override
+	public DispatchDriverInfo queryDispatchDriverInfo(Long orderId) {
+		return orderStateTraceInfoMapper.queryDispatchDriverInfo(orderId);
+	}
+
+	@Override
+	public List<SendCarInfo> queryStateInfo(Long orderId) {
+		return orderStateTraceInfoMapper.queryStateInfo(orderId);
+	}
+
+    @Override
+    public MessageDto getTraceMessage(Long userId) {
+        return orderStateTraceInfoMapper.getTraceMessage(userId,"S279");
     }
 }

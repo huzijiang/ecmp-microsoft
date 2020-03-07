@@ -115,8 +115,22 @@ public class UserController {
 
         return null;
     }
-
-
+    
+    
+    
+    /**
+     * 获取用户是否调度员
+     * @param  userDto
+     * @return
+     */
+    @ApiOperation(value = "isDispatcher",notes = "获取用户是否是调度员",httpMethod ="POST")
+    @PostMapping("/isDispatcher")
+    public ApiResponse getIsDispatcher(){
+    	 HttpServletRequest request = ServletUtils.getRequest();
+	        LoginUser loginUser = tokenService.getLoginUser(request);
+    	boolean dispatcher = iEcmpUserService.isDispatcher(loginUser.getUser().getUserId());
+        return ApiResponse.success(dispatcher);
+    }
 
 
 

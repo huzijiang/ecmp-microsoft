@@ -16,12 +16,14 @@ import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDetailDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
+import com.hq.ecmp.ms.api.dto.order.OrderEvaluationDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.ParallelOrderDto;
 import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
@@ -440,34 +442,31 @@ public class OrderController {
      */
     @ApiOperation(value = "getUserDispatchedOrder", notes = "获取已经完成调派的订单信息 ", httpMethod = "POST")
     @PostMapping("/getUserDispatchedOrder")
-    public ApiResponse<List<OrderInfo>> getUserDispatchedOrder(UserDto userDto){
-     
-        return null;
+    public ApiResponse<List<DispatchOrderInfo>> getUserDispatchedOrder(UserDto userDto){
+        return ApiResponse.success(iOrderInfoService.queryCompleteDispatchOrder());
     }
 
     /**
-     * 获取系统已经完成调派的订单信息
+     * 获取系统已经完成调派的订单详细信息(包含改派的)
      *
      * @return
      */
-    @ApiOperation(value = "getAllDispatchedOrder", notes = "获取系统所有已经完成调派的订单信息 ", httpMethod = "POST")
-    @PostMapping("/getAllDispatchedOrder")
-    public ApiResponse<List<OrderInfo>> getAllDispatchedOrder() {
-
-        return null;
+    @ApiOperation(value = "getCompleteDispatchOrderDetailInfo", notes = "获取系统所有已经完成调派的订单详细信息 ", httpMethod = "POST")
+    @PostMapping("/getCompleteDispatchOrderDetailInfo")
+    public ApiResponse<DispatchOrderInfo> getCompleteDispatchOrderDetailInfo(Long orderId) {
+    	return ApiResponse.success(iOrderInfoService.getCompleteDispatchOrderDetailInfo(orderId));
     }
 
     /**
-     * 获取等待调度的订单详细信息
+     * 获取等待调度的订单详细信息(包含待改派的)
      *
      * @param orderDto 订单信息
      * @return
      */
     @ApiOperation(value = "getWaitDispatchOrderDetailInfo", notes = "获取等待调度的订单详细信息", httpMethod = "POST")
     @PostMapping("/getWaitDispatchOrderDetailInfo")
-    public ApiResponse<OrderInfo> getWaitDispatchOrderDetailInfo(OrderDto orderDto) {
-
-        return null;
+    public ApiResponse<DispatchOrderInfo> getWaitDispatchOrderDetailInfo(Long orderId) {
+        return ApiResponse.success(iOrderInfoService.getWaitDispatchOrderDetailInfo(orderId));
     }
 
 
@@ -643,5 +642,42 @@ public class OrderController {
             return ApiResponse.error("评价失败");
         }
         return ApiResponse.success("评价成功");
+    }
+    /**
+     *   @author caobj
+     *   @Description 获取待服务详情
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "获取待服务详情",httpMethod = "POST")
+    @RequestMapping("/orderBeServiceDetail")
+    public ApiResponse<OrderVO> orderBeServiceDetail(@RequestBody OrderDto orderDto){
+        try {
+            OrderVO  orderVO = iOrderInfoService.orderBeServiceDetail(orderDto.getOrderId());
+            return ApiResponse.success(orderVO);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("加载订单列表失败");
+        }
+    }
+
+    /**
+     *   @author caobj
+     *   @Description 轮询获取提示语
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "轮询获取提示语",httpMethod = "POST")
+    @RequestMapping("/getOrderHint")
+    public ApiResponse<String> getOrderHint(@RequestBody OrderDto orderDto){
+        try {
+            String res = iOrderInfoService.orderHint(orderDto.getOrderId());
+            return ApiResponse.success("获取成功",res);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("获取提示语异常!");
+        }
     }
 }

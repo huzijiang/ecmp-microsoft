@@ -107,4 +107,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select t1.apply_id,t1.state,t1.apply_type,t2.title,t2.start_date,t2.end_date from apply_info t1 left join journey_info t2 on t1.journey_id = t2.journey_id where t2.user_id = #{userId}
     </select>
 
+    <!-- 手动编写sql  start-->
+    <select id="getOrderCount" parameterType="Long" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+        SELECT messageId,messageType,messageTypeStr,count(*) messageCount from (
+        select apply_id as messageId,1 as messageType,'申请'as messageTypeStr from apply_info
+        where state!='S002' and journey_id in (select journey_id from order_info
+        where journey_id in (select journey_id from journey_info where user_id = #{userId}) and state!='S299')
+        union (
+        select approve_result_id as messageId,2 as messageType,'审批'as messageTypeStr from apply_approve_result_info
+        where apply_id in (select apply_id from apply_info
+        where state!='S002' and journey_id in (select journey_id from order_info
+        where journey_id in (select journey_id from journey_info where user_id = #{userId}) and state!='S299'))
+        )
+        union (
+        select journey_id as messageId,3 as messageType,'行程'as messageTypeStr from journey_info
+        where user_id = #{userId} and journey_id in (select journey_id from order_info
+        where journey_id in (select journey_id from journey_info where user_id = #{userId}) and state!='S299')
+        )
+        union (
+        select order_id as messageId,4 as messageType,'派车'as messageTypeStr from order_info
+        where journey_id in (select journey_id from journey_info where user_id = #{userId}) and state!='S299'
+        )) a group by a.messageType
+    </select>
+
+    <select id="getApplyMessage"  parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto" >
+        SELECT messageId,messageType,messageTypeStr,count(*) messageCount from (
+        select apply_id as messageId,1 as messageType,'申请'as messageTypeStr from apply_info
+        where state!='S002' and journey_id in (select journey_id from journey_info where user_id = #{userId})
+           )  a group by a.messageType
+    </select>
 </mapper>

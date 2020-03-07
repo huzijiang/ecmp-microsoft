@@ -70,6 +70,14 @@ public class EcmpUser extends BaseEntity
     @Excel(name = "最后登陆时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date loginDate;
 
+    /** 是否司机（0否 1是） */
+    @Excel(name = "是否司机", readConverterExp = "0否 1是")
+    private String itIsDriver;
+
+    /** 是否车队调度（0否 1是） */
+    @Excel(name = "是否车队调度", readConverterExp = "0否 1是")
+    private String itIsDispatcher;
+
     public void setUserId(Long userId)
     {
         this.userId = userId;
@@ -195,6 +203,22 @@ public class EcmpUser extends BaseEntity
     public Date getLoginDate()
     {
         return loginDate;
+    }
+
+    public String getItIsDriver() {
+        return itIsDriver;
+    }
+
+    public void setItIsDriver(String itIsDriver) {
+        this.itIsDriver = itIsDriver;
+    }
+
+    public String getItIsDispatcher() {
+        return itIsDispatcher;
+    }
+
+    public void setItIsDispatcher(String itIsDispatcher) {
+        this.itIsDispatcher = itIsDispatcher;
     }
 
     @Override

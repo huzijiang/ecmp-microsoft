@@ -6,6 +6,8 @@ import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.OrderVO;
 
 import java.util.List;
 
@@ -101,5 +103,34 @@ public interface IOrderInfoService {
      */
     public  List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize);
 
+    /**
+     * 查询待调单的订单详情(包含待改派的)
+     * @param orderId
+     * @return
+     */
+    public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
+
+    /**
+     * 查询已完成的订单详情(包含待改派的)
+     * @param orderId
+     * @return
+     */
+    public DispatchOrderInfo getCompleteDispatchOrderDetailInfo(Long orderId);
+
+    /**
+     * 获取订单详情
+     * @param orderId
+     * @return
+     */
+    OrderVO orderBeServiceDetail(Long orderId);
+
+    /**
+     * 获取服务提示语
+     * @param orderId
+     * @return
+     */
+    String orderHint(Long orderId);
+
+    MessageDto getOrderMessage(Long userId,String states,Long driveId);
 }
 

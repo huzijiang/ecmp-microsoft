@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -16,6 +18,8 @@ import com.hq.ecmp.constant.CarConstant;
  * @date 2020-01-02
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class RegimeInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -78,7 +82,7 @@ public class RegimeInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long canUseCarMode;
+    private String canUseCarMode;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")

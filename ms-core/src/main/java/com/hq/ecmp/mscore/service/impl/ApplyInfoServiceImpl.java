@@ -17,6 +17,7 @@ import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
@@ -417,6 +418,20 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyDetailVO.setTripDescription(tripDescription);
 
         return applyDetailVO;
+    }
+
+    @Override
+    public List<MessageDto> getOrderCount(Long userId) {
+        List<MessageDto> list= applyInfoMapper.getOrderCount(userId);
+        return list;
+    }
+
+    //获取申请通知
+    @Override
+    public MessageDto getApplyMessage(Long userId) {
+        String[] states=new String[]{"S299","S600","S616","S699","S900"};//排除订单已派车后的申请单
+        MessageDto applyMessage = applyInfoMapper.getApplyMessage(userId, states);
+        return applyMessage;
     }
 
     /**

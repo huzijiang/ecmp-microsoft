@@ -24,10 +24,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
         <result property="remark"    column="remark"    />
+        <result property="itIsDriver"    column="it_is_driver"    />
+        <result property="itIsDispatcher"    column="it_is_dispatcher"    />
     </resultMap>
 
     <sql id="selectEcmpUserVo">
-        select user_id, dept_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, del_flag, login_ip, login_date, create_by, create_time, update_by, update_time, remark from ecmp_user
+        select user_id, dept_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, del_flag, login_ip, login_date, create_by, create_time, update_by, update_time, remark,it_is_dispatcher,it_is_driver from ecmp_user
     </sql>
 
     <select id="selectEcmpUserList" parameterType="com.hq.ecmp.mscore.domain.EcmpUser" resultMap="EcmpUserResult">
@@ -132,5 +134,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{userId}
         </foreach>
     </delete>
+    
+    <select id="queryDispatcher" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select count(1) from ecmp_user  where user_id=#{userId} and it_is_dispatcher='1'
+    
+    </select>
 
 </mapper>

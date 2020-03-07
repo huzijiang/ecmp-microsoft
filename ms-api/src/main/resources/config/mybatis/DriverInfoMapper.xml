@@ -25,6 +25,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="licenseNumber"    column="license_number"    />
         <result property="licenseArchivesNumber"    column="license_archives_number"    />
         <result property="licenseExpireDate"    column="license_expire_date"    />
+        <result property="state"    column="state"    />
+        <result property="stateDescription"    column="state_description"    />
+        <result property="star"    column="star"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -32,7 +35,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectDriverInfoVo">
-        select driver_id, user_id, driver_name, country, nation, id_card, birthday, gender, mobile, address, emergency_contact_a, emergency_contact_b, emergency_contact_c, it_is_full_time, license_type, license_issue_date, license_init_issue_date, license_number, license_archives_number, license_expire_date, create_by, create_time, update_by, update_time from driver_info
+        select driver_id, user_id, driver_name, country, nation, id_card, birthday, gender, mobile, address, emergency_contact_a, emergency_contact_b, emergency_contact_c, it_is_full_time, license_type, license_issue_date, license_init_issue_date, license_number, license_archives_number, license_expire_date, create_by, create_time, update_by, update_time,state,state_description,star from driver_info
     </sql>
 
     <select id="selectDriverInfoList" parameterType="com.hq.ecmp.mscore.domain.DriverInfo" resultMap="DriverInfoResult">
@@ -88,6 +91,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="licenseNumber != null  and licenseNumber != ''">license_number,</if>
             <if test="licenseArchivesNumber != null  and licenseArchivesNumber != ''">license_archives_number,</if>
             <if test="licenseExpireDate != null ">license_expire_date,</if>
+            <if test="state != null ">state,</if>
+            <if test="stateDescription != null ">state_description,</if>
+            <if test="star != null ">star,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -114,6 +120,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="licenseNumber != null  and licenseNumber != ''">#{licenseNumber},</if>
             <if test="licenseArchivesNumber != null  and licenseArchivesNumber != ''">#{licenseArchivesNumber},</if>
             <if test="licenseExpireDate != null ">#{licenseExpireDate},</if>
+            <if test="state != null ">#{state},</if>
+            <if test="stateDescription != null ">#{stateDescription},</if>
+            <if test="star != null ">#{star},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>

@@ -145,4 +145,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <!--手动编写sql start-->
+    <select id="getJourneyMessage" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+        SELECT  messageId,messageType,messageTypeStr,count(*) messageCount from (
+        select journey_id messageId,3 as messageType,'行程'as messageTypeStr from order_info
+        where journey_id in (select journey_id from journey_info where user_id = #{userId}) and (state='S616' or state='S600')
+         ) a  group by a.messageType
+    </select>
 </mapper>

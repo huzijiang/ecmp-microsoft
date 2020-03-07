@@ -60,6 +60,17 @@ public interface IEcmpUserService {
      * @return 结果
      */
     public int deleteEcmpUserById(Long userId);
+    
+    
+    /**
+     * 判断用户是否是调度员
+     * @param userId
+     * @return
+     */
+    public boolean isDispatcher(Long userId);
+    
+    
+    
 
 
 }

@@ -115,7 +115,7 @@ public class ApplyOfficialRequest {
      * 包车类型 eg 日租8小时、半日租4小时
      */
     @ApiModelProperty(name = "charterType", value = "包车类型", required = false, position = 16)
-    private Integer charterType;
+    private String charterType;
 
     /**
      * 航班编号

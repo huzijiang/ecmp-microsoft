@@ -4,19 +4,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import java.text.DateFormat;
+import java.util.List;
+
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.*;
+import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 
 import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 
+import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.*;
 
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
+import com.hq.ecmp.mscore.service.IJourneyInfoService;
+import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
+import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
+import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.util.DateFormatUtils;
+import org.springframework.beans.BeanUtils;
 import com.hq.ecmp.mscore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,15 +53,17 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 {
     @Autowired
     private OrderInfoMapper orderInfoMapper;
-
+    @Autowired
+    private IDriverInfoService driverInfoService;
     @Resource
     private IJourneyInfoService iJourneyInfoService;
-
     @Resource
     private IJourneyNodeInfoService iJourneyNodeInfoService;
+    @Autowired
+    private ICarInfoService carInfoService;
+    @Autowired
+    private ICarGroupInfoService carGroupInfoService;
 
-    @Resource
-    private IOrderInfoService iOrderInfoService;
 
     @Resource
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
@@ -179,8 +199,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
 	@Override
 	public List<DispatchOrderInfo> queryCompleteDispatchOrder() {
-		
-		return null;
+		//获取系统里已经完成调度的订单
+		return orderInfoMapper.queryCompleteDispatchOrder();
 	}
 
     /**
@@ -200,4 +220,74 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return driverOrderList;
     }
 
+	@Override
+	public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId) {
+		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
+		//判断该订单是否改派过
+		if(iOrderStateTraceInfoService.isReassignment(orderId)){
+			//是改派过的单子  则查询改派详情
+			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryDispatchDriverInfo(orderId);
+			dispatchOrderInfo.setDispatchDriverInfo(dispatchDriverInfo);
+		}
+		return dispatchOrderInfo;
+	}
+
+	@Override
+	public DispatchOrderInfo getCompleteDispatchOrderDetailInfo(Long orderId) {
+		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.queryCompleteDispatchOrderDetail(orderId);
+		if(iOrderStateTraceInfoService.isReassignment(orderId)){
+			//是改派过的单子  则查询改派详情
+			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryDispatchDriverInfo(orderId);
+			dispatchOrderInfo.setDispatchDriverInfo(dispatchDriverInfo);
+		}
+		//查询派车信息
+		List<SendCarInfo> sendCarInfoList = iOrderStateTraceInfoService.queryStateInfo(orderId);
+		dispatchOrderInfo.setSendCarInfoList(sendCarInfoList);
+		return dispatchOrderInfo;
+	}
+
+    @Override
+    public OrderVO orderBeServiceDetail(Long orderId) {
+        OrderVO vo=new OrderVO();
+        OrderInfo orderInfo = this.selectOrderInfoById(orderId);
+        if (orderInfo==null){
+            return null;
+        }
+        BeanUtils.copyProperties(orderInfo,vo);
+        //查询车辆信息
+        CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
+        if (carInfo!=null){
+            BeanUtils.copyProperties(carInfo,vo);
+        }
+        vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
+        //TODO 是否需要车队信息
+        //是否添加联系人
+//        DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
+        vo.setDriverScore("4.5");
+        vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
+        vo.setState(orderInfo.getState());
+        //TODO 客服电话暂时写死
+        vo.setCustomerServicePhone("010-88888888");
+        return vo;
+    }
+
+    /**
+     * 轮询获取提示语
+     * @param orderId
+     * @return
+     */
+    @Override
+    public String orderHint(Long orderId) {
+        OrderInfo orderInfo = this.selectOrderInfoById(orderId);
+        if (orderInfo==null){
+            return null;
+        }
+        String format = HintEnum.format(orderInfo.getState());
+        return String.format(format, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,orderInfo.getActualSetoutTime()));
+    }
+
+    @Override
+    public MessageDto getOrderMessage(Long userId,String states,Long driveId) {
+        return orderInfoMapper.getOrderMessage(userId,states,driveId);
+    }
 }

@@ -2,7 +2,6 @@ package com.hq.ecmp.ms.api.dto.order;
 
 import io.swagger.annotations.ApiParam;
 import lombok.Data;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.constraints.NotNull;
 
@@ -11,7 +10,7 @@ import javax.validation.constraints.NotNull;
  * @Date: 2020-01-04 15:32
  */
 @Data
-public class OrderDto {
+public class OrderEvaluationDto {
 
     /**
      * 订单编号
@@ -21,9 +20,13 @@ public class OrderDto {
     private Long orderId;
 
     /**
-     * 取消原因
+     * 意见描述
      */
-//    @NotNull
-//    @ApiParam(required = true)
-    private  String cancelReason;
+    private  String content;
+
+    /** 建议*/
+    private String result;
+
+    /**图片路径*/
+    private String[] imageUrls;
 }

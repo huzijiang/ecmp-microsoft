@@ -1,6 +1,11 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.SendCarInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
@@ -59,4 +64,15 @@ public interface OrderStateTraceInfoMapper
      * @return 结果
      */
     public int deleteOrderStateTraceInfoByIds(Long[] traceIds);
+
+
+    public List<String> queryOrderAllState(Long orderId);
+
+
+    public DispatchDriverInfo queryDispatchDriverInfo(Long orderId);
+    
+    public List<SendCarInfo> queryStateInfo(Long orderId);
+
+    /**查询当前登录人改派消息通知*/
+    MessageDto getTraceMessage(@Param("userId") Long userId, @Param("state")String state);
 }

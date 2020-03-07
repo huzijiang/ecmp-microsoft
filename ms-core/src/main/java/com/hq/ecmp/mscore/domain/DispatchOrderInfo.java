@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.domain;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -17,6 +18,8 @@ public class DispatchOrderInfo {
        	String useCarCity;//用车城市
        	
        	String applyUserName;//申请人
+       	
+       	String applyUserTel;//申请人手机号
        	
        	String useCarUserName;//乘车人
        	
@@ -39,8 +42,17 @@ public class DispatchOrderInfo {
        	
        	Date applyReassignmentDate;//申请改派时间     改派单
        	
-       	
-       	
+       
        	String carType;//车型
+       	String carLicense;//车牌号
+       	
+       	String driverName;//驾驶员名字
+    	
+    	String driverTel;//驾驶员电话号码
+       	
+       	
+       	DispatchDriverInfo DispatchDriverInfo;//驾驶员车辆信息 派车完成后
+       	
+       	List<SendCarInfo> sendCarInfoList;//派车信息
        	
 }
