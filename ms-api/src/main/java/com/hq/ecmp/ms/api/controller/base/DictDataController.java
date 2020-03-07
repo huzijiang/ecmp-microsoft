@@ -44,9 +44,9 @@ public class DictDataController {
      * @param  ecmpDictData  数据字典类型信息
      * @return ecmpDictDataList
      */
-    @ApiOperation(value = "getDictTypeList",notes = "数据字典获取",httpMethod ="POST")
-    @PostMapping("/getDictTypeList")
-    public ApiResponse<List<EcmpDictData>> getDictTypeList(EcmpDictData ecmpDictData){
+    @ApiOperation(value = "getDictList",notes = "数据字典获取",httpMethod ="POST")
+    @PostMapping("/getDictList")
+    public ApiResponse<List<EcmpDictData>> getDictList(EcmpDictData ecmpDictData){
         List<EcmpDictData> ecmpDictDataList = iEcmpDictDataService.selectEcmpDictDataList(ecmpDictData);
         return ApiResponse.success(ecmpDictDataList);
     }
@@ -55,9 +55,9 @@ public class DictDataController {
      * @param  ecmpDictData  数据字典类型详情
      * @return  ecmpDictDa
      */
-    @ApiOperation(value = "getDictTypeDetail",notes = "数据字典获取",httpMethod ="POST")
-    @PostMapping("/getDictTypeDetail")
-    public ApiResponse<EcmpDictData> getDictTypeDetail(EcmpDictData ecmpDictData){
+    @ApiOperation(value = "getDictDetail",notes = "数据字典获取",httpMethod ="POST")
+    @PostMapping("/getDictDetail")
+    public ApiResponse<EcmpDictData> getDictDetail(EcmpDictData ecmpDictData){
 
         EcmpDictData ecmpDictDa = iEcmpDictDataService.selectEcmpDictDataById(ecmpDictData.getDictCode());
         return  ApiResponse.success(ecmpDictDa);

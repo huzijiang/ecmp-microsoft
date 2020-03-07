@@ -54,9 +54,9 @@ public class DictTypeController {
      * @param  ecmpDictType  数据字典类型新增
      * @return
      */
-    @ApiOperation(value = "applyDictCommit",notes = "数据字典新增 ",httpMethod ="POST")
-    @PostMapping("/applyDictCommit")
-         public ApiResponse  applyDictCommit(@RequestBody EcmpDictType ecmpDictType){
+    @ApiOperation(value = "applyDictTypeCommit",notes = "数据字典新增 ",httpMethod ="POST")
+    @PostMapping("/applyDictTypeCommit")
+         public ApiResponse  applyDictTypeCommit(@RequestBody EcmpDictType ecmpDictType){
               //新增数据字典类型
         try {
                iEcmpDictTypeService.insertEcmpDictType(ecmpDictType);
@@ -71,9 +71,9 @@ public class DictTypeController {
      * @param  ecmpDictType  数据字典类型修改
      * @return
      */
-     @ApiOperation(value = "applyDicUpdate",notes = "数据字典修改",httpMethod ="POST")
-     @PostMapping("/applyDicUpdate")
-         public ApiResponse  applyDicUpdate(@RequestBody EcmpDictType ecmpDictType){
+     @ApiOperation(value = "applyDicTypeUpdate",notes = "数据字典修改",httpMethod ="POST")
+     @PostMapping("/applyDicTypeUpdate")
+         public ApiResponse  applyDicTypeUpdate(@RequestBody EcmpDictType ecmpDictType){
         //新增数据字典类型
         try {
             iEcmpDictTypeService.updateEcmpDictType(ecmpDictType);
@@ -89,9 +89,9 @@ public class DictTypeController {
      * @param  ecmpDictType  数据字典类型删除
      * @return
      */
-    @ApiOperation(value = "applyDicDelete",notes = "数据字典删除 ",httpMethod ="POST")
-    @PostMapping("/applyDicDelete")
-    public ApiResponse  applyDicDelete(@RequestBody EcmpDictType ecmpDictType){
+    @ApiOperation(value = "applyDicTypeDelete",notes = "数据字典删除 ",httpMethod ="POST")
+    @PostMapping("/applyDicTypeDelete")
+    public ApiResponse  applyDicTypeDelete(@RequestBody EcmpDictType ecmpDictType){
         //新增数据字典类型
         try {
             iEcmpDictTypeService.deleteEcmpDictTypeById(ecmpDictType.getDictId());
