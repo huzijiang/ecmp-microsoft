@@ -103,6 +103,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{applyId}
         </foreach>
     </delete>
+    <select id="selectApplyInfoListByPage" parameterType="long" resultType="com.hq.ecmp.mscore.dto.ApplyInfoDTO">
+        select t1.apply_id,t1.state,t1.apply_type,t2.title,t2.start_date,t2.end_date from apply_info t1 left join journey_info t2 on t1.journey_id = t2.journey_id where t2.user_id = #{userId}
+    </select>
 
     <!-- 手动编写sql  start-->
     <select id="getOrderCount" parameterType="Long" resultType="com.hq.ecmp.mscore.dto.MessageDto">

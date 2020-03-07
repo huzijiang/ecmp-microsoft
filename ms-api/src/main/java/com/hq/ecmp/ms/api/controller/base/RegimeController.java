@@ -69,8 +69,8 @@ public class RegimeController {
      */
     @ApiOperation(value = "getRegimeInfo",notes = "通过用车制度编号,查询用车制度的详细信息",httpMethod ="POST")
     @PostMapping("/getRegimeInfo")
-    public ApiResponse<RegimeInfo> getRegimeInfo(RegimeDto regimeDto){
-        RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(regimeDto.getRegimeId());
+    public ApiResponse<RegimeInfo> getRegimeInfo(@RequestBody RegimeDto regimeDto){
+        RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(regimeDto.getRegimenId());
         if(regimeInfo == null){
             return ApiResponse.error("暂无数据");
         }else {

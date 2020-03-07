@@ -1,5 +1,9 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 import java.text.DateFormat;
 import java.util.List;
 
@@ -14,7 +18,16 @@ import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+
 import com.hq.ecmp.mscore.domain.*;
+
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
@@ -161,6 +174,36 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         int i = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         return  i;
     }
+
+
+	@Override
+	public List<DispatchOrderInfo> queryWaitDispatchList() {
+		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
+		//查询所有处于待派单的订单及关联的信息
+		OrderInfo query = new OrderInfo();
+		query.setState(OrderState.SENDINGCARS.getState());
+		List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
+		if(null !=waitDispatchOrder && waitDispatchOrder.size()>0){
+			result.addAll(waitDispatchOrder);
+		}
+		//查询所有处于待改派(订单状态为已派车,已发起改派申请)的订单及关联的信息
+		query.setState(OrderState.ALREADYSENDING.getState());
+		query.setOrderTraceState(OrderStateTrace.APPLYREASSIGNMENT.getState());
+		List<DispatchOrderInfo> reassignmentOrder = orderInfoMapper.queryOrderRelateInfo(query);
+		if(null !=reassignmentOrder && reassignmentOrder.size()>0){
+			for (DispatchOrderInfo dispatchOrderInfo : reassignmentOrder) {
+				dispatchOrderInfo.setState(OrderState.REASSIGNMENT.getState());
+			}
+			result.addAll(reassignmentOrder);
+		}
+		return result;
+	}
+
+	@Override
+	public List<DispatchOrderInfo> queryCompleteDispatchOrder() {
+
+		return null;
+	}
 
     /**
      * 获取司机的任务列表
