@@ -77,6 +77,12 @@ public interface OrderInfoMapper
 
     public List<DispatchOrderInfo> queryOrderRelateInfo(OrderInfo orderInfo);
 
+    /**
+     * 查询已完成调度的订单
+     * @return
+     */
+    public List<DispatchOrderInfo> queryCompleteDispatchOrder();
+
 
 
     /**
@@ -85,6 +91,9 @@ public interface OrderInfoMapper
      * @return
      */
     public List<OrderDriverListInfo> getDriverOrderList(long driverId);
+
+
+    public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
 
 
 

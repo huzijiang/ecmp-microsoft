@@ -104,6 +104,13 @@ public interface IOrderInfoService {
     public  List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize);
 
     /**
+     * 查询待调单的订单详情(包含待改派的)
+     * @param orderId
+     * @return
+     */
+    public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
+
+    /**
      * 获取订单详情
      * @param orderId
      * @return

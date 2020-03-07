@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import org.apache.ibatis.annotations.Param;
@@ -62,6 +63,14 @@ public interface OrderStateTraceInfoMapper
      * @return 结果
      */
     public int deleteOrderStateTraceInfoByIds(Long[] traceIds);
+
+
+    public List<String> queryOrderAllState(Long orderId);
+
+
+    public DispatchDriverInfo queryDispatchDriverInfo(Long orderId);
+
+
 
     MessageDto getTraceMessage(@Param("userId") Long userId, @Param("state")String state);
 }

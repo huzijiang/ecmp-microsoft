@@ -439,34 +439,32 @@ public class OrderController {
      */
     @ApiOperation(value = "getUserDispatchedOrder", notes = "获取已经完成调派的订单信息 ", httpMethod = "POST")
     @PostMapping("/getUserDispatchedOrder")
-    public ApiResponse<List<OrderInfo>> getUserDispatchedOrder(UserDto userDto){
-     
-        return null;
+    public ApiResponse<List<DispatchOrderInfo>> getUserDispatchedOrder(UserDto userDto){
+        return ApiResponse.success(iOrderInfoService.queryCompleteDispatchOrder());
     }
 
     /**
-     * 获取系统已经完成调派的订单信息
+     * 获取系统已经完成调派的订单详细信息(包含待改派的)
      *
      * @return
      */
-    @ApiOperation(value = "getAllDispatchedOrder", notes = "获取系统所有已经完成调派的订单信息 ", httpMethod = "POST")
-    @PostMapping("/getAllDispatchedOrder")
-    public ApiResponse<List<OrderInfo>> getAllDispatchedOrder() {
-
+    @ApiOperation(value = "getCompleteDispatchOrderDetailInfo", notes = "获取系统所有已经完成调派的订单详细信息 ", httpMethod = "POST")
+    @PostMapping("/getCompleteDispatchOrderDetailInfo")
+    public ApiResponse<List<DispatchOrderInfo>> getCompleteDispatchOrderDetailInfo() {
+         
         return null;
     }
 
     /**
-     * 获取等待调度的订单详细信息
+     * 获取等待调度的订单详细信息(包含待改派的)
      *
      * @param orderDto 订单信息
      * @return
      */
     @ApiOperation(value = "getWaitDispatchOrderDetailInfo", notes = "获取等待调度的订单详细信息", httpMethod = "POST")
     @PostMapping("/getWaitDispatchOrderDetailInfo")
-    public ApiResponse<OrderInfo> getWaitDispatchOrderDetailInfo(OrderDto orderDto) {
-
-        return null;
+    public ApiResponse<DispatchOrderInfo> getWaitDispatchOrderDetailInfo(Long orderId) {
+        return ApiResponse.success(iOrderInfoService.getWaitDispatchOrderDetailInfo(orderId));
     }
 
 
