@@ -67,10 +67,10 @@ public interface IRegimeInfoService
     public int deleteRegimeInfoById(Long regimenId);
 
     /**
-     * 根据用户id查询用车制度集合
+     * 根据用户id查询用车制度集合(可加场景条件)
      * @param userId
      * @return
      */
-    List<RegimeInfo> findRegimeInfoListByUserId(Long userId);
+    List<RegimeInfo> findRegimeInfoListByUserId(Long userId,Long sceneId);
 }
 
