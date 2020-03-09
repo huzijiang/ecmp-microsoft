@@ -18,6 +18,8 @@ import com.hq.ecmp.ms.api.dto.order.OrderDetailDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.ms.api.dto.order.OrderEvaluationDto;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
+import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.ParallelOrderDto;
 import com.hq.ecmp.mscore.service.*;
@@ -63,6 +65,9 @@ public class OrderController {
 
     @Resource
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
+
+    @Resource
+    private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -463,6 +468,29 @@ public class OrderController {
     public ApiResponse<DispatchOrderInfo> getWaitDispatchOrderDetailInfo(Long orderId) {
         return ApiResponse.success(iOrderInfoService.getWaitDispatchOrderDetailInfo(orderId));
     }
+    
+    
+    /**
+     * 自有车派车
+     * @param orderId
+     * @param driverId
+     * @param carId
+     * @return
+     */
+    @ApiOperation(value = "ownCarSendCar", notes = "自有车派车", httpMethod = "POST")
+    @PostMapping("/ownCarSendCar")
+    public ApiResponse ownCarSendCar(Long orderId,Long driverId,Long carId) {
+    	 HttpServletRequest request = ServletUtils.getRequest();
+         LoginUser loginUser = tokenService.getLoginUser(request);
+         Long userId = loginUser.getUser().getUserId();
+         boolean ownCarSendCar = iOrderInfoService.ownCarSendCar(orderId, driverId, carId, userId);
+         if(ownCarSendCar){
+        	 return ApiResponse.success();
+         }else{
+        	 return ApiResponse.error("调派单【"+orderId+"】自有车派车失败");
+         }
+        
+    }
 
 
     /**
@@ -545,7 +573,13 @@ public class OrderController {
 
     }
 
-
+    /**
+    *   @author yj
+    *   @Description  //TODO 通过用户id获取司机id，查找订单表司机id对应的订单
+    *   @Date 14:03 2020/3/7
+    *   @Param  [driverListRequest]
+    *   @return com.hq.common.core.api.ApiResponse<java.util.List<com.hq.ecmp.mscore.domain.OrderDriverListInfo>>
+    **/
     @ApiOperation(value = "driverOrderList", notes = "获取司机的我的任务列表")
     @RequestMapping("/driverOrderList")
     public ApiResponse<List<OrderDriverListInfo>> driverOrderList(@RequestBody PageRequest driverListRequest) {
@@ -562,6 +596,76 @@ public class OrderController {
         return ApiResponse.success(driverOrderList);
     }
 
+    /**
+    *   @author yj
+    *   @Description  //TODO  差旅申请派车（除市内用车），已经有初始化订单，将一些时间地点字段，根据订单id做更新
+    *   @Date 14:02 2020/3/7
+    *   @Param  [applyUseWithTravelDto]
+    *   @return com.hq.common.core.api.ApiResponse
+    **/
+    @ApiOperation(value = "差旅申请派车接口",notes = "不包括市内用车，市内用车需要调用手动下单接口")
+    @RequestMapping("/applyUseCarWithTravel")
+    public ApiResponse applyUseCarWithTravel(@RequestBody ApplyUseWithTravelDto applyUseWithTravelDto){
+        try {
+            //获取调用接口的用户信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setOrderId(applyUseWithTravelDto.getOrderId());
+            //手动下单，订单状态变为待派单
+            orderInfo.setState(OrderState.WAITINGLIST.getState());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = sdf.parse(applyUseWithTravelDto.getBookingDate());
+            orderInfo.setActualSetoutTime(date);
+            orderInfo.setActualSetoutAddress(applyUseWithTravelDto.getStartAddr());
+            orderInfo.setActualArriveAddress(applyUseWithTravelDto.getEndAddr());
+            String startPoint = applyUseWithTravelDto.getStartPoint();
+            String endPoint = applyUseWithTravelDto.getEndPoint();
+            String[] start = startPoint.split("\\,");
+            String[] end = endPoint.split("\\,");
+            //出发地经纬度
+            orderInfo.setActualSetoutLongitude(Long.parseLong(start[0]));
+            orderInfo.setActualSetoutLatitude(Long.parseLong(start[1]));
+            //目的地经纬度
+            orderInfo.setActualArriveLongitude(Long.parseLong(end[0]));
+            orderInfo.setActualArriveLatitude(Long.parseLong(end[1]));
+            iOrderInfoService.updateOrderInfo(orderInfo);
+            //订单轨迹
+            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("申请派车失败");
+        }
+        return ApiResponse.success("申请派车成功");
+    }
+
+    @ApiOperation(value = "驾驶员评价接口")
+    @PostMapping("/orderDriverAppraise")
+    public ApiResponse orderDriverAppraise(@RequestBody  OrderDriverAppraiseDto orderDriverAppraiseDto){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            DriverServiceAppraiseeInfo driverServiceAppraiseeInfo = new DriverServiceAppraiseeInfo();
+            driverServiceAppraiseeInfo.setCarId(orderDriverAppraiseDto.getCardId());
+            driverServiceAppraiseeInfo.setContent(orderDriverAppraiseDto.getContent());
+            driverServiceAppraiseeInfo.setDriverId(orderDriverAppraiseDto.getDriverId());
+            driverServiceAppraiseeInfo.setScore(orderDriverAppraiseDto.getScore());
+            driverServiceAppraiseeInfo.setOrderId(orderDriverAppraiseDto.getOrderId());
+            driverServiceAppraiseeInfo.setItem(orderDriverAppraiseDto.getItem());
+            driverServiceAppraiseeInfo.setCreateBy(userId);
+            driverServiceAppraiseeInfo.setUpdateBy(null);
+            driverServiceAppraiseeInfo.setUpdateTime(null);
+            OrderInfo orderInfo = iOrderInfoService.selectOrderInfoById(orderDriverAppraiseDto.getOrderId());
+            driverServiceAppraiseeInfo.setCarLicense(orderInfo.getCarLicense());
+            driverServiceAppraiseeInfoService.insert(driverServiceAppraiseeInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("评价失败");
+        }
+        return ApiResponse.success("评价成功");
+    }
     /**
      *   @author caobj
      *   @Description 获取待服务详情
@@ -599,5 +703,4 @@ public class OrderController {
             return  ApiResponse.error("获取提示语异常!");
         }
     }
-
 }
