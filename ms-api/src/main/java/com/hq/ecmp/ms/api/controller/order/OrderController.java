@@ -6,9 +6,7 @@ import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.constant.ResignOrderTraceState;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
@@ -25,6 +23,7 @@ import com.hq.ecmp.mscore.dto.ParallelOrderDto;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.MacTools;
+import com.hq.ecmp.util.RedisUtil;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -69,6 +68,8 @@ public class OrderController {
     @Resource
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
 
+
+
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
 
@@ -98,10 +99,11 @@ public class OrderController {
             Long applyId = journeyApplyDto.getApplyId();
             //行程id
             Long jouneyId = journeyApplyDto.getJouneyId();
-            //获取行程节点信息
-            JourneyNodeInfo journeyNodeInfo = new JourneyNodeInfo();
-            journeyNodeInfo.setJourneyId(jouneyId);
-            List<JourneyNodeInfo> journeyNodeInfos = iJourneyNodeInfoService.selectJourneyNodeInfoList(journeyNodeInfo);
+            //获取用车权限记录
+            JourneyUserCarPower journeyUserCarPowerChild = new JourneyUserCarPower();
+            journeyUserCarPowerChild.setJourneyId(jouneyId);
+            journeyUserCarPowerChild.setApplyId(applyId);
+            List<JourneyUserCarPower> journeyUserCarPowers = iJourneyUserCarPowerService.selectJourneyUserCarPowerList(journeyUserCarPowerChild);
             //获取行程主表信息
             JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(jouneyId);
             //获取申请表信息
@@ -122,18 +124,19 @@ public class OrderController {
             } else {
                 orderInfo.setState(OrderState.INITIALIZING.getState());
             }
-            //有多少节点创建多少订单（注意往返以及差旅的室内用车）
-            for (int i = 0; i < journeyNodeInfos.size(); i++) {
+            //有多少用车权限创建多少订单（注意往返以及差旅的室内用车）
+            for (int i = 0; i < journeyUserCarPowers.size(); i++) {
                 //通过行程节点与申请id以及行程id唯一确定用户权限id
-                Long nodeId = journeyNodeInfos.get(i).getNodeId();
-                JourneyUserCarPower journeyUserCarPower = new JourneyUserCarPower();
-                journeyUserCarPower.setApplyId(applyId);
-                journeyUserCarPower.setNodeId(nodeId);
-                journeyUserCarPower.setJourneyId(jouneyId);
-                List<JourneyUserCarPower> journeyUserCarPowers = iJourneyUserCarPowerService.selectJourneyUserCarPowerList(journeyUserCarPower);
-                Long powerId = journeyUserCarPowers.get(0).getPowerId();
+                JourneyUserCarPower journeyUserCarPower = journeyUserCarPowers.get(i);
+                String type = journeyUserCarPower.getType();
+                //如果是市内用车跳过生成订单，在手动创建订单的时候生成
+                if(CarConstant.CITY_USE_CAR.equals(type)){
+                    continue;
+                }
+                Long nodeId = journeyUserCarPower.getNodeId();
+                Long powerId = journeyUserCarPower.getPowerId();
                 orderInfo.setNodeId(nodeId);
-                orderInfo.setPowerId(powerId);// TODO: 2020/3/3  权限表何时去创建？ 申请审批通过以后创建用车权限表记录，一个行程节点对应一个用车权限，一个用车权限可能对应多个行程节点
+                orderInfo.setPowerId(powerId);// TODO: 2020/3/3  权限表何时去创建？ 申请审批通过以后创建用车权限表记录，一个行程节点可能对应多个用车权限，比如往返超过固定时间
                 iOrderInfoService.insertOrderInfo(orderInfo);
                 //插入订单轨迹表
                 iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId));
@@ -261,22 +264,20 @@ public class OrderController {
     @PostMapping("/letPlatCallTaxi")
     public ApiResponse letPlatCallTaxi(OrderDto orderDto) {
         try {
+            Long orderId = orderDto.getOrderId();
             OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setOrderId(orderDto.getOrderId());
+            orderInfo.setOrderId(orderId);
             orderInfo.setState(OrderState.SENDINGCARS.getState());
             int i = iOrderInfoService.updateOrderInfo(orderInfo);
             if (i != 1) {
-                return ApiResponse.error("'订单状态改为【约车中失败】");
+                throw new Exception("约车失败");
             }
-            do {
-                //TODO 循环约车？？？ 待完善
-                break;
-            } while (true);
+            iOrderInfoService.platCallTaxi(orderInfo,enterpriseId,licenseContent,apiUrl);
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("'订单状态改为【去约车失败】");
+            return ApiResponse.success(e.getMessage());
         }
-        return ApiResponse.success("订单状态修改成功");
+        return ApiResponse.success("约车成功");
     }
 
 
@@ -414,7 +415,7 @@ public class OrderController {
                 //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
             }
             //插入订单轨迹表
-            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderState.ORDERCLOSE.getState(), String.valueOf(userId));
+            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderStateTrace.CANCEL.getState(), String.valueOf(userId));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("订单取消失败->" + e.getMessage());

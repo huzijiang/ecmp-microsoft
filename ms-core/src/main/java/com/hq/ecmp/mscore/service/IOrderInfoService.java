@@ -1,7 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
 
-import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
@@ -132,5 +131,10 @@ public interface IOrderInfoService {
     String orderHint(Long orderId);
 
     MessageDto getOrderMessage(Long userId,String states,Long driveId);
+
+    /**
+     * 网约车异步约车方法
+     */
+    void platCallTaxi(OrderInfo orderInfo,String enterpriseId,String licenseContent,String apiUrl);
 }
 

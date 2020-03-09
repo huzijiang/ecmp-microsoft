@@ -11,7 +11,9 @@ public enum OrderStateTrace {
     PRESERVICE("S600","准备服务"),
     SERVICE("S616","服务中"),
     SERVICEOVER("S699","服务结束"),
-    ORDERCLOSE("S900","订单关闭")
+    ORDERCLOSE("S900","订单关闭"),
+    OBJECTION("S901","订单异议"),
+    CANCEL("S911","订单取消")
     ;
 
 

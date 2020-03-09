@@ -1,15 +1,17 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 import java.text.DateFormat;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.pagehelper.PageHelper;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.OkHttpUtil;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
@@ -34,9 +36,12 @@ import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.MacTools;
+import com.hq.ecmp.util.RedisUtil;
 import org.springframework.beans.BeanUtils;
 import com.hq.ecmp.mscore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -70,6 +75,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Resource
     private IDriverInfoService iDriverInfoService;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     /**
      * 查询【请填写功能名称】
@@ -289,5 +297,59 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public MessageDto getOrderMessage(Long userId,String states,Long driveId) {
         return orderInfoMapper.getOrderMessage(userId,states,driveId);
+    }
+
+    @Override
+    @Async
+    public void platCallTaxi(OrderInfo orderInfo,String enterpriseId,String licenseContent,String apiUrl) {
+        Long orderId = orderInfo.getOrderId();
+        try {
+            //MAC地址
+            List<String> macList = MacTools.getMacList();
+            String macAdd = macList.get(0);
+            //调用网约车约车接口参数
+            Map<String, String> paramMap = new HashMap<>();
+            paramMap.put("enterpriseId", enterpriseId);
+            paramMap.put("licenseContent", licenseContent);
+            paramMap.put("mac", macAdd);
+            //调用查询订单状态的接口参数
+            Map<String,String> queryOrderStateMap = new HashMap<>();
+            queryOrderStateMap.put("enterpriseId", enterpriseId);
+            queryOrderStateMap.put("licenseContent", licenseContent);
+            queryOrderStateMap.put("mac", macAdd);
+            for(;;){
+//                String result = OkHttpUtil.postJson(apiUrl + "/service/applyPlatReceiveOrder", paramMap);
+//                JSONObject jsonObject = JSONObject.parseObject(result);
+//                if(!"0".equals(jsonObject.getString("code"))){
+//                    throw new Exception("约车失败");
+//                }
+                for (int i = 0; i <3 ; i++) {
+                    redisUtil.increment(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"",1L);
+                    Thread.sleep(60000);
+                }
+
+//                //调用查询订单状态的方法
+//                String resultQuery = OkHttpUtil.postJson(apiUrl + "/service/applyPlatReceiveOrder", paramMap);
+//                JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
+//                if(!"0".equals(jsonObjectQuery.getString("code"))){
+//                    throw new Exception("约车失败");
+//                }
+//                //判断状态,如果约到车修改状态为已派单
+//                Object data = jsonObjectQuery.get("data");
+//                if(data.equals("")){
+//                    orderInfo.setState(OrderState.ALREADYSENDING.getState());
+//                    int j = orderInfoMapper.updateOrderInfo(orderInfo);
+//                    if (j != 1) {
+//                        throw new Exception("约车失败");
+//                    }
+//                    break;
+//                }
+                break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            redisUtil.delete(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"");
+        }
     }
 }
