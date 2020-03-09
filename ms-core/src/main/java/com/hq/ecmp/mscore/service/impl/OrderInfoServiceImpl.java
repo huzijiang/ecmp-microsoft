@@ -1,10 +1,35 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.*;
+
+
+import java.text.DateFormat;
+import java.util.List;
+
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+
+import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.mscore.domain.*;
+
+import com.hq.ecmp.mscore.mapper.ApplyInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.OrderVO;
@@ -19,8 +44,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
-
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -43,14 +68,17 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private ICarInfoService carInfoService;
     @Autowired
     private ICarGroupInfoService carGroupInfoService;
-   
-
-
+    @Resource
+    private JourneyInfoMapper journeyInfoMapper;
+    @Resource
+    private JourneyUserCarPowerMapper journeyUserCarPowerMapper;
     @Resource
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
 
     @Resource
     private IDriverInfoService iDriverInfoService;
+    @Resource
+    private ApplyInfoMapper applyInfoMapper;
 
     @Resource
     private RedisUtil redisUtil;
@@ -328,8 +356,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             redisUtil.delete(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"");
         }
     }
-    
-    
+
+
     @Transactional(propagation=Propagation.REQUIRED)
 	@Override
 	public boolean ownCarSendCar(Long orderId, Long driverId, Long carId,Long userId) {
@@ -355,12 +383,61 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		 if(iOrderStateTraceInfoService.isReassignment(orderId)){
 			 orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.getState());
 		 } else{
-			 orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState()); 
+			 orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
 		 }
-        
+
          orderStateTraceInfo.setOrderId(orderId);
          int insertFlag = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-		
+
 		return updateFlag>0&&insertFlag>0;
 	}
+
+
+    public void initOrder(Long applyId,Long jouneyId,Long userId){
+        //获取用车权限记录
+        JourneyUserCarPower journeyUserCarPowerChild = new JourneyUserCarPower();
+        journeyUserCarPowerChild.setJourneyId(jouneyId);
+        journeyUserCarPowerChild.setApplyId(applyId);
+        List<JourneyUserCarPower> journeyUserCarPowers = journeyUserCarPowerMapper.selectJourneyUserCarPowerList(journeyUserCarPowerChild);
+        //获取行程主表信息
+        JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(jouneyId);
+        //获取申请表信息
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
+        //插入订单初始信息
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setJourneyId(jouneyId);
+        orderInfo.setDriverId(null);
+        orderInfo.setCarId(null);
+        //使用汽车的方式，自由和网约
+        orderInfo.setUseCarMode(journeyInfo.getUseCarMode());
+        orderInfo.setCreateBy(String.valueOf(userId));
+        orderInfo.setCreateTime(new Date());
+        String applyType = applyInfo.getApplyType();
+        //如果是公务用车则状态直接为待派单，如果是差旅用车状态为初始化
+        if ("A001".equals(applyType)) {
+            orderInfo.setState(OrderState.WAITINGLIST.getState());
+        } else {
+            orderInfo.setState(OrderState.INITIALIZING.getState());
+        }
+        //有多少用车权限创建多少订单（注意往返以及差旅的室内用车）
+        for (int i = 0; i < journeyUserCarPowers.size(); i++) {
+            //通过行程节点与申请id以及行程id唯一确定用户权限id
+            JourneyUserCarPower journeyUserCarPower = journeyUserCarPowers.get(i);
+            String type = journeyUserCarPower.getType();
+            //如果是市内用车跳过生成订单，在手动创建订单的时候生成
+            if(CarConstant.CITY_USE_CAR.equals(type)){
+                continue;
+            }
+            Long nodeId = journeyUserCarPower.getNodeId();
+            Long powerId = journeyUserCarPower.getPowerId();
+            orderInfo.setNodeId(nodeId);
+            orderInfo.setPowerId(powerId);// TODO: 2020/3/3  权限表何时去创建？ 申请审批通过以后创建用车权限表记录，一个行程节点可能对应多个用车权限，比如往返超过固定时间
+            orderInfoMapper.insertOrderInfo(orderInfo);
+            //插入订单轨迹表
+            this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId));
+            if ("A001".equals(applyType)) {
+                this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId));
+            }
+        }
+    }
 }

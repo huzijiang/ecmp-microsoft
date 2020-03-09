@@ -6,17 +6,14 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.ApproveStateEnum;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
-import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.service.IApplyInfoService;
-import com.hq.ecmp.mscore.service.IJourneyInfoService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.vo.AddressVO;
-import com.hq.ecmp.mscore.vo.ApplyDetailVO;
-import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -26,14 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author: zj.hu
@@ -54,6 +48,14 @@ public class ApplyContoller {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private IApplyApproveResultInfoService resultInfoService;
+    @Autowired
+    private IRegimeInfoService regimeInfoService;
+    @Autowired
+    private IApproveTemplateNodeInfoService nodeInfoService;
+
 
     /**
      * 员工提交行程申请     弃用。公务跟差旅申请分两个接口实现
@@ -204,35 +206,38 @@ public class ApplyContoller {
     /**
      * 行程申请-审核通过
      * @param journeyApplyDto  审批员信息
-     * @param userDto  审批人信息
      * @return
      */
     @ApiOperation(value = "applyPass",notes = "行程申请-审核通过 ",httpMethod ="POST")
     @PostMapping("/applyPass")
     @Transactional
-    public ApiResponse applyPass(JourneyApplyDto journeyApplyDto,UserDto userDto){
+    public ApiResponse applyPass(JourneyApplyDto journeyApplyDto){
         //1.校验信息
-        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
-        if (ObjectUtils.isEmpty(journeyInfo)){
-            return ApiResponse.error("行程申请单不存在!");
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try{
+            List<ApplyApproveResultInfo> collect = beforeInspect(journeyApplyDto, userId);
+            ApproveTemplateNodeInfo approveTemplateNodeInfo = nodeInfoService.selectApproveTemplateNodeInfoById(collect.get(0).getApproveNodeId());
+            //判断当前审批人是不是最后审批人
+            if (approveTemplateNodeInfo != null && approveTemplateNodeInfo.getNextNodeId() != null) {//不是最后审批人
+                //修改当前审批记录状态已审批/审批通过，修改下一审批记录为待审批（）对应消息通知
+                this.updateApproveResult(collect, userId);
+                //下一审批人修改为待审批
+                resultInfoService.updateApplyApproveResultInfo(new ApplyApproveResultInfo(collect.get(0).getApplyId(), collect.get(0).getApproveTemplateId(), collect.get(0).getApproveNodeId(), ApproveStateEnum.WAIT_APPROVE_STATE.getKey()));
+                //TODO 发送通知消息
+            } else if (approveTemplateNodeInfo != null && approveTemplateNodeInfo.getNextNodeId() == null) {//是最后节点审批人
+                //修改审理状态
+                this.updateApproveResult(collect, userId);
+                //TODO 调取生成用车权限,初始化订单
+                orderInfoService.initOrder(journeyApplyDto.getApplyId(),journeyApplyDto.getJouneyId(),userId);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
         }
-        ApplyInfo applyInfo = ApplyInfo.builder().journeyId(journeyApplyDto.getJouneyId()).build();
-        List<ApplyInfo> applyInfos = applyInfoService.selectApplyInfoList(applyInfo);
-        if (CollectionUtils.isNotEmpty(applyInfos)){
-            return ApiResponse.error("行程申请单已审批！");
-        }
-        //2.生成行程单审批信息
-        applyInfo = ApplyInfo.builder().applyId(Long.MAX_VALUE).applyType("").approverName("").journeyId(journeyInfo.getJourneyId()).costCenter(userDto.getUserId()).projectId(userDto.getUserId()).
-                approverName("").reason("").state("1").regimenId(Long.MAX_VALUE).build();
-        applyInfo.setCreateBy(userDto.getUserName());
-        applyInfo.setCreateTime(DateUtils.getNowDate());
-        applyInfoService.insertApplyInfo(applyInfo);
-        //3.默认生成订单
-        OrderInfo orderInfo = OrderInfo.builder().orderId(Long.MAX_VALUE).journeyId(journeyInfo.getJourneyId()).build();
-        orderInfoService.insertOrderInfo(orderInfo);
         return ApiResponse.success("行程申请单审批通过");
     }
-
 
     /**
      * 行程申请-驳回
@@ -242,28 +247,17 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "applyReject",notes = "行程申请-驳回",httpMethod ="POST")
     @PostMapping("/applyReject")
-    public ApiResponse   applyReject(JourneyApplyDto journeyApplyDto,UserDto userDto){
-
-        //1.校验消息
-        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
-        if (ObjectUtils.isEmpty(journeyInfo)){
-            return ApiResponse.error("行程申请单不存在！");
+    public ApiResponse  applyReject(JourneyApplyDto journeyApplyDto,UserDto userDto){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try{
+            List<ApplyApproveResultInfo> collect = beforeInspect(journeyApplyDto, userId);
+            this.updateApproveResult(collect, userId);
+        }catch (Exception e){
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
         }
-        ApplyInfo applyInfo = ApplyInfo.builder().journeyId(journeyApplyDto.getJouneyId()).build();
-        List<ApplyInfo> applyInfos = applyInfoService.selectApplyInfoList(applyInfo);
-        if (CollectionUtils.isNotEmpty(applyInfos)){
-            return ApiResponse.error("行程申请单已审批");
-        }
-        //2.生成行程单审批信息
-        //state审批状态(1表示审批通过，0表示审批驳回)
-        applyInfo = ApplyInfo.builder().applyId(Long.MAX_VALUE).applyType("").approverName("").journeyId(journeyInfo.getJourneyId()).costCenter(userDto.getUserId()).projectId(userDto.getUserId())
-                .approverName("").reason("").state("0").regimenId(Long.MAX_VALUE).build();
-        applyInfo.setCreateBy(userDto.getUserName());
-        applyInfo.setCreateTime(DateUtils.getNowDate());
-        applyInfoService.insertApplyInfo(applyInfo);
-        //3.默认生成订单
-        OrderInfo orderInfo = OrderInfo.builder().orderId(Long.MAX_VALUE).journeyId(journeyInfo.getJourneyId()).build();
-        orderInfoService.insertOrderInfo(orderInfo);
         return ApiResponse.success("行程申请单审批驳回");
 
     }
@@ -276,11 +270,88 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "getApplyApproveDetailInfo",notes = "获取行程申请的审批详情",httpMethod ="POST")
     @PostMapping("/getApplyApproveDetailInfo")
-    public ApiResponse   getApplyApproveDetailInfo(JourneyApplyDto journeyApplyDto){
-        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
-        return ApiResponse.success("查询申请单详情成功",journeyInfo);
+    public ApiResponse<TravelApprovalVO> getApplyApproveDetailInfo(JourneyApplyDto journeyApplyDto){
+        TravelApprovalVO vo=new TravelApprovalVO();
+        ApplyDetailVO  applyDetailVO = applyInfoService.selectApplyDetail(journeyApplyDto.getApplyId());
+        //查询审批流信息
+        List<ApprovalInfoVO> approveList = getApproveList(applyDetailVO.getApplyUser(), applyDetailVO.getApplyMobile(), journeyApplyDto.getApplyId());
+        vo.setApplyDetailVO(applyDetailVO);
+        vo.setApprovalVOS(approveList);
+        return ApiResponse.success(vo);
+    }
+
+    @ApiOperation(value = "getApplyApproveCount",notes = "获取行程申请的审批详情",httpMethod ="POST")
+    @PostMapping("/getApplyApproveCount")
+    public ApiResponse<String> getApplyApproveCount(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+       int count= applyInfoService.getApplyApproveCount(userId);
+        return ApiResponse.success(count+"");
     }
 
 
+    //审批流信息排序
+    private List<ApprovalInfoVO> getApproveList(String applyUser,String applyMobile,Long applyId){
+        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(applyId));
+        List<ApprovalInfoVO> list=new ArrayList<>();
+        list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请人"));
+        if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
+            for (ApplyApproveResultInfo info:applyApproveResultInfos){
+                list.add(new ApprovalInfoVO(info.getApproveNodeId(),info.getApprover(),info.getApproverMobile(), ApproveStateEnum.format(info.getApproveResult()),ApproveStateEnum.format(info.getState())));
+            }
+        }
+        Collections.sort(list, new Comparator<ApprovalInfoVO>() {
+            @Override
+            public int compare(ApprovalInfoVO o1, ApprovalInfoVO o2) {
+                int i = o1.getApprovalNodeId().intValue() - o2.getApprovalNodeId().intValue();
+                if(i == 0){
+                    return o1.getApprovalNodeId().intValue() - o2.getApprovalNodeId().intValue();
+                }
+                return i;
+            }
+        });
+        return list;
+    }
 
+    private void updateApproveResult(List<ApplyApproveResultInfo> collect, Long userId) {
+        if (CollectionUtils.isNotEmpty(collect) && collect.size() > 1) {
+            for (ApplyApproveResultInfo info : collect) {//下一审批人为多个
+                info.setApproveResult(ApproveStateEnum.APPROVE_PASS.getKey());
+                info.setState(ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey());
+                info.setUpdateBy(String.valueOf(userId));
+                info.setUpdateTime(new Date());
+                resultInfoService.updateApplyApproveResultInfo(info);//审批通过
+            }
+        }
+    }
+
+
+    private List<ApplyApproveResultInfo> beforeInspect(JourneyApplyDto journeyApplyDto,Long userId) throws Exception{
+        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
+        if (ObjectUtils.isEmpty(journeyInfo)){
+            throw new Exception("行程申请单不存在!");
+        }
+        ApplyInfo applyInfo1 = applyInfoService.selectApplyInfoById(journeyApplyDto.getApplyId());
+        if (ObjectUtils.isEmpty(applyInfo1)){
+            throw new Exception("行程申请单不存在!");
+        }
+        RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
+        List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = nodeInfoService.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId(), userId));
+        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(), regimeInfo.getApproveTemplateId(), approveTemplateNodeInfos.get(0).getApproveNodeId()));
+        if (CollectionUtils.isNotEmpty(applyApproveResultInfos)&&ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(applyApproveResultInfos.get(0).getState())){
+            throw new Exception("已审批");
+        }
+        List<ApplyApproveResultInfo> resultInfoList = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(),regimeInfo.getApproveTemplateId()));
+        //所有待审批的记录
+        List<ApplyApproveResultInfo> collect = resultInfoList.stream().filter(p -> ApproveStateEnum.WAIT_APPROVE_STATE.getKey().equals(p.getState()) && StringUtils.isBlank(p.getApproveResult())).collect(Collectors.toList());
+        List<Long> nodeIds = collect.stream().map(ApplyApproveResultInfo::getApproveNodeId).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(nodeIds)){
+            String nodeInfos= nodeInfoService.getListByNodeIds(nodeIds);
+            if (!nodeInfos.contains(String.valueOf(userId))){
+                throw new Exception("您不是当前审批人!");
+            }
+        }
+        return collect;
+    }
 }

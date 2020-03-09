@@ -59,4 +59,6 @@ public interface ApproveTemplateNodeInfoMapper
      * @return 结果
      */
     public int deleteApproveTemplateNodeInfoByIds(Long[] approveNodeIds);
+
+    String getListByNodeIds(List<Long> nodeIds);
 }

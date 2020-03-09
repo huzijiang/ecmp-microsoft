@@ -13,10 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.domain.ApplyInfo;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
-import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import com.hq.ecmp.constant.ApproveStateEnum;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
@@ -52,6 +50,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private JourneyNodeInfoMapper journeyNodeInfoMapper;
     @Autowired
     private JourneyPassengerInfoMapper journeyPassengerInfoMapper;
+    @Autowired
+    private EcmpUserMapper ecmpUserMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -321,8 +321,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(journeyInfo.getUserId());
         //申请人
-        applyDetailVO.setApplyUser("刘德华");  //TODO 根据用户id查出用户名字  journeyInfo.getUserId()
+        applyDetailVO.setApplyUser(ecmpUser.getUserName());
+        applyDetailVO.setApplyMobile(ecmpUser.getPhonenumber());//TODO 根据用户id查出用户名字  journeyInfo.getUserId()
         //是否往返
         applyDetailVO.setIsGoBack(journeyInfo.getItIsReturn());
         //返回等待时间
@@ -432,6 +434,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         String[] states=new String[]{"S299","S600","S616","S699","S900"};//排除订单已派车后的申请单
         MessageDto applyMessage = applyInfoMapper.getApplyMessage(userId, states);
         return applyMessage;
+    }
+
+    @Override
+    public int getApplyApproveCount(Long userId) {
+        return applyInfoMapper.getApplyApproveCount(userId, ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
     }
 
     /**

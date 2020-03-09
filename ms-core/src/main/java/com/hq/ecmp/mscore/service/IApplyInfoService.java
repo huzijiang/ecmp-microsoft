@@ -104,4 +104,6 @@ public interface IApplyInfoService
     List<MessageDto> getOrderCount(Long userId);
 
     MessageDto getApplyMessage(Long userId);
+
+    int getApplyApproveCount(Long userId);
 }

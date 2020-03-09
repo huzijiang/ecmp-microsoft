@@ -93,4 +93,9 @@ public class JourneyPassengerInfoServiceImpl implements IJourneyPassengerInfoSer
     {
         return journeyPassengerInfoMapper.deleteJourneyPassengerInfoById(journeyPassengerId);
     }
+
+    @Override
+    public String getPeerPeople(Long journeyId) {
+        return journeyPassengerInfoMapper.getPeerPeople(journeyId);
+    }
 }
