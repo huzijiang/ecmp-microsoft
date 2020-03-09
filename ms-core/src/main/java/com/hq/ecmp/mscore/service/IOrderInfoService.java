@@ -136,5 +136,15 @@ public interface IOrderInfoService {
      * 网约车异步约车方法
      */
     void platCallTaxi(OrderInfo orderInfo,String enterpriseId,String licenseContent,String apiUrl);
+    
+   /**
+    * 自有车派车
+    * @param orderId
+    * @param driverId
+    * @param carId
+    * @param userId 
+    * @return
+    */
+    public boolean ownCarSendCar(Long orderId,Long driverId,Long carId,Long userId);
 }
 

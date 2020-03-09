@@ -8,6 +8,7 @@ public enum OrderStateTrace {
     
     TURNREASSIGNMENT("S277","改派请求驳回"),
     PASSREASSIGNMENT("S279","改派请求通过"),
+    SENDCAR("S299","已派车"),
     PRESERVICE("S600","准备服务"),
     SERVICE("S616","服务中"),
     SERVICEOVER("S699","服务结束"),
