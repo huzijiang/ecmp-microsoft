@@ -1,46 +1,44 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import javax.annotation.Resource;
 
-import java.text.DateFormat;
-import java.util.List;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.constant.*;
-import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-
+import com.hq.ecmp.constant.CarModeEnum;
+import com.hq.ecmp.constant.CarPowerEnum;
+import com.hq.ecmp.constant.HintEnum;
 import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.mscore.domain.CarInfo;
+import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
+import com.hq.ecmp.mscore.domain.DriverInfo;
+import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-
-import com.hq.ecmp.constant.OrderStateTrace;
-import com.hq.ecmp.mscore.domain.*;
-
+import com.hq.ecmp.mscore.domain.SendCarInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
+import com.hq.ecmp.mscore.service.ICarGroupInfoService;
+import com.hq.ecmp.mscore.service.ICarInfoService;
+import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
-import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.DateFormatUtils;
-import org.springframework.beans.BeanUtils;
-import com.hq.ecmp.mscore.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -63,6 +61,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private ICarInfoService carInfoService;
     @Autowired
     private ICarGroupInfoService carGroupInfoService;
+   
 
 
     @Resource
@@ -290,4 +289,39 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public MessageDto getOrderMessage(Long userId,String states,Long driveId) {
         return orderInfoMapper.getOrderMessage(userId,states,driveId);
     }
+    
+    
+    @Transactional(propagation=Propagation.REQUIRED)
+	@Override
+	public boolean ownCarSendCar(Long orderId, Long driverId, Long carId,Long userId) {
+		//查询司机信息
+		DriverInfo driverInfo = driverInfoService.selectDriverInfoById(driverId);
+		OrderInfo orderInfo = new OrderInfo();
+		orderInfo.setOrderId(orderId);
+		orderInfo.setState(OrderState.ALREADYSENDING.getState());
+		orderInfo.setDriverId(driverId);
+		if(null !=driverInfo){
+			orderInfo.setDriverName(driverInfo.getDriverName());
+			orderInfo.setDriverMobile(driverInfo.getMobile());
+		}
+		orderInfo.setCarId(carId);
+		orderInfo.setUpdateBy(String.valueOf(userId));
+		orderInfo.setUpdateTime(new Date());
+		//更新订单信息
+		int updateFlag = updateOrderInfo(orderInfo);
+		//新增订单状态流转记录
+		 OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+		 orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+		 //判读该单子是否是改派单
+		 if(iOrderStateTraceInfoService.isReassignment(orderId)){
+			 orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.getState());
+		 } else{
+			 orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState()); 
+		 }
+        
+         orderStateTraceInfo.setOrderId(orderId);
+         int insertFlag = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+		
+		return updateFlag>0&&insertFlag>0;
+	}
 }

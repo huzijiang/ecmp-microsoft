@@ -132,5 +132,15 @@ public interface IOrderInfoService {
     String orderHint(Long orderId);
 
     MessageDto getOrderMessage(Long userId,String states,Long driveId);
+    
+   /**
+    * 自有车派车
+    * @param orderId
+    * @param driverId
+    * @param carId
+    * @param userId 
+    * @return
+    */
+    public boolean ownCarSendCar(Long orderId,Long driverId,Long carId,Long userId);
 }
 
