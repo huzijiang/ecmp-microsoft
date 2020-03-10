@@ -274,12 +274,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
         //TODO 是否需要车队信息
         //是否添加联系人
-//        DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
-        vo.setDriverScore("4.5");
+        DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
+        vo.setDriverScore(driverInfo.getStar()+"");
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
         vo.setState(orderInfo.getState());
         //TODO 客服电话暂时写死
         vo.setCustomerServicePhone("010-88888888");
+        JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
+        vo.setUseCarTime(nodeInfo.getPlanSetoutTime());
         return vo;
     }
 

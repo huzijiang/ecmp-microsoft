@@ -41,16 +41,12 @@ public class ApplyContoller {
 
     @Autowired
     private IApplyInfoService applyInfoService;
-
     @Autowired
     private IJourneyInfoService journeyInfoService;
-
     @Autowired
     private IOrderInfoService orderInfoService;
-
     @Autowired
     private TokenService tokenService;
-
     @Autowired
     private IApplyApproveResultInfoService resultInfoService;
     @Autowired
@@ -59,6 +55,8 @@ public class ApplyContoller {
     private IApproveTemplateNodeInfoService nodeInfoService;
     @Autowired
     private IEcmpUserService ecmpUserService;
+    @Autowired
+    private IJourneyUserCarPowerService journeyUserCarPowerService;
 
 
 
@@ -267,6 +265,10 @@ public class ApplyContoller {
                 //修改审理状态
                 this.updateApproveResult(collect, userId);
                 //TODO 调取生成用车权限,初始化订单
+                boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(journeyApplyDto.getApplyId(), userId);
+                if(!optFlag){
+                    return ApiResponse.error("生成用车权限失败");
+                }
                 orderInfoService.initOrder(journeyApplyDto.getApplyId(),journeyApplyDto.getJouneyId(),userId);
             }
         }catch (Exception e){
