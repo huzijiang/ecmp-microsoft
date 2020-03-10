@@ -102,9 +102,6 @@ public class UserEmergencyContactInfo implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public UserEmergencyContactInfo() {
-    }
-
     public UserEmergencyContactInfo(Long userId) {
         this.userId = userId;
     }
