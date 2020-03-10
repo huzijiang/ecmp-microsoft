@@ -164,7 +164,6 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 						applyInfo.setJourneyId(journeyInfo.getJourneyId());
 						List<ApplyInfo> applyInfoList = applyInfoService.selectApplyInfoList(applyInfo);
 						carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
-						
 					}
 				}
 				carAuthorityInfoList.add(carAuthorityInfo);	

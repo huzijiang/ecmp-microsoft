@@ -57,4 +57,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <select id="selectRegimenIdsBySceneId" resultType="java.lang.Long" parameterType="long">
+        select regimen_id from scene_regime_relation where scene_id = #{sceneId}
+    </select>
+
 </mapper>
