@@ -85,4 +85,12 @@ public interface IJourneyUserCarPowerService
      * @return
      */
     public List<ServiceTypeCarAuthority> queryUserAuthorityFromService(String type,Long journeyId);
+    
+    /**
+     * 对用车申请单生成用车权限
+     * @param applyId  申请单
+     * @param auditUserId   申请单审核通过人
+     * @return
+     */
+    public boolean createUseCarAuthority(Long applyId,Long auditUserId);
 }

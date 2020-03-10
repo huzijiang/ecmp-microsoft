@@ -119,4 +119,9 @@ public class JourneyNodeInfoServiceImpl implements IJourneyNodeInfoService
 		
 		return journeyNodeInfoMapper.queryGroupCity(journeyId);
 	}
+
+	@Override
+	public List<JourneyNodeInfo> queryJourneyNodeInfoOrderByNumber(Long journeyId) {
+		return journeyNodeInfoMapper.queryJourneyNodeInfoOrderByNumber(journeyId);
+	}
 }

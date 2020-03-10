@@ -1,7 +1,10 @@
 package com.hq.ecmp.mscore.domain;
 
+import java.util.Date;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
@@ -43,6 +46,21 @@ public class JourneyUserCarPower extends BaseEntity
     private String itIsReturn;
     
     private String cityName;
+    
+    private Long createUser;
+    
+    private Date createDate;
+    public JourneyUserCarPower(){};
+    
+    public JourneyUserCarPower(Long applyId,Long journeyId,Date createDate,Long createUser,String state,String type,Long nodeId){
+    	this.applyId=applyId;
+    	this.journeyId=journeyId;
+    	this.createUser=createUser;
+    	this.createDate=createDate;
+    	this.state=state;
+    	this.type=type;
+    	this.nodeId=nodeId;
+    }
 
     public void setPowerId(Long powerId)
     {
@@ -116,6 +134,24 @@ public class JourneyUserCarPower extends BaseEntity
 
 	public void setCityName(String cityName) {
 		this.cityName = cityName;
+	}
+    
+	
+	public Long getCreateUser() {
+		return createUser;
+	}
+
+	public void setCreateUser(Long createUser) {
+		this.createUser = createUser;
+	}
+    
+	
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
 	}
 
 	@Override
