@@ -1,8 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
-import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
-
 import java.util.List;
+
+import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 
 /**
  * 【请填写功能名称】Service接口
@@ -77,6 +77,12 @@ public interface IJourneyNodeInfoService
     
     
     public List<String> queryGroupCity(Long journeyId);
+    
+    /**
+     * 按行程流程顺序查询执行行程下的行程节点
+     * @return
+     */
+    public List<JourneyNodeInfo>  queryJourneyNodeInfoOrderByNumber(Long journeyId);
     
   
 }

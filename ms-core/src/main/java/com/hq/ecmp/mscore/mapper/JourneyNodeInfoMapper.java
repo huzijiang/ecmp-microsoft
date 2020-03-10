@@ -64,4 +64,7 @@ public interface JourneyNodeInfoMapper
     
     
     public List<String> queryGroupCity(Long journeyId);
+    
+    
+    public List<JourneyNodeInfo> queryJourneyNodeInfoOrderByNumber(Long journeyId);
 }
