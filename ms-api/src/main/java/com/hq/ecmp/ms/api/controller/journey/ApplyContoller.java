@@ -163,7 +163,7 @@ public class ApplyContoller {
      * @param journeyApplyDto  申请信息
      * @return
      */
-    @ApiOperation(value = "getApproveResult",notes = "根据行程申请单查询审批流信息 ",httpMethod ="POST")
+    @ApiOperation(value = "getApproveResult",notes = "根据申请单查询审批流信息 ",httpMethod ="POST")
     @PostMapping("/getApproveResult")
     public ApiResponse <List<ApprovalInfoVO>> getApproveResult(JourneyApplyDto journeyApplyDto){
         ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(journeyApplyDto.getApplyId());
@@ -303,12 +303,12 @@ public class ApplyContoller {
 
 
     /**
-     * 获取行程申请的审批详情
+     * 获取审批详情
      * @param journeyApplyDto  行程申请信息
      * @return
      */
-    @ApiOperation(value = "getApplyApproveDetailInfo",notes = "获取行程申请的审批详情",httpMethod ="POST")
-    @PostMapping("/getApplyApproveDetailInfo")
+    @ApiOperation(value = "getTravelApproval",notes = "获取审批详情",httpMethod ="POST")
+    @PostMapping("/getTravelApproval")
     public ApiResponse<TravelApprovalVO> getApplyApproveDetailInfo(JourneyApplyDto journeyApplyDto){
         TravelApprovalVO vo=new TravelApprovalVO();
         ApplyDetailVO  applyDetailVO = applyInfoService.selectApplyDetail(journeyApplyDto.getApplyId());
@@ -319,7 +319,11 @@ public class ApplyContoller {
         return ApiResponse.success(vo);
     }
 
-    @ApiOperation(value = "getApplyApproveCount",notes = "获取行程申请的审批详情",httpMethod ="POST")
+    /**
+     * 获取我的申请与审批个数
+     * @return
+     */
+    @ApiOperation(value = "getApplyApproveCount",notes = "获取我的申请与审批个数",httpMethod ="POST")
     @PostMapping("/getApplyApproveCount")
     public ApiResponse<String> getApplyApproveCount(){
         HttpServletRequest request = ServletUtils.getRequest();

@@ -27,10 +27,7 @@ import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.*;
 
-import com.hq.ecmp.mscore.mapper.ApplyInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
-import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.DateFormatUtils;
@@ -42,6 +39,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -74,14 +72,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private JourneyUserCarPowerMapper journeyUserCarPowerMapper;
     @Resource
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
-
     @Resource
     private IDriverInfoService iDriverInfoService;
     @Resource
     private ApplyInfoMapper applyInfoMapper;
-
     @Resource
     private RedisUtil redisUtil;
+    @Resource
+    private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
+
 
     /**
      * 查询【请填写功能名称】
@@ -274,6 +273,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
         //TODO 是否需要车队信息
         //是否添加联系人
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+        List<UserEmergencyContactInfo> userEmergencyContactInfos = userEmergencyContactInfoMapper.queryAll(new UserEmergencyContactInfo(journeyInfo.getUserId()));
+        if (CollectionUtils.isEmpty(userEmergencyContactInfos)){
+            vo.setIsAddContact("是");
+        }
         DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
         vo.setDriverScore(driverInfo.getStar()+"");
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));

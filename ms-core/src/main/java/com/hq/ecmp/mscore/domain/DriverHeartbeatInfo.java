@@ -80,6 +80,14 @@ public class DriverHeartbeatInfo extends BaseEntity
         return latitude;
     }
 
+    public DriverHeartbeatInfo() {
+    }
+
+    public DriverHeartbeatInfo(Long driverId, Long orderId) {
+        this.driverId = driverId;
+        this.orderId = orderId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
