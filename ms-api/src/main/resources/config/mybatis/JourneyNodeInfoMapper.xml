@@ -176,5 +176,21 @@ WHERE
     <select id="queryGroupCity" parameterType="java.lang.Long" resultType="string">
     select plan_begin_address from journey_node_info where journey_id=#{journeyId} GROUP BY plan_begin_address
     </select>
+    
+    <select id="queryJourneyNodeInfoOrderByNumber" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.JourneyNodeInfo">
+    SELECT
+	plan_begin_address AS planBeginAddress,
+	plan_begin_city_code AS planBeginCityCode,
+	plan_end_address AS planEndAddress,
+	plan_end_city_code AS planEndCityCode,
+	number,
+	node_id AS nodeId
+FROM
+	journey_node_info
+WHERE
+	journey_id = #{journeyId}
+ORDER BY
+	number
+    </select>
 
 </mapper>
