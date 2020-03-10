@@ -115,4 +115,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where state=='ST01' and approve_node_id in (select approve_node_id from approve_template_node_info where user_id = #{userId})
            )  a group by a.messageType
     </select>
+
+    <select id="selectResultList" parameterType="Object" resultMap="ApplyApproveResultInfoResult">
+        <include refid="selectApplyApproveResultInfoVo"/>
+         <where>
+             approve_node_id in (select approve_node_id from approve_template_node_info where user_id=#{userId})
+             <if test="state!=null and state!=''">and state!=#{state}</if>
+             order by field(state,'ST01','ST02','ST00')
+         </where>
+    </select>
 </mapper>

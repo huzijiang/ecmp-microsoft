@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
@@ -74,6 +75,21 @@ public class ApplyContoller {
         //提交行程申请
         applyInfoService.applyCommit(journeyCommitApplyDto);
         return ApiResponse.success();
+    }
+
+    /**
+     * 审批列表
+     * @param approveInfoDTO
+     * @return
+     */
+    @ApiOperation(value = "getApprovePage",notes = "审批列表 ",httpMethod ="POST")
+    @PostMapping("/getApprovePage")
+    public ApiResponse<PageInfo<ApprovaReesultVO>> getApprovePage(ApproveInfoDTO approveInfoDTO){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId=loginUser.getUser().getUserId();
+        PageInfo<ApprovaReesultVO> page= applyInfoService.getApprovePage(approveInfoDTO.getPageIndex(),approveInfoDTO.getPageSize(),userId);
+        return ApiResponse.success(page);
     }
 
     /**
@@ -152,9 +168,6 @@ public class ApplyContoller {
     @ApiOperation(value = "getApproveResult",notes = "根据行程申请单查询审批流信息 ",httpMethod ="POST")
     @PostMapping("/getApproveResult")
     public ApiResponse <List<ApprovalInfoVO>> getApproveResult(JourneyApplyDto journeyApplyDto){
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
         ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(journeyApplyDto.getApplyId());
         if (applyInfo==null){
             return ApiResponse.error("此行程申请不存在");

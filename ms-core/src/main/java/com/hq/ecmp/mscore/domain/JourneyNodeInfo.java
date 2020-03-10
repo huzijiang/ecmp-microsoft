@@ -299,6 +299,14 @@ public class JourneyNodeInfo extends BaseEntity
         return number;
     }
 
+    public JourneyNodeInfo() {
+    }
+
+    public JourneyNodeInfo(Long journeyId, Long userId) {
+        this.journeyId = journeyId;
+        this.userId = userId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

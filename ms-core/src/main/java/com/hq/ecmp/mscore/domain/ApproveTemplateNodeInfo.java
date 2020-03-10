@@ -106,11 +106,14 @@ public class ApproveTemplateNodeInfo extends BaseEntity
 
     public ApproveTemplateNodeInfo() {
     }
-
     public ApproveTemplateNodeInfo(Long approveTemplateId) {
         this.approveTemplateId = approveTemplateId;
     }
-
+    public ApproveTemplateNodeInfo( Long userId,boolean flag) {
+        if (flag){
+            this.userId = userId;
+        }
+    }
     public ApproveTemplateNodeInfo(Long approveTemplateId, Long userId) {
         this.approveTemplateId = approveTemplateId;
         this.userId = userId;

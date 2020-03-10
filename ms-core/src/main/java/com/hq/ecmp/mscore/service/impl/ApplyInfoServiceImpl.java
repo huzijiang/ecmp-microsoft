@@ -1,34 +1,30 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.ApproveStateEnum;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
-import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
-import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
-import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.DateFormatUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -52,6 +48,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private JourneyPassengerInfoMapper journeyPassengerInfoMapper;
     @Autowired
     private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private ApproveTemplateInfoMapper templateInfoMapper;
+    @Autowired
+    private ApproveTemplateNodeInfoMapper templateNodeInfoMapper;
+    private ApplyApproveResultInfoMapper resultInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -439,6 +440,50 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Override
     public int getApplyApproveCount(Long userId) {
         return applyInfoMapper.getApplyApproveCount(userId, ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
+    }
+
+    /**
+     * 审批列表
+     * @param pageIndex
+     * @param pageSize
+     * @param userId
+     * @return
+     */
+    @Override
+    public PageInfo<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
+        PageHelper.startPage(pageIndex,pageSize);
+        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
+        List<ApprovaReesultVO> approvaReesultVOs=new ArrayList<>();
+        if (!CollectionUtils.isEmpty(applyApproveResultInfos)){
+            for (ApplyApproveResultInfo info:applyApproveResultInfos){
+                ApprovaReesultVO vo=new ApprovaReesultVO();
+                BeanUtils.copyProperties(info,vo);
+                //查询申请信息
+                ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(info.getApplyId());
+                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
+                vo.setApplyName(ecmpUser.getUserName());
+                vo.setApplyTime(applyInfo.getCreateTime());
+                vo.setApplyType(ApplyTypeEnum.format(applyInfo.getApplyType()));
+                JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(applyInfo.getJourneyId());
+                vo.setUseCarTime(new SimpleDateFormat("yyyy年MM月dd日 HH:mm").format(journeyInfo.getUseCarTime()));
+                List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId(), Long.parseLong(applyInfo.getCreateBy())));
+                if (!CollectionUtils.isEmpty(journeyNodeInfos)){
+                    //判断是差旅还是公务
+                    if (ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(applyInfo.getApplyType())){//差旅
+                        String stroke="";
+                        for (JourneyNodeInfo nodeInfo:journeyNodeInfos){
+                            stroke+=","+nodeInfo.getPlanBeginAddress()+"-"+nodeInfo.getPlanEndAddress();
+                        }
+                        vo.setStroke(stroke.substring(1));
+                    }else{//公务
+                        vo.setStartAddress(journeyNodeInfos.get(0).getPlanBeginAddress());
+                        vo.setEndAddress(journeyNodeInfos.get(0).getPlanEndAddress());
+                    }
+                }
+                approvaReesultVOs.add(vo);
+            }
+        }
+        return new PageInfo<>(approvaReesultVOs);
     }
 
     /**

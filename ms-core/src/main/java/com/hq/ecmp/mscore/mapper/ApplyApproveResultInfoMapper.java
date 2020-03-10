@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -64,4 +65,6 @@ public interface ApplyApproveResultInfoMapper
     public int deleteApplyApproveResultInfoByIds(Long[] approveResultIds);
 
     MessageDto getApproveMessage(Long userId);
+
+    List<ApplyApproveResultInfo> selectResultList(@Param("userId") Long userId,@Param("state") String state);
 }
