@@ -7,10 +7,11 @@ import java.util.List;
 public enum OrderState {
     INITIALIZING("S000","订单已生成"),WAITINGLIST("S100","待派单"),
     GETARIDE("S101","去约车"),SENDINGCARS("S200","约车中"),
-    REASSIGNMENT("S201","待改派"),
-    ALREADYSENDING("S299","已派单"),
+    ALREADYSENDING("S299","已派单"),REASSIGNMENT("S500","乘客前往出发地"),
     READYSERVICE("S600","准备服务"),INSERVICE("S616","服务中"),
-    STOPSERVICE("S699","停止服务"),ORDERCLOSE("S900","订单关闭");
+    STOPSERVICE("S699","服务结束"),ORDERCLOSE("S900","订单关闭"),
+    DISSENT("S901","订单异议"),ORDERCANCEL("S911","订单取消"),
+    ORDEROVERTIME("S921","订单超时");
 
 
     private String state;
@@ -47,5 +48,7 @@ public enum OrderState {
     public static List<String> getContractedCar() {
         return Arrays.asList(INITIALIZING.getState(), WAITINGLIST.getState(),GETARIDE.getState(),SENDINGCARS.getState());
     }
+
+
 
 }

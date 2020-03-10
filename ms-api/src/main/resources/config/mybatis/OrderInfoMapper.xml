@@ -320,9 +320,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             <if test="driveId!=null and userId==null">
             and driver_id=#{driveId}
             </if>
-            <if test="userId!=null and driveId==null">
-            and user_id=#{userId}
-            </if>
             ) a group by a.messageType
     </select>
 
