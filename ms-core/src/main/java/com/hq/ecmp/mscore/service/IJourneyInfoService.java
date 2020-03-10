@@ -68,7 +68,7 @@ public interface IJourneyInfoService
     
     /**
      * 获取指定差旅行程下所有行程节点生成的用车权限
-     * @param userId
+     * @param
      * @param journeyId
      * @return
      */

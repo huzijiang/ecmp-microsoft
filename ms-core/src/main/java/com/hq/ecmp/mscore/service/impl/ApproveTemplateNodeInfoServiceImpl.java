@@ -94,4 +94,10 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
     {
         return approveTemplateNodeInfoMapper.deleteApproveTemplateNodeInfoById(approveNodeId);
     }
+
+    @Override
+    public String getListByNodeIds(List<Long> nodeIds) {
+
+        return approveTemplateNodeInfoMapper.getListByNodeIds(nodeIds);
+    }
 }

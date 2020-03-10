@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @author xueyong
  * @date 2020/1/4
@@ -42,6 +44,7 @@ public class OrderVO {
     private String driverType;
     @ApiModelProperty(name = "customerServicePhone",value = "客服电话")
     private String customerServicePhone;
-
+    @ApiModelProperty(name = "useCarTime",value = "用车时间")
+    private Date useCarTime;
 
 }

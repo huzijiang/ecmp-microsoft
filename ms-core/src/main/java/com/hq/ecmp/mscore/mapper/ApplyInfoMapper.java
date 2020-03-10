@@ -70,13 +70,11 @@ public interface ApplyInfoMapper
      */
     List<ApplyInfoDTO> selectApplyInfoListByPage(Long userId);
 
-    /**
-     * 获取用户正在进行的流程统计
-     * @param userId
-     * @return
-     */
+    /**暂时不用*/
     List<MessageDto> getOrderCount(Long userId);
 
     //获取当前申请通知列表
     MessageDto getApplyMessage(@Param("userId") Long userId,@Param("stateList") String[] stateList);
+
+    int getApplyApproveCount(@Param("userId")Long userId,@Param("state")String state);
 }

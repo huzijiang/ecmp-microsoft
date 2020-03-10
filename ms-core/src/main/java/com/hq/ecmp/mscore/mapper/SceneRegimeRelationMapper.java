@@ -59,4 +59,12 @@ public interface SceneRegimeRelationMapper
      * @return 结果
      */
     public int deleteSceneRegimeRelationByIds(Long[] sceneIds);
+
+    /**
+     * 根据场景id查询制度id集合
+     * @param sceneId
+     * @return
+     */
+    List<Long> selectRegimenIdsBySceneId(Long sceneId);
+
 }

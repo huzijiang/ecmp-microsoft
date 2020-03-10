@@ -37,6 +37,9 @@ public class ApproveTemplateNodeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long userId;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long nextNodeId;
 
     public void setApproveNodeId(Long approveNodeId)
     {
@@ -91,6 +94,19 @@ public class ApproveTemplateNodeInfo extends BaseEntity
     public Long getUserId()
     {
         return userId;
+    }
+
+    public Long getNextNodeId() {
+        return nextNodeId;
+    }
+
+    public void setNextNodeId(Long nextNodeId) {
+        this.nextNodeId = nextNodeId;
+    }
+
+    public ApproveTemplateNodeInfo(Long approveTemplateId, Long userId) {
+        this.approveTemplateId = approveTemplateId;
+        this.userId = userId;
     }
 
     @Override

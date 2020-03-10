@@ -53,6 +53,7 @@ public class ApplyDetailVO {
      * 申请人
      */
     private String applyUser;  //TODO UserVO改动
+    private String applyMobile;//申请人手机
     /**
      * 乘车人
      */
