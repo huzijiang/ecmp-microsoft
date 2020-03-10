@@ -616,7 +616,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         // 第二个节点出发地是第一个途径地，目的地是第二个途径地
         // 第n个节点的出发地是第n-1个途径地，目的地是第n个途径地
         // 最后一个节点的出发地是最后一个途径地，目的地是目的地
-        int size = passedAddressList.size();
+        int size = 0;
+        if(passedAddressList != null){
+            size = passedAddressList.size();
+        }
         //节点编号
         int n = 1;
         //如果没有途经点 就只有一个行程节点
@@ -863,8 +866,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //1.5 use_car_time 用车时间
         Date applyDate = officialCommitApply.getApplyDate();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");  //TODO 时间方法改动下
-        String date = dateFormat.format(applyDate);
-        journeyInfo.setUseCarTime(date);
+        if (applyDate != null){
+            String date = dateFormat.format(applyDate);
+            journeyInfo.setUseCarTime(date);
+        }
         //1.6 it_is_return 是否往返 Y000 N444
         journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());    //TODO  有往返的话，创建两个行程
         //1.7 estimate_price 预估价格     非空
@@ -878,7 +883,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //1.11 wait_time_long 预计等待时间，出发地 第一个节点 等待时长
         journeyInfo.setWaitTimeLong(officialCommitApply.getReturnWaitTime());  // TODO 新增 往返，返回等待时长
         //1.12 charter_car_type 包车类型：T000  非包车 T001 半日租（4小时）T002 整日租（8小时）
-        journeyInfo.setCharterCarType(String.valueOf(officialCommitApply.getCharterType()));
+        journeyInfo.setCharterCarType(officialCommitApply.getCharterType());
         //1.13 create_by 创建者
         journeyInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));  //TODO 数据库中是int
         //1.14 create_time 创建时间

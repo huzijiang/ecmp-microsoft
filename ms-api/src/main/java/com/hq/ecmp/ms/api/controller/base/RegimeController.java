@@ -9,6 +9,7 @@ import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,22 +31,26 @@ public class RegimeController {
 
 
     /**
-     * 根据用户信息查询用户的用车制度信息
+     * 根据用户信息查询用户的用车制度信息（可添加场景id条件筛选）
      * @param userDto userDto
      * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
      */
     @ApiOperation(value = "getUserRegimes",notes = "根据用户信息查询用户的用车制度信息",httpMethod ="POST")
     @PostMapping("/getUserRegimes")
-    public ApiResponse<List<RegimeInfo>> getUserRegimes(@RequestParam(required = false)UserDto userDto){
-        //如果没传递userId，则查询登录用户的的用车制度。如果传递了userId，则查询指定用户的用车制度
-        if(userDto == null || userDto.getUserId() == null){
-            HttpServletRequest request = ServletUtils.getRequest();
-            LoginUser loginUser = tokenService.getLoginUser(request);
-            userDto = new UserDto();
-            userDto.setUserId(loginUser.getUser().getUserId());
+    public ApiResponse<List<RegimeInfo>> getUserRegimes(@RequestBody(required = false)UserDto userDto){
+        //查询登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        //初始化sceneId
+        Long sceneId = null;
+        if(userDto != null){
+            sceneId = userDto.getSceneId();
         }
         //根据用户id查询用车制度
-        List<RegimeInfo> regimeInfoList = regimeInfoService.findRegimeInfoListByUserId(userDto.getUserId());
+        List<RegimeInfo> regimeInfoList = regimeInfoService.findRegimeInfoListByUserId(loginUser.getUser().getUserId(),sceneId);
+        if(CollectionUtils.isEmpty(regimeInfoList)){
+            return ApiResponse.error("暂无数据");
+        }
         return ApiResponse.success(regimeInfoList);
     }
 
