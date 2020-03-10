@@ -1,17 +1,25 @@
 package com.hq.ecmp.ms.api.controller.car;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.CarInfo;
+import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Driver;
 import java.util.List;
 
@@ -22,6 +30,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/car")
 public class CarController {
+
+    @Autowired
+    private IEnterpriseCarTypeInfoService enterpriseCarTypeInfoService;
+    @Autowired
+    private TokenService tokenService;
 
     /**
      * 获取可调度的车辆信息
@@ -85,6 +98,29 @@ public class CarController {
     public ApiResponse<List<CarInfo>> reportCarCurrentInfo(CarDto carDto){
 
         return null;
+    }
+
+    /**
+     * 查询查询用户企业有效车型 豪华型 公务型
+     * @return
+     */
+    @ApiOperation(value = "getAllEffectiveCarTypes",notes = "查询用户公司有效自有公车车型 公务型，豪华型",httpMethod ="POST")
+    @PostMapping("/getAllEffectiveCarTypes")
+    public ApiResponse<List<EnterpriseCarTypeInfo>> getEffectiveCarTypes(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        List<EnterpriseCarTypeInfo> list = null;
+        try {
+            list = enterpriseCarTypeInfoService.selectEffectiveCarTypes(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询失败");
+        }
+        if(CollectionUtils.isEmpty(list)){
+            return ApiResponse.error("暂无数据");
+        }
+        return ApiResponse.success(list);
     }
 
 

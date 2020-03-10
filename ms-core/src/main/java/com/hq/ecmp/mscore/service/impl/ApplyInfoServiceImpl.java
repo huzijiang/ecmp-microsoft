@@ -1,7 +1,13 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
@@ -9,12 +15,17 @@ import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.ApproveStateEnum;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
+import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
+import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
+import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -209,6 +220,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
         }
 
+        //差旅申请 行程表的title字段需要单独设置
+        setTitleInJourneyInfo(journeyId);
+
 
         //4.保存行程乘客信息 journey_passenger_info表
         // 差旅只有乘车人，没有同行人
@@ -216,6 +230,43 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         // 提交差旅乘客信息表
         journeyPassengerInfoCommit(travelCommitApply, journeyId, journeyPassengerInfo);
 
+    }
+
+    /**
+     * 设置行程表的title字段
+     * @param journeyId
+     */
+    private void setTitleInJourneyInfo(Long journeyId) {
+        //行程表的title字段需要重新生成  2种情况
+        // 情况1： 行程①：北京-上海   行程②：上海-南京   行程③：南京-北京   生成：北京-上海、南京、北京
+        // 情况2：  行程①：北京-上海   行程②：南京-西安                  生成：北京-上海；南京-西安
+        //查询申请单的所有行程节点
+        JourneyNodeInfo build = JourneyNodeInfo.builder().journeyId(journeyId).build();
+        List<JourneyNodeInfo> list = journeyNodeInfoMapper.selectJourneyNodeInfoList(build);
+        Collections.sort(list, new Comparator<JourneyNodeInfo>() {
+            @Override
+            public int compare(JourneyNodeInfo o1, JourneyNodeInfo o2) {
+                return o1.getNumber() - o2.getNumber();
+            }
+        });
+        StringBuilder sb = null;
+        int size = list.size();
+        //第一个节点
+        sb.append(list.get(0).getPlanBeginAddress() + "-"+list.get(0).getPlanEndAddress());
+        for (int j = 1; j < size; j++) {
+            //如果下一个节点的起点不是上一个起点的终点，则下一个节点追加   ；上海-北京  样字段
+            if(!list.get(j).getPlanBeginAddress().equals(list.get(j-1).getPlanEndAddress())){
+                sb.append("；");
+                sb.append(list.get(j).getPlanBeginAddress()+"-"+list.get(j).getPlanEndAddress());
+            }else {
+                //如果下一个节点的起点是上一个节点的终点，则下一个节点追加  、上海、南京  样字段
+                sb.append("、"+list.get(j).getPlanBeginAddress()+"、"+list.get(j).getPlanEndAddress());
+            }
+        }
+        String title = sb.toString();
+        //行程表添加title信息
+        JourneyInfo build1 = JourneyInfo.builder().title(title).journeyId(journeyId).build();
+        journeyInfoMapper.updateJourneyInfo(build1);
     }
 
     /**
@@ -302,6 +353,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         ApplyDetailVO applyDetailVO = ApplyDetailVO.builder()
                 //申请原因
                 .reason(applyInfo.getReason())
+                //行程id
+                .jouneyId(applyInfo.getJourneyId())
                 //成本中心
                 .costCenter(String.valueOf(applyInfo.getCostCenter()))
                 //项目编号

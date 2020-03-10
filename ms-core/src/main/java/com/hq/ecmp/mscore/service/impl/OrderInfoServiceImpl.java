@@ -35,6 +35,7 @@ import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.RedisUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -81,6 +82,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Resource
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
 
+    @Value("${company.serviceMobile}")
+    private String serviceMobile;
 
     /**
      * 查询【请填写功能名称】
@@ -264,7 +267,17 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (orderInfo==null){
             return null;
         }
+        JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
+        vo.setUseCarTime(nodeInfo.getPlanSetoutTime());
         BeanUtils.copyProperties(orderInfo,vo);
+        if (OrderState.SENDINGCARS.getState().equals(orderInfo.getState())){
+            vo.setHint(HintEnum.CALLINGCAR.join(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,nodeInfo.getPlanSetoutTime())));
+            return vo;
+        }
+        if (OrderState.ORDEROVERTIME.getState().equals(orderInfo.getState())){
+            vo.setHint(HintEnum.CALLCARFAILD.join(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,nodeInfo.getPlanSetoutTime())));
+            return vo;
+        }
         //查询车辆信息
         CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
         if (carInfo!=null){
@@ -282,10 +295,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         vo.setDriverScore(driverInfo.getStar()+"");
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
         vo.setState(orderInfo.getState());
-        //TODO 客服电话暂时写死
-        vo.setCustomerServicePhone("010-88888888");
-        JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
-        vo.setUseCarTime(nodeInfo.getPlanSetoutTime());
+        //TODO 客服电话暂时写在配置文件
+        vo.setCustomerServicePhone(serviceMobile);
         return vo;
     }
 
