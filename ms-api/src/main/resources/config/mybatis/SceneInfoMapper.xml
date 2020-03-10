@@ -91,7 +91,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		resultType="com.hq.ecmp.mscore.domain.SceneInfo">
 		SELECT
 		b. NAME AS NAME,
-		b.icon AS icon
+		b.icon AS icon,
+		b.scene_id AS sceneId
 		FROM
 		scene_regime_relation a
 		LEFT JOIN scene_info b ON a.scene_id = b.scene_id
