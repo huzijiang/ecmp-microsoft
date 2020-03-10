@@ -104,6 +104,13 @@ public class ApproveTemplateNodeInfo extends BaseEntity
         this.nextNodeId = nextNodeId;
     }
 
+    public ApproveTemplateNodeInfo() {
+    }
+
+    public ApproveTemplateNodeInfo(Long approveTemplateId) {
+        this.approveTemplateId = approveTemplateId;
+    }
+
     public ApproveTemplateNodeInfo(Long approveTemplateId, Long userId) {
         this.approveTemplateId = approveTemplateId;
         this.userId = userId;

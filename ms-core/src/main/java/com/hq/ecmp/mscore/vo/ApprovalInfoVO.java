@@ -16,34 +16,38 @@ public class ApprovalInfoVO {
     /**
      * 审批人Id
      */
+    private Long approveResultId;
     private Long approvalNodeId;
     /**
      * 审批人姓名
      */
-    private String approvalName;
+    private String approval;
     /**
      * 审批人电话
      */
-    private String approvalPhone;
+    private String approvalMobile;
     //审批结果
     private String approveResult;
 
     private String approveState;
 
+    private String content;
+
     public ApprovalInfoVO() {
     }
 
-    public ApprovalInfoVO(Long approvalNodeId, String approvalName, String approvalPhone) {
+    public ApprovalInfoVO(Long approvalNodeId, String approvalName, String approvalMobile) {
         this.approvalNodeId = approvalNodeId;
-        this.approvalName = approvalName;
-        this.approvalPhone = approvalPhone;
+        this.approval = approvalName;
+        this.approvalMobile = approvalMobile;
     }
 
-    public ApprovalInfoVO(Long approvalNodeId, String approvalName, String approvalPhone, String approveResult, String approveState) {
+    public ApprovalInfoVO(Long approvalNodeId, String approvalName, String approvalMobile, String approveResult, String approveState) {
         this.approvalNodeId = approvalNodeId;
-        this.approvalName = approvalName;
-        this.approvalPhone = approvalPhone;
+        this.approval = approvalName;
+        this.approvalMobile = approvalMobile;
         this.approveResult = approveResult;
         this.approveState = approveState;
     }
+
 }

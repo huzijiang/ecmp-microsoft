@@ -18,6 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.ServletRequestDataBinder;
@@ -55,6 +56,9 @@ public class ApplyContoller {
     private IRegimeInfoService regimeInfoService;
     @Autowired
     private IApproveTemplateNodeInfoService nodeInfoService;
+    @Autowired
+    private IEcmpUserService ecmpUserService;
+
 
 
     /**
@@ -137,6 +141,26 @@ public class ApplyContoller {
             ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(regimeDto.getRegimenId());
             return ApiResponse.success(applyInfo);
         }
+        return ApiResponse.error("获取用车制度对应的审批流信息异常");
+    }
+
+    /**
+     * 根据申请单查询审批流信息
+     * @param journeyApplyDto  申请信息
+     * @return
+     */
+    @ApiOperation(value = "getApproveResult",notes = "根据行程申请单查询审批流信息 ",httpMethod ="POST")
+    @PostMapping("/getApproveResult")
+    public ApiResponse <List<ApprovalInfoVO>> getApproveResult(JourneyApplyDto journeyApplyDto){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(journeyApplyDto.getApplyId());
+        if (applyInfo==null){
+            return ApiResponse.error("此行程申请不存在");
+        }
+        EcmpUser ecmpUser = ecmpUserService.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
+        List<ApprovalInfoVO> approveList = this.getApproveList(ecmpUser.getUserName(), ecmpUser.getPhonenumber(), journeyApplyDto.getApplyId());
         return ApiResponse.error("获取用车制度对应的审批流信息异常");
     }
 
@@ -298,7 +322,11 @@ public class ApplyContoller {
         list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请人"));
         if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
             for (ApplyApproveResultInfo info:applyApproveResultInfos){
-                list.add(new ApprovalInfoVO(info.getApproveNodeId(),info.getApprover(),info.getApproverMobile(), ApproveStateEnum.format(info.getApproveResult()),ApproveStateEnum.format(info.getState())));
+                ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO();
+                BeanUtils.copyProperties(info,approvalInfoVO);
+                approvalInfoVO.setApproveResult(ApproveStateEnum.format(info.getApproveResult()));
+                approvalInfoVO.setApproveState(ApproveStateEnum.format(info.getState()));
+                list.add(approvalInfoVO);
             }
         }
         Collections.sort(list, new Comparator<ApprovalInfoVO>() {
