@@ -126,6 +126,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="useTime != null  and useTime != ''">use_time = #{useTime},</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">wait_time_long = #{waitTimeLong},</if>
             <if test="charterCarType != null  and charterCarType != ''">charter_car_type = #{charterCarType},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="travelPickupCity != null  and travelPickupCity != ''">travel_pickup_city = #{travelPickupCity},</if>
+            <if test="pickupTimes != null  and pickupTimes != ''">pickup_times = #{pickupTimes},</if>
+            <if test="travelCitiesStr != null  and travelCitiesStr != ''">travel_cities_str = #{travelCitiesStr},</if>
+            <if test="title != null  and title != ''">title = #{title},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
