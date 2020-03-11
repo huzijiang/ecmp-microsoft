@@ -38,7 +38,7 @@ public class FileUtils {
      */
     public static String uploadfile(MultipartFile multipartFile, String parmPath)  {
 
-        if (multipartFile.isEmpty() || !StringUtils.isEmpty(multipartFile.getOriginalFilename())) {
+        if (multipartFile.isEmpty() || StringUtils.isEmpty(multipartFile.getOriginalFilename())) {
             throw new BaseException("上传文件为空");
         }
         String contentType = multipartFile.getContentType();
