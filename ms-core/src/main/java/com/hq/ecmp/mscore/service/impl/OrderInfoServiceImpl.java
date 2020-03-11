@@ -4,26 +4,17 @@ import java.util.*;
 
 
 import java.text.DateFormat;
-import java.util.List;
 
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-
 import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-
 import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.*;
 
@@ -44,7 +35,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -55,6 +45,8 @@ import java.util.List;
 @Service
 public class OrderInfoServiceImpl implements IOrderInfoService
 {
+	@Autowired
+	private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
     @Autowired
@@ -81,6 +73,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private RedisUtil redisUtil;
     @Resource
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
+    @Autowired
+    private IRegimeInfoService regimeInfoService;
+    @Autowired
+    private ICarGroupDispatcherInfoService carGroupDispatcherInfoService;
+  
 
     @Value("${company.serviceMobile}")
     private String serviceMobile;
@@ -189,7 +186,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
 
 	@Override
-	public List<DispatchOrderInfo> queryWaitDispatchList() {
+	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
 		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//查询所有处于待派单的订单及关联的信息
 		OrderInfo query = new OrderInfo();
@@ -208,7 +205,40 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			}
 			result.addAll(reassignmentOrder);
 		}
-		return result;
+		/*对用户进行订单可见校验
+		自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的调度员能看到该订单
+	      只有自有车时，且上车地点不在车队的用车城市范围内，则所有车车队的所有调度员都能看到该订单*/
+		List<DispatchOrderInfo> checkResult=new ArrayList<DispatchOrderInfo>();
+		if(result.size()>0){
+			for (DispatchOrderInfo dispatchOrderInfo : result) {
+				//查询订单对应制度的可用用车方式
+				Long regimenId = dispatchOrderInfo.getRegimenId();
+				if(null ==regimenId || ! regimeInfoService.findOwnCar(regimenId)){
+					checkResult.add(dispatchOrderInfo);
+					continue;
+				}
+				String cityId = dispatchOrderInfo.getCityId();
+				if(StringUtil.isEmpty(cityId)){
+					checkResult.add(dispatchOrderInfo);
+					continue;
+				}
+				//查询上车地点对应城市有哪些车队
+				List<Long> carGroupList = carGroupServeScopeInfoMapper.queryCarGroupByCity(cityId);
+				if(null==carGroupList || carGroupList.size()==0){
+					//上车点所在城市没有车队  则所有车队的所欲调度员都能看见这个单子
+					checkResult.add(dispatchOrderInfo);
+					continue;
+				}
+				//判断登陆用户是否属于这些车队
+				List<Long> carGroupDispatcher = carGroupDispatcherInfoService.queryUserByCarGroup(carGroupList);
+				if(null==carGroupDispatcher || !carGroupDispatcher.contains(userId)){
+					//用户不属于这些车队的调度员  则不能看见这个订单
+					continue;
+				}
+				checkResult.add(dispatchOrderInfo);
+			}
+		}
+		return checkResult;
 	}
 
 	@Override

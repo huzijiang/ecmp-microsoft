@@ -81,5 +81,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{dispatcherId}
         </foreach>
     </delete>
+    
+    <select id="queryCarGroupIdList" parameterType="java.lang.Long" resultType="java.lang.Long">
+    select car_group_id from car_group_dispatcher_info  where user_id=#{userId}
+    </select>
+    
+    <select id="queryUserByCarGroup" resultType="java.lang.Long">
+    select user_id from car_group_dispatcher_info where car_group_id in 
+    <foreach collection="list" separator="," open="(" close=")" item="item">
+    #{item}
+    </foreach>
+    
+    </select>
 
 </mapper>

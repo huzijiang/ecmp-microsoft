@@ -94,4 +94,14 @@ public class CarGroupDispatcherInfoServiceImpl implements ICarGroupDispatcherInf
     {
         return carGroupDispatcherInfoMapper.deleteCarGroupDispatcherInfoById(dispatcherId);
     }
+
+	@Override
+	public List<Long> queryCarGroupIdList(Long userId) {
+		return carGroupDispatcherInfoMapper.queryCarGroupIdList(userId);
+	}
+
+	@Override
+	public List<Long> queryUserByCarGroup(List<Long> list) {
+		return carGroupDispatcherInfoMapper.queryUserByCarGroup(list);
+	}
 }

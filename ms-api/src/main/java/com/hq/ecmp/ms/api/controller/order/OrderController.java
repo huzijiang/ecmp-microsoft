@@ -376,13 +376,20 @@ public class OrderController {
 
     /**
      * 获取所有等待 调度员 调派 的订单信息(包含改派订单)
+     * 
+     * 自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的驾驶员能看到该订单
+     * 
+     * 只有自有车时，且上车地点不在车队的用车城市范围内，则所有车车队的所有调度员都能看到该订单
      * @param  userDto  调度员用户信息
      * @return
      */
     @ApiOperation(value = "getAllWaitDispatchOrder", notes = "获取所有等待 调度员 调派 的订单信息 ", httpMethod = "POST")
     @PostMapping("/getAllWaitDispatchOrder")
     public ApiResponse<List<DispatchOrderInfo>> getAllWaitDispatchOrder(UserDto userDto){
-        return ApiResponse.success(iOrderInfoService.queryWaitDispatchList());
+    	HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        return ApiResponse.success(iOrderInfoService.queryWaitDispatchList(userId));
     }
 
     /**
