@@ -26,6 +26,11 @@ public class UserDto {
     String userName;
 
     /**
+     * 用户用车场景id
+     */
+    Long sceneId;
+
+    /**
      * 手机编号
      */
     String phoneNumber;

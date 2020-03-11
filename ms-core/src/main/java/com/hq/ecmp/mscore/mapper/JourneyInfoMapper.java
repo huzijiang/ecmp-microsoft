@@ -2,6 +2,8 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.JourneyVO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -64,4 +66,18 @@ public interface JourneyInfoMapper
     public int deleteJourneyInfoByIds(Long[] journeyIds);
 
     MessageDto getJourneyMessage(Long userId);
+
+    /**
+     * 获取正在进行中的行程
+     * @param userId
+     * @return list
+     */
+    public List<JourneyVO> getJourneyList(Long userId);
+
+    /**
+     * 获取正在进行中的行程个数
+     * @param userId
+     * @return 个数
+     */
+    int getJourneyListCount(@Param("userId")Long userId);
 }

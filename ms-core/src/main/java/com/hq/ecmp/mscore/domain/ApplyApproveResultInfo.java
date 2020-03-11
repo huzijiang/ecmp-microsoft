@@ -132,6 +132,39 @@ public class ApplyApproveResultInfo extends BaseEntity
         return content;
     }
 
+    public ApplyApproveResultInfo() {
+    }
+
+    public ApplyApproveResultInfo(Long applyId, Long approveTemplateId, Long approveNodeId, String approver, String approverMobile) {
+        this.applyId = applyId;
+        this.approveTemplateId = approveTemplateId;
+        this.approveNodeId = approveNodeId;
+        this.approver = approver;
+        this.approverMobile = approverMobile;
+    }
+
+    public ApplyApproveResultInfo(Long applyId) {
+        this.applyId = applyId;
+    }
+
+    public ApplyApproveResultInfo(Long applyId, Long approveTemplateId) {
+        this.applyId = applyId;
+        this.approveTemplateId = approveTemplateId;
+    }
+
+    public ApplyApproveResultInfo(Long applyId,Long approveTemplateId,Long approveNodeId) {
+        this.applyId = applyId;
+        this.approveNodeId=approveNodeId;
+        this.approveTemplateId = approveTemplateId;
+    }
+
+    public ApplyApproveResultInfo(Long applyId, Long approveTemplateId, Long approveNodeId, String state) {
+        this.applyId = applyId;
+        this.approveTemplateId = approveTemplateId;
+        this.approveNodeId = approveNodeId;
+        this.state = state;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

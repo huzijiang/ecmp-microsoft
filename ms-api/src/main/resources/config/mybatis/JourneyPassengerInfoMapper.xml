@@ -87,4 +87,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <!-- 手动编写sql start-->
+    <select id="getPeerPeople" parameterType="Object" resultType="String">
+        select group_concat(distinct name) from journey_passenger_info where journey_id = #{journeyId}
+    </select>
+
 </mapper>

@@ -1,13 +1,11 @@
 package com.hq.ecmp.mscore.service;
 
+import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
-    import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
-import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
-import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
-import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
-import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.ApplyDetailVO;
+import com.hq.ecmp.mscore.vo.ApprovaReesultVO;
 
 import java.util.List;
 
@@ -104,4 +102,8 @@ public interface IApplyInfoService
     List<MessageDto> getOrderCount(Long userId);
 
     MessageDto getApplyMessage(Long userId);
+
+    int getApplyApproveCount(Long userId);
+
+    PageInfo<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId);
 }

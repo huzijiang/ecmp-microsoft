@@ -1,11 +1,20 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.ApproveStateEnum;
 import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
+import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
+import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.mapper.ApplyApproveResultInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyApproveResultInfoService;
+import com.hq.ecmp.mscore.vo.ApprovalInfoVO;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +30,14 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
 {
     @Autowired
     private ApplyApproveResultInfoMapper applyApproveResultInfoMapper;
+    @Autowired
+    private RegimeInfoMapper regimeInfoMapper;
+    @Autowired
+    private ApproveTemplateInfoMapper approveTemplateInfoMapper;
+    @Autowired
+    private ApproveTemplateNodeInfoMapper approveTemplateNodeInfoMapper;
+    @Autowired
+    private EcmpUserMapper ecmpUserMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -99,5 +116,39 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
     @Override
     public MessageDto getApproveMessage(Long userId) {
         return applyApproveResultInfoMapper.getApproveMessage(userId);
+    }
+
+    @Override
+    public void initApproveResultInfo(Long applyId,Long regimenId,Long userId) {
+        //查询审批模板
+        RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimenId);
+        if (regimeInfo!=null){
+            List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId()));
+            Collections.sort(approveTemplateNodeInfos, new Comparator<ApproveTemplateNodeInfo>() {
+                @Override
+                public int compare(ApproveTemplateNodeInfo o1, ApproveTemplateNodeInfo o2) {
+                    int i = o1.getApproveNodeId().intValue() - o2.getApproveNodeId().intValue();
+                    if(i == 0){
+                        return o1.getApproveNodeId().intValue() - o2.getApproveNodeId().intValue();
+                    }
+                    return i;
+                }
+            });
+            if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos)){
+                for (int i=0;i<approveTemplateNodeInfos.size();i++ ){
+                    ApproveTemplateNodeInfo info = approveTemplateNodeInfos.get(i);
+                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(info.getUserId());
+                    ApplyApproveResultInfo resultInfo=new ApplyApproveResultInfo(applyId,regimeInfo.getApproveTemplateId(),info.getApproveNodeId(),ecmpUser.getUserName(),ecmpUser.getPhonenumber());
+                    String state= ApproveStateEnum.NOT_ARRIVED_STATE.getKey();
+                    if (i==0){
+                        state=ApproveStateEnum.WAIT_APPROVE_STATE.getKey();
+                    }
+                    resultInfo.setState(state);
+                    resultInfo.setCreateBy(String.valueOf(userId));
+                    resultInfo.setCreateTime(new Date());
+                    applyApproveResultInfoMapper.insertApplyApproveResultInfo(resultInfo);
+                }
+            }
+        }
     }
 }

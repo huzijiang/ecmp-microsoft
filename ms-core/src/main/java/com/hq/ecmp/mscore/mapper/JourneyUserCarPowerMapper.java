@@ -6,6 +6,8 @@ import com.hq.ecmp.mscore.domain.UserCarAuthority;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 /**
  * 【请填写功能名称】Mapper接口
  *
@@ -68,5 +70,7 @@ public interface JourneyUserCarPowerMapper
 	public List<ServiceTypeCarAuthority> queryUserAuthorityFromService(JourneyUserCarPower JourneyUserCarPower);
 
 	public Integer querySurplusNum(JourneyUserCarPower journeyUserCarPower);
+	
+	public Integer batchInsert(@Param("list")List<JourneyUserCarPower> list);
 
 }

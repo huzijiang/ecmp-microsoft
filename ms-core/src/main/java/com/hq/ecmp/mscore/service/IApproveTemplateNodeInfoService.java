@@ -59,4 +59,7 @@ public interface IApproveTemplateNodeInfoService
      * @return 结果
      */
     public int deleteApproveTemplateNodeInfoById(Long approveNodeId);
+
+    //根据节点id查询所有审批节点用户id
+    String getListByNodeIds(List<Long> nodeIds);
 }

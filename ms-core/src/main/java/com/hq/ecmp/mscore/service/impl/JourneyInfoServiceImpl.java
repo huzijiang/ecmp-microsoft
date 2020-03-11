@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.hq.ecmp.constant.CarModeEnum;
+import com.hq.ecmp.constant.CarPowerEnum;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.JourneyVO;
+import com.hq.ecmp.mscore.vo.OrderVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.mscore.domain.ApplyInfo;
-import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
-import com.hq.ecmp.mscore.domain.RegimeInfo;
-import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
@@ -122,7 +122,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
         return journeyInfoMapper.deleteJourneyInfoById(journeyId);
     }
 
-	@Override
+		/*@Override
 	public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId) {
 		List<CarAuthorityInfo> carAuthorityInfoList=new ArrayList<>();
 		JourneyInfo query = new JourneyInfo();
@@ -164,7 +164,6 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 						applyInfo.setJourneyId(journeyInfo.getJourneyId());
 						List<ApplyInfo> applyInfoList = applyInfoService.selectApplyInfoList(applyInfo);
 						carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
-						
 					}
 				}
 				carAuthorityInfoList.add(carAuthorityInfo);	
@@ -174,7 +173,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 	}
 
 	@Override
-	public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
+public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		List<UserAuthorityGroupCity> userAuthorityGroupCityList=new ArrayList<UserAuthorityGroupCity>();
 		
 		//根据行程查询下面的行程节点
@@ -191,10 +190,61 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 			}
 		}
 		return userAuthorityGroupCityList;
-	}
+	}*/
 
 	@Override
 	public MessageDto getJourneyMessage(Long userId) {
 		return journeyInfoMapper.getJourneyMessage(userId);
 	}
+	/**
+	 * 获取正在进行中的行程
+	 * @param userId
+	 * @return list
+	 */
+	@Override
+	public List<JourneyVO> getJourneyList(Long userId){
+
+		return journeyInfoMapper.getJourneyList(userId);
+	}
+
+	/**
+	 * 获取正在进行中的行程个数
+	 * @param userId
+	 * @return list
+	 */
+	@Override
+	public int getJourneyListCount(Long userId) {
+		return journeyInfoMapper.getJourneyListCount(userId);
+	}
+	/**
+	 * 获取正在进行中的行程详情
+	 * @param orderId
+	 * @return list
+	 */
+	/*@Override
+	public OrderVO orderBeServiceDetail(Long orderId) {
+		OrderVO vo=new OrderVO();
+		OrderInfo orderInfo = this.selectOrderInfoById(orderId);
+		if (orderInfo==null){
+			return null;
+		}
+		BeanUtils.copyProperties(orderInfo,vo);
+		//查询车辆信息
+		CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
+		if (carInfo!=null){
+			BeanUtils.copyProperties(carInfo,vo);
+		}
+		vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
+		//TODO 是否需要车队信息
+		//是否添加联系人
+//        DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
+		vo.setDriverScore("4.5");
+		vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
+		vo.setState(orderInfo.getState());
+		//TODO 客服电话暂时写死
+		vo.setCustomerServicePhone("010-88888888");
+		return vo;
+	}*/
+
+
 }

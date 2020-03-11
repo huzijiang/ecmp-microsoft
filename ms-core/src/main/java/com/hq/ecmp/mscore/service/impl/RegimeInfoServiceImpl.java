@@ -2,7 +2,9 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
 import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
+import com.hq.ecmp.mscore.mapper.SceneRegimeRelationMapper;
 import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
     private UserRegimeRelationInfoMapper userRegimeRelationInfoMapper;
     @Autowired
     private RegimeInfoMapper regimeInfoMapper;
+    @Autowired
+    private SceneRegimeRelationMapper sceneRegimeRelationMapper;
   
 
     /**
@@ -104,15 +108,22 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
     }
 
     /**
-     * 根据用户id查询用车制度集合
+     * 根据用户id查询用车制度集合(有场景id,则加场景条件)
      *
      * @param userId
      * @return
      */
     @Override
-    public List<RegimeInfo> findRegimeInfoListByUserId(Long userId) {
+    public List<RegimeInfo> findRegimeInfoListByUserId(Long userId,Long sceneId) {
         //根据userId查询regimeId集合
         List<Long> regimeIds = userRegimeRelationInfoMapper.selectIdsByUserId(userId);
+        //如果有制度条件限制,则进行条件筛选
+        if(sceneId != null){
+            //根据sceneId查询制度id集合
+            List<Long> regimenIds2 = sceneRegimeRelationMapper.selectRegimenIdsBySceneId(sceneId);
+            //求交集
+            regimeIds.retainAll(regimenIds2);
+        }
         //根据regimeId集合查询RegimeInfo集合
         List<RegimeInfo> regimeInfoList = regimeIds.stream().map(regimeId->regimeInfoMapper.selectRegimeInfoById(regimeId)).collect(Collectors.toList());
         return regimeInfoList;

@@ -10,7 +10,11 @@ import java.util.Map;
 public enum HintEnum {
     BESERVED_Hint("S299","您已成功预约%s出发的车辆，出发前30分钟可查看驾驶员位置","服务前提示语"),
     DRIVER_ARRIVE_HINT("S600","驾驶员已到达约定上车地点，等待您上车","驾驶员到达提示语"),
-    RUNNING_HINT("S616","已出发，请系好安全带","进行中提示语")
+    RUNNING_HINT("S616","已出发，请系好安全带","进行中提示语"),
+    CALLINGCAR("S200","正在全力为您寻找司机，将在%s前告知您预约结果，感谢您的耐心等待。","约车中详情提示语"),
+    CALLCARFAILD("S921","很抱歉，平台在%s前未能为您预约到车辆，感谢您的耐心等待。","约车失败"),
+
+
     ;
     private String state;
     private String hint;//提示语

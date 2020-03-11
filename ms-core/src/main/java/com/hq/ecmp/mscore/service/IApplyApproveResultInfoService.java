@@ -61,5 +61,17 @@ public interface IApplyApproveResultInfoService
      */
     public int deleteApplyApproveResultInfoById(Long approveResultId);
 
+    /**
+     * 获取审批通知
+     * @param userId
+     * @return
+     */
     MessageDto getApproveMessage(Long userId);
+
+    /**
+     * 初始化审批流
+     * @param applyId 申请id
+     * @param regimenId 用车制度id
+     */
+    void initApproveResultInfo(Long applyId,Long regimenId,Long userId);
 }

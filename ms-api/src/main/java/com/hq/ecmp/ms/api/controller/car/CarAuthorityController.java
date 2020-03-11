@@ -57,4 +57,15 @@ public class CarAuthorityController {
 		 return ApiResponse.success(journeyUserCarPowerService.queryUserAuthorityFromService(type,journeyId));
 	}
 	
+	
+	@ApiOperation(value = "createUseCarAuthority", notes = "生成用车权限", httpMethod = "POST")
+	@PostMapping("/createUseCarAuthority")
+	public ApiResponse createUseCarAuthority(Long applyId,Long userId) {
+		boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId,userId);
+		 if(!optFlag){
+			 return ApiResponse.error("生成用车权限失败");
+		 }
+		return ApiResponse.success();
+	}
+	
 }

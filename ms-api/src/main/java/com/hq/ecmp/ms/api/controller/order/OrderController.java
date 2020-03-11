@@ -68,8 +68,6 @@ public class OrderController {
     @Resource
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
 
-
-
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
 
@@ -95,55 +93,7 @@ public class OrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            //申请表id
-            Long applyId = journeyApplyDto.getApplyId();
-            //行程id
-            Long jouneyId = journeyApplyDto.getJouneyId();
-            //获取用车权限记录
-            JourneyUserCarPower journeyUserCarPowerChild = new JourneyUserCarPower();
-            journeyUserCarPowerChild.setJourneyId(jouneyId);
-            journeyUserCarPowerChild.setApplyId(applyId);
-            List<JourneyUserCarPower> journeyUserCarPowers = iJourneyUserCarPowerService.selectJourneyUserCarPowerList(journeyUserCarPowerChild);
-            //获取行程主表信息
-            JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(jouneyId);
-            //获取申请表信息
-            ApplyInfo applyInfo = iApplyInfoService.selectApplyInfoById(applyId);
-            //插入订单初始信息
-            OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setJourneyId(jouneyId);
-            orderInfo.setDriverId(null);
-            orderInfo.setCarId(null);
-            //使用汽车的方式，自由和网约
-            orderInfo.setUseCarMode(journeyInfo.getUseCarMode());
-            orderInfo.setCreateBy(String.valueOf(userId));
-            orderInfo.setCreateTime(new Date());
-            String applyType = applyInfo.getApplyType();
-            //如果是公务用车则状态直接为待派单，如果是差旅用车状态为初始化
-            if ("A001".equals(applyType)) {
-                orderInfo.setState(OrderState.WAITINGLIST.getState());
-            } else {
-                orderInfo.setState(OrderState.INITIALIZING.getState());
-            }
-            //有多少用车权限创建多少订单（注意往返以及差旅的室内用车）
-            for (int i = 0; i < journeyUserCarPowers.size(); i++) {
-                //通过行程节点与申请id以及行程id唯一确定用户权限id
-                JourneyUserCarPower journeyUserCarPower = journeyUserCarPowers.get(i);
-                String type = journeyUserCarPower.getType();
-                //如果是市内用车跳过生成订单，在手动创建订单的时候生成
-                if(CarConstant.CITY_USE_CAR.equals(type)){
-                    continue;
-                }
-                Long nodeId = journeyUserCarPower.getNodeId();
-                Long powerId = journeyUserCarPower.getPowerId();
-                orderInfo.setNodeId(nodeId);
-                orderInfo.setPowerId(powerId);// TODO: 2020/3/3  权限表何时去创建？ 申请审批通过以后创建用车权限表记录，一个行程节点可能对应多个用车权限，比如往返超过固定时间
-                iOrderInfoService.insertOrderInfo(orderInfo);
-                //插入订单轨迹表
-                iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId));
-                if ("A001".equals(applyType)) {
-                    iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId));
-                }
-            }
+            iOrderInfoService.initOrder(journeyApplyDto.getApplyId(),journeyApplyDto.getJouneyId(),userId);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("提交公务申请失败");
@@ -469,8 +419,8 @@ public class OrderController {
     public ApiResponse<DispatchOrderInfo> getWaitDispatchOrderDetailInfo(Long orderId) {
         return ApiResponse.success(iOrderInfoService.getWaitDispatchOrderDetailInfo(orderId));
     }
-    
-    
+
+
     /**
      * 自有车派车
      * @param orderId
@@ -490,7 +440,7 @@ public class OrderController {
          }else{
         	 return ApiResponse.error("调派单【"+orderId+"】自有车派车失败");
          }
-        
+
     }
 
 

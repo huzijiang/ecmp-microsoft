@@ -2,9 +2,7 @@ package com.hq.ecmp.mscore.service.impl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -13,10 +11,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.domain.ApplyInfo;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
-import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import com.hq.ecmp.constant.ApplyTypeEnum;
+import com.hq.ecmp.constant.ApproveStateEnum;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
@@ -25,12 +22,20 @@ import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.DateFormatUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -52,6 +57,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private JourneyNodeInfoMapper journeyNodeInfoMapper;
     @Autowired
     private JourneyPassengerInfoMapper journeyPassengerInfoMapper;
+    @Autowired
+    private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private ApproveTemplateInfoMapper templateInfoMapper;
+    @Autowired
+    private ApproveTemplateNodeInfoMapper templateNodeInfoMapper;
+    private ApplyApproveResultInfoMapper resultInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -208,6 +220,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
         }
 
+        //差旅申请 行程表的title字段需要单独设置
+        setTitleInJourneyInfo(journeyId);
+
 
         //4.保存行程乘客信息 journey_passenger_info表
         // 差旅只有乘车人，没有同行人
@@ -215,6 +230,43 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         // 提交差旅乘客信息表
         journeyPassengerInfoCommit(travelCommitApply, journeyId, journeyPassengerInfo);
 
+    }
+
+    /**
+     * 设置行程表的title字段
+     * @param journeyId
+     */
+    private void setTitleInJourneyInfo(Long journeyId) {
+        //行程表的title字段需要重新生成  2种情况
+        // 情况1： 行程①：北京-上海   行程②：上海-南京   行程③：南京-北京   生成：北京-上海、南京、北京
+        // 情况2：  行程①：北京-上海   行程②：南京-西安                  生成：北京-上海；南京-西安
+        //查询申请单的所有行程节点
+        JourneyNodeInfo build = JourneyNodeInfo.builder().journeyId(journeyId).build();
+        List<JourneyNodeInfo> list = journeyNodeInfoMapper.selectJourneyNodeInfoList(build);
+        Collections.sort(list, new Comparator<JourneyNodeInfo>() {
+            @Override
+            public int compare(JourneyNodeInfo o1, JourneyNodeInfo o2) {
+                return o1.getNumber() - o2.getNumber();
+            }
+        });
+        StringBuilder sb = null;
+        int size = list.size();
+        //第一个节点
+        sb.append(list.get(0).getPlanBeginAddress() + "-"+list.get(0).getPlanEndAddress());
+        for (int j = 1; j < size; j++) {
+            //如果下一个节点的起点不是上一个起点的终点，则下一个节点追加   ；上海-北京  样字段
+            if(!list.get(j).getPlanBeginAddress().equals(list.get(j-1).getPlanEndAddress())){
+                sb.append("；");
+                sb.append(list.get(j).getPlanBeginAddress()+"-"+list.get(j).getPlanEndAddress());
+            }else {
+                //如果下一个节点的起点是上一个节点的终点，则下一个节点追加  、上海、南京  样字段
+                sb.append("、"+list.get(j).getPlanBeginAddress()+"、"+list.get(j).getPlanEndAddress());
+            }
+        }
+        String title = sb.toString();
+        //行程表添加title信息
+        JourneyInfo build1 = JourneyInfo.builder().title(title).journeyId(journeyId).build();
+        journeyInfoMapper.updateJourneyInfo(build1);
     }
 
     /**
@@ -301,6 +353,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         ApplyDetailVO applyDetailVO = ApplyDetailVO.builder()
                 //申请原因
                 .reason(applyInfo.getReason())
+                //行程id
+                .jouneyId(applyInfo.getJourneyId())
                 //成本中心
                 .costCenter(String.valueOf(applyInfo.getCostCenter()))
                 //项目编号
@@ -321,8 +375,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(journeyInfo.getUserId());
         //申请人
-        applyDetailVO.setApplyUser("刘德华");  //TODO 根据用户id查出用户名字  journeyInfo.getUserId()
+        applyDetailVO.setApplyUser(ecmpUser.getUserName());
+        applyDetailVO.setApplyMobile(ecmpUser.getPhonenumber());//TODO 根据用户id查出用户名字  journeyInfo.getUserId()
         //是否往返
         applyDetailVO.setIsGoBack(journeyInfo.getItIsReturn());
         //返回等待时间
@@ -432,6 +488,55 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         String[] states=new String[]{"S299","S600","S616","S699","S900"};//排除订单已派车后的申请单
         MessageDto applyMessage = applyInfoMapper.getApplyMessage(userId, states);
         return applyMessage;
+    }
+
+    @Override
+    public int getApplyApproveCount(Long userId) {
+        return applyInfoMapper.getApplyApproveCount(userId, ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
+    }
+
+    /**
+     * 审批列表
+     * @param pageIndex
+     * @param pageSize
+     * @param userId
+     * @return
+     */
+    @Override
+    public PageInfo<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
+        PageHelper.startPage(pageIndex,pageSize);
+        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
+        List<ApprovaReesultVO> approvaReesultVOs=new ArrayList<>();
+        if (!CollectionUtils.isEmpty(applyApproveResultInfos)){
+            for (ApplyApproveResultInfo info:applyApproveResultInfos){
+                ApprovaReesultVO vo=new ApprovaReesultVO();
+                BeanUtils.copyProperties(info,vo);
+                //查询申请信息
+                ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(info.getApplyId());
+                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
+                vo.setApplyName(ecmpUser.getUserName());
+                vo.setApplyTime(applyInfo.getCreateTime());
+                vo.setApplyType(ApplyTypeEnum.format(applyInfo.getApplyType()));
+                JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(applyInfo.getJourneyId());
+                vo.setUseCarTime(new SimpleDateFormat("yyyy年MM月dd日 HH:mm").format(journeyInfo.getUseCarTime()));
+                List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId(), Long.parseLong(applyInfo.getCreateBy())));
+                if (!CollectionUtils.isEmpty(journeyNodeInfos)){
+                    //判断是差旅还是公务
+                    if (ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(applyInfo.getApplyType())){//差旅
+                        String stroke="";
+                        for (JourneyNodeInfo nodeInfo:journeyNodeInfos){
+                            stroke+=","+nodeInfo.getPlanBeginAddress()+"-"+nodeInfo.getPlanEndAddress();
+                        }
+                        vo.setStroke(stroke.substring(1));
+                    }else{//公务
+                        vo.setStartAddress(journeyNodeInfos.get(0).getPlanBeginAddress());
+                        vo.setEndAddress(journeyNodeInfos.get(0).getPlanEndAddress());
+                    }
+                }
+                approvaReesultVOs.add(vo);
+            }
+        }
+        return new PageInfo<>(approvaReesultVOs);
     }
 
     /**
@@ -609,7 +714,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         // 第二个节点出发地是第一个途径地，目的地是第二个途径地
         // 第n个节点的出发地是第n-1个途径地，目的地是第n个途径地
         // 最后一个节点的出发地是最后一个途径地，目的地是目的地
-        int size = passedAddressList.size();
+        int size = 0;
+        if(passedAddressList != null){
+            size = passedAddressList.size();
+        }
         //节点编号
         int n = 1;
         //如果没有途经点 就只有一个行程节点
@@ -856,8 +964,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //1.5 use_car_time 用车时间
         Date applyDate = officialCommitApply.getApplyDate();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");  //TODO 时间方法改动下
-        String date = dateFormat.format(applyDate);
-        journeyInfo.setUseCarTime(date);
+        if (applyDate != null){
+            String date = dateFormat.format(applyDate);
+            journeyInfo.setUseCarTime(date);
+        }
         //1.6 it_is_return 是否往返 Y000 N444
         journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());    //TODO  有往返的话，创建两个行程
         //1.7 estimate_price 预估价格     非空
@@ -871,7 +981,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //1.11 wait_time_long 预计等待时间，出发地 第一个节点 等待时长
         journeyInfo.setWaitTimeLong(officialCommitApply.getReturnWaitTime());  // TODO 新增 往返，返回等待时长
         //1.12 charter_car_type 包车类型：T000  非包车 T001 半日租（4小时）T002 整日租（8小时）
-        journeyInfo.setCharterCarType(String.valueOf(officialCommitApply.getCharterType()));
+        journeyInfo.setCharterCarType(officialCommitApply.getCharterType());
         //1.13 create_by 创建者
         journeyInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));  //TODO 数据库中是int
         //1.14 create_time 创建时间

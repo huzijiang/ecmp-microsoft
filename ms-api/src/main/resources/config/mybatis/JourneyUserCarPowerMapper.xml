@@ -137,5 +137,12 @@ AND b.plan_begin_address = #{cityName}
 AND a.state = 'U000'
 AND a.type = #{type}
     </select>
+    
+    <insert id="batchInsert">
+    insert into journey_user_car_power (apply_id,node_id,journey_id,state,type,create_by,create_time) values
+    <foreach collection="list"  item="item" separator=",">
+    (#{item.applyId},#{item.nodeId},#{item.journeyId},#{item.state},#{item.type},#{item.createUser},#{item.createDate})
+    </foreach>
+    </insert>
 
 </mapper>

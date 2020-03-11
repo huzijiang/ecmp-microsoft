@@ -63,7 +63,7 @@ public class MessageController {
 		//当前登录人为车队管理员(派车通知)
 		EcmpUser ecmpUser = userService.selectEcmpUserById(loginUser.getUser().getUserId());
 		if (ecmpUser!=null&& "1".equals(ecmpUser.getItIsDispatcher())){
-			String states="S100,S101,S000";//订单状态
+			String states="S100,S000";//订单状态
 			MessageDto orderMessage = orderInfoService.getOrderMessage(loginUser.getUser().getUserId(),states,null);
 			list.add(orderMessage);
 		}
@@ -110,7 +110,7 @@ public class MessageController {
 		}
 		//当前登录人为车队管理员(派车通知)
 		if (ecmpUser!=null&& "1".equals(ecmpUser.getItIsDispatcher())){
-			String states="S100,S101,S000";//订单状态
+			String states="S100,S000";//订单状态
 			MessageDto orderMessage = orderInfoService.getOrderMessage(loginUser.getUser().getUserId(),states,null);
 			list.add(orderMessage);
 		}

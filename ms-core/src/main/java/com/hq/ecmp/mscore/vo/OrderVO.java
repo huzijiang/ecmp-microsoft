@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @author xueyong
  * @date 2020/1/4
@@ -36,12 +38,13 @@ public class OrderVO {
     private String state;
     @ApiModelProperty(name = "carGroupPhone",value = "车队电话")
     private String carGroupPhone;
-    @ApiModelProperty(name = "isAddContact",value = "是否添加联系人")
+    @ApiModelProperty(name = "isAddContact",value = "是否添加联系人(1是0否)")
     private String isAddContact;
     @ApiModelProperty(name = "driverType",value = "司机类型(企业驾驶员/网约驾驶员)")
     private String driverType;
     @ApiModelProperty(name = "customerServicePhone",value = "客服电话")
     private String customerServicePhone;
-
+    @ApiModelProperty(name = "useCarTime",value = "用车时间")
+    private Date useCarTime;
 
 }

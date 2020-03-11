@@ -59,4 +59,12 @@ public interface IEnterpriseCarTypeInfoService
      * @return 结果
      */
     public int deleteEnterpriseCarTypeInfoById(Long carTypeId);
+
+
+    /**
+     * 查询用户企业有效车型 豪华型 公务型
+     * @param userId
+     * @return
+     */
+    List<EnterpriseCarTypeInfo> selectEffectiveCarTypes(Long userId);
 }

@@ -23,6 +23,11 @@ public class ApplyDetailVO {
      * 申请ID
      */
     private Integer applyId;
+
+    /**
+     * 行程ID
+     */
+    private Long jouneyId;   //TODO 新增行程id
     /**
      * 用车制度对象
      */
@@ -53,6 +58,7 @@ public class ApplyDetailVO {
      * 申请人
      */
     private String applyUser;  //TODO UserVO改动
+    private String applyMobile;//申请人手机
     /**
      * 乘车人
      */
