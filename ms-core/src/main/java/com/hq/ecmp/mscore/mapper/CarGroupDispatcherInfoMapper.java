@@ -4,6 +4,8 @@ import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 /**
  * 【请填写功能名称】Mapper接口
  *
@@ -59,4 +61,8 @@ public interface CarGroupDispatcherInfoMapper
      * @return 结果
      */
     public int deleteCarGroupDispatcherInfoByIds(Long[] dispatcherIds);
+    
+    public List<Long> queryCarGroupIdList(Long userId);
+    
+    public List<Long> queryUserByCarGroup(@Param("list")List<Long> list);
 }

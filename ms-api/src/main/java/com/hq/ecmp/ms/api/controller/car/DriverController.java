@@ -1,23 +1,29 @@
 package com.hq.ecmp.ms.api.controller.car;
 
-import com.hq.common.core.api.ApiResponse;
-import com.hq.ecmp.ms.api.dto.base.UserDto;
-import com.hq.ecmp.ms.api.dto.car.DriverDto;
-import com.hq.ecmp.ms.api.dto.car.EmergencyContactDto;
-import com.hq.ecmp.ms.api.dto.order.OrderDto;
-import com.hq.ecmp.mscore.domain.CarInfo;
-import com.hq.ecmp.mscore.domain.DriverInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.dto.DriverDTO;
-import com.hq.ecmp.mscore.service.IDriverInfoService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import io.swagger.annotations.ApiOperation;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.Driver;
-import java.util.List;
+import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.ms.api.dto.car.DriverDto;
+import com.hq.ecmp.ms.api.dto.car.EmergencyContactDto;
+import com.hq.ecmp.mscore.domain.DriverInfo;
+import com.hq.ecmp.mscore.domain.ReassignInfo;
+import com.hq.ecmp.mscore.dto.DriverDTO;
+import com.hq.ecmp.mscore.service.IDriverInfoService;
+import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
+
+import io.swagger.annotations.ApiOperation;
 
 /**
  * @Author: zj.hu
@@ -29,6 +35,12 @@ public class DriverController {
 
     @Autowired
     private IDriverInfoService driverInfoService;
+    
+    @Autowired
+    private TokenService tokenService;
+    
+    @Autowired
+    private IOrderStateTraceInfoService orderStateTraceInfoService;
 
     /**
      * 获取可调度的司机信息
@@ -76,7 +88,30 @@ public class DriverController {
 
         return null;
     }
+    
+    
+    /**
+     *司机申请改派
+     */
+    @ApiOperation(value = "applyReassignment ",notes = "司机申请改派",httpMethod ="POST")
+    @PostMapping("/applyReassignment")
+    public ApiResponse applyReassignment(Long orderNo,String reason){
+    	 HttpServletRequest request = ServletUtils.getRequest();
+         LoginUser loginUser = tokenService.getLoginUser(request);
+         Long userId = loginUser.getUser().getUserId();
+         boolean applyReassignment = orderStateTraceInfoService.applyReassignment(userId, orderNo, reason);
+        if(applyReassignment){
+        	return ApiResponse.success();
+        }
+         return ApiResponse.error();
+    }
 
-
-
+    /**
+     *查询改派记录
+     */
+    @ApiOperation(value = "reassignDetail ",notes = "查询改派记录",httpMethod ="POST")
+    @PostMapping("/reassignDetail")
+    public ApiResponse<List<ReassignInfo>> reassignDetail(Long orderNo){
+         return ApiResponse.success(orderStateTraceInfoService.queryReassignDetail(orderNo));
+    }
 }

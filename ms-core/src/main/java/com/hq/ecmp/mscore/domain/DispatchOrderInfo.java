@@ -35,6 +35,9 @@ public class DispatchOrderInfo {
        	
        	String useCarMode;//自有车- W100   网约车  -W200    多个以"、"分隔
        	
+       	Long regimenId;
+       	
+       	String cityId;//上车点城市编号
        	
        	String reassignmentApplyReason;//改派申请理由
        	
