@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.domain.UserCarAuthority;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.JourneyVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
+import lombok.Data;
 
 /**
  * 【请填写功能名称】Service接口
@@ -66,7 +67,7 @@ public interface IJourneyInfoService
      */
     public int deleteJourneyInfoById(Long journeyId);
     
-   // public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId);
+    public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId);
     
     /**
      * 获取指定差旅行程下所有行程节点生成的用车权限
@@ -74,7 +75,7 @@ public interface IJourneyInfoService
    //  * @param journeyId
      * @return
      */
-   // public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId);
+    public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId);
 
     MessageDto getJourneyMessage(Long userId);
     /**
