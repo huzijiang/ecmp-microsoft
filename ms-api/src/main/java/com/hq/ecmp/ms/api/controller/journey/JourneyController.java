@@ -49,7 +49,6 @@ public class JourneyController {
         return null;
     }
 
-
     /**
      * 撤消行程
      * @param  journeyApplyDto  行程申请信息
@@ -174,24 +173,23 @@ public class JourneyController {
 
     /**@author shixin
      * @Date 10:11 2020/3/9
-     * @Description 查询用户当前进行中的行程列表
-     * @param journeyApplyDto 用户信息
+     * @Description 查询用户当前进行中的行程列
      * @return
      */
-    @ApiOperation(value = "getUserJourneys",notes = "查询用户当前进行中的行程信息 ",httpMethod ="POST")
+/*    @ApiOperation(value = "getUserJourneys",notes = "查询用户当前进行中的行程信息 ",httpMethod ="POST")
     @PostMapping("/getUserJourneys")
-    public ApiResponse<List<JourneyVO>> getUserJourneys(JourneyApplyDto journeyApplyDto){
+    public ApiResponse<List<JourneyVO>> getUserJourneys(){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         List<JourneyVO>  journeylistjxz = journeyInfoService.getJourneyList(userId);
         return ApiResponse.success(journeylistjxz);
-    }
+    }*/
     /** @author shixin
      *  @Date 10:11 2020/3/9
      *  @Description 查询用户当前进行中的行程个数
      */
-    @ApiOperation(value = "getJourneyListCount",notes = "获取当前进行中的行程个数",httpMethod ="POST")
+/*    @ApiOperation(value = "getJourneyListCount",notes = "获取当前进行中的行程个数",httpMethod ="POST")
     @PostMapping("/getJourneyListCount")
     public ApiResponse<String> getJourneyListCount(){
         HttpServletRequest request = ServletUtils.getRequest();
@@ -199,7 +197,7 @@ public class JourneyController {
         Long userId = loginUser.getUser().getUserId();
         int count= journeyInfoService.getJourneyListCount(userId);
         return ApiResponse.success(count+"");
-    }
+    }*/
 
     /**
      *

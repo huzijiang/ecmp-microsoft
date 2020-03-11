@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -59,4 +60,10 @@ public interface IInvoiceInfoService
      * @return 结果
      */
     public int deleteInvoiceInfoById(Long invoiceId);
+
+    /**
+     * 根据时间区间、开票状态查询发票信息
+     */
+    public List<InvoiceInfo> selectInvoiceInfoByTimeAndState(String startTime, String endTime, String state);
+
 }
