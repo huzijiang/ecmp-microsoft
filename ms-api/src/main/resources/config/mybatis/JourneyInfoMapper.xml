@@ -158,4 +158,55 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where journey_id in (select journey_id from journey_info where user_id = #{userId}) and (state='S616' or state='S600')
          ) a  group by a.messageType
     </select>
+
+    <!--正在进行中行程列表-->
+    <select id="getJourneyList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.JourneyVO" >
+        SELECT a.use_car_mode,
+                 CASE a.use_car_mode
+                      WHEN 'W100' THEN '自有车'
+                      WHEN 'W200' THEN '网约车'
+                      else '无用车方式' END,
+                 a.actual_setout_time,
+                a.actual_arrive_address,
+                b.service_type,
+                 CASE b.service_type
+                      WHEN '1000' THEN '预约'
+                      WHEN '2001' THEN '接机'
+                      WHEN '2002' THEN '送机'
+                      WHEN '3000' THEN '包车'
+                      else '无服务类型' END,
+                c.apply_type,
+                 CASE c.apply_type
+                      WHEN 'A001' THEN '公务用车'
+                      WHEN 'A002' THEN '差旅用车'
+                      else '无用车申请类型' END,
+                b.it_is_return,
+                 CASE b.it_is_return
+                      WHEN 'Y000' THEN '往返'
+                      WHEN 'N444' THEN '单程'
+                      else '' END,
+                d.type ,
+                 CASE d.type
+                      WHEN 'T001' THEN '去程'
+                      WHEN 'T009' THEN '回程'
+                      else '' END
+                FROM order_info as a
+                LEFT JOIN journey_info as b ON a.journey_id = b.journey_id
+                LEFT JOIN apply_info as  c ON a.journey_id = c.journey_id
+                LEFT JOIN journey_user_car_power d ON a.journey_id = d.journey_id
+                WHERE a.state ='S616' and a.journey_id = #{userId}
+                ORDER BY a.actual_setout_time DESC
+
+    </select>
+    <!--正在进行中行程个数-->
+    <select id="getJourneyListCount"  parameterType="Object" resultType="int" >
+        SELECT count(*) from (
+           SELECT a.use_car_mode, a.actual_setout_time,a.actual_arrive_address,b.service_type,c.apply_type,
+            b.it_is_return,d.type
+           FROM order_info as a
+           LEFT JOIN journey_info as b ON a.journey_id = b.journey_id
+           LEFT JOIN apply_info as  c ON a.journey_id = c.journey_id
+           LEFT JOIN journey_user_car_power d ON a.journey_id = d.journey_id
+           WHERE a.state ='S616' ) a
+    </select>
 </mapper>
