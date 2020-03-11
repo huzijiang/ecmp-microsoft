@@ -262,7 +262,7 @@ public class OrderController {
      */
     @ApiOperation(value = "letPlatCallTaxi", notes = "自动约车-向网约车平台发起约车请求 改变订单的状态为  约车中-->已派单", httpMethod = "POST")
     @PostMapping("/letPlatCallTaxi")
-    public ApiResponse letPlatCallTaxi(OrderDto orderDto) {
+    public ApiResponse letPlatCallTaxi(@RequestBody  OrderDto orderDto) {
         try {
             Long orderId = orderDto.getOrderId();
             OrderInfo orderInfo = new OrderInfo();

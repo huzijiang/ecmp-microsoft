@@ -11,4 +11,10 @@ public final class CommonConstant {
 
     //redis中约车次数的前缀
     public  static final String APPOINTMENT_NUMBER_PREFIX = "APPOINTMENT_NUMBER_";
+    //司机等待的开启和关闭
+    //开启
+    public static final  String  START = "1";
+    //关闭
+    public static final  String  FINISH = "2";
+
 }

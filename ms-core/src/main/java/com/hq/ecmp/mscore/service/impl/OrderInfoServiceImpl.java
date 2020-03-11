@@ -301,6 +301,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 //                }
                 for (int i = 0; i <3 ; i++) {
                     redisUtil.increment(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"",1L);
+                    System.out.println("订单【"+orderId+"】次数加一");
                     Thread.sleep(60000);
                 }
 
@@ -322,10 +323,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 //                }
                 break;
             }
+            System.out.println("订单【"+orderId+"】约车成功");
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
-            redisUtil.delete(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"");
+            System.out.println("订单【"+orderId+"】约车次数删除");
+            redisUtil.delKey(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"");
+            System.out.println("订单【"+orderId+"】约车次数删除成功");
         }
     }
     
