@@ -1,14 +1,12 @@
 package com.hq.ecmp.constant;
 
-import java.util.Arrays;
-import java.util.List;
-
 public enum OrderStateTrace {
     APPLYREASSIGNMENT("S270","司机申请改派"),
     
     TURNREASSIGNMENT("S277","改派请求驳回"),
     PASSREASSIGNMENT("S279","改派请求通过"),
     SENDCAR("S299","已派车"),
+    ALREADY_SET_OUT("S500","司机已出发"),
     PRESERVICE("S600","准备服务"),
     SERVICE("S616","服务中"),
     SERVICEOVER("S699","服务结束"),

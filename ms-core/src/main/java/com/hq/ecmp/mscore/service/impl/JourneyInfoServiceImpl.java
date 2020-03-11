@@ -122,7 +122,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
         return journeyInfoMapper.deleteJourneyInfoById(journeyId);
     }
 
-    @Override
+		@Override
 	public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId) {
 		List<CarAuthorityInfo> carAuthorityInfoList=new ArrayList<>();
 		JourneyInfo query = new JourneyInfo();
@@ -173,7 +173,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 	}
 
 	@Override
-    public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
+public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		List<UserAuthorityGroupCity> userAuthorityGroupCityList=new ArrayList<UserAuthorityGroupCity>();
 		
 		//根据行程查询下面的行程节点
@@ -221,7 +221,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 	 * @param orderId
 	 * @return list
 	 */
-/*	@Override
+	/*@Override
 	public OrderVO orderBeServiceDetail(Long orderId) {
 		OrderVO vo=new OrderVO();
 		OrderInfo orderInfo = this.selectOrderInfoById(orderId);
