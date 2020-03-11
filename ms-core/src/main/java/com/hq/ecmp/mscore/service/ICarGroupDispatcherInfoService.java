@@ -59,4 +59,18 @@ public interface ICarGroupDispatcherInfoService
      * @return 结果
      */
     public int deleteCarGroupDispatcherInfoById(Long dispatcherId);
+    
+    /**
+     * 查询用户所在的车队编号
+     * @param userId
+     * @return
+     */
+    public List<Long> queryCarGroupIdList(Long userId);
+    
+    /**
+     * 查询指定车队中拥有的调度员
+     * @param list  车队编号集合
+     * @return
+     */
+    public List<Long> queryUserByCarGroup(List<Long> list);
 }

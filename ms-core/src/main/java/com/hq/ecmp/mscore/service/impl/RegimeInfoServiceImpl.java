@@ -1,17 +1,19 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
-import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
 import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.mapper.SceneRegimeRelationMapper;
 import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -128,4 +130,19 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
         List<RegimeInfo> regimeInfoList = regimeIds.stream().map(regimeId->regimeInfoMapper.selectRegimeInfoById(regimeId)).collect(Collectors.toList());
         return regimeInfoList;
     }
+
+	@Override
+	public boolean findOwnCar(Long regimenId) {
+		RegimeInfo regimeInfo = selectRegimeInfoById(regimenId);
+		String canUseCarMode = regimeInfo.getCanUseCarMode();
+		if(StringUtil.isEmpty(canUseCarMode)){
+			return false;
+		}
+		List<String> list = Arrays.asList(canUseCarMode.split(","));
+		if(list.contains("W001")){
+			return true;
+		}else{
+			return false;
+		}
+	}
 }
