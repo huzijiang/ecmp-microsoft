@@ -122,7 +122,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
         return journeyInfoMapper.deleteJourneyInfoById(journeyId);
     }
 
-		/*@Override
+		@Override
 	public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId) {
 		List<CarAuthorityInfo> carAuthorityInfoList=new ArrayList<>();
 		JourneyInfo query = new JourneyInfo();
@@ -190,7 +190,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 			}
 		}
 		return userAuthorityGroupCityList;
-	}*/
+	}
 
 	@Override
 	public MessageDto getJourneyMessage(Long userId) {
