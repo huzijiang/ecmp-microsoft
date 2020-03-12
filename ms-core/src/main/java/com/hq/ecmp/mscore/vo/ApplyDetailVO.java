@@ -23,6 +23,11 @@ public class ApplyDetailVO {
      * 申请ID
      */
     private Integer applyId;
+
+    /**
+     * 行程ID
+     */
+    private Long jouneyId;   //TODO 新增行程id
     /**
      * 用车制度对象
      */

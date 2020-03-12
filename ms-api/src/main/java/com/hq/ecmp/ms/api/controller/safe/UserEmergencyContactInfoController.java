@@ -85,7 +85,7 @@ public class UserEmergencyContactInfoController {
         UserEmergencyContactInfo userEmergency = UserEmergencyContactInfo.builder()
                 .id(userEmergencyId)
                 .build();
-        userEmergencyContactInfoService.update(userEmergency);
+        userEmergencyContactInfoService.deleteById(userEmergencyId);
         return ApiResponse.success();
     }
 

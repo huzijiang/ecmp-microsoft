@@ -222,6 +222,7 @@ LEFT JOIN car_info f  ON a.car_id=f.car_id
     <select id="queryOrderRelateInfo" parameterType="com.hq.ecmp.mscore.domain.OrderInfo" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
     SELECT
 	a.order_id AS orderId,
+	a.starting_city_id as cityId,
 	a.state,
 	d.apply_type AS applyType,
 	b.type AS serverType,
@@ -232,7 +233,8 @@ LEFT JOIN car_info f  ON a.car_id=f.car_id
 	a.actual_setout_time AS useCarDate,
 	a.actual_arrive_address AS endSite,
 	a.actual_arrive_time AS endDate,
-	h.use_car_mode AS useCarMode
+	h.use_car_mode AS useCarMode,
+	h.regimen_id AS regimenId
 	<if test="orderTraceState != null  and orderTraceState != ''">,f.content as reassignmentApplyReason</if>
 FROM
 	order_info a

@@ -29,9 +29,9 @@ public interface IOrderSettlingInfoService
     public List<OrderSettlingInfo> selectOrderSettlingInfoList(OrderSettlingInfo orderSettlingInfo);
 
     /**
-     * 新增【请填写功能名称】
+     * 新增【自有车结算调用接口】
      *
-     * @param orderSettlingInfo 【请填写功能名称】
+     * @param orderSettlingInfo 【记录实际里程和时长】
      * @return 结果
      */
     public int insertOrderSettlingInfo(OrderSettlingInfo orderSettlingInfo);

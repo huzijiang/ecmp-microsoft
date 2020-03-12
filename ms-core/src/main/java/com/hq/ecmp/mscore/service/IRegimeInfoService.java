@@ -72,5 +72,12 @@ public interface IRegimeInfoService
      * @return
      */
     List<RegimeInfo> findRegimeInfoListByUserId(Long userId,Long sceneId);
+    
+    /**
+     * 判断制度可用车方式是否含有自有车
+     * @param orderId
+     * @return
+     */
+     public boolean findOwnCar(Long regimenId);
 }
 

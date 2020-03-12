@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
+import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
+import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 
 import java.util.List;
 
@@ -59,4 +61,18 @@ public interface IDriverWorkInfoService
      * @return 结果
      */
     public int deleteDriverWorkInfoById(Long workId);
+
+    /**
+     * 查询司机当月排班/出勤信息
+     * @param scheduleDate
+     * @return
+     */
+    List<DriverDutyPlanVO> selectDriverWorkInfoByMonth(String scheduleDate, Long userId);
+
+    /**
+     * 加载司机应该出勤/已出勤天数
+     * @param scheduleDate
+     * @return
+     */
+    DriverDutySummaryVO selectDriverDutySummary(String scheduleDate, Long userId);
 }

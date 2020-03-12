@@ -89,7 +89,7 @@ public interface IOrderInfoService {
      * 查询所有待调度的订单(包含待改派)
      * @return
      */
-    public List<DispatchOrderInfo> queryWaitDispatchList();
+    public List<DispatchOrderInfo> queryWaitDispatchList(Long userId);
     
     /**
      * 查询所有已完成调度的订单

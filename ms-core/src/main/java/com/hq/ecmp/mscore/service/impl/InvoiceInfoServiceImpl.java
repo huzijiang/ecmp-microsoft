@@ -5,6 +5,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
 import com.hq.ecmp.mscore.mapper.InvoiceInfoMapper;
 import com.hq.ecmp.mscore.service.IInvoiceInfoService;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -93,4 +94,13 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
     {
         return invoiceInfoMapper.deleteInvoiceInfoById(invoiceId);
     }
+
+
+    /**
+     * 根据时间区间、开票状态查询发票信息
+     */
+    public List<InvoiceInfo> selectInvoiceInfoByTimeAndState(String startTime, String endTime, String state){
+        return invoiceInfoMapper.selectInvoiceInfoListByTimeAndState(startTime,endTime,state);
+}
+
 }

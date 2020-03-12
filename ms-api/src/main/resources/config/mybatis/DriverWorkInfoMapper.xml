@@ -87,4 +87,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <select id="selectDriverShouldDutyDays" resultType="int">
+        SELECT COUNT(*) FROM driver_work_info WHERE  driver_id = #{driverId} and leave_status = "X999" and caledar_date LIKE #{scheduleDate}"%"
+    </select>
+
+    <select id="selectDriverWorkInfoByMonth" resultType="com.hq.ecmp.mscore.vo.DriverDutyPlanVO">
+        SELECT t1.caledar_date dutyDate,t2.state status FROM driver_work_info t1 LEFT JOIN driver_service_state_info t2
+        ON t1.`driver_id` = t2.`driver_id` AND t1.`caledar_date` =  DATE(t2.`create_time`)
+        WHERE t1.`leave_status` =  "X999" AND DATE_FORMAT(t1.caledar_date,'%Y-%m') = #{scheduleDate}
+        AND t1.`driver_id` = #{driverId}
+    </select>
+
 </mapper>

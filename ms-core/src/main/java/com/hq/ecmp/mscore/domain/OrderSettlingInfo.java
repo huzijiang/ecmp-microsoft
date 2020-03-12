@@ -33,12 +33,34 @@ public class OrderSettlingInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long outPrice;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long totalMileage;// TODO 新增。实际里程
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String totalTime;// TODO 新增。实际时长
+    public void setTotalMileage(Long totalMileage)
+    {
+        this.totalMileage = totalMileage;
+    }
+    public Long getTotalMileage()
+    {
+        return totalMileage;
+    }
+
+    public void setTotalTime(String totalTime)
+    {
+        this.totalTime = totalTime;
+    }
+    public String getTotalTime()
+    {
+        return totalTime;
+    }
 
     public void setBillId(Long billId)
     {
         this.billId = billId;
     }
-
     public Long getBillId()
     {
         return billId;
@@ -92,6 +114,8 @@ public class OrderSettlingInfo extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
+            .append("totalMileage", getTotalMileage())
+            .append("totalTime", getTotalTime())
             .toString();
     }
 }

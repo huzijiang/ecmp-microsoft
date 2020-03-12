@@ -1,23 +1,32 @@
 package com.hq.ecmp.ms.api.controller.car;
 
-import com.hq.common.core.api.ApiResponse;
-import com.hq.ecmp.ms.api.dto.base.UserDto;
-import com.hq.ecmp.ms.api.dto.car.DriverDto;
-import com.hq.ecmp.ms.api.dto.car.EmergencyContactDto;
-import com.hq.ecmp.ms.api.dto.order.OrderDto;
-import com.hq.ecmp.mscore.domain.CarInfo;
-import com.hq.ecmp.mscore.domain.DriverInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.dto.DriverDTO;
-import com.hq.ecmp.mscore.service.IDriverInfoService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import io.swagger.annotations.ApiOperation;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
+import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
+import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.Driver;
-import java.util.List;
+import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.ms.api.dto.car.DriverDto;
+import com.hq.ecmp.ms.api.dto.car.EmergencyContactDto;
+import com.hq.ecmp.mscore.domain.DriverInfo;
+import com.hq.ecmp.mscore.domain.ReassignInfo;
+import com.hq.ecmp.mscore.dto.DriverDTO;
+import com.hq.ecmp.mscore.service.IDriverInfoService;
+import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
+
+import io.swagger.annotations.ApiOperation;
 
 /**
  * @Author: zj.hu
@@ -29,6 +38,15 @@ public class DriverController {
 
     @Autowired
     private IDriverInfoService driverInfoService;
+    
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private IDriverWorkInfoService driverWorkInfoService;
+    
+    @Autowired
+    private IOrderStateTraceInfoService orderStateTraceInfoService;
 
     /**
      * 获取可调度的司机信息
@@ -76,7 +94,73 @@ public class DriverController {
 
         return null;
     }
+    
+    
+    /**
+     *司机申请改派
+     */
+    @ApiOperation(value = "applyReassignment ",notes = "司机申请改派",httpMethod ="POST")
+    @PostMapping("/applyReassignment")
+    public ApiResponse applyReassignment(Long orderNo,String reason){
+    	 HttpServletRequest request = ServletUtils.getRequest();
+         LoginUser loginUser = tokenService.getLoginUser(request);
+         Long userId = loginUser.getUser().getUserId();
+         boolean applyReassignment = orderStateTraceInfoService.applyReassignment(userId, orderNo, reason);
+        if(applyReassignment){
+        	return ApiResponse.success();
+        }
+         return ApiResponse.error();
+    }
 
+    /**
+     *查询改派记录
+     */
+    @ApiOperation(value = "reassignDetail ",notes = "查询改派记录",httpMethod ="POST")
+    @PostMapping("/reassignDetail")
+    public ApiResponse<List<ReassignInfo>> reassignDetail(Long orderNo){
+         return ApiResponse.success(orderStateTraceInfoService.queryReassignDetail(orderNo));
+    }
 
+    /**
+     * 查询司机当月排班日期对应的出勤情况列表
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "loadScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
+    @PostMapping("/loadScheduleInfo")
+    public ApiResponse<List<DriverDutyPlanVO>> loadScheduleInfo(@RequestBody String scheduleDate){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            //查询司机当月排班日期对应的出勤情况列表
+            List<DriverDutyPlanVO> list = driverWorkInfoService.selectDriverWorkInfoByMonth(scheduleDate,userId);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("加载司机当月排班日期对应的出勤情况列表失败");
+        }
+    }
+
+    /**
+     * 加载司机应该出勤/已出勤天数
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "loadDutySummary",notes = "加载司机应该出勤/已出勤天数",httpMethod ="POST")
+    @PostMapping("/loadDutySummary")
+    public ApiResponse<DriverDutySummaryVO> loadDutySummary(@RequestBody String scheduleDate){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            //查询司机当月排班/出勤天数
+            DriverDutySummaryVO dutySummary = driverWorkInfoService.selectDriverDutySummary(scheduleDate,userId);
+            return ApiResponse.success(dutySummary);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("加载司机出勤信息失败");
+        }
+    }
 
 }

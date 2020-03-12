@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
+import java.util.Map;
+
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.mapper.EcmpNoticeMapper;
@@ -43,6 +45,18 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
     public List<EcmpNotice> selectEcmpNoticeList(EcmpNotice ecmpNotice)
     {
         return ecmpNoticeMapper.selectEcmpNoticeList(ecmpNotice);
+    }
+
+    /**
+     * 根据条件查询通知公告列表
+     *
+     * @param ecmpNotice 通知公告
+     * @return 通知公告
+     */
+    @Override
+    public List<EcmpNotice> selectEcmpNoticeListByOtherId(Map map)
+    {
+        return ecmpNoticeMapper.selectEcmpNoticeListByOtherId(map);
     }
 
     /**
