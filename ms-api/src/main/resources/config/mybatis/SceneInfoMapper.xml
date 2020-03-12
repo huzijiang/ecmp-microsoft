@@ -36,6 +36,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertSceneInfo" parameterType="com.hq.ecmp.mscore.domain.SceneInfo">
+        <selectKey keyColumn="scene_id" keyProperty="sceneId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into scene_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="sceneId != null ">scene_id,</if>
@@ -103,5 +106,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		ORDER BY
 		b.sort_no
 	</select>
+    <select id="selectAll" resultMap="SceneInfoResult">
+        select name,sort_no,icon,scene_id,effect_status from scene_info order by sort_no
+    </select>
 
 </mapper>
