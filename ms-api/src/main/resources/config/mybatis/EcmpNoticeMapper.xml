@@ -10,6 +10,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="noticeType"    column="notice_type"    />
         <result property="noticeContent"    column="notice_content"    />
         <result property="status"    column="status"    />
+        <result property="publishTime"    column="publish_time"    />
+        <result property="endTime"    column="end_time"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -18,21 +20,41 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectEcmpNoticeVo">
-        select notice_id, notice_title, notice_type, notice_content, status, create_by, create_time, update_by, update_time, remark from ecmp_notice
+        select notice_id, notice_title, notice_type, notice_content, status, create_by, create_time, update_by, update_time, remark
+        from ecmp_notice
     </sql>
 
-    <select id="selectExpirationDateNewNotice" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">
-        select * from ecmp_notice where create_time between and update_time order by create_time desc limit 1,1
-    </select>
+<!--    <select id="selectExpirationDateNewNotice" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">-->
+<!--        select * from ecmp_notice where create_time between and update_time order by create_time desc limit 1,1-->
+<!--    </select>-->
 
-    <select id="selectAll" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">
-      select * from ecmp_notice where notice_id = #{noticeId}
-    </select>
+<!--    <select id="selectAll" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">-->
+<!--      select * from ecmp_notice where notice_id = #{noticeId}-->
+<!--    </select>-->
 
     <select id="selectEcmpNoticeList" parameterType="long" resultMap="EcmpNoticeResult">
         <include refid="selectEcmpNoticeVo"/>
 
     </select>
+
+    <select id="selectEcmpNoticeListByOtherId" parameterType="map" resultMap="EcmpNoticeResult">
+        select nc.notice_id, notice_title, notice_type, notice_content, nc.status,
+        nc.publish_time,nc.end_time,
+        nc.create_by, nc.create_time, nc.update_by, nc.update_time, nc.remark
+        from ecmp_notice nc
+        left join ecmp_notice_mapping enm on nc.notice_id = enm.notice_id
+        <where>
+            now( ) between publish_time and end_time
+            and nc.notice_type = #{noticeType}
+            and (
+            <foreach collection="busIdList" open="" close="" index="index" item="item" separator="or">
+                (enm.buc_id = #{item.bucId} and enm.config_type = #{item.configType})
+            </foreach>
+            )
+        </where>
+        order by nc.publish_time desc
+    </select>
+
     <select id="selectNewEcmpNotice" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">
         <include refid="selectEcmpNoticeVo"/>
         limit 1
