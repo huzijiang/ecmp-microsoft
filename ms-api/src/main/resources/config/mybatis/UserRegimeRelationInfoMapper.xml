@@ -61,4 +61,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select regimen_id from user_regime_relation_info where user_id = #{userId}
     </select>
 
+	<insert id="batchInsertUser">
+		insert into user_regime_relation_info (user_id,regimen_id)
+		values
+		<foreach collection="list" item="userId" separator=",">
+			(#{userId},#{regimenId})
+		</foreach>
+	</insert>
+	
+	<select id="queryRegimeUserCount" parameterType="java.lang.Long" resultType="java.lang.Integer">
+	select count(1) from user_regime_relation_info where regimen_id=#{regimenId}
+	</select>
+	
+	<delete id="deleteUserRegimeRelationInfoByRegimeId" parameterType="java.lang.Long">
+	delete from user_regime_relation_info where user_regime_relation_info=#{regimeId}
+	</delete>
+
 </mapper>

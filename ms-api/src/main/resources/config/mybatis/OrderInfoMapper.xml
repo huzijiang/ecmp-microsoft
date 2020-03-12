@@ -324,5 +324,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             </if>
             ) a group by a.messageType
     </select>
+    
 
 </mapper>
