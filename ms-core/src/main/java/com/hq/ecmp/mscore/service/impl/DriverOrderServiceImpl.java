@@ -58,7 +58,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         orderStateTraceInfo.setCreateBy(String.valueOf(userId));
         if(DriverBehavior.PICKUP_PASSENGER.getType().equals(type)){
             //订单状态
-            orderInfo.setState(OrderState.ALREADY_SET_OUT.getState());
+            orderInfo.setState(OrderState.REASSIGNMENT.getState());
             iOrderInfoService.updateOrderInfo(orderInfo);
             //订单轨迹状态
             orderStateTraceInfo.setState(OrderStateTrace.ALREADY_SET_OUT.getState());

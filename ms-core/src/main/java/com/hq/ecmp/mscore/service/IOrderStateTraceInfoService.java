@@ -92,7 +92,6 @@ public interface IOrderStateTraceInfoService
      */
     List<SendCarInfo> queryStateInfo(Long orderId);
 
-    MessageDto getTraceMessage(Long userId);
 
     /**
      * 司机申请改派

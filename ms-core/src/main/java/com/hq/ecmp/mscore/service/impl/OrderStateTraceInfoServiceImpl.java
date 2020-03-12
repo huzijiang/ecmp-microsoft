@@ -136,7 +136,8 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 		return orderStateTraceInfoMapper.queryStateInfo(orderId);
 	}
 
-    @Override
+
+	@Override
     public MessageDto getTraceMessage(Long userId,boolean flag,Long driverId) {
         if (flag){
             return orderStateTraceInfoMapper.getTraceMessageForDriver(driverId, OrderState.REASSIGNPASS.getState());
