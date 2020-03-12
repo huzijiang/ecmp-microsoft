@@ -83,7 +83,7 @@ public class SceneController {
 	 * @return
 	 */
 	@ApiOperation(value = "deleteScene", notes = "删除用车场景", httpMethod ="POST")
-	@GetMapping("/saveScene")
+	@GetMapping("/deleteScene")
 	public ApiResponse deleteScene(@RequestBody SceneDTO sceneDTO) {
 		try {
 			int i = sceneInfoService.deleteSceneInfoById(sceneDTO.getSceneId());
