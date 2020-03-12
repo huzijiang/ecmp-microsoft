@@ -222,6 +222,7 @@ LEFT JOIN car_info f  ON a.car_id=f.car_id
     <select id="queryOrderRelateInfo" parameterType="com.hq.ecmp.mscore.domain.OrderInfo" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
     SELECT
 	a.order_id AS orderId,
+	a.starting_city_id as cityId,
 	a.state,
 	d.apply_type AS applyType,
 	b.type AS serverType,
@@ -232,7 +233,8 @@ LEFT JOIN car_info f  ON a.car_id=f.car_id
 	a.actual_setout_time AS useCarDate,
 	a.actual_arrive_address AS endSite,
 	a.actual_arrive_time AS endDate,
-	h.use_car_mode AS useCarMode
+	h.use_car_mode AS useCarMode,
+	h.regimen_id AS regimenId
 	<if test="orderTraceState != null  and orderTraceState != ''">,f.content as reassignmentApplyReason</if>
 FROM
 	order_info a
@@ -254,18 +256,78 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         	select
 					 o.order_id orderId,
 					 o.state,
+					 if (o.state='S900','已完成','未完成') stateType,
 					 jn.service_type serviceType,
 					 jn.flight_number flightNumber,
 					 jn.it_is_return itIsReturn,
-					 jn.charter_car_type charterCarTye,
+					 jn.charter_car_type charterCarType,
 					 IFNULL(o.actual_setout_time,jni.plan_setout_time) useCarTime,
 					 IFNULL(o.actual_setout_address,jni.plan_begin_address) startAddr,
-                     IFNULL(o.actual_arrive_address,jni.plan_end_address) endAddr
+                     IFNULL(o.actual_arrive_address,jni.plan_end_address) endAddr,
+                     otc.state labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
                 inner join journey_node_info jni on  jni.node_id=o.node_id
+                left join (select order_id,state from order_state_trace_info where order_id in(select order_id from order_info where driver_id=#{driverId}) order by create_time desc limit 1) otc on  otc.order_id=o.order_id
 				where o.driver_id=#{driverId}
-				 order by o.create_time  desc
+				<if test="flag==1">
+                   and  (o.state="S299" or o.state="S600" or o.state="S616" )
+                    order by useCarTime  asc
+                </if>
+                <if test="flag==0">
+                    and  (o.state='S299' or o.state='S600' or o.state='S616' or o.state='S900' )
+                    order by o.state='S900' asc,o.state asc,
+                    CASE WHEN o.state='S900' THEN o.update_time  END DESC,useCarTime asc
+                </if>
+    </select>
+
+    <select id="selectOrderDetail" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.DriverOrderInfoVO">
+        	select
+             o.order_id orderId,
+             o.journey_id journeyId,
+             o.state,
+             jn.service_type serviceType,
+             jn.flight_number flightNumber,
+             jn.it_is_return itIsReturn,
+             jn.charter_car_type charterCarType,
+             IFNULL(o.actual_setout_time,jni.plan_setout_time) useCarTime,
+             IFNULL(o.actual_setout_address,jni.plan_begin_address) startAddr,
+             IFNULL(o.actual_arrive_address,jni.plan_end_address) endAddr,
+             c.car_license carLicense,
+             c.car_color carColor,
+             c.car_type carType,
+             jn.user_id userId,
+             (select group_concat(short_address) from order_via_info f where f.order_id=o.order_id) halfway,
+             (select count(*) from journey_passenger_info where journey_id=o.journey_id) peopleCount
+            from order_info o
+            inner join journey_info jn on o.journey_id=jn.journey_id
+            inner join journey_node_info jni on  jni.node_id=o.node_id
+            inner join car_info c on c.car_id=o.car_id
+            where o.order_id=#{orderId}
+    </select>
+
+    <select id="driverOrderUndoneList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">
+        	select
+					 o.order_id orderId,
+					 o.state,
+					 '未完成' stateType,
+					 jn.service_type serviceType,
+					 jn.flight_number flightNumber,
+					 jn.it_is_return itIsReturn,
+					 jn.charter_car_type charterCarType,
+					 IFNULL(o.actual_setout_time,jni.plan_setout_time) useCarTime,
+					 IFNULL(o.actual_setout_address,jni.plan_begin_address) startAddr,
+                     IFNULL(o.actual_arrive_address,jni.plan_end_address) endAddr,
+                     otc.state labelState
+				from order_info o
+				inner join journey_info jn on o.journey_id=jn.journey_id
+                inner join journey_node_info jni on  jni.node_id=o.node_id
+                left join (select order_id,state from order_state_trace_info where order_id in(select order_id from order_info where driver_id=#{driverId}) order by create_time desc limit 1) otc on  otc.order_id=o.order_id
+				where o.driver_id=#{driverId} and  (o.state="S299" or o.state="S600" or o.state="S616" )
+                <if test="day!=-1">
+                    <![CDATA[AND DATE_FORMAT(jni.plan_setout_time, '%Y-%m-%d') = DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
+                </if>
+                order by jni.plan_setout_time asc
     </select>
 
 
@@ -273,7 +335,16 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		<include refid="queryDispatchAchieve" />
 		where a.state in ('S299','S600','S616','S699','S900')
 	</select>
-    
+
+	<select id="getOrderState" resultType="com.hq.ecmp.mscore.vo.OrderStateVO">
+		select
+		a.order_id AS orderId,
+	    a.state,
+	    (select state from order_state_trace_info where order_id=#{orderId} order by create_time desc limit 1) labelState
+	    from order_info a
+		where a.order_id=#{orderId}
+	</select>
+
     <select id="getWaitDispatchOrderDetailInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
     SELECT
 	a.order_id AS orderId,
@@ -322,6 +393,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             </if>
             ) a group by a.messageType
     </select>
+
     <select id="getNextTaskWithDriver" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">
         select
         o.order_id orderId,
@@ -367,6 +439,18 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         order by jni.plan_setout_time asc
         limit 0,1
 
+    
+
+    <select id="getCancelOrderMessage" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+         SELECT messageId,messageType,'取消任务' messageTypeStr,count(*) messageCount from (
+            select order_id as messageId,4 as messageType from order_info
+            where state=#{state} and driver_id=#{driverId}
+            ) a group by a.messageType
+    </select>
+
+    <select id="getDriverOrderCount" parameterType="Object" resultType="int">
+        select count(*) from order_info
+        where find_in_set(state,#{states}) and driver_id=#{driverId}
     </select>
 
 </mapper>

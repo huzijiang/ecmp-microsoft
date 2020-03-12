@@ -1,6 +1,5 @@
 package com.hq.ecmp.mscore.domain;
 
-import com.hq.ecmp.mscore.vo.AddressVO;
 import lombok.Data;
 
 /**
@@ -28,7 +27,7 @@ public class OrderDriverListInfo {
     //T000  非包车
     //T001 半日租（4小时）
     //T002 整日租（8小时）
-    private String charterCarTye;
+    private String charterCarType;
     //用车时间
     private String useCarTime;
     /**
@@ -41,10 +40,17 @@ public class OrderDriverListInfo {
     private String endAddr;
     //订单状态
     private String state;
+
     //汽车id
     private Long carId;
     //司机ID
     private Long driverId;
     //订单id
     private Long orderId;
+
+    //订单标签
+    private String labelState;
+    //订单类型(已完成,未完成)
+    private String stateType;
+
 }

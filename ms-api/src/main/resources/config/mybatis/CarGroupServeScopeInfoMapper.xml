@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CarGroupServeScopeInfoMapper">
+
+  <select id="queryCarGroupByCity" parameterType="string" resultType="java.lang.Long">
+  	  select car_group_id from car_group_serve_scope_info where city=#{city}
+  </select>
+</mapper>

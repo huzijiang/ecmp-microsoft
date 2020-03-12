@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.ReassignInfo;
 import com.hq.ecmp.mscore.domain.SendCarInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
 
@@ -91,8 +93,21 @@ public interface IOrderStateTraceInfoService
     List<SendCarInfo> queryStateInfo(Long orderId);
 
 
+    /**
+     * 司机申请改派
+     * @param userId  司机编号
+     * @param orderId
+     * @param applyReason
+     * @return
+     */
+    public boolean applyReassignment(Long userId,Long orderId,String applyReason);
 
-
-
-    MessageDto getTraceMessage(Long userId);
+    public List<ReassignInfo> queryReassignDetail(Long orderNo);
+    /**
+     *
+     * @param userId 用户id
+     * @param flag 角色(true 司机,false乘客端)
+     * @return
+     */
+    MessageDto getTraceMessage(Long userId,boolean flag,Long driverId);
 }

@@ -1,38 +1,18 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.net.URLEncoder;
-import java.util.*;
-
-
-import java.text.DateFormat;
-import java.util.List;
-
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
-import com.hq.common.utils.ServletUtils;
-import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CallTaxiDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-
-import com.hq.ecmp.constant.OrderStateTrace;
-import com.hq.ecmp.mscore.domain.*;
-
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
+import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.MacTools;
@@ -48,8 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.net.URLEncoder;
+import java.util.*;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -61,6 +41,8 @@ import java.util.List;
 @Slf4j
 public class OrderInfoServiceImpl implements IOrderInfoService
 {
+	@Autowired
+	private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
     @Autowired
@@ -87,8 +69,20 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private RedisUtil redisUtil;
     @Resource
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
+
     @Resource
     private IOrderViaInfoService iOrderViaInfoService;
+
+    @Autowired
+    private IRegimeInfoService regimeInfoService;
+    @Autowired
+    private ICarGroupDispatcherInfoService carGroupDispatcherInfoService;
+
+    @Resource
+    private EcmpUserMapper ecmpUserMapper;
+    @Resource
+    private JourneyPassengerInfoMapper passengerInfoMapper;
+
 
     @Value("${company.serviceMobile}")
     private String serviceMobile;
@@ -197,7 +191,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
 
 	@Override
-	public List<DispatchOrderInfo> queryWaitDispatchList() {
+	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
 		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//查询所有处于待派单的订单及关联的信息
 		OrderInfo query = new OrderInfo();
@@ -216,7 +210,40 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			}
 			result.addAll(reassignmentOrder);
 		}
-		return result;
+		/*对用户进行订单可见校验
+		自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的调度员能看到该订单
+	      只有自有车时，且上车地点不在车队的用车城市范围内，则所有车车队的所有调度员都能看到该订单*/
+		List<DispatchOrderInfo> checkResult=new ArrayList<DispatchOrderInfo>();
+		if(result.size()>0){
+			for (DispatchOrderInfo dispatchOrderInfo : result) {
+				//查询订单对应制度的可用用车方式
+				Long regimenId = dispatchOrderInfo.getRegimenId();
+				if(null ==regimenId || ! regimeInfoService.findOwnCar(regimenId)){
+					checkResult.add(dispatchOrderInfo);
+					continue;
+				}
+				String cityId = dispatchOrderInfo.getCityId();
+				if(StringUtil.isEmpty(cityId)){
+					checkResult.add(dispatchOrderInfo);
+					continue;
+				}
+				//查询上车地点对应城市有哪些车队
+				List<Long> carGroupList = carGroupServeScopeInfoMapper.queryCarGroupByCity(cityId);
+				if(null==carGroupList || carGroupList.size()==0){
+					//上车点所在城市没有车队  则所有车队的所欲调度员都能看见这个单子
+					checkResult.add(dispatchOrderInfo);
+					continue;
+				}
+				//判断登陆用户是否属于这些车队
+				List<Long> carGroupDispatcher = carGroupDispatcherInfoService.queryUserByCarGroup(carGroupList);
+				if(null==carGroupDispatcher || !carGroupDispatcher.contains(userId)){
+					//用户不属于这些车队的调度员  则不能看见这个订单
+					continue;
+				}
+				checkResult.add(dispatchOrderInfo);
+			}
+		}
+		return checkResult;
 	}
 
 	@Override
@@ -231,14 +258,23 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @return
      */
     @Override
-    public List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize) {
-        DriverInfo driverInfoCondition = new DriverInfo();
-        driverInfoCondition.setUserId(userId);
-        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(driverInfoCondition);
+    public List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize) throws Exception{
+        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
+        if (CollectionUtils.isEmpty(driverInfos)){
+            throw new Exception("当前登录人不是司机");
+        }
         DriverInfo driverInfo = driverInfos.get(0);
         Long driverId = driverInfo.getDriverId();
+        int flag=0;
+        if (pageNum==1){//首次刷新
+            String states=OrderState.ALREADYSENDING.getState()+","+OrderState.READYSERVICE.getState();
+            int count=orderInfoMapper.getDriverOrderCount(driverId,states);
+            if(count>20){
+                flag=1;
+            }
+        }
         PageHelper.startPage(pageNum,pageSize);
-        List<OrderDriverListInfo> driverOrderList = orderInfoMapper.getDriverOrderList(driverId);
+        List<OrderDriverListInfo> driverOrderList = orderInfoMapper.getDriverOrderList(driverId,flag);
         return driverOrderList;
     }
 
@@ -554,6 +590,61 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     public OrderDriverListInfo getNextTaskWithCar(Long carId) {
-        return  orderInfoMapper.getNextTaskWithCar(carId);
+        return orderInfoMapper.getNextTaskWithCar(carId);
+    }
+    public MessageDto getCancelOrderMessage(Long userId, String states) {
+        return orderInfoMapper.getCancelOrderMessage(userId,states);
+    }
+
+    @Override
+    public List<OrderDriverListInfo> driverOrderUndoneList(Long userId, Integer pageNum, Integer pageSize, int day) throws Exception {
+        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
+        if (CollectionUtils.isEmpty(driverInfos)){
+            throw new Exception("当前登录人不是司机");
+        }
+        DriverInfo driverInfo = driverInfos.get(0);
+        Long driverId = driverInfo.getDriverId();
+        List<OrderDriverListInfo> lsit=orderInfoMapper.driverOrderUndoneList(driverId,day);
+        return lsit;
+    }
+
+    @Override
+    public int driverOrderCount(Long userId) throws Exception{
+        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
+        if (CollectionUtils.isEmpty(driverInfos)){
+            throw new Exception("当前登录人不是司机");
+        }
+        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.READYSERVICE.getState();
+        return orderInfoMapper.getDriverOrderCount(driverInfos.get(0).getDriverId(),states);
+    }
+
+    //获取司机任务详情
+    @Override
+    public DriverOrderInfoVO driverOrderDetail(Long orderId) {
+        DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
+//        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
+        // TODO 获取车队电话和乘客电话有单独的接口(好像)
+        vo.setCustomerServicePhone(serviceMobile);
+//        List<PassengerInfoVO> list=new ArrayList();
+//        list.add(new PassengerInfoVO(ecmpUser.getNickName(),ecmpUser.getPhonenumber(),"申请人"));
+//        List<JourneyPassengerInfo> journeyPassengerInfos = passengerInfoMapper.selectJourneyPassengerInfoList(new JourneyPassengerInfo(vo.getJourneyId()));
+//        if (!CollectionUtils.isEmpty(journeyPassengerInfos)){
+//            for (JourneyPassengerInfo info:journeyPassengerInfos){
+//                if ("00".equals(info.getItIsPeer())){
+//                    list.add(new PassengerInfoVO(info.getName(),info.getMobile(),"乘车人"));
+//                }else{
+//                    list.add(new PassengerInfoVO(info.getName(),info.getMobile(),"同行人"));
+//                }
+//
+//            }
+//        }
+
+        return vo;
+    }
+
+    @Override
+    public OrderStateVO getOrderState(Long orderId) {
+        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
+        return orderState;
     }
 }

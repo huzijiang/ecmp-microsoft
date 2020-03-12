@@ -1,5 +1,16 @@
 package com.hq.ecmp.ms.api.controller.base;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
@@ -7,14 +18,13 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.RegimeOpt;
+import com.hq.ecmp.mscore.domain.RegimePo;
+import com.hq.ecmp.mscore.domain.RegimeQueryPo;
+import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
-import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * @Author: zj.hu
@@ -83,5 +93,34 @@ public class RegimeController {
         }
 
     }
-
+    
+    
+	@ApiOperation(value = "createRegime", notes = "创建用车制度", httpMethod = "POST")
+	@PostMapping("/createRegime")
+	public ApiResponse createRegime(@RequestBody RegimePo regimePo) {
+		boolean createRegime = regimeInfoService.createRegime(regimePo);
+		if (createRegime) {
+			return ApiResponse.success();
+		}
+		return ApiResponse.error();
+	}
+	
+	@ApiOperation(value = "queryRegimeList", notes = "查询制度列表", httpMethod = "POST")
+	@PostMapping("/queryRegimeList")
+	public ApiResponse<List<RegimeVo>> queryRegimeList(@RequestBody RegimeQueryPo regimeQueryPo) {
+		List<RegimeVo> regimeVoList = regimeInfoService.queryRegimeList(regimeQueryPo);
+		//总条数
+		Integer count = regimeInfoService.queryRegimeListCount(regimeQueryPo);
+		return ApiResponse.success(regimeVoList);
+	}
+    
+	@ApiOperation(value = "optRegime", notes = "制度删除 or启用or停用", httpMethod = "POST")
+	@PostMapping("/optRegime")
+	public ApiResponse optRegime(@RequestBody RegimeOpt regimeOpt) {
+		boolean opt = regimeInfoService.optRegime(regimeOpt);
+		if(opt){
+			return ApiResponse.success();
+		}
+		return ApiResponse.error();
+	}
 }

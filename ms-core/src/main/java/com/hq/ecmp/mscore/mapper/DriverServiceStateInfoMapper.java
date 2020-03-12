@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DriverServiceStateInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -59,4 +60,12 @@ public interface DriverServiceStateInfoMapper
      * @return 结果
      */
     public int deleteDriverServiceStateInfoByIds(Long[] ids);
+
+    /**
+     * 查询司机某月出勤天数
+     * @param scheduleDate
+     * @param driverId
+     * @return
+     */
+    int selectDriverAlreadyDutyDays(@Param("scheduleDate") String scheduleDate, @Param("driverId") Long driverId);
 }

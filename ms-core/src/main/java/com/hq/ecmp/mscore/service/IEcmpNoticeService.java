@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 通知公告Service接口
@@ -27,6 +28,8 @@ public interface IEcmpNoticeService
      * @return 通知公告集合
      */
     public List<EcmpNotice> selectEcmpNoticeList(EcmpNotice ecmpNotice);
+
+    List<EcmpNotice> selectEcmpNoticeListByOtherId(Map map);
 
     /**
      * 新增通知公告

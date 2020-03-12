@@ -87,7 +87,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         orderStateTraceInfo.setCreateBy(String.valueOf(userId));
         if(DriverBehavior.PICKUP_PASSENGER.getType().equals(type)){
             //订单状态
-            orderInfo.setState(OrderState.ALREADY_SET_OUT.getState());
+            orderInfo.setState(OrderState.REASSIGNMENT.getState());
             iOrderInfoService.updateOrderInfo(orderInfo);
             //订单轨迹状态
             orderStateTraceInfo.setState(OrderStateTrace.ALREADY_SET_OUT.getState());
@@ -169,8 +169,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         //添加里程数和总时长
         OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
         orderSettlingInfo.setOrderId(orderId);
-        orderSettlingInfo.setTotalMileage(Double.parseDouble(mileage));
-        orderSettlingInfo.setTotalTime(Long.parseLong(travelTime));
+        orderSettlingInfo.setTotalMileage(Long.parseLong(mileage));
+        orderSettlingInfo.setTotalTime(travelTime);
         orderSettlingInfo.setCreateBy(userId);
         iOrderSettlingInfoService.insertOrderSettlingInfo(orderSettlingInfo);
         //判断是还车还是继续用车

@@ -1,8 +1,12 @@
 package com.hq.ecmp.mscore.service;
 
-import com.hq.ecmp.mscore.domain.RegimeInfo;
-
 import java.util.List;
+
+import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.RegimeOpt;
+import com.hq.ecmp.mscore.domain.RegimePo;
+import com.hq.ecmp.mscore.domain.RegimeQueryPo;
+import com.hq.ecmp.mscore.domain.RegimeVo;
 
 /**
  * 【请填写功能名称】Service接口
@@ -72,5 +76,28 @@ public interface IRegimeInfoService
      * @return
      */
     List<RegimeInfo> findRegimeInfoListByUserId(Long userId,Long sceneId);
+    
+    /**
+     * 判断制度可用车方式是否含有自有车
+     * @param orderId
+     * @return
+     */
+     public boolean findOwnCar(Long regimenId);
+     
+     
+     public boolean createRegime(RegimePo regimePo);
+     
+     /**
+      * 分页查询制度列表
+      * @param regimeQueryPo
+      * @return
+      */
+     public List<RegimeVo> queryRegimeList(RegimeQueryPo regimeQueryPo);
+     
+     
+     public Integer queryRegimeListCount(RegimeQueryPo regimeQueryPo);
+     
+     
+     public boolean optRegime(RegimeOpt regimeOpt);
 }
 

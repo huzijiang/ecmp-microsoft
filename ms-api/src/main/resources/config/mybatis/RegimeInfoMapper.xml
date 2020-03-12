@@ -158,5 +158,64 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAll" resultMap="RegimeInfoResult">
         <include refid="selectRegimeInfoVo"/>
     </select>
+    
+    	<select id="queryRegimeList" parameterType="com.hq.ecmp.mscore.domain.RegimeQueryPo"
+	resultType="com.hq.ecmp.mscore.domain.RegimeVo">
+	SELECT
+	a.regimen_id AS regimeId,
+	a. NAME AS regimeName,
+	c. NAME AS
+	sceneName,
+	a.approval_process AS approvalProcess,
+	a. STATUS AS STATUS
+	FROM
+	regime_info a
+	LEFT JOIN scene_regime_relation b ON a.regimen_id = b.regimen_id
+	LEFT JOIN scene_info c ON b.scene_id = c.scene_id
+	WHERE
+	1=1
+	<if test="null !=sceneId">
+		and c.scene_id = #{sceneId}
+	</if>
+	<if test="null !=status">
+		and a.STATUS =#{status}
+	</if>
+	<if test="null !=regimeName">
+		and a.NAME like CONCAT('%',#{regimeName},'%')
+	</if>
+	<if test="offset != null and pageSize != null">
+		LIMIT #{offset},#{pageSize}
+	</if>
+</select>
+
+
+<select id="queryRegimeListCount" parameterType="com.hq.ecmp.mscore.domain.RegimeQueryPo"
+	resultType="java.lang.Integer">
+	SELECT
+	count(1)
+	FROM
+	regime_info a
+	LEFT JOIN scene_regime_relation b ON
+	a.regimen_id = b.regimen_id
+	LEFT JOIN scene_info c ON b.scene_id =
+	c.scene_id
+	WHERE
+	1=1
+	<if test="null !=sceneId">
+		and c.scene_id = #{sceneId}
+	</if>
+	<if test="null !=status">
+		and a.STATUS =#{status}
+	</if>
+	<if test="null !=regimeName">
+		and a.NAME like CONCAT('%',#{regimeName},'%')
+	</if>
+</select>
+
+<update id="updateStatus" parameterType="com.hq.ecmp.mscore.domain.RegimeOpt">
+update regime_info set status=#{status},update_by=#{optUserId},update_time=now() where regimen_id=#{regimeId}
+</update>
+
+
 
 </mapper>

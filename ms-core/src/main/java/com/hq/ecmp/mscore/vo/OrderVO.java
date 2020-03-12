@@ -28,8 +28,6 @@ public class OrderVO {
     private String carLicense;
     @ApiModelProperty(name = "powerType",value = "车辆动力类型")
     private String powerType;
-    @ApiModelProperty(name = "ownerOrg",value = "所属车队公司")
-    private String ownerOrg;
     @ApiModelProperty(name = "carType",value = "车辆类型")
     private String carType;
     @ApiModelProperty(name = "hint",value = "提示语")
@@ -46,5 +44,7 @@ public class OrderVO {
     private String customerServicePhone;
     @ApiModelProperty(name = "useCarTime",value = "用车时间")
     private Date useCarTime;
+    @ApiModelProperty(name = "labelState",value = "辅助状态")
+    private String labelState;
 
 }

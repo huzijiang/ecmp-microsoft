@@ -1,9 +1,9 @@
 package com.hq.ecmp.mscore.domain;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * 【请填写功能名称】对象 order_settling_info
@@ -33,16 +33,36 @@ public class OrderSettlingInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long outPrice;
-    //总里程
-    private Double totalMileage;
-    //总时长
-    private Long totalTime;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long totalMileage;// TODO 新增。实际里程
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String totalTime;// TODO 新增。实际时长
+    public void setTotalMileage(Long totalMileage)
+    {
+        this.totalMileage = totalMileage;
+    }
+    public Long getTotalMileage()
+    {
+        return totalMileage;
+    }
+
+    public void setTotalTime(String totalTime)
+    {
+        this.totalTime = totalTime;
+    }
+    public String getTotalTime()
+    {
+        return totalTime;
+    }
+
 
     public void setBillId(Long billId)
     {
         this.billId = billId;
     }
-
     public Long getBillId()
     {
         return billId;
@@ -84,21 +104,6 @@ public class OrderSettlingInfo extends BaseEntity
         return outPrice;
     }
 
-    public Double getTotalMileage() {
-        return totalMileage;
-    }
-
-    public void setTotalMileage(Double totalMileage) {
-        this.totalMileage = totalMileage;
-    }
-
-    public Long getTotalTime() {
-        return totalTime;
-    }
-
-    public void setTotalTime(Long totalTime) {
-        this.totalTime = totalTime;
-    }
 
     @Override
     public String toString() {

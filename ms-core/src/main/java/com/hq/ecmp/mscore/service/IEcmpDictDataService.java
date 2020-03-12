@@ -66,4 +66,15 @@ public interface IEcmpDictDataService
      * @return 结果
      */
     public int deleteEcmpDictDataById(Long dictCode);
+    /**
+     * 评价标签的好评
+     * @return 字典数据集合
+     */
+    public List<EcmpDictData> selectEcmpDictDataByTypeGOOD();
+
+    /**
+     * 评价标签的差评
+     * @return 字典数据集合
+     */
+    public List<EcmpDictData> selectEcmpDictDataByTypeBAD();
 }

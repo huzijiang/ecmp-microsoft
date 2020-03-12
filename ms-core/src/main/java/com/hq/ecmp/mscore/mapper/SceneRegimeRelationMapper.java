@@ -66,5 +66,7 @@ public interface SceneRegimeRelationMapper
      * @return
      */
     List<Long> selectRegimenIdsBySceneId(Long sceneId);
+    
+    public Integer deleteSceneRegimeRelationByRegimeId(Long regimeId);
 
 }

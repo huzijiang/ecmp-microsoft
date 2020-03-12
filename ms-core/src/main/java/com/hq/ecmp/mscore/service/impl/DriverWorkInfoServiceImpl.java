@@ -3,8 +3,11 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
+import com.hq.ecmp.mscore.mapper.DriverServiceStateInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverWorkInfoMapper;
 import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
+import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
+import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,8 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
 {
     @Autowired
     private DriverWorkInfoMapper driverWorkInfoMapper;
+    @Autowired
+    private DriverServiceStateInfoMapper driverServiceStateInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -94,4 +99,33 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
     {
         return driverWorkInfoMapper.deleteDriverWorkInfoById(workId);
     }
+
+    /**
+     * 查询司机当月排班/出勤信息
+     * @param scheduleDate
+     * @return
+     */
+    @Override
+    public List<DriverDutyPlanVO> selectDriverWorkInfoByMonth(String scheduleDate, Long userId) {
+
+        List<DriverDutyPlanVO> list = driverWorkInfoMapper.selectDriverWorkInfoByMonth(scheduleDate,userId);
+        return list;
+    }
+
+    /**
+     * 加载司机应该出勤/已出勤天数
+     * @param scheduleDate
+     * @return
+     */
+    @Override
+    public DriverDutySummaryVO selectDriverDutySummary(String scheduleDate, Long driverId) {
+        //查询司机应出勤天数
+        int shouldDutyDays = driverWorkInfoMapper.selectDriverShouldDutyDays(scheduleDate,driverId);
+        //查询司机已出勤天数
+        int alreadyDutyDays = driverServiceStateInfoMapper.selectDriverAlreadyDutyDays(scheduleDate,driverId);
+        DriverDutySummaryVO build = DriverDutySummaryVO.builder().alreadyDuty(alreadyDutyDays)
+                .shouldDuty(shouldDutyDays).build();
+        return build;
+    }
+
 }
