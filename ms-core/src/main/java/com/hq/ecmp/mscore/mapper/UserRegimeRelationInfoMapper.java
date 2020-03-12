@@ -1,8 +1,12 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.RegimeQueryPo;
+import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
 
 import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -66,6 +70,15 @@ public interface UserRegimeRelationInfoMapper {
      * @return 结果
      */
     public int deleteUserRegimeRelationInfoByIds(Long[] userIds);
+    
+    
+    public Integer batchInsertUser(@Param("regimenId")Long regimenId, @Param("list")List<Long> userIdList);
+    
+    
+    public Integer queryRegimeUserCount(Long regimenId);
+    
+    
+    public Integer deleteUserRegimeRelationInfoByRegimeId(Long regimeId);
 
 
 }

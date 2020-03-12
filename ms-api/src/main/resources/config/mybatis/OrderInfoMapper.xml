@@ -393,6 +393,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             </if>
             ) a group by a.messageType
     </select>
+    
 
     <select id="getCancelOrderMessage" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
          SELECT messageId,messageType,'取消任务' messageTypeStr,count(*) messageCount from (
