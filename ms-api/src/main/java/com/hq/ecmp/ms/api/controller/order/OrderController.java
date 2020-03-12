@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.order;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
@@ -21,6 +22,8 @@ import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.ParallelOrderDto;
 import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
+import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.RedisUtil;
@@ -525,9 +528,9 @@ public class OrderController {
     }
 
     /**
-    *   @author yj
-    *   @Description  //TODO 通过用户id获取司机id，查找订单表司机id对应的订单
-    *   @Date 14:03 2020/3/7
+    *   @author caobj
+    *   @Description  获取个人中心当前司机的所有任务列表(已完成/未完成)
+    *   @Date 14:03 2020/3/11
     *   @Param  [driverListRequest]
     *   @return com.hq.common.core.api.ApiResponse<java.util.List<com.hq.ecmp.mscore.domain.OrderDriverListInfo>>
     **/
@@ -542,9 +545,47 @@ public class OrderController {
             driverOrderList = iOrderInfoService.getDriverOrderList(userId, driverListRequest.getPageNum(), driverListRequest.getPageSize());
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("获取司机的任务列表失败");
+            return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success(driverOrderList);
+    }
+
+    /**
+     *   @author caobj
+     *   @Description  获取首页当前司机的所有未完成任务列表
+     *   @Date 14:03 2020/3/11
+     *   @Param  [driverListRequest]
+     *   @return com.hq.common.core.api.ApiResponse<java.util.List<com.hq.ecmp.mscore.domain.OrderDriverListInfo>>
+     **/
+    @ApiOperation(value = "driverOrderUndoneList", notes = "获取首页当前司机的所有未完成任务列表")
+    @RequestMapping("/driverOrderUndoneList")
+    public ApiResponse<List<OrderDriverListInfo>> driverOrderUndoneList(@RequestBody PageRequest driverListRequest) {
+        List<OrderDriverListInfo> driverOrderList = null;
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            driverOrderList = iOrderInfoService.driverOrderUndoneList(userId, driverListRequest.getPageNum(), driverListRequest.getPageSize(),driverListRequest.getDay());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success(driverOrderList);
+    }
+
+    @ApiOperation(value = "driverOrderCount", notes = "获取未完成的任务数量")
+    @RequestMapping("/driverOrderCount")
+    public ApiResponse<Integer> driverOrderCount() {
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            int count = iOrderInfoService.driverOrderCount(userId);
+            return ApiResponse.success(count);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
     }
 
     /**
@@ -619,20 +660,56 @@ public class OrderController {
     }
     /**
      *   @author caobj
-     *   @Description 获取待服务详情
+     *   @Description 乘客端获取订单详情
      *   @Date 10:11 2020/3/4
      *   @Param  []
      *   @return com.hq.common.core.api.ApiResponse
      **/
-    @ApiOperation(value = "获取待服务详情",httpMethod = "POST")
+    @ApiOperation(value = "乘客端获取订单详情",httpMethod = "POST")
     @RequestMapping("/orderBeServiceDetail")
-    public ApiResponse<OrderVO> orderBeServiceDetail(@RequestBody OrderDto orderDto){
+    public ApiResponse<OrderVO> orderBeServiceDetail(@RequestBody OrderDto orderDto) {
         try {
-            OrderVO  orderVO = iOrderInfoService.orderBeServiceDetail(orderDto.getOrderId());
+            OrderVO orderVO = iOrderInfoService.orderBeServiceDetail(orderDto.getOrderId());
+            return ApiResponse.success(orderVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("加载订单列表失败");
+        }
+    }
+    /**
+     *   @author caobj
+     *   @Description 获取订单状态
+     *   @Date 10:11 2020/3/4
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "获取订单状态",httpMethod = "POST")
+    @RequestMapping("/getOrderState")
+    public ApiResponse<OrderStateVO> getOrderState(@RequestBody OrderDto orderDto){
+        try {
+            OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderDto.getOrderId());
             return ApiResponse.success(orderVO);
         }catch (Exception e){
             e.printStackTrace();
             return  ApiResponse.error("加载订单列表失败");
+        }
+    }
+
+    /**
+     *   @author caobj
+     *   @Description 司机端获取任务详情
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "司机端获取任务详情",httpMethod = "POST")
+    @RequestMapping("/driverOrderDetail")
+    public ApiResponse<DriverOrderInfoVO> driverOrderDetail(@RequestBody OrderDto orderDto){
+        try {
+            DriverOrderInfoVO  orderVO = iOrderInfoService.driverOrderDetail(orderDto.getOrderId());
+            return ApiResponse.success(orderVO);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("司机端获取任务详情");
         }
     }
 

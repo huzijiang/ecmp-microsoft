@@ -1,35 +1,16 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.*;
-
-
-import java.text.DateFormat;
-import java.util.List;
-
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
-import com.hq.common.utils.ServletUtils;
-import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-
-import com.hq.ecmp.constant.OrderStateTrace;
-import com.hq.ecmp.mscore.domain.*;
-
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
+import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.mscore.vo.PassengerInfoVO;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.RedisUtil;
@@ -43,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.util.*;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -81,6 +61,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private RedisUtil redisUtil;
     @Resource
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
+    @Resource
+    private EcmpUserMapper ecmpUserMapper;
+    @Resource
+    private JourneyPassengerInfoMapper passengerInfoMapper;
 
     @Value("${company.serviceMobile}")
     private String serviceMobile;
@@ -223,14 +207,23 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @return
      */
     @Override
-    public List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize) {
-        DriverInfo driverInfoCondition = new DriverInfo();
-        driverInfoCondition.setUserId(userId);
-        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(driverInfoCondition);
+    public List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize) throws Exception{
+        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
+        if (CollectionUtils.isEmpty(driverInfos)){
+            throw new Exception("当前登录人不是司机");
+        }
         DriverInfo driverInfo = driverInfos.get(0);
         Long driverId = driverInfo.getDriverId();
+        int flag=0;
+        if (pageNum==1){//首次刷新
+            String states=OrderState.ALREADYSENDING.getState()+","+OrderState.READYSERVICE.getState();
+            int count=orderInfoMapper.getDriverOrderCount(driverId,states);
+            if(count>20){
+                flag=1;
+            }
+        }
         PageHelper.startPage(pageNum,pageSize);
-        List<OrderDriverListInfo> driverOrderList = orderInfoMapper.getDriverOrderList(driverId);
+        List<OrderDriverListInfo> driverOrderList = orderInfoMapper.getDriverOrderList(driverId,flag);
         return driverOrderList;
     }
 
@@ -456,5 +449,62 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId));
             }
         }
+    }
+
+    @Override
+    public MessageDto getCancelOrderMessage(Long userId, String states) {
+        return orderInfoMapper.getCancelOrderMessage(userId,states);
+    }
+
+    @Override
+    public List<OrderDriverListInfo> driverOrderUndoneList(Long userId, Integer pageNum, Integer pageSize, int day) throws Exception {
+        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
+        if (CollectionUtils.isEmpty(driverInfos)){
+            throw new Exception("当前登录人不是司机");
+        }
+        DriverInfo driverInfo = driverInfos.get(0);
+        Long driverId = driverInfo.getDriverId();
+        List<OrderDriverListInfo> lsit=orderInfoMapper.driverOrderUndoneList(driverId,day);
+        return lsit;
+    }
+
+    @Override
+    public int driverOrderCount(Long userId) throws Exception{
+        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
+        if (CollectionUtils.isEmpty(driverInfos)){
+            throw new Exception("当前登录人不是司机");
+        }
+        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.READYSERVICE.getState();
+        return orderInfoMapper.getDriverOrderCount(driverInfos.get(0).getDriverId(),states);
+    }
+
+    //获取司机任务详情
+    @Override
+    public DriverOrderInfoVO driverOrderDetail(Long orderId) {
+        DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
+//        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
+        // TODO 获取车队电话和乘客电话有单独的接口(好像)
+        vo.setCustomerServicePhone(serviceMobile);
+//        List<PassengerInfoVO> list=new ArrayList();
+//        list.add(new PassengerInfoVO(ecmpUser.getNickName(),ecmpUser.getPhonenumber(),"申请人"));
+//        List<JourneyPassengerInfo> journeyPassengerInfos = passengerInfoMapper.selectJourneyPassengerInfoList(new JourneyPassengerInfo(vo.getJourneyId()));
+//        if (!CollectionUtils.isEmpty(journeyPassengerInfos)){
+//            for (JourneyPassengerInfo info:journeyPassengerInfos){
+//                if ("00".equals(info.getItIsPeer())){
+//                    list.add(new PassengerInfoVO(info.getName(),info.getMobile(),"乘车人"));
+//                }else{
+//                    list.add(new PassengerInfoVO(info.getName(),info.getMobile(),"同行人"));
+//                }
+//
+//            }
+//        }
+
+        return vo;
+    }
+
+    @Override
+    public OrderStateVO getOrderState(Long orderId) {
+        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
+        return orderState;
     }
 }

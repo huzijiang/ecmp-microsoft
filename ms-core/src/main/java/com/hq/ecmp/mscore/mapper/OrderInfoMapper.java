@@ -6,6 +6,8 @@ import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
+import com.hq.ecmp.mscore.vo.OrderStateVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -89,7 +91,7 @@ public interface OrderInfoMapper
      * @param driverId
      * @return
      */
-    public List<OrderDriverListInfo> getDriverOrderList(long driverId);
+    public List<OrderDriverListInfo> getDriverOrderList(@Param("driverId")long driverId,@Param("flag")int flag);
 
     public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
 
@@ -97,4 +99,14 @@ public interface OrderInfoMapper
 
     /**获取调度员派车通知*/
     MessageDto getOrderMessage(@Param("userId") Long userId, @Param("states") String states,@Param("driveId")Long driveId);
+
+    MessageDto getCancelOrderMessage(@Param("driverId")Long driverId,@Param("state") String state);
+    //查询司机未完成的任务数量
+    int getDriverOrderCount(@Param("driverId")Long driverId,@Param("states") String states);
+
+    List<OrderDriverListInfo> driverOrderUndoneList(@Param("driverId")long driverId,@Param("day")int day);
+
+    DriverOrderInfoVO selectOrderDetail(Long orderId);
+
+    OrderStateVO getOrderState(Long orderId);
 }

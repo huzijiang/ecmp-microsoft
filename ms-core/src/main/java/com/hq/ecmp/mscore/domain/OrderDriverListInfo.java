@@ -28,7 +28,7 @@ public class OrderDriverListInfo {
     //T000  非包车
     //T001 半日租（4小时）
     //T002 整日租（8小时）
-    private String charterCarTye;
+    private String charterCarType;
     //用车时间
     private String useCarTime;
     /**
@@ -41,4 +41,9 @@ public class OrderDriverListInfo {
     private String endAddr;
     //订单状态
     private String state;
+    //订单标签
+    private String labelState;
+    //订单类型(已完成,未完成)
+    private String stateType;
+
 }

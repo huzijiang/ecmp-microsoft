@@ -6,6 +6,8 @@ import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
+import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
 
 import java.util.List;
@@ -100,7 +102,7 @@ public interface IOrderInfoService {
      * @param userId
      * @return
      */
-    public  List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize);
+    public  List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize)throws Exception;
 
     /**
      * 查询待调单的订单详情(包含待改派的)
@@ -148,5 +150,15 @@ public interface IOrderInfoService {
     public boolean ownCarSendCar(Long orderId,Long driverId,Long carId,Long userId);
 
     void initOrder(Long applyId, Long jouneyId, Long userId);
+
+    MessageDto getCancelOrderMessage(Long userId, String states);
+
+    List<OrderDriverListInfo> driverOrderUndoneList(Long userId, Integer pageNum, Integer pageSize, int day)throws Exception;
+
+    int driverOrderCount(Long userId)throws Exception;
+
+    DriverOrderInfoVO driverOrderDetail(Long orderId);
+
+    OrderStateVO getOrderState(Long orderId);
 }
 

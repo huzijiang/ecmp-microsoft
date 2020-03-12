@@ -90,9 +90,11 @@ public interface IOrderStateTraceInfoService
      */
     List<SendCarInfo> queryStateInfo(Long orderId);
 
-
-
-
-
-    MessageDto getTraceMessage(Long userId);
+    /**
+     *
+     * @param userId 用户id
+     * @param flag 角色(true 司机,false乘客端)
+     * @return
+     */
+    MessageDto getTraceMessage(Long userId,boolean flag,Long driverId);
 }
