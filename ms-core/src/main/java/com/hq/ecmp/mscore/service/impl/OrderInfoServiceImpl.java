@@ -1,18 +1,22 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.net.URLEncoder;
 import java.util.*;
 
 
 import java.text.DateFormat;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.CallTaxiDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
@@ -33,6 +37,7 @@ import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +58,7 @@ import java.util.List;
  * @date 2020-01-02
  */
 @Service
+@Slf4j
 public class OrderInfoServiceImpl implements IOrderInfoService
 {
     @Autowired
@@ -81,6 +87,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private RedisUtil redisUtil;
     @Resource
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
+    @Resource
+    private IOrderViaInfoService iOrderViaInfoService;
 
     @Value("${company.serviceMobile}")
     private String serviceMobile;
@@ -322,8 +330,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     @Async
-    public void platCallTaxi(OrderInfo orderInfo,String enterpriseId,String licenseContent,String apiUrl) {
-        Long orderId = orderInfo.getOrderId();
+    public void platCallTaxi(CallTaxiDto callTaxiDto, String enterpriseId, String licenseContent, String apiUrl) {
+        Long orderId = callTaxiDto.getOrderId();
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setOrderId(callTaxiDto.getOrderId());
         try {
             //MAC地址
             List<String> macList = MacTools.getMacList();
@@ -333,48 +343,84 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             paramMap.put("enterpriseId", enterpriseId);
             paramMap.put("licenseContent", licenseContent);
             paramMap.put("mac", macAdd);
+            paramMap.put("enterpriseOrderId",orderId+"");
+            paramMap.put("bookingDate",callTaxiDto.getBookingDate());
+            String bookingStartPoint = callTaxiDto.getBookingStartPoint();
+            String[] bookingStart = bookingStartPoint.split("\\,| \\，");
+            paramMap.put("bookingStartPointLo",bookingStart[0]);
+            paramMap.put("bookingStartPointLa",bookingStart[1]);
+            String bookingEndPoint = callTaxiDto.getBookingEndPoint();
+            String[] bookingEnd = bookingEndPoint.split("\\,| \\，");
+            paramMap.put("bookingEndPointLo",bookingEnd[0]);
+            paramMap.put("bookingEndPointLa",bookingEnd[1]);
+            paramMap.put("riderName",callTaxiDto.getRiderName());
+            paramMap.put("riderPhone",callTaxiDto.getRiderPhone());
+            paramMap.put("bookingStartAddr", URLEncoder.encode(callTaxiDto.getBookingStartAddr()));
+            paramMap.put("bookingEndAddr", URLEncoder.encode(callTaxiDto.getBookingEndAddr()));
+            //订单类型,1:随叫随到;2:预约用车;3:接机;5:送机,目前网约车固定为预约用车
+            paramMap.put("serviceType","2");
+            //目前状态固定为S200
+            paramMap.put("status","S200");
+            paramMap.put("estimatedAmount",callTaxiDto.getEstimatedAmount());
             //调用查询订单状态的接口参数
             Map<String,String> queryOrderStateMap = new HashMap<>();
             queryOrderStateMap.put("enterpriseId", enterpriseId);
             queryOrderStateMap.put("licenseContent", licenseContent);
             queryOrderStateMap.put("mac", macAdd);
+            queryOrderStateMap.put("enterpriseOrderId",orderId+"");
+            queryOrderStateMap.put("status","S200");
             for(;;){
-//                String result = OkHttpUtil.postJson(apiUrl + "/service/applyPlatReceiveOrder", paramMap);
-//                JSONObject jsonObject = JSONObject.parseObject(result);
-//                if(!"0".equals(jsonObject.getString("code"))){
-//                    throw new Exception("约车失败");
-//                }
-                for (int i = 0; i <3 ; i++) {
-                    redisUtil.increment(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"",1L);
-                    System.out.println("订单【"+orderId+"】次数加一");
-                    Thread.sleep(60000);
+                if((DateUtils.getNowDate().getTime()/1000)>=Long.parseLong(callTaxiDto.getBookingDate())){
+                    //订单超时退出循环
+                    orderInfo.setState(OrderState.ORDEROVERTIME.getState());
+                    int j = orderInfoMapper.updateOrderInfo(orderInfo);
+                    if (j != 1) {
+                        throw new Exception("约车失败");
+                    }
+                    break;
+                }
+                OrderInfo orderInfoPre = orderInfoMapper.selectOrderInfoById(orderId);
+                String state = orderInfoPre.getState();
+                //订单取消/超时/关闭 则退出循环
+                if(state.equals(OrderState.ORDERCANCEL.getState())|| (state.equals(OrderState.ORDEROVERTIME.getState()))
+                ||state.equals(OrderState.ORDERCLOSE.getState())){
+                    break;
+                }
+                String result = OkHttpUtil.postJson(apiUrl + "/service/applyPlatReceiveOrder", paramMap);
+                JSONObject jsonObject = JSONObject.parseObject(result);
+                if(!"0".equals(jsonObject.getString("code"))){
+                    throw new Exception("约车失败");
                 }
 
-//                //调用查询订单状态的方法
-//                String resultQuery = OkHttpUtil.postJson(apiUrl + "/service/applyPlatReceiveOrder", paramMap);
-//                JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
-//                if(!"0".equals(jsonObjectQuery.getString("code"))){
-//                    throw new Exception("约车失败");
-//                }
-//                //判断状态,如果约到车修改状态为已派单
-//                Object data = jsonObjectQuery.get("data");
-//                if(data.equals("")){
-//                    orderInfo.setState(OrderState.ALREADYSENDING.getState());
-//                    int j = orderInfoMapper.updateOrderInfo(orderInfo);
-//                    if (j != 1) {
-//                        throw new Exception("约车失败");
-//                    }
-//                    break;
-//                }
-                break;
+                redisUtil.increment(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"",1L);
+                log.debug("订单【"+orderId+"】次数加一");
+                Thread.sleep(60000*2);
+
+
+                //调用查询订单状态的方法
+                String resultQuery = OkHttpUtil.postJson(apiUrl + "/service/getOrderState", queryOrderStateMap);
+                JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
+                if(!"0".equals(jsonObjectQuery.getString("code"))){
+                    throw new Exception("约车失败");
+                }
+                //判断状态,如果约到车修改状态为已派单
+                JSONObject data = jsonObjectQuery.getJSONObject("data");
+                if(data.getString("status").equals(OrderState.ALREADYSENDING.getState())){
+                    orderInfo.setState(OrderState.ALREADYSENDING.getState());
+                    int j = orderInfoMapper.updateOrderInfo(orderInfo);
+                    if (j != 1) {
+                        throw new Exception("约车失败");
+                    }
+                    break;
+                }
             }
-            System.out.println("订单【"+orderId+"】约车成功");
+            log.debug("订单【"+orderId+"】约车成功");
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
-            System.out.println("订单【"+orderId+"】约车次数删除");
+            log.debug("订单【"+orderId+"】约车次数删除");
             redisUtil.delKey(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"");
-            System.out.println("订单【"+orderId+"】约车次数删除成功");
+            log.debug("订单【"+orderId+"】约车次数删除成功");
         }
     }
 
@@ -435,14 +481,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setCreateTime(new Date());
         String applyType = applyInfo.getApplyType();
         //如果是公务用车则状态直接为待派单，如果是差旅用车状态为初始化
-        if ("A001".equals(applyType)) {
+        if (CarConstant.USE_CAR_TYPE_OFFICIAL.equals(applyType)) {
             orderInfo.setState(OrderState.WAITINGLIST.getState());
         } else {
             orderInfo.setState(OrderState.INITIALIZING.getState());
         }
-        //有多少用车权限创建多少订单（注意往返以及差旅的室内用车）
+        //有多少用车权限创建多少订单（跳过差旅的市内用车）
         for (int i = 0; i < journeyUserCarPowers.size(); i++) {
-            //通过行程节点与申请id以及行程id唯一确定用户权限id
             JourneyUserCarPower journeyUserCarPower = journeyUserCarPowers.get(i);
             String type = journeyUserCarPower.getType();
             //如果是市内用车跳过生成订单，在手动创建订单的时候生成
@@ -454,11 +499,61 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             orderInfo.setNodeId(nodeId);
             orderInfo.setPowerId(powerId);// TODO: 2020/3/3  权限表何时去创建？ 申请审批通过以后创建用车权限表记录，一个行程节点可能对应多个用车权限，比如往返超过固定时间
             orderInfoMapper.insertOrderInfo(orderInfo);
+            //如果是公务用车，插入订单途经点信息表
+            if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(applyType)){
+                JourneyNodeInfo journeyNodeInfo = new JourneyNodeInfo();
+                journeyNodeInfo.setJourneyId(jouneyId);
+                List<JourneyNodeInfo> journeyNodeInfoList = iJourneyNodeInfoService.selectJourneyNodeInfoList(journeyNodeInfo);
+                if(journeyNodeInfoList !=null && journeyNodeInfoList.size()>0){
+                    List<OrderViaInfo> orderViaInfos = new ArrayList<>();
+                    for (JourneyNodeInfo journeyNodeInfoCh:
+                         journeyNodeInfoList) {
+                        Integer number = journeyNodeInfoCh.getNumber();
+                        OrderViaInfo orderViaInfo = new OrderViaInfo();
+                        orderViaInfo.setOrderId(orderInfo.getOrderId());
+                        orderViaInfo.setItIsPassed(CommonConstant.NO_PASS);
+                        orderViaInfo.setArrivedTime(null);
+                        orderViaInfo.setDuration(null);
+                        orderViaInfo.setLeaveTime(null);
+                        orderViaInfo.setCreateBy(String.valueOf(userId));
+                        orderViaInfo.setCreateTime(DateUtils.getNowDate());
+                        orderViaInfo.setUpdateTime(null);
+                        orderViaInfo.setUpdateBy(null);
+                        if(number == 1){
+                            orderViaInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLongAddress()));
+                            orderViaInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLatitude()));
+                            orderViaInfo.setFullAddress(journeyNodeInfoCh.getPlanBeginLongAddress());
+                            orderViaInfo.setShortAddress(journeyNodeInfoCh.getPlanBeginAddress());
+                            orderViaInfo.setSortNumber(1);
+                        }else{
+                            orderViaInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongAddress()));
+                            orderViaInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
+                            orderViaInfo.setFullAddress(journeyNodeInfoCh.getPlanEndLongAddress());
+                            orderViaInfo.setShortAddress(journeyNodeInfoCh.getPlanEndAddress());
+                            orderViaInfo.setSortNumber(journeyNodeInfoCh.getNumber());
+                        }
+                        orderViaInfos.add(orderViaInfo);
+                    }
+                    if(orderViaInfos.size()>0){
+                        iOrderViaInfoService.insertOrderViaInfoBatch(orderViaInfos);
+                    }
+                }
+            }
             //插入订单轨迹表
             this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId));
             if ("A001".equals(applyType)) {
                 this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId));
             }
         }
+    }
+
+    @Override
+    public OrderDriverListInfo getNextTaskWithDriver(Long driverId) {
+        return orderInfoMapper.getNextTaskWithDriver(driverId);
+    }
+
+    @Override
+    public OrderDriverListInfo getNextTaskWithCar(Long carId) {
+        return  orderInfoMapper.getNextTaskWithCar(carId);
     }
 }

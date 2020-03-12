@@ -6,7 +6,10 @@ import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.*;
+import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.constant.ResignOrderTraceState;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
@@ -14,16 +17,11 @@ import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDetailDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
-import com.hq.ecmp.ms.api.dto.order.OrderEvaluationDto;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
-import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
-import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.dto.ParallelOrderDto;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.MacTools;
-import com.hq.ecmp.util.RedisUtil;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -212,9 +210,9 @@ public class OrderController {
      */
     @ApiOperation(value = "letPlatCallTaxi", notes = "自动约车-向网约车平台发起约车请求 改变订单的状态为  约车中-->已派单", httpMethod = "POST")
     @PostMapping("/letPlatCallTaxi")
-    public ApiResponse letPlatCallTaxi(@RequestBody  OrderDto orderDto) {
+    public ApiResponse letPlatCallTaxi(@RequestBody CallTaxiDto callTaxiDto) {
         try {
-            Long orderId = orderDto.getOrderId();
+            Long orderId = callTaxiDto.getOrderId();
             OrderInfo orderInfo = new OrderInfo();
             orderInfo.setOrderId(orderId);
             orderInfo.setState(OrderState.SENDINGCARS.getState());
@@ -222,7 +220,7 @@ public class OrderController {
             if (i != 1) {
                 throw new Exception("约车失败");
             }
-            iOrderInfoService.platCallTaxi(orderInfo,enterpriseId,licenseContent,apiUrl);
+            iOrderInfoService.platCallTaxi(callTaxiDto,enterpriseId,licenseContent,apiUrl);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.success(e.getMessage());
@@ -314,9 +312,9 @@ public class OrderController {
     /**
      * 用户取消订单:
      * <p>
-     * 逻辑：1.订单状态为未约到车的状态，直接更改订单状态为订单关闭。
-     * 2. 订单状态为约到车未服务的状态 《1》：如果是网约车，调用网约车取消订单接口，取消订单，然后修改订单状态为订单关闭。
-     * 《2》：如果是自有车，直接更改订单状态为订单关闭，成功以后给司机发送订单取消的消息通知。
+     * 逻辑：1.订单状态为未约到车的状态，直接更改订单状态为订单取消。
+     * 2. 订单状态为约到车未服务的状态 《1》：如果是网约车，调用网约车取消订单接口，取消订单，然后修改订单状态为订单取消。
+     * 《2》：如果是自有车，直接更改订单状态为订单取消，成功以后给司机发送订单取消的消息通知。
      * 3. 插入订单状态变化轨迹表数据
      * <p>
      * 改变订单的状态为 订单关闭
@@ -356,7 +354,7 @@ public class OrderController {
                 }
             }
             OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setState(OrderState.ORDERCLOSE.getState());
+            orderInfo.setState(OrderState.ORDERCANCEL.getState());
             orderInfo.setCancelReason(orderDto.getCancelReason());
             orderInfo.setUpdateBy(String.valueOf(userId));
             int suc = iOrderInfoService.updateOrderInfo(orderInfo);

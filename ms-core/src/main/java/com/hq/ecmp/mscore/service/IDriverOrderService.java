@@ -1,5 +1,13 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import com.hq.ecmp.mscore.domain.OrderViaInfo;
+import com.hq.ecmp.mscore.dto.ContactorDto;
+import com.hq.ecmp.mscore.dto.IsContinueReDto;
+import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
+
+import java.util.List;
+
 public interface IDriverOrderService {
 
     /**
@@ -14,8 +22,41 @@ public interface IDriverOrderService {
 
     /**
      * 司机是否继续用车，或者还车
+     * @param mileage
+     * @param travelTime
+     * @param orderNo
      */
-    public void  isContinue();
+    public IsContinueReDto isContinue(String mileage, String travelTime, String orderNo,String userId);
 
-    public void waitingOrder(String orderNo,String  isFinish,String currentPoint,String userId);
+    /**
+     * 司机开启等待和关闭等待的逻辑
+     * @param orderNo
+     * @param isFinish
+     * @param currentPoint
+     * @param userId
+     * @param waitingId
+     * @return
+     * @throws Exception
+     */
+    public Long waitingOrder(String orderNo,String  isFinish,String currentPoint,String userId,String waitingId) throws Exception;
+
+    /**
+     * 获取乘车人的电话
+     * @param orderId
+     * @return
+     */
+    public List<JourneyPassengerInfo> getInfoWithPassenger(String orderId);
+
+    /**
+     * 获取车队座机和调度人电话
+     * @param orderId
+     */
+    public List<ContactorDto> getInfoWithCarGroup(String orderId);
+
+    /**
+     * 获取订单途径地信息
+     * @param orderId
+     */
+    public List<OrderViaInfoDto> getOrderViaInfos(String orderId);
+
 }

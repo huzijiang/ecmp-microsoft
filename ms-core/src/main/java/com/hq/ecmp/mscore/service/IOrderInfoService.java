@@ -5,6 +5,7 @@ import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.dto.CallTaxiDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.OrderVO;
 
@@ -135,7 +136,7 @@ public interface IOrderInfoService {
     /**
      * 网约车异步约车方法
      */
-    void platCallTaxi(OrderInfo orderInfo,String enterpriseId,String licenseContent,String apiUrl);
+    void platCallTaxi(CallTaxiDto callTaxiDto, String enterpriseId, String licenseContent, String apiUrl);
 
    /**
     * 自有车派车
@@ -148,5 +149,17 @@ public interface IOrderInfoService {
     public boolean ownCarSendCar(Long orderId,Long driverId,Long carId,Long userId);
 
     void initOrder(Long applyId, Long jouneyId, Long userId);
+
+    /**
+     * 获取驾驶员对现有车的两小时内的下一个任务
+     * @param driverId
+     */
+    OrderDriverListInfo getNextTaskWithDriver(Long driverId);
+
+    /**
+     * 获取汽车对现有车的两小时内的下一个任务
+     * @param carId
+     */
+    OrderDriverListInfo getNextTaskWithCar(Long carId);
 }
 

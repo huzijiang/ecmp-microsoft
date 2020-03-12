@@ -41,4 +41,10 @@ public class OrderDriverListInfo {
     private String endAddr;
     //订单状态
     private String state;
+    //汽车id
+    private Long carId;
+    //司机ID
+    private Long driverId;
+    //订单id
+    private Long orderId;
 }

@@ -33,6 +33,10 @@ public class OrderSettlingInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long outPrice;
+    //总里程
+    private Double totalMileage;
+    //总时长
+    private Long totalTime;
 
     public void setBillId(Long billId)
     {
@@ -80,6 +84,22 @@ public class OrderSettlingInfo extends BaseEntity
         return outPrice;
     }
 
+    public Double getTotalMileage() {
+        return totalMileage;
+    }
+
+    public void setTotalMileage(Double totalMileage) {
+        this.totalMileage = totalMileage;
+    }
+
+    public Long getTotalTime() {
+        return totalTime;
+    }
+
+    public void setTotalTime(Long totalTime) {
+        this.totalTime = totalTime;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -92,6 +112,8 @@ public class OrderSettlingInfo extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
+            .append("totalMileage", getTotalMileage())
+            .append("totalTime", getTotalTime())
             .toString();
     }
 }

@@ -322,5 +322,51 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             </if>
             ) a group by a.messageType
     </select>
+    <select id="getNextTaskWithDriver" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">
+        select
+        o.order_id orderId,
+        o.state,
+        o.car_id carId,
+        o.driver_id driverId,
+        jn.service_type serviceType,
+        jn.flight_number flightNumber,
+        jn.it_is_return itIsReturn,
+        jn.charter_car_type charterCarTye,
+        DATE_FORMAT(IFNULL(o.actual_setout_time,jni.plan_setout_time),'%Y-%m-%d %H:%i') useCarTime,
+        IFNULL(o.actual_setout_address,jni.plan_begin_address) startAddr,
+        IFNULL(o.actual_arrive_address,jni.plan_end_address) endAddr
+        from order_info o
+        inner join journey_info jn on o.journey_id=jn.journey_id
+        inner join journey_node_info jni on jni.node_id=o.node_id
+        where  (hour(timediff(jni.plan_setout_time,now()))+minute(timediff(jni.plan_setout_time,now()))/60)&lt;=2
+        and o.state="S299"
+        and o.driver_id=#{driverId}
+        order by jni.plan_setout_time asc
+        limit 0,1
+
+    </select>
+    <select id="getNextTaskWithCar" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">
+        select
+        o.order_id orderId,
+        o.state,
+        o.car_id carId,
+        o.driver_id driverId,
+        jn.service_type serviceType,
+        jn.flight_number flightNumber,
+        jn.it_is_return itIsReturn,
+        jn.charter_car_type charterCarTye,
+        DATE_FORMAT(IFNULL(o.actual_setout_time,jni.plan_setout_time),'%Y-%m-%d %H:%i') useCarTime,
+        IFNULL(o.actual_setout_address,jni.plan_begin_address) startAddr,
+        IFNULL(o.actual_arrive_address,jni.plan_end_address) endAddr
+        from order_info o
+        inner join journey_info jn on o.journey_id=jn.journey_id
+        inner join journey_node_info jni on jni.node_id=o.node_id
+        where  (hour(timediff(jni.plan_setout_time,now()))+minute(timediff(jni.plan_setout_time,now()))/60)&lt;=2
+        and o.state="S299"
+        and o.car_id=#{carId}
+        order by jni.plan_setout_time asc
+        limit 0,1
+
+    </select>
 
 </mapper>

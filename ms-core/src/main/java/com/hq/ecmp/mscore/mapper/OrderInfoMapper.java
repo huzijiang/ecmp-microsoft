@@ -97,4 +97,18 @@ public interface OrderInfoMapper
 
     /**获取调度员派车通知*/
     MessageDto getOrderMessage(@Param("userId") Long userId, @Param("states") String states,@Param("driveId")Long driveId);
+
+    /**
+     * 通过司机id获取两小时内司机的下一个任务数据
+     * @param driverId
+     * @return
+     */
+    OrderDriverListInfo getNextTaskWithDriver(@Param("driverId") Long driverId);
+
+    /**
+     * 通过汽车id获取两小时内司机的下一个任务数据
+     * @param carId
+     * @return
+     */
+    OrderDriverListInfo getNextTaskWithCar(@Param("carId") Long carId);
 }
