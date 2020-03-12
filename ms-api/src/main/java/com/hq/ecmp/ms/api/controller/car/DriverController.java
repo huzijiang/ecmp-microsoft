@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
+import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
+import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +41,9 @@ public class DriverController {
     
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private IDriverWorkInfoService driverWorkInfoService;
     
     @Autowired
     private IOrderStateTraceInfoService orderStateTraceInfoService;
@@ -114,4 +120,47 @@ public class DriverController {
     public ApiResponse<List<ReassignInfo>> reassignDetail(Long orderNo){
          return ApiResponse.success(orderStateTraceInfoService.queryReassignDetail(orderNo));
     }
+
+    /**
+     * 查询司机当月排班日期对应的出勤情况列表
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "loadScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
+    @PostMapping("/loadScheduleInfo")
+    public ApiResponse<List<DriverDutyPlanVO>> loadScheduleInfo(@RequestBody String scheduleDate){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            //查询司机当月排班日期对应的出勤情况列表
+            List<DriverDutyPlanVO> list = driverWorkInfoService.selectDriverWorkInfoByMonth(scheduleDate,userId);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("加载司机当月排班日期对应的出勤情况列表失败");
+        }
+    }
+
+    /**
+     * 加载司机应该出勤/已出勤天数
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "loadDutySummary",notes = "加载司机应该出勤/已出勤天数",httpMethod ="POST")
+    @PostMapping("/loadDutySummary")
+    public ApiResponse<DriverDutySummaryVO> loadDutySummary(@RequestBody String scheduleDate){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            //查询司机当月排班/出勤天数
+            DriverDutySummaryVO dutySummary = driverWorkInfoService.selectDriverDutySummary(scheduleDate,userId);
+            return ApiResponse.success(dutySummary);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("加载司机出勤信息失败");
+        }
+    }
+
 }

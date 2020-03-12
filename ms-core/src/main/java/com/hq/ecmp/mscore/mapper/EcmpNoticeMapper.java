@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 通知公告Mapper接口
@@ -27,6 +28,14 @@ public interface EcmpNoticeMapper
      * @return 通知公告集合
      */
     public List<EcmpNotice> selectEcmpNoticeList(EcmpNotice ecmpNotice);
+
+    /**
+     * 根据条件查询通知公告列表
+     *
+     * @param ecmpNotice 通知公告
+     * @return 通知公告集合
+     */
+    public List<EcmpNotice> selectEcmpNoticeListByOtherId(Map map);
     /**
      * 获取最新公告
      *
