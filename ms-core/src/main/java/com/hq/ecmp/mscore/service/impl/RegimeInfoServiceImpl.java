@@ -6,10 +6,17 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.RegimeOpt;
+import com.hq.ecmp.mscore.domain.RegimePo;
+import com.hq.ecmp.mscore.domain.RegimeQueryPo;
+import com.hq.ecmp.mscore.domain.RegimeVo;
+import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
 import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.mapper.SceneRegimeRelationMapper;
 import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
@@ -144,5 +151,61 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}else{
 			return false;
 		}
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRED)
+	@Override
+	public boolean createRegime(RegimePo regimePo) {
+		//生成制度  TODO
+		Long regimenId=null;
+		//
+		List<Long> userList = regimePo.getUserList();
+		if(null !=userList && userList.size()>0){
+			//生成可用用户-制度中间记录
+			userRegimeRelationInfoMapper.batchInsertUser(regimenId, userList);
+		}
+		Long sceneId = regimePo.getSceneId();
+		if(null !=sceneId){
+			//生成制度-场景记录
+			SceneRegimeRelation sceneRegimeRelation = new SceneRegimeRelation();
+			sceneRegimeRelation.setSceneId(sceneId);
+			sceneRegimeRelation.setRegimenId(regimenId);
+			sceneRegimeRelationMapper.insertSceneRegimeRelation(sceneRegimeRelation);
+			
+		}
+		return true;
+	}
+
+	@Override
+	public List<RegimeVo> queryRegimeList(RegimeQueryPo regimeQueryPo) {
+		List<RegimeVo> regimeList = regimeInfoMapper.queryRegimeList(regimeQueryPo);
+		if(null !=regimeList && regimeList.size()>0){
+			for (RegimeVo regimeVo : regimeList) {
+				//查询该制度的使用人数
+				Integer userCount = userRegimeRelationInfoMapper.queryRegimeUserCount(regimeVo.getRegimeId());
+				regimeVo.setUseNum(userCount);
+			}
+		}
+		return regimeList;
+	}
+
+	@Override
+	public Integer queryRegimeListCount(RegimeQueryPo regimeQueryPo) {
+		return regimeInfoMapper.queryRegimeListCount(regimeQueryPo);
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRED)
+	@Override
+	public boolean optRegime(RegimeOpt regimeOpt) {
+		Integer optType = regimeOpt.getOptType();
+		if(optType==1 || optType==0){
+			regimeInfoMapper.updateStatus(regimeOpt);
+		}else{
+			//物理删除
+			regimeInfoMapper.deleteRegimeInfoById(regimeOpt.getRegimeId());
+			userRegimeRelationInfoMapper.deleteUserRegimeRelationInfoByRegimeId(regimeOpt.getRegimeId());
+			sceneRegimeRelationMapper.deleteSceneRegimeRelationByRegimeId(regimeOpt.getRegimeId());
+		}
+		return true;
 	}
 }

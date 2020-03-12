@@ -60,5 +60,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectRegimenIdsBySceneId" resultType="java.lang.Long" parameterType="long">
         select regimen_id from scene_regime_relation where scene_id = #{sceneId}
     </select>
+    
+    <delete id="deleteSceneRegimeRelationByRegimeId" parameterType="Long">
+    delete from scene_regime_relation where regimen_id = #{regimeId}
+    </delete>
 
 </mapper>
