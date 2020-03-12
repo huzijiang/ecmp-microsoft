@@ -38,6 +38,27 @@ public class DictDataController {
         List<EcmpDictData> ecmpDictDataList = iEcmpDictDataService.selectEcmpDictDataByType(ecmpDictData.getDictType());
         return ApiResponse.success(ecmpDictDataList);
     }
+    /**
+     * 获取评价标签好评
+     * @return ecmpDictDataList
+     */
+    @ApiOperation(value = "getDictDataByTypeGOOD",notes = "评价标签好评 ",httpMethod ="POST")
+    @PostMapping("/getDictDataByTypeGOOD")
+    public ApiResponse<List<EcmpDictData>> getDictDataByTypeGOOD(){
+        List<EcmpDictData> ecmpDictGoodList = iEcmpDictDataService.selectEcmpDictDataByTypeGOOD();
+        return ApiResponse.success(ecmpDictGoodList);
+    }
+    /**
+     * 获取评价标签差评
+     * @return ecmpDictDataList
+     */
+    @ApiOperation(value = "getDictDataByTypeBAD",notes = "评价标签差评",httpMethod ="POST")
+    @PostMapping("/getDictDataByTypeBAD")
+    public ApiResponse<List<EcmpDictData>> getDictDataByTypeBAD(){
+        List<EcmpDictData> ecmpDictBadList = iEcmpDictDataService.selectEcmpDictDataByTypeBAD();
+        return ApiResponse.success(ecmpDictBadList);
+    }
+
 
     /**
      * 通过数据字典获取 数据字典

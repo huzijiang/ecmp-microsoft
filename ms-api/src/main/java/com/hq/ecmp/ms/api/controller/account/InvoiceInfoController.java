@@ -106,8 +106,8 @@ public class InvoiceInfoController {
      * @param invoiceDto
      * @return
      */
-    @ApiOperation(value = "getinvoiceInfoDetail",notes = "发票信息详情",httpMethod ="POST")
-    @PostMapping("/getinvoiceInfoDetail")
+    @ApiOperation(value = "getinvoiceByTimeAndState",notes = "发票信息详情",httpMethod ="POST")
+    @PostMapping("/getinvoiceByTimeAndState")
     public ApiResponse<List<InvoiceInfo>>  getinvoiceByTimeAndState(InvoiceDto invoiceDto){
         List<InvoiceInfo>  invoiceInfoList = invoiceInfoService.selectInvoiceInfoByTimeAndState(invoiceDto.getStartTime(),invoiceDto.getEndTime(),invoiceDto.getState());
         return ApiResponse.success(invoiceInfoList);

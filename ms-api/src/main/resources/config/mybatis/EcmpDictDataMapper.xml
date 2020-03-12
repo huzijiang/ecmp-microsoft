@@ -114,4 +114,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     where dict_type = #{dictType}
    </select>
 
+    <!--评价标签的好评-->
+   <select id="selectEcmpDictDataByTypeGOOD" parameterType="com.hq.ecmp.mscore.domain.EcmpDictData">
+   select dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, update_by, update_time, remark from ecmp_dict_data
+   where dict_type = 'sys_comment_tags' and
+   dict_value LIKE CONCAT('%',#{N},'%')
+  </select>
+
+
+   <!--评价标签的差评-->
+    <select id="selectEcmpDictDataByTypeBAD" parameterType="com.hq.ecmp.mscore.domain.EcmpDictData">
+     select dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, update_by, update_time, remark from ecmp_dict_data
+     where  dict_type = 'sys_comment_tags' and
+         <if test="dict_value != null and dict_value != ''">
+             <bind name="N" value="'%' + _dict_value + '%'" />
+             AND name LIKE #{N}
+         </if>
+    </select>
+
 </mapper>
