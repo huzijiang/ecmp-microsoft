@@ -23,6 +23,8 @@ import com.hq.ecmp.mscore.domain.RegimePo;
 import com.hq.ecmp.mscore.domain.RegimeQueryPo;
 import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
+import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.SceneListVO;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -107,11 +109,12 @@ public class RegimeController {
 	
 	@ApiOperation(value = "queryRegimeList", notes = "查询制度列表", httpMethod = "POST")
 	@PostMapping("/queryRegimeList")
-	public ApiResponse<List<RegimeVo>> queryRegimeList(@RequestBody RegimeQueryPo regimeQueryPo) {
+	public ApiResponse<PageResult<RegimeVo>> queryRegimeList(@RequestBody RegimeQueryPo regimeQueryPo) {
 		List<RegimeVo> regimeVoList = regimeInfoService.queryRegimeList(regimeQueryPo);
 		//总条数
 		Integer count = regimeInfoService.queryRegimeListCount(regimeQueryPo);
-		return ApiResponse.success(regimeVoList);
+		PageResult<RegimeVo> pageResult = new PageResult<RegimeVo>(Long.valueOf(count), regimeVoList);
+		return ApiResponse.success(pageResult);
 	}
     
 	@ApiOperation(value = "optRegime", notes = "制度删除 or启用or停用", httpMethod = "POST")
@@ -123,4 +126,7 @@ public class RegimeController {
 		}
 		return ApiResponse.error();
 	}
+	
+	
+	
 }
