@@ -1,10 +1,27 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.SceneInfo;
+import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
+import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.dto.SceneDTO;
+import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.mapper.SceneInfoMapper;
+import com.hq.ecmp.mscore.mapper.SceneRegimeRelationMapper;
 import com.hq.ecmp.mscore.service.ISceneInfoService;
+import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.SceneDetailVO;
+import com.hq.ecmp.mscore.vo.SceneListVO;
+import javafx.scene.Scene;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +36,10 @@ public class SceneInfoServiceImpl implements ISceneInfoService
 {
     @Autowired
     private SceneInfoMapper sceneInfoMapper;
+    @Autowired
+    private SceneRegimeRelationMapper sceneRegimeRelationMapper;
+    @Autowired
+    private RegimeInfoMapper regimeInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -83,7 +104,7 @@ public class SceneInfoServiceImpl implements ISceneInfoService
     }
 
     /**
-     * 删除【请填写功能名称】信息
+     * 删除用车场景信息
      *
      * @param sceneId 【请填写功能名称】ID
      * @return 结果
@@ -91,11 +112,133 @@ public class SceneInfoServiceImpl implements ISceneInfoService
     @Override
     public int deleteSceneInfoById(Long sceneId)
     {
-        return sceneInfoMapper.deleteSceneInfoById(sceneId);
+        //查询用车场景下是否绑定用车制度
+        List<Long> longs = sceneRegimeRelationMapper.selectRegimenIdsBySceneId(sceneId);
+        //如果没绑定，则直接删除
+        if(CollectionUtils.isEmpty(longs)){
+            return sceneInfoMapper.deleteSceneInfoById(sceneId);
+        }else {
+            return 0;
+        }
     }
 
 	@Override
 	public List<SceneInfo> selectAllSceneSort(Long userId) {
 		return sceneInfoMapper.selectAllSceneSort(userId);
 	}
+
+    /**
+     * 新增用车场景
+     * @param sceneDTO
+     * @param userId
+     * @return
+     */
+    @Override
+    public void saveScene(SceneDTO sceneDTO, Long userId) {
+        SceneInfo sceneInfo = new SceneInfo();
+        //图标名称
+        sceneInfo.setIcon(sceneDTO.getIcon());
+        //场景名称
+        sceneInfo.setName(sceneDTO.getName());
+        //创建人
+        sceneInfo.setCreateBy(String.valueOf(userId));
+        //创建时间
+        sceneInfo.setCreateTime(new Date());
+        //生效状态 0 立即生效  1 不生效 初始化为不生效
+        sceneInfo.setEffectStatus("1");
+        //1.新增用车场景表
+        int i = sceneInfoMapper.insertSceneInfo(sceneInfo);
+        Long sceneId = sceneInfo.getSceneId();
+        List<Long> regimenIds = sceneDTO.getRegimenIds();
+        SceneRegimeRelation sceneRegimeRelation = null;
+        for (Long regimenId : regimenIds) {
+            sceneRegimeRelation = new SceneRegimeRelation();
+            sceneRegimeRelation.setRegimenId(regimenId);
+            sceneRegimeRelation.setSceneId(sceneId);
+            //2.新增场景制度关系表
+            sceneRegimeRelationMapper.insertSceneRegimeRelation(sceneRegimeRelation);
+        }
+    }
+
+    /**
+     * 修改用车场景
+     * @param sceneDTO
+     * @param userId
+     * @return
+     */
+    @Override
+    public void updateScene(SceneDTO sceneDTO, Long userId) {
+        Long sceneId = sceneDTO.getSceneId();
+        //得先解绑用车场景对应的用车制度 再删除用车场景
+        //根据sceneId删除绑定的制度信息
+        int i = sceneRegimeRelationMapper.deleteSceneRegimeRelationById(sceneId);
+        //删除用车场景
+        int i1 = sceneInfoMapper.deleteSceneInfoById(sceneId);
+        //再新增用车场景   TODO 此处调用新增场景方法   生效状态 那边默认为初始化为不生效 0 立即生效  1 不生效  待注意
+        saveScene(sceneDTO,userId);
+    }
+
+    /**
+     * 查询场景详情
+     * @param sceneDTO
+     * @return
+     */
+    @Override
+    public SceneDetailVO selectSceneDetail(SceneDTO sceneDTO) {
+        SceneDetailVO sceneDetailVO = new SceneDetailVO();
+        Long sceneId = sceneDTO.getSceneId();
+        //根据sceneId查询场景信息
+        SceneInfo sceneInfo = sceneInfoMapper.selectSceneInfoById(sceneId);
+        sceneDetailVO.setIcon(sceneInfo.getIcon());
+        sceneDetailVO.setName(sceneInfo.getIcon());
+        Map<String, Long> map = Maps.newHashMap();
+        ArrayList<Map<String, Long>> list = Lists.newArrayList();
+        //根据sceneId查询对应的制度id集合
+        List<Long> regimenIds = sceneRegimeRelationMapper.selectRegimenIdsBySceneId(sceneId);
+        //根据制度id集合查询制度信息
+        RegimeInfo regimeInfo = null;
+        for (Long regimenId : regimenIds) {
+            regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimenId);
+            String name = regimeInfo.getName();
+            Long approvalProcess = regimeInfo.getApprovalProcess();
+            map.put(name,approvalProcess);
+            list.add(map);
+        }
+        sceneDetailVO.setRegimenInfos(list);
+        return sceneDetailVO;
+    }
+
+    /**
+     * 分页查询场景列表
+     * @param pageRequest
+     * @return
+     */
+    @Override
+    public PageResult<SceneListVO> seleSceneByPage(PageRequest pageRequest) {
+        //分页查询场景
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+        List<SceneInfo> sceneInfos = sceneInfoMapper.selectAll();
+        //查询场景对应的用车制度
+        ArrayList<SceneListVO> list = Lists.newArrayList();
+        SceneListVO sceneListVO = null;
+        for (SceneInfo sceneInfo : sceneInfos) {
+            sceneListVO = SceneListVO.builder()
+                    .name(sceneInfo.getName())
+                    .sortNo(sceneInfo.getSortNo())
+                    .icon(sceneInfo.getIcon())
+                    .sceneId(sceneInfo.getSceneId())
+                    .effectStatus(sceneInfo.getEffectStatus())
+                    .build();
+            //根据sceneId查询对应的制度id集合
+            List<Long> regimenIds = sceneRegimeRelationMapper.selectRegimenIdsBySceneId(sceneInfo.getSceneId());
+            //根据制度id集合查询制度名字集合
+            List<String> regimenNames = regimenIds.stream().map(id -> regimeInfoMapper
+                    .selectRegimeInfoById(id)).map(RegimeInfo::getName).collect(Collectors.toList());
+            sceneListVO.setRegimenNames(regimenNames);
+            list.add(sceneListVO);
+        }
+        //解析分页结果
+        PageInfo<SceneInfo> info = new PageInfo<>(sceneInfos);
+        return new PageResult<>(info.getTotal(),list);
+    }
 }

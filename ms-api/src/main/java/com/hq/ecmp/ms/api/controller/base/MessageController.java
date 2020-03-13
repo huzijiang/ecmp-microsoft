@@ -4,11 +4,14 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +44,8 @@ public class MessageController {
 	private IOrderStateTraceInfoService orderStateTraceInfoService;
 	@Autowired
 	private IApplyApproveResultInfoService approveResultInfoService;
+	@Autowired
+	private IDriverInfoService driverInfoService;
 	
 	/**
 	 * 获取首页轮播正在进行中流程通知(乘客端)
@@ -57,7 +62,7 @@ public class MessageController {
 		//当前是申请人(申请通知/行程通知/改派通知)
 		MessageDto applyList= applyInfoService.getApplyMessage(loginUser.getUser().getUserId());
 		MessageDto jouMessage=journeyInfoService.getJourneyMessage(loginUser.getUser().getUserId());
-		MessageDto traceMessage=orderStateTraceInfoService.getTraceMessage(loginUser.getUser().getUserId());
+		MessageDto traceMessage=orderStateTraceInfoService.getTraceMessage(loginUser.getUser().getUserId(),false,null);
 		//如果当前登录人是审批人(审批通知) TODO
 		MessageDto approveMassage=approveResultInfoService.getApproveMessage(loginUser.getUser().getUserId());
 		//当前登录人为车队管理员(派车通知)
@@ -93,24 +98,37 @@ public class MessageController {
 		//获取登录用户
 		HttpServletRequest request = ServletUtils.getRequest();
 		LoginUser loginUser = tokenService.getLoginUser(request);
+		Long userId = loginUser.getUser().getUserId();
 		List<MessageDto> list = new ArrayList<>();
-		EcmpUser ecmpUser = userService.selectEcmpUserById(loginUser.getUser().getUserId());
+		EcmpUser ecmpUser = userService.selectEcmpUserById(userId);
 		if (ecmpUser == null) {
 			return ApiResponse.error("无此员工");
 		}
 
 		//当前是司机(新任务/派车/改派通知)
 		if ("1".equals(ecmpUser.getItIsDriver())) {
-			String states="S299";//订单状态
+			List<DriverInfo> driverInfos = driverInfoService.selectDriverInfoList(new DriverInfo(userId));
+			if(CollectionUtils.isEmpty(driverInfos)){
+				return ApiResponse.error("此用户不是司机");
+			}
+			DriverInfo driverInfo=driverInfos.get(0);
+			String states= OrderState.ALREADYSENDING.getState();//订单状态
 			//新任务通知
-			MessageDto newOrderMessage = orderInfoService.getOrderMessage(null,states,loginUser.getUser().getUserId());
+			MessageDto newOrderMessage = orderInfoService.getOrderMessage(null,states,driverInfo.getDriverId());
+			if (newOrderMessage!=null)
+				list.add(newOrderMessage);
 			//改派通知
-			MessageDto traceMessage = orderStateTraceInfoService.getTraceMessage(loginUser.getUser().getUserId());
-			//任务取消
+			MessageDto traceMessage = orderStateTraceInfoService.getTraceMessage(null,true,driverInfo.getDriverId());
+			if (traceMessage!=null)
+				list.add(traceMessage);
+			//任务取消 TODO 逻辑可能有出入
+			MessageDto cancelMessage = orderInfoService.getCancelOrderMessage(loginUser.getUser().getUserId(),OrderState.ORDERCANCEL.getState());
+			if (cancelMessage!=null)
+				list.add(cancelMessage);
 		}
 		//当前登录人为车队管理员(派车通知)
 		if (ecmpUser!=null&& "1".equals(ecmpUser.getItIsDispatcher())){
-			String states="S100,S000";//订单状态
+			String states=OrderState.WAITINGLIST.getState();//订单状态
 			MessageDto orderMessage = orderInfoService.getOrderMessage(loginUser.getUser().getUserId(),states,null);
 			list.add(orderMessage);
 		}

@@ -59,4 +59,12 @@ public interface IUserRegimeRelationInfoService
      * @return 结果
      */
     public int deleteUserRegimeRelationInfoById(Long userId);
+    
+    /**
+     * 
+     * @param regimenId  制度编号
+     * @param userIdList  可用这个制度的用户编号列表
+     * @return
+     */
+    public Integer batchInsertUser(Long regimenId,List<Long> userIdList);
 }

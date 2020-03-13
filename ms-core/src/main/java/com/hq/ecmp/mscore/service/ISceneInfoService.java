@@ -1,6 +1,11 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.SceneInfo;
+import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.dto.SceneDTO;
+import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.SceneDetailVO;
+import com.hq.ecmp.mscore.vo.SceneListVO;
 
 import java.util.List;
 
@@ -62,8 +67,38 @@ public interface ISceneInfoService
     
     /**
      * 获取用户的用车场景
-     * @param userDto
+     * @param
      * @return
      */
     public List<SceneInfo> selectAllSceneSort(Long userId);
+
+    /**
+     * 新增用车场景
+     * @param sceneDTO
+     * @param userId
+     * @return
+     */
+    void saveScene(SceneDTO sceneDTO, Long userId);
+
+    /**
+     * 修改用车场景
+     * @param sceneDTO
+     * @param userId
+     * @return
+     */
+    void updateScene(SceneDTO sceneDTO, Long userId);
+
+    /**
+     * 查询场景详情
+     * @param sceneDTO
+     * @return
+     */
+    SceneDetailVO selectSceneDetail(SceneDTO sceneDTO);
+
+    /**
+     * 分页查询场景列表
+     * @param pageRequest
+     * @return
+     */
+    PageResult<SceneListVO> seleSceneByPage(PageRequest pageRequest);
 }

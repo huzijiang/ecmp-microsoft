@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author xueyong
@@ -12,16 +13,16 @@ import java.util.Date;
  * ecmp-proxy.
  */
 @Data
-@ApiModel(description = "待服务详情")
-public class OrderVO {
+@ApiModel(description = "任务详情")
+public class DriverOrderInfoVO {
 
     private Long orderId;
-    @ApiModelProperty(name = "driverMobile",value = "司机手机")
-    private String driverMobile;
-    @ApiModelProperty(name = "driverName",value = "司机姓名")
-    private String driverName;
-    @ApiModelProperty(name = "driverScore",value = "司机评分")
-    private String driverScore;
+    private Long journeyId;
+    private Long userId;
+    @ApiModelProperty(name = "userMobile",value = "乘客电话")
+    private List<PassengerInfoVO> passengerInfoVOS;
+    @ApiModelProperty(name = "serviceType",value = "1000预约 2001接机 2002送机 3000包车")
+    private String serviceType;
     @ApiModelProperty(name = "carColor",value = "车辆颜色")
     private String carColor;
     @ApiModelProperty(name = "carLicense",value = "车牌号")
@@ -36,15 +37,23 @@ public class OrderVO {
     private String state;
     @ApiModelProperty(name = "carGroupPhone",value = "车队电话")
     private String carGroupPhone;
-    @ApiModelProperty(name = "isAddContact",value = "是否添加联系人(1是0否)")
-    private String isAddContact;
-    @ApiModelProperty(name = "driverType",value = "司机类型(企业驾驶员/网约驾驶员)")
-    private String driverType;
     @ApiModelProperty(name = "customerServicePhone",value = "客服电话")
     private String customerServicePhone;
     @ApiModelProperty(name = "useCarTime",value = "用车时间")
     private Date useCarTime;
-    @ApiModelProperty(name = "labelState",value = "辅助状态")
-    private String labelState;
+    @ApiModelProperty(name = "flightNumber",value = "航班号")
+    private String flightNumber;
+    @ApiModelProperty(name = "charterCarType",value = "T001 半日租（4小时）T002 整日租（8小时）")
+    private String charterCarType;
+    @ApiModelProperty(name = "itIsReturn",value = "是否往返")
+    private String itIsReturn;
+    @ApiModelProperty(name = "startAddr",value = "上车地址")
+    private String startAddr;
+    @ApiModelProperty(name = "endAddr",value = "下车地址")
+    private String endAddr;
+    @ApiModelProperty(name = "halfway",value = "途径地")
+    private String halfway;
+    @ApiModelProperty(name = "peopleCount",value = "乘车人数")
+    private  String peopleCount;
 
 }

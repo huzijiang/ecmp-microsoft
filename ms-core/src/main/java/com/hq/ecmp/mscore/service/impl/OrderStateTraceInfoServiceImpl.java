@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.hq.ecmp.constant.OrderState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -135,9 +136,14 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 		return orderStateTraceInfoMapper.queryStateInfo(orderId);
 	}
 
-    @Override
-    public MessageDto getTraceMessage(Long userId) {
-        return orderStateTraceInfoMapper.getTraceMessage(userId,"S279");
+
+	@Override
+    public MessageDto getTraceMessage(Long userId,boolean flag,Long driverId) {
+        if (flag){
+            return orderStateTraceInfoMapper.getTraceMessageForDriver(driverId, OrderState.REASSIGNPASS.getState());
+        }else{
+            return orderStateTraceInfoMapper.getTraceMessageForPassenger(userId,OrderState.REASSIGNPASS.getState());
+        }
     }
 
 	@Override

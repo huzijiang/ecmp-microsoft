@@ -111,6 +111,13 @@ public class OrderInfo extends BaseEntity
 
     private String orderTraceState;
 
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String actualArriveAddressLo;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String actualSetoutAddressLo;
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -139,8 +146,9 @@ public class OrderInfo extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
-            .append("cancelReason",getCancelReason()
-            )
+            .append("cancelReason",getCancelReason())
+            .append("actualArriveAddressLo",getActualArriveAddressLo())
+            .append("actualSetoutAddressLo",getActualSetoutAddressLo())
             .toString();
     }
 }

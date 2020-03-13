@@ -91,4 +91,9 @@ public class UserRegimeRelationInfoServiceImpl implements IUserRegimeRelationInf
     {
         return userRegimeRelationInfoMapper.deleteUserRegimeRelationInfoById(userId);
     }
+
+	@Override
+	public Integer batchInsertUser(Long regimenId, List<Long> userIdList) {
+		return userRegimeRelationInfoMapper.batchInsertUser(regimenId, userIdList);
+	}
 }
