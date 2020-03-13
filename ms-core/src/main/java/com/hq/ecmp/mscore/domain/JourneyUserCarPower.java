@@ -61,6 +61,7 @@ public class JourneyUserCarPower extends BaseEntity
     	this.type=type;
     	this.nodeId=nodeId;
     }
+    
 
     public void setPowerId(Long powerId)
     {

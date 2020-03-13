@@ -10,6 +10,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="cityName"    column="city_name"    />
         <result property="ownerOrg"    column="owner_org"    />
         <result property="leader"    column="leader"    />
+        <result property="telephone"    column="telephone"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -17,7 +18,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCarGroupInfoVo">
-        select car_group_id, city, city_name, owner_org, leader, create_by, create_time, update_by, update_time from car_group_info
+        select car_group_id, city, city_name, owner_org, leader,telephone,create_by, create_time, update_by, update_time from car_group_info
     </sql>
 
     <select id="selectCarGroupInfoList" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo" resultMap="CarGroupInfoResult">

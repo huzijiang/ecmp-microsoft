@@ -44,6 +44,16 @@ public class CarGroupInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String telephone;
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
     private String carGroupName;   //TODO 新增
 
     /** $column.columnComment */
@@ -57,7 +67,6 @@ public class CarGroupInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String fullAddress;   //TODO 新增
-
 
     public void setCarGroupId(Long carGroupId)
     {
