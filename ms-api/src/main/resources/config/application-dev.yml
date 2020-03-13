@@ -97,6 +97,9 @@ thirdService:
     licenseContent: AAAAAAAA
     apiUrl: http://10.117.1.231:51002
 
+#行程分享路径
+order:
+   shareUrl: https://www.baidu.com?
 
 file:
   config:

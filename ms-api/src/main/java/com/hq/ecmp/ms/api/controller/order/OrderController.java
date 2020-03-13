@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -77,6 +78,8 @@ public class OrderController {
 
     @Value("${thirdService.apiUrl}")//三方平台的接口前地址
     private String apiUrl;
+    @Value("${order.shareUrl}")//行程分享的详情路径
+    private String shareUrl;
 
     /**
      * 初始化订单-创建订单
@@ -208,7 +211,7 @@ public class OrderController {
      * 改变订单的状态为  约车中
      * 需要留一个终止循环派单的 开关
      *
-     * @param orderDto 行程申请信息
+     * @param callTaxiDto 行程申请信息
      * @return
      */
     @ApiOperation(value = "letPlatCallTaxi", notes = "自动约车-向网约车平台发起约车请求 改变订单的状态为  约车中-->已派单", httpMethod = "POST")
@@ -731,6 +734,29 @@ public class OrderController {
         try {
             String res = iOrderInfoService.orderHint(orderDto.getOrderId());
             return ApiResponse.success("获取成功",res);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("获取提示语异常!");
+        }
+    }
+
+    /**
+     *   @author caobj
+     *   @Description 轮询获取提示语
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "行程分享",httpMethod = "POST")
+    @RequestMapping("/orderShare")
+    public ApiResponse<String> orderShare(@RequestBody OrderDto orderDto){
+        String url=shareUrl;
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            String param="orderId="+orderDto.getOrderId()+"&userId="+userId+"&flag=share";
+            return ApiResponse.success("分享成功",URLEncoder.encode(url+param, "UTF-8"));
         }catch (Exception e){
             e.printStackTrace();
             return  ApiResponse.error("获取提示语异常!");

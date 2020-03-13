@@ -9,6 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="name"    column="name"    />
         <result property="leader"    column="leader"    />
         <result property="projectCode"    column="project_code"    />
+        <result property="fatherProjectId"    column="father_project_id"    />
         <result property="startDate"    column="start_date"    />
         <result property="closeDate"    column="close_date"    />
         <result property="createBy"    column="create_by"    />
@@ -18,7 +19,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectProjectInfoVo">
-        select project_id, name, leader, project_code, start_date, close_date, create_by, create_time, update_by, update_time from project_info
+        select project_id, name, leader, project_code,father_project_id, start_date, close_date, create_by, create_time, update_by, update_time from project_info
     </sql>
 
     <select id="selectProjectInfoList" parameterType="com.hq.ecmp.mscore.domain.ProjectInfo" resultMap="ProjectInfoResult">
@@ -27,6 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="leader != null "> and leader = #{leader}</if>
             <if test="projectCode != null  and projectCode != ''"> and project_code = #{projectCode}</if>
+            <if test="fatherProjectId != null  and fatherProjectId != ''"> and father_project_id = #{fatherProjectId}</if>
             <if test="startDate != null  and startDate != ''"> and start_date = #{startDate}</if>
             <if test="closeDate != null  and closeDate != ''"> and close_date = #{closeDate}</if>
         </where>
@@ -44,6 +46,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null  and name != ''">name,</if>
             <if test="leader != null ">leader,</if>
             <if test="projectCode != null  and projectCode != ''">project_code,</if>
+            <if test="fatherProjectId != null  and fatherProjectId != ''">father_project_id,</if>
             <if test="startDate != null  and startDate != ''">start_date,</if>
             <if test="closeDate != null  and closeDate != ''">close_date,</if>
             <if test="createBy != null ">create_by,</if>
@@ -56,6 +59,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null  and name != ''">#{name},</if>
             <if test="leader != null ">#{leader},</if>
             <if test="projectCode != null  and projectCode != ''">#{projectCode},</if>
+            <if test="fatherProjectId != null  and fatherProjectId != ''">#{fatherProjectId},</if>
             <if test="startDate != null  and startDate != ''">#{startDate},</if>
             <if test="closeDate != null  and closeDate != ''">#{closeDate},</if>
             <if test="createBy != null ">#{createBy},</if>
@@ -71,6 +75,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null  and name != ''">name = #{name},</if>
             <if test="leader != null ">leader = #{leader},</if>
             <if test="projectCode != null  and projectCode != ''">project_code = #{projectCode},</if>
+            <if test="fatherProjectId != null  and fatherProjectId != ''">father_project_id = #{fatherProjectId},</if>
             <if test="startDate != null  and startDate != ''">start_date = #{startDate},</if>
             <if test="closeDate != null  and closeDate != ''">close_date = #{closeDate},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>

@@ -8,6 +8,7 @@ import com.hq.ecmp.ms.api.dto.base.ProjectDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
+import com.hq.ecmp.mscore.dto.ProjectInfoDTO;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.service.IProjectUserRelationInfoService;
 import io.swagger.annotations.ApiOperation;
@@ -73,4 +74,17 @@ public class ProjectController {
             return ApiResponse.error("未查询到项目编号");
         }
     }
+
+    /**
+     * 新增项目
+     * @return
+     */
+    @ApiOperation(value = "createProject",notes = "新增项目",httpMethod ="POST")
+    @PostMapping("/createProject")
+    public ApiResponse createProject(@RequestBody ProjectInfoDTO projectInfoDTO){
+
+        return ApiResponse.error("未查询到项目编号");
+    }
+
+
 }
