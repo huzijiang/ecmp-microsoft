@@ -44,6 +44,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cityName != null  and cityName != ''">city_name,</if>
             <if test="ownerOrg != null ">owner_org,</if>
             <if test="leader != null ">leader,</if>
+            <if test="carGroupName != null ">car_group_name,</if>
+            <if test="carGroupCode != null ">car_group_code,</if>
+            <if test="shortAddress != null ">short_address,</if>
+            <if test="fullAddress != null ">full_address,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -55,6 +59,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cityName != null  and cityName != ''">#{cityName},</if>
             <if test="ownerOrg != null ">#{ownerOrg},</if>
             <if test="leader != null ">#{leader},</if>
+            <if test="carGroupName != null ">#{carGroupName},</if>
+            <if test="carGroupCode != null ">#{carGroupCode},</if>
+            <if test="shortAddress != null ">#{shortAddress},</if>
+            <if test="fullAddress != null ">#{fullAddress},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
