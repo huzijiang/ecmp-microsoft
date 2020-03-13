@@ -61,5 +61,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{userId}
         </foreach>
     </delete>
+    
+    <insert id="batchDriverCarList" parameterType="com.hq.ecmp.mscore.domain.DriverCarRelationInfo">
+          insert into driver_car_relation_info  (user_id,driver_id,car_id)
+          values
+          <foreach collection="carIdList" item="item" separator="">
+          (#{userId},#{driverId},#{item})
+          </foreach>
+    </insert>
+    
+    <select id="queryDriverUseCarCount" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select count(1) from driver_car_relation_info where driver_id=#{driverId}
+    </select>
 
 </mapper>
