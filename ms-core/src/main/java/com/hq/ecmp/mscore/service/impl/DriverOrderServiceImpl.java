@@ -57,6 +57,9 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     @Resource
     IOrderViaInfoService iOrderViaInfoService;
 
+    @Resource
+    ICarGroupInfoService iCarGroupInfoService;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -257,12 +260,22 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         OrderInfo orderInfo = iOrderInfoService.selectOrderInfoById(Long.parseLong(orderId));
         Long carId = orderInfo.getCarId();
         CarInfo carInfo = iCarInfoService.selectCarInfoById(carId);
+        Long carGroupId = carInfo.getCarGroupId();
+        CarGroupInfo carGroupInfo = iCarGroupInfoService.selectCarGroupInfoById(carGroupId);
+        String telephone = carGroupInfo.getTelephone();
+        //車隊座機
+        ContactorDto contactorDtoCarGr = new ContactorDto();
+        contactorDtoCarGr.setRoleName(CommonConstant.CARGROUP_PHONE_ROLE);
+        contactorDtoCarGr.setPhone(telephone);
+        contactorDtoCarGr.setName(CommonConstant.CARGROUP_PHONE_ROLE);
+        result.add(contactorDtoCarGr);
+        //调度员
         OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
         orderStateTraceInfo.setOrderId(Long.parseLong(orderId));
         orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
         List<OrderStateTraceInfo> orderStateTraceInfos = iOrderStateTraceInfoService.selectOrderStateTraceInfoList(orderStateTraceInfo);
         OrderStateTraceInfo orderStateTraceInfoSc = orderStateTraceInfos.get(0);
-        //调度员
+
         String createBy = orderStateTraceInfoSc.getCreateBy();
         DriverInfo driverInfo = new DriverInfo();
         driverInfo.setUserId(Long.parseLong(createBy));
