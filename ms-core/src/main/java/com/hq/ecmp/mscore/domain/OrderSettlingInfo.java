@@ -1,9 +1,9 @@
 package com.hq.ecmp.mscore.domain;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * 【请填写功能名称】对象 order_settling_info
@@ -33,6 +33,7 @@ public class OrderSettlingInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long outPrice;
+
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long totalMileage;// TODO 新增。实际里程
@@ -56,6 +57,7 @@ public class OrderSettlingInfo extends BaseEntity
     {
         return totalTime;
     }
+
 
     public void setBillId(Long billId)
     {
@@ -101,6 +103,7 @@ public class OrderSettlingInfo extends BaseEntity
     {
         return outPrice;
     }
+
 
     @Override
     public String toString() {

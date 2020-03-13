@@ -313,6 +313,11 @@ public class JourneyNodeInfo extends BaseEntity
         this.userId = userId;
     }
 
+    public JourneyNodeInfo(Long journeyId, String itIsViaPoint) {
+        this.journeyId = journeyId;
+        this.itIsViaPoint = itIsViaPoint;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

@@ -7,9 +7,9 @@ import java.util.List;
 public enum OrderState {
     INITIALIZING("S000","订单已生成"),WAITINGLIST("S100","待派单"),
     GETARIDE("S101","去约车"),SENDINGCARS("S200","约车中"),
-    REASSIGNMENT("S201","待改派"),
-    ALREADYSENDING("S299","已派单"),
-    ALREADY_SET_OUT("S500","司机已出发"),
+    APPLYREASSIGN("S270","司机申请改派"),REASSIGNREJECT("S277","改派驳回"),
+    REASSIGNPASS("S279","改派通过"),
+    ALREADYSENDING("S299","已派车"),REASSIGNMENT("S500","乘客前往出发地"),
     READYSERVICE("S600","准备服务"),INSERVICE("S616","服务中"),
     STOPSERVICE("S699","服务结束"),ORDERCLOSE("S900","订单关闭"),
     DISSENT("S901","订单异议"),ORDERCANCEL("S911","订单取消"),

@@ -149,11 +149,17 @@ ORDER BY
 
 
     <!--手动编写sql start-->
-    <select id="getTraceMessage" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+    <select id="getTraceMessageForPassenger" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
        SELECT  messageId,messageType,'改派' messageTypeStr,count(*) messageCount from (
         select trace_id as messageId,5 as messageType from order_state_trace_info
-        where order_id in (select order_id from order_info
-        where journey_id in (select journey_id from journey_info where user_id = #{userId}) and (state='S101' or state='S100' or state='S200'))
+        where order_id in (select order_id from order_info where journey_id in (select journey_id from journey_info where user_id = #{userId}) ) and state=#{state}
+         ) a  group by a.messageType
+    </select>
+
+    <select id="getTraceMessageForDriver" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+       SELECT  messageId,messageType,'改派' messageTypeStr,count(*) messageCount from (
+        select order_id as messageId,3 as messageType from order_info
+        where order_id in (select order_id from order_state_trace_info where state=#{state}) and driver_id=#{driverId} and state='S900'
          ) a  group by a.messageType
     </select>
 </mapper>

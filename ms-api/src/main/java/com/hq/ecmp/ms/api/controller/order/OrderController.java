@@ -1,12 +1,16 @@
 package com.hq.ecmp.ms.api.controller.order;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.*;
+import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.constant.ResignOrderTraceState;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
@@ -14,16 +18,13 @@ import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDetailDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
-import com.hq.ecmp.ms.api.dto.order.OrderEvaluationDto;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
-import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
-import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.dto.ParallelOrderDto;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
+import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.MacTools;
-import com.hq.ecmp.util.RedisUtil;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -212,9 +213,9 @@ public class OrderController {
      */
     @ApiOperation(value = "letPlatCallTaxi", notes = "自动约车-向网约车平台发起约车请求 改变订单的状态为  约车中-->已派单", httpMethod = "POST")
     @PostMapping("/letPlatCallTaxi")
-    public ApiResponse letPlatCallTaxi(@RequestBody  OrderDto orderDto) {
+    public ApiResponse letPlatCallTaxi(@RequestBody CallTaxiDto callTaxiDto) {
         try {
-            Long orderId = orderDto.getOrderId();
+            Long orderId = callTaxiDto.getOrderId();
             OrderInfo orderInfo = new OrderInfo();
             orderInfo.setOrderId(orderId);
             orderInfo.setState(OrderState.SENDINGCARS.getState());
@@ -222,7 +223,7 @@ public class OrderController {
             if (i != 1) {
                 throw new Exception("约车失败");
             }
-            iOrderInfoService.platCallTaxi(orderInfo,enterpriseId,licenseContent,apiUrl);
+            iOrderInfoService.platCallTaxi(callTaxiDto,enterpriseId,licenseContent,apiUrl);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.success(e.getMessage());
@@ -314,9 +315,9 @@ public class OrderController {
     /**
      * 用户取消订单:
      * <p>
-     * 逻辑：1.订单状态为未约到车的状态，直接更改订单状态为订单关闭。
-     * 2. 订单状态为约到车未服务的状态 《1》：如果是网约车，调用网约车取消订单接口，取消订单，然后修改订单状态为订单关闭。
-     * 《2》：如果是自有车，直接更改订单状态为订单关闭，成功以后给司机发送订单取消的消息通知。
+     * 逻辑：1.订单状态为未约到车的状态，直接更改订单状态为订单取消。
+     * 2. 订单状态为约到车未服务的状态 《1》：如果是网约车，调用网约车取消订单接口，取消订单，然后修改订单状态为订单取消。
+     * 《2》：如果是自有车，直接更改订单状态为订单取消，成功以后给司机发送订单取消的消息通知。
      * 3. 插入订单状态变化轨迹表数据
      * <p>
      * 改变订单的状态为 订单关闭
@@ -356,7 +357,7 @@ public class OrderController {
                 }
             }
             OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setState(OrderState.ORDERCLOSE.getState());
+            orderInfo.setState(OrderState.ORDERCANCEL.getState());
             orderInfo.setCancelReason(orderDto.getCancelReason());
             orderInfo.setUpdateBy(String.valueOf(userId));
             int suc = iOrderInfoService.updateOrderInfo(orderInfo);
@@ -532,9 +533,9 @@ public class OrderController {
     }
 
     /**
-    *   @author yj
-    *   @Description  //TODO 通过用户id获取司机id，查找订单表司机id对应的订单
-    *   @Date 14:03 2020/3/7
+    *   @author caobj
+    *   @Description  获取个人中心当前司机的所有任务列表(已完成/未完成)
+    *   @Date 14:03 2020/3/11
     *   @Param  [driverListRequest]
     *   @return com.hq.common.core.api.ApiResponse<java.util.List<com.hq.ecmp.mscore.domain.OrderDriverListInfo>>
     **/
@@ -549,9 +550,47 @@ public class OrderController {
             driverOrderList = iOrderInfoService.getDriverOrderList(userId, driverListRequest.getPageNum(), driverListRequest.getPageSize());
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("获取司机的任务列表失败");
+            return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success(driverOrderList);
+    }
+
+    /**
+     *   @author caobj
+     *   @Description  获取首页当前司机的所有未完成任务列表
+     *   @Date 14:03 2020/3/11
+     *   @Param  [driverListRequest]
+     *   @return com.hq.common.core.api.ApiResponse<java.util.List<com.hq.ecmp.mscore.domain.OrderDriverListInfo>>
+     **/
+    @ApiOperation(value = "driverOrderUndoneList", notes = "获取首页当前司机的所有未完成任务列表")
+    @RequestMapping("/driverOrderUndoneList")
+    public ApiResponse<List<OrderDriverListInfo>> driverOrderUndoneList(@RequestBody PageRequest driverListRequest) {
+        List<OrderDriverListInfo> driverOrderList = null;
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            driverOrderList = iOrderInfoService.driverOrderUndoneList(userId, driverListRequest.getPageNum(), driverListRequest.getPageSize(),driverListRequest.getDay());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success(driverOrderList);
+    }
+
+    @ApiOperation(value = "driverOrderCount", notes = "获取未完成的任务数量")
+    @RequestMapping("/driverOrderCount")
+    public ApiResponse<Integer> driverOrderCount() {
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            int count = iOrderInfoService.driverOrderCount(userId);
+            return ApiResponse.success(count);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
     }
 
     /**
@@ -626,20 +665,56 @@ public class OrderController {
     }
     /**
      *   @author caobj
-     *   @Description 获取待服务详情
+     *   @Description 乘客端获取订单详情
      *   @Date 10:11 2020/3/4
      *   @Param  []
      *   @return com.hq.common.core.api.ApiResponse
      **/
-    @ApiOperation(value = "获取待服务详情",httpMethod = "POST")
+    @ApiOperation(value = "乘客端获取订单详情",httpMethod = "POST")
     @RequestMapping("/orderBeServiceDetail")
-    public ApiResponse<OrderVO> orderBeServiceDetail(@RequestBody OrderDto orderDto){
+    public ApiResponse<OrderVO> orderBeServiceDetail(@RequestBody OrderDto orderDto) {
         try {
-            OrderVO  orderVO = iOrderInfoService.orderBeServiceDetail(orderDto.getOrderId());
+            OrderVO orderVO = iOrderInfoService.orderBeServiceDetail(orderDto.getOrderId());
+            return ApiResponse.success(orderVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("加载订单列表失败");
+        }
+    }
+    /**
+     *   @author caobj
+     *   @Description 获取订单状态
+     *   @Date 10:11 2020/3/4
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "获取订单状态",httpMethod = "POST")
+    @RequestMapping("/getOrderState")
+    public ApiResponse<OrderStateVO> getOrderState(@RequestBody OrderDto orderDto){
+        try {
+            OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderDto.getOrderId());
             return ApiResponse.success(orderVO);
         }catch (Exception e){
             e.printStackTrace();
             return  ApiResponse.error("加载订单列表失败");
+        }
+    }
+
+    /**
+     *   @author caobj
+     *   @Description 司机端获取任务详情
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "司机端获取任务详情",httpMethod = "POST")
+    @RequestMapping("/driverOrderDetail")
+    public ApiResponse<DriverOrderInfoVO> driverOrderDetail(@RequestBody OrderDto orderDto){
+        try {
+            DriverOrderInfoVO  orderVO = iOrderInfoService.driverOrderDetail(orderDto.getOrderId());
+            return ApiResponse.success(orderVO);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("司机端获取任务详情");
         }
     }
 

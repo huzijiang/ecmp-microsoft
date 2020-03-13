@@ -4,7 +4,14 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.dto.SceneDTO;
+import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.SceneDetailVO;
+import com.hq.ecmp.mscore.vo.SceneListVO;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,7 +43,7 @@ public class SceneController {
 	
 	/**
 	 * 获取用户的用车场景
-	 * @param userDto
+	 * @param
 	 * @return
 	 */
 	@ApiOperation(value = "getAll", notes = "获取用车场景", httpMethod ="GET")
@@ -48,4 +55,108 @@ public class SceneController {
 		List<SceneInfo> selectAllSceneSort = sceneInfoService.selectAllSceneSort(loginUser.getUser().getUserId());
 		return ApiResponse.success(selectAllSceneSort);
 	}
+
+	/**
+	 * 创建用车场景
+	 * @param
+	 * @return
+	 */
+	@ApiOperation(value = "saveScene", notes = "创建用车场景", httpMethod ="POST")
+	@GetMapping("/saveScene")
+	public ApiResponse saveScene(@RequestBody SceneDTO sceneDTO) {
+		//获取登录用户
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		Long userId = loginUser.getUser().getUserId();
+		try {
+			sceneInfoService.saveScene(sceneDTO,userId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.success("保存失败");
+		}
+		return ApiResponse.success("保存用车场景成功");
+	}
+
+	/**
+	 * 删除用车场景
+	 * @param
+	 * @return
+	 */
+	@ApiOperation(value = "deleteScene", notes = "删除用车场景", httpMethod ="POST")
+	@GetMapping("/saveScene")
+	public ApiResponse deleteScene(@RequestBody SceneDTO sceneDTO) {
+		try {
+			int i = sceneInfoService.deleteSceneInfoById(sceneDTO.getSceneId());
+			if(i == 1){
+				return ApiResponse.success("删除成功");
+			}else {
+				return ApiResponse.error("删除场景失败");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.success("删除失败");
+		}
+	}
+
+	/**
+	 * 修改用车场景
+	 * @param
+	 * @return
+	 */
+	@ApiOperation(value = "updateScene", notes = "修改用车场景", httpMethod ="POST")
+	@GetMapping("/updateScene")
+	public ApiResponse updateScene(@RequestBody SceneDTO sceneDTO) {
+		//获取登录用户
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		Long userId = loginUser.getUser().getUserId();
+		try {
+			sceneInfoService.updateScene(sceneDTO,userId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.success("修改场景失败");
+		}
+		return ApiResponse.success("修改用车场景成功");
+	}
+
+	/**
+	 * 用车场景详情
+	 * @param
+	 * @return
+	 */
+	@ApiOperation(value = "getSceneDetail", notes = "查询用车场景详情", httpMethod ="POST")
+	@GetMapping("/getSceneDetail")
+	public ApiResponse<SceneDetailVO> getSceneDetail(@RequestBody SceneDTO sceneDTO) {
+		try {
+			//查询场景详情
+			SceneDetailVO sceneDetailVO = sceneInfoService.selectSceneDetail(sceneDTO);
+			if(ObjectUtils.isEmpty(sceneDetailVO)){
+				return ApiResponse.error("暂无数据");
+			}else {
+				return ApiResponse.success(sceneDetailVO);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error("查询场景详情失败");
+		}
+	}
+
+	/**
+	 * 分页查询用车场景列表信息
+	 * @param
+	 * @return
+	 */
+	@ApiOperation(value = "getSceneList", notes = "查询用车场景列表信息", httpMethod ="POST")
+	@GetMapping("/getSceneList")
+	public ApiResponse<PageResult<SceneListVO>> getSceneList(@RequestBody PageRequest pageRequest) {
+		try {
+			PageResult<SceneListVO> list = sceneInfoService.seleSceneByPage(pageRequest);
+			return ApiResponse.success(list);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error("查询场景列列表信息失败");
+		}
+	}
+
+
 }

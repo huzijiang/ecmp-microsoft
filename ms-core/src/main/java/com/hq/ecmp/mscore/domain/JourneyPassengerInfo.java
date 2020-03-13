@@ -80,6 +80,13 @@ public class JourneyPassengerInfo extends BaseEntity
         return itIsPeer;
     }
 
+    public JourneyPassengerInfo() {
+    }
+
+    public JourneyPassengerInfo(Long journeyId) {
+        this.journeyId = journeyId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
