@@ -59,4 +59,8 @@ public interface IDriverInfoService
      * @return 结果
      */
     public int deleteDriverInfoById(Long driverId);
+    /**
+     *驾驶员总数
+     */
+    public int queryCompanyDriverCount();
 }

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DriverInfo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface DriverInfoMapper
 {
     /**
@@ -59,4 +61,8 @@ public interface DriverInfoMapper
      * @return 结果
      */
     public int deleteDriverInfoByIds(Long[] driverIds);
+    /**
+     *驾驶员总数
+     */
+    public int queryCompanyDriver();
 }

@@ -168,4 +168,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <select id="queryCompanyDriver"  resultType="java.lang.Integer">
+          select count(*) from driver_info
+    </select>
 </mapper>

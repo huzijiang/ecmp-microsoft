@@ -94,4 +94,12 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     {
         return driverInfoMapper.deleteDriverInfoById(driverId);
     }
+
+    /**
+     *驾驶员总数
+     */
+    @Override
+    public int queryCompanyDriverCount(){
+        return driverInfoMapper.queryCompanyDriver();
+    }
 }
