@@ -167,6 +167,116 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{driverId}
         </foreach>
     </delete>
+    
+    <insert id="createDriver" parameterType="com.hq.ecmp.mscore.domain.DriverCreateInfo" useGeneratedKeys="true" keyProperty="driverId">
+      insert into driver_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="driverName != null ">driver_name,</if>
+           <if test="mobile != null ">mobile,</if>
+           <if test="gender != null ">gender,</if>
+           <if test="idCard != null ">id_card,</if>
+           <if test="licenseType != null ">license_type,</if>
+           <if test="licenseNumber != null ">license_number,</if>
+            <if test="licensePhoto != null ">license_photo,</if>
+            <if test="licenseInitIssueDate != null ">license_init_issue_date,</if>
+            <if test="licenseExpireDate != null ">license_expire_date,</if>
+            <if test="userId != null ">user_id,</if>
+            <if test="optUserId != null ">create_by,</if>
+            create_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="driverName != null ">#{driverName},</if>
+            <if test="mobile != null ">#{mobile},</if>
+            <if test="gender != null ">#{gender},</if>
+            <if test="idCard != null ">#{idCard},</if>
+            <if test="licenseType != null ">#{licenseType},</if>
+            <if test="licenseNumber != null ">#{licenseNumber},</if>
+             <if test="licensePhoto != null ">#{licensePhoto},</if>
+              <if test="licenseInitIssueDate != null ">#{licenseInitIssueDate},</if>
+              <if test="licenseExpireDate != null ">#{licenseExpireDate},</if>
+              <if test="userId != null ">#{userId},</if>
+              <if test="optUserId != null ">#{optUserId},</if>
+          	NOW()
+         </trim>
+    </insert>
+    
+    <select id="queryDriverList" parameterType="com.hq.ecmp.mscore.domain.DriverQuery"
+	resultType="com.hq.ecmp.mscore.domain.DriverQueryResult">
+	SELECT
+	a.driver_name AS driverName,
+	a.driver_id AS driverId,
+	a.user_id AS
+	userId,
+	a.state AS state,
+	a.it_is_full_time AS itIsFullTime,
+	c.car_group_name AS carGroupName
+	FROM
+	driver_info a
+	LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
+	LEFT JOIN car_group_info c ON c.car_group_id = b.car_group_id
+	WHERE
+	1=1
+	<if test="null !=name">
+		and (
+		a.user_id like CONCAT('%',#{name},'%')
+		OR a.mobile like
+		CONCAT('%',#{name},'%')
+		OR a.driver_name like CONCAT('%',#{name},'%')
+		)
+	</if>
+	<if test="null !=carGroupId">
+		AND b.car_group_id = #{carGroupId}
+	</if>
+	<if test="offset != null and pageSize != null">
+		LIMIT #{offset},#{pageSize}
+	</if>
+</select>
+
+<select id="queryDriverListCount" parameterType="com.hq.ecmp.mscore.domain.DriverQuery" resultType="java.lang.Integer">
+SELECT
+	count(1)
+	FROM
+	driver_info a
+	LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
+	LEFT JOIN car_group_info c ON c.car_group_id = b.car_group_id
+	WHERE
+	1=1
+	<if test="null !=name">
+		and (
+		a.user_id like CONCAT('%',#{name},'%')
+		OR a.mobile like
+		CONCAT('%',#{name},'%')
+		OR a.driver_name like CONCAT('%',#{name},'%')
+		)
+	</if>
+	<if test="null !=carGroupId">
+		AND b.car_group_id = #{carGroupId}
+	</if>
+</select>
+
+<select id="queryDriverDetail" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DriverQueryResult">
+SELECT
+	a.id_card AS idCard,
+	a.license_type AS licenseType,
+	a.license_number AS licenseNumber,
+	a.license_photo AS licensePhoto,
+	a.license_init_issue_date AS licenseInitIssueDate,
+	a.license_expire_date AS licenseExpireDate,
+	a.gender AS gender,
+	a.driver_name AS driverName,
+	a.driver_id AS driverId,
+	a.user_id AS userId,
+	a.state AS state,
+	a.it_is_full_time AS itIsFullTime,
+	c.car_group_name AS carGroupName
+FROM
+	driver_info a
+LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
+LEFT JOIN car_group_info c ON c.car_group_id = b.car_group_id
+WHERE
+	b.car_group_id = #{driverId}
+
+</select>
 
     <select id="queryCompanyDriver"  resultType="java.lang.Integer">
           select count(*) from driver_info

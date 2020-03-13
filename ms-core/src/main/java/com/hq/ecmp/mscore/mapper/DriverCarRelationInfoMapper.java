@@ -59,4 +59,13 @@ public interface DriverCarRelationInfoMapper
      * @return 结果
      */
     public int deleteDriverCarRelationInfoByIds(Long[] userIds);
+    
+    /**
+     * 批量插入多个车辆
+     * @param driverCarRelationInfo
+     * @return
+     */
+    public Integer batchDriverCarList(DriverCarRelationInfo driverCarRelationInfo);
+    
+    public Integer queryDriverUseCarCount(Long driverId);
 }
