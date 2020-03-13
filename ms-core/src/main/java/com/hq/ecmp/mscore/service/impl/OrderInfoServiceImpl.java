@@ -9,6 +9,7 @@ import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CallTaxiDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
@@ -380,6 +381,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             paramMap.put("licenseContent", licenseContent);
             paramMap.put("mac", macAdd);
             paramMap.put("enterpriseOrderId",orderId+"");
+            paramMap.put("groupIds",callTaxiDto.getGroupId());
+            paramMap.put("cityId",callTaxiDto.getCityId());
             paramMap.put("bookingDate",callTaxiDto.getBookingDate());
             String bookingStartPoint = callTaxiDto.getBookingStartPoint();
             String[] bookingStart = bookingStartPoint.split("\\,| \\，");
@@ -646,5 +649,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public OrderStateVO getOrderState(Long orderId) {
         OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
         return orderState;
+    }
+
+    @Override
+    public List<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
+        PageHelper.startPage(orderListBackDto.getPageNum(),orderListBackDto.getPageSize());
+        return orderInfoMapper.getOrderListBackDto(orderListBackDto);
+    }
+
+    @Override
+    public void getOrderListDetail(String orderNo) {
+
     }
 }

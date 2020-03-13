@@ -41,5 +41,9 @@ public class CallTaxiDto {
     private String  bookingEndAddr;
     @ApiModelProperty(value = "上车地址")
     private String  bookingStartAddr;
+    @ApiModelProperty(value = "下单车型，如“34”")
+    private String groupId;
+    @ApiModelProperty(value = "城市id(测试环境请用44)")
+    private String cityId;
 
 }

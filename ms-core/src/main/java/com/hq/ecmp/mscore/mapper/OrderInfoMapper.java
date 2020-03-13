@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import org.apache.ibatis.annotations.Param;
@@ -124,5 +125,12 @@ public interface OrderInfoMapper
     DriverOrderInfoVO selectOrderDetail(Long orderId);
 
     OrderStateVO getOrderState(Long orderId);
+
+    /**
+     * pc端获取订单列表
+     * @param orderListBackDto
+     * @return
+     */
+    List<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto);
 
 }
