@@ -127,7 +127,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
     <!--根据时间区间、开票状态查询发票信息-->
-    <select id="queryAllByLimit" resultMap="UserEmergencyContactInfoMap">
+    <select id="queryAllByLimit" resultMap="InvoiceInfoResult">
       select invoice_id, amount, header, accept_address, content, status
       from invoice_info where status = #{state} and
         <if test="startTime != null and startTime != '' ">
