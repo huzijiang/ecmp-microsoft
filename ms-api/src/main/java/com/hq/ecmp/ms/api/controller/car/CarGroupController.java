@@ -9,6 +9,8 @@ import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
+import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
+import com.hq.ecmp.mscore.vo.UserVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,34 +45,69 @@ public class CarGroupController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
-        CarGroupInfo carGroupInfo = new CarGroupInfo();
         try {
-            //车队编码
-            carGroupInfo.setCarGroupCode(carGroupDTO.getCarGroupCode());
-            //所属城市编码
-            carGroupInfo.setCity(carGroupDTO.getCity());
-            //所属城市名字
-            carGroupInfo.setCityName(carGroupDTO.getCityName());
-            //车队名称
-            carGroupInfo.setCarGroupName(carGroupDTO.getCarGroupName());
-            //车队详细地址
-            carGroupInfo.setFullAddress(carGroupDTO.getFullAddress());
-            //车队短地址
-            carGroupInfo.setShortAddress(carGroupDTO.getShortAddress());
-            //所属组织
-            carGroupInfo.setOwnerOrg(carGroupDTO.getOwnerOrg());
-            //车队负责人
-            carGroupInfo.setLeader(carGroupDTO.getLeader());
-            //创建人
-            carGroupInfo.setCreateBy(String.valueOf(userId));
-            int i = carGroupInfoService.insertCarGroupInfo(carGroupInfo);
-            if(i != 1){
-                return ApiResponse.error("保存车队信息失敗");
-            }
+          carGroupInfoService.saveCarGroupAndDispatcher(carGroupDTO,userId);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("保存车队信息失败");
         }
         return ApiResponse.success("保存成功");
+    }
+
+    /**
+     * 车队详情
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCarGroupDetail",notes = "车队详情",httpMethod ="POST")
+    @PostMapping("/getCarGroupDetail")
+    public ApiResponse<CarGroupDetailVO> getCarGroupDetail(Long carGroupId){
+        try {
+            CarGroupDetailVO carGroupDetailVO = carGroupInfoService.getCarGroupDetail(carGroupId);
+            return ApiResponse.success(carGroupDetailVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询车队详情失败");
+        }
+    }
+
+    /**
+     * 修改车队
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "updateCarGroup",notes = "修改车队",httpMethod ="POST")
+    @PostMapping("/updateCarGroup")
+    public ApiResponse<CarGroupDetailVO> updateCarGroup(@RequestBody CarGroupDTO carGroupDTO){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            carGroupInfoService.updateCarGroup(carGroupDTO,userId);
+            return ApiResponse.success("修改成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("删除车队失败");
+        }
+    }
+
+    /**
+     * 禁用车队
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "updateCarGroup",notes = "修改车队",httpMethod ="POST")
+    @PostMapping("/updateCarGroup")
+    public ApiResponse<CarGroupDetailVO> disableCarGroup(Long carGroupId){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            carGroupInfoService.disableCarGroup(carGroupId,userId);
+            return ApiResponse.success("禁用车队成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("禁用车队失败");
+        }
     }
 }

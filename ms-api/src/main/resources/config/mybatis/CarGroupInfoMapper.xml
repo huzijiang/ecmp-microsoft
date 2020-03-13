@@ -37,6 +37,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertCarGroupInfo" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+        <selectKey  keyColumn="car_group_id" keyProperty="carGroupId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into car_group_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="carGroupId != null ">car_group_id,</if>
@@ -44,6 +47,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cityName != null  and cityName != ''">city_name,</if>
             <if test="ownerOrg != null ">owner_org,</if>
             <if test="leader != null ">leader,</if>
+            <if test="province != null ">province,</if>
+            <if test="longitude != null ">longitude,</if>
+            <if test="latitude != null ">latitude,</if>
+            <if test="telephone != null ">telephone,</if>
             <if test="carGroupName != null ">car_group_name,</if>
             <if test="carGroupCode != null ">car_group_code,</if>
             <if test="shortAddress != null ">short_address,</if>
@@ -59,6 +66,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cityName != null  and cityName != ''">#{cityName},</if>
             <if test="ownerOrg != null ">#{ownerOrg},</if>
             <if test="leader != null ">#{leader},</if>
+            <if test="province != null ">#{province},</if>
+            <if test="longitude != null ">#{longitude},</if>
+            <if test="latitude != null ">#{latitude},</if>
+            <if test="telephone != null ">#{telephone},</if>
             <if test="carGroupName != null ">#{carGroupName},</if>
             <if test="carGroupCode != null ">#{carGroupCode},</if>
             <if test="shortAddress != null ">#{shortAddress},</if>

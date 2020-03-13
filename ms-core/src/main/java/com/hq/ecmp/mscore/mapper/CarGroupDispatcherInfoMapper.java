@@ -65,4 +65,18 @@ public interface CarGroupDispatcherInfoMapper
     public List<Long> queryCarGroupIdList(Long userId);
     
     public List<Long> queryUserByCarGroup(@Param("list")List<Long> list);
+
+    /**
+     * 解绑车队调度员
+     * @param carGroupId
+     * @param dispatcherId
+     */
+    int removeCarGroupDispatcher(@Param("carGroupId") Long carGroupId,@Param("dispatcherId") Integer dispatcherId);
+
+    /**
+     * 解绑车队所有调度员
+     * @param carGroupId
+     * @return
+     */
+    int deleteCarGroupDispatcherInfoByGroupId(Long carGroupId);
 }
