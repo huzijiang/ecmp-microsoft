@@ -184,7 +184,8 @@ WHERE
 	plan_end_address AS planEndAddress,
 	plan_end_city_code AS planEndCityCode,
 	number,
-	node_id AS nodeId
+	node_id AS nodeId,
+	it_is_via_point as itIsViaPoint
 FROM
 	journey_node_info
 WHERE
