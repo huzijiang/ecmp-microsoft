@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.util.StringUtil;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.ecmp.constant.*;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -681,6 +683,50 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         queryOrderStateMap.put("status",OrderState.SENDINGCARS.getState());
         String resultQuery = OkHttpUtil.postJson(apiUrl + "/service/getOrderState", queryOrderStateMap);
         JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
-        return jsonObjectQuery;
+        JSONObject data = jsonObjectQuery.getJSONObject("data");
+        if(!"0".equals(jsonObjectQuery.getString("code"))){
+            throw new Exception("获取网约车状态失败");
+        }
+        String status = data.getString("status");
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        String phone = data.getJSONObject("driverInfoDTO").getString("phone");
+        queryOrderStateMap.put("driverPhone",phone);
+        String resultJson = OkHttpUtil.postJson(apiUrl + "/service/driverLocation", queryOrderStateMap);
+        JSONObject resultObject = JSONObject.parseObject(resultJson);
+        if (!"0".equals(resultObject.getString("code"))){
+            throw new Exception("获取网约车司机位置异常");
+        }
+        if(!status.equals(orderInfo.getState())){
+            OrderInfo newOrderInfo = new OrderInfo(orderId,status);
+            if (OrderState.ALREADYSENDING.getState().equals(status)){//派车成功
+                String name = data.getJSONObject("driverInfoDTO").getString("name");
+                String vehicleColor = data.getJSONObject("driverInfoDTO").getString("vehicleColor");//颜色
+                String licensePlates = data.getJSONObject("driverInfoDTO").getString("licensePlates");//车牌
+                String driverRate = data.getJSONObject("driverInfoDTO").getString("driverRate");//评分
+                String modelName = data.getJSONObject("driverInfoDTO").getString("modelName");//评分
+                newOrderInfo.setDriverMobile(phone);
+                newOrderInfo.setDriverName(name);
+                newOrderInfo.setCarLicense(licensePlates+","+vehicleColor+","+driverRate+","+modelName);
+
+            }
+            if (OrderState.READYSERVICE.getState().equals(status)||OrderState.ORDERCLOSE.getState().equals(status)||OrderState.DISSENT.getState().equals(status)){//乘客一上车
+                JSONObject data1 = resultObject.getJSONObject("data");
+                if (OrderState.READYSERVICE.getState().equals(status)){
+                    newOrderInfo.setActualSetoutLatitude(new BigDecimal(data1.getString("y")));
+                    newOrderInfo.setActualSetoutLongitude(new BigDecimal(data1.getString("x")));
+                }else {
+                    newOrderInfo.setActualArriveLatitude(new BigDecimal(data1.getString("y")));
+                    newOrderInfo.setActualArriveLongitude(new BigDecimal(data1.getString("x")));
+                }
+
+            }
+            int j = orderInfoMapper.updateOrderInfo(newOrderInfo);
+            //TODO 远端暂时未返回网约车坐标
+            iOrderStateTraceInfoService.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderId,status,null,null));
+            if (OrderState.ORDERCLOSE.getState().equals(status)||OrderState.DISSENT.getState().equals(status)||OrderState.STOPSERVICE.getState().equals(status)) {//订单关闭
+                //TODO 调财务结算模块
+            }
+        }
+        return resultObject;
     }
 }

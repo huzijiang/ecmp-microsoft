@@ -8,9 +8,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="regimenId"    column="regimen_id"    />
         <result property="templateId"    column="template_id"    />
         <result property="approveTemplateId"    column="approve_templateId_id" />
-        <result property="applyType"    column="regimen_type"    />
+        <result property="regimenType"    column="regimen_type"    />
         <result property="name"    column="name"    />
         <result property="allowCity"    column="allow_city"    />
+        <result property="ruleTime"    column="rule_time"    />
+        <result property="setoutAddress"    column="setout_address"    />
+        <result property="arriveAddress"    column="arrive_address"    />
         <result property="allowDate"    column="allow_date"    />
         <result property="setoutEqualArrive"    column="setout_equal_arrive"    />
         <result property="serviceType"    column="service_type"    />
@@ -23,7 +26,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectRegimeInfoVo">
-        select regimen_id, template_id, approve_template_id, regimen_type, name, allow_city,allow_date, setout_equal_arrive, service_type, need_approval_process,can_use_car_mode, create_by, create_time, update_by, update_time from regime_info
+        select regimen_id, template_id, approve_template_id, regimen_type, name, allow_city,rule_time,allow_date, setout_equal_arrive, service_type, need_approval_process,can_use_car_mode, create_by, create_time, update_by, update_time from regime_info
     </sql>
 
     <select id="selectRegimeInfoList" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo" resultMap="RegimeInfoResult">

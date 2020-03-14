@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.ApprovalInfoVO;
 
 import java.util.List;
 
@@ -74,4 +75,6 @@ public interface IApplyApproveResultInfoService
      * @param regimenId 用车制度id
      */
     void initApproveResultInfo(Long applyId,Long regimenId,Long userId);
+
+    List<ApprovalInfoVO> getApproveResultList(ApplyApproveResultInfo applyApproveResultInfo);
 }

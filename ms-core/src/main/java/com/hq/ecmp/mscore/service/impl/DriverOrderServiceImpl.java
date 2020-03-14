@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -75,8 +76,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     @Transactional(rollbackFor = Exception.class)
         public void handleDriverOrderStatus(String type, String currentPoint, String orderNo,Long userId) throws Exception {
         String[] point = currentPoint.split("\\,| \\，");
-        Long longitude = Long.parseLong(point[0]);
-        Long latitude = Long.parseLong(point[1]);
+        String longitude = point[0];
+        String latitude = point[1];
         long orderId = Long.parseLong(orderNo);
         //订单
         OrderInfo orderInfo = new OrderInfo();
@@ -85,8 +86,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         //订单轨迹
         OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
         orderStateTraceInfo.setOrderId(orderId);
-        orderStateTraceInfo.setDriverLongitude(longitude);
-        orderStateTraceInfo.setDriverLatitude(latitude);
+        orderStateTraceInfo.setDriverLongitude(new BigDecimal(longitude));
+        orderStateTraceInfo.setDriverLatitude(new BigDecimal(latitude));
         orderStateTraceInfo.setCreateBy(String.valueOf(userId));
         if(DriverBehavior.PICKUP_PASSENGER.getType().equals(type)){
             //订单状态
@@ -106,8 +107,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
             //订单状态
             orderInfo.setState(OrderState.INSERVICE.getState());
-            orderInfo.setActualSetoutLongitude(longitude);
-            orderInfo.setActualSetoutLatitude(latitude);
+            orderInfo.setActualSetoutLongitude(new BigDecimal(longitude));
+            orderInfo.setActualSetoutLatitude(new BigDecimal(latitude));
             orderInfo.setActualSetoutTime(DateUtils.getNowDate());
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             List<String> macList = MacTools.getMacList();
@@ -134,8 +135,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){
             orderInfo.setState(OrderState.STOPSERVICE.getState());
-            orderInfo.setActualArriveLongitude(longitude);
-            orderInfo.setActualArriveLatitude(latitude);
+            orderInfo.setActualArriveLongitude(new BigDecimal(longitude));
+            orderInfo.setActualArriveLatitude(new BigDecimal(latitude));
             orderInfo.setActualArriveTime(DateUtils.getNowDate());
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             List<String> macList = MacTools.getMacList();

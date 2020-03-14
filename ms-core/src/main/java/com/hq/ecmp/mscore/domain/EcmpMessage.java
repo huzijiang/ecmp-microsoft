@@ -74,7 +74,15 @@ M999  其他
     
     private Date updateTime;
 
+    public EcmpMessage(Integer configType, String type, String status) {
+        this.configType = configType;
+        this.type = type;
+        this.status = status;
+    }
 
-
-
+    public EcmpMessage(Integer configType, String status,Long ecmpId) {
+        this.configType = configType;
+        this.status = status;
+        this.ecmpId = ecmpId;
+    }
 }

@@ -21,7 +21,9 @@ public class OrderStateVO {
     private String state;
     private String labelState;
     private Long driverId;
+    private Long journeyId;
     private String useCarMode;
+    private String applyType;
     @ApiModelProperty(name = "startAddress",value = "出发地")
     private String startAddress;
     @ApiModelProperty(name = "endAddress",value = "目的地")

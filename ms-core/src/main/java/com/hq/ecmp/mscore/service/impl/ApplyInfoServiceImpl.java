@@ -22,6 +22,7 @@ import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -370,9 +371,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         String useCarTime = journeyInfo.getUseCarTime();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
         try {
-            Date parseDate = dateFormat.parse(useCarTime);
-            applyDetailVO.setApplyDate(parseDate);
-        } catch (ParseException e) {
+//            Date parseDate = dateFormat.parse(useCarTime);
+            String s = DateFormatUtils.formatDate("yyyy年MM月dd日 HH:mm", new Date(useCarTime));
+            applyDetailVO.setApplyDate(s);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(journeyInfo.getUserId());
@@ -445,23 +447,26 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         String travelPickupCity = journeyInfo.getTravelPickupCity();
         List<TravelPickupCity> travelPickupCities = JSONObject.parseArray(travelPickupCity, TravelPickupCity.class);
         ArrayList<String> list = new ArrayList<>();
-        for (TravelPickupCity pickupCity : travelPickupCities) {
-            String cityName = pickupCity.getCityName();
-            //接机/站次数
-            Integer pickup = pickupCity.getPickup();
-            //送机/站次数
-            Integer dropOff = pickupCity.getDropOff();
-            if(pickup == dropOff ){
-                list.add(cityName+"   "+"接送服务各"+pickup+"次");
-            }else {
-                if(pickup == 0){
-                    list.add(cityName+"   "+"送机/站服务"+dropOff+"次");
-                }
-                if(dropOff == 0){
-                    list.add(cityName+"   "+"接机/站服务"+pickup+"次");
+        if (!CollectionUtils.isEmpty(travelPickupCities)){
+            for (TravelPickupCity pickupCity : travelPickupCities) {
+                String cityName = pickupCity.getCityName();
+                //接机/站次数
+                Integer pickup = pickupCity.getPickup();
+                //送机/站次数
+                Integer dropOff = pickupCity.getDropOff();
+                if(pickup == dropOff ){
+                    list.add(cityName+"   "+"接送服务各"+pickup+"次");
+                }else {
+                    if(pickup == 0){
+                        list.add(cityName+"   "+"送机/站服务"+dropOff+"次");
+                    }
+                    if(dropOff == 0){
+                        list.add(cityName+"   "+"接机/站服务"+pickup+"次");
+                    }
                 }
             }
         }
+
         tripDescription.setTripDesc(list);
         //如果是差旅申请  行程节点集合 上海-北京
         ArrayList<String> tripList = new ArrayList<>();

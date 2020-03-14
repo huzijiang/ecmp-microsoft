@@ -11,9 +11,11 @@ import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackImageService;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
+import com.hq.ecmp.util.FileUtils;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +43,10 @@ public class EvaluationController {
     private IEcmpUserFeedbackInfoService feedbackInfoService;
     @Autowired
     private IEcmpUserFeedbackImageService feedbackImageService;
+    @Value("file.path.feedback")
+    String feedbackPath;
+    @Value("file.url.feedback")
+    String feedbackUrl;
 
     /**
      *   @author caobj
@@ -57,16 +64,15 @@ public class EvaluationController {
             EcmpUserFeedbackInfo ecmpUserFeedbackInfo = new EcmpUserFeedbackInfo();
             BeanUtils.copyProperties(evaluationDto,ecmpUserFeedbackInfo);
             ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
-            int i = feedbackInfoService.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
-            if (i>0){
-                String[] imageUrls = evaluationDto.getImageUrls();
-                if (imageUrls!=null&&imageUrls.length>0){
-                    List<EcmpUserFeedbackImage> list=new ArrayList<>();
-                    for (String url:imageUrls){
-                        EcmpUserFeedbackImage feedbackImage=new EcmpUserFeedbackImage();
-                        feedbackImage.setFeedbackId(ecmpUserFeedbackInfo.getFeedbackId());
-                        feedbackImage.setUserId(loginUser.getUser().getUserId());
-                        feedbackImage.setImageUrl(url);
+            int count = feedbackInfoService.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
+            if (count>0){
+                if (evaluationDto.getFiles()!=null&&evaluationDto.getFiles().length>0){
+                    EcmpUserFeedbackImage feedbackImage = new EcmpUserFeedbackImage();
+                    feedbackImage.setFeedbackId(ecmpUserFeedbackInfo.getFeedbackId());
+                    feedbackImage.setUserId(loginUser.getUser().getUserId());
+                    for (int i = 0; i < evaluationDto.getFiles().length; i++) {
+                        String imgPath = FileUtils.uploadfile(evaluationDto.getFiles()[i], File.separator + feedbackPath);
+                        feedbackImage.setImageUrl(feedbackUrl+imgPath);
                         feedbackImageService.insertEcmpUserFeedbackImage(feedbackImage);
                     }
                 }
@@ -86,7 +92,7 @@ public class EvaluationController {
      *   @Param  []
      *   @return com.hq.common.core.api.ApiResponse
      **/
-    @ApiOperation(value = "保存行程异议",httpMethod = "POST")
+    @ApiOperation(value = "获取行程异议",httpMethod = "POST")
     @RequestMapping("/getOrderEvaluation")
     public ApiResponse<OrderEvaluationDto> getOrderEvaluation(@RequestBody OrderEvaluationDto evaluationDto){
         try {
@@ -101,7 +107,7 @@ public class EvaluationController {
                for (int i=0;i<ecmpUserFeedbackImages.size();i++){
                    imgs[i]=ecmpUserFeedbackImages.get(i).getImageUrl();
                }
-               evaluationDto.setImageUrls(imgs);
+               evaluationDto.setImgUrls(imgs);
            }
            return ApiResponse.success(evaluationDto);
         }catch (Exception e){
