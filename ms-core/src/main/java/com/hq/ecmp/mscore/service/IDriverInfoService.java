@@ -1,8 +1,11 @@
 package com.hq.ecmp.mscore.service;
 
-import com.hq.ecmp.mscore.domain.DriverInfo;
-
 import java.util.List;
+
+import com.hq.ecmp.mscore.domain.DriverCreateInfo;
+import com.hq.ecmp.mscore.domain.DriverInfo;
+import com.hq.ecmp.mscore.domain.DriverQuery;
+import com.hq.ecmp.mscore.domain.DriverQueryResult;
 
 /**
  * 【请填写功能名称】Service接口
@@ -59,4 +62,14 @@ public interface IDriverInfoService
      * @return 结果
      */
     public int deleteDriverInfoById(Long driverId);
+    
+    
+    public boolean createDriver(DriverCreateInfo driverCreateInfo);
+    
+    public List<DriverQueryResult> queryDriverList(DriverQuery query);
+    
+    public Integer queryDriverListCount(DriverQuery query);
+    
+    
+    public DriverQueryResult  queryDriverDetail(Long driverId);
 }

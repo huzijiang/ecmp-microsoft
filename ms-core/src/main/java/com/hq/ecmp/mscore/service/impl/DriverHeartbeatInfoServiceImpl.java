@@ -94,4 +94,9 @@ public class DriverHeartbeatInfoServiceImpl implements IDriverHeartbeatInfoServi
     {
         return driverHeartbeatInfoMapper.deleteDriverHeartbeatInfoById(heartId);
     }
+
+    @Override
+    public DriverHeartbeatInfo findNowLocation(Long driverId, Long orderId) {
+        return driverHeartbeatInfoMapper.findNowLocation(driverId,orderId);
+    }
 }

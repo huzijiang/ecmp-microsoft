@@ -23,7 +23,7 @@ public class ApplyInfoDTO {
     /**
      * 申请ID
      */
-    private Integer applyId;
+    private Long applyId;
     /**
      * 申请原因|名称（如果是差旅 eg显示城市的顺序）
      */

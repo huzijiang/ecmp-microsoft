@@ -6,6 +6,8 @@ import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import org.apache.ibatis.annotations.Param;
@@ -20,8 +22,7 @@ import java.util.List;
  * @date 2020-01-02
  */
 @Repository
-public interface OrderInfoMapper
-{
+public interface OrderInfoMapper {
     /**
      * 查询【请填写功能名称】
      *
@@ -72,6 +73,7 @@ public interface OrderInfoMapper
 
     /**
      * 获取乘客端我的行程订单列表
+     *
      * @param userId
      * @return
      */
@@ -82,27 +84,32 @@ public interface OrderInfoMapper
 
     /**
      * 查询已完成调度的订单
+     *
      * @return
      */
     public List<DispatchOrderInfo> queryCompleteDispatchOrder();
 
     /**
      * 通过司机id获取司机的任务列表
+     *
      * @param driverId
      * @return
      */
-    public List<OrderDriverListInfo> getDriverOrderList(@Param("driverId")long driverId,@Param("flag")int flag);
+    public List<OrderDriverListInfo> getDriverOrderList(@Param("driverId") long driverId, @Param("flag") int flag);
 
     public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
 
     public DispatchOrderInfo queryCompleteDispatchOrderDetail(Long orderId);
 
-    /**获取调度员派车通知*/
-    MessageDto getOrderMessage(@Param("userId") Long userId, @Param("states") String states,@Param("driveId")Long driveId);
+    /**
+     * 获取调度员派车通知
+     */
+    MessageDto getOrderMessage(@Param("userId") Long userId, @Param("states") String states, @Param("driveId") Long driveId);
 
 
     /**
      * 通过司机id获取两小时内司机的下一个任务数据
+     *
      * @param driverId
      * @return
      */
@@ -110,19 +117,37 @@ public interface OrderInfoMapper
 
     /**
      * 通过汽车id获取两小时内司机的下一个任务数据
+     *
      * @param carId
      * @return
      */
     OrderDriverListInfo getNextTaskWithCar(@Param("carId") Long carId);
 
-    MessageDto getCancelOrderMessage(@Param("driverId")Long driverId,@Param("state") String state);
-    //查询司机未完成的任务数量
-    int getDriverOrderCount(@Param("driverId")Long driverId,@Param("states") String states);
+    MessageDto getCancelOrderMessage(@Param("driverId") Long driverId, @Param("state") String state);
 
-    List<OrderDriverListInfo> driverOrderUndoneList(@Param("driverId")long driverId,@Param("day")int day);
+    //查询司机未完成的任务数量
+    int getDriverOrderCount(@Param("driverId") Long driverId, @Param("states") String states);
+
+    List<OrderDriverListInfo> driverOrderUndoneList(@Param("driverId") long driverId, @Param("day") int day);
 
     DriverOrderInfoVO selectOrderDetail(Long orderId);
 
     OrderStateVO getOrderState(Long orderId);
 
+    /**
+     * pc端获取订单列表
+     *
+     * @param orderListBackDto
+     * @return
+     */
+    List<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto);
+
+    /**
+     * 根据订单编号获取订单详情数据
+     *
+     * @param orderNo
+     * @return
+     */
+    OrderDetailBackDto getOrderListDetail(@Param("orderId") String orderNo);
 }
+

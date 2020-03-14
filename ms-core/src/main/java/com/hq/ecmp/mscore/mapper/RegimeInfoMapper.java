@@ -78,6 +78,8 @@ public interface RegimeInfoMapper
     
     public Integer updateStatus(RegimeOpt regimeOpt);
     
+    public RegimeInfo queryRegimeType(Long regimeId);
+    
 
 
 }

@@ -1,10 +1,14 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.mapper.ProjectInfoMapper;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
+import com.hq.ecmp.mscore.vo.ProjectInfoVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -102,5 +106,12 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     @Override
     public List<ProjectInfo> getListByUserId(Long userId,String projectName) {
         return projectInfoMapper.getListByUserId(userId,projectName);
+    }
+
+    @Override
+    public PageInfo<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, Long fatherProjectId) {
+        PageHelper.startPage(pageNum,pageSize);
+        List<ProjectInfoVO> list= projectInfoMapper.getProjectList(fatherProjectId);
+        return new PageInfo<>(list);
     }
 }

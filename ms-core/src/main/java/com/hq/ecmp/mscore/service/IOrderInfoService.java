@@ -1,12 +1,15 @@
 package com.hq.ecmp.mscore.service;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.dto.CallTaxiDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
@@ -138,7 +141,7 @@ public interface IOrderInfoService {
     /**
      * 网约车异步约车方法
      */
-    void platCallTaxi(CallTaxiDto callTaxiDto, String enterpriseId, String licenseContent, String apiUrl);
+    void platCallTaxi(CallTaxiDto callTaxiDto, String enterpriseId, String licenseContent, String apiUrl,String userId);
 
    /**
     * 自有车派车
@@ -174,5 +177,22 @@ public interface IOrderInfoService {
     DriverOrderInfoVO driverOrderDetail(Long orderId);
 
     OrderStateVO getOrderState(Long orderId);
+
+    /**
+     * pc端获取订单列表
+     * @param orderListBackDto
+     * @return
+     */
+    List<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto);
+
+    /**
+     * PC端查询订单详情
+     * @param orderNo
+     */
+    OrderDetailBackDto getOrderListDetail(String orderNo);
+
+    //查询网约车状态
+    JSONObject getTaxiOrderState(Long orderId, String enterpriseId, String licenseContent, String macAdd,String apiUrl)throws Exception;
+
 }
 

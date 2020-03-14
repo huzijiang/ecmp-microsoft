@@ -60,6 +60,6 @@ public interface EcmpNoticeMappingMapper {
      * @param  主键
      * @return 影响行数
      */
-    int deleteById( );
+    int deleteById(Long id);
 
 }

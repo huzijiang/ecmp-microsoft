@@ -50,6 +50,6 @@ public interface EcmpNoticeMappingService {
      * @param  主键
      * @return 是否成功
      */
-    boolean deleteById( );
+    boolean deleteById(Long id);
 
 }

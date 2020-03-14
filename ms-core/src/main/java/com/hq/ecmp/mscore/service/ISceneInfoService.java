@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.SceneInfo;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.SceneDTO;
+import com.hq.ecmp.mscore.dto.SceneSortDTO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.SceneDetailVO;
 import com.hq.ecmp.mscore.vo.SceneListVO;
@@ -78,7 +79,7 @@ public interface ISceneInfoService
      * @param userId
      * @return
      */
-    void saveScene(SceneDTO sceneDTO, Long userId);
+    void saveScene(SceneDTO sceneDTO, Long userId) throws Exception;
 
     /**
      * 修改用车场景
@@ -86,7 +87,7 @@ public interface ISceneInfoService
      * @param userId
      * @return
      */
-    void updateScene(SceneDTO sceneDTO, Long userId);
+    void updateScene(SceneDTO sceneDTO, Long userId) throws Exception;
 
     /**
      * 查询场景详情
@@ -101,4 +102,11 @@ public interface ISceneInfoService
      * @return
      */
     PageResult<SceneListVO> seleSceneByPage(PageRequest pageRequest);
+
+    /**
+     * 场景排序 上、下移
+     * @param sceneSortDTO
+     * @param userId
+     */
+    void sortScene(SceneSortDTO sceneSortDTO, Long userId);
 }

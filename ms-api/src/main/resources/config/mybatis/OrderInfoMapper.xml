@@ -452,4 +452,96 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         where find_in_set(state,#{states}) and driver_id=#{driverId}
     </select>
 
+    <select id="getOrderListBackDto" parameterType="com.hq.ecmp.mscore.dto.OrderListBackDto" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
+            select
+            eu.user_name applyName,
+            eu.phonenumber applyPhoneNumber,
+            jpi.name passengerName,
+            GROUP_CONCAT(jpi1.name) peer_name,
+            s.actual_setout_time begin_time,
+            s.actual_arrive_time end_time,
+            s.actual_setout_address begin_address,
+            s.actual_arrive_address end_address,
+            ji.service_type ,
+            ji.charter_car_type,
+            ji.use_car_time,
+            s.use_car_mode,
+            s.order_id,
+            s.state orderState,
+            osi.amount
+            from order_info s
+            LEFT join journey_user_car_power jucp on jucp.power_id=s.power_id
+            LEFT join apply_info a on a.apply_id=jucp.apply_id
+            LEFT join ecmp_user eu on eu.user_id=a.create_by
+            LEFT join journey_info ji on ji.journey_id=s.journey_id
+            LEFT join journey_passenger_info jpi on jpi.journey_id=ji.journey_id and jpi.it_is_peer='00'
+            LEFT join journey_passenger_info jpi1 on jpi1.journey_id=ji.journey_id and jpi1.it_is_peer='01'
+            LEFT join order_settling_info osi on osi.order_id=s.order_id
+            <where>
+                <if test="applyName != null "> and eu.user_name like concat('%',#{applyName},'%') </if>
+                <if test="applyPhoneNumber != null "> and eu.phonenumber like concat('%',#{applyPhoneNumber},'%') </if>
+                <if test="passengerName != null "> and  jpi.name = #{passengerName}</if>
+                <if test="serviceType != null "> and ji.service_type = #{serviceType}</if>
+                <if test="useCarMode != null "> and s.use_car_mode = #{useCarMode}</if>
+                <if test="charterCarType != null "> and  ji.charter_car_type = #{charterCarType}</if>
+                <if test="useCarTimeBegin != null "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{useCarTimeBegin},'%Y-%m-%d %H:%i:%S')</if>
+                <if test="useCarTimeEnd != null "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{useCarTimeEnd},'%Y-%m-%d %H:%i:%S')</if>
+                <if test="orderState != null "> and s.state = #{orderState}</if>
+                <if test="orderId != null "> and s.order_id  concat('%',#{orderId},'%') </if>
+            </where>
+            group by s.order_id
+            order by a.create_time desc
+
+    </select>
+
+    <select id="getOrderListDetail" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.OrderDetailBackDto">
+               select
+            s.order_id,
+            eu.user_name applyName,
+            eu.phonenumber,
+            eo.dept_name deptName,
+            ri.name regimenName,
+            jpi.name passengerName,
+            jpi.mobile passengerMobile,
+            GROUP_CONCAT(jpi1.name) peerName,
+            s.use_car_mode useCarMode,
+            s.driver_name driverName,
+            s.driver_mobile driverMobile,
+            ci.car_type carType,
+            ci.car_color carColor,
+            ci.car_license carLicense,
+            s.state orderState,
+            jni.plan_setout_time useCarTime,
+            jni.plan_begin_address planningSetOutAddress,
+            jni.plan_arrive_time planningArriveTime,
+            jni.plan_end_address planningArriveAddress,
+            s.actual_setout_time beginTime,
+            s.actual_arrive_time endTime,
+            s.actual_setout_address beginAddress,
+            s.actual_arrive_address endAddress,
+            ji.service_type serviceType,
+            ji.charter_car_type,
+            ecti.level carLevel,
+            osi.total_mileage totalMileage,
+            osi.total_time totalTime,
+            osi.amount_detail amountDetail,
+            osi.amount
+            from order_info s
+            left join journey_user_car_power jucp on jucp.power_id=s.power_id
+            left join apply_info a on a.apply_id=jucp.apply_id
+            left join ecmp_user eu on eu.user_id=a.create_by
+            left join journey_info ji on ji.journey_id=s.journey_id
+            left join journey_passenger_info jpi on jpi.journey_id=ji.journey_id and jpi.it_is_peer='01'
+            left join journey_passenger_info jpi1 on jpi1.journey_id=ji.journey_id and jpi1.it_is_peer='00'
+            left join order_settling_info osi on osi.order_id=s.order_id
+            left join ecmp_org eo on eo.dept_id=eu.dept_id
+            left join car_info ci on ci.car_id=s.car_id
+            left join journey_node_info jni on jni.node_id=jucp.node_id
+            left join enterprise_car_type_info ecti on ecti.car_type_id=ci.car_type_id
+            left join regime_info ri on ri.regimen_id=ji.regimen_id
+            <where>
+                s.order_id=#{orderId}
+            </where>
+    </select>
+
 </mapper>

@@ -92,4 +92,14 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
     {
         return driverCarRelationInfoMapper.deleteDriverCarRelationInfoById(userId);
     }
+
+	@Override
+	public Integer batchDriverCarList(DriverCarRelationInfo driverCarRelationInfo) {
+		return driverCarRelationInfoMapper.batchDriverCarList(driverCarRelationInfo);
+	}
+
+	@Override
+	public Integer queryDriverUseCarCount(Long driverId) {
+		return driverCarRelationInfoMapper.queryDriverUseCarCount(driverId);
+	}
 }

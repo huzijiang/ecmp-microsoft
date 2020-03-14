@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
+import com.hq.ecmp.mscore.dto.CarGroupDTO;
+import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
 
 import java.util.List;
 
@@ -59,4 +61,37 @@ public interface ICarGroupInfoService
      * @return 结果
      */
     public int deleteCarGroupInfoById(Long carGroupId);
+
+    /**
+     * 新增车队和调度员信息
+     * @param carGroupDTO
+     */
+    void saveCarGroupAndDispatcher(CarGroupDTO carGroupDTO,Long userId) throws Exception;
+
+    /**
+     * 车队详情
+     * @param carGroupId
+     * @return
+     */
+    CarGroupDetailVO getCarGroupDetail(Long carGroupId);
+
+    /**
+     * 修改车队
+     * @param carGroupDTO
+     */
+    void updateCarGroup(CarGroupDTO carGroupDTO,Long userId) throws Exception;
+
+    /**
+     * 禁用车队
+     * @param carGroupId
+     * @param userId
+     */
+    void disableCarGroup(Long carGroupId, Long userId) throws Exception;
+
+    /**
+     * 启用车队
+     * @param carGroupId
+     * @param userId
+     */
+    void startUpCarGroup(Long carGroupId, Long userId) throws Exception;
 }

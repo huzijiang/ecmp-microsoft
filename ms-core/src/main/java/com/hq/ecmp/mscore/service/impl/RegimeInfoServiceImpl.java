@@ -208,4 +208,9 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}
 		return true;
 	}
+
+	@Override
+	public RegimeInfo queryRegimeType(Long regimeId) {
+		return regimeInfoMapper.queryRegimeType(regimeId);
+	}
 }

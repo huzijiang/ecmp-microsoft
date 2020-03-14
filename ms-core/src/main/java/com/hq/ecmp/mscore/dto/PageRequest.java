@@ -15,4 +15,8 @@ public class PageRequest {
     private Integer pageSize;
     //0:当天,1:明天,2:后天 3:大后天,-1:全部
     private Integer day;
+    //搜索字段
+    private String search;
+
+    private Long fatherProjectId;
 }

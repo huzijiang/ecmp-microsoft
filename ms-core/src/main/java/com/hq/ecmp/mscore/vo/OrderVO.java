@@ -43,7 +43,7 @@ public class OrderVO {
     @ApiModelProperty(name = "customerServicePhone",value = "客服电话")
     private String customerServicePhone;
     @ApiModelProperty(name = "useCarTime",value = "用车时间")
-    private Date useCarTime;
+    private String useCarTime;
     @ApiModelProperty(name = "labelState",value = "辅助状态")
     private String labelState;
 

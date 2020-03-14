@@ -3,6 +3,7 @@ package com.hq.ecmp.ms.api.controller.order;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
@@ -26,11 +27,14 @@ import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -69,6 +73,13 @@ public class OrderController {
     @Resource
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
 
+    @Autowired
+    private IDriverHeartbeatInfoService driverHeartbeatInfoService;
+
+    @Resource
+    private EcmpMessageService ecmpMessageService;
+
+
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
 
@@ -77,6 +88,8 @@ public class OrderController {
 
     @Value("${thirdService.apiUrl}")//三方平台的接口前地址
     private String apiUrl;
+    @Value("${order.shareUrl}")//行程分享的详情路径
+    private String shareUrl;
 
     /**
      * 初始化订单-创建订单
@@ -208,13 +221,18 @@ public class OrderController {
      * 改变订单的状态为  约车中
      * 需要留一个终止循环派单的 开关
      *
-     * @param orderDto 行程申请信息
+     * @param callTaxiDto 行程申请信息
      * @return
      */
     @ApiOperation(value = "letPlatCallTaxi", notes = "自动约车-向网约车平台发起约车请求 改变订单的状态为  约车中-->已派单", httpMethod = "POST")
     @PostMapping("/letPlatCallTaxi")
     public ApiResponse letPlatCallTaxi(@RequestBody CallTaxiDto callTaxiDto) {
         try {
+            //获取调用接口的用户信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+
             Long orderId = callTaxiDto.getOrderId();
             OrderInfo orderInfo = new OrderInfo();
             orderInfo.setOrderId(orderId);
@@ -223,7 +241,7 @@ public class OrderController {
             if (i != 1) {
                 throw new Exception("约车失败");
             }
-            iOrderInfoService.platCallTaxi(callTaxiDto,enterpriseId,licenseContent,apiUrl);
+            iOrderInfoService.platCallTaxi(callTaxiDto,enterpriseId,licenseContent,apiUrl,String.valueOf(userId));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.success(e.getMessage());
@@ -339,6 +357,8 @@ public class OrderController {
             String useCarMode = orderInfoOld.getUseCarMode();
             String state = orderInfoOld.getState();
             Long orderId = orderInfoOld.getOrderId();
+            //消息发送使用
+            Long driverId = orderInfoOld.getDriverId();
             //状态为约到车未服务的状态，用车方式为网约车，调用三方取消订单接口
             if (OrderState.getContractedCar().contains(state) && useCarMode.equals(CarConstant.USR_CARD_MODE_NET)) {
                 //TODO 调用网约车的取消订单接口
@@ -357,13 +377,26 @@ public class OrderController {
                 }
             }
             OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setState(OrderState.ORDERCANCEL.getState());
+            orderInfo.setState(OrderState.ORDERCLOSE.getState());
             orderInfo.setCancelReason(orderDto.getCancelReason());
             orderInfo.setUpdateBy(String.valueOf(userId));
             int suc = iOrderInfoService.updateOrderInfo(orderInfo);
             //自有车，且状态变更成功
             if (suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)) {
                 //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
+                EcmpMessage ecmpMessage = new EcmpMessage();
+                ecmpMessage.setConfigType(2);
+                ecmpMessage.setEcmpId(driverId);
+                ecmpMessage.setType("T001");
+                ecmpMessage.setStatus("0000");
+                ecmpMessage.setContent("");
+                ecmpMessage.setCategory("M005");
+                ecmpMessage.setUrl("");
+                ecmpMessage.setCreateBy(userId);
+                ecmpMessage.setCreateTime(DateUtils.getNowDate());
+                ecmpMessage.setUpdateBy(null);
+                ecmpMessage.setUpdateTime(null);
+                ecmpMessageService.insert(ecmpMessage);
             }
             //插入订单轨迹表
             iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderStateTrace.CANCEL.getState(), String.valueOf(userId));
@@ -419,7 +452,7 @@ public class OrderController {
     /**
      * 获取等待调度的订单详细信息(包含待改派的)
      *
-     * @param orderDto 订单信息
+     * @param orderId 订单信息
      * @return
      */
     @ApiOperation(value = "getWaitDispatchOrderDetailInfo", notes = "获取等待调度的订单详细信息", httpMethod = "POST")
@@ -689,9 +722,36 @@ public class OrderController {
      **/
     @ApiOperation(value = "获取订单状态",httpMethod = "POST")
     @RequestMapping("/getOrderState")
+    @Transactional
     public ApiResponse<OrderStateVO> getOrderState(@RequestBody OrderDto orderDto){
         try {
             OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderDto.getOrderId());
+            if (CarConstant.USR_CARD_MODE_HAVE.equals(orderVO.getUseCarMode())){//自有车
+                DriverHeartbeatInfo driverHeartbeatInfo = driverHeartbeatInfoService.findNowLocation(orderVO.getDriverId(), orderDto.getOrderId());
+                String latitude=driverHeartbeatInfo.getLatitude().stripTrailingZeros().toPlainString();
+                String longitude=driverHeartbeatInfo.getLongitude().stripTrailingZeros().toPlainString();
+                orderVO.setDriverLongitude(longitude);
+                orderVO.setDriverLatitude(latitude);
+            }else{
+                JSONObject taxiOrderState = iOrderInfoService.getTaxiOrderState(orderDto.getOrderId(), enterpriseId, licenseContent, MacTools.getMacList().get(0), apiUrl);
+                if(!"0".equals(taxiOrderState.getString("code"))){
+                    throw new Exception("获取网约车状态失败");
+                }
+                //判断状态,如果约到车修改状态为已派单
+                JSONObject data = taxiOrderState.getJSONObject("data");
+                String status = data.getString("status");
+                if(!status.equals(orderVO.getState())){
+                    int j = iOrderInfoService.updateOrderInfo(new OrderInfo(orderDto.getOrderId(),status));
+                    //TODO 远端暂时未返回网约车坐标
+                    iOrderStateTraceInfoService.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderDto.getOrderId(),status,null,null));
+                    if (OrderState.ORDERCLOSE.getState().equals(status)||OrderState.DISSENT.getState().equals(status)||OrderState.STOPSERVICE.getState().equals(status)) {//订单关闭
+                        //TODO 调财务结算模块
+                    }
+                }
+                orderVO.setState(status);
+                orderVO.setDriverLatitude(null);
+                orderVO.setDriverLongitude(null);
+            }
             return ApiResponse.success(orderVO);
         }catch (Exception e){
             e.printStackTrace();
@@ -731,6 +791,29 @@ public class OrderController {
         try {
             String res = iOrderInfoService.orderHint(orderDto.getOrderId());
             return ApiResponse.success("获取成功",res);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("获取提示语异常!");
+        }
+    }
+
+    /**
+     *   @author caobj
+     *   @Description 轮询获取提示语
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "行程分享",httpMethod = "POST")
+    @RequestMapping("/orderShare")
+    public ApiResponse<String> orderShare(@RequestBody OrderDto orderDto){
+        String url=shareUrl;
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            String param="orderId="+orderDto.getOrderId()+"&userId="+userId+"&flag=share";
+            return ApiResponse.success("分享成功",URLEncoder.encode(url+param, "UTF-8"));
         }catch (Exception e){
             e.printStackTrace();
             return  ApiResponse.error("获取提示语异常!");

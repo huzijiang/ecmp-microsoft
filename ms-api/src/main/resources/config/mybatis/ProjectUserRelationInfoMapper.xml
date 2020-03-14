@@ -57,4 +57,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+
+    <!--手动编写sql start-->
+    <insert id="insertProjectList" parameterType="java.util.List">
+        insert into project_user_relation_info(project_id,user_id)  values
+        <foreach collection ="list" item="item" index= "index" separator =",">
+            (#{item.projectId},#{item.userId})
+        </foreach>
+    </insert>
 </mapper>
