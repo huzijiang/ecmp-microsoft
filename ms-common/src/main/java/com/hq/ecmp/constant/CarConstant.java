@@ -1,9 +1,9 @@
 package com.hq.ecmp.constant;
 
 public interface CarConstant {
-    String USE_CAR_TYPE_OFFICIAL="A001";//公务
+    String USE_CAR_TYPE_OFFICIAL="T001";//公务
 	
-	String USE_CAR_TYPE_TRAVEL="A002";//差旅
+	String USE_CAR_TYPE_TRAVEL="T002";//差旅
 	
 	String NOT_USER_USE_CAR="U000";//未使用
 	
