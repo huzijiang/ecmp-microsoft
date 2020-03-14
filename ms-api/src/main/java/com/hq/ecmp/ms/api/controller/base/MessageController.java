@@ -1,11 +1,16 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.exception.BaseException;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.MsgStatusConstant;
+import com.hq.ecmp.constant.MsgTypeConstant;
+import com.hq.ecmp.constant.MsgUserConstant;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.mscore.domain.DriverInfo;
+import com.hq.ecmp.mscore.domain.EcmpMessage;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.service.*;
@@ -13,6 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,6 +52,9 @@ public class MessageController {
 	private IApplyApproveResultInfoService approveResultInfoService;
 	@Autowired
 	private IDriverInfoService driverInfoService;
+
+	@Autowired
+    private EcmpMessageService ecmpMessageService;
 	
 	/**
 	 * 获取首页轮播正在进行中流程通知(乘客端)
@@ -134,4 +143,48 @@ public class MessageController {
 		}
 		return ApiResponse.success(list);
 	}
+
+    /**
+     * 根据身份获取消息列表
+     */
+    @ApiOperation(value = "getMessagesList", notes = "根据身份获取消息列表", httpMethod ="POST")
+    @PostMapping("/getMessagesList")
+    public ApiResponse<List<EcmpMessage>> getMessagesList(String identity) {
+        //获取登录用户
+        List<EcmpMessage> list = ecmpMessageService.selectMessageList(identity);
+
+        return ApiResponse.success(list);
+    }
+
+    /**
+     * 更改消息状态为以读
+     */
+    @ApiOperation(value = "updateMessagesStatus", notes = "获取消息列表", httpMethod ="POST")
+    @PostMapping("/updateMessagesStatus")
+    public ApiResponse<List<EcmpMessage>> updateMessagesStatus(Long msgId) {
+        EcmpMessage ecmpMessage = EcmpMessage.builder().id(msgId).status(MsgStatusConstant.MESSAGE_STATUS_T001.getType()).build();
+        ecmpMessageService.update(ecmpMessage);
+        return ApiResponse.success();
+    }
+
+    /**
+     * 获取消息详情
+     */
+    @ApiOperation(value = "getMessages", notes = "获取消息详情", httpMethod ="POST")
+    @PostMapping("/getMessages")
+    public ApiResponse getMessagesList(Long msgId) {
+        EcmpMessage msg = ecmpMessageService.queryById(msgId);
+        return ApiResponse.success(msg);
+    }
+
+    /**
+     * 根据未读消息条数
+     */
+    @ApiOperation(value = "getMessagesCount", notes = "根据未读消息条数", httpMethod ="POST")
+    @PostMapping("/getMessagesCount")
+    public ApiResponse getMessagesCount(String identity) {
+        //获取登录用户
+        int count = ecmpMessageService.getMessagesCount(identity);
+        return ApiResponse.success(count);
+    }
 }
