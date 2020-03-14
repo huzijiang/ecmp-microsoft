@@ -36,13 +36,19 @@ public class RegimePo {
 	
     String allowTime;//用车时间段
 	
-	String allowDate;//可用日期  年月日
+	String allowDate;//可用日期  年月日     不限制    0-0         限制2019.12.12-2019.12.31
 	
-	String allowCity;//可用城市
 	
 	String setoutEqualArrive;//同城限制   yes  相等          no  不相等
 	
+	/**
+	 * C001：不限
+	C002：限制可用城市
+	C003：限制不可用城市
+	 */
+	String   cityLimitType;//城市限制类型
 	
+	List<Long> cityLimitIds;//限制城市的编号编号
 	
 	
 	/**
