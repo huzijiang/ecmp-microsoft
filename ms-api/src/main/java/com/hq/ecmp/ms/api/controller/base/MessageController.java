@@ -2,18 +2,17 @@ package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
+import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.MsgStatusConstant;
-import com.hq.ecmp.constant.MsgTypeConstant;
-import com.hq.ecmp.constant.MsgUserConstant;
-import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.EcmpMessage;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.EcmpMessageVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -149,11 +148,21 @@ public class MessageController {
      */
     @ApiOperation(value = "getMessagesList", notes = "根据身份获取消息列表", httpMethod ="POST")
     @PostMapping("/getMessagesList")
-    public ApiResponse<List<EcmpMessage>> getMessagesList(String identity) {
+    public ApiResponse<List<EcmpMessageVO>> getMessagesList(String identity) {
         //获取登录用户
         List<EcmpMessage> list = ecmpMessageService.selectMessageList(identity);
-
-        return ApiResponse.success(list);
+        List<EcmpMessageVO> msgList = new ArrayList<>();
+        for (EcmpMessage ecmpMessage : list) {
+            msgList.add(EcmpMessageVO.builder()
+                    .id(ecmpMessage.getId())
+                    .title(MsgConstant.getDespByType(ecmpMessage.getCategory()))
+                    .url(ecmpMessage.getUrl())
+                    .status(ecmpMessage.getStatus())
+                    .content(ecmpMessage.getContent())
+                    .time(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,ecmpMessage.getUpdateTime()))
+                    .build());
+        }
+        return ApiResponse.success(msgList);
     }
 
     /**
