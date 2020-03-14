@@ -3,6 +3,7 @@ package com.hq.ecmp.ms.api.controller.order;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
@@ -74,6 +75,10 @@ public class OrderController {
 
     @Autowired
     private IDriverHeartbeatInfoService driverHeartbeatInfoService;
+
+    @Resource
+    private EcmpMessageService ecmpMessageService;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -352,6 +357,8 @@ public class OrderController {
             String useCarMode = orderInfoOld.getUseCarMode();
             String state = orderInfoOld.getState();
             Long orderId = orderInfoOld.getOrderId();
+            //消息发送使用
+            Long driverId = orderInfoOld.getDriverId();
             //状态为约到车未服务的状态，用车方式为网约车，调用三方取消订单接口
             if (OrderState.getContractedCar().contains(state) && useCarMode.equals(CarConstant.USR_CARD_MODE_NET)) {
                 //TODO 调用网约车的取消订单接口
@@ -377,6 +384,19 @@ public class OrderController {
             //自有车，且状态变更成功
             if (suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)) {
                 //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
+                EcmpMessage ecmpMessage = new EcmpMessage();
+                ecmpMessage.setConfigType(2);
+                ecmpMessage.setEcmpId(driverId);
+                ecmpMessage.setType("T001");
+                ecmpMessage.setStatus("0000");
+                ecmpMessage.setContent("");
+                ecmpMessage.setCategory("M005");
+                ecmpMessage.setUrl("");
+                ecmpMessage.setCreateBy(userId);
+                ecmpMessage.setCreateTime(DateUtils.getNowDate());
+                ecmpMessage.setUpdateBy(null);
+                ecmpMessage.setUpdateTime(null);
+                ecmpMessageService.insert(ecmpMessage);
             }
             //插入订单轨迹表
             iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderStateTrace.CANCEL.getState(), String.valueOf(userId));

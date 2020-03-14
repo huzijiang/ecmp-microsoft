@@ -15,8 +15,10 @@ import lombok.Data;
 @ApiModel(value = "订单详情model")
 public class OrderDetailBackDto extends OrderListBackDto {
 
+    @ApiModelProperty(value = "部门名称")
+    private String  deptName;
     @ApiModelProperty(value = "用车制度")
-    private String useCarRegime;
+    private String regimenName;
     @ApiModelProperty(value = "司机名字")
     private String driverName;
     @ApiModelProperty(value = "司机电话")
@@ -36,6 +38,7 @@ public class OrderDetailBackDto extends OrderListBackDto {
     private String planningArriveTime;
     @ApiModelProperty(value ="计划下车地点")
     private String planningArriveAddress;
+
 
     @ApiModelProperty(value ="车辆级别")
     private String carLevel;

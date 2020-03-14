@@ -28,9 +28,6 @@ public class OrderBackController {
     private IOrderInfoService iOrderInfoService;
 
     @ApiOperation(value = "订单列表查询")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "token", value = "token", required = true, paramType = "header", dataType = "String")
-    })
     @PostMapping(value = "/getOrderList")
     public ApiResponse<List<OrderListBackDto>> getOrderList(@RequestBody  OrderListBackDto orderListBackDto){
         List<OrderListBackDto> orderListBackDtos;
@@ -44,9 +41,18 @@ public class OrderBackController {
     }
 
     @ApiOperation(value = "订单详情查询")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "orderNo", value = "orderNo", required = true, paramType = "query", dataType = "String")
+    })
     @PostMapping("/getOrderListDetail")
-    public ApiResponse<OrderDetailBackDto> getOrderListDetail(@RequestParam("orderNo") String orderNo){
-
-        return null;
+    public ApiResponse<OrderDetailBackDto> getOrderListDetail(@RequestParam("orderNo") String orderNo) {
+        OrderDetailBackDto orderListDetail = null;
+        try {
+            orderListDetail = iOrderInfoService.getOrderListDetail(orderNo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error();
+        }
+        return ApiResponse.success(orderListDetail);
     }
 }

@@ -668,7 +668,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     public OrderDetailBackDto getOrderListDetail(String orderNo) {
-        return null;
+        return orderInfoMapper.getOrderListDetail(orderNo);
     }
 
     @Override
