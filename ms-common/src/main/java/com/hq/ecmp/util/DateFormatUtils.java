@@ -39,6 +39,7 @@ public class DateFormatUtils {
     public static final String DATE_TIME_FORMAT_EN = "yyyy/MM/dd HH:mm:ss";
 
     public static final String DATE_TIME_FORMAT_CN = "yyyy年MM月dd日 HH:mm";
+    public static final String DATE_TIME_FORMAT_CN_3 = "MM月dd日 HH:mm";
 
     public static final String DATE_TIME_FORMAT_CN_1 = "yyyy年MM月dd日 HH时mm分";
 

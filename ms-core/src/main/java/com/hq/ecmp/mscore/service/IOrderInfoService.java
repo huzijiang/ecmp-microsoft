@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
@@ -188,5 +189,7 @@ public interface IOrderInfoService {
      * @param orderNo
      */
     void getOrderListDetail(String orderNo);
+    //查询网约车状态
+    JSONObject getTaxiOrderState(Long orderId, String enterpriseId, String licenseContent, String macAdd,String apiUrl)throws Exception;
 }
 

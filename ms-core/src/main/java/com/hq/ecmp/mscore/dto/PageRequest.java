@@ -17,4 +17,6 @@ public class PageRequest {
     private Integer day;
     //搜索字段
     private String search;
+
+    private Long fatherProjectId;
 }

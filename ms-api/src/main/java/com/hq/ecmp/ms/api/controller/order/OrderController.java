@@ -26,7 +26,9 @@ import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -69,6 +71,9 @@ public class OrderController {
 
     @Resource
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
+
+    @Autowired
+    private IDriverHeartbeatInfoService driverHeartbeatInfoService;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -427,7 +432,7 @@ public class OrderController {
     /**
      * 获取等待调度的订单详细信息(包含待改派的)
      *
-     * @param orderDto 订单信息
+     * @param orderId 订单信息
      * @return
      */
     @ApiOperation(value = "getWaitDispatchOrderDetailInfo", notes = "获取等待调度的订单详细信息", httpMethod = "POST")
@@ -697,9 +702,36 @@ public class OrderController {
      **/
     @ApiOperation(value = "获取订单状态",httpMethod = "POST")
     @RequestMapping("/getOrderState")
+    @Transactional
     public ApiResponse<OrderStateVO> getOrderState(@RequestBody OrderDto orderDto){
         try {
             OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderDto.getOrderId());
+            if (CarConstant.USR_CARD_MODE_HAVE.equals(orderVO.getUseCarMode())){//自有车
+                DriverHeartbeatInfo driverHeartbeatInfo = driverHeartbeatInfoService.findNowLocation(orderVO.getDriverId(), orderDto.getOrderId());
+                String latitude=driverHeartbeatInfo.getLatitude().stripTrailingZeros().toPlainString();
+                String longitude=driverHeartbeatInfo.getLongitude().stripTrailingZeros().toPlainString();
+                orderVO.setDriverLongitude(longitude);
+                orderVO.setDriverLatitude(latitude);
+            }else{
+                JSONObject taxiOrderState = iOrderInfoService.getTaxiOrderState(orderDto.getOrderId(), enterpriseId, licenseContent, MacTools.getMacList().get(0), apiUrl);
+                if(!"0".equals(taxiOrderState.getString("code"))){
+                    throw new Exception("获取网约车状态失败");
+                }
+                //判断状态,如果约到车修改状态为已派单
+                JSONObject data = taxiOrderState.getJSONObject("data");
+                String status = data.getString("status");
+                if(!status.equals(orderVO.getState())){
+                    int j = iOrderInfoService.updateOrderInfo(new OrderInfo(orderDto.getOrderId(),status));
+                    //TODO 远端暂时未返回网约车坐标
+                    iOrderStateTraceInfoService.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderDto.getOrderId(),status,null,null));
+                    if (OrderState.ORDERCLOSE.getState().equals(status)||OrderState.DISSENT.getState().equals(status)||OrderState.STOPSERVICE.getState().equals(status)) {//订单关闭
+                        //TODO 调财务结算模块
+                    }
+                }
+                orderVO.setState(status);
+                orderVO.setDriverLatitude(null);
+                orderVO.setDriverLongitude(null);
+            }
             return ApiResponse.success(orderVO);
         }catch (Exception e){
             e.printStackTrace();

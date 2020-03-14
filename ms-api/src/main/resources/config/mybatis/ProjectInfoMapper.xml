@@ -12,6 +12,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="fatherProjectId"    column="father_project_id"    />
         <result property="startDate"    column="start_date"    />
         <result property="closeDate"    column="close_date"    />
+        <result property="isAllUserUse"    column="is_all_user_use"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -19,7 +20,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectProjectInfoVo">
-        select project_id, name, leader, project_code,father_project_id, start_date, close_date, create_by, create_time, update_by, update_time from project_info
+        select project_id, name, leader, project_code,father_project_id, start_date, close_date, create_by, create_time, update_by, update_time,is_all_user_use from project_info
     </sql>
 
     <select id="selectProjectInfoList" parameterType="com.hq.ecmp.mscore.domain.ProjectInfo" resultMap="ProjectInfoResult">
@@ -29,6 +30,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="leader != null "> and leader = #{leader}</if>
             <if test="projectCode != null  and projectCode != ''"> and project_code = #{projectCode}</if>
             <if test="fatherProjectId != null  and fatherProjectId != ''"> and father_project_id = #{fatherProjectId}</if>
+            <if test="isAllUserUse != null  and isAllUserUse != ''"> and is_all_user_use = #{isAllUserUse}</if>
             <if test="startDate != null  and startDate != ''"> and start_date = #{startDate}</if>
             <if test="closeDate != null  and closeDate != ''"> and close_date = #{closeDate}</if>
         </where>
@@ -39,7 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where project_id = #{projectId}
     </select>
 
-    <insert id="insertProjectInfo" parameterType="com.hq.ecmp.mscore.domain.ProjectInfo">
+    <insert id="insertProjectInfo" parameterType="com.hq.ecmp.mscore.domain.ProjectInfo" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
         insert into project_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="projectId != null ">project_id,</if>
@@ -49,6 +51,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fatherProjectId != null  and fatherProjectId != ''">father_project_id,</if>
             <if test="startDate != null  and startDate != ''">start_date,</if>
             <if test="closeDate != null  and closeDate != ''">close_date,</if>
+            <if test="isAllUserUse != null ">is_all_user_use,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -62,6 +65,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fatherProjectId != null  and fatherProjectId != ''">#{fatherProjectId},</if>
             <if test="startDate != null  and startDate != ''">#{startDate},</if>
             <if test="closeDate != null  and closeDate != ''">#{closeDate},</if>
+            <if test="isAllUserUse != null ">#{isAllUserUse},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -78,6 +82,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fatherProjectId != null  and fatherProjectId != ''">father_project_id = #{fatherProjectId},</if>
             <if test="startDate != null  and startDate != ''">start_date = #{startDate},</if>
             <if test="closeDate != null  and closeDate != ''">close_date = #{closeDate},</if>
+            <if test="isAllUserUse != null">is_all_user_use = #{isAllUserUse},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -106,4 +111,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
     </select>
 
+    <select id="getProjectList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ProjectInfoVO">
+        select project_id, name, leader, project_code,father_project_id, start_date, close_date,
+        (select project_id from project_user_relation_info where project_id=a.project_id) userCount
+        from  project_info a
+        <where>
+            <if test="fatherProjectId!=null">
+                father_project_id=#{fatherProjectId}
+            </if>
+        </where>
+    </select>
 </mapper>

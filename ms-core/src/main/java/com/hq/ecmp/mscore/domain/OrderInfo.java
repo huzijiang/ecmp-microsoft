@@ -118,6 +118,11 @@ public class OrderInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String actualSetoutAddressLo;
 
+    public OrderInfo(Long orderId, String state) {
+        this.orderId = orderId;
+        this.state = state;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

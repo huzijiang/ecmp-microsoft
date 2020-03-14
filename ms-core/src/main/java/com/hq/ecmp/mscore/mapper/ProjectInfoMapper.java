@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ProjectInfo;
+import com.hq.ecmp.mscore.vo.ProjectInfoVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -67,4 +68,6 @@ public interface ProjectInfoMapper
      * @return
      */
     List<ProjectInfo> getListByUserId(@Param("userId") Long userId,@Param("projectName") String projectName);
+
+    List<ProjectInfoVO> getProjectList(Long fatherProjectId);
 }

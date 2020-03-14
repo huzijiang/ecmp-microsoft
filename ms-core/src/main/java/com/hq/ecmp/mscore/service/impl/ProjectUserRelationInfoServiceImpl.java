@@ -91,4 +91,9 @@ public class ProjectUserRelationInfoServiceImpl implements IProjectUserRelationI
     {
         return projectUserRelationInfoMapper.deleteProjectUserRelationInfoById(projectId);
     }
+
+    @Override
+    public int insertProjectList(List<ProjectUserRelationInfo> list) {
+       return projectUserRelationInfoMapper.insertProjectList(list);
+    }
 }
