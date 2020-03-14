@@ -1,9 +1,7 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
-import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
@@ -22,12 +20,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.ServletRequestDataBinder;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.swing.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -98,15 +93,16 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "applyOfficialCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
     @PostMapping("/applyOfficialCommit")
-    public ApiResponse   applyOfficialCommit(@RequestBody ApplyOfficialRequest officialCommitApply){
+    public ApiResponse<ApplyVO>   applyOfficialCommit(@RequestBody ApplyOfficialRequest officialCommitApply){
         //提交公务行程申请
+        ApplyVO applyVO = null;
         try {
-            applyInfoService.applyOfficialCommit(officialCommitApply);
+            applyVO = applyInfoService.applyOfficialCommit(officialCommitApply);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("提交公务申请失败");
         }
-        return ApiResponse.success("提交申请成功");
+        return ApiResponse.success("提交申请成功",applyVO);
     }
 
     /**
@@ -117,15 +113,17 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "applyTravelCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
     @PostMapping("/applyTravelCommit")
-    public ApiResponse  applyTravelCommit(@RequestBody ApplyTravelRequest travelCommitApply){
+    public ApiResponse<ApplyVO>  applyTravelCommit(@RequestBody ApplyTravelRequest travelCommitApply){
         //提交差旅行程申请
+        ApplyVO applyVO = null;
         try {
-            applyInfoService.applytravliCommit(travelCommitApply);
+            applyVO = applyInfoService.applytravliCommit(travelCommitApply);
+
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("提交差旅申请失败");
         }
-        return ApiResponse.success("提交申请成功");
+        return ApiResponse.success("提交申请成功",applyVO);
     }
 
     /**

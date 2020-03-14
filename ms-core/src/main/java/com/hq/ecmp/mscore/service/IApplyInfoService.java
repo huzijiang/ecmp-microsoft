@@ -5,6 +5,7 @@ import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.vo.ApplyDetailVO;
+import com.hq.ecmp.mscore.vo.ApplyVO;
 import com.hq.ecmp.mscore.vo.ApprovaReesultVO;
 
 import java.util.List;
@@ -75,13 +76,13 @@ public interface IApplyInfoService
      * 提交公务行程申请
      * @param officialCommitApply
      */
-    void applyOfficialCommit(ApplyOfficialRequest officialCommitApply);
+    ApplyVO applyOfficialCommit(ApplyOfficialRequest officialCommitApply);
 
     /**
      * 提交差旅行程申请
      * @param travelCommitApply
      */
-    void applytravliCommit(ApplyTravelRequest travelCommitApply);
+    ApplyVO applytravliCommit(ApplyTravelRequest travelCommitApply);
 
     /**
      *

@@ -87,6 +87,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cityName != null  and cityName != ''">city_name = #{cityName},</if>
             <if test="ownerOrg != null ">owner_org = #{ownerOrg},</if>
             <if test="leader != null ">leader = #{leader},</if>
+            <if test="state != null ">state = #{state},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>

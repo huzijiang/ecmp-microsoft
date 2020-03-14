@@ -6,8 +6,6 @@ import java.util.*;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
@@ -24,16 +22,12 @@ import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -158,7 +152,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      */
     @Override
     @Transactional
-    public void applytravliCommit(ApplyTravelRequest travelCommitApply) {
+    public ApplyVO applytravliCommit(ApplyTravelRequest travelCommitApply) {
         //1.保存乘客行程信息 journey_info表
         JourneyInfo journeyInfo = new JourneyInfo();
         //提交差旅行程表信息
@@ -168,6 +162,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.保存申请信息 apply_info表
         ApplyInfo applyInfo = new ApplyInfo();
         applyInfoTravelCommit(travelCommitApply, journeyId, applyInfo);
+        Long applyId = applyInfo.getApplyId();
+
+        ApplyVO applyVO = ApplyVO.builder().journeyId(journeyId).applyId(applyId).build();
 
         //3.保存行程节点信息(差旅相关) journey_node_info表
         JourneyNodeInfo journeyNodeInfo = null;
@@ -232,6 +229,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         // 提交差旅乘客信息表
         journeyPassengerInfoCommit(travelCommitApply, journeyId, journeyPassengerInfo);
 
+        return applyVO;
     }
 
     /**
@@ -670,7 +668,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      */
     @Override
     @Transactional
-    public void applyOfficialCommit(ApplyOfficialRequest officialCommitApply) {
+    public ApplyVO applyOfficialCommit(ApplyOfficialRequest officialCommitApply) {
 
         //1.保存乘客行程信息 journey_info表
         JourneyInfo journeyInfo = new JourneyInfo();
@@ -682,6 +680,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         ApplyInfo applyInfo = new ApplyInfo();
         //提交公务申请表信息
         applyInfoOfficialCommit(officialCommitApply, journeyId, applyInfo);
+        Long applyId = applyInfo.getApplyId();
+
+        ApplyVO applyVO = ApplyVO.builder().applyId(applyId).journeyId(journeyId).build();
 
         //复制参数对象
         ApplyOfficialRequest applyOfficialRequest = ApplyOfficialRequest.builder().
@@ -797,6 +798,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //4.保存行程乘客信息 journey_passenger_info表
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
         journeyPassergerOfficialCommit(officialCommitApply, journeyId, journeyPassengerInfo);
+
+        return applyVO;
     }
 
     /**
