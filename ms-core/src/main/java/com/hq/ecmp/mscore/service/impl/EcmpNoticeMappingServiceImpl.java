@@ -74,7 +74,7 @@ public class EcmpNoticeMappingServiceImpl implements EcmpNoticeMappingService {
      * @return 是否成功
      */
     @Override
-    public boolean deleteById( ) {
-        return this.ecmpNoticeMappingDao.deleteById() > 0;
+    public boolean deleteById(Long id) {
+        return this.ecmpNoticeMappingDao.deleteById(id) > 0;
     }
 }

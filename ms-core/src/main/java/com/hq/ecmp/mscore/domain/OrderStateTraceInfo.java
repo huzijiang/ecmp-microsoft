@@ -93,6 +93,16 @@ public class OrderStateTraceInfo extends BaseEntity
         return content;
     }
 
+    public OrderStateTraceInfo() {
+    }
+
+    public OrderStateTraceInfo(Long orderId, String state, Long driverLongitude, Long driverLatitude) {
+        this.orderId = orderId;
+        this.state = state;
+        this.driverLongitude = driverLongitude;
+        this.driverLatitude = driverLatitude;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

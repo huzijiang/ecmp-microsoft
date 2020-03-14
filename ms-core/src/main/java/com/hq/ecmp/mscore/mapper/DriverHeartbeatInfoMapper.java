@@ -59,4 +59,6 @@ public interface DriverHeartbeatInfoMapper
      * @return 结果
      */
     public int deleteDriverHeartbeatInfoByIds(Long[] heartIds);
+
+    DriverHeartbeatInfo findNowLocation(Long driverId, Long orderId);
 }

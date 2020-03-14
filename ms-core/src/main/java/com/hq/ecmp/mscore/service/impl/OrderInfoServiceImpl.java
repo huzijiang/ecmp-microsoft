@@ -314,7 +314,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             return null;
         }
         JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
-        vo.setUseCarTime(nodeInfo.getPlanSetoutTime());
+        Date useCarTime=orderInfo.getActualSetoutTime();
+        if (useCarTime==null){
+            useCarTime=nodeInfo.getPlanSetoutTime();
+        }
+        vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,useCarTime));
         BeanUtils.copyProperties(orderInfo,vo);
         if (OrderState.SENDINGCARS.getState().equals(orderInfo.getState())){
             vo.setHint(HintEnum.CALLINGCAR.join(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,nodeInfo.getPlanSetoutTime())));
@@ -665,5 +669,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public OrderDetailBackDto getOrderListDetail(String orderNo) {
         return null;
+    }
+
+    @Override
+    public JSONObject getTaxiOrderState(Long orderId,String enterpriseId,String licenseContent,String macAdd,String apiUrl) throws  Exception{
+        Map<String,String> queryOrderStateMap = new HashMap<>();
+        queryOrderStateMap.put("enterpriseId", enterpriseId);
+        queryOrderStateMap.put("licenseContent", licenseContent);
+        queryOrderStateMap.put("mac", macAdd);
+        queryOrderStateMap.put("enterpriseOrderId",orderId+"");
+        queryOrderStateMap.put("status",OrderState.SENDINGCARS.getState());
+        String resultQuery = OkHttpUtil.postJson(apiUrl + "/service/getOrderState", queryOrderStateMap);
+        JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
+        return jsonObjectQuery;
     }
 }

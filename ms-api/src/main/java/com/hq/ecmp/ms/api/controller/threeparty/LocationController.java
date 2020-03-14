@@ -19,6 +19,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,8 +30,8 @@ import java.util.*;
 @RequestMapping("/location")
 public class LocationController {
 
-	String enterpriseId;
-	String licenseContent;
+	String enterpriseId="10000";
+	String licenseContent="AAAAAAAA";
 	@Resource
 	private IOrderInfoService orderInfoService;
 	@Resource
@@ -49,45 +50,21 @@ public class LocationController {
 
 	    @ApiOperation(value = "queryAddress",notes = "司机获取乘客/司机位置信息 ",httpMethod ="POST")
 	    @PostMapping("/queryAddress")
-	    public ApiResponse<LocationInfoVo> queryAddress(LocationDto locationDto){
+	    public ApiResponse<LocationInfoVo> queryAddress(@RequestBody LocationDto locationDto){
 			try{
-				Map<String,Object> formMap = new HashMap<>();
-				List<String> macList = MacTools.getMacList();
-				formMap.put("mac",macList.get(0));
-				formMap.put("enterpriseId",enterpriseId);
-				formMap.put("licenseContent",licenseContent);
-				String url = "/service/locateSearchByLongitudeAndLatitude";
 				OrderInfo orderInfo = orderInfoService.selectOrderInfoById(locationDto.getOrderId());
 				String latitude=null;
 				String longitude=null;
 				if (locationDto.getUserRole()==0){//司机
-					List<DriverHeartbeatInfo> driverHeartbeatInfos = driverHeartbeatInfoService.selectDriverHeartbeatInfoList(new DriverHeartbeatInfo(orderInfo.getDriverId(), orderInfo.getOrderId()));
-					if (CollectionUtils.isEmpty(driverHeartbeatInfos)){
-						return ApiResponse.error("获取司机位置超时");
-					}
-					Collections.sort(driverHeartbeatInfos, new Comparator<DriverHeartbeatInfo>() {
-						@Override
-						public int compare(DriverHeartbeatInfo o1, DriverHeartbeatInfo o2) {
-							long i = o2.getCreateTime().getTime()- o1.getCreateTime().getTime();
-							return (int)i;
-						}
-					});
-					latitude=driverHeartbeatInfos.get(0).getLatitude()+"";
-					longitude=driverHeartbeatInfos.get(0).getLongitude()+"";
+					DriverHeartbeatInfo driverHeartbeatInfo = driverHeartbeatInfoService.findNowLocation(orderInfo.getDriverId(), orderInfo.getOrderId());
+					latitude=driverHeartbeatInfo.getLatitude().stripTrailingZeros().toPlainString();
+					longitude=driverHeartbeatInfo.getLongitude().stripTrailingZeros().toPlainString();
+					return ApiResponse.success(new LocationInfoVo(latitude,longitude));
 				}else{
 					JourneyNodeInfo nodeInfo = journeyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
 					latitude=nodeInfo.getPlanBeginLatitude();
 					longitude=nodeInfo.getPlanBeginLongitude();
-				}
-				formMap.put("latitude",latitude);
-				formMap.put("longitude",longitude);
-				String  returnJson = OkHttpUtil.postJson(url,formMap);
-				ApiResponse<LocationInfoVo> result = JSONObject.parseObject(returnJson, new TypeToken<ApiResponse<LocationInfoVo>>() {
-				}.getType());
-				if(ApiResponse.SUCCESS_CODE ==result.getCode()){
-					return ApiResponse.success(result.getData());
-				}else {
-					return ApiResponse.error(result.getMsg());
+					return ApiResponse.success(new LocationInfoVo(nodeInfo.getPlanBeginLongAddress(),nodeInfo.getPlanBeginAddress(),latitude,longitude));
 				}
 			}catch (Exception e){
 				e.printStackTrace();
