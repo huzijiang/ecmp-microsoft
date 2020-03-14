@@ -133,7 +133,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 				CarAuthorityInfo carAuthorityInfo = new CarAuthorityInfo();
 				carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
 				//获取是差旅还是公务
-				RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
+				RegimeInfo regimeInfo = regimeInfoService.queryRegimeType(journeyInfo.getRegimenId());
 				if(null !=regimeInfo){
 					carAuthorityInfo.setType(regimeInfo.parseApplyType());
 					//公务用车时间
