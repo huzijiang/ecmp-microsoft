@@ -26,5 +26,26 @@ public final class CommonConstant {
     public static final String  PASS = "Y000";
     public static final String NO_PASS = "N111";
 
+    //标识是否往返
+    public static final String IS_RETURN = "Y000";
+    public static final String IS_NOT_RETURN = "N444";
+
+    //标识行程节点是否有效
+    //有效节点
+    public static final String VALID_NODE = "P000";
+    //无效节点
+    public static final String INVALID_NODE = "P444";
+
+    //是否是同行人
+    //00   是        01   否(即乘车人)
+    public static final String IS_PEER = "00";
+    public static final String IS_NOT_PEER = "01";
+
+    //公务申请
+    public static final String AFFICIAL_APPLY = "A001";
+    //差旅申请
+    public static final String TRAVLE_APPLY = "A002";
+
+
 
 }

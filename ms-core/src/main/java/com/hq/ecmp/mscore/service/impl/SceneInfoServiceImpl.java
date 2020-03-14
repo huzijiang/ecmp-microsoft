@@ -13,6 +13,7 @@ import com.hq.ecmp.mscore.domain.SceneInfo;
 import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.SceneDTO;
+import com.hq.ecmp.mscore.dto.SceneSortDTO;
 import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.mapper.SceneInfoMapper;
 import com.hq.ecmp.mscore.mapper.SceneRegimeRelationMapper;
@@ -172,10 +173,25 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         //得先解绑用车场景对应的用车制度 再删除用车场景
         //根据sceneId删除绑定的制度信息
         int i = sceneRegimeRelationMapper.deleteSceneRegimeRelationById(sceneId);
-        //删除用车场景
-        int i1 = sceneInfoMapper.deleteSceneInfoById(sceneId);
-        //再新增用车场景   TODO 此处调用新增场景方法   生效状态 那边默认为初始化为不生效 0 立即生效  1 不生效  待注意
-        saveScene(sceneDTO,userId);
+        //修改用车场景
+        SceneInfo sceneInfo = new SceneInfo();
+        sceneInfo.setName(sceneDTO.getName());
+        sceneInfo.setIcon(sceneDTO.getIcon());
+        sceneInfo.setSceneId(sceneId);
+        sceneInfo.setUpdateBy(String.valueOf(userId));
+        sceneInfo.setUpdateTime(new Date());
+        int i1 = sceneInfoMapper.updateSceneInfo(sceneInfo);
+        //再绑定用车制度
+        List<Long> regimenIds = sceneDTO.getRegimenIds();
+        SceneRegimeRelation sceneRegimeRelation = null;
+        for (Long regimenId : regimenIds) {
+            sceneRegimeRelation = new SceneRegimeRelation();
+            sceneRegimeRelation.setSceneId(sceneId);
+            sceneRegimeRelation.setRegimenId(regimenId);
+            sceneRegimeRelation.setUpdateBy(String.valueOf(userId));
+            sceneRegimeRelation.setUpdateTime(new Date());
+            sceneRegimeRelationMapper.insertSceneRegimeRelation(sceneRegimeRelation);
+        }
     }
 
     /**
@@ -209,7 +225,7 @@ public class SceneInfoServiceImpl implements ISceneInfoService
     }
 
     /**
-     * 分页查询场景列表
+     * 分页查询场景列表(带搜索功能)
      * @param pageRequest
      * @return
      */
@@ -217,7 +233,7 @@ public class SceneInfoServiceImpl implements ISceneInfoService
     public PageResult<SceneListVO> seleSceneByPage(PageRequest pageRequest) {
         //分页查询场景
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
-        List<SceneInfo> sceneInfos = sceneInfoMapper.selectAll();
+        List<SceneInfo> sceneInfos = sceneInfoMapper.selectAll(pageRequest.getSearch());
         //查询场景对应的用车制度
         ArrayList<SceneListVO> list = Lists.newArrayList();
         SceneListVO sceneListVO = null;
@@ -240,5 +256,28 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         //解析分页结果
         PageInfo<SceneInfo> info = new PageInfo<>(sceneInfos);
         return new PageResult<>(info.getTotal(),list);
+    }
+
+    /**
+     * 场景排序 上、下移
+     * @param sceneSortDTO
+     * @param userId
+     */
+    @Override
+    public void sortScene(SceneSortDTO sceneSortDTO, Long userId) {
+        //查询主场景
+        SceneInfo mainSceneInfo = sceneInfoMapper.selectSceneInfoById(sceneSortDTO.getMainSceneId());
+        //查询目标场景
+        SceneInfo targetSceneInfo = sceneInfoMapper.selectSceneInfoById(sceneSortDTO.getTargetSceneId());
+        //修改主场景
+        mainSceneInfo.setCreateBy(String.valueOf(userId));
+        mainSceneInfo.setSortNo(targetSceneInfo.getSortNo());
+        mainSceneInfo.setCreateTime(new Date());
+        sceneInfoMapper.updateSceneInfo(mainSceneInfo);
+        //修改目标场景
+        targetSceneInfo.setCreateTime(new Date());
+        targetSceneInfo.setSortNo(mainSceneInfo.getSortNo());
+        targetSceneInfo.setCreateBy(String.valueOf(userId));
+        sceneInfoMapper.updateSceneInfo(targetSceneInfo);
     }
 }

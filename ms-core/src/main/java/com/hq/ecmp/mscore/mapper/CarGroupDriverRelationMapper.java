@@ -59,4 +59,10 @@ public interface CarGroupDriverRelationMapper
      * @return 结果
      */
     public int deleteCarGroupDriverRelationByIds(Long[] driverIds);
+
+    /**
+     * 查询车队人数
+     * @return
+     */
+    int selectCountDriver(Long carGroupId);
 }
