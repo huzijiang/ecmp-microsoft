@@ -14,8 +14,13 @@ public class LocationInfoVo {
 	private String longitude;//经度
 	
 	public LocationInfoVo (){};
-	
-	public LocationInfoVo (String longAddress,String address,String latitude,String longitude){
+
+	public LocationInfoVo(String latitude, String longitude) {
+		this.latitude = latitude;
+		this.longitude = longitude;
+	}
+
+	public LocationInfoVo (String longAddress, String address, String latitude, String longitude){
 		this.longAddress=longAddress;
 		this.address=address;
 		this.latitude=latitude;

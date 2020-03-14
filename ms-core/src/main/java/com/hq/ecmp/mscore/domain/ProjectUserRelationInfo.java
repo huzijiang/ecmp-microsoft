@@ -42,6 +42,18 @@ public class ProjectUserRelationInfo extends BaseEntity
         return userId;
     }
 
+    public ProjectUserRelationInfo() {
+    }
+
+    public ProjectUserRelationInfo(Long projectId, Long userId) {
+        this.projectId = projectId;
+        this.userId = userId;
+    }
+
+    public ProjectUserRelationInfo(Long projectId) {
+        this.projectId = projectId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

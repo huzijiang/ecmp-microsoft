@@ -59,4 +59,6 @@ public interface ProjectUserRelationInfoMapper
      * @return 结果
      */
     public int deleteProjectUserRelationInfoByIds(Long[] projectIds);
+
+    int insertProjectList(List<ProjectUserRelationInfo> list);
 }

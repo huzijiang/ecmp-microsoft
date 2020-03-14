@@ -309,7 +309,7 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "getTravelApproval",notes = "获取审批详情",httpMethod ="POST")
     @PostMapping("/getTravelApproval")
-    public ApiResponse<TravelApprovalVO> getApplyApproveDetailInfo(JourneyApplyDto journeyApplyDto){
+    public ApiResponse<TravelApprovalVO> getApplyApproveDetailInfo(@RequestBody JourneyApplyDto journeyApplyDto){
         TravelApprovalVO vo=new TravelApprovalVO();
         ApplyDetailVO  applyDetailVO = applyInfoService.selectApplyDetail(journeyApplyDto.getApplyId());
         //查询审批流信息

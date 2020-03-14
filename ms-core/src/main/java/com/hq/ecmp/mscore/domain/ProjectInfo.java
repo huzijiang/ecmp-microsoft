@@ -29,6 +29,11 @@ public class ProjectInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String projectCode;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long fatherProjectId;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Integer isAllUserUse;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -91,6 +96,29 @@ public class ProjectInfo extends BaseEntity
     public String getCloseDate()
     {
         return closeDate;
+    }
+
+    public Long getFatherProjectId() {
+        return fatherProjectId;
+    }
+
+    public void setFatherProjectId(Long fatherProjectId) {
+        this.fatherProjectId = fatherProjectId;
+    }
+
+    public Integer getIsAllUserUse() {
+        return isAllUserUse;
+    }
+
+    public void setIsAllUserUse(Integer isAllUserUse) {
+        this.isAllUserUse = isAllUserUse;
+    }
+
+    public ProjectInfo() {
+    }
+
+    public ProjectInfo(String projectCode) {
+        this.projectCode = projectCode;
     }
 
     @Override

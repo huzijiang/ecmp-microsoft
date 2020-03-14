@@ -55,7 +55,7 @@ public class MessageController {
 
 	@Autowired
     private EcmpMessageService ecmpMessageService;
-	
+
 	/**
 	 * 获取首页轮播正在进行中流程通知(乘客端)
 	 * @param
@@ -187,4 +187,22 @@ public class MessageController {
         int count = ecmpMessageService.getMessagesCount(identity);
         return ApiResponse.success(count);
     }
+
+
+	/**
+	 * 获取未读消息数量(司机端)
+	 * @param
+	 * @return
+	 */
+	@ApiOperation(value = "getMessageUnreadCount", notes = "获取首页轮播正在进行中流程通知", httpMethod ="GET")
+	@GetMapping("/getMessageUnreadCount")
+	public ApiResponse<Integer> getMessageUnreadCount() {
+		//获取登录用户
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		Long userId = loginUser.getUser().getUserId();
+		//TODO 查消息表
+		return ApiResponse.success();
+	}
+
 }
