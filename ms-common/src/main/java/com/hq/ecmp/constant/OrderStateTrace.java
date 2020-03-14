@@ -12,7 +12,8 @@ public enum OrderStateTrace {
     SERVICEOVER("S699","服务结束"),
     ORDERCLOSE("S900","订单关闭"),
     OBJECTION("S901","订单异议"),
-    CANCEL("S911","订单取消")
+    CANCEL("S911","订单取消"),
+    ORDEROVERTIME("S921","订单超时")
     ;
 
 

@@ -215,6 +215,11 @@ public class OrderController {
     @PostMapping("/letPlatCallTaxi")
     public ApiResponse letPlatCallTaxi(@RequestBody CallTaxiDto callTaxiDto) {
         try {
+            //获取调用接口的用户信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+
             Long orderId = callTaxiDto.getOrderId();
             OrderInfo orderInfo = new OrderInfo();
             orderInfo.setOrderId(orderId);
@@ -223,7 +228,7 @@ public class OrderController {
             if (i != 1) {
                 throw new Exception("约车失败");
             }
-            iOrderInfoService.platCallTaxi(callTaxiDto,enterpriseId,licenseContent,apiUrl);
+            iOrderInfoService.platCallTaxi(callTaxiDto,enterpriseId,licenseContent,apiUrl,String.valueOf(userId));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.success(e.getMessage());
@@ -357,7 +362,7 @@ public class OrderController {
                 }
             }
             OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setState(OrderState.ORDERCANCEL.getState());
+            orderInfo.setState(OrderState.ORDERCLOSE.getState());
             orderInfo.setCancelReason(orderDto.getCancelReason());
             orderInfo.setUpdateBy(String.valueOf(userId));
             int suc = iOrderInfoService.updateOrderInfo(orderInfo);
