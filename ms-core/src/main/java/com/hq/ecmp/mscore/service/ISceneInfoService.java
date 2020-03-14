@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.SceneInfo;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.SceneDTO;
+import com.hq.ecmp.mscore.dto.SceneSortDTO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.SceneDetailVO;
 import com.hq.ecmp.mscore.vo.SceneListVO;
@@ -101,4 +102,11 @@ public interface ISceneInfoService
      * @return
      */
     PageResult<SceneListVO> seleSceneByPage(PageRequest pageRequest);
+
+    /**
+     * 场景排序 上、下移
+     * @param sceneSortDTO
+     * @param userId
+     */
+    void sortScene(SceneSortDTO sceneSortDTO, Long userId);
 }

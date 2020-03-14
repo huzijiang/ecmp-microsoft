@@ -8,7 +8,10 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
+import com.hq.ecmp.mscore.domain.EcmpNoticeMapping;
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.dto.EcmpNoticeDTO;
+import com.hq.ecmp.mscore.service.EcmpNoticeMappingService;
 import com.hq.ecmp.mscore.service.IEcmpNoticeService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import io.swagger.annotations.ApiOperation;
@@ -34,6 +37,8 @@ public class NoticeController {
     @Autowired
     private IEcmpNoticeService iEcmpNoticeService;
 
+    @Autowired
+    private EcmpNoticeMappingService ecmpNoticeMappingService;
     @Autowired
     TokenService tokenService;
 
@@ -107,5 +112,61 @@ public class NoticeController {
         EcmpNotice ecmpNotice = iEcmpNoticeService.selectExpirationDateNewNotice(userId);
         return ApiResponse.success(ecmpNotice);
     }
+
+    /**
+     * 新增公告信息
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "addNotice",notes = "新增公告信息",httpMethod ="POST")
+    @PostMapping("/addNotice")
+    public ApiResponse addNotice(EcmpNoticeDTO ecmpNoticeDTO){
+        EcmpNotice notice = new EcmpNotice();
+        notice.setNoticeTitle(ecmpNoticeDTO.getNoticeTitle());
+        notice.setNoticeContent(ecmpNoticeDTO.getNoticeContent());
+        notice.setPublishTime(ecmpNoticeDTO.getPublishTime());
+        notice.setEndTime(ecmpNoticeDTO.getEndTime());
+        notice.setStatus("0");
+        long noticeId = iEcmpNoticeService.insertEcmpNotice(notice);
+        EcmpNoticeMapping mapping = new EcmpNoticeMapping();
+        mapping.setConfigType(ecmpNoticeDTO.getConfigType());
+        mapping.setBucId(ecmpNoticeDTO.getBucId());
+        mapping.setStatus("0");
+        mapping.setNoticeId(noticeId);
+        ecmpNoticeMappingService.insert(mapping);
+        return ApiResponse.success();
+    }
+
+    /**
+     * 删除公告信息
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "deleteNotice",notes = "新增公告信息",httpMethod ="POST")
+    @PostMapping("/deleteNotice")
+    public ApiResponse deleteNotice(Integer noticeId){
+        iEcmpNoticeService.deleteEcmpNoticeById(noticeId);
+        return ApiResponse.success("删除成功");
+    }
+
+    /**
+     * 修改公告信息
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "updateNotice",notes = "新增公告信息",httpMethod ="POST")
+    @PostMapping("/updateNotice")
+    public ApiResponse updateNotice(EcmpNoticeDTO ecmpNoticeDTO){
+        EcmpNotice notice = new EcmpNotice();
+        notice.setNoticeTitle(ecmpNoticeDTO.getNoticeTitle());
+        notice.setNoticeContent(ecmpNoticeDTO.getNoticeContent());
+        notice.setPublishTime(ecmpNoticeDTO.getPublishTime());
+        notice.setEndTime(ecmpNoticeDTO.getEndTime());
+        notice.setNoticeId(ecmpNoticeDTO.getNoticeId());
+        notice.setStatus(ecmpNoticeDTO.getStatus());
+        iEcmpNoticeService.updateEcmpNotice(notice);
+        return ApiResponse.success("修改成功");
+    }
+
 
 }

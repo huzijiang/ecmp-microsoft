@@ -11,8 +11,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.ApplyStateConstant;
 import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.ApproveStateEnum;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
@@ -180,7 +182,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
         }
         //如果有往返，则创建返程节点。返程 出发地为最初目的地，返程目的地为最初出发地。返程开始时间为去程结束时间
-        if("Y000".equals(travelCommitApply.getIsGoBack())) {
+        if(CommonConstant.IS_RETURN.equals(travelCommitApply.getIsGoBack())) {
             ApplyTravelRequest applyTravelRequest = ApplyTravelRequest.builder().applyType(travelCommitApply.getApplyType())
                     .applyUser(travelCommitApply.getApplyUser())
                     .approvers(travelCommitApply.getApprovers())
@@ -314,7 +316,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyNodeInfo.setWaitDuration(null);
         //3.16 node_state 行程节点状态 订单---->用车权限----->行程节点   反推  节点任务是否已完成 失效 也算已经  节点任务已经完成
         //P000   有效中  P444   已失效
-        journeyNodeInfo.setNodeState("P000");  // TODO 申请通过前节点算是有效吗？待确认
+        journeyNodeInfo.setNodeState(CommonConstant.VALID_NODE);  // TODO 申请通过前节点算是有效吗？待确认
         ///3.17 number 节点在 在整个行程 中的顺序编号 从  1  开始
         journeyNodeInfo.setNumber(i);
         //3.18 create_by 创建者
@@ -393,7 +395,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         StringBuilder stringBuilder = new StringBuilder();
         for (JourneyPassengerInfo passengerInfo : journeyPassengerInfos) {
             //乘车人01  公务跟差旅 必有且仅有一个
-            if ("01".equals(passengerInfo.getItIsPeer())){
+            if (CommonConstant.IS_NOT_PEER.equals(passengerInfo.getItIsPeer())){
                 applyDetailVO.setRiderName(passengerInfo.getName());
             }else {
                 // 同行者  00
@@ -412,14 +414,14 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         int size = journeyNodeInfos.size();
         String applyType = applyInfo.getApplyType();
         //如果是公务申请 A001:  公务用车   A002:  差旅用车   公务的节点 只有上车地点和下车地点
-        if("A001".equals(applyInfo)){
+        if(CommonConstant.AFFICIAL_APPLY.equals(applyInfo)){
             for (JourneyNodeInfo nodeInfo : journeyNodeInfos) {
                 if(nodeInfo.getNodeId() == 1){
                     //上车地点 即是节点编号为1的出发地点
                     applyDetailVO.setStartAddress(nodeInfo.getPlanBeginAddress());
                 }
                 //下车地点  如果没有往返，则下车地点为非途径地节点的目的地 是否往返 Y000 N444
-                if("N444".equals(journeyInfo.getItIsReturn())){
+                if(CommonConstant.IS_NOT_RETURN.equals(journeyInfo.getItIsReturn())){
                     if(nodeInfo.getNumber() == size){
                         applyDetailVO.setEndAddress(nodeInfo.getPlanEndAddress());
                     }
@@ -465,7 +467,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         tripDescription.setTripDesc(list);
         //如果是差旅申请  行程节点集合 上海-北京
         ArrayList<String> tripList = new ArrayList<>();
-        if("A002".equals(applyType)){
+        if(CommonConstant.TRAVLE_APPLY.equals(applyType)){
             for (JourneyNodeInfo nodeInfo : journeyNodeInfos) {
                 tripList.add(nodeInfo.getPlanBeginAddress()+"-"+nodeInfo.getPlanEndAddress());
             }
@@ -553,7 +555,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //4.3 mobile
         journeyPassengerInfo.setMobile(travelCommitApply.getProjectNumber());
         //4.4 it_is_peer 是否是同行者 00   是   01   否
-        journeyPassengerInfo.setItIsPeer("01");   // TODO 常量 差旅没有同行人
+        journeyPassengerInfo.setItIsPeer(CommonConstant.IS_NOT_PEER);   // TODO 常量 差旅没有同行人
         //4.5 create_by 创建者
         journeyPassengerInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
         //4.6 create_time 创建时间
@@ -594,7 +596,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.6 cost_center 成本中心 从组织机构表 中获取
         applyInfo.setCostCenter(Long.valueOf(travelCommitApply.getCostCenter())); //TODO 判空
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
-        applyInfo.setState("S001"); //TODO 枚举
+        applyInfo.setState(ApplyStateConstant.ON_APPLYING); //TODO 枚举
         //2.8 reason 行程原因
         applyInfo.setReason(travelCommitApply.getReason());
         //2.9 create_by 创建者
@@ -725,8 +727,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyNodeInfo = new JourneyNodeInfo();
             //设置行程节点信息表
             journeyNodeOfficialCommit(applyOfficialRequest, journeyId, journeyNodeInfo);
-            //判断是否途经点
-            journeyNodeInfo.setItIsViaPoint("NO");  // TODO 常量
+            //判断是否途经点  er模型中  是这样的   途经点  同样具有顺序  Y000     是  N111    否
+            journeyNodeInfo.setItIsViaPoint(CommonConstant.NO_PASS);  // TODO 常量
             //节点编号
             journeyNodeInfo.setNumber(n);
             //保存数据
@@ -738,8 +740,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             applyOfficialRequest.setEndAddr(firstEndAddr);
             //设置行程节点信息表
             journeyNodeOfficialCommit(applyOfficialRequest, journeyId, journeyNodeInfo);
-            //判断是否途经点
-            journeyNodeInfo.setItIsViaPoint("YES");   //TODO 常量
+            //判断是否途经点  是 Y000
+            journeyNodeInfo.setItIsViaPoint(CommonConstant.PASS);   //TODO 常量
             //节点编号
             journeyNodeInfo.setNumber(n);
             //保存数据
@@ -753,8 +755,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             applyOfficialRequest.setEndAddr(officialCommitApply.getEndAddr());
             //设置行程节点信息表
             journeyNodeOfficialCommit(applyOfficialRequest, journeyId, journeyNodeInfo);
-            //判断是否途经点
-            journeyNodeInfo.setItIsViaPoint("NO");  //TODO 常量
+            //判断是否途经点  最后一个节点 不是途经点 N111
+            journeyNodeInfo.setItIsViaPoint(CommonConstant.NO_PASS);  //TODO 常量
             //节点编号
             journeyNodeInfo.setNumber(n+size);
             //保存数据
@@ -768,23 +770,23 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 applyOfficialRequest.setEndAddr(endAddr);
                 //设置行程节点信息表
                 journeyNodeOfficialCommit(applyOfficialRequest, journeyId, journeyNodeInfo);
-                //判断是否途经点
-                journeyNodeInfo.setItIsViaPoint("YES");  // TODO 常量
+                //判断是否途经点 Y000 是
+                journeyNodeInfo.setItIsViaPoint(CommonConstant.PASS);  // TODO 常量
                 //设置节点编号
                 journeyNodeInfo.setNumber(n+i+1);
                 //保存数据
                 journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
             }
-            //如果有往返，追加一个返程节点。
-            if("Y000".equals(officialCommitApply.getIsGoBack())) {
+            //如果有往返 Y000，追加一个返程节点。
+            if(CommonConstant.IS_RETURN.equals(officialCommitApply.getIsGoBack())) {
                 journeyNodeInfo = new JourneyNodeInfo();
                 //出发地是目的地，返回地是起始地
                 applyOfficialRequest.setStartAddr(officialCommitApply.getEndAddr());
                 applyOfficialRequest.setEndAddr(officialCommitApply.getStartAddr());
                 //设置行程节点信息表
                 journeyNodeOfficialCommit(applyOfficialRequest, journeyId, journeyNodeInfo);
-                //判断是否途经点   返程没有途经点
-                journeyNodeInfo.setItIsViaPoint("NO");  // TODO 常量
+                //判断是否途经点   返程没有途经点 N111
+                journeyNodeInfo.setItIsViaPoint(CommonConstant.NO_PASS);  // TODO 常量
                 //设置节点编号
                 journeyNodeInfo.setNumber(n+size+1);
                 //保存数据
@@ -812,7 +814,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //4.3 mobile
         journeyPassengerInfo.setMobile(officialCommitApply.getPassenger().getUserPhone());
         //4.4 it_is_peer 是否是同行者 00   是   01   否
-        journeyPassengerInfo.setItIsPeer("01");   // TODO 新建枚举
+        journeyPassengerInfo.setItIsPeer(CommonConstant.IS_NOT_PEER);
         //4.5 create_by 创建者
         journeyPassengerInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));
         //4.6 create_time 创建时间
@@ -832,7 +834,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 journeyPartner.setJourneyId(journeyId);
                 journeyPartner.setName(partner.getUserName());
                 journeyPartner.setMobile(partner.getUserPhone());
-                journeyPartner.setItIsPeer("00");  //TODO 枚举
+                journeyPartner.setItIsPeer(CommonConstant.IS_PEER);
                 journeyPartner.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));
                 journeyPartner.setCreateTime(new Date());
                 journeyPartner.setUpdateBy(null);
@@ -885,7 +887,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyNodeInfo.setWaitDuration(officialCommitApply.getWaitDurition());   // TODO 新增参数
         //3.16 node_state 行程节点状态 订单---->用车权限----->行程节点   反推  节点任务是否已完成 失效 也算已经  节点任务已经完成
         //P000   有效中  P444   已失效
-        journeyNodeInfo.setNodeState("P000");   // TODO 枚举
+        journeyNodeInfo.setNodeState(CommonConstant.VALID_NODE);
         ///3.17 number 节点在 在整个行程 中的顺序编号 从  1  开始
         journeyNodeInfo.setNumber(null);    // TODO 节点编号单独判断
         //3.18 create_by 创建者
@@ -932,7 +934,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.6 cost_center 成本中心 从组织机构表 中获取
         applyInfo.setCostCenter(Long.valueOf(officialCommitApply.getCostCenter())); //TODO 要判空
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
-        applyInfo.setState("S001");  // TODO 定义枚举
+        applyInfo.setState(ApplyStateConstant.ON_APPLYING);
         //2.8 reason 行程原因
         applyInfo.setReason(officialCommitApply.getReason());
         //2.9 create_by 创建者

@@ -367,7 +367,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     @Async
-    public void platCallTaxi(CallTaxiDto callTaxiDto, String enterpriseId, String licenseContent, String apiUrl) {
+    public void platCallTaxi(CallTaxiDto callTaxiDto, String enterpriseId, String licenseContent, String apiUrl,String userId) {
         Long orderId = callTaxiDto.getOrderId();
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderId(callTaxiDto.getOrderId());
@@ -411,8 +411,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             for(;;){
                 if((DateUtils.getNowDate().getTime()/1000)>=Long.parseLong(callTaxiDto.getBookingDate())){
                     //订单超时退出循环
-                    orderInfo.setState(OrderState.ORDEROVERTIME.getState());
+                    orderInfo.setState(OrderState.ORDERCLOSE.getState());
                     int j = orderInfoMapper.updateOrderInfo(orderInfo);
+                    OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+                    orderStateTraceInfo.setOrderId(orderId);
+                    orderStateTraceInfo.setState(OrderStateTrace.ORDEROVERTIME.getState());
+                    orderStateTraceInfo.setCreateBy(userId);
+                    iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
                     if (j != 1) {
                         throw new Exception("约车失败");
                     }
@@ -421,8 +426,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 OrderInfo orderInfoPre = orderInfoMapper.selectOrderInfoById(orderId);
                 String state = orderInfoPre.getState();
                 //订单取消/超时/关闭 则退出循环
-                if(state.equals(OrderState.ORDERCANCEL.getState())|| (state.equals(OrderState.ORDEROVERTIME.getState()))
-                ||state.equals(OrderState.ORDERCLOSE.getState())){
+                if(state.equals(OrderState.ORDERCLOSE.getState())){
                     break;
                 }
                 String result = OkHttpUtil.postJson(apiUrl + "/service/applyPlatReceiveOrder", paramMap);

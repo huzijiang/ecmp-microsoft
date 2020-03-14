@@ -93,5 +93,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </foreach>
     
     </select>
+    <delete id="removeCarGroupDispatcher">
+        delete from car_group_dispatcher_info where car_group_id = #{carGroupId} and user_id = #{dispatcherId}
+    </delete>
+    <delete id="deleteCarGroupDispatcherInfoByGroupId" parameterType="long">
+         delete from car_group_dispatcher_info where car_group_id = #{carGroupId}
+    </delete>
 
 </mapper>
