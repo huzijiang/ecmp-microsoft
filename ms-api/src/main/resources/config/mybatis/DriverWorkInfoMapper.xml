@@ -88,7 +88,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <select id="selectDriverShouldDutyDays" resultType="int">
-        SELECT COUNT(*) FROM driver_work_info WHERE  driver_id = #{driverId} and leave_status = "X999" and caledar_date LIKE #{scheduleDate}"%"
+        SELECT COUNT(*) FROM driver_work_info WHERE  driver_id = #{driverId} and leave_status = "X999" and caledar_date LIKE concat('%', #{scheduleDate}, '%')
     </select>
 
     <select id="selectDriverWorkInfoByMonth" resultType="com.hq.ecmp.mscore.vo.DriverDutyPlanVO">

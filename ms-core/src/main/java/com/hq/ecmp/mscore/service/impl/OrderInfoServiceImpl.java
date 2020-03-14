@@ -9,6 +9,7 @@ import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CallTaxiDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
@@ -366,7 +367,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     @Async
-    public void platCallTaxi(CallTaxiDto callTaxiDto, String enterpriseId, String licenseContent, String apiUrl) {
+    public void platCallTaxi(CallTaxiDto callTaxiDto, String enterpriseId, String licenseContent, String apiUrl,String userId) {
         Long orderId = callTaxiDto.getOrderId();
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderId(callTaxiDto.getOrderId());
@@ -380,6 +381,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             paramMap.put("licenseContent", licenseContent);
             paramMap.put("mac", macAdd);
             paramMap.put("enterpriseOrderId",orderId+"");
+            paramMap.put("groupIds",callTaxiDto.getGroupId());
+            paramMap.put("cityId",callTaxiDto.getCityId());
             paramMap.put("bookingDate",callTaxiDto.getBookingDate());
             String bookingStartPoint = callTaxiDto.getBookingStartPoint();
             String[] bookingStart = bookingStartPoint.split("\\,| \\，");
@@ -408,8 +411,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             for(;;){
                 if((DateUtils.getNowDate().getTime()/1000)>=Long.parseLong(callTaxiDto.getBookingDate())){
                     //订单超时退出循环
-                    orderInfo.setState(OrderState.ORDEROVERTIME.getState());
+                    orderInfo.setState(OrderState.ORDERCLOSE.getState());
                     int j = orderInfoMapper.updateOrderInfo(orderInfo);
+                    OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+                    orderStateTraceInfo.setOrderId(orderId);
+                    orderStateTraceInfo.setState(OrderStateTrace.ORDEROVERTIME.getState());
+                    orderStateTraceInfo.setCreateBy(userId);
+                    iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
                     if (j != 1) {
                         throw new Exception("约车失败");
                     }
@@ -418,8 +426,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 OrderInfo orderInfoPre = orderInfoMapper.selectOrderInfoById(orderId);
                 String state = orderInfoPre.getState();
                 //订单取消/超时/关闭 则退出循环
-                if(state.equals(OrderState.ORDERCANCEL.getState())|| (state.equals(OrderState.ORDEROVERTIME.getState()))
-                ||state.equals(OrderState.ORDERCLOSE.getState())){
+                if(state.equals(OrderState.ORDERCLOSE.getState())){
                     break;
                 }
                 String result = OkHttpUtil.postJson(apiUrl + "/service/applyPlatReceiveOrder", paramMap);
@@ -646,5 +653,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public OrderStateVO getOrderState(Long orderId) {
         OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
         return orderState;
+    }
+
+    @Override
+    public List<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
+        PageHelper.startPage(orderListBackDto.getPageNum(),orderListBackDto.getPageSize());
+        return orderInfoMapper.getOrderListBackDto(orderListBackDto);
+    }
+
+    @Override
+    public void getOrderListDetail(String orderNo) {
+
     }
 }

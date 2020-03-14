@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.SceneDTO;
+import com.hq.ecmp.mscore.dto.SceneSortDTO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.SceneDetailVO;
 import com.hq.ecmp.mscore.vo.SceneListVO;
@@ -83,7 +84,7 @@ public class SceneController {
 	 * @return
 	 */
 	@ApiOperation(value = "deleteScene", notes = "删除用车场景", httpMethod ="POST")
-	@GetMapping("/saveScene")
+	@GetMapping("/deleteScene")
 	public ApiResponse deleteScene(@RequestBody SceneDTO sceneDTO) {
 		try {
 			int i = sceneInfoService.deleteSceneInfoById(sceneDTO.getSceneId());
@@ -156,6 +157,27 @@ public class SceneController {
 			e.printStackTrace();
 			return ApiResponse.error("查询场景列列表信息失败");
 		}
+	}
+
+	/**
+	 * 场景排序 上移/下移
+	 * @param
+	 * @return
+	 */
+	@ApiOperation(value = "sortScene", notes = "场景排序 上移/下移", httpMethod ="POST")
+	@GetMapping("/sortScene")
+	public ApiResponse<PageResult<SceneListVO>> sortScene(@RequestBody SceneSortDTO sceneSortDTO) {
+		//获取登录用户
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		Long userId = loginUser.getUser().getUserId();
+		try {
+			sceneInfoService.sortScene(sceneSortDTO,userId);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error("修改场景顺序失败");
+		}
+		return ApiResponse.success("修改场景顺序成功");
 	}
 
 
