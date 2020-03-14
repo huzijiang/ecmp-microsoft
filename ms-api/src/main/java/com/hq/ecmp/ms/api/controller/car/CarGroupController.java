@@ -96,8 +96,8 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @ApiOperation(value = "updateCarGroup",notes = "修改车队",httpMethod ="POST")
-    @PostMapping("/updateCarGroup")
+    @ApiOperation(value = "disableCarGroup",notes = "修改车队",httpMethod ="POST")
+    @PostMapping("/disableCarGroup")
     public ApiResponse<CarGroupDetailVO> disableCarGroup(Long carGroupId){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);

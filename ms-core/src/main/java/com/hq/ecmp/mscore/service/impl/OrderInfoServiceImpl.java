@@ -9,6 +9,7 @@ import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CallTaxiDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
@@ -662,7 +663,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    public void getOrderListDetail(String orderNo) {
-
+    public OrderDetailBackDto getOrderListDetail(String orderNo) {
+        return null;
     }
 }

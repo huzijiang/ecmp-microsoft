@@ -1,8 +1,10 @@
 package com.hq.ecmp.ms.api.controller.order;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -19,6 +21,7 @@ import java.util.List;
  * @Version 1.0
  */
 @RestController("/orderBack")
+@Api(value = "后台管理-订单模块")
 public class OrderBackController {
 
     @Resource
@@ -40,8 +43,9 @@ public class OrderBackController {
         return ApiResponse.success(orderListBackDtos);
     }
 
+    @ApiOperation(value = "订单详情查询")
     @PostMapping("/getOrderListDetail")
-    public ApiResponse getOrderListDetail(@RequestParam("orderNo") String orderNo){
+    public ApiResponse<OrderDetailBackDto> getOrderListDetail(@RequestParam("orderNo") String orderNo){
 
         return null;
     }

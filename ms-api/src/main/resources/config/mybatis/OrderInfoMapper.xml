@@ -495,7 +495,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     </select>
 
-    <select id="getOrderDetailBackDto" parameterType="java.util.Long" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
+    <select id="getOrderDetailBackDto" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
         select
         eu.user_name applyName,
         eu.phonenumber applyPhoneNumber,

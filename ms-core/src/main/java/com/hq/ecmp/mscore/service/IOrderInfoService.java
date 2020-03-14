@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.dto.CallTaxiDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
@@ -187,6 +188,6 @@ public interface IOrderInfoService {
      * PC端查询订单详情
      * @param orderNo
      */
-    void getOrderListDetail(String orderNo);
+    OrderDetailBackDto getOrderListDetail(String orderNo);
 }
 
