@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.controller.journey;
 
 import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
@@ -52,6 +53,8 @@ public class ApplyContoller {
     private IApproveTemplateNodeInfoService nodeInfoService;
     @Autowired
     private IEcmpUserService ecmpUserService;
+    @Autowired
+    private EcmpMessageService ecmpMessageService;
     @Autowired
     private IJourneyUserCarPowerService journeyUserCarPowerService;
 
@@ -171,7 +174,7 @@ public class ApplyContoller {
             return ApiResponse.error("此行程申请不存在");
         }
         EcmpUser ecmpUser = ecmpUserService.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
-        List<ApprovalListVO> approveList = this.getApproveList(ecmpUser.getUserName(), ecmpUser.getPhonenumber(), journeyApplyDto.getApplyId());
+        List<ApprovalListVO> approveList = this.getApproveList(ecmpUser.getNickName(), ecmpUser.getPhonenumber(), journeyApplyDto.getApplyId());
         return ApiResponse.success(approveList);
     }
 
@@ -261,6 +264,19 @@ public class ApplyContoller {
                 //下一审批人修改为待审批
                 resultInfoService.updateApplyApproveResultInfo(new ApplyApproveResultInfo(collect.get(0).getApplyId(), collect.get(0).getApproveTemplateId(), collect.get(0).getApproveNodeId(), ApproveStateEnum.WAIT_APPROVE_STATE.getKey()));
                 //TODO 发送通知消息
+                EcmpMessage ecmpMessage = new EcmpMessage();
+                ecmpMessage.setConfigType(3);
+                ecmpMessage.setEcmpId(userId);
+                ecmpMessage.setType("T001");
+                ecmpMessage.setStatus("0000");
+                ecmpMessage.setContent("");
+                ecmpMessage.setCategory("M003");
+                ecmpMessage.setUrl("");
+                ecmpMessage.setCreateBy(userId);
+                ecmpMessage.setCreateTime(DateUtils.getNowDate());
+                ecmpMessage.setUpdateBy(null);
+                ecmpMessage.setUpdateTime(null);
+                ecmpMessageService.insert(ecmpMessage);
             } else if (approveTemplateNodeInfo != null && approveTemplateNodeInfo.getNextNodeId() == null) {//是最后节点审批人
                 //修改审理状态
                 this.updateApproveResult(collect, userId);

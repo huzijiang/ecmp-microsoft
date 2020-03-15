@@ -711,7 +711,7 @@ public class OrderController {
             return ApiResponse.success(orderVO);
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("加载订单列表失败");
+            return ApiResponse.error(e.getMessage());
         }
     }
     /**
@@ -756,15 +756,21 @@ public class OrderController {
 //                return ApiResponse.success(orderVO);
 //            }else {
 //                JSONObject taxiOrderState = iOrderInfoService.getTaxiOrderState(orderDto.getOrderId(), enterpriseId, licenseContent, MacTools.getMacList().get(0), apiUrl);
-//                JSONObject data1 = taxiOrderState.getJSONObject("data");
+//                String longitude="";
+//                String latitude="";
+//                if(taxiOrderState!=null){
+//                  JSONObject data1 = taxiOrderState.getJSONObject("data");
+//                        longitude=data1.getString("x");
+//                        latitude=data1.getString("y");
+//                }
 //                OrderStateVO  orderVO1 = iOrderInfoService.getOrderState(orderDto.getOrderId());
-//                orderVO1.setDriverLongitude(data1.getString("x"));
-//                orderVO1.setDriverLongitude(data1.getString("y"));
+//                orderVO1.setDriverLongitude(longitude);
+//                orderVO1.setDriverLatitude(latitude);
                 return ApiResponse.success(orderVO);
 //            }
         }catch (Exception e){
             e.printStackTrace();
-            return  ApiResponse.error("加载订单列表失败");
+            return  ApiResponse.error("获取订单状态失败");
         }
     }
 
