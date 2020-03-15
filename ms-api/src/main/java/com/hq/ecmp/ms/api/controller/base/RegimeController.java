@@ -128,5 +128,11 @@ public class RegimeController {
 	}
 	
 	
+	@ApiOperation(value = "detail", notes = "后管制度详情查询", httpMethod = "POST")
+	@PostMapping("/detail")
+	public ApiResponse<RegimeVo> queryRegimeDetail(@RequestBody Long regimeId) {
+		return ApiResponse.success(regimeInfoService.queryRegimeDetail(regimeId));
+	}
+	
 	
 }

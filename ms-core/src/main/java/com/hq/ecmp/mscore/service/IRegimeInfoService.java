@@ -102,6 +102,8 @@ public interface IRegimeInfoService
      
      public RegimeInfo  queryRegimeType(Long regimeId);
      
+     public RegimeVo queryRegimeDetail(Long regimeId);
+     
      
      
      
