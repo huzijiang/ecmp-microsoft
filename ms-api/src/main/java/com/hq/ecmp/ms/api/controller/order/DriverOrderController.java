@@ -140,10 +140,12 @@ public class DriverOrderController {
         ContactorDto contactorDto = null;
         try {
             List<JourneyPassengerInfo> infoWithPassengers = iDriverOrderService.getInfoWithPassenger(orderNo);
-            JourneyPassengerInfo journeyPassengerInfo = infoWithPassengers.get(0);
             contactorDto = new ContactorDto();
-            contactorDto.setName(journeyPassengerInfo.getName());
-            contactorDto.setPhone(journeyPassengerInfo.getMobile());
+            if(infoWithPassengers.size()>0){
+                JourneyPassengerInfo journeyPassengerInfo = infoWithPassengers.get(0);
+                contactorDto.setName(journeyPassengerInfo.getName());
+                contactorDto.setPhone(journeyPassengerInfo.getMobile());
+            }
             contactorDto.setRoleName(CommonConstant.PASSENGER_ROLE);
         } catch (Exception e) {
             e.printStackTrace();

@@ -147,5 +147,60 @@ public class DateFormatUtils {
         return DurationFormatUtils.formatDuration(durationMillis, "HH:mm:ss");
     }
 
+    public static String secToTime(int time) {
+        StringBuilder stringBuilder = new StringBuilder();
+        Integer hour = time / 3600;
+        Integer minute = time / 60 % 60;
+//        Integer second = time % 60;
+        if(hour<10){
+            stringBuilder.append("0");
+        }
+        stringBuilder.append(hour);
+        stringBuilder.append(":");
+        if(minute < 10){
+            stringBuilder.append("0");
+        }
+        stringBuilder.append(minute);
+        return stringBuilder.toString();
+    }
+
+    public static String formatSecond(int totalTime){
+        String totalTimeStr="";
+        int hour=totalTime/3600;
+        int minute = (totalTime % 3600) / 60;
+        if (totalTime>=3600){
+            totalTimeStr=hour+"小时"+( minute>0?minute + "分":"整");
+        }else if (totalTime>=60&&totalTime<3600){
+            totalTimeStr=minute+"分";
+        }else {
+            totalTimeStr="";
+        }
+        return totalTimeStr;
+    }
+
+    public static String formatMinute(int totalTime){
+        int hour = totalTime/60;
+        int minute = totalTime%60;
+        String totalTimeStr="";
+        if (totalTime>=60){
+            totalTimeStr=hour+"小时"+( minute>0?minute + "分":"整");
+        }else {
+            totalTimeStr=minute+"分";
+        }
+        return totalTimeStr;
+    }
+
+    public static void main(String[] args) {
+        String s = formatSecond(10);
+        String s1 = formatSecond(10000);
+        String s2= formatSecond(100000);
+        String s3 = formatSecond(20);
+        String s4 = formatMinute(120);
+        System.out.println("s:"+s);
+        System.out.println("s1:"+s1);
+        System.out.println("s2:"+s2);
+        System.out.println("s3:"+s3);
+        System.out.println("s4:"+s4);
+    }
 
 }

@@ -22,4 +22,13 @@ public enum MsgConstant {
         this.desp = desp;
         this.type = type;
     }
+
+    public static String getDespByType(String type) {
+        for (MsgConstant c : MsgConstant.values()) {
+            if (c.getType().equals(type)) {
+                return c.getDesp();
+            }
+        }
+        return "";
+    }
 }

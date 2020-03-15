@@ -79,7 +79,7 @@ public interface ISceneInfoService
      * @param userId
      * @return
      */
-    void saveScene(SceneDTO sceneDTO, Long userId);
+    void saveScene(SceneDTO sceneDTO, Long userId) throws Exception;
 
     /**
      * 修改用车场景
@@ -87,7 +87,7 @@ public interface ISceneInfoService
      * @param userId
      * @return
      */
-    void updateScene(SceneDTO sceneDTO, Long userId);
+    void updateScene(SceneDTO sceneDTO, Long userId) throws Exception;
 
     /**
      * 查询场景详情

@@ -151,4 +151,9 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
             }
         }
     }
+
+    @Override
+    public List<ApprovalInfoVO> getApproveResultList(ApplyApproveResultInfo applyApproveResultInfo) {
+        return applyApproveResultInfoMapper.getApproveResultList(applyApproveResultInfo.getApplyId(),applyApproveResultInfo.getApproveTemplateId());
+    }
 }

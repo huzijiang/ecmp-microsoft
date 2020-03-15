@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.EcmpUser;
@@ -20,6 +21,7 @@ import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
 import com.hq.ecmp.mscore.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -117,7 +119,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     }
 
     @Override
-    public void saveCarGroupAndDispatcher(CarGroupDTO carGroupDTO,Long userId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void saveCarGroupAndDispatcher(CarGroupDTO carGroupDTO,Long userId) throws Exception {
         CarGroupInfo carGroupInfo = new CarGroupInfo();
         //车队编码
         carGroupInfo.setCarGroupCode(carGroupDTO.getCarGroupCode());
@@ -146,6 +149,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //车队座机
         carGroupInfo.setTelephone(carGroupDTO.getTelephone());
         int i = insertCarGroupInfo(carGroupInfo);
+        if(i != 1){
+            throw new Exception();
+        }
         Long carGroupId = carGroupInfo.getCarGroupId();
         //新增 车队主管  车队主管就是调度员
         if(!ObjectUtils.isEmpty(carGroupId)){
@@ -163,7 +169,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
                 //创建时间
                 carGroupDispatcherInfo.setCreateTime(new Date());
-                carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
+                int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
+                if(j != 1){
+                    throw new Exception();
+                }
             }
         }
     }
@@ -221,7 +230,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param carGroupDTO
      */
     @Override
-    public void updateCarGroup(CarGroupDTO carGroupDTO,Long userId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void updateCarGroup(CarGroupDTO carGroupDTO,Long userId) throws Exception {
         CarGroupInfo carGroupInfo = new CarGroupInfo();
         carGroupInfo.setCarGroupId(carGroupDTO.getCarGroupId());
         //车队编码
@@ -252,6 +262,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setTelephone(carGroupDTO.getTelephone());
         //1.修改车队
         int i = updateCarGroupInfo(carGroupInfo);
+        if(i != 1){
+            throw new Exception("修改车队信息失败");
+        }
         //2.修改调度员信息 先删除 再新增
         Long carGroupId = carGroupDTO.getCarGroupId();
         //2.1 解绑车队所有调度员
@@ -266,7 +279,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
             carGroupDispatcherInfo.setCreateTime(new Date());
             //2.2新增调度员
-            carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
+            int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
+            if(j != 1){
+                throw new Exception("修改车队信息失败");
+            }
         }
     }
 
@@ -276,7 +292,31 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param userId
      */
     @Override
-    public void disableCarGroup(Long carGroupId, Long userId) {
+    public void disableCarGroup(Long carGroupId, Long userId) throws Exception {
+        CarGroupInfo carGroupInfo = new CarGroupInfo();
+        carGroupInfo.setUpdateBy(String.valueOf(userId));
+        carGroupInfo.setUpdateTime(new Date());
+        carGroupInfo.setState(CarConstant.DISABLE_CAR_GROUP);
+        int i = carGroupInfoMapper.updateCarGroupInfo(carGroupInfo);
+        if(i != 1){
+            throw new Exception("禁用车队失败");
+        }
+    }
 
+    /**
+     * 启用车队
+     * @param carGroupId
+     * @param userId
+     */
+    @Override
+    public void startUpCarGroup(Long carGroupId, Long userId) throws Exception {
+        CarGroupInfo carGroupInfo = new CarGroupInfo();
+        carGroupInfo.setUpdateBy(String.valueOf(userId));
+        carGroupInfo.setUpdateTime(new Date());
+        carGroupInfo.setState(CarConstant.START_UP_CAR_GROUP);
+        int i = carGroupInfoMapper.updateCarGroupInfo(carGroupInfo);
+        if(i != 1){
+            throw new Exception();
+        }
     }
 }

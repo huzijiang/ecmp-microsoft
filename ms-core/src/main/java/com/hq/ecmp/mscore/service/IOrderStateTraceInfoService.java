@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.domain.ReassignInfo;
 import com.hq.ecmp.mscore.domain.SendCarInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.UserVO;
 
 import java.util.List;
 
@@ -110,4 +111,6 @@ public interface IOrderStateTraceInfoService
      * @return
      */
     MessageDto getTraceMessage(Long userId,boolean flag,Long driverId);
+
+    UserVO getOrderDispatcher(String states, Long orderId);
 }
