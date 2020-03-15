@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.RegimeUseCarCityRuleInfoMapper">
+		
+		 <insert id="insert" parameterType="com.hq.ecmp.mscore.domain.RegimeUseCarCityRuleInfo">
+        insert into regime_use_car_city_rule_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="regimenId != null ">regimen_id,</if>
+             <if test="ruleAction != null ">rule_action,</if>
+              <if test="cityCode != null ">city_code,</if>
+               <if test="createBy != null ">create_by,</if>
+               <if test="createTime != null ">create_time,</if>
+               <if test="updateBy != null ">update_by,</if>
+                <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="regimenId != null ">#{regimenId},</if>
+            <if test="ruleAction != null ">#{ruleAction},</if>
+            <if test="cityCode != null ">#{cityCode},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+             <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+    
+    
+    <insert id="batchInsert">
+     insert into regime_use_car_city_rule_info  (regimen_id,rule_action,city_code,create_by,create_time)
+      values
+      <foreach collection="list" separator="," item="item">
+      (#{item.regimenId},#{item.ruleAction},#{item.cityCode},#{item.createBy},#{item.createTime})
+      </foreach>
+    
+    </insert>
+  
+</mapper>

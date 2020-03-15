@@ -109,4 +109,11 @@ public interface ISceneInfoService
      * @param userId
      */
     void sortScene(SceneSortDTO sceneSortDTO, Long userId);
+    
+    /**
+     * 查询制度对应的场景名称
+     * @param regimeId
+     * @return
+     */
+    SceneInfo querySceneByRegimeId(Long regimeId);
 }

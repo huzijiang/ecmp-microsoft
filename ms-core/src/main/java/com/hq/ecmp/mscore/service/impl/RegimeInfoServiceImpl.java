@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,12 +17,18 @@ import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.RegimeOpt;
 import com.hq.ecmp.mscore.domain.RegimePo;
 import com.hq.ecmp.mscore.domain.RegimeQueryPo;
+import com.hq.ecmp.mscore.domain.RegimeUseCarCityRuleInfo;
+import com.hq.ecmp.mscore.domain.RegimeUseCarTimeRuleInfo;
 import com.hq.ecmp.mscore.domain.RegimeVo;
+import com.hq.ecmp.mscore.domain.SceneInfo;
 import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
 import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.mapper.SceneRegimeRelationMapper;
 import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
+import com.hq.ecmp.mscore.service.IRegimeUseCarCityRuleInfoService;
+import com.hq.ecmp.mscore.service.IRegimeUseCarTimeRuleInfoService;
+import com.hq.ecmp.mscore.service.ISceneInfoService;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -37,6 +45,12 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
     private RegimeInfoMapper regimeInfoMapper;
     @Autowired
     private SceneRegimeRelationMapper sceneRegimeRelationMapper;
+    @Autowired
+    private IRegimeUseCarCityRuleInfoService regimeUseCarCityRuleInfoService;
+    @Autowired
+    private IRegimeUseCarTimeRuleInfoService regimeUseCarTimeRuleInfoService;
+    @Autowired
+    private ISceneInfoService sceneInfoService;
   
 
     /**
@@ -156,9 +170,38 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	@Transactional(propagation=Propagation.REQUIRED)
 	@Override
 	public boolean createRegime(RegimePo regimePo) {
-		//生成制度  TODO
-		Long regimenId=null;
-		//
+		//生成制度
+		Integer insertRegimeFlag = regimeInfoMapper.insertRegime(regimePo);
+		Long regimenId=regimePo.getRegimenId();
+		//生成城市限制记录
+		List<String> cityLimitIds = regimePo.getCityLimitIds();
+		if(null !=cityLimitIds && cityLimitIds.size()>0){
+			List<RegimeUseCarCityRuleInfo> regimeUseCarCityRuleInfoList=new ArrayList<RegimeUseCarCityRuleInfo>(cityLimitIds.size());
+			String ruleCity = regimePo.getRuleCity();
+			String ruleAction=null;
+			if(null !=ruleCity && "C002".equals(ruleCity) ){
+				ruleAction="Y000";//在地点内的城市
+			}else if(null !=ruleCity && "C003".equals(ruleCity)){
+				ruleAction="N001";//在地点外的城市
+			}
+			for (String cityCode : cityLimitIds) {
+				regimeUseCarCityRuleInfoList.add(new RegimeUseCarCityRuleInfo(regimenId, ruleAction, cityCode, regimePo.getOptId(), new Date()));
+			}
+			regimeUseCarCityRuleInfoService.batchInsert(regimeUseCarCityRuleInfoList);
+		}
+	
+		//公务生成用车时间段限制记录
+		List<RegimeUseCarTimeRuleInfo> regimeUseCarTimeRuleInfoList = regimePo.getRegimeUseCarTimeRuleInfoList();
+		if(null !=regimeUseCarTimeRuleInfoList && regimeUseCarTimeRuleInfoList.size()>0){
+			for (RegimeUseCarTimeRuleInfo regimeUseCarTimeRuleInfo : regimeUseCarTimeRuleInfoList) {
+				regimeUseCarTimeRuleInfo.setRuleAction("Y000");//在限制时间段内
+				regimeUseCarTimeRuleInfo.setRegimenId(regimenId);
+				regimeUseCarTimeRuleInfo.setCreateBy(regimePo.getOptId());
+				regimeUseCarTimeRuleInfo.setCreateTime(new Date());
+			}
+			regimeUseCarTimeRuleInfoService.batchInsert(regimeUseCarTimeRuleInfoList);
+		}
+		
 		List<Long> userList = regimePo.getUserList();
 		if(null !=userList && userList.size()>0){
 			//生成可用用户-制度中间记录
@@ -212,5 +255,21 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	@Override
 	public RegimeInfo queryRegimeType(Long regimeId) {
 		return regimeInfoMapper.queryRegimeType(regimeId);
+	}
+
+	@Override
+	public RegimeVo queryRegimeDetail(Long regimeId) {
+		RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimeId);
+		if(null !=regimeVo){
+			//查询对应的场景名称
+			SceneInfo sceneInfo = sceneInfoService.querySceneByRegimeId(regimeId);
+			if(null !=sceneInfo){
+				regimeVo.setSceneName(sceneInfo.getName());
+			}
+			//查询制度使用人数
+			Integer userCount = userRegimeRelationInfoMapper.queryRegimeUserCount(regimeId);
+			regimeVo.setUseNum(userCount);
+		}
+		return regimeVo;
 	}
 }

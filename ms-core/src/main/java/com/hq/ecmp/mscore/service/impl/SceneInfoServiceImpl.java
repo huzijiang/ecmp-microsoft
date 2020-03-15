@@ -295,4 +295,9 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         targetSceneInfo.setCreateBy(String.valueOf(userId));
         sceneInfoMapper.updateSceneInfo(targetSceneInfo);
     }
+
+	@Override
+	public SceneInfo querySceneByRegimeId(Long regimeId) {
+		return sceneInfoMapper.querySceneByRegimeId(regimeId);
+	}
 }
