@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.DriverQueryResult;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

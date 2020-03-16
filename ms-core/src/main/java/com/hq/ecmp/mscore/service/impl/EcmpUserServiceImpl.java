@@ -177,7 +177,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      */
     @Override
     public List<EcmpUserDto> getEcmpUserList(Long deptId){
-        List<EcmpOrg> ecmpUserList = new ArrayList<>();
+        List<EcmpUserDto> ecmpUserList = new ArrayList<>();
         ecmpUserList = ecmpUserMapper.getEcmpUserList(deptId);
         return ecmpUserList;
     }
