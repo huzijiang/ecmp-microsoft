@@ -172,4 +172,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <!--根据组织id查询归属车辆信息-->
+    <select id="selectCarCountByDeptId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(1)from  car_info where dept_id = #{deptId}
+    </select>
 </mapper>

@@ -99,7 +99,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
-    <update id="updateEcmpUser" parameterType="com.hq.ecmp.mscore.domain.EcmpUser">
+    <update id="updateEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
         update ecmp_user
         <trim prefix="SET" suffixOverrides=",">
             <if test="deptId != null ">dept_id = #{deptId},</if>
@@ -140,4 +140,104 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     </select>
 
+    <select id="selectEcmpUserByDeptId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select count(1) from ecmp_user  where dept_id=#{deptId}
+    </select>
+    <!--禁用/启用  员工-->
+    <update id="updateUseStatus" >
+      update   ecmp_user set `status`=#{status}  where del_flag='0' dept_id =#{deptId}
+    </update>
+
+    <!--获取上级组织id中的员工姓名和电话-->
+    <select id="getEcmpUserNameAndPhone" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+      SELECT nick_name as nickName,phonenumber from ecmp_user
+      where  status = 0 and del_flag = 0 and dept_id=#{deptId}
+      and  (nick_name like concat('%', #{nickNameOrPhone}, '%') or   phonenumber like concat('%', #{nickNameOrPhone}, '%'))
+    </select>
+
+    <!--新增员工信息-->
+    <insert id="addEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo" useGeneratedKeys="true" keyProperty="userId">
+        insert into ecmp_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="phonenumber != null  and phonenumber != ''">userName,</if>
+            <if test="nickName != null  and nickName != ''">nick_name,</if>
+            <if test="userType != null  and userType != ''">user_type,</if>
+            <if test="email != null  and email != ''">email,</if>
+            <if test="phonenumber != null  and phonenumber != ''">phonenumber,</if>
+            <if test="sex != null  and sex != ''">sex,</if>
+            <if test="avatar != null  and avatar != ''">avatar,</if>
+            <if test="password != null  and password != ''">password,</if>
+            <if test="status != null  and status != ''">status,</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+            <if test="loginIp != null  and loginIp != ''">login_ip,</if>
+            <if test="loginDate != null ">login_date,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="phonenumber != null  and phonenumber != ''">#{phonenumber},</if>
+            <if test="nickName != null  and nickName != ''">#{nickName},</if>
+            <if test="userType != null  and userType != ''">#{userType},</if>
+            <if test="email != null  and email != ''">#{email},</if>
+            <if test="phonenumber != null  and phonenumber != ''">#{phonenumber},</if>
+            <if test="sex != null  and sex != ''">#{sex},</if>
+            <if test="avatar != null  and avatar != ''">#{avatar},</if>
+            <if test="password != null  and password != ''">#{password},</if>
+            <if test="status != null  and status != ''">#{status},</if>
+            <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
+            <if test="loginIp != null  and loginIp != ''">#{loginIp},</if>
+            <if test="loginDate != null ">#{loginDate},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+        </trim>
+    </insert>
+
+    <!--查询手机号与邮箱是否已经存在-->
+    <select id="selectPhoneAndEmailExist" resultType="Integer" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+      select count(1)
+      from  ecmp_user
+      where
+      <if test="phonenumber != null  and phonenumber != ''">phonenumber = #{phonenumber},</if>
+      <if test="email != null  and email != ''"> and email = #{email}</if>
+    </select>
+
+    <!--根据deptId和deptType删除信息-->
+    <update id="updateDelFlagById" >
+      update ecmp_user  SET del_flag='2' where user_id = #{userId}
+    </update>
+
+
+    <!--查询员工列表-->
+    <select id="getEcmpUserList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="Long">
+        select
+        nick_name,phonenumber,user_id,
+        (select dept_name from ecmp_org where dept_id='101') as subCompany,
+        (select dept_name from ecmp_org where dept_id='103') as subDept,
+        `status`
+        /*用车制度、操作*/
+        from  ecmp_user
+        where
+        del_flag='0'
+        <if test="dept_id != null  and dept_id != ''"> and dept_id = #{dept_id}</if>
+    </select>
+
+    <!--根据deptId和deptType删除信息-->
+    <update id="updatePhoneNum" >
+      update ecmp_user  SET phonenumber=#{newPhoneNum} where user_id = #{userId}
+    </update>
+
+    <!--获取员工详情-->
+    <select id="selectEcmpUserDetail" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="Long">
+      SELECT
+      user_id,`dept_id`, `nick_name`, `user_type`, `email`, `phonenumber`, `sex`, `avatar`, `password`, `status`, `del_flag`, `login_ip`, `login_date`, `it_is_driver`, `it_is_dispatcher`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`
+      from ecmp_user
+      where
+      user_id = #{userId}
+    </select>
 </mapper>

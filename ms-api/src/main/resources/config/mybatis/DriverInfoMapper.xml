@@ -168,4 +168,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <!--根据deptId查询归属驾驶员数量-->
+    <select id="selectDriverCountByDeptId" parameterType="Long" resultType="java.lang.Integer">
+        select count(1) from  driver_info where user_id in (select user_id from  ecmp_user where dept_id=#{deptId})
+    </select>
+
+    <!--//禁用/启用  驾驶员-->
+    <update id="updateUseStatus" >
+      update  driver_info  set `state`=#{state} where user_id in (select user_id from  ecmp_user where dept_id=#{deptId})
+    </update>
 </mapper>

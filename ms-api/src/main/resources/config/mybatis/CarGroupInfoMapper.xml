@@ -86,5 +86,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{carGroupId}
         </foreach>
     </delete>
-
+    <!--查询该组织下的车队信息-->
+    <select id="selectCountByOrgdeptId"  resultType="Integer">
+        select count(1) from  car_group_info where car_group_id in (select car_group_id from  car_info where dept_id=#{deptId})
+    </select>
 </mapper>

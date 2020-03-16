@@ -59,4 +59,12 @@ public interface CarInfoMapper
      * @return 结果
      */
     public int deleteCarInfoByIds(Long[] carIds);
+
+    /**
+     * 根据组织id查询归属车辆信息
+     *
+     * @param deptId 组织id
+     * @return 结果
+     */
+    public int selectCarCountByDeptId(Long deptId);
 }

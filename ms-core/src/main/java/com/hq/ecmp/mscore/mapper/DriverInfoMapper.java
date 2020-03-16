@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DriverInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -59,4 +60,21 @@ public interface DriverInfoMapper
      * @return 结果
      */
     public int deleteDriverInfoByIds(Long[] driverIds);
+
+    /**
+     * 根据deptId查询归属驾驶员数量
+     *
+     * @param deptId 组织id
+     * @return 结果
+     */
+    public int selectDriverCountByDeptId(Long deptId);
+
+    /**
+     * 禁用/启用  驾驶员
+     *
+     * @param deptId 部门ID
+     * @param state 状态 W001 待审   V000 生效中   NV00 失效
+     * @return 结果
+     */
+    public int updateUseStatus(@Param("deptId") Long deptId, @Param("state") String state);
 }

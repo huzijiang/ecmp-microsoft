@@ -1,6 +1,10 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EcmpOrg;
+import com.hq.ecmp.mscore.dto.EcmpOrgDto;
+import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.vo.EcmpOrgVo;
+import com.hq.ecmp.mscore.vo.EcmpUserVo;
 
 import java.util.List;
 
@@ -12,6 +16,42 @@ import java.util.List;
  */
 public interface IEcmpOrgService
 {
+
+    /**
+     * 查询部门列表
+     *
+     * @param deptId 部门ID
+     * @return deptList
+     */
+    public List<EcmpOrg> getDeptList(Long deptId,String deptType);
+    /**
+     * 查询部门详情
+     *
+     * @param deptId 部门ID
+     * @return ecmpOrg
+     */
+    public EcmpOrgDto getDeptDetails(Long deptId);
+    /*
+    * 添加部门
+    *  @param  ecmpOrg
+    * @return int
+    * */
+    public int addDept(EcmpOrgVo ecmpOrg);
+
+    /*
+     * 修改部门
+     *  @param  ecmpOrg
+     * @return int
+     * */
+    public int updateDept(EcmpOrgVo ecmpOrg);
+    /**
+     * 部门编号验证
+     * @param  companyId
+     * @return companyIdNum
+     * */
+    public int  getCheckingDepcCompanyId(Long companyId);
+
+
     /**
      * 查询部门
      *
@@ -36,20 +76,12 @@ public interface IEcmpOrgService
     public List<EcmpOrg> selectEcmpOrgList(EcmpOrg ecmpOrg);
 
     /**
-     * 新增部门
-     *
-     * @param ecmpOrg 部门
-     * @return 结果
-     */
-    public int insertEcmpOrg(EcmpOrg ecmpOrg);
-
-    /**
      * 修改部门
      *
      * @param ecmpOrg 部门
      * @return 结果
      */
-    public int updateEcmpOrg(EcmpOrg ecmpOrg);
+    public int updateEcmpOrg(EcmpOrgVo ecmpOrg);
 
     /**
      * 批量删除部门
@@ -75,4 +107,47 @@ public interface IEcmpOrgService
      * @return
      */
     List<EcmpOrg> selectUserOwnCompanyDept(Long userId, String name);
+
+
+    /**
+     *查询子公司列表
+     * @return
+     */
+    String[] selectSubCompany(Long deptId);
+
+
+    /**
+     * 查询分/子公司详情
+     *
+     * @param deptId 部门ID
+     * @return 部门
+     */
+    public EcmpOrgDto getSubDetail(Long deptId);
+
+
+    /**
+     * 逻辑删除部门信息
+     *
+     * @param deptId 部门ID
+     * @return 结果
+     */
+    public String updateDelFlagById(Long deptId,String deptType);
+
+    /**
+     * 逻辑批量删除部门信息
+     *
+     * @param deptIds 部门ID
+     * @return 结果
+     */
+    public int updateDelFlagByIds(Long[] deptIds);
+
+
+    /**
+     * 禁用启用部门/ 分/子公司
+     *
+     * @param deptId 部门ID
+     * @return 结果
+     */
+    public String updateUseStatus(String status,Long deptId);
+
 }
