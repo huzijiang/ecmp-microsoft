@@ -23,6 +23,8 @@ import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.MacTools;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -214,20 +216,26 @@ public class OrderController {
      * 手动约车-让用户自己召唤网约车
      * 改变订单的状态为  去约车
      *
-     * @param orderDto 行程申请信息
+     * @param
      * @return
      */
     @ApiOperation(value = "letUserCallTaxi", notes = " 手动约车-让用户自己召唤网约车 改变订单的状态为  去约车", httpMethod = "POST")
     @PostMapping("/letUserCallTaxi")
-    public ApiResponse letUserCallTaxi(OrderDto orderDto) {
+    public ApiResponse letUserCallTaxi(@RequestParam("orderNo") String orderNo) {
         try {
+            //获取调用接口的用户信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
             OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setOrderId(orderDto.getOrderId());
-            orderInfo.setState(OrderState.GETARIDE.getState());
+            Long orderId = Long.parseLong(orderNo);
+            orderInfo.setOrderId(orderId);
+            orderInfo.setState(OrderState.SENDINGCARS.getState());
             int i = iOrderInfoService.updateOrderInfo(orderInfo);
             if (i != 1) {
                 return ApiResponse.error("'订单状态改为【去约车失败】");
             }
+            iOrderInfoService.platCallTaxi(orderId,enterpriseId,licenseContent,apiUrl,String.valueOf(userId));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("'订单状态改为【去约车失败】");
@@ -241,19 +249,23 @@ public class OrderController {
      * 改变订单的状态为  约车中
      * 需要留一个终止循环派单的 开关
      *
-     * @param callTaxiDto 行程申请信息
+     * @param
      * @return
      */
     @ApiOperation(value = "letPlatCallTaxi", notes = "自动约车-向网约车平台发起约车请求 改变订单的状态为  约车中-->已派单", httpMethod = "POST")
     @PostMapping("/letPlatCallTaxi")
-    public ApiResponse letPlatCallTaxi(@RequestBody CallTaxiDto callTaxiDto) {
+    public ApiResponse letPlatCallTaxi( @RequestParam("orderNo") String orderNo) {
         try {
+
             //获取调用接口的用户信息
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-
-            Long orderId = callTaxiDto.getOrderId();
+            Long orderId = Long.parseLong(orderNo);
+            OrderInfo orderInfoOld = iOrderInfoService.selectOrderInfoById(orderId);
+            if(orderInfoOld.equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getPrState())){
+                throw new Exception("网约车不支持包车");
+            }
             OrderInfo orderInfo = new OrderInfo();
             orderInfo.setOrderId(orderId);
             orderInfo.setState(OrderState.SENDINGCARS.getState());
@@ -261,7 +273,7 @@ public class OrderController {
             if (i != 1) {
                 throw new Exception("约车失败");
             }
-            iOrderInfoService.platCallTaxi(callTaxiDto,enterpriseId,licenseContent,apiUrl,String.valueOf(userId));
+            iOrderInfoService.platCallTaxi(orderId,enterpriseId,licenseContent,apiUrl,String.valueOf(userId));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.success(e.getMessage());
@@ -666,6 +678,21 @@ public class OrderController {
             orderInfo.setOrderId(applyUseWithTravelDto.getOrderId());
             //手动下单，订单状态变为待派单
             orderInfo.setState(OrderState.WAITINGLIST.getState());
+            String type = applyUseWithTravelDto.getType();
+            orderInfo.setDemandCarLevel(applyUseWithTravelDto.getGroupId());
+            if(OrderServiceType.ORDER_SERVICE_TYPE_NOW.getPrState().equals(type) || OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getPrState().equals(type)){
+                orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
+            }else if(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getPrState().equals(type)){
+                orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState());
+                orderInfo.setFlightNumber(applyUseWithTravelDto.getAirlineNum());
+                SimpleDateFormat si = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date planDate = si.parse(applyUseWithTravelDto.getPlanDate());
+                orderInfo.setFlightPlanTakeOffTime(planDate);
+            }else if(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getPrState().equals(type)){
+                orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState());
+            }else{
+                orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState());
+            }
             iOrderInfoService.updateOrderInfo(orderInfo);
             //订单轨迹
             iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
@@ -682,6 +709,12 @@ public class OrderController {
             orderAddressInfo.setNodeId(orderInfoOld.getNodeId());
             orderAddressInfo.setPowerId(orderInfoOld.getPowerId());
             orderAddressInfo.setUserId(orderInfoOld.getUserId()+"");
+            orderAddressInfo.setCityPostalCode(applyUseWithTravelDto.getCityId());
+            if(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getPrState().equals(type)){
+                String depCode = applyUseWithTravelDto.getDepCode();
+                String arrCode = applyUseWithTravelDto.getArrCode();
+                orderAddressInfo.setIcaoCode(arrCode+","+depCode);
+            }
             orderAddressInfo.setCreateBy(userId+"");
             //起点
             orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
@@ -692,6 +725,8 @@ public class OrderController {
             orderAddressInfo.setLatitude(Double.parseDouble(start[1]));
             orderAddressInfo.setAddress(applyUseWithTravelDto.getStartAddr());
             orderAddressInfo.setAddressLong(applyUseWithTravelDto.getStarAddrLong());
+
+
             iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
             //终点
             orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
@@ -871,5 +906,27 @@ public class OrderController {
             e.printStackTrace();
             return  ApiResponse.error("获取提示语异常!");
         }
+    }
+
+    @ApiOperation(value = "自有车手动约车接口", notes = "自有车手动约车接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "orderNo", value = "订单id", required = true, paramType = "query", dataType = "String")
+    })
+    @RequestMapping(value = "/letUserCallTaxiPrivate", method = RequestMethod.POST)
+    public ApiResponse letUserCallTaxiPrivate( @RequestParam("orderNo") String orderNo){
+        try {
+            Long orderId = Long.parseLong(orderNo);
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setOrderId(orderId);
+            orderInfo.setState(OrderState.WAITINGLIST.getState());
+            int i = iOrderInfoService.updateOrderInfo(orderInfo);
+            if (i != 1) {
+                throw new Exception("约车失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error();
+        }
+        return ApiResponse.success();
     }
 }

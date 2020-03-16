@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +9,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
+
+import java.util.Date;
 
 /**
  * 派车订单信息对象 order_info
@@ -88,11 +91,14 @@ public class OrderInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long demandCarLevel;
+    private String demandCarLevel;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String orderTraceState;
+
+    @JsonFormat( pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date flightPlanTakeOffTime;
 
     public OrderInfo(Long orderId, String state) {
         this.orderId = orderId;

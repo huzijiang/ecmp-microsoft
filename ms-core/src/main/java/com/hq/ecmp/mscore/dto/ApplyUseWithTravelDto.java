@@ -17,15 +17,17 @@ public class ApplyUseWithTravelDto extends ParallelOrderDto {
      */
     @ApiModelProperty(name = "orderId", value = "订单id")
     private Long orderId;
-    @ApiModelProperty(name = "type", value = "类型",notes = "1:随叫随到;2:预约用车;3:接机;5:送机 ")
+    @ApiModelProperty(name = "type", value = "类型",notes = "1:随叫随到;2:预约用车;3:接机;4:包车; 5:送机 ")
     private String type;
-    @ApiModelProperty(value = "乘车人姓名")
-    private String riderName;
-    @ApiModelProperty(value = "乘车人电话")
-    private String riderPhone;
-    @ApiModelProperty(value = "预估金额")
-    private String estimatedAmount;
-    @ApiModelProperty(value = "下单车型，如“34”")
+//    @ApiModelProperty(value = "乘车人姓名")
+//    private String riderName;
+//    @ApiModelProperty(value = "乘车人电话")
+//    private String riderPhone;
+//    @ApiModelProperty(value = "预估金额")
+//    private String estimatedAmount;
+    @ApiModelProperty(value = "下单车型",notes = "P001-公务级\n" +
+            "P002-行政级\n" +
+            "P003-六座商务")
     private String groupId;
     @ApiModelProperty(value = "城市id(测试环境请用44)")
     private String cityId;
