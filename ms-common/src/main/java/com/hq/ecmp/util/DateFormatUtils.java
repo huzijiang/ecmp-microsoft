@@ -1,10 +1,10 @@
 package com.hq.ecmp.util;
 
-import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
-
 import java.text.ParseException;
 import java.util.Date;
+
+import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * Date的parse()与format(), 采用Apache Common Lang中线程安全, 性能更佳的FastDateFormat
@@ -187,5 +187,13 @@ public class DateFormatUtils {
             totalTimeStr=minute+"分";
         }
         return totalTimeStr;
+    }
+    
+    public static boolean beforeCurrentDate(Date date){
+    	Date currentDate=new Date();
+    	if(date.getTime()>currentDate.getTime()){
+    		return false;
+    	}
+    	return true;
     }
 }

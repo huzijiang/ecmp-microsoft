@@ -1,7 +1,10 @@
 package com.hq.ecmp.mscore.service;
 
 
+import java.util.List;
+
 import com.alibaba.fastjson.JSONObject;
+import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
@@ -10,11 +13,10 @@ import com.hq.ecmp.mscore.dto.CallTaxiDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
-
-import java.util.List;
 
 /**
  * 【请填写功能名称】Service接口
@@ -193,6 +195,10 @@ public interface IOrderInfoService {
 
     //查询网约车状态
     JSONObject getTaxiOrderState(Long orderId)throws Exception;
+    
+    public List<ApplyDispatchVo> queryApplyDispatchList(ApplyDispatchQuery query);
+    
+    public Integer queryApplyDispatchListCount(ApplyDispatchQuery query);
 
 }
 

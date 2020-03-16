@@ -539,4 +539,76 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             </where>
     </select>
 
+	<select id="queryApplyDispatchList" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
+		resultType="com.hq.ecmp.mscore.vo.ApplyDispatchVo">
+		SELECT
+		a.order_id AS orderId,
+		b.nick_name AS applyUserName,
+		b.user_name AS applyUserMobile,
+		a.journey_id AS journeyId,
+		a.node_id AS nodeId,
+		a.update_time AS optDate,
+		a.state AS state,
+		a.service_type as serviceType
+		FROM
+		order_state_trace_info d
+		LEFT JOIN order_info a ON a.order_id = d.order_id
+		LEFT JOIN ecmp_user b ON a.user_id = b.user_id
+		LEFT JOIN order_address_info c ON a.order_id = c.order_id
+		WHERE
+		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S199','S200','S299','S600','S616','S699','S900')
+		<if test="null !=applyMobile">
+			and b.user_name LIKE concat('%',#{applyMobile},'%')
+		</if>
+		<if test="null !=applyName">
+			and AND b.nick_name LIKE concat('%',#{applyName},'%')
+		</if>
+		<if test="null !=cityCode">
+			AND c.city_postal_code = #{cityCode}
+		</if>
+		<if test="null !=optStartDate">
+			AND a.update_time &gt;= #{optStartDate}
+		</if>
+		<if test="null !=optEndDate">
+			AND a.update_time &lt;= #{optEndDate}
+		</if>
+		<if test="null !=useCarMode">
+			AND a.use_car_mode = #{useCarMode}
+		</if>
+		GROUP BY d.order_id
+		<if test="offset != null and pageSize != null">
+			LIMIT #{offset},#{pageSize}
+		</if>
+	</select>
+	
+   <select id="queryApplyDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="java.lang.Integer">
+   SELECT
+		count(1)
+		FROM
+		order_state_trace_info d
+		LEFT JOIN order_info a ON a.order_id = d.order_id
+		LEFT JOIN ecmp_user b ON a.user_id = b.user_id
+		LEFT JOIN order_address_info c ON a.order_id = c.order_id
+		WHERE
+		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S199','S200','S299','S600','S616','S699','S900')
+		<if test="null !=applyMobile">
+			and b.user_name LIKE concat('%',#{applyMobile},'%')
+		</if>
+		<if test="null !=applyName">
+			and AND b.nick_name LIKE concat('%',#{applyName},'%')
+		</if>
+		<if test="null !=cityCode">
+			AND c.city_postal_code = #{cityCode}
+		</if>
+		<if test="null !=optStartDate">
+			AND a.update_time &gt;= #{optStartDate}
+		</if>
+		<if test="null !=optEndDate">
+			AND a.update_time &lt;= #{optEndDate}
+		</if>
+		<if test="null !=useCarMode">
+			AND a.use_car_mode = #{useCarMode}
+		</if>
+		GROUP BY d.order_id
+   </select>
 </mapper>
