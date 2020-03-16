@@ -13,11 +13,12 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -63,18 +64,6 @@ public class OkHttpUtil {
             connectTimeout(3, TimeUnit.SECONDS).
             build();
 
-
-    //测试一波
-    public static void main(String[] args) {
-        Map<String, String> map = new HashMap<>();
-        map.put("k", "v");
-        try {
-            String s = execute(OkHttp.builder().url("http://www.baidu.com").method(GET).requestLog(
-                    false).responseLog(false).build());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * GET请求

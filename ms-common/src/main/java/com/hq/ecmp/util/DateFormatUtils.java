@@ -1,6 +1,5 @@
 package com.hq.ecmp.util;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -189,18 +188,4 @@ public class DateFormatUtils {
         }
         return totalTimeStr;
     }
-
-    public static void main(String[] args) {
-        String s = formatSecond(10);
-        String s1 = formatSecond(10000);
-        String s2= formatSecond(100000);
-        String s3 = formatSecond(20);
-        String s4 = formatMinute(120);
-        System.out.println("s:"+s);
-        System.out.println("s1:"+s1);
-        System.out.println("s2:"+s2);
-        System.out.println("s3:"+s3);
-        System.out.println("s4:"+s4);
-    }
-
 }
