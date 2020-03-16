@@ -94,4 +94,12 @@ public class CarInfoServiceImpl implements ICarInfoService
     {
         return carInfoMapper.deleteCarInfoById(carId);
     }
+
+    /**
+     * 可管理车辆总数
+     */
+    @Override
+    public int queryCompanyCarCount(){
+        return carInfoMapper.queryCompanyCar();
+    }
 }

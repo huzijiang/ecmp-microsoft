@@ -134,10 +134,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{userId}
         </foreach>
     </delete>
-    
+
     <select id="queryDispatcher" parameterType="java.lang.Long" resultType="java.lang.Integer">
-    select count(1) from ecmp_user  where user_id=#{userId} and it_is_dispatcher='1'
-    
+          select count(1) from ecmp_user  where user_id=#{userId} and it_is_dispatcher='1'
     </select>
 
+    <select id="queryCompanyEmp"  resultType="java.lang.Integer">
+          select count(*) from ecmp_user
+    </select>
 </mapper>

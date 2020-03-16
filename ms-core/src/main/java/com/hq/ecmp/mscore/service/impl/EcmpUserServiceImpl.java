@@ -94,4 +94,12 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 		Integer count = ecmpUserMapper.queryDispatcher(userId);
 		return count>0;
 	}
+    /**
+     * 可管理员工
+     * @return
+     */
+    @Override
+    public int  queryCompanyEmpCunt(){
+        return ecmpUserMapper.queryCompanyEmp();
+    }
 }
