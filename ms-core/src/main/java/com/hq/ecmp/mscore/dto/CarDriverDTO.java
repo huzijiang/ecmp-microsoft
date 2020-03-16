@@ -1,4 +1,4 @@
-package com.hq.ecmp.ms.api.dto.car;
+package com.hq.ecmp.mscore.dto;
 
 import com.hq.ecmp.mscore.vo.DriverVO;
 import io.swagger.annotations.ApiParam;
@@ -8,18 +8,15 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
- * @Author: zj.hu
- * @Date: 2020-01-04 17:28
+ * @Author: chao.zhang
+ * @Date: 2020/3/15 12:29
  */
 @Data
-public class CarDto {
+public class CarDriverDTO {
 
     @NotEmpty
     @ApiParam(required = true)
     private Long carId;
 
-    private Long driverId;  //驾驶员id
-
-    private Long userId;  //驾驶员员工编号
-
+    private List<DriverVO> drivers;
 }

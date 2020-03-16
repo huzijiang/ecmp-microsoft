@@ -26,4 +26,14 @@ public interface CarConstant {
 
 	String START_UP_CAR_GROUP = "Y000";   //启用车队
 	String DISABLE_CAR_GROUP = "N111";   // 禁用车队
+
+	String START_CAR = "S000";  // 启用中
+	String DISABLE_CAR = "S001";  //禁用中
+	String MAINTENANCE_CAR = "S002"; //维护中
+	String TIME_OUT_CAR = "SOO3";  //已到期
+	String BE_BORROWED_CAR = "S101"; // 被借调
+
+	String START_CAR_TYPE = "S000";  //车型 有效
+	String DISABLE_CAR_TYPE = "S444";  // 车型 失效
+
 }

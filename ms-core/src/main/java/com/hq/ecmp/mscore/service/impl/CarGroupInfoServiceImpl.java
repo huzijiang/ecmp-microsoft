@@ -5,19 +5,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.hq.common.core.api.ApiResponse;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
-import com.hq.ecmp.mscore.mapper.CarGroupDispatcherInfoMapper;
-import com.hq.ecmp.mscore.mapper.CarGroupDriverRelationMapper;
-import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
+import com.hq.ecmp.mscore.vo.CarGroupListVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +43,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     private EcmpUserMapper ecmpUserMapper;
     @Autowired
     private CarGroupDriverRelationMapper carGroupDriverRelationMapper;
+    @Autowired
+    private CarInfoMapper carInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -319,4 +321,23 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             throw new Exception();
         }
     }
+
+    @Override
+    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum,pageSize);
+        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage();
+        for (CarGroupListVO carGroupListVO : list) {
+            Long carGroupId = carGroupListVO.getCarGroupId();
+            //查询车队绑定车辆数
+            int carNum = carInfoMapper.selectCountGroupCarByGroupId(carGroupId);
+            //查询车队驾驶员数
+            int driverNum = carGroupDriverRelationMapper.selectCountDriver(carGroupId);
+            carGroupListVO.setCountCar(carNum);
+            carGroupListVO.setCountDriver(driverNum);
+        }
+        PageInfo<CarGroupListVO> info = new PageInfo<>(list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
+    }
+
+
 }

@@ -1,12 +1,26 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.domain.DriverCarRelationInfo;
+import com.hq.ecmp.mscore.domain.DriverInfo;
+import com.hq.ecmp.mscore.dto.CarDriverDTO;
 import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
+import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
+import com.hq.ecmp.mscore.vo.DriverVO;
+import com.hq.ecmp.mscore.vo.PageResult;
+import lombok.AllArgsConstructor;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+
+import javax.validation.constraints.NotEmpty;
 
 
 /**
@@ -20,6 +34,8 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
 {
     @Autowired
     private DriverCarRelationInfoMapper driverCarRelationInfoMapper;
+    @Autowired
+    private DriverInfoMapper driverInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -102,4 +118,73 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
 	public Integer queryDriverUseCarCount(Long driverId) {
 		return driverCarRelationInfoMapper.queryDriverUseCarCount(driverId);
 	}
+
+    /**
+     * 车辆新增驾驶员
+     * @param carDriverDTO
+     * @param userId
+     */
+    @Override
+    public void bindCarDrivers(CarDriverDTO carDriverDTO, Long userId) throws Exception {
+         Long carId = carDriverDTO.getCarId();
+        List<DriverVO> drivers = carDriverDTO.getDrivers();
+        DriverCarRelationInfo driverCarRelationInfo = null;
+        for (DriverVO driver : drivers) {
+            driverCarRelationInfo = new DriverCarRelationInfo();
+            driverCarRelationInfo.setUserId(driver.getUserId());
+            driverCarRelationInfo.setDriverId(driver.getDriverId());
+            driverCarRelationInfo.setCarId(carId);
+           // driverCarRelationInfo.setCreateBy(String.valueOf(userId));
+           // driverCarRelationInfo.setCreateTime(new Date());
+            int i = driverCarRelationInfoMapper.insertDriverCarRelationInfo(driverCarRelationInfo);
+            if(i != 1){
+                throw new Exception("新增驾驶员失败");
+            }
+        }
+    }
+
+    /**
+     * 解绑车辆驾驶员
+     * @param carId
+     * @param userId
+     * @param driverId
+     */
+    @Override
+    public void removeCarDriver(Long carId, Long userId, Long driverId) throws Exception {
+        DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+        int i = driverCarRelationInfoMapper.deleteCarDriver(carId,userId,driverId);
+        if(i != 1){
+            throw new Exception("解绑车辆驾驶员失败");
+        }
+    }
+
+    /**
+     * 分页查询车辆绑定司机列表
+     * @param pageNum
+     * @param pageSize
+     * @param carId
+     * @return
+     */
+    @Override
+    public PageResult<DriverVO> selectCarDriversByPage(Integer pageNum, Integer pageSize, Long carId) {
+        PageHelper.startPage(pageNum,pageSize);
+        DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+        driverCarRelationInfo.setCarId(carId);
+        List<DriverCarRelationInfo> driverCarRelationInfos = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo);
+        DriverVO driverVO = null;
+        List<DriverVO> list = new ArrayList<>();
+        for (DriverCarRelationInfo carRelationInfo : driverCarRelationInfos) {
+            driverVO = new DriverVO();
+            Long driverId = carRelationInfo.getDriverId();
+            DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(driverId);
+            driverVO.setDriverId(driverId);
+            driverVO.setDriverName(driverInfo.getDriverName());
+            driverVO.setUserId(driverInfo.getUserId());
+            list.add(driverVO);
+        }
+        PageInfo<DriverVO> pageInfo = new PageInfo<>(list);
+
+        return new PageResult<DriverVO>(pageInfo.getTotal(),pageInfo.getPages(),list);
+
+    }
 }

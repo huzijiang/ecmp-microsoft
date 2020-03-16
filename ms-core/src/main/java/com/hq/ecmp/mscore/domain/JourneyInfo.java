@@ -44,7 +44,7 @@ public class JourneyInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String useCarTime;
+    private Date useCarTime;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -193,12 +193,12 @@ public class JourneyInfo extends BaseEntity
     {
         return useCarMode;
     }
-    public void setUseCarTime(String useCarTime)
+    public void setUseCarTime(Date useCarTime)
     {
         this.useCarTime = useCarTime;
     }
 
-    public String getUseCarTime()
+    public Date getUseCarTime()
     {
         return useCarTime;
     }

@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.vo;
 
+import io.swagger.models.auth.In;
 import lombok.Data;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 @Data
 public class PageResult<T> {
     private Long total;// 总条数
-    private Long totalPage;// 总页数
+    private Integer totalPage;// 总页数
     private List<T> items;// 当前页数据
 
     public PageResult() {
@@ -22,7 +23,7 @@ public class PageResult<T> {
         this.items = items;
     }
 
-    public PageResult(Long total, Long totalPage, List<T> items) {
+    public PageResult(Long total, Integer totalPage, List<T> items) {
         this.total = total;
         this.totalPage = totalPage;
         this.items = items;

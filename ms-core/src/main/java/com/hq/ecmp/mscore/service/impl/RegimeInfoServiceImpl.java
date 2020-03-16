@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.hq.ecmp.mscore.vo.RegimenVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -137,7 +138,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
      * @return
      */
     @Override
-    public List<RegimeInfo> findRegimeInfoListByUserId(Long userId,Long sceneId) {
+    public List<RegimenVO> findRegimeInfoListByUserId(Long userId, Long sceneId) {
         //根据userId查询regimeId集合
         List<Long> regimeIds = userRegimeRelationInfoMapper.selectIdsByUserId(userId);
         //如果有制度条件限制,则进行条件筛选
@@ -148,7 +149,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
             regimeIds.retainAll(regimenIds2);
         }
         //根据regimeId集合查询RegimeInfo集合
-        List<RegimeInfo> regimeInfoList = regimeIds.stream().map(regimeId->regimeInfoMapper.selectRegimeInfoById(regimeId)).collect(Collectors.toList());
+        List<RegimenVO> regimeInfoList = regimeIds.stream().map(regimeId->regimeInfoMapper.selectRegimenVOById(regimeId)).collect(Collectors.toList());
         return regimeInfoList;
     }
 

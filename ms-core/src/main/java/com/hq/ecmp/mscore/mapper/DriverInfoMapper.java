@@ -97,4 +97,11 @@ public interface DriverInfoMapper
      * @return 结果
      */
     public int updateUseStatus(@Param("deptId") Long deptId, @Param("state") String state);
+
+    /**
+     * 查询车辆可用驾驶员
+     * @param driverId
+     * @return
+     */
+    DriverInfo selectEffectiveDriverInfoById(Long driverId);
 }

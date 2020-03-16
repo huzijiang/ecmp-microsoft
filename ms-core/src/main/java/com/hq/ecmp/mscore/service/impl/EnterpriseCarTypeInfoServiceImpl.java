@@ -1,10 +1,15 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
+import com.hq.ecmp.mscore.dto.CarTypeDTO;
+import com.hq.ecmp.mscore.mapper.CarInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.mapper.EnterpriseCarTypeInfoMapper;
@@ -28,6 +33,8 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
     private EcmpUserMapper ecmpUserMapper;
     @Autowired
     private EcmpEnterpriseInfoMapper ecmpEnterpriseInfoMapper;
+    @Autowired
+    private CarInfoMapper carInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -98,9 +105,18 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
      * @return 结果
      */
     @Override
-    public int deleteEnterpriseCarTypeInfoById(Long carTypeId)
-    {
-        return enterpriseCarTypeInfoMapper.deleteEnterpriseCarTypeInfoById(carTypeId);
+    public int deleteEnterpriseCarTypeInfoById(Long carTypeId) throws Exception {
+        //判断该车型下是否绑定车辆 如有绑定则无法删除
+        CarInfo carInfo = CarInfo.builder().carTypeId(carTypeId).build();
+        List<CarInfo> carInfos = carInfoMapper.selectCarInfoList(carInfo);
+        if(carInfos.size() != 0){
+            throw new Exception("请先移除类型下绑定的车辆");
+        }
+        int i = enterpriseCarTypeInfoMapper.deleteEnterpriseCarTypeInfoById(carTypeId);
+        if(i != 1){
+            throw new Exception("删除失败");
+        }
+        return i;
     }
 
     /**
@@ -128,5 +144,45 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
         //查询公司车型
         List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
         return enterpriseCarTypeInfos;
+    }
+
+    /**
+     * 新增车型
+     * @param carDto
+     * @param userId
+     */
+    @Override
+    public void saveCarType(CarTypeDTO carDto, Long userId) throws Exception {
+        EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
+        enterpriseCarTypeInfo.setEnterpriseId(carDto.getEnterpriseId());
+        enterpriseCarTypeInfo.setName(carDto.getName());
+        enterpriseCarTypeInfo.setLevel(carDto.getLevel());
+        // 初始化状态为生效  状态   S000   生效中    S444   失效中
+        enterpriseCarTypeInfo.setStatus(CarConstant.START_CAR_TYPE);
+        enterpriseCarTypeInfo.setCreateBy(String.valueOf(userId));
+        enterpriseCarTypeInfo.setCreateTime(new Date());
+        int i = enterpriseCarTypeInfoMapper.insertEnterpriseCarTypeInfo(enterpriseCarTypeInfo);
+        if(i != 1){
+            throw new Exception("新增车型失败");
+        }
+    }
+
+    /**
+     * 修改车型
+     * @param carDto
+     * @param userId
+     */
+    @Override
+    public void updateCarType(CarTypeDTO carDto, Long userId) throws Exception {
+        EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
+        enterpriseCarTypeInfo.setCarTypeId(carDto.getCarTypeId());
+        enterpriseCarTypeInfo.setName(carDto.getName());
+        enterpriseCarTypeInfo.setLevel(carDto.getLevel());
+        enterpriseCarTypeInfo.setUpdateBy(String.valueOf(userId));
+        enterpriseCarTypeInfo.setUpdateTime(new Date());
+        int i = enterpriseCarTypeInfoMapper.updateEnterpriseCarTypeInfo(enterpriseCarTypeInfo);
+        if(i != 1){
+            throw new Exception();
+        }
     }
 }

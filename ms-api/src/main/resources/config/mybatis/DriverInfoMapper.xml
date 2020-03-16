@@ -282,6 +282,11 @@ WHERE
 	b.car_group_id = #{driverId}
 
 </select>
+    <select id="selectEffectiveDriverInfoById" resultMap="DriverInfoResult">
+        <include refid="selectDriverInfoVo"/>
+        where driver_id = #{driverId}
+        and state = 'V000'
+    </select>
 
     <select id="queryCompanyDriver"  resultType="java.lang.Integer">
           select count(*) from driver_info

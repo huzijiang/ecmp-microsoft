@@ -22,7 +22,6 @@ import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -250,21 +249,23 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 return o1.getNumber() - o2.getNumber();
             }
         });
-        StringBuilder sb = null;
+        StringBuilder sb = new StringBuilder();
         int size = list.size();
         //第一个节点
         sb.append(list.get(0).getPlanBeginAddress() + "-"+list.get(0).getPlanEndAddress());
         for (int j = 1; j < size; j++) {
             //如果下一个节点的起点不是上一个起点的终点，则下一个节点追加   ；上海-北京  样字段
-            if(!list.get(j).getPlanBeginAddress().equals(list.get(j-1).getPlanEndAddress())){
+            if (!list.get(j).getPlanBeginAddress().equals(list.get(j - 1).getPlanEndAddress())) {
                 sb.append("；");
-                sb.append(list.get(j).getPlanBeginAddress()+"-"+list.get(j).getPlanEndAddress());
-            }else {
+                sb.append(list.get(j).getPlanBeginAddress() + "-" + list.get(j).getPlanEndAddress());
+            } else {
                 //如果下一个节点的起点是上一个节点的终点，则下一个节点追加  、上海、南京  样字段
-                sb.append("、"+list.get(j).getPlanBeginAddress()+"、"+list.get(j).getPlanEndAddress());
+                sb.append("、" + list.get(j).getPlanBeginAddress() + "、" + list.get(j).getPlanEndAddress());
             }
         }
+
         String title = sb.toString();
+
         //行程表添加title信息
         JourneyInfo build1 = JourneyInfo.builder().title(title).journeyId(journeyId).build();
         journeyInfoMapper.updateJourneyInfo(build1);
@@ -369,15 +370,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.根据journreyId查询行程表相关信息
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(applyInfo.getJourneyId());
         //用车时间
-        String useCarTime = journeyInfo.getUseCarTime();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
-        try {
-//            Date parseDate = dateFormat.parse(useCarTime);
-            String s = DateFormatUtils.formatDate("yyyy年MM月dd日 HH:mm", new Date(useCarTime));
-            applyDetailVO.setApplyDate(s);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Date useCarTime = journeyInfo.getUseCarTime();
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+        applyDetailVO.setApplyDate(useCarTime);
         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(journeyInfo.getUserId());
         //申请人
         applyDetailVO.setApplyUser(ecmpUser.getUserName());
@@ -631,9 +626,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUseCarMode(travelCommitApply.getUseType());
         //1.5 use_car_time 用车时间
         Date startDate = travelCommitApply.getTravelRequests().get(0).getStartDate();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
-        String startDateStr = dateFormat.format(startDate);
-        journeyInfo.setUseCarTime(startDateStr);  //TODO 用车时间
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+        //String startDateStr = dateFormat.format(startDate);
+        journeyInfo.setUseCarTime(startDate);  //TODO 用车时间
         //1.6 it_is_return 是否往返 Y000 N444
         journeyInfo.setItIsReturn(travelCommitApply.getIsGoBack());
         //1.7 estimate_price 预估价格     非空
@@ -974,10 +969,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUseCarMode(officialCommitApply.getUseType());
         //1.5 use_car_time 用车时间
         Date applyDate = officialCommitApply.getApplyDate();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");  //TODO 时间方法改动下
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");  //TODO 时间方法改动下
         if (applyDate != null){
-            String date = dateFormat.format(applyDate);
-            journeyInfo.setUseCarTime(date);
+            //String date = dateFormat.format(applyDate);
+            journeyInfo.setUseCarTime(applyDate);
         }
         //1.6 it_is_return 是否往返 Y000 N444
         journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());    //TODO  有往返的话，创建两个行程

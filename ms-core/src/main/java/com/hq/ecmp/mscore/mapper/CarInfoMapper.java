@@ -61,6 +61,13 @@ public interface CarInfoMapper
      * @return 结果
      */
     public int deleteCarInfoByIds(Long[] carIds);
+
+    /**
+     * 查询某车队的车辆数
+     * @param carGroupId
+     * @return
+     */
+    int selectCountGroupCarByGroupId(Long carGroupId);
     /**
      * 可管理车辆总数
      */

@@ -70,6 +70,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertCarInfo" parameterType="com.hq.ecmp.mscore.domain.CarInfo">
+        <selectKey keyColumn="car_id" keyProperty="carId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into car_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="carId != null ">car_id,</if>
@@ -93,7 +96,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carLicenseImageUrl != null  and carLicenseImageUrl != ''">car_license_image_url,</if>
             <if test="buyDate != null ">buy_date,</if>
             <if test="rentEndDate != null ">rent_end_date,</if>
-            <if test="ownerOrgId != null  and ownerOrgId != ''">owner_org_id,</if>
+            <if test="ownerOrgId != null ">owner_org_id,</if>
+            <if test="enterpriseCarTypeId != null ">enterprise_car_type_id,</if>
+            <if test="rentStartDate != null ">rent_start_date,</if>
+            <if test="borrowStartDate != null ">borrow_start_date,</if>
+            <if test="borrowEndDate != null ">borrow_end_date,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -121,7 +128,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carLicenseImageUrl != null  and carLicenseImageUrl != ''">#{carLicenseImageUrl},</if>
             <if test="buyDate != null ">#{buyDate},</if>
             <if test="rentEndDate != null ">#{rentEndDate},</if>
-            <if test="ownerOrgId != null  and ownerOrgId != ''">#{ownerOrgId},</if>
+            <if test="ownerOrgId != null ">#{ownerOrgId},</if>
+            <if test="enterpriseCarTypeId != null ">#{enterpriseCarTypeId},</if>
+            <if test="rentEndDate != null ">#{rentEndDate},</if>
+            <if test="borrowStartDate != null ">#{borrowStartDate},</if>
+            <if test="borrowEndDate != null ">#{borrowEndDate},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -171,6 +182,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{carId}
         </foreach>
     </delete>
+    <select id="selectCountGroupCarByGroupId" resultType="int" parameterType="long">
+        select count(1) from car_info where car_group_id = #{carGroupId}
+    </select>
 
     <select id="queryCompanyCar"  resultType="java.lang.Integer">
           select count(*) from car_info
