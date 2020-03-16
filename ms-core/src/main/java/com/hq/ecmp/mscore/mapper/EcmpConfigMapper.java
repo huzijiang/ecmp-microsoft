@@ -21,6 +21,13 @@ public interface EcmpConfigMapper
     public EcmpConfig selectEcmpConfigById(Integer configId);
 
     /**
+     * 根据KEY查询相关配置值
+     * @param config
+     * @return
+     */
+    public EcmpConfig selectConfigByKey(EcmpConfig config);
+
+    /**
      * 查询参数配置列表
      *
      * @param ecmpConfig 参数配置
@@ -43,6 +50,13 @@ public interface EcmpConfigMapper
      * @return 结果
      */
     public int updateEcmpConfig(EcmpConfig ecmpConfig);
+
+    /**
+     * 根据Key更新value
+     * @param ecmpConfig
+     * @return
+     */
+    public int updateConfigByKey(EcmpConfig ecmpConfig);
 
     /**
      * 删除参数配置

@@ -13,7 +13,7 @@ public class MessageDto {
      * 消息类型(1:申请通知,2:审批通知,3派车通知、4行程中通知,5改派通知)乘客
      * 消息类型(1:新任务通知,2:派车通知,3改派通知、4任务取消通知,5任务提示通知)司机
      */
-    private Integer messageType;
+    private String messageType;
     private String messageTypeStr;
     /**
      * 消息通知数量

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpMessage;
+import com.hq.ecmp.mscore.dto.MessageDto;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 import java.util.Map;
@@ -66,4 +67,9 @@ public interface EcmpMessageMapper {
     List<EcmpMessage> queryMessageList(Map map);
 
     int queryMessageCount(Map map);
+
+    List<MessageDto> getMessagesForPassenger(Long userId, String categorys);
+
+    List<MessageDto> getRunMessageForDrive(@Param("driverId") Long driverId,@Param("categorys") String categorys);
+    List<MessageDto> getRunMessageForDispatcher(@Param("ecmpId") Long ecmpId,@Param("category") String category);
 }

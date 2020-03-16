@@ -59,4 +59,7 @@ public interface OrderAddressInfoMapper
      * @return 结果
      */
     public int deleteOrderAddressInfoByIds(Long[] orderAddressIds);
+    
+    
+    public OrderAddressInfo queryOrderStartAndEndInfo(OrderAddressInfo orderAddressInfo);
 }

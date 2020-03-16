@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service.impl;
 import java.util.*;
 
+import com.google.common.collect.Maps;
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
@@ -9,9 +11,16 @@ import com.hq.ecmp.constant.MsgConstant;
 import com.hq.ecmp.constant.MsgStatusConstant;
 import com.hq.ecmp.constant.MsgTypeConstant;
 import com.hq.ecmp.constant.MsgUserConstant;
+import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
+import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.EcmpMessage;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
+import com.hq.ecmp.mscore.mapper.DriverWorkInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpMessageMapper;
 import com.hq.ecmp.mscore.service.EcmpMessageService;
+import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +40,10 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
 
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private IApproveTemplateNodeInfoService approveTemplateNodeInfoService;
+    @Autowired
+    private DriverInfoMapper driverInfoMapper;
 
     /**
      * 通过ID查询单条数据
@@ -173,5 +186,70 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         map.put("configTypeList",configTypeList);
         map.put("ecmpId",ecmpId);
         return ecmpMessageDao.queryMessageCount(map);
+    }
+
+    @Override
+    public List<MessageDto> getMessagesForPassenger(SysUser user) throws Exception {
+        String categorys="M001,M004,M006";//申请人
+        if ("1".equals(user.getItIsDispatcher())){//调度员
+            categorys+=",M003";
+        }
+        List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoService.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(user.getUserId(), true));
+        if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos)){//审批员
+            categorys+=",M002";
+        }
+        List<MessageDto> list = ecmpMessageDao.getMessagesForPassenger(user.getUserId(), categorys);
+        if (CollectionUtils.isNotEmpty(list)){
+            for (MessageDto messageDto:list){
+                messageDto.setMessageTypeStr(MsgConstant.getDespByType(messageDto.getMessageType()));
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public List<MessageDto> getRunMessageForDrive(SysUser user) throws Exception {
+        if ("0".equals(user.getItIsDriver())){
+            throw new Exception("该用户不是司机");
+        }
+        DriverInfo driverInfo = driverInfoMapper.selectDriverInfoByUserId(user.getUserId());
+        String categorys="M005,M004,M007";//申请人
+        List<MessageDto> runMessageForDrive = ecmpMessageDao.getRunMessageForDrive(driverInfo.getDriverId(), categorys);
+        //判断当前司机是不是调度员
+        if ("1".equals(user.getItIsDispatcher())){
+            List<MessageDto> runMessageForDispatcher = ecmpMessageDao.getRunMessageForDrive(user.getUserId(), "M003");
+            runMessageForDrive.addAll(runMessageForDispatcher);
+        }
+        if (CollectionUtils.isNotEmpty(runMessageForDrive)){
+            for (MessageDto messageDto:runMessageForDrive){
+                messageDto.setMessageTypeStr(MsgConstant.getDespByType(messageDto.getMessageType()));
+            }
+        }
+        return runMessageForDrive;
+    }
+
+    //stat
+    public void saveApplyMessage(Long applyId,Long ecmpId,Long userId){
+        Map<String,Object> map= Maps.newHashMap();
+        map.put("messageId",applyId);
+        map.put("ecmpId",ecmpId);
+        map.put("category",MsgConstant.MESSAGE_T001);
+        map.put("status",MsgStatusConstant.MESSAGE_STATUS_T002.getType());
+        List<EcmpMessage> ecmpMessages = ecmpMessageDao.queryMessageList(map);
+        if (CollectionUtils.isNotEmpty(ecmpMessages)){
+            for (EcmpMessage message:ecmpMessages){
+                message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T001.getType());
+                message.setUpdateBy(ecmpId);
+                message.setUpdateTime(new Date());
+                ecmpMessageDao.update(message);
+            }
+        }
+        //通知调度员,通知申请人审批通过
+        List<EcmpMessage> list=new ArrayList<>();
+        EcmpMessage message=new EcmpMessage();
+        message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T002.getType());
+        message.setCategory(MsgConstant.MESSAGE_T001.getType());
+        message.setEcmpId(ecmpId);
+        message.setConfigType(1);
     }
 }

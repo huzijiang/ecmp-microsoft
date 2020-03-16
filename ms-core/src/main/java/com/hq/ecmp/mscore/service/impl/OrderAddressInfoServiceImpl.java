@@ -94,4 +94,9 @@ public class OrderAddressInfoServiceImpl implements IOrderAddressInfoService
     {
         return orderAddressInfoMapper.deleteOrderAddressInfoById(orderAddressId);
     }
+
+	@Override
+	public OrderAddressInfo queryOrderStartAndEndInfo(OrderAddressInfo orderAddressInfo) {
+		return orderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfo);
+	}
 }

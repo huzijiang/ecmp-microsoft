@@ -7,6 +7,7 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.ApproveStateEnum;
+import com.hq.ecmp.constant.MsgTypeConstant;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
@@ -250,7 +251,7 @@ public class ApplyContoller {
     @ApiOperation(value = "applyPass",notes = "行程申请-审核通过 ",httpMethod ="POST")
     @PostMapping("/applyPass")
     @Transactional
-    public ApiResponse applyPass(ApplyDTO journeyApplyDto){
+    public ApiResponse applyPass(@RequestBody ApplyDTO journeyApplyDto){
         //1.校验信息
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
@@ -266,19 +267,19 @@ public class ApplyContoller {
                 //下一审批人修改为待审批
                 resultInfoService.updateApplyApproveResultInfo(new ApplyApproveResultInfo(collect.get(0).getApplyId(), collect.get(0).getApproveTemplateId(), collect.get(0).getApproveNodeId(), ApproveStateEnum.WAIT_APPROVE_STATE.getKey()));
                 //TODO 发送通知消息
-                EcmpMessage ecmpMessage = new EcmpMessage();
-                ecmpMessage.setConfigType(3);
-                ecmpMessage.setEcmpId(userId);
-                ecmpMessage.setType("T001");
-                ecmpMessage.setStatus("0000");
-                ecmpMessage.setContent("");
-                ecmpMessage.setCategory("M003");
-                ecmpMessage.setUrl("");
-                ecmpMessage.setCreateBy(userId);
-                ecmpMessage.setCreateTime(DateUtils.getNowDate());
-                ecmpMessage.setUpdateBy(null);
-                ecmpMessage.setUpdateTime(null);
-                ecmpMessageService.insert(ecmpMessage);
+//                EcmpMessage ecmpMessage = new EcmpMessage();
+//                ecmpMessage.setConfigType(3);
+//                ecmpMessage.setEcmpId(Long.parseLong(applyInfo.getCreateBy()));
+//                ecmpMessage.setType(MsgTypeConstant.MESSAGE_TYPE_T001.getType());
+//                ecmpMessage.setStatus("0000");
+//                ecmpMessage.setContent("您的申请单"+journeyApplyDto.getApplyId()+"已审批通过");
+//                ecmpMessage.setCategory("M003");
+//                ecmpMessage.setUrl("");
+//                ecmpMessage.setCreateBy(userId);
+//                ecmpMessage.setCreateTime(DateUtils.getNowDate());
+//                ecmpMessage.setUpdateBy(null);
+//                ecmpMessage.setUpdateTime(null);
+//                ecmpMessageService.insert(ecmpMessage);
             } else if (approveTemplateNodeInfo != null && approveTemplateNodeInfo.getNextNodeId() == null) {//是最后节点审批人
                 //修改审理状态
                 this.updateApproveResult(collect, userId);
@@ -304,7 +305,7 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "applyReject",notes = "行程申请-驳回",httpMethod ="POST")
     @PostMapping("/applyReject")
-    public ApiResponse  applyReject(ApplyDTO journeyApplyDto){
+    public ApiResponse  applyReject(@RequestBody ApplyDTO journeyApplyDto){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
@@ -413,7 +414,10 @@ public class ApplyContoller {
         RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
         List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = nodeInfoService.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId(), userId));
         List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(), regimeInfo.getApproveTemplateId(), approveTemplateNodeInfos.get(0).getApproveNodeId()));
-        if (CollectionUtils.isNotEmpty(applyApproveResultInfos)&&ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(applyApproveResultInfos.get(0).getState())){
+        if (CollectionUtils.isEmpty(applyApproveResultInfos)){
+            throw new Exception("您未有此申请单的审批权限");
+        }
+        if (ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(applyApproveResultInfos.get(0).getState())){
             throw new Exception("已审批");
         }
         List<ApplyApproveResultInfo> resultInfoList = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(),regimeInfo.getApproveTemplateId()));
@@ -423,7 +427,7 @@ public class ApplyContoller {
         if (CollectionUtils.isNotEmpty(nodeIds)){
             String nodeInfos= nodeInfoService.getListByNodeIds(nodeIds);
             if (!nodeInfos.contains(String.valueOf(userId))){
-                throw new Exception("您不是当前审批人!");
+                throw new Exception("此申请单还未到达您审批!");
             }
         }
         return collect;

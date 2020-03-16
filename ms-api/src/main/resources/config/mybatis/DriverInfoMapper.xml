@@ -67,6 +67,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where driver_id = #{driverId}
     </select>
 
+    <select id="selectDriverInfoByUserId" parameterType="Long" resultMap="DriverInfoResult">
+        <include refid="selectDriverInfoVo"/>
+        where user_id = #{UserId}
+    </select>
+
     <insert id="insertDriverInfo" parameterType="com.hq.ecmp.mscore.domain.DriverInfo">
         insert into driver_info
         <trim prefix="(" suffix=")" suffixOverrides=",">

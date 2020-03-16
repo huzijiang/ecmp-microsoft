@@ -362,6 +362,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 .projectNumber(String.valueOf(applyInfo.getProjectId()))
                 //申请状态
                 .status(applyInfo.getState())
+                .time(applyInfo.getCreateTime())
                 //申请类型
                 .type(applyInfo.getApplyType())
                 .build();
