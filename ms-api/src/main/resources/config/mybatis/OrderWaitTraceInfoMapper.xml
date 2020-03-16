@@ -47,6 +47,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
         
     <insert id="insertOrderWaitTraceInfo" parameterType="OrderWaitTraceInfo">
+        <selectKey keyColumn="trace_id" keyProperty="traceId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into order_wait_trace_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="traceId != null ">trace_id,</if>

@@ -1,9 +1,11 @@
 package com.hq.ecmp.mscore.domain;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import java.math.BigDecimal;
 
 /**
  * 【请填写功能名称】对象 order_settling_info
@@ -34,11 +36,35 @@ public class OrderSettlingInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long outPrice;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private BigDecimal totalMileage;// TODO 新增。实际里程
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Integer totalTime;// TODO 新增。实际时长
+    public void setTotalMileage(BigDecimal totalMileage)
+    {
+        this.totalMileage = totalMileage;
+    }
+    public BigDecimal getTotalMileage()
+    {
+        return totalMileage;
+    }
+
+    public void setTotalTime(Integer totalTime)
+    {
+        this.totalTime = totalTime;
+    }
+    public Integer getTotalTime()
+    {
+        return totalTime;
+    }
+
+
     public void setBillId(Long billId)
     {
         this.billId = billId;
     }
-
     public Long getBillId()
     {
         return billId;
@@ -80,6 +106,13 @@ public class OrderSettlingInfo extends BaseEntity
         return outPrice;
     }
 
+    public OrderSettlingInfo() {
+    }
+
+    public OrderSettlingInfo(Long orderId) {
+        this.orderId = orderId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -92,6 +125,8 @@ public class OrderSettlingInfo extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
+            .append("totalMileage", getTotalMileage())
+            .append("totalTime", getTotalTime())
             .toString();
     }
 }

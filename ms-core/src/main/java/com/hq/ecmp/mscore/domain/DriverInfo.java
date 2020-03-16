@@ -312,6 +312,13 @@ public class DriverInfo extends BaseEntity
         this.stateDescription = stateDescription;
     }
 
+    public DriverInfo() {
+    }
+
+    public DriverInfo(Long userId) {
+        this.userId = userId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

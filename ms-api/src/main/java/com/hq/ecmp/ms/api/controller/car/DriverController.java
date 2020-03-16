@@ -1,9 +1,13 @@
 package com.hq.ecmp.ms.api.controller.car;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.hq.ecmp.mscore.domain.DriverHeartbeatInfo;
+import com.hq.ecmp.mscore.dto.DriverLocationDTO;
+import com.hq.ecmp.mscore.service.IDriverHeartbeatInfoService;
 import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
@@ -47,6 +51,9 @@ public class DriverController {
     
     @Autowired
     private IOrderStateTraceInfoService orderStateTraceInfoService;
+
+    @Autowired
+    private IDriverHeartbeatInfoService driverHeartbeatInfoService;
 
     /**
      * 获取可调度的司机信息
@@ -162,5 +169,31 @@ public class DriverController {
             return ApiResponse.error("加载司机出勤信息失败");
         }
     }
+
+    /**
+     * 记录司机心跳
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "recordDriverLocation",notes = "记录司机心跳",httpMethod ="POST")
+    @PostMapping("/recordDriverLocation")
+    public ApiResponse recordDriverLocation(@RequestBody DriverLocationDTO driverLocationDTO){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long dreiverId=loginUser.getDriver().getDriverId();
+        try {
+            //TODO 暂时直接插入数据库 二期可能还得记录乘客的心跳
+            int i = driverHeartbeatInfoService.insertDriverHeartbeatInfo(new DriverHeartbeatInfo(dreiverId,driverLocationDTO.getOrderId(),new BigDecimal(driverLocationDTO.getLongitude()),new BigDecimal(driverLocationDTO.getLatitude())));
+            if (i>0){
+                return ApiResponse.success("司机位置记录成功");
+            }else{
+                return ApiResponse.error("记录司机心跳失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("记录司机心跳失败");
+        }
+    }
+
 
 }

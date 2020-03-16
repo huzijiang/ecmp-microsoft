@@ -10,6 +10,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="cityName"    column="city_name"    />
         <result property="ownerOrg"    column="owner_org"    />
         <result property="leader"    column="leader"    />
+        <result property="telephone"    column="telephone"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -17,14 +18,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCarGroupInfoVo">
-        select car_group_id, city, city_name, owner_org, leader, create_by, create_time, update_by, update_time from car_group_info
+        select car_group_id, city, owner_org, leader,telephone,create_by, create_time, update_by, update_time from car_group_info
     </sql>
 
     <select id="selectCarGroupInfoList" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo" resultMap="CarGroupInfoResult">
         <include refid="selectCarGroupInfoVo"/>
         <where>
             <if test="city != null "> and city = #{city}</if>
-            <if test="cityName != null  and cityName != ''"> and city_name like concat('%', #{cityName}, '%')</if>
             <if test="ownerOrg != null "> and owner_org = #{ownerOrg}</if>
             <if test="leader != null "> and leader = #{leader}</if>
         </where>
@@ -36,6 +36,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertCarGroupInfo" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+        <selectKey  keyColumn="car_group_id" keyProperty="carGroupId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into car_group_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="carGroupId != null ">car_group_id,</if>
@@ -43,6 +46,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cityName != null  and cityName != ''">city_name,</if>
             <if test="ownerOrg != null ">owner_org,</if>
             <if test="leader != null ">leader,</if>
+            <if test="province != null ">province,</if>
+            <if test="longitude != null ">longitude,</if>
+            <if test="latitude != null ">latitude,</if>
+            <if test="telephone != null ">telephone,</if>
+            <if test="carGroupName != null ">car_group_name,</if>
+            <if test="carGroupCode != null ">car_group_code,</if>
+            <if test="shortAddress != null ">short_address,</if>
+            <if test="fullAddress != null ">full_address,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -54,6 +65,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cityName != null  and cityName != ''">#{cityName},</if>
             <if test="ownerOrg != null ">#{ownerOrg},</if>
             <if test="leader != null ">#{leader},</if>
+            <if test="province != null ">#{province},</if>
+            <if test="longitude != null ">#{longitude},</if>
+            <if test="latitude != null ">#{latitude},</if>
+            <if test="telephone != null ">#{telephone},</if>
+            <if test="carGroupName != null ">#{carGroupName},</if>
+            <if test="carGroupCode != null ">#{carGroupCode},</if>
+            <if test="shortAddress != null ">#{shortAddress},</if>
+            <if test="fullAddress != null ">#{fullAddress},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -68,6 +87,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cityName != null  and cityName != ''">city_name = #{cityName},</if>
             <if test="ownerOrg != null ">owner_org = #{ownerOrg},</if>
             <if test="leader != null ">leader = #{leader},</if>
+            <if test="state != null ">state = #{state},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>

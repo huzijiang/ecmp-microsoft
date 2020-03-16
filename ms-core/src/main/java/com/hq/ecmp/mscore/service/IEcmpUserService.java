@@ -1,12 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
-import com.hq.common.core.api.ApiResponse;
-import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
-import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
@@ -74,6 +70,13 @@ public interface IEcmpUserService {
      * @return
      */
     public boolean isDispatcher(Long userId);
+
+    /**
+     * 可管理员工个数
+     * @return
+     */
+    public int  queryCompanyEmpCunt();
+    
 
     /*
      * 获取上级组织id中的员工姓名和电话

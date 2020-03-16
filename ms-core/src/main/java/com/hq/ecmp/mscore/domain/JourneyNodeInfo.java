@@ -108,6 +108,7 @@ public class JourneyNodeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String planEndCityCode;
+    
 
     public String getPlanBeginCityCode() {
         return planBeginCityCode;
@@ -310,6 +311,11 @@ public class JourneyNodeInfo extends BaseEntity
     public JourneyNodeInfo(Long journeyId, Long userId) {
         this.journeyId = journeyId;
         this.userId = userId;
+    }
+
+    public JourneyNodeInfo(Long journeyId, String itIsViaPoint) {
+        this.journeyId = journeyId;
+        this.itIsViaPoint = itIsViaPoint;
     }
 
     @Override

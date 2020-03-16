@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarInfo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface CarInfoMapper
 {
     /**
@@ -59,6 +61,10 @@ public interface CarInfoMapper
      * @return 结果
      */
     public int deleteCarInfoByIds(Long[] carIds);
+    /**
+     * 可管理车辆总数
+     */
+    public int queryCompanyCar();
 
     /**
      * 根据组织id查询归属车辆信息

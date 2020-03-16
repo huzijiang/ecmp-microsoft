@@ -1,9 +1,14 @@
 package com.hq.ecmp.mscore.mapper;
 
-import com.hq.ecmp.mscore.domain.RegimeInfo;
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.RegimeOpt;
+import com.hq.ecmp.mscore.domain.RegimePo;
+import com.hq.ecmp.mscore.domain.RegimeQueryPo;
+import com.hq.ecmp.mscore.domain.RegimeVo;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -67,6 +72,19 @@ public interface RegimeInfoMapper
      * @return 结果
      */
     public int deleteRegimeInfoByIds(Long[] regimenIds);
+    
+    public List<RegimeVo> queryRegimeList(RegimeQueryPo regimeQueryPo);
+    
+    public Integer queryRegimeListCount(RegimeQueryPo regimeQueryPo);
+    
+    public Integer updateStatus(RegimeOpt regimeOpt);
+    
+    public RegimeInfo queryRegimeType(Long regimeId);
+    
+    public Integer insertRegime(RegimePo po);
+    
+    public RegimeVo queryRegimeDetail(Long regimeId);
+    
 
 
 }

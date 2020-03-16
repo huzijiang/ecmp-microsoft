@@ -59,4 +59,13 @@ public interface IDriverCarRelationInfoService
      * @return 结果
      */
     public int deleteDriverCarRelationInfoById(Long userId);
+    
+    public Integer batchDriverCarList(DriverCarRelationInfo driverCarRelationInfo);
+    
+    /**
+     * 查询驾驶员可以使用的车辆数
+     * @param driverId
+     * @return
+     */
+    public Integer queryDriverUseCarCount(Long driverId);
 }

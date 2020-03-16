@@ -8,22 +8,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="regimenId"    column="regimen_id"    />
         <result property="templateId"    column="template_id"    />
         <result property="approveTemplateId"    column="approve_templateId_id" />
-        <result property="applyType"    column="apply_type"    />
+        <result property="regimenType"    column="regimen_type"    />
         <result property="name"    column="name"    />
         <result property="allowCity"    column="allow_city"    />
-        <result property="allowTime"    column="allow_time"    />
+        <result property="ruleTime"    column="rule_time"    />
         <result property="setoutAddress"    column="setout_address"    />
         <result property="arriveAddress"    column="arrive_address"    />
         <result property="allowDate"    column="allow_date"    />
         <result property="setoutEqualArrive"    column="setout_equal_arrive"    />
         <result property="serviceType"    column="service_type"    />
-        <result property="approvalProcess"    column="approval_process"    />
-        <result property="projectNeed"    column="project_need"    />
+        <result property="approvalProcess"    column="need_approval_process"    />
         <result property="canUseCarMode"    column="can_use_car_mode"    />
-        <result property="canUseCarLevel"    column="can_use_car_level"    />
-        <result property="remind"    column="remind"    />
-        <result property="allowDateRoundTravel"    column="allow_date_round_travel"    />
-        <result property="allowCityRoundTravel"    column="allow_city_round_travel"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -31,7 +26,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectRegimeInfoVo">
-        select regimen_id, template_id, approve_template_id, apply_type, name, allow_city, allow_time, setout_address, arrive_address, allow_date, setout_equal_arrive, service_type, approval_process, project_need, can_use_car_mode, can_use_car_level, remind, allow_date_round_travel, allow_city_round_travel, create_by, create_time, update_by, update_time from regime_info
+        select regimen_id, template_id, approve_template_id, regimen_type, name, allow_city,rule_time,allow_date, setout_equal_arrive, service_type, need_approval_process,can_use_car_mode, create_by, create_time, update_by, update_time from regime_info
     </sql>
 
     <select id="selectRegimeInfoList" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo" resultMap="RegimeInfoResult">
@@ -51,7 +46,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="projectNeed != null "> and project_need = #{projectNeed}</if>
             <if test="canUseCarMode != null "> and can_use_car_mode = #{canUseCarMode}</if>
             <if test="canUseCarLevel != null  and canUseCarLevel != ''"> and can_use_car_level = #{canUseCarLevel}</if>
-            <if test="remind != null  and remind != ''"> and remind = #{remind}</if>
             <if test="allowDateRoundTravel != null "> and allow_date_round_travel = #{allowDateRoundTravel}</if>
             <if test="allowCityRoundTravel != null  and allowCityRoundTravel != ''"> and allow_city_round_travel = #{allowCityRoundTravel}</if>
         </where>
@@ -80,7 +74,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="projectNeed != null ">project_need,</if>
             <if test="canUseCarMode != null ">can_use_car_mode,</if>
             <if test="canUseCarLevel != null  and canUseCarLevel != ''">can_use_car_level,</if>
-            <if test="remind != null  and remind != ''">remind,</if>
             <if test="allowDateRoundTravel != null ">allow_date_round_travel,</if>
             <if test="allowCityRoundTravel != null  and allowCityRoundTravel != ''">allow_city_round_travel,</if>
             <if test="createBy != null ">create_by,</if>
@@ -104,7 +97,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="projectNeed != null ">#{projectNeed},</if>
             <if test="canUseCarMode != null ">#{canUseCarMode},</if>
             <if test="canUseCarLevel != null  and canUseCarLevel != ''">#{canUseCarLevel},</if>
-            <if test="remind != null  and remind != ''">#{remind},</if>
             <if test="allowDateRoundTravel != null ">#{allowDateRoundTravel},</if>
             <if test="allowCityRoundTravel != null  and allowCityRoundTravel != ''">#{allowCityRoundTravel},</if>
             <if test="createBy != null ">#{createBy},</if>
@@ -131,7 +123,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="projectNeed != null ">project_need = #{projectNeed},</if>
             <if test="canUseCarMode != null ">can_use_car_mode = #{canUseCarMode},</if>
             <if test="canUseCarLevel != null  and canUseCarLevel != ''">can_use_car_level = #{canUseCarLevel},</if>
-            <if test="remind != null  and remind != ''">remind = #{remind},</if>
             <if test="allowDateRoundTravel != null ">allow_date_round_travel = #{allowDateRoundTravel},</if>
             <if test="allowCityRoundTravel != null  and allowCityRoundTravel != ''">allow_city_round_travel = #{allowCityRoundTravel},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
@@ -158,5 +149,159 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAll" resultMap="RegimeInfoResult">
         <include refid="selectRegimeInfoVo"/>
     </select>
+    
+    	<select id="queryRegimeList" parameterType="com.hq.ecmp.mscore.domain.RegimeQueryPo"
+	resultType="com.hq.ecmp.mscore.domain.RegimeVo">
+	SELECT
+	a.regimen_id AS regimeId,
+	a. NAME AS regimeName,
+	c. NAME AS
+	sceneName,
+	a.approval_process AS approvalProcess,
+	a. STATUS AS STATUS
+	FROM
+	regime_info a
+	LEFT JOIN scene_regime_relation b ON a.regimen_id = b.regimen_id
+	LEFT JOIN scene_info c ON b.scene_id = c.scene_id
+	WHERE
+	1=1
+	<if test="null !=sceneId">
+		and c.scene_id = #{sceneId}
+	</if>
+	<if test="null !=status">
+		and a.STATUS =#{status}
+	</if>
+	<if test="null !=regimeName">
+		and a.NAME like CONCAT('%',#{regimeName},'%')
+	</if>
+	<if test="offset != null and pageSize != null">
+		LIMIT #{offset},#{pageSize}
+	</if>
+</select>
+
+
+<select id="queryRegimeListCount" parameterType="com.hq.ecmp.mscore.domain.RegimeQueryPo"
+	resultType="java.lang.Integer">
+	SELECT
+	count(1)
+	FROM
+	regime_info a
+	LEFT JOIN scene_regime_relation b ON
+	a.regimen_id = b.regimen_id
+	LEFT JOIN scene_info c ON b.scene_id =
+	c.scene_id
+	WHERE
+	1=1
+	<if test="null !=sceneId">
+		and c.scene_id = #{sceneId}
+	</if>
+	<if test="null !=status">
+		and a.STATUS =#{status}
+	</if>
+	<if test="null !=regimeName">
+		and a.NAME like CONCAT('%',#{regimeName},'%')
+	</if>
+</select>
+
+<update id="updateStatus" parameterType="com.hq.ecmp.mscore.domain.RegimeOpt">
+update regime_info set status=#{status},update_by=#{optUserId},update_time=now() where regimen_id=#{regimeId}
+</update>
+
+<select id="queryRegimeType" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeInfo">
+select regimen_type as  applyType from regime_info where regimen_id=#{regimeId}
+</select>
+
+
+<insert id="insertRegime" parameterType="com.hq.ecmp.mscore.domain.RegimePo" useGeneratedKeys="true" keyProperty="regimenId">
+     insert into regime_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="regimenId != null ">regimen_id,</if>
+            <if test="templateId != null ">template_id,</if>
+            <if test="name != null  and name != ''">name,</if>
+             <if test="regimenType != null">regimen_type,</if>
+            <if test="canUseCarMode != null">can_use_car_mode,</if>
+            <if test="serviceType != null">service_type,</if>
+            <if test="allowDate != null">allow_date,</if>
+             <if test="needApprovalProcess != null">need_approval_process,</if>
+             <if test="approveTemplateId != null">approve_template_id,</if>
+              <if test="setoutEqualArrive != null">setout_equal_arrive,</if>
+               <if test="useCarModeOwnerLevel != null">use_car_mode_owner_level,</if>
+               <if test="useCarModeOnlineLevel != null">use_car_mode_online_level,</if>
+               <if test="ruleCity != null">rule_city,</if>
+               <if test="ruleTime != null">rule_time,</if>
+                <if test="travelAllowInTravelCityUseCar != null">travel_allow_in_travel_city_use_car,</if>
+                <if test="travelUseCarModeOwnerLevel != null">travel_use_car_mode_owner_level,</if>
+                <if test="travelUseCarModeOnlineLevel != null">travel_use_car_mode_online_level,</if>
+                <if test="travelAllowDateRound != null">travel_allow_date_round,</if>
+                 <if test="travelSetoutEqualArrive != null">travel_setout_equal_arrive,</if>
+                 <if test="asAllowAirportShuttle != null">as_allow_airport_shuttle,</if>
+                  <if test="asUseCarModeOwnerLevel != null">as_use_car_mode_owner_level,</if>
+                  <if test="asUseCarModeOnlineLevel != null">as_use_car_mode_online_level,</if>
+                   <if test="asAllowDateRound != null">as_allow_date_round,</if>
+                   <if test="asSetoutEqualArrive != null">as_setout_equal_arrive,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="regimenId != null ">#{regimenId},</if>
+            <if test="templateId != null ">#{templateId},</if>
+            <if test="name != null  and name != ''">#{name},</if>
+            <if test="regimenType != null">#{regimenType},</if>
+           <if test="canUseCarMode != null">#{canUseCarMode},</if>
+           <if test="serviceType != null">#{serviceType},</if>
+           <if test="allowDate != null">#{allowDate},</if>
+           <if test="needApprovalProcess != null">#{needApprovalProcess},</if>
+            <if test="approveTemplateId != null">#{approveTemplateId},</if>
+            <if test="setoutEqualArrive != null">#{setoutEqualArrive},</if>
+            <if test="useCarModeOwnerLevel != null">#{useCarModeOwnerLevel},</if>
+            <if test="useCarModeOnlineLevel != null">#{useCarModeOnlineLevel},</if>
+            <if test="ruleCity != null">#{ruleCity},</if>
+             <if test="ruleTime != null">#{ruleTime},</if>
+            <if test="travelAllowInTravelCityUseCar != null">#{travelAllowInTravelCityUseCar},</if>
+             <if test="travelUseCarModeOwnerLevel != null">#{travelUseCarModeOwnerLevel},</if>
+              <if test="travelUseCarModeOnlineLevel != null">#{travelUseCarModeOnlineLevel},</if>
+              <if test="travelAllowDateRound != null">#{travelAllowDateRound},</if>
+              <if test="travelSetoutEqualArrive != null">#{travelSetoutEqualArrive},</if>
+              <if test="asAllowAirportShuttle != null">#{asAllowAirportShuttle},</if>
+              <if test="asUseCarModeOwnerLevel != null">#{asUseCarModeOwnerLevel},</if>
+              <if test="asUseCarModeOnlineLevel != null">#{asUseCarModeOnlineLevel},</if>
+              <if test="asAllowDateRound != null">#{asAllowDateRound},</if>
+              <if test="asSetoutEqualArrive != null">#{asSetoutEqualArrive},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+</insert>
+
+<select id="queryRegimeDetail" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeVo">
+SELECT
+	regimen_type AS regimenType,
+	NAME AS regimeName,
+	service_type AS serviceType,
+	allow_date AS allowDate,
+	rule_time AS ruleTime,
+	setout_equal_arrive AS setoutEqualArrive,
+	rule_city AS ruleCity,
+	use_car_mode_owner_level AS useCarModeOwnerLevel,
+	use_car_mode_online_level AS useCarModeOnlineLevel,
+	travel_allow_in_travel_city_use_car AS travelAllowInTravelCityUseCar,
+	travel_use_car_mode_owner_level AS travelUseCarModeOwnerLevel,
+	travel_use_car_mode_online_level AS travelUseCarModeOnlineLevel,
+	travel_allow_date_round AS travelAllowDateRound,
+	travel_setout_equal_arrive AS travelSetoutEqualArrive,
+	as_allow_airport_shuttle AS asAllowAirportShuttle,
+	as_use_car_mode_owner_level AS asUseCarModeOwnerLevel,
+	as_use_car_mode_online_level AS asUseCarModeOnlineLevel,
+	as_allow_date_round AS asAllowDateRound,
+	as_setout_equal_arrive AS asSetoutEqualArrive
+FROM
+	regime_info
+WHERE
+	regimen_id = #{regimeId}
+</select>
+
 
 </mapper>

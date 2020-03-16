@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
+import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
+import com.hq.ecmp.mscore.vo.ProjectInfoVO;
 
 import java.util.List;
 
@@ -60,4 +62,6 @@ public interface IProjectInfoService
      */
     public int deleteProjectInfoById(Long projectId);
     public List<ProjectInfo> getListByUserId(Long userId,String projectName);
+
+    PageInfo<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, Long fatherProjectId);
 }

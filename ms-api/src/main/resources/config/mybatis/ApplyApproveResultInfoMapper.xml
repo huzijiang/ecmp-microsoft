@@ -124,4 +124,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              order by field(state,'ST01','ST02','ST00')
          </where>
     </select>
+
+    <select id="getApproveResultList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ApprovalInfoVO">
+       select a.approve_result_id approveResultId,a.apply_id applyId,a.approve_node_id approvalNodeId,approver approval,
+       approver_mobile approvalMobile,approve_result approveResult,state approveState,content,b.next_node_id nextNodeId ,a.update_time time
+        from apply_approve_result_info a
+        inner join approve_template_node_info b on b.approve_node_id=a.approve_node_id
+        where apply_id=#{applyId}
+        <if test="approveTemplateId!=null">
+           and approve_template_id=#{approveTemplateId}
+        </if>
+    </select>
 </mapper>

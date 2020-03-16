@@ -3,8 +3,8 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
-import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -14,6 +14,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface EcmpOrgMapper {
     /**
      * 查询所有公司一级
@@ -66,7 +67,7 @@ public interface EcmpOrgMapper {
      * @param name
      * @return
      */
-    public List<EcmpOrg> selectEcmpOrgsByCompanyId(Long companyId,String name);
+    public List<EcmpOrg> selectEcmpOrgsByCompanyId(@Param("companyId") Long companyId,@Param("name") String name);
 
 
     /**

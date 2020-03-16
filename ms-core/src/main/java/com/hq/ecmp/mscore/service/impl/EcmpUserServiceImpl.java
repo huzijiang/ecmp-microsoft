@@ -1,6 +1,5 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
@@ -100,6 +99,14 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 		Integer count = ecmpUserMapper.queryDispatcher(userId);
 		return count>0;
 	}
+    /**
+     * 可管理员工
+     * @return
+     */
+    @Override
+    public int  queryCompanyEmpCunt(){
+        return ecmpUserMapper.queryCompanyEmp();
+    }
 
     /*
      * 获取上级组织id中的员工姓名和电话

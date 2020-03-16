@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EcmpConfig;
+import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
+import com.hq.ecmp.mscore.dto.config.EnterPriseBaseInfoDTO;
 
 import java.util.List;
 
@@ -59,4 +61,70 @@ public interface IEcmpConfigService
      * @return 结果
      */
     public int deleteEcmpConfigById(Integer configId);
+
+    /**
+     * 查询企业配置信息
+     * @return
+     */
+    ConfigInfoDTO selectConfigInfo();
+
+    /**
+     * 设置企业基本信息
+     * @param enterPriseBaseInfoDTO
+     */
+    void setUpBaseInfo(EnterPriseBaseInfoDTO enterPriseBaseInfoDTO);
+
+    /**
+     * 设置开屏图
+     * @param status
+     * @param value
+     */
+    void setUpWelComeImage(String status, String value);
+
+    /**
+     * 设置背景图
+     * @param status
+     * @param value
+     */
+    void setUpBackGroundImage(String status, String value);
+
+    /**
+     * 设置企业公告
+     * @param status
+     */
+    void setUpMessageConfig(String status);
+
+    /**
+     * 设置短信开关
+     * @param status
+     */
+    void setUpSms(String status);
+
+    /**
+     * 设置虚拟小号开关
+     * @param status
+     */
+    void setUpVirtualPhone(String status);
+
+    /**
+     * 设置订单确认开关
+     *
+     * @param status
+     * @param value
+     */
+    void setUpOrderConfirm(String status, String value, String owenType, String rideHailing);
+
+    /**
+     * 设置自动派单方式
+     * @param status
+     * @param value
+     */
+    void setUpDispatchInfo(String status, String value);
+
+    /**
+     * 设置用车往返等时长（单位分钟）
+     * @param status
+     * @param value
+     */
+    void setUpWaitMaxMinute(String status, String value);
 }

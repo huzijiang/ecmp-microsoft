@@ -93,10 +93,13 @@ token:
     # 令牌有效期（默认30分钟）
     expireTime: 30
 thirdService:
-    enterpriseId: AAA
-    licenseContent: BBB
+    enterpriseId: 10000
+    licenseContent: AAAAAAAA
     apiUrl: http://10.117.1.231:51002
 
+#行程分享路径
+order:
+   shareUrl: https://www.baidu.com?
 
 file:
   config:

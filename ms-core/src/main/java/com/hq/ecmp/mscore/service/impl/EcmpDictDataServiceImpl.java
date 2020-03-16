@@ -101,4 +101,21 @@ public class EcmpDictDataServiceImpl implements IEcmpDictDataService
     {
         return ecmpDictDataMapper.deleteEcmpDictDataById(dictCode);
     }
+    /**
+     * 评价标签的好评
+     * @return 字典数据集合
+     */
+    @Override
+    public List<EcmpDictData> selectEcmpDictDataByTypeGOOD(){
+        return ecmpDictDataMapper.selectEcmpDictDataByTypeGOOD();
+    }
+
+    /**
+     * 评价标签的差评
+     * @return 字典数据集合
+     */
+    @Override
+    public List<EcmpDictData> selectEcmpDictDataByTypeBAD(){
+        return ecmpDictDataMapper.selectEcmpDictDataByTypeBAD();
+    }
 }

@@ -92,4 +92,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select group_concat(distinct name) from journey_passenger_info where journey_id = #{journeyId}
     </select>
 
+	<select id="queryPeerCount" parameterType="java.lang.Long"
+		resultType="java.lang.Integer">
+		SELECT
+		count(1)
+		FROM
+		journey_passenger_info
+		WHERE
+		journey_id = #{journeyId}
+		AND it_is_peer = '00'
+	</select>
+
 </mapper>

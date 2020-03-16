@@ -17,6 +17,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+         <result property="applyType"    column="apply_type"    />
     </resultMap>
 
     <sql id="selectApplyInfoVo">
@@ -42,6 +43,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertApplyInfo" parameterType="com.hq.ecmp.mscore.domain.ApplyInfo" useGeneratedKeys="true" keyProperty="applyId">
+        <selectKey keyColumn="apply_id" keyProperty="applyId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into apply_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="applyId != null ">apply_id,</if>
@@ -104,7 +108,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
     <select id="selectApplyInfoListByPage" parameterType="long" resultType="com.hq.ecmp.mscore.dto.ApplyInfoDTO">
-        select t1.apply_id,t1.state,t1.apply_type,t2.title,t2.start_date,t2.end_date from apply_info t1 left join journey_info t2 on t1.journey_id = t2.journey_id where t2.user_id = #{userId}
+        select t1.apply_id applyId,t1.state,t1.apply_type applyType,t2.title,t2.start_date startDate,t2.end_date endDate
+        from apply_info t1
+        left join journey_info t2 on t1.journey_id = t2.journey_id
+        where t2.user_id = #{userId}
     </select>
 
     <!-- 手动编写sql  start-->

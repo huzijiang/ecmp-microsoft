@@ -20,6 +20,6 @@ public class TravelApprovalVO {
     private ApplyDetailVO applyDetailVO;
 
     @ApiModelProperty(name = "approvalVOS",value = "审批列表")
-    private List<ApprovalInfoVO> approvalVOS;
+    private List<ApprovalListVO> approvalVOS;
 
 }

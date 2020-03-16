@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.domain.EcmpDictData;
 import com.hq.ecmp.mscore.domain.EcmpDictType;
 import com.hq.ecmp.mscore.service.IEcmpDictDataService;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,15 +30,40 @@ public class DictDataController {
     private IEcmpDictDataService iEcmpDictDataService;
     /**
      * 通过 数据字典类型获取-提供前端调用
-     * @param  ecmpDictData  数据字典数据
+     * @param  dictDto  数据字典数据
      * @return ecmpDictDataList
      */
     @ApiOperation(value = "getDictDataByType",notes = "通过数据字典类型获取 数据字典值 ",httpMethod ="POST")
     @PostMapping("/getDictDataByType")
-    public ApiResponse<List<EcmpDictData>> getDictDataByType(EcmpDictData ecmpDictData){
-        List<EcmpDictData> ecmpDictDataList = iEcmpDictDataService.selectEcmpDictDataByType(ecmpDictData.getDictType());
-        return ApiResponse.success(ecmpDictDataList);
+    public ApiResponse<List<EcmpDictData>> getDictDataByType(@RequestBody DictDto dictDto){
+        List<EcmpDictData> ecmpDictDataList = iEcmpDictDataService.selectEcmpDictDataByType(dictDto.getDictType());
+        if(CollectionUtils.isNotEmpty(ecmpDictDataList)){
+            return ApiResponse.success(ecmpDictDataList);
+        }else {
+            return ApiResponse.error("未查询到项目编号");
+        }
     }
+    /**
+     * 获取评价标签好评
+     * @return ecmpDictDataList
+     */
+    @ApiOperation(value = "getDictDataByTypeGOOD",notes = "评价标签好评 ",httpMethod ="POST")
+    @PostMapping("/getDictDataByTypeGOOD")
+    public ApiResponse<List<EcmpDictData>> getDictDataByTypeGOOD(){
+        List<EcmpDictData> ecmpDictGoodList = iEcmpDictDataService.selectEcmpDictDataByTypeGOOD();
+        return ApiResponse.success(ecmpDictGoodList);
+    }
+    /**
+     * 获取评价标签差评
+     * @return ecmpDictDataList
+     */
+    @ApiOperation(value = "getDictDataByTypeBAD",notes = "评价标签差评",httpMethod ="POST")
+    @PostMapping("/getDictDataByTypeBAD")
+    public ApiResponse<List<EcmpDictData>> getDictDataByTypeBAD(){
+        List<EcmpDictData> ecmpDictBadList = iEcmpDictDataService.selectEcmpDictDataByTypeBAD();
+        return ApiResponse.success(ecmpDictBadList);
+    }
+
 
     /**
      * 通过数据字典获取 数据字典

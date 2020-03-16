@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.OrderViaInfoMapper">
+    
+    <resultMap type="com.hq.ecmp.mscore.domain.OrderViaInfo" id="OrderViaInfoResult">
+        <result property="viaId"    column="via_id"    />
+        <result property="orderId"    column="order_id"    />
+        <result property="longitude"    column="longitude"    />
+        <result property="latitude"    column="latitude"    />
+        <result property="shortAddress"    column="short_address"    />
+        <result property="fullAddress"    column="full_address"    />
+        <result property="sortNumber"    column="sort_number"    />
+        <result property="arrivedTime"    column="arrived_time"    />
+        <result property="duration"    column="duration"    />
+        <result property="leaveTime"    column="leave_time"    />
+        <result property="itIsPassed"    column="it_is_passed"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectOrderViaInfoVo">
+        select via_id, order_id, longitude, latitude, short_address, full_address, sort_number, arrived_time, duration, leave_time, it_is_passed, create_by, create_time, update_by, update_time from order_via_info
+    </sql>
+
+    <select id="selectOrderViaInfoList" parameterType="OrderViaInfo" resultMap="OrderViaInfoResult">
+        <include refid="selectOrderViaInfoVo"/>
+        <where>  
+            <if test="orderId != null "> and order_id = #{orderId}</if>
+            <if test="longitude != null "> and longitude = #{longitude}</if>
+            <if test="latitude != null "> and latitude = #{latitude}</if>
+            <if test="shortAddress != null  and shortAddress != ''"> and short_address = #{shortAddress}</if>
+            <if test="fullAddress != null  and fullAddress != ''"> and full_address = #{fullAddress}</if>
+            <if test="sortNumber != null "> and sort_number = #{sortNumber}</if>
+            <if test="arrivedTime != null "> and arrived_time = #{arrivedTime}</if>
+            <if test="duration != null "> and duration = #{duration}</if>
+            <if test="leaveTime != null "> and leave_time = #{leaveTime}</if>
+            <if test="itIsPassed != null  and itIsPassed != ''"> and it_is_passed = #{itIsPassed}</if>
+        </where>
+    </select>
+    
+    <select id="selectOrderViaInfoById" parameterType="Long" resultMap="OrderViaInfoResult">
+        <include refid="selectOrderViaInfoVo"/>
+        where via_id = #{viaId}
+    </select>
+        
+    <insert id="insertOrderViaInfo" parameterType="OrderViaInfo" useGeneratedKeys="true" keyProperty="viaId">
+        insert into order_via_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null ">order_id,</if>
+            <if test="longitude != null ">longitude,</if>
+            <if test="latitude != null ">latitude,</if>
+            <if test="shortAddress != null  and shortAddress != ''">short_address,</if>
+            <if test="fullAddress != null  and fullAddress != ''">full_address,</if>
+            <if test="sortNumber != null ">sort_number,</if>
+            <if test="arrivedTime != null ">arrived_time,</if>
+            <if test="duration != null ">duration,</if>
+            <if test="leaveTime != null ">leave_time,</if>
+            <if test="itIsPassed != null  and itIsPassed != ''">it_is_passed,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null ">#{orderId},</if>
+            <if test="longitude != null ">#{longitude},</if>
+            <if test="latitude != null ">#{latitude},</if>
+            <if test="shortAddress != null  and shortAddress != ''">#{shortAddress},</if>
+            <if test="fullAddress != null  and fullAddress != ''">#{fullAddress},</if>
+            <if test="sortNumber != null ">#{sortNumber},</if>
+            <if test="arrivedTime != null ">#{arrivedTime},</if>
+            <if test="duration != null ">#{duration},</if>
+            <if test="leaveTime != null ">#{leaveTime},</if>
+            <if test="itIsPassed != null  and itIsPassed != ''">#{itIsPassed},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateOrderViaInfo" parameterType="OrderViaInfo">
+        update order_via_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderId != null ">order_id = #{orderId},</if>
+            <if test="longitude != null ">longitude = #{longitude},</if>
+            <if test="latitude != null ">latitude = #{latitude},</if>
+            <if test="shortAddress != null  and shortAddress != ''">short_address = #{shortAddress},</if>
+            <if test="fullAddress != null  and fullAddress != ''">full_address = #{fullAddress},</if>
+            <if test="sortNumber != null ">sort_number = #{sortNumber},</if>
+            <if test="arrivedTime != null ">arrived_time = #{arrivedTime},</if>
+            <if test="duration != null ">duration = #{duration},</if>
+            <if test="leaveTime != null ">leave_time = #{leaveTime},</if>
+            <if test="itIsPassed != null  and itIsPassed != ''">it_is_passed = #{itIsPassed},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where via_id = #{viaId}
+    </update>
+
+    <delete id="deleteOrderViaInfoById" parameterType="Long">
+        delete from order_via_info where via_id = #{viaId}
+    </delete>
+
+    <delete id="deleteOrderViaInfoByIds" parameterType="String">
+        delete from order_via_info where via_id in 
+        <foreach item="viaId" collection="array" open="(" separator="," close=")">
+            #{viaId}
+        </foreach>
+    </delete>
+    <insert id="insertOrderViaInfoBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="viaId">
+        insert into order_via_info (order_id, longitude, latitude, short_address, full_address, sort_number, arrived_time, duration, leave_time, it_is_passed, create_by, create_time, update_by, update_time)
+       values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{orderId},
+           #{longitude}
+           #{latitude},
+           #{shortAddress},
+           #{fullAddress},
+           #{sortNumber},
+           #{arrivedTime},
+           #{duration},
+           #{leaveTime},
+           #{itIsPassed},
+           #{createBy},
+           #{createTime},
+           #{updateBy},
+           #{updateTime}
+            )
+        </foreach>
+    </insert>
+    
+</mapper>

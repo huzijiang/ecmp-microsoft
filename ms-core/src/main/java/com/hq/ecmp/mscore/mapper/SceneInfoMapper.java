@@ -62,4 +62,12 @@ public interface SceneInfoMapper
     
     
 	public List<SceneInfo> selectAllSceneSort(Long userId);
+
+    /**
+     * 查询所有场景（带搜索功能）
+     * @return
+     */
+    List<SceneInfo> selectAll(String name);
+    
+    public SceneInfo querySceneByRegimeId(Long regimeId);
 }

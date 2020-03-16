@@ -38,7 +38,7 @@ public class RegimeInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String  applyType;
+    private String  regimenType;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -50,7 +50,7 @@ public class RegimeInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String allowTime;
+    private String ruleTime;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -101,13 +101,13 @@ public class RegimeInfo extends BaseEntity
     private String allowCityRoundTravel;
     
     public String parseApplyType(){
-    	if(StringUtil.isEmpty(this.applyType)){
+    	if(StringUtil.isEmpty(this.regimenType)){
     		return "";
     	}
-    	if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(this.applyType)){
+    	if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(this.regimenType)){
     		return "公务用车";
     	}
-    	if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(this.applyType)){
+    	if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(this.regimenType)){
     		return "差旅用车";
     	}
     	return "未知类型的用车";

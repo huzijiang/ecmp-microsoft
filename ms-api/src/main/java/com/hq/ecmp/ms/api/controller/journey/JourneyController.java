@@ -11,10 +11,13 @@ import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
+import com.hq.ecmp.mscore.vo.JourneyVO;
+import com.hq.ecmp.mscore.vo.OrderVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +28,7 @@ import java.util.List;
  * @Date: 2019-12-31 13:17
  */
 @RestController
+@RequestMapping("/journey")
 public class JourneyController {
 
     @Autowired
@@ -45,7 +49,6 @@ public class JourneyController {
         return null;
     }
 
-
     /**
      * 撤消行程
      * @param  journeyApplyDto  行程申请信息
@@ -55,7 +58,7 @@ public class JourneyController {
     @PostMapping("/cancelJourney")
     public ApiResponse cancelJourneyApply(@RequestBody JourneyApplyDto journeyApplyDto){
         //撤销行程申请
-        ApplyInfo applyInfo = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state("S004").build();
+       ApplyInfo applyInfo = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state("S004").build();
         int i = applyInfoService.updateApplyInfo(applyInfo);
         if(i == 1){
             return ApiResponse.success("撤销成功");
@@ -88,7 +91,7 @@ public class JourneyController {
     public ApiResponse getUserAllJourneyNumbers(UserDto userDto){
         //查询用户所有行程信息
         JourneyInfo journeyInfo = new JourneyInfo();
-        journeyInfo.setUserId(userDto.getUserId());
+      //  journeyInfo.setUserId(userDto.getUserId());
         List<JourneyInfo> journeyInfoList = journeyInfoService.selectJourneyInfoList(journeyInfo);
         return ApiResponse.success(journeyInfoList);
     }
@@ -112,9 +115,9 @@ public class JourneyController {
      * @param  journeyApplyDto  用户信息
      * @return
      */
-    @ApiOperation(value = "getUserJourneysDetail",notes = "查询用户当前进行中的行程详细信息 ",httpMethod ="POST")
-    @PostMapping("/getUserJourneysDetail")
-    public ApiResponse<JourneyInfo> getUserJourneysDetail(JourneyApplyDto journeyApplyDto){
+     @ApiOperation(value = "getUserJourneysDetail",notes = "查询用户当前进行中的行程详细信息 ",httpMethod ="POST")
+     @PostMapping("/getUserJourneysDetail")
+     public ApiResponse<JourneyInfo> getUserJourneysDetail(JourneyApplyDto journeyApplyDto){
         //根据行程id查询行程信息
         JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
         return ApiResponse.success(journeyInfo);
@@ -167,5 +170,53 @@ public class JourneyController {
 
         return null;
     }
+
+    /**@author shixin
+     * @Date 10:11 2020/3/9
+     * @Description 查询用户当前进行中的行程列
+     * @return
+     */
+/*    @ApiOperation(value = "getUserJourneys",notes = "查询用户当前进行中的行程信息 ",httpMethod ="POST")
+    @PostMapping("/getUserJourneys")
+    public ApiResponse<List<JourneyVO>> getUserJourneys(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        List<JourneyVO>  journeylistjxz = journeyInfoService.getJourneyList(userId);
+        return ApiResponse.success(journeylistjxz);
+    }*/
+    /** @author shixin
+     *  @Date 10:11 2020/3/9
+     *  @Description 查询用户当前进行中的行程个数
+     */
+/*    @ApiOperation(value = "getJourneyListCount",notes = "获取当前进行中的行程个数",httpMethod ="POST")
+    @PostMapping("/getJourneyListCount")
+    public ApiResponse<String> getJourneyListCount(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        int count= journeyInfoService.getJourneyListCount(userId);
+        return ApiResponse.success(count+"");
+    }*/
+
+    /**
+     *
+     *   @Description 获取正在进行中行程详情
+     *   @Date 10:11 2020/3/10
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+   /* @ApiOperation(value = "获取正在进行中行程详情",httpMethod = "POST")
+    @RequestMapping("/getJourneyDetail")
+    public ApiResponse<OrderVO>getJourneyDetail(@RequestBody OrderDto orderDto){
+        try {
+            OrderVO  orderVO = iOrderInfoService.orderBeServiceDetail(orderDto.getOrderId());
+            return ApiResponse.success(orderVO);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("加载订单列表失败");
+        }
+    }*/
+
 
 }
