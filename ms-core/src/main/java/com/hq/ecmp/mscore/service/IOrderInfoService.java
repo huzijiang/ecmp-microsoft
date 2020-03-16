@@ -143,7 +143,7 @@ public interface IOrderInfoService {
     /**
      * 网约车异步约车方法
      */
-    void platCallTaxi(CallTaxiDto callTaxiDto, String enterpriseId, String licenseContent, String apiUrl,String userId);
+    void platCallTaxi(Long orderId, String enterpriseId, String licenseContent, String apiUrl,String userId);
 
    /**
     * 自有车派车
