@@ -2,18 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.2.2.RELEASE</version>
     </parent>
-
 	<groupId>com.hq.ecmp</groupId>
 	<artifactId>ms-common</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-
 	<name>ms-common</name>
+    <packaging>jar</packaging>
 	<description>企业公车管理平台-企业端-微服务-公共包</description>
 
 	<properties>
@@ -25,8 +23,14 @@
 		<dependency>
 			<groupId>com.hq.ecmp</groupId>
 			<artifactId>ecmp-base</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.0</version>
 			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.2.2</version>
 		</dependency>
 
 		<dependency>
@@ -66,26 +70,12 @@
             <artifactId>jackson-annotations</artifactId>
             <version>2.10.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <version>2.2.2.RELEASE</version>
+        </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>nexus-snapshots</id>
-            <name>im20 Snapshots Repository</name>
-            <url>http://nexus.hqzhuanche.com:9000/content/repositories/snapshots</url>
-        </repository>
-    </repositories>
-    <distributionManagement>
-        <repository>
-            <id>nexus-releases</id>
-            <name>Nexus Release Repository</name>
-            <url>http://nexus.hqzhuanche.com:9000/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>nexus-snapshots</id>
-            <name>Nexus Snapshots Repository</name>
-            <url>http://nexus.hqzhuanche.com:9000/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
 
 </project>

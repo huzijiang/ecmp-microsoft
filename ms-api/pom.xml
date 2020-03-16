@@ -9,10 +9,11 @@
         <version>2.2.2.RELEASE</version>
     </parent>
 
-    <groupId>com.hq.ecmp.microservice</groupId>
+    <groupId>com.hq.ecmp</groupId>
     <artifactId>ms-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ms-api</name>
+    <packaging>jar</packaging>
     <description>企业公车管理平台-企业端-微服务层-接口模块</description>
 
     <properties>
@@ -67,6 +68,21 @@
     </dependencies>
 
     <build>
+
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <!--指定资源的位置 -->
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.dto.order;
 
 import io.swagger.annotations.ApiParam;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 
@@ -28,5 +29,6 @@ public class OrderEvaluationDto {
     private String result;
 
     /**图片路径*/
-    private String[] imageUrls;
+    private MultipartFile[] files;
+    private String[] imgUrls;
 }

@@ -127,7 +127,7 @@ public interface IOrderInfoService {
      * @param orderId
      * @return
      */
-    OrderVO orderBeServiceDetail(Long orderId);
+    OrderVO orderBeServiceDetail(Long orderId)throws Exception;
 
     /**
      * 获取服务提示语
@@ -192,7 +192,7 @@ public interface IOrderInfoService {
     OrderDetailBackDto getOrderListDetail(String orderNo);
 
     //查询网约车状态
-    JSONObject getTaxiOrderState(Long orderId, String enterpriseId, String licenseContent, String macAdd,String apiUrl)throws Exception;
+    JSONObject getTaxiOrderState(Long orderId)throws Exception;
 
 }
 

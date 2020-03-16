@@ -68,4 +68,6 @@ public interface SceneInfoMapper
      * @return
      */
     List<SceneInfo> selectAll(String name);
+    
+    public SceneInfo querySceneByRegimeId(Long regimeId);
 }

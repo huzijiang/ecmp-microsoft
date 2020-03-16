@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.mscore.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -145,6 +146,11 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
             return orderStateTraceInfoMapper.getTraceMessageForPassenger(userId,OrderState.REASSIGNPASS.getState());
         }
     }
+
+	@Override
+	public UserVO getOrderDispatcher(String states, Long orderId) {
+		return orderStateTraceInfoMapper.getOrderDispatcher(orderId,states);
+	}
 
 	@Override
 	public boolean applyReassignment(Long userId, Long orderId, String applyReason) {

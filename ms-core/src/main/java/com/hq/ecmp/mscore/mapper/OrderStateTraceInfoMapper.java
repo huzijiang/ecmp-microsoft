@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.domain.SendCarInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
@@ -79,4 +80,6 @@ public interface OrderStateTraceInfoMapper
     MessageDto getTraceMessageForPassenger(@Param("userId") Long userId, @Param("state")String state);
     /**查询当前司机改派消息通知*/
     MessageDto getTraceMessageForDriver(@Param("driverId") Long driverId, @Param("state")String state);
+
+    UserVO getOrderDispatcher(@Param("orderId") Long orderId, @Param("states") String states);
 }

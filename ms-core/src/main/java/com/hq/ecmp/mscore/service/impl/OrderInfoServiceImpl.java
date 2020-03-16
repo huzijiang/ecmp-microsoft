@@ -3,8 +3,10 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.util.StringUtil;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CallTaxiDto;
@@ -16,6 +18,7 @@ import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.mscore.vo.UserVO;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.RedisUtil;
@@ -30,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -47,6 +51,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
+    @Autowired
+    private OrderSettlingInfoMapper orderSettlingInfoMapper;
     @Autowired
     private IDriverInfoService driverInfoService;
     @Resource
@@ -71,21 +77,23 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private RedisUtil redisUtil;
     @Resource
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
-
     @Resource
     private IOrderViaInfoService iOrderViaInfoService;
-
     @Autowired
     private IRegimeInfoService regimeInfoService;
     @Autowired
     private ICarGroupDispatcherInfoService carGroupDispatcherInfoService;
-
     @Resource
     private EcmpUserMapper ecmpUserMapper;
     @Resource
     private JourneyPassengerInfoMapper passengerInfoMapper;
 
-
+    @Value("${thirdService.enterpriseId}") //企业编号
+    private String enterpriseId;
+    @Value("${thirdService.licenseContent}") //企业证书信息
+    private String licenseContent;
+    @Value("${thirdService.apiUrl}")//三方平台的接口前地址
+    private String apiUrl;
     @Value("${company.serviceMobile}")
     private String serviceMobile;
 
@@ -307,11 +315,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	}
 
     @Override
-    public OrderVO orderBeServiceDetail(Long orderId) {
+    public OrderVO orderBeServiceDetail(Long orderId) throws Exception{
         OrderVO vo=new OrderVO();
         OrderInfo orderInfo = this.selectOrderInfoById(orderId);
         if (orderInfo==null){
-            return null;
+            throw new Exception("该订单不存在");
         }
         JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
         Date useCarTime=orderInfo.getActualSetoutTime();
@@ -320,6 +328,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,useCarTime));
         BeanUtils.copyProperties(orderInfo,vo);
+        if (OrderState.WAITINGLIST.getState().equals(orderInfo.getState())||OrderState.GETARIDE.getState().equals(orderInfo.getState())){
+            return vo;
+        }
         if (OrderState.SENDINGCARS.getState().equals(orderInfo.getState())){
             vo.setHint(HintEnum.CALLINGCAR.join(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,nodeInfo.getPlanSetoutTime())));
             return vo;
@@ -328,25 +339,59 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setHint(HintEnum.CALLCARFAILD.join(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,nodeInfo.getPlanSetoutTime())));
             return vo;
         }
-        //查询车辆信息
-        CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
-        if (carInfo!=null){
-            BeanUtils.copyProperties(carInfo,vo);
-        }
-        vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
-        //TODO 是否需要车队信息
-        //是否添加联系人
-        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
-        List<UserEmergencyContactInfo> userEmergencyContactInfos = userEmergencyContactInfoMapper.queryAll(new UserEmergencyContactInfo(journeyInfo.getUserId()));
-        if (CollectionUtils.isEmpty(userEmergencyContactInfos)){
-            vo.setIsAddContact("是");
-        }
-        DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
-        vo.setDriverScore(driverInfo.getStar()+"");
-        vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
-        vo.setState(orderInfo.getState());
-        //TODO 客服电话暂时写在配置文件
+        String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
+        UserVO str= iOrderStateTraceInfoService.getOrderDispatcher(states,orderId);
+        vo.setCarGroupPhone(str.getUserPhone());
         vo.setCustomerServicePhone(serviceMobile);
+        vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+        List<UserEmergencyContactInfo> contactInfos = userEmergencyContactInfoMapper.queryAll(new UserEmergencyContactInfo(journeyInfo.getUserId()));
+        String isAddContact=CollectionUtils.isEmpty(contactInfos)?"否":"是";
+        vo.setIsAddContact(isAddContact);
+        if(CarModeEnum.ORDER_MODE_HAVE.getKey().equals(orderInfo.getState())){//自有车
+            //查询车辆信息
+            CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
+            if (carInfo!=null){
+                BeanUtils.copyProperties(carInfo,vo);
+            }
+            vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
+            DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
+            vo.setDriverScore(driverInfo.getStar()+"");
+            if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
+                //服务结束后获取里程用车时长
+                List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo());
+                if (!CollectionUtils.isEmpty(orderSettlingInfos)){
+                    vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
+                    vo.setDuration(DateFormatUtils.formatSecond(orderSettlingInfos.get(0).getTotalTime()));
+                }
+            }
+        }else{
+            if (StringUtils.isNotEmpty(orderInfo.getCarLicense())){
+                String[] split = orderInfo.getCarLicense().split(",");
+                vo.setCarLicense(split[0]);//车牌号
+                vo.setCarColor(split[1]);
+                vo.setCarType(split[2]);
+                vo.setDriverScore(split[3]);
+            }
+            if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
+                JSONObject data = getThirdPartyOrderState(orderId);
+                String amount = data.getJSONObject("feeInfoBean").getString("amount");//优惠后价格
+                String disMoney = data.getJSONObject("feeInfoBean").getString("disMoney");//原价
+                String distance = data.getJSONObject("feeInfoBean").getString("distance");//里程
+                String distanceFee = data.getJSONObject("feeInfoBean").getString("distanceFee");//里程费
+                String duration = data.getJSONObject("feeInfoBean").getString("duration");//时长(分钟)
+                String durationFee = data.getJSONObject("feeInfoBean").getString("durationFee");//时长费
+                String overDistancePrice = data.getJSONObject("feeInfoBean").getString("overDistancePrice");//每公里单据
+                vo.setAmount(amount);
+                vo.setDisMoney(disMoney);
+                vo.setDistance(distance+"公里");
+                vo.setDistanceFee(distanceFee);
+                vo.setDuration(DateFormatUtils.formatMinute(StringUtils.isNotEmpty(duration)?Integer.parseInt(duration):0));
+                vo.setDurationFee(durationFee);
+                vo.setOverDistancePrice(overDistancePrice);
+            }
+        }
+        vo.setState(orderInfo.getState());
         return vo;
     }
 
@@ -672,15 +717,73 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    public JSONObject getTaxiOrderState(Long orderId,String enterpriseId,String licenseContent,String macAdd,String apiUrl) throws  Exception{
+    public JSONObject getTaxiOrderState(Long orderId) throws  Exception{
+        JSONObject data = getThirdPartyOrderState(orderId);
+        String status = data.getString("status");
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        int newState = Integer.parseInt(status.substring(1));
+        int i = Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1));
+        if(!status.equals(orderInfo.getState())&&newState>i){
+            String name = data.getJSONObject("driverInfoDTO").getString("name");
+            String phone = data.getJSONObject("driverInfoDTO").getString("phone");
+            String licensePlates = data.getJSONObject("driverInfoDTO").getString("licensePlates");//车牌
+            String star =  data.getJSONObject("driverInfoDTO").getString("driverRate");
+            String carName = data.getJSONObject("driverInfoDTO").getString("modelName");
+            String carColor = data.getJSONObject("driverInfoDTO").getString("vehicleColor");
+            OrderInfo newOrderInfo = new OrderInfo(orderId,status);
+            Map<String,String> queryOrderStateMap = new HashMap<>();
+            queryOrderStateMap.put("enterpriseId", enterpriseId);
+            queryOrderStateMap.put("licenseContent", licenseContent);
+            queryOrderStateMap.put("mac", MacTools.getMacList().get(0));
+            queryOrderStateMap.put("driverPhone",phone);
+            String resultJson = OkHttpUtil.postJson(apiUrl + "/service/driverLocation", queryOrderStateMap);
+            JSONObject resultObject = JSONObject.parseObject(resultJson);
+            if (!"0".equals(resultObject.getString("code"))){
+                throw new Exception("获取网约车司机位置异常");
+            }
+            if (!OrderState.ORDEROVERTIME.getState().equals(status)&&!OrderState.ORDERCANCEL.getState().equals(status)){//派车成功后所有状态
+                newOrderInfo.setDriverMobile(phone);
+                newOrderInfo.setDriverName(name);
+                //TODO 将网约车的车辆信息都存在车牌号字段中.格式(车牌号,车辆颜色,车辆名字,司机评分)
+                String carStr=licensePlates+","+carColor+","+carName+","+star;
+                newOrderInfo.setCarLicense(carStr);
+                if (OrderState.READYSERVICE.getState().equals(status)||OrderState.ORDERCLOSE.getState().equals(status)){//乘客一上车
+                    JSONObject data1 = resultObject.getJSONObject("data");
+                    if (OrderState.READYSERVICE.getState().equals(status)){
+                        newOrderInfo.setActualSetoutLatitude(new BigDecimal(data1.getString("y")));
+                        newOrderInfo.setActualSetoutLongitude(new BigDecimal(data1.getString("x")));
+                    }else {
+                        newOrderInfo.setActualArriveLatitude(new BigDecimal(data1.getString("y")));
+                        newOrderInfo.setActualArriveLongitude(new BigDecimal(data1.getString("x")));
+                    }
+
+                }
+            }
+            int j = orderInfoMapper.updateOrderInfo(newOrderInfo);
+            //TODO 远端暂时未返回网约车坐标
+            iOrderStateTraceInfoService.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderId,status,null,null));
+            if (OrderState.ORDERCLOSE.getState().equals(status)||OrderState.DISSENT.getState().equals(status)||OrderState.STOPSERVICE.getState().equals(status)) {//订单关闭
+                //TODO 调财务结算模块
+            }
+            return resultObject;
+        }else{
+            return null;
+        }
+    }
+
+    private JSONObject getThirdPartyOrderState(Long orderId)throws Exception{
         Map<String,String> queryOrderStateMap = new HashMap<>();
         queryOrderStateMap.put("enterpriseId", enterpriseId);
         queryOrderStateMap.put("licenseContent", licenseContent);
-        queryOrderStateMap.put("mac", macAdd);
+        queryOrderStateMap.put("mac", MacTools.getMacList().get(0));
         queryOrderStateMap.put("enterpriseOrderId",orderId+"");
-        queryOrderStateMap.put("status",OrderState.SENDINGCARS.getState());
+        queryOrderStateMap.put("status","S200");
         String resultQuery = OkHttpUtil.postJson(apiUrl + "/service/getOrderState", queryOrderStateMap);
         JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
-        return jsonObjectQuery;
+        JSONObject data = jsonObjectQuery.getJSONObject("data");
+        if(!"0".equals(jsonObjectQuery.getString("code"))){
+            throw new Exception("获取网约车信息失败");
+        }
+        return data;
     }
 }
