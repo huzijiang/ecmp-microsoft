@@ -102,32 +102,6 @@ public class CompanyConfigController {
     @ApiOperation(value = "dispatch ", notes = "设置派单方式")
     @PostMapping("/dispatch")
     public ApiResponse dispatch(String status, String value) {
-        //[
-        //    {
-        //        "weekType":"0",
-        //        "startTime":"10:00",
-        //        "endTime":"20:00",
-        //        "nextDay":"true"
-        //    },
-        //    {
-        //        "weekType":"1",
-        //        "startTime":"10:00",
-        //        "endTime":"20:00",
-        //        "nextDay":"true"
-        //    },
-        //    {
-        //        "weekType":"2",
-        //        "startTime":"10:00",
-        //        "endTime":"20:00",
-        //        "nextDay":"false"
-        //    },
-        //    {
-        //        "weekType":"3",
-        //        "startTime":"10:00",
-        //        "endTime":"20:00",
-        //        "nextDay":"true"
-        //    }
-        //]
         ecmpConfigService.setUpDispatchInfo(status, value);
         return ApiResponse.success();
     }
