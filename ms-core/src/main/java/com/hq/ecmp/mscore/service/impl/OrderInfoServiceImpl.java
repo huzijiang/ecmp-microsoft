@@ -1,28 +1,15 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.util.StringUtil;
-import com.hq.common.core.api.ApiResponse;
-import com.hq.common.utils.DateUtils;
-import com.hq.common.utils.OkHttpUtil;
-import com.hq.common.utils.StringUtils;
-import com.hq.ecmp.constant.*;
-import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.CallTaxiDto;
-import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
-import com.hq.ecmp.mscore.dto.OrderListBackDto;
-import com.hq.ecmp.mscore.mapper.*;
-import com.hq.ecmp.mscore.service.*;
-import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
-import com.hq.ecmp.mscore.vo.OrderStateVO;
-import com.hq.ecmp.mscore.vo.OrderVO;
-import com.hq.ecmp.mscore.vo.UserVO;
-import com.hq.ecmp.util.DateFormatUtils;
-import com.hq.ecmp.util.MacTools;
-import com.hq.ecmp.util.RedisUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,11 +19,77 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.util.StringUtil;
+import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.OkHttpUtil;
+import com.hq.common.utils.StringUtils;
+import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.CarModeEnum;
+import com.hq.ecmp.constant.CarPowerEnum;
+import com.hq.ecmp.constant.CommonConstant;
+import com.hq.ecmp.constant.HintEnum;
+import com.hq.ecmp.constant.OrderConstant;
+import com.hq.ecmp.constant.OrderServiceType;
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
+import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.domain.CarInfo;
+import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
+import com.hq.ecmp.mscore.domain.DriverInfo;
+import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
+import com.hq.ecmp.mscore.domain.JourneyPlanPriceInfo;
+import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.OrderAddressInfo;
+import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.OrderViaInfo;
+import com.hq.ecmp.mscore.domain.SendCarInfo;
+import com.hq.ecmp.mscore.domain.UserEmergencyContactInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.mapper.ApplyInfoMapper;
+import com.hq.ecmp.mscore.mapper.CarGroupServeScopeInfoMapper;
+import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
+import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyPassengerInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
+import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderSettlingInfoMapper;
+import com.hq.ecmp.mscore.mapper.UserEmergencyContactInfoMapper;
+import com.hq.ecmp.mscore.service.ICarGroupDispatcherInfoService;
+import com.hq.ecmp.mscore.service.ICarGroupInfoService;
+import com.hq.ecmp.mscore.service.ICarInfoService;
+import com.hq.ecmp.mscore.service.IDriverInfoService;
+import com.hq.ecmp.mscore.service.IJourneyInfoService;
+import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
+import com.hq.ecmp.mscore.service.IJourneyPassengerInfoService;
+import com.hq.ecmp.mscore.service.IJourneyPlanPriceInfoService;
+import com.hq.ecmp.mscore.service.IOrderAddressInfoService;
+import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
+import com.hq.ecmp.mscore.service.IOrderViaInfoService;
+import com.hq.ecmp.mscore.service.IRegimeInfoService;
+import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
+import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
+import com.hq.ecmp.mscore.vo.OrderStateVO;
+import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.MacTools;
+import com.hq.ecmp.util.RedisUtil;
+
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -88,10 +141,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private EcmpUserMapper ecmpUserMapper;
     @Resource
     private JourneyPassengerInfoMapper passengerInfoMapper;
+    @Autowired
+    private IJourneyPassengerInfoService journeyPassengerInfoService;
     @Resource
     private IOrderAddressInfoService iOrderAddressInfoService;
     @Resource
     private IJourneyPlanPriceInfoService iJourneyPlanPriceInfoService;
+
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -913,4 +969,32 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         return data;
     }
+
+	@Override
+	public List<ApplyDispatchVo> queryApplyDispatchList(ApplyDispatchQuery query) {
+		List<ApplyDispatchVo> applyDispatchVoList = orderInfoMapper.queryApplyDispatchList(query);
+		if(null !=applyDispatchVoList && applyDispatchVoList.size()>0){
+			for (ApplyDispatchVo applyDispatchVo : applyDispatchVoList) {
+				Long orderId = applyDispatchVo.getOrderId();
+				Long journeyId = applyDispatchVo.getJourneyId();
+            //查询乘车人
+				applyDispatchVo.setUseCarUser(journeyPassengerInfoService.getPeerPeople(journeyId));
+				//查询同行人数
+				applyDispatchVo.setPeerUserNum(journeyPassengerInfoService.queryPeerCount(journeyId));
+				//查询出发时间地点    目的地时间地点
+				DispatchOrderInfo dispatchOrderInfo = new DispatchOrderInfo();
+				dispatchOrderInfo.setOrderId(orderId);
+				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+				applyDispatchVo.parseOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+				//转化状态
+				applyDispatchVo.parseDispatchStatus();
+			}
+		}
+		return applyDispatchVoList;
+	}
+
+	@Override
+	public Integer queryApplyDispatchListCount(ApplyDispatchQuery query) {
+		return orderInfoMapper.queryApplyDispatchListCount(query);
+	}
 }
