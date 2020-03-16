@@ -173,8 +173,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         //添加里程数和总时长
         OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
         orderSettlingInfo.setOrderId(orderId);
-        orderSettlingInfo.setTotalMileage(Long.parseLong(mileage));
-        orderSettlingInfo.setTotalTime(travelTime);
+        orderSettlingInfo.setTotalMileage(new BigDecimal(mileage));
+        orderSettlingInfo.setTotalTime(Integer.valueOf(travelTime));
         orderSettlingInfo.setCreateBy(userId);
         iOrderSettlingInfoService.insertOrderSettlingInfo(orderSettlingInfo);
         //判断是还车还是继续用车

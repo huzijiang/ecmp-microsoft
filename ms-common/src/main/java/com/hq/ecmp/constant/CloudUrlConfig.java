@@ -1,6 +1,5 @@
 package com.hq.ecmp.constant;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,7 +12,7 @@ public final class CloudUrlConfig {
      * header请求
      */
 
-    @Value("${microservice.url}")
+//    @Value("${microservice.url}")
     private String url;
 
     public String getUrl() {
