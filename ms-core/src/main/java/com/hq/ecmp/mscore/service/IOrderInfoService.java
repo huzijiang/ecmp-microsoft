@@ -86,7 +86,7 @@ public interface IOrderInfoService {
      * @param userId
      * @return
      */
-    public  int insertOrderStateTrace(String orderId,String updateState,String userId);
+    public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason);
     
     
     /**
@@ -153,7 +153,7 @@ public interface IOrderInfoService {
     */
     public boolean ownCarSendCar(Long orderId,Long driverId,Long carId,Long userId);
 
-    void initOrder(Long applyId, Long jouneyId, Long userId);
+    void initOrder(Long applyId, Long jouneyId, Long userId) throws Exception;
 
 
     /**

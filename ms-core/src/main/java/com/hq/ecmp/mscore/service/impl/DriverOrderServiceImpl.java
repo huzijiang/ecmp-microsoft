@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
-import com.hq.ecmp.constant.CommonConstant;
-import com.hq.ecmp.constant.DriverBehavior;
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ContactorDto;
 import com.hq.ecmp.mscore.dto.IsContinueReDto;
@@ -60,6 +57,9 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     @Resource
     ICarGroupInfoService iCarGroupInfoService;
 
+    @Resource
+    IOrderAddressInfoService iOrderAddressInfoService;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -74,10 +74,13 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
         public void handleDriverOrderStatus(String type, String currentPoint, String orderNo,Long userId) throws Exception {
+
         String[] point = currentPoint.split("\\,| \\，");
-        Long longitude = Long.parseLong(point[0]);
-        Long latitude = Long.parseLong(point[1]);
+        Double longitude = Double.parseDouble(point[0]);
+        Double latitude =  Double.parseDouble(point[1]);
         long orderId = Long.parseLong(orderNo);
+        //更新前订单信息
+        OrderInfo orderInfoOld = iOrderInfoService.selectOrderInfoById(orderId);
         //订单
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderId(orderId);
@@ -104,11 +107,6 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderStateTraceInfo.setState(OrderStateTrace.PRESERVICE.getState());
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
-            //订单状态
-            orderInfo.setState(OrderState.INSERVICE.getState());
-            orderInfo.setActualSetoutLongitude(longitude);
-            orderInfo.setActualSetoutLatitude(latitude);
-            orderInfo.setActualSetoutTime(DateUtils.getNowDate());
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             List<String> macList = MacTools.getMacList();
             String macAdd = macList.get(0);
@@ -126,17 +124,31 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             JSONObject data = jsonObject.getJSONObject("data");
             String longAddr = data.getString("addressFullName");
             String shortAddr = data.getString("maddress");
-            orderInfo.setActualSetoutAddress(shortAddr);
-            orderInfo.setActualSetoutAddressLo(longAddr);
+            //订单地址表
+            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+            orderAddressInfo.setOrderId(orderId);
+            orderAddressInfo.setJourneyId(orderInfoOld.getJourneyId());
+            orderAddressInfo.setNodeId(orderInfoOld.getNodeId());
+            orderAddressInfo.setPowerId(orderInfoOld.getPowerId());
+            orderAddressInfo.setDriverId(orderInfoOld.getDriverId());
+            orderAddressInfo.setCarId(orderInfoOld.getCarId());
+            orderAddressInfo.setUserId(orderInfoOld.getUserId()+"");
+            orderAddressInfo.setCityPostalCode(null);
+            orderAddressInfo.setActionTime(DateUtils.getNowDate());
+            orderAddressInfo.setLongitude(longitude);
+            orderAddressInfo.setLatitude(latitude);
+            orderAddressInfo.setAddress(shortAddr);
+            orderAddressInfo.setAddressLong(longAddr);
+            orderAddressInfo.setCreateBy(userId+"");
+            iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+            //订单状态
+            orderInfo.setState(OrderState.INSERVICE.getState());
             iOrderInfoService.updateOrderInfo(orderInfo);
             //订单轨迹状态
             orderStateTraceInfo.setState(OrderStateTrace.SERVICE.getState());
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){
-            orderInfo.setState(OrderState.STOPSERVICE.getState());
-            orderInfo.setActualArriveLongitude(longitude);
-            orderInfo.setActualArriveLatitude(latitude);
-            orderInfo.setActualArriveTime(DateUtils.getNowDate());
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             List<String> macList = MacTools.getMacList();
             String macAdd = macList.get(0);
@@ -154,8 +166,25 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             JSONObject data = jsonObject.getJSONObject("data");
             String longAddr = data.getString("addressFullName");
             String shortAddr = data.getString("maddress");
-            orderInfo.setActualArriveAddress(shortAddr);
-            orderInfo.setActualArriveAddressLo(longAddr);
+            //订单地址表
+            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+            orderAddressInfo.setOrderId(orderId);
+            orderAddressInfo.setJourneyId(orderInfoOld.getJourneyId());
+            orderAddressInfo.setNodeId(orderInfoOld.getNodeId());
+            orderAddressInfo.setPowerId(orderInfoOld.getPowerId());
+            orderAddressInfo.setDriverId(orderInfoOld.getDriverId());
+            orderAddressInfo.setCarId(orderInfoOld.getCarId());
+            orderAddressInfo.setUserId(orderInfoOld.getUserId()+"");
+            orderAddressInfo.setCityPostalCode(null);
+            orderAddressInfo.setActionTime(DateUtils.getNowDate());
+            orderAddressInfo.setLongitude(longitude);
+            orderAddressInfo.setLatitude(latitude);
+            orderAddressInfo.setAddress(shortAddr);
+            orderAddressInfo.setAddressLong(longAddr);
+            orderAddressInfo.setCreateBy(userId+"");
+            iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+            orderInfo.setState(OrderState.STOPSERVICE.getState());
             iOrderInfoService.updateOrderInfo(orderInfo);
             //订单轨迹状态
             orderStateTraceInfo.setState(OrderStateTrace.SERVICEOVER.getState());
@@ -209,8 +238,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     public Long waitingOrder(String orderNo, String isFinish, String currentPoint,String userId,String waitingId) throws Exception {
         Long orderId = Long.parseLong(orderNo);
         String[] point = currentPoint.split("\\,| \\，");
-        Long longitude = Long.parseLong(point[0]);
-        Long latitude = Long.parseLong(point[1]);
+        Double longitude = Double.parseDouble(point[0]);
+        Double latitude = Double.parseDouble(point[1]);
         if(CommonConstant.START.equals(isFinish)){
             OrderInfo orderInfo = iOrderInfoService.selectOrderInfoById(orderId);
             OrderWaitTraceInfo orderWaitTraceInfo = new OrderWaitTraceInfo();

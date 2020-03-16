@@ -28,11 +28,11 @@ public class OrderStateTraceInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long driverLongitude;
+    private Double driverLongitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long driverLatitude;
+    private Double driverLatitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -65,21 +65,21 @@ public class OrderStateTraceInfo extends BaseEntity
     {
         return state;
     }
-    public void setDriverLongitude(Long driverLongitude)
+    public void setDriverLongitude(Double driverLongitude)
     {
         this.driverLongitude = driverLongitude;
     }
 
-    public Long getDriverLongitude()
+    public Double getDriverLongitude()
     {
         return driverLongitude;
     }
-    public void setDriverLatitude(Long driverLatitude)
+    public void setDriverLatitude(Double driverLatitude)
     {
         this.driverLatitude = driverLatitude;
     }
 
-    public Long getDriverLatitude()
+    public Double getDriverLatitude()
     {
         return driverLatitude;
     }
@@ -96,7 +96,7 @@ public class OrderStateTraceInfo extends BaseEntity
     public OrderStateTraceInfo() {
     }
 
-    public OrderStateTraceInfo(Long orderId, String state, Long driverLongitude, Long driverLatitude) {
+    public OrderStateTraceInfo(Long orderId, String state, Double driverLongitude, Double driverLatitude) {
         this.orderId = orderId;
         this.state = state;
         this.driverLongitude = driverLongitude;

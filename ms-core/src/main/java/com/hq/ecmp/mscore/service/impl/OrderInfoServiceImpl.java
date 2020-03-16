@@ -181,11 +181,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @param updateState
      * @return
      */
-    public  int insertOrderStateTrace(String orderId,String updateState,String userId){
+    public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason){
         OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
         orderStateTraceInfo.setOrderId(Long.parseLong(orderId));
         orderStateTraceInfo.setState(updateState);
-        orderStateTraceInfo.setContent(null);
+        orderStateTraceInfo.setContent(cancelReason);
         orderStateTraceInfo.setCreateBy(userId);
         int i = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         return  i;
@@ -314,11 +314,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             return null;
         }
         JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
-        Date useCarTime=orderInfo.getActualSetoutTime();
-        if (useCarTime==null){
-            useCarTime=nodeInfo.getPlanSetoutTime();
-        }
-        vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,useCarTime));
+        //TODO 杨军注释
+//        Date useCarTime=orderInfo.getActualSetoutTime();
+//        if (useCarTime==null){
+//            useCarTime=nodeInfo.getPlanSetoutTime();
+//        }
+//        vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,useCarTime));
         BeanUtils.copyProperties(orderInfo,vo);
         if (OrderState.SENDINGCARS.getState().equals(orderInfo.getState())){
             vo.setHint(HintEnum.CALLINGCAR.join(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,nodeInfo.getPlanSetoutTime())));
@@ -362,7 +363,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             return null;
         }
         String format = HintEnum.format(orderInfo.getState());
-        return String.format(format, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,orderInfo.getActualSetoutTime()));
+        //TODO 杨军注释
+//        return String.format(format, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,orderInfo.getActualSetoutTime()));
+        return null;
     }
 
     @Override
@@ -508,7 +511,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	}
 
 
-    public void initOrder(Long applyId,Long jouneyId,Long userId){
+    public void initOrder(Long applyId,Long jouneyId,Long userId) throws Exception {
         //获取用车权限记录
         JourneyUserCarPower journeyUserCarPowerChild = new JourneyUserCarPower();
         journeyUserCarPowerChild.setJourneyId(jouneyId);
@@ -535,6 +538,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             orderInfo.setState(OrderState.INITIALIZING.getState());
         }
         //有多少用车权限创建多少订单（跳过差旅的市内用车）
+        if(journeyUserCarPowers.size()<=0){
+            log.error("行程id【"+jouneyId+"】,申请单id【"+applyId+"】,请配置用车权限");
+            throw new Exception("请配置用车权限");
+        }
         for (int i = 0; i < journeyUserCarPowers.size(); i++) {
             JourneyUserCarPower journeyUserCarPower = journeyUserCarPowers.get(i);
             String type = journeyUserCarPower.getType();
@@ -582,15 +589,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                         }
                         orderViaInfos.add(orderViaInfo);
                     }
-                    if(orderViaInfos.size()>0){
-                        iOrderViaInfoService.insertOrderViaInfoBatch(orderViaInfos);
-                    }
-                }
+            if(orderViaInfos.size()>0){
+                iOrderViaInfoService.insertOrderViaInfoBatch(orderViaInfos);
+            }
+        }
             }
             //插入订单轨迹表
-            this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId));
+            this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null);
             if ("A001".equals(applyType)) {
-                this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId));
+                this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
             }
         }
     }

@@ -4,7 +4,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hq.ecmp.mscore.mapper.OrderViaInfoMapper">
     
-    <resultMap type="OrderViaInfo" id="OrderViaInfoResult">
+    <resultMap type="com.hq.ecmp.mscore.domain.OrderViaInfo" id="OrderViaInfoResult">
         <result property="viaId"    column="via_id"    />
         <result property="orderId"    column="order_id"    />
         <result property="longitude"    column="longitude"    />
