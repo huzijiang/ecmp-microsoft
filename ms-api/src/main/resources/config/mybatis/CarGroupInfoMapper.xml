@@ -18,14 +18,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCarGroupInfoVo">
-        select car_group_id, city, city_name, owner_org, leader,telephone,create_by, create_time, update_by, update_time from car_group_info
+        select car_group_id, city, owner_org, leader,telephone,create_by, create_time, update_by, update_time from car_group_info
     </sql>
 
     <select id="selectCarGroupInfoList" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo" resultMap="CarGroupInfoResult">
         <include refid="selectCarGroupInfoVo"/>
         <where>
             <if test="city != null "> and city = #{city}</if>
-            <if test="cityName != null  and cityName != ''"> and city_name like concat('%', #{cityName}, '%')</if>
             <if test="ownerOrg != null "> and owner_org = #{ownerOrg}</if>
             <if test="leader != null "> and leader = #{leader}</if>
         </where>
@@ -88,6 +87,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cityName != null  and cityName != ''">city_name = #{cityName},</if>
             <if test="ownerOrg != null ">owner_org = #{ownerOrg},</if>
             <if test="leader != null ">leader = #{leader},</if>
+            <if test="state != null ">state = #{state},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>

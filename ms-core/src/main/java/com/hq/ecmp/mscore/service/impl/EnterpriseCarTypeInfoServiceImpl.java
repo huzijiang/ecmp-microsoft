@@ -117,12 +117,15 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
         Long deptId = ecmpUser.getDeptId();
         EcmpEnterpriseInfo ecmpEnterpriseInfo = new EcmpEnterpriseInfo();
         ecmpEnterpriseInfo.setDeptId(deptId);
+        //根据部门id查公司
         List<EcmpEnterpriseInfo> ecmpEnterpriseInfos = ecmpEnterpriseInfoMapper.selectEcmpEnterpriseInfoList(ecmpEnterpriseInfo);
+        //公司id
         Long enterpriseId = ecmpEnterpriseInfos.get(0).getEnterpriseId();
         //查询公司有效车型 状态 S000   生效中  S444   失效中
         EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
         enterpriseCarTypeInfo.setEnterpriseId(enterpriseId);
         enterpriseCarTypeInfo.setStatus("S000");
+        //查询公司车型
         List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
         return enterpriseCarTypeInfos;
     }

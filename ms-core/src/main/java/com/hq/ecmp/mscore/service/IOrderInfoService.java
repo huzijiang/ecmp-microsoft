@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.dto.CallTaxiDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
@@ -126,7 +127,7 @@ public interface IOrderInfoService {
      * @param orderId
      * @return
      */
-    OrderVO orderBeServiceDetail(Long orderId);
+    OrderVO orderBeServiceDetail(Long orderId)throws Exception;
 
     /**
      * 获取服务提示语
@@ -188,8 +189,10 @@ public interface IOrderInfoService {
      * PC端查询订单详情
      * @param orderNo
      */
-    void getOrderListDetail(String orderNo);
+    OrderDetailBackDto getOrderListDetail(String orderNo);
+
     //查询网约车状态
-    JSONObject getTaxiOrderState(Long orderId, String enterpriseId, String licenseContent, String macAdd,String apiUrl)throws Exception;
+    JSONObject getTaxiOrderState(Long orderId)throws Exception;
+
 }
 

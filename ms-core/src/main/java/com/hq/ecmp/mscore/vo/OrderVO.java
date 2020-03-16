@@ -46,5 +46,21 @@ public class OrderVO {
     private String useCarTime;
     @ApiModelProperty(name = "labelState",value = "辅助状态")
     private String labelState;
+    @ApiModelProperty(name = "allPrice",value = "优惠后总价")
+    private String amount;
+    @ApiModelProperty(name = "distance",value = "里程")
+    private String distance;
+    @ApiModelProperty(name = "distanceFee",value = "里程费")
+    private String distanceFee;
+    @ApiModelProperty(name = "duration",value = "时长（分钟）")
+    private String duration;
+    @ApiModelProperty(name = "durationFee",value = "时长费")
+    private String durationFee;
+    @ApiModelProperty(name = "overDistancePrice",value = "每公里单价")
+    private String overDistancePrice;
+    @ApiModelProperty(name = "disMoney",value = "原价")
+    private String disMoney;
+
+
 
 }

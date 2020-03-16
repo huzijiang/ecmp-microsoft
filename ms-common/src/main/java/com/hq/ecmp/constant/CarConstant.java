@@ -1,9 +1,9 @@
 package com.hq.ecmp.constant;
 
 public interface CarConstant {
-    String USE_CAR_TYPE_OFFICIAL="A001";//公务
+    String USE_CAR_TYPE_OFFICIAL="T001";//公务
 	
-	String USE_CAR_TYPE_TRAVEL="A002";//差旅
+	String USE_CAR_TYPE_TRAVEL="T002";//差旅
 	
 	String NOT_USER_USE_CAR="U000";//未使用
 	
@@ -23,4 +23,7 @@ public interface CarConstant {
 	static  final String USR_CARD_MODE_NET = "W200"; //网约车
 	static  final  String  USR_CARD_MODE_HAVE = "W100";//自有车
 	/**********************************用车方式********************************************************/
+
+	String START_UP_CAR_GROUP = "Y000";   //启用车队
+	String DISABLE_CAR_GROUP = "N111";   // 禁用车队
 }

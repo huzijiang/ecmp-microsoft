@@ -128,12 +128,13 @@
         select
           id, config_type, ecmp_id, type, status,content, category, url, create_by, create_time, update_by, update_time
         from ecmp.ecmp_message
-        where ecmp_id = #{ecmp_id}
+        where ecmp_id = #{ecmpId}
         and
         config_type in
         <foreach collection="configTypeList" separator="," item="item" index="index" open="(" close=")">
             #{item}
         </foreach>
+        order by update_time desc
     </select>
 
     <select id="queryMessageCount" parameterType="map" resultType="integer">

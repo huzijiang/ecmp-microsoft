@@ -99,5 +99,13 @@ public interface IRegimeInfoService
      
      
      public boolean optRegime(RegimeOpt regimeOpt);
+     
+     public RegimeInfo  queryRegimeType(Long regimeId);
+     
+     public RegimeVo queryRegimeDetail(Long regimeId);
+     
+     
+     
+     
 }
 

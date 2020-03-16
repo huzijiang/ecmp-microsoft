@@ -1,19 +1,19 @@
 package com.hq.ecmp.ms.api.controller.base;
 
+import com.hq.api.system.domain.SysDriver;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
+import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.MsgStatusConstant;
-import com.hq.ecmp.constant.MsgTypeConstant;
-import com.hq.ecmp.constant.MsgUserConstant;
-import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.EcmpMessage;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.EcmpMessageVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -68,31 +68,7 @@ public class MessageController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         List<MessageDto> list=new ArrayList<>();
-		//当前是申请人(申请通知/行程通知/改派通知)
-		MessageDto applyList= applyInfoService.getApplyMessage(loginUser.getUser().getUserId());
-		MessageDto jouMessage=journeyInfoService.getJourneyMessage(loginUser.getUser().getUserId());
-		MessageDto traceMessage=orderStateTraceInfoService.getTraceMessage(loginUser.getUser().getUserId(),false,null);
-		//如果当前登录人是审批人(审批通知) TODO
-		MessageDto approveMassage=approveResultInfoService.getApproveMessage(loginUser.getUser().getUserId());
-		//当前登录人为车队管理员(派车通知)
-		EcmpUser ecmpUser = userService.selectEcmpUserById(loginUser.getUser().getUserId());
-		if (ecmpUser!=null&& "1".equals(ecmpUser.getItIsDispatcher())){
-			String states="S100,S000";//订单状态
-			MessageDto orderMessage = orderInfoService.getOrderMessage(loginUser.getUser().getUserId(),states,null);
-			list.add(orderMessage);
-		}
-		if (applyList!=null){
-			list.add(applyList);
-		}
-		if (jouMessage!=null){
-			list.add(jouMessage);
-		}
-		if (traceMessage!=null){
-			list.add(traceMessage);
-		}
-		if (approveMassage!=null){
-			list.add(approveMassage);
-		}
+
 		return ApiResponse.success(list);
 	}
 
@@ -149,11 +125,21 @@ public class MessageController {
      */
     @ApiOperation(value = "getMessagesList", notes = "根据身份获取消息列表", httpMethod ="POST")
     @PostMapping("/getMessagesList")
-    public ApiResponse<List<EcmpMessage>> getMessagesList(String identity) {
+    public ApiResponse<List<EcmpMessageVO>> getMessagesList(String identity) {
         //获取登录用户
         List<EcmpMessage> list = ecmpMessageService.selectMessageList(identity);
-
-        return ApiResponse.success(list);
+        List<EcmpMessageVO> msgList = new ArrayList<>();
+        for (EcmpMessage ecmpMessage : list) {
+            msgList.add(EcmpMessageVO.builder()
+                    .id(ecmpMessage.getId())
+                    .title(MsgConstant.getDespByType(ecmpMessage.getCategory()))
+                    .url(ecmpMessage.getUrl())
+                    .status(ecmpMessage.getStatus())
+                    .content(ecmpMessage.getContent())
+                    .time(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,ecmpMessage.getUpdateTime()))
+                    .build());
+        }
+        return ApiResponse.success(msgList);
     }
 
     /**
@@ -187,22 +173,4 @@ public class MessageController {
         int count = ecmpMessageService.getMessagesCount(identity);
         return ApiResponse.success(count);
     }
-
-
-	/**
-	 * 获取未读消息数量(司机端)
-	 * @param
-	 * @return
-	 */
-	@ApiOperation(value = "getMessageUnreadCount", notes = "获取首页轮播正在进行中流程通知", httpMethod ="GET")
-	@GetMapping("/getMessageUnreadCount")
-	public ApiResponse<Integer> getMessageUnreadCount() {
-		//获取登录用户
-		HttpServletRequest request = ServletUtils.getRequest();
-		LoginUser loginUser = tokenService.getLoginUser(request);
-		Long userId = loginUser.getUser().getUserId();
-		//TODO 查消息表
-		return ApiResponse.success();
-	}
-
 }

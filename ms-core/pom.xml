@@ -3,16 +3,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.hq.ecmp</groupId>
-        <artifactId>ecmp-microservice</artifactId>
-        <version>1.0-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.2.RELEASE</version>
     </parent>
 
     <groupId>com.hq.ecmp</groupId>
     <artifactId>ms-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ms-core</name>
+    <packaging>jar</packaging>
     <description>企业公车管理平台-企业端-微服务群-核心业务包</description>
 
     <properties>
@@ -58,14 +58,5 @@
             </exclusions>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

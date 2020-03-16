@@ -3,14 +3,12 @@ package com.hq.ecmp.ms.api.controller.order;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.constant.OrderStateTrace;
-import com.hq.ecmp.constant.ResignOrderTraceState;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
@@ -26,6 +24,7 @@ import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -74,6 +74,10 @@ public class OrderController {
 
     @Autowired
     private IDriverHeartbeatInfoService driverHeartbeatInfoService;
+
+    @Resource
+    private EcmpMessageService ecmpMessageService;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -139,11 +143,11 @@ public class OrderController {
             String[] start = startPoint.split("\\,");
             String[] end = endPoint.split("\\,");
             //出发地经纬度
-            orderInfo.setActualSetoutLongitude(Long.parseLong(start[0]));
-            orderInfo.setActualSetoutLatitude(Long.parseLong(start[1]));
+            orderInfo.setActualSetoutLongitude( new BigDecimal(start[0]));
+            orderInfo.setActualSetoutLatitude(new BigDecimal(start[1]));
             //目的地经纬度
-            orderInfo.setActualArriveLongitude(Long.parseLong(end[0]));
-            orderInfo.setActualArriveLatitude(Long.parseLong(end[1]));
+            orderInfo.setActualArriveLongitude(new BigDecimal(end[0]));
+            orderInfo.setActualArriveLatitude(new BigDecimal(end[1]));
             iOrderInfoService.insertOrderInfo(orderInfo);
             //订单轨迹
             iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId));
@@ -352,6 +356,8 @@ public class OrderController {
             String useCarMode = orderInfoOld.getUseCarMode();
             String state = orderInfoOld.getState();
             Long orderId = orderInfoOld.getOrderId();
+            //消息发送使用
+            Long driverId = orderInfoOld.getDriverId();
             //状态为约到车未服务的状态，用车方式为网约车，调用三方取消订单接口
             if (OrderState.getContractedCar().contains(state) && useCarMode.equals(CarConstant.USR_CARD_MODE_NET)) {
                 //TODO 调用网约车的取消订单接口
@@ -377,6 +383,19 @@ public class OrderController {
             //自有车，且状态变更成功
             if (suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)) {
                 //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
+                EcmpMessage ecmpMessage = new EcmpMessage();
+                ecmpMessage.setConfigType(2);
+                ecmpMessage.setEcmpId(driverId);
+                ecmpMessage.setType("T001");
+                ecmpMessage.setStatus("0000");
+                ecmpMessage.setContent("");
+                ecmpMessage.setCategory("M005");
+                ecmpMessage.setUrl("");
+                ecmpMessage.setCreateBy(userId);
+                ecmpMessage.setCreateTime(DateUtils.getNowDate());
+                ecmpMessage.setUpdateBy(null);
+                ecmpMessage.setUpdateTime(null);
+                ecmpMessageService.insert(ecmpMessage);
             }
             //插入订单轨迹表
             iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderStateTrace.CANCEL.getState(), String.valueOf(userId));
@@ -582,7 +601,8 @@ public class OrderController {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            Long userId = loginUser.getUser().getUserId();
+//            Long userId = loginUser.getDriver().getDriverId();
+            Long userId=loginUser.getUser().getUserId();
             driverOrderList = iOrderInfoService.driverOrderUndoneList(userId, driverListRequest.getPageNum(), driverListRequest.getPageSize(),driverListRequest.getDay());
         } catch (Exception e) {
             e.printStackTrace();
@@ -635,11 +655,11 @@ public class OrderController {
             String[] start = startPoint.split("\\,");
             String[] end = endPoint.split("\\,");
             //出发地经纬度
-            orderInfo.setActualSetoutLongitude(Long.parseLong(start[0]));
-            orderInfo.setActualSetoutLatitude(Long.parseLong(start[1]));
+            orderInfo.setActualSetoutLongitude(new BigDecimal(start[0]));
+            orderInfo.setActualSetoutLatitude(new BigDecimal(start[1]));
             //目的地经纬度
-            orderInfo.setActualArriveLongitude(Long.parseLong(end[0]));
-            orderInfo.setActualArriveLatitude(Long.parseLong(end[1]));
+            orderInfo.setActualArriveLongitude(new BigDecimal(end[0]));
+            orderInfo.setActualArriveLatitude(new BigDecimal(end[1]));
             iOrderInfoService.updateOrderInfo(orderInfo);
             //订单轨迹
             iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId));
@@ -691,7 +711,7 @@ public class OrderController {
             return ApiResponse.success(orderVO);
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("加载订单列表失败");
+            return ApiResponse.error(e.getMessage());
         }
     }
     /**
@@ -704,38 +724,53 @@ public class OrderController {
     @RequestMapping("/getOrderState")
     @Transactional
     public ApiResponse<OrderStateVO> getOrderState(@RequestBody OrderDto orderDto){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
         try {
             OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderDto.getOrderId());
-            if (CarConstant.USR_CARD_MODE_HAVE.equals(orderVO.getUseCarMode())){//自有车
-                DriverHeartbeatInfo driverHeartbeatInfo = driverHeartbeatInfoService.findNowLocation(orderVO.getDriverId(), orderDto.getOrderId());
-                String latitude=driverHeartbeatInfo.getLatitude().stripTrailingZeros().toPlainString();
-                String longitude=driverHeartbeatInfo.getLongitude().stripTrailingZeros().toPlainString();
-                orderVO.setDriverLongitude(longitude);
-                orderVO.setDriverLatitude(latitude);
-            }else{
-                JSONObject taxiOrderState = iOrderInfoService.getTaxiOrderState(orderDto.getOrderId(), enterpriseId, licenseContent, MacTools.getMacList().get(0), apiUrl);
-                if(!"0".equals(taxiOrderState.getString("code"))){
-                    throw new Exception("获取网约车状态失败");
-                }
-                //判断状态,如果约到车修改状态为已派单
-                JSONObject data = taxiOrderState.getJSONObject("data");
-                String status = data.getString("status");
-                if(!status.equals(orderVO.getState())){
-                    int j = iOrderInfoService.updateOrderInfo(new OrderInfo(orderDto.getOrderId(),status));
-                    //TODO 远端暂时未返回网约车坐标
-                    iOrderStateTraceInfoService.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderDto.getOrderId(),status,null,null));
-                    if (OrderState.ORDERCLOSE.getState().equals(status)||OrderState.DISSENT.getState().equals(status)||OrderState.STOPSERVICE.getState().equals(status)) {//订单关闭
-                        //TODO 调财务结算模块
-                    }
-                }
-                orderVO.setState(status);
-                orderVO.setDriverLatitude(null);
-                orderVO.setDriverLongitude(null);
-            }
-            return ApiResponse.success(orderVO);
+            orderVO.setDriverLongitude("116.801949");
+            orderVO.setDriverLatitude("39.62437");
+            //TODO 记得生产放开
+//            if (CarConstant.USR_CARD_MODE_HAVE.equals(orderVO.getUseCarMode())){//自有车
+//                DriverHeartbeatInfo driverHeartbeatInfo = driverHeartbeatInfoService.findNowLocation(orderVO.getDriverId(), orderDto.getOrderId());
+//                String latitude=driverHeartbeatInfo.getLatitude().stripTrailingZeros().toPlainString();
+//                String longitude=driverHeartbeatInfo.getLongitude().stripTrailingZeros().toPlainString();
+//                orderVO.setDriverLongitude(longitude);
+//                orderVO.setDriverLatitude(latitude);
+//                //获取出发地目的地
+//                if (orderVO.getApplyType().equals(ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey())){//公务
+//                    //获取坐标和地址
+//                    List<JourneyNodeInfo> journeyNodeInfos = iJourneyNodeInfoService.selectJourneyNodeInfoList(new JourneyNodeInfo(orderVO.getJourneyId(), CommonConstant.NO_PASS));
+//                    if (CollectionUtils.isNotEmpty(journeyNodeInfos)&&journeyNodeInfos.size()==2){
+//                        JourneyNodeInfo endNode = journeyNodeInfos.get(0);//结束点
+//                        JourneyNodeInfo startNode = journeyNodeInfos.get(1);//结束点
+//                        orderVO.setEndAddress(endNode.getPlanEndAddress());
+//                        orderVO.setEndLatitude(endNode.getPlanEndLatitude());
+//                        orderVO.setEndLongitude(endNode.getPlanBeginLongitude());
+//                        orderVO.setStartAddress(startNode.getPlanBeginAddress());
+//                        orderVO.setStartLongitude(startNode.getPlanBeginLongAddress());
+//                        orderVO.setStartLatitude(startNode.getPlanBeginLatitude());
+//                    }
+//                }
+//                return ApiResponse.success(orderVO);
+//            }else {
+//                JSONObject taxiOrderState = iOrderInfoService.getTaxiOrderState(orderDto.getOrderId(), enterpriseId, licenseContent, MacTools.getMacList().get(0), apiUrl);
+//                String longitude="";
+//                String latitude="";
+//                if(taxiOrderState!=null){
+//                  JSONObject data1 = taxiOrderState.getJSONObject("data");
+//                        longitude=data1.getString("x");
+//                        latitude=data1.getString("y");
+//                }
+//                OrderStateVO  orderVO1 = iOrderInfoService.getOrderState(orderDto.getOrderId());
+//                orderVO1.setDriverLongitude(longitude);
+//                orderVO1.setDriverLatitude(latitude);
+                return ApiResponse.success(orderVO);
+//            }
         }catch (Exception e){
             e.printStackTrace();
-            return  ApiResponse.error("加载订单列表失败");
+            return  ApiResponse.error("获取订单状态失败");
         }
     }
 

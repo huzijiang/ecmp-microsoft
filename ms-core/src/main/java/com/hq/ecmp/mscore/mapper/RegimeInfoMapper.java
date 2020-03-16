@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.RegimeOpt;
+import com.hq.ecmp.mscore.domain.RegimePo;
 import com.hq.ecmp.mscore.domain.RegimeQueryPo;
 import com.hq.ecmp.mscore.domain.RegimeVo;
 
@@ -77,6 +78,12 @@ public interface RegimeInfoMapper
     public Integer queryRegimeListCount(RegimeQueryPo regimeQueryPo);
     
     public Integer updateStatus(RegimeOpt regimeOpt);
+    
+    public RegimeInfo queryRegimeType(Long regimeId);
+    
+    public Integer insertRegime(RegimePo po);
+    
+    public RegimeVo queryRegimeDetail(Long regimeId);
     
 
 

@@ -143,7 +143,7 @@ public class SceneController {
 	}
 
 	/**
-	 * 分页查询用车场景列表信息
+	 * 分页查询用车场景列表信息（带搜索功能）
 	 * @param
 	 * @return
 	 */
