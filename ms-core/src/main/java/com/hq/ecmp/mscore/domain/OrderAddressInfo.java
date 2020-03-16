@@ -223,6 +223,13 @@ public class OrderAddressInfo extends BaseEntity
     {
         return type;
     }
+    
+    public OrderAddressInfo (){};
+    
+    public OrderAddressInfo(String type,Long orderId){
+    	this.orderId=orderId;
+    	this.type=type;
+    }
 
     @Override
     public String toString() {
