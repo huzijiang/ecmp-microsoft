@@ -318,7 +318,15 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 	<select id="getOrderState" resultType="com.hq.ecmp.mscore.vo.OrderStateVO">
 		select
 		a.order_id AS orderId,
+		a.journey_id journeyId,
 	    a.state,
+	    a.actual_setout_address startAddress,
+	    a.actual_arrive_address endAddress,
+	    a.actual_setout_longitude startLongitude,
+	    a.actual_setout_latitude startLatitude,
+	    a.actual_arrive_longitude endLongitude ,
+	    a.actual_arrive_latitude endLatitude,
+	    (select regimen_type from regime_info where regimen_id=a.power_id) applyType,
 	    (select state from order_state_trace_info where order_id=#{orderId} order by create_time desc limit 1) labelState
 	    from order_info a
 		where a.order_id=#{orderId}

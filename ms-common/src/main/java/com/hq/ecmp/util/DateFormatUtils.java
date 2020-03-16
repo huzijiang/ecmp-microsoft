@@ -1,6 +1,5 @@
 package com.hq.ecmp.util;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -147,5 +146,46 @@ public class DateFormatUtils {
         return DurationFormatUtils.formatDuration(durationMillis, "HH:mm:ss");
     }
 
+    public static String secToTime(int time) {
+        StringBuilder stringBuilder = new StringBuilder();
+        Integer hour = time / 3600;
+        Integer minute = time / 60 % 60;
+//        Integer second = time % 60;
+        if(hour<10){
+            stringBuilder.append("0");
+        }
+        stringBuilder.append(hour);
+        stringBuilder.append(":");
+        if(minute < 10){
+            stringBuilder.append("0");
+        }
+        stringBuilder.append(minute);
+        return stringBuilder.toString();
+    }
 
+    public static String formatSecond(int totalTime){
+        String totalTimeStr="";
+        int hour=totalTime/3600;
+        int minute = (totalTime % 3600) / 60;
+        if (totalTime>=3600){
+            totalTimeStr=hour+"小时"+( minute>0?minute + "分":"整");
+        }else if (totalTime>=60&&totalTime<3600){
+            totalTimeStr=minute+"分";
+        }else {
+            totalTimeStr="";
+        }
+        return totalTimeStr;
+    }
+
+    public static String formatMinute(int totalTime){
+        int hour = totalTime/60;
+        int minute = totalTime%60;
+        String totalTimeStr="";
+        if (totalTime>=60){
+            totalTimeStr=hour+"小时"+( minute>0?minute + "分":"整");
+        }else {
+            totalTimeStr=minute+"分";
+        }
+        return totalTimeStr;
+    }
 }

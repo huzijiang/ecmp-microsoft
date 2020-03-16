@@ -132,6 +132,13 @@ public class EcmpDictData extends BaseEntity
         return status;
     }
 
+    public EcmpDictData() {
+    }
+
+    public EcmpDictData(String dictType) {
+        this.dictType = dictType;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

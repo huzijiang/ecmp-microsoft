@@ -96,7 +96,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @ApiOperation(value = "disableCarGroup",notes = "修改车队",httpMethod ="POST")
+    @ApiOperation(value = "disableCarGroup",notes = "禁用车队",httpMethod ="POST")
     @PostMapping("/disableCarGroup")
     public ApiResponse<CarGroupDetailVO> disableCarGroup(Long carGroupId){
         HttpServletRequest request = ServletUtils.getRequest();
@@ -107,7 +107,27 @@ public class CarGroupController {
             return ApiResponse.success("禁用车队成功");
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("禁用车队失败");
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 启用车队
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "startUpCarGroup",notes = "启用车队",httpMethod ="POST")
+    @PostMapping("/startUpCarGroup")
+    public ApiResponse<CarGroupDetailVO> startUpCarGroup(Long carGroupId){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            carGroupInfoService.startUpCarGroup(carGroupId,userId);
+            return ApiResponse.success("启用车队成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("启用车队失败");
         }
     }
 }

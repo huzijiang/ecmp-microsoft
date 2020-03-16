@@ -140,7 +140,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 					carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());
 					//公务公车方式
 					carAuthorityInfo.setCarType(journeyInfo.getUseCarMode());
-					if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getApplyType())){
+					if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getRegimenType())){
 						//差旅类型
 						Map<String, Integer> countMap = journeyUserCarPowerService.selectStatusCount(journeyInfo.getJourneyId());
 						//统计差旅类型的几种用车类型的剩余次数
@@ -157,7 +157,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 						}
 					}
 					
-					if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimeInfo.getApplyType())){
+					if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimeInfo.getRegimenType())){
 						//公务类型
 						ApplyInfo applyInfo = new ApplyInfo();
 						//查询对应的公务出差理由

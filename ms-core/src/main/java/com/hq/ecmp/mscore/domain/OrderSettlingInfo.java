@@ -5,6 +5,8 @@ import com.hq.core.web.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.math.BigDecimal;
+
 /**
  * 【请填写功能名称】对象 order_settling_info
  *
@@ -36,24 +38,24 @@ public class OrderSettlingInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long totalMileage;// TODO 新增。实际里程
+    private BigDecimal totalMileage;// TODO 新增。实际里程
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String totalTime;// TODO 新增。实际时长
-    public void setTotalMileage(Long totalMileage)
+    private Integer totalTime;// TODO 新增。实际时长
+    public void setTotalMileage(BigDecimal totalMileage)
     {
         this.totalMileage = totalMileage;
     }
-    public Long getTotalMileage()
+    public BigDecimal getTotalMileage()
     {
         return totalMileage;
     }
 
-    public void setTotalTime(String totalTime)
+    public void setTotalTime(Integer totalTime)
     {
         this.totalTime = totalTime;
     }
-    public String getTotalTime()
+    public Integer getTotalTime()
     {
         return totalTime;
     }
@@ -104,6 +106,12 @@ public class OrderSettlingInfo extends BaseEntity
         return outPrice;
     }
 
+    public OrderSettlingInfo() {
+    }
+
+    public OrderSettlingInfo(Long orderId) {
+        this.orderId = orderId;
+    }
 
     @Override
     public String toString() {

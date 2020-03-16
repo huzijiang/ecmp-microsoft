@@ -25,6 +25,7 @@ import javafx.scene.Scene;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -135,7 +136,8 @@ public class SceneInfoServiceImpl implements ISceneInfoService
      * @return
      */
     @Override
-    public void saveScene(SceneDTO sceneDTO, Long userId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void saveScene(SceneDTO sceneDTO, Long userId) throws Exception {
         SceneInfo sceneInfo = new SceneInfo();
         //图标名称
         sceneInfo.setIcon(sceneDTO.getIcon());
@@ -149,6 +151,9 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         sceneInfo.setEffectStatus("1");
         //1.新增用车场景表
         int i = sceneInfoMapper.insertSceneInfo(sceneInfo);
+        if(i!=1){
+            throw new Exception();
+        }
         Long sceneId = sceneInfo.getSceneId();
         List<Long> regimenIds = sceneDTO.getRegimenIds();
         SceneRegimeRelation sceneRegimeRelation = null;
@@ -157,7 +162,10 @@ public class SceneInfoServiceImpl implements ISceneInfoService
             sceneRegimeRelation.setRegimenId(regimenId);
             sceneRegimeRelation.setSceneId(sceneId);
             //2.新增场景制度关系表
-            sceneRegimeRelationMapper.insertSceneRegimeRelation(sceneRegimeRelation);
+            int j = sceneRegimeRelationMapper.insertSceneRegimeRelation(sceneRegimeRelation);
+            if(j!=1){
+                throw new Exception();
+            }
         }
     }
 
@@ -168,7 +176,8 @@ public class SceneInfoServiceImpl implements ISceneInfoService
      * @return
      */
     @Override
-    public void updateScene(SceneDTO sceneDTO, Long userId) {
+    @Transactional(rollbackFor = Exception.class)
+    public void updateScene(SceneDTO sceneDTO, Long userId) throws Exception {
         Long sceneId = sceneDTO.getSceneId();
         //得先解绑用车场景对应的用车制度 再删除用车场景
         //根据sceneId删除绑定的制度信息
@@ -180,7 +189,10 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         sceneInfo.setSceneId(sceneId);
         sceneInfo.setUpdateBy(String.valueOf(userId));
         sceneInfo.setUpdateTime(new Date());
-        int i1 = sceneInfoMapper.updateSceneInfo(sceneInfo);
+        int j = sceneInfoMapper.updateSceneInfo(sceneInfo);
+        if(j != 1){
+            throw new Exception();
+        }
         //再绑定用车制度
         List<Long> regimenIds = sceneDTO.getRegimenIds();
         SceneRegimeRelation sceneRegimeRelation = null;
@@ -190,7 +202,10 @@ public class SceneInfoServiceImpl implements ISceneInfoService
             sceneRegimeRelation.setRegimenId(regimenId);
             sceneRegimeRelation.setUpdateBy(String.valueOf(userId));
             sceneRegimeRelation.setUpdateTime(new Date());
-            sceneRegimeRelationMapper.insertSceneRegimeRelation(sceneRegimeRelation);
+            int k = sceneRegimeRelationMapper.insertSceneRegimeRelation(sceneRegimeRelation);
+            if(k !=1){
+                throw new Exception();
+            }
         }
     }
 
@@ -280,4 +295,9 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         targetSceneInfo.setCreateBy(String.valueOf(userId));
         sceneInfoMapper.updateSceneInfo(targetSceneInfo);
     }
+
+	@Override
+	public SceneInfo querySceneByRegimeId(Long regimeId) {
+		return sceneInfoMapper.querySceneByRegimeId(regimeId);
+	}
 }

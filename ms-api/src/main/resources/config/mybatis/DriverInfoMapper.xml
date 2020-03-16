@@ -278,4 +278,7 @@ WHERE
 
 </select>
 
+    <select id="queryCompanyDriver"  resultType="java.lang.Integer">
+          select count(*) from driver_info
+    </select>
 </mapper>

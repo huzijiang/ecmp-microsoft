@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -107,6 +108,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderStateTraceInfo.setState(OrderStateTrace.PRESERVICE.getState());
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
+
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             List<String> macList = MacTools.getMacList();
             String macAdd = macList.get(0);
@@ -201,8 +203,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         //添加里程数和总时长
         OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
         orderSettlingInfo.setOrderId(orderId);
-        orderSettlingInfo.setTotalMileage(Long.parseLong(mileage));
-        orderSettlingInfo.setTotalTime(travelTime);
+        orderSettlingInfo.setTotalMileage(new BigDecimal(mileage));
+        orderSettlingInfo.setTotalTime(Integer.valueOf(travelTime));
         orderSettlingInfo.setCreateBy(userId);
         iOrderSettlingInfoService.insertOrderSettlingInfo(orderSettlingInfo);
         //判断是还车还是继续用车

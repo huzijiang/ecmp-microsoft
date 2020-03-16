@@ -114,5 +114,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
         order by sort_no
     </select>
+    
+    <select id="querySceneByRegimeId" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.SceneInfo">
+SELECT
+	a. NAME AS NAME
+FROM
+	scene_info a
+LEFT JOIN scene_regime_relation b ON a.scene_id = b.scene_id
+WHERE
+	b.regimen_id = #{regimeId}
+LIMIT 1
+    </select>
 
 </mapper>

@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.DriverQueryResult;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface DriverInfoMapper
 {
     /**
@@ -62,12 +64,19 @@ public interface DriverInfoMapper
      * @return 结果
      */
     public int deleteDriverInfoByIds(Long[] driverIds);
-    
     public Integer createDriver(DriverCreateInfo driverCreateInfo);
-    
+
     public List<DriverQueryResult> queryDriverList(DriverQuery query);
-    
+
     public Integer queryDriverListCount(DriverQuery query);
-    
+
     public DriverQueryResult queryDriverDetail(Long driverId);
+
+    /**
+     *驾驶员总数
+     */
+    public int queryCompanyDriver();
+
+
+
 }

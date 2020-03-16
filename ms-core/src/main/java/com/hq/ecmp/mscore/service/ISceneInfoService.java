@@ -79,7 +79,7 @@ public interface ISceneInfoService
      * @param userId
      * @return
      */
-    void saveScene(SceneDTO sceneDTO, Long userId);
+    void saveScene(SceneDTO sceneDTO, Long userId) throws Exception;
 
     /**
      * 修改用车场景
@@ -87,7 +87,7 @@ public interface ISceneInfoService
      * @param userId
      * @return
      */
-    void updateScene(SceneDTO sceneDTO, Long userId);
+    void updateScene(SceneDTO sceneDTO, Long userId) throws Exception;
 
     /**
      * 查询场景详情
@@ -109,4 +109,11 @@ public interface ISceneInfoService
      * @param userId
      */
     void sortScene(SceneSortDTO sceneSortDTO, Long userId);
+    
+    /**
+     * 查询制度对应的场景名称
+     * @param regimeId
+     * @return
+     */
+    SceneInfo querySceneByRegimeId(Long regimeId);
 }

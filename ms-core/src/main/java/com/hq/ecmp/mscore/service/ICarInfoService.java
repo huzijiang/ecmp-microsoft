@@ -59,4 +59,8 @@ public interface ICarInfoService
      * @return 结果
      */
     public int deleteCarInfoById(Long carId);
+    /**
+     * 可管理车辆总数
+     */
+    public int queryCompanyCarCount();
 }

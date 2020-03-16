@@ -5,6 +5,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
+import java.math.BigDecimal;
+
 /**
  * 【请填写功能名称】对象 order_state_trace_info
  *
@@ -28,6 +30,7 @@ public class OrderStateTraceInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+
     private Double driverLongitude;
 
     /** $column.columnComment */
@@ -65,10 +68,12 @@ public class OrderStateTraceInfo extends BaseEntity
     {
         return state;
     }
+
     public void setDriverLongitude(Double driverLongitude)
     {
         this.driverLongitude = driverLongitude;
     }
+
 
     public Double getDriverLongitude()
     {
@@ -78,6 +83,7 @@ public class OrderStateTraceInfo extends BaseEntity
     {
         this.driverLatitude = driverLatitude;
     }
+
 
     public Double getDriverLatitude()
     {
@@ -95,6 +101,7 @@ public class OrderStateTraceInfo extends BaseEntity
 
     public OrderStateTraceInfo() {
     }
+
 
     public OrderStateTraceInfo(Long orderId, String state, Double driverLongitude, Double driverLatitude) {
         this.orderId = orderId;
