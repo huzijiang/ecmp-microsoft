@@ -1,9 +1,12 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.api.system.domain.SysUser;
 import com.hq.ecmp.constant.MsgConstant;
 import com.hq.ecmp.constant.MsgTypeConstant;
 import com.hq.ecmp.constant.MsgUserConstant;
 import com.hq.ecmp.mscore.domain.EcmpMessage;
+import com.hq.ecmp.mscore.dto.MessageDto;
+
 import java.util.List;
 
 /**
@@ -70,4 +73,8 @@ public interface EcmpMessageService {
 
 
     int getMessagesCount(String identity);
+
+    List<MessageDto> getMessagesForPassenger(SysUser user)throws Exception ;
+
+    List<MessageDto> getRunMessageForDrive(SysUser user)throws Exception ;
 }

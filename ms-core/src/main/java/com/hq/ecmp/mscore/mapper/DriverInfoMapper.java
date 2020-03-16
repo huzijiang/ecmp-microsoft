@@ -78,5 +78,5 @@ public interface DriverInfoMapper
     public int queryCompanyDriver();
 
 
-
+    DriverInfo selectDriverInfoByUserId(Long userId);
 }

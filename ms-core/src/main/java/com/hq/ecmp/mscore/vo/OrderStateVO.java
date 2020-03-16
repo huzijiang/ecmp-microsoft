@@ -40,4 +40,8 @@ public class OrderStateVO {
     private String startLatitude;//纬度
     @ApiModelProperty(name = "startLongitude",value = "上车地经度")
     private String startLongitude;//经度
+    @ApiModelProperty(name = "serviceType",value = "服务类型")
+    private String serviceType;
+    @ApiModelProperty(name = "charterCarType",value = "包车类型")
+    private String charterCarType;
 }

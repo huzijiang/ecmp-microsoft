@@ -61,6 +61,4 @@ public class OrderVO {
     @ApiModelProperty(name = "disMoney",value = "原价")
     private String disMoney;
 
-
-
 }
