@@ -46,6 +46,19 @@ public final class CommonConstant {
     //差旅申请
     public static final String TRAVLE_APPLY = "A002";
 
+    /**
+     * 开关状态开
+     */
+    public static final String SWITCH_ON = "0";
+    /**
+     * 开关状态关
+     */
+    public static final String SWITCH_OFF = "1";
+    /**
+     * 开关状态开：自定义
+     */
+    public static final String SWITCH_ON_CUSTOM = "2";
+
 
 
 }
