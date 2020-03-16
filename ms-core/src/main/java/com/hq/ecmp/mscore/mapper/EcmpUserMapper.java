@@ -61,7 +61,9 @@ public interface EcmpUserMapper
      * @return 结果
      */
     public int deleteEcmpUserByIds(Long[] userIds);
-    
-    
+
     public Integer queryDispatcher(Long userId);
+
+    public int  queryCompanyEmp();
 }
+

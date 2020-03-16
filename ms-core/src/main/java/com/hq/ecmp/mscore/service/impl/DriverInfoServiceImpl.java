@@ -171,4 +171,13 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	public DriverQueryResult queryDriverDetail(Long driverId) {
 		return driverInfoMapper.queryDriverDetail(driverId);
 	}
+    /**
+     *驾驶员总数
+     */
+    @Override
+    public int queryCompanyDriverCount(){
+        return driverInfoMapper.queryCompanyDriver();
+    }
+
+
 }

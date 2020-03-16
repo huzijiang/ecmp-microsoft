@@ -68,8 +68,12 @@ public interface IEcmpUserService {
      * @return
      */
     public boolean isDispatcher(Long userId);
-    
-    
+
+    /**
+     * 可管理员工个数
+     * @return
+     */
+    public int  queryCompanyEmpCunt();
     
 
 
