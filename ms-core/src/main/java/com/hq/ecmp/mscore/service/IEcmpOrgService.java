@@ -23,7 +23,7 @@ public interface IEcmpOrgService
      * @param deptId 部门ID
      * @return deptList
      */
-    public List<EcmpOrg> getDeptList(Long deptId,String deptType);
+    public List<EcmpOrgVo> getDeptList(Long deptId,String deptType);
     /**
      * 查询部门详情
      *

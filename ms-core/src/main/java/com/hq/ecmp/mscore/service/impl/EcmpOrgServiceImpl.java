@@ -43,14 +43,14 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @return deptList 部门列表
      */
     @Override
-    public List<EcmpOrg> getDeptList(Long deptId,String deptType){
+    public List<EcmpOrgVo> getDeptList(Long deptId,String deptType){
 
        /* int bl = 0;
         if(deptType==null){
             deptType = "1";
             bl = 1;
         }*/
-        List<EcmpOrg> ecmpOrgList = new ArrayList<>();
+        List<EcmpOrgVo> ecmpOrgList = new ArrayList<>();
         if(deptId==null){
             Long parentId = 0L;
             //默认查询所有公司列表
@@ -59,19 +59,19 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             ecmpOrgList = ecmpOrgMapper.selectByEcmpOrgParentId(deptId,null,null);
         }
         if(ecmpOrgList.size()>0){
-            for (EcmpOrg company:ecmpOrgList) {
-                List<EcmpOrg> ecmpOrgs = loadEcmpOrg(null,company.getDeptId(), deptType);
+            for (EcmpOrgVo company:ecmpOrgList) {
+                List<EcmpOrgVo> ecmpOrgs = loadEcmpOrg(null,company.getDeptId(), deptType);
                 company.setDeptList(ecmpOrgs);
             }
         }
         return ecmpOrgList;
     }
 
-    public List<EcmpOrg> loadEcmpOrg(Long deptId,Long parentId,String deptType) {
-        List<EcmpOrg> list = new ArrayList<>();
-        List<EcmpOrg> deptList = ecmpOrgMapper.selectByEcmpOrgParentId(deptId,parentId,deptType);
+    public List<EcmpOrgVo> loadEcmpOrg(Long deptId,Long parentId,String deptType) {
+        List<EcmpOrgVo> list = new ArrayList<>();
+        List<EcmpOrgVo> deptList = ecmpOrgMapper.selectByEcmpOrgParentId(deptId,parentId,deptType);
         if(deptList.size()>0){
-            for (EcmpOrg ecmpOrg:deptList) {
+            for (EcmpOrgVo ecmpOrg:deptList) {
                 list.add(ecmpOrg);
                 ecmpOrg.setDeptList(loadEcmpOrg(null,ecmpOrg.getDeptId(),deptType));
             }

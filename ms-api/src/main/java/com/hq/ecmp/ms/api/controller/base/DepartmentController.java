@@ -10,11 +10,9 @@ import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,10 +30,20 @@ public class DepartmentController {
      * 查询部门列表
      * @param  deptId
      * @return*/
-    @ApiOperation(value = "查询部门列表",notes = "查询部门列表",httpMethod ="GET")
-    @GetMapping("/getDeptList")
-    public ApiResponse<List<EcmpOrg>> getDeptList(Long deptId,String deptType){
-        List<EcmpOrg> deptList = orgService.getDeptList(deptId,deptType);
+    @ApiOperation(value = "查询部门列表",notes = "查询部门列表",httpMethod ="POST")
+    @PostMapping("/getDeptList")
+    public ApiResponse<List<EcmpOrgVo>> getDeptList(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptType",required = false) String deptType){
+        List<EcmpOrgVo> deptList = orgService.getDeptList(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptType);
+        return ApiResponse.success(deptList);
+    }
+    /**
+     * 查询部门列表(Proxy)
+     * @param  deptId
+     * @return*/
+    @ApiOperation(value = "查询部门列表(Proxy)",notes = "查询部门列表(Proxy)",httpMethod ="POST")
+    @PostMapping("/getDeptListProxy")
+    public ApiResponse<List<EcmpOrgVo>> getDeptListProxy(@RequestHeader(value = "deptId",required = false)String deptId,@RequestHeader(value = "deptType",required = false) String deptType){
+        List<EcmpOrgVo> deptList = orgService.getDeptList(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptType);
         return ApiResponse.success(deptList);
     }
     /**

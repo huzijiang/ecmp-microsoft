@@ -1,13 +1,16 @@
 package com.hq.ecmp.mscore.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.hq.ecmp.mscore.domain.EcmpOrg;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
+
 @Data
-@ApiModel("部门管理vo(传入后端)")
+@ApiModel("部门管理vo")
 public class EcmpOrgVo {
 
     @ApiModelProperty(value = "组织id")
@@ -63,8 +66,8 @@ public class EcmpOrgVo {
 
 
     /*新增临时字段 */
-    //@ApiModelProperty(value = "组织下级")
-    //private List<EcmpOrg> deptList;
+    @ApiModelProperty(value = "组织下级")
+    private List<EcmpOrgVo> deptList;
 
 }
 
