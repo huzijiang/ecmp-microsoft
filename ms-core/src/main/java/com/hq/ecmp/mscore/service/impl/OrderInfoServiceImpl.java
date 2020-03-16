@@ -756,13 +756,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 newOrderInfo.setCarLicense(carStr);
                 if (OrderState.READYSERVICE.getState().equals(status)||OrderState.ORDERCLOSE.getState().equals(status)){//乘客一上车
                     JSONObject data1 = resultObject.getJSONObject("data");
-                    if (OrderState.READYSERVICE.getState().equals(status)){
-                        newOrderInfo.setActualSetoutLatitude(new BigDecimal(data1.getString("y")));
-                        newOrderInfo.setActualSetoutLongitude(new BigDecimal(data1.getString("x")));
-                    }else {
-                        newOrderInfo.setActualArriveLatitude(new BigDecimal(data1.getString("y")));
-                        newOrderInfo.setActualArriveLongitude(new BigDecimal(data1.getString("x")));
-                    }
+                    //TODO 杨军注释
+//                    if (OrderState.READYSERVICE.getState().equals(status)){
+//                        newOrderInfo.setActualSetoutLatitude(new BigDecimal(data1.getString("y")));
+//                        newOrderInfo.setActualSetoutLongitude(new BigDecimal(data1.getString("x")));
+//                    }else {
+//                        newOrderInfo.setActualArriveLatitude(new BigDecimal(data1.getString("y")));
+//                        newOrderInfo.setActualArriveLongitude(new BigDecimal(data1.getString("x")));
+//                    }
 
                 }
             }
