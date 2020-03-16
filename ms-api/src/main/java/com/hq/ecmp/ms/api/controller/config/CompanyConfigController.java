@@ -118,5 +118,16 @@ public class CompanyConfigController {
         return ApiResponse.success();
     }
 
+    /**
+     * 设置后台公告开关
+     * @param status 开关状态
+     */
+    @ApiOperation(value = "message ", notes = "设置后台公告开关")
+    @PostMapping("/message")
+    public ApiResponse message(String status) {
+        ecmpConfigService.setUpMessageConfig(status);
+        return ApiResponse.success();
+    }
+
 
 }
