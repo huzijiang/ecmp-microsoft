@@ -59,4 +59,11 @@ public interface IOrderAddressInfoService
      * @return 结果
      */
     public int deleteOrderAddressInfoById(Long orderAddressId);
+    
+    /**
+     * 查询订单上车时间地点，下车时间地点
+     * @param orderAddressInfo
+     * @return
+     */
+    public OrderAddressInfo  queryOrderStartAndEndInfo(OrderAddressInfo orderAddressInfo);
 }

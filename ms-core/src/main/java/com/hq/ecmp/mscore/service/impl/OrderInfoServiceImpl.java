@@ -87,7 +87,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private EcmpUserMapper ecmpUserMapper;
     @Resource
     private JourneyPassengerInfoMapper passengerInfoMapper;
-
+    @Autowired
+    private IOrderAddressInfoService orderAddressInfoService;
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
     @Value("${thirdService.licenseContent}") //企业证书信息
@@ -226,6 +227,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<DispatchOrderInfo> checkResult=new ArrayList<DispatchOrderInfo>();
 		if(result.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : result) {
+				//查询订单对应的上车地点时间,下车地点时间
+				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 				//查询订单对应制度的可用用车方式
 				Long regimenId = dispatchOrderInfo.getRegimenId();
 				if(null ==regimenId || ! regimeInfoService.findOwnCar(regimenId)){
@@ -255,11 +258,35 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		}
 		return checkResult;
 	}
+	
+	//// 查询订单对应的上车地点时间,下车地点时间  A000-上车     A999-下车
+	private void buildOrderStartAndEndSiteAndTime(DispatchOrderInfo dispatchOrderInfo) {
+		OrderAddressInfo startOrderAddressInfo = orderAddressInfoService
+				.queryOrderStartAndEndInfo(new OrderAddressInfo("A000", dispatchOrderInfo.getOrderId()));
+		if (null != startOrderAddressInfo) {
+			dispatchOrderInfo.setStartSite(startOrderAddressInfo.getAddress());
+			dispatchOrderInfo.setUseCarDate(startOrderAddressInfo.getActionTime());
+		}
+		OrderAddressInfo endOrderAddressInfo = orderAddressInfoService
+				.queryOrderStartAndEndInfo(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId()));
+		if (null != endOrderAddressInfo) {
+			dispatchOrderInfo.setEndSite(endOrderAddressInfo.getAddress());
+			dispatchOrderInfo.setEndDate(endOrderAddressInfo.getActionTime());
+		}
+
+	}
 
 	@Override
 	public List<DispatchOrderInfo> queryCompleteDispatchOrder() {
 		//获取系统里已经完成调度的订单
-		return orderInfoMapper.queryCompleteDispatchOrder();
+		List<DispatchOrderInfo> list = orderInfoMapper.queryCompleteDispatchOrder();
+		if(null !=list && list.size()>0){
+			for (DispatchOrderInfo dispatchOrderInfo : list) {
+				//查询订单对应的上车地点时间,下车地点时间
+				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+			}
+		}
+		return list;
 	}
 
     /**
@@ -291,6 +318,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId) {
 		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
+		//查询订单对应的上车地点时间,下车地点时间
+		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 		//判断该订单是否改派过
 		if(iOrderStateTraceInfoService.isReassignment(orderId)){
 			//是改派过的单子  则查询改派详情
@@ -303,6 +332,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public DispatchOrderInfo getCompleteDispatchOrderDetailInfo(Long orderId) {
 		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.queryCompleteDispatchOrderDetail(orderId);
+		//查询订单对应的上车地点时间,下车地点时间
+		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 		if(iOrderStateTraceInfoService.isReassignment(orderId)){
 			//是改派过的单子  则查询改派详情
 			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryDispatchDriverInfo(orderId);

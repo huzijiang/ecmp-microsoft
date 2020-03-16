@@ -41,10 +41,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	c.plan_begin_address AS useCarCity,
 	e.nick_name AS applyUserName,
 	e.nick_name AS useCarUserName,
-	a.actual_setout_address AS startSite,
+<!-- 	a.actual_setout_address AS startSite,
 	a.actual_setout_time AS useCarDate,
 	a.actual_arrive_address AS endSite,
-	a.actual_arrive_time AS endDate,
+	a.actual_arrive_time AS endDate, -->
 	a.use_car_mode AS useCarMode,
 	a.driver_name AS driverName,
 	a.driver_mobile AS driverTel,
@@ -201,17 +201,16 @@ LEFT JOIN car_info f  ON a.car_id=f.car_id
     <select id="queryOrderRelateInfo" parameterType="com.hq.ecmp.mscore.domain.OrderInfo" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
     SELECT
 	a.order_id AS orderId,
-	a.starting_city_id as cityId,
 	a.state,
 	d.apply_type AS applyType,
 	b.type AS serverType,
 	c.plan_begin_address AS useCarCity,
 	e.nick_name AS applyUserName,
 	e.nick_name AS useCarUserName,
-	a.actual_setout_address AS startSite,
+<!-- 	a.actual_setout_address AS startSite,
 	a.actual_setout_time AS useCarDate,
 	a.actual_arrive_address AS endSite,
-	a.actual_arrive_time AS endDate,
+	a.actual_arrive_time AS endDate, -->
 	h.use_car_mode AS useCarMode,
 	h.regimen_id AS regimenId
 	<if test="orderTraceState != null  and orderTraceState != ''">,f.content as reassignmentApplyReason</if>
@@ -342,10 +341,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 	e.nick_name AS applyUserName,
 	e.nick_name AS useCarUserName,
 	e.phonenumber AS applyUserTel,
-	a.actual_setout_address AS startSite,
+<!-- 	a.actual_setout_address AS startSite,
 	a.actual_setout_time AS useCarDate,
 	a.actual_arrive_address AS endSite,
-	a.actual_arrive_time AS endDate,
+	a.actual_arrive_time AS endDate, -->
 	h.use_car_mode AS useCarMode
 FROM
 	order_info a
