@@ -69,6 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="password != null  and password != ''">password,</if>
             <if test="status != null  and status != ''">status,</if>
             <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+            <if test="stationCode != null  and stationCode != ''">station_code,</if>
             <if test="loginIp != null  and loginIp != ''">login_ip,</if>
             <if test="loginDate != null ">login_date,</if>
             <if test="createBy != null  and createBy != ''">create_by,</if>
@@ -89,6 +90,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="password != null  and password != ''">#{password},</if>
             <if test="status != null  and status != ''">#{status},</if>
             <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
+            <if test="stationCode != null  and stationCode != ''">#{stationCode},</if>
             <if test="loginIp != null  and loginIp != ''">#{loginIp},</if>
             <if test="loginDate != null ">#{loginDate},</if>
             <if test="createBy != null  and createBy != ''">#{createBy},</if>
@@ -200,6 +202,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
     </insert>
 
+    <!--新增员工&用车制度中间表信息-->
+    <insert id="addUserRegimeRelation">
+        insert into user_regime_relation_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="user_id != null  and user_id != ''">user_id,</if>
+        <if test="regimen_id != null  and regimen_id != ''">regimen_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="userId != null  and userId != ''">#{userId},</if>
+        <if test="regimenId != null  and regimenId != ''">#{regimenId},</if>
+        </trim>
+    </insert>
+
     <!--查询手机号与邮箱是否已经存在-->
     <select id="selectPhoneAndEmailExist" resultType="Integer" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
       select count(1)
@@ -215,18 +230,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
 
-    <!--查询员工列表-->
-    <select id="getEcmpUserList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="Long">
+    <!--查询该部门下的所有员工编号-->
+    <select id="getEcmpUserIdsByDeptId" resultType="Long" parameterType="Long">
         select
-        nick_name,phonenumber,user_id,
-        (select dept_name from ecmp_org where dept_id='101') as subCompany,
-        (select dept_name from ecmp_org where dept_id='103') as subDept,
-        `status`
-        /*用车制度、操作*/
+        user_id
         from  ecmp_user
         where
         del_flag='0'
         <if test="dept_id != null  and dept_id != ''"> and dept_id = #{dept_id}</if>
+    </select>
+
+    <!--查询员工列表-->
+    <select id="getEcmpUserList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+        select
+        nick_name as nickName,phonenumber,user_id as userId,
+        (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='1') as subCompany,
+        (select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept,
+        `status`
+        select name from regime_info where (select regime_id from  user_regime_relation_info where user_id=#{userId}
+        from  ecmp_user
+        where
+        del_flag='0'
+        <if test="dept_id != null  and dept_id != ''"> and dept_id = #{deptId}</if>
     </select>
 
     <!--根据deptId和deptType删除信息-->
@@ -237,9 +262,39 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--获取员工详情-->
     <select id="selectEcmpUserDetail" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="Long">
       SELECT
-      user_id,`dept_id`, `nick_name`, `user_type`, `email`, `phonenumber`, `sex`, `avatar`, `password`, `status`, `del_flag`, `login_ip`, `login_date`, `it_is_driver`, `it_is_dispatcher`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`
+      user_id,`dept_id`, `nick_name`,  `email`, `phonenumber`, `sex`, `station_code`,
+      (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='1') as subCompany,
+      select role_name from ecmp_role (select role_id from ecmp_user_role where user_id= = #{userId}),
+      select name from regime_info where (select regime_id from  user_regime_relation_info where user_id=#{userId}
       from ecmp_user
       where
       user_id = #{userId}
+    </select>
+
+    <!--已离职数量-->
+    <select id="selectDimissionCount" resultType="Integer" parameterType="Date">
+      SELECT
+      count(1)
+      from ecmp_user
+      where
+      dimission_time is not null
+    </select>
+
+    <!--设置离职日期-->
+    <update id="updateDimissionTime" >
+      update ecmp_user  SET dimission_time=#{dimissionTime} where user_id = #{userId}
+    </update>
+
+    <!--已离职列表-->
+    <select id="selectDimissionList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+        select
+        nick_name as nickName,phonenumber,user_id as userId,
+        (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='1') as subCompany,
+        (select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept,
+        dimission_time
+        from  ecmp_user
+        where
+        del_flag='0'
+        <if test="dept_id != null  and dept_id != ''"> and dept_id = #{deptId}</if>
     </select>
 </mapper>

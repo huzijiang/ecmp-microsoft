@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
@@ -7,11 +8,14 @@ import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -69,6 +73,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public int updateEcmpUser(EcmpUserVo ecmpUser) {
         ecmpUser.setUpdateTime(DateUtils.getNowDate());
+        //ecmpUserMapper.updateUserRegimeRelation(ecmpUser);
         return ecmpUserMapper.updateEcmpUser(ecmpUser);
     }
 
@@ -129,6 +134,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public int addEcmpUser(EcmpUserVo ecmpUser) {
         ecmpUser.setCreateTime(DateUtils.getNowDate());
+        ecmpUserMapper.addUserRegimeRelation(ecmpUser);
         return ecmpUserMapper.addEcmpUser(ecmpUser);
     }
 
@@ -178,7 +184,10 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public List<EcmpUserDto> getEcmpUserList(Long deptId){
         List<EcmpUserDto> ecmpUserList = new ArrayList<>();
-        ecmpUserList = ecmpUserMapper.getEcmpUserList(deptId);
+        Long [] arr= ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
+        for (int i = 0; i < arr.length; i++) {
+            ecmpUserList = ecmpUserMapper.getEcmpUserList(deptId,arr[i]);
+        }
         return ecmpUserList;
     }
 
@@ -217,5 +226,27 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     * */
     public EcmpUserDto selectEcmpUserDetail(Long userId){
         return ecmpUserMapper.selectEcmpUserDetail(userId);
+    }
+
+    /*设置离职日期
+    @param  dimissionTime
+     * @return
+    * */
+    public int updateDimissionTime(Date dimissionTime){
+        return ecmpUserMapper.updateDimissionTime(dimissionTime);
+    }
+
+    /*已离职数量*/
+    @ApiOperation(value = "已离职数量",notes = "已离职数量",httpMethod ="POST")
+    @PostMapping("/selectDimissionCount")
+    public int selectDimissionCount(Long userId){
+        return ecmpUserMapper.selectDimissionCount(userId);
+    }
+
+    /*已离职数量*/
+    @ApiOperation(value = "已离职列表",notes = "已离职列表",httpMethod ="POST")
+    @PostMapping("/selectDimissionList")
+    public List<EcmpUserDto> selectDimissionList(Long userId){
+        return ecmpUserMapper.selectDimissionList(userId);
     }
 }
