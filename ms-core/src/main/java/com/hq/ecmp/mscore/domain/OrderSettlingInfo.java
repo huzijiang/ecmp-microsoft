@@ -26,7 +26,7 @@ public class OrderSettlingInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long amount;
+    private BigDecimal amount;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -78,12 +78,12 @@ public class OrderSettlingInfo extends BaseEntity
     {
         return orderId;
     }
-    public void setAmount(Long amount)
+    public void setAmount(BigDecimal amount)
     {
         this.amount = amount;
     }
 
-    public Long getAmount()
+    public BigDecimal getAmount()
     {
         return amount;
     }
@@ -109,9 +109,18 @@ public class OrderSettlingInfo extends BaseEntity
     public OrderSettlingInfo() {
     }
 
+    public OrderSettlingInfo(Long orderId, BigDecimal amount, String amountDetail, BigDecimal totalMileage, Integer totalTime) {
+        this.orderId = orderId;
+        this.amount = amount;
+        this.amountDetail = amountDetail;
+        this.totalMileage = totalMileage;
+        this.totalTime = totalTime;
+    }
+
     public OrderSettlingInfo(Long orderId) {
         this.orderId = orderId;
     }
+
 
     @Override
     public String toString() {

@@ -89,7 +89,6 @@ public class MessageController {
 		//获取登录用户
 		HttpServletRequest request = ServletUtils.getRequest();
 		LoginUser loginUser = tokenService.getLoginUser(request);
-		Long userId = loginUser.getUser().getUserId();
 		List<MessageDto> list=new ArrayList<>();
 		//TODO 以后可能会改变获取司机信息
 		try{

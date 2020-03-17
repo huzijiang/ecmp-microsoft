@@ -7,7 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.domain.RegimeInfo" id="RegimeInfoResult">
         <result property="regimenId"    column="regimen_id"    />
         <result property="templateId"    column="template_id"    />
-        <result property="approveTemplateId"    column="approve_templateId_id" />
+        <result property="approveTemplateId"    column="approve_template_id" />
         <result property="regimenType"    column="regimen_type"    />
         <result property="name"    column="name"    />
         <result property="allowCity"    column="allow_city"    />

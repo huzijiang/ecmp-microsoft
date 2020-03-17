@@ -68,7 +68,7 @@ public interface EcmpMessageMapper {
 
     int queryMessageCount(Map map);
 
-    List<MessageDto> getMessagesForPassenger(Long userId, String categorys);
+    List<MessageDto> getMessagesForPassenger(@Param("userId") Long userId, @Param("categorys") String categorys);
 
     List<MessageDto> getRunMessageForDrive(@Param("driverId") Long driverId,@Param("categorys") String categorys);
     List<MessageDto> getRunMessageForDispatcher(@Param("ecmpId") Long ecmpId,@Param("category") String category);

@@ -103,7 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select group_concat(distinct user_id) from approve_template_node_info
         <if test="nodeIds!=null">
             where approve_node_id in
-            <foreach item="approveNodeId" collection="list" open="(" separator="," close=")">
+            <foreach item="approveNodeId" collection="nodeIds" open="(" separator="," close=")">
                 #{approveNodeId}
             </foreach>
         </if>

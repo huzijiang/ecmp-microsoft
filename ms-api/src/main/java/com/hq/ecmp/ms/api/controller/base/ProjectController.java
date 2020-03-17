@@ -10,13 +10,12 @@ import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
-import com.hq.ecmp.mscore.dto.Page;
-import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.dto.ProjectInfoDTO;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.service.IProjectUserRelationInfoService;
 import com.hq.ecmp.mscore.vo.ProjectInfoVO;
+import com.hq.ecmp.mscore.vo.ProjectUserVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
@@ -118,7 +117,7 @@ public class ProjectController {
     @ApiOperation(value = "getProjectList",notes = "获取项目列表",httpMethod ="POST")
     @PostMapping("/getProjectList")
     public ApiResponse<PageInfo<ProjectInfoVO>> getProjectList(@RequestBody PageRequest page){
-        PageInfo<ProjectInfoVO> pageInfo= iProjectInfoService.getProjectList(page.getPageNum(),page.getPageSize(),page.getFatherProjectId());
+        PageInfo<ProjectInfoVO> pageInfo= iProjectInfoService.getProjectList(page.getPageNum(),page.getPageSize(),page.getSearch(),page.getFatherProjectId());
         return ApiResponse.success(pageInfo);
     }
 
@@ -131,6 +130,7 @@ public class ProjectController {
     public ApiResponse createProject(@RequestBody ProjectInfoDTO projectInfoDto){
         ProjectInfo projectInfo = new ProjectInfo();
         BeanUtils.copyProperties(projectInfoDto,projectInfo);
+        projectInfo.setIsEffective(1);
         int i = iProjectInfoService.insertProjectInfo(projectInfo);
         if (i>0){
             if (projectInfoDto.getIsAllUserUse()==1){//全部员工
@@ -140,6 +140,27 @@ public class ProjectController {
         return ApiResponse.error("新建项目成功");
     }
 
+    @ApiOperation(value = "getProjectInfo",notes = "详情",httpMethod ="POST")
+    @PostMapping("/getProjectInfo")
+    @Transactional
+    public ApiResponse<ProjectInfoVO> getProjectInfo(@RequestBody ProjectInfoDTO projectInfoDto){
+        ProjectInfoVO VO=iProjectInfoService.getProjectInfo(projectInfoDto.getProjectId());
+        return ApiResponse.success(VO);
+    }
+
+    private void saveUserProject(Long projectId){
+        List<EcmpUser> ecmpUsers = ecmpUserService.selectEcmpUserList(null);
+        List<ProjectUserRelationInfo> list=new ArrayList<>();
+        for(EcmpUser user:ecmpUsers){
+            list.add(new ProjectUserRelationInfo(projectId,user.getUserId()));
+        }
+        if (CollectionUtils.isNotEmpty(list)){
+            List<ProjectUserRelationInfo> projectUserRelationInfo = iProjectUserRelationInfoService.selectProjectUserRelationInfoList(new ProjectUserRelationInfo(projectId));
+            list.addAll(projectUserRelationInfo);
+            List<ProjectUserRelationInfo> collect = list.stream().distinct().collect(Collectors.toList());
+            iProjectUserRelationInfoService.insertProjectList(collect);
+        }
+    }
     @ApiOperation(value = "editProject",notes = "编辑",httpMethod ="POST")
     @PostMapping("/editProject")
     @Transactional
@@ -161,22 +182,51 @@ public class ProjectController {
                 }
             }
         }
-        return ApiResponse.error("新建项目成功");
+        return ApiResponse.success("编辑项目成功");
     }
 
-    private void saveUserProject(Long projectId){
-        List<EcmpUser> ecmpUsers = ecmpUserService.selectEcmpUserList(null);
+
+    @ApiOperation(value = "getProjectUserList",notes = "获取成员列表",httpMethod ="POST")
+    @PostMapping("/getProjectUserList")
+    @Transactional
+    public ApiResponse<PageInfo<ProjectUserVO>> getProjectUserList(@RequestBody PageRequest pageRequest){
+        PageInfo<ProjectUserVO> VO=iProjectInfoService.getProjectUserList(pageRequest.getFatherProjectId(),pageRequest.getPageNum(),pageRequest.getPageSize(),pageRequest.getSearch());
+        return ApiResponse.success(VO);
+    }
+
+    @ApiOperation(value = "removeProjectUser",notes = "移除成员列表",httpMethod ="POST")
+    @PostMapping("/removeProjectUser")
+    @Transactional
+    public ApiResponse removeProjectUser(@RequestBody ProjectUserDTO projectUserDTO){
+        //TODO 暂时不考虑当前用户是否有未完成的项目报销
+        int count=iProjectInfoService.removeProjectUser(projectUserDTO);
+        return ApiResponse.success();
+    }
+
+    @ApiOperation(value = "addProjectUser",notes = "添加项目成员",httpMethod ="POST")
+    @PostMapping("/addProjectUser")
+    @Transactional
+    public ApiResponse addProjectUser(@RequestBody AddProjectUserDTO projectUserDTO){
+        //TODO 暂时不考虑当前用户是否有未完成的项目报销
         List<ProjectUserRelationInfo> list=new ArrayList<>();
-        for(EcmpUser user:ecmpUsers){
-            list.add(new ProjectUserRelationInfo(projectId,user.getUserId()));
+        List<ProjectUserRelationInfo> projectUserRelationInfos = iProjectUserRelationInfoService.selectProjectUserRelationInfoList(new ProjectUserRelationInfo(projectUserDTO.getProjectId()));
+        if (projectUserDTO.getUserIds()!=null&&projectUserDTO.getUserIds().length>0){
+            for (Long userId:projectUserDTO.getUserIds()){
+                list.add(new ProjectUserRelationInfo(projectUserDTO.getProjectId(),userId));
+            }
         }
-        if (CollectionUtils.isNotEmpty(list)){
-            List<ProjectUserRelationInfo> projectUserRelationInfo = iProjectUserRelationInfoService.selectProjectUserRelationInfoList(new ProjectUserRelationInfo(projectId));
-            list.addAll(projectUserRelationInfo);
-            List<ProjectUserRelationInfo> collect = list.stream().distinct().collect(Collectors.toList());
-            iProjectUserRelationInfoService.insertProjectList(collect);
-        }
+        list.removeAll(projectUserRelationInfos);
+        int count=iProjectUserRelationInfoService.insertProjectList(list);
+        return ApiResponse.success();
     }
 
+    @ApiOperation(value = "deleteProject",notes = "添加项目成员",httpMethod ="POST")
+    @PostMapping("/deleteProject")
+    @Transactional
+    public ApiResponse deleteProject(@RequestBody ProjectUserDTO projectUserDTO){
+        //TODO 暂时不考虑当前用户是否有未完成的项目报销
+        int count=iProjectInfoService.deleteProject(projectUserDTO);
+        return ApiResponse.success();
+    }
 
 }

@@ -96,4 +96,5 @@ public class ProjectUserRelationInfoServiceImpl implements IProjectUserRelationI
     public int insertProjectList(List<ProjectUserRelationInfo> list) {
        return projectUserRelationInfoMapper.insertProjectList(list);
     }
+
 }

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -63,7 +64,7 @@ public interface ApproveTemplateNodeInfoMapper
     public int deleteApproveTemplateNodeInfoByIds(Long[] approveNodeIds);
 
     /**根据节点id查询所有审批节点用户id*/
-    String getListByNodeIds(List<Long> nodeIds);
+    String getListByNodeIds(@Param("nodeIds") List<Long> nodeIds);
     /**根据模板id查询所有审批节点id*/
     String getApproveNodesByTemplateId(Long approveTemplateId);
 }

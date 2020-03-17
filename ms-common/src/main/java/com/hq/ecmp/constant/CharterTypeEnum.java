@@ -5,15 +5,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
-public enum ApproveStateEnum {
+public enum CharterTypeEnum {
 
-	APPROVE_PASS("pass","审批通过"),
-	APPROVE_FAIL("fail","审批驳回"),
-	NOT_ARRIVED_STATE("ST00","未到达"),
-	WAIT_APPROVE_STATE("ST01","待审批"),
-	COMPLETE_APPROVE_STATE("ST02","已审批"),
-	EXPIRED_APPROVE_STATE("ST03","已过期"),
-	;
+
+	HALF_DAY_TYPE("T001","半日租(4小时)"),
+	OVERALL_RENT_TYPE("T002","整日租(8小时)");
 
 	private String key;
 	private String desc;//描述
@@ -34,14 +30,14 @@ public enum ApproveStateEnum {
 		this.desc = desc;
 	}
 
-	ApproveStateEnum(String key, String desc) {
+	CharterTypeEnum(String key, String desc) {
 		this.key=key;
 		this.desc=desc;
 	}
 	public static Map<String, String> getParam(){
 		Map<String, String> map = Maps.newHashMap();
-		ApproveStateEnum[] hintEnums = ApproveStateEnum.values();
-		for (ApproveStateEnum hintEnum : hintEnums) {
+		CharterTypeEnum[] hintEnums = CharterTypeEnum.values();
+		for (CharterTypeEnum hintEnum : hintEnums) {
 			map.put(hintEnum.getKey(), hintEnum.getDesc());
 		}
 		return map;
@@ -50,7 +46,7 @@ public enum ApproveStateEnum {
 		if (StringUtils.isBlank(key)){
 			return null;
 		}
-		Map<String, String> param = ApproveStateEnum.getParam();
+		Map<String, String> param = CharterTypeEnum.getParam();
 		return param.get(key);
 	}
 }

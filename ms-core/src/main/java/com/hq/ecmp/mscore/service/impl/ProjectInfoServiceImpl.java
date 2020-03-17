@@ -1,14 +1,20 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
+import com.hq.ecmp.mscore.dto.ProjectUserDTO;
 import com.hq.ecmp.mscore.mapper.ProjectInfoMapper;
+import com.hq.ecmp.mscore.mapper.ProjectUserRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.vo.ProjectInfoVO;
+import com.hq.ecmp.mscore.vo.ProjectUserVO;
+import com.hq.ecmp.util.DateFormatUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +29,8 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
 {
     @Autowired
     private ProjectInfoMapper projectInfoMapper;
+    @Autowired
+    private ProjectUserRelationInfoMapper projectUserRelationInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -109,9 +117,46 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     }
 
     @Override
-    public PageInfo<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, Long fatherProjectId) {
+    public PageInfo<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, String search,Long fatherProjectId) {
         PageHelper.startPage(pageNum,pageSize);
-        List<ProjectInfoVO> list= projectInfoMapper.getProjectList(fatherProjectId);
+        List<ProjectInfoVO> list= projectInfoMapper.getProjectList(search,fatherProjectId);
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public ProjectInfoVO getProjectInfo(Long projectId) {
+        return projectInfoMapper.getProjectInfo(projectId);
+    }
+
+    @Override
+    public PageInfo<ProjectUserVO> getProjectUserList(Long projectId,int pageNum,int pageSize,String search) {
+        PageHelper.startPage(pageNum,pageSize);
+        List<ProjectUserVO> list= projectUserRelationInfoMapper.getProjectUserList(projectId,search);
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public int removeProjectUser(ProjectUserDTO projectUserDTO) {
+        return projectUserRelationInfoMapper.removeProjectUser(projectUserDTO.getProjectId(),projectUserDTO.getUserId());
+    }
+
+    @Override
+    public int deleteProject(ProjectUserDTO projectUserDTO) {
+        int i = projectInfoMapper.updateProjectInfo(new ProjectInfo(projectUserDTO.getProjectId(), -1));
+        if (i>0){
+            projectUserRelationInfoMapper.deleteProjectUserRelationInfoById(projectUserDTO.getProjectId());
+        }
+        return i;
+    }
+
+    @Override
+    public void checkProject() {
+        List<ProjectInfo> list= projectInfoMapper.checkProject(DateFormatUtils.formatDate(DateFormatUtils.DATE_FORMAT,new Date()));
+        if (CollectionUtils.isNotEmpty(list)){
+            for (ProjectInfo info:list){
+                info.setIsEffective(0);
+                projectInfoMapper.updateProjectInfo(info);
+            }
+        }
     }
 }
