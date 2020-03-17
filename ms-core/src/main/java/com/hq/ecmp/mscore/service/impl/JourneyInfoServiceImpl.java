@@ -137,7 +137,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 				if(null !=regimeInfo){
 					carAuthorityInfo.setType(regimeInfo.parseApplyType());
 					//公务用车时间
-					carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime().toString());  //TODO  .toString() 适应性添加， zc
+					carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());  //TODO  .toString() 适应性添加， zc
 					//公务公车方式
 					carAuthorityInfo.setCarType(journeyInfo.getUseCarMode());
 					if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getRegimenType())){

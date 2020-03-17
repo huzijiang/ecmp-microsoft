@@ -43,7 +43,7 @@ public class ApplyDispatchVo {
 	 */
 	String serviceType;// 服务类型
 	
-	String dispatchStatus;//调度状态   T001-待派车    T002-已过期    T003-已处理
+	String dispatchStatus;//调度状态   T001-待派车/待改派    T002-已过期    T003-已处理/已通过  T004-已驳回
 	
 	Date optDate;//操作时间
 	
@@ -56,7 +56,7 @@ public class ApplyDispatchVo {
 		this.arriveAdress=dispatchOrderInfo.getEndSite();
 	}
 	
-	public void parseDispatchStatus(){
+	public void parseApplyDispatchStatus(){
 		if(StringUtil.isNotEmpty(this.state)){
 			if(OrderState.SENDINGCARS.equals(this.state)){
 				if(null !=startDate && DateFormatUtils.beforeCurrentDate(this.startDate)){
@@ -70,5 +70,25 @@ public class ApplyDispatchVo {
 			}
 		}
 		
+	}
+	
+	
+	public void parseReassignmentDispatchStatus(){
+		if(StringUtil.isNotEmpty(this.state)){
+			if(OrderState.REASSIGNREJECT.equals(this.state)){
+				this.dispatchStatus="T004";
+				return;
+			}
+			if(OrderState.APPLYREASSIGN.equals(this.state)){
+				if(null !=startDate && DateFormatUtils.beforeCurrentDate(this.startDate)){
+					//状态处于待改派 但是当前时间已经过了用车开始时间  则状态为已过期
+					this.dispatchStatus="T002";
+				}else {
+					this.dispatchStatus="T001";
+				}
+				return;
+			}
+			this.dispatchStatus="T003";
+		}
 	}
 }
