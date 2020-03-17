@@ -8,7 +8,9 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 
 /**
@@ -46,8 +48,8 @@ public class CompanyConfigController {
      */
     @ApiOperation(value = "screen ", notes = "设置开屏图片信息")
     @PostMapping("/screen")
-    public ApiResponse screen(String status, String value) {
-        ecmpConfigService.setUpWelComeImage(status, value);
+    public ApiResponse screen(@RequestParam("file") MultipartFile file, String status, String value) {
+        ecmpConfigService.setUpWelComeImage(status, value, file);
         return ApiResponse.success();
     }
 
@@ -56,8 +58,8 @@ public class CompanyConfigController {
      */
     @ApiOperation(value = "backgroundImage ", notes = "设置背景图片信息")
     @PostMapping("/backgroundImage")
-    public ApiResponse backgroundImage(String status, String value) {
-        ecmpConfigService.setUpBackGroundImage(status, value);
+    public ApiResponse backgroundImage(@RequestParam("file") MultipartFile file, String status, String value) {
+        ecmpConfigService.setUpBackGroundImage(status, value, file);
         return ApiResponse.success();
     }
 
