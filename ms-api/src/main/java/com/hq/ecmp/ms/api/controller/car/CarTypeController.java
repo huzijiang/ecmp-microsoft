@@ -8,8 +8,12 @@ import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
 import com.hq.ecmp.mscore.domain.CarInfo;
+import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarTypeDTO;
+import com.hq.ecmp.mscore.dto.CarTypeSortDTO;
 import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
+import com.hq.ecmp.mscore.vo.CarTypeVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,18 +39,15 @@ public class CarTypeController {
 
     /**
      * 新增车型
-     * @param  carDto  车辆信息
+     * @param
      * @return
      */
     @ApiOperation(value = "saveCarType",notes = "新增车型",httpMethod ="POST")
     @PostMapping("/saveCarType")
-    public ApiResponse saveCarType(@RequestBody CarTypeDTO carDto){
-        //获取登录用户
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
+    public ApiResponse saveCarType(@RequestBody CarTypeDTO carTypeDto){
+        Long userId = getLoginUserId();
         try {
-            enterpriseCarTypeInfoService.saveCarType(carDto,userId);
+            enterpriseCarTypeInfoService.saveCarType(carTypeDto,userId);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -55,19 +56,28 @@ public class CarTypeController {
     }
 
     /**
+     * 获取登录用户
+     * @return
+     */
+    private Long getLoginUserId() {
+        //获取登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        return loginUser.getUser().getUserId();
+    }
+
+    /**
      * 修改车型
-     * @param  carDto  车辆信息
+     * @param
      * @return
      */
     @ApiOperation(value = "updateCarType",notes = "新增车型",httpMethod ="POST")
     @PostMapping("/updateCarType")
-    public ApiResponse updateCarType(@RequestBody CarTypeDTO carDto){
+    public ApiResponse updateCarType(@RequestBody CarTypeDTO carTypeDto){
         //获取登录用户
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
+        Long userId = getLoginUserId();
         try {
-            enterpriseCarTypeInfoService.updateCarType(carDto,userId);
+            enterpriseCarTypeInfoService.updateCarType(carTypeDto,userId);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("修改失败");
@@ -77,18 +87,54 @@ public class CarTypeController {
 
     /**
      * 删除车型
-     * @param  carDto  车辆信息
+     * @param
      * @return
      */
     @ApiOperation(value = "deleteCarType",notes = "删除车型")
     @RequestMapping("/deleteCarType")
-    public ApiResponse deleteCarType(@RequestBody CarTypeDTO carDto){
+    public ApiResponse deleteCarType(@RequestBody CarTypeDTO carTypeDto){
         try {
-            enterpriseCarTypeInfoService.deleteEnterpriseCarTypeInfoById(carDto.getCarTypeId());
+            enterpriseCarTypeInfoService.deleteEnterpriseCarTypeInfoById(carTypeDto.getCarTypeId());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("删除车型成功");
+    }
+
+    /**
+     * 查询车型列表
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCarTypeList",notes = "查询车型列表")
+    @RequestMapping("/getCarTypeList")
+    public ApiResponse<List<CarTypeVO>> getCarTypeList(@RequestBody CarTypeDTO carTypeDto){
+        try {
+            List<CarTypeVO> result = enterpriseCarTypeInfoService.getCarTypeList(carTypeDto.getEnterpriseId());
+            return ApiResponse.success("查询成功",result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询车型列表失败");
+        }
+    }
+
+    /**
+     * 车型排序修改
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "sortCarType",notes = "查询车型列表")
+    @RequestMapping("/sortCarType")
+    public ApiResponse sortCarType(@RequestBody CarTypeSortDTO carTypeSortDTO){
+        try {
+            enterpriseCarTypeInfoService.sortCarType(
+                    carTypeSortDTO.getMainCarTypeId(),carTypeSortDTO.getTargetCarTypeId(),getLoginUserId()
+            );
+            return ApiResponse.success("车型排序成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("车型排序失败");
+        }
     }
 }
