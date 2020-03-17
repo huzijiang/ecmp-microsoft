@@ -36,7 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where config_id = #{configId}
     </select>
 
-    <select id="selectEcmpConfigByKey" parameterType="com.hq.ecmp.mscore.domain.EcmpConfig" resultMap="EcmpConfigResult">
+    <select id="selectConfigByKey" parameterType="com.hq.ecmp.mscore.domain.EcmpConfig" resultMap="EcmpConfigResult">
         <include refid="selectEcmpConfigVo"/>
         where config_key = #{configKey}
     </select>
@@ -83,7 +83,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where config_id = #{configId}
     </update>
 
-    <update id="updateConfig" parameterType="com.hq.ecmp.mscore.domain.EcmpConfig">
+    <update id="updateConfigByKey" parameterType="com.hq.ecmp.mscore.domain.EcmpConfig">
         update ecmp_config
         <trim prefix="SET" suffixOverrides=",">
             <if test="configName != null  and configName != ''">config_name = #{configName},</if>

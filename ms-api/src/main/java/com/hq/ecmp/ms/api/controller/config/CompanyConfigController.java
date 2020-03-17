@@ -47,7 +47,7 @@ public class CompanyConfigController {
      * 设置开屏图信息
      */
     @ApiOperation(value = "screen ", notes = "设置开屏图片信息")
-    @PostMapping("/screen")
+    @PostMapping(value = "/screen", produces = "application/json;charset=UTF-8")
     public ApiResponse screen(@RequestParam("file") MultipartFile file, String status, String value) {
         ecmpConfigService.setUpWelComeImage(status, value, file);
         return ApiResponse.success();
