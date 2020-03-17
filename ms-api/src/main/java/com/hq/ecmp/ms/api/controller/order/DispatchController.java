@@ -3,6 +3,7 @@ package com.hq.ecmp.ms.api.controller.order;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
@@ -79,5 +82,19 @@ public class DispatchController {
     	}
     	return ApiResponse.error();
     }
+    
+    @ApiOperation(value = "ownCarSendCar", notes = "自有车派车", httpMethod = "POST")
+    @PostMapping("/ownCarSendCar")
+    public ApiResponse ownCarSendCar(Long orderId,Long driverId,Long carId,Long optUserId) {
+    	
+         boolean ownCarSendCar = iOrderInfoService.ownCarSendCar(orderId, driverId, carId, optUserId);
+         if(ownCarSendCar){
+        	 return ApiResponse.success();
+         }else{
+        	 return ApiResponse.error("调派单【"+orderId+"】自有车派车失败");
+         }
+
+    }
+
     
 }
