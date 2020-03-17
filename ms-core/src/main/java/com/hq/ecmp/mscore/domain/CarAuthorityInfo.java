@@ -23,7 +23,7 @@ public class CarAuthorityInfo {
        Integer cityCount;//出差城市用车次数
        
        String applyName;//公务出差理由
-       String useDate;//公务用车时间
+       Date useDate;//公务用车时间
        String carType;//用车方式  自有车or网约车
        String status;//状态 去申请/派车中/约车中/待服务/进行中/待确认/已完成
        

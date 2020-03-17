@@ -161,5 +161,9 @@ public interface OrderInfoMapper {
     public List<ApplyDispatchVo> queryApplyDispatchList(ApplyDispatchQuery query);
     
     public Integer queryApplyDispatchListCount(ApplyDispatchQuery query);
+    
+    public List<ApplyDispatchVo> queryReassignmentDispatchList(ApplyDispatchQuery query);
+    
+    public Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query);
 }
 

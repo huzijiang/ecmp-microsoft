@@ -199,6 +199,18 @@ public interface IOrderInfoService {
     public List<ApplyDispatchVo> queryApplyDispatchList(ApplyDispatchQuery query);
     
     public Integer queryApplyDispatchListCount(ApplyDispatchQuery query);
+    
+    public List<ApplyDispatchVo> queryReassignmentDispatchList(ApplyDispatchQuery query);
+    
+    public Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query);
+    /**
+     * 驳回改派申请
+     * @param orderId
+     * @param rejectReason
+     * @param optUserId
+     * @return
+     */
+    public boolean rejectReassign(Long orderId,String rejectReason,Long optUserId);
 
 }
 

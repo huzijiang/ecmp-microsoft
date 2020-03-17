@@ -34,6 +34,7 @@ import com.hq.ecmp.constant.OrderConstant;
 import com.hq.ecmp.constant.OrderServiceType;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.constant.ResignOrderTraceState;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.CarInfo;
@@ -666,40 +667,42 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
 
-    @Transactional(propagation=Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
-	public boolean ownCarSendCar(Long orderId, Long driverId, Long carId,Long userId) {
-		//查询司机信息
-		DriverInfo driverInfo = driverInfoService.selectDriverInfoById(driverId);
+	public boolean ownCarSendCar(Long orderId, Long driverId, Long carId, Long userId) {
+		// 新增订单状态流转记录
+		OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
 		OrderInfo orderInfo = new OrderInfo();
+		// 判读该单子是否是改派单
+		if (iOrderStateTraceInfoService.isReassignment(orderId)) {
+			// 是改派单
+			orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.getState());
+			orderInfo.setState(OrderState.REASSIGNPASS.getState());
+		} else {
+			//申请单
+			orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
+			orderInfo.setState(OrderState.ALREADYSENDING.getState());
+		}
+		// 查询司机信息
+		DriverInfo driverInfo = driverInfoService.selectDriverInfoById(driverId);
 		orderInfo.setOrderId(orderId);
-		orderInfo.setState(OrderState.ALREADYSENDING.getState());
 		orderInfo.setDriverId(driverId);
-		if(null !=driverInfo){
+		if (null != driverInfo) {
 			orderInfo.setDriverName(driverInfo.getDriverName());
 			orderInfo.setDriverMobile(driverInfo.getMobile());
 		}
 		orderInfo.setCarId(carId);
 		orderInfo.setUpdateBy(String.valueOf(userId));
 		orderInfo.setUpdateTime(new Date());
-		//更新订单信息
+		// 更新订单信息
 		int updateFlag = updateOrderInfo(orderInfo);
-		//新增订单状态流转记录
-		 OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
-		 orderStateTraceInfo.setCreateBy(String.valueOf(userId));
-		 //判读该单子是否是改派单
-		 if(iOrderStateTraceInfoService.isReassignment(orderId)){
-			 orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.getState());
-		 } else{
-			 orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
-		 }
 
-         orderStateTraceInfo.setOrderId(orderId);
-         int insertFlag = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-
-		return updateFlag>0&&insertFlag>0;
+		orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+		orderStateTraceInfo.setOrderId(orderId);
+		// 新增订单状态流转记录
+		int insertFlag = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+		return updateFlag > 0 && insertFlag > 0;
 	}
-
 
     public void initOrder(Long applyId,Long jouneyId,Long userId) throws Exception {
         //获取用车权限记录
@@ -987,7 +990,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 				applyDispatchVo.parseOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 				//转化状态
-				applyDispatchVo.parseDispatchStatus();
+				applyDispatchVo.parseApplyDispatchStatus();
 			}
 		}
 		return applyDispatchVoList;
@@ -996,5 +999,52 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public Integer queryApplyDispatchListCount(ApplyDispatchQuery query) {
 		return orderInfoMapper.queryApplyDispatchListCount(query);
+	}
+
+	@Override
+	public List<ApplyDispatchVo> queryReassignmentDispatchList(ApplyDispatchQuery query) {
+		List<ApplyDispatchVo> reassignmentDispatchList = orderInfoMapper.queryReassignmentDispatchList(query);
+		if(null !=reassignmentDispatchList && reassignmentDispatchList.size()>0){
+			for (ApplyDispatchVo applyDispatchVo : reassignmentDispatchList) {
+				Long orderId = applyDispatchVo.getOrderId();
+				Long journeyId = applyDispatchVo.getJourneyId();
+            //查询乘车人
+				applyDispatchVo.setUseCarUser(journeyPassengerInfoService.getPeerPeople(journeyId));
+				//查询同行人数
+				applyDispatchVo.setPeerUserNum(journeyPassengerInfoService.queryPeerCount(journeyId));
+				//查询出发时间地点    目的地时间地点
+				DispatchOrderInfo dispatchOrderInfo = new DispatchOrderInfo();
+				dispatchOrderInfo.setOrderId(orderId);
+				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+				applyDispatchVo.parseOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+				//转化状态
+				applyDispatchVo.parseReassignmentDispatchStatus();
+			}
+		}
+		return reassignmentDispatchList;
+	}
+
+	@Override
+	public Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query) {
+		return orderInfoMapper.queryReassignmentDispatchListCount(query);
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRED)
+	@Override
+	public boolean rejectReassign(Long orderId, String rejectReason, Long optUserId) {
+		// 生成订单状态流转记录
+		OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+		orderStateTraceInfo.setCreateBy(String.valueOf(optUserId));
+		orderStateTraceInfo.setState(ResignOrderTraceState.DISAGREE.getState());
+		orderStateTraceInfo.setOrderId(orderId);
+		orderStateTraceInfo.setContent(rejectReason);
+		iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+		// 更改订单状态
+		OrderInfo orderInfo = new OrderInfo();
+		orderInfo.setOrderId(orderId);
+		orderInfo.setState(OrderState.REASSIGNREJECT.getState());
+		orderInfo.setUpdateBy(String.valueOf(orderId));
+		orderInfo.setUpdateTime(new Date());
+		return updateOrderInfo(orderInfo)>0;
 	}
 }
