@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @Author: zj.hu
@@ -16,6 +17,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
  */
 @SwaggerDefinition
 @EnableSwaggerBootstrapUI
+@EnableScheduling
 @Import({DruidConfig.class,DruidProperties.class})
 @SpringBootApplication(scanBasePackages ={"com.hq.*"},exclude={DataSourceAutoConfiguration.class})
 @EnableAsync

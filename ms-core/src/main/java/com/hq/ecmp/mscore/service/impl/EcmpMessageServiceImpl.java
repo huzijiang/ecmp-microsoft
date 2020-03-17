@@ -217,7 +217,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         List<MessageDto> runMessageForDrive = ecmpMessageDao.getRunMessageForDrive(driverInfo.getDriverId(), categorys);
         //判断当前司机是不是调度员
         if ("1".equals(user.getItIsDispatcher())){
-            List<MessageDto> runMessageForDispatcher = ecmpMessageDao.getRunMessageForDrive(user.getUserId(), "M003");
+            List<MessageDto> runMessageForDispatcher = ecmpMessageDao.getRunMessageForDispatcher(user.getUserId(), "M003");
             runMessageForDrive.addAll(runMessageForDispatcher);
         }
         if (CollectionUtils.isNotEmpty(runMessageForDrive)){

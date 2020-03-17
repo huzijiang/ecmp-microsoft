@@ -77,4 +77,6 @@ public interface IApplyApproveResultInfoService
     void initApproveResultInfo(Long applyId,Long regimenId,Long userId);
 
     List<ApprovalInfoVO> getApproveResultList(ApplyApproveResultInfo applyApproveResultInfo);
+
+    List<ApplyApproveResultInfo> selectApproveResultByNodeids(String nextNodeId,String state);
 }

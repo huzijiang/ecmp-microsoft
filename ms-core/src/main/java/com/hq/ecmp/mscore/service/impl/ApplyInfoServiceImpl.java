@@ -22,6 +22,7 @@ import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private ApproveTemplateInfoMapper templateInfoMapper;
     @Autowired
     private ApproveTemplateNodeInfoMapper templateNodeInfoMapper;
+    @Autowired
     private ApplyApproveResultInfoMapper resultInfoMapper;
 
     /**
@@ -375,7 +377,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyDetailVO.setApplyDate(useCarTime);
         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(journeyInfo.getUserId());
         //申请人
-        applyDetailVO.setApplyUser(ecmpUser.getUserName());
+        applyDetailVO.setApplyUser(ecmpUser.getNickName());
         applyDetailVO.setApplyMobile(ecmpUser.getPhonenumber());//TODO 根据用户id查出用户名字  journeyInfo.getUserId()
         //是否往返
         applyDetailVO.setIsGoBack(journeyInfo.getItIsReturn());
@@ -504,26 +506,29 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @return
      */
     @Override
-    public PageInfo<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
+    public List<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
         PageHelper.startPage(pageIndex,pageSize);
-        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
+        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
         List<ApprovaReesultVO> approvaReesultVOs=new ArrayList<>();
         if (!CollectionUtils.isEmpty(applyApproveResultInfos)){
             for (ApplyApproveResultInfo info:applyApproveResultInfos){
                 ApprovaReesultVO vo=new ApprovaReesultVO();
                 BeanUtils.copyProperties(info,vo);
                 //查询申请信息
+                vo.setState(ApproveStateEnum.format(info.getState()));
                 ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(info.getApplyId());
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
-                vo.setApplyName(ecmpUser.getUserName());
+                vo.setApplyName(ecmpUser.getNickName());
                 vo.setApplyTime(applyInfo.getCreateTime());
                 vo.setApplyType(ApplyTypeEnum.format(applyInfo.getApplyType()));
                 JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(applyInfo.getJourneyId());
-                vo.setUseCarTime(new SimpleDateFormat("yyyy年MM月dd日 HH:mm").format(journeyInfo.getUseCarTime()));
-                List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId(), Long.parseLong(applyInfo.getCreateBy())));
+                vo.setItIsReturn(journeyInfo.getItIsReturn());
+                vo.setTitle(journeyInfo.getTitle());
+                List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId()));
                 if (!CollectionUtils.isEmpty(journeyNodeInfos)){
                     //判断是差旅还是公务
                     if (ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(applyInfo.getApplyType())){//差旅
+                        vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,journeyInfo.getStartDate())+"-"+DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,journeyInfo.getEndDate()));
                         String stroke="";
                         for (JourneyNodeInfo nodeInfo:journeyNodeInfos){
                             stroke+=","+nodeInfo.getPlanBeginAddress()+"-"+nodeInfo.getPlanEndAddress();
@@ -532,12 +537,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                     }else{//公务
                         vo.setStartAddress(journeyNodeInfos.get(0).getPlanBeginAddress());
                         vo.setEndAddress(journeyNodeInfos.get(0).getPlanEndAddress());
+                        vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,journeyInfo.getUseCarTime()));
                     }
                 }
                 approvaReesultVOs.add(vo);
             }
         }
-        return new PageInfo<>(approvaReesultVOs);
+        return approvaReesultVOs;
     }
 
     /**

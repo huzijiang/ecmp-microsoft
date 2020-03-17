@@ -26,5 +26,6 @@ public class ApplyDTO {
     @NotNull
     private Long applyId;
     private String applyType;
+    private String rejectReason;
 
 }
