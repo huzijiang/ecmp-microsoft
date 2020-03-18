@@ -4,16 +4,14 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.UserReqimensDTO;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
@@ -161,4 +159,26 @@ public class EcmpUserController {
     }
 
     /*日期禁用（离职日期）*/
+    /*已离职数量*/
+    /*已离职列表*/
+    /*设置离职日期*/
+
+
+    /**
+     * 给员工设置用车制度
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "bindUserRegimens",notes = "给员工设置用车制度",httpMethod ="POST")
+    @PostMapping("/bindUserRegimens")
+    public ApiResponse bindUserRegimens(@RequestBody UserReqimensDTO userReqimensDTO){
+        try {
+            ecmpUserService.bindUserRegimens(userReqimensDTO.getUserId(),userReqimensDTO.getRegimenIds());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("设置用车制度失败");
+        }
+        return ApiResponse.success("设置成功");
+    }
+
 }

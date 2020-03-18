@@ -7,18 +7,14 @@ import java.util.stream.Collectors;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
-import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
-import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
-import com.hq.ecmp.mscore.vo.CarGroupListVO;
-import com.hq.ecmp.mscore.vo.PageResult;
-import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.mscore.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +41,11 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     private CarGroupDriverRelationMapper carGroupDriverRelationMapper;
     @Autowired
     private CarInfoMapper carInfoMapper;
+    @Autowired
+    private EcmpOrgMapper ecmpOrgMapper;
+    @Autowired
+    private DriverInfoMapper driverInfoMapper;
+
 
     /**
      * 查询【请填写功能名称】
@@ -129,7 +130,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
         //所属城市名字
-        carGroupInfo.setCityName(carGroupDTO.getCityName());
+       // carGroupInfo.setCityName(carGroupDTO.getCityName());
         //车队名称
         carGroupInfo.setCarGroupName(carGroupDTO.getCarGroupName());
         //车队详细地址
@@ -176,6 +177,19 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     throw new Exception();
                 }
             }
+        }
+        //车队 作为部门形式保存
+        EcmpOrgVo ecmpOrgVo = new EcmpOrgVo();
+        ecmpOrgVo.setDeptName(carGroupDTO.getCarGroupName());
+        ecmpOrgVo.setParentId(carGroupDTO.getOwnerOrg());
+        ecmpOrgVo.setDeptType("1"); //组织类别（1 公司 2 部门 3 车队）
+        ecmpOrgVo.setPhone(carGroupDTO.getTelephone());
+        ecmpOrgVo.setStatus("1");  //部门状态（0正常 1停用）
+        ecmpOrgVo.setCreateTime(new Date());
+        ecmpOrgVo.setCreateBy(String.valueOf(userId));
+        int j = ecmpOrgMapper.addDept(ecmpOrgVo);
+        if(j!=1){
+            throw new RuntimeException();
         }
     }
 
@@ -241,7 +255,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
         //所属城市名字
-        carGroupInfo.setCityName(carGroupDTO.getCityName());
+       // carGroupInfo.setCityName(carGroupDTO.getCityName());
         //车队名称
         carGroupInfo.setCarGroupName(carGroupDTO.getCarGroupName());
         //车队详细地址
@@ -294,6 +308,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param userId
      */
     @Override
+    @Transactional
     public void disableCarGroup(Long carGroupId, Long userId) throws Exception {
         CarGroupInfo carGroupInfo = new CarGroupInfo();
         carGroupInfo.setUpdateBy(String.valueOf(userId));
@@ -303,7 +318,39 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         if(i != 1){
             throw new Exception("禁用车队失败");
         }
+        //禁用 车队下的 驾驶员 及 车辆
+        //查询车队下的未禁用驾驶员
+        List<DriverVO> list = selectGroupEffectiveDrives(carGroupId);
+        for (DriverVO driverVO : list) {
+            //禁用驾驶员
+           int j = driverInfoMapper.disableDriver(driverVO.getDriverId());
+           if(j != 1){
+               throw  new RuntimeException();
+           }
+        }
+        //查询车队下的启用用车辆ids
+        List<Long> carIds = getGroupEffectiveCarIds(carGroupId);
+        //禁用车辆
+        for (Long carId : carIds) {
+            int  k = carInfoMapper.disableCarByCarId(carId);
+            if(k != 1){
+                throw new RuntimeException();
+            }
+        }
     }
+
+    //查询车队下的可用驾驶员
+    public List<DriverVO> selectGroupEffectiveDrives(Long carGroupId){
+        List<DriverVO> list = carGroupDriverRelationMapper.selectGroupEffectiveDrives(carGroupId);
+        return list;
+    }
+
+    //查询车队下的可用车辆ids
+    public List<Long> getGroupEffectiveCarIds(Long carGropuId){
+        List<Long> list = carInfoMapper.selectGroupEffectiveCarIds(carGropuId);
+        return list;
+    }
+
 
     /**
      * 启用车队
@@ -318,25 +365,108 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setState(CarConstant.START_UP_CAR_GROUP);
         int i = carGroupInfoMapper.updateCarGroupInfo(carGroupInfo);
         if(i != 1){
-            throw new Exception();
+            throw new RuntimeException();
         }
     }
 
+    /**
+     * 分页查询总车队列表
+     * @param pageNum
+     * @param pageSize
+     * @param search
+     * @return
+     */
     @Override
-    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize) {
+    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search) {
         PageHelper.startPage(pageNum,pageSize);
-        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage();
-        for (CarGroupListVO carGroupListVO : list) {
-            Long carGroupId = carGroupListVO.getCarGroupId();
-            //查询车队绑定车辆数
-            int carNum = carInfoMapper.selectCountGroupCarByGroupId(carGroupId);
-            //查询车队驾驶员数
-            int driverNum = carGroupDriverRelationMapper.selectCountDriver(carGroupId);
-            carGroupListVO.setCountCar(carNum);
-            carGroupListVO.setCountDriver(driverNum);
-        }
+        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search);
+        getCarGroupExtraInfo(list);
         PageInfo<CarGroupListVO> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);
+    }
+
+    /**
+     * 获取车队主管名字集合/车队人数/下级车队人数
+     * @param list
+     */
+    private void getCarGroupExtraInfo(List<CarGroupListVO> list) {
+        for (CarGroupListVO carGroupListVO : list) {
+            Long carGroupId = carGroupListVO.getCarGroupId();
+            Integer ownerOrg = carGroupListVO.getOwnerOrg();
+            //查询车队绑定车辆数
+            //int carNum = carInfoMapper.selectCountGroupCarByGroupId(carGroupId);
+            // 1.查询下级车队数
+            int subGroupNum = ecmpOrgMapper.selectCountByParentId(ownerOrg);
+            carGroupListVO.setCountSubCarGroup(subGroupNum);
+            // 2.查询车队驾驶员数(调度员是从驾驶员里选出来的)
+            int driverNum = carGroupDriverRelationMapper.selectCountDriver(carGroupId);
+            carGroupListVO.setCountMember(driverNum);
+            // 3. 查询调度员(主管名字)
+            CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+            carGroupDispatcherInfo.setCarGroupId(carGroupId);
+            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
+            List<String> leaderNames = Lists.newArrayList();
+            if(!CollectionUtils.isEmpty(carGroupDispatcherInfos)){
+                for (CarGroupDispatcherInfo groupDispatcherInfo : carGroupDispatcherInfos) {
+                    leaderNames.add(groupDispatcherInfo.getName());
+                }
+            }
+            carGroupListVO.setLeaderNames(leaderNames);
+        }
+    }
+
+    /**
+     * 删除车队
+     * @param carGroupId
+     */
+    @Override
+    public void deleteCarGroup(Long carGroupId) throws Exception {
+        if(hasCar(carGroupId) || hasCar(carGroupId)){
+            throw new Exception("无法删除，先删除驾驶员及车厢信息");
+        }
+        int i = carGroupInfoMapper.deleteCarGroupInfoById(carGroupId);
+        if( i != 1){
+            throw new Exception("删除失败");
+        }
+    }
+
+    /**
+     * 查询夏季车队列表信息
+     * @param deptId
+     * @return
+     */
+    @Override
+    public List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId) {
+        List<CarGroupListVO> list = carGroupInfoMapper.selectSubCarGroupInfoList(deptId);
+        if(CollectionUtils.isEmpty(list)){
+            throw new RuntimeException();
+        }
+        getCarGroupExtraInfo(list);
+        return list;
+    }
+
+
+    /**
+     * 判断车队下是否有车辆
+     * @param carGroupId
+     * @return
+     */
+    public boolean hasCar(Long carGroupId){
+        CarInfo carInfo = CarInfo.builder().carGroupId(carGroupId).build();
+        List<CarInfo> carInfos = carInfoMapper.selectCarInfoList(carInfo);
+        //不为空 表示 车队下有车辆
+        return !CollectionUtils.isEmpty(carInfos);
+    }
+
+    /**
+     * 判断车队下是否有驾驶员
+     * @param carGroupId
+     * @return
+     */
+    public boolean hasDriver(Long carGroupId){
+        int i = carGroupDriverRelationMapper.selectCountDriver(carGroupId);
+        //不为0表示有驾驶员
+        return i != 0;
     }
 
 

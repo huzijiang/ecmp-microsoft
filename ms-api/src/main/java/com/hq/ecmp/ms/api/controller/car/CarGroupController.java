@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
 import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.dto.SubGroupListDTO;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
 import com.hq.ecmp.mscore.vo.CarGroupListVO;
@@ -38,7 +39,7 @@ public class CarGroupController {
     private TokenService tokenService;
 
     /**
-     * 新增车队
+     * 新增车队（车队作为部门，同时也要新增部门 ）
      * @param  carGroupDTO 车队信息
      * @return
      */
@@ -81,7 +82,7 @@ public class CarGroupController {
      */
     @ApiOperation(value = "updateCarGroup",notes = "修改车队",httpMethod ="POST")
     @PostMapping("/updateCarGroup")
-    public ApiResponse<CarGroupDetailVO> updateCarGroup(@RequestBody CarGroupDTO carGroupDTO){
+    public ApiResponse updateCarGroup(@RequestBody CarGroupDTO carGroupDTO){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
@@ -90,7 +91,24 @@ public class CarGroupController {
             return ApiResponse.success("修改成功");
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("删除车队失败");
+            return ApiResponse.error("修改车队失败");
+        }
+    }
+
+    /**
+     * 删除车队
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "deleteCarGroup",notes = "修改车队",httpMethod ="POST")
+    @PostMapping("/deleteCarGroup")
+    public ApiResponse deleteCarGroup(@RequestBody CarGroupDTO carGroupDTO){
+        try {
+            carGroupInfoService.deleteCarGroup(carGroupDTO.getCarGroupId());
+            return ApiResponse.success("删除成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
         }
     }
 
@@ -101,7 +119,7 @@ public class CarGroupController {
      */
     @ApiOperation(value = "disableCarGroup",notes = "禁用车队",httpMethod ="POST")
     @PostMapping("/disableCarGroup")
-    public ApiResponse<CarGroupDetailVO> disableCarGroup(Long carGroupId){
+    public ApiResponse disableCarGroup(Long carGroupId){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
@@ -135,7 +153,7 @@ public class CarGroupController {
     }
 
     /**
-     * 分页全部查询车队列表
+     * 分页全部查询车队列表（带搜索功能）
      * @param
      * @return
      */
@@ -143,11 +161,29 @@ public class CarGroupController {
     @PostMapping("/getCarGroupList")
     public ApiResponse<PageResult<CarGroupListVO>> getCarGroupList(@RequestBody PageRequest pageRequest){
         try {
-            PageResult<CarGroupListVO> list = carGroupInfoService.selectCarGroupInfoByPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+            PageResult<CarGroupListVO> list = carGroupInfoService.selectCarGroupInfoByPage(pageRequest.getPageNum(),
+                    pageRequest.getPageSize(),pageRequest.getSearch());
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("启用车队失败");
+            return ApiResponse.error("查询车队列表失败");
+        }
+    }
+
+    /**
+     * 查询下级车队列表
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getSubCarGroupList",notes = "启用车队",httpMethod ="POST")
+    @PostMapping("/getSubCarGroupList")
+    public ApiResponse<List<CarGroupListVO>> getSubCarGroupList(@RequestBody SubGroupListDTO subGroupListDTO){
+        try {
+            List<CarGroupListVO> list = carGroupInfoService.selectSubCarGroupInfoList(subGroupListDTO.getDeptId());
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询下级车队列表失败");
         }
     }
 }

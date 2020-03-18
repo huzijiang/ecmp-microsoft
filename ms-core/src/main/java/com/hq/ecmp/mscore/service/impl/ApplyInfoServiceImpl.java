@@ -506,7 +506,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @return
      */
     @Override
-    public List<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
+    public PageInfo<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
         PageHelper.startPage(pageIndex,pageSize);
         List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
         List<ApprovaReesultVO> approvaReesultVOs=new ArrayList<>();
@@ -543,7 +543,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 approvaReesultVOs.add(vo);
             }
         }
-        return approvaReesultVOs;
+        return new PageInfo<>(approvaReesultVOs);
     }
 
     /**

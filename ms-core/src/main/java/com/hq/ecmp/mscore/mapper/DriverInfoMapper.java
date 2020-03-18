@@ -78,6 +78,7 @@ public interface DriverInfoMapper
      */
     public int queryCompanyDriver();
 
+
     DriverInfo selectDriverInfoByUserId(Long userId);
 
     /**
@@ -113,4 +114,11 @@ public interface DriverInfoMapper
     public int driverItisExist(String phoneNumber);
 
 
+
+    /**
+     * 禁用驾驶员
+     * @param driverId
+     * @return
+     */
+    int disableDriver(Long driverId);
 }

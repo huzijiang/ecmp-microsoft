@@ -61,7 +61,7 @@ public interface CarGroupInfoMapper
      */
     public int deleteCarGroupInfoByIds(Long[] carGroupIds);
 
-    List<CarGroupListVO> selectAllByPage();
+    List<CarGroupListVO> selectAllByPage(String search);
 
 
     /**
@@ -71,4 +71,11 @@ public interface CarGroupInfoMapper
      * @return 结果
      */
     public int selectCountByOrgdeptId(Long deptId);
+
+    /**
+     * 查询下级车队列表
+     * @param deptId
+     * @return
+     */
+    List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);
 }

@@ -299,7 +299,7 @@ public class ApplyContoller {
     /**
      * 行程申请-驳回
      * @param journeyApplyDto  行程申请信息
-     * @param userDto  审批人信息
+     * @param
      * @return
      */
     @ApiOperation(value = "applyReject",notes = "行程申请-驳回",httpMethod ="POST")

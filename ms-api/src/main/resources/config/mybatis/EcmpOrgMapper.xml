@@ -341,4 +341,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       (SELECT count(*) from  ecmp_user where dept_id=#{deptId} and del_flag=0) as numOfSub
       from  ecmp_org where dept_id=#{deptId}
     </select>
+    <select id="selectCountByParentId" resultType="int">
+        select count(1) from ecmp_org where parent_id = #{parentId}
+    </select>
 </mapper>
