@@ -326,4 +326,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="dept_id != null  and dept_id != ''"> and dept_id = #{deptId}</if>
         and user_id= #{userId}
     </select>
+    <select id="userItisExist"  resultType="java.lang.Integer">
+          select count(*) from ecmp_user  where phonenumber=#{phoneNumber}
+    </select>
 </mapper>

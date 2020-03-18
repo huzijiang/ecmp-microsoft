@@ -164,7 +164,9 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 						//查询对应的公务出差理由
 						applyInfo.setJourneyId(journeyInfo.getJourneyId());
 						List<ApplyInfo> applyInfoList = applyInfoService.selectApplyInfoList(applyInfo);
-						carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
+						if(null !=applyInfoList && applyInfoList.size()>0){
+							carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
+						}	
 					}
 				}
 				carAuthorityInfoList.add(carAuthorityInfo);	
@@ -197,13 +199,14 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	public MessageDto getJourneyMessage(Long userId) {
 		return journeyInfoMapper.getJourneyMessage(userId);
 	}
+
 	/**
 	 * 获取正在进行中的行程
 	 * @param userId
 	 * @return list
 	 */
 	@Override
-	public List<JourneyVO> getJourneyList(Long userId){
+	public List<JourneyVO> getJourneyList(String userId){
 
 		return journeyInfoMapper.getJourneyList(userId);
 	}
@@ -214,7 +217,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	 * @return list
 	 */
 	@Override
-	public int getJourneyListCount(Long userId) {
+	public int getJourneyListCount(String userId) {
 		return journeyInfoMapper.getJourneyListCount(userId);
 	}
 	/**

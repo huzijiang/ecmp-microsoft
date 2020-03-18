@@ -96,12 +96,12 @@ public class EcmpEnterpriseInfo extends BaseEntity
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("enterpriseId", getEnterpriseId())
-            .append("deptId", getDeptId())
-            .append("name", getName())
-            .append("address", getAddress())
-            .append("mobile", getMobile())
-            .append("uscc", getUscc())
-            .toString();
+                .append("enterpriseId", getEnterpriseId())
+                .append("deptId", getDeptId())
+                .append("name", getName())
+                .append("address", getAddress())
+                .append("mobile", getMobile())
+                .append("uscc", getUscc())
+                .toString();
     }
 }

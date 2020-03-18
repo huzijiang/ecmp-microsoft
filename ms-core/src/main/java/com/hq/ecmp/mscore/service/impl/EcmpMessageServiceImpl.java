@@ -7,17 +7,16 @@ import com.hq.common.exception.BaseException;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.MsgConstant;
-import com.hq.ecmp.constant.MsgStatusConstant;
-import com.hq.ecmp.constant.MsgTypeConstant;
-import com.hq.ecmp.constant.MsgUserConstant;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.EcmpMessage;
+import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverWorkInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpMessageMapper;
+import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpMessageService;
 import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,6 +43,8 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
     private IApproveTemplateNodeInfoService approveTemplateNodeInfoService;
     @Autowired
     private DriverInfoMapper driverInfoMapper;
+    @Autowired
+    private OrderInfoMapper orderInfoMapper;
 
     /**
      * 通过ID查询单条数据
@@ -202,6 +203,10 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         if (CollectionUtils.isNotEmpty(list)){
             for (MessageDto messageDto:list){
                 messageDto.setMessageTypeStr(MsgConstant.getDespByType(messageDto.getMessageType()));
+                if (MsgConstant.MESSAGE_T006.getType().equals(messageDto.getMessageType())){
+                    OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(messageDto.getMessageId());
+                    messageDto.setUseCarMode(orderInfo.getUseCarMode());
+                }
             }
         }
         return list;
@@ -225,6 +230,9 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
                 messageDto.setMessageTypeStr(MsgConstant.getDespByType(messageDto.getMessageType()));
             }
         }
+        //获取即将任务开始的通知
+        OrderInfo info=orderInfoMapper.selectDriverOrder(driverInfo.getDriverId(), OrderState.ALREADYSENDING.getState());
+        runMessageForDrive.add(new MessageDto(info.getOrderId(),MsgConstant.MESSAGE_T00.getType(),MsgConstant.MESSAGE_T00.getDesp(),1));
         return runMessageForDrive;
     }
 
@@ -246,6 +254,8 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         }
         //通知调度员,通知申请人审批通过
         List<EcmpMessage> list=new ArrayList<>();
+        //判断申请用车城市是否有我车队组织
+
         EcmpMessage message=new EcmpMessage();
         message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T002.getType());
         message.setCategory(MsgConstant.MESSAGE_T001.getType());

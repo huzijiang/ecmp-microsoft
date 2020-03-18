@@ -78,7 +78,10 @@ public interface IEcmpUserService {
      * @return
      */
     public int  queryCompanyEmpCunt();
-    
+    /**
+     * 员工邀请判断是否该手机号是否已经注册
+     */
+    public int userItisExist(String phoneNumber);
 
     /*
      * 获取上级组织id中的员工姓名和电话
@@ -153,4 +156,10 @@ public interface IEcmpUserService {
     * */
     public List<EcmpUserDto> selectDimissionList(Long deptId);
 
+    /**
+     * 给员工设置用车制度
+     * @param userId
+     * @param regimenIds
+     */
+    void bindUserRegimens(Long userId, List<Long> regimenIds) throws Exception;
 }

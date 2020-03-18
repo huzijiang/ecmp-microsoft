@@ -28,6 +28,7 @@ public class ApprovaReesultVO {
     private String state;
     //用车原因
     private String reason;
+    private String content;
     private String title;
     //申请人
     private String applyName;

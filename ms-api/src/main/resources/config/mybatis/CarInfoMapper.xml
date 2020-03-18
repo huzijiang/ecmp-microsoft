@@ -16,7 +16,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carColor"    column="car_color"    />
         <result property="carLicenseColor"    column="car_license_color"    />
         <result property="powerType"    column="power_type"    />
-        <result property="carType01"    column="car_type_01"    />
+        <result property="carType"    column="car_type"    />
         <result property="engineNumber"    column="engine_number"    />
         <result property="engineCc"    column="engine_cc"    />
         <result property="enginePower"    column="engine_power"    />
@@ -26,7 +26,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carLicenseImageUrl"    column="car_license_image_url"    />
         <result property="buyDate"    column="buy_date"    />
         <result property="rentEndDate"    column="rent_end_date"    />
-        <result property="ownerOrgId"    column="owner_org_id"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -34,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCarInfoVo">
-        select car_id, car_group_id, dept_id, car_type_id, car_license, state, car_type, seat_num, car_color, car_license_color, power_type, car_type_01, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, owner_org_id, create_by, create_time, update_by, update_time from car_info
+        select car_id, car_group_id, dept_id, car_type_id, car_license, state, car_type, seat_num, car_color, car_license_color, power_type, car_type, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, create_by, create_time, update_by, update_time from car_info
     </sql>
 
     <select id="selectCarInfoList" parameterType="com.hq.ecmp.mscore.domain.CarInfo" resultMap="CarInfoResult">
@@ -50,7 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''"> and car_color = #{carColor}</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''"> and car_license_color = #{carLicenseColor}</if>
             <if test="powerType != null  and powerType != ''"> and power_type = #{powerType}</if>
-            <if test="carType01 != null  and carType01 != ''"> and car_type_01 = #{carType01}</if>
+            <if test="carType != null  and carType != ''"> and car_type = #{carType}</if>
             <if test="engineNumber != null  and engineNumber != ''"> and engine_number = #{engineNumber}</if>
             <if test="engineCc != null  and engineCc != ''"> and engine_cc = #{engineCc}</if>
             <if test="enginePower != null  and enginePower != ''"> and engine_power = #{enginePower}</if>
@@ -86,7 +85,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''">car_color,</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">car_license_color,</if>
             <if test="powerType != null  and powerType != ''">power_type,</if>
-            <if test="carType01 != null  and carType01 != ''">car_type_01,</if>
+            <if test="carType != null  and carType != ''">car_type,</if>
             <if test="engineNumber != null  and engineNumber != ''">engine_number,</if>
             <if test="engineCc != null  and engineCc != ''">engine_cc,</if>
             <if test="enginePower != null  and enginePower != ''">engine_power,</if>
@@ -118,7 +117,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''">#{carColor},</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">#{carLicenseColor},</if>
             <if test="powerType != null  and powerType != ''">#{powerType},</if>
-            <if test="carType01 != null  and carType01 != ''">#{carType01},</if>
+            <if test="carType != null  and carType != ''">#{carType},</if>
             <if test="engineNumber != null  and engineNumber != ''">#{engineNumber},</if>
             <if test="engineCc != null  and engineCc != ''">#{engineCc},</if>
             <if test="enginePower != null  and enginePower != ''">#{enginePower},</if>
@@ -153,7 +152,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''">car_color = #{carColor},</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">car_license_color = #{carLicenseColor},</if>
             <if test="powerType != null  and powerType != ''">power_type = #{powerType},</if>
-            <if test="carType01 != null  and carType01 != ''">car_type_01 = #{carType01},</if>
+            <if test="carType != null  and carType != ''">car_type = #{carType},</if>
             <if test="engineNumber != null  and engineNumber != ''">engine_number = #{engineNumber},</if>
             <if test="engineCc != null  and engineCc != ''">engine_cc = #{engineCc},</if>
             <if test="enginePower != null  and enginePower != ''">engine_power = #{enginePower},</if>
@@ -194,4 +193,47 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectCarCountByDeptId" parameterType="java.lang.Long" resultType="java.lang.Integer">
         select count(1)from  car_info where dept_id = #{deptId}
     </select>
+
+    <select id="locationCars" parameterType="com.hq.ecmp.mscore.dto.CarLocationDto" resultType="com.hq.ecmp.mscore.vo.CarLocationVo">
+
+                select dhi.longitude ,
+                        dhi.latitude,
+                        ecti.`level`,
+                        c.car_type,
+                        c.car_color,
+                        c.car_license,
+                        o.state,
+                        o.order_id,
+                        o.driver_name,
+                        o.driver_mobile
+                from car_info c
+                left  join order_info o on o.car_id=c.car_id
+                left  join
+                (	select d1.* from driver_heartbeat_info d1,
+                (select dd.driver_id,dd.order_id,max(dd.create_time) mtime from driver_heartbeat_info dd
+                group by dd.driver_id,dd.order_id) d2
+                where d1.driver_id=d2.driver_id and d1.order_id=d2.order_id and d1.create_time=d2.mtime ) dhi
+                on dhi.driver_id=o.driver_id and dhi.order_id=o.order_id
+                left join enterprise_car_type_info ecti on ecti.car_type_id=c.car_type_id
+                left join car_group_info cgi on cgi.car_group_id=c.car_group_id
+                <where>
+                    o.state in(
+                    'S299','S500','S600','S616'
+                    )
+                    <if test="carLevel != null ">   and ecti.`level`= #{carLevel}</if>
+                    <if test="carLicense != null ">   and c.car_license like CONCAT('%',#{carLicense},'%')</if>
+                    <if test="powerType != null ">    and c.power_type=#{powerType}</if>
+                    <if test="assetTag != null ">     and c.asset_tag like CONCAT('%',#{assetTag},'%')</if>
+                    <if test="carSource != null ">    and c.source=#{carSource}</if>
+                    <if test="carState != null ">    and c.state=#{carState}</if>
+                    <if test="cityId != null ">    and cgi.city=#{cityId}</if>
+                </where>
+    </select>
+
+    <select id="selectGroupEffectiveCarIds" resultType="java.lang.Long" parameterType="long">
+        select car_id  from car_info where car_group_id = #{carGropuId} and state = 'S001'
+    </select>
+    <update id="disableCarByCarId" parameterType="long" >
+        update car_info set state = 'S001' where car_id = #{carId}
+    </update>
 </mapper>

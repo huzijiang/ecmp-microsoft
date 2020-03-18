@@ -8,6 +8,7 @@ import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
@@ -30,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -390,7 +392,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         List<UserEmergencyContactInfo> contactInfos = userEmergencyContactInfoMapper.queryAll(new UserEmergencyContactInfo(journeyInfo.getUserId()));
         String isAddContact=CollectionUtils.isEmpty(contactInfos)?"否":"是";
         vo.setIsAddContact(isAddContact);
-        if(CarModeEnum.ORDER_MODE_HAVE.getKey().equals(orderInfo.getState())){//自有车
+        //TODO 查询企业配置是否自动行程确认/异议
+        if(CarModeEnum.ORDER_MODE_HAVE.getKey().equals(orderInfo.getUseCarMode())){//自有车
             //查询车辆信息
             CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
             if (carInfo!=null){
@@ -401,10 +404,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setDriverScore(driverInfo.getStar()+"");
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
                 //服务结束后获取里程用车时长
-                List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo());
+                List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
                     vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
                     vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime()));
+                    vo.setAmount(orderSettlingInfos.get(0).getAmount().toPlainString());
                 }
             }
         }else{
@@ -419,21 +423,28 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 //                JSONObject data = getThirdPartyOrderState(orderId);
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
-                    OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
-                    JSONObject jsonObject = JSONObject.parseObject(orderSettlingInfo.getAmountDetail());
-                    String disMoney = jsonObject.getString("disMoney");//原价
-                    String distance = jsonObject.getString("distance");//里程
-                    String distanceFee = jsonObject.getString("distanceFee");//里程费
-                    String duration = jsonObject.getString("duration");//时长(分钟)
-                    String durationFee = jsonObject.getString("durationFee");//时长费
-                    String overDistancePrice = jsonObject.getString("overDistancePrice");//每公里单据
-                    vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
-                    vo.setDisMoney(disMoney);
-                    vo.setDistance(distance+"公里");
-                    vo.setDistanceFee(distanceFee);
-                    vo.setDuration(DateFormatUtils.formatMinute(StringUtils.isNotEmpty(duration)?Integer.parseInt(duration):0));
-                    vo.setDurationFee(durationFee);
-                    vo.setOverDistancePrice(overDistancePrice);
+//                    OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
+//                    JSONObject jsonObject = JSONObject.parseObject(orderSettlingInfo.getAmountDetail());
+//                    String disMoney = jsonObject.getString("disMoney");//原价
+//                    String distance = jsonObject.getString("distance");//里程
+//                    String distanceFee = jsonObject.getString("distanceFee");//里程费
+//                    String duration = jsonObject.getString("duration");//时长(分钟)
+//                    String durationFee = jsonObject.getString("durationFee");//时长费
+//                    String overDistancePrice = jsonObject.getString("overDistancePrice");//每公里单据
+//                    vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
+//                    vo.setDisMoney(disMoney);
+//                    vo.setDistance(distance+"公里");
+//                    vo.setDistanceFee(distanceFee);
+//                    vo.setDuration(DateFormatUtils.formatMinute(StringUtils.isNotEmpty(duration)?Integer.parseInt(duration):0));
+//                    vo.setDurationFee(durationFee);
+//                    vo.setOverDistancePrice(overDistancePrice);
+                    vo.setAmount("102");
+                    vo.setDisMoney("25");
+                    vo.setDistance("12.5公里");
+                    vo.setDistanceFee("30");
+                    vo.setDuration("1小时50分");
+                    vo.setDurationFee("102");
+                    vo.setOverDistancePrice("8.2");
                 }
             }
         }
@@ -470,6 +481,22 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderId(orderId);
         try {
+            boolean reassignment = iOrderStateTraceInfoService.isReassignment(orderId);
+            //改派的订单需要操作改派同意,是否车和司机
+            if(reassignment){
+                OrderInfo orderInfoRe = new OrderInfo();
+                orderInfoRe.setState(OrderState.WAITINGLIST.getState());
+                orderInfoRe.setUpdateBy(String.valueOf(userId));
+                orderInfoRe.setOrderId(orderId);
+                orderInfoRe.setUpdateTime(DateUtils.getNowDate());
+                orderInfoMapper.updateOrderInfo(orderInfoRe);
+                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+                orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+                orderStateTraceInfo.setState(ResignOrderTraceState.AGREE.getState());
+                orderStateTraceInfo.setOrderId(orderId);
+                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            }
+
             //MAC地址
             List<String> macList = MacTools.getMacList();
             String macAdd = macList.get(0);
@@ -839,11 +866,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public OrderStateVO getOrderState(Long orderId) {
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
-        RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(orderInfo.getPowerId());
-        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId,regimeInfo.getRegimenType());
-        orderState.setApplyType(regimeInfo.getRegimenType());
+        JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
+        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId,applyInfo.getApplyType());
+        orderState.setApplyType(applyInfo.getApplyType());
         orderState.setCharterCarType(CharterTypeEnum.format(orderState.getCharterCarType()));
-        return orderState;
+        List<JourneyPlanPriceInfo> journeyPlanPriceInfos = iJourneyPlanPriceInfoService.selectJourneyPlanPriceInfoList(new JourneyPlanPriceInfo(orderId));
+        if(!CollectionUtils.isEmpty(journeyPlanPriceInfos)){
+            orderState.setPlanPrice(journeyPlanPriceInfos.get(0).getPrice().toPlainString());
+        }
+    return orderState;
     }
 
     @Override
@@ -967,6 +999,74 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             throw new Exception("获取网约车信息失败");
         }
         return data;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    public void applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto, Long userId) throws ParseException {
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setOrderId(applyUseWithTravelDto.getOrderId());
+        //手动下单，订单状态变为待派单
+        orderInfo.setState(OrderState.WAITINGLIST.getState());
+        String type = applyUseWithTravelDto.getType();
+        orderInfo.setDemandCarLevel(applyUseWithTravelDto.getGroupId());
+        if(OrderServiceType.ORDER_SERVICE_TYPE_NOW.getPrState().equals(type) || OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getPrState().equals(type)){
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
+        }else if(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getPrState().equals(type)){
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState());
+            orderInfo.setFlightNumber(applyUseWithTravelDto.getAirlineNum());
+            SimpleDateFormat si = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date planDate = si.parse(applyUseWithTravelDto.getPlanDate());
+            orderInfo.setFlightPlanTakeOffTime(planDate);
+        }else if(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getPrState().equals(type)){
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState());
+        }else{
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState());
+        }
+        orderInfo.setUpdateTime(DateUtils.getNowDate());
+        orderInfoMapper.updateOrderInfo(orderInfo);
+        //订单轨迹
+        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
+        //订单地址表
+        OrderInfo orderInfoOld = orderInfoMapper.selectOrderInfoById(applyUseWithTravelDto.getOrderId());
+        String startPoint = applyUseWithTravelDto.getStartPoint();
+        String endPoint = applyUseWithTravelDto.getEndPoint();
+        String[] start = startPoint.split("\\,");
+        String[] end = endPoint.split("\\,");
+
+        OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+        orderAddressInfo.setOrderId(orderInfoOld.getOrderId());
+        orderAddressInfo.setJourneyId(orderInfoOld.getJourneyId());
+        orderAddressInfo.setNodeId(orderInfoOld.getNodeId());
+        orderAddressInfo.setPowerId(orderInfoOld.getPowerId());
+        orderAddressInfo.setUserId(orderInfoOld.getUserId()+"");
+        orderAddressInfo.setCityPostalCode(applyUseWithTravelDto.getCityId());
+        if(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getPrState().equals(type)){
+            String depCode = applyUseWithTravelDto.getDepCode();
+            String arrCode = applyUseWithTravelDto.getArrCode();
+            orderAddressInfo.setIcaoCode(arrCode+","+depCode);
+        }
+        orderAddressInfo.setCreateBy(userId+"");
+        //起点
+        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = sdf.parse(applyUseWithTravelDto.getBookingDate());
+        orderAddressInfo.setActionTime(date);
+        orderAddressInfo.setLongitude(Double.parseDouble(start[0]));
+        orderAddressInfo.setLatitude(Double.parseDouble(start[1]));
+        orderAddressInfo.setAddress(applyUseWithTravelDto.getStartAddr());
+        orderAddressInfo.setAddressLong(applyUseWithTravelDto.getStarAddrLong());
+
+
+        iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+        //终点
+        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+        orderAddressInfo.setActionTime(null);
+        orderAddressInfo.setLongitude(Double.parseDouble(end[0]));
+        orderAddressInfo.setLatitude(Double.parseDouble(end[1]));
+        orderAddressInfo.setAddress(applyUseWithTravelDto.getEndAddr());
+        orderAddressInfo.setAddressLong(applyUseWithTravelDto.getEndAddrLong());
+        iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
     }
 
 	@Override

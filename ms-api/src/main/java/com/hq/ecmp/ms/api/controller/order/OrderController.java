@@ -674,68 +674,11 @@ public class OrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setOrderId(applyUseWithTravelDto.getOrderId());
-            //手动下单，订单状态变为待派单
-            orderInfo.setState(OrderState.WAITINGLIST.getState());
-            String type = applyUseWithTravelDto.getType();
-            orderInfo.setDemandCarLevel(applyUseWithTravelDto.getGroupId());
-            if(OrderServiceType.ORDER_SERVICE_TYPE_NOW.getPrState().equals(type) || OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getPrState().equals(type)){
-                orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
-            }else if(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getPrState().equals(type)){
-                orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState());
-                orderInfo.setFlightNumber(applyUseWithTravelDto.getAirlineNum());
-                SimpleDateFormat si = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date planDate = si.parse(applyUseWithTravelDto.getPlanDate());
-                orderInfo.setFlightPlanTakeOffTime(planDate);
-            }else if(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getPrState().equals(type)){
-                orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState());
-            }else{
-                orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState());
+            OrderInfo orderInfo = iOrderInfoService.selectOrderInfoById(applyUseWithTravelDto.getOrderId());
+            if(orderInfo.getState().equals(OrderState.WAITINGLIST.getState())){
+                return ApiResponse.error("正在派车中，请勿重复申请派车");
             }
-            iOrderInfoService.updateOrderInfo(orderInfo);
-            //订单轨迹
-            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
-            //订单地址表
-            OrderInfo orderInfoOld = iOrderInfoService.selectOrderInfoById(applyUseWithTravelDto.getOrderId());
-            String startPoint = applyUseWithTravelDto.getStartPoint();
-            String endPoint = applyUseWithTravelDto.getEndPoint();
-            String[] start = startPoint.split("\\,");
-            String[] end = endPoint.split("\\,");
-
-            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
-            orderAddressInfo.setOrderId(orderInfoOld.getOrderId());
-            orderAddressInfo.setJourneyId(orderInfoOld.getJourneyId());
-            orderAddressInfo.setNodeId(orderInfoOld.getNodeId());
-            orderAddressInfo.setPowerId(orderInfoOld.getPowerId());
-            orderAddressInfo.setUserId(orderInfoOld.getUserId()+"");
-            orderAddressInfo.setCityPostalCode(applyUseWithTravelDto.getCityId());
-            if(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getPrState().equals(type)){
-                String depCode = applyUseWithTravelDto.getDepCode();
-                String arrCode = applyUseWithTravelDto.getArrCode();
-                orderAddressInfo.setIcaoCode(arrCode+","+depCode);
-            }
-            orderAddressInfo.setCreateBy(userId+"");
-            //起点
-            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date date = sdf.parse(applyUseWithTravelDto.getBookingDate());
-            orderAddressInfo.setActionTime(date);
-            orderAddressInfo.setLongitude(Double.parseDouble(start[0]));
-            orderAddressInfo.setLatitude(Double.parseDouble(start[1]));
-            orderAddressInfo.setAddress(applyUseWithTravelDto.getStartAddr());
-            orderAddressInfo.setAddressLong(applyUseWithTravelDto.getStarAddrLong());
-
-
-            iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
-            //终点
-            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
-            orderAddressInfo.setActionTime(null);
-            orderAddressInfo.setLongitude(Double.parseDouble(end[0]));
-            orderAddressInfo.setLatitude(Double.parseDouble(end[1]));
-            orderAddressInfo.setAddress(applyUseWithTravelDto.getEndAddr());
-            orderAddressInfo.setAddressLong(applyUseWithTravelDto.getEndAddrLong());
-            iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+            iOrderInfoService.applyUseCarWithTravel(applyUseWithTravelDto,userId);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("申请派车失败");
@@ -802,8 +745,8 @@ public class OrderController {
         Long userId = loginUser.getUser().getUserId();
         try {
             OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderDto.getOrderId());
-            orderVO.setDriverLongitude("116.801949");
-            orderVO.setDriverLatitude("39.62437");
+            orderVO.setDriverLongitude("116.786324");
+            orderVO.setDriverLatitude("39.563521");
             //TODO 记得生产放开
 //            if (CarConstant.USR_CARD_MODE_HAVE.equals(orderVO.getUseCarMode())){//自有车
 //                DriverHeartbeatInfo driverHeartbeatInfo = driverHeartbeatInfoService.findNowLocation(orderVO.getDriverId(), orderDto.getOrderId());
