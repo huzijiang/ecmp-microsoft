@@ -199,6 +199,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	public MessageDto getJourneyMessage(Long userId) {
 		return journeyInfoMapper.getJourneyMessage(userId);
 	}
+
 	/**
 	 * 获取正在进行中的行程
 	 * @param userId
