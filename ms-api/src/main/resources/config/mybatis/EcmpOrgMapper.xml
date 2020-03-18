@@ -113,6 +113,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into ecmp_org
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="parentId != null ">parent_id,</if>
+            <if test="deptCode != null ">dept_code,</if>
             <if test="companyId != null ">company_id,</if>
             <if test="ancestors != null  and ancestors != ''">ancestors,</if>
             <if test="deptName != null  and deptName != ''">dept_name,</if>
@@ -130,6 +131,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="parentId != null ">#{parentId},</if>
+            <if test="deptCode != null ">#{deptCode},</if>
             <if test="companyId != null ">#{companyId},</if>
             <if test="ancestors != null  and ancestors != ''">#{ancestors},</if>
             <if test="deptName != null  and deptName != ''">#{deptName},</if>

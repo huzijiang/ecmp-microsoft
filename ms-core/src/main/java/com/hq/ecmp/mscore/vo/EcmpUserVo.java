@@ -84,4 +84,10 @@ public class EcmpUserVo {
 
     @ApiModelProperty(value = "再次输入的手机号")
     private String reWritePhone;
+
+    @ApiModelProperty(value= "驻地代码")
+    private String stationCode;
+
+    @ApiModelProperty(value= "用车制度id")
+    private String regimenId;
 }

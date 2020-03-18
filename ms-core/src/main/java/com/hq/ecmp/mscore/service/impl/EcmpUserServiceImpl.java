@@ -73,7 +73,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public int updateEcmpUser(EcmpUserVo ecmpUser) {
         ecmpUser.setUpdateTime(DateUtils.getNowDate());
-        //ecmpUserMapper.updateUserRegimeRelation(ecmpUser);
+        ecmpUserMapper.updateUserRegimeRelation(ecmpUser);
         return ecmpUserMapper.updateEcmpUser(ecmpUser);
     }
 
@@ -148,13 +148,13 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     /**
      * 禁用/启用  员工
      *
-     * @param deptId 部门ID
+     * @param userId 员工ID
      * @return 结果
      */
     @Transactional
-    public String updateUseStatus(String status,Long deptId){
+    public String updateUseStatus(String status,Long userId){
         //禁用/启用  员工
-        int i1 = ecmpUserMapper.updateUseStatus(deptId, status);
+        int i1 = ecmpUserMapper.updateUseStatus(userId, status);
         if("0".equals(status)){
             return "启用成功！";
         }
@@ -184,9 +184,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public List<EcmpUserDto> getEcmpUserList(Long deptId){
         List<EcmpUserDto> ecmpUserList = new ArrayList<>();
-        Long [] arr= ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
-        for (int i = 0; i < arr.length; i++) {
-            ecmpUserList = ecmpUserMapper.getEcmpUserList(deptId,arr[i]);
+        Long [] deptIds= ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
+        for (int i = 0; i < deptIds.length; i++) {
+            ecmpUserList = ecmpUserMapper.getEcmpUserList(deptId,deptIds[i]);
         }
         return ecmpUserList;
     }
@@ -232,21 +232,26 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @param  dimissionTime
      * @return
     * */
-    public int updateDimissionTime(Date dimissionTime){
-        return ecmpUserMapper.updateDimissionTime(dimissionTime);
+    public int updateDimissionTime(Date dimissionTime,Long userId){
+        return ecmpUserMapper.updateDimissionTime(dimissionTime,userId);
     }
 
     /*已离职数量*/
     @ApiOperation(value = "已离职数量",notes = "已离职数量",httpMethod ="POST")
     @PostMapping("/selectDimissionCount")
-    public int selectDimissionCount(Long userId){
-        return ecmpUserMapper.selectDimissionCount(userId);
+    public int selectDimissionCount(){
+        return ecmpUserMapper.selectDimissionCount();
     }
 
     /*已离职数量*/
     @ApiOperation(value = "已离职列表",notes = "已离职列表",httpMethod ="POST")
     @PostMapping("/selectDimissionList")
-    public List<EcmpUserDto> selectDimissionList(Long userId){
-        return ecmpUserMapper.selectDimissionList(userId);
+    public List<EcmpUserDto> selectDimissionList(Long deptId){
+        List<EcmpUserDto> ecmpUserList=null;
+        Long[] userIds= ecmpUserMapper.selectDimissionEcmpUserIds();
+        for (int i = 0; i < userIds.length; i++) {
+            ecmpUserList = ecmpUserMapper.selectDimissionList(deptId,userIds[i]);
+        }
+        return ecmpUserList;
     }
 }

@@ -59,4 +59,7 @@ public class EcmpUserDto {
 
     @ApiModelProperty(value= "是否车队调度(0否 1是)")
     private String itIsDispatcher;
+
+    @ApiModelProperty(value= "驻地代码")
+    private String stationCode;
 }
