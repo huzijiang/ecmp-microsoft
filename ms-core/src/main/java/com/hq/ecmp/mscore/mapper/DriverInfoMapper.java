@@ -78,10 +78,10 @@ public interface DriverInfoMapper
      */
     public int queryCompanyDriver();
 
-
     DriverInfo selectDriverInfoByUserId(Long userId);
 
     /**
+     * Updated upstream
      * 根据deptId查询归属驾驶员数量
      *
      * @param deptId 组织id
@@ -104,10 +104,13 @@ public interface DriverInfoMapper
      * @return
      */
     DriverInfo selectEffectiveDriverInfoById(Long driverId);
+
     /**
      *
      * @param phoneNumber
      * @return
      */
     public int driverItisExist(String phoneNumber);
+
+
 }

@@ -152,6 +152,7 @@ public interface EcmpUserMapper
     public EcmpUserDto selectEcmpUserDetail(Long userId);
 
     public int  queryCompanyEmp();
+<<<<<<< Updated upstream
 
     /*设置离职日期
     @param  dimissionTime
@@ -170,9 +171,11 @@ public interface EcmpUserMapper
      * @return
     * */
     public List<EcmpUserDto> selectDimissionList(Long userId);
+=======
     /**
      * 员工邀请判断是否该手机号是否已经注册
      */
     public int userItisExist(String phoneNumber);
+>>>>>>> Stashed changes
 }
 

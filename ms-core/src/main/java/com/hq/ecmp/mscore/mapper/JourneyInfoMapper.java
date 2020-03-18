@@ -72,12 +72,12 @@ public interface JourneyInfoMapper
      * @param userId
      * @return list
      */
-    public List<JourneyVO> getJourneyList(Long userId);
+    public List<JourneyVO> getJourneyList(String userId);
 
     /**
      * 获取正在进行中的行程个数
      * @param userId
      * @return 个数
      */
-    int getJourneyListCount(@Param("userId")Long userId);
+    int getJourneyListCount(@Param("userId")String userId);
 }

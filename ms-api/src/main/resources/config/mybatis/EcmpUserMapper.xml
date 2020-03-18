@@ -253,10 +253,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where
         del_flag='0'
         <if test="dept_id != null  and dept_id != ''"> and dept_id = #{deptId}</if>
-=======
-    <select id="userItisExist"  resultType="java.lang.Integer">
-          select count(*) from ecmp_user  where phonenumber=#{phoneNumber}
->>>>>>> Stashed changes
     </select>
 
     <!--根据deptId和deptType删除信息-->
@@ -301,10 +297,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where
         del_flag='0'
         <if test="dept_id != null  and dept_id != ''"> and dept_id = #{deptId}</if>
-
-    </select>
+=======
     <select id="userItisExist"  resultType="java.lang.Integer">
           select count(*) from ecmp_user  where phonenumber=#{phoneNumber}
-
+>>>>>>> Stashed changes
     </select>
 </mapper>

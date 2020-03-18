@@ -8,10 +8,10 @@ import com.hq.core.web.domain.BaseEntity;
  * (EcmpEnterpriseInvitationInfo)实体类
  *
  * @author makejava
- * @since 2020-03-18 17:25:07
+ * @since 2020-03-17 18:09:52
  */
-public class EcmpEnterpriseInvitationInfo implements Serializable {
-    private static final long serialVersionUID = 892509722520684530L;
+public class EcmpEnterpriseInvitationInfo  extends BaseEntity {
+    private static final long serialVersionUID = 1L;
     
     private Long invitationId;
     
@@ -35,13 +35,7 @@ public class EcmpEnterpriseInvitationInfo implements Serializable {
     
     private String state;
     
-    private Integer createBy;
-    
-    private Date createTime;
-    
-    private Long updateBy;
-    
-    private Date updateTime;
+
 
 
     public Long getInvitationId() {
@@ -124,36 +118,6 @@ public class EcmpEnterpriseInvitationInfo implements Serializable {
         this.state = state;
     }
 
-    public Integer getCreateBy() {
-        return createBy;
-    }
 
-    public void setCreateBy(Integer createBy) {
-        this.createBy = createBy;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Long getUpdateBy() {
-        return updateBy;
-    }
-
-    public void setUpdateBy(Long updateBy) {
-        this.updateBy = updateBy;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
 
 }

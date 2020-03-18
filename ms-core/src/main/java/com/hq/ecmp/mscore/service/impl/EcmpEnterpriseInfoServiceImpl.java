@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInfoMapper;
-import com.hq.ecmp.mscore.service.IEcmpEnterpriseInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

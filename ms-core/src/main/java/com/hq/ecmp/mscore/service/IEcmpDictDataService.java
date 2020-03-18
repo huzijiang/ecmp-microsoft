@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.ecmp.mscore.domain.DictQuery;
+import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.EcmpDictData;
 
 import java.util.List;
@@ -70,11 +72,11 @@ public interface IEcmpDictDataService
      * 评价标签的好评
      * @return 字典数据集合
      */
-    public List<EcmpDictData> selectEcmpDictDataByTypeGOOD();
+    //public List<EcmpDictData> selectEcmpDictDataByTypeGOOD(DictQuery dictQuery);
 
     /**
      * 评价标签的差评
      * @return 字典数据集合
      */
-    public List<EcmpDictData> selectEcmpDictDataByTypeBAD();
+   // public List<EcmpDictData> selectEcmpDictDataByTypeBAD();
 }
