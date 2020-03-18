@@ -78,6 +78,20 @@ public class ApplyContoller {
     }
 
     /**
+     * 审批列表
+     * @param approveInfoDTO
+     * @return
+     */
+    @ApiOperation(value = "getApprovePage",notes = "审批列表 ",httpMethod ="POST")
+    @PostMapping("/getApprovePage")
+    public ApiResponse<PageInfo<ApprovaReesultVO>> getApprovePage(ApproveInfoDTO approveInfoDTO){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId=loginUser.getUser().getUserId();
+        PageInfo<ApprovaReesultVO> page= applyInfoService.getApprovePage(approveInfoDTO.getPageIndex(),approveInfoDTO.getPageSize(),userId);
+        return ApiResponse.success(page);
+    }
+    /**
      * 员工提交公务行程申请
      * @param  officialCommitApply  行程申请信息
      * @param
@@ -248,19 +262,9 @@ public class ApplyContoller {
             //判断当前审批人是不是最后审批人
             if (approveTemplateNodeInfo != null && approveTemplateNodeInfo.getNextNodeId() != null) {//不是最后审批人
                 //修改当前审批记录状态已审批/审批通过，修改下一审批记录为待审批（）对应消息通知
-                List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(),ApproveStateEnum.NOT_ARRIVED_STATE.getKey()));
-                this.updateApproveResult(collect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
+                this.updateApproveResult(collect, userId);
                 //下一审批人修改为待审批
-                ApproveTemplateNodeInfo info = nodeInfoService.selectApproveTemplateNodeInfoById(collect.get(0).getApproveNodeId());
-                List<ApplyApproveResultInfo> nextResult= resultInfoService.selectApproveResultByNodeids(info.getNextNodeId(),ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
-                if (CollectionUtils.isNotEmpty(nextResult)) {
-                    for (ApplyApproveResultInfo resultInfo:nextResult){
-                        resultInfo.setState(ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
-                        resultInfo.setUpdateTime(new Date());
-                        resultInfo.setUpdateBy(userId+"");
-                        resultInfoService.updateApplyApproveResultInfo(resultInfo);
-                    }
-                }
+                resultInfoService.updateApplyApproveResultInfo(new ApplyApproveResultInfo(collect.get(0).getApplyId(), collect.get(0).getApproveTemplateId(), collect.get(0).getApproveNodeId(), ApproveStateEnum.WAIT_APPROVE_STATE.getKey()));
                 //TODO 发送通知消息
 //                EcmpMessage ecmpMessage = new EcmpMessage();
 //                ecmpMessage.setConfigType(3);
@@ -277,7 +281,7 @@ public class ApplyContoller {
 //                ecmpMessageService.insert(ecmpMessage);
             } else if (approveTemplateNodeInfo != null && approveTemplateNodeInfo.getNextNodeId() == null) {//是最后节点审批人
                 //修改审理状态
-                this.updateApproveResult(collect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
+                this.updateApproveResult(collect, userId);
                 //TODO 调取生成用车权限,初始化订单
                 boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(journeyApplyDto.getApplyId(), userId);
                 if(!optFlag){
@@ -295,6 +299,7 @@ public class ApplyContoller {
     /**
      * 行程申请-驳回
      * @param journeyApplyDto  行程申请信息
+     * @param userDto  审批人信息
      * @return
      */
     @ApiOperation(value = "applyReject",notes = "行程申请-驳回",httpMethod ="POST")
@@ -305,7 +310,7 @@ public class ApplyContoller {
         Long userId = loginUser.getUser().getUserId();
         try{
             List<ApplyApproveResultInfo> collect = beforeInspect(journeyApplyDto, userId);
-            this.updateApproveResult(collect, userId,ApproveStateEnum.APPROVE_FAIL.getKey(),journeyApplyDto.getRejectReason());
+            this.updateApproveResult(collect, userId);
         }catch (Exception e){
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -314,20 +319,6 @@ public class ApplyContoller {
 
     }
 
-    /**
-     * 审批列表
-     * @param approveInfoDTO
-     * @return
-     */
-    @ApiOperation(value = "getApprovePage",notes = "审批列表 ",httpMethod ="POST")
-    @PostMapping("/getApprovePage")
-    public ApiResponse<List<ApprovaReesultVO>> getApprovePage(@RequestBody ApproveInfoDTO approveInfoDTO){
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId=loginUser.getUser().getUserId();
-        List<ApprovaReesultVO> page= applyInfoService.getApprovePage(approveInfoDTO.getPageIndex(),approveInfoDTO.getPageSize(),userId);
-        return ApiResponse.success(page);
-    }
 
     /**
      * 获取审批详情
@@ -397,11 +388,10 @@ public class ApplyContoller {
         return result;
     }
 
-    private void updateApproveResult(List<ApplyApproveResultInfo> collect, Long userId,String result,String content) {
-        if (CollectionUtils.isNotEmpty(collect)) {
+    private void updateApproveResult(List<ApplyApproveResultInfo> collect, Long userId) {
+        if (CollectionUtils.isNotEmpty(collect) && collect.size() > 1) {
             for (ApplyApproveResultInfo info : collect) {//下一审批人为多个
-                info.setApproveResult(result);
-                info.setContent(content);
+                info.setApproveResult(ApproveStateEnum.APPROVE_PASS.getKey());
                 info.setState(ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey());
                 info.setUpdateBy(String.valueOf(userId));
                 info.setUpdateTime(new Date());
