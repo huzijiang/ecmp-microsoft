@@ -2,7 +2,7 @@ package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
 
-import com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo;
+import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpEnterpriseInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class EcmpEnterpriseInfoServiceImpl implements IEcmpEnterpriseInfoService
      * @return 【请填写功能名称】
      */
     @Override
-    public EcmpEnterpriseInfo selectEcmpEnterpriseInfoById(Long enterpriseId)
+    public EcmpEnterpriseInvitationInfo selectEcmpEnterpriseInfoById(Long enterpriseId)
     {
         return ecmpEnterpriseInfoMapper.selectEcmpEnterpriseInfoById(enterpriseId);
     }
@@ -39,7 +39,7 @@ public class EcmpEnterpriseInfoServiceImpl implements IEcmpEnterpriseInfoService
      * @return 【请填写功能名称】
      */
     @Override
-    public List<EcmpEnterpriseInfo> selectEcmpEnterpriseInfoList(EcmpEnterpriseInfo ecmpEnterpriseInfo)
+    public List<EcmpEnterpriseInvitationInfo> selectEcmpEnterpriseInfoList(EcmpEnterpriseInvitationInfo ecmpEnterpriseInfo)
     {
         return ecmpEnterpriseInfoMapper.selectEcmpEnterpriseInfoList(ecmpEnterpriseInfo);
     }
@@ -51,7 +51,7 @@ public class EcmpEnterpriseInfoServiceImpl implements IEcmpEnterpriseInfoService
      * @return 结果
      */
     @Override
-    public int insertEcmpEnterpriseInfo(EcmpEnterpriseInfo ecmpEnterpriseInfo)
+    public int insertEcmpEnterpriseInfo(EcmpEnterpriseInvitationInfo ecmpEnterpriseInfo)
     {
         return ecmpEnterpriseInfoMapper.insertEcmpEnterpriseInfo(ecmpEnterpriseInfo);
     }
@@ -63,7 +63,7 @@ public class EcmpEnterpriseInfoServiceImpl implements IEcmpEnterpriseInfoService
      * @return 结果
      */
     @Override
-    public int updateEcmpEnterpriseInfo(EcmpEnterpriseInfo ecmpEnterpriseInfo)
+    public int updateEcmpEnterpriseInfo(EcmpEnterpriseInvitationInfo ecmpEnterpriseInfo)
     {
         return ecmpEnterpriseInfoMapper.updateEcmpEnterpriseInfo(ecmpEnterpriseInfo);
     }

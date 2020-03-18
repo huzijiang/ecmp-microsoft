@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
-import com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo;
+import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface EcmpEnterpriseInfoMapper
 {
     /**
@@ -18,7 +20,7 @@ public interface EcmpEnterpriseInfoMapper
      * @param enterpriseId 【请填写功能名称】ID
      * @return 【请填写功能名称】
      */
-    public EcmpEnterpriseInfo selectEcmpEnterpriseInfoById(Long enterpriseId);
+    public EcmpEnterpriseInvitationInfo selectEcmpEnterpriseInfoById(Long enterpriseId);
 
     /**
      * 查询【请填写功能名称】列表
@@ -26,7 +28,7 @@ public interface EcmpEnterpriseInfoMapper
      * @param ecmpEnterpriseInfo 【请填写功能名称】
      * @return 【请填写功能名称】集合
      */
-    public List<EcmpEnterpriseInfo> selectEcmpEnterpriseInfoList(EcmpEnterpriseInfo ecmpEnterpriseInfo);
+    public List<EcmpEnterpriseInvitationInfo> selectEcmpEnterpriseInfoList(EcmpEnterpriseInvitationInfo ecmpEnterpriseInfo);
 
     /**
      * 新增【请填写功能名称】
@@ -34,7 +36,7 @@ public interface EcmpEnterpriseInfoMapper
      * @param ecmpEnterpriseInfo 【请填写功能名称】
      * @return 结果
      */
-    public int insertEcmpEnterpriseInfo(EcmpEnterpriseInfo ecmpEnterpriseInfo);
+    public int insertEcmpEnterpriseInfo(EcmpEnterpriseInvitationInfo ecmpEnterpriseInfo);
 
     /**
      * 修改【请填写功能名称】
@@ -42,7 +44,7 @@ public interface EcmpEnterpriseInfoMapper
      * @param ecmpEnterpriseInfo 【请填写功能名称】
      * @return 结果
      */
-    public int updateEcmpEnterpriseInfo(EcmpEnterpriseInfo ecmpEnterpriseInfo);
+    public int updateEcmpEnterpriseInfo(EcmpEnterpriseInvitationInfo ecmpEnterpriseInfo);
 
     /**
      * 删除【请填写功能名称】
