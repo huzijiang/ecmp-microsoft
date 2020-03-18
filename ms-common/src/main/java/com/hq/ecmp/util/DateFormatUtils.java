@@ -84,6 +84,9 @@ public class DateFormatUtils {
      * FastDateFormat.getInstance()已经做了缓存，不会每次创建对象，但直接使用对象仍然能减少在缓存中的查找.
      */
     public static String formatDate(String pattern, Date date) {
+        if (date==null){
+            return null;
+        }
         return FastDateFormat.getInstance(pattern).format(date);
     }
 

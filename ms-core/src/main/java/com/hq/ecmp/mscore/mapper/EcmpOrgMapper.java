@@ -22,7 +22,7 @@ public interface EcmpOrgMapper {
      * @param parentId 上级ID
      * @return 公司
      */
-    public List<EcmpOrgVo> selectByEcmpOrgParentId(@Param("deptId") Long deptId,@Param("parentId") Long parentId,@Param("deptType")String deptType);
+    public List<EcmpOrgDto> selectByEcmpOrgParentId(@Param("deptId") Long deptId,@Param("parentId") Long parentId,@Param("deptType")String deptType);
     /**
      * 查询部门详情
      *

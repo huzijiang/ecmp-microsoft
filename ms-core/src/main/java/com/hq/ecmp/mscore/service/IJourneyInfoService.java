@@ -83,13 +83,13 @@ public interface IJourneyInfoService
      * @param userId
      * @return list
      */
-    public List<JourneyVO> getJourneyList(Long userId);
+    public List<JourneyVO> getJourneyList(String userId);
     /**
      * 获取正在进行中的行程个数
      * @param userId
      * @return 个数
      */
-    int getJourneyListCount(Long userId);
+    int getJourneyListCount(String userId);
     /**
      * 获取正在进行中的行程详情
      * @param orderId

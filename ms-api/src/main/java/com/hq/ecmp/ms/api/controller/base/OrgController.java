@@ -90,8 +90,8 @@ public class OrgController {
      * @return*/
     @ApiOperation(value = "查询公司列表",notes = "查询公司列表",httpMethod ="GET")
     @GetMapping("/getSubCompanyList")
-    public ApiResponse<List<EcmpOrgVo>> selectSubCompany(Long deptId,String deptType){
-        List<EcmpOrgVo> deptList = orgService.getDeptList(deptId,deptType);
+    public ApiResponse<List<EcmpOrgDto>> selectSubCompany(Long deptId,String deptType){
+        List<EcmpOrgDto> deptList = orgService.getDeptList(deptId,deptType);
         return ApiResponse.success(deptList);
     }
 

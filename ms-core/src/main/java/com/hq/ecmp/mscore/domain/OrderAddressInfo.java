@@ -231,6 +231,12 @@ public class OrderAddressInfo extends BaseEntity
     	this.type=type;
     }
 
+    public OrderAddressInfo(Long orderId, String type) {
+        this.orderId = orderId;
+        this.type = type;
+    }
+
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

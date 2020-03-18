@@ -7,7 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.domain.RegimeInfo" id="RegimeInfoResult">
         <result property="regimenId"    column="regimen_id"    />
         <result property="templateId"    column="template_id"    />
-        <result property="approveTemplateId"    column="approve_templateId_id" />
+        <result property="approveTemplateId"    column="approve_template_id" />
         <result property="regimenType"    column="regimen_type"    />
         <result property="name"    column="name"    />
         <result property="allowCity"    column="allow_city"    />
@@ -208,7 +208,7 @@ update regime_info set status=#{status},update_by=#{optUserId},update_time=now()
 </update>
 
 <select id="queryRegimeType" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeInfo">
-select regimen_type as  applyType from regime_info where regimen_id=#{regimeId}
+select regimen_type as  regimenType from regime_info where regimen_id=#{regimeId}
 </select>
     <select id="selectRegimenVOById" resultType="com.hq.ecmp.mscore.vo.RegimenVO" parameterType="long">
         select name,template_id as templateId,can_use_car_mode as canUseCarMode

@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
@@ -7,11 +8,14 @@ import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -69,6 +73,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public int updateEcmpUser(EcmpUserVo ecmpUser) {
         ecmpUser.setUpdateTime(DateUtils.getNowDate());
+        //ecmpUserMapper.updateUserRegimeRelation(ecmpUser);
         return ecmpUserMapper.updateEcmpUser(ecmpUser);
     }
 
@@ -94,17 +99,19 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.deleteEcmpUserById(userId);
     }
 
-	@Override
-	public boolean isDispatcher(Long userId) {
-		Integer count = ecmpUserMapper.queryDispatcher(userId);
-		return count>0;
-	}
+    @Override
+    public boolean isDispatcher(Long userId) {
+        Integer count = ecmpUserMapper.queryDispatcher(userId);
+        return count > 0;
+    }
+
     /**
      * 可管理员工
+     *
      * @return
      */
     @Override
-    public int  queryCompanyEmpCunt(){
+    public int queryCompanyEmpCunt() {
         return ecmpUserMapper.queryCompanyEmp();
     }
 
@@ -114,9 +121,10 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @return List<EcmpUserDto>
      * */
     @Override
-    public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo){
-        List<EcmpUserDto> ecmpUserList=null;
-        ecmpUserList=ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo);
+
+    public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo) {
+        List<EcmpUserDto> ecmpUserList = null;
+        ecmpUserList = ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo);
         return ecmpUserList;
     }
 
@@ -129,13 +137,15 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public int addEcmpUser(EcmpUserVo ecmpUser) {
         ecmpUser.setCreateTime(DateUtils.getNowDate());
+        ecmpUserMapper.addUserRegimeRelation(ecmpUser);
         return ecmpUserMapper.addEcmpUser(ecmpUser);
     }
+
 
     /*
      *查询手机号与邮箱是否已经存在
      * */
-    public int selectPhoneAndEmailExist(EcmpUserVo ecmpUser){
+    public int selectPhoneAndEmailExist(EcmpUserVo ecmpUser) {
         return ecmpUserMapper.selectPhoneAndEmailExist(ecmpUser);
     }
 
@@ -146,10 +156,10 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @return 结果
      */
     @Transactional
-    public String updateUseStatus(String status,Long deptId){
+    public String updateUseStatus(String status, Long deptId) {
         //禁用/启用  员工
         int i1 = ecmpUserMapper.updateUseStatus(deptId, status);
-        if("0".equals(status)){
+        if ("0".equals(status)) {
             return "启用成功！";
         }
         return "禁用成功！";
@@ -176,9 +186,12 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @return ecmpUserList
      */
     @Override
-    public List<EcmpUserDto> getEcmpUserList(Long deptId){
+    public List<EcmpUserDto> getEcmpUserList(Long deptId) {
         List<EcmpUserDto> ecmpUserList = new ArrayList<>();
-        ecmpUserList = ecmpUserMapper.getEcmpUserList(deptId);
+        Long[] arr = ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
+        for (int i = 0; i < arr.length; i++) {
+            ecmpUserList = ecmpUserMapper.getEcmpUserList(deptId, arr[i]);
+        }
         return ecmpUserList;
     }
 
@@ -190,23 +203,23 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     * */
     @Override
     @Transactional
-    public String updatePhoneNum(String newPhoneNum,String reWritePhone){
-        String msg="";
-        if((newPhoneNum==null||newPhoneNum=="")||(reWritePhone==null||reWritePhone=="")){
-            msg="手机号码不可为空！";
+    public String updatePhoneNum(String newPhoneNum, String reWritePhone) {
+        String msg = "";
+        if ((newPhoneNum == null || newPhoneNum == "") || (reWritePhone == null || reWritePhone == "")) {
+            msg = "手机号码不可为空！";
         }
-        EcmpUserVo ecmpUser=new EcmpUserVo();
+        EcmpUserVo ecmpUser = new EcmpUserVo();
         ecmpUser.setNewPhoneNum(newPhoneNum);
         int i = ecmpUserMapper.selectPhoneAndEmailExist(ecmpUser);
-        if(i>0){
-            msg="该手机号已存在，不可重复录入！";
+        if (i > 0) {
+            msg = "该手机号已存在，不可重复录入！";
         }
-        if(!reWritePhone.equals(newPhoneNum)){
-            msg="手机号码不一致！";
+        if (!reWritePhone.equals(newPhoneNum)) {
+            msg = "手机号码不一致！";
         }
         int i1 = ecmpUserMapper.updatePhoneNum(newPhoneNum);
-        if(i1==1){
-            msg="手机号码修改成功！";
+        if (i1 == 1) {
+            msg = "手机号码修改成功！";
         }
         return msg;
     }
@@ -215,7 +228,39 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @param  userId员工编号
     * @return
     * */
-    public EcmpUserDto selectEcmpUserDetail(Long userId){
+    public EcmpUserDto selectEcmpUserDetail(Long userId) {
         return ecmpUserMapper.selectEcmpUserDetail(userId);
+    }
+
+    /*设置离职日期
+    @param  dimissionTime
+     * @return
+    * */
+    public int updateDimissionTime(Date dimissionTime) {
+        return ecmpUserMapper.updateDimissionTime(dimissionTime);
+    }
+
+    /*已离职数量*/
+    @ApiOperation(value = "已离职数量", notes = "已离职数量", httpMethod = "POST")
+    @PostMapping("/selectDimissionCount")
+    public int selectDimissionCount(Long userId) {
+        return ecmpUserMapper.selectDimissionCount(userId);
+    }
+
+    /*已离职数量*/
+    @ApiOperation(value = "已离职列表", notes = "已离职列表", httpMethod = "POST")
+    @PostMapping("/selectDimissionList")
+    public List<EcmpUserDto> selectDimissionList(Long userId) {
+        return ecmpUserMapper.selectDimissionList(userId);
+
+    }
+
+    /**
+     * 员工邀请判断是否该手机号是否已经注册
+     */
+    public int userItisExist(String phoneNumber) {
+
+        return ecmpUserMapper.userItisExist(phoneNumber);
+
     }
 }

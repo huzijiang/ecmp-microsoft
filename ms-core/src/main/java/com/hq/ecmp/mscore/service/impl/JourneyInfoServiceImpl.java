@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.JourneyVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.util.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -163,7 +164,9 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 						//查询对应的公务出差理由
 						applyInfo.setJourneyId(journeyInfo.getJourneyId());
 						List<ApplyInfo> applyInfoList = applyInfoService.selectApplyInfoList(applyInfo);
-						carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
+						if(null !=applyInfoList && applyInfoList.size()>0){
+							carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
+						}	
 					}
 				}
 				carAuthorityInfoList.add(carAuthorityInfo);	

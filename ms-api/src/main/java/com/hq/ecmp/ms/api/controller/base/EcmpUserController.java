@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -36,6 +37,8 @@ public class EcmpUserController {
     public ApiResponse addEcmpUser(EcmpUserVo ecmpUser){
         /*用户可自由选择该员工所属部门*/
         int i = ecmpUserService.addEcmpUser(ecmpUser);
+        /*保存用车制度*/
+
         if (i == 1){
             return ApiResponse.success("添加员工成功!");
         }else {
@@ -81,6 +84,7 @@ public class EcmpUserController {
         List<EcmpUserDto> ecmpUserList = ecmpUserService.getEcmpUserList(deptId);
         return ApiResponse.success(ecmpUserList);
     }
+
     /*
      * 修改员工信息
      * @param  ecmpOrg
@@ -119,9 +123,42 @@ public class EcmpUserController {
         EcmpUserDto EcmpUserDto = ecmpUserService.selectEcmpUserDetail(userId);
             return ApiResponse.success(EcmpUserDto);
     }
-    /*日期禁用（离职日期）*/
-    /*已离职数量*/
-    /*已离职列表*/
-    /*设置离职日期*/
 
+     /*设置离职日期
+    @param  dimissionTime
+     * @return
+    * */
+     @ApiOperation(value = "设置离职日期",notes = "设置离职日期",httpMethod ="POST")
+     @PostMapping("/updateDimissionTime")
+     public ApiResponse updateDimissionTime(Date dimissionTime){
+         int i = ecmpUserService.updateDimissionTime(dimissionTime);
+         if (i == 1){
+             return ApiResponse.success("设置离职日期成功!");
+         }else {
+             return ApiResponse.error("设置离职日期失败!");
+         }
+     }
+    /*已离职数量
+    * @param  userId
+    * @return
+    * */
+    @ApiOperation(value = "已离职数量",notes = "已离职数量",httpMethod ="POST")
+    @PostMapping("/selectDimissionCount")
+    public ApiResponse selectDimissionCount(Long userId){
+        int i = ecmpUserService.selectDimissionCount(userId);
+        return ApiResponse.success(i);
+    }
+
+    /*已离职列表
+     * @param  userId
+     * @return
+     * */
+    @ApiOperation(value = "已离职列表",notes = "已离职列表",httpMethod ="POST")
+    @PostMapping("/selectDimissionList")
+    public ApiResponse selectDimissionList(Long userId){
+        List<EcmpUserDto>  dimissionList= ecmpUserService.selectDimissionList(userId);
+        return ApiResponse.success(dimissionList);
+    }
+
+    /*日期禁用（离职日期）*/
 }

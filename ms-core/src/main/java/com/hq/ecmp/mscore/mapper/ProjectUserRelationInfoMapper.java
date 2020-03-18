@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
+import com.hq.ecmp.mscore.vo.ProjectUserVO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -61,4 +63,8 @@ public interface ProjectUserRelationInfoMapper
     public int deleteProjectUserRelationInfoByIds(Long[] projectIds);
 
     int insertProjectList(List<ProjectUserRelationInfo> list);
+
+    List<ProjectUserVO> getProjectUserList(@Param("projectId")Long projectId,@Param("search") String search);
+
+    int removeProjectUser(@Param("projectId")Long projectId, @Param("userId")Long userId);
 }

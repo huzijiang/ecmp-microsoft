@@ -7,8 +7,8 @@ import java.util.Map;
 
 public enum ApplyTypeEnum {
 
-	APPLY_TRAVEL_TYPE("A001","差旅"),
-	APPLY_BUSINESS_TYPE("A002","公务"),
+	APPLY_BUSINESS_TYPE("A001","公务"),
+	APPLY_TRAVEL_TYPE("A002","差旅"),
 	;
 
 	private String key;

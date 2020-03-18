@@ -91,7 +91,6 @@ public class ApplyContoller {
         PageInfo<ApprovaReesultVO> page= applyInfoService.getApprovePage(approveInfoDTO.getPageIndex(),approveInfoDTO.getPageSize(),userId);
         return ApiResponse.success(page);
     }
-
     /**
      * 员工提交公务行程申请
      * @param  officialCommitApply  行程申请信息

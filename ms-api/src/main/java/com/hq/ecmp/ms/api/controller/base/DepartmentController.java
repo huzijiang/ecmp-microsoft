@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/dept")
@@ -32,29 +33,22 @@ public class DepartmentController {
      * @return*/
     @ApiOperation(value = "查询部门列表",notes = "查询部门列表",httpMethod ="POST")
     @PostMapping("/getDeptList")
-    public ApiResponse<List<EcmpOrgVo>> getDeptList(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptType",required = false) String deptType){
-        List<EcmpOrgVo> deptList = orgService.getDeptList(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptType);
-        return ApiResponse.success(deptList);
-    }
-    /**
-     * 查询部门列表(Proxy)
-     * @param  deptId
-     * @return*/
-    @ApiOperation(value = "查询部门列表(Proxy)",notes = "查询部门列表(Proxy)",httpMethod ="POST")
-    @PostMapping("/getDeptListProxy")
-    public ApiResponse<List<EcmpOrgVo>> getDeptListProxy(@RequestHeader(value = "deptId",required = false)String deptId,@RequestHeader(value = "deptType",required = false) String deptType){
-        List<EcmpOrgVo> deptList = orgService.getDeptList(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptType);
+    public ApiResponse<List<EcmpOrgDto>> getDeptList(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptType",required = false) String deptType){
+        List<EcmpOrgDto> deptList = orgService.getDeptList(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptType);
         return ApiResponse.success(deptList);
     }
     /**
      * 查询部门详情
-     * @param  deptId
+     * @param  ecmpOrgVo
      * @return*/
-    @ApiOperation(value = "查询部门详情",notes = "查询部门详情",httpMethod ="GET")
-    @GetMapping("/getDeptDetails")
-    public ApiResponse<EcmpOrgDto> getDeptDetails(Long deptId){
-        EcmpOrgDto ecmpOrg = orgService.getDeptDetails(deptId);
-        return ApiResponse.success(ecmpOrg);
+    @ApiOperation(value = "查询部门详情",notes = "查询部门详情",httpMethod ="POST")
+    @PostMapping("/getDeptDetails")
+    public ApiResponse<EcmpOrgDto> getDeptDetails(@RequestBody EcmpOrgVo ecmpOrgVo) {
+         if(ecmpOrgVo.getDeptId()==null){
+             return ApiResponse.error("部门id不能为空");
+         }
+            EcmpOrgDto ecmpOrg = orgService.getDeptDetails(ecmpOrgVo.getDeptId());
+            return ApiResponse.success(ecmpOrg);
     }
 
     /**

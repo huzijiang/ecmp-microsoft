@@ -65,9 +65,5 @@ public class EcmpOrgVo {
     private Date updateTime;
 
 
-    /*新增临时字段 */
-    @ApiModelProperty(value = "组织下级")
-    private List<EcmpOrgVo> deptList;
-
 }
 

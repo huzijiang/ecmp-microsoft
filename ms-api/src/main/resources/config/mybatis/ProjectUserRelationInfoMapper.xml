@@ -56,13 +56,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{projectId}
         </foreach>
     </delete>
+    <delete id="removeProjectUser" parameterType="Object" >
+        delete from project_user_relation_info where project_id = #{projectId} and user_id=#{userId}
+    </delete>
 
 
     <!--手动编写sql start-->
     <insert id="insertProjectList" parameterType="java.util.List">
-        insert into project_user_relation_info(project_id,user_id)  values
+        insert ignore  into project_user_relation_info(project_id,user_id)  values
         <foreach collection ="list" item="item" index= "index" separator =",">
             (#{item.projectId},#{item.userId})
         </foreach>
     </insert>
+    <select id="getProjectUserList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ProjectUserVO">
+        select t.project_id projectId,a.nick_name name,a.phonenumber phonenumber,a.job_number jobNumber,b.dept_name deptName,c.dept_name company
+        from project_user_relation_info t
+        inner join ecmp_user a on a.user_id=t.user_id
+        inner join ecmp_org b on b.dept_id=a.dept_id
+        inner join ecmp_org c on c.dept_id=b.company_id
+        where
+        t.project_id=#{projectId}
+        <if test="search!=null">
+            and (a.nick_name like concat('%', #{search}, '%') or a.phonenumber=#{search} or a.job_number=#{search} )
+        </if>
+
+    </select>
 </mapper>

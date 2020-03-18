@@ -2,6 +2,8 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarTypeDTO;
+import com.hq.ecmp.mscore.vo.CarTypeVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
 
@@ -82,4 +84,18 @@ public interface IEnterpriseCarTypeInfoService
      * @param userId
      */
     void updateCarType(CarTypeDTO carDto, Long userId) throws Exception;
+
+    /**
+     * 查询企业车型列表
+     * @param enterpriseId
+     * @return
+     */
+    List<CarTypeVO> getCarTypeList(Long enterpriseId);
+
+    /**
+     * 车型排序（交换位置）
+     * @param mainCarTypeId
+     * @param targetCarTypeId
+     */
+    void sortCarType(Long mainCarTypeId, Long targetCarTypeId,Long userId) throws Exception;
 }

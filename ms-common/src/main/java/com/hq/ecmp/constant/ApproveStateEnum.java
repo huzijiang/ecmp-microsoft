@@ -12,6 +12,7 @@ public enum ApproveStateEnum {
 	NOT_ARRIVED_STATE("ST00","未到达"),
 	WAIT_APPROVE_STATE("ST01","待审批"),
 	COMPLETE_APPROVE_STATE("ST02","已审批"),
+	EXPIRED_APPROVE_STATE("ST03","已过期"),
 	;
 
 	private String key;
