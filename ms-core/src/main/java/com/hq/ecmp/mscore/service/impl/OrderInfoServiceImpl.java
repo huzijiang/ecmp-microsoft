@@ -472,6 +472,22 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderId(orderId);
         try {
+            boolean reassignment = iOrderStateTraceInfoService.isReassignment(orderId);
+            //改派的订单需要操作改派同意,是否车和司机
+            if(reassignment){
+                OrderInfo orderInfoRe = new OrderInfo();
+                orderInfoRe.setState(OrderState.WAITINGLIST.getState());
+                orderInfoRe.setUpdateBy(String.valueOf(userId));
+                orderInfoRe.setOrderId(orderId);
+                orderInfoRe.setUpdateTime(DateUtils.getNowDate());
+                orderInfoMapper.updateOrderInfo(orderInfoRe);
+                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+                orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+                orderStateTraceInfo.setState(ResignOrderTraceState.AGREE.getState());
+                orderStateTraceInfo.setOrderId(orderId);
+                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            }
+
             //MAC地址
             List<String> macList = MacTools.getMacList();
             String macAdd = macList.get(0);

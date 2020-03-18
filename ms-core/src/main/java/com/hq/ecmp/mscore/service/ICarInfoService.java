@@ -1,9 +1,11 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.CarInfo;
+import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.dto.CarSaveDTO;
 import com.hq.ecmp.mscore.vo.CarDetailVO;
 import com.hq.ecmp.mscore.vo.CarListVO;
+import com.hq.ecmp.mscore.vo.CarLocationVo;
 import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
@@ -109,4 +111,12 @@ public interface ICarInfoService
      * 可管理车辆总数
      */
     public int queryCompanyCarCount();
+
+    /**
+     * 后管监控车辆检索
+     * @param carLocationDto
+     * @return
+     */
+    public List<CarLocationVo> locationCars(CarLocationDto carLocationDto);
+
 }
