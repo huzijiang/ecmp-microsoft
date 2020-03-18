@@ -127,6 +127,14 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             String longAddr = data.getString("addressFullName");
             String shortAddr = data.getString("maddress");
             //订单地址表
+            Long setOutOrderAddressId = null;
+            OrderAddressInfo orderAddressInfoOld = new OrderAddressInfo();
+            orderAddressInfoOld.setOrderId(orderId);
+            orderAddressInfoOld.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+            List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfoOld);
+            OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
+            setOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
+
             OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
             orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
             orderAddressInfo.setOrderId(orderId);
@@ -143,7 +151,12 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderAddressInfo.setAddress(shortAddr);
             orderAddressInfo.setAddressLong(longAddr);
             orderAddressInfo.setCreateBy(userId+"");
-            iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+            if(setOutOrderAddressId != null){
+                orderAddressInfo.setOrderAddressId(setOutOrderAddressId);
+                iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
+            }else{
+                iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+            }
             //订单状态
             orderInfo.setState(OrderState.INSERVICE.getState());
             iOrderInfoService.updateOrderInfo(orderInfo);
@@ -169,6 +182,13 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             String longAddr = data.getString("addressFullName");
             String shortAddr = data.getString("maddress");
             //订单地址表
+            Long arriveOutOrderAddressId = null;
+            OrderAddressInfo orderAddressInfoOld = new OrderAddressInfo();
+            orderAddressInfoOld.setOrderId(orderId);
+            orderAddressInfoOld.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+            List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfoOld);
+            OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
+            arriveOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
             OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
             orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
             orderAddressInfo.setOrderId(orderId);
@@ -185,7 +205,12 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderAddressInfo.setAddress(shortAddr);
             orderAddressInfo.setAddressLong(longAddr);
             orderAddressInfo.setCreateBy(userId+"");
-            iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+            if(arriveOutOrderAddressId != null){
+                orderAddressInfo.setOrderAddressId(arriveOutOrderAddressId);
+                iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
+            }else{
+                iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+            }
             orderInfo.setState(OrderState.STOPSERVICE.getState());
             iOrderInfoService.updateOrderInfo(orderInfo);
             //订单轨迹状态

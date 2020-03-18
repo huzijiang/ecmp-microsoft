@@ -2,18 +2,18 @@ package com.hq.ecmp.mscore.service;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.dto.CallTaxiDto;
-import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
-import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -193,6 +193,13 @@ public interface IOrderInfoService {
 
     //查询网约车状态
     JSONObject getTaxiOrderState(Long orderId)throws Exception;
+
+    /**
+     * 差旅申请派车
+     * @param applyUseWithTravelDto
+     * @return
+     */
+    public void applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws ParseException;
 
 }
 
