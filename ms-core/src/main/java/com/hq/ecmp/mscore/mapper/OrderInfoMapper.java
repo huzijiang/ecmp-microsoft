@@ -134,7 +134,7 @@ public interface OrderInfoMapper {
 
     DriverOrderInfoVO selectOrderDetail(Long orderId);
 
-    OrderStateVO getOrderState(Long orderId);
+    OrderStateVO getOrderState(@Param("orderId")Long orderId,@Param("regimenType")String regimenType);
 
     /**
      * pc端获取订单列表

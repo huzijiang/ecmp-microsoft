@@ -13,6 +13,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="startDate"    column="start_date"    />
         <result property="closeDate"    column="close_date"    />
         <result property="isAllUserUse"    column="is_all_user_use"    />
+        <result property="isEffective"    column="is_effective"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -20,7 +21,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectProjectInfoVo">
-        select project_id, name, leader, project_code,father_project_id, start_date, close_date, create_by, create_time, update_by, update_time,is_all_user_use from project_info
+        select project_id, name, leader, project_code,father_project_id, start_date, close_date, create_by, create_time, update_by, update_time,is_all_user_use,is_effective from project_info
     </sql>
 
     <select id="selectProjectInfoList" parameterType="com.hq.ecmp.mscore.domain.ProjectInfo" resultMap="ProjectInfoResult">
@@ -31,6 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="projectCode != null  and projectCode != ''"> and project_code = #{projectCode}</if>
             <if test="fatherProjectId != null  and fatherProjectId != ''"> and father_project_id = #{fatherProjectId}</if>
             <if test="isAllUserUse != null  and isAllUserUse != ''"> and is_all_user_use = #{isAllUserUse}</if>
+            <if test="isEffective != null  and isEffective != ''"> and is_effective = #{isEffective}</if>
             <if test="startDate != null  and startDate != ''"> and start_date = #{startDate}</if>
             <if test="closeDate != null  and closeDate != ''"> and close_date = #{closeDate}</if>
         </where>
@@ -52,6 +54,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="startDate != null  and startDate != ''">start_date,</if>
             <if test="closeDate != null  and closeDate != ''">close_date,</if>
             <if test="isAllUserUse != null ">is_all_user_use,</if>
+            <if test="isEffective != null ">is_effective,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -66,6 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="startDate != null  and startDate != ''">#{startDate},</if>
             <if test="closeDate != null  and closeDate != ''">#{closeDate},</if>
             <if test="isAllUserUse != null ">#{isAllUserUse},</if>
+            <if test="isEffective != null ">#{isEffective},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -83,6 +87,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="startDate != null  and startDate != ''">start_date = #{startDate},</if>
             <if test="closeDate != null  and closeDate != ''">close_date = #{closeDate},</if>
             <if test="isAllUserUse != null">is_all_user_use = #{isAllUserUse},</if>
+            <if test="isEffective != null">is_effective = #{isEffective},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -105,20 +110,37 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--手动编写sql start-->
     <select id="getListByUserId" parameterType="Object" resultMap="ProjectInfoResult">
         <include refid="selectProjectInfoVo"/>
-        where project_id in(select project_id from project_user_relation_info where user_id=#{userId})
+        where is_effective=1 and project_id in(select project_id from project_user_relation_info where user_id=#{userId})
         <if test="projectName !=null and projectName!=''">
             and (name like CONCAT('%',#{projectName},'%') or project_code = #{projectName})
         </if>
     </select>
 
     <select id="getProjectList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ProjectInfoVO">
-        select project_id, name, leader, project_code,father_project_id, start_date, close_date,
+        select project_id projectId, name, leader, project_code projectCode,father_project_id fatherProjectId, start_date startDate, close_date closeDate,is_effective isEffective,
         (select project_id from project_user_relation_info where project_id=a.project_id) userCount
         from  project_info a
-        <where>
-            <if test="fatherProjectId!=null">
-                father_project_id=#{fatherProjectId}
+        <where> is_effective!=-1
+            <if test="search!=null">
+              and ( project_code=#{search} or name =#{search})
             </if>
+            <if test="fatherProjectId!=null">
+                and  father_project_id=#{fatherProjectId}
+            </if>
+
         </where>
+    </select>
+
+    <select id="getProjectInfo" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ProjectInfoVO">
+            select a.project_id projectId, name,a.project_code projectCode,b.nick_name leaderName,b.phonenumber leaderPhone,
+            if(is_all_user_use=0,'仅本项目员工','全部员工'),a.start_date startDate,a.close_date closeDate,if(is_effective=0,'无效','有效')
+            from project_info a
+            inner join ecmp_user b on b.user_id=a.leader
+            where a.project_id=#{projectId}
+    </select>
+
+    <select id="checkProject" parameterType="Object" resultMap="ProjectInfoResult">
+        <include refid="selectProjectInfoVo"/>
+        where close_date = #{date}
     </select>
 </mapper>

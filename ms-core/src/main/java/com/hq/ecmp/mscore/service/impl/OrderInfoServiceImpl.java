@@ -1,15 +1,24 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
+import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.util.StringUtil;
+import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.OkHttpUtil;
+import com.hq.common.utils.StringUtils;
+import com.hq.ecmp.constant.*;
+import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.mapper.*;
+import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.MacTools;
+import com.hq.ecmp.util.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,77 +28,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.util.StringUtil;
-import com.hq.common.utils.DateUtils;
-import com.hq.common.utils.OkHttpUtil;
-import com.hq.common.utils.StringUtils;
-import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.constant.CarModeEnum;
-import com.hq.ecmp.constant.CarPowerEnum;
-import com.hq.ecmp.constant.CommonConstant;
-import com.hq.ecmp.constant.HintEnum;
-import com.hq.ecmp.constant.OrderConstant;
-import com.hq.ecmp.constant.OrderServiceType;
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.constant.OrderStateTrace;
-import com.hq.ecmp.constant.ResignOrderTraceState;
-import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
-import com.hq.ecmp.mscore.domain.ApplyInfo;
-import com.hq.ecmp.mscore.domain.CarInfo;
-import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.domain.DriverInfo;
-import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
-import com.hq.ecmp.mscore.domain.JourneyPlanPriceInfo;
-import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
-import com.hq.ecmp.mscore.domain.OrderAddressInfo;
-import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-import com.hq.ecmp.mscore.domain.OrderViaInfo;
-import com.hq.ecmp.mscore.domain.SendCarInfo;
-import com.hq.ecmp.mscore.domain.UserEmergencyContactInfo;
-import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
-import com.hq.ecmp.mscore.dto.OrderListBackDto;
-import com.hq.ecmp.mscore.mapper.ApplyInfoMapper;
-import com.hq.ecmp.mscore.mapper.CarGroupServeScopeInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
-import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyPassengerInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
-import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderSettlingInfoMapper;
-import com.hq.ecmp.mscore.mapper.UserEmergencyContactInfoMapper;
-import com.hq.ecmp.mscore.service.ICarGroupDispatcherInfoService;
-import com.hq.ecmp.mscore.service.ICarGroupInfoService;
-import com.hq.ecmp.mscore.service.ICarInfoService;
-import com.hq.ecmp.mscore.service.IDriverInfoService;
-import com.hq.ecmp.mscore.service.IJourneyInfoService;
-import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
-import com.hq.ecmp.mscore.service.IJourneyPassengerInfoService;
-import com.hq.ecmp.mscore.service.IJourneyPlanPriceInfoService;
-import com.hq.ecmp.mscore.service.IOrderAddressInfoService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
-import com.hq.ecmp.mscore.service.IOrderViaInfoService;
-import com.hq.ecmp.mscore.service.IRegimeInfoService;
-import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
-import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
-import com.hq.ecmp.mscore.vo.OrderStateVO;
-import com.hq.ecmp.mscore.vo.OrderVO;
-import com.hq.ecmp.mscore.vo.UserVO;
-import com.hq.ecmp.util.DateFormatUtils;
-import com.hq.ecmp.util.MacTools;
-import com.hq.ecmp.util.RedisUtil;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 /**
@@ -150,6 +94,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private IJourneyPlanPriceInfoService iJourneyPlanPriceInfoService;
 
 
+    @Resource
+    private OrderAddressInfoMapper orderAddressInfoMapper;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -320,7 +266,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		}
 		return checkResult;
 	}
-	
+
 	//// 查询订单对应的上车地点时间,下车地点时间  A000-上车     A999-下车
 	private void buildOrderStartAndEndSiteAndTime(DispatchOrderInfo dispatchOrderInfo) {
 		OrderAddressInfo startOrderAddressInfo = iOrderAddressInfoService
@@ -416,11 +362,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
         //TODO 杨军注释
-//        Date useCarTime=orderInfo.getActualSetoutTime();
-//        if (useCarTime==null){
-//            useCarTime=nodeInfo.getPlanSetoutTime();
-//        }
-//        vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,useCarTime));
         BeanUtils.copyProperties(orderInfo,vo);
         if (OrderState.WAITINGLIST.getState().equals(orderInfo.getState())||OrderState.GETARIDE.getState().equals(orderInfo.getState())){
             return vo;
@@ -436,9 +377,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
         UserVO str= iOrderStateTraceInfoService.getOrderDispatcher(states,orderId);
         vo.setCarGroupPhone(str.getUserPhone());
+        vo.setCarGroupName(str.getUserName());
         vo.setCustomerServicePhone(serviceMobile);
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+        String useCarTime=null;
+        List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
+        if (!CollectionUtils.isEmpty(orderAddressInfos)){
+            useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,journeyInfo.getUseCarTime());
+        }else{
+            useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderAddressInfos.get(0).getActionTime());
+        }
+        vo.setUseCarTime(useCarTime);
         List<UserEmergencyContactInfo> contactInfos = userEmergencyContactInfoMapper.queryAll(new UserEmergencyContactInfo(journeyInfo.getUserId()));
         String isAddContact=CollectionUtils.isEmpty(contactInfos)?"否":"是";
         vo.setIsAddContact(isAddContact);
@@ -456,7 +406,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo());
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
                     vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
-                    vo.setDuration(DateFormatUtils.formatSecond(orderSettlingInfos.get(0).getTotalTime()));
+                    vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime()));
                 }
             }
         }else{
@@ -468,21 +418,25 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 vo.setDriverScore(split[3]);
             }
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
-                JSONObject data = getThirdPartyOrderState(orderId);
-                String amount = data.getJSONObject("feeInfoBean").getString("amount");//优惠后价格
-                String disMoney = data.getJSONObject("feeInfoBean").getString("disMoney");//原价
-                String distance = data.getJSONObject("feeInfoBean").getString("distance");//里程
-                String distanceFee = data.getJSONObject("feeInfoBean").getString("distanceFee");//里程费
-                String duration = data.getJSONObject("feeInfoBean").getString("duration");//时长(分钟)
-                String durationFee = data.getJSONObject("feeInfoBean").getString("durationFee");//时长费
-                String overDistancePrice = data.getJSONObject("feeInfoBean").getString("overDistancePrice");//每公里单据
-                vo.setAmount(amount);
-                vo.setDisMoney(disMoney);
-                vo.setDistance(distance+"公里");
-                vo.setDistanceFee(distanceFee);
-                vo.setDuration(DateFormatUtils.formatMinute(StringUtils.isNotEmpty(duration)?Integer.parseInt(duration):0));
-                vo.setDurationFee(durationFee);
-                vo.setOverDistancePrice(overDistancePrice);
+//                JSONObject data = getThirdPartyOrderState(orderId);
+                List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
+                if (!CollectionUtils.isEmpty(orderSettlingInfos)){
+                    OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
+                    JSONObject jsonObject = JSONObject.parseObject(orderSettlingInfo.getAmountDetail());
+                    String disMoney = jsonObject.getString("disMoney");//原价
+                    String distance = jsonObject.getString("distance");//里程
+                    String distanceFee = jsonObject.getString("distanceFee");//里程费
+                    String duration = jsonObject.getString("duration");//时长(分钟)
+                    String durationFee = jsonObject.getString("durationFee");//时长费
+                    String overDistancePrice = jsonObject.getString("overDistancePrice");//每公里单据
+                    vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
+                    vo.setDisMoney(disMoney);
+                    vo.setDistance(distance+"公里");
+                    vo.setDistanceFee(distanceFee);
+                    vo.setDuration(DateFormatUtils.formatMinute(StringUtils.isNotEmpty(duration)?Integer.parseInt(duration):0));
+                    vo.setDurationFee(durationFee);
+                    vo.setOverDistancePrice(overDistancePrice);
+                }
             }
         }
         vo.setState(orderInfo.getState());
@@ -514,7 +468,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     @Async
     public void platCallTaxi(Long  orderId, String enterpriseId, String licenseContent, String apiUrl,String userId) {
-            
+
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderId(orderId);
         try {
@@ -886,7 +840,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     public OrderStateVO getOrderState(Long orderId) {
-        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(orderInfo.getPowerId());
+        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId,regimeInfo.getRegimenType());
+        orderState.setApplyType(regimeInfo.getRegimenType());
+        orderState.setCharterCarType(CharterTypeEnum.format(orderState.getCharterCarType()));
         return orderState;
     }
 
@@ -932,24 +890,64 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 //TODO 将网约车的车辆信息都存在车牌号字段中.格式(车牌号,车辆颜色,车辆名字,司机评分)
                 String carStr=licensePlates+","+carColor+","+carName+","+star;
                 newOrderInfo.setCarLicense(carStr);
-                if (OrderState.READYSERVICE.getState().equals(status)||OrderState.ORDERCLOSE.getState().equals(status)){//乘客一上车
+                if (OrderState.READYSERVICE.getState().equals(status)||OrderState.STOPSERVICE.getState().equals(status)){//乘客一上车
                     JSONObject data1 = resultObject.getJSONObject("data");
                     //TODO 杨军注释
-//                    if (OrderState.READYSERVICE.getState().equals(status)){
-//                        newOrderInfo.setActualSetoutLatitude(new BigDecimal(data1.getString("y")));
-//                        newOrderInfo.setActualSetoutLongitude(new BigDecimal(data1.getString("x")));
-//                    }else {
-//                        newOrderInfo.setActualArriveLatitude(new BigDecimal(data1.getString("y")));
-//                        newOrderInfo.setActualArriveLongitude(new BigDecimal(data1.getString("x")));
-//                    }
+                    if (OrderState.READYSERVICE.getState().equals(status)){
+                        List<OrderAddressInfo> orderAddressInfos=orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId,OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
+                        if(CollectionUtils.isEmpty(orderAddressInfos)){
+                            OrderAddressInfo orderAddressInfo=new OrderAddressInfo();
+                            BeanUtils.copyProperties(orderInfo,orderAddressInfo);
+                            orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
+                            orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
+                            orderAddressInfo.setActionTime(new Date());
+                            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+                            orderAddressInfoMapper.insertOrderAddressInfo(orderAddressInfo);
+                        }else{
+                            OrderAddressInfo orderAddressInfo = orderAddressInfos.get(0);
+                            orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
+                            orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
+                            orderAddressInfoMapper.updateOrderAddressInfo(orderAddressInfo);
+                        }
+                    }else {
+                        List<OrderAddressInfo> orderAddressInfos=orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId,OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE));
+                        if(CollectionUtils.isEmpty(orderAddressInfos)){
+                            OrderAddressInfo orderAddressInfo=new OrderAddressInfo();
+                            BeanUtils.copyProperties(orderInfo,orderAddressInfo);
+                            orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
+                            orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
+                            orderAddressInfo.setActionTime(new Date());
+                            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+                            orderAddressInfoMapper.insertOrderAddressInfo(orderAddressInfo);
+                        }else{
+                            OrderAddressInfo orderAddressInfo = orderAddressInfos.get(0);
+                            orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
+                            orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
+                            orderAddressInfoMapper.updateOrderAddressInfo(orderAddressInfo);
+                        }
+                    }
 
                 }
             }
-            int j = orderInfoMapper.updateOrderInfo(newOrderInfo);
-            //TODO 远端暂时未返回网约车坐标
+            orderInfoMapper.updateOrderInfo(newOrderInfo);
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderId,status,null,null));
-            if (OrderState.ORDERCLOSE.getState().equals(status)||OrderState.DISSENT.getState().equals(status)||OrderState.STOPSERVICE.getState().equals(status)) {//订单关闭
+            if (OrderState.STOPSERVICE.getState().equals(status)||OrderState.ORDERCLOSE.getState().equals(status)||OrderState.DISSENT.getState().equals(status)) {//服务结束
                 //TODO 调财务结算模块
+                List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
+                if (CollectionUtils.isEmpty(orderSettlingInfos)) {
+                    JSONObject feeInfoBean = data.getJSONObject("feeInfoBean");
+                    String amount = feeInfoBean.getString("amount");
+                    String distance = feeInfoBean.getString("distance");//里程
+                    String duration = feeInfoBean.getString("duration");//时长
+                    OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
+                    orderSettlingInfo.setOrderId(orderId);
+                    orderSettlingInfo.setTotalMileage(new BigDecimal(distance).stripTrailingZeros());
+                    orderSettlingInfo.setTotalTime(Integer.parseInt(duration));
+                    orderSettlingInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
+                    orderSettlingInfo.setAmountDetail(feeInfoBean.toString());
+                    orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
+                }
+
             }
             return resultObject;
         }else{
@@ -971,6 +969,74 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             throw new Exception("获取网约车信息失败");
         }
         return data;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    public void applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto, Long userId) throws ParseException {
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setOrderId(applyUseWithTravelDto.getOrderId());
+        //手动下单，订单状态变为待派单
+        orderInfo.setState(OrderState.WAITINGLIST.getState());
+        String type = applyUseWithTravelDto.getType();
+        orderInfo.setDemandCarLevel(applyUseWithTravelDto.getGroupId());
+        if(OrderServiceType.ORDER_SERVICE_TYPE_NOW.getPrState().equals(type) || OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getPrState().equals(type)){
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
+        }else if(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getPrState().equals(type)){
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState());
+            orderInfo.setFlightNumber(applyUseWithTravelDto.getAirlineNum());
+            SimpleDateFormat si = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date planDate = si.parse(applyUseWithTravelDto.getPlanDate());
+            orderInfo.setFlightPlanTakeOffTime(planDate);
+        }else if(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getPrState().equals(type)){
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState());
+        }else{
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState());
+        }
+        orderInfo.setUpdateTime(DateUtils.getNowDate());
+        orderInfoMapper.updateOrderInfo(orderInfo);
+        //订单轨迹
+        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
+        //订单地址表
+        OrderInfo orderInfoOld = orderInfoMapper.selectOrderInfoById(applyUseWithTravelDto.getOrderId());
+        String startPoint = applyUseWithTravelDto.getStartPoint();
+        String endPoint = applyUseWithTravelDto.getEndPoint();
+        String[] start = startPoint.split("\\,");
+        String[] end = endPoint.split("\\,");
+
+        OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+        orderAddressInfo.setOrderId(orderInfoOld.getOrderId());
+        orderAddressInfo.setJourneyId(orderInfoOld.getJourneyId());
+        orderAddressInfo.setNodeId(orderInfoOld.getNodeId());
+        orderAddressInfo.setPowerId(orderInfoOld.getPowerId());
+        orderAddressInfo.setUserId(orderInfoOld.getUserId()+"");
+        orderAddressInfo.setCityPostalCode(applyUseWithTravelDto.getCityId());
+        if(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getPrState().equals(type)){
+            String depCode = applyUseWithTravelDto.getDepCode();
+            String arrCode = applyUseWithTravelDto.getArrCode();
+            orderAddressInfo.setIcaoCode(arrCode+","+depCode);
+        }
+        orderAddressInfo.setCreateBy(userId+"");
+        //起点
+        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = sdf.parse(applyUseWithTravelDto.getBookingDate());
+        orderAddressInfo.setActionTime(date);
+        orderAddressInfo.setLongitude(Double.parseDouble(start[0]));
+        orderAddressInfo.setLatitude(Double.parseDouble(start[1]));
+        orderAddressInfo.setAddress(applyUseWithTravelDto.getStartAddr());
+        orderAddressInfo.setAddressLong(applyUseWithTravelDto.getStarAddrLong());
+
+
+        iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+        //终点
+        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+        orderAddressInfo.setActionTime(null);
+        orderAddressInfo.setLongitude(Double.parseDouble(end[0]));
+        orderAddressInfo.setLatitude(Double.parseDouble(end[1]));
+        orderAddressInfo.setAddress(applyUseWithTravelDto.getEndAddr());
+        orderAddressInfo.setAddressLong(applyUseWithTravelDto.getEndAddrLong());
+        iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
     }
 
 	@Override
@@ -1028,7 +1094,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	public Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query) {
 		return orderInfoMapper.queryReassignmentDispatchListCount(query);
 	}
-	
+
 	@Transactional(propagation=Propagation.REQUIRED)
 	@Override
 	public boolean rejectReassign(Long orderId, String rejectReason, Long optUserId) {

@@ -34,6 +34,8 @@ public class ProjectInfo extends BaseEntity
     private Long fatherProjectId;
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Integer isAllUserUse;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Integer isEffective;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -117,8 +119,21 @@ public class ProjectInfo extends BaseEntity
     public ProjectInfo() {
     }
 
+    public Integer getIsEffective() {
+        return isEffective;
+    }
+
+    public void setIsEffective(Integer isEffective) {
+        this.isEffective = isEffective;
+    }
+
     public ProjectInfo(String projectCode) {
         this.projectCode = projectCode;
+    }
+
+    public ProjectInfo(Long projectId, Integer isEffective) {
+        this.projectId = projectId;
+        this.isEffective = isEffective;
     }
 
     @Override

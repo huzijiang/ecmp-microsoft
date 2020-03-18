@@ -126,6 +126,8 @@ public class ApplyDetailVO {
     private TripDescription tripDescription;
 
     private Date time;
+    private Date startDate;
+    private Date endDate;
 
 
 }

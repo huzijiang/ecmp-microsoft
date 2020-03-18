@@ -1,15 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
 
-import java.util.List;
-
 import com.alibaba.fastjson.JSONObject;
-import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.dto.CallTaxiDto;
+import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
@@ -17,6 +11,9 @@ import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
+
+import java.text.ParseException;
+import java.util.List;
 
 /**
  * 【请填写功能名称】Service接口
@@ -211,6 +208,13 @@ public interface IOrderInfoService {
      * @return
      */
     public boolean rejectReassign(Long orderId,String rejectReason,Long optUserId);
+
+    /**
+     * 差旅申请派车
+     * @param applyUseWithTravelDto
+     * @return
+     */
+    public void applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws ParseException;
 
 }
 

@@ -1,11 +1,14 @@
 package com.hq.ecmp.mscore.dto;
 
+        import com.fasterxml.jackson.annotation.JsonFormat;
         import com.hq.core.aspectj.lang.annotation.Excel;
         import com.hq.ecmp.mscore.domain.EcmpOrg;
+        import com.hq.ecmp.mscore.vo.EcmpOrgVo;
         import io.swagger.annotations.ApiModel;
         import io.swagger.annotations.ApiModelProperty;
         import lombok.Data;
 
+        import java.util.Date;
         import java.util.List;
 
 @Data
@@ -48,9 +51,20 @@ public class EcmpOrgDto {
     @ApiModelProperty(value = "删除标志（0代表存在 2代表删除）")
     private String delFlag;
 
-    /*新增临时字段 */
-    //@ApiModelProperty(value = "组织下级")
-    //private List<EcmpOrg> deptList;
+    @ApiModelProperty(value = "创建者")
+    private String createBy;
+    @JsonFormat(
+            pattern = "yyyy-MM-dd HH:mm:ss"
+    )
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
+    @ApiModelProperty(value = "更新者")
+    private String updateBy;
+    @JsonFormat(
+            pattern = "yyyy-MM-dd HH:mm:ss"
+    )
+    @ApiModelProperty(value = "更新时间")
+    private Date updateTime;
 
     @ApiModelProperty(value = "新增临时字段  分/子公司人数")
     private String numOfSub;
@@ -58,5 +72,9 @@ public class EcmpOrgDto {
 
     @ApiModelProperty(value = "新增临时字段  上级公司")
     private String supComName;
+
+    /*新增临时字段 */
+    @ApiModelProperty(value = "组织下级")
+    private List<EcmpOrgDto> deptList;
 
 }

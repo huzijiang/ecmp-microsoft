@@ -1,7 +1,10 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.CarInfo;
@@ -14,6 +17,8 @@ import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.mapper.EnterpriseCarTypeInfoMapper;
 import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
+import com.hq.ecmp.mscore.vo.CarTypeVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -182,6 +187,55 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
         enterpriseCarTypeInfo.setUpdateTime(new Date());
         int i = enterpriseCarTypeInfoMapper.updateEnterpriseCarTypeInfo(enterpriseCarTypeInfo);
         if(i != 1){
+            throw new Exception();
+        }
+    }
+
+    /**
+     * 查询企业车型列表
+     * @param enterpriseId
+     * @return
+     */
+    @Override
+    public List<CarTypeVO> getCarTypeList(Long enterpriseId) {
+        EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
+        enterpriseCarTypeInfo.setEnterpriseId(enterpriseId);
+        List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
+        CarTypeVO carTypeVO = null;
+        List<CarTypeVO> list = Lists.newArrayList();
+        for (EnterpriseCarTypeInfo carTypeInfo : enterpriseCarTypeInfos) {
+            carTypeVO = CarTypeVO.builder().carTypeId(carTypeInfo.getCarTypeId())
+                    .countryCarTypeId(carTypeInfo.getCountryCarTypeId())
+                    .level(carTypeInfo.getLevel())
+                    .name(carTypeInfo.getLevel())
+                    .enterpriseId(carTypeInfo.getEnterpriseId())
+                    .build();
+            list.add(carTypeVO);
+        }
+        return list;
+    }
+
+    /**
+     * 车型排序（交换位置）
+     * @param mainCarTypeId
+     * @param targetCarTypeId
+     */
+    @Override
+    public void sortCarType(Long mainCarTypeId, Long targetCarTypeId,Long userId) throws Exception {
+        EnterpriseCarTypeInfo mainCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(mainCarTypeId);
+        EnterpriseCarTypeInfo targetCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(targetCarTypeId);
+        mainCarTypeInfo.setLevel(targetCarTypeInfo.getLevel());
+        mainCarTypeInfo.setUpdateTime(new Date());
+        mainCarTypeInfo.setUpdateBy(String.valueOf(userId));
+        targetCarTypeInfo.setLevel(mainCarTypeInfo.getLevel());
+        targetCarTypeInfo.setUpdateBy(String.valueOf(userId));
+        targetCarTypeInfo.setUpdateTime(new Date());
+        int i = enterpriseCarTypeInfoMapper.updateEnterpriseCarTypeInfo(mainCarTypeInfo);
+        if(i != 1){
+            throw new Exception();
+        }
+        int j = enterpriseCarTypeInfoMapper.updateEnterpriseCarTypeInfo(targetCarTypeInfo);
+        if(j != 1){
             throw new Exception();
         }
     }
