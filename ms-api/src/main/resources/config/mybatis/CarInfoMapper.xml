@@ -229,4 +229,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                     <if test="cityId != null ">    and cgi.city=#{cityId}</if>
                 </where>
     </select>
+
+    <select id="selectGroupEffectiveCarIds" resultType="java.lang.Long" parameterType="long">
+        select car_id  from car_info where car_group_id = #{carGropuId} and state = 'S001'
+    </select>
+    <update id="disableCarByCarId" parameterType="long" >
+        update car_info set state = 'S001' where car_id = #{carId}
+    </update>
 </mapper>

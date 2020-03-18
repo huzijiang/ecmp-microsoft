@@ -4,8 +4,10 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
+import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +30,8 @@ import java.util.List;
 public class EcmpUserServiceImpl implements IEcmpUserService {
     @Autowired
     private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private UserRegimeRelationInfoMapper userRegimeRelationInfoMapper;
 
 
     /**
@@ -254,6 +258,27 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.selectDimissionList(userId);
 
     }
+
+    /**
+     * 给员工设置用车制度
+     * @param userId
+     * @param regimenIds
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void bindUserRegimens(Long userId, List<Long> regimenIds) throws Exception {
+        UserRegimeRelationInfo userRegimeRelationInfo = null;
+        for (Long regimenId : regimenIds) {
+            userRegimeRelationInfo = new UserRegimeRelationInfo();
+            userRegimeRelationInfo.setUserId(userId);
+            userRegimeRelationInfo.setRegimenId(regimenId);
+            int i = userRegimeRelationInfoMapper.insertUserRegimeRelationInfo(userRegimeRelationInfo);
+            if(i != 1){
+                throw new Exception();
+            }
+        }
+    }
+
 
     /**
      * 员工邀请判断是否该手机号是否已经注册

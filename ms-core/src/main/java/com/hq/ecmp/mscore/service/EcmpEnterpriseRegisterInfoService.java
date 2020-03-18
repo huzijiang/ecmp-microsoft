@@ -4,7 +4,6 @@ import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
 import com.hq.ecmp.mscore.vo.registerDriverVO;
 import com.hq.ecmp.mscore.vo.registerUserVO;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -14,7 +13,6 @@ import java.util.List;
  * @author makejava
  * @since 2020-03-16 19:00:09
  */
-@Repository
 public interface EcmpEnterpriseRegisterInfoService {
 
     /**
@@ -61,7 +59,7 @@ public interface EcmpEnterpriseRegisterInfoService {
     /**
      * 手机号是否已经申请注册
      */
-    public  int itIsRegistration(String phoneNum,String state);
+    public  int itIsRegistration(String phoneNum, String state);
 
     /**
      * 待审批数量 员工/驾驶员

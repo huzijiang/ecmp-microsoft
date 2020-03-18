@@ -103,5 +103,14 @@ public interface ICarGroupInfoService
      * @param pageSize
      * @return
      */
-    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize);
+    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search);
+
+    /**
+     * 删除车队
+     * @param carGroupId
+     */
+    void deleteCarGroup(Long carGroupId) throws Exception;
+
+    //查询下级车队列表
+    List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);
 }

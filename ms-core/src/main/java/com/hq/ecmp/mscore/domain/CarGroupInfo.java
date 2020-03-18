@@ -28,7 +28,7 @@ public class CarGroupInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long city;
+    private String city;  //TODO Long改动
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -95,12 +95,12 @@ public class CarGroupInfo extends BaseEntity
     {
         return carGroupId;
     }
-    public void setCity(Long city)
+    public void setCity(String city)
     {
         this.city = city;
     }
 
-    public Long getCity()
+    public String getCity()
     {
         return city;
     }

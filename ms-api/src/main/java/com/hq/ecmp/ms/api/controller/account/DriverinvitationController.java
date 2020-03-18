@@ -9,11 +9,8 @@ import com.hq.ecmp.mscore.dto.RegisterDTO;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
-import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
-import com.hq.ecmp.mscore.vo.InvitationUserVO;
 import com.hq.ecmp.mscore.vo.registerDriverVO;
-import com.hq.ecmp.mscore.vo.registerUserVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +43,9 @@ public class DriverinvitationController {
      * @param ecmpEnterpriseInvitationInfo
      * @return
      */
-    @ApiOperation(value = "interInvitationInfoCommit",notes = "生成邀请",httpMethod = "POST")
-    @PostMapping("/interInvitationInfoCommit")
-    public ApiResponse interInvitationInfoCommit(@RequestBody EcmpEnterpriseInvitationInfo ecmpEnterpriseInvitationInfo){
+    @ApiOperation(value = "interInvitationDriverCommit",notes = "生成邀请",httpMethod = "POST")
+    @PostMapping("/interInvitationDriverCommit")
+    public ApiResponse interInvitationDriverCommit(@RequestBody EcmpEnterpriseInvitationInfo ecmpEnterpriseInvitationInfo){
         try {
             ecmpEnterpriseInvitationInfo.setType("T002");//驾驶员邀请
             ecmpEnterpriseInvitationInfo.setState("Y000");//默认邀请状态为有效
@@ -66,9 +63,9 @@ public class DriverinvitationController {
      * @param ecmpEnterpriseRegisterInfo
      * @return
      */
-    @ApiOperation(value = "interInvitationInfoCommit",notes = "生成邀请",httpMethod = "POST")
-    @PostMapping("/interInvitationInfoCommit")
-    public ApiResponse interRegisterInfoCommit(@RequestBody EcmpEnterpriseRegisterInfo ecmpEnterpriseRegisterInfo){
+    @ApiOperation(value = "interInviDriverZCCommit",notes = "生成邀请",httpMethod = "POST")
+    @PostMapping("/interInviDriverZCCommit")
+    public ApiResponse interInviDriverZCCommit(@RequestBody EcmpEnterpriseRegisterInfo ecmpEnterpriseRegisterInfo){
         try {
 
             //校验手机号的用户是否已经是企业用户

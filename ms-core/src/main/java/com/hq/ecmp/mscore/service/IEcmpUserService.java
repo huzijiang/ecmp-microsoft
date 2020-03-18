@@ -156,4 +156,10 @@ public interface IEcmpUserService {
     * */
     public List<EcmpUserDto> selectDimissionList(Long userId);
 
+    /**
+     * 给员工设置用车制度
+     * @param userId
+     * @param regimenIds
+     */
+    void bindUserRegimens(Long userId, List<Long> regimenIds) throws Exception;
 }
