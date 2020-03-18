@@ -300,4 +300,8 @@ WHERE
     <update id="updateUseStatus" >
       update  driver_info  set `state`=#{state} where user_id in (select user_id from  ecmp_user where dept_id=#{deptId})
     </update>
+    <!--//邀请驾驶员是否已经是企业司机-->
+    <select id="driverItisExist"  resultType="java.lang.Integer">
+          select count(*) from driver_info where mobile=#{phoneNumber}
+    </select>
 </mapper>

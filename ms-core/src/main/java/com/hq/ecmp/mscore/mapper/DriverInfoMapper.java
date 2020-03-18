@@ -104,4 +104,10 @@ public interface DriverInfoMapper
      * @return
      */
     DriverInfo selectEffectiveDriverInfoById(Long driverId);
+    /**
+     *
+     * @param phoneNumber
+     * @return
+     */
+    public int driverItisExist(String phoneNumber);
 }
