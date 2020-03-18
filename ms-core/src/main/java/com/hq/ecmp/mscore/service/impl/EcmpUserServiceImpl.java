@@ -115,7 +115,6 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.queryCompanyEmp();
     }
 
-<<<<<<<Updated upstream
     /*
      * 获取上级组织id中的员工姓名和电话
      *  @param  ecmpUserVo
@@ -142,7 +141,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.addEcmpUser(ecmpUser);
     }
 
-<<<<<<< Updated upstream
+
     /*
      *查询手机号与邮箱是否已经存在
      * */
