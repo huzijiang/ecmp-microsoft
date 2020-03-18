@@ -308,6 +308,10 @@ public class JourneyNodeInfo extends BaseEntity
     public JourneyNodeInfo() {
     }
 
+    public JourneyNodeInfo(Long journeyId) {
+        this.journeyId = journeyId;
+    }
+
     public JourneyNodeInfo(Long journeyId, Long userId) {
         this.journeyId = journeyId;
         this.userId = userId;

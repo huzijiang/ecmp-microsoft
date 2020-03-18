@@ -69,5 +69,9 @@ public interface ProjectInfoMapper
      */
     List<ProjectInfo> getListByUserId(@Param("userId") Long userId,@Param("projectName") String projectName);
 
-    List<ProjectInfoVO> getProjectList(Long fatherProjectId);
+    List<ProjectInfoVO> getProjectList(@Param("search")String search,@Param("fatherProjectId")Long fatherProjectId);
+
+    ProjectInfoVO getProjectInfo(Long projectId);
+
+    List<ProjectInfo> checkProject(String date);
 }

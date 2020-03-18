@@ -10,16 +10,19 @@ import com.hq.ecmp.mscore.dto.config.ConfigValueDTO;
 import com.hq.ecmp.mscore.dto.config.EnterPriseBaseInfoDTO;
 import com.hq.ecmp.mscore.mapper.EcmpConfigMapper;
 import com.hq.ecmp.mscore.service.IEcmpConfigService;
+import com.hq.ecmp.mscore.service.ZimgService;
 import com.hq.ecmp.util.GsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static com.hq.ecmp.constant.CommonConstant.SWITCH_ON_CUSTOM;
+import static com.hq.ecmp.constant.CommonConstant.*;
 
 /**
  * 参数配置Service业务层处理
@@ -33,6 +36,15 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
 
     @Autowired
     private EcmpConfigMapper ecmpConfigMapper;
+
+    @Autowired
+    private ZimgService zimgService;
+
+    @Value("${app.background}")
+    private String defaultBackGround;
+
+    @Value("${app.welcome}")
+    private String defaultWelcome;
 
     /**
      * 查询参数配置
@@ -161,12 +173,17 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public void setUpWelComeImage(String status, String value) {
+    public void setUpWelComeImage(String status, String value, MultipartFile file) {
         try {
             EcmpConfig welcomeInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WELCOME_IMAGE_INFO.getConfigKey()).build());
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.WELCOME_IMAGE_INFO.getConfigKey());
+            if (SWITCH_OFF.equals(status)) {
+                value = defaultWelcome;
+            } else {
+                value = zimgService.uploadImage(file);
+            }
             ConfigValueDTO configValueDTO = ConfigValueDTO.builder().status(status).value(value).build();
             baseConfig.setConfigValue(JSON.toJSONString(configValueDTO));
             if (welcomeInfo == null) {
@@ -184,11 +201,16 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public void setUpBackGroundImage(String status, String value) {
+    public void setUpBackGroundImage(String status, String value, MultipartFile file) {
         try {
             EcmpConfig backgroundInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BACKGROUND_IMAGE_INFO.getConfigKey()).build());
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
+            if (SWITCH_OFF.equals(status)) {
+                value = defaultBackGround;
+            } else {
+                value = zimgService.uploadImage(file);
+            }
             baseConfig.setConfigKey(ConfigTypeEnum.BACKGROUND_IMAGE_INFO.getConfigKey());
             ConfigValueDTO configValueDTO = ConfigValueDTO.builder().status(status).value(value).build();
             baseConfig.setConfigValue(JSON.toJSONString(configValueDTO));

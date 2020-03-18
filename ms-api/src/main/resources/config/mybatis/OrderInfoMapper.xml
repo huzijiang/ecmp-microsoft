@@ -239,15 +239,16 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 					 jn.flight_number flightNumber,
 					 jn.it_is_return itIsReturn,
 					 jn.charter_car_type charterCarType,
-					 IFNULL(o.actual_setout_time,jni.plan_setout_time) useCarTime,
-					 IFNULL(o.actual_setout_address,jni.plan_begin_address) startAddr,
-                     IFNULL(o.actual_arrive_address,jni.plan_end_address) endAddr,
+                    s.action_time useCarTime,
+                    s.address startAddr,
+                    t.address endAddr,
                      otc.state labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
-                inner join journey_node_info jni on  jni.node_id=o.node_id
+                inner join order_address_info s on  s.order_id=o.order_id
+                inner join order_address_info t on  t.order_id=o.order_id
                 left join (select order_id,state from order_state_trace_info where order_id in(select order_id from order_info where driver_id=#{driverId}) order by create_time desc limit 1) otc on  otc.order_id=o.order_id
-				where o.driver_id=#{driverId}
+				where o.driver_id=#{driverId} and s.type='A000' and t.type='A999'
 				<if test="flag==1">
                    and  (o.state="S299" or o.state="S600" or o.state="S616" )
                     order by useCarTime  asc
@@ -268,9 +269,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              jn.flight_number flightNumber,
              jn.it_is_return itIsReturn,
              jn.charter_car_type charterCarType,
-             IFNULL(o.actual_setout_time,jni.plan_setout_time) useCarTime,
-             IFNULL(o.actual_setout_address,jni.plan_begin_address) startAddr,
-             IFNULL(o.actual_arrive_address,jni.plan_end_address) endAddr,
+             s.action_time useCarTime,
+             s.address startAddr,
+             t.address endAddr,
              c.car_license carLicense,
              c.car_color carColor,
              c.car_type carType,
@@ -279,9 +280,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              (select count(*) from journey_passenger_info where journey_id=o.journey_id) peopleCount
             from order_info o
             inner join journey_info jn on o.journey_id=jn.journey_id
-            inner join journey_node_info jni on  jni.node_id=o.node_id
+            inner join order_address_info s on  s.order_id=o.order_id
+            inner join order_address_info t on  t.order_id=o.order_id
             inner join car_info c on c.car_id=o.car_id
-            where o.order_id=#{orderId}
+            where o.order_id=#{orderId} and s.type='A000' and t.type='A999'
     </select>
 
     <select id="driverOrderUndoneList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">
@@ -290,22 +292,24 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 					 o.state,
 					 '未完成' stateType,
 					 jn.service_type serviceType,
-					 jn.flight_number flightNumber,
+					 o.flight_number flightNumber,
 					 jn.it_is_return itIsReturn,
 					 jn.charter_car_type charterCarType,
-					 IFNULL(o.actual_setout_time,jni.plan_setout_time) useCarTime,
-					 IFNULL(o.actual_setout_address,jni.plan_begin_address) startAddr,
-                     IFNULL(o.actual_arrive_address,jni.plan_end_address) endAddr,
+					 s.action_time useCarTime,
+					 s.address startAddr,
+                     t.address endAddr,
                      otc.state labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
-                inner join journey_node_info jni on  jni.node_id=o.node_id
+                inner join order_address_info s on  s.order_id=o.order_id
+                inner join order_address_info t on  t.order_id=o.order_id
                 left join (select order_id,state from order_state_trace_info where order_id in(select order_id from order_info where driver_id=#{driverId}) order by create_time desc limit 1) otc on  otc.order_id=o.order_id
 				where o.driver_id=#{driverId} and  (o.state="S299" or o.state="S600" or o.state="S616" )
                 <if test="day!=-1">
                     <![CDATA[AND DATE_FORMAT(jni.plan_setout_time, '%Y-%m-%d') = DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
                 </if>
-                order by jni.plan_setout_time asc
+                and s.type='A000' and t.type='A999'
+                order by s.action_time asc
     </select>
 
 
@@ -319,16 +323,43 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		a.order_id AS orderId,
 		a.journey_id journeyId,
 	    a.state,
-	    a.actual_setout_address startAddress,
-	    a.actual_arrive_address endAddress,
-	    a.actual_setout_longitude startLongitude,
-	    a.actual_setout_latitude startLatitude,
-	    a.actual_arrive_longitude endLongitude ,
-	    a.actual_arrive_latitude endLatitude,
-	    (select regimen_type from regime_info where regimen_id=a.power_id) applyType,
-	    (select state from order_state_trace_info where order_id=#{orderId} order by create_time desc limit 1) labelState
+	    <if test="regimenType=='T001'">
+            b.plan_begin_address startAddress,
+            b.plan_setout_time useCarTime,
+            b.plan_end_address endAddress,
+            b.plan_begin_longitude startLongitude,
+            b.plan_begin_latitude startLatitude,
+            b.plan_end_longitude endLongitude ,
+            b.plan_end_latitude endLatitude,
+        </if>
+	    <if test="regimenType=='T002'">
+            e.address startAddress,
+            e.action_time useCarTime,
+            e.longitude startLongitude,
+            e.latitude startLatitude,
+            d.address endAddress,
+            d.longitude endLongitude ,
+            d.latitude endLatitude,
+        </if>
+        g.charter_car_type ,
+        (select state from order_state_trace_info where order_id=#{orderId} order by create_time desc limit 1) labelState
 	    from order_info a
+	        inner join journey_info g on g.journey_id=a.journey_id
+	    <if test="regimenType=='T001'">
+            inner join journey_node_info b on b.node_id=a.node_id
+        </if>
+	    <if test="regimenType=='T002'">
+            inner join order_address_info e on e.order_id=a.order_id
+            inner join order_address_info d on d.order_id=a.order_id
+        </if>
 		where a.order_id=#{orderId}
+        <if test="regimenType=='T001'">
+            and b.it_is_via_point='N111'
+        </if>
+        <if test="regimenType=='T002'">
+            and e.type='A000'
+            and d.type='A999'
+        </if>
 	</select>
 
     <select id="getWaitDispatchOrderDetailInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
@@ -539,4 +570,151 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             </where>
     </select>
 
+	<select id="queryApplyDispatchList" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
+		resultType="com.hq.ecmp.mscore.vo.ApplyDispatchVo">
+		SELECT
+		a.order_id AS orderId,
+		b.nick_name AS applyUserName,
+		b.user_name AS applyUserMobile,
+		a.journey_id AS journeyId,
+		a.node_id AS nodeId,
+		a.update_time AS optDate,
+		a.state AS state,
+		a.service_type as serviceType
+		FROM
+		order_state_trace_info d
+		LEFT JOIN order_info a ON a.order_id = d.order_id
+		LEFT JOIN ecmp_user b ON a.user_id = b.user_id
+		LEFT JOIN order_address_info c ON a.order_id = c.order_id
+		WHERE
+		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S199','S200','S299','S600','S616','S699','S900')
+		<if test="null !=applyMobile">
+			and b.user_name LIKE concat('%',#{applyMobile},'%')
+		</if>
+		<if test="null !=applyName">
+			and AND b.nick_name LIKE concat('%',#{applyName},'%')
+		</if>
+		<if test="null !=cityCode">
+			AND c.city_postal_code = #{cityCode}
+		</if>
+		<if test="null !=optStartDate">
+			AND a.update_time &gt;= #{optStartDate}
+		</if>
+		<if test="null !=optEndDate">
+			AND a.update_time &lt;= #{optEndDate}
+		</if>
+		<if test="null !=useCarMode">
+			AND a.use_car_mode = #{useCarMode}
+		</if>
+		GROUP BY d.order_id
+		<if test="offset != null and pageSize != null">
+			LIMIT #{offset},#{pageSize}
+		</if>
+	</select>
+	
+   <select id="queryApplyDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="java.lang.Integer">
+   SELECT
+		count(1)
+		FROM
+		order_state_trace_info d
+		LEFT JOIN order_info a ON a.order_id = d.order_id
+		LEFT JOIN ecmp_user b ON a.user_id = b.user_id
+		LEFT JOIN order_address_info c ON a.order_id = c.order_id
+		WHERE
+		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S199','S200','S299','S600','S616','S699','S900')
+		<if test="null !=applyMobile">
+			and b.user_name LIKE concat('%',#{applyMobile},'%')
+		</if>
+		<if test="null !=applyName">
+			and AND b.nick_name LIKE concat('%',#{applyName},'%')
+		</if>
+		<if test="null !=cityCode">
+			AND c.city_postal_code = #{cityCode}
+		</if>
+		<if test="null !=optStartDate">
+			AND a.update_time &gt;= #{optStartDate}
+		</if>
+		<if test="null !=optEndDate">
+			AND a.update_time &lt;= #{optEndDate}
+		</if>
+		<if test="null !=useCarMode">
+			AND a.use_car_mode = #{useCarMode}
+		</if>
+		GROUP BY d.order_id
+   </select>
+
+	<select id="queryReassignmentDispatchList" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
+		resultType="com.hq.ecmp.mscore.vo.ApplyDispatchVo">
+		SELECT
+		a.order_id AS orderId,
+		b.nick_name AS applyUserName,
+		b.user_name AS applyUserMobile,
+		a.journey_id AS journeyId,
+		a.node_id AS nodeId,
+		a.update_time AS optDate,
+		a.state AS state
+		FROM
+		order_state_trace_info d
+		LEFT JOIN order_info a ON a.order_id = d.order_id
+		LEFT JOIN driver_info b ON a.driver_id = b.driver_id
+		LEFT JOIN order_address_info c ON a.order_id = c.order_id
+		WHERE
+		d.state IN ('S270', 'S277', 'S279') and a.state in
+		('S199','S200','S299','S600','S616','S699','S900')
+		<if test="null !=driverMobile">
+			and b.mobile LIKE concat('%',#{driverMobile},'%')
+		</if>
+		<if test="null !=driverName">
+			and AND b.driver_name LIKE concat('%',#{driverName},'%')
+		</if>
+		<if test="null !=cityCode">
+			AND c.city_postal_code = #{cityCode}
+		</if>
+		<if test="null !=optStartDate">
+			AND a.update_time &gt;= #{optStartDate}
+		</if>
+		<if test="null !=optEndDate">
+			AND a.update_time &lt;= #{optEndDate}
+		</if>
+		<if test="null !=useCarMode">
+			AND a.use_car_mode = #{useCarMode}
+		</if>
+		GROUP BY d.order_id
+		<if test="offset != null and pageSize != null">
+			LIMIT #{offset},#{pageSize}
+		</if>
+	</select>
+	
+	<select id="queryReassignmentDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
+		resultType="java.lang.Integer">
+		SELECT
+		count(1)
+		FROM
+		order_state_trace_info d
+		LEFT JOIN order_info a ON a.order_id = d.order_id
+		LEFT JOIN driver_info b ON a.driver_id = b.driver_id
+		LEFT JOIN order_address_info c ON a.order_id = c.order_id
+		WHERE
+		d.state IN ('S270', 'S277', 'S279') and a.state in
+		('S199','S200','S299','S600','S616','S699','S900')
+		<if test="null !=driverMobile">
+			and b.mobile LIKE concat('%',#{driverMobile},'%')
+		</if>
+		<if test="null !=driverName">
+			and AND b.driver_name LIKE concat('%',#{driverName},'%')
+		</if>
+		<if test="null !=cityCode">
+			AND c.city_postal_code = #{cityCode}
+		</if>
+		<if test="null !=optStartDate">
+			AND a.update_time &gt;= #{optStartDate}
+		</if>
+		<if test="null !=optEndDate">
+			AND a.update_time &lt;= #{optEndDate}
+		</if>
+		<if test="null !=useCarMode">
+			AND a.use_car_mode = #{useCarMode}
+		</if>
+		GROUP BY d.order_id
+	</select>
 </mapper>

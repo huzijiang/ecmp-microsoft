@@ -60,6 +60,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private ApproveTemplateInfoMapper templateInfoMapper;
     @Autowired
     private ApproveTemplateNodeInfoMapper templateNodeInfoMapper;
+    @Autowired
     private ApplyApproveResultInfoMapper resultInfoMapper;
 
     /**
@@ -250,21 +251,23 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 return o1.getNumber() - o2.getNumber();
             }
         });
-        StringBuilder sb = null;
+        StringBuilder sb = new StringBuilder();
         int size = list.size();
         //第一个节点
         sb.append(list.get(0).getPlanBeginAddress() + "-"+list.get(0).getPlanEndAddress());
         for (int j = 1; j < size; j++) {
             //如果下一个节点的起点不是上一个起点的终点，则下一个节点追加   ；上海-北京  样字段
-            if(!list.get(j).getPlanBeginAddress().equals(list.get(j-1).getPlanEndAddress())){
+            if (!list.get(j).getPlanBeginAddress().equals(list.get(j - 1).getPlanEndAddress())) {
                 sb.append("；");
-                sb.append(list.get(j).getPlanBeginAddress()+"-"+list.get(j).getPlanEndAddress());
-            }else {
+                sb.append(list.get(j).getPlanBeginAddress() + "-" + list.get(j).getPlanEndAddress());
+            } else {
                 //如果下一个节点的起点是上一个节点的终点，则下一个节点追加  、上海、南京  样字段
-                sb.append("、"+list.get(j).getPlanBeginAddress()+"、"+list.get(j).getPlanEndAddress());
+                sb.append("、" + list.get(j).getPlanBeginAddress() + "、" + list.get(j).getPlanEndAddress());
             }
         }
+
         String title = sb.toString();
+
         //行程表添加title信息
         JourneyInfo build1 = JourneyInfo.builder().title(title).journeyId(journeyId).build();
         journeyInfoMapper.updateJourneyInfo(build1);
@@ -369,18 +372,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.根据journreyId查询行程表相关信息
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(applyInfo.getJourneyId());
         //用车时间
-        String useCarTime = journeyInfo.getUseCarTime();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
-        try {
-//            Date parseDate = dateFormat.parse(useCarTime);
-            String s = DateFormatUtils.formatDate("yyyy年MM月dd日 HH:mm", new Date(useCarTime));
-            applyDetailVO.setApplyDate(s);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Date useCarTime = journeyInfo.getUseCarTime();
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+        applyDetailVO.setApplyDate(useCarTime);
         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(journeyInfo.getUserId());
         //申请人
-        applyDetailVO.setApplyUser(ecmpUser.getUserName());
+        applyDetailVO.setApplyUser(ecmpUser.getNickName());
         applyDetailVO.setApplyMobile(ecmpUser.getPhonenumber());//TODO 根据用户id查出用户名字  journeyInfo.getUserId()
         //是否往返
         applyDetailVO.setIsGoBack(journeyInfo.getItIsReturn());
@@ -509,26 +506,29 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @return
      */
     @Override
-    public PageInfo<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
+    public List<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
         PageHelper.startPage(pageIndex,pageSize);
-        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
+        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
         List<ApprovaReesultVO> approvaReesultVOs=new ArrayList<>();
         if (!CollectionUtils.isEmpty(applyApproveResultInfos)){
             for (ApplyApproveResultInfo info:applyApproveResultInfos){
                 ApprovaReesultVO vo=new ApprovaReesultVO();
                 BeanUtils.copyProperties(info,vo);
                 //查询申请信息
+                vo.setState(ApproveStateEnum.format(info.getState()));
                 ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(info.getApplyId());
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
-                vo.setApplyName(ecmpUser.getUserName());
+                vo.setApplyName(ecmpUser.getNickName());
                 vo.setApplyTime(applyInfo.getCreateTime());
                 vo.setApplyType(ApplyTypeEnum.format(applyInfo.getApplyType()));
                 JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(applyInfo.getJourneyId());
-                vo.setUseCarTime(new SimpleDateFormat("yyyy年MM月dd日 HH:mm").format(journeyInfo.getUseCarTime()));
-                List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId(), Long.parseLong(applyInfo.getCreateBy())));
+                vo.setItIsReturn(journeyInfo.getItIsReturn());
+                vo.setTitle(journeyInfo.getTitle());
+                List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId()));
                 if (!CollectionUtils.isEmpty(journeyNodeInfos)){
                     //判断是差旅还是公务
                     if (ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(applyInfo.getApplyType())){//差旅
+                        vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,journeyInfo.getStartDate())+"-"+DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,journeyInfo.getEndDate()));
                         String stroke="";
                         for (JourneyNodeInfo nodeInfo:journeyNodeInfos){
                             stroke+=","+nodeInfo.getPlanBeginAddress()+"-"+nodeInfo.getPlanEndAddress();
@@ -537,12 +537,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                     }else{//公务
                         vo.setStartAddress(journeyNodeInfos.get(0).getPlanBeginAddress());
                         vo.setEndAddress(journeyNodeInfos.get(0).getPlanEndAddress());
+                        vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,journeyInfo.getUseCarTime()));
                     }
                 }
                 approvaReesultVOs.add(vo);
             }
         }
-        return new PageInfo<>(approvaReesultVOs);
+        return approvaReesultVOs;
     }
 
     /**
@@ -631,9 +632,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUseCarMode(travelCommitApply.getUseType());
         //1.5 use_car_time 用车时间
         Date startDate = travelCommitApply.getTravelRequests().get(0).getStartDate();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
-        String startDateStr = dateFormat.format(startDate);
-        journeyInfo.setUseCarTime(startDateStr);  //TODO 用车时间
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+        //String startDateStr = dateFormat.format(startDate);
+        journeyInfo.setUseCarTime(startDate);  //TODO 用车时间
         //1.6 it_is_return 是否往返 Y000 N444
         journeyInfo.setItIsReturn(travelCommitApply.getIsGoBack());
         //1.7 estimate_price 预估价格     非空
@@ -974,10 +975,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUseCarMode(officialCommitApply.getUseType());
         //1.5 use_car_time 用车时间
         Date applyDate = officialCommitApply.getApplyDate();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");  //TODO 时间方法改动下
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");  //TODO 时间方法改动下
         if (applyDate != null){
-            String date = dateFormat.format(applyDate);
-            journeyInfo.setUseCarTime(date);
+            //String date = dateFormat.format(applyDate);
+            journeyInfo.setUseCarTime(applyDate);
         }
         //1.6 it_is_return 是否往返 Y000 N444
         journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());    //TODO  有往返的话，创建两个行程

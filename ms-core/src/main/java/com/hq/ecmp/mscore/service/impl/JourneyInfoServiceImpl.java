@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.JourneyVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.util.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -137,7 +138,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 				if(null !=regimeInfo){
 					carAuthorityInfo.setType(regimeInfo.parseApplyType());
 					//公务用车时间
-					carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());
+					carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());  //TODO  .toString() 适应性添加， zc
 					//公务公车方式
 					carAuthorityInfo.setCarType(journeyInfo.getUseCarMode());
 					if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getRegimenType())){

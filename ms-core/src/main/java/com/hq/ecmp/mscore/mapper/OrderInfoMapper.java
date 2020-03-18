@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 
+import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
@@ -8,6 +9,7 @@ import com.hq.ecmp.mscore.domain.OrderListInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import org.apache.ibatis.annotations.Param;
@@ -132,7 +134,7 @@ public interface OrderInfoMapper {
 
     DriverOrderInfoVO selectOrderDetail(Long orderId);
 
-    OrderStateVO getOrderState(Long orderId);
+    OrderStateVO getOrderState(@Param("orderId")Long orderId,@Param("regimenType")String regimenType);
 
     /**
      * pc端获取订单列表
@@ -149,5 +151,19 @@ public interface OrderInfoMapper {
      * @return
      */
     OrderDetailBackDto getOrderListDetail(@Param("orderId") String orderNo);
+    
+    
+    /**
+     * pc端分页获取申请调派订单
+     * @param query
+     * @return
+     */
+    public List<ApplyDispatchVo> queryApplyDispatchList(ApplyDispatchQuery query);
+    
+    public Integer queryApplyDispatchListCount(ApplyDispatchQuery query);
+    
+    public List<ApplyDispatchVo> queryReassignmentDispatchList(ApplyDispatchQuery query);
+    
+    public Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query);
 }
 

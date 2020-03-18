@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EcmpConfig;
 import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
 import com.hq.ecmp.mscore.dto.config.EnterPriseBaseInfoDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -78,15 +79,17 @@ public interface IEcmpConfigService
      * 设置开屏图
      * @param status
      * @param value
+     * @param file
      */
-    void setUpWelComeImage(String status, String value);
+    void setUpWelComeImage(String status, String value, MultipartFile file);
 
     /**
      * 设置背景图
      * @param status
      * @param value
+     * @param file
      */
-    void setUpBackGroundImage(String status, String value);
+    void setUpBackGroundImage(String status, String value, MultipartFile file);
 
     /**
      * 设置企业公告
@@ -111,6 +114,8 @@ public interface IEcmpConfigService
      *
      * @param status
      * @param value
+     * @param owenType
+     * @param rideHailing
      */
     void setUpOrderConfirm(String status, String value, String owenType, String rideHailing);
 

@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.DriverQueryResult;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -79,4 +80,28 @@ public interface DriverInfoMapper
 
 
     DriverInfo selectDriverInfoByUserId(Long userId);
+
+    /**
+     * 根据deptId查询归属驾驶员数量
+     *
+     * @param deptId 组织id
+     * @return 结果
+     */
+    public int selectDriverCountByDeptId(Long deptId);
+
+    /**
+     * 禁用/启用  驾驶员
+     *
+     * @param deptId 部门ID
+     * @param state 状态 W001 待审   V000 生效中   NV00 失效
+     * @return 结果
+     */
+    public int updateUseStatus(@Param("deptId") Long deptId, @Param("state") String state);
+
+    /**
+     * 查询车辆可用驾驶员
+     * @param driverId
+     * @return
+     */
+    DriverInfo selectEffectiveDriverInfoById(Long driverId);
 }

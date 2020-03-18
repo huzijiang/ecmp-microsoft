@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.domain.RegimeOpt;
 import com.hq.ecmp.mscore.domain.RegimePo;
 import com.hq.ecmp.mscore.domain.RegimeQueryPo;
 import com.hq.ecmp.mscore.domain.RegimeVo;
+import com.hq.ecmp.mscore.vo.RegimenVO;
 
 /**
  * 【请填写功能名称】Service接口
@@ -75,11 +76,11 @@ public interface IRegimeInfoService
      * @param userId
      * @return
      */
-    List<RegimeInfo> findRegimeInfoListByUserId(Long userId,Long sceneId);
+    List<RegimenVO> findRegimeInfoListByUserId(Long userId, Long sceneId);
     
     /**
      * 判断制度可用车方式是否含有自有车
-     * @param orderId
+     * @param
      * @return
      */
      public boolean findOwnCar(Long regimenId);
@@ -103,9 +104,6 @@ public interface IRegimeInfoService
      public RegimeInfo  queryRegimeType(Long regimeId);
      
      public RegimeVo queryRegimeDetail(Long regimeId);
-     
-     
-     
-     
+
 }
 

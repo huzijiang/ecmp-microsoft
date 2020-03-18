@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.hq.ecmp.mscore.vo.RegimenVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,7 +50,7 @@ public class RegimeController {
      */
     @ApiOperation(value = "getUserRegimes",notes = "根据用户信息查询用户的用车制度信息",httpMethod ="POST")
     @PostMapping("/getUserRegimes")
-    public ApiResponse<List<RegimeInfo>> getUserRegimes(@RequestBody(required = false)UserDto userDto){
+    public ApiResponse<List<RegimenVO>> getUserRegimes(@RequestBody(required = false)UserDto userDto){
         //查询登录用户
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
@@ -59,7 +60,7 @@ public class RegimeController {
             sceneId = userDto.getSceneId();
         }
         //根据用户id查询用车制度
-        List<RegimeInfo> regimeInfoList = regimeInfoService.findRegimeInfoListByUserId(loginUser.getUser().getUserId(),sceneId);
+        List<RegimenVO> regimeInfoList = regimeInfoService.findRegimeInfoListByUserId(loginUser.getUser().getUserId(),sceneId);
         if(CollectionUtils.isEmpty(regimeInfoList)){
             return ApiResponse.error("暂无数据");
         }

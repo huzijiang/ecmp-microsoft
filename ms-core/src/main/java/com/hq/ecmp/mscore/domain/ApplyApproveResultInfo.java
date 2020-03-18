@@ -152,7 +152,12 @@ public class ApplyApproveResultInfo extends BaseEntity
         this.approveTemplateId = approveTemplateId;
     }
 
-    public ApplyApproveResultInfo(Long applyId,Long approveTemplateId,Long approveNodeId) {
+    public ApplyApproveResultInfo(Long applyId, String state) {
+        this.applyId = applyId;
+        this.state = state;
+    }
+
+    public ApplyApproveResultInfo(Long applyId, Long approveTemplateId, Long approveNodeId) {
         this.applyId = applyId;
         this.approveNodeId=approveNodeId;
         this.approveTemplateId = approveTemplateId;

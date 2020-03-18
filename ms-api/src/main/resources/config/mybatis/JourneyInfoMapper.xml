@@ -28,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectJourneyInfoVo">
-        select journey_id, user_id, regimen_id, service_type, use_car_mode, use_car_time, it_is_return, estimate_price, project_id, flight_number, use_time, wait_time_long, charter_car_type, create_by, create_time, update_by, update_time from journey_info
+        select journey_id, user_id, regimen_id, service_type, use_car_mode, use_car_time, it_is_return, estimate_price, project_id, flight_number, use_time, wait_time_long, charter_car_type, create_by, create_time, update_by, update_time,title,start_date,end_date from journey_info
     </sql>
 
     <select id="selectJourneyInfoList" parameterType="com.hq.ecmp.mscore.domain.JourneyInfo" resultMap="JourneyInfoResult">
@@ -38,7 +38,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="regimenId != null "> and regimen_id = #{regimenId}</if>
             <if test="serviceType != null  and serviceType != ''"> and service_type = #{serviceType}</if>
             <if test="useCarMode != null  and useCarMode != ''"> and use_car_mode = #{useCarMode}</if>
-            <if test="useCarTime != null  and useCarTime != ''"> and use_car_time = #{useCarTime}</if>
+            <if test="useCarTime != null "> and use_car_time = #{useCarTime}</if>
             <if test="itIsReturn != null  and itIsReturn != ''"> and it_is_return = #{itIsReturn}</if>
             <if test="estimatePrice != null  and estimatePrice != ''"> and estimate_price = #{estimatePrice}</if>
             <if test="projectId != null "> and project_id = #{projectId}</if>
@@ -65,7 +65,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="regimenId != null ">regimen_id,</if>
             <if test="serviceType != null  and serviceType != ''">service_type,</if>
             <if test="useCarMode != null  and useCarMode != ''">use_car_mode,</if>
-            <if test="useCarTime != null  and useCarTime != ''">use_car_time,</if>
+            <if test="useCarTime != null  ">use_car_time,</if>
             <if test="itIsReturn != null  and itIsReturn != ''">it_is_return,</if>
             <if test="estimatePrice != null  and estimatePrice != ''">estimate_price,</if>
             <if test="projectId != null ">project_id,</if>
@@ -90,7 +90,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="regimenId != null ">#{regimenId},</if>
             <if test="serviceType != null  and serviceType != ''">#{serviceType},</if>
             <if test="useCarMode != null  and useCarMode != ''">#{useCarMode},</if>
-            <if test="useCarTime != null  and useCarTime != ''">#{useCarTime},</if>
+            <if test="useCarTime != null ">#{useCarTime},</if>
             <if test="itIsReturn != null  and itIsReturn != ''">#{itIsReturn},</if>
             <if test="estimatePrice != null  and estimatePrice != ''">#{estimatePrice},</if>
             <if test="projectId != null ">#{projectId},</if>

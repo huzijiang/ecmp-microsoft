@@ -3,6 +3,8 @@ package com.hq.ecmp.mscore.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  *
  * 订单状态
@@ -44,4 +46,5 @@ public class OrderStateVO {
     private String serviceType;
     @ApiModelProperty(name = "charterCarType",value = "包车类型")
     private String charterCarType;
+    private Date useCarTime;
 }

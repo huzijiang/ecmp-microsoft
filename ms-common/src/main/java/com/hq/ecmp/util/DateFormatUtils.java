@@ -1,10 +1,10 @@
 package com.hq.ecmp.util;
 
-import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
-
 import java.text.ParseException;
 import java.util.Date;
+
+import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * Date的parse()与format(), 采用Apache Common Lang中线程安全, 性能更佳的FastDateFormat
@@ -84,6 +84,9 @@ public class DateFormatUtils {
      * FastDateFormat.getInstance()已经做了缓存，不会每次创建对象，但直接使用对象仍然能减少在缓存中的查找.
      */
     public static String formatDate(String pattern, Date date) {
+        if (date==null){
+            return null;
+        }
         return FastDateFormat.getInstance(pattern).format(date);
     }
 
@@ -187,5 +190,13 @@ public class DateFormatUtils {
             totalTimeStr=minute+"分";
         }
         return totalTimeStr;
+    }
+    
+    public static boolean beforeCurrentDate(Date date){
+    	Date currentDate=new Date();
+    	if(date.getTime()>currentDate.getTime()){
+    		return false;
+    	}
+    	return true;
     }
 }
