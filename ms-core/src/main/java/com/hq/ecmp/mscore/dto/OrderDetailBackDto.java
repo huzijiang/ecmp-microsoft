@@ -38,7 +38,10 @@ public class OrderDetailBackDto extends OrderListBackDto {
     private String planningArriveTime;
     @ApiModelProperty(value ="计划下车地点")
     private String planningArriveAddress;
-
+    @ApiModelProperty(value ="车辆当前精度")
+    private String currentLongitude;
+    @ApiModelProperty(value ="车辆当前纬度")
+    private String currentLatitude;
 
     @ApiModelProperty(value ="车辆级别")
     private String carLevel;
@@ -49,7 +52,4 @@ public class OrderDetailBackDto extends OrderListBackDto {
 
     @ApiModelProperty(value ="费用详情",notes = "网约车需要")
     private String amountDetail;
-
-
-
 }

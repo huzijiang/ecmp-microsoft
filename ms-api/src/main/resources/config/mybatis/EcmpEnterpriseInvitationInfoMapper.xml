@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo" id="EcmpEnterpriseInvitationInfoMap">
+        <result property="invitationId" column="invitation_id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="enterpriseId" column="enterprise_id" jdbcType="INTEGER"/>
+        <result property="departmentId" column="department_id" jdbcType="INTEGER"/>
+        <result property="carGroupId" column="car_group_id" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="roseId" column="rose_id" jdbcType="INTEGER"/>
+        <result property="regimeIds" column="regime_ids" jdbcType="VARCHAR"/>
+        <result property="url" column="url" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="EcmpEnterpriseInvitationInfoMap">
+        select
+          invitation_id, name, enterprise_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time
+        from ecmp.ecmp_enterprise_invitation_info
+        where invitation_id = #{invitationId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="EcmpEnterpriseInvitationInfoMap">
+        select
+          invitation_id, name, enterprise_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time
+        from ecmp.ecmp_enterprise_invitation_info
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="EcmpEnterpriseInvitationInfoMap">
+        select
+          invitation_id, name, enterprise_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time
+        from ecmp.ecmp_enterprise_invitation_info
+        <where>
+            <if test="invitationId != null">
+                and invitation_id = #{invitationId}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="enterpriseId != null">
+                and enterprise_id = #{enterpriseId}
+            </if>
+            <if test="departmentId != null">
+                and department_id = #{departmentId}
+            </if>
+            <if test="carGroupId != null">
+                and car_group_id = #{carGroupId}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="roseId != null">
+                and rose_id = #{roseId}
+            </if>
+            <if test="regimeIds != null and regimeIds != ''">
+                and regime_ids = #{regimeIds}
+            </if>
+            <if test="url != null and url != ''">
+                and url = #{url}
+            </if>
+            <if test="state != null and state != ''">
+                and state = #{state}
+            </if>
+            <if test="createBy != null">
+                and create_by = #{createBy}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateBy != null">
+                and update_by = #{updateBy}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="invitationId" useGeneratedKeys="true">
+        insert into ecmp.ecmp_enterprise_invitation_info(name, enterprise_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time)
+        values (#{name}, #{enterpriseId}, #{departmentId}, #{carGroupId}, #{type}, #{roseId}, #{regimeIds}, #{url}, #{state}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update ecmp.ecmp_enterprise_invitation_info
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="enterpriseId != null">
+                enterprise_id = #{enterpriseId},
+            </if>
+            <if test="departmentId != null">
+                department_id = #{departmentId},
+            </if>
+            <if test="carGroupId != null">
+                car_group_id = #{carGroupId},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="roseId != null">
+                rose_id = #{roseId},
+            </if>
+            <if test="regimeIds != null and regimeIds != ''">
+                regime_ids = #{regimeIds},
+            </if>
+            <if test="url != null and url != ''">
+                url = #{url},
+            </if>
+            <if test="state != null and state != ''">
+                state = #{state},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where invitation_id = #{invitationId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from ecmp.ecmp_enterprise_invitation_info where invitation_id = #{invitationId}
+    </delete>
+    <!--邀请员工列表-->
+    <select id="queryInvitationUser" parameterType="Object" resultMap="com.hq.ecmp.mscore.vo.InvitationUserVO">
+        select a.name as yqName,c.dept_name as companyName,e.dept_name as deptName,group_concat(b.name) as regimeUser ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait
+        from ecmp_enterprise_invitation_info  a
+        left join regime_info b
+        on find_in_set(b.regimen_id,a.regime_ids)
+        left join ecmp_org c on c.dept_id = a.enterprise_id
+        left join ecmp_org e on e.dept_id = a.department_id
+        left join (select d.invitation_id, count(*) as amountPass from ecmp_enterprise_register_info d where d.state='S001' group by d.invitation_id) d_amountPass on d_amountPass.invitation_id = a.invitation_id
+        left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
+        where a.type='T001'
+        group by a.name,a.enterprise_id,a.department_id
+    </select>
+    <!--邀请员工详情-->
+    <select id="queryInvitationUserDetial" parameterType="Object" resultMap="com.hq.ecmp.mscore.vo.InvitationUserVO">
+        select a.name as yqName,c.dept_name as companyName,e.dept_name as deptName,group_concat(b.name) as regimeUser ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait
+        from ecmp_enterprise_invitation_info  a
+        left join regime_info b
+        on find_in_set(b.regimen_id,a.regime_ids)
+        left join ecmp_org c on c.dept_id = a.enterprise_id
+        left join ecmp_org e on e.dept_id = a.department_id
+        left join (select d.invitation_id, count(*) as amountPass from ecmp_enterprise_register_info d where d.state='S001' group by d.invitation_id) d_amountPass on d_amountPass.invitation_id = a.invitation_id
+        left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
+        where a.type='T001'and a.invitation_id = #{invitationId}
+        group by a.name,a.enterprise_id,a.department_id
+    </select>
+    <!--驾驶员工列表-->
+    <select id="queryInvitationDriver" parameterType="Object" resultMap="com.hq.ecmp.mscore.vo.InvitationDriverVO">
+        select a.name as yqName,c.dept_name as companyName,e.car_group_name as carGroupName,b_amountCar.carNum as carNum ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait
+        from ecmp_enterprise_invitation_info  a
+        left join (select b.car_group_id,count(*) as carNum from car_info b where b.state='S000' group by b.car_group_id ) b_amountCar on b_amountCar.car_group_id=a.car_group_id
+        left join ecmp_org c on c.dept_id = a.enterprise_id
+        left join car_group_info e on e.car_group_id= a.car_group_id
+        left join (select d.invitation_id, count(*) as amountPass from ecmp_enterprise_register_info d where d.state='S001' group by d.invitation_id) d_amountPass on d_amountPass.invitation_id = a.invitation_id
+        left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
+        where a.type='T002'
+        group by a.name,a.enterprise_id,a.car_group_id
+    </select>
+    <!--驾驶员工详情-->
+    <select id="queryInvitationDriverDetial" parameterType="Object" resultMap="com.hq.ecmp.mscore.vo.InvitationDriverVO">
+        select a.name as yqName,c.dept_name as companyName,e.car_group_name as carGroupName,b_amountCar.carNum as carNum ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait
+        from ecmp_enterprise_invitation_info  a
+        left join (select b.car_group_id,count(*) as carNum from car_info b where b.state='S000' group by b.car_group_id ) b_amountCar on b_amountCar.car_group_id=a.car_group_id
+        left join ecmp_org c on c.dept_id = a.enterprise_id
+        left join car_group_info e on e.car_group_id= a.car_group_id
+        left join (select d.invitation_id, count(*) as amountPass from ecmp_enterprise_register_info d where d.state='S001' group by d.invitation_id) d_amountPass on d_amountPass.invitation_id = a.invitation_id
+        left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
+        where a.type='T002'and a.invitation_id = #{invitationId}
+        group by a.name,a.enterprise_id,a.car_group_id
+    </select>
+
+
+</mapper>

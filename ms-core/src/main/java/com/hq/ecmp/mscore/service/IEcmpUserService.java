@@ -1,9 +1,11 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -76,7 +78,10 @@ public interface IEcmpUserService {
      * @return
      */
     public int  queryCompanyEmpCunt();
-    
+    /**
+     * 员工邀请判断是否该手机号是否已经注册
+     */
+    public int userItisExist(String phoneNumber);
 
     /*
      * 获取上级组织id中的员工姓名和电话
@@ -132,5 +137,23 @@ public interface IEcmpUserService {
     * @return
    * */
     public EcmpUserDto selectEcmpUserDetail(Long userId);
+
+    /*设置离职日期
+    @param  dimissionTime
+     * @return
+    * */
+    public int updateDimissionTime(Date dimissionTime);
+
+    /*已离职数量
+    @param  dimissionTime
+     * @return
+    * */
+    public int selectDimissionCount(Long userId);
+
+    /*已离职列表
+    @param  userId
+     * @return
+    * */
+    public List<EcmpUserDto> selectDimissionList(Long userId);
 
 }

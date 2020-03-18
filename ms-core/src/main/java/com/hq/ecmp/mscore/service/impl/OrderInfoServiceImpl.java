@@ -8,6 +8,7 @@ import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
@@ -30,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -479,6 +481,22 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderId(orderId);
         try {
+            boolean reassignment = iOrderStateTraceInfoService.isReassignment(orderId);
+            //改派的订单需要操作改派同意,是否车和司机
+            if(reassignment){
+                OrderInfo orderInfoRe = new OrderInfo();
+                orderInfoRe.setState(OrderState.WAITINGLIST.getState());
+                orderInfoRe.setUpdateBy(String.valueOf(userId));
+                orderInfoRe.setOrderId(orderId);
+                orderInfoRe.setUpdateTime(DateUtils.getNowDate());
+                orderInfoMapper.updateOrderInfo(orderInfoRe);
+                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+                orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+                orderStateTraceInfo.setState(ResignOrderTraceState.AGREE.getState());
+                orderStateTraceInfo.setOrderId(orderId);
+                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            }
+
             //MAC地址
             List<String> macList = MacTools.getMacList();
             String macAdd = macList.get(0);
@@ -981,6 +999,74 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             throw new Exception("获取网约车信息失败");
         }
         return data;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    public void applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto, Long userId) throws ParseException {
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setOrderId(applyUseWithTravelDto.getOrderId());
+        //手动下单，订单状态变为待派单
+        orderInfo.setState(OrderState.WAITINGLIST.getState());
+        String type = applyUseWithTravelDto.getType();
+        orderInfo.setDemandCarLevel(applyUseWithTravelDto.getGroupId());
+        if(OrderServiceType.ORDER_SERVICE_TYPE_NOW.getPrState().equals(type) || OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getPrState().equals(type)){
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
+        }else if(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getPrState().equals(type)){
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState());
+            orderInfo.setFlightNumber(applyUseWithTravelDto.getAirlineNum());
+            SimpleDateFormat si = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date planDate = si.parse(applyUseWithTravelDto.getPlanDate());
+            orderInfo.setFlightPlanTakeOffTime(planDate);
+        }else if(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getPrState().equals(type)){
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState());
+        }else{
+            orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState());
+        }
+        orderInfo.setUpdateTime(DateUtils.getNowDate());
+        orderInfoMapper.updateOrderInfo(orderInfo);
+        //订单轨迹
+        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
+        //订单地址表
+        OrderInfo orderInfoOld = orderInfoMapper.selectOrderInfoById(applyUseWithTravelDto.getOrderId());
+        String startPoint = applyUseWithTravelDto.getStartPoint();
+        String endPoint = applyUseWithTravelDto.getEndPoint();
+        String[] start = startPoint.split("\\,");
+        String[] end = endPoint.split("\\,");
+
+        OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+        orderAddressInfo.setOrderId(orderInfoOld.getOrderId());
+        orderAddressInfo.setJourneyId(orderInfoOld.getJourneyId());
+        orderAddressInfo.setNodeId(orderInfoOld.getNodeId());
+        orderAddressInfo.setPowerId(orderInfoOld.getPowerId());
+        orderAddressInfo.setUserId(orderInfoOld.getUserId()+"");
+        orderAddressInfo.setCityPostalCode(applyUseWithTravelDto.getCityId());
+        if(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getPrState().equals(type)){
+            String depCode = applyUseWithTravelDto.getDepCode();
+            String arrCode = applyUseWithTravelDto.getArrCode();
+            orderAddressInfo.setIcaoCode(arrCode+","+depCode);
+        }
+        orderAddressInfo.setCreateBy(userId+"");
+        //起点
+        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = sdf.parse(applyUseWithTravelDto.getBookingDate());
+        orderAddressInfo.setActionTime(date);
+        orderAddressInfo.setLongitude(Double.parseDouble(start[0]));
+        orderAddressInfo.setLatitude(Double.parseDouble(start[1]));
+        orderAddressInfo.setAddress(applyUseWithTravelDto.getStartAddr());
+        orderAddressInfo.setAddressLong(applyUseWithTravelDto.getStarAddrLong());
+
+
+        iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+        //终点
+        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+        orderAddressInfo.setActionTime(null);
+        orderAddressInfo.setLongitude(Double.parseDouble(end[0]));
+        orderAddressInfo.setLatitude(Double.parseDouble(end[1]));
+        orderAddressInfo.setAddress(applyUseWithTravelDto.getEndAddr());
+        orderAddressInfo.setAddressLong(applyUseWithTravelDto.getEndAddrLong());
+        iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
     }
 
 	@Override

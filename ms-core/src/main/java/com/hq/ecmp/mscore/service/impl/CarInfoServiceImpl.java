@@ -9,13 +9,11 @@ import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.dto.CarSaveDTO;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.ICarInfoService;
-import com.hq.ecmp.mscore.vo.CarDetailVO;
-import com.hq.ecmp.mscore.vo.CarListVO;
-import com.hq.ecmp.mscore.vo.DriverVO;
-import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -415,7 +413,9 @@ public class CarInfoServiceImpl implements ICarInfoService
         return fuelType;
     }
 
-
-
-
+    @Override
+    public List<CarLocationVo> locationCars(CarLocationDto carLocationDto) {
+        List<CarLocationVo> carLocationVos = carInfoMapper.locationCars(carLocationDto);
+        return carLocationVos;
+    }
 }

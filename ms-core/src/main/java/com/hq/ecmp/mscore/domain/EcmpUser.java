@@ -78,6 +78,18 @@ public class EcmpUser extends BaseEntity
     @Excel(name = "是否车队调度", readConverterExp = "0否 1是")
     private String itIsDispatcher;
 
+    /** 离职日期 */
+    @Excel(name = "离职日期", width = 30, dateFormat = "yyyy-MM-dd")
+    private Date dimissionTime;
+
+    public Date getDimissionTime() {
+        return dimissionTime;
+    }
+
+    public void setDimissionTime(Date dimissionTime) {
+        this.dimissionTime = dimissionTime;
+    }
+
     public void setUserId(Long userId)
     {
         this.userId = userId;

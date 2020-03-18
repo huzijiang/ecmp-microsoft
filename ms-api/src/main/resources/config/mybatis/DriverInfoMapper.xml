@@ -41,7 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectDriverInfoVo"/>
         <where>
             <if test="userId != null "> and user_id = #{userId}</if>
-            <if test="driverName != null  and driverName != ''"> and driver_name like concat('%', #{driverName}, '%')</if>
+            <if test="driverName != null  and driverName != ''"> and driver_name  concat('%', #{driverName}, '%')</if>
             <if test="country != null  and country != ''"> and country = #{country}</if>
             <if test="nation != null  and nation != ''"> and nation = #{nation}</if>
             <if test="idCard != null  and idCard != ''"> and id_card = #{idCard}</if>
@@ -291,6 +291,7 @@ WHERE
     <select id="queryCompanyDriver"  resultType="java.lang.Integer">
           select count(*) from driver_info
     </select>
+
     <!--根据deptId查询归属驾驶员数量-->
     <select id="selectDriverCountByDeptId" parameterType="Long" resultType="java.lang.Integer">
         select count(1) from  driver_info where user_id in (select user_id from  ecmp_user where dept_id=#{deptId})
@@ -300,4 +301,9 @@ WHERE
     <update id="updateUseStatus" >
       update  driver_info  set `state`=#{state} where user_id in (select user_id from  ecmp_user where dept_id=#{deptId})
     </update>
+    <!--//邀请驾驶员是否已经是企业司机-->
+    <select id="driverItisExist"  resultType="java.lang.Integer">
+          select count(*) from driver_info where mobile=#{phoneNumber}
+    </select>
+
 </mapper>

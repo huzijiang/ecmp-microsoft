@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -101,6 +102,13 @@ public interface EcmpUserMapper
     public int addEcmpUser(EcmpUserVo ecmpUser);
 
     /*
+     * 新增员工&用车制度中间表信息
+     *  @param  ecmpUserVo
+     * @return int
+     * */
+    public int addUserRegimeRelation(EcmpUserVo ecmpUser);
+
+    /*
      *查询手机号与邮箱是否已经存在
      * */
     public int selectPhoneAndEmailExist(EcmpUserVo ecmpUser);
@@ -114,12 +122,20 @@ public interface EcmpUserMapper
     public int updateDelFlagById(Long userId);
 
     /**
+     * 查询该部门下的所有员工编号
+     *
+     * @param deptId 部门编号
+     * @return 结果
+     */
+    public Long[] getEcmpUserIdsByDeptId(Long deptId);
+
+    /**
      * 获取员工列表
      *
      * @param deptId 部门编号
      * @return 结果
      */
-    public List<EcmpUserDto> getEcmpUserList(Long deptId);
+    public List<EcmpUserDto> getEcmpUserList(@Param("deptId") Long deptId,@Param("userId")Long userId);
 
     /**
      * 逻辑删除员工信息
@@ -136,5 +152,30 @@ public interface EcmpUserMapper
     public EcmpUserDto selectEcmpUserDetail(Long userId);
 
     public int  queryCompanyEmp();
+
+
+    /*设置离职日期
+    @param  dimissionTime
+     * @return
+    * */
+    public int updateDimissionTime(Date dimissionTime);
+
+    /*已离职数量
+    @param  dimissionTime
+     * @return
+    * */
+    public int selectDimissionCount(Long userId);
+
+    /*已离职列表
+    @param  userId
+     * @return
+    * */
+    public List<EcmpUserDto> selectDimissionList(Long userId);
+
+    /**
+     * 员工邀请判断是否该手机号是否已经注册
+     */
+    public int userItisExist(String phoneNumber);
+
 }
 

@@ -4,6 +4,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.ms.api.dto.base.DictDto;
 import com.hq.ecmp.ms.api.dto.base.DictTypeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
+
 import com.hq.ecmp.mscore.domain.EcmpDictData;
 import com.hq.ecmp.mscore.domain.EcmpDictType;
 import com.hq.ecmp.mscore.service.IEcmpDictDataService;
@@ -40,29 +41,34 @@ public class DictDataController {
         if(CollectionUtils.isNotEmpty(ecmpDictDataList)){
             return ApiResponse.success(ecmpDictDataList);
         }else {
-            return ApiResponse.error("未查询到项目编号");
+            return ApiResponse.error("未查询到数据字典类型");
         }
     }
     /**
      * 获取评价标签好评
      * @return ecmpDictDataList
      */
-    @ApiOperation(value = "getDictDataByTypeGOOD",notes = "评价标签好评 ",httpMethod ="POST")
+   /* @ApiOperation(value = "getDictDataByTypeGOOD",notes = "评价标签好评 ",httpMethod ="POST")
     @PostMapping("/getDictDataByTypeGOOD")
-    public ApiResponse<List<EcmpDictData>> getDictDataByTypeGOOD(){
-        List<EcmpDictData> ecmpDictGoodList = iEcmpDictDataService.selectEcmpDictDataByTypeGOOD();
-        return ApiResponse.success(ecmpDictGoodList);
-    }
+    public ApiResponse<List<EcmpDictData>> getDictDataByTypeGOOD(@RequestBody DictQuery query){
+        List<EcmpDictData> ecmpDictGoodList = iEcmpDictDataService.selectEcmpDictDataByTypeGOOD(query);
+
+        if(CollectionUtils.isNotEmpty(ecmpDictGoodList)){
+            return ApiResponse.success(ecmpDictGoodList);
+        }else {
+            return ApiResponse.error("未查询到好评类型");
+        }
+    }*/
     /**
      * 获取评价标签差评
      * @return ecmpDictDataList
      */
-    @ApiOperation(value = "getDictDataByTypeBAD",notes = "评价标签差评",httpMethod ="POST")
+   /* @ApiOperation(value = "getDictDataByTypeBAD",notes = "评价标签差评",httpMethod ="POST")
     @PostMapping("/getDictDataByTypeBAD")
     public ApiResponse<List<EcmpDictData>> getDictDataByTypeBAD(){
         List<EcmpDictData> ecmpDictBadList = iEcmpDictDataService.selectEcmpDictDataByTypeBAD();
         return ApiResponse.success(ecmpDictBadList);
-    }
+    }*/
 
 
     /**

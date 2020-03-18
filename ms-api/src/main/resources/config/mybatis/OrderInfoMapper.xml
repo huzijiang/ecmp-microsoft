@@ -525,7 +525,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         osi.total_mileage totalMileage,
         osi.total_time totalTime,
         osi.amount_detail amountDetail,
-        osi.amount
+        osi.amount,
+        dhi.longitude  currentLongitude,
+        dhi.latitude currentLatitude
         from order_info s
         left join journey_user_car_power jucp on jucp.power_id=s.power_id
         left join apply_info a on a.apply_id=jucp.apply_id
@@ -541,7 +543,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join regime_info ri on ri.regimen_id=ji.regimen_id
         left join order_address_info oai on oai.order_id=s.order_id and oai.type='A000'
         left join order_address_info oai2 on oai2.order_id=s.order_id and oai2.type='A999'
-            <where>
+        left join (	select d1.* from driver_heartbeat_info d1,
+        (select dd.driver_id,dd.order_id,max(dd.create_time) mtime from driver_heartbeat_info dd
+        group by dd.driver_id,dd.order_id) d2
+        where d1.driver_id=d2.driver_id and d1.order_id=d2.order_id and d1.create_time=d2.mtime ) dhi
+        on dhi.driver_id=s.driver_id and dhi.order_id=s.order_id
+        <where>
                 s.order_id=#{orderId}
             </where>
     </select>
