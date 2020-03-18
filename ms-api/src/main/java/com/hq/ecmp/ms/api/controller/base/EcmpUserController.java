@@ -110,9 +110,9 @@ public class EcmpUserController {
     * */
     @ApiOperation(value = "只修改手机号",notes = "只修改手机号",httpMethod ="POST")
     @PostMapping("/updatePhoneNum")
-    public ApiResponse updatePhoneNum(@RequestBody EcmpUserVo ecmpUser){
-        String newPhoneNum=ecmpUser.getNewPhoneNum();
-        String reWritePhone=ecmpUser.getRreWritePhone();
+    public ApiResponse updatePhoneNum(@RequestBody EcmpUserVo ecmpUserVo){
+        String newPhoneNum=ecmpUserVo.getNewPhoneNum();
+        String reWritePhone=ecmpUserVo.getReWritePhone();
         String s= ecmpUserService.updatePhoneNum(newPhoneNum,reWritePhone);
             return ApiResponse.success(s);
     }
@@ -130,7 +130,7 @@ public class EcmpUserController {
     }
 
      /*设置离职日期
-    @param  dimissionTime
+    @param  ecmpUser
      * @return
     * */
      @ApiOperation(value = "设置离职日期",notes = "设置离职日期",httpMethod ="POST")
@@ -163,15 +163,12 @@ public class EcmpUserController {
     @ApiOperation(value = "已离职列表",notes = "已离职列表",httpMethod ="POST")
     @PostMapping("/selectDimissionList")
     public ApiResponse selectDimissionList(@RequestBody EcmpUserVo ecmpUser){
-        Long userId=ecmpUser.getUserId();
-        List<EcmpUserDto>  dimissionList= ecmpUserService.selectDimissionList(deptId,userId);
+        Long deptId=ecmpUser.getDeptId();
+        List<EcmpUserDto>  dimissionList= ecmpUserService.selectDimissionList(deptId);
         return ApiResponse.success(dimissionList);
     }
 
     /*日期禁用（离职日期）*/
-    /*已离职数量*/
-    /*已离职列表*/
-    /*设置离职日期*/
 
 
     /**

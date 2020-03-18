@@ -90,4 +90,6 @@ public class EcmpUserVo {
 
     @ApiModelProperty(value= "用车制度id")
     private String regimenId;
+    @ApiModelProperty(value= "离职日期")
+    private Date dimissionTime;
 }

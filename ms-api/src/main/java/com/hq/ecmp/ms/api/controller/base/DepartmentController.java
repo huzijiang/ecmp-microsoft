@@ -115,15 +115,15 @@ public class DepartmentController {
 
     /**
      * 逻辑删除部门信息
-     * @param  deptId
+     * @param  ecmpOrgVo
      * @return
      */
     @ApiOperation(value = "updateDelFlagById",notes = "逻辑删除部门信息",httpMethod ="POST")
     @PostMapping("/updateDelFlagById")
-    public ApiResponse updateDelFlagById(@RequestBody EcmpOrgVo ecmpOrg){
+    public ApiResponse updateDelFlagById(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
         String deptType=ecmpOrgVo.getDeptType();
-        String msg = orgService.updateDelFlagById(ecmpOrg);
+        String msg = orgService.updateDelFlagById(deptType,deptId);
         return ApiResponse.error(msg);
     }
 

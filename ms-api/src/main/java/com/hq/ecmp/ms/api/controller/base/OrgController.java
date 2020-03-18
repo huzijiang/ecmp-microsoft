@@ -141,12 +141,12 @@ public class OrgController {
     }
     /**
      * 逻辑删除分子公司信息
-     * @param  ecmpOrg
+     * @param  ecmpOrgVo
      * @return
      */
     @ApiOperation(value = "updateDelFlagById",notes = "删除分子公司信息",httpMethod ="POST")
     @PostMapping("/updateDelFlagById")
-    public ApiResponse updateDelFlagById(@RequestBody EcmpOrgVo ecmpOrg){
+    public ApiResponse updateDelFlagById(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
         String deptType=ecmpOrgVo.getDeptType();
         String msg = orgService.updateDelFlagById(deptType,deptId);
@@ -155,12 +155,12 @@ public class OrgController {
 
     /**
      * 禁用/启用  分/子公司
-     * @param  ecmpOrg
+     * @param  ecmpOrgVo
      * @return
      */
     @ApiOperation(value = "updateUseStatus",notes = "禁用/启用  分/子公司",httpMethod ="POST")
     @PostMapping("/updateUseStatus")
-    public ApiResponse updateUseStatus(@RequestBody EcmpOrgVo ecmpOrg){
+    public ApiResponse updateUseStatus(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
         String status=ecmpOrgVo.getStatus();
         String s = orgService.updateUseStatus(status,deptId);
