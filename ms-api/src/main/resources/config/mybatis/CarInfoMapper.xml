@@ -16,7 +16,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carColor"    column="car_color"    />
         <result property="carLicenseColor"    column="car_license_color"    />
         <result property="powerType"    column="power_type"    />
-        <result property="carType01"    column="car_type_01"    />
+        <result property="carType"    column="car_type"    />
         <result property="engineNumber"    column="engine_number"    />
         <result property="engineCc"    column="engine_cc"    />
         <result property="enginePower"    column="engine_power"    />
@@ -26,7 +26,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carLicenseImageUrl"    column="car_license_image_url"    />
         <result property="buyDate"    column="buy_date"    />
         <result property="rentEndDate"    column="rent_end_date"    />
-        <result property="ownerOrgId"    column="owner_org_id"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -34,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCarInfoVo">
-        select car_id, car_group_id, dept_id, car_type_id, car_license, state, car_type, seat_num, car_color, car_license_color, power_type, car_type_01, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, owner_org_id, create_by, create_time, update_by, update_time from car_info
+        select car_id, car_group_id, dept_id, car_type_id, car_license, state, car_type, seat_num, car_color, car_license_color, power_type, car_type, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, create_by, create_time, update_by, update_time from car_info
     </sql>
 
     <select id="selectCarInfoList" parameterType="com.hq.ecmp.mscore.domain.CarInfo" resultMap="CarInfoResult">
@@ -50,7 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''"> and car_color = #{carColor}</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''"> and car_license_color = #{carLicenseColor}</if>
             <if test="powerType != null  and powerType != ''"> and power_type = #{powerType}</if>
-            <if test="carType01 != null  and carType01 != ''"> and car_type_01 = #{carType01}</if>
+            <if test="carType != null  and carType != ''"> and car_type = #{carType}</if>
             <if test="engineNumber != null  and engineNumber != ''"> and engine_number = #{engineNumber}</if>
             <if test="engineCc != null  and engineCc != ''"> and engine_cc = #{engineCc}</if>
             <if test="enginePower != null  and enginePower != ''"> and engine_power = #{enginePower}</if>
@@ -86,7 +85,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''">car_color,</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">car_license_color,</if>
             <if test="powerType != null  and powerType != ''">power_type,</if>
-            <if test="carType01 != null  and carType01 != ''">car_type_01,</if>
+            <if test="carType != null  and carType != ''">car_type,</if>
             <if test="engineNumber != null  and engineNumber != ''">engine_number,</if>
             <if test="engineCc != null  and engineCc != ''">engine_cc,</if>
             <if test="enginePower != null  and enginePower != ''">engine_power,</if>
@@ -118,7 +117,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''">#{carColor},</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">#{carLicenseColor},</if>
             <if test="powerType != null  and powerType != ''">#{powerType},</if>
-            <if test="carType01 != null  and carType01 != ''">#{carType01},</if>
+            <if test="carType != null  and carType != ''">#{carType},</if>
             <if test="engineNumber != null  and engineNumber != ''">#{engineNumber},</if>
             <if test="engineCc != null  and engineCc != ''">#{engineCc},</if>
             <if test="enginePower != null  and enginePower != ''">#{enginePower},</if>
@@ -153,7 +152,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''">car_color = #{carColor},</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">car_license_color = #{carLicenseColor},</if>
             <if test="powerType != null  and powerType != ''">power_type = #{powerType},</if>
-            <if test="carType01 != null  and carType01 != ''">car_type_01 = #{carType01},</if>
+            <if test="carType != null  and carType != ''">car_type = #{carType},</if>
             <if test="engineNumber != null  and engineNumber != ''">engine_number = #{engineNumber},</if>
             <if test="engineCc != null  and engineCc != ''">engine_cc = #{engineCc},</if>
             <if test="enginePower != null  and enginePower != ''">engine_power = #{enginePower},</if>

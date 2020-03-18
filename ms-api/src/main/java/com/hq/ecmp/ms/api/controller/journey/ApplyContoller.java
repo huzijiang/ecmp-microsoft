@@ -246,7 +246,7 @@ public class ApplyContoller {
             List<ApplyApproveResultInfo> collect = beforeInspect(journeyApplyDto, userId);
             ApproveTemplateNodeInfo approveTemplateNodeInfo = nodeInfoService.selectApproveTemplateNodeInfoById(collect.get(0).getApproveNodeId());
             //判断当前审批人是不是最后审批人
-            if (approveTemplateNodeInfo != null && approveTemplateNodeInfo.getNextNodeId() != null) {//不是最后审批人
+            if (approveTemplateNodeInfo != null && !"0".equals(approveTemplateNodeInfo.getNextNodeId())) {//不是最后审批人
                 //修改当前审批记录状态已审批/审批通过，修改下一审批记录为待审批（）对应消息通知
                 List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(),ApproveStateEnum.NOT_ARRIVED_STATE.getKey()));
                 this.updateApproveResult(collect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
@@ -275,15 +275,18 @@ public class ApplyContoller {
 //                ecmpMessage.setUpdateBy(null);
 //                ecmpMessage.setUpdateTime(null);
 //                ecmpMessageService.insert(ecmpMessage);
-            } else if (approveTemplateNodeInfo != null && approveTemplateNodeInfo.getNextNodeId() == null) {//是最后节点审批人
+            } else if (approveTemplateNodeInfo != null && "0".equals(approveTemplateNodeInfo.getNextNodeId())) {//是最后节点审批人
                 //修改审理状态
                 this.updateApproveResult(collect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
+                ApplyInfo info = ApplyInfo.builder().applyId(collect.get(0).getApplyId()).state("S002").build();
+                applyInfoService.updateApplyInfo(info);
                 //TODO 调取生成用车权限,初始化订单
                 boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(journeyApplyDto.getApplyId(), userId);
                 if(!optFlag){
                     return ApiResponse.error("生成用车权限失败");
                 }
                 orderInfoService.initOrder(journeyApplyDto.getApplyId(),applyInfo.getJourneyId(),userId);
+
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -306,6 +309,8 @@ public class ApplyContoller {
         try{
             List<ApplyApproveResultInfo> collect = beforeInspect(journeyApplyDto, userId);
             this.updateApproveResult(collect, userId,ApproveStateEnum.APPROVE_FAIL.getKey(),journeyApplyDto.getRejectReason());
+            ApplyInfo info = ApplyInfo.builder().applyId(collect.get(0).getApplyId()).state("S003").build();
+            applyInfoService.updateApplyInfo(info);
         }catch (Exception e){
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -420,7 +425,7 @@ public class ApplyContoller {
         if (ObjectUtils.isEmpty(journeyInfo)){
             throw new Exception("行程申请单不存在!");
         }
-        RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
+        RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(applyInfo1.getRegimenId());
         List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = nodeInfoService.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId(), userId));
         List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(), regimeInfo.getApproveTemplateId(), approveTemplateNodeInfos.get(0).getApproveNodeId()));
         if (CollectionUtils.isEmpty(applyApproveResultInfos)){

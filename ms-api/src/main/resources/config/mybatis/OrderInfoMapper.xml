@@ -235,8 +235,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 					 o.order_id orderId,
 					 o.state,
 					 if (o.state='S900','已完成','未完成') stateType,
-					 jn.service_type serviceType,
-					 jn.flight_number flightNumber,
+					 o.service_type serviceType,
+					 o.flight_number flightNumber,
 					 jn.it_is_return itIsReturn,
 					 jn.charter_car_type charterCarType,
                     s.action_time useCarTime,
@@ -245,10 +245,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                      otc.state labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
-                inner join order_address_info s on  s.order_id=o.order_id
-                inner join order_address_info t on  t.order_id=o.order_id
+                inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
+                inner join order_address_info t on  t.order_id=o.order_id and t.type='A999'
                 left join (select order_id,state from order_state_trace_info where order_id in(select order_id from order_info where driver_id=#{driverId}) order by create_time desc limit 1) otc on  otc.order_id=o.order_id
-				where o.driver_id=#{driverId} and s.type='A000' and t.type='A999'
+				where o.driver_id=#{driverId}
 				<if test="flag==1">
                    and  (o.state="S299" or o.state="S600" or o.state="S616" )
                     order by useCarTime  asc
@@ -301,14 +301,13 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                      otc.state labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
-                inner join order_address_info s on  s.order_id=o.order_id
-                inner join order_address_info t on  t.order_id=o.order_id
+                inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
+                inner join order_address_info t on  t.order_id=o.order_id and t.type='A999'
                 left join (select order_id,state from order_state_trace_info where order_id in(select order_id from order_info where driver_id=#{driverId}) order by create_time desc limit 1) otc on  otc.order_id=o.order_id
 				where o.driver_id=#{driverId} and  (o.state="S299" or o.state="S600" or o.state="S616" )
                 <if test="day!=-1">
-                    <![CDATA[AND DATE_FORMAT(jni.plan_setout_time, '%Y-%m-%d') = DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
+                    <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') = DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
                 </if>
-                and s.type='A000' and t.type='A999'
                 order by s.action_time asc
     </select>
 
@@ -323,43 +322,20 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		a.order_id AS orderId,
 		a.journey_id journeyId,
 	    a.state,
-	    <if test="regimenType=='T001'">
-            b.plan_begin_address startAddress,
-            b.plan_setout_time useCarTime,
-            b.plan_end_address endAddress,
-            b.plan_begin_longitude startLongitude,
-            b.plan_begin_latitude startLatitude,
-            b.plan_end_longitude endLongitude ,
-            b.plan_end_latitude endLatitude,
-        </if>
-	    <if test="regimenType=='T002'">
-            e.address startAddress,
-            e.action_time useCarTime,
-            e.longitude startLongitude,
-            e.latitude startLatitude,
-            d.address endAddress,
-            d.longitude endLongitude ,
-            d.latitude endLatitude,
-        </if>
+        e.address startAddress,
+        DATE_FORMAT(e.action_time, '%m月%d日 %H:%i ') useCarTime,
+        e.longitude startLongitude,
+        e.latitude startLatitude,
+        d.address endAddress,
+        d.longitude endLongitude ,
+        d.latitude endLatitude,
         g.charter_car_type ,
         (select state from order_state_trace_info where order_id=#{orderId} order by create_time desc limit 1) labelState
 	    from order_info a
 	        inner join journey_info g on g.journey_id=a.journey_id
-	    <if test="regimenType=='T001'">
-            inner join journey_node_info b on b.node_id=a.node_id
-        </if>
-	    <if test="regimenType=='T002'">
-            inner join order_address_info e on e.order_id=a.order_id
-            inner join order_address_info d on d.order_id=a.order_id
-        </if>
+            inner join order_address_info e on e.order_id=a.order_id and e.type='A000'
+            inner join order_address_info d on d.order_id=a.order_id and d.type='A999'
 		where a.order_id=#{orderId}
-        <if test="regimenType=='T001'">
-            and b.it_is_via_point='N111'
-        </if>
-        <if test="regimenType=='T002'">
-            and e.type='A000'
-            and d.type='A999'
-        </if>
 	</select>
 
     <select id="getWaitDispatchOrderDetailInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
@@ -717,4 +693,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		</if>
 		GROUP BY d.order_id
 	</select>
+
+    <select id="selectDriverOrder" parameterType="Object" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
+        select a.order_id orderId,use_car_mode useCarMode from order_info a
+            inner join order_address_info b on b.order_id=a.order_id
+        where a.driver_id=#{driverId} AND  a.state=#{state}
+        <![CDATA[AND DATE_FORMAT(b.action_time, '%Y-%m-%d %H:%i:%s') <= DATE_FORMAT(DATE_ADD(now() ,INTERVAL 30 MINUTE ), '%Y-%m-%d %H:%i:%s') ]]> limit 1
+
+    </select>
 </mapper>

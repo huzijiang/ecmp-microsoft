@@ -23,6 +23,7 @@ import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -356,7 +357,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
         ApplyDetailVO applyDetailVO = ApplyDetailVO.builder()
                 //申请原因
-                .reason(applyInfo.getReason())
+                .reason(applyInfo.getReason()).applyId(applyInfo.getApplyId())
                 //行程id
                 .jouneyId(applyInfo.getJourneyId())
                 //成本中心
@@ -403,7 +404,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         if(stringBuilder !=  null){
             //同行者  00
             String parters = stringBuilder.toString();
-            applyDetailVO.setPartner(parters.substring(0, parters.length() - 1));
+            if (StringUtils.isNotBlank(parters)){
+                applyDetailVO.setPartner(parters.substring(0, parters.length() - 1));
+            }
         }
         //4.根据journeyId查询行程节点表数据  差旅 和 公务有所不同
         JourneyNodeInfo journeyNodeInfo = new JourneyNodeInfo();
@@ -412,9 +415,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         int size = journeyNodeInfos.size();
         String applyType = applyInfo.getApplyType();
         //如果是公务申请 A001:  公务用车   A002:  差旅用车   公务的节点 只有上车地点和下车地点
-        if(CommonConstant.AFFICIAL_APPLY.equals(applyInfo)){
+        if(CommonConstant.AFFICIAL_APPLY.equals(applyType)){
             for (JourneyNodeInfo nodeInfo : journeyNodeInfos) {
-                if(nodeInfo.getNodeId() == 1){
+                if(nodeInfo.getNumber() == 1){
                     //上车地点 即是节点编号为1的出发地点
                     applyDetailVO.setStartAddress(nodeInfo.getPlanBeginAddress());
                 }
@@ -508,7 +511,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Override
     public List<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
         PageHelper.startPage(pageIndex,pageSize);
-        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
+        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
         List<ApprovaReesultVO> approvaReesultVOs=new ArrayList<>();
         if (!CollectionUtils.isEmpty(applyApproveResultInfos)){
             for (ApplyApproveResultInfo info:applyApproveResultInfos){

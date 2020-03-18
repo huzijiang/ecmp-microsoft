@@ -802,8 +802,8 @@ public class OrderController {
         Long userId = loginUser.getUser().getUserId();
         try {
             OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderDto.getOrderId());
-            orderVO.setDriverLongitude("116.801949");
-            orderVO.setDriverLatitude("39.62437");
+            orderVO.setDriverLongitude("116.786324");
+            orderVO.setDriverLatitude("39.563521");
             //TODO 记得生产放开
 //            if (CarConstant.USR_CARD_MODE_HAVE.equals(orderVO.getUseCarMode())){//自有车
 //                DriverHeartbeatInfo driverHeartbeatInfo = driverHeartbeatInfoService.findNowLocation(orderVO.getDriverId(), orderDto.getOrderId());
