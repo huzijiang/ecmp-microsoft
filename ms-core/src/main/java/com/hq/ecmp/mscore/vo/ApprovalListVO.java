@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.vo;
 
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,14 +22,16 @@ public class ApprovalListVO {
 
     private Long applyId;
     private String type;//申请人/审批人
+    private String time;
     private List<ApprovalInfoVO> list;
 
     public ApprovalListVO() {
     }
 
-    public ApprovalListVO(Long applyId, String type, List<ApprovalInfoVO> list) {
+    public ApprovalListVO(Long applyId, String type, List<ApprovalInfoVO> list, String time) {
         this.applyId = applyId;
         this.type = type;
         this.list = list;
+        this.time = time;
     }
 }

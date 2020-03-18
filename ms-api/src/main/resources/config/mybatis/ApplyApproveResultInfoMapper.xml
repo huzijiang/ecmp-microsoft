@@ -116,18 +116,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
            )  a group by a.messageType
     </select>
 
-    <select id="selectResultList" parameterType="Object" resultMap="ApplyApproveResultInfoResult">
-        <include refid="selectApplyApproveResultInfoVo"/>
-         <where>
-             approve_node_id in (select approve_node_id from approve_template_node_info where user_id=#{userId})
-             <if test="state!=null and state!=''">and state!=#{state}</if>
-             order by field(state,'ST01','ST02','ST00')
-         </where>
+    <select id="selectResultList" parameterType="Object" resultType="com.hq.ecmp.mscore.domain.ApplyApproveResultInfo">
+        select
+        apply_id applyId,approve_node_id approveNodeId,approver,approver_mobile approverMobile,
+        approve_result approveResult,content,
+        if (approve_result='pass' or approve_result='fail',approve_result,state) state
+        from apply_approve_result_info
+        where
+        approve_node_id in (select approve_node_id from approve_template_node_info where user_id=#{userId})
+        <if test="state!=null and state!=''">and state=#{state}</if>
+        order by
+        case when state='ST01' then create_time end asc,update_time desc
     </select>
 
     <select id="getApproveResultList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ApprovalInfoVO">
        select a.approve_result_id approveResultId,a.apply_id applyId,a.approve_node_id approvalNodeId,approver approval,
-       approver_mobile approvalMobile,approve_result approveResult,state approveState,content,b.next_node_id nextNodeId
+       approver_mobile approvalMobile,approve_result approveResult,state approveState,content,b.next_node_id nextNodeId ,a.update_time time
         from apply_approve_result_info a
         inner join approve_template_node_info b on b.approve_node_id=a.approve_node_id
         where apply_id=#{applyId}
@@ -135,4 +139,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
            and approve_template_id=#{approveTemplateId}
         </if>
     </select>
+
+    <select id="selectApproveResultByNodeids" parameterType="Object" resultMap="ApplyApproveResultInfoResult">
+        <include refid="selectApplyApproveResultInfoVo"/>
+        where approve_node_id in (#{nextNodeIds})
+        <if test="state!=null">
+            state =#{state}
+        </if>
+    </select>
+
 </mapper>

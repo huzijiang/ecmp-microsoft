@@ -2,6 +2,8 @@ package com.hq.ecmp.mscore.vo;
 
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  *
  * 审批人对象
@@ -34,6 +36,7 @@ public class ApprovalInfoVO {
     private String approveState;
     //驳回原因
     private String content;
+    private Date time;
     public ApprovalInfoVO() {
     }
 

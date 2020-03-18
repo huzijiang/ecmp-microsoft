@@ -3,6 +3,8 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
 import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
+import com.hq.ecmp.mscore.vo.CarGroupListVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
 
@@ -94,4 +96,12 @@ public interface ICarGroupInfoService
      * @param userId
      */
     void startUpCarGroup(Long carGroupId, Long userId) throws Exception;
+
+    /**
+     * 分页查询车队信息
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize);
 }

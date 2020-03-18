@@ -9,21 +9,21 @@ public class LocationInfoVo {
 	
 	private String address;//短地址
 	
-	private String latitude;//纬度
+	private String lat;//纬度
 	
-	private String longitude;//经度
+	private String lng;//经度
 	
 	public LocationInfoVo (){};
 
-	public LocationInfoVo(String latitude, String longitude) {
-		this.latitude = latitude;
-		this.longitude = longitude;
+	public LocationInfoVo(String lat, String lng) {
+		this.lat = lat;
+		this.lng = lng;
 	}
 
-	public LocationInfoVo (String longAddress, String address, String latitude, String longitude){
+	public LocationInfoVo (String longAddress, String address, String lat, String lng){
 		this.longAddress=longAddress;
 		this.address=address;
-		this.latitude=latitude;
-		this.longitude=longitude;
+		this.lat=lat;
+		this.lng=lng;
 	}
 }

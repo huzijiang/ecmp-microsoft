@@ -70,4 +70,6 @@ public interface ApplyApproveResultInfoMapper
     List<ApplyApproveResultInfo> selectResultList(@Param("userId") Long userId,@Param("state") String state);
 
     List<ApprovalInfoVO> getApproveResultList(@Param("applyId") Long applyId,@Param("approveTemplateId")  Long approveTemplateId);
+
+    List<ApplyApproveResultInfo> selectApproveResultByNodeids(@Param("nextNodeIds") String nextNodeIds,@Param("state") String state);
 }

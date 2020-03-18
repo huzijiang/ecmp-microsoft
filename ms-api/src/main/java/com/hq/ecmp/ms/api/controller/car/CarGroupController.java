@@ -8,8 +8,11 @@ import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
+import com.hq.ecmp.mscore.vo.CarGroupListVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.UserVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,6 +128,23 @@ public class CarGroupController {
         try {
             carGroupInfoService.startUpCarGroup(carGroupId,userId);
             return ApiResponse.success("启用车队成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("启用车队失败");
+        }
+    }
+
+    /**
+     * 分页全部查询车队列表
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCarGroupList",notes = "启用车队",httpMethod ="POST")
+    @PostMapping("/getCarGroupList")
+    public ApiResponse<PageResult<CarGroupListVO>> getCarGroupList(@RequestBody PageRequest pageRequest){
+        try {
+            PageResult<CarGroupListVO> list = carGroupInfoService.selectCarGroupInfoByPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+            return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("启用车队失败");

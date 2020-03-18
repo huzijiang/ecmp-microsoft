@@ -36,6 +36,8 @@ public class OrderVO {
     private String state;
     @ApiModelProperty(name = "carGroupPhone",value = "车队电话")
     private String carGroupPhone;
+    @ApiModelProperty(name = "carGroupName",value = "车队电话")
+    private String carGroupName;
     @ApiModelProperty(name = "isAddContact",value = "是否添加联系人(1是0否)")
     private String isAddContact;
     @ApiModelProperty(name = "driverType",value = "司机类型(企业驾驶员/网约驾驶员)")
@@ -60,7 +62,5 @@ public class OrderVO {
     private String overDistancePrice;
     @ApiModelProperty(name = "disMoney",value = "原价")
     private String disMoney;
-
-
 
 }

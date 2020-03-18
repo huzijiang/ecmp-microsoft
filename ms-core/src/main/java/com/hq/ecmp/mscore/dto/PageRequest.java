@@ -18,5 +18,9 @@ public class PageRequest {
     //搜索字段
     private String search;
 
+    private Long carId;
+
+    private Long carGroupId;
+
     private Long fatherProjectId;
 }

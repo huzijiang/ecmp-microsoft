@@ -1,6 +1,10 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.DriverCarRelationInfo;
+import com.hq.ecmp.mscore.dto.CarDriverDTO;
+import com.hq.ecmp.mscore.vo.DriverVO;
+import com.hq.ecmp.mscore.vo.PageResult;
+
 
 import java.util.List;
 
@@ -68,4 +72,29 @@ public interface IDriverCarRelationInfoService
      * @return
      */
     public Integer queryDriverUseCarCount(Long driverId);
+
+
+    /**
+     * 车辆新增驾驶员
+     * @param carDriverDTO
+     * @param userId
+     */
+    void bindCarDrivers(CarDriverDTO carDriverDTO, Long userId) throws Exception;
+
+    /**
+     * 车辆解绑驾驶员
+     * @param carId
+     * @param userId
+     * @param driverId
+     */
+    void removeCarDriver(Long carId, Long userId, Long driverId) throws Exception;
+
+    /**
+     * 查询车辆绑定驾驶员列表
+     * @param pageNum
+     * @param pageSize
+     * @param carId
+     * @return
+     */
+    PageResult<DriverVO> selectCarDriversByPage(Integer pageNum, Integer pageSize, Long carId);
 }

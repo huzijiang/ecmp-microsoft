@@ -5,6 +5,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
+import java.util.List;
+
 /**
  * 部门对象 ecmp_org
  *
@@ -60,6 +62,17 @@ public class EcmpOrg extends BaseEntity
 
     /** 删除标志（0代表存在 2代表删除） */
     private String delFlag;
+
+    /*新增临时字段 */
+    private List<EcmpOrg> deptList;
+
+    public List<EcmpOrg> getDeptList() {
+        return deptList;
+    }
+
+    public void setDeptList(List<EcmpOrg> deptList) {
+        this.deptList = deptList;
+    }
 
     public void setDeptId(Long deptId)
     {

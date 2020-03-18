@@ -19,6 +19,7 @@ public class OrderEvaluationDto {
     @NotNull
     @ApiParam(required = true)
     private Long orderId;
+    private String type;
 
     /**
      * 意见描述

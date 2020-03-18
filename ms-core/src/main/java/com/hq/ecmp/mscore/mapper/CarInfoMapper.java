@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarInfo;
+import com.hq.ecmp.mscore.dto.CarLocationDto;
+import com.hq.ecmp.mscore.vo.CarLocationVo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -61,8 +63,30 @@ public interface CarInfoMapper
      * @return 结果
      */
     public int deleteCarInfoByIds(Long[] carIds);
+
+    /**
+     * 查询某车队的车辆数
+     * @param carGroupId
+     * @return
+     */
+    int selectCountGroupCarByGroupId(Long carGroupId);
     /**
      * 可管理车辆总数
      */
     public int queryCompanyCar();
+
+    /**
+     * 根据组织id查询归属车辆信息
+     *
+     * @param deptId 组织id
+     * @return 结果
+     */
+    public int selectCarCountByDeptId(Long deptId);
+
+    /**
+     * 后管监控车辆检索
+     * @param carLocationDto
+     * @return
+     */
+    List<CarLocationVo> locationCars(CarLocationDto carLocationDto);
 }

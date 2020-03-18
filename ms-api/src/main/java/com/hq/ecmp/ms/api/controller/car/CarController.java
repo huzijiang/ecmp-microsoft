@@ -10,17 +10,26 @@ import com.hq.ecmp.ms.api.dto.car.DriverDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.dto.CarDriverDTO;
+import com.hq.ecmp.mscore.dto.CarGroupDTO;
+import com.hq.ecmp.mscore.dto.CarSaveDTO;
+import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.service.ICarInfoService;
+import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
+import com.hq.ecmp.mscore.vo.CarDetailVO;
+import com.hq.ecmp.mscore.vo.CarListVO;
+import com.hq.ecmp.mscore.vo.DriverVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Driver;
 import java.util.List;
 
 /**
@@ -35,6 +44,10 @@ public class CarController {
     private IEnterpriseCarTypeInfoService enterpriseCarTypeInfoService;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private ICarInfoService carInfoService;
+    @Autowired
+    private IDriverCarRelationInfoService driverCarRelationInfoService;
 
     /**
      * 获取可调度的车辆信息
@@ -123,5 +136,217 @@ public class CarController {
         return ApiResponse.success(list);
     }
 
+    /**
+     * 新增车辆
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "saveCar",notes = "新增车辆",httpMethod ="POST")
+    @PostMapping("/saveCar")
+    public ApiResponse<Long> saveCar(@RequestBody CarSaveDTO carSaveDTO){
+        //获取登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        Long carId = null;
+        try {
+            carId = carInfoService.saveCar(carSaveDTO, userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+       return ApiResponse.success("新增车辆成功",carId);
+    }
 
+    /**
+     * 修改车辆信息
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "updateCar",notes = "修改车辆信息",httpMethod ="POST")
+    @PostMapping("/updateCar")
+    public ApiResponse<Long> updateCar(@RequestBody CarSaveDTO carSaveDTO){
+        //获取登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+             carInfoService.updateCar(carSaveDTO, userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("修改信息失败");
+        }
+        return ApiResponse.success("修改车辆信息成功");
+    }
+
+    /**
+     * 删除车辆
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "deleteCar",notes = "删除车辆")
+    @RequestMapping("/deleteCar")
+    public ApiResponse deleteCar(@RequestBody CarDto carDto){
+        try {
+            carInfoService.deleteCarInfoById(carDto.getCarId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success("删除车辆成功");
+    }
+
+    /**
+     * 车辆详情
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "carDetail",notes = "车辆详情",httpMethod ="POST")
+    @PostMapping("/carDetail")
+    public ApiResponse<CarDetailVO> carDetail(CarDto carDto){
+        try {
+            CarDetailVO carDetailVO =  carInfoService.selectCarDetail(carDto.getCarId());
+            return ApiResponse.success(carDetailVO);
+        } finally {
+            return ApiResponse.error("查询车辆详情失败");
+        }
+    }
+
+    /**
+     * 启用车辆  租赁/借调车辆到期无法启用，
+     * @param  carDto  车辆信息
+     * @return
+     */
+    @ApiOperation(value = "startCar",notes = "启用车辆",httpMethod ="POST")
+    @PostMapping("/startCar")
+    public ApiResponse startCar(@RequestBody CarDto carDto){
+        //获取登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            carInfoService.startCar(carDto.getCarId(),userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success("启用成功");
+    }
+
+    /**
+     * 禁用车辆
+     * @param  carDto  车辆信息
+     * @return
+     */
+    @ApiOperation(value = "disableCar",notes = "禁用车辆",httpMethod ="POST")
+    @PostMapping("/disableCar")
+    public ApiResponse disableCar(@RequestBody CarDto carDto){
+        //获取登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            carInfoService.disableCar(carDto.getCarId(),userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success("禁用成功");
+    }
+
+    /**
+     * 维保车辆
+     * @param  carDto  车辆信息
+     * @return
+     */
+    @ApiOperation(value = "maintainCar",notes = "禁用车辆",httpMethod ="POST")
+    @PostMapping("/maintainCar")
+    public ApiResponse maintainCar(@RequestBody CarDto carDto){
+        //获取登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            carInfoService.maintainCar(carDto.getCarId(),userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("修改维保状态失败");
+        }
+        return ApiResponse.success("维保成功");
+    }
+
+    /**
+     * 新增驾驶员
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "bindCarDrivers",notes = "车辆新增驾驶员",httpMethod ="POST")
+    @PostMapping("/bindCarDriver")
+    public ApiResponse<List<CarInfo>> bindCarDrivers(@RequestBody CarDriverDTO carDriverDTO){
+        //获取登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            driverCarRelationInfoService.bindCarDrivers(carDriverDTO,userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success("新增驾驶员成功");
+    }
+
+    /**
+     * 解绑车辆驾驶员
+     * @param  carDto  车辆信息
+     * @return
+     */
+    @ApiOperation(value = "removeCarDriver",notes = "解绑车辆驾驶员",httpMethod ="POST")
+    @PostMapping("/removeCarDriver")
+    public ApiResponse removeCarDriver(@RequestBody CarDto carDto){
+        try {
+            driverCarRelationInfoService.removeCarDriver(carDto.getCarId(),carDto.getUserId(),carDto.getDriverId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success("解绑成功");
+    }
+
+    /**
+     * 获取车辆绑定驾驶员列表
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCarDriverList",notes = "查看车辆已绑定驾驶员列表")
+    @RequestMapping("/getCarDriverList")
+    public ApiResponse<PageResult<DriverVO>> getCarDriverList(@RequestBody PageRequest pageRequest){
+        PageResult<DriverVO> pageResult = null;
+        try {
+            pageResult = driverCarRelationInfoService.selectCarDriversByPage(pageRequest.getPageNum(),
+                    pageRequest.getPageSize(), pageRequest.getCarId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询驾驶员列表信息失败");
+        }
+        return ApiResponse.success(pageResult);
+    }
+
+    /**
+     * 按车队id查询可用车辆列表
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCarListByGroup",notes = "按车队id查询可用车辆列表",httpMethod ="POST")
+    @PostMapping("/getCarListByGroup")
+    public ApiResponse<PageResult<CarListVO>> getCarListByGroup(@RequestBody PageRequest pageRequest){
+        try {
+            PageResult<CarListVO> list = carInfoService.selectCarListByGroup(pageRequest.getPageNum(),
+                    pageRequest.getPageSize(),pageRequest.getCarGroupId());
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询失败");
+        }
+    }
 }

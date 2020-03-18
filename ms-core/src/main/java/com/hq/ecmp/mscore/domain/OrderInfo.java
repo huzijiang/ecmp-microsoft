@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,19 +10,18 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 【请填写功能名称】对象 order_info
- *
+ * 派车订单信息对象 order_info
+ * 
  * @author hqer
- * @date 2020-01-02
+ * @date 2020-03-16
  */
-@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class OrderInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -51,43 +51,19 @@ public class OrderInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long userId;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String useCarMode;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String serviceType;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String state;
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String actualSetoutAddress;
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private BigDecimal actualSetoutLongitude;
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private BigDecimal actualSetoutLatitude;
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date actualSetoutTime;
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String actualArriveAddress;
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private BigDecimal actualArriveLongitude;
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private BigDecimal actualArriveLatitude;
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date actualArriveTime;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -108,17 +84,21 @@ public class OrderInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carLicense;
-    /**取消理由**/
-    private String cancelReason;
-
-    private String orderTraceState;
-
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String actualArriveAddressLo;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String actualSetoutAddressLo;
+    private String flightNumber;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String demandCarLevel;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String orderTraceState;
+
+    @JsonFormat( pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date flightPlanTakeOffTime;
 
     public OrderInfo(Long orderId, String state) {
         this.orderId = orderId;
@@ -134,28 +114,21 @@ public class OrderInfo extends BaseEntity
             .append("powerId", getPowerId())
             .append("driverId", getDriverId())
             .append("carId", getCarId())
+            .append("userId", getUserId())
             .append("useCarMode", getUseCarMode())
+            .append("serviceType", getServiceType())
             .append("state", getState())
-            .append("actualSetoutAddress", getActualSetoutAddress())
-            .append("actualSetoutLongitude", getActualSetoutLongitude())
-            .append("actualSetoutLatitude", getActualSetoutLatitude())
-            .append("actualSetoutTime", getActualSetoutTime())
-            .append("actualArriveAddress", getActualArriveAddress())
-            .append("actualArriveLongitude", getActualArriveLongitude())
-            .append("actualArriveLatitude", getActualArriveLatitude())
-            .append("actualArriveTime", getActualArriveTime())
             .append("tripartiteOrderId", getTripartiteOrderId())
             .append("tripartitePlatformCode", getTripartitePlatformCode())
             .append("driverName", getDriverName())
             .append("driverMobile", getDriverMobile())
             .append("carLicense", getCarLicense())
+            .append("flightNumber", getFlightNumber())
+            .append("demandCarLevel", getDemandCarLevel())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
-            .append("cancelReason",getCancelReason())
-            .append("actualArriveAddressLo",getActualArriveAddressLo())
-            .append("actualSetoutAddressLo",getActualSetoutAddressLo())
             .toString();
     }
 }

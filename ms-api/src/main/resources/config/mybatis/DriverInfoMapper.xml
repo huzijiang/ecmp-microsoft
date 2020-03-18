@@ -67,6 +67,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where driver_id = #{driverId}
     </select>
 
+    <select id="selectDriverInfoByUserId" parameterType="Long" resultMap="DriverInfoResult">
+        <include refid="selectDriverInfoVo"/>
+        where user_id = #{UserId}
+    </select>
+
     <insert id="insertDriverInfo" parameterType="com.hq.ecmp.mscore.domain.DriverInfo">
         insert into driver_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -167,7 +172,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{driverId}
         </foreach>
     </delete>
-    
+
     <insert id="createDriver" parameterType="com.hq.ecmp.mscore.domain.DriverCreateInfo" useGeneratedKeys="true" keyProperty="driverId">
       insert into driver_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -199,7 +204,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           	NOW()
          </trim>
     </insert>
-    
+
     <select id="queryDriverList" parameterType="com.hq.ecmp.mscore.domain.DriverQuery"
 	resultType="com.hq.ecmp.mscore.domain.DriverQueryResult">
 	SELECT
@@ -277,8 +282,22 @@ WHERE
 	b.car_group_id = #{driverId}
 
 </select>
+    <select id="selectEffectiveDriverInfoById" resultMap="DriverInfoResult">
+        <include refid="selectDriverInfoVo"/>
+        where driver_id = #{driverId}
+        and state = 'V000'
+    </select>
 
     <select id="queryCompanyDriver"  resultType="java.lang.Integer">
           select count(*) from driver_info
     </select>
+    <!--根据deptId查询归属驾驶员数量-->
+    <select id="selectDriverCountByDeptId" parameterType="Long" resultType="java.lang.Integer">
+        select count(1) from  driver_info where user_id in (select user_id from  ecmp_user where dept_id=#{deptId})
+    </select>
+
+    <!--//禁用/启用  驾驶员-->
+    <update id="updateUseStatus" >
+      update  driver_info  set `state`=#{state} where user_id in (select user_id from  ecmp_user where dept_id=#{deptId})
+    </update>
 </mapper>

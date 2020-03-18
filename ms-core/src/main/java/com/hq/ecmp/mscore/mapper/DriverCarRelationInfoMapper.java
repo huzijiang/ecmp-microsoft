@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DriverCarRelationInfo;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
@@ -68,4 +70,6 @@ public interface DriverCarRelationInfoMapper
     public Integer batchDriverCarList(DriverCarRelationInfo driverCarRelationInfo);
     
     public Integer queryDriverUseCarCount(Long driverId);
+
+    int deleteCarDriver(@Param("carId") Long carId,@Param("userId") Long userId,@Param("driverId") Long driverId);
 }

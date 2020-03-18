@@ -50,11 +50,11 @@ public class OrderWaitTraceInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long longitude;
+    private Double longitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long latitude;
+    private Double latitude;
 
     public void setTraceId(Long traceId) 
     {
@@ -124,21 +124,21 @@ public class OrderWaitTraceInfo extends BaseEntity
     {
         return duration;
     }
-    public void setLongitude(Long longitude) 
+    public void setLongitude(Double longitude)
     {
         this.longitude = longitude;
     }
 
-    public Long getLongitude() 
+    public Double getLongitude()
     {
         return longitude;
     }
-    public void setLatitude(Long latitude) 
+    public void setLatitude(Double latitude)
     {
         this.latitude = latitude;
     }
 
-    public Long getLatitude() 
+    public Double getLatitude()
     {
         return latitude;
     }

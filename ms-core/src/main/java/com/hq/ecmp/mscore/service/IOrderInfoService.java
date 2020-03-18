@@ -2,18 +2,17 @@ package com.hq.ecmp.mscore.service;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.dto.CallTaxiDto;
+import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
 
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -86,7 +85,7 @@ public interface IOrderInfoService {
      * @param userId
      * @return
      */
-    public  int insertOrderStateTrace(String orderId,String updateState,String userId);
+    public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason);
     
     
     /**
@@ -141,7 +140,7 @@ public interface IOrderInfoService {
     /**
      * 网约车异步约车方法
      */
-    void platCallTaxi(CallTaxiDto callTaxiDto, String enterpriseId, String licenseContent, String apiUrl,String userId);
+    void platCallTaxi(Long orderId, String enterpriseId, String licenseContent, String apiUrl,String userId);
 
    /**
     * 自有车派车
@@ -153,7 +152,7 @@ public interface IOrderInfoService {
     */
     public boolean ownCarSendCar(Long orderId,Long driverId,Long carId,Long userId);
 
-    void initOrder(Long applyId, Long jouneyId, Long userId);
+    void initOrder(Long applyId, Long jouneyId, Long userId) throws Exception;
 
 
     /**
@@ -193,6 +192,29 @@ public interface IOrderInfoService {
 
     //查询网约车状态
     JSONObject getTaxiOrderState(Long orderId)throws Exception;
+    
+    public List<ApplyDispatchVo> queryApplyDispatchList(ApplyDispatchQuery query);
+    
+    public Integer queryApplyDispatchListCount(ApplyDispatchQuery query);
+    
+    public List<ApplyDispatchVo> queryReassignmentDispatchList(ApplyDispatchQuery query);
+    
+    public Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query);
+    /**
+     * 驳回改派申请
+     * @param orderId
+     * @param rejectReason
+     * @param optUserId
+     * @return
+     */
+    public boolean rejectReassign(Long orderId,String rejectReason,Long optUserId);
+
+    /**
+     * 差旅申请派车
+     * @param applyUseWithTravelDto
+     * @return
+     */
+    public void applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws ParseException;
 
 }
 

@@ -30,6 +30,7 @@ public class EcmpMessage implements Serializable {
     * 对应用户类型id
     */
     private Long ecmpId;
+    private Long categoryId;
     /**
     * 消息类型
 T001-业务消息

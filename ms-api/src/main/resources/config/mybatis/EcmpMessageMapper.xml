@@ -6,6 +6,7 @@
         <result property="id" column="id" jdbcType="INTEGER"/>
         <result property="configType" column="config_type" jdbcType="INTEGER"/>
         <result property="ecmpId" column="ecmp_id" jdbcType="INTEGER"/>
+        <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
         <result property="type" column="type" jdbcType="VARCHAR"/>
         <result property="status" column="status" jdbcType="VARCHAR"/>
         <result property="content" column="content" jdbcType="VARCHAR"/>
@@ -20,7 +21,7 @@
     <!--查询单个-->
     <select id="queryById" resultMap="EcmpMessageMap">
         select
-          id, config_type, ecmp_id, type, status,content, category, url, create_by, create_time, update_by, update_time
+          id, config_type, ecmp_id,category_id, type, status,content, category, url, create_by, create_time, update_by, update_time
         from ecmp.ecmp_message
         where id = #{id}
     </select>
@@ -28,7 +29,7 @@
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="EcmpMessageMap">
         select
-          id, config_type, ecmp_id, type, status, category, url, create_by, create_time, update_by, update_time
+          id, config_type, ecmp_id, category_id,type, status, category, url, create_by, create_time, update_by, update_time
         from ecmp.ecmp_message
         limit #{offset}, #{limit}
     </select>
@@ -36,7 +37,7 @@
     <!--通过实体作为筛选条件查询-->
     <select id="queryAll" resultMap="EcmpMessageMap">
         select
-          id, config_type, ecmp_id, type, status, category, url, create_by, create_time, update_by, update_time
+          id, config_type, ecmp_id,category_id, type, status, category, url, create_by, create_time, update_by, update_time
         from ecmp.ecmp_message
         <where>
             <if test="id != null">
@@ -47,6 +48,9 @@
             </if>
             <if test="ecmpId != null">
                 and ecmp_id = #{ecmpId}
+            </if>
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
             </if>
             <if test="type != null and type != ''">
                 and type = #{type}
@@ -77,8 +81,8 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into ecmp.ecmp_message(config_type, ecmp_id, type, status, category, url, create_by, create_time, update_by, update_time)
-        values (#{configType}, #{ecmpId}, #{type}, #{status}, #{category}, #{url}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
+        insert into ecmp.ecmp_message(config_type, ecmp_id, category_id,type, status, category, url, create_by, create_time, update_by, update_time)
+        values (#{configType}, #{ecmpId}, #{categoryId},#{type}, #{status}, #{category}, #{url}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
     </insert>
 
     <!--通过主键修改数据-->
@@ -90,6 +94,9 @@
             </if>
             <if test="ecmpId != null">
                 ecmp_id = #{ecmpId},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
             </if>
             <if test="type != null and type != ''">
                 type = #{type},
@@ -126,7 +133,7 @@
 
     <select id="queryMessageList" parameterType="map" resultMap="EcmpMessageMap">
         select
-          id, config_type, ecmp_id, type, status,content, category, url, create_by, create_time, update_by, update_time
+          id, config_type, ecmp_id,category_id, type, status,content, category, url, create_by, create_time, update_by, update_time
         from ecmp.ecmp_message
         where ecmp_id = #{ecmpId}
         and
@@ -140,7 +147,7 @@
     <select id="queryMessageCount" parameterType="map" resultType="integer">
         select
         count(*)
-        from ecmp.ecmp_message
+        from ecmp_message
         where ecmp_id = #{ecmp_id}
         and
         config_type in
@@ -148,6 +155,27 @@
             #{item}
         </foreach>
         and status = '0000'
+    </select>
+
+    <select id="getMessagesForPassenger" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+        select category_id messageId,category messageType,count(*) messageCount from ecmp_message
+        where ecmp_id=#{userId} and type='T001' and status='0000'and config_type !=2
+        and find_in_set(category,#{categorys}) and (category_id is not null or category_id!=0)
+        group by category
+    </select>
+
+    <select id="getRunMessageForDrive" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+        select category_id messageId,category messageType ,count(*) messageCount from ecmp_message
+        where type='T001' and status='0000' and config_type =2 and  ecmp_id=#{driverId}
+        and find_in_set(category,#{categorys}) and (category_id is not null or category_id!=0)
+        group by category
+    </select>
+
+    <select id="getRunMessageForDispatcher" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+        select category_id messageId,category messageType ,count(*) messageCount from ecmp_message
+        where type='T001' and status='0000' and config_type =3 and  ecmp_id=#{ecmpId}
+        and category=#{category} and (category_id is not null or category_id!=0)
+        group by category
     </select>
 
 </mapper>

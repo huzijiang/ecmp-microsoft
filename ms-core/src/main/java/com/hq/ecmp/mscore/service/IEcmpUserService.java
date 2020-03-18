@@ -1,7 +1,11 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.vo.EcmpUserVo;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,7 +47,7 @@ public interface IEcmpUserService {
      * @param ecmpUser 用户信息
      * @return 结果
      */
-    public int updateEcmpUser(EcmpUser ecmpUser);
+    public int updateEcmpUser(EcmpUserVo ecmpUser);
 
     /**
      * 批量删除用户信息
@@ -76,5 +80,77 @@ public interface IEcmpUserService {
     public int  queryCompanyEmpCunt();
     
 
+    /*
+     * 获取上级组织id中的员工姓名和电话
+     *  @param  ecmpUserVo
+     * @return List<EcmpUserDto>
+     * */
+    public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo);
+
+    /*
+     * 新增员工信息
+     *  @param  ecmpUserVo
+     * @return int
+     * */
+    public int addEcmpUser(EcmpUserVo ecmpUser);
+
+    /*
+    *查询手机号与邮箱是否已经存在
+    * */
+    public int selectPhoneAndEmailExist(EcmpUserVo ecmpUser);
+
+    /**
+     * 禁用/启用  员工
+     *
+     * @param deptId 部门ID
+     * @return 结果
+     */
+    public String updateUseStatus(String status,Long deptId);
+
+    /**
+     * 逻辑删除员工信息
+     *
+     * @param userId 员工编号
+     * @return 结果
+     */
+    public int updateDelFlagById(Long userId);
+
+    /**
+     * 查询员工列表
+     *
+     * @param deptId 部门ID
+     * @return
+     */
+    public List<EcmpUserDto> getEcmpUserList(Long deptId);
+
+    /*只修改手机号
+    @param  ecmpOrg
+     * @return
+    * */
+    public String updatePhoneNum(String newPhoneNum,String reWritePhone);
+
+    /*员工详情
+   @param  userId员工编号
+    * @return
+   * */
+    public EcmpUserDto selectEcmpUserDetail(Long userId);
+
+    /*设置离职日期
+    @param  dimissionTime
+     * @return
+    * */
+    public int updateDimissionTime(Date dimissionTime);
+
+    /*已离职数量
+    @param  dimissionTime
+     * @return
+    * */
+    public int selectDimissionCount(Long userId);
+
+    /*已离职列表
+    @param  userId
+     * @return
+    * */
+    public List<EcmpUserDto> selectDimissionList(Long userId);
 
 }

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
+import com.hq.ecmp.mscore.vo.CarGroupListVO;
 
 import java.util.List;
 
@@ -59,4 +60,15 @@ public interface CarGroupInfoMapper
      * @return 结果
      */
     public int deleteCarGroupInfoByIds(Long[] carGroupIds);
+
+    List<CarGroupListVO> selectAllByPage();
+
+
+    /**
+     * 查询该组织下的车队信息
+     *
+     * @param deptId 组织ID
+     * @return 结果
+     */
+    public int selectCountByOrgdeptId(Long deptId);
 }

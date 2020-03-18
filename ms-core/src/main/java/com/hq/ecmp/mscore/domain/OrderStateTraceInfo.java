@@ -30,11 +30,12 @@ public class OrderStateTraceInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private BigDecimal driverLongitude;
+
+    private Double driverLongitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private BigDecimal driverLatitude;
+    private Double driverLatitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -67,21 +68,24 @@ public class OrderStateTraceInfo extends BaseEntity
     {
         return state;
     }
-    public void setDriverLongitude(BigDecimal driverLongitude)
+
+    public void setDriverLongitude(Double driverLongitude)
     {
         this.driverLongitude = driverLongitude;
     }
 
-    public BigDecimal getDriverLongitude()
+
+    public Double getDriverLongitude()
     {
         return driverLongitude;
     }
-    public void setDriverLatitude(BigDecimal driverLatitude)
+    public void setDriverLatitude(Double driverLatitude)
     {
         this.driverLatitude = driverLatitude;
     }
 
-    public BigDecimal getDriverLatitude()
+
+    public Double getDriverLatitude()
     {
         return driverLatitude;
     }
@@ -98,7 +102,8 @@ public class OrderStateTraceInfo extends BaseEntity
     public OrderStateTraceInfo() {
     }
 
-    public OrderStateTraceInfo(Long orderId, String state, BigDecimal driverLongitude, BigDecimal driverLatitude) {
+
+    public OrderStateTraceInfo(Long orderId, String state, Double driverLongitude, Double driverLatitude) {
         this.orderId = orderId;
         this.state = state;
         this.driverLongitude = driverLongitude;

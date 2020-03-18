@@ -46,7 +46,7 @@ public class ApplyDetailVO {
      * 用车时间
      */
     @ApiModelProperty(name = "applyDate",value = "用车时间")
-    private String applyDate;
+    private Date applyDate;
 
     /**
      * 申请类型 eg：公务、差旅
@@ -125,6 +125,9 @@ public class ApplyDetailVO {
      */
     private TripDescription tripDescription;
 
+    private Date time;
+    private Date startDate;
+    private Date endDate;
 
 
 }
