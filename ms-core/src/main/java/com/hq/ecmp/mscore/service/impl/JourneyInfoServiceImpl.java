@@ -163,7 +163,9 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 						//查询对应的公务出差理由
 						applyInfo.setJourneyId(journeyInfo.getJourneyId());
 						List<ApplyInfo> applyInfoList = applyInfoService.selectApplyInfoList(applyInfo);
-						carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
+						if(null !=applyInfoList && applyInfoList.size()>0){
+							carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
+						}	
 					}
 				}
 				carAuthorityInfoList.add(carAuthorityInfo);	
