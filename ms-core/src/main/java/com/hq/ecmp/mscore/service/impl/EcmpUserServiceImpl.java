@@ -11,6 +11,7 @@ import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -149,8 +150,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     /*
      *查询手机号与邮箱是否已经存在
      * */
-    public int selectPhoneAndEmailExist(EcmpUserVo ecmpUser){
-        return ecmpUserMapper.selectPhoneAndEmailExist(ecmpUser);
+    public int selectPhoneAndEmailExist(String phonenumber,String email){
+        return ecmpUserMapper.selectPhoneAndEmailExist(phonenumber,email);
     }
 
     /**
@@ -209,17 +210,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Transactional
     public String updatePhoneNum(String newPhoneNum,String reWritePhone){
         String msg="";
-        if((newPhoneNum==null||newPhoneNum=="")||(reWritePhone==null||reWritePhone=="")){
-            msg="手机号码不可为空！";
-        }
-        EcmpUserVo ecmpUser=new EcmpUserVo();
-        ecmpUser.setNewPhoneNum(newPhoneNum);
-        int i = ecmpUserMapper.selectPhoneAndEmailExist(ecmpUser);
+        int i = ecmpUserMapper.selectPhoneAndEmailExist(newPhoneNum,null);
         if(i>0){
             msg="该手机号已存在，不可重复录入！";
-        }
-        if(!reWritePhone.equals(newPhoneNum)){
-            msg="手机号码不一致！";
         }
         int i1 = ecmpUserMapper.updatePhoneNum(newPhoneNum);
         if(i1==1){

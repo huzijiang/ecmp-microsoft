@@ -127,7 +127,7 @@ public interface EcmpUserMapper
     /*
      *查询手机号与邮箱是否已经存在
      * */
-    public int selectPhoneAndEmailExist(EcmpUserVo ecmpUser);
+    public int selectPhoneAndEmailExist(@Param("phonenumber")String phonenumber,@Param("email")String email);
 
     /**
      * 逻辑删除员工信息
