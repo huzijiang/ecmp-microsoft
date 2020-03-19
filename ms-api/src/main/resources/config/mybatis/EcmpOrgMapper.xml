@@ -253,7 +253,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
-    <update id="updateEcmpOrg" parameterType="com.hq.ecmp.mscore.vo.EcmpOrgVo">
+    <update id="updateEcmpOrg"  parameterType="com.hq.ecmp.mscore.vo.EcmpOrgVo" >
         update ecmp_org
         <trim prefix="SET" suffixOverrides=",">
             <if test="parentId != null ">parent_id = #{parentId},</if>
