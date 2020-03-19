@@ -112,11 +112,5 @@ public interface ICarInfoService
      */
     public int queryCompanyCarCount();
 
-    /**
-     * 后管监控车辆检索
-     * @param carLocationDto
-     * @return
-     */
     public List<CarLocationVo> locationCars(CarLocationDto carLocationDto);
-
 }

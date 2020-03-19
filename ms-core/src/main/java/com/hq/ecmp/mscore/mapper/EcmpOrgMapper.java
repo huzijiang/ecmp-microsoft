@@ -166,4 +166,10 @@ public interface EcmpOrgMapper {
     * */
     public int selectByAncestorsLikeDeptId(Long deptId);
 
+    /**
+     * 查询下级组织数量
+     * @param
+     * @return
+     */
+    int selectCountByParentId(Integer parentId);
 }

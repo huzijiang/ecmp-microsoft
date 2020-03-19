@@ -78,7 +78,10 @@ public interface IEcmpUserService {
      * @return
      */
     public int  queryCompanyEmpCunt();
-    
+    /**
+     * 员工邀请判断是否该手机号是否已经注册
+     */
+    public int userItisExist(String phoneNumber);
 
     /*
      * 获取上级组织id中的员工姓名和电话
@@ -97,7 +100,7 @@ public interface IEcmpUserService {
     /*
     *查询手机号与邮箱是否已经存在
     * */
-    public int selectPhoneAndEmailExist(EcmpUserVo ecmpUser);
+    public int selectPhoneAndEmailExist(String phonenumber,String email);
 
     /**
      * 禁用/启用  员工
@@ -105,7 +108,7 @@ public interface IEcmpUserService {
      * @param deptId 部门ID
      * @return 结果
      */
-    public String updateUseStatus(String status,Long deptId);
+    public String updateUseStatus(String status,Long userId);
 
     /**
      * 逻辑删除员工信息
@@ -139,18 +142,24 @@ public interface IEcmpUserService {
     @param  dimissionTime
      * @return
     * */
-    public int updateDimissionTime(Date dimissionTime);
+    public int updateDimissionTime(Date dimissionTime,Long userId);
 
     /*已离职数量
     @param  dimissionTime
      * @return
     * */
-    public int selectDimissionCount(Long userId);
+    public int selectDimissionCount();
 
     /*已离职列表
     @param  userId
      * @return
     * */
-    public List<EcmpUserDto> selectDimissionList(Long userId);
+    public List<EcmpUserDto> selectDimissionList(Long deptId);
 
+    /**
+     * 给员工设置用车制度
+     * @param userId
+     * @param regimenIds
+     */
+    void bindUserRegimens(Long userId, List<Long> regimenIds) throws Exception;
 }

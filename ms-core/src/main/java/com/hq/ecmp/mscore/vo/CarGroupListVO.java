@@ -12,25 +12,43 @@ import java.util.List;
 @Data
 public class CarGroupListVO {
 
-    @ApiModelProperty(name = "carGroupId", value = "车队id")
-    private Long carGroupId;
 
+
+    //1
     @ApiModelProperty(name = "carGroupName", value = "车队名称")
     private String carGroupName;
 
+    //2
     @ApiModelProperty(name = "carGroupCode", value = "车队编号")
     private String carGroupCode;
 
-    @ApiModelProperty(name = "ownerOrg", value = "所属组织",example = "北京分公司")
-    private Long ownerOrg;
 
-    @ApiModelProperty(name = "countCar", value = "车队车辆数")
-    private Integer countCar;
+    //5
+    @ApiModelProperty(name = "ownerOrg", value = "所属组织",example = "北京分公司id")
+    private Integer ownerOrg;
 
-    @ApiModelProperty(name = "countDriver", value = "车队驾驶员人数")
-    private Integer countDriver;
+   //6
+   @ApiModelProperty(name = "countCar", value = "服务城市代码")
+   private String city;
 
+    //7
+    @ApiModelProperty(name = "countCar", value = "下级车队数")
+    private Integer countSubCarGroup;
+
+    //8
     @ApiModelProperty(name = "state", value = "车队状态")
     private Integer state;
+
+    //9
+    @ApiModelProperty(name = "carGroupId", value = "车队id")
+    private Long carGroupId;
+
+    //3
+    @ApiModelProperty(name = "carGroupCode", value = "车队编号")
+    private List<String> leaderNames;  // TODO 车队主管名字集合
+
+    //4
+    @ApiModelProperty(name = "countDriver", value = "车队人数（驾驶员 加 调度员） ")
+    private Integer countMember;
 
 }

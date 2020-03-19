@@ -22,7 +22,7 @@ public class ApplyDetailVO {
     /**
      * 申请ID
      */
-    private Integer applyId;
+    private Long applyId;
 
     /**
      * 行程ID

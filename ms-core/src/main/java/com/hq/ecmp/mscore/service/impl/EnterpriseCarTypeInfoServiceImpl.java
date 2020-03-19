@@ -1,6 +1,5 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,8 +17,6 @@ import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.mapper.EnterpriseCarTypeInfoMapper;
 import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
 import com.hq.ecmp.mscore.vo.CarTypeVO;
-import com.hq.ecmp.mscore.vo.PageResult;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

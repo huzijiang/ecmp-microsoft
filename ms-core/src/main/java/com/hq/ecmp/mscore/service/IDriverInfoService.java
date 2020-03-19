@@ -74,4 +74,11 @@ public interface IDriverInfoService
      *驾驶员总数
      */
     public int queryCompanyDriverCount();
+    /**
+     *
+     * @param phoneNumber
+     * @return
+     */
+    public int driverItisExist(String phoneNumber);
+
 }

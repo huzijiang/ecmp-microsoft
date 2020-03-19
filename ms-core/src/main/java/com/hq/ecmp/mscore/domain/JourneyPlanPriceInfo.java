@@ -5,6 +5,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
+import java.math.BigDecimal;
+
 /**
  * 【请填写功能名称】对象 journey_plan_price_info
  *
@@ -25,6 +27,8 @@ public class JourneyPlanPriceInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long nodeId;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long orderId;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -32,7 +36,11 @@ public class JourneyPlanPriceInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long price;
+    private BigDecimal price;
+
+    private String plannedDepartureTime;
+    private String duration;
+    private String plannedArrivalTime;
 
     public void setPriceId(Long priceId)
     {
@@ -70,14 +78,53 @@ public class JourneyPlanPriceInfo extends BaseEntity
     {
         return carTypeId;
     }
-    public void setPrice(Long price)
+    public void setPrice(BigDecimal price)
     {
         this.price = price;
     }
 
-    public Long getPrice()
+    public BigDecimal getPrice()
     {
         return price;
+    }
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
+    }
+
+    public String getPlannedDepartureTime() {
+        return plannedDepartureTime;
+    }
+
+    public void setPlannedDepartureTime(String plannedDepartureTime) {
+        this.plannedDepartureTime = plannedDepartureTime;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public String getPlannedArrivalTime() {
+        return plannedArrivalTime;
+    }
+
+    public void setPlannedArrivalTime(String plannedArrivalTime) {
+        this.plannedArrivalTime = plannedArrivalTime;
+    }
+
+    public JourneyPlanPriceInfo() {
+    }
+
+    public JourneyPlanPriceInfo(Long orderId) {
+        this.orderId = orderId;
     }
 
     @Override

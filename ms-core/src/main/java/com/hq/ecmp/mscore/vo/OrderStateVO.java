@@ -46,5 +46,7 @@ public class OrderStateVO {
     private String serviceType;
     @ApiModelProperty(name = "charterCarType",value = "包车类型")
     private String charterCarType;
-    private Date useCarTime;
+    private String useCarTime;
+    @ApiModelProperty(name = "planPrice",value = "预计价格")
+    private String planPrice;
 }
