@@ -93,4 +93,13 @@ public interface IJourneyUserCarPowerService
      * @return
      */
     public boolean createUseCarAuthority(Long applyId,Long auditUserId);
+    
+    
+    /**
+     * 查询公务用车行程用车权限的状态
+     * @param journey
+     * @return
+     */
+    public String queryOfficialJounrneyStatus(Long journey);
+    
 }

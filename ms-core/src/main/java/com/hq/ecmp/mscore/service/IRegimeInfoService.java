@@ -104,6 +104,14 @@ public interface IRegimeInfoService
      public RegimeInfo  queryRegimeType(Long regimeId);
      
      public RegimeVo queryRegimeDetail(Long regimeId);
+     
+     /**
+      * 查询行程节点对应的用车方式
+      * @param noteId
+      * @return
+      */
+     public String queryUseCarModelByNoteId(Long noteId);
+     
 
 }
 

@@ -1143,4 +1143,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		orderInfo.setUpdateTime(new Date());
 		return updateOrderInfo(orderInfo)>0;
 	}
+
+	@Override
+	public boolean queryOrderDispathIsOline(Long orderId) {
+		OrderInfo orderInfo = selectOrderInfoById(orderId);
+		if(null !=orderInfo && StringUtil.isNotEmpty(orderInfo.getUseCarMode()) && CarConstant.USR_CARD_MODE_NET.equals(orderInfo.getUseCarMode())){
+			return true;
+		}
+		return false;
+	}
 }

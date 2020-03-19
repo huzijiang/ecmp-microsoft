@@ -708,4 +708,16 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <![CDATA[AND DATE_FORMAT(b.action_time, '%Y-%m-%d %H:%i:%s') <= DATE_FORMAT(DATE_ADD(now() ,INTERVAL 30 MINUTE ), '%Y-%m-%d %H:%i:%s') ]]> limit 1
 
     </select>
+    
+    <select id="queryAllOrderStatusByJourneyId" parameterType="java.lang.Long" resultType="string">
+    select state  from order_info where journey_id=#{journeyId}
+    </select>
+    
+    <select id="queryAllOrderStatusByPowerId" parameterType="java.lang.Long" resultType="string">
+     select state from order_info where power_id=#{powerId}
+    </select>
+    
+    <select id="queryOrderIdListByPowerId" parameterType="java.lang.Long" resultType="java.lang.Long">
+    select order_id from order_info where power_id=#{powerId}
+    </select>
 </mapper>

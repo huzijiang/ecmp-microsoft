@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,17 +13,27 @@ import org.springframework.stereotype.Service;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
+import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
+import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
 import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
+import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
+import com.hq.ecmp.mscore.service.IRegimeInfoService;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -41,6 +52,19 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     private IApplyInfoService applyInfoService;
     @Autowired
     private IJourneyInfoService journeyInfoService;
+    @Autowired
+    private JourneyInfoMapper journeyInfoMapper;
+    @Autowired
+    private IRegimeInfoService regimeInfoService;
+    @Autowired
+    private OrderInfoMapper orderInfoMapper;
+    @Autowired
+    private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
+    @Autowired
+    private IOrderStateTraceInfoService orderStateTraceInfoService;
+    @Autowired
+    private IOrderInfoService orderInfoService;
+    
 
     /**
      * 查询【请填写功能名称】
@@ -143,13 +167,81 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	@Override
 	public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId) {
 		List<UserCarAuthority> list = journeyUserCarPowerMapper.queryNoteAllUserAuthority(nodeId);
-		if(null !=list && list.size()>0){
+		String useCarModel = regimeInfoService.queryUseCarModelByNoteId(nodeId);
+		String[] split = useCarModel.split(",");
+		List<String> asList = Arrays.asList(split);
+		boolean flag = !asList.contains(CarConstant.USR_CARD_MODE_HAVE);// true-只有网约车
+		// 查询对应的用车方式
+		if (null != list && list.size() > 0) {
 			for (UserCarAuthority userCarAuthority : list) {
-				//获取接机or送机剩余次数
+				// 获取接机or送机剩余次数
 				userCarAuthority.handCount();
+				String type = userCarAuthority.getType();
+				if (!CarConstant.CITY_USE_CAR.equals(type)) {
+					// 如果是接机或者送机 则查询对应的订单号
+					List<Long> orderIdList = orderInfoMapper.queryOrderIdListByPowerId(userCarAuthority.getPowerId());
+					if (null != orderIdList && orderIdList.size() > 0) {
+						userCarAuthority.setOrderId(orderIdList.get(0));
+					}
+				}
+				// 生成用车权限对应的前端状态
+				buildUserAuthorityPowerStatus(flag, userCarAuthority.getPowerId());
 			}
 		}
 		return list;
+	}
+	
+	private String buildUserAuthorityPowerStatus(boolean flag,Long powerId){
+		List<String> allOrderState = orderInfoMapper.queryAllOrderStatusByPowerId(powerId);
+		if(null==allOrderState || allOrderState.size()==0 || allOrderState.contains(OrderState.INITIALIZING.getState())){
+			//还未生成订单  则表示权限未使用过
+			if(flag){
+				//对应前端状态  去约车
+				return OrderState.GETARIDE.getState();
+			}else{
+				//对应前端状态 去申请
+				return OrderState.INITIALIZING.getState();
+			}
+			
+		}
+		if(allOrderState.contains(OrderState.WAITINGLIST.getState())){
+			//订单状态为待派单,则对应前端状态为派车中
+			return OrderState.WAITINGLIST.getState();
+		}
+		
+		if(allOrderState.contains(OrderState.SENDINGCARS.getState())){
+			//订单状态为约车中  则对用前端状态为约车车中
+			return OrderState.SENDINGCARS.getState();
+		}
+		
+		if(allOrderState.contains(OrderState.ALREADYSENDING.getState()) || allOrderState.contains(OrderState.READYSERVICE.getState())){
+			//订单状态为已派车或者准备服务   则对应前端状态为待服务
+			return OrderState.ALREADYSENDING.getState();
+		}
+		
+		if(allOrderState.contains(OrderState.INSERVICE.getState())){
+			//订单状态为服务中  则对应前端状态为进行中
+			return OrderState.INSERVICE.getState();
+		}
+		
+		if(allOrderState.contains(OrderState.ORDERCLOSE.getState())){
+			//订单关闭了  判断是否是取消了
+			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(powerId);
+			if(null !=orderStateTraceInfo && OrderStateTrace.CANCEL.getState().equals(orderStateTraceInfo.getState())){
+				//订单是取消的订单
+				if(flag || orderInfoService.queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){
+					 //只有网约车  或者 调度的时候选择的是网约车   则状态改为去约车
+					 return OrderState.GETARIDE.getState();
+				 }else{
+					 //否则就还原权限状态为去申请
+					 return OrderState.INITIALIZING.getState();
+				 }
+			}else {
+				//订单未取消 已完成
+				return OrderState.STOPSERVICE.getState();
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -276,5 +368,69 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		
 		//批量插入用车权限
 		return journeyUserCarPowerMapper.batchInsert(journeyUserCarPowerList)>0;
+	}
+	
+	
+	@Override
+	public String queryOfficialJounrneyStatus(Long journey) {
+		//查询公务用车行程对应的用车方式
+		JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journey);
+		Long regimenId = journeyInfo.getRegimenId();
+		RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(regimenId);
+		String canUseCarMode = regimeInfo.getCanUseCarMode();
+		String[] split = canUseCarMode.split(",");
+		List<String> asList = Arrays.asList(split);
+		//查询公务行程下的所有状态
+				List<String> allOrderState = orderInfoMapper.queryAllOrderStatusByJourneyId(journey);
+			boolean flag = !asList.contains(CarConstant.USR_CARD_MODE_HAVE);//true-只有网约车
+		if(null==allOrderState || allOrderState.size()==0 || allOrderState.contains(OrderState.INITIALIZING.getState())){
+			//还未生成订单  则表示权限未使用过
+			if(flag){
+				//对应前端状态  去约车
+				return OrderState.GETARIDE.getState();
+			}else{
+				//对应前端状态 去申请
+				return OrderState.INITIALIZING.getState();
+			}
+			
+		}
+		if(allOrderState.contains(OrderState.WAITINGLIST.getState())){
+			//订单状态为待派单,则对应前端状态为派车中
+			return OrderState.WAITINGLIST.getState();
+		}
+		
+		if(allOrderState.contains(OrderState.SENDINGCARS.getState())){
+			//订单状态为约车中  则对用前端状态为约车车中
+			return OrderState.SENDINGCARS.getState();
+		}
+		
+		if(allOrderState.contains(OrderState.ALREADYSENDING.getState()) || allOrderState.contains(OrderState.READYSERVICE.getState())){
+			//订单状态为已派车或者准备服务   则对应前端状态为待服务
+			return OrderState.ALREADYSENDING.getState();
+		}
+		
+		if(allOrderState.contains(OrderState.INSERVICE.getState())){
+			//订单状态为服务中  则对应前端状态为进行中
+			return OrderState.INSERVICE.getState();
+		}
+		
+		if(allOrderState.contains(OrderState.ORDERCLOSE.getState())){
+			//订单关闭了  判断是否是取消了
+			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoService.queryJourneyOrderIsCancel(journey);
+			if(null !=orderStateTraceInfo && OrderStateTrace.CANCEL.getState().equals(orderStateTraceInfo.getState())){
+				//订单是取消的订单
+				if(flag || orderInfoService.queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){
+					 //只有网约车  或者 调度的时候选择的是网约车   则状态改为去约车
+					 return OrderState.GETARIDE.getState();
+				 }else{
+					 //否则就还原权限状态为去申请
+					 return OrderState.INITIALIZING.getState();
+				 }
+			}else {
+				//订单未取消 已完成
+				return OrderState.STOPSERVICE.getState();
+			}	
+		}
+		return null;
 	}
 }

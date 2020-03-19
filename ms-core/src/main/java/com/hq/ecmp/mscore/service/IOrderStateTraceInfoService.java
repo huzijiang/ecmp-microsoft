@@ -113,4 +113,11 @@ public interface IOrderStateTraceInfoService
     MessageDto getTraceMessage(Long userId,boolean flag,Long driverId);
 
     UserVO getOrderDispatcher(String states, Long orderId);
+    
+    /**
+     * 查询行程里订单关闭的订单
+     * @param journeyId
+     * @return
+     */
+    public OrderStateTraceInfo queryJourneyOrderIsCancel(Long journeyId);
 }

@@ -1,28 +1,30 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.hq.ecmp.constant.CarModeEnum;
-import com.hq.ecmp.constant.CarPowerEnum;
-import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.vo.JourneyVO;
-import com.hq.ecmp.mscore.vo.OrderVO;
-import com.hq.ecmp.util.DateFormatUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
+import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
+import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
+import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
 import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
+import com.hq.ecmp.mscore.vo.JourneyVO;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -47,6 +49,9 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
     
     @Autowired
     private IJourneyUserCarPowerService journeyUserCarPowerService;
+    
+    @Autowired
+    private OrderInfoMapper orderInfoMapper;
     
 
     /**
@@ -166,7 +171,10 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 						List<ApplyInfo> applyInfoList = applyInfoService.selectApplyInfoList(applyInfo);
 						if(null !=applyInfoList && applyInfoList.size()>0){
 							carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
-						}	
+						}
+						//查询公务用车的前端状态
+						String status = journeyUserCarPowerService.queryOfficialJounrneyStatus(journeyInfo.getJourneyId());
+						carAuthorityInfo.setStatus(status);
 					}
 				}
 				carAuthorityInfoList.add(carAuthorityInfo);	
@@ -249,6 +257,8 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		vo.setCustomerServicePhone("010-88888888");
 		return vo;
 	}*/
+
+	
 
 
 }
