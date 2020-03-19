@@ -330,4 +330,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="userItisExist"  resultType="java.lang.Integer">
           select count(*) from ecmp_user  where phonenumber=#{phoneNumber}
     </select>
+
+    <select id="findDeptLeader" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.UserVO">
+        SELECT user_id userId,nick_name userName,phonenumber userPhone from ecmp_user
+        where user_id =(select leader from ecmp_org where dept_id=(SELECT dept_id from ecmp_user where user_id=#{userId}))
+    </select>
+
+    <select id="selectUserListByUserIds" parameterType="Object" resultMap="EcmpUserResult">
+        <include refid="selectEcmpUserVo"/>
+        where user_id in (#{userIds})
+    </select>
 </mapper>

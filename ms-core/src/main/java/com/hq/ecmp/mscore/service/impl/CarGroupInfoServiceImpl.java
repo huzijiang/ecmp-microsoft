@@ -165,7 +165,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //车队id
                 carGroupDispatcherInfo.setCarGroupId(carGroupId);
                 //调度员id
-                carGroupDispatcherInfo.setDispatcherId(Long.valueOf(dispatcher.getUserId()));
+                carGroupDispatcherInfo.setDispatcherId(dispatcher.getUserId());
                 //调度员名字
                 carGroupDispatcherInfo.setName(dispatcher.getUserName());
                 //创建人
@@ -289,9 +289,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         CarGroupDispatcherInfo carGroupDispatcherInfo = null;
         for (UserVO dispatcher : dispatchers) {
             carGroupDispatcherInfo = new CarGroupDispatcherInfo();
-            Integer dispatcherId = dispatcher.getUserId();
+            Long dispatcherId = dispatcher.getUserId();
             carGroupDispatcherInfo.setCarGroupId(carGroupId);
-            carGroupDispatcherInfo.setDispatcherId(Long.valueOf(dispatcherId));
+            carGroupDispatcherInfo.setDispatcherId(dispatcherId);
             carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
             carGroupDispatcherInfo.setCreateTime(new Date());
             //2.2新增调度员

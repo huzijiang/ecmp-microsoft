@@ -1,20 +1,18 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.ApproveStateEnum;
-import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
-import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
-import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.constant.ApproveTypeEnum;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyApproveResultInfoService;
 import com.hq.ecmp.mscore.vo.ApprovalInfoVO;
+import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +36,12 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
     private ApproveTemplateNodeInfoMapper approveTemplateNodeInfoMapper;
     @Autowired
     private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private ApplyInfoMapper applyInfoMapper;
+    @Autowired
+    private ProjectInfoMapper projectInfoMapper;
+    @Autowired
+    private EcmpUserRoleMapper userRoleMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -118,9 +122,59 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
         return applyApproveResultInfoMapper.getApproveMessage(userId);
     }
 
+//    @Override
+//    public void initApproveResultInfo(Long applyId,Long regimenId,Long userId) {
+//        //查询审批模板
+//        RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimenId);
+//        if (regimeInfo!=null){
+//            List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId()));
+//            Collections.sort(approveTemplateNodeInfos, new Comparator<ApproveTemplateNodeInfo>() {
+//                @Override
+//                public int compare(ApproveTemplateNodeInfo o1, ApproveTemplateNodeInfo o2) {
+//                    int i = o1.getApproveNodeId().intValue() - o2.getApproveNodeId().intValue();
+//                    if(i == 0){
+//                        return o1.getApproveNodeId().intValue() - o2.getApproveNodeId().intValue();
+//                    }
+//                    return i;
+//                }
+//            });
+//            if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos)){
+//                for (int i=0;i<approveTemplateNodeInfos.size();i++ ){
+//                    ApproveTemplateNodeInfo info = approveTemplateNodeInfos.get(i);
+//                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(info.getUserId());
+//                    ApplyApproveResultInfo resultInfo=new ApplyApproveResultInfo(applyId,regimeInfo.getApproveTemplateId(),info.getApproveNodeId(),ecmpUser.getUserName(),ecmpUser.getPhonenumber());
+//                    String state= ApproveStateEnum.NOT_ARRIVED_STATE.getKey();
+//                    if (i==0){
+//                        state=ApproveStateEnum.WAIT_APPROVE_STATE.getKey();
+//                    }
+//                    resultInfo.setState(state);
+//                    resultInfo.setCreateBy(String.valueOf(userId));
+//                    resultInfo.setCreateTime(new Date());
+//                    applyApproveResultInfoMapper.insertApplyApproveResultInfo(resultInfo);
+//                }
+//            }
+//        }
+//    }
+
+    @Override
+    public List<ApprovalInfoVO> getApproveResultList(ApplyApproveResultInfo applyApproveResultInfo) {
+        return applyApproveResultInfoMapper.getApproveResultList(applyApproveResultInfo.getApplyId(),applyApproveResultInfo.getApproveTemplateId());
+    }
+
+    @Override
+    public List<ApplyApproveResultInfo> selectApproveResultByNodeids(String nextNodeId,String state) {
+        return applyApproveResultInfoMapper.selectApproveResultByNodeids(nextNodeId,state);
+    }
+
+    @Override
+    public List<ApplyApproveResultInfo> selectByUserId(Long applyId, Long userId,String state) {
+        return applyApproveResultInfoMapper.selectByUserId(applyId,userId,state);
+    }
+
     @Override
     public void initApproveResultInfo(Long applyId,Long regimenId,Long userId) {
         //查询审批模板
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
         RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimenId);
         if (regimeInfo!=null){
             List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId()));
@@ -135,30 +189,43 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                 }
             });
             if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos)){
+                List<ApplyApproveResultInfo> list=new ArrayList<>();
                 for (int i=0;i<approveTemplateNodeInfos.size();i++ ){
                     ApproveTemplateNodeInfo info = approveTemplateNodeInfos.get(i);
-                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(info.getUserId());
-                    ApplyApproveResultInfo resultInfo=new ApplyApproveResultInfo(applyId,regimeInfo.getApproveTemplateId(),info.getApproveNodeId(),ecmpUser.getUserName(),ecmpUser.getPhonenumber());
+                    ApplyApproveResultInfo resultInfo=new ApplyApproveResultInfo(applyId,regimeInfo.getApproveTemplateId(),info.getApproveNodeId(),info.getApproverType(),info.getNextNodeId());
+                    resultInfo.setCreateTime(new Date());
+                    resultInfo.setCreateBy(String.valueOf(userId));
                     String state= ApproveStateEnum.NOT_ARRIVED_STATE.getKey();
                     if (i==0){
                         state=ApproveStateEnum.WAIT_APPROVE_STATE.getKey();
                     }
                     resultInfo.setState(state);
-                    resultInfo.setCreateBy(String.valueOf(userId));
-                    resultInfo.setCreateTime(new Date());
+                    switch (ApproveTypeEnum.format(info.getApproverType())) {
+                        case  APPROVE_T001://部门负责人
+                            UserVO deptUser=ecmpUserMapper.findDeptLeader(Long.parseLong(applyInfo.getCreateBy()));
+                            resultInfo.setApproveUserId(String.valueOf(deptUser.getUserId()));
+                            break;
+                        case  APPROVE_T002://指定角色
+                            resultInfo.setApproveRoleId(info.getRoleId());
+                            String userIds=userRoleMapper.findUserIds(info.getRoleId());
+                            resultInfo.setApproveUserId(userIds);
+                            break;
+                        case  APPROVE_T003://指定多个员工
+                            resultInfo.setApproveUserId(info.getUserId());
+                            break;
+                        case  APPROVE_T004://项目负责人
+                            UserVO userVO=projectInfoMapper.findLeader(applyInfo.getProjectId());
+                            resultInfo.setApproveUserId(String.valueOf(userVO.getUserId()));
+                            break;
+                        }
+                    list.add(resultInfo);
                     applyApproveResultInfoMapper.insertApplyApproveResultInfo(resultInfo);
                 }
+//                if (CollectionUtils.isNotEmpty(list)){
+//                    applyApproveResultInfoMapper.insertList(list);
+//                }
             }
         }
     }
 
-    @Override
-    public List<ApprovalInfoVO> getApproveResultList(ApplyApproveResultInfo applyApproveResultInfo) {
-        return applyApproveResultInfoMapper.getApproveResultList(applyApproveResultInfo.getApplyId(),applyApproveResultInfo.getApproveTemplateId());
-    }
-
-    @Override
-    public List<ApplyApproveResultInfo> selectApproveResultByNodeids(String nextNodeId,String state) {
-        return applyApproveResultInfoMapper.selectApproveResultByNodeids(nextNodeId,state);
-    }
 }

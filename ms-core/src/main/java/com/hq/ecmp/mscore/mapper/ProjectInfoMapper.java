@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.vo.ProjectInfoVO;
+import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -74,4 +75,6 @@ public interface ProjectInfoMapper
     ProjectInfoVO getProjectInfo(Long projectId);
 
     List<ProjectInfo> checkProject(String date);
+
+    UserVO findLeader(Long projectId);
 }

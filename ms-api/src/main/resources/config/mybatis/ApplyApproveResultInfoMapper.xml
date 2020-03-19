@@ -14,6 +14,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="approveResult"    column="approve_result"    />
         <result property="state"    column="state"    />
         <result property="content"    column="content"    />
+        <result property="approveUserId"    column="approve_user_id"    />
+        <result property="approveRoleId"    column="approve_role_id"    />
+        <result property="approveType"    column="approve_type"    />
+        <result property="nextNodeId"    column="next_node_id"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -21,7 +25,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectApplyApproveResultInfoVo">
-        select approve_result_id, apply_id, approve_template_id, approve_node_id, approver, approver_mobile, approve_result, state, content, create_by, create_time, update_by, update_time from apply_approve_result_info
+        select approve_result_id, apply_id, approve_template_id, approve_node_id, approver, approver_mobile, approve_result, state, content, create_by, create_time, update_by, update_time,approve_type,approve_role_id,approve_user_id,next_node_id from apply_approve_result_info
     </sql>
 
     <select id="selectApplyApproveResultInfoList" parameterType="com.hq.ecmp.mscore.domain.ApplyApproveResultInfo" resultMap="ApplyApproveResultInfoResult">
@@ -33,6 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="approver != null  and approver != ''"> and approver = #{approver}</if>
             <if test="approverMobile != null  and approverMobile != ''"> and approver_mobile = #{approverMobile}</if>
             <if test="approveResult != null  and approveResult != ''"> and approve_result = #{approveResult}</if>
+            <if test="approveRole != null  and approveRole != ''"> and approve_role = #{approveRole}</if>
             <if test="state != null  and state != ''"> and state = #{state}</if>
             <if test="content != null  and content != ''"> and content = #{content}</if>
         </where>
@@ -122,18 +127,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         approve_result approveResult,content,
         if (approve_result='pass' or approve_result='fail',approve_result,state) state
         from apply_approve_result_info
-        where
-        approve_node_id in (select approve_node_id from approve_template_node_info where user_id=#{userId})
-        <if test="state!=null and state!=''">and state!=#{state}</if>
+        where 1=1 <if test="state!=null and state!=''">and state!=#{state}</if>
+        and(find_in_set(#{userId},approve_user_id))
         order by
         case when state='ST01' then create_time end asc,update_time desc
     </select>
 
     <select id="getApproveResultList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ApprovalInfoVO">
        select a.approve_result_id approveResultId,a.apply_id applyId,a.approve_node_id approvalNodeId,approver approval,
-       approver_mobile approvalMobile,approve_result approveResult,state approveState,content,b.next_node_id nextNodeId ,a.update_time time
+       approver_mobile approvalMobile,approve_result approveResult,state approveState,content,a.next_node_id nextNodeId ,a.update_time time
         from apply_approve_result_info a
-        inner join approve_template_node_info b on b.approve_node_id=a.approve_node_id
         where apply_id=#{applyId}
         <if test="approveTemplateId!=null">
            and approve_template_id=#{approveTemplateId}
@@ -148,4 +151,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
     </select>
 
+    <insert id="insertList" parameterType="java.util.List" >
+        insert into apply_approve_result_info( apply_id, approve_template_id, approve_node_id, approver, approver_mobile, approve_result, state, content, create_by, create_time, update_by, update_time,approve_type,approve_role_id,approve_user_id,next_node_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            ( #{item.applyId}, #{item.approveTemplateId}, #{item.approveNodeId}, #{item.approver}, #{item.approverMobile}, #{item.approveResult}, #{item.state}, #{item.content}, #{item.createBy}, #{item.createTime},#{item.updateBy} , #{item.updateTime},#{item.approveType},#{item.approveRoleId},#{item.approveUserId},#{item.nextNodeId})
+        </foreach>
+    </insert>
+
+    <select id="selectByUserId" resultMap="ApplyApproveResultInfoResult">
+        <include refid="selectApplyApproveResultInfoVo"/>
+        where find_in_set(#{userId},approveUserId)
+        <if test="state!=null">
+            and state=#{state}
+        </if>
+        <if test="applyId!=null">
+            and  apply_id=#{applyId}
+        </if>
+    </select>
 </mapper>

@@ -49,4 +49,6 @@ public class OrderStateVO {
     private String useCarTime;
     @ApiModelProperty(name = "planPrice",value = "预计价格")
     private String planPrice;
+    @ApiModelProperty(name = "isDisagree",value = "是否展示异议")
+    private int isDisagree;
 }

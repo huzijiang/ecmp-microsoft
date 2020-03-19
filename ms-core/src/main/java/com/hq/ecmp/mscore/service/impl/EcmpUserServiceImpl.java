@@ -276,6 +276,11 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         }
     }
 
+    @Override
+    public List<EcmpUser> selectUserListByUserIds(String approveUserId) {
+        return ecmpUserMapper.selectUserListByUserIds(approveUserId);
+    }
+
 
     /**
      * 员工邀请判断是否该手机号是否已经注册

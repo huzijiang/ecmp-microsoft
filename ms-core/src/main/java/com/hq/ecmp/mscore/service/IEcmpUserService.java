@@ -162,4 +162,6 @@ public interface IEcmpUserService {
      * @param regimenIds
      */
     void bindUserRegimens(Long userId, List<Long> regimenIds) throws Exception;
+
+    List<EcmpUser> selectUserListByUserIds(String approveUserId);
 }

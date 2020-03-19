@@ -112,4 +112,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getApproveNodesByTemplateId" parameterType="Object" resultType="String">
         select group_concat(user_id) from approve_template_node_info where approve_template_id=#{approveTemplateId}
     </select>
+    <delete id="deleteByTemplateId">
+        delete from approve_template_node_info where approve_template_id=#{approveTemplateId}
+    </delete>
 </mapper>

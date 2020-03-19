@@ -67,4 +67,6 @@ public interface ApproveTemplateNodeInfoMapper
     String getListByNodeIds(@Param("nodeIds") List<Long> nodeIds);
     /**根据模板id查询所有审批节点id*/
     String getApproveNodesByTemplateId(Long approveTemplateId);
+
+    void deleteByTemplateId(Long approveTemplateId);
 }

@@ -67,9 +67,13 @@ public interface ApplyApproveResultInfoMapper
 
     MessageDto getApproveMessage(Long userId);
 
-    List<ApplyApproveResultInfo> selectResultList(@Param("userId") Long userId,@Param("state") String state);
+    List<ApplyApproveResultInfo> selectResultList(@Param("userId") Long userId,@Param("state") String state,@Param("roleIds")List<Long> roleIds);
 
     List<ApprovalInfoVO> getApproveResultList(@Param("applyId") Long applyId,@Param("approveTemplateId")  Long approveTemplateId);
 
     List<ApplyApproveResultInfo> selectApproveResultByNodeids(@Param("nextNodeIds") String nextNodeIds,@Param("state") String state);
+
+    void insertList(List<ApplyApproveResultInfo> list);
+
+    List<ApplyApproveResultInfo> selectByUserId(@Param("applyId") Long applyId,@Param("userId")  Long userId,@Param("state") String state);
 }
