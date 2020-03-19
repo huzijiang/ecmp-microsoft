@@ -6,6 +6,8 @@ import lombok.Data;
 
 @Data
 public class UserCarAuthority {
+	
+	
      String type;//C001  接机    C009  送机     C222  市内用车
      
      
@@ -19,8 +21,10 @@ public class UserCarAuthority {
      Integer sendCount=0;//送机剩余次数
      
     String cityName;
+    
+    Long orderId;//订单编号   接/送机时存在
      
-     
+    Long powerId;//用车权限ID
      /**
       * 获取接机or送机剩余次数
       */

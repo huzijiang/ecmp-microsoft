@@ -13,6 +13,8 @@ public enum OrderState {
     READYSERVICE("S600","准备服务"),INSERVICE("S616","服务中"),
     STOPSERVICE("S699","服务结束"),ORDERCLOSE("S900","订单关闭"),
     DISSENT("S901","订单异议"),ORDERCANCEL("S911","订单取消"),
+    WAITCONFIRMED("S960","待确认"),
+    TIMELIMIT("S970","已过期"),
     ORDEROVERTIME("S921","订单超时");
 
 
