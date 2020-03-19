@@ -100,7 +100,7 @@ public interface IEcmpUserService {
     /*
     *查询手机号与邮箱是否已经存在
     * */
-    public int selectPhoneAndEmailExist(EcmpUserVo ecmpUser);
+    public int selectPhoneAndEmailExist(String phonenumber,String email);
 
     /**
      * 禁用/启用  员工
