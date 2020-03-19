@@ -85,8 +85,8 @@ public class EcmpUserController {
      * 员工列表（按部门）
      * @param  ecmpUser
      * @return*/
-    @ApiOperation(value = "查询员工列表",notes = "查询员工列表",httpMethod ="GET")
-    @GetMapping("/getEcmpList")
+    @ApiOperation(value = "查询员工列表",notes = "查询员工列表",httpMethod ="POST")
+    @PostMapping("/getEcmpList")
     public ApiResponse<List<EcmpUserDto>> getEcmpUserList(@RequestBody EcmpUserVo ecmpUser){
         Long deptId=ecmpUser.getDeptId();
         if(deptId==null){

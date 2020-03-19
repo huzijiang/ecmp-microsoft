@@ -88,8 +88,8 @@ public class OrgController {
      * 查询公司列表
      * @param  ecmpOrgVo
      * @return*/
-    @ApiOperation(value = "查询公司列表",notes = "查询公司列表",httpMethod ="GET")
-    @GetMapping("/getSubCompanyList")
+    @ApiOperation(value = "查询公司列表",notes = "查询公司列表",httpMethod ="POST")
+    @PostMapping("/getSubCompanyList")
     public ApiResponse<List<EcmpOrgDto>> selectSubCompany(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
         String deptType=ecmpOrgVo.getDeptType();

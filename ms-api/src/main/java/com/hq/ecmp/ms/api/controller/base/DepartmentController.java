@@ -55,8 +55,8 @@ public class DepartmentController {
      * 获取上级组织id中的员工姓名和电话
      * @param  ecmpUserVo
      * @return List<EcmpUserDto>*/
-    @ApiOperation(value = "查询上级组织id中的员工姓名和电话",notes = "查询上级组织id中的员工姓名和电话",httpMethod ="GET")
-    @GetMapping("/getEcmpUserNameAndPhone")
+    @ApiOperation(value = "查询上级组织id中的员工姓名和电话",notes = "查询上级组织id中的员工姓名和电话",httpMethod ="POST")
+    @PostMapping("/getEcmpUserNameAndPhone")
     public ApiResponse<List<EcmpUserDto>> getEcmpUserNameAndPhone(@RequestBody EcmpUserVo ecmpUserVo){
         List<EcmpUserDto> ecmpUserList = ecmpUserService.getEcmpUserNameAndPhone(ecmpUserVo);
 
