@@ -81,11 +81,20 @@ public interface EcmpUserMapper
     /**
      * 禁用/启用  员工
      *
+     * @param userId 部门ID
+     * @param status 状态
+     * @return 结果
+     */
+    public int updateUseStatus(@Param("userId") Long userId, @Param("status") String status);
+
+    /**
+     * 关联部门/公司--禁用/启用  员工
+     *
      * @param deptId 部门ID
      * @param status 状态
      * @return 结果
      */
-    public int updateUseStatus(@Param("deptId") Long deptId, @Param("status") String status);
+    public int updateRelationUseStatus(@Param("deptId") Long deptId, @Param("status") String status);
 
     /*
      * 获取上级组织id中的员工姓名和电话
@@ -107,6 +116,13 @@ public interface EcmpUserMapper
      * @return int
      * */
     public int addUserRegimeRelation(EcmpUserVo ecmpUser);
+
+    /*
+     * 修改员工&用车制度中间表信息
+     *  @param  ecmpUserVo
+     * @return int
+     * */
+    public int updateUserRegimeRelation(EcmpUserVo ecmpUser);
 
     /*
      *查询手机号与邮箱是否已经存在
@@ -153,22 +169,36 @@ public interface EcmpUserMapper
 
     public int  queryCompanyEmp();
 
+
     /*设置离职日期
     @param  dimissionTime
      * @return
     * */
-    public int updateDimissionTime(Date dimissionTime);
+    public int updateDimissionTime(Date dimissionTime,Long userId);
 
     /*已离职数量
+    @param
+     * @return
+    * */
+    public int selectDimissionCount();
+
+    /*已离职员工编号
     @param  dimissionTime
      * @return
     * */
-    public int selectDimissionCount(Long userId);
+    public Long[] selectDimissionEcmpUserIds();
 
     /*已离职列表
     @param  userId
      * @return
     * */
     public List<EcmpUserDto> selectDimissionList(Long userId);
+
+    /**
+     * 员工邀请判断是否该手机号是否已经注册
+     */
+    public int userItisExist(String phoneNumber);
+
+    public List<EcmpUserDto> selectDimissionList(Long deptId,Long userId);
 }
 

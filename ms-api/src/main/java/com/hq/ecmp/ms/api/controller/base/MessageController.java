@@ -17,10 +17,7 @@ import com.hq.ecmp.mscore.vo.EcmpMessageVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -79,13 +76,38 @@ public class MessageController {
 	}
 
 	/**
+	 * 阅读消息
+	 * @param
+	 * @return
+	 */
+	@ApiOperation(value = "readMessage", notes = "获取首页轮播正在进行中流程通知", httpMethod ="POST")
+	@PostMapping("/readMessage")
+	public ApiResponse readMessage(@RequestBody MessageDto messageDto) {
+		//获取登录用户
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		try{
+			EcmpMessage message = ecmpMessageService.queryById(messageDto.getId());
+			if (message!=null&&!MsgStatusConstant.MESSAGE_STATUS_T001.getType().equals(message.getStatus())){
+				message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T001.getType());
+				ecmpMessageService.update(message);
+			}
+			return ApiResponse.success();
+		}catch (Exception e){
+			e.printStackTrace();
+			return ApiResponse.error(e.getMessage());
+		}
+
+	}
+
+	/**
 	 * 获取首页轮播正在进行中流程通知(司机端)
 	 * @param
 	 * @return
 	 */
-	@ApiOperation(value = "getRunMessageForDrive", notes = "获取首页轮播正在进行中流程通知", httpMethod ="GET")
-	@GetMapping("/getRunMessageForDrive")
-	public ApiResponse<List<MessageDto>> getRunMessageForDrive() {
+	@ApiOperation(value = "getRunMessageForDriver", notes = "获取首页轮播正在进行中流程通知", httpMethod ="GET")
+	@GetMapping("/getRunMessageForDriver")
+	public ApiResponse<List<MessageDto>> getRunMessageForDriver() {
 		//获取登录用户
 		HttpServletRequest request = ServletUtils.getRequest();
 		LoginUser loginUser = tokenService.getLoginUser(request);

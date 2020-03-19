@@ -131,7 +131,7 @@ public interface IEcmpOrgService
      * @param deptId 部门ID
      * @return 结果
      */
-    public String updateDelFlagById(Long deptId,String deptType);
+    public String updateDelFlagById(String deptType,Long deptId);
 
     /**
      * 逻辑批量删除部门信息
@@ -143,11 +143,11 @@ public interface IEcmpOrgService
 
 
     /**
-     * 禁用启用部门/ 分/子公司
+     * 禁用启用部门
      *
-     * @param deptId 部门ID
+     * @param userId 部门ID
      * @return 结果
      */
-    public String updateUseStatus(String status,Long deptId);
+    public String updateUseStatus(String status,Long userId);
 
 }

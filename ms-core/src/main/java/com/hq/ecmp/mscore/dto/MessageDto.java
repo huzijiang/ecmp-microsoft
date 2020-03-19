@@ -19,9 +19,20 @@ public class MessageDto {
      * 消息通知数量
      */
     private Integer messageCount;
-
     /**
      * 通知id
      */
     private Long messageId;
+    private Long id;
+    private String useCarMode;
+
+    public MessageDto() {
+    }
+
+    public MessageDto(Long messageId,String messageType, String messageTypeStr, Integer messageCount) {
+        this.messageType = messageType;
+        this.messageTypeStr = messageTypeStr;
+        this.messageCount = messageCount;
+        this.messageId = messageId;
+    }
 }

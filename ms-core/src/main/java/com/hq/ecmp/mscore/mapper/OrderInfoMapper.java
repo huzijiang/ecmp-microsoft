@@ -165,5 +165,7 @@ public interface OrderInfoMapper {
     public List<ApplyDispatchVo> queryReassignmentDispatchList(ApplyDispatchQuery query);
     
     public Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query);
+
+    OrderInfo selectDriverOrder(@Param("driverId")Long driverId,@Param("state") String state);
 }
 

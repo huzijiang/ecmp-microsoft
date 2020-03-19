@@ -9,10 +9,7 @@ import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
@@ -52,7 +49,7 @@ public class LocationController {
 
 	@ApiOperation(value = "queryByShortAddress", notes = "地址反查查询 ", httpMethod = "POST")
 	@PostMapping("/queryByShortAddress")
-	public ApiResponse<List<LocationInfoVo>> queryByShortAddress(String cityName, String shortAddress) {
+	public ApiResponse<List<LocationInfoVo>> queryByShortAddress(@RequestParam("cityName") String cityName, @RequestParam("shortAddress") String shortAddress) {
 		String cityCode = chinaCityService.queryCityCodeByCityName(cityName);// 查询城市编码
 		if (null == cityCode) {
 			return ApiResponse.error("未查询到城市的编码!");

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo;
+import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 
 import java.util.List;
 

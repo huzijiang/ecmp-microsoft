@@ -113,7 +113,6 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     public int updateDept(EcmpOrgVo ecmpOrg){
         ecmpOrg.setUpdateTime(DateUtils.getNowDate());
         int ix = ecmpOrgMapper.updateDept(ecmpOrg);
-
         return ix;
     }
 
@@ -241,12 +240,11 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     /**
      * 逻辑删除分子公司/部门信息
      *
-     * @param deptId 部门ID
+     * @param ecmpOrg
      * @return 结果
      */
     @Transactional
-    public String updateDelFlagById(Long deptId,String deptType) {
-
+    public String updateDelFlagById(String deptType,Long deptId) {
         //根据deptId查询组织下级是否有数据信息 ecmpOrgNum>0不可删除
         int ecmpOrgNum = ecmpOrgMapper.selectByAncestorsLikeDeptId(deptId);
 
@@ -304,7 +302,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         //禁用/启用  分/子公司
         int i = ecmpOrgMapper.updateUseStatus(status,deptId.toString(),deptId);
         //禁用/启用  员工
-        int i1 = ecmpUserMapper.updateUseStatus(deptId, status);
+        int i1 = ecmpUserMapper.updateRelationUseStatus(deptId, status);
         //禁用/启用  驾驶员  state 状态 W001 待审   V000 生效中   NV00 失效
         int i2 = driverInfoMapper.updateUseStatus(deptId, "0".equals(status)?"V000":"NV00");
         if("0".equals(status)){

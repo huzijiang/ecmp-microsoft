@@ -89,4 +89,18 @@ public interface CarInfoMapper
      * @return
      */
     List<CarLocationVo> locationCars(CarLocationDto carLocationDto);
+
+    /**
+     * 查询车队启用车辆ids
+     * @param carGropuId
+     * @return
+     */
+    List<Long> selectGroupEffectiveCarIds(Long carGropuId);
+
+    /**
+     * 禁用车辆
+     * @param carId
+     * @return
+     */
+    int disableCarByCarId(Long carId);
 }

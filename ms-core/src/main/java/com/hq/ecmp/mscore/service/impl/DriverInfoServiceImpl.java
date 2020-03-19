@@ -178,6 +178,14 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     public int queryCompanyDriverCount(){
         return driverInfoMapper.queryCompanyDriver();
     }
+    /**
+     *
+     * @param phoneNumber
+     * @return
+     */
+    public int driverItisExist(String phoneNumber){
+        return driverInfoMapper.driverItisExist(phoneNumber);
+    }
 
 
 }

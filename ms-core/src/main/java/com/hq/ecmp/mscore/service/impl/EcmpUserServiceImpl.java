@@ -4,8 +4,10 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
+import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +30,8 @@ import java.util.List;
 public class EcmpUserServiceImpl implements IEcmpUserService {
     @Autowired
     private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private UserRegimeRelationInfoMapper userRegimeRelationInfoMapper;
 
 
     /**
@@ -73,7 +77,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public int updateEcmpUser(EcmpUserVo ecmpUser) {
         ecmpUser.setUpdateTime(DateUtils.getNowDate());
-        //ecmpUserMapper.updateUserRegimeRelation(ecmpUser);
+        ecmpUserMapper.updateUserRegimeRelation(ecmpUser);
         return ecmpUserMapper.updateEcmpUser(ecmpUser);
     }
 
@@ -99,17 +103,19 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.deleteEcmpUserById(userId);
     }
 
-	@Override
-	public boolean isDispatcher(Long userId) {
-		Integer count = ecmpUserMapper.queryDispatcher(userId);
-		return count>0;
-	}
+    @Override
+    public boolean isDispatcher(Long userId) {
+        Integer count = ecmpUserMapper.queryDispatcher(userId);
+        return count > 0;
+    }
+
     /**
      * 可管理员工
+     *
      * @return
      */
     @Override
-    public int  queryCompanyEmpCunt(){
+    public int queryCompanyEmpCunt() {
         return ecmpUserMapper.queryCompanyEmp();
     }
 
@@ -119,9 +125,10 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @return List<EcmpUserDto>
      * */
     @Override
-    public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo){
-        List<EcmpUserDto> ecmpUserList=null;
-        ecmpUserList=ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo);
+
+    public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo) {
+        List<EcmpUserDto> ecmpUserList = null;
+        ecmpUserList = ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo);
         return ecmpUserList;
     }
 
@@ -138,6 +145,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.addEcmpUser(ecmpUser);
     }
 
+
     /*
      *查询手机号与邮箱是否已经存在
      * */
@@ -148,13 +156,13 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     /**
      * 禁用/启用  员工
      *
-     * @param deptId 部门ID
+     * @param userId 员工ID
      * @return 结果
      */
     @Transactional
-    public String updateUseStatus(String status,Long deptId){
+    public String updateUseStatus(String status,Long userId){
         //禁用/启用  员工
-        int i1 = ecmpUserMapper.updateUseStatus(deptId, status);
+        int i1 = ecmpUserMapper.updateUseStatus(userId, status);
         if("0".equals(status)){
             return "启用成功！";
         }
@@ -184,9 +192,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public List<EcmpUserDto> getEcmpUserList(Long deptId){
         List<EcmpUserDto> ecmpUserList = new ArrayList<>();
-        Long [] arr= ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
-        for (int i = 0; i < arr.length; i++) {
-            ecmpUserList = ecmpUserMapper.getEcmpUserList(deptId,arr[i]);
+        Long [] deptIds= ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
+        for (int i = 0; i < deptIds.length; i++) {
+            ecmpUserList = ecmpUserMapper.getEcmpUserList(deptId,deptIds[i]);
         }
         return ecmpUserList;
     }
@@ -232,21 +240,56 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @param  dimissionTime
      * @return
     * */
-    public int updateDimissionTime(Date dimissionTime){
-        return ecmpUserMapper.updateDimissionTime(dimissionTime);
+    public int updateDimissionTime(Date dimissionTime,Long userId){
+        return ecmpUserMapper.updateDimissionTime(dimissionTime,userId);
     }
 
     /*已离职数量*/
     @ApiOperation(value = "已离职数量",notes = "已离职数量",httpMethod ="POST")
     @PostMapping("/selectDimissionCount")
-    public int selectDimissionCount(Long userId){
-        return ecmpUserMapper.selectDimissionCount(userId);
+    public int selectDimissionCount(){
+        return ecmpUserMapper.selectDimissionCount();
     }
 
     /*已离职数量*/
     @ApiOperation(value = "已离职列表",notes = "已离职列表",httpMethod ="POST")
     @PostMapping("/selectDimissionList")
-    public List<EcmpUserDto> selectDimissionList(Long userId){
-        return ecmpUserMapper.selectDimissionList(userId);
+    public List<EcmpUserDto> selectDimissionList(Long deptId){
+        List<EcmpUserDto> ecmpUserList=null;
+        Long[] userIds= ecmpUserMapper.selectDimissionEcmpUserIds();
+        for (int i = 0; i < userIds.length; i++) {
+            ecmpUserList = ecmpUserMapper.selectDimissionList(deptId,userIds[i]);
+        }
+        return ecmpUserList;
+    }
+
+    /**
+     * 给员工设置用车制度
+     * @param userId
+     * @param regimenIds
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void bindUserRegimens(Long userId, List<Long> regimenIds) throws Exception {
+        UserRegimeRelationInfo userRegimeRelationInfo = null;
+        for (Long regimenId : regimenIds) {
+            userRegimeRelationInfo = new UserRegimeRelationInfo();
+            userRegimeRelationInfo.setUserId(userId);
+            userRegimeRelationInfo.setRegimenId(regimenId);
+            int i = userRegimeRelationInfoMapper.insertUserRegimeRelationInfo(userRegimeRelationInfo);
+            if(i != 1){
+                throw new Exception();
+            }
+        }
+    }
+
+
+    /**
+     * 员工邀请判断是否该手机号是否已经注册
+     */
+    public int userItisExist(String phoneNumber) {
+
+        return ecmpUserMapper.userItisExist(phoneNumber);
+
     }
 }
