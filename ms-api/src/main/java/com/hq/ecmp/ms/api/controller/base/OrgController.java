@@ -94,10 +94,10 @@ public class OrgController {
         Long deptId=ecmpOrgVo.getDeptId();
         String deptType=ecmpOrgVo.getDeptType();
         if(deptId==null){
-            ApiResponse.error("组织id不能为空！");
+           return ApiResponse.error("组织id不能为空！");
         }
         if(deptType==null){
-            ApiResponse.error("组织类别不能为空！");
+            return ApiResponse.error("组织类别不能为空！");
         }
         List<EcmpOrgDto> deptList = orgService.getDeptList(deptId,deptType);
         return ApiResponse.success(deptList);
@@ -111,7 +111,7 @@ public class OrgController {
     public ApiResponse<EcmpOrgDto> getSubDetail(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
         if(deptId==null){
-            ApiResponse.error("组织id不能为空！");
+            return ApiResponse.error("组织id不能为空！");
         }
         EcmpOrgDto ecmpOrg = orgService.getSubDetail(deptId);
         return ApiResponse.success(ecmpOrg);
@@ -159,10 +159,10 @@ public class OrgController {
         Long deptId=ecmpOrgVo.getDeptId();
         String deptType=ecmpOrgVo.getDeptType();
         if(deptId==null){
-            ApiResponse.error("组织id不能为空！");
+            return ApiResponse.error("组织id不能为空！");
         }
         if(deptType==null){
-            ApiResponse.error("组织类别不能为空！");
+            return ApiResponse.error("组织类别不能为空！");
         }
         String msg = orgService.updateDelFlagById(deptType,deptId);
             return ApiResponse.error(msg);
@@ -179,10 +179,10 @@ public class OrgController {
         Long deptId=ecmpOrgVo.getDeptId();
         String status=ecmpOrgVo.getStatus();
         if(deptId==null){
-            ApiResponse.error("组织id不能为空！");
+            return ApiResponse.error("组织id不能为空！");
         }
         if(status==null){
-            ApiResponse.error("部门状态不能为空！");
+            return ApiResponse.error("部门状态不能为空！");
         }
         String s = orgService.updateUseStatus(status,deptId);
         /*if (i > 0){

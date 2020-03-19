@@ -89,4 +89,8 @@ public interface RegimeInfoMapper
 
 
     public RegimenVO selectRegimenVOById(Long regimeId);
+    /*
+    * 根据userid 查询用车制度名称
+    * */
+    public  List<String> selectByUserId(Long userId);
 }
