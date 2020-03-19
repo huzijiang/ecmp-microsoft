@@ -4,7 +4,6 @@ import com.hq.ecmp.mscore.dto.InvitationDto;
 import com.hq.ecmp.mscore.dto.InvitationInfoDTO;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -14,7 +13,6 @@ import java.util.List;
  * @author makejava
  * @since 2020-03-16 18:33:00
  */
-@Repository
 public interface EcmpEnterpriseInvitationInfoService {
 
     /**

@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
@@ -109,6 +110,13 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
     public List<DriverDutyPlanVO> selectDriverWorkInfoByMonth(String scheduleDate, Long userId) {
 
         List<DriverDutyPlanVO> list = driverWorkInfoMapper.selectDriverWorkInfoByMonth(scheduleDate,userId);
+        /*List<DriverDutyPlanVO> list = new ArrayList<>();
+        DriverDutyPlanVO v1 = DriverDutyPlanVO.builder().dutyDate("2020-03-12").status("S002").build();
+        DriverDutyPlanVO v2 = DriverDutyPlanVO.builder().dutyDate("2020-03-15").status("S001").build();
+        DriverDutyPlanVO v3 = DriverDutyPlanVO.builder().dutyDate("2020-03-16").status("S002").build();
+        list.add(v1);
+        list.add(v2);
+        list.add(v3);*/
         return list;
     }
 

@@ -306,4 +306,7 @@ WHERE
           select count(*) from driver_info where mobile=#{phoneNumber}
     </select>
 
+    <update id="disableDriver" parameterType="long">
+        update driver_info  set lock_state = '1111' where driver_id = #{driverId}
+    </update>
 </mapper>

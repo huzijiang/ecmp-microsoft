@@ -17,8 +17,7 @@ import lombok.Data;
  * @author hqer
  * @date 2020-01-02
  */
-public interface IJourneyInfoService
-{
+public interface IJourneyInfoService {
     /**
      * 查询【请填写功能名称】
      *
@@ -66,34 +65,41 @@ public interface IJourneyInfoService
      * @return 结果
      */
     public int deleteJourneyInfoById(Long journeyId);
-    
+
     public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId);
-    
+
     /**
      * 获取指定差旅行程下所有行程节点生成的用车权限
-     * @param
-   //  * @param journeyId
+     *
+     * @param // * @param journeyId
      * @return
      */
     public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId);
 
     MessageDto getJourneyMessage(Long userId);
+
     /**
      * 获取正在进行中的行程
+     *
      * @param userId
      * @return list
      */
     public List<JourneyVO> getJourneyList(String userId);
+
     /**
      * 获取正在进行中的行程个数
+     *
      * @param userId
      * @return 个数
      */
-    int getJourneyListCount(String userId);
+    public int getJourneyListCount(String userId);
+
     /**
      * 获取正在进行中的行程详情
+     *
      * @param orderId
      * @return
      */
-   //  OrderVO getJourneyDetail(Long orderId);
+    //  OrderVO getJourneyDetail(Long orderId);
+
 }

@@ -21,6 +21,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="startDate"    column="start_date"    />
         <result property="endDate"    column="end_date"    />
         <result property="travelPickupCity"    column="travel_pickup_city"    />
+        <result property="travelCitiesStr"    column="travel_cities_str"    />
+        <result property="pickupTimes"    column="pickup_times"    />
+        <result property="title"    column="title"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -28,7 +31,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectJourneyInfoVo">
-        select journey_id, user_id, regimen_id, service_type, use_car_mode, use_car_time, it_is_return, estimate_price, project_id, flight_number, use_time, wait_time_long, charter_car_type, create_by, create_time, update_by, update_time,title,start_date,end_date from journey_info
+        select journey_id, user_id, regimen_id, service_type, use_car_mode, use_car_time, it_is_return, estimate_price, project_id, flight_number, use_time, wait_time_long, charter_car_type, create_by, create_time, update_by, update_time,title,start_date,end_date,travel_pickup_city,travel_cities_str,pickup_times,title from journey_info
     </sql>
 
     <select id="selectJourneyInfoList" parameterType="com.hq.ecmp.mscore.domain.JourneyInfo" resultMap="JourneyInfoResult">
