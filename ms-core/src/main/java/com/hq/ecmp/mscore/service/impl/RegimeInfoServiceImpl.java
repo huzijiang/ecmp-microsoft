@@ -273,4 +273,15 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}
 		return regimeVo;
 	}
+
+	@Override
+	public String queryUseCarModelByNoteId(Long noteId) {
+		return regimeInfoMapper.queryUseCarModelByNoteId(noteId);
+	}
+
+	@Override
+	public String queryUseCarModelByJourneyId(Long journeyId) {
+		
+		return null;
+	}
 }

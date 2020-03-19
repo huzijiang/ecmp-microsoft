@@ -101,5 +101,8 @@ public interface IJourneyInfoService {
      * @return
      */
     //  OrderVO getJourneyDetail(Long orderId);
+    
+    
+   
 
 }

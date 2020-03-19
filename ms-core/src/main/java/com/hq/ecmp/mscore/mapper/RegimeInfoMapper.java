@@ -89,4 +89,10 @@ public interface RegimeInfoMapper
 
 
     public RegimenVO selectRegimenVOById(Long regimeId);
+    
+    
+    public String queryUseCarModelByNoteId(Long noteId);
+    
+    
+    public String queryUseCarModelByJourneyId(Long journeyId);
 }

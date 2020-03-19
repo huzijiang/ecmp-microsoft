@@ -214,7 +214,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//查询所有处于待派单的订单及关联的信息
 		OrderInfo query = new OrderInfo();
-		query.setState(OrderState.SENDINGCARS.getState());
+		query.setState(OrderState.WAITINGLIST.getState());
 		List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
 		if(null !=waitDispatchOrder && waitDispatchOrder.size()>0){
 			result.addAll(waitDispatchOrder);
@@ -225,7 +225,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<DispatchOrderInfo> reassignmentOrder = orderInfoMapper.queryOrderRelateInfo(query);
 		if(null !=reassignmentOrder && reassignmentOrder.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : reassignmentOrder) {
-				dispatchOrderInfo.setState(OrderState.REASSIGNMENT.getState());
+				dispatchOrderInfo.setState(OrderState.APPLYREASSIGN.getState());
 			}
 			result.addAll(reassignmentOrder);
 		}
@@ -1142,5 +1142,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		orderInfo.setUpdateBy(String.valueOf(orderId));
 		orderInfo.setUpdateTime(new Date());
 		return updateOrderInfo(orderInfo)>0;
+	}
+
+	@Override
+	public boolean queryOrderDispathIsOline(Long orderId) {
+		OrderInfo orderInfo = selectOrderInfoById(orderId);
+		if(null !=orderInfo && StringUtil.isNotEmpty(orderInfo.getUseCarMode()) && CarConstant.USR_CARD_MODE_NET.equals(orderInfo.getUseCarMode())){
+			return true;
+		}
+		return false;
 	}
 }

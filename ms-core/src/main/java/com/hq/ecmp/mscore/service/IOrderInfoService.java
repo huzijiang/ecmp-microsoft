@@ -215,6 +215,12 @@ public interface IOrderInfoService {
      * @return
      */
     public void applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws ParseException;
-
+    
+    /**
+     * 判断订单的调度方式是网约车
+     * @param orderId
+     * @return
+     */
+    public boolean queryOrderDispathIsOline(Long orderId);
 }
 
