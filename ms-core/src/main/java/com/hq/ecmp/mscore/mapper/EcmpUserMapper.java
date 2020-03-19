@@ -174,7 +174,7 @@ public interface EcmpUserMapper
     @param  dimissionTime
      * @return
     * */
-    public int updateDimissionTime(Date dimissionTime,Long userId);
+    public int updateDimissionTime(@Param("dimissionTime")Date dimissionTime,@Param("userId")Long userId);
 
     /*已离职数量
     @param
