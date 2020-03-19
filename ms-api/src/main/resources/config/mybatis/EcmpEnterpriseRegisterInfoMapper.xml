@@ -228,7 +228,7 @@
         delete from ecmp.ecmp_enterprise_register_info where register_id = #{registerId}
     </delete>
     <!--待审核数量员工/驾驶员-->
-    <select id="waitAmount" parameterType="Object" resultMap="java.lang.Integer">
+    <select id="waitAmount" parameterType="Object" resultType="java.lang.Integer">
        select COUNT(*) as amountWaitUser from ecmp_enterprise_register_info d where d.state=#{state} and d.type=#{type}
     </select>
     <!--待审核列表员工-->
