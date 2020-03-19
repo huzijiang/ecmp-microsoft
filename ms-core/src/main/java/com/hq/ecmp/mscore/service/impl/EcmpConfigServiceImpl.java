@@ -118,7 +118,8 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     public ConfigInfoDTO selectConfigInfo() {
         try {
             //查询基本信息
-            EcmpConfig baseInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BASE_INFO.getConfigKey()).build());
+            EcmpConfig c = EcmpConfig.builder().configKey(ConfigTypeEnum.BASE_INFO.getConfigKey()).build();
+            EcmpConfig baseInfo = ecmpConfigMapper.selectConfigByKey(c);
             EcmpConfig messageInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.MESSAGE_INFO.getConfigKey()).build());
             EcmpConfig backgroundInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BACKGROUND_IMAGE_INFO.getConfigKey()).build());
             EcmpConfig welcomeInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WELCOME_IMAGE_INFO.getConfigKey()).build());

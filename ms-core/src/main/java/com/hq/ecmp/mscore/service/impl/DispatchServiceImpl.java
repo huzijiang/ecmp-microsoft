@@ -3,7 +3,6 @@ package com.hq.ecmp.mscore.service.impl;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.constant.OrderConstant;
 import com.hq.ecmp.mscore.bo.DispatcherOwnedContainer;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.OrderAddressInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.dto.DispatchInfoDto;
@@ -12,17 +11,15 @@ import com.hq.ecmp.mscore.mapper.JourneyPassengerInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderAddressInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.service.IDispatchService;
-import com.hq.ecmp.mscore.vo.CarInfoVO;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
-import com.hq.ecmp.mscore.vo.DriverInfoVO;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.LinkedList;
+import org.springframework.stereotype.Service;
 
 /**
  * @Author: zj.hu
  * @Date: 2020-03-17 23:36
  */
+@Service
 public class DispatchServiceImpl implements IDispatchService {
 
     @Autowired
