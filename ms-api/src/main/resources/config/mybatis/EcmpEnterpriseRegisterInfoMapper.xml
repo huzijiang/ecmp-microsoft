@@ -232,7 +232,7 @@
        select COUNT(*) as amountWaitUser from ecmp_enterprise_register_info d where d.state=#{state} and d.type=#{type}
     </select>
     <!--待审核列表员工-->
-    <select id="queryRegisterUserWait" parameterType="Object" resultMap="com.hq.ecmp.mscore.vo.registerUserVO">
+    <select id="queryRegisterUserWait" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.registerUserVO">
         select a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.dept_name as deptName,a.reason as reason
         from ecmp_enterprise_register_info  a
         left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
@@ -241,7 +241,7 @@
         where a.type='T001' and a.state='S000'
     </select>
     <!--待审核列表驾驶员-->
-    <select id="queryRegisterDriverWait" parameterType="Object" resultMap="com.hq.ecmp.mscore.vo.registerDriverVO">
+    <select id="queryRegisterDriverWait" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.registerDriverVO">
          select a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.car_group_name as carGroupName,a.reason as reason
         from ecmp_enterprise_register_info  a
         left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id

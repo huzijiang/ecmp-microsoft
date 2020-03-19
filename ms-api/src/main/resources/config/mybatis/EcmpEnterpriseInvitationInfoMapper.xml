@@ -3,21 +3,21 @@
 <mapper namespace="com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper">
 
     <resultMap type="com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo" id="EcmpEnterpriseInvitationInfoMap">
-        <result property="invitationId" column="invitation_id" jdbcType="INTEGER"/>
-        <result property="name" column="name" jdbcType="VARCHAR"/>
-        <result property="enterpriseId" column="enterprise_id" jdbcType="INTEGER"/>
-        <result property="departmentId" column="department_id" jdbcType="INTEGER"/>
-        <result property="carGroupId" column="car_group_id" jdbcType="INTEGER"/>
-        <result property="type" column="type" jdbcType="VARCHAR"/>
-        <result property="roseId" column="rose_id" jdbcType="INTEGER"/>
-        <result property="regimeIds" column="regime_ids" jdbcType="VARCHAR"/>
-        <result property="url" column="url" jdbcType="VARCHAR"/>
-        <result property="state" column="state" jdbcType="VARCHAR"/>
-        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
-        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
-        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
-    </resultMap>
+    <result property="invitationId" column="invitation_id" jdbcType="INTEGER"/>
+    <result property="name" column="name" jdbcType="VARCHAR"/>
+    <result property="enterpriseId" column="enterprise_id" jdbcType="INTEGER"/>
+    <result property="departmentId" column="department_id" jdbcType="INTEGER"/>
+    <result property="carGroupId" column="car_group_id" jdbcType="INTEGER"/>
+    <result property="type" column="type" jdbcType="VARCHAR"/>
+    <result property="roseId" column="rose_id" jdbcType="INTEGER"/>
+    <result property="regimeIds" column="regime_ids" jdbcType="VARCHAR"/>
+    <result property="url" column="url" jdbcType="VARCHAR"/>
+    <result property="state" column="state" jdbcType="VARCHAR"/>
+    <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+    <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+    <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+</resultMap>
 
     <!--查询单个-->
     <select id="queryById" resultMap="EcmpEnterpriseInvitationInfoMap">
@@ -143,8 +143,9 @@
     <delete id="deleteById">
         delete from ecmp.ecmp_enterprise_invitation_info where invitation_id = #{invitationId}
     </delete>
+
     <!--邀请员工列表-->
-    <select id="queryInvitationUser" parameterType="Object" resultMap="com.hq.ecmp.mscore.vo.InvitationUserVO">
+    <select id="queryInvitationUser" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationUserVO">
         select a.name as yqName,c.dept_name as companyName,e.dept_name as deptName,group_concat(b.name) as regimeUser ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait
         from ecmp_enterprise_invitation_info  a
         left join regime_info b
@@ -157,7 +158,7 @@
         group by a.name,a.enterprise_id,a.department_id
     </select>
     <!--邀请员工详情-->
-    <select id="queryInvitationUserDetial" parameterType="Object" resultMap="com.hq.ecmp.mscore.vo.InvitationUserVO">
+    <select id="queryInvitationUserDetial" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationUserVO">
         select a.name as yqName,c.dept_name as companyName,e.dept_name as deptName,group_concat(b.name) as regimeUser ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait
         from ecmp_enterprise_invitation_info  a
         left join regime_info b
@@ -170,7 +171,7 @@
         group by a.name,a.enterprise_id,a.department_id
     </select>
     <!--驾驶员工列表-->
-    <select id="queryInvitationDriver" parameterType="Object" resultMap="com.hq.ecmp.mscore.vo.InvitationDriverVO">
+    <select id="queryInvitationDriver" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationDriverVO">
         select a.name as yqName,c.dept_name as companyName,e.car_group_name as carGroupName,b_amountCar.carNum as carNum ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait
         from ecmp_enterprise_invitation_info  a
         left join (select b.car_group_id,count(*) as carNum from car_info b where b.state='S000' group by b.car_group_id ) b_amountCar on b_amountCar.car_group_id=a.car_group_id
@@ -182,7 +183,7 @@
         group by a.name,a.enterprise_id,a.car_group_id
     </select>
     <!--驾驶员工详情-->
-    <select id="queryInvitationDriverDetial" parameterType="Object" resultMap="com.hq.ecmp.mscore.vo.InvitationDriverVO">
+    <select id="queryInvitationDriverDetial" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationDriverVO">
         select a.name as yqName,c.dept_name as companyName,e.car_group_name as carGroupName,b_amountCar.carNum as carNum ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait
         from ecmp_enterprise_invitation_info  a
         left join (select b.car_group_id,count(*) as carNum from car_info b where b.state='S000' group by b.car_group_id ) b_amountCar on b_amountCar.car_group_id=a.car_group_id
