@@ -92,4 +92,7 @@ public interface RegimeInfoMapper
     
     
     public String queryUseCarModelByNoteId(Long noteId);
+    
+    
+    public String queryUseCarModelByJourneyId(Long journeyId);
 }

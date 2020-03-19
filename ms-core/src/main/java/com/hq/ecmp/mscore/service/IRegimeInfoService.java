@@ -112,6 +112,6 @@ public interface IRegimeInfoService
       */
      public String queryUseCarModelByNoteId(Long noteId);
      
-
+     public String queryUseCarModelByJourneyId(Long journeyId);
 }
 

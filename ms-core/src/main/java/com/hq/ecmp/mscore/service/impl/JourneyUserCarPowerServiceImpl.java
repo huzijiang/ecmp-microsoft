@@ -178,72 +178,19 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				userCarAuthority.handCount();
 				String type = userCarAuthority.getType();
 				if (!CarConstant.CITY_USE_CAR.equals(type)) {
-					// 如果是接机或者送机 则查询对应的订单号
+					// 如果是接机或者送机 则查询对应的有效的订单号(状态为订单关闭前的)
 					List<Long> orderIdList = orderInfoMapper.queryOrderIdListByPowerId(userCarAuthority.getPowerId());
 					if (null != orderIdList && orderIdList.size() > 0) {
 						userCarAuthority.setOrderId(orderIdList.get(0));
 					}
 				}
 				// 生成用车权限对应的前端状态
-				buildUserAuthorityPowerStatus(flag, userCarAuthority.getPowerId());
+				userCarAuthority.setState(buildUserAuthorityPowerStatus(flag, userCarAuthority.getPowerId()));
 			}
 		}
 		return list;
 	}
 	
-	private String buildUserAuthorityPowerStatus(boolean flag,Long powerId){
-		List<String> allOrderState = orderInfoMapper.queryAllOrderStatusByPowerId(powerId);
-		if(null==allOrderState || allOrderState.size()==0 || allOrderState.contains(OrderState.INITIALIZING.getState())){
-			//还未生成订单  则表示权限未使用过
-			if(flag){
-				//对应前端状态  去约车
-				return OrderState.GETARIDE.getState();
-			}else{
-				//对应前端状态 去申请
-				return OrderState.INITIALIZING.getState();
-			}
-			
-		}
-		if(allOrderState.contains(OrderState.WAITINGLIST.getState())){
-			//订单状态为待派单,则对应前端状态为派车中
-			return OrderState.WAITINGLIST.getState();
-		}
-		
-		if(allOrderState.contains(OrderState.SENDINGCARS.getState())){
-			//订单状态为约车中  则对用前端状态为约车车中
-			return OrderState.SENDINGCARS.getState();
-		}
-		
-		if(allOrderState.contains(OrderState.ALREADYSENDING.getState()) || allOrderState.contains(OrderState.READYSERVICE.getState())){
-			//订单状态为已派车或者准备服务   则对应前端状态为待服务
-			return OrderState.ALREADYSENDING.getState();
-		}
-		
-		if(allOrderState.contains(OrderState.INSERVICE.getState())){
-			//订单状态为服务中  则对应前端状态为进行中
-			return OrderState.INSERVICE.getState();
-		}
-		
-		if(allOrderState.contains(OrderState.ORDERCLOSE.getState())){
-			//订单关闭了  判断是否是取消了
-			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(powerId);
-			if(null !=orderStateTraceInfo && OrderStateTrace.CANCEL.getState().equals(orderStateTraceInfo.getState())){
-				//订单是取消的订单
-				if(flag || orderInfoService.queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){
-					 //只有网约车  或者 调度的时候选择的是网约车   则状态改为去约车
-					 return OrderState.GETARIDE.getState();
-				 }else{
-					 //否则就还原权限状态为去申请
-					 return OrderState.INITIALIZING.getState();
-				 }
-			}else {
-				//订单未取消 已完成
-				return OrderState.STOPSERVICE.getState();
-			}
-		}
-		return null;
-	}
-
 	@Override
 	public List<ServiceTypeCarAuthority> queryUserAuthorityFromService(String type, Long journeyId) {
 		List<ServiceTypeCarAuthority> list = new ArrayList<ServiceTypeCarAuthority>();
@@ -369,24 +316,14 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		//批量插入用车权限
 		return journeyUserCarPowerMapper.batchInsert(journeyUserCarPowerList)>0;
 	}
-	
-	
+
 	@Override
-	public String queryOfficialJounrneyStatus(Long journey) {
-		//查询公务用车行程对应的用车方式
-		JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journey);
-		Long regimenId = journeyInfo.getRegimenId();
-		RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(regimenId);
-		String canUseCarMode = regimeInfo.getCanUseCarMode();
-		String[] split = canUseCarMode.split(",");
-		List<String> asList = Arrays.asList(split);
-		//查询公务行程下的所有状态
-				List<String> allOrderState = orderInfoMapper.queryAllOrderStatusByJourneyId(journey);
-			boolean flag = !asList.contains(CarConstant.USR_CARD_MODE_HAVE);//true-只有网约车
+	public String buildUserAuthorityPowerStatus(boolean flag, Long powerId) {
+		List<String> allOrderState = orderInfoMapper.queryAllOrderStatusByPowerId(powerId);
 		if(null==allOrderState || allOrderState.size()==0 || allOrderState.contains(OrderState.INITIALIZING.getState())){
 			//还未生成订单  则表示权限未使用过
 			if(flag){
-				//对应前端状态  去约车
+				//对应前端状态   去约车
 				return OrderState.GETARIDE.getState();
 			}else{
 				//对应前端状态 去申请
@@ -416,7 +353,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		
 		if(allOrderState.contains(OrderState.ORDERCLOSE.getState())){
 			//订单关闭了  判断是否是取消了
-			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoService.queryJourneyOrderIsCancel(journey);
+			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(powerId);
 			if(null !=orderStateTraceInfo && OrderStateTrace.CANCEL.getState().equals(orderStateTraceInfo.getState())){
 				//订单是取消的订单
 				if(flag || orderInfoService.queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){
@@ -429,8 +366,11 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			}else {
 				//订单未取消 已完成
 				return OrderState.STOPSERVICE.getState();
-			}	
+			}
 		}
 		return null;
 	}
+	
+	
+	
 }

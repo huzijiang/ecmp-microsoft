@@ -183,5 +183,7 @@ public interface OrderInfoMapper {
     public List<String> queryAllOrderStatusByPowerId(Long powerId);
     
     public List<Long> queryOrderIdListByPowerId(Long powerId);
+    
+    List<String> queryUseCarMode(Long powerId);
 }
 

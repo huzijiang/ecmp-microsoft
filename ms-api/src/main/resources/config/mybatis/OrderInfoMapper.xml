@@ -718,6 +718,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </select>
     
     <select id="queryOrderIdListByPowerId" parameterType="java.lang.Long" resultType="java.lang.Long">
-    select order_id from order_info where power_id=#{powerId}
+    select order_id from order_info where power_id=#{powerId} and state not in ('S900')
+    </select>
+    
+    <select id="queryUseCarMode" parameterType="java.lang.Long" resultType="string">
+    select use_car_mode from order_info where power_id=#{powerId}
     </select>
 </mapper>

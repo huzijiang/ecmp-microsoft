@@ -96,10 +96,11 @@ public interface IJourneyUserCarPowerService
     
     
     /**
-     * 查询公务用车行程用车权限的状态
-     * @param journey
+     * 构建用车权限对应的前端状态
+     * @param flag 权限对应的用车制度中  true-只有网约车    false-包含自有车
+     *        powerId   权限ID
      * @return
      */
-    public String queryOfficialJounrneyStatus(Long journey);
+    public String buildUserAuthorityPowerStatus(boolean flag,Long powerId);
     
 }
