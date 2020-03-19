@@ -292,7 +292,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <!--已离职数量-->
-    <select id="selectDimissionCount" resultType="Interger">
+    <select id="selectDimissionCount" resultType="java.lang.Integer">
       SELECT
       count(1)
       from ecmp_user
