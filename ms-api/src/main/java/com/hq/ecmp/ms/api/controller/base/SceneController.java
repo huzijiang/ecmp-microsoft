@@ -63,7 +63,7 @@ public class SceneController {
 	 * @return
 	 */
 	@ApiOperation(value = "saveScene", notes = "创建用车场景", httpMethod ="POST")
-	@GetMapping("/saveScene")
+	@RequestMapping("/saveScene")
 	public ApiResponse saveScene(@RequestBody SceneDTO sceneDTO) {
 		//获取登录用户
 		HttpServletRequest request = ServletUtils.getRequest();
@@ -84,7 +84,7 @@ public class SceneController {
 	 * @return
 	 */
 	@ApiOperation(value = "deleteScene", notes = "删除用车场景", httpMethod ="POST")
-	@GetMapping("/deleteScene")
+	@RequestMapping("/deleteScene")
 	public ApiResponse deleteScene(@RequestBody SceneDTO sceneDTO) {
 		try {
 			int i = sceneInfoService.deleteSceneInfoById(sceneDTO.getSceneId());
@@ -105,7 +105,7 @@ public class SceneController {
 	 * @return
 	 */
 	@ApiOperation(value = "updateScene", notes = "修改用车场景", httpMethod ="POST")
-	@GetMapping("/updateScene")
+	@PostMapping("/updateScene")
 	public ApiResponse updateScene(@RequestBody SceneDTO sceneDTO) {
 		//获取登录用户
 		HttpServletRequest request = ServletUtils.getRequest();
@@ -126,7 +126,7 @@ public class SceneController {
 	 * @return
 	 */
 	@ApiOperation(value = "getSceneDetail", notes = "查询用车场景详情", httpMethod ="POST")
-	@GetMapping("/getSceneDetail")
+	@PostMapping("/getSceneDetail")
 	public ApiResponse<SceneDetailVO> getSceneDetail(@RequestBody SceneDTO sceneDTO) {
 		try {
 			//查询场景详情
@@ -148,7 +148,7 @@ public class SceneController {
 	 * @return
 	 */
 	@ApiOperation(value = "getSceneList", notes = "查询用车场景列表信息", httpMethod ="POST")
-	@GetMapping("/getSceneList")
+	@PostMapping("/getSceneList")
 	public ApiResponse<PageResult<SceneListVO>> getSceneList(@RequestBody PageRequest pageRequest) {
 		try {
 			PageResult<SceneListVO> list = sceneInfoService.seleSceneByPage(pageRequest);
@@ -165,8 +165,8 @@ public class SceneController {
 	 * @return
 	 */
 	@ApiOperation(value = "sortScene", notes = "场景排序 上移/下移", httpMethod ="POST")
-	@GetMapping("/sortScene")
-	public ApiResponse<PageResult<SceneListVO>> sortScene(@RequestBody SceneSortDTO sceneSortDTO) {
+	@PostMapping("/sortScene")
+	public ApiResponse sortScene(@RequestBody SceneSortDTO sceneSortDTO) {
 		//获取登录用户
 		HttpServletRequest request = ServletUtils.getRequest();
 		LoginUser loginUser = tokenService.getLoginUser(request);
