@@ -69,12 +69,12 @@ public class EvaluationController {
             ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
             int count = feedbackInfoService.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
             if (count>0){
-                if (evaluationDto.getFiles()!=null&&evaluationDto.getFiles().size()>0){
+                if (!CollectionUtils.isEmpty(evaluationDto.getImgUrls())){
                     EcmpUserFeedbackImage feedbackImage = new EcmpUserFeedbackImage();
                     feedbackImage.setFeedbackId(ecmpUserFeedbackInfo.getFeedbackId());
                     feedbackImage.setUserId(loginUser.getUser().getUserId());
-                    for (int i = 0; i < evaluationDto.getFiles().size(); i++) {
-                        String url = zimgService.uploadImage(evaluationDto.getFiles().get(i));
+                    for (String url:evaluationDto.getImgUrls()) {
+//                        String url = zimgService.uploadImage(evaluationDto.getFiles().get(i));
                         feedbackImage.setImageUrl(url);
                         feedbackImageService.insertEcmpUserFeedbackImage(feedbackImage);
                     }

@@ -29,10 +29,7 @@ public class OrderEvaluationDto {
      */
     private  String content;
 
-    /** 建议*/
-    private String result;
-
     /**图片路径*/
-    private List<MultipartFile> files;
+//    private List<MultipartFile> files;
     private List<String> imgUrls;
 }

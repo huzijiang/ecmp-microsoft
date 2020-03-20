@@ -1,10 +1,17 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.hq.ecmp.constant.CharterTypeEnum;
+import com.hq.ecmp.constant.CommonConstant;
+import com.hq.ecmp.mscore.vo.JourneyDetailVO;
+import com.hq.ecmp.util.SortListUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -251,37 +258,50 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	public int getJourneyListCount(String userId) {
 		return journeyInfoMapper.getJourneyListCount(userId);
 	}
+
 	/**
-	 * 获取正在进行中的行程详情
-	 * @param orderId
-	 * @return list
+	 * 根据权限id获取公务取消后的行程信息
+	 * @param powerId
+	 * @return
 	 */
-	/*@Override
-	public OrderVO orderBeServiceDetail(Long orderId) {
-		OrderVO vo=new OrderVO();
-		OrderInfo orderInfo = this.selectOrderInfoById(orderId);
-		if (orderInfo==null){
-			return null;
+	@Override
+	public JourneyDetailVO getItineraryDetail(Long powerId)throws Exception {
+        JourneyDetailVO vo=new JourneyDetailVO();
+		JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerService.selectJourneyUserCarPowerById(powerId);
+		if (journeyUserCarPower==null||CarConstant.YES_USER_USE_CAR.equals(journeyUserCarPower.getState())){
+			throw new Exception(powerId+"此用车权限以使用");
 		}
-		BeanUtils.copyProperties(orderInfo,vo);
-		//查询车辆信息
-		CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
-		if (carInfo!=null){
-			BeanUtils.copyProperties(carInfo,vo);
-		}
-		vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
-		//TODO 是否需要车队信息
-		//是否添加联系人
-//        DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
-		vo.setDriverScore("4.5");
-		vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
-		vo.setState(orderInfo.getState());
-		//TODO 客服电话暂时写死
-		vo.setCustomerServicePhone("010-88888888");
+        Long applyId = journeyUserCarPower.getApplyId();
+        String itIsReturn = journeyUserCarPower.getItIsReturn();
+        ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(applyId);
+        if (applyInfo==null){
+            throw new Exception(applyId+"此申请单不存在");
+        }
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
+        vo.setApplyType(applyInfo.getApplyType());
+        vo.setServiceType(journeyInfo.getServiceType());
+        vo.setCharterCarType(CharterTypeEnum.format(journeyInfo.getCharterCarType()));
+        vo.setPowerId(powerId);
+        List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoService.selectJourneyNodeInfoList(new JourneyNodeInfo(journeyUserCarPower.getJourneyId()));
+        if (CollectionUtils.isNotEmpty(journeyNodeInfos)){
+            int size = journeyNodeInfos.size();
+            SortListUtil.sort(journeyNodeInfos,"nodeId",SortListUtil.ASC);
+            if (CommonConstant.IS_RETURN.equals(itIsReturn)){//是往返
+                vo.setStartAddress(journeyNodeInfos.get(0).getPlanBeginAddress());
+                vo.setStartLatitude(journeyNodeInfos.get(0).getPlanBeginLatitude());
+                vo.setStartLongitude(journeyNodeInfos.get(0).getPlanBeginLongitude());
+                vo.setEndLongitude(journeyNodeInfos.get(size-2).getPlanEndLongitude());
+                vo.setEndLongitude(journeyNodeInfos.get(size-2).getPlanEndLongitude());
+                vo.setEndLongitude(journeyNodeInfos.get(size-2).getPlanEndLongitude());
+            }else{
+                vo.setStartAddress(journeyNodeInfos.get(0).getPlanBeginAddress());
+                vo.setStartLatitude(journeyNodeInfos.get(0).getPlanBeginLatitude());
+                vo.setStartLongitude(journeyNodeInfos.get(0).getPlanBeginLongitude());
+                vo.setEndAddress(journeyNodeInfos.get(size-1).getPlanEndAddress());
+                vo.setEndLatitude(journeyNodeInfos.get(size-1).getPlanEndLatitude());
+                vo.setEndLongitude(journeyNodeInfos.get(size-1).getPlanEndLongitude());
+            }
+        }
 		return vo;
-	}*/
-
-	
-
-
+	}
 }

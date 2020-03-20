@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.JourneyDetailVO;
 import com.hq.ecmp.mscore.vo.JourneyVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import lombok.Data;
@@ -94,15 +95,6 @@ public interface IJourneyInfoService {
      */
     public int getJourneyListCount(String userId);
 
-    /**
-     * 获取正在进行中的行程详情
-     *
-     * @param orderId
-     * @return
-     */
-    //  OrderVO getJourneyDetail(Long orderId);
-    
-    
-   
+    JourneyDetailVO getItineraryDetail(Long powerId) throws Exception ;
 
 }

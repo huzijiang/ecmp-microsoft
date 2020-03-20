@@ -181,7 +181,7 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
             Collections.sort(approveTemplateNodeInfos, new Comparator<ApproveTemplateNodeInfo>() {
                 @Override
                 public int compare(ApproveTemplateNodeInfo o1, ApproveTemplateNodeInfo o2) {
-                    int i = o1.getApproveNodeId().intValue() - o2.getApproveNodeId().intValue();
+                    int i = o2.getApproveNodeId().intValue() - o1.getApproveNodeId().intValue();
                     if(i == 0){
                         return o1.getApproveNodeId().intValue() - o2.getApproveNodeId().intValue();
                     }
@@ -218,7 +218,7 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                             resultInfo.setApproveUserId(String.valueOf(userVO.getUserId()));
                             break;
                         }
-                    list.add(resultInfo);
+//                    list.add(resultInfo);
                     applyApproveResultInfoMapper.insertApplyApproveResultInfo(resultInfo);
                 }
 //                if (CollectionUtils.isNotEmpty(list)){

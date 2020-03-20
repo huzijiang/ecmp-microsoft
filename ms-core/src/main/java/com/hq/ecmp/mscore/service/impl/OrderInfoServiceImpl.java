@@ -92,9 +92,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private IJourneyPlanPriceInfoService iJourneyPlanPriceInfoService;
     @Resource
     private IDriverHeartbeatInfoService iDriverHeartbeatInfoService;
-
     @Resource
     private OrderAddressInfoMapper orderAddressInfoMapper;
+    @Resource
+    private EcmpConfigMapper ecmpConfigMapper;
+    @Resource
+    private DriverServiceAppraiseeInfoMapper driverServiceAppraiseeInfoMapper;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -360,7 +364,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             throw new Exception("该订单不存在");
         }
         JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
-        //TODO 杨军注释
         BeanUtils.copyProperties(orderInfo,vo);
         if (OrderState.WAITINGLIST.getState().equals(orderInfo.getState())||OrderState.GETARIDE.getState().equals(orderInfo.getState())){
             return vo;
@@ -383,15 +386,28 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String useCarTime=null;
         List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
         if (!CollectionUtils.isEmpty(orderAddressInfos)){
-            useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,journeyInfo.getUseCarTime());
-        }else{
             useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderAddressInfos.get(0).getActionTime());
         }
         vo.setUseCarTime(useCarTime);
         List<UserEmergencyContactInfo> contactInfos = userEmergencyContactInfoMapper.queryAll(new UserEmergencyContactInfo(journeyInfo.getUserId()));
-        String isAddContact=CollectionUtils.isEmpty(contactInfos)?"否":"是";
+        String isAddContact=CollectionUtils.isEmpty(contactInfos)?"0":"1";
         vo.setIsAddContact(isAddContact);
         //TODO 查询企业配置是否自动行程确认/异议
+        int isDisagree=0;
+        EcmpConfig ecmpConfig = ecmpConfigMapper.selectConfigByKey(new EcmpConfig(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey()));
+        if (ecmpConfig!=null&&StringUtils.isNotEmpty(ecmpConfig.getConfigValue())){
+            JSONObject jsonObject = JSONObject.parseObject(ecmpConfig.getConfigValue());
+            String status = jsonObject.getString("status");
+            if ("0".equals(status)){
+                isDisagree=1;
+            }
+        }
+        vo.setIsDisagree(isDisagree);
+        List<DriverServiceAppraiseeInfo> driverServiceAppraiseeInfos = driverServiceAppraiseeInfoMapper.queryAll(new DriverServiceAppraiseeInfo(orderInfo.getOrderId()));
+        if (!CollectionUtils.isEmpty(driverServiceAppraiseeInfos)){
+            vo.setDuration(driverServiceAppraiseeInfos.get(0).getContent());
+            vo.setScore(driverServiceAppraiseeInfos.get(0).getScore());
+        }
         if(CarModeEnum.ORDER_MODE_HAVE.getKey().equals(orderInfo.getUseCarMode())){//自有车
             //查询车辆信息
             CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
@@ -419,9 +435,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 vo.setDriverScore(split[3]);
             }
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
-//                JSONObject data = getThirdPartyOrderState(orderId);
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
+                    //TODO 生产记得放开
 //                    OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
 //                    JSONObject jsonObject = JSONObject.parseObject(orderSettlingInfo.getAmountDetail());
 //                    String disMoney = jsonObject.getString("disMoney");//原价

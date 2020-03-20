@@ -64,5 +64,9 @@ public class OrderVO {
     private String disMoney;
     @ApiModelProperty(name = "isDisagree",value = "是否展示异议")
     private int isDisagree;
+    @ApiModelProperty(name = "score",value = "订单评分")
+    private int score;
+    @ApiModelProperty(name = "description",value = "订单评分描述")
+    private String description;
 
 }

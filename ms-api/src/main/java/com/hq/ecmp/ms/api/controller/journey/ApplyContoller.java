@@ -431,16 +431,18 @@ public class ApplyContoller {
                result.add(new ApprovalListVO(applyId,"审批人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
            }
         }
-        Collections.sort(result, new Comparator<ApprovalListVO>() {
-            @Override
-            public int compare(ApprovalListVO o1, ApprovalListVO o2) {
-                int i = o2.getList().get(0).getApprovalNodeId().intValue()- o1.getList().get(0).getApprovalNodeId().intValue();
-                if(i == 0){
-                    return o1.getList().get(0).getApprovalNodeId().intValue() - o2.getList().get(0).getApprovalNodeId().intValue();
+        if (CollectionUtils.isNotEmpty(result)&&result.size()>1){
+            Collections.sort(result, new Comparator<ApprovalListVO>() {
+                @Override
+                public int compare(ApprovalListVO o1, ApprovalListVO o2) {
+                    int i = o2.getList().get(0).getApprovalNodeId().intValue()- o1.getList().get(0).getApprovalNodeId().intValue();
+                    if(i == 0){
+                        return o1.getList().get(0).getApprovalNodeId().intValue() - o2.getList().get(0).getApprovalNodeId().intValue();
+                    }
+                    return i;
                 }
-                return i;
-            }
-        });
+            });
+        }
         return result;
     }
 

@@ -37,7 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="approver != null  and approver != ''"> and approver = #{approver}</if>
             <if test="approverMobile != null  and approverMobile != ''"> and approver_mobile = #{approverMobile}</if>
             <if test="approveResult != null  and approveResult != ''"> and approve_result = #{approveResult}</if>
-            <if test="approveRole != null  and approveRole != ''"> and approve_role = #{approveRole}</if>
+            <if test="approveRoleId != null  and approveRoleId != ''"> and approve_role_id = #{approveRoleId}</if>
             <if test="state != null  and state != ''"> and state = #{state}</if>
             <if test="content != null  and content != ''"> and content = #{content}</if>
         </where>
@@ -60,6 +60,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="approveResult != null  and approveResult != ''">approve_result,</if>
             <if test="state != null  and state != ''">state,</if>
             <if test="content != null  and content != ''">content,</if>
+            <if test="approveUserId != null  and approveUserId != ''">approve_user_id,</if>
+            <if test="approveRoleId != null  and approveRoleId != ''">approve_role_id,</if>
+            <if test="approveType != null  and approveType != ''">approve_type,</if>
+            <if test="nextNodeId != null  and nextNodeId != ''">next_node_id,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -75,6 +79,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="approveResult != null  and approveResult != ''">#{approveResult},</if>
             <if test="state != null  and state != ''">#{state},</if>
             <if test="content != null  and content != ''">#{content},</if>
+            <if test="approveUserId != null  and approveUserId != ''">#{approveUserId},</if>
+            <if test="approveRoleId != null  and approveRoleId != ''">#{approveRoleId},</if>
+            <if test="approveType != null  and approveType != ''">#{approveType},</if>
+            <if test="nextNodeId != null  and nextNodeId != ''">#{nextNodeId},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -93,6 +101,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="approveResult != null  and approveResult != ''">approve_result = #{approveResult},</if>
             <if test="state != null  and state != ''">state = #{state},</if>
             <if test="content != null  and content != ''">content = #{content},</if>
+            <if test="approveUserId != null  and approveUserId != ''">approve_user_id=#{approveUserId},</if>
+            <if test="approveRoleId != null  and approveRoleId != ''">approve_role_id=#{approveRoleId},</if>
+            <if test="approveType != null  and approveType != ''">approve_type=#{approveType},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
