@@ -7,10 +7,12 @@ import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
+import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     private EcmpUserMapper ecmpUserMapper;
     @Autowired
     private UserRegimeRelationInfoMapper userRegimeRelationInfoMapper;
-
+    @Autowired
+    private RegimeInfoMapper regimeInfoMapper;
 
     /**
      * 根据用户id查询用户信息
@@ -193,9 +196,13 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public List<EcmpUserDto> getEcmpUserList(Long deptId){
         List<EcmpUserDto> ecmpUserList = new ArrayList<>();
-        Long [] deptIds= ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
-        for (int i = 0; i < deptIds.length; i++) {
-            ecmpUserList = ecmpUserMapper.getEcmpUserList(deptId,deptIds[i]);
+        List<Long> userIds=ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
+        for (int i = 0; i < userIds.size(); i++) {
+            EcmpUserDto ecmpUserDto = ecmpUserMapper.getEcmpUserList(deptId, userIds.get(i));
+            List<String>  regimeInfoList =  regimeInfoMapper.selectByUserId(userIds.get(i));
+            String regimeName = StringUtils.join(regimeInfoList.toArray(), ",");
+            ecmpUserDto.setRegimeName(regimeName);
+            ecmpUserList.add(ecmpUserDto);
         }
         return ecmpUserList;
     }
@@ -208,15 +215,18 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     * */
     @Override
     @Transactional
-    public String updatePhoneNum(String newPhoneNum,String reWritePhone){
+    public String updatePhoneNum(String newPhoneNum,String reWritePhone,Long userId){
         String msg="";
         int i = ecmpUserMapper.selectPhoneAndEmailExist(newPhoneNum,null);
         if(i>0){
             msg="该手机号已存在，不可重复录入！";
-        }
-        int i1 = ecmpUserMapper.updatePhoneNum(newPhoneNum);
-        if(i1==1){
-            msg="手机号码修改成功！";
+        }else{
+            int i1 = ecmpUserMapper.updatePhoneNum(newPhoneNum,reWritePhone,userId);
+            if(i1==1){
+                msg="手机号码修改成功！";
+            }else {
+                msg="手机号码修改失败！";
+            }
         }
         return msg;
     }

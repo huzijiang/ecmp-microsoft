@@ -221,7 +221,7 @@ public class OrderController {
      */
     @ApiOperation(value = "letUserCallTaxi", notes = " 手动约车-让用户自己召唤网约车 改变订单的状态为  去约车", httpMethod = "POST")
     @PostMapping("/letUserCallTaxi")
-    public ApiResponse letUserCallTaxi(@RequestParam("orderNo") String orderNo) {
+    public ApiResponse letUserCallTaxi(@RequestParam("orderNo") String orderNo,@RequestParam("carLevel") String carLevel) {
         try {
             //获取调用接口的用户信息
             HttpServletRequest request = ServletUtils.getRequest();
@@ -235,7 +235,7 @@ public class OrderController {
             if (i != 1) {
                 return ApiResponse.error("'订单状态改为【去约车失败】");
             }
-            iOrderInfoService.platCallTaxi(orderId,enterpriseId,licenseContent,apiUrl,String.valueOf(userId));
+            iOrderInfoService.platCallTaxi(orderId,enterpriseId,licenseContent,apiUrl,String.valueOf(userId),carLevel);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("'订单状态改为【去约车失败】");
@@ -273,7 +273,7 @@ public class OrderController {
             if (i != 1) {
                 throw new Exception("约车失败");
             }
-            iOrderInfoService.platCallTaxi(orderId,enterpriseId,licenseContent,apiUrl,String.valueOf(userId));
+            iOrderInfoService.platCallTaxi(orderId,enterpriseId,licenseContent,apiUrl,String.valueOf(userId),null);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.success(e.getMessage());

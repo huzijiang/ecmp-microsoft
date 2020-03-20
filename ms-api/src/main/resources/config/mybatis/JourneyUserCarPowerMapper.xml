@@ -101,7 +101,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     SELECT
 	b.state AS state,
 	a.state AS authorityUse,
-	a.type AS type
+	a.type AS type,
+	a.power_id as powerId
 FROM
 	journey_user_car_power a
 LEFT JOIN order_info b ON a.power_id = b.power_id

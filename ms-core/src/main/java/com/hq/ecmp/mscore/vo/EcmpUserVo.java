@@ -90,6 +90,17 @@ public class EcmpUserVo {
 
     @ApiModelProperty(value= "用车制度id")
     private String regimenId;
+
     @ApiModelProperty(value= "离职日期")
     private Date dimissionTime;
+
+    @ApiModelProperty(value= "企业支付")
+    private String payMode;
+
+    @ApiModelProperty(value= "备注")
+    private String remark;
+
+    @ApiModelProperty(value= "工号")
+    private String jobNumber;
+
 }
