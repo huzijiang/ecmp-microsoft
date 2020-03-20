@@ -331,5 +331,10 @@ WHERE
 	LEFT JOIN journey_info b ON a.regimen_id = b.regimen_id
 	where b.journey_id=#{journeyId}
 </select>
+<select id="selectByUserId" resultType="java.lang.String">
+    select  ri.`name` from user_regime_relation_info as urri
+     left  join  regime_info as ri on urri.regimen_id = ri.regimen_id
+     where urri.user_id = #{userId}
+</select>
 
 </mapper>

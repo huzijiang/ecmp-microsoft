@@ -144,7 +144,7 @@ public interface EcmpUserMapper
      * @param deptId 部门编号
      * @return 结果
      */
-    public Long[] getEcmpUserIdsByDeptId(Long deptId);
+    public List<Long> getEcmpUserIdsByDeptId(@Param("deptId") Long deptId);
 
     /**
      * 获取员工列表
@@ -152,7 +152,7 @@ public interface EcmpUserMapper
      * @param deptId 部门编号
      * @return 结果
      */
-    public List<EcmpUserDto> getEcmpUserList(@Param("deptId") Long deptId,@Param("userId")Long userId);
+    public EcmpUserDto getEcmpUserList(@Param("deptId") Long deptId,@Param("userId")Long userId);
 
     /**
      * 逻辑删除员工信息
@@ -160,7 +160,7 @@ public interface EcmpUserMapper
      * @param phonenumber 手机号
      * @return 结果
      */
-    public int updatePhoneNum(String phonenumber);
+    public int updatePhoneNum(@Param("phonenumber")String phonenumber,@Param("userName")String userName,@Param("userId")Long userId);
 
     /*员工详情
     @param  userId员工编号

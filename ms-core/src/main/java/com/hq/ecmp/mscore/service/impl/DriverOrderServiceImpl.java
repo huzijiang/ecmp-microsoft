@@ -75,10 +75,14 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
         public void handleDriverOrderStatus(String type, String currentPoint, String orderNo,Long userId) throws Exception {
+        Double longitude = null;
+        Double latitude = null;
+        if(currentPoint!=null && !currentPoint.equals("")){
+            String[] point = currentPoint.split("\\,| \\，");
+            longitude = Double.parseDouble(point[0]);
+            longitude =  Double.parseDouble(point[1]);
+        }
 
-        String[] point = currentPoint.split("\\,| \\，");
-        Double longitude = Double.parseDouble(point[0]);
-        Double latitude =  Double.parseDouble(point[1]);
         long orderId = Long.parseLong(orderNo);
         //更新前订单信息
         OrderInfo orderInfoOld = iOrderInfoService.selectOrderInfoById(orderId);
