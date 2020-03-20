@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarGroupDriverRelation;
+import com.hq.ecmp.mscore.vo.DriverVO;
 
 import java.util.List;
 
@@ -67,4 +68,5 @@ public interface CarGroupDriverRelationMapper
     int selectCountDriver(Long carGroupId);
 
 
+    List<DriverVO> selectGroupEffectiveDrives(Long carGroupId);
 }

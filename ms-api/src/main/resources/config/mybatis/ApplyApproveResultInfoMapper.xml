@@ -124,7 +124,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from apply_approve_result_info
         where
         approve_node_id in (select approve_node_id from approve_template_node_info where user_id=#{userId})
-        <if test="state!=null and state!=''">and state=#{state}</if>
+        <if test="state!=null and state!=''">and state!=#{state}</if>
         order by
         case when state='ST01' then create_time end asc,update_time desc
     </select>

@@ -2,7 +2,6 @@ package com.hq.ecmp.mscore.service;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
@@ -214,6 +213,7 @@ public interface IOrderInfoService {
      */
     public void applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws ParseException;
 
+
     /**
      * 得到订单的历史轨迹
      * @param orderId
@@ -221,5 +221,12 @@ public interface IOrderInfoService {
      */
     public List<OrderHistoryTraceDto> getOrderHistoryTrace(Long orderId) throws Exception;
 
+
+    /**
+     * 判断订单的调度方式是网约车
+     * @param orderId
+     * @return
+     */
+    public boolean queryOrderDispathIsOline(Long orderId);
 }
 

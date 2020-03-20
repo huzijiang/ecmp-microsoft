@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.DictQuery;
 import com.hq.ecmp.mscore.domain.EcmpDictData;
 import org.springframework.stereotype.Repository;
 
@@ -73,11 +74,11 @@ public interface EcmpDictDataMapper
      * 评价标签的好评
      * @return 字典数据集合
      */
-    public List<EcmpDictData> selectEcmpDictDataByTypeGOOD();
+   /* public List<EcmpDictData> selectEcmpDictDataByTypeGOOD(DictQuery dictQuery);
 
-    /**
+    *//**
      * 评价标签的差评
      * @return 字典数据集合
-     */
-    public List<EcmpDictData> selectEcmpDictDataByTypeBAD();
+     *//*
+    public List<EcmpDictData> selectEcmpDictDataByTypeBAD();*/
 }

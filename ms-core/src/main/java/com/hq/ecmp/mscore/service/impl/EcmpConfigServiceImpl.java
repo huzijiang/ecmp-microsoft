@@ -118,7 +118,8 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     public ConfigInfoDTO selectConfigInfo() {
         try {
             //查询基本信息
-            EcmpConfig baseInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BASE_INFO.getConfigKey()).build());
+            EcmpConfig c = EcmpConfig.builder().configKey(ConfigTypeEnum.BASE_INFO.getConfigKey()).build();
+            EcmpConfig baseInfo = ecmpConfigMapper.selectConfigByKey(c);
             EcmpConfig messageInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.MESSAGE_INFO.getConfigKey()).build());
             EcmpConfig backgroundInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BACKGROUND_IMAGE_INFO.getConfigKey()).build());
             EcmpConfig welcomeInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WELCOME_IMAGE_INFO.getConfigKey()).build());
@@ -129,16 +130,33 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
             EcmpConfig waitInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WAIT_MAX_MINUTE.getConfigKey()).build());
 
             ConfigInfoDTO configInfoDTO = new ConfigInfoDTO();
-            configInfoDTO.setBaseInfo(JSON.toJSONString(GsonUtils.jsonToBean(baseInfo.getConfigValue(), EnterPriseBaseInfoDTO.class)));
-            configInfoDTO.setBackgroundImageInfo(JSON.toJSONString(GsonUtils.jsonToBean(backgroundInfo.getConfigValue(), ConfigValueDTO.class)));
-            configInfoDTO.setMessageInfo(JSON.toJSONString(GsonUtils.jsonToBean(messageInfo.getConfigValue(), ConfigValueDTO.class)));
-            configInfoDTO.setWelcomeImageInfo(JSON.toJSONString(GsonUtils.jsonToBean(welcomeInfo.getConfigValue(), ConfigValueDTO.class)));
-            configInfoDTO.setSmsInfo(JSON.toJSONString(GsonUtils.jsonToBean(smsInfo.getConfigValue(), ConfigValueDTO.class)));
-            configInfoDTO.setVirtualPhoneInfo(JSON.toJSONString(GsonUtils.jsonToBean(virtualPhoneInfo.getConfigValue(), ConfigValueDTO.class)));
-            configInfoDTO.setOrderConfirmInfo(JSON.toJSONString(GsonUtils.jsonToBean(orderConfirmInfo.getConfigValue(), ConfigValueDTO.class)));
-            configInfoDTO.setDispatchInfo(JSON.toJSONString(GsonUtils.jsonToBean(dispatchInfo.getConfigValue(), ConfigValueDTO.class)));
-            configInfoDTO.setWaitMaxMinute(JSON.toJSONString(GsonUtils.jsonToBean(waitInfo.getConfigValue(), ConfigValueDTO.class)));
-
+            if (baseInfo != null) {
+                configInfoDTO.setBaseInfo(JSON.toJSONString(GsonUtils.jsonToBean(baseInfo.getConfigValue(), EnterPriseBaseInfoDTO.class)));
+            }
+            if (backgroundInfo != null) {
+                configInfoDTO.setBackgroundImageInfo(JSON.toJSONString(GsonUtils.jsonToBean(backgroundInfo.getConfigValue(), ConfigValueDTO.class)));
+            }
+            if (messageInfo != null) {
+                configInfoDTO.setMessageInfo(JSON.toJSONString(GsonUtils.jsonToBean(messageInfo.getConfigValue(), ConfigValueDTO.class)));
+            }
+            if (welcomeInfo != null) {
+                configInfoDTO.setWelcomeImageInfo(JSON.toJSONString(GsonUtils.jsonToBean(welcomeInfo.getConfigValue(), ConfigValueDTO.class)));
+            }
+            if (smsInfo != null) {
+                configInfoDTO.setSmsInfo(JSON.toJSONString(GsonUtils.jsonToBean(smsInfo.getConfigValue(), ConfigValueDTO.class)));
+            }
+            if (virtualPhoneInfo != null) {
+                configInfoDTO.setVirtualPhoneInfo(JSON.toJSONString(GsonUtils.jsonToBean(virtualPhoneInfo.getConfigValue(), ConfigValueDTO.class)));
+            }
+            if (orderConfirmInfo != null) {
+                configInfoDTO.setOrderConfirmInfo(JSON.toJSONString(GsonUtils.jsonToBean(orderConfirmInfo.getConfigValue(), ConfigValueDTO.class)));
+            }
+            if (dispatchInfo != null) {
+                configInfoDTO.setDispatchInfo(JSON.toJSONString(GsonUtils.jsonToBean(dispatchInfo.getConfigValue(), ConfigValueDTO.class)));
+            }
+            if (waitInfo != null) {
+                configInfoDTO.setWaitMaxMinute(JSON.toJSONString(GsonUtils.jsonToBean(waitInfo.getConfigValue(), ConfigValueDTO.class)));
+            }
             return configInfoDTO;
         } catch (Exception e) {
             log.error("查询企业信息失败 {}", e);

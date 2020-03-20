@@ -165,5 +165,25 @@ public interface OrderInfoMapper {
     public List<ApplyDispatchVo> queryReassignmentDispatchList(ApplyDispatchQuery query);
     
     public Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query);
+
+    OrderInfo selectDriverOrder(@Param("driverId")Long driverId,@Param("state") String state);
+    
+    /**
+     * 查询指定行程下的所有订单状态
+     * @param journeyId
+     * @return
+     */
+    public List<String> queryAllOrderStatusByJourneyId(Long journeyId);
+    
+    /**
+     * 查询指定用车权限下的所有订单状态
+     * @param powerId
+     * @return
+     */
+    public List<String> queryAllOrderStatusByPowerId(Long powerId);
+    
+    public List<Long> queryOrderIdListByPowerId(Long powerId);
+    
+    List<String> queryUseCarMode(Long powerId);
 }
 

@@ -82,4 +82,8 @@ public interface OrderStateTraceInfoMapper
     MessageDto getTraceMessageForDriver(@Param("driverId") Long driverId, @Param("state")String state);
 
     UserVO getOrderDispatcher(@Param("orderId") Long orderId, @Param("states") String states);
+    
+    public OrderStateTraceInfo queryJouneyCloseOrderIsCanle(Long jouneyId);
+    
+    public OrderStateTraceInfo queryPowerCloseOrderIsCanle(Long powerId);
 }

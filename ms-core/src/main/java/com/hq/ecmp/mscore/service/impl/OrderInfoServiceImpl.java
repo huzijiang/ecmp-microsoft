@@ -213,7 +213,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//查询所有处于待派单的订单及关联的信息
 		OrderInfo query = new OrderInfo();
-		query.setState(OrderState.SENDINGCARS.getState());
+		query.setState(OrderState.WAITINGLIST.getState());
 		List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
 		if(null !=waitDispatchOrder && waitDispatchOrder.size()>0){
 			result.addAll(waitDispatchOrder);
@@ -224,7 +224,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<DispatchOrderInfo> reassignmentOrder = orderInfoMapper.queryOrderRelateInfo(query);
 		if(null !=reassignmentOrder && reassignmentOrder.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : reassignmentOrder) {
-				dispatchOrderInfo.setState(OrderState.REASSIGNMENT.getState());
+				dispatchOrderInfo.setState(OrderState.APPLYREASSIGN.getState());
 			}
 			result.addAll(reassignmentOrder);
 		}
@@ -391,7 +391,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         List<UserEmergencyContactInfo> contactInfos = userEmergencyContactInfoMapper.queryAll(new UserEmergencyContactInfo(journeyInfo.getUserId()));
         String isAddContact=CollectionUtils.isEmpty(contactInfos)?"否":"是";
         vo.setIsAddContact(isAddContact);
-        if(CarModeEnum.ORDER_MODE_HAVE.getKey().equals(orderInfo.getState())){//自有车
+        //TODO 查询企业配置是否自动行程确认/异议
+        if(CarModeEnum.ORDER_MODE_HAVE.getKey().equals(orderInfo.getUseCarMode())){//自有车
             //查询车辆信息
             CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
             if (carInfo!=null){
@@ -402,10 +403,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setDriverScore(driverInfo.getStar()+"");
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
                 //服务结束后获取里程用车时长
-                List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo());
+                List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
                     vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
                     vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime()));
+                    vo.setAmount(orderSettlingInfos.get(0).getAmount().toPlainString());
                 }
             }
         }else{
@@ -420,21 +422,28 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 //                JSONObject data = getThirdPartyOrderState(orderId);
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
-                    OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
-                    JSONObject jsonObject = JSONObject.parseObject(orderSettlingInfo.getAmountDetail());
-                    String disMoney = jsonObject.getString("disMoney");//原价
-                    String distance = jsonObject.getString("distance");//里程
-                    String distanceFee = jsonObject.getString("distanceFee");//里程费
-                    String duration = jsonObject.getString("duration");//时长(分钟)
-                    String durationFee = jsonObject.getString("durationFee");//时长费
-                    String overDistancePrice = jsonObject.getString("overDistancePrice");//每公里单据
-                    vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
-                    vo.setDisMoney(disMoney);
-                    vo.setDistance(distance+"公里");
-                    vo.setDistanceFee(distanceFee);
-                    vo.setDuration(DateFormatUtils.formatMinute(StringUtils.isNotEmpty(duration)?Integer.parseInt(duration):0));
-                    vo.setDurationFee(durationFee);
-                    vo.setOverDistancePrice(overDistancePrice);
+//                    OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
+//                    JSONObject jsonObject = JSONObject.parseObject(orderSettlingInfo.getAmountDetail());
+//                    String disMoney = jsonObject.getString("disMoney");//原价
+//                    String distance = jsonObject.getString("distance");//里程
+//                    String distanceFee = jsonObject.getString("distanceFee");//里程费
+//                    String duration = jsonObject.getString("duration");//时长(分钟)
+//                    String durationFee = jsonObject.getString("durationFee");//时长费
+//                    String overDistancePrice = jsonObject.getString("overDistancePrice");//每公里单据
+//                    vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
+//                    vo.setDisMoney(disMoney);
+//                    vo.setDistance(distance+"公里");
+//                    vo.setDistanceFee(distanceFee);
+//                    vo.setDuration(DateFormatUtils.formatMinute(StringUtils.isNotEmpty(duration)?Integer.parseInt(duration):0));
+//                    vo.setDurationFee(durationFee);
+//                    vo.setOverDistancePrice(overDistancePrice);
+                    vo.setAmount("102");
+                    vo.setDisMoney("25");
+                    vo.setDistance("12.5公里");
+                    vo.setDistanceFee("30");
+                    vo.setDuration("1小时50分");
+                    vo.setDurationFee("102");
+                    vo.setOverDistancePrice("8.2");
                 }
             }
         }
@@ -860,11 +869,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public OrderStateVO getOrderState(Long orderId) {
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
-        RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(orderInfo.getPowerId());
-        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId,regimeInfo.getRegimenType());
-        orderState.setApplyType(regimeInfo.getRegimenType());
+        JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
+        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId,applyInfo.getApplyType());
+        orderState.setApplyType(applyInfo.getApplyType());
         orderState.setCharterCarType(CharterTypeEnum.format(orderState.getCharterCarType()));
-        return orderState;
+        List<JourneyPlanPriceInfo> journeyPlanPriceInfos = iJourneyPlanPriceInfoService.selectJourneyPlanPriceInfoList(new JourneyPlanPriceInfo(orderId));
+        if(!CollectionUtils.isEmpty(journeyPlanPriceInfos)){
+            orderState.setPlanPrice(journeyPlanPriceInfos.get(0).getPrice().toPlainString());
+        }
+    return orderState;
     }
 
     @Override
@@ -1143,6 +1157,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		return updateOrderInfo(orderInfo)>0;
 	}
 
+
     @Override
     public List<OrderHistoryTraceDto> getOrderHistoryTrace(Long orderId) throws Exception {
         List<OrderHistoryTraceDto> orderHistoryTraceDtos = new ArrayList<>();
@@ -1188,4 +1203,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         return orderHistoryTraceDtos;
     }
+
+	@Override
+	public boolean queryOrderDispathIsOline(Long orderId) {
+		OrderInfo orderInfo = selectOrderInfoById(orderId);
+		if(null !=orderInfo && StringUtil.isNotEmpty(orderInfo.getUseCarMode()) && CarConstant.USR_CARD_MODE_NET.equals(orderInfo.getUseCarMode())){
+			return true;
+		}
+		return false;
+	}
 }

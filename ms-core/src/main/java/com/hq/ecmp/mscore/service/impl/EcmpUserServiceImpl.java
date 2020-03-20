@@ -4,11 +4,16 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
+import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
+import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +33,10 @@ import java.util.List;
 public class EcmpUserServiceImpl implements IEcmpUserService {
     @Autowired
     private EcmpUserMapper ecmpUserMapper;
-
+    @Autowired
+    private UserRegimeRelationInfoMapper userRegimeRelationInfoMapper;
+    @Autowired
+    private RegimeInfoMapper regimeInfoMapper;
 
     /**
      * 根据用户id查询用户信息
@@ -73,7 +81,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public int updateEcmpUser(EcmpUserVo ecmpUser) {
         ecmpUser.setUpdateTime(DateUtils.getNowDate());
-        //ecmpUserMapper.updateUserRegimeRelation(ecmpUser);
+        ecmpUserMapper.updateUserRegimeRelation(ecmpUser);
         return ecmpUserMapper.updateEcmpUser(ecmpUser);
     }
 
@@ -99,17 +107,19 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.deleteEcmpUserById(userId);
     }
 
-	@Override
-	public boolean isDispatcher(Long userId) {
-		Integer count = ecmpUserMapper.queryDispatcher(userId);
-		return count>0;
-	}
+    @Override
+    public boolean isDispatcher(Long userId) {
+        Integer count = ecmpUserMapper.queryDispatcher(userId);
+        return count > 0;
+    }
+
     /**
      * 可管理员工
+     *
      * @return
      */
     @Override
-    public int  queryCompanyEmpCunt(){
+    public int queryCompanyEmpCunt() {
         return ecmpUserMapper.queryCompanyEmp();
     }
 
@@ -119,9 +129,10 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @return List<EcmpUserDto>
      * */
     @Override
-    public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo){
-        List<EcmpUserDto> ecmpUserList=null;
-        ecmpUserList=ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo);
+
+    public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo) {
+        List<EcmpUserDto> ecmpUserList = null;
+        ecmpUserList = ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo);
         return ecmpUserList;
     }
 
@@ -138,23 +149,24 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.addEcmpUser(ecmpUser);
     }
 
+
     /*
      *查询手机号与邮箱是否已经存在
      * */
-    public int selectPhoneAndEmailExist(EcmpUserVo ecmpUser){
-        return ecmpUserMapper.selectPhoneAndEmailExist(ecmpUser);
+    public int selectPhoneAndEmailExist(String phonenumber,String email){
+        return ecmpUserMapper.selectPhoneAndEmailExist(phonenumber,email);
     }
 
     /**
      * 禁用/启用  员工
      *
-     * @param deptId 部门ID
+     * @param userId 员工ID
      * @return 结果
      */
     @Transactional
-    public String updateUseStatus(String status,Long deptId){
+    public String updateUseStatus(String status,Long userId){
         //禁用/启用  员工
-        int i1 = ecmpUserMapper.updateUseStatus(deptId, status);
+        int i1 = ecmpUserMapper.updateUseStatus(userId, status);
         if("0".equals(status)){
             return "启用成功！";
         }
@@ -184,9 +196,13 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public List<EcmpUserDto> getEcmpUserList(Long deptId){
         List<EcmpUserDto> ecmpUserList = new ArrayList<>();
-        Long [] arr= ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
-        for (int i = 0; i < arr.length; i++) {
-            ecmpUserList = ecmpUserMapper.getEcmpUserList(deptId,arr[i]);
+        List<Long> userIds=ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
+        for (int i = 0; i < userIds.size(); i++) {
+            EcmpUserDto ecmpUserDto = ecmpUserMapper.getEcmpUserList(deptId, userIds.get(i));
+            List<String>  regimeInfoList =  regimeInfoMapper.selectByUserId(userIds.get(i));
+            String regimeName = StringUtils.join(regimeInfoList.toArray(), ",");
+            ecmpUserDto.setRegimeName(regimeName);
+            ecmpUserList.add(ecmpUserDto);
         }
         return ecmpUserList;
     }
@@ -199,23 +215,18 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     * */
     @Override
     @Transactional
-    public String updatePhoneNum(String newPhoneNum,String reWritePhone){
+    public String updatePhoneNum(String newPhoneNum,String reWritePhone,Long userId){
         String msg="";
-        if((newPhoneNum==null||newPhoneNum=="")||(reWritePhone==null||reWritePhone=="")){
-            msg="手机号码不可为空！";
-        }
-        EcmpUserVo ecmpUser=new EcmpUserVo();
-        ecmpUser.setNewPhoneNum(newPhoneNum);
-        int i = ecmpUserMapper.selectPhoneAndEmailExist(ecmpUser);
+        int i = ecmpUserMapper.selectPhoneAndEmailExist(newPhoneNum,null);
         if(i>0){
             msg="该手机号已存在，不可重复录入！";
-        }
-        if(!reWritePhone.equals(newPhoneNum)){
-            msg="手机号码不一致！";
-        }
-        int i1 = ecmpUserMapper.updatePhoneNum(newPhoneNum);
-        if(i1==1){
-            msg="手机号码修改成功！";
+        }else{
+            int i1 = ecmpUserMapper.updatePhoneNum(newPhoneNum,reWritePhone,userId);
+            if(i1==1){
+                msg="手机号码修改成功！";
+            }else {
+                msg="手机号码修改失败！";
+            }
         }
         return msg;
     }
@@ -232,21 +243,56 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @param  dimissionTime
      * @return
     * */
-    public int updateDimissionTime(Date dimissionTime){
-        return ecmpUserMapper.updateDimissionTime(dimissionTime);
+    public int updateDimissionTime(Date dimissionTime,Long userId){
+        return ecmpUserMapper.updateDimissionTime(dimissionTime,userId);
     }
 
     /*已离职数量*/
     @ApiOperation(value = "已离职数量",notes = "已离职数量",httpMethod ="POST")
     @PostMapping("/selectDimissionCount")
-    public int selectDimissionCount(Long userId){
-        return ecmpUserMapper.selectDimissionCount(userId);
+    public int selectDimissionCount(){
+        return ecmpUserMapper.selectDimissionCount();
     }
 
     /*已离职数量*/
     @ApiOperation(value = "已离职列表",notes = "已离职列表",httpMethod ="POST")
     @PostMapping("/selectDimissionList")
-    public List<EcmpUserDto> selectDimissionList(Long userId){
-        return ecmpUserMapper.selectDimissionList(userId);
+    public List<EcmpUserDto> selectDimissionList(Long deptId){
+        List<EcmpUserDto> ecmpUserList=null;
+        Long[] userIds= ecmpUserMapper.selectDimissionEcmpUserIds();
+        for (int i = 0; i < userIds.length; i++) {
+            ecmpUserList = ecmpUserMapper.selectDimissionList(deptId,userIds[i]);
+        }
+        return ecmpUserList;
+    }
+
+    /**
+     * 给员工设置用车制度
+     * @param userId
+     * @param regimenIds
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void bindUserRegimens(Long userId, List<Long> regimenIds) throws Exception {
+        UserRegimeRelationInfo userRegimeRelationInfo = null;
+        for (Long regimenId : regimenIds) {
+            userRegimeRelationInfo = new UserRegimeRelationInfo();
+            userRegimeRelationInfo.setUserId(userId);
+            userRegimeRelationInfo.setRegimenId(regimenId);
+            int i = userRegimeRelationInfoMapper.insertUserRegimeRelationInfo(userRegimeRelationInfo);
+            if(i != 1){
+                throw new Exception();
+            }
+        }
+    }
+
+
+    /**
+     * 员工邀请判断是否该手机号是否已经注册
+     */
+    public int userItisExist(String phoneNumber) {
+
+        return ecmpUserMapper.userItisExist(phoneNumber);
+
     }
 }

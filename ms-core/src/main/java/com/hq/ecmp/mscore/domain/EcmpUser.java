@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -78,9 +79,27 @@ public class EcmpUser extends BaseEntity
     @Excel(name = "是否车队调度", readConverterExp = "0否 1是")
     private String itIsDispatcher;
 
+    /** 驻地代码 */
+    @Excel(name = "驻地代码")
+    private String stationCode;
+
     /** 离职日期 */
-    @Excel(name = "离职日期", width = 30, dateFormat = "yyyy-MM-dd")
+    @Excel(name = "预设离职日期", width = 30, dateFormat = "yyyy-MM-dd")
     private Date dimissionTime;
+
+    @Excel(name =  "企业支付")
+    private String payMode;
+
+    @Excel(name =  "工号")
+    private String jobNumber;
+
+    public String getStationCode() {
+        return stationCode;
+    }
+
+    public void setStationCode(String stationCode) {
+        this.stationCode = stationCode;
+    }
 
     public Date getDimissionTime() {
         return dimissionTime;
