@@ -7,6 +7,8 @@ import com.hq.ecmp.mscore.domain.DriverQueryResult;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 /**
  * 【请填写功能名称】Service接口
  *
@@ -80,5 +82,7 @@ public interface IDriverInfoService
      * @return
      */
     public int driverItisExist(String phoneNumber);
+    
+    public int updateDriverStatus(Long driverId,String state);
 
 }

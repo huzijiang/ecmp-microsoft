@@ -101,6 +101,9 @@ public class RegimeController {
 	@ApiOperation(value = "createRegime", notes = "创建用车制度", httpMethod = "POST")
 	@PostMapping("/createRegime")
 	public ApiResponse createRegime(@RequestBody RegimePo regimePo) {
+		 HttpServletRequest request = ServletUtils.getRequest();
+	      LoginUser loginUser = tokenService.getLoginUser(request);
+	      regimePo.setOptId(loginUser.getUser().getUserId());
 		boolean createRegime = regimeInfoService.createRegime(regimePo);
 		if (createRegime) {
 			return ApiResponse.success();
@@ -121,6 +124,10 @@ public class RegimeController {
 	@ApiOperation(value = "optRegime", notes = "制度删除 or启用or停用", httpMethod = "POST")
 	@PostMapping("/optRegime")
 	public ApiResponse optRegime(@RequestBody RegimeOpt regimeOpt) {
+		 //查询登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        regimeOpt.setOptUserId(loginUser.getUser().getUserId());
 		boolean opt = regimeInfoService.optRegime(regimeOpt);
 		if(opt){
 			return ApiResponse.success();
@@ -134,6 +141,8 @@ public class RegimeController {
 	public ApiResponse<RegimeVo> queryRegimeDetail(@RequestBody Long regimeId) {
 		return ApiResponse.success(regimeInfoService.queryRegimeDetail(regimeId));
 	}
+	
+	
 	
 	
 }

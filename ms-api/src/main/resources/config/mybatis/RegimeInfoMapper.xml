@@ -161,7 +161,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	a. NAME AS regimeName,
 	c. NAME AS
 	sceneName,
-	a.approval_process AS approvalProcess,
+	a.approve_template_id AS approveTemplateId,
 	a. STATUS AS STATUS
 	FROM
 	regime_info a

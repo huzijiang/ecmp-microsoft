@@ -187,5 +187,10 @@ public class DriverInfoServiceImpl implements IDriverInfoService
         return driverInfoMapper.driverItisExist(phoneNumber);
     }
 
+	@Override
+	public int updateDriverStatus(Long driverId, String state) {
+		return driverInfoMapper.updateDriverStatus(driverId, state);
+	}
+
 
 }
