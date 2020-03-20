@@ -3,10 +3,7 @@ package com.hq.ecmp.mscore.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
-import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
-import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
@@ -140,7 +137,7 @@ public interface IOrderInfoService {
     /**
      * 网约车异步约车方法
      */
-    void platCallTaxi(Long orderId, String enterpriseId, String licenseContent, String apiUrl,String userId);
+    void platCallTaxi(Long orderId, String enterpriseId, String licenseContent, String apiUrl,String userId,String carLevel);
 
    /**
     * 自有车派车
@@ -216,5 +213,20 @@ public interface IOrderInfoService {
      */
     public void applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws ParseException;
 
+
+    /**
+     * 得到订单的历史轨迹
+     * @param orderId
+     * @return
+     */
+    public List<OrderHistoryTraceDto> getOrderHistoryTrace(Long orderId) throws Exception;
+
+
+    /**
+     * 判断订单的调度方式是网约车
+     * @param orderId
+     * @return
+     */
+    public boolean queryOrderDispathIsOline(Long orderId);
 }
 

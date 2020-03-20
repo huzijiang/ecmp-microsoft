@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
@@ -186,5 +187,12 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 		}
 		
 		return list;
+	}
+
+	@Override
+	  public OrderStateTraceInfo queryJourneyOrderIsCancel(Long journeyId){
+		return orderStateTraceInfoMapper.queryJouneyCloseOrderIsCanle(journeyId);
+		
+		
 	}
 }

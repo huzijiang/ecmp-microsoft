@@ -307,5 +307,30 @@ WHERE
 	regimen_id = #{regimeId}
 </select>
 
+<select id="queryUseCarModelByNoteId" parameterType="java.lang.Long" resultType="string">
+	SELECT
+	a.can_use_car_mode
+FROM
+	regime_info a
+LEFT JOIN journey_info b ON a.regimen_id = b.regimen_id
+LEFT JOIN journey_node_info c ON b.journey_id = c.journey_id
+WHERE
+	c.node_id = #{noteId} LIMIT 1
+</select>
+
+<select id="queryUseCarModelByJourneyId" parameterType="java.lang.Long"
+	resultType="string">
+	SELECT
+	a.can_use_car_mode
+	FROM
+	regime_info a
+	LEFT JOIN journey_info b ON a.regimen_id = b.regimen_id
+	where b.journey_id=#{journeyId}
+</select>
+<select id="selectByUserId" resultType="java.lang.String">
+    select  ri.`name` from user_regime_relation_info as urri
+     left  join  regime_info as ri on urri.regimen_id = ri.regimen_id
+     where urri.user_id = #{userId}
+</select>
 
 </mapper>

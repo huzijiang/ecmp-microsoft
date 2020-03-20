@@ -165,7 +165,7 @@ public class CarController {
      */
     @ApiOperation(value = "updateCar",notes = "修改车辆信息",httpMethod ="POST")
     @PostMapping("/updateCar")
-    public ApiResponse<Long> updateCar(@RequestBody CarSaveDTO carSaveDTO){
+    public ApiResponse updateCar(@RequestBody CarSaveDTO carSaveDTO){
         //获取登录用户
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
@@ -259,7 +259,7 @@ public class CarController {
      * @param  carDto  车辆信息
      * @return
      */
-    @ApiOperation(value = "maintainCar",notes = "禁用车辆",httpMethod ="POST")
+    @ApiOperation(value = "maintainCar",notes = "维保车辆",httpMethod ="POST")
     @PostMapping("/maintainCar")
     public ApiResponse maintainCar(@RequestBody CarDto carDto){
         //获取登录用户
@@ -282,7 +282,7 @@ public class CarController {
      */
     @ApiOperation(value = "bindCarDrivers",notes = "车辆新增驾驶员",httpMethod ="POST")
     @PostMapping("/bindCarDriver")
-    public ApiResponse<List<CarInfo>> bindCarDrivers(@RequestBody CarDriverDTO carDriverDTO){
+    public ApiResponse bindCarDrivers(@RequestBody CarDriverDTO carDriverDTO){
         //获取登录用户
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
@@ -333,11 +333,11 @@ public class CarController {
     }
 
     /**
-     * 按车队id查询可用车辆列表
+     * 按车队id查询车辆列表
      * @param
      * @return
      */
-    @ApiOperation(value = "getCarListByGroup",notes = "按车队id查询可用车辆列表",httpMethod ="POST")
+    @ApiOperation(value = "getCarListByGroup",notes = "按车队id查询车辆列表",httpMethod ="POST")
     @PostMapping("/getCarListByGroup")
     public ApiResponse<PageResult<CarListVO>> getCarListByGroup(@RequestBody PageRequest pageRequest){
         try {

@@ -478,16 +478,16 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join order_address_info oai on oai.order_id=s.order_id and oai.type='A000'
         left join order_address_info oai2 on oai2.order_id=s.order_id and oai2.type='A999'
             <where>
-                <if test="applyName != null "> and eu.user_name like concat('%',#{applyName},'%') </if>
-                <if test="applyPhoneNumber != null "> and eu.phonenumber like concat('%',#{applyPhoneNumber},'%') </if>
-                <if test="passengerName != null "> and  jpi.name = #{passengerName}</if>
-                <if test="serviceType != null "> and ji.service_type = #{serviceType}</if>
-                <if test="useCarMode != null "> and s.use_car_mode = #{useCarMode}</if>
-                <if test="charterCarType != null "> and  ji.charter_car_type = #{charterCarType}</if>
-                <if test="useCarTimeBegin != null "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{useCarTimeBegin},'%Y-%m-%d %H:%i:%S')</if>
-                <if test="useCarTimeEnd != null "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{useCarTimeEnd},'%Y-%m-%d %H:%i:%S')</if>
-                <if test="orderState != null "> and s.state = #{orderState}</if>
-                <if test="orderId != null "> and s.order_id  concat('%',#{orderId},'%') </if>
+                <if test="applyName != null and  applyName!=''"> and eu.user_name like concat('%',#{applyName},'%') </if>
+                <if test="applyPhoneNumber != null and  applyPhoneNumber!='' "> and eu.phonenumber like concat('%',#{applyPhoneNumber},'%') </if>
+                <if test="passengerName != null and  passengerName!='' "> and  jpi.name = #{passengerName}</if>
+                <if test="serviceType != null and  serviceType!='' "> and ji.service_type = #{serviceType}</if>
+                <if test="useCarMode != null and  useCarMode!=''"> and s.use_car_mode = #{useCarMode}</if>
+                <if test="charterCarType != null and  charterCarType!='' "> and  ji.charter_car_type = #{charterCarType}</if>
+                <if test="useCarTimeBegin != null and  useCarTimeBegin!='' "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{useCarTimeBegin},'%Y-%m-%d %H:%i:%S')</if>
+                <if test="useCarTimeEnd != null and  useCarTimeEnd!='' "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{useCarTimeEnd},'%Y-%m-%d %H:%i:%S')</if>
+                <if test="orderState != null and  orderState!='' "> and s.state = #{orderState}</if>
+                <if test="orderId != null and  orderId!=''"> and s.order_id  concat('%',#{orderId},'%') </if>
             </where>
             group by s.order_id
             order by a.create_time desc
@@ -707,5 +707,21 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         where a.driver_id=#{driverId} AND  a.state=#{state}
         <![CDATA[AND DATE_FORMAT(b.action_time, '%Y-%m-%d %H:%i:%s') <= DATE_FORMAT(DATE_ADD(now() ,INTERVAL 30 MINUTE ), '%Y-%m-%d %H:%i:%s') ]]> limit 1
 
+    </select>
+    
+    <select id="queryAllOrderStatusByJourneyId" parameterType="java.lang.Long" resultType="string">
+    select state  from order_info where journey_id=#{journeyId}
+    </select>
+    
+    <select id="queryAllOrderStatusByPowerId" parameterType="java.lang.Long" resultType="string">
+     select state from order_info where power_id=#{powerId}
+    </select>
+    
+    <select id="queryOrderIdListByPowerId" parameterType="java.lang.Long" resultType="java.lang.Long">
+    select order_id from order_info where power_id=#{powerId} and state not in ('S900')
+    </select>
+    
+    <select id="queryUseCarMode" parameterType="java.lang.Long" resultType="string">
+    select use_car_mode from order_info where power_id=#{powerId}
     </select>
 </mapper>
