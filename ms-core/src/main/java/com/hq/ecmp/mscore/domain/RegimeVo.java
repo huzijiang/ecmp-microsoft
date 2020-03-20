@@ -18,7 +18,7 @@ public class RegimeVo {
 
 	Integer useNum;// 使用人数
 
-	Integer approvalProcess;// 0 不需要审批 不限制 1-需要审批
+	Integer approveTemplateId;// 审批模板
 
 	Integer status;// 0-启用 1-禁用
 
