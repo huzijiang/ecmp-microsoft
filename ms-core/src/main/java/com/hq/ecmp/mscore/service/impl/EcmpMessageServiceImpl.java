@@ -8,20 +8,15 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.*;
-import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
-import com.hq.ecmp.mscore.domain.DriverInfo;
-import com.hq.ecmp.mscore.domain.EcmpMessage;
-import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
-import com.hq.ecmp.mscore.mapper.DriverWorkInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpMessageMapper;
-import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.EcmpMessageService;
 import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +40,17 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
     private DriverInfoMapper driverInfoMapper;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
+    @Autowired
+    private ApplyInfoMapper applyInfoMapper;
+    @Autowired
+    private RegimeInfoMapper regimeInfoMapper;
+    @Autowired
+    private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
+    @Autowired
+    private CarGroupInfoMapper carGroupInfoMapper;
+    @Autowired
+    private ApplyApproveResultInfoMapper applyApproveResultInfoMapper;
+
 
     /**
      * 通过ID查询单条数据
@@ -195,7 +201,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         if ("1".equals(user.getItIsDispatcher())){//调度员
             categorys+=",M003";
         }
-        List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoService.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(user.getUserId(), true));
+        List<ApplyApproveResultInfo> approveTemplateNodeInfos = applyApproveResultInfoMapper.selectByUserId(null,user.getUserId(), ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
         if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos)){//审批员
             categorys+=",M002";
         }
@@ -236,7 +242,8 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         return runMessageForDrive;
     }
 
-    //stat
+    //TODO 审批通过后的发通知
+    @Transactional
     public void saveApplyMessage(Long applyId,Long ecmpId,Long userId){
         Map<String,Object> map= Maps.newHashMap();
         map.put("messageId",applyId);
@@ -255,7 +262,14 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         //通知调度员,通知申请人审批通过
         List<EcmpMessage> list=new ArrayList<>();
         //判断申请用车城市是否有我车队组织
-
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
+        RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(applyInfo.getRegimenId());
+//        if ("C001".equals(regimeInfo.getRuleCity())){
+//
+//            carGroupInfoMapper.selectCarGroupInfoById();
+//        }else{
+//
+//        }
         EcmpMessage message=new EcmpMessage();
         message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T002.getType());
         message.setCategory(MsgConstant.MESSAGE_T001.getType());

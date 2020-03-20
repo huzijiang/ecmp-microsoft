@@ -27,7 +27,7 @@ public class FileUploadController {
     @ApiOperation(value = "upload ", notes = "文件上传API，直接返回文件访问地址 http 链接")
     @PostMapping(value = "/upload")
     public ApiResponse screen(@RequestParam("file") MultipartFile file) {
-        String url = zimgService.uploadImage(file);
-        return ApiResponse.success(url);
+            String url = zimgService.uploadImage(file);
+            return ApiResponse.success("上传成功",url);
     }
 }

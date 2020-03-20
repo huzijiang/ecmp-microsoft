@@ -213,11 +213,6 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     public String updateUseStatus(String status,Long userId){
         //禁用/启用  员工
         int i1 = ecmpUserMapper.updateUseStatus(userId, status);
-        String it_is_driver = ecmpUserMapper.selectEcmpUserIsDirver(userId);
-        if("0".equals(it_is_driver)){
-            driverInfoMapper.updateDriverUseStatus(userId,"0".equals(status)?"V000":"NV00");
-            /*清除用户token消息*/
-        }
         if("0".equals(status)){
             return "启用成功！";
         }
@@ -340,6 +335,11 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         }
     }
 
+    @Override
+    public List<EcmpUser> selectUserListByUserIds(String approveUserId) {
+        return ecmpUserMapper.selectUserListByUserIds(approveUserId);
+    }
+
     /**
      * 给员工修改用车制度
      * @param userId
@@ -387,7 +387,4 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.userItisExist(phoneNumber);
 
     }
-
-
-
 }

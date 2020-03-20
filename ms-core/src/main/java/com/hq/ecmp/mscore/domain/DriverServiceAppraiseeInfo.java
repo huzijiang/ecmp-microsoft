@@ -64,6 +64,12 @@ N005  着装不整
     
     private Date updateTime;
 
+    public DriverServiceAppraiseeInfo() {
+    }
+
+    public DriverServiceAppraiseeInfo(Long orderId) {
+    }
+
 
     public Long getAppraiseId() {
         return appraiseId;

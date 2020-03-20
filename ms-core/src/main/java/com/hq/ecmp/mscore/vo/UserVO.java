@@ -13,7 +13,7 @@ import lombok.Data;
 @ApiModel(description = "用户模型")
 public class UserVO {
 
-    private Integer userId;
+    private Long userId;
 
     @ApiModelProperty(name = "userName",value = "用户名")
     private String userName;

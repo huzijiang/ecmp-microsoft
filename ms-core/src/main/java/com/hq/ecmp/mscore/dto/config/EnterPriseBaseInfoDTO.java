@@ -16,6 +16,7 @@ public class EnterPriseBaseInfoDTO {
     private String address;
     private String contractor;
     private String email;
+    private String phone;
     private String industry;
     private String scale;
 }

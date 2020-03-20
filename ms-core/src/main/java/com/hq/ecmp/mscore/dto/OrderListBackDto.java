@@ -55,7 +55,7 @@ public class OrderListBackDto extends PageRequest {
             "网约车   W200")
     private  String useCarMode;
 
-    @ApiModelProperty(value = "订单编号")
+    @ApiModelProperty(value = "订单id")
     private String orderId;
 
     @ApiModelProperty(value = "费用合计")
@@ -68,5 +68,7 @@ public class OrderListBackDto extends PageRequest {
     private String  useCarTimeEnd;
     @ApiModelProperty(value = "订单状态")
     private String orderState;
+    @ApiModelProperty(value = "订单编号")
+    private String orderNumber;
 
 }

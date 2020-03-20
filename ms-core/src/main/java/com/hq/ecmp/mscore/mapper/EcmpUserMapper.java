@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -228,5 +229,9 @@ public interface EcmpUserMapper
      */
     public int userItisExist(String phoneNumber);
 
+    //查询该员工部门领导
+    UserVO findDeptLeader(long parseLong);
+
+    List<EcmpUser> selectUserListByUserIds(String userIds);
 }
 

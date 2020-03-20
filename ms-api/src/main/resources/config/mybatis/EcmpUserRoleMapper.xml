@@ -55,4 +55,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <select id="findUserIds" resultType="String">
+        select group_concat(distinct user_id) from  ecmp_user_role
+        where role_id in (#{roleId})
+    </select>
 </mapper>

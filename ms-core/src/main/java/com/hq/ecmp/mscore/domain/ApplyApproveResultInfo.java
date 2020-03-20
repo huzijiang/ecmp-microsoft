@@ -49,6 +49,14 @@ public class ApplyApproveResultInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String content;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String approveUserId;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String approveRoleId;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String approveType;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String nextNodeId;
 
     public void setApproveResultId(Long approveResultId)
     {
@@ -132,15 +140,39 @@ public class ApplyApproveResultInfo extends BaseEntity
         return content;
     }
 
-    public ApplyApproveResultInfo() {
+    public String getApproveUserId() {
+        return approveUserId;
     }
 
-    public ApplyApproveResultInfo(Long applyId, Long approveTemplateId, Long approveNodeId, String approver, String approverMobile) {
-        this.applyId = applyId;
-        this.approveTemplateId = approveTemplateId;
-        this.approveNodeId = approveNodeId;
-        this.approver = approver;
-        this.approverMobile = approverMobile;
+    public void setApproveUserId(String approveUserId) {
+        this.approveUserId = approveUserId;
+    }
+
+    public String getApproveRoleId() {
+        return approveRoleId;
+    }
+
+    public void setApproveRoleId(String approveRoleId) {
+        this.approveRoleId = approveRoleId;
+    }
+
+    public String getApproveType() {
+        return approveType;
+    }
+
+    public void setApproveType(String approveType) {
+        this.approveType = approveType;
+    }
+
+    public String getNextNodeId() {
+        return nextNodeId;
+    }
+
+    public void setNextNodeId(String nextNodeId) {
+        this.nextNodeId = nextNodeId;
+    }
+
+    public ApplyApproveResultInfo() {
     }
 
     public ApplyApproveResultInfo(Long applyId) {
@@ -161,6 +193,14 @@ public class ApplyApproveResultInfo extends BaseEntity
         this.applyId = applyId;
         this.approveNodeId=approveNodeId;
         this.approveTemplateId = approveTemplateId;
+    }
+
+    public ApplyApproveResultInfo(Long applyId, Long approveTemplateId, Long approveNodeId, String approveType, String nextNodeId) {
+        this.applyId = applyId;
+        this.approveTemplateId = approveTemplateId;
+        this.approveNodeId = approveNodeId;
+        this.approveType = approveType;
+        this.nextNodeId = nextNodeId;
     }
 
     public ApplyApproveResultInfo(Long applyId, Long approveTemplateId, Long approveNodeId, String state) {

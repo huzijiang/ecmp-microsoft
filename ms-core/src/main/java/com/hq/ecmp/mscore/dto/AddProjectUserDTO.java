@@ -14,6 +14,4 @@ public class AddProjectUserDTO
 {
     private Long projectId;
     private Long[] userIds;
-
-
 }

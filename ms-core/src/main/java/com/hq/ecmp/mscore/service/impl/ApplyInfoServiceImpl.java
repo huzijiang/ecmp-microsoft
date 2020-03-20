@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -63,6 +64,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private ApproveTemplateNodeInfoMapper templateNodeInfoMapper;
     @Autowired
     private ApplyApproveResultInfoMapper resultInfoMapper;
+    @Autowired
+    private EcmpUserRoleMapper userRoleMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -286,7 +289,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //3.1 journey_id 非空
         journeyNodeInfo.setJourneyId(journeyId);
         //3.2 user_id 行程申请人 编号
-        journeyNodeInfo.setUserId(Long.valueOf(travelCommitApply.getApplyUser().getUserId())); //TODO 判空
+        journeyNodeInfo.setUserId(travelCommitApply.getApplyUser().getUserId()); //TODO 判空
         //3.3 plan_begin_address 计划上车地址  非空
         journeyNodeInfo.setPlanBeginLongAddress(null);
         journeyNodeInfo.setPlanBeginAddress(travelRequest.getStartCity().getCityName());
@@ -498,7 +501,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
 
     @Override
     public int getApplyApproveCount(Long userId) {
-        return applyInfoMapper.getApplyApproveCount(userId, ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
+        //获取用户权限
+        List<EcmpUserRole> list=userRoleMapper.selectEcmpUserRoleList(new EcmpUserRole(userId));
+        List<Long> collect = list.stream().map(EcmpUserRole::getRoleId).collect(Collectors.toList());
+        return applyInfoMapper.getApplyApproveCount(userId, ApproveStateEnum.WAIT_APPROVE_STATE.getKey(),collect);
     }
 
     /**
@@ -511,7 +517,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Override
     public List<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
         PageHelper.startPage(pageIndex,pageSize);
-        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
+        List<EcmpUserRole> list=userRoleMapper.selectEcmpUserRoleList(new EcmpUserRole(userId));
+        List<Long> roleIds = list.stream().map(EcmpUserRole::getRoleId).collect(Collectors.toList());
+        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey(),roleIds);
         List<ApprovaReesultVO> approvaReesultVOs=new ArrayList<>();
         if (!CollectionUtils.isEmpty(applyApproveResultInfos)){
             for (ApplyApproveResultInfo info:applyApproveResultInfos){

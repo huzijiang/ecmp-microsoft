@@ -168,6 +168,8 @@ public interface IEcmpUserService {
      */
     void bindUserRegimens(Long userId, List<Long> regimenIds) throws Exception;
 
+    List<EcmpUser> selectUserListByUserIds(String approveUserId);
+
     /**
      * 给员工修改用车制度
      * @param userId
