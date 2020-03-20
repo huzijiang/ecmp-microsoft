@@ -309,4 +309,8 @@ WHERE
     <update id="disableDriver" parameterType="long">
         update driver_info  set lock_state = '1111' where driver_id = #{driverId}
     </update>
+    
+    <update id="updateDriverStatus">
+    update  driver_info  set state=#{state} where driver_id=#{driverId}
+    </update>
 </mapper>

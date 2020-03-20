@@ -98,6 +98,15 @@ public interface DriverInfoMapper
      * @return 结果
      */
     public int updateUseStatus(@Param("deptId") Long deptId, @Param("state") String state);
+    
+    /**
+     * 禁用/启用  驾驶员
+     *
+     * @param driverId 驾驶员ID
+     * @param state 状态 W001 待审   V000 生效中   NV00 失效
+     * @return 结果
+     */
+    public int updateDriverStatus(@Param("driverId") Long driverId, @Param("state") String state);
 
     /**
      * 查询车辆可用驾驶员
@@ -121,4 +130,6 @@ public interface DriverInfoMapper
      * @return
      */
     int disableDriver(Long driverId);
+    
+   
 }
