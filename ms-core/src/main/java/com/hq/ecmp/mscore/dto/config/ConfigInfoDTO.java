@@ -3,6 +3,8 @@ package com.hq.ecmp.mscore.dto.config;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * @author xueyong
  * @date 2020/3/16
@@ -15,32 +17,32 @@ public class ConfigInfoDTO {
      * 基本信息配置
      */
     @ApiModelProperty(name = "baseInfo", value = "基本信息配置")
-    private String baseInfo;
+    private EnterPriseBaseInfoDTO baseInfo;
 
     /**
      * 背景图配置
      */
     @ApiModelProperty(name = "backgroundImageInfo", value = "背景图配置")
-    private String backgroundImageInfo;
+    private ConfigValueDTO backgroundImageInfo;
 
     @ApiModelProperty(name = "messageInfo", value = "公告配置")
-    private String messageInfo;
+    private ConfigValueDTO messageInfo;
 
     @ApiModelProperty(name = "welcomeImageInfo", value = "开屏图配置")
-    private String welcomeImageInfo;
+    private ConfigValueDTO welcomeImageInfo;
 
     @ApiModelProperty(name = "smsInfo", value = "短信配置")
-    private String smsInfo;
+    private ConfigValueDTO smsInfo;
 
     @ApiModelProperty(name = "virtualPhoneInfo", value = "虚拟小号配置")
-    private String virtualPhoneInfo;
+    private ConfigValueDTO virtualPhoneInfo;
 
     @ApiModelProperty(name = "orderConfirmInfo", value = "确认订单方式配置")
-    private String orderConfirmInfo;
+    private Map<String, Object> orderConfirmInfo;
 
     @ApiModelProperty(name = "dispatchInfo", value = "自动派单方式配置")
-    private String dispatchInfo;
+    private ConfigValueDTO dispatchInfo;
 
     @ApiModelProperty(name = "waitMaxMinute", value = "往返用车等待时长配置")
-    private String waitMaxMinute;
+    private ConfigValueDTO waitMaxMinute;
 }
