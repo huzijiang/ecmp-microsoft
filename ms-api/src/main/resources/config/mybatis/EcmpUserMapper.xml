@@ -62,6 +62,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userName != null  and userName != ''">user_name,</if>
             <if test="nickName != null  and nickName != ''">nick_name,</if>
             <if test="userType != null  and userType != ''">user_type,</if>
+            <if test="dimissionTime != null  and dimissionTime != ''">dimission_time,</if>
+            <if test="payMode != null  and payMode != ''">pay_mode,</if>
             <if test="email != null  and email != ''">email,</if>
             <if test="phonenumber != null  and phonenumber != ''">phonenumber,</if>
             <if test="sex != null  and sex != ''">sex,</if>
@@ -76,13 +78,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null  and updateBy != ''">update_by,</if>
             <if test="updateTime != null ">update_time,</if>
-            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="remark != null  and remark != ''">remark</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="deptId != null ">#{deptId},</if>
             <if test="userName != null  and userName != ''">#{userName},</if>
             <if test="nickName != null  and nickName != ''">#{nickName},</if>
             <if test="userType != null  and userType != ''">#{userType},</if>
+            <if test="dimissionTime != null  and dimissionTime != ''">#{dimissionTime},</if>
+            <if test="payMode != null  and payMode != ''">#{payMode},</if>
             <if test="email != null  and email != ''">#{email},</if>
             <if test="phonenumber != null  and phonenumber != ''">#{phonenumber},</if>
             <if test="sex != null  and sex != ''">#{sex},</if>
@@ -97,7 +101,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
-            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="remark != null  and remark != ''">#{remark}</if>
          </trim>
     </insert>
 
@@ -108,6 +112,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userName != null  and userName != ''">user_name = #{userName},</if>
             <if test="nickName != null  and nickName != ''">nick_name = #{nickName},</if>
             <if test="userType != null  and userType != ''">user_type = #{userType},</if>
+            <if test="payMode != null  and payMode != ''">pay_mode = #{payMode},</if>
+            <if test="dimissionTime != null  and dimissionTime != ''">dimission_time = #{dimissionTime},</if>
             <if test="email != null  and email != ''">email = #{email},</if>
             <if test="phonenumber != null  and phonenumber != ''">phonenumber = #{phonenumber},</if>
             <if test="sex != null  and sex != ''">sex = #{sex},</if>
@@ -117,11 +123,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
             <if test="loginIp != null  and loginIp != ''">login_ip = #{loginIp},</if>
             <if test="loginDate != null ">login_date = #{loginDate},</if>
-            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
-            <if test="createTime != null ">create_time = #{createTime},</if>
-            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
-            <if test="updateTime != null ">update_time = #{updateTime},</if>
-            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime}</if>
         </trim>
         where user_id = #{userId}
     </update>
@@ -172,8 +175,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="phonenumber != null  and phonenumber != ''">userName,</if>
             <if test="nickName != null  and nickName != ''">nick_name,</if>
             <if test="userType != null  and userType != ''">user_type,</if>
-            <if test="dept_id != null  and dept_id != ''">dept_id,</if>
-            <if test="station_code != null  and station_code != ''">station_code,</if>
+            <if test="dimissionTime != null  and dimissionTime != ''">dimission_time,</if>
+            <if test="payMode != null  and payMode != ''">pay_mode,</if>
+            <if test="deptId != null  and deptId != ''">dept_id,</if>
+            <if test="stationCode != null  and stationCode != ''">station_code,</if>
             <if test="email != null  and email != ''">email,</if>
             <if test="phonenumber != null  and phonenumber != ''">phonenumber,</if>
             <if test="sex != null  and sex != ''">sex,</if>
@@ -185,16 +190,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="loginDate != null ">login_date,</if>
             <if test="createBy != null  and createBy != ''">create_by,</if>
             <if test="createTime != null ">create_time,</if>
-            <if test="updateBy != null  and updateBy != ''">update_by,</if>
-            <if test="updateTime != null ">update_time,</if>
-            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="remark != null  and remark != ''">remark</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="phonenumber != null  and phonenumber != ''">#{phonenumber},</if>
             <if test="nickName != null  and nickName != ''">#{nickName},</if>
             <if test="userType != null  and userType != ''">#{userType},</if>
-            <if test="deptId != null  and deptId != ''">deptId,</if>
-            <if test="stationCode != null  and stationCode != ''">stationCode,</if>
+            <if test="dimissionTime != null  and dimissionTime != ''">#{dimissionTime},</if>
+            <if test="payMode != null  and payMode != ''">#{payMode},</if>
+            <if test="deptId != null  and deptId != ''">#{deptId},</if>
+            <if test="stationCode != null  and stationCode != ''">#{stationCode},</if>
             <if test="email != null  and email != ''">#{email},</if>
             <if test="phonenumber != null  and phonenumber != ''">#{phonenumber},</if>
             <if test="sex != null  and sex != ''">#{sex},</if>
@@ -206,9 +211,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="loginDate != null ">#{loginDate},</if>
             <if test="createBy != null  and createBy != ''">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
-            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
-            <if test="updateTime != null ">#{updateTime},</if>
-            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="remark != null  and remark != ''">#{remark}</if>
         </trim>
     </insert>
 
@@ -225,8 +228,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="updateUserRegimeRelation">
         insert into user_regime_relation_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-        <if test="user_id != null  and user_id != ''">user_id,</if>
-        <if test="regimen_id != null  and regimen_id != ''">regimen_id</if>
+        <if test="userId != null  and userId != ''">user_id,</if>
+        <if test="regimenId != null  and regimenId != ''">regimen_id</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
         <if test="userId != null  and userId != ''">#{userId},</if>
@@ -239,7 +242,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       select count(1)
       from  ecmp_user
       where
-      status='0' and del_flag='0'
+      del_flag='0'
       <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
       <if test="email != null  and email != ''"> and email = #{email}</if>
     </select>
@@ -251,32 +254,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 
     <!--查询该部门下的所有员工编号-->
-    <select id="getEcmpUserIdsByDeptId" resultType="Long" parameterType="Long">
+    <select id="getEcmpUserIdsByDeptId" resultType="java.lang.Long" >
         select
         user_id
         from  ecmp_user
         where
         del_flag='0'
-        <if test="dept_id != null  and dept_id != ''"> and dept_id = #{dept_id}</if>
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
     </select>
 
     <!--查询员工列表-->
+    <!--select `name` from regime_info where regime_id in (select regime_id from  user_regime_relation_info where user_id=#{userId}) as regimeName-->
     <select id="getEcmpUserList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
         select
         nick_name as nickName,phonenumber,user_id as userId,
         (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='1') as subCompany,
         (select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept,
         `status`
-        select name from regime_info where (select regime_id from  user_regime_relation_info where user_id=#{userId}
         from  ecmp_user
         where
         del_flag='0'
-        <if test="dept_id != null  and dept_id != ''"> and dept_id = #{deptId}</if>
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
+        <if test="userId != null  and userId != ''">and user_id=#{userId}</if>
     </select>
 
-    <!--根据deptId和deptType删除信息-->
+    <!--修改手机号-->
     <update id="updatePhoneNum" >
-      update ecmp_user  SET phonenumber=#{newPhoneNum},userName=#{newPhoneNum} where user_id = #{userId}
+      update ecmp_user  SET phonenumber=#{phonenumber},user_name=#{userName} where user_id = #{userId}
     </update>
 
     <!--获取员工详情-->
@@ -324,7 +328,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from  ecmp_user
         where
         del_flag='0'
-        <if test="dept_id != null  and dept_id != ''"> and dept_id = #{deptId}</if>
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
         and user_id= #{userId}
     </select>
     <select id="userItisExist"  resultType="java.lang.Integer">

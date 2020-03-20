@@ -91,7 +91,7 @@ public class CarTypeController {
      * @return
      */
     @ApiOperation(value = "deleteCarType",notes = "删除车型")
-    @RequestMapping("/deleteCarType")
+    @PostMapping("/deleteCarType")
     public ApiResponse deleteCarType(@RequestBody CarTypeDTO carTypeDto){
         try {
             enterpriseCarTypeInfoService.deleteEnterpriseCarTypeInfoById(carTypeDto.getCarTypeId());
@@ -108,7 +108,7 @@ public class CarTypeController {
      * @return
      */
     @ApiOperation(value = "getCarTypeList",notes = "查询车型列表")
-    @RequestMapping("/getCarTypeList")
+    @PostMapping("/getCarTypeList")
     public ApiResponse<List<CarTypeVO>> getCarTypeList(@RequestBody CarTypeDTO carTypeDto){
         try {
             List<CarTypeVO> result = enterpriseCarTypeInfoService.getCarTypeList(carTypeDto.getEnterpriseId());
@@ -125,7 +125,7 @@ public class CarTypeController {
      * @return
      */
     @ApiOperation(value = "sortCarType",notes = "查询车型列表")
-    @RequestMapping("/sortCarType")
+    @PostMapping("/sortCarType")
     public ApiResponse sortCarType(@RequestBody CarTypeSortDTO carTypeSortDTO){
         try {
             enterpriseCarTypeInfoService.sortCarType(

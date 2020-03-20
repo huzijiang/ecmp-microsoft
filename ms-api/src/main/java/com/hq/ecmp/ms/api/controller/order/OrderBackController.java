@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.controller.order;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
+import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import io.swagger.annotations.Api;
@@ -20,7 +21,8 @@ import java.util.List;
  * @Date 2020/3/13 16:23
  * @Version 1.0
  */
-@RestController("/orderBack")
+@RestController
+@RequestMapping("/orderBack")
 @Api(value = "后台管理-订单模块")
 public class OrderBackController {
 
@@ -54,5 +56,21 @@ public class OrderBackController {
             return ApiResponse.error();
         }
         return ApiResponse.success(orderListDetail);
+    }
+
+    @ApiOperation("订单历史轨迹")
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "orderNo",value = "orderNo",required = true,paramType = "query",dataType = "String")
+    )
+    @PostMapping("/getOrderHistoryTrace")
+    public ApiResponse<List<OrderHistoryTraceDto>> getOrderHistoryTrace(@RequestParam("orderNo") String orderId){
+        List<OrderHistoryTraceDto> orderHistoryTraceDtos = null;
+        try {
+            orderHistoryTraceDtos = iOrderInfoService.getOrderHistoryTrace(Long.parseLong(orderId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("获取轨迹失败");
+        }
+        return ApiResponse.success(orderHistoryTraceDtos);
     }
 }

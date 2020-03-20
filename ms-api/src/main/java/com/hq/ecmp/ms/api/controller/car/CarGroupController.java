@@ -100,7 +100,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @ApiOperation(value = "deleteCarGroup",notes = "修改车队",httpMethod ="POST")
+    @ApiOperation(value = "deleteCarGroup",notes = "删除车队",httpMethod ="POST")
     @PostMapping("/deleteCarGroup")
     public ApiResponse deleteCarGroup(@RequestBody CarGroupDTO carGroupDTO){
         try {
@@ -139,7 +139,7 @@ public class CarGroupController {
      */
     @ApiOperation(value = "startUpCarGroup",notes = "启用车队",httpMethod ="POST")
     @PostMapping("/startUpCarGroup")
-    public ApiResponse<CarGroupDetailVO> startUpCarGroup(Long carGroupId){
+    public ApiResponse startUpCarGroup(Long carGroupId){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
@@ -157,7 +157,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @ApiOperation(value = "getCarGroupList",notes = "启用车队",httpMethod ="POST")
+    @ApiOperation(value = "getCarGroupList",notes = "分页全部查询车队列表",httpMethod ="POST")
     @PostMapping("/getCarGroupList")
     public ApiResponse<PageResult<CarGroupListVO>> getCarGroupList(@RequestBody PageRequest pageRequest){
         try {
