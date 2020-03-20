@@ -98,14 +98,19 @@ public interface IEcmpUserService {
     public int addEcmpUser(EcmpUserVo ecmpUser);
 
     /*
-    *查询手机号与邮箱是否已经存在
-    * */
-    public int selectPhoneAndEmailExist(String phonenumber,String email);
+     *查询手机号是否已经存在
+     * */
+    public int selectPhoneNumberExist(String phonenumber);
+
+    /*
+     *查询邮箱是否已经存在
+     * */
+    public int selectEmailExist(String email);
 
     /**
      * 禁用/启用  员工
      *
-     * @param deptId 部门ID
+     * @param userId 员工ID
      * @return 结果
      */
     public String updateUseStatus(String status,Long userId);
@@ -162,4 +167,17 @@ public interface IEcmpUserService {
      * @param regimenIds
      */
     void bindUserRegimens(Long userId, List<Long> regimenIds) throws Exception;
+
+    /**
+     * 给员工修改用车制度
+     * @param userId
+     * @param regimenIds
+     */
+    void updateUserRegimens(Long userId, List<Long> regimenIds) throws Exception;
+
+    /*核对哪些员工当天离职
+    @param
+     * @return
+    * */
+    public void checkDimissionEcmpUser();
 }

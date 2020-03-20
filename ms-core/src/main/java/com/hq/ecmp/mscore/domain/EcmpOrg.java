@@ -24,9 +24,9 @@ public class EcmpOrg extends BaseEntity
     @Excel(name = "上级组织id")
     private Long parentId;
 
-    /** 公司ID */
-    @Excel(name = "公司ID")
-    private Long companyId;
+    /** 企业自定义机构编码 */
+    @Excel(name = "企业自定义机构编码")
+    private String  deptCode;
 
     /** 祖级列表 */
     @Excel(name = "祖级列表")
@@ -66,6 +66,14 @@ public class EcmpOrg extends BaseEntity
     /*新增临时字段 */
     private List<EcmpOrg> deptList;
 
+    public String  getDeptCode() {
+        return deptCode;
+    }
+
+    public void setDeptCode(String deptCode) {
+        this.deptCode = deptCode;
+    }
+
     public List<EcmpOrg> getDeptList() {
         return deptList;
     }
@@ -92,15 +100,7 @@ public class EcmpOrg extends BaseEntity
     {
         return parentId;
     }
-    public void setCompanyId(Long companyId)
-    {
-        this.companyId = companyId;
-    }
 
-    public Long getCompanyId()
-    {
-        return companyId;
-    }
     public void setAncestors(String ancestors)
     {
         this.ancestors = ancestors;
@@ -188,7 +188,6 @@ public class EcmpOrg extends BaseEntity
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("deptId", getDeptId())
             .append("parentId", getParentId())
-            .append("companyId", getCompanyId())
             .append("ancestors", getAncestors())
             .append("deptName", getDeptName())
             .append("deptType", getDeptType())

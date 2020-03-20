@@ -2,16 +2,14 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.domain.EcmpOrg;
-import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
-import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
-import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
-import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import com.hq.ecmp.util.DateFormatUtils;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +36,13 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     private UserRegimeRelationInfoMapper userRegimeRelationInfoMapper;
     @Autowired
     private RegimeInfoMapper regimeInfoMapper;
+
+    @Autowired
+    private EcmpUserRoleMapper ecmpUserRoleMapper;
+
+    @Autowired
+    private DriverInfoMapper driverInfoMapper;
+
 
     /**
      * 根据用户id查询用户信息
@@ -81,6 +87,23 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public int updateEcmpUser(EcmpUserVo ecmpUser) {
         ecmpUser.setUpdateTime(DateUtils.getNowDate());
+        /*修改用车制度 （多个）*/
+        Long userId=ecmpUser.getUserId();
+        List<Long> regimenIds=ecmpUser.getRegimenIds();
+        try {
+            updateUserRegimens(userId,regimenIds);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        /*修改用户角色信息*/
+        Long[] roleIds=ecmpUser.getRoleIds();
+        for (int i = 0; i < roleIds.length; i++) {
+            EcmpUserRole ecmpUserRole=new EcmpUserRole();
+            ecmpUserRole.setUserId(userId);
+            Long roleId=roleIds[i];
+            ecmpUserRole.setRoleId(roleId);
+            ecmpUserRoleMapper.updateEcmpUserRole(ecmpUserRole);
+        }
         ecmpUserMapper.updateUserRegimeRelation(ecmpUser);
         return ecmpUserMapper.updateEcmpUser(ecmpUser);
     }
@@ -145,16 +168,39 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public int addEcmpUser(EcmpUserVo ecmpUser) {
         ecmpUser.setCreateTime(DateUtils.getNowDate());
-        ecmpUserMapper.addUserRegimeRelation(ecmpUser);
+        /*保存用车制度 （多个）*/
+        Long userId=ecmpUser.getUserId();
+        List<Long> regimenIds=ecmpUser.getRegimenIds();
+        try {
+            bindUserRegimens(userId, regimenIds);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        /*保存用户角色信息*/
+        Long[] roleIds=ecmpUser.getRoleIds();
+        for (int i = 0; i < roleIds.length; i++) {
+            EcmpUserRole ecmpUserRole=new EcmpUserRole();
+            ecmpUserRole.setUserId(userId);
+            Long roleId=roleIds[i];
+            ecmpUserRole.setRoleId(roleId);
+            ecmpUserRoleMapper.insertEcmpUserRole(ecmpUserRole);
+        }
         return ecmpUserMapper.addEcmpUser(ecmpUser);
     }
 
 
     /*
-     *查询手机号与邮箱是否已经存在
+     *查询手机号是否已经存在
      * */
-    public int selectPhoneAndEmailExist(String phonenumber,String email){
-        return ecmpUserMapper.selectPhoneAndEmailExist(phonenumber,email);
+    public int selectPhoneNumberExist(String phonenumber){
+        return ecmpUserMapper.selectPhoneNumberExist(phonenumber);
+    }
+
+    /*
+     *查询邮箱是否已经存在
+     * */
+    public int selectEmailExist(String email){
+        return ecmpUserMapper.selectEmailExist(email);
     }
 
     /**
@@ -167,6 +213,11 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     public String updateUseStatus(String status,Long userId){
         //禁用/启用  员工
         int i1 = ecmpUserMapper.updateUseStatus(userId, status);
+        String it_is_driver = ecmpUserMapper.selectEcmpUserIsDirver(userId);
+        if("0".equals(it_is_driver)){
+            driverInfoMapper.updateDriverUseStatus(userId,"0".equals(status)?"V000":"NV00");
+            /*清除用户token消息*/
+        }
         if("0".equals(status)){
             return "启用成功！";
         }
@@ -217,7 +268,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Transactional
     public String updatePhoneNum(String newPhoneNum,String reWritePhone,Long userId){
         String msg="";
-        int i = ecmpUserMapper.selectPhoneAndEmailExist(newPhoneNum,null);
+        int i = ecmpUserMapper.selectPhoneNumberExist(newPhoneNum);
         if(i>0){
             msg="该手机号已存在，不可重复录入！";
         }else{
@@ -236,7 +287,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     * @return
     * */
     public EcmpUserDto selectEcmpUserDetail(Long userId){
-        return ecmpUserMapper.selectEcmpUserDetail(userId);
+        List<String> roleNameList = ecmpUserMapper.selectRoleNameByEcmpUserId(userId);
+        String roleName = StringUtils.join(roleNameList.toArray(), ",");
+        return ecmpUserMapper.selectEcmpUserDetail(userId,roleName);
     }
 
     /*设置离职日期
@@ -254,14 +307,15 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.selectDimissionCount();
     }
 
-    /*已离职数量*/
+    /*已离职列表*/
     @ApiOperation(value = "已离职列表",notes = "已离职列表",httpMethod ="POST")
     @PostMapping("/selectDimissionList")
     public List<EcmpUserDto> selectDimissionList(Long deptId){
         List<EcmpUserDto> ecmpUserList=null;
-        Long[] userIds= ecmpUserMapper.selectDimissionEcmpUserIds();
-        for (int i = 0; i < userIds.length; i++) {
-            ecmpUserList = ecmpUserMapper.selectDimissionList(deptId,userIds[i]);
+        List<Long> userIds= ecmpUserMapper.selectDimissionEcmpUserIds();
+        for (int i = 0; i < userIds.size(); i++) {
+            EcmpUserDto ecmpUserDto = ecmpUserMapper.selectDimissionList(deptId,userIds.get(i));
+            ecmpUserList.add(ecmpUserDto) ;
         }
         return ecmpUserList;
     }
@@ -286,6 +340,44 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         }
     }
 
+    /**
+     * 给员工修改用车制度
+     * @param userId
+     * @param regimenIds
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateUserRegimens(Long userId, List<Long> regimenIds) throws Exception {
+        UserRegimeRelationInfo userRegimeRelationInfo = null;
+        for (Long regimenId : regimenIds) {
+            userRegimeRelationInfo = new UserRegimeRelationInfo();
+            userRegimeRelationInfo.setUserId(userId);
+            userRegimeRelationInfo.setRegimenId(regimenId);
+            int i = userRegimeRelationInfoMapper.updateUserRegimeRelationInfo(userRegimeRelationInfo);
+            if(i != 1){
+                throw new Exception();
+            }
+        }
+    }
+
+    /**
+     * 日期禁用（离职日期）
+     */
+    @Override
+    public void checkDimissionEcmpUser() {
+        List<Long> userIds= ecmpUserMapper.checkDimissionEcmpUserIds(DateFormatUtils.formatDate(DateFormatUtils.DATE_FORMAT,new Date()));
+        if (CollectionUtils.isNotEmpty(userIds)){
+            for (int i = 0; i < userIds.size(); i++) {
+                Long userId=userIds.get(i);
+                int count = ecmpUserMapper.updateDimissionEcmpUser(userId);
+                String it_is_driver = ecmpUserMapper.selectEcmpUserIsDirver(userId);
+                if("0".equals(it_is_driver)){
+                    driverInfoMapper.updateDriverUseStatus(userId,"NV00");
+                    /*清除用户token消息      delLoginUser(String token)*/
+                }
+            }
+        }
+    }
 
     /**
      * 员工邀请判断是否该手机号是否已经注册
@@ -295,4 +387,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.userItisExist(phoneNumber);
 
     }
+
+
+
 }

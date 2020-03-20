@@ -125,9 +125,14 @@ public interface EcmpUserMapper
     public int updateUserRegimeRelation(EcmpUserVo ecmpUser);
 
     /*
-     *查询手机号与邮箱是否已经存在
+     *查询手机号是否已经存在
      * */
-    public int selectPhoneAndEmailExist(@Param("phonenumber")String phonenumber,@Param("email")String email);
+    public int selectPhoneNumberExist(@Param("phonenumber")String phonenumber);
+
+    /*
+     *查询邮箱是否已经存在
+     * */
+    public int selectEmailExist(@Param("email")String email);
 
     /**
      * 逻辑删除员工信息
@@ -165,7 +170,7 @@ public interface EcmpUserMapper
     @param  userId员工编号
     * @return
     * */
-    public EcmpUserDto selectEcmpUserDetail(Long userId);
+    public EcmpUserDto selectEcmpUserDetail(@Param("userId")Long userId,@Param("roleName")String roleName);
 
     public int  queryCompanyEmp();
 
@@ -186,19 +191,42 @@ public interface EcmpUserMapper
     @param  dimissionTime
      * @return
     * */
-    public Long[] selectDimissionEcmpUserIds();
+    public List<Long> selectDimissionEcmpUserIds();
 
     /*已离职列表
     @param  userId
      * @return
     * */
-    public List<EcmpUserDto> selectDimissionList(Long userId);
+    public EcmpUserDto selectDimissionList(@Param("deptId") Long deptId,@Param("userId") Long userId);
+
+    /*查询当天离职的员工id
+    @param  userId
+     * @return
+    * */
+    public List<Long> checkDimissionEcmpUserIds(String dateOfTheDay);
+
+    /*修改当天离职的员工状态
+    @param  userId
+     * @return
+    * */
+    public int updateDimissionEcmpUser(Long userId);
+
+    /*查询员工是否为驾驶员
+    @param  userId
+     * @return
+    * */
+    public String selectEcmpUserIsDirver(Long userId);
+
+    /*根据员工编号获取拥有的角色名称
+   @param  userId
+    * @return
+   * */
+    public List<String> selectRoleNameByEcmpUserId(Long userId);
 
     /**
      * 员工邀请判断是否该手机号是否已经注册
      */
     public int userItisExist(String phoneNumber);
 
-    public List<EcmpUserDto> selectDimissionList(Long deptId,Long userId);
 }
 

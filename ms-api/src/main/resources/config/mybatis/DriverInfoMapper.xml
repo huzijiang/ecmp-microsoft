@@ -297,9 +297,14 @@ WHERE
         select count(1) from  driver_info where user_id in (select user_id from  ecmp_user where dept_id=#{deptId})
     </select>
 
-    <!--//禁用/启用  驾驶员-->
+    <!--//禁用/启用  驾驶员   关联公司/部门/员工-->
     <update id="updateUseStatus" >
       update  driver_info  set `state`=#{state} where user_id in (select user_id from  ecmp_user where dept_id=#{deptId})
+    </update>
+
+    <!--//禁用/启用  驾驶员   员工-->
+    <update id="updateDriverUseStatus" >
+      update  driver_info  set `state`=#{state} where user_id==#{userId})
     </update>
     <!--//邀请驾驶员是否已经是企业司机-->
     <select id="driverItisExist"  resultType="java.lang.Integer">
