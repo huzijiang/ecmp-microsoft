@@ -336,5 +336,10 @@ WHERE
      left  join  regime_info as ri on urri.regimen_id = ri.regimen_id
      where urri.user_id = #{userId}
 </select>
+    <select id="getUserOnlineCarLevels" resultType="java.lang.String" parameterType="long">
+        SELECT  use_car_mode_online_level
+        FROM regime_info
+        WHERE regimen_id = #{regimenId}
+</select>
 
 </mapper>
