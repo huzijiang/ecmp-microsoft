@@ -34,7 +34,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCarInfoVo">
-        select car_id, car_group_id, dept_id, car_type_id, car_license, state, car_type, seat_num, car_color, car_license_color, power_type, car_type_01, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, owner_org_id, create_by, create_time, update_by, update_time from car_info
+        select car_id, car_group_id, dept_id, car_type_id, car_license, state, car_type, seat_num, car_color, car_license_color, power_type, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, create_by, create_time, update_by, update_time from car_info
     </sql>
 
     <select id="selectCarInfoList" parameterType="com.hq.ecmp.mscore.domain.CarInfo" resultMap="CarInfoResult">
@@ -221,13 +221,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                     o.state in(
                     'S299','S500','S600','S616'
                     )
-                    <if test="carLevel != null ">   and ecti.`level`= #{carLevel}</if>
-                    <if test="carLicense != null ">   and c.car_license like CONCAT('%',#{carLicense},'%')</if>
-                    <if test="powerType != null ">    and c.power_type=#{powerType}</if>
-                    <if test="assetTag != null ">     and c.asset_tag like CONCAT('%',#{assetTag},'%')</if>
-                    <if test="carSource != null ">    and c.source=#{carSource}</if>
-                    <if test="carState != null ">    and c.state=#{carState}</if>
-                    <if test="cityId != null ">    and cgi.city=#{cityId}</if>
+                    <if test="carLevel != null and carLevel != ''">   and ecti.`level`= #{carLevel}</if>
+                    <if test="carLicense != null and carLicense != ''">   and c.car_license like CONCAT('%',#{carLicense},'%')</if>
+                    <if test="powerType != null and powerType != ''">    and c.power_type=#{powerType}</if>
+                    <if test="assetTag != null and assetTag != ''">     and c.asset_tag like CONCAT('%',#{assetTag},'%')</if>
+                    <if test="carSource != null and carSource != '' ">    and c.source=#{carSource}</if>
+                    <if test="carState != null and carState != '' ">    and c.state=#{carState}</if>
+                    <if test="cityId != null  and cityId != ''">    and cgi.city=#{cityId}</if>
                 </where>
     </select>
 </mapper>

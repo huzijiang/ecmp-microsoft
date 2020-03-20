@@ -25,7 +25,7 @@ public class ApplyUseWithTravelDto extends ParallelOrderDto {
 //    private String riderPhone;
 //    @ApiModelProperty(value = "预估金额")
 //    private String estimatedAmount;
-    @ApiModelProperty(value = "下单车型",notes = "P001-公务级\n" +
+    @ApiModelProperty(value = "下单车型，逗号分隔",notes = "P001-公务级\n" +
             "P002-行政级\n" +
             "P003-六座商务")
     private String groupId;
@@ -41,6 +41,8 @@ public class ApplyUseWithTravelDto extends ParallelOrderDto {
     private String   airlineNum;
     @ApiModelProperty(value = "航班计划出发日期,格式(yyyy-MM-dd HH:mm:ss)",notes = "接机时需传")
     private String   planDate;
+    @ApiModelProperty(value = "1.走调度（包含自有车）  2 直接约车（只有网约车）")
+    private int isDispatch;
 
 
 

@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.service.ICarInfoService;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +22,7 @@ import java.util.List;
  * @Version 1.0
  */
 @RestController
-@RequestMapping("/CarMonitor")
+@RequestMapping("/carMonitor")
 @Api(value = "后管车辆监控",tags = "车辆监控")
 public class CarMonitorController {
 
@@ -32,6 +33,7 @@ public class CarMonitorController {
      * 车辆检索和定位
      */
     @ApiOperation(value = "车辆检索")
+    @PostMapping("/locationCars")
     public ApiResponse<List<CarLocationVo>> locationCars(@RequestBody CarLocationDto carLocationDto){
         List<CarLocationVo> carLocationVos = null;
         try {
