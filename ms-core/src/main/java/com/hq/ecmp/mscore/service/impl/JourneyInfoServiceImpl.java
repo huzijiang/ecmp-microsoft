@@ -188,6 +188,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								carAuthorityInfo.setCarType(regimeInfo.getCanUseCarMode());
 								carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
 								carAuthorityInfo.setType(regimeInfo.getRegimenType());
+								carAuthorityInfo.setServiceType(journeyInfo.getServiceType());
 								//公务用车时间
 								carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());
 								//公务类型

@@ -27,9 +27,7 @@ public class CityController {
 	@ApiOperation(value = "getCityByName", notes = "据城市名称模糊搜索城市列表 ", httpMethod = "POST")
 	@PostMapping("/getCityByName")	
 	public ApiResponse<List<CityInfo>> getCityByName(String cityName) {
-		// 调用云端服务获取城市
-		//TODO
-		return null;
+		return ApiResponse.success(cityService.queryCityInfoListByCityName(cityName));
 	}
 	
 	@ApiOperation(value = "getIndexInfo", notes = "获取首页信息 ", httpMethod = "POST")

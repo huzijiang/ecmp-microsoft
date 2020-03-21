@@ -49,6 +49,8 @@ public class CarAuthorityInfo {
        
        String returnIsType;// 公务  T001-去程    T009-返程
        
+       String serviceType;//1000-即时用车    2000-预约用车   3000-接机   4000-送机   5000-包车
+       
        
        
        
