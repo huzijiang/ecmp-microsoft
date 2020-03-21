@@ -260,7 +260,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 
         //如果满足上述条件，执行删除操作
         if(ecmpOrgNum==0&&ecmpUserNum==0&&carNum==0){
-            int delFlag = ecmpOrgMapper.updateDelFlagById(deptId);
+            int delFlag = ecmpOrgMapper.updateDelFlagById(deptId,deptType);
             if(deptType.equals("1")){
                 if(delFlag==1){
                     return "删除分/子公司数据成功！";
