@@ -99,6 +99,10 @@ public class OrderInfo extends BaseEntity
 
     @JsonFormat( pattern = "yyyy-MM-dd HH:mm:ss")
     private Date flightPlanTakeOffTime;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String orderNumber;
+
 
     public OrderInfo(Long orderId, String state) {
         this.orderId = orderId;
@@ -129,6 +133,7 @@ public class OrderInfo extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
+            .append("orderNumber",getOrderNumber())
             .toString();
     }
 }

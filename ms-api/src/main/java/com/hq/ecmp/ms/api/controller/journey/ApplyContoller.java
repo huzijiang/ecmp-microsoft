@@ -285,7 +285,7 @@ public class ApplyContoller {
                 if(!optFlag){
                     return ApiResponse.error("生成用车权限失败");
                 }
-                orderInfoService.initOrder(journeyApplyDto.getApplyId(),applyInfo.getJourneyId(),userId);
+//                orderInfoService.initOrder(journeyApplyDto.getApplyId(),applyInfo.getJourneyId(),userId);
             }
         }catch (Exception e){
             e.printStackTrace();

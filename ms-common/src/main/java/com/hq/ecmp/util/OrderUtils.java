@@ -30,4 +30,12 @@ public class OrderUtils {
 
         return result.toString();
     }
+
+    /**
+     * 生成订单编号
+     * @return
+     */
+    public static  String getOrderNum(){
+        return generateOrderCode(6);
+    }
 }
