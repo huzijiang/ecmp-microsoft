@@ -4,13 +4,16 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.ms.api.dto.order.OrderEvaluationDto;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackImage;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackImageService;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
+import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.service.ZimgService;
 import com.hq.ecmp.util.FileUtils;
 import io.swagger.annotations.ApiOperation;
@@ -27,6 +30,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,6 +48,8 @@ public class EvaluationController {
     private IEcmpUserFeedbackInfoService feedbackInfoService;
     @Autowired
     private IEcmpUserFeedbackImageService feedbackImageService;
+    @Autowired
+    private IOrderStateTraceInfoService orderStateTraceInfoService;
     @Autowired
     private ZimgService zimgService;
     @Value("file.path.feedback")
@@ -80,6 +86,13 @@ public class EvaluationController {
                     }
                 }
             }
+            OrderStateTraceInfo stateTraceInfo=new OrderStateTraceInfo();
+            stateTraceInfo.setOrderId(evaluationDto.getOrderId());
+            stateTraceInfo.setContent(evaluationDto.getContent());
+            stateTraceInfo.setCreateBy(String.valueOf(loginUser.getUser().getUserId()));
+            stateTraceInfo.setCreateTime(new Date());
+            stateTraceInfo.setState(OrderStateTrace.OBJECTION.getState());
+            orderStateTraceInfoService.insertOrderStateTraceInfo(stateTraceInfo);
             return ApiResponse.success(ecmpUserFeedbackInfo.getFeedbackId());
         }catch (Exception e){
             e.printStackTrace();

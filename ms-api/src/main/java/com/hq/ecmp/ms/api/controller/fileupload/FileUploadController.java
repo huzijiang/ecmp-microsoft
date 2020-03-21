@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author xueyong
  */
 @RestController
-@RequestMapping("/file/v1")
+@RequestMapping("/file")
 public class FileUploadController {
 
     @Autowired

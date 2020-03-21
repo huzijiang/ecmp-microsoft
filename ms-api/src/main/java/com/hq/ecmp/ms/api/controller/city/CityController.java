@@ -3,6 +3,9 @@ package com.hq.ecmp.ms.api.controller.city;
 import java.util.List;
 import java.util.Map;
 
+import com.hq.ecmp.mscore.service.ChinaCityService;
+import org.etsi.uri.x01903.v13.impl.CertIDTypeImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +20,9 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/city")
 public class CityController {
+
+	@Autowired
+	private ChinaCityService cityService;
 	
 	@ApiOperation(value = "getCityByName", notes = "据城市名称模糊搜索城市列表 ", httpMethod = "POST")
 	@PostMapping("/getCityByName")	
