@@ -119,20 +119,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
        values
         <foreach collection="list" item="item" index="index" separator=",">
             (
-            #{orderId},
-           #{longitude}
-           #{latitude},
-           #{shortAddress},
-           #{fullAddress},
-           #{sortNumber},
-           #{arrivedTime},
-           #{duration},
-           #{leaveTime},
-           #{itIsPassed},
-           #{createBy},
-           #{createTime},
-           #{updateBy},
-           #{updateTime}
+            #{item.orderId},
+           #{item.longitude},
+           #{item.latitude},
+           #{item.shortAddress},
+           #{item.fullAddress},
+           #{item.sortNumber},
+           #{item.arrivedTime},
+           #{item.duration},
+           #{item.leaveTime},
+           #{item.itIsPassed},
+           #{item.createBy},
+           #{item.createTime},
+           #{item.updateBy},
+           #{item.updateTime}
             )
         </foreach>
     </insert>

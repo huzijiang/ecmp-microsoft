@@ -4,10 +4,7 @@ package com.hq.ecmp.mscore.service;
 import com.alibaba.fastjson.JSONObject;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
-import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
-import com.hq.ecmp.mscore.vo.OrderStateVO;
-import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.mscore.vo.*;
 
 import java.text.ParseException;
 import java.util.List;
@@ -149,7 +146,14 @@ public interface IOrderInfoService {
     */
     public boolean ownCarSendCar(Long orderId,Long driverId,Long carId,Long userId);
 
-    void initOrder(Long applyId, Long jouneyId, Long userId) throws Exception;
+    /**
+     * 公务下单（网约车派车）
+     * @param officialOrderReVo
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    Long officialOrder(OfficialOrderReVo officialOrderReVo, Long userId) throws Exception;
 
 
     /**
@@ -211,7 +215,7 @@ public interface IOrderInfoService {
      * @param applyUseWithTravelDto
      * @return
      */
-    public void applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws ParseException;
+    public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws ParseException;
 
 
     /**

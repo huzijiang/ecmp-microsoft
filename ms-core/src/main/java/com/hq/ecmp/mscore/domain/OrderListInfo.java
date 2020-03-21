@@ -29,5 +29,7 @@ public class OrderListInfo {
     private AddressVO setOutAddress;
     //到达地
     private AddressVO arriveAddress;
+    //订单编号
+    private String orderNumber;
 
 }

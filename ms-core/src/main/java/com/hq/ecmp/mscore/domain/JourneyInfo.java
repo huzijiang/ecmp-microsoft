@@ -98,6 +98,16 @@ public class JourneyInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String title;   // TODO 新增。标题
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date flightPlanTakeOffTime;   // TODO 新增。航班计划起飞时间
+
+    public Date getFlightPlanTakeOffTime() {
+        return flightPlanTakeOffTime;
+    }
+    public void setFlightPlanTakeOffTime(Date flightPlanTakeOffTime) {
+        this.flightPlanTakeOffTime = flightPlanTakeOffTime;
+    }
     public Date getStartDate() {
         return startDate;
     }

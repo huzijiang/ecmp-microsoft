@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
 import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
@@ -72,5 +73,7 @@ public interface JourneyUserCarPowerMapper
 	public Integer querySurplusNum(JourneyUserCarPower journeyUserCarPower);
 	
 	public Integer batchInsert(@Param("list")List<JourneyUserCarPower> list);
+	
+	public List<CarAuthorityInfo> queryJourneyAllUserAuthority(Long journeyId);
 
 }
