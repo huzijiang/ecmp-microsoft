@@ -129,8 +129,8 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 	}
 
 	@Override
-	public DispatchDriverInfo queryDispatchDriverInfo(Long orderId) {
-		return orderStateTraceInfoMapper.queryDispatchDriverInfo(orderId);
+	public DispatchDriverInfo queryReassignmentOrderInfo(Long orderId) {
+		return orderStateTraceInfoMapper.queryReassignmentOrderInfo(orderId);
 	}
 
 	@Override

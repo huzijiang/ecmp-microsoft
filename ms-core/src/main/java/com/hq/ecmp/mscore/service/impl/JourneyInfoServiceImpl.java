@@ -153,7 +153,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 					if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getRegimenType())){
 						CarAuthorityInfo carAuthorityInfo = new CarAuthorityInfo();
 						carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
-						carAuthorityInfo.setType(regimeInfo.parseApplyType());
+						carAuthorityInfo.setType(regimeInfo.getRegimenType());
 						//公务用车时间
 						carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());  //TODO  .toString() 适应性添加， zc
 						//差旅类型
@@ -175,21 +175,19 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 					
 					if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimeInfo.getRegimenType())){
 						//查询公务用车行程下面的用车权限
-						JourneyUserCarPower queryJourneyUserCarPower = new JourneyUserCarPower();
-						queryJourneyUserCarPower.setJourneyId(journeyInfo.getJourneyId());
-						List<JourneyUserCarPower> journeyUserCarPowerList = journeyUserCarPowerService.selectJourneyUserCarPowerList(queryJourneyUserCarPower);
+						List<CarAuthorityInfo> journeyUserCarPowerList = journeyUserCarPowerService.queryJourneyAllUserAuthority(journeyInfo.getJourneyId());
 						//判断该行程对应的用车制度是否是只有网约车
-						String useCarModel = regimeInfoService.queryUseCarModelByJourneyId(journeyInfo.getJourneyId());
+						String useCarModel = regimeInfo.getCanUseCarMode();
 						String[] split = useCarModel.split(",");
 						List<String> asList = Arrays.asList(split);
 						boolean flag = !asList.contains(CarConstant.USR_CARD_MODE_HAVE);// true-只有网约车
 						
 						if(null !=journeyUserCarPowerList && journeyUserCarPowerList.size()>0){
-							for (JourneyUserCarPower journeyUserCarPower : journeyUserCarPowerList) {
-								CarAuthorityInfo carAuthorityInfo = new CarAuthorityInfo();
-								carAuthorityInfo.setReturnIsType(journeyUserCarPower.getType());
+							for (CarAuthorityInfo carAuthorityInfo : journeyUserCarPowerList) {
+								carAuthorityInfo.setRegimenId(journeyInfo.getRegimenId());
+								carAuthorityInfo.setCarType(regimeInfo.getCanUseCarMode());
 								carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
-								carAuthorityInfo.setType(regimeInfo.parseApplyType());
+								carAuthorityInfo.setType(regimeInfo.getRegimenType());
 								//公务用车时间
 								carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());
 								//公务类型
@@ -200,11 +198,11 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								if(null !=applyInfoList && applyInfoList.size()>0){
 									carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
 								}
-								//公务用车用车方式(取订单里面的)
-								orderInfoMapper.queryUseCarMode(journeyUserCarPower.getPowerId());
+								//公务用车用车方式(取制度里面的)
+								List<String> queryUseCarMode = orderInfoMapper.queryUseCarMode(carAuthorityInfo.getTicketId());
 								carAuthorityInfo.setCarType(journeyInfo.getUseCarMode());
 								//查询公务用车的前端状态
-								carAuthorityInfo.setStatus(journeyUserCarPowerService.buildUserAuthorityPowerStatus(flag, journeyUserCarPower.getPowerId()));
+								carAuthorityInfo.setStatus(journeyUserCarPowerService.buildUserAuthorityPowerStatus(flag, carAuthorityInfo.getTicketId()));
 								carAuthorityInfoList.add(carAuthorityInfo);	
 							}
 						}

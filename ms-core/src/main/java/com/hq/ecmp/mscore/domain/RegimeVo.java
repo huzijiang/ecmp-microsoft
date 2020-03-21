@@ -8,7 +8,7 @@ public class RegimeVo {
 	Long regimeId;// 制度编号
 
 	/**
-	 * 用车制度类型 T001-公务用车 T002-差旅用车
+	 * 用车制度类型 A001-公务用车 A002-差旅用车
 	 */
 	String regimenType;
 

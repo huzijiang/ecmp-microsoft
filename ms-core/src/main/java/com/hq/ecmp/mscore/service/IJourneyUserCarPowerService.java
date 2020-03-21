@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import java.util.List;
 import java.util.Map;
 
+import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
 import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
@@ -77,6 +78,8 @@ public interface IJourneyUserCarPowerService
      * @return
      */
     public List<UserCarAuthority>  queryNoteAllUserAuthority(Long nodeId);
+    
+    public List<CarAuthorityInfo> queryJourneyAllUserAuthority(Long journeyId);
     
     /**
      * 查询行程下指定服务类型的用车权限
