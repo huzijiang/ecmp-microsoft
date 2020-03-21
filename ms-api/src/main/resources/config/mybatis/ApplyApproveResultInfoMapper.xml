@@ -172,7 +172,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectByUserId" resultMap="ApplyApproveResultInfoResult">
         <include refid="selectApplyApproveResultInfoVo"/>
-        where find_in_set(#{userId},approveUserId)
+        where find_in_set(#{userId},approve_user_id)
         <if test="state!=null">
             and state=#{state}
         </if>

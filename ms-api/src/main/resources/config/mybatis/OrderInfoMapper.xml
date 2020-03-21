@@ -287,10 +287,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              (select count(*) from journey_passenger_info where journey_id=o.journey_id) peopleCount
             from order_info o
             inner join journey_info jn on o.journey_id=jn.journey_id
-            inner join order_address_info s on  s.order_id=o.order_id
-            inner join order_address_info t on  t.order_id=o.order_id
+            inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
+            inner join order_address_info t on  t.order_id=o.order_id and t.type='A999'
             inner join car_info c on c.car_id=o.car_id
-            where o.order_id=#{orderId} and s.type='A000' and t.type='A999'
+            where o.order_id=#{orderId}
     </select>
 
     <select id="driverOrderUndoneList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">

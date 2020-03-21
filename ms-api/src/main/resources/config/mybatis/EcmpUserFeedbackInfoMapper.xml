@@ -35,7 +35,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where feedback_id = #{feedbackId}
     </select>
 
-    <insert id="insertEcmpUserFeedbackInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo">
+    <insert id="insertEcmpUserFeedbackInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo" useGeneratedKeys="true" keyProperty="feedbackId">
         insert into ecmp_user_feedback_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="feedbackId != null ">feedback_id,</if>
