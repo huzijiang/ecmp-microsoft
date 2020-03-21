@@ -655,7 +655,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		// 新增订单状态流转记录
 		OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
 		OrderInfo orderInfo = new OrderInfo();
-		// 判读该单子是否是改派单
+		/*// 判读该单子是否是改派单
 		if (iOrderStateTraceInfoService.isReassignment(orderId)) {
 			// 是改派单
 			orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.getState());
@@ -664,7 +664,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			//申请单
 			orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
 			orderInfo.setState(OrderState.ALREADYSENDING.getState());
-		}
+		}*/
+		orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
+		orderInfo.setState(OrderState.ALREADYSENDING.getState());
 		// 查询司机信息
 		DriverInfo driverInfo = driverInfoService.selectDriverInfoById(driverId);
 		orderInfo.setOrderId(orderId);

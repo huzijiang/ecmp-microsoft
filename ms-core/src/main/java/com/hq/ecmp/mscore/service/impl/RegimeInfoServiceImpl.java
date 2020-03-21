@@ -275,7 +275,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	}
 
 	@Override
-	public String queryUseCarModelByNoteId(Long noteId) {
+	public RegimeInfo queryUseCarModelByNoteId(Long noteId) {
 		return regimeInfoMapper.queryUseCarModelByNoteId(noteId);
 	}
 

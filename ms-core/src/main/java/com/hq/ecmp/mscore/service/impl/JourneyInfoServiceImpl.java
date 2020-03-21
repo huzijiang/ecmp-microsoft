@@ -20,6 +20,7 @@ import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
+import com.hq.ecmp.mscore.service.ChinaCityService;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
@@ -53,6 +54,9 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
     
     @Autowired
     private OrderInfoMapper orderInfoMapper;
+    
+    @Autowired
+    private ChinaCityService chinaCityService;
     
 
     /**
@@ -177,6 +181,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 						if(null !=journeyUserCarPowerList && journeyUserCarPowerList.size()>0){
 							for (JourneyUserCarPower journeyUserCarPower : journeyUserCarPowerList) {
 								CarAuthorityInfo carAuthorityInfo = new CarAuthorityInfo();
+								carAuthorityInfo.setReturnIsType(journeyUserCarPower.getType());
 								carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
 								carAuthorityInfo.setType(regimeInfo.parseApplyType());
 								//公务用车时间
@@ -218,6 +223,8 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 			for (JourneyNodeInfo journeyNodeInfo : journeyNodeInfoList) {
 				UserAuthorityGroupCity userAuthorityGroupCity = new UserAuthorityGroupCity();
 				userAuthorityGroupCity.setCityName(journeyNodeInfo.getPlanBeginAddress());
+				userAuthorityGroupCity.setVehicle(journeyNodeInfo.getVehicle());
+				userAuthorityGroupCity.setCityId(chinaCityService.queryCityCodeByCityName(journeyNodeInfo.getPlanBeginAddress()));//城市编号
 				//获取行程节点下的所有用户用车权限
 				userAuthorityGroupCity.setUserCarAuthorityList(journeyUserCarPowerService.queryNoteAllUserAuthority(journeyNodeInfo.getNodeId()));
 				userAuthorityGroupCityList.add(userAuthorityGroupCity);

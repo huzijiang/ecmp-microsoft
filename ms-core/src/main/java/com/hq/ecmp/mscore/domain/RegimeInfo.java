@@ -100,6 +100,10 @@ public class RegimeInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String allowCityRoundTravel;
     
+    private String travelSetoutEqualArrive;
+    
+    private String asSetoutEqualArrive;
+    
     public String parseApplyType(){
     	if(StringUtil.isEmpty(this.regimenType)){
     		return "";
