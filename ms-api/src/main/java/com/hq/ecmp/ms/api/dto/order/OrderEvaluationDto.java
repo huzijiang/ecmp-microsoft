@@ -31,5 +31,5 @@ public class OrderEvaluationDto {
 
     /**图片路径*/
 //    private List<MultipartFile> files;
-    private List<String> imgUrls;
+    private String imgUrls;
 }
