@@ -89,9 +89,6 @@ public class EcmpUserVo {
     @ApiModelProperty(value= "驻地代码")
     private String stationCode;
 
-    @ApiModelProperty(value= "用车制度id")
-    private String regimenId;
-
     @ApiModelProperty(value= "离职日期")
     private Date dimissionTime;
 
@@ -111,9 +108,15 @@ public class EcmpUserVo {
     private String  dateOfTheDay;
 
     @ApiModelProperty(value= "用车制度id集合")
-    private List<Long> regimenIds;
+    private List<Long> regimenId;
 
     @ApiModelProperty(value= "用户拥有的角色名称")
     private List<String> roleName;
+
+    @ApiModelProperty(value= "归属部门")
+    private String subDept;
+
+    @ApiModelProperty(value= "归属公司")
+    private String subCompany;
 
 }
