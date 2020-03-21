@@ -215,7 +215,7 @@ update regime_info set status=#{status},update_by=#{optUserId},update_time=now()
 </update>
 
 <select id="queryRegimeType" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeInfo">
-select regimen_type as  regimenType from regime_info where regimen_id=#{regimeId}
+select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regime_info where regimen_id=#{regimeId}
 </select>
     <select id="selectRegimenVOById" resultType="com.hq.ecmp.mscore.vo.RegimenVO" parameterType="long">
         select name,template_id as templateId,can_use_car_mode as canUseCarMode
