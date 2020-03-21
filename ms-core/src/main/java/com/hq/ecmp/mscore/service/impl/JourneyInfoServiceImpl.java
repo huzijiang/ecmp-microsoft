@@ -7,16 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.hq.ecmp.constant.CharterTypeEnum;
-import com.hq.ecmp.constant.CommonConstant;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
+import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.SortListUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
@@ -272,23 +271,30 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	@Override
 	public JourneyDetailVO getItineraryDetail(Long powerId)throws Exception {
         JourneyDetailVO vo=new JourneyDetailVO();
+		vo.setPowerId(powerId);
 		JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerService.selectJourneyUserCarPowerById(powerId);
 		if (journeyUserCarPower==null||CarConstant.YES_USER_USE_CAR.equals(journeyUserCarPower.getState())){
 			throw new Exception(powerId+"此用车权限以使用");
 		}
-        Long applyId = journeyUserCarPower.getApplyId();
-        String itIsReturn = journeyUserCarPower.getItIsReturn();
-        ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(applyId);
-        if (applyInfo==null){
-            throw new Exception(applyId+"此申请单不存在");
-        }
-        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
-        vo.setApplyType(applyInfo.getApplyType());
-        vo.setServiceType(journeyInfo.getServiceType());
-        vo.setCharterCarType(CharterTypeEnum.format(journeyInfo.getCharterCarType()));
-        vo.setPowerId(powerId);
+		Long applyId = journeyUserCarPower.getApplyId();
+		String itIsReturn = journeyUserCarPower.getItIsReturn();
+		ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(applyId);
+		if (applyInfo==null){
+			throw new Exception(applyId+"此申请单不存在");
+		}
+		vo.setApplyType(applyInfo.getApplyType());
+		JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
+		vo.setServiceType(OrderServiceType.format(journeyInfo.getServiceType()));
+		vo.setCharterCarType(CharterTypeEnum.format(journeyInfo.getCharterCarType()));
+		vo.setUseCarMode(journeyInfo.getUseCarMode());
+		vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,journeyInfo.getUseCarTime()));
+		if (ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(applyInfo.getApplyType())){
+			return vo;
+		}
         List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoService.selectJourneyNodeInfoList(new JourneyNodeInfo(journeyUserCarPower.getJourneyId()));
         if (CollectionUtils.isNotEmpty(journeyNodeInfos)){
+			vo.setStartCityCode(journeyNodeInfos.get(0).getPlanBeginCityCode());
+			vo.setEndCityCode(journeyNodeInfos.get(0).getPlanEndCityCode());
             int size = journeyNodeInfos.size();
             SortListUtil.sort(journeyNodeInfos,"nodeId",SortListUtil.ASC);
             if (CommonConstant.IS_RETURN.equals(itIsReturn)){//是往返

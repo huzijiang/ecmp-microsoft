@@ -44,4 +44,14 @@ public enum OrderServiceType {
     public void setBcState(String bcState) {
         this.bcState = bcState;
     }
+
+    public static String format(String key){
+        OrderServiceType[] values = OrderServiceType.values();
+        for (OrderServiceType orderServiceType:values){
+            if (orderServiceType.bcState.equals(key)){
+                return orderServiceType.stateName;
+            }
+        }
+        return null;
+    }
 }

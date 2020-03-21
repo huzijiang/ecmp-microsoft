@@ -138,8 +138,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         approve_result approveResult,content,
         if (approve_result='pass' or approve_result='fail',approve_result,state) state
         from apply_approve_result_info
-        where 1=1 <if test="state!=null and state!=''">and state!=#{state}</if>
-        and(find_in_set(#{userId},approve_user_id))
+        where find_in_set(#{userId},approve_user_id)
+         <if test="state!=null and state!=''">and state!=#{state}</if>
         order by
         case when state='ST01' then create_time end asc,update_time desc
     </select>

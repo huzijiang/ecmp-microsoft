@@ -26,6 +26,8 @@ public class JourneyDetailVO {
     private String useCarMode;
     @ApiModelProperty(name = "powerId",value = "权限id")
     private Long powerId;
+    @ApiModelProperty(name = "useCarTime",value = "用车时间")
+    private String useCarTime;
     @ApiModelProperty(name = "endLatitude",value = "下车地纬度")
     private String endLatitude;//纬度
     @ApiModelProperty(name = "endLongitude",value = "下车地经度")
@@ -34,4 +36,9 @@ public class JourneyDetailVO {
     private String startLatitude;//纬度
     @ApiModelProperty(name = "startLongitude",value = "上车地经度")
     private String startLongitude;//经度
+    @ApiModelProperty(name = "startCityCode",value = "出发地城市code")
+    private String startCityCode;//纬度
+    @ApiModelProperty(name = "endCityCode",value = "目的地城市code")
+    private String endCityCode;//经度
+
 }

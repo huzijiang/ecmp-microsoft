@@ -426,8 +426,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
             if (carInfo!=null){
                 BeanUtils.copyProperties(carInfo,vo);
+                vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
             }
-            vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
             DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
             vo.setDriverScore(driverInfo.getStar()+"");
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
