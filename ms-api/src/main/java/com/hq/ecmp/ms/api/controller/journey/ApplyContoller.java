@@ -420,7 +420,7 @@ public class ApplyContoller {
                list=new ArrayList<>();
                if (StringUtils.isNotBlank(approveUserId)){
                    List<EcmpUser> userList=ecmpUserService.selectUserListByUserIds(approveUserId);
-                   if (userList == null) {
+                   if (CollectionUtils.isNotEmpty(userList)) {
                        for (EcmpUser user:userList){
                            ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO(resultInfo.getApproveNodeId(), user.getNickName(), user.getPhonenumber(), ApproveStateEnum.format(appresult), ApproveStateEnum.format(state));
                            approvalInfoVO.setContent(resultInfo.getContent());
