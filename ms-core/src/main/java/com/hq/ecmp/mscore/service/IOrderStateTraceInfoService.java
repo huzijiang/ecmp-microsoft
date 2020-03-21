@@ -84,7 +84,7 @@ public interface IOrderStateTraceInfoService
      * 查询驾驶员发起改派的信息
      * @return
      */
-    public DispatchDriverInfo queryDispatchDriverInfo(Long orderId);
+    public DispatchDriverInfo queryReassignmentOrderInfo(Long orderId);
     
     /**
      * 查询调度已完成的订单派车信息

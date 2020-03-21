@@ -50,7 +50,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	a.driver_name AS driverName,
 	a.driver_mobile AS driverTel,
 	f.car_type as carType,
-	f.car_license AS carLicense
+	f.car_license AS carLicense,
+	h.regimen_id as regimenId
 FROM
 	order_info a
 LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
@@ -58,6 +59,7 @@ LEFT JOIN journey_node_info c ON a.node_id = c.node_id
 LEFT JOIN apply_info d ON b.apply_id = d.apply_id
 LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 LEFT JOIN car_info f  ON a.car_id=f.car_id
+LEFT JOIN journey_info h on a.journey_id=h.journey_id
     </sql>
 
     <select id="selectOrderInfoList" parameterType="com.hq.ecmp.mscore.domain.OrderInfo" resultMap="OrderInfoResult">
@@ -357,7 +359,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 	a.actual_setout_time AS useCarDate,
 	a.actual_arrive_address AS endSite,
 	a.actual_arrive_time AS endDate, -->
-	h.use_car_mode AS useCarMode
+	h.use_car_mode AS useCarMode,
+	h.regimen_id as regimenId
 FROM
 	order_info a
 LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
