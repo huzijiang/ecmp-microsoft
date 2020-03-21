@@ -10,6 +10,7 @@ import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.dto.config.ApproveTemplateIDTO;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
@@ -19,18 +20,15 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @Author: zj.hu
- * @Date: 2019-12-31 13:18
+ * @Author: caobj
+ * @Date: 2019-3-19 13:18
  */
 @RestController
 @RequestMapping("/flow")
@@ -39,96 +37,99 @@ public class FlowContoller {
     @Autowired
     private IApplyInfoService applyInfoService;
     @Autowired
-    private IJourneyInfoService journeyInfoService;
-    @Autowired
-    private IOrderInfoService orderInfoService;
-    @Autowired
     private TokenService tokenService;
     @Autowired
-    private IApplyApproveResultInfoService resultInfoService;
-    @Autowired
-    private IRegimeInfoService regimeInfoService;
+    private IApproveTemplateInfoService templateInfoService;
     @Autowired
     private IApproveTemplateNodeInfoService nodeInfoService;
-    @Autowired
-    private IEcmpUserService ecmpUserService;
-    @Autowired
-    private EcmpMessageService ecmpMessageService;
-    @Autowired
-    private IJourneyUserCarPowerService journeyUserCarPowerService;
 
 
 
     /**
-     *
-     * @param  journeyCommitApplyDto  行程申请信息
+     *添加审批流
      * @param
      * @return
      */
     @Deprecated()
-    @ApiOperation(value = "applyCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
-    @PostMapping("/applyCommit")
-    public ApiResponse   applyCommit(JourneyCommitApplyDto journeyCommitApplyDto){
+    @ApiOperation(value = "addFlowTemplate",notes = "添加审批流 ",httpMethod ="POST")
+    @PostMapping("/addFlowTemplate")
+    public ApiResponse addFlowTemplate(@RequestBody AddFolwDTO addFolwDTO){
         //提交行程申请
-        applyInfoService.applyCommit(journeyCommitApplyDto);
+        try{
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            nodeInfoService.addFlowTemplate(addFolwDTO,loginUser.getUser().getUserId());
+        }catch (Exception e){
+            return ApiResponse.success();
+        }
         return ApiResponse.success();
     }
 
     /**
-     * 员工提交公务行程申请
-     * @param  officialCommitApply  行程申请信息
+     *审批流列表
      * @param
      * @return
      */
-    @ApiOperation(value = "applyOfficialCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
-    @PostMapping("/applyOfficialCommit")
-    public ApiResponse<ApplyVO>   applyOfficialCommit(@RequestBody ApplyOfficialRequest officialCommitApply){
+    @Deprecated()
+    @ApiOperation(value = "flowTemplateList",notes = "审批流列表 ",httpMethod ="POST")
+    @PostMapping("/flowTemplateList")
+    public ApiResponse<List<ApprovaTemplateVO>> flowTemplateList(){
+        //提交行程申请
+        List<ApprovaTemplateVO> list=templateInfoService.getTemplateList();
+        return ApiResponse.success(list);
+    }
+
+    /**
+     *审批流详情
+     * @param
+     * @return
+     */
+    @Deprecated()
+    @ApiOperation(value = "flowTemplateDetail",notes = "审批流详情 ",httpMethod ="GET")
+    @PostMapping("/flowTemplateDetail")
+    public ApiResponse<ApprovaTemplateVO> flowTemplateDetail(@RequestBody ApproveTemplateIDTO templateIDTO){
+        //提交行程申请
+        ApprovaTemplateVO vo=templateInfoService.flowTemplateDetail(templateIDTO.getApproveTemplateId());
+        return ApiResponse.success(vo);
+    }
+
+
+    /**
+     * 编辑审批流
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "editFlowTemplate",notes = "编辑审批流",httpMethod ="POST")
+    @PostMapping("/editFlowTemplate")
+    public ApiResponse editFlowTemplate(@RequestBody AddFolwDTO addFolwDTO){
         //提交公务行程申请
-        ApplyVO applyVO = null;
         try {
-            applyVO = applyInfoService.applyOfficialCommit(officialCommitApply);
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            nodeInfoService.editFlowTemplate(addFolwDTO,loginUser.getUser().getUserId());
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("提交公务申请失败");
+            return ApiResponse.error("编辑审批流失败");
         }
-        return ApiResponse.success("提交申请成功",applyVO);
+        return ApiResponse.success("编辑审批流成功"+addFolwDTO.getApproveTemplateId());
     }
 
     /**
-     * 员工提交差旅行程申请
-     * @param  travelCommitApply  行程申请信息
-     * @param
+     * 删除审批流
      * @return
      */
-    @ApiOperation(value = "applyTravelCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
-    @PostMapping("/applyTravelCommit")
-    public ApiResponse<ApplyVO>  applyTravelCommit(@RequestBody ApplyTravelRequest travelCommitApply){
-        //提交差旅行程申请
-        ApplyVO applyVO = null;
+    @ApiOperation(value = "deleteFlow",notes = "删除审批流 ",httpMethod ="POST")
+    @PostMapping("/deleteFlow")
+    public ApiResponse deleteFlow(@RequestBody ApproveTemplateIDTO templateIDTO){
         try {
-            applyVO = applyInfoService.applytravliCommit(travelCommitApply);
-
+            templateInfoService.deleteFlow(templateIDTO.getApproveTemplateId());
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("提交差旅申请失败");
+            return ApiResponse.error("删除模板失败");
         }
-        return ApiResponse.success("提交申请成功",applyVO);
+        return ApiResponse.success("删除模板成功:"+templateIDTO.getApproveTemplateId());
     }
 
-    /**
-     * 获取行程申请 对应的审批流信息
-     * @param journeyApplyDto  申请信息
-     * @return
-     */
-    @ApiOperation(value = "getApplyApproveNodesInfo",notes = "获取行程申请 对应的审批流信息 ",httpMethod ="POST")
-    @PostMapping("/getApplyApproveNodesInfo")
-    public ApiResponse   getApplyApproveNodesInfo(JourneyApplyDto journeyApplyDto){
-        if (ObjectUtils.isNotEmpty(journeyApplyDto)){
-            JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyApplyDto.getJouneyId());
-            return ApiResponse.success(journeyInfo);
-        }
-        return ApiResponse.error("获取行程申请对应的审批流信息异常");
-    }
 
 
 }

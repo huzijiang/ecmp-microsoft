@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApproveTemplateInfo;
+import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -61,4 +62,6 @@ public interface ApproveTemplateInfoMapper
      * @return 结果
      */
     public int deleteApproveTemplateInfoByIds(Long[] approveTemplateIds);
+
+    List<ApprovaTemplateVO> getTemplateList();
 }

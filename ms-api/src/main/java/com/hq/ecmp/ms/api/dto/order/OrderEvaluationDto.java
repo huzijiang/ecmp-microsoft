@@ -1,16 +1,19 @@
 package com.hq.ecmp.ms.api.dto.order;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiParam;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @Author: zj.hu
  * @Date: 2020-01-04 15:32
  */
 @Data
+@JsonIgnoreProperties({" hibernateLazyInitializer","handler"})
 public class OrderEvaluationDto {
 
     /**
@@ -26,10 +29,7 @@ public class OrderEvaluationDto {
      */
     private  String content;
 
-    /** 建议*/
-    private String result;
-
     /**图片路径*/
-    private MultipartFile[] files;
-    private String[] imgUrls;
+//    private List<MultipartFile> files;
+    private List<String> imgUrls;
 }

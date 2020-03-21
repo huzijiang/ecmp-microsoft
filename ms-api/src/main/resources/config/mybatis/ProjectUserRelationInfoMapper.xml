@@ -73,7 +73,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from project_user_relation_info t
         inner join ecmp_user a on a.user_id=t.user_id
         inner join ecmp_org b on b.dept_id=a.dept_id
-        inner join ecmp_org c on c.dept_id=b.company_id
+        inner join ecmp_org c on c.dept_id=b.parent_id
         where
         t.project_id=#{projectId}
         <if test="search!=null">

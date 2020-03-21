@@ -51,6 +51,10 @@ public class EcmpConfig extends BaseEntity {
 
     }
 
+    public EcmpConfig(String configKey) {
+        this.configKey = configKey;
+    }
+
     public void setConfigId(Integer configId) {
         this.configId = configId;
     }

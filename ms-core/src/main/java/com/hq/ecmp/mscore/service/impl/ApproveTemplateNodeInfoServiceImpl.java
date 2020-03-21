@@ -1,10 +1,21 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.List;
+import java.util.*;
+
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.ApplyTypeEnum;
+import com.hq.ecmp.constant.ApproveTypeEnum;
+import com.hq.ecmp.mscore.domain.ApproveTemplateInfo;
 import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
+import com.hq.ecmp.mscore.dto.AddFolwDTO;
+import com.hq.ecmp.mscore.dto.FolwInfoDTO;
+import com.hq.ecmp.mscore.mapper.ApproveTemplateInfoMapper;
 import com.hq.ecmp.mscore.mapper.ApproveTemplateNodeInfoMapper;
+import com.hq.ecmp.mscore.mapper.EcmpUserRoleMapper;
 import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
+import com.hq.ecmp.mscore.vo.ApprovalListVO;
+import com.hq.ecmp.util.SortListUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +31,10 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
 {
     @Autowired
     private ApproveTemplateNodeInfoMapper approveTemplateNodeInfoMapper;
+    @Autowired
+    private ApproveTemplateInfoMapper approveTemplateInfoMapper;
+    @Autowired
+    private EcmpUserRoleMapper userRoleMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -99,5 +114,58 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
     public String getListByNodeIds(List<Long> nodeIds) {
 
         return approveTemplateNodeInfoMapper.getListByNodeIds(nodeIds);
+    }
+
+    @Override
+    public void addFlowTemplate(AddFolwDTO addFolwDTO,Long userId) throws Exception {
+        ApproveTemplateInfo approveTemplateInfo = new ApproveTemplateInfo();
+        approveTemplateInfo.setName(addFolwDTO.getName());
+        approveTemplateInfo.setCreateBy(String.valueOf(userId));
+        approveTemplateInfo.setCreateTime(new Date());
+        int count = approveTemplateInfoMapper.insertApproveTemplateInfo(approveTemplateInfo);
+        List<FolwInfoDTO> flowList = addFolwDTO.getFlowList();
+        if (CollectionUtils.isNotEmpty(flowList)){
+            SortListUtil.sort(flowList, "number", SortListUtil.DESC);
+            String nextNodeId="0";
+            for (int i=0;i<flowList.size();i++){
+                ApproveTemplateNodeInfo nodeInfo=new ApproveTemplateNodeInfo();
+                nodeInfo.setApproverType(flowList.get(i).getType());
+                nodeInfo.setApproveTemplateId(approveTemplateInfo.getApproveTemplateId());
+                nodeInfo.setRoleId(flowList.get(i).getRoleIds());
+                nodeInfo.setNextNodeId(nextNodeId);
+                nodeInfo.setCreateBy(String.valueOf(userId));
+                nodeInfo.setCreateTime(new Date());
+                if (ApproveTypeEnum.APPROVE_T002.getKey().equals(flowList.get(i).getType())){
+                    String userIds=userRoleMapper.findUserIds(flowList.get(i).getRoleIds());
+                    nodeInfo.setUserId(userIds);
+                }else{
+                    nodeInfo.setUserId(flowList.get(i).getUserIds());
+                }
+                approveTemplateNodeInfoMapper.insertApproveTemplateNodeInfo(nodeInfo);
+                nextNodeId=String.valueOf(nodeInfo.getApproveNodeId());
+            }
+        }
+    }
+
+    @Override
+    public void editFlowTemplate(AddFolwDTO addFolwDTO,Long userId) throws Exception {
+        ApproveTemplateInfo approveTemplateInfo = approveTemplateInfoMapper.selectApproveTemplateInfoById(addFolwDTO.getApproveTemplateId());
+        if (approveTemplateInfo==null){
+            throw new Exception("无此模板审批流");
+        }
+        if (!approveTemplateInfo.getName().equals(addFolwDTO.getName())){
+            approveTemplateInfo.setName(addFolwDTO.getName());
+            approveTemplateInfo.setUpdateBy(String.valueOf(userId));
+            approveTemplateInfo.setUpdateTime(new Date());
+            approveTemplateInfoMapper.updateApproveTemplateInfo(approveTemplateInfo);
+        }
+        List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(addFolwDTO.getApproveTemplateId()));
+
+        List<FolwInfoDTO> flowList = addFolwDTO.getFlowList();
+        if (CollectionUtils.isNotEmpty(flowList)){
+            SortListUtil.sort(flowList, "number", SortListUtil.DESC);
+
+        }
+
     }
 }

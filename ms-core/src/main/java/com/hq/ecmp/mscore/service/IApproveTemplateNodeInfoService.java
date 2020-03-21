@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
+import com.hq.ecmp.mscore.dto.AddFolwDTO;
 
 import java.util.List;
 
@@ -62,4 +63,8 @@ public interface IApproveTemplateNodeInfoService
 
     //根据节点id查询所有审批节点用户id
     String getListByNodeIds(List<Long> nodeIds);
+
+    void addFlowTemplate(AddFolwDTO addFolwDTO,Long userId)throws Exception ;
+
+    void editFlowTemplate(AddFolwDTO addFolwDTO,Long userId)throws Exception ;
 }

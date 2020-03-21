@@ -91,7 +91,7 @@ public interface DriverInfoMapper
     public int selectDriverCountByDeptId(Long deptId);
 
     /**
-     * 禁用/启用  驾驶员
+     * 禁用/启用  驾驶员--关联公司/部门/员工
      *
      * @param deptId 部门ID
      * @param state 状态 W001 待审   V000 生效中   NV00 失效
@@ -107,6 +107,15 @@ public interface DriverInfoMapper
      * @return 结果
      */
     public int updateDriverStatus(@Param("driverId") Long driverId, @Param("state") String state);
+
+    /**
+     * 禁用/启用  驾驶员--关联员工
+     *
+     * @param userId 部门ID
+     * @param state 状态 W001 待审   V000 生效中   NV00 失效
+     * @return 结果
+     */
+    public int updateDriverUseStatus(@Param("userId") Long userId, @Param("state") String state);
 
     /**
      * 查询车辆可用驾驶员

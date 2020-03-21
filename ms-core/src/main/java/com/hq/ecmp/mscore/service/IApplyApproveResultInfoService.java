@@ -79,4 +79,6 @@ public interface IApplyApproveResultInfoService
     List<ApprovalInfoVO> getApproveResultList(ApplyApproveResultInfo applyApproveResultInfo);
 
     List<ApplyApproveResultInfo> selectApproveResultByNodeids(String nextNodeId,String state);
+
+    List<ApplyApproveResultInfo> selectByUserId(Long applyId, Long userId,String state);
 }

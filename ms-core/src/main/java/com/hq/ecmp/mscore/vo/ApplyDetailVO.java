@@ -23,7 +23,6 @@ public class ApplyDetailVO {
      * 申请ID
      */
     private Long applyId;
-
     /**
      * 行程ID
      */
@@ -69,7 +68,6 @@ public class ApplyDetailVO {
      */
     @ApiModelProperty(name = "partner",value = "同行人（多个，分隔）")
     private String partner;
-
     /**
      * 地址
      */
@@ -119,12 +117,10 @@ public class ApplyDetailVO {
      * 申请单包含的用车权限
      */
     //  private List<TicketVO> tickets;  TODO 这个用不着吧
-
     /**
      * 行程描述（仅差旅申请）
      */
     private TripDescription tripDescription;
-
     private Date time;
     private Date startDate;
     private Date endDate;

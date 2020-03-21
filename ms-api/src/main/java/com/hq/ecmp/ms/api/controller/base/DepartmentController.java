@@ -104,9 +104,9 @@ public class DepartmentController {
      * @param  deptId
      * @return*/
     /*@ApiOperation(value = "部门编号验证",notes = "部门编号验证",httpMethod ="GET")
-    @GetMapping("/getCheckingDepcCompanyId")
-    public ApiResponse getCheckingDepcCompanyId(Long deptId){
-        int companyIdNum = orgService.getCheckingDepcCompanyId(deptId);
+    @PostMapping("/getCheckingDeptCode")
+    public ApiResponse getCheckingDeptCode(Long deptId){
+        int companyIdNum = orgService.getCheckingDeptCode(deptId);
         if(companyIdNum==0){
             return ApiResponse.success("编号可用!");
         }

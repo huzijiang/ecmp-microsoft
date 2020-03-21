@@ -95,6 +95,8 @@ public class RegimeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long allowDateRoundTravel;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String ruleCity;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -117,4 +119,7 @@ public class RegimeInfo extends BaseEntity
     	return "未知类型的用车";
     }
 
+    public RegimeInfo(Long approveTemplateId) {
+        this.approveTemplateId = approveTemplateId;
+    }
 }

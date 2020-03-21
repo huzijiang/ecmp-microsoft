@@ -1,7 +1,7 @@
 package com.hq.ecmp.constant;
 
 public interface CarConstant {
-    String USE_CAR_TYPE_OFFICIAL="T001";//公务
+    String 	USE_CAR_TYPE_OFFICIAL="T001";//公务
 	
 	String USE_CAR_TYPE_TRAVEL="T002";//差旅
 	

@@ -284,4 +284,13 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		
 		return null;
 	}
+
+	/**
+	 * 获取用户可用网约车型
+	 * @return
+	 */
+	@Override
+	public String getUserOnlineCarLevels(Long regimenId) {
+		return regimeInfoMapper.getUserOnlineCarLevels(regimenId);
+	}
 }

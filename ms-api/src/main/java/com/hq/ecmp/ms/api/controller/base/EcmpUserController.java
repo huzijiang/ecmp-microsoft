@@ -3,6 +3,7 @@ package com.hq.ecmp.ms.api.controller.base;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.UserReqimensDTO;
+import com.hq.ecmp.mscore.mapper.EcmpUserRoleMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import io.swagger.annotations.Api;
@@ -22,6 +23,8 @@ public class EcmpUserController {
     @Autowired
     private IEcmpUserService ecmpUserService;
 
+
+
     /*
      * 新增员工信息
      * @param  ecmpUser
@@ -35,8 +38,16 @@ public class EcmpUserController {
         int i = ecmpUserService.addEcmpUser(ecmpUser);
         /*保存用车制度 （多个）*/
 
-        /*保存用户角色信息*/
-
+        String phonenumber=ecmpUser.getPhonenumber();
+        String email=ecmpUser.getEmail();
+        int a = ecmpUserService.selectPhoneNumberExist(phonenumber);
+        if(a>0){
+            return ApiResponse.error("此手机号已存在请重新输入");
+        }
+        int b = ecmpUserService.selectEmailExist(email);
+        if(b>0){
+            return ApiResponse.error("此邮箱已存在请重新输入");
+        }
         if (i == 1){
             return ApiResponse.success("添加员工成功!");
         }else {
@@ -204,9 +215,6 @@ public class EcmpUserController {
         List<EcmpUserDto>  dimissionList= ecmpUserService.selectDimissionList(deptId);
         return ApiResponse.success(dimissionList);
     }
-
-    /*日期禁用（离职日期）*/
-
 
     /**
      * 给员工设置用车制度

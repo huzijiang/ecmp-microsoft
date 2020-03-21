@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.ApproveTemplateInfo;
+import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
 
 import java.util.List;
 
@@ -59,4 +60,10 @@ public interface IApproveTemplateInfoService
      * @return 结果
      */
     public int deleteApproveTemplateInfoById(Long approveTemplateId);
+
+    List<ApprovaTemplateVO> getTemplateList();
+
+    ApprovaTemplateVO flowTemplateDetail(Long templateId);
+
+    void deleteFlow(Long approveTemplateId) throws Exception;
 }
