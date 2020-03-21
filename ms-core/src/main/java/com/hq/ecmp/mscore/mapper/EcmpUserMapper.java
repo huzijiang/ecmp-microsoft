@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.mscore.vo.UserVO;
@@ -171,7 +172,7 @@ public interface EcmpUserMapper
     @param  userId员工编号
     * @return
     * */
-    public EcmpUserDto selectEcmpUserDetail(@Param("userId")Long userId,@Param("roleName")String roleName);
+    public EcmpUserDto selectEcmpUserDetail(@Param("userId")Long userId);
 
     public int  queryCompanyEmp();
 
@@ -198,7 +199,7 @@ public interface EcmpUserMapper
     @param  userId
      * @return
     * */
-    public EcmpUserDto selectDimissionList(@Param("deptId") Long deptId,@Param("userId") Long userId);
+    public List<EcmpUserDto> selectDimissionList(@Param("deptId") Long deptId);
 
     /*查询当天离职的员工id
     @param  userId
@@ -222,7 +223,7 @@ public interface EcmpUserMapper
    @param  userId
     * @return
    * */
-    public List<String> selectRoleNameByEcmpUserId(Long userId);
+    public List<EcmpRoleDto> selectRoleNameByEcmpUserId(Long userId);
 
     /**
      * 员工邀请判断是否该手机号是否已经注册
