@@ -7,10 +7,14 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyNodeDto;
+import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.dto.config.PowerDTO;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
+import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
+import com.hq.ecmp.mscore.vo.JourneyDetailVO;
 import com.hq.ecmp.mscore.vo.JourneyVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
 import io.swagger.annotations.ApiOperation;
@@ -96,6 +100,24 @@ public class JourneyController {
         return ApiResponse.success(journeyInfoList);
     }
 
+    /**
+     *   @author caobj
+     *   @Description 根据用车权限获取行程详情
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "根据用车权限获取行程详情",httpMethod = "POST")
+    @RequestMapping("/getItineraryDetail")
+    public ApiResponse<JourneyDetailVO> getItineraryDetail(@RequestBody PowerDTO powerDTO){
+        try {
+            JourneyDetailVO  orderVO = journeyInfoService.getItineraryDetail(powerDTO.getPowerId());
+            return ApiResponse.success(orderVO);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error(e.getMessage());
+        }
+    }
 
 
     /**

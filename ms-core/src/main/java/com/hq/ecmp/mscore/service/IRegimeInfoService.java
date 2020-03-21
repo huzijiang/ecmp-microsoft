@@ -113,5 +113,11 @@ public interface IRegimeInfoService
      public String queryUseCarModelByNoteId(Long noteId);
      
      public String queryUseCarModelByJourneyId(Long journeyId);
+
+    /**
+     * 获取用户可用网约车等级 P001,P002,P003
+     * @return
+     */
+    String getUserOnlineCarLevels(Long regimenId);
 }
 

@@ -172,7 +172,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="addEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo" useGeneratedKeys="true" keyProperty="userId">
         insert into ecmp_user
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="phonenumber != null  and phonenumber != ''">userName,</if>
+            <if test="phonenumber != null  and phonenumber != ''">user_name,</if>
             <if test="nickName != null  and nickName != ''">nick_name,</if>
             <if test="userType != null  and userType != ''">user_type,</if>
             <if test="dimissionTime != null  and dimissionTime != ''">dimission_time,</if>
@@ -237,13 +237,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
     </insert>
 
-    <!--查询手机号与邮箱是否已经存在-->
-    <select id="selectPhoneAndEmailExist" resultType="Integer">
+    <!--查询手机号是否已经存在-->
+    <select id="selectPhoneNumberExist" resultType="Integer">
       select count(1)
       from  ecmp_user
       where
       del_flag='0'
       <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
+    </select>
+
+    <!--查询手机号是否已经存在-->
+    <select id="selectEmailExist" resultType="Integer">
+      select count(1)
+      from  ecmp_user
+      where
+      del_flag='0'
       <if test="email != null  and email != ''"> and email = #{email}</if>
     </select>
 
@@ -288,11 +296,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       SELECT
       user_id,`dept_id`, `nick_name`,  `email`, `phonenumber`, `sex`, `station_code`,
       (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='1') as subCompany,
-      select role_name from ecmp_role (select role_id from ecmp_user_role where user_id= = #{userId}),
-      select name from regime_info where (select regime_id from  user_regime_relation_info where user_id=#{userId}
+      roleName,
+      (select `name` from regime_info where (select regime_id from  user_regime_relation_info where user_id=#{userId}) as regimeName
       from ecmp_user
       where
       user_id = #{userId}
+    </select>
+
+    <!--根据员工编号获取拥有的角色名称-->
+    <select id="selectRoleNameByEcmpUserId" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="Long">
+      select role_name from ecmp_role where role_id in
+      (select role_id from ecmp_user_role where user_id=#{userId})
     </select>
 
     <!--已离职数量-->
@@ -324,14 +338,44 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         nick_name as nickName,phonenumber,user_id as userId,
         (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='1') as subCompany,
         (select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept,
-        dimission_time
+        dimission_time as dimissionTime
         from  ecmp_user
         where
         del_flag='0'
         <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
         and user_id= #{userId}
     </select>
+
+    <!--查询当天离职的员工编号-->
+    <select id="checkDimissionEcmpUserIds" resultType="Long">
+     SELECT
+        user_id
+        from ecmp_user
+        where
+        dimission_time  like   concat('%', #{dateOfTheDay}, '%')
+    </select>
+
+    <!--修改当天离职的员工为禁用-->
+    <update id="updateDimissionEcmpUser" >
+      update ecmp_user  SET status='1' where user_id = #{userId}
+    </update>
+
+    <!--判断员工是否为驾驶员-->
+    <select id="selectEcmpUserIsDirver" >
+      select it_is_driver from ecmp_user where user_id = #{userId}
+    </select>
+
     <select id="userItisExist"  resultType="java.lang.Integer">
           select count(*) from ecmp_user  where phonenumber=#{phoneNumber}
+    </select>
+
+    <select id="findDeptLeader" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.UserVO">
+        SELECT user_id userId,nick_name userName,phonenumber userPhone from ecmp_user
+        where user_id =(select leader from ecmp_org where dept_id=(SELECT dept_id from ecmp_user where user_id=#{userId}))
+    </select>
+
+    <select id="selectUserListByUserIds" parameterType="Object" resultMap="EcmpUserResult">
+        <include refid="selectEcmpUserVo"/>
+        where user_id in (#{userIds})
     </select>
 </mapper>

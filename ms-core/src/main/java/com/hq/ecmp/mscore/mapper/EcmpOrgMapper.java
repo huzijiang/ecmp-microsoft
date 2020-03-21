@@ -44,10 +44,10 @@ public interface EcmpOrgMapper {
     public  int updateDept(EcmpOrgVo ecmpOrg);
     /**
      * 部门编号验证
-     * @param  companyId
-     * @return companyIdNum
+     * @param  deptCode
+     * @return
      * */
-    public  int getCheckingDepcCompanyId(@Param("companyId")Long companyId);
+    public  int getCheckingDeptCode(@Param("deptCode")String deptCode);
 
 
 
@@ -63,11 +63,11 @@ public interface EcmpOrgMapper {
 
     /**
      * 根据公司id查询部门对象列表
-     * @param companyId
+     * @param deptId
      * @param name
      * @return
      */
-    public List<EcmpOrg> selectEcmpOrgsByCompanyId(@Param("companyId") Long companyId,@Param("name") String name);
+    public List<EcmpOrg> selectEcmpOrgsByDeptId(@Param("companyId") Long deptId,@Param("name") String name);
 
 
     /**

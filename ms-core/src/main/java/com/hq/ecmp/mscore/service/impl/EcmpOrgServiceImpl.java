@@ -69,7 +69,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 
     public List<EcmpOrgDto> loadEcmpOrg(Long deptId,Long parentId,String deptType) {
         List<EcmpOrgDto> list = new ArrayList<>();
-        List<EcmpOrgDto> deptList = ecmpOrgMapper.selectByEcmpOrgParentId(deptId,parentId,deptType);
+        List<EcmpOrgDto> deptList = ecmpOrgMapper.selectByEcmpOrgParentId(null,parentId,deptType);
         if(deptList.size()>0){
             for (EcmpOrgDto ecmpOrg:deptList) {
                 list.add(ecmpOrg);
@@ -96,7 +96,6 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     @Transactional
     public int addDept(EcmpOrgVo ecmpOrg){
         ecmpOrg.setCreateTime(DateUtils.getNowDate());
-        ecmpOrg.setCompanyId(ecmpOrg.getDeptId());
         int iz = ecmpOrgMapper.addDept(ecmpOrg);
         if(iz==1){
             return 1;
@@ -118,12 +117,12 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 
     /**
      * 部门编号验证
-     * @param  companyId
-     * @return companyIdNum
+     * @param  deptCode
+     * @return
      * */
-    public int  getCheckingDepcCompanyId(Long companyId){
+    public int  getCheckingDeptCode(String  deptCode){
 
-        return ecmpOrgMapper.getCheckingDepcCompanyId(companyId);
+        return ecmpOrgMapper.getCheckingDeptCode(deptCode);
     }
 
 
@@ -145,11 +144,11 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     /**
      * 根据公司id查询部门对象列表
      *
-     * @param companyId
+     * @param deptId
      * @return
      */
     @Override
-    public List<EcmpOrg> selectEcmpOrgsByCompanyId(Long companyId) {
+    public List<EcmpOrg> selectEcmpOrgsByDeptId(Long deptId) {
         return null;
     }
 
@@ -215,7 +214,6 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         //根据公司id（以及部门名称模糊）查询部门对象列表
         EcmpOrg ecmpOrg = new EcmpOrg();
         ecmpOrg.setDeptName(name);
-        ecmpOrg.setCompanyId(userEcmpOrg.getCompanyId());
         List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
         return ecmpOrgs;
     }

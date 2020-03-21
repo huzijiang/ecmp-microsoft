@@ -7,7 +7,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.domain.EcmpOrg" id="EcmpOrgResult">
         <result property="deptId"    column="dept_id"    />
         <result property="parentId"    column="parent_id"    />
-        <result property="companyId"    column="company_id"    />
         <result property="ancestors"    column="ancestors"    />
         <result property="deptName"    column="dept_name"    />
         <result property="deptType"    column="dept_type"    />
@@ -26,7 +25,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.vo.EcmpOrgVo" id="EcmpOrgVoResult">
         <result property="deptId"    column="dept_id"    />
         <result property="parentId"    column="parent_id"    />
-        <result property="companyId"    column="company_id"    />
         <result property="ancestors"    column="ancestors"    />
         <result property="deptName"    column="dept_name"    />
         <result property="deptType"    column="dept_type"    />
@@ -44,7 +42,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.dto.EcmpOrgDto" id="EcmpOrgDtoResult">
         <result property="deptId"    column="dept_id"    />
         <result property="parentId"    column="parent_id"    />
-        <result property="companyId"    column="company_id"    />
         <result property="ancestors"    column="ancestors"    />
         <result property="deptName"    column="dept_name"    />
         <result property="deptType"    column="dept_type"    />
@@ -61,10 +58,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectEcmpOrgVo">
-        select dept_id, parent_id, company_id, ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
+        select dept_id, parent_id,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
     </sql>
     <sql id="selectEcmpOrg">
-        select dept_id, parent_id, company_id, ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
+        select dept_id, parent_id,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
     </sql>
     <!-- /**
      * 查询部门列表
@@ -73,7 +70,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
      -->
     <select id="selectByEcmpOrgParentId"  resultMap="EcmpOrgDtoResult">
       select
-            dept_id, parent_id, company_id, ancestors, dept_name,
+            dept_id, parent_id,ancestors, dept_name,
             dept_type, order_num, leader, phone, email,
             status, del_flag, create_by, create_time,
             update_by, update_time
@@ -93,7 +90,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
      */-->
     <select id="selectByDeptId"   resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
         select
-        dept_name as deptName,company_id as companyId,
+        dept_name as deptName,
         (SELECT dept_name from  ecmp_org where dept_id =
         (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
         leader,`phone`
@@ -114,7 +111,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="parentId != null ">parent_id,</if>
             <if test="deptCode != null ">dept_code,</if>
-            <if test="companyId != null ">company_id,</if>
             <if test="ancestors != null  and ancestors != ''">ancestors,</if>
             <if test="deptName != null  and deptName != ''">dept_name,</if>
             <if test="deptType != null  and deptType != ''">dept_type,</if>
@@ -132,7 +128,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="parentId != null ">#{parentId},</if>
             <if test="deptCode != null ">#{deptCode},</if>
-            <if test="companyId != null ">#{companyId},</if>
             <if test="ancestors != null  and ancestors != ''">#{ancestors},</if>
             <if test="deptName != null  and deptName != ''">#{deptName},</if>
             <if test="deptType != null  and deptType != ''">#{deptType},</if>
@@ -157,7 +152,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update ecmp_org
         <trim prefix="SET" suffixOverrides=",">
             <if test="parentId != null ">parent_id = #{parentId},</if>
-            <if test="companyId != null ">company_id = #{companyId},</if>
             <if test="ancestors != null  and ancestors != ''">ancestors = #{ancestors},</if>
             <if test="deptName != null  and deptName != ''">dept_name = #{deptName},</if>
             <if test="deptType != null  and deptType != ''">dept_type = #{deptType},</if>
@@ -174,14 +168,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         where dept_id = #{deptId}
     </update>
-    <!--/**
-    * 部门编号验证
-    * @param  companyId
-    * @return companyIdNum
-    * */-->
-    <select id="getCheckingDepcCompanyId">
+    <!--部门编号验证-->
+    <select id="getCheckingDeptCode">
         select
-        dept_id, parent_id, company_id, ancestors, dept_name,
+        dept_id, parent_id, ancestors, dept_name,
         dept_type, order_num, leader, phone, email,
         status, del_flag, create_by, create_time,
         update_by, update_time
@@ -189,7 +179,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ecmp_org
         where
         del_flag = 0
-        <if test="companyId != null "> and company_id = #{companyId}</if>
+        <if test="deptCode != null "> and dept_Code = #{deptCode}</if>
     </select>
 
 
@@ -201,7 +191,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectEcmpOrgVo"/>
         <where>
             <if test="parentId != null "> and parent_id = #{parentId}</if>
-            <if test="companyId != null "> and company_id = #{companyId}</if>
             <if test="ancestors != null  and ancestors != ''"> and ancestors = #{ancestors}</if>
             <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
             <if test="deptType != null  and deptType != ''"> and dept_type = #{deptType}</if>
@@ -223,7 +212,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into ecmp_org
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="parentId != null ">parent_id,</if>
-            <if test="companyId != null ">company_id,</if>
             <if test="ancestors != null  and ancestors != ''">ancestors,</if>
             <if test="deptName != null  and deptName != ''">dept_name,</if>
             <if test="deptType != null  and deptType != ''">dept_type,</if>
@@ -238,7 +226,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="parentId != null ">#{parentId},</if>
-            <if test="companyId != null ">#{companyId},</if>
             <if test="ancestors != null  and ancestors != ''">#{ancestors},</if>
             <if test="deptName != null  and deptName != ''">#{deptName},</if>
             <if test="deptType != null  and deptType != ''">#{deptType},</if>
@@ -257,7 +244,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update ecmp_org
         <trim prefix="SET" suffixOverrides=",">
             <if test="parentId != null ">parent_id = #{parentId},</if>
-            <if test="companyId != null ">company_id = #{companyId},</if>
             <if test="ancestors != null  and ancestors != ''">ancestors = #{ancestors},</if>
             <if test="deptName != null  and deptName != ''">dept_name = #{deptName},</if>
             <if test="deptType != null  and deptType != ''">dept_type = #{deptType},</if>
@@ -304,9 +290,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <!--根据公司id查询部门对象列表-->
-    <select id="selectEcmpOrgsByCompanyId" parameterType="long" resultMap="EcmpOrgResult">
+    <select id="selectEcmpOrgsByDeptId" parameterType="long" resultMap="EcmpOrgResult">
         <include refid="selectEcmpOrgVo"/>
-        where company_id = #{companyId}
+        where dept_id = #{deptId}
     </select>
 
     <!--查询所有的分子公司-->
@@ -343,6 +329,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       (SELECT count(*) from  ecmp_user where dept_id=#{deptId} and del_flag=0) as numOfSub
       from  ecmp_org where dept_id=#{deptId}
     </select>
+
     <select id="selectCountByParentId" resultType="int">
         select count(1) from ecmp_org where parent_id = #{parentId}
     </select>

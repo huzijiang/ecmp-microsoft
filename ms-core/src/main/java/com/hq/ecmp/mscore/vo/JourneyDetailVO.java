@@ -1,30 +1,18 @@
 package com.hq.ecmp.mscore.vo;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
+ * @author caobj
+ * @date 2020/3/9
  *
- * 订单状态
- * @date: 2020/3/12 16:40
- * @author:caobj
  */
-
 @Data
-public class OrderStateVO {
-
-
-    /**
-     * 审批人Id
-     */
-    private Long orderId;
-    private String state;
-    private String labelState;
-    private Long driverId;
-    private Long journeyId;
-    private String useCarMode;
+@ApiModel(description = "行程信息")
+public class JourneyDetailVO {
+    @ApiModelProperty(name = "applyType",value = "公务/差旅")
     private String applyType;
     @ApiModelProperty(name = "startAddress",value = "出发地")
     private String startAddress;
@@ -34,10 +22,10 @@ public class OrderStateVO {
     private String serviceType;
     @ApiModelProperty(name = "charterCarType",value = "包车类型")
     private String charterCarType;
-    @ApiModelProperty(name = "driverLongitude",value = "司机经度")
-    private String driverLongitude;
-    @ApiModelProperty(name = "driverLatitude",value = "司机纬度")
-    private String driverLatitude;
+    @ApiModelProperty(name = "useCarMode",value = "用车方式")
+    private String useCarMode;
+    @ApiModelProperty(name = "powerId",value = "权限id")
+    private Long powerId;
     @ApiModelProperty(name = "endLatitude",value = "下车地纬度")
     private String endLatitude;//纬度
     @ApiModelProperty(name = "endLongitude",value = "下车地经度")
@@ -46,9 +34,4 @@ public class OrderStateVO {
     private String startLatitude;//纬度
     @ApiModelProperty(name = "startLongitude",value = "上车地经度")
     private String startLongitude;//经度
-    private String useCarTime;
-    @ApiModelProperty(name = "planPrice",value = "预计价格")
-    private String planPrice;
-    @ApiModelProperty(name = "isDisagree",value = "是否展示异议")
-    private int isDisagree;
 }

@@ -149,8 +149,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select apply_id  from apply_info
         where create_by=#{userId}
         union all(
-        select approve_result_id from apply_approve_result_info where
-        approve_node_id in(select approve_node_id from approve_template_node_info where user_id=#{userId}) and state=#{state}
-        ) )  a
+        select approve_result_id from apply_approve_result_info where state=#{state} and (find_in_set(#{userId},approve_user_id)
+            <foreach collection="roleIds" item="roleId">
+                or find_in_set(#{roleId},approve_role_id)
+            </foreach>
+        )) )  a
     </select>
 </mapper>

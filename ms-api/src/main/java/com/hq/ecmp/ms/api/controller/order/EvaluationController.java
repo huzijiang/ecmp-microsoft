@@ -11,6 +11,7 @@ import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackImageService;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
+import com.hq.ecmp.mscore.service.ZimgService;
 import com.hq.ecmp.util.FileUtils;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
@@ -43,6 +44,8 @@ public class EvaluationController {
     private IEcmpUserFeedbackInfoService feedbackInfoService;
     @Autowired
     private IEcmpUserFeedbackImageService feedbackImageService;
+    @Autowired
+    private ZimgService zimgService;
     @Value("file.path.feedback")
     String feedbackPath;
     @Value("file.url.feedback")
@@ -66,13 +69,13 @@ public class EvaluationController {
             ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
             int count = feedbackInfoService.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
             if (count>0){
-                if (evaluationDto.getFiles()!=null&&evaluationDto.getFiles().length>0){
+                if (!CollectionUtils.isEmpty(evaluationDto.getImgUrls())){
                     EcmpUserFeedbackImage feedbackImage = new EcmpUserFeedbackImage();
                     feedbackImage.setFeedbackId(ecmpUserFeedbackInfo.getFeedbackId());
                     feedbackImage.setUserId(loginUser.getUser().getUserId());
-                    for (int i = 0; i < evaluationDto.getFiles().length; i++) {
-                        String imgPath = FileUtils.uploadfile(evaluationDto.getFiles()[i], File.separator + feedbackPath);
-                        feedbackImage.setImageUrl(feedbackUrl+imgPath);
+                    for (String url:evaluationDto.getImgUrls()) {
+//                        String url = zimgService.uploadImage(evaluationDto.getFiles().get(i));
+                        feedbackImage.setImageUrl(url);
                         feedbackImageService.insertEcmpUserFeedbackImage(feedbackImage);
                     }
                 }
@@ -96,16 +99,17 @@ public class EvaluationController {
     @RequestMapping("/getOrderEvaluation")
     public ApiResponse<OrderEvaluationDto> getOrderEvaluation(@RequestBody OrderEvaluationDto evaluationDto){
         try {
-           EcmpUserFeedbackInfo ecmpUserFeedbackInfo = feedbackInfoService.selectEcmpUserFeedbackInfoById(evaluationDto.getOrderId());
-           if (ecmpUserFeedbackInfo==null){
+
+           List<EcmpUserFeedbackInfo> ecmpUserFeedbackInfo = feedbackInfoService.selectEcmpUserFeedbackInfoList(new EcmpUserFeedbackInfo(evaluationDto.getOrderId()));
+           if (CollectionUtils.isEmpty(ecmpUserFeedbackInfo)){
                return  ApiResponse.error("行程异议反馈不存在");
            }
            BeanUtils.copyProperties(ecmpUserFeedbackInfo,evaluationDto);
-           List<EcmpUserFeedbackImage> ecmpUserFeedbackImages = feedbackImageService.selectEcmpUserFeedbackImageList(new EcmpUserFeedbackImage(ecmpUserFeedbackInfo.getFeedbackId()));
+           List<EcmpUserFeedbackImage> ecmpUserFeedbackImages = feedbackImageService.selectEcmpUserFeedbackImageList(new EcmpUserFeedbackImage(ecmpUserFeedbackInfo.get(0).getFeedbackId()));
            if (!CollectionUtils.isEmpty(ecmpUserFeedbackImages)){
-               String[] imgs=new String[3];
-               for (int i=0;i<ecmpUserFeedbackImages.size();i++){
-                   imgs[i]=ecmpUserFeedbackImages.get(i).getImageUrl();
+               List<String> imgs=new ArrayList<>();
+               for (EcmpUserFeedbackImage image:ecmpUserFeedbackImages){
+                   imgs.add(image.getImageUrl());
                }
                evaluationDto.setImgUrls(imgs);
            }
