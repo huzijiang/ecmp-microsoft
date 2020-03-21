@@ -40,6 +40,13 @@ public class EcmpUserRole extends BaseEntity
         return roleId;
     }
 
+    public EcmpUserRole() {
+    }
+
+    public EcmpUserRole(Long userId) {
+        this.userId = userId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

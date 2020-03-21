@@ -40,4 +40,10 @@ public class EcmpUserFeedbackInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String result;
 
+    public EcmpUserFeedbackInfo() {
+    }
+
+    public EcmpUserFeedbackInfo(Long orderId) {
+        this.orderId = orderId;
+    }
 }

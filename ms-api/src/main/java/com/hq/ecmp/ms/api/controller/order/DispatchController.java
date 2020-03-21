@@ -5,9 +5,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import com.hq.ecmp.mscore.dto.DispatchInfoDto;
-import com.hq.ecmp.mscore.service.IDispatchService;
-import com.hq.ecmp.mscore.vo.DispatchResultVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,10 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
+import com.hq.ecmp.mscore.dto.DispatchInfoDto;
+import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
+import com.hq.ecmp.mscore.vo.DispatchResultVo;
 import com.hq.ecmp.mscore.vo.PageResult;
 
 import io.swagger.annotations.ApiOperation;
@@ -39,6 +41,9 @@ public class DispatchController {
 
     @Resource
     private IDispatchService dispatchService;
+    
+    @Autowired
+    private TokenService tokenService;
 
 
 
@@ -55,8 +60,8 @@ public class DispatchController {
 
     @ApiOperation(value = "detail", notes = "获取系统已经完成调派或已过期的订单详细信息(包含申请和改派的) ", httpMethod = "POST")
     @PostMapping("/detail")
-    public ApiResponse<DispatchOrderInfo> detail(Long orderId) {
-    	return ApiResponse.success(iOrderInfoService.getCompleteDispatchOrderDetailInfo(orderId));
+    public ApiResponse<DispatchOrderInfo> detail(String orderId) {
+    	return ApiResponse.success(iOrderInfoService.getCompleteDispatchOrderDetailInfo(Long.valueOf(orderId)));
     }
 
 
@@ -79,10 +84,11 @@ public class DispatchController {
 
     @ApiOperation(value = "改派订单-驳回", httpMethod = "POST")
     @RequestMapping("/rejectReassign")
-    public ApiResponse rejectReassign(@RequestParam Long orderId,
-                                @RequestParam String rejectReason,
-                                @RequestParam Long optUserId) {
-    	boolean rejectReassignFlag = iOrderInfoService.rejectReassign(orderId, rejectReason, optUserId);
+    public ApiResponse rejectReassign(@RequestParam String orderId,
+                                @RequestParam String rejectReason) {
+    	 HttpServletRequest request = ServletUtils.getRequest();
+         LoginUser loginUser = tokenService.getLoginUser(request);
+    	boolean rejectReassignFlag = iOrderInfoService.rejectReassign(Long.valueOf(orderId), rejectReason, loginUser.getUser().getUserId());
     	if(rejectReassignFlag){
     		return ApiResponse.success();
     	}
@@ -91,13 +97,14 @@ public class DispatchController {
 
     @ApiOperation(value = "ownCarSendCar", notes = "自有车派车", httpMethod = "POST")
     @PostMapping("/ownCarSendCar")
-    public ApiResponse ownCarSendCar(Long orderId,Long driverId,Long carId,Long optUserId) {
-
-         boolean ownCarSendCar = iOrderInfoService.ownCarSendCar(orderId, driverId, carId, optUserId);
+    public ApiResponse ownCarSendCar(String OrderNo,String driverId,String carId) {
+    	 HttpServletRequest request = ServletUtils.getRequest();
+         LoginUser loginUser = tokenService.getLoginUser(request);
+         boolean ownCarSendCar = iOrderInfoService.ownCarSendCar(Long.valueOf(OrderNo), Long.valueOf(driverId), Long.valueOf(carId), loginUser.getUser().getUserId());
          if(ownCarSendCar){
         	 return ApiResponse.success();
          }else{
-        	 return ApiResponse.error("调派单【"+orderId+"】自有车派车失败");
+        	 return ApiResponse.error("调派单【"+OrderNo+"】自有车派车失败");
          }
     }
 

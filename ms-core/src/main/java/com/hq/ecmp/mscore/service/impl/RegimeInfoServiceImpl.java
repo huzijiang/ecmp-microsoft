@@ -275,7 +275,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	}
 
 	@Override
-	public String queryUseCarModelByNoteId(Long noteId) {
+	public RegimeInfo queryUseCarModelByNoteId(Long noteId) {
 		return regimeInfoMapper.queryUseCarModelByNoteId(noteId);
 	}
 
@@ -283,5 +283,14 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	public String queryUseCarModelByJourneyId(Long journeyId) {
 		
 		return null;
+	}
+
+	/**
+	 * 获取用户可用网约车型
+	 * @return
+	 */
+	@Override
+	public String getUserOnlineCarLevels(Long regimenId) {
+		return regimeInfoMapper.getUserOnlineCarLevels(regimenId);
 	}
 }

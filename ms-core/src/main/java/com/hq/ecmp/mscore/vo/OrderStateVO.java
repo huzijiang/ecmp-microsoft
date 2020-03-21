@@ -30,6 +30,10 @@ public class OrderStateVO {
     private String startAddress;
     @ApiModelProperty(name = "endAddress",value = "目的地")
     private String endAddress;
+    @ApiModelProperty(name = "serviceType",value = "服务类型")
+    private String serviceType;
+    @ApiModelProperty(name = "charterCarType",value = "包车类型")
+    private String charterCarType;
     @ApiModelProperty(name = "driverLongitude",value = "司机经度")
     private String driverLongitude;
     @ApiModelProperty(name = "driverLatitude",value = "司机纬度")
@@ -42,11 +46,9 @@ public class OrderStateVO {
     private String startLatitude;//纬度
     @ApiModelProperty(name = "startLongitude",value = "上车地经度")
     private String startLongitude;//经度
-    @ApiModelProperty(name = "serviceType",value = "服务类型")
-    private String serviceType;
-    @ApiModelProperty(name = "charterCarType",value = "包车类型")
-    private String charterCarType;
     private String useCarTime;
     @ApiModelProperty(name = "planPrice",value = "预计价格")
     private String planPrice;
+    @ApiModelProperty(name = "isDisagree",value = "是否展示异议")
+    private int isDisagree;
 }

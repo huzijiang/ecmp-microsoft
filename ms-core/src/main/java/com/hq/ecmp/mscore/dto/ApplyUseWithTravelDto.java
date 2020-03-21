@@ -12,11 +12,7 @@ import lombok.Data;
  */
 @Data
 public class ApplyUseWithTravelDto extends ParallelOrderDto {
-    /**
-     * 订单ID
-     */
-    @ApiModelProperty(name = "orderId", value = "订单id")
-    private Long orderId;
+
     @ApiModelProperty(name = "type", value = "类型",notes = "1:随叫随到;2:预约用车;3:接机;4:包车; 5:送机 ")
     private String type;
 //    @ApiModelProperty(value = "乘车人姓名")

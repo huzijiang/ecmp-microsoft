@@ -76,5 +76,5 @@ public interface ApplyInfoMapper
     //获取当前申请通知列表
     MessageDto getApplyMessage(@Param("userId") Long userId,@Param("stateList") String[] stateList);
 
-    int getApplyApproveCount(@Param("userId")Long userId,@Param("state")String state);
+    int getApplyApproveCount(@Param("userId")Long userId,@Param("state")String state,@Param("roleIds")List<Long> roleIds);
 }

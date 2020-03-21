@@ -4,13 +4,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.hq.ecmp.mscore.dto.RegimenDTO;
 import com.hq.ecmp.mscore.vo.RegimenVO;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
@@ -25,7 +24,7 @@ import com.hq.ecmp.mscore.domain.RegimeQueryPo;
 import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
 import com.hq.ecmp.mscore.vo.PageResult;
-import com.hq.ecmp.mscore.vo.SceneListVO;
+
 
 import io.swagger.annotations.ApiOperation;
 
@@ -81,6 +80,22 @@ public class RegimeController {
     }
 
     /**
+     *
+     * 查询用户用车制度可用网约车型
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getUserOnlineCarLevels",notes = "查询用户可用网约车型等级",httpMethod ="POST")
+    @PostMapping("/getUserOnlineCarLevels")
+    public ApiResponse<String> getUserOnlineCarLevels(@RequestBody RegimenDTO regimenDTO){
+        String result = regimeInfoService.getUserOnlineCarLevels(regimenDTO.getRegimenId());
+        if(ObjectUtils.isEmpty(result)){
+            return ApiResponse.error("查无数据");
+        }
+        return ApiResponse.success("查询成功",result);
+    }
+
+    /**
      * 通过用车制度编号,查询用车制度的详细信息
      * @param regimeDto regimeDto
      * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
@@ -101,6 +116,9 @@ public class RegimeController {
 	@ApiOperation(value = "createRegime", notes = "创建用车制度", httpMethod = "POST")
 	@PostMapping("/createRegime")
 	public ApiResponse createRegime(@RequestBody RegimePo regimePo) {
+		 HttpServletRequest request = ServletUtils.getRequest();
+	      LoginUser loginUser = tokenService.getLoginUser(request);
+	      regimePo.setOptId(loginUser.getUser().getUserId());
 		boolean createRegime = regimeInfoService.createRegime(regimePo);
 		if (createRegime) {
 			return ApiResponse.success();
@@ -121,6 +139,10 @@ public class RegimeController {
 	@ApiOperation(value = "optRegime", notes = "制度删除 or启用or停用", httpMethod = "POST")
 	@PostMapping("/optRegime")
 	public ApiResponse optRegime(@RequestBody RegimeOpt regimeOpt) {
+		 //查询登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        regimeOpt.setOptUserId(loginUser.getUser().getUserId());
 		boolean opt = regimeInfoService.optRegime(regimeOpt);
 		if(opt){
 			return ApiResponse.success();
@@ -134,6 +156,8 @@ public class RegimeController {
 	public ApiResponse<RegimeVo> queryRegimeDetail(@RequestBody Long regimeId) {
 		return ApiResponse.success(regimeInfoService.queryRegimeDetail(regimeId));
 	}
+	
+	
 	
 	
 }

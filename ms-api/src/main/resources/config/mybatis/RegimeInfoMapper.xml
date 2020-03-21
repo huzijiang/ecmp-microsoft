@@ -17,16 +17,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="allowDate"    column="allow_date"    />
         <result property="setoutEqualArrive"    column="setout_equal_arrive"    />
         <result property="serviceType"    column="service_type"    />
+        <result property="ruleCity"    column="rule_city"    />
         <result property="approvalProcess"    column="need_approval_process"    />
         <result property="canUseCarMode"    column="can_use_car_mode"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+        <result property="travelSetoutEqualArrive"    column="travel_setout_equal_arrive"/>
+         <result property="asSetoutEqualArrive"    column="as_setout_equal_arrive"    />
+        
     </resultMap>
 
     <sql id="selectRegimeInfoVo">
-        select regimen_id, template_id, approve_template_id, regimen_type, name, allow_city,rule_time,allow_date, setout_equal_arrive, service_type, need_approval_process,can_use_car_mode, create_by, create_time, update_by, update_time from regime_info
+        select regimen_id, template_id, approve_template_id, regimen_type, name, allow_city,rule_time,allow_date, setout_equal_arrive, service_type, need_approval_process,can_use_car_mode, create_by, create_time, update_by, update_time,rule_city,travel_setout_equal_arrive,as_setout_equal_arrive from regime_info
     </sql>
 
     <select id="selectRegimeInfoList" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo" resultMap="RegimeInfoResult">
@@ -64,6 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="sceneFlowId != null ">scene_flow_id,</if>
             <if test="name != null  and name != ''">name,</if>
             <if test="allowCity != null  and allowCity != ''">allow_city,</if>
+            <if test="ruleCity != null  and ruleCity != ''">rule_city,</if>
             <if test="allowTime != null  and allowTime != ''">allow_time,</if>
             <if test="setoutAddress != null  and setoutAddress != ''">setout_address,</if>
             <if test="arriveAddress != null  and arriveAddress != ''">arrive_address,</if>
@@ -87,6 +92,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="sceneFlowId != null ">#{sceneFlowId},</if>
             <if test="name != null  and name != ''">#{name},</if>
             <if test="allowCity != null  and allowCity != ''">#{allowCity},</if>
+            <if test="ruleCity != null  and ruleCity != ''">#{ruleCity},</if>
             <if test="allowTime != null  and allowTime != ''">#{allowTime},</if>
             <if test="setoutAddress != null  and setoutAddress != ''">#{setoutAddress},</if>
             <if test="arriveAddress != null  and arriveAddress != ''">#{arriveAddress},</if>
@@ -113,6 +119,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="sceneFlowId != null ">scene_flow_id = #{sceneFlowId},</if>
             <if test="name != null  and name != ''">name = #{name},</if>
             <if test="allowCity != null  and allowCity != ''">allow_city = #{allowCity},</if>
+            <if test="ruleCity != null  and ruleCity != ''">rule_city = #{ruleCity},</if>
             <if test="allowTime != null  and allowTime != ''">allow_time = #{allowTime},</if>
             <if test="setoutAddress != null  and setoutAddress != ''">setout_address = #{setoutAddress},</if>
             <if test="arriveAddress != null  and arriveAddress != ''">arrive_address = #{arriveAddress},</if>
@@ -157,7 +164,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	a. NAME AS regimeName,
 	c. NAME AS
 	sceneName,
-	a.approval_process AS approvalProcess,
+	a.approve_template_id AS approveTemplateId,
 	a. STATUS AS STATUS
 	FROM
 	regime_info a
@@ -208,7 +215,7 @@ update regime_info set status=#{status},update_by=#{optUserId},update_time=now()
 </update>
 
 <select id="queryRegimeType" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeInfo">
-select regimen_type as  regimenType from regime_info where regimen_id=#{regimeId}
+select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regime_info where regimen_id=#{regimeId}
 </select>
     <select id="selectRegimenVOById" resultType="com.hq.ecmp.mscore.vo.RegimenVO" parameterType="long">
         select name,template_id as templateId,can_use_car_mode as canUseCarMode
@@ -307,9 +314,9 @@ WHERE
 	regimen_id = #{regimeId}
 </select>
 
-<select id="queryUseCarModelByNoteId" parameterType="java.lang.Long" resultType="string">
+<select id="queryUseCarModelByNoteId" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeInfo">
 	SELECT
-	a.can_use_car_mode
+	a.can_use_car_mode as canUseCarMode,a.regimen_id as regimenId
 FROM
 	regime_info a
 LEFT JOIN journey_info b ON a.regimen_id = b.regimen_id
@@ -331,6 +338,11 @@ WHERE
     select  ri.`name` from user_regime_relation_info as urri
      left  join  regime_info as ri on urri.regimen_id = ri.regimen_id
      where urri.user_id = #{userId}
+</select>
+    <select id="getUserOnlineCarLevels" resultType="java.lang.String" parameterType="long">
+        SELECT  use_car_mode_online_level
+        FROM regime_info
+        WHERE regimen_id = #{regimenId}
 </select>
 
 </mapper>

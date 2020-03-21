@@ -39,4 +39,17 @@ public class CarAuthorityInfo {
         * */
        String status;
        
+       Long orderId;//订单编号
+       
+       Long  ticketId;//权限Id
+       
+       Long regimenId;//制度ID
+       
+       String setoutEqualArrive;// Y000-不允许跨域     N111-允许跨域
+       
+       String returnIsType;// 公务  T001-去程    T009-返程
+       
+       
+       
+       
 }

@@ -91,7 +91,7 @@ public interface RegimeInfoMapper
     public RegimenVO selectRegimenVOById(Long regimeId);
 
 
-    public String queryUseCarModelByNoteId(Long noteId);
+    public RegimeInfo queryUseCarModelByNoteId(Long noteId);
 
 
     public String queryUseCarModelByJourneyId(Long journeyId);
@@ -99,4 +99,11 @@ public interface RegimeInfoMapper
     * 根据userid 查询用车制度名称
     * */
     public  List<String> selectByUserId(Long userId);
+
+    /**
+     * 查询用户可用网约车车型等级
+     * @param regimenId
+     * @return
+     */
+    String getUserOnlineCarLevels(Long regimenId);
 }

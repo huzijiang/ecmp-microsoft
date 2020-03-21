@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @ApiModel("部门员工dto(返回前端)")
@@ -83,4 +84,7 @@ public class EcmpUserDto {
 
     @ApiModelProperty(value= "用车制度名称")
     private String regimeName;
+
+    @ApiModelProperty(value= "用户拥有的角色名称")
+    private List<String> roleName;
 }

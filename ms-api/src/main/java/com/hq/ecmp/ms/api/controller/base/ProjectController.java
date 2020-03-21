@@ -194,7 +194,7 @@ public class ProjectController {
         return ApiResponse.success(VO);
     }
 
-    @ApiOperation(value = "removeProjectUser",notes = "移除成员列表",httpMethod ="POST")
+    @ApiOperation(value = "removeProjectUser",notes = "移除成员",httpMethod ="POST")
     @PostMapping("/removeProjectUser")
     @Transactional
     public ApiResponse removeProjectUser(@RequestBody ProjectUserDTO projectUserDTO){
@@ -220,7 +220,7 @@ public class ProjectController {
         return ApiResponse.success();
     }
 
-    @ApiOperation(value = "deleteProject",notes = "添加项目成员",httpMethod ="POST")
+    @ApiOperation(value = "deleteProject",notes = "删除项目成员",httpMethod ="POST")
     @PostMapping("/deleteProject")
     @Transactional
     public ApiResponse deleteProject(@RequestBody ProjectUserDTO projectUserDTO){

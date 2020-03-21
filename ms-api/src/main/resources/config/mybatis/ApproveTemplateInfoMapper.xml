@@ -13,6 +13,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateTime"    column="update_time"    />
     </resultMap>
 
+    <resultMap type="com.hq.ecmp.mscore.vo.ApprovaTemplateVO" id="TemplateInfoList">
+        <id column="approve_template_id" property="approveTemplateId"/>
+        <result property="approveTemplateId"    column="approve_template_id"    />
+        <result property="name"    column="name"    />
+        <collection property="nodeIds" select="getNodeList" column="approve_template_id">
+        </collection>
+    </resultMap>
+
     <sql id="selectApproveTemplateInfoVo">
         select approve_template_id, name, create_by, create_time, update_by, update_time from approve_template_info
     </sql>
@@ -71,5 +79,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{approveTemplateId}
         </foreach>
     </delete>
+
+    <select id="getTemplateList" resultMap="TemplateInfoList">
+         select approve_template_id,name from approve_template_info
+    </select>
+    <select id="getNodeList" resultType="com.hq.ecmp.mscore.vo.ApprovaTemplateNodeVO">
+         select approve_node_id approveNodeId, approver_type type, role_id roleId, user_id userId,next_node_id nextNodeId
+         from approve_template_node_info
+         WHERE approve_template_id=#{approve_template_id}
+    </select>
 
 </mapper>

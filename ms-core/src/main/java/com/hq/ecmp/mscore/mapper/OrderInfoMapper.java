@@ -185,5 +185,12 @@ public interface OrderInfoMapper {
     public List<Long> queryOrderIdListByPowerId(Long powerId);
     
     List<String> queryUseCarMode(Long powerId);
+
+    /**
+     * 通過用車權限id查詢是否有有效的訂單
+     * @param powerId
+     * @return
+     */
+    List<OrderInfo> getValidOrderByPowerId(Long powerId);
 }
 

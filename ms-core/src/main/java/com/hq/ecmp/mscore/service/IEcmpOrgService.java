@@ -46,10 +46,10 @@ public interface IEcmpOrgService
     public int updateDept(EcmpOrgVo ecmpOrg);
     /**
      * 部门编号验证
-     * @param  companyId
-     * @return companyIdNum
+     * @param  deptCode
+     * @return
      * */
-    public int  getCheckingDepcCompanyId(Long companyId);
+    public int  getCheckingDeptCode(String deptCode);
 
 
     /**
@@ -62,10 +62,10 @@ public interface IEcmpOrgService
 
     /**
      *  根据公司id查询部门对象列表
-     * @param companyId
+     * @param deptId
      * @return
      */
-    List<EcmpOrg> selectEcmpOrgsByCompanyId(Long companyId);
+    List<EcmpOrg> selectEcmpOrgsByDeptId(Long deptId);
 
     /**
      * 查询部门列表

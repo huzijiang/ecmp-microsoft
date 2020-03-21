@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @ApiModel("员工管理vo(传入后端)")
@@ -102,5 +103,17 @@ public class EcmpUserVo {
 
     @ApiModelProperty(value= "工号")
     private String jobNumber;
+
+    @ApiModelProperty(value= "临时字段，选中的单个/多个角色id")
+    private Long[]  roleIds;
+
+    @ApiModelProperty(value= "当天日期 yyyy-MM-dd")
+    private String  dateOfTheDay;
+
+    @ApiModelProperty(value= "用车制度id集合")
+    private List<Long> regimenIds;
+
+    @ApiModelProperty(value= "用户拥有的角色名称")
+    private List<String> roleName;
 
 }

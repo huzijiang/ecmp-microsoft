@@ -95,10 +95,16 @@ public class RegimeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long allowDateRoundTravel;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String ruleCity;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String allowCityRoundTravel;
+    
+    private String travelSetoutEqualArrive;
+    
+    private String asSetoutEqualArrive;
     
     public String parseApplyType(){
     	if(StringUtil.isEmpty(this.regimenType)){
@@ -113,4 +119,7 @@ public class RegimeInfo extends BaseEntity
     	return "未知类型的用车";
     }
 
+    public RegimeInfo(Long approveTemplateId) {
+        this.approveTemplateId = approveTemplateId;
+    }
 }

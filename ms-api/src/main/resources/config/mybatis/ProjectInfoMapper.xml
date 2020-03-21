@@ -143,4 +143,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectProjectInfoVo"/>
         where close_date = #{date}
     </select>
+
+    <select id="findLeader" resultType="com.hq.ecmp.mscore.vo.UserVO">
+        select user_id userId,nick_name userName,phonenumber userPhone from ecmp_user
+        where user_id =(select leader from project_info where project_id=#{projectId})
+    </select>
 </mapper>
