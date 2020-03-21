@@ -167,25 +167,28 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	@Override
 	public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId) {
 		List<UserCarAuthority> list = journeyUserCarPowerMapper.queryNoteAllUserAuthority(nodeId);
-		String useCarModel = regimeInfoService.queryUseCarModelByNoteId(nodeId);
-		String[] split = useCarModel.split(",");
+		 RegimeInfo regimeInfo = regimeInfoService.queryUseCarModelByNoteId(nodeId);
+		String[] split = regimeInfo.getCanUseCarMode().split(",");
 		List<String> asList = Arrays.asList(split);
 		boolean flag = !asList.contains(CarConstant.USR_CARD_MODE_HAVE);// true-只有网约车
 		// 查询对应的用车方式
 		if (null != list && list.size() > 0) {
+			RegimeInfo selectRegimeInfo = regimeInfoService.selectRegimeInfoById(regimeInfo.getRegimenId());
 			for (UserCarAuthority userCarAuthority : list) {
+				userCarAuthority.setRegimenId(regimeInfo.getRegimenId());
+				userCarAuthority.setCarType(regimeInfo.getCanUseCarMode());
 				// 获取接机or送机剩余次数
 				userCarAuthority.handCount();
 				String type = userCarAuthority.getType();
-				if (!CarConstant.CITY_USE_CAR.equals(type)) {
-					// 如果是接机或者送机 则查询对应的有效的订单号(状态为订单关闭前的)
-					List<Long> orderIdList = orderInfoMapper.queryOrderIdListByPowerId(userCarAuthority.getPowerId());
-					if (null != orderIdList && orderIdList.size() > 0) {
-						userCarAuthority.setOrderId(orderIdList.get(0));
-					}
+				if (CarConstant.CITY_USE_CAR.equals(type)) {
+					// 如果是市内用车
+					userCarAuthority.setSetoutEqualArrive(selectRegimeInfo.getTravelSetoutEqualArrive());//是否允许跨城
+				}else{
+					//接送机
+					userCarAuthority.setSetoutEqualArrive(selectRegimeInfo.getAsSetoutEqualArrive());
 				}
 				// 生成用车权限对应的前端状态
-				userCarAuthority.setState(buildUserAuthorityPowerStatus(flag, userCarAuthority.getPowerId()));
+				userCarAuthority.setState(buildUserAuthorityPowerStatus(flag, userCarAuthority.getTicketId()));
 			}
 		}
 		return list;

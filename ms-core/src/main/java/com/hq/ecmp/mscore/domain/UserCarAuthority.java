@@ -22,9 +22,15 @@ public class UserCarAuthority {
      
     String cityName;
     
-    Long orderId;//订单编号   接/送机时存在
+    Long orderId;//订单编号   
      
-    Long powerId;//用车权限ID
+    Long ticketId;//用车权限ID
+    
+    Long regimenId;//制度ID
+    
+    String carType;//用车方式
+    
+    String setoutEqualArrive;// Y000-不允许跨域     N111-允许跨域
      /**
       * 获取接机or送机剩余次数
       */
