@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.bo.CityInfo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
@@ -19,4 +20,6 @@ import java.util.List;
 public interface ChinaCityMapper
 {
       public String queryCityCodeByCityName(String cityName);
+      
+      public List<CityInfo> queryCityInfoListByCityName(@Param("cityName")String cityName);
 }
