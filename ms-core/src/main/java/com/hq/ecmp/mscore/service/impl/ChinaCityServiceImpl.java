@@ -28,9 +28,4 @@ public class ChinaCityServiceImpl implements ChinaCityService {
 		return chinaCityMapper.queryCityInfoListByCityName(cityName);
 	}
 
-	@Override
-	public CityInfo queryCityByCityCode(String cityCode) {
-		return chinaCityMapper.queryCityByCityCode(cityCode);
-	}
-
 }

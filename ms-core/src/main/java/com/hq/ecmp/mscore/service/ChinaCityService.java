@@ -9,6 +9,4 @@ public interface ChinaCityService {
 	
 	
 	public List<CityInfo> queryCityInfoListByCityName(String cityName);
-
-	CityInfo queryCityByCityCode(String cityId);
 }
