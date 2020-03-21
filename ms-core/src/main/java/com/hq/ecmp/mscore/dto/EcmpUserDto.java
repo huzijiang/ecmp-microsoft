@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.dto;
 
 import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.ecmp.mscore.domain.RegimeVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -87,4 +88,9 @@ public class EcmpUserDto {
 
     @ApiModelProperty(value= "用户拥有的角色名称")
     private List<String> roleName;
+    @ApiModelProperty(value= "用户拥有的角色")
+    private List<EcmpRoleDto> roleList;
+
+    @ApiModelProperty(value= "用车制度")
+    private List<RegimeVo> regimeVoList;
 }

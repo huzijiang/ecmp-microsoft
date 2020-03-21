@@ -3,6 +3,8 @@ package com.hq.ecmp.mscore.service.impl;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.EcmpOrgDto;
+import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
@@ -42,7 +44,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 
     @Autowired
     private DriverInfoMapper driverInfoMapper;
-
+    @Autowired
+    private EcmpOrgMapper ecmpOrgMapper;
 
     /**
      * 根据用户id查询用户信息
@@ -85,27 +88,33 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int updateEcmpUser(EcmpUserVo ecmpUser) {
-        ecmpUser.setUpdateTime(DateUtils.getNowDate());
-        /*修改用车制度 （多个）*/
-        Long userId=ecmpUser.getUserId();
-        List<Long> regimenIds=ecmpUser.getRegimenIds();
-        try {
-            updateUserRegimens(userId,regimenIds);
-        } catch (Exception e) {
-            e.printStackTrace();
+        //更新用户信息
+        int updateEcmpUserNum = ecmpUserMapper.updateEcmpUser(ecmpUser);
+        //更新用户角色关联信息  查询该用户对应的所有角色 删除 再全部插入
+        int deleteEcmpUserRoleNum = ecmpUserRoleMapper.deleteEcmpUserRoleById(ecmpUser.getUserId());
+        Long[]  roleIds = ecmpUser.getRoleIds();
+        if(roleIds.length>0){
+            for (Long roleId:roleIds) {
+                EcmpUserRole ecmpUserRole =new  EcmpUserRole();
+                ecmpUserRole.setUserId(ecmpUser.getUserId());
+                ecmpUserRole.setRoleId(roleId);
+                ecmpUserRoleMapper.insertEcmpUserRole(ecmpUserRole);
+            }
         }
-        /*修改用户角色信息*/
-        Long[] roleIds=ecmpUser.getRoleIds();
-        for (int i = 0; i < roleIds.length; i++) {
-            EcmpUserRole ecmpUserRole=new EcmpUserRole();
-            ecmpUserRole.setUserId(userId);
-            Long roleId=roleIds[i];
-            ecmpUserRole.setRoleId(roleId);
-            ecmpUserRoleMapper.updateEcmpUserRole(ecmpUserRole);
+        //更新用户用车制度信息
+        int deleteUserRegimeRelationInfoByIdNum = userRegimeRelationInfoMapper.deleteUserRegimeRelationInfoById(ecmpUser.getUserId());
+        List<Long> regimenIds = ecmpUser.getRegimenId();
+        if(regimenIds.size()>0){
+            for (Long regimenId:regimenIds) {
+                UserRegimeRelationInfo userRegimeRelationInfo =new  UserRegimeRelationInfo();
+                userRegimeRelationInfo.setRegimenId(regimenId);
+                userRegimeRelationInfo.setUserId(ecmpUser.getUserId());
+                userRegimeRelationInfoMapper.insertUserRegimeRelationInfo(userRegimeRelationInfo);
+            }
         }
-        ecmpUserMapper.updateUserRegimeRelation(ecmpUser);
-        return ecmpUserMapper.updateEcmpUser(ecmpUser);
+        return updateEcmpUserNum;
     }
 
     /**
@@ -166,11 +175,23 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @return 结果
      */
     @Override
-    public int addEcmpUser(EcmpUserVo ecmpUser) {
+    @Transactional
+    public String addEcmpUser(EcmpUserVo ecmpUser) {
         ecmpUser.setCreateTime(DateUtils.getNowDate());
+        String phonenumber=ecmpUser.getPhonenumber();
+        String email=ecmpUser.getEmail();
+        int a = selectPhoneNumberExist(phonenumber);
+        if(a>0){
+            return "此手机号已存在请重新输入";
+        }
+        int b = selectEmailExist(email);
+        if(b>0){
+            return "此邮箱已存在请重新输入";
+        }
+        int count=ecmpUserMapper.addEcmpUser(ecmpUser);
         /*保存用车制度 （多个）*/
         Long userId=ecmpUser.getUserId();
-        List<Long> regimenIds=ecmpUser.getRegimenIds();
+        List<Long> regimenIds=ecmpUser.getRegimenId();
         try {
             bindUserRegimens(userId, regimenIds);
         } catch (Exception e) {
@@ -185,7 +206,10 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
             ecmpUserRole.setRoleId(roleId);
             ecmpUserRoleMapper.insertEcmpUserRole(ecmpUserRole);
         }
-        return ecmpUserMapper.addEcmpUser(ecmpUser);
+        if(count != 1){
+            return "添加失败";
+        }
+        return "成功添加"+count+"条数据";
     }
 
 
@@ -194,6 +218,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * */
     public int selectPhoneNumberExist(String phonenumber){
         return ecmpUserMapper.selectPhoneNumberExist(phonenumber);
+
     }
 
     /*
@@ -213,6 +238,11 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     public String updateUseStatus(String status,Long userId){
         //禁用/启用  员工
         int i1 = ecmpUserMapper.updateUseStatus(userId, status);
+        String it_is_driver = ecmpUserMapper.selectEcmpUserIsDirver(userId);
+        if("0".equals(it_is_driver)){
+            driverInfoMapper.updateDriverUseStatus(userId,"NV00");
+            /*清除用户token消息      delLoginUser(String token)*/
+        }
         if("0".equals(status)){
             return "启用成功！";
         }
@@ -245,8 +275,18 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         List<Long> userIds=ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
         for (int i = 0; i < userIds.size(); i++) {
             EcmpUserDto ecmpUserDto = ecmpUserMapper.getEcmpUserList(deptId, userIds.get(i));
-            List<String>  regimeInfoList =  regimeInfoMapper.selectByUserId(userIds.get(i));
-            String regimeName = StringUtils.join(regimeInfoList.toArray(), ",");
+            String regimeName = "";
+            List<RegimeVo> regimeVoList =  regimeInfoMapper.selectByUserId(userIds.get(i));
+            if(regimeVoList.size()>0){
+                for (RegimeVo regimeVo:regimeVoList) {
+                    if(regimeVo!=null){
+                        if(!StringUtils.isEmpty(regimeVo.getRegimeName())){
+                            regimeName=regimeName+",";
+                        }
+                    }
+                }
+            }
+            //String regimeName = StringUtils.join(regimeInfoList.toArray(), ",");
             ecmpUserDto.setRegimeName(regimeName);
             ecmpUserList.add(ecmpUserDto);
         }
@@ -276,15 +316,51 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         }
         return msg;
     }
-
+    //根据部门id查询所属公司
+    public EcmpOrgDto selectByUserSubCompany(Long deptId){
+        String ecmpOrgMapper.selectByUserSubCompany(deptId);
+        return null;
+    }
     /*员工详情
     @param  userId员工编号
     * @return
     * */
     public EcmpUserDto selectEcmpUserDetail(Long userId){
-        List<String> roleNameList = ecmpUserMapper.selectRoleNameByEcmpUserId(userId);
-        String roleName = StringUtils.join(roleNameList.toArray(), ",");
-        return ecmpUserMapper.selectEcmpUserDetail(userId,roleName);
+        EcmpUserDto ecmpUserDto = ecmpUserMapper.selectEcmpUserDetail(userId);
+        List<EcmpRoleDto> roleList = ecmpUserMapper.selectRoleNameByEcmpUserId(userId);
+        List<String> roleNameList= new ArrayList<>();
+        if(roleList.size()>0){
+            for (EcmpRoleDto ecmpRoleDto:roleList) {
+                if(ecmpRoleDto!=null){
+                    if(!StringUtils.isEmpty(ecmpRoleDto.getRoleName())){
+                        roleNameList.add(ecmpRoleDto.getRoleName());
+                    }
+                }
+            }
+        }
+        ecmpUserDto.setRoleName(roleNameList);
+        //用户角色赋值
+        ecmpUserDto.setRoleList(roleList);
+        //用户用车制度赋值
+        List<RegimeVo> regimeVoList = regimeInfoMapper.selectByUserId(userId);
+        String regimeName = "";
+        if(regimeVoList.size()>0){
+            for (RegimeVo regimeVo:regimeVoList) {
+                if(regimeVo!=null){
+                    if(!StringUtils.isEmpty(regimeVo.getRegimeName())){
+                        regimeName =regimeName+regimeVo.getRegimeName()+",";
+                    }
+                }
+            }
+        }
+        ecmpUserDto.setRegimeName(regimeName);
+        ecmpUserDto.setRegimeVoList(regimeVoList);
+        //查询所属公司名称
+        Long deptId=ecmpUserDto.getDeptId();
+        EcmpOrgDto subDetail = ecmpOrgMapper.getSubDetail(deptId);
+        ecmpUserDto.setSubCompany(subDetail.getSupComName());
+        ecmpUserDto.setSubDept(subDetail.getDeptName());
+        return ecmpUserDto;
     }
 
     /*设置离职日期
@@ -296,22 +372,15 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     }
 
     /*已离职数量*/
-    @ApiOperation(value = "已离职数量",notes = "已离职数量",httpMethod ="POST")
-    @PostMapping("/selectDimissionCount")
+    @Override
     public int selectDimissionCount(){
         return ecmpUserMapper.selectDimissionCount();
     }
 
     /*已离职列表*/
-    @ApiOperation(value = "已离职列表",notes = "已离职列表",httpMethod ="POST")
-    @PostMapping("/selectDimissionList")
+    @Override
     public List<EcmpUserDto> selectDimissionList(Long deptId){
-        List<EcmpUserDto> ecmpUserList=null;
-        List<Long> userIds= ecmpUserMapper.selectDimissionEcmpUserIds();
-        for (int i = 0; i < userIds.size(); i++) {
-            EcmpUserDto ecmpUserDto = ecmpUserMapper.selectDimissionList(deptId,userIds.get(i));
-            ecmpUserList.add(ecmpUserDto) ;
-        }
+        List<EcmpUserDto> ecmpUserList = ecmpUserMapper.selectDimissionList(deptId);
         return ecmpUserList;
     }
 
