@@ -316,11 +316,6 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         }
         return msg;
     }
-    //根据部门id查询所属公司
-    public EcmpOrgDto selectByUserSubCompany(Long deptId){
-        String ecmpOrgMapper.selectByUserSubCompany(deptId);
-        return null;
-    }
     /*员工详情
     @param  userId员工编号
     * @return
