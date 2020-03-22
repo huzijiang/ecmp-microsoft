@@ -1,23 +1,19 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
-import com.hq.common.utils.ServletUtils;
-import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.ms.api.dto.base.UserDto;
-import com.hq.ecmp.mscore.domain.EcmpNotice;
-import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -93,12 +89,6 @@ public class OrgController {
     public ApiResponse<List<EcmpOrgDto>> selectSubCompany(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
         String deptType=ecmpOrgVo.getDeptType();
-        if(deptId==null){
-           return ApiResponse.error("组织id不能为空！");
-        }
-        if(deptType==null){
-            return ApiResponse.error("组织类别不能为空！");
-        }
         List<EcmpOrgDto> deptList = orgService.getDeptList(deptId,deptType);
         return ApiResponse.success(deptList);
     }
