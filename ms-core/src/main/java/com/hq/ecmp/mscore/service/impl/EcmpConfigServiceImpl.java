@@ -20,8 +20,7 @@ import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
 
-import static com.hq.ecmp.constant.CommonConstant.SWITCH_OFF;
-import static com.hq.ecmp.constant.CommonConstant.SWITCH_ON_CUSTOM;
+import static com.hq.ecmp.constant.CommonConstant.*;
 
 /**
  * 参数配置Service业务层处理
@@ -353,8 +352,18 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.DISPATCH_INFO.getConfigKey());
-            ConfigValueDTO configValueDTO = ConfigValueDTO.builder().status(status).value(value).build();
-            baseConfig.setConfigValue(JSON.toJSONString(configValueDTO));
+            ConfigAutoDispatchDTO autoDispatchDTO = new ConfigAutoDispatchDTO();
+            autoDispatchDTO.setStatus(status);
+
+            if (SWITCH_ON.equals(status)) {
+                Type type = new TypeToken<List<AutoDispatchSetting>>() {
+                }.getType();
+                List<AutoDispatchSetting> autoDispatchSetting = GsonUtils.jsonToBean(value, type);
+                autoDispatchDTO.setValue(autoDispatchSetting);
+            } else {
+                autoDispatchDTO.setValue(null);
+            }
+            baseConfig.setConfigValue(JSON.toJSONString(autoDispatchDTO));
             if (dispatchInfo == null) {
                 baseConfig.setConfigName("自动派单方式");
                 baseConfig.setConfigType(ConfigTypeEnum.DISPATCH_INFO.getConfigType());
@@ -367,40 +376,6 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
         } catch (Exception e) {
             log.error("自动派单方式 {}", e);
         }
-    }
-
-    public static void main(String[] args) {
-        String value = "{\"status\":\"0\",\"value\":[\n" +
-                "    {\n" +
-                "        \"weekType\":\"0\",\n" +
-                "        \"startTime\":\"10:00\",\n" +
-                "        \"endTime\":\"20:00\",\n" +
-                "        \"nextDay\":\"true\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"weekType\":\"1\",\n" +
-                "        \"startTime\":\"10:00\",\n" +
-                "        \"endTime\":\"20:00\",\n" +
-                "        \"nextDay\":\"true\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"weekType\":\"2\",\n" +
-                "        \"startTime\":\"10:00\",\n" +
-                "        \"endTime\":\"20:00\",\n" +
-                "        \"nextDay\":\"false\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"weekType\":\"3\",\n" +
-                "        \"startTime\":\"10:00\",\n" +
-                "        \"endTime\":\"20:00\",\n" +
-                "        \"nextDay\":\"true\"\n" +
-                "    }\n" +
-                "]}";
-        Type type = new TypeToken<ConfigAutoDispatchDTO>() {
-        }.getType();
-        ConfigAutoDispatchDTO result = GsonUtils.jsonToBean(value, type);
-        log.info("{}", result);
-
     }
 
     @Override
