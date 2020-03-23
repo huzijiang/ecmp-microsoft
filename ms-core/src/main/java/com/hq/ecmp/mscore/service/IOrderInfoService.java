@@ -215,7 +215,7 @@ public interface IOrderInfoService {
      * @param applyUseWithTravelDto
      * @return
      */
-    public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws ParseException;
+    public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws Exception;
 
 
     /**
