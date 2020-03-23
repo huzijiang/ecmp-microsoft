@@ -936,7 +936,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.3 regimen_id 非空
         applyInfo.setRegimenId(Long.valueOf(officialCommitApply.getRegimenId()));
         //2.4 apply_type 用车申请类型；A001:  公务用车 A002:  差旅用车
-        applyInfo.setApplyType(String.valueOf(officialCommitApply.getApplyType())); //TODO 跟用车制度id重合了
+        applyInfo.setApplyType(String.valueOf(officialCommitApply.getApplyType()));
         //2.5 approver_name 第一审批阶段 审批人列表，前两位
         List<ApprovalVO> approvers = officialCommitApply.getApprovers();
         if(approvers == null){

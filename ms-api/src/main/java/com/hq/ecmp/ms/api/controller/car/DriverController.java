@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.hq.ecmp.mscore.domain.DriverHeartbeatInfo;
 import com.hq.ecmp.mscore.dto.DriverLocationDTO;
+import com.hq.ecmp.mscore.dto.DriverScheduleDTO;
 import com.hq.ecmp.mscore.service.IDriverHeartbeatInfoService;
 import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
@@ -135,14 +136,14 @@ public class DriverController {
      */
     @ApiOperation(value = "loadScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
     @PostMapping("/loadScheduleInfo")
-    public ApiResponse<List<DriverDutyPlanVO>> loadScheduleInfo(@RequestBody String scheduleDate){
+    public ApiResponse<DriverDutyPlanVO> loadScheduleInfo(@RequestBody(required = false) String scheduleDate){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
             //查询司机当月排班日期对应的出勤情况列表
-            List<DriverDutyPlanVO> list = driverWorkInfoService.selectDriverWorkInfoByMonth(scheduleDate,userId);
-            return ApiResponse.success(list);
+            DriverDutyPlanVO result = driverWorkInfoService.selectDriverScheduleByMonth(scheduleDate,userId);
+            return ApiResponse.success(result);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("加载司机当月排班日期对应的出勤情况列表失败");
@@ -156,13 +157,13 @@ public class DriverController {
      */
     @ApiOperation(value = "loadDutySummary",notes = "加载司机应该出勤/已出勤天数",httpMethod ="POST")
     @PostMapping("/loadDutySummary")
-    public ApiResponse<DriverDutySummaryVO> loadDutySummary(@RequestBody String scheduleDate){
+    public ApiResponse<DriverDutySummaryVO> loadDutySummary(@RequestBody(required = false) DriverScheduleDTO driverScheduleDTO){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
             //查询司机当月排班/出勤天数
-            DriverDutySummaryVO dutySummary = driverWorkInfoService.selectDriverDutySummary(scheduleDate,userId);
+            DriverDutySummaryVO dutySummary = driverWorkInfoService.selectDriverDutySummary(driverScheduleDTO.getScheduleDate(),userId);
             return ApiResponse.success(dutySummary);
         } catch (Exception e) {
             e.printStackTrace();

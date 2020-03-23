@@ -1,9 +1,11 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
+import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverServiceStateInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverWorkInfoMapper;
 import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
@@ -26,6 +28,8 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
     private DriverWorkInfoMapper driverWorkInfoMapper;
     @Autowired
     private DriverServiceStateInfoMapper driverServiceStateInfoMapper;
+    @Autowired
+    private DriverInfoMapper driverInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -108,7 +112,6 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
      */
     @Override
     public List<DriverDutyPlanVO> selectDriverWorkInfoByMonth(String scheduleDate, Long userId) {
-
         List<DriverDutyPlanVO> list = driverWorkInfoMapper.selectDriverWorkInfoByMonth(scheduleDate,userId);
         /*List<DriverDutyPlanVO> list = new ArrayList<>();
         DriverDutyPlanVO v1 = DriverDutyPlanVO.builder().dutyDate("2020-03-12").status("S002").build();
@@ -126,14 +129,35 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
      * @return
      */
     @Override
-    public DriverDutySummaryVO selectDriverDutySummary(String scheduleDate, Long driverId) {
+    public DriverDutySummaryVO selectDriverDutySummary(String scheduleDate, Long userId) {
+        //查询司机driverId
+        Long driverId = driverInfoMapper.selectDriverIdByUserId(userId);
         //查询司机应出勤天数
         int shouldDutyDays = driverWorkInfoMapper.selectDriverShouldDutyDays(scheduleDate,driverId);
         //查询司机已出勤天数
-        int alreadyDutyDays = driverServiceStateInfoMapper.selectDriverAlreadyDutyDays(scheduleDate,driverId);
+        int alreadyDutyDays = driverWorkInfoMapper.selectDriverAlreadyDutyDays(scheduleDate,driverId);
         DriverDutySummaryVO build = DriverDutySummaryVO.builder().alreadyDuty(alreadyDutyDays)
                 .shouldDuty(shouldDutyDays).build();
         return build;
+    }
+
+    /**
+     * 按月查询司机排班信息
+     * @param scheduleDate
+     * @param userId
+     * @return
+     */
+    @Override
+    public DriverDutyPlanVO selectDriverScheduleByMonth(String scheduleDate, Long userId) {
+        DriverDutyPlanVO driverDutyPlanVO = new DriverDutyPlanVO();
+        //查询司机driverId
+        Long driverId = driverInfoMapper.selectDriverIdByUserId(userId);
+        //查询司机上班时间
+      //  List<Date> dutyDate = driverWorkInfoMapper.selectDutyDateByMonth(scheduleDate,driverId);
+        //查询司机休假时间
+        List<String> holidays = driverWorkInfoMapper.selectHolidaysByMonth(scheduleDate,driverId);
+        driverDutyPlanVO.setHolidays(holidays);
+        return driverDutyPlanVO;
     }
 
 }
