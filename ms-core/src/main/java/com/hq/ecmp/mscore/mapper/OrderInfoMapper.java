@@ -176,11 +176,11 @@ public interface OrderInfoMapper {
     public List<String> queryAllOrderStatusByJourneyId(Long journeyId);
     
     /**
-     * 查询指定用车权限下的所有订单状态
+     * 查询指定权限下的有效订单状态
      * @param powerId
      * @return
      */
-    public List<String> queryAllOrderStatusByPowerId(Long powerId);
+    public String queryVaildOrderStatusByPowerId(Long powerId);
     
     public List<Long> queryOrderIdListByPowerId(Long powerId);
     
