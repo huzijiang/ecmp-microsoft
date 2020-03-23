@@ -232,5 +232,7 @@ public interface IOrderInfoService {
      * @return
      */
     public boolean queryOrderDispathIsOline(Long orderId);
+
+    public void cancelOrder(Long orderId,Long userId,String cancelReason) throws Exception;
 }
 
