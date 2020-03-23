@@ -79,4 +79,6 @@ public interface CarGroupDispatcherInfoMapper
      * @return
      */
     int deleteCarGroupDispatcherInfoByGroupId(Long carGroupId);
+
+    List<Long> findByCityCode(String cityCode);
 }

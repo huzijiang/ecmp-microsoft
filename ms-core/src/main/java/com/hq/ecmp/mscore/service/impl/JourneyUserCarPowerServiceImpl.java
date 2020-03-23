@@ -38,6 +38,8 @@ import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
 
+import javax.annotation.Resource;
+
 /**
  * 【请填写功能名称】Service业务层处理
  *
@@ -67,7 +69,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Autowired
     private IOrderStateTraceInfoService orderStateTraceInfoService;
-    @Autowired
+    @Resource
     private IOrderInfoService orderInfoService;
     
 

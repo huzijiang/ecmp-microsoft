@@ -318,4 +318,7 @@ WHERE
     <update id="updateDriverStatus">
     update  driver_info  set state=#{state} where driver_id=#{driverId}
     </update>
+    <select id="selectDriverIdByUserId" resultType="java.lang.Long" parameterType="long">
+        select driver_id from driver_info where user_id = #{userId}
+    </select>
 </mapper>
