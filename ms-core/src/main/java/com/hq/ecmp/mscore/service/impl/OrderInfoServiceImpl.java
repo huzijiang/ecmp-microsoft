@@ -110,6 +110,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private EcmpMessageService ecmpMessageService;
     @Resource
     private ISmsTemplateInfoService iSmsTemplateInfoService;
+    @Resource
+    private IJourneyPassengerInfoService iJourneyPassengerInfoService;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -814,8 +816,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderAddressInfo.setPowerId(powerId);
                 orderAddressInfo.setUserId(journeyInfo.getUserId()+"");
                 orderAddressInfo.setCreateBy(userId+"");
-                RegimeInfo regimeInfo = iRegimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
-                orderAddressInfo.setCityPostalCode(regimeInfo.getAllowCity());
                 if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState())){
                     SimpleDateFormat si = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String format = si.format(journeyInfo.getFlightPlanTakeOffTime());
@@ -834,6 +834,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLatitude()));
                     orderAddressInfo.setAddress(journeyNodeInfoCh.getPlanBeginAddress());
                     orderAddressInfo.setAddressLong(journeyNodeInfoCh.getPlanBeginLongAddress());
+                    orderAddressInfo.setCityPostalCode(journeyNodeInfoCh.getPlanBeginCityCode());
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
                 //终点
@@ -844,6 +845,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
                     orderAddressInfo.setAddress(journeyNodeInfoCh.getPlanEndAddress());
                     orderAddressInfo.setAddressLong(journeyNodeInfoCh.getPlanEndLongAddress());
+                    orderAddressInfo.setCityPostalCode(journeyNodeInfoCh.getPlanEndCityCode());
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
             }
@@ -1066,10 +1068,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(journeyUserCarPower == null){
             throw new Exception("用车权限不存在");
         }
-//        List<OrderInfo> validOrderByPowerId = orderInfoMapper.getValidOrderByPowerId(applyUseWithTravelDto.getTicketId());
-//        if(validOrderByPowerId!=null && validOrderByPowerId.size()>0){
-//            throw new Exception("此用车权限已存在有效订单");
-//        }
+        List<OrderInfo> validOrderByPowerId = orderInfoMapper.getValidOrderByPowerId(applyUseWithTravelDto.getTicketId());
+        if(validOrderByPowerId!=null && validOrderByPowerId.size()>0){
+            throw new Exception("此用车权限已存在有效订单");
+        }
         JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderNumber(OrderUtils.getOrderNum());
@@ -1080,6 +1082,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //直接约车，约车中。走调度，待派单
         if(applyUseWithTravelDto.getIsDispatch() == 2){
             orderInfo.setState(OrderState.SENDINGCARS.getState());
+            orderInfo.setUseCarMode(CarConstant.USE_CAR_TYPE_TRAVEL);
         }else{
             orderInfo.setState(OrderState.WAITINGLIST.getState());
         }
@@ -1345,6 +1348,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @throws Exception
      */
     private void sendSmsCancelOrder(Long orderId) throws Exception {
+        String useCarTime = null;
         //给司机发送短信
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         String driverMobile = orderInfo.getDriverMobile();
@@ -1352,7 +1356,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
             String planBeginAddress = null;
             String planEndAddress = null;
-            String useCarTime = null;
             Map<String,String> paramsMap = new HashMap<>();
             OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
             orderAddressInfo.setOrderId(orderId);
@@ -1374,6 +1377,23 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_DRIVER,paramsMap,driverMobile);
         }
         //给申请人发送短信
-        orderInfo.getJourneyId();
+        String riderMobile = "";
+        String applyMobile = "";
+        Long journeyId = orderInfo.getJourneyId();
+        JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyId);
+        Long applyUserId = journeyInfo.getUserId();
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(applyUserId);
+        applyMobile = ecmpUser.getPhonenumber();
+        JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
+        journeyPassengerInfo.setItIsPeer("1");
+        List<JourneyPassengerInfo> journeyPassengerInfos = iJourneyPassengerInfoService.selectJourneyPassengerInfoList(journeyPassengerInfo);
+        if(journeyPassengerInfos.size()>0){
+            riderMobile = journeyPassengerInfos.get(0).getMobile();
+            if(!"".equals(riderMobile) && !"".equals(applyMobile) && !riderMobile.equals(applyMobile) ){
+                Map<String,String> paramsMap = new HashMap<>();
+                paramsMap.put("useCarTime",useCarTime);
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_APPLICANT,paramsMap,applyMobile);
+            }
+        }
     }
 }
