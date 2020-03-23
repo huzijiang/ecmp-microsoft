@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IInvoiceInfoService;
 import com.hq.ecmp.mscore.service.IOrderAccountInfoService;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
+import com.hq.ecmp.mscore.vo.OrderAccountVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,11 +46,14 @@ public class AccountInfoController {
         List<OrderAccountInfo> invoiceInfoList = iOrderAccountInfoService.selectOrderAccountInfoList(rderAccountInfo);
         return ApiResponse.success();
     }
-    /**
-     *  账单下载
-     * @param
-     * @return
-     */
+
+    @ApiOperation(value = "getAccountList",notes = "获取为开发票的订单统计列表",httpMethod = "POST")
+    @PostMapping("/getAccountList")
+    public ApiResponse<List<OrderAccountVO>> getAccountList(OrderAccountInfo rderAccountInfo){
+        List<OrderAccountVO> invoiceInfoList = iOrderAccountInfoService.getAccountList("S999");
+        return ApiResponse.success(invoiceInfoList);
+    }
+
 
 
 

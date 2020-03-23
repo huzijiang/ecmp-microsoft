@@ -508,12 +508,6 @@ public class OrderController {
         return ApiResponse.success(orderList);
     }
 
-    @ApiOperation(value = "查询订单详情列表", httpMethod = "POST")
-    @RequestMapping("/orderDetail")
-    public ApiResponse<OrderDetailDto> orderDetail(@RequestHeader("token") String token, @RequestParam("orderNo") String orderId) {
-
-        return ApiResponse.success();
-    }
 
     @ApiOperation(value = "改派订单", httpMethod = "POST")
     @RequestMapping("/reassign")
@@ -692,9 +686,9 @@ public class OrderController {
     @RequestMapping("/getOrderState")
     @Transactional
     public ApiResponse<OrderStateVO> getOrderState(@RequestBody OrderDto orderDto){
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
+//        HttpServletRequest request = ServletUtils.getRequest();
+//        LoginUser loginUser = tokenService.getLoginUser(request);
+//        Long userId = loginUser.getUser().getUserId();
         try {
             OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderDto.getOrderId());
             orderVO.setDriverLongitude("116.786324");

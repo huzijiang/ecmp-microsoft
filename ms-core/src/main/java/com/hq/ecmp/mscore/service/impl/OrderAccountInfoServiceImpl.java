@@ -5,6 +5,9 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.OrderAccountInfo;
 import com.hq.ecmp.mscore.mapper.OrderAccountInfoMapper;
 import com.hq.ecmp.mscore.service.IOrderAccountInfoService;
+import com.hq.ecmp.mscore.vo.OrderAccountVO;
+import com.hq.ecmp.util.DateFormatUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -92,5 +95,19 @@ public class OrderAccountInfoServiceImpl implements IOrderAccountInfoService
     public int deleteOrderAccountInfoById(Long accountId)
     {
         return orderAccountInfoMapper.deleteOrderAccountInfoById(accountId);
+    }
+
+    @Override
+    public List<OrderAccountVO> getAccountList(String state) {
+        List<OrderAccountVO> accountList = orderAccountInfoMapper.getAccountList(state);
+        if (CollectionUtils.isNotEmpty(accountList)){
+            for (OrderAccountVO vo:accountList){
+                String beginMonth=vo.getAccountDate()+"-01";
+                String endMonth= DateFormatUtils.getLastDayOfMonth(DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT,beginMonth));
+                String desc=beginMonth+"至"+endMonth+" "+vo.getAmount()+ "元 (未开票)";
+                vo.setDesc(desc);
+            }
+        }
+        return accountList;
     }
 }

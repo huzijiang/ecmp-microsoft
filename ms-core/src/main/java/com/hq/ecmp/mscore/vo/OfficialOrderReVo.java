@@ -20,4 +20,13 @@ public class OfficialOrderReVo {
     private Integer isDispatch;
     @ApiModelProperty(value = "车型，<直接约车时必填，即isDispatch为2时必填>多个用逗号分隔。P001-公务级，P002-行政级，P003-六座商务。",required = false)
     private String carLevel;
+
+    public OfficialOrderReVo() {
+    }
+
+    public OfficialOrderReVo(Long powerId, Integer isDispatch, String carLevel) {
+        this.powerId = powerId;
+        this.isDispatch = isDispatch;
+        this.carLevel = carLevel;
+    }
 }
