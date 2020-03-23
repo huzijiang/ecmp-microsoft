@@ -385,56 +385,8 @@ public class OrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            OrderInfo orderInfoOld = iOrderInfoService.selectOrderInfoById(orderDto.getOrderId());
-            if (orderInfoOld == null) {
-                throw new Exception("未查询到订单号【" + orderDto.getOrderId() + "】对应的订单信息");
-            }
-            String useCarMode = orderInfoOld.getUseCarMode();
-            String state = orderInfoOld.getState();
-            Long orderId = orderInfoOld.getOrderId();
-            //消息发送使用
-            Long driverId = orderInfoOld.getDriverId();
-            //状态为约到车未服务的状态，用车方式为网约车，调用三方取消订单接口
-            if (OrderState.getContractedCar().contains(state) && useCarMode.equals(CarConstant.USR_CARD_MODE_NET)) {
-                //TODO 调用网约车的取消订单接口
-                List<String> macList = MacTools.getMacList();
-                String macAdd = macList.get(0);
-                Map<String, String> paramMap = new HashMap<>();
-                paramMap.put("enterpriseId", enterpriseId);
-                paramMap.put("enterpriseOrderId", String.valueOf(orderId));
-                paramMap.put("licenseContent", licenseContent);
-                paramMap.put("mac", macAdd);
-                paramMap.put("reason", orderDto.getCancelReason());
-                String result = OkHttpUtil.postJson(apiUrl + "/service/cancelOrder", paramMap);
-                JSONObject jsonObject = JSONObject.parseObject(result);
-                if (!"0".equals(jsonObject.get("CODE"))) {
-                    throw new Exception("调用三方取消订单服务-》取消失败");
-                }
-            }
-            OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setState(OrderState.ORDERCLOSE.getState());
-            orderInfo.setUpdateBy(String.valueOf(userId));
-            orderInfo.setOrderId(orderDto.getOrderId());
-            int suc = iOrderInfoService.updateOrderInfo(orderInfo);
-            //自有车，且状态变更成功
-            if (suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)) {
-                //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
-                EcmpMessage ecmpMessage = new EcmpMessage();
-                ecmpMessage.setConfigType(2);
-                ecmpMessage.setEcmpId(driverId);
-                ecmpMessage.setType("T001");
-                ecmpMessage.setStatus("0000");
-                ecmpMessage.setContent("");
-                ecmpMessage.setCategory("M005");
-                ecmpMessage.setUrl("");
-                ecmpMessage.setCreateBy(userId);
-                ecmpMessage.setCreateTime(DateUtils.getNowDate());
-                ecmpMessage.setUpdateBy(null);
-                ecmpMessage.setUpdateTime(null);
-                ecmpMessageService.insert(ecmpMessage);
-            }
-            //插入订单轨迹表
-            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderStateTrace.CANCEL.getState(), String.valueOf(userId),orderDto.getCancelReason());
+            Long orderId = orderDto.getOrderId();
+            iOrderInfoService.cancelOrder(orderId,userId,orderDto.getCancelReason());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("订单取消失败->" + e.getMessage());
