@@ -139,6 +139,12 @@ public interface DriverInfoMapper
      * @return
      */
     int disableDriver(Long driverId);
-    
-   
+
+
+    /**
+     * 查询driverId
+     * @param userId
+     * @return
+     */
+    Long selectDriverIdByUserId(Long userId);
 }
