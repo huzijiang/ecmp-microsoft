@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -96,9 +95,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private IDriverHeartbeatInfoService iDriverHeartbeatInfoService;
     @Resource
     private OrderAddressInfoMapper orderAddressInfoMapper;
-    @Autowired
-    @Lazy
-    private IJourneyUserCarPowerService iJourneyUserCarPowerService;
     @Resource
     IRegimeInfoService iRegimeInfoService;
     @Resource
@@ -1063,7 +1059,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto, Long userId) throws ParseException {
-        JourneyUserCarPower journeyUserCarPower = iJourneyUserCarPowerService.selectJourneyUserCarPowerById(applyUseWithTravelDto.getTicketId());
+        JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(applyUseWithTravelDto.getTicketId());
         JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderNumber(OrderUtils.getOrderNum());
