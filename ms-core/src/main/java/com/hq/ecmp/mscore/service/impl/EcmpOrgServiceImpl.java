@@ -238,7 +238,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     /**
      * 逻辑删除分子公司/部门信息
      *
-     * @param ecmpOrg
+     * @param deptType, deptId
      * @return 结果
      */
     @Transactional

@@ -1,7 +1,6 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
-import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/dept")
@@ -123,6 +121,12 @@ public class DepartmentController {
     public ApiResponse updateDelFlagById(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
         String deptType=ecmpOrgVo.getDeptType();
+        if(deptId==null){
+            return ApiResponse.error("组织id不能为空！");
+        }
+        if(deptType==null){
+            return ApiResponse.error("组织类别不能为空！");
+        }
         String msg = orgService.updateDelFlagById(deptType,deptId);
         return ApiResponse.error(msg);
     }
@@ -137,6 +141,12 @@ public class DepartmentController {
     public ApiResponse updateUseStatus(@RequestBody  EcmpOrgVo ecmpOrg){
         String status=ecmpOrg.getStatus();
         Long deptId=ecmpOrg.getDeptId();
+        if(deptId==null){
+            return ApiResponse.error("组织id不能为空！");
+        }
+        if(status==null){
+            return ApiResponse.error("部门状态不能为空！");
+        }
         String s = orgService.updateUseStatus(status,deptId);
         /*if (i > 0){
             return ApiResponse.success("启用成功");
