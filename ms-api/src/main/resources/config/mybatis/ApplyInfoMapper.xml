@@ -112,6 +112,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from apply_info t1
         left join journey_info t2 on t1.journey_id = t2.journey_id
         where t2.user_id = #{userId}
+        order by
+        CASE WHEN t1.state='S001' THEN t1.create_time END DESC,t1.update_time DESC
     </select>
 
     <!-- 手动编写sql  start-->
