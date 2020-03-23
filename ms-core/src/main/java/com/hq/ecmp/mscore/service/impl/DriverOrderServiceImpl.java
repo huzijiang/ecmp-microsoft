@@ -61,6 +61,9 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     @Resource
     IOrderAddressInfoService iOrderAddressInfoService;
 
+    @Resource
+    ThirdService thirdService;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -80,7 +83,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         if(currentPoint!=null && !currentPoint.equals("")){
             String[] point = currentPoint.split("\\,| \\，");
             longitude = Double.parseDouble(point[0]);
-            longitude =  Double.parseDouble(point[1]);
+            latitude =  Double.parseDouble(point[1]);
         }
 
         long orderId = Long.parseLong(orderNo);
@@ -112,24 +115,15 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderStateTraceInfo.setState(OrderStateTrace.PRESERVICE.getState());
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
-
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
-            List<String> macList = MacTools.getMacList();
-            String macAdd = macList.get(0);
-            Map<String, String> paramMap = new HashMap<>();
-            paramMap.put("enterpriseId", enterpriseId);
-            paramMap.put("licenseContent", licenseContent);
-            paramMap.put("mac", macAdd);
-            paramMap.put(" longitude", longitude+"");
-            paramMap.put("latitude",latitude+"");
-            String result = OkHttpUtil.postJson(apiUrl + "/service/locateByLongitudeAndLatitude", paramMap);
-            JSONObject jsonObject = JSONObject.parseObject(result);
-            if (ApiResponse.SUCCESS_CODE!=jsonObject.getInteger("code")) {
-                log.error("调用云端经纬度获取长短地址接口失败");
+            String longAddr = "";
+            String shortAddr ="";
+            if(!"".equals(currentPoint)){
+                Map<String, String> stringStringMap = thirdService.locationByLongitudeAndLatitude(String.valueOf(longitude), String.valueOf(latitude));
+                longAddr = stringStringMap.get("longAddr");
+                shortAddr = stringStringMap.get("shortAddr");
             }
-            JSONObject data = jsonObject.getJSONObject("data");
-            String longAddr = data.getString("addressFullName");
-            String shortAddr = data.getString("maddress");
+
             //订单地址表
             Long setOutOrderAddressId = null;
             OrderAddressInfo orderAddressInfoOld = new OrderAddressInfo();
@@ -169,22 +163,13 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
-            List<String> macList = MacTools.getMacList();
-            String macAdd = macList.get(0);
-            Map<String, String> paramMap = new HashMap<>();
-            paramMap.put("enterpriseId", enterpriseId);
-            paramMap.put("licenseContent", licenseContent);
-            paramMap.put("mac", macAdd);
-            paramMap.put(" longitude", longitude+"");
-            paramMap.put("latitude",latitude+"");
-            String result = OkHttpUtil.postJson(apiUrl + "/service/locateByLongitudeAndLatitude", paramMap);
-            JSONObject jsonObject = JSONObject.parseObject(result);
-            if (ApiResponse.SUCCESS_CODE!=jsonObject.getInteger("code")) {
-                log.error("调用云端经纬度获取长短地址接口失败");
+            String longAddr = "";
+            String shortAddr ="";
+            if(!"".equals(currentPoint)){
+                Map<String, String> stringStringMap = thirdService.locationByLongitudeAndLatitude(String.valueOf(longitude), String.valueOf(latitude));
+                longAddr = stringStringMap.get("longAddr");
+                shortAddr = stringStringMap.get("shortAddr");
             }
-            JSONObject data = jsonObject.getJSONObject("data");
-            String longAddr = data.getString("addressFullName");
-            String shortAddr = data.getString("maddress");
             //订单地址表
             Long arriveOutOrderAddressId = null;
             OrderAddressInfo orderAddressInfoOld = new OrderAddressInfo();
@@ -268,9 +253,13 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     @Transactional(rollbackFor = Exception.class)
     public Long waitingOrder(String orderNo, String isFinish, String currentPoint,String userId,String waitingId) throws Exception {
         Long orderId = Long.parseLong(orderNo);
-        String[] point = currentPoint.split("\\,| \\，");
-        Double longitude = Double.parseDouble(point[0]);
-        Double latitude = Double.parseDouble(point[1]);
+        Double longitude = null;
+        Double latitude = null;
+        if(!"".equals(currentPoint) && currentPoint.contains("\\,|\\，")){
+            String[] point = currentPoint.split("\\,| \\，");
+            longitude = Double.parseDouble(point[0]);
+            latitude = Double.parseDouble(point[1]);
+        }
         if(CommonConstant.START.equals(isFinish)){
             OrderInfo orderInfo = iOrderInfoService.selectOrderInfoById(orderId);
             OrderWaitTraceInfo orderWaitTraceInfo = new OrderWaitTraceInfo();
@@ -296,6 +285,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderWaitTraceInfoParam.setEndTime(DateUtils.getNowDate());
             orderWaitTraceInfoParam.setDuration(duration);
             orderWaitTraceInfoParam.setUpdateBy(userId);
+            orderWaitTraceInfoParam.setTraceId(Long.parseLong(waitingId));
             iOrderWaitTraceInfoService.updateOrderWaitTraceInfo(orderWaitTraceInfoParam);
             return null;
         }else{

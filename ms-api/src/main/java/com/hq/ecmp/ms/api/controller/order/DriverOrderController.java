@@ -113,7 +113,7 @@ public class DriverOrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            traceId = iDriverOrderService.waitingOrder(isFinish, currentPoint, orderNo, String.valueOf(userId), waitingId);
+            traceId = iDriverOrderService.waitingOrder(orderNo,isFinish,currentPoint, String.valueOf(userId), waitingId);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
