@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.CarConstant;
@@ -325,8 +326,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 
 	@Override
 	public String buildUserAuthorityPowerStatus(boolean flag, Long powerId) {
-		List<String> allOrderState = orderInfoMapper.queryAllOrderStatusByPowerId(powerId);
-		if(null==allOrderState || allOrderState.size()==0 || allOrderState.contains(OrderState.INITIALIZING.getState())){
+		String vaildOrdetrState = orderInfoMapper.queryVaildOrderStatusByPowerId(powerId);
+		if(StringUtil.isEmpty(vaildOrdetrState) ||OrderState.INITIALIZING.getState().equals(vaildOrdetrState)){
 			//还未生成订单  则表示权限未使用过
 			if(flag){
 				//对应前端状态   去约车
@@ -337,27 +338,27 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			}
 			
 		}
-		if(allOrderState.contains(OrderState.WAITINGLIST.getState())){
+		if(OrderState.WAITINGLIST.getState().equals(vaildOrdetrState)){
 			//订单状态为待派单,则对应前端状态为派车中
 			return OrderState.WAITINGLIST.getState();
 		}
 		
-		if(allOrderState.contains(OrderState.SENDINGCARS.getState())){
+		if(OrderState.SENDINGCARS.getState().equals(vaildOrdetrState)){
 			//订单状态为约车中  则对用前端状态为约车车中
 			return OrderState.SENDINGCARS.getState();
 		}
 		
-		if(allOrderState.contains(OrderState.ALREADYSENDING.getState()) || allOrderState.contains(OrderState.READYSERVICE.getState())){
+		if(OrderState.ALREADYSENDING.getState().equals(vaildOrdetrState) || OrderState.READYSERVICE.getState().equals(vaildOrdetrState)){
 			//订单状态为已派车或者准备服务   则对应前端状态为待服务
 			return OrderState.ALREADYSENDING.getState();
 		}
 		
-		if(allOrderState.contains(OrderState.INSERVICE.getState())){
+		if(OrderState.INSERVICE.getState().equals(vaildOrdetrState)){
 			//订单状态为服务中  则对应前端状态为进行中
 			return OrderState.INSERVICE.getState();
 		}
 		
-		if(allOrderState.contains(OrderState.ORDERCLOSE.getState())){
+		if(OrderState.ORDERCLOSE.getState().equals(vaildOrdetrState)){
 			//订单关闭了  判断是否是取消了
 			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(powerId);
 			if(null !=orderStateTraceInfo && OrderStateTrace.CANCEL.getState().equals(orderStateTraceInfo.getState())){

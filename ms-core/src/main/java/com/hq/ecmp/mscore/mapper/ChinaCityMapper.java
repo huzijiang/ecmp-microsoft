@@ -22,4 +22,6 @@ public interface ChinaCityMapper
       public String queryCityCodeByCityName(String cityName);
       
       public List<CityInfo> queryCityInfoListByCityName(@Param("cityName")String cityName);
+
+    CityInfo queryCityByCityCode(String cityCode);
 }

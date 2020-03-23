@@ -75,4 +75,12 @@ public interface IDriverWorkInfoService
      * @return
      */
     DriverDutySummaryVO selectDriverDutySummary(String scheduleDate, Long userId);
+
+    /**
+     * 按月查询司机排班信息
+     * @param scheduleDate
+     * @param userId
+     * @return
+     */
+    DriverDutyPlanVO selectDriverScheduleByMonth(String scheduleDate, Long userId);
 }

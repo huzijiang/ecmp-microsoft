@@ -75,15 +75,28 @@ M999  其他
     
     private Date updateTime;
 
-    public EcmpMessage(Integer configType, String type, String status) {
+    public EcmpMessage(Integer configType, String status,Long ecmpId,Long categoryId) {
         this.configType = configType;
-        this.type = type;
         this.status = status;
+        this.ecmpId = ecmpId;
+        this.categoryId = categoryId;
     }
 
     public EcmpMessage(Integer configType, String status,Long ecmpId) {
         this.configType = configType;
         this.status = status;
         this.ecmpId = ecmpId;
+    }
+
+    public EcmpMessage(Integer configType, Long ecmpId, Long categoryId, String type, String status, String content, String category,Long createBy,Date createTime) {
+        this.configType = configType;
+        this.ecmpId = ecmpId;
+        this.categoryId = categoryId;
+        this.type = type;
+        this.status = status;
+        this.content = content;
+        this.category = category;
+        this.createBy = createBy;
+        this.createTime = createTime;
     }
 }

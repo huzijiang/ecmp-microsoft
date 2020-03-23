@@ -263,20 +263,6 @@ public class ApplyContoller {
                         }
                     }
                 }
-                //TODO 发送通知消息
-//                EcmpMessage ecmpMessage = new EcmpMessage();
-//                ecmpMessage.setConfigType(3);
-//                ecmpMessage.setEcmpId(Long.parseLong(applyInfo.getCreateBy()));
-//                ecmpMessage.setType(MsgTypeConstant.MESSAGE_TYPE_T001.getType());
-//                ecmpMessage.setStatus("0000");
-//                ecmpMessage.setContent("您的申请单"+journeyApplyDto.getApplyId()+"已审批通过");
-//                ecmpMessage.setCategory("M003");
-//                ecmpMessage.setUrl("");
-//                ecmpMessage.setCreateBy(userId);
-//                ecmpMessage.setCreateTime(DateUtils.getNowDate());
-//                ecmpMessage.setUpdateBy(null);
-//                ecmpMessage.setUpdateTime(null);
-//                ecmpMessageService.insert(ecmpMessage);
             } else if (CollectionUtils.isNotEmpty(waitcollect)&&"0".equals(waitcollect.get(0).getNextNodeId())) {//是最后节点审批人
                 //修改审理状态
                 this.updateApproveResult(waitcollect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
@@ -287,7 +273,8 @@ public class ApplyContoller {
                 if(!optFlag){
                     return ApiResponse.error("生成用车权限失败");
                 }
-//                orderInfoService.initOrder(journeyApplyDto.getApplyId(),applyInfo.getJourneyId(),userId);
+                //发送通知消息
+                ecmpMessageService.saveApplyMessage(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,1l);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -364,7 +351,7 @@ public class ApplyContoller {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
        int count= applyInfoService.getApplyApproveCount(userId);
-        return ApiResponse.success(count+"");
+        return ApiResponse.success("查询成功",count+"");
     }
 
 

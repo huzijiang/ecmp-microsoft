@@ -1,8 +1,10 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.ConfigTypeEnum;
 import com.hq.ecmp.mscore.domain.EcmpConfig;
 import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
@@ -388,5 +390,21 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
         } catch (Exception e) {
             log.error("往返等待时长 {}", e);
         }
+    }
+
+    @Override
+    public int getOrderConfirmStatus(String key) {
+        if (key.contains("sys.")||ConfigTypeEnum.BASE_INFO.getConfigKey().equals(key)){
+            return 0;
+        }
+        EcmpConfig ecmpConfig = ecmpConfigMapper.selectConfigByKey(new EcmpConfig(key));
+        if (ecmpConfig!=null&& StringUtils.isNotEmpty(ecmpConfig.getConfigValue())){
+            JSONObject jsonObject = JSONObject.parseObject(ecmpConfig.getConfigValue());
+            String status = jsonObject.getString("status");
+            if ("0".equals(status)){
+                return 1;
+            }
+        }
+        return 0;
     }
 }
