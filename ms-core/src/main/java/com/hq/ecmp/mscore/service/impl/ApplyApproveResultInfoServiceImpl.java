@@ -11,6 +11,7 @@ import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyApproveResultInfoService;
 import com.hq.ecmp.mscore.vo.ApprovalInfoVO;
 import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.util.SortListUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -178,18 +179,8 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
         RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimenId);
         if (regimeInfo!=null){
             List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId()));
-            Collections.sort(approveTemplateNodeInfos, new Comparator<ApproveTemplateNodeInfo>() {
-                @Override
-                public int compare(ApproveTemplateNodeInfo o1, ApproveTemplateNodeInfo o2) {
-                    int i = o2.getApproveNodeId().intValue() - o1.getApproveNodeId().intValue();
-                    if(i == 0){
-                        return o1.getApproveNodeId().intValue() - o2.getApproveNodeId().intValue();
-                    }
-                    return i;
-                }
-            });
+            SortListUtil.sort(approveTemplateNodeInfos,"approveNodeId",SortListUtil.DESC);
             if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos)){
-                List<ApplyApproveResultInfo> list=new ArrayList<>();
                 for (int i=0;i<approveTemplateNodeInfos.size();i++ ){
                     ApproveTemplateNodeInfo info = approveTemplateNodeInfos.get(i);
                     ApplyApproveResultInfo resultInfo=new ApplyApproveResultInfo(applyId,regimeInfo.getApproveTemplateId(),info.getApproveNodeId(),info.getApproverType(),info.getNextNodeId());
@@ -218,12 +209,8 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                             resultInfo.setApproveUserId(String.valueOf(userVO.getUserId()));
                             break;
                         }
-//                    list.add(resultInfo);
                     applyApproveResultInfoMapper.insertApplyApproveResultInfo(resultInfo);
                 }
-//                if (CollectionUtils.isNotEmpty(list)){
-//                    applyApproveResultInfoMapper.insertList(list);
-//                }
             }
         }
     }

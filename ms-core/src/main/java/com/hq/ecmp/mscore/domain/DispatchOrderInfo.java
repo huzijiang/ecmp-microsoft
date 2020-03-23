@@ -54,8 +54,9 @@ public class DispatchOrderInfo {
     	String driverTel;//驾驶员电话号码
        	
        	
-       	DispatchDriverInfo DispatchDriverInfo;//驾驶员车辆信息 派车完成后
+       	DispatchDriverInfo DispatchDriverInfo;//申请改派的驾驶员信息  及改派状态
        	
        	List<SendCarInfo> sendCarInfoList;//派车信息
+       	
        	
 }

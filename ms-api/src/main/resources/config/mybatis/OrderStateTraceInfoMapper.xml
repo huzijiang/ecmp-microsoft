@@ -99,11 +99,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     select state from order_state_trace_info where order_id=#{orderId}
     </select>
     
-   <select id="queryDispatchDriverInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchDriverInfo">
+   <select id="queryReassignmentOrderInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchDriverInfo">
    SELECT
 	b.nick_name AS driverName,
 	b.phonenumber AS driverTel,
 	a.content AS reassignmentApplyReason,
+	a.state as state,
 	d.car_license AS carLicense,
 	d.car_type AS carType
 FROM
@@ -113,7 +114,7 @@ LEFT JOIN order_info c ON c.order_id = a.order_id
 LEFT JOIN car_info d ON d.car_id = c.car_id
 WHERE
 	a.order_id = #{orderId}
-AND a.state = 'S270'
+AND a.state in ('S270','S277','S279')  order by a.create_time desc limit 1
    </select>
    
    <select id="queryStateInfo" parameterType="java.lang.Long"  resultType="com.hq.ecmp.mscore.domain.SendCarInfo">

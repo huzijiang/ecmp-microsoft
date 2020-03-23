@@ -95,7 +95,7 @@ public interface IEcmpUserService {
      *  @param  ecmpUserVo
      * @return int
      * */
-    public int addEcmpUser(EcmpUserVo ecmpUser);
+    public String addEcmpUser(EcmpUserVo ecmpUser);
 
     /*
      *查询手机号是否已经存在

@@ -3,14 +3,15 @@ package com.hq.ecmp.ms.api.controller.base;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.UserReqimensDTO;
-import com.hq.ecmp.mscore.mapper.EcmpUserRoleMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.List;
@@ -35,24 +36,9 @@ public class EcmpUserController {
     @PostMapping("/addEcmpUser")
     public ApiResponse addEcmpUser(@RequestBody EcmpUserVo ecmpUser){
         /*用户可自由选择该员工所属部门*/
-        int i = ecmpUserService.addEcmpUser(ecmpUser);
+        String s = ecmpUserService.addEcmpUser(ecmpUser);
         /*保存用车制度 （多个）*/
-
-        String phonenumber=ecmpUser.getPhonenumber();
-        String email=ecmpUser.getEmail();
-        int a = ecmpUserService.selectPhoneNumberExist(phonenumber);
-        if(a>0){
-            return ApiResponse.error("此手机号已存在请重新输入");
-        }
-        int b = ecmpUserService.selectEmailExist(email);
-        if(b>0){
-            return ApiResponse.error("此邮箱已存在请重新输入");
-        }
-        if (i == 1){
-            return ApiResponse.success("添加员工成功!");
-        }else {
-            return ApiResponse.error("添加员工失败!");
-        }
+            return ApiResponse.success(s);
     }
 
     /**
@@ -120,9 +106,6 @@ public class EcmpUserController {
     @PostMapping("/updateEcmpUser")
     public ApiResponse updateEcmpUser(@RequestBody EcmpUserVo ecmpUser ){
         int i = ecmpUserService.updateEcmpUser(ecmpUser);
-        /*修改用车制度 （多个）*/
-
-        /*修改用户角色信息*/
         if (i == 1){
             return ApiResponse.success("修改员工成功!");
         }else {

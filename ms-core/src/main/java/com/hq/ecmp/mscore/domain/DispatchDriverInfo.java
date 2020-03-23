@@ -21,5 +21,7 @@ public class DispatchDriverInfo {
 	
 	Long driveWaitTime;//等待时长  分钟
 	
+	String state;//改派状态  待改派-S270   已改派-S279    已驳回-S277
+	
 	
 }

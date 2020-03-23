@@ -91,14 +91,14 @@ public interface RegimeInfoMapper
     public RegimenVO selectRegimenVOById(Long regimeId);
 
 
-    public String queryUseCarModelByNoteId(Long noteId);
+    public RegimeInfo queryUseCarModelByNoteId(Long noteId);
 
 
     public String queryUseCarModelByJourneyId(Long journeyId);
     /*
     * 根据userid 查询用车制度名称
     * */
-    public  List<String> selectByUserId(Long userId);
+    public  List<RegimeVo> selectByUserId(Long userId);
 
     /**
      * 查询用户可用网约车车型等级

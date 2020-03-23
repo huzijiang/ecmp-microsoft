@@ -231,6 +231,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		query.setState(OrderState.WAITINGLIST.getState());
 		List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
 		if(null !=waitDispatchOrder && waitDispatchOrder.size()>0){
+			//对用的前端状态都为待派车 -S200
+			for (DispatchOrderInfo dispatchOrderInfo : waitDispatchOrder) {
+				dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
+			}
 			result.addAll(waitDispatchOrder);
 		}
 		//查询所有处于待改派(订单状态为已派车,已发起改派申请)的订单及关联的信息
@@ -304,6 +308,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<DispatchOrderInfo> list = orderInfoMapper.queryCompleteDispatchOrder();
 		if(null !=list && list.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : list) {
+				//对应的前端状态都为已处理-S299
+				dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
 				//查询订单对应的上车地点时间,下车地点时间
 				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 			}
@@ -345,7 +351,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		//判断该订单是否改派过
 		if(iOrderStateTraceInfoService.isReassignment(orderId)){
 			//是改派过的单子  则查询改派详情
-			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryDispatchDriverInfo(orderId);
+			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryReassignmentOrderInfo(orderId);
 			dispatchOrderInfo.setDispatchDriverInfo(dispatchDriverInfo);
 		}
 		return dispatchOrderInfo;
@@ -358,7 +364,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 		if(iOrderStateTraceInfoService.isReassignment(orderId)){
 			//是改派过的单子  则查询改派详情
-			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryDispatchDriverInfo(orderId);
+			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryReassignmentOrderInfo(orderId);
 			dispatchOrderInfo.setDispatchDriverInfo(dispatchDriverInfo);
 		}
 		//查询派车信息
@@ -424,8 +430,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
             if (carInfo!=null){
                 BeanUtils.copyProperties(carInfo,vo);
+                vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
             }
-            vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
             DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
             vo.setDriverScore(driverInfo.getStar()+"");
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
@@ -682,7 +688,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		// 新增订单状态流转记录
 		OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
 		OrderInfo orderInfo = new OrderInfo();
-		// 判读该单子是否是改派单
+		/*// 判读该单子是否是改派单
 		if (iOrderStateTraceInfoService.isReassignment(orderId)) {
 			// 是改派单
 			orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.getState());
@@ -691,7 +697,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			//申请单
 			orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
 			orderInfo.setState(OrderState.ALREADYSENDING.getState());
-		}
+		}*/
+		orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
+		orderInfo.setState(OrderState.ALREADYSENDING.getState());
 		// 查询司机信息
 		DriverInfo driverInfo = driverInfoService.selectDriverInfoById(driverId);
 		orderInfo.setOrderId(orderId);

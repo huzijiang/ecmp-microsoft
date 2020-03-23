@@ -125,13 +125,14 @@ public interface EcmpOrgMapper {
      */
     public EcmpOrgDto getSubDetail(Long deptId);
 
+
     /**
      * 逻辑删除部门信息
      *
      * @param deptId 部门ID
      * @return 结果
      */
-    public int updateDelFlagById( Long deptId);
+    public int updateDelFlagById(@Param("deptId")Long deptId,@Param("deptType")String deptType);
 
     /**
      * 逻辑批量删除部门信息
