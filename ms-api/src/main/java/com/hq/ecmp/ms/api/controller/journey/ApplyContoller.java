@@ -273,11 +273,8 @@ public class ApplyContoller {
                 if(!optFlag){
                     return ApiResponse.error("生成用车权限失败");
                 }
-                OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(1L,1,"P001,P002,P003");
-                Long orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
                 //发送通知消息
-                //TODO 获取权限id;
-                ecmpMessageService.saveApplyMessage(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,orderId,1l);
+                ecmpMessageService.saveApplyMessage(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,1l);
             }
         }catch (Exception e){
             e.printStackTrace();

@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.ServletUtils;
-import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.*;
@@ -46,8 +45,6 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
     private ApplyInfoMapper applyInfoMapper;
     @Autowired
     private JourneyNodeInfoMapper journeyNodeInfoMapper;
-    @Autowired
-    private JourneyUserCarPowerMapper userCarPowerMapper;
     @Autowired
     private RegimeInfoMapper regimeInfoMapper;
     @Autowired
@@ -252,7 +249,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
 
     //TODO 审批通过后的发通知
     @Transactional
-    public void saveApplyMessage(Long applyId,Long ecmpId,Long userId,Long orderId,Long powerId) throws Exception{
+    public void saveApplyMessage(Long applyId,Long ecmpId,Long userId,Long orderId) throws Exception{
         //通知调度员,通知申请人审批通过
         //判断申请用车城市是否有我车队组织
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
@@ -264,8 +261,23 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
                 MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您的申请单"+applyId+"审批通过了",MsgConstant.MESSAGE_T001.getType(),userId,new Date()));
         if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){//公务
             //公务需要给申请人和调度员发送通知
-            List<EcmpMessage> dispatcherMessage = this.getDispatcherMessage(orderId, userId, powerId);
-            msgList.addAll(dispatcherMessage);
+            List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId()));
+            if (CollectionUtils.isNotEmpty(journeyNodeInfos)){
+                //查询这个城市的调度员
+                List<Long> dispatchers=carGroupDispatcherInfoMapper.findByCityCode(journeyNodeInfos.get(0).getPlanBeginCityCode());
+                if (CollectionUtils.isEmpty(dispatchers)){
+                    List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(null);
+                    if (CollectionUtils.isNotEmpty(carGroupDispatcherInfos)){
+                        dispatchers = carGroupDispatcherInfos.stream().map(CarGroupDispatcherInfo::getUserId).collect(Collectors.toList());
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(dispatchers)){
+                    for (Long dispatcherId:dispatchers){
+                        msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(),dispatcherId,orderId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                                MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您有一条调度通知",MsgConstant.MESSAGE_T003.getType(),userId,new Date()));
+                    }
+                }
+            }
             if (CollectionUtils.isNotEmpty(msgList)){
                 ecmpMessageDao.insertList(msgList);//保存消息通知
             }
@@ -281,44 +293,5 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
                 ecmpMessageDao.update(message);//将审批之前的未读消息修改为已读
             }
         }
-    }
-
-
-    private List<EcmpMessage> getDispatcherMessage(Long orderId,Long userId,Long powerId){
-        List<EcmpMessage> msgList=new ArrayList<>();
-        JourneyUserCarPower journeyUserCarPower = userCarPowerMapper.selectJourneyUserCarPowerById(powerId);
-        if (journeyUserCarPower==null){
-            return null;
-        }
-
-        JourneyNodeInfo journeyNodeInfo = journeyNodeInfoMapper.selectJourneyNodeInfoById(journeyUserCarPower.getNodeId());
-        if (journeyNodeInfo==null){
-            return null;
-        }
-        String cityCodes="";
-        if (StringUtils.isNotEmpty(journeyNodeInfo.getPlanBeginCityCode())){
-            cityCodes+=","+journeyNodeInfo.getPlanBeginCityCode();
-        }
-        if (StringUtils.isNotEmpty(journeyNodeInfo.getPlanEndCityCode())){
-            cityCodes+=","+journeyNodeInfo.getPlanEndCityCode();
-        }
-        if (StringUtils.isNotEmpty(cityCodes)){
-            cityCodes=cityCodes.substring(1);
-        }
-        //查询这个城市的调度员
-        List<Long> dispatchers=carGroupDispatcherInfoMapper.findByCityCode(cityCodes);
-        if (CollectionUtils.isEmpty(dispatchers)){
-            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(null);
-            if (CollectionUtils.isNotEmpty(carGroupDispatcherInfos)){
-                dispatchers = carGroupDispatcherInfos.stream().map(CarGroupDispatcherInfo::getUserId).collect(Collectors.toList());
-            }
-        }
-        if (CollectionUtils.isNotEmpty(dispatchers)){
-            for (Long dispatcherId:dispatchers){
-                msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(),dispatcherId,orderId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
-                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您有一条调度通知",MsgConstant.MESSAGE_T003.getType(),userId,new Date()));
-            }
-        }
-        return msgList;
     }
 }
