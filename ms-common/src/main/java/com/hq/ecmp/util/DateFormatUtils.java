@@ -1,6 +1,7 @@
 package com.hq.ecmp.util;
 
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -191,7 +192,17 @@ public class DateFormatUtils {
         }
         return totalTimeStr;
     }
-    
+
+
+    public static String getLastDayOfMonth(Date date){
+        final Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        final int last = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        cal.set(Calendar.DAY_OF_MONTH, last);
+        Date time = cal.getTime();
+        return formatDate(DateFormatUtils.DATE_FORMAT, time);
+
+    }
     public static boolean beforeCurrentDate(Date date){
     	Date currentDate=new Date();
     	if(date.getTime()>currentDate.getTime()){

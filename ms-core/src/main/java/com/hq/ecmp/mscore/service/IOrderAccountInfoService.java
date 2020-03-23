@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.OrderAccountInfo;
+import com.hq.ecmp.mscore.vo.OrderAccountVO;
 
 import java.util.List;
 
@@ -59,4 +60,6 @@ public interface IOrderAccountInfoService
      * @return 结果
      */
     public int deleteOrderAccountInfoById(Long accountId);
+
+    List<OrderAccountVO> getAccountList(String state);
 }
