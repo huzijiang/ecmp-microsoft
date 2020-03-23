@@ -132,4 +132,9 @@ public interface IEcmpConfigService
      * @param value
      */
     void setUpWaitMaxMinute(String status, String value);
+
+    /**
+     * 获取行程确认/异议 开关状态(0:关,1开)
+     */
+    int getOrderConfirmStatus(String key);
 }

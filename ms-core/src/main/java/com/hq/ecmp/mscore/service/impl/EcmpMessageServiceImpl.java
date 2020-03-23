@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Maps;
 import com.hq.api.system.domain.SysUser;
@@ -42,6 +43,8 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
     private OrderInfoMapper orderInfoMapper;
     @Autowired
     private ApplyInfoMapper applyInfoMapper;
+    @Autowired
+    private JourneyNodeInfoMapper journeyNodeInfoMapper;
     @Autowired
     private RegimeInfoMapper regimeInfoMapper;
     @Autowired
@@ -238,42 +241,57 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         }
         //获取即将任务开始的通知
         OrderInfo info=orderInfoMapper.selectDriverOrder(driverInfo.getDriverId(), OrderState.ALREADYSENDING.getState());
-        runMessageForDrive.add(new MessageDto(info.getOrderId(),MsgConstant.MESSAGE_T00.getType(),MsgConstant.MESSAGE_T00.getDesp(),1));
+        if (info!=null){
+            runMessageForDrive.add(new MessageDto(info.getOrderId(),MsgConstant.MESSAGE_T00.getType(),MsgConstant.MESSAGE_T00.getDesp(),1));
+        }
         return runMessageForDrive;
     }
 
     //TODO 审批通过后的发通知
     @Transactional
-    public void saveApplyMessage(Long applyId,Long ecmpId,Long userId){
-        Map<String,Object> map= Maps.newHashMap();
-        map.put("messageId",applyId);
-        map.put("ecmpId",ecmpId);
-        map.put("category",MsgConstant.MESSAGE_T001);
-        map.put("status",MsgStatusConstant.MESSAGE_STATUS_T002.getType());
-        List<EcmpMessage> ecmpMessages = ecmpMessageDao.queryMessageList(map);
+    public void saveApplyMessage(Long applyId,Long ecmpId,Long userId,Long orderId) throws Exception{
+        //通知调度员,通知申请人审批通过
+        //判断申请用车城市是否有我车队组织
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
+        if (applyInfo==null){
+            throw new Exception("申请单:"+applyId+"不存在");
+        }
+        List<EcmpMessage> msgList=new ArrayList<>();
+        msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),Long.parseLong(applyInfo.getCreateBy()),applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您的申请单"+applyId+"审批通过了",MsgConstant.MESSAGE_T001.getType(),userId,new Date()));
+        if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){//公务
+            //公务需要给申请人和调度员发送通知
+            List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId()));
+            if (CollectionUtils.isNotEmpty(journeyNodeInfos)){
+                //查询这个城市的调度员
+                List<Long> dispatchers=carGroupDispatcherInfoMapper.findByCityCode(journeyNodeInfos.get(0).getPlanBeginCityCode());
+                if (CollectionUtils.isEmpty(dispatchers)){
+                    List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(null);
+                    if (CollectionUtils.isNotEmpty(carGroupDispatcherInfos)){
+                        dispatchers = carGroupDispatcherInfos.stream().map(CarGroupDispatcherInfo::getUserId).collect(Collectors.toList());
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(dispatchers)){
+                    for (Long dispatcherId:dispatchers){
+                        msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(),dispatcherId,orderId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                                MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您有一条调度通知",MsgConstant.MESSAGE_T003.getType(),userId,new Date()));
+                    }
+                }
+            }
+            if (CollectionUtils.isNotEmpty(msgList)){
+                ecmpMessageDao.insertList(msgList);//保存消息通知
+            }
+        }else{//差旅
+            ecmpMessageDao.insertList(msgList);//保存消息通知
+        }
+        List<EcmpMessage> ecmpMessages = ecmpMessageDao.queryAll(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),MsgStatusConstant.MESSAGE_STATUS_T002.getType(),ecmpId,applyId));
         if (CollectionUtils.isNotEmpty(ecmpMessages)){
             for (EcmpMessage message:ecmpMessages){
                 message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T001.getType());
                 message.setUpdateBy(ecmpId);
                 message.setUpdateTime(new Date());
-                ecmpMessageDao.update(message);
+                ecmpMessageDao.update(message);//将审批之前的未读消息修改为已读
             }
         }
-        //通知调度员,通知申请人审批通过
-        List<EcmpMessage> list=new ArrayList<>();
-        //判断申请用车城市是否有我车队组织
-        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
-        RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(applyInfo.getRegimenId());
-//        if ("C001".equals(regimeInfo.getRuleCity())){
-//
-//            carGroupInfoMapper.selectCarGroupInfoById();
-//        }else{
-//
-//        }
-        EcmpMessage message=new EcmpMessage();
-        message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T002.getType());
-        message.setCategory(MsgConstant.MESSAGE_T001.getType());
-        message.setEcmpId(ecmpId);
-        message.setConfigType(1);
     }
 }

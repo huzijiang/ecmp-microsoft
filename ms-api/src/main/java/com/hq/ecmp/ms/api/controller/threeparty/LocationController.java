@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import com.hq.ecmp.mscore.bo.CityInfo;
+import com.hq.ecmp.mscore.vo.AirportVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -112,6 +114,30 @@ public class LocationController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ApiResponse.error("获取审批详情异常");
+		}
+	}
+
+	@ApiOperation(value = "findAirportList", notes = "根据城市code获取机场列表 ", httpMethod = "POST")
+	@PostMapping("/findAirportList")
+	public ApiResponse<List<AirportVo>> findAirportList(@RequestBody Map<String,Object> map) {
+		try {
+			String cityCode = (String)map.get("cityCode");
+			CityInfo city =chinaCityService.queryCityByCityCode(cityCode);
+			map.put("cityId",city.getCityId());
+			map.put("enterpriseId", enterpriseId);
+			map.put("licenseContent", licenseContent);
+			map.put("mac", MacTools.getMacList().get(0));
+			String postJson = OkHttpUtil.postForm(apiUrl + "/service/getAirPortInfo", map);
+			JSONObject parseObject = JSONObject.parseObject(postJson);
+			String data = parseObject.getString("data");
+			if(!"0".equals(parseObject.getString("code"))){
+				return ApiResponse.error("该城市未有机场!");
+			}
+			List<AirportVo> list = JSONObject.parseArray(data, AirportVo.class);
+			return ApiResponse.success(list);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error("获取机场列表异常");
 		}
 	}
 
