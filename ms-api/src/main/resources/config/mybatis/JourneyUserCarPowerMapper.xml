@@ -175,5 +175,31 @@ WHERE
 	a.journey_id= #{journeyId}
     
     </select>
+    
+    <select id="queryOfficialPowerUseCity" parameterType="java.lang.Long"
+	resultType="com.hq.ecmp.mscore.domain.CarAuthorityInfo">
+	SELECT
+	a.plan_begin_city_code AS planBeginCityCode,
+	plan_end_city_code AS
+	planEndCityCode,
+	b.type AS type
+	FROM
+	journey_node_info a
+	LEFT JOIN journey_user_car_power b ON a.node_id = b.node_id
+	WHERE
+	b.power_id =#{powerId}
+</select>
+
+<select id="queryOfficialOrderNeedPower" resultType="com.hq.ecmp.mscore.domain.CarAuthorityInfo"
+	parameterType="java.lang.Long">
+	SELECT
+	power_id AS ticketId,
+	regimen_id AS regimenId
+	FROM
+	journey_user_car_power a
+	LEFT JOIN journey_info b ON a.journey_id = b.journey_id
+	WHERE
+	a.journey_id = #{journeyId}
+</select>
 
 </mapper>

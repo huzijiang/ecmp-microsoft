@@ -25,6 +25,7 @@ import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
+import com.hq.ecmp.mscore.mapper.CarGroupServeScopeInfoMapper;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
@@ -60,6 +61,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     private IRegimeInfoService regimeInfoService;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
+    @Autowired
+    private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Autowired
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Autowired
@@ -167,12 +170,11 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	}
 
 	@Override
-	public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId) {
+	public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId,String cityCode) {
 		List<UserCarAuthority> list = journeyUserCarPowerMapper.queryNoteAllUserAuthority(nodeId);
 		 RegimeInfo regimeInfo = regimeInfoService.queryUseCarModelByNoteId(nodeId);
-		String[] split = regimeInfo.getCanUseCarMode().split(",");
-		List<String> asList = Arrays.asList(split);
-		boolean flag = !asList.contains(CarConstant.USR_CARD_MODE_HAVE);// true-只有网约车
+		//判断是否走调度
+		 boolean flag = regimeInfoService.judgeNotDispatch(regimeInfo.getRegimenId(), cityCode);//true-不走调度  fasle-走调度
 		// 查询对应的用车方式
 		if (null != list && list.size() > 0) {
 			RegimeInfo selectRegimeInfo = regimeInfoService.selectRegimeInfoById(regimeInfo.getRegimenId());
@@ -380,6 +382,34 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	public List<CarAuthorityInfo> queryJourneyAllUserAuthority(Long journeyId) {
 		
 		return journeyUserCarPowerMapper.queryJourneyAllUserAuthority(journeyId);
+	}
+
+	@Override
+	public String queryOfficialPowerUseCity(Long powerId) {
+		CarAuthorityInfo carAuthorityInfo = journeyUserCarPowerMapper.queryOfficialPowerUseCity(powerId);
+		String type = carAuthorityInfo.getType();
+		if(CarConstant.BACK_TRACKING.equals(type)){
+			//是返程 则用车城市为目的地
+			return carAuthorityInfo.getPlanEndCityCode();
+		}
+		//是去程  则用车城市为开始地点
+		return carAuthorityInfo.getPlanBeginCityCode();
+	}
+
+	@Override
+	public List<CarAuthorityInfo> queryOfficialOrderNeedPower(Long journeyId) {
+		List<CarAuthorityInfo> list = journeyUserCarPowerMapper.queryOfficialOrderNeedPower(journeyId);
+		if(null !=list && list.size()>0){
+			for (CarAuthorityInfo carAuthorityInfo : list) {
+				//查询公务权限对应的用车城市
+				String cityCode = queryOfficialPowerUseCity(carAuthorityInfo.getTicketId());
+				//判断该权限用车是否走调度
+				boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(carAuthorityInfo.getRegimenId(), cityCode);
+				carAuthorityInfo.setDispatchOrder(!judgeNotDispatch);
+			}
+		}
+		
+		return list;
 	}
 	
 	

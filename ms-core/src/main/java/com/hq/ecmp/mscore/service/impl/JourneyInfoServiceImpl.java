@@ -176,14 +176,11 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 					if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimeInfo.getRegimenType())){
 						//查询公务用车行程下面的用车权限
 						List<CarAuthorityInfo> journeyUserCarPowerList = journeyUserCarPowerService.queryJourneyAllUserAuthority(journeyInfo.getJourneyId());
-						//判断该行程对应的用车制度是否是只有网约车
-						String useCarModel = regimeInfo.getCanUseCarMode();
-						String[] split = useCarModel.split(",");
-						List<String> asList = Arrays.asList(split);
-						boolean flag = !asList.contains(CarConstant.USR_CARD_MODE_HAVE);// true-只有网约车
-						
 						if(null !=journeyUserCarPowerList && journeyUserCarPowerList.size()>0){
 							for (CarAuthorityInfo carAuthorityInfo : journeyUserCarPowerList) {
+								//查询该权限对应的用车城市
+								String cityCode = journeyUserCarPowerService.queryOfficialPowerUseCity(carAuthorityInfo.getTicketId());
+								carAuthorityInfo.setCityCode(cityCode);
 								carAuthorityInfo.setRegimenId(journeyInfo.getRegimenId());
 								carAuthorityInfo.setCarType(regimeInfo.getCanUseCarMode());
 								carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
@@ -202,8 +199,10 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								//公务用车用车方式(取制度里面的)
 								List<String> queryUseCarMode = orderInfoMapper.queryUseCarMode(carAuthorityInfo.getTicketId());
 								carAuthorityInfo.setCarType(journeyInfo.getUseCarMode());
+								//查询改权限是否需要走调度   true-不走调度  走网约
+								boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(journeyInfo.getRegimenId(), cityCode);
 								//查询公务用车的前端状态
-								carAuthorityInfo.setStatus(journeyUserCarPowerService.buildUserAuthorityPowerStatus(flag, carAuthorityInfo.getTicketId()));
+								carAuthorityInfo.setStatus(journeyUserCarPowerService.buildUserAuthorityPowerStatus(judgeNotDispatch, carAuthorityInfo.getTicketId()));
 								carAuthorityInfoList.add(carAuthorityInfo);	
 							}
 						}
@@ -229,9 +228,9 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 				UserAuthorityGroupCity userAuthorityGroupCity = new UserAuthorityGroupCity();
 				userAuthorityGroupCity.setCityName(journeyNodeInfo.getPlanBeginAddress());
 				userAuthorityGroupCity.setVehicle(journeyNodeInfo.getVehicle());
-				userAuthorityGroupCity.setCityId(chinaCityService.queryCityCodeByCityName(journeyNodeInfo.getPlanBeginAddress()));//城市编号
+				userAuthorityGroupCity.setCityId(journeyNodeInfo.getPlanBeginCityCode());//用车城市编号
 				//获取行程节点下的所有用户用车权限
-				userAuthorityGroupCity.setUserCarAuthorityList(journeyUserCarPowerService.queryNoteAllUserAuthority(journeyNodeInfo.getNodeId()));
+				userAuthorityGroupCity.setUserCarAuthorityList(journeyUserCarPowerService.queryNoteAllUserAuthority(journeyNodeInfo.getNodeId(),journeyNodeInfo.getPlanBeginCityCode()));
 				userAuthorityGroupCityList.add(userAuthorityGroupCity);
 			}
 		}
