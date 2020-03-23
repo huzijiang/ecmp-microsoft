@@ -16,6 +16,7 @@ import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -796,7 +797,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     }
                 }
                 //起点
-                if(j == journeyNodeInfoList.size()-1){
+                if(j == 1){
                     orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanSetoutTime());
                     orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLongitude()));
@@ -806,7 +807,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
                 //终点
-                if(j==1){
+                if(j==journeyNodeInfoList.size()-1){
                     orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanArriveTime());
                     orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
@@ -826,7 +827,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //走网约车约车接口
         if(officialOrderReVo.getIsDispatch() == 2){
             this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
-            platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),officialOrderReVo.getCarLevel());
+            ((IOrderInfoService)AopContext.currentProxy()).platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),officialOrderReVo.getCarLevel());
         }
         return orderInfo.getOrderId();
     }
@@ -1030,8 +1031,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
-    public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto, Long userId) throws ParseException {
+    public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto, Long userId) throws Exception {
         JourneyUserCarPower journeyUserCarPower = iJourneyUserCarPowerService.selectJourneyUserCarPowerById(applyUseWithTravelDto.getTicketId());
+        if(journeyUserCarPower == null){
+            throw new Exception("用车权限不存在");
+        }
+//        List<OrderInfo> validOrderByPowerId = orderInfoMapper.getValidOrderByPowerId(applyUseWithTravelDto.getTicketId());
+//        if(validOrderByPowerId!=null && validOrderByPowerId.size()>0){
+//            throw new Exception("此用车权限已存在有效订单");
+//        }
         JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderNumber(OrderUtils.getOrderNum());
@@ -1108,7 +1116,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //走网约车约车接口
         if(applyUseWithTravelDto.getIsDispatch() == 2){
             this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
-            platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),applyUseWithTravelDto.getGroupId());
+            ((IOrderInfoService)AopContext.currentProxy()).platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),applyUseWithTravelDto.getGroupId());
         }
         return orderInfo.getOrderId();
     }
@@ -1399,30 +1407,35 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @throws Exception
      */
     private void sendSmsCancelOrder(Long orderId) throws Exception {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
-        String planBeginAddress = null;
-        String planEndAddress = null;
-        String useCarTime = null;
-        Map<String,String> paramsMap = new HashMap<>();
-        OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
-        orderAddressInfo.setOrderId(orderId);
-        List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfo);
-        for (OrderAddressInfo orderAddressInfo1:
-             orderAddressInfos) {
-            if(orderAddressInfo1.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT)){
-                planBeginAddress = orderAddressInfo1.getAddress();
-                useCarTime = simpleDateFormat.format(orderAddressInfo1.getActionTime());
-            }else if(orderAddressInfo1.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE)){
-                planEndAddress = orderAddressInfo1.getAddress();
-            }else{
-
-            }
-        }
-        paramsMap.put("planBeginAddress",planBeginAddress);
-        paramsMap.put("planEndAddress",planEndAddress);
-        paramsMap.put("useCarTime",useCarTime);
+        //给司机发送短信
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         String driverMobile = orderInfo.getDriverMobile();
-        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_DRIVER,paramsMap,driverMobile);
+        if(driverMobile != null){
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+            String planBeginAddress = null;
+            String planEndAddress = null;
+            String useCarTime = null;
+            Map<String,String> paramsMap = new HashMap<>();
+            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+            orderAddressInfo.setOrderId(orderId);
+            List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfo);
+            for (OrderAddressInfo orderAddressInfo1:
+                 orderAddressInfos) {
+                if(orderAddressInfo1.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT)){
+                    planBeginAddress = orderAddressInfo1.getAddress();
+                    useCarTime = simpleDateFormat.format(orderAddressInfo1.getActionTime());
+                }else if(orderAddressInfo1.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE)){
+                    planEndAddress = orderAddressInfo1.getAddress();
+                }else{
+
+                }
+            }
+            paramsMap.put("planBeginAddress",planBeginAddress);
+            paramsMap.put("planEndAddress",planEndAddress);
+            paramsMap.put("useCarTime",useCarTime);
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_DRIVER,paramsMap,driverMobile);
+        }
+        //给申请人发送短信
+        orderInfo.getJourneyId();
     }
 }
