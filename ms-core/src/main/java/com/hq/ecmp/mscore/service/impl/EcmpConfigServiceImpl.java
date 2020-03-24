@@ -355,7 +355,7 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
             ConfigAutoDispatchDTO autoDispatchDTO = new ConfigAutoDispatchDTO();
             autoDispatchDTO.setStatus(status);
 
-            if (SWITCH_ON.equals(status)) {
+            if (SWITCH_ON_CUSTOM.equals(status)) {
                 Type type = new TypeToken<List<AutoDispatchSetting>>() {
                 }.getType();
                 List<AutoDispatchSetting> autoDispatchSetting = GsonUtils.jsonToBean(value, type);
