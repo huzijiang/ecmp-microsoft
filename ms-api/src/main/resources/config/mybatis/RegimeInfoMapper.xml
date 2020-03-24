@@ -291,6 +291,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
 SELECT
 	regimen_type AS regimenType,
 	NAME AS regimeName,
+	can_use_car_mode as canUseCarMode,
 	service_type AS serviceType,
 	allow_date AS allowDate,
 	rule_time AS ruleTime,
@@ -298,6 +299,7 @@ SELECT
 	rule_city AS ruleCity,
 	use_car_mode_owner_level AS useCarModeOwnerLevel,
 	use_car_mode_online_level AS useCarModeOnlineLevel,
+	need_approval_process as needApprovalProcess,
 	travel_allow_in_travel_city_use_car AS travelAllowInTravelCityUseCar,
 	travel_use_car_mode_owner_level AS travelUseCarModeOwnerLevel,
 	travel_use_car_mode_online_level AS travelUseCarModeOnlineLevel,
