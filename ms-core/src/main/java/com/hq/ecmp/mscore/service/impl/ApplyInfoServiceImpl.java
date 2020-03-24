@@ -9,10 +9,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.constant.ApplyStateConstant;
-import com.hq.ecmp.constant.ApplyTypeEnum;
-import com.hq.ecmp.constant.ApproveStateEnum;
-import com.hq.ecmp.constant.CommonConstant;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
@@ -20,9 +20,11 @@ import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
 import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.mapper.*;
+import com.hq.ecmp.mscore.service.IApplyApproveResultInfoService;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.SortListUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -61,11 +64,19 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Autowired
     private ApproveTemplateInfoMapper templateInfoMapper;
     @Autowired
-    private ApproveTemplateNodeInfoMapper templateNodeInfoMapper;
+    private ApproveTemplateNodeInfoMapper approveTemplateNodeInfoMapper;
     @Autowired
     private ApplyApproveResultInfoMapper resultInfoMapper;
     @Autowired
     private EcmpUserRoleMapper userRoleMapper;
+    @Autowired
+    private ProjectInfoMapper projectInfoMapper;
+    @Autowired
+    private ApplyApproveResultInfoMapper applyApproveResultInfoMapper;
+    @Autowired
+    private TokenService tokenService;
+    @Autowired
+    private IApplyApproveResultInfoService applyApproveResultInfoService;
 
     /**
      * 查询【请填写功能名称】
@@ -817,8 +828,21 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
         journeyPassergerOfficialCommit(officialCommitApply, journeyId, journeyPassengerInfo);
 
+        //申请成功后 ---------------1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        Integer regimenId = applyOfficialRequest.getRegimenId();
+        //1.初始化审批流
+        applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
+        //2.查询审批人
+
         return applyVO;
     }
+
+
+
+
 
     /**
      * 提交公务行程乘客/同行人信息表
@@ -879,11 +903,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //3.3 plan_begin_address 计划上车地址  非空
         journeyNodeInfo.setPlanBeginAddress(officialCommitApply.getStartAddr().getAddress());
         journeyNodeInfo.setPlanBeginLongAddress(officialCommitApply.getStartAddr().getLongAddress());
-        journeyNodeInfo.setPlanBeginCityCode(null);
+        journeyNodeInfo.setPlanBeginCityCode(officialCommitApply.getStartAddr().getCityCode());
         //3.4 plan_end_address 计划下车地址    非空
         journeyNodeInfo.setPlanEndAddress(officialCommitApply.getEndAddr().getAddress());
         journeyNodeInfo.setPlanEndLongAddress(officialCommitApply.getEndAddr().getLongAddress());
-        journeyNodeInfo.setPlanEndCityCode(null);
+        journeyNodeInfo.setPlanEndCityCode(officialCommitApply.getEndAddr().getCityCode());
         //3.5 plan_setout_time 计划出发时间
         journeyNodeInfo.setPlanSetoutTime(officialCommitApply.getApplyDate());    // TODO 跟差旅申请记录时间不一样
         //3.6 plan_arrive_time 计划到达时间
