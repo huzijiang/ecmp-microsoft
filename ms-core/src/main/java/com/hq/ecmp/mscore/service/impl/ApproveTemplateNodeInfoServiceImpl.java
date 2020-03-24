@@ -169,8 +169,8 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
         List<FolwInfoDTO> flowList = addFolwDTO.getFlowList();
         if (CollectionUtils.isNotEmpty(flowList)){
             SortListUtil.sort(flowList, "number", SortListUtil.DESC);
-
         }
+        //TODO 修改逻辑有缺失
 
     }
 

@@ -282,7 +282,7 @@ public class ApplyContoller {
                         int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:ZERO;
                         OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
                         Long orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
-                        ecmpMessageService.saveApplyMessagePass(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,orderId,carAuthorityInfos.get(0).getTicketId());
+                        ecmpMessageService.saveApplyMessagePass(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
                     }
                 }
             }
@@ -313,7 +313,7 @@ public class ApplyContoller {
             applyInfo.setUpdateBy(String.valueOf(userId));
             applyInfo.setUpdateTime(new Date());
             applyInfoService.updateApplyInfo(applyInfo);
-            ecmpMessageService.saveApplyMessageReject(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId);
+            ecmpMessageService.saveApplyMessageReject(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,journeyApplyDto.getRejectReason());
         }catch (Exception e){
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
