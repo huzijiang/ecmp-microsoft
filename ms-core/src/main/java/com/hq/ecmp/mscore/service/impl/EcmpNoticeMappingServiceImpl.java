@@ -4,6 +4,7 @@ package com.hq.ecmp.mscore.service.impl;
 import com.hq.ecmp.mscore.domain.EcmpNoticeMapping;
 import com.hq.ecmp.mscore.mapper.EcmpNoticeMappingMapper;
 import com.hq.ecmp.mscore.service.EcmpNoticeMappingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 @Service("ecmpNoticeMappingService")
 public class EcmpNoticeMappingServiceImpl implements EcmpNoticeMappingService {
-    @Resource
+    @Autowired
     private EcmpNoticeMappingMapper ecmpNoticeMappingDao;
 
     /**

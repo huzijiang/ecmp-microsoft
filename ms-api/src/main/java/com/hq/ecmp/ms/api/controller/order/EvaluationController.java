@@ -37,7 +37,7 @@ import java.util.List;
 public class EvaluationController {
 
 
-    @Resource
+    @Autowired
     private TokenService tokenService;
     @Autowired
     private IEcmpUserFeedbackInfoService feedbackInfoService;

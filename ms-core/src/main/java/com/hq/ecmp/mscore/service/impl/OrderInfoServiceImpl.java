@@ -55,65 +55,65 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
     @Autowired
     private IDriverInfoService driverInfoService;
-    @Resource
+    @Autowired
     private IJourneyInfoService iJourneyInfoService;
-    @Resource
+    @Autowired
     private IJourneyNodeInfoService iJourneyNodeInfoService;
     @Autowired
     private ICarInfoService carInfoService;
     @Autowired
     private ICarGroupInfoService carGroupInfoService;
-    @Resource
+    @Autowired
     private JourneyInfoMapper journeyInfoMapper;
-    @Resource
+    @Autowired
     private JourneyUserCarPowerMapper journeyUserCarPowerMapper;
-    @Resource
+    @Autowired
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
-    @Resource
+    @Autowired
     private IDriverInfoService iDriverInfoService;
-    @Resource
+    @Autowired
     private ApplyInfoMapper applyInfoMapper;
-    @Resource
+    @Autowired
     private RedisUtil redisUtil;
-    @Resource
+    @Autowired
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
-    @Resource
+    @Autowired
     private IOrderViaInfoService iOrderViaInfoService;
     @Autowired
     private IRegimeInfoService regimeInfoService;
     @Autowired
     private ICarGroupDispatcherInfoService carGroupDispatcherInfoService;
-    @Resource
+    @Autowired
     private EcmpUserMapper ecmpUserMapper;
-    @Resource
+    @Autowired
     private JourneyPassengerInfoMapper passengerInfoMapper;
     @Autowired
     private IJourneyPassengerInfoService journeyPassengerInfoService;
-    @Resource
+    @Autowired
     private IOrderAddressInfoService iOrderAddressInfoService;
-    @Resource
+    @Autowired
     private IJourneyPlanPriceInfoService iJourneyPlanPriceInfoService;
-    @Resource
+    @Autowired
     private IDriverHeartbeatInfoService iDriverHeartbeatInfoService;
-    @Resource
+    @Autowired
     private OrderAddressInfoMapper orderAddressInfoMapper;
 
-    @Resource
+    @Autowired
     @Lazy
     private IJourneyUserCarPowerService iJourneyUserCarPowerService;
-    @Resource
+    @Autowired
     IRegimeInfoService iRegimeInfoService;
-    @Resource
+    @Autowired
     ThirdService thirdService;
-    @Resource
+    @Autowired
     private IEcmpConfigService ecmpConfigService;
-    @Resource
+    @Autowired
     private DriverServiceAppraiseeInfoMapper driverServiceAppraiseeInfoMapper;
-    @Resource
+    @Autowired
     private EcmpMessageService ecmpMessageService;
-    @Resource
+    @Autowired
     private ISmsTemplateInfoService iSmsTemplateInfoService;
-    @Resource
+    @Autowired
     private IJourneyPassengerInfoService iJourneyPassengerInfoService;
     @Autowired
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;

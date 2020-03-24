@@ -36,10 +36,10 @@ import io.swagger.annotations.ApiOperation;
 public class DispatchController {
 
 
-    @Resource
+    @Autowired
     private IOrderInfoService iOrderInfoService;
 
-    @Resource
+    @Autowired
     private IDispatchService dispatchService;
     
     @Autowired

@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -20,7 +21,7 @@ import java.util.List;
  */
 @Service("ecmpEnterpriseInvitationInfoService")
 public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseInvitationInfoService {
-    @Resource
+    @Autowired
     private EcmpEnterpriseInvitationInfoMapper ecmpEnterpriseInvitationInfoMapper;
 
     /**

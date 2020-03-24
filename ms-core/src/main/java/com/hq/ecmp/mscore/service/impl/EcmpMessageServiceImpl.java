@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Service("ecmpMessageService")
 public class EcmpMessageServiceImpl implements EcmpMessageService {
-    @Resource
+    @Autowired
     private EcmpMessageMapper ecmpMessageDao;
 
     @Autowired

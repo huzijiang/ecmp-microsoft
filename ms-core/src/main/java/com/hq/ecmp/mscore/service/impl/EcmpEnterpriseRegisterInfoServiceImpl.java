@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.mapper.EcmpEnterpriseRegisterInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterUserVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 @Service("ecmpEnterpriseRegisterInfoService")
 public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegisterInfoService {
-    @Resource
+    @Autowired
     private EcmpEnterpriseRegisterInfoMapper ecmpEnterpriseRegisterInfoMapper;
 
     /**

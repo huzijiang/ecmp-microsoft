@@ -69,7 +69,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Autowired
     private IOrderStateTraceInfoService orderStateTraceInfoService;
-    @Resource
+    @Autowired
     private IOrderInfoService orderInfoService;
     
 

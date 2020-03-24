@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.dto.IsContinueReDto;
 import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
 import com.hq.ecmp.mscore.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -31,40 +32,40 @@ import java.util.Map;
 @Slf4j
 public class DriverOrderServiceImpl implements IDriverOrderService {
 
-    @Resource
+    @Autowired
     @Lazy
     IOrderInfoService iOrderInfoService;
 
-    @Resource
+    @Autowired
     IOrderStateTraceInfoService iOrderStateTraceInfoService;
 
-    @Resource
+    @Autowired
     IOrderWaitTraceInfoService iOrderWaitTraceInfoService;
 
-    @Resource
+    @Autowired
     IOrderSettlingInfoService iOrderSettlingInfoService;
 
-    @Resource
+    @Autowired
     IJourneyPassengerInfoService iJourneyPassengerInfoService;
 
-    @Resource
+    @Autowired
     ICarInfoService iCarInfoService;
 
-    @Resource
+    @Autowired
     IDriverInfoService iDriverInfoService;
 
-    @Resource
+    @Autowired
     IOrderViaInfoService iOrderViaInfoService;
 
-    @Resource
+    @Autowired
     ICarGroupInfoService iCarGroupInfoService;
 
-    @Resource
+    @Autowired
     IOrderAddressInfoService iOrderAddressInfoService;
 
-    @Resource
+    @Autowired
     ThirdService thirdService;
-    @Resource
+    @Autowired
     IEcmpConfigService iEcmpConfigService;
 
 

@@ -40,9 +40,9 @@ public class LocationController {
 	private String licenseContent;
 	@Value("${thirdService.apiUrl}") // 三方平台的接口前地址
 	private String apiUrl;
-	@Resource
+	@Autowired
 	private IOrderInfoService orderInfoService;
-	@Resource
+	@Autowired
 	private IJourneyNodeInfoService journeyNodeInfoService;
 	@Autowired
 	private IDriverHeartbeatInfoService driverHeartbeatInfoService;

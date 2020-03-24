@@ -14,6 +14,7 @@ import com.hq.ecmp.mscore.service.IDriverOrderService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,13 +36,13 @@ import java.util.List;
 @RequestMapping("/driverOrder")
 public class DriverOrderController {
 
-    @Resource
+    @Autowired
     @Lazy
     IDriverOrderService iDriverOrderService;
 
 
 
-    @Resource
+    @Autowired
     TokenService tokenService;
 
     @ApiOperation(value = "司机状态变更接口", notes = "司机状态变更接口 eg 司机出发、司机到达、开始服务,服务完成")

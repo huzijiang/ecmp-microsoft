@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.service.ICarInfoService;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +27,7 @@ import java.util.List;
 @Api(value = "后管车辆监控",tags = "车辆监控")
 public class CarMonitorController {
 
-    @Resource
+    @Autowired
     private ICarInfoService iCarInfoService;
 
     /**

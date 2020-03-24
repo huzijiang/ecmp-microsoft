@@ -51,37 +51,37 @@ import java.util.Map;
 @RequestMapping("/order")
 public class OrderController {
 
-    @Resource
+    @Autowired
     private TokenService tokenService;
 
-    @Resource
+    @Autowired
     private IOrderInfoService iOrderInfoService;
 
-    @Resource
+    @Autowired
     private IJourneyNodeInfoService iJourneyNodeInfoService;
 
-    @Resource
+    @Autowired
     private IJourneyInfoService iJourneyInfoService;
 
-    @Resource
+    @Autowired
     private IApplyInfoService iApplyInfoService;
 
-    @Resource
+    @Autowired
     private IJourneyUserCarPowerService iJourneyUserCarPowerService;
 
-    @Resource
+    @Autowired
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
 
-    @Resource
+    @Autowired
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
 
     @Autowired
     private IDriverHeartbeatInfoService driverHeartbeatInfoService;
 
-    @Resource
+    @Autowired
     private EcmpMessageService ecmpMessageService;
 
-    @Resource
+    @Autowired
     private IOrderAddressInfoService iOrderAddressInfoService;
 
 
