@@ -1,6 +1,8 @@
 package com.hq.ecmp.util;
 
 import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -201,6 +203,13 @@ public class DateFormatUtils {
         cal.set(Calendar.DAY_OF_MONTH, last);
         Date time = cal.getTime();
         return formatDate(DateFormatUtils.DATE_FORMAT, time);
+
+    }
+
+    public static String formaTimestamp(Date date){
+        String dateStr = formatDate(DATE_TIME_FORMAT, date);
+        long time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).parse(dateStr, new ParsePosition(0)).getTime() / 1000;
+        return String.valueOf(time);
 
     }
     public static boolean beforeCurrentDate(Date date){

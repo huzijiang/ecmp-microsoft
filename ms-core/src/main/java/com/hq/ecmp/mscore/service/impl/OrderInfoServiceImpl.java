@@ -111,6 +111,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private ISmsTemplateInfoService iSmsTemplateInfoService;
     @Resource
     private IJourneyPassengerInfoService iJourneyPassengerInfoService;
+    @Autowired
+    private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -396,7 +398,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             return vo;
         }
         String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
-        UserVO str= iOrderStateTraceInfoService.getOrderDispatcher(states,orderId);
+        UserVO str= orderStateTraceInfoMapper.getOrderDispatcher(orderId,states);
         vo.setCarGroupPhone(str.getUserPhone());
         vo.setCarGroupName(str.getUserName());
         vo.setCustomerServicePhone(serviceMobile);
@@ -408,12 +410,19 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderAddressInfos.get(0).getActionTime());
         }
         vo.setUseCarTime(useCarTime);
-        List<UserEmergencyContactInfo> contactInfos = userEmergencyContactInfoMapper.queryAll(new UserEmergencyContactInfo(journeyInfo.getUserId()));
-        String isAddContact=CollectionUtils.isEmpty(contactInfos)?"0":"1";
+        //服务结束时间
+        OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
+        if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
+            vo.setOrderEndTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderStateTraceInfo.getCreateTime()));
+        }
+       List<UserEmergencyContactInfo> contactInfos = userEmergencyContactInfoMapper.queryAll(new UserEmergencyContactInfo(journeyInfo.getUserId()));
+        String isAddContact=CollectionUtils.isEmpty(contactInfos)?CommonConstant.SWITCH_ON:CommonConstant.SWITCH_OFF;
         vo.setIsAddContact(isAddContact);
         //TODO 查询企业配置是否自动行程确认/异议
         int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey());
+        int isVirtualPhone = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey());//是否号码保护
         vo.setIsDisagree(orderConfirmStatus);
+        vo.setIsVirtualPhone(isVirtualPhone);
         List<DriverServiceAppraiseeInfo> driverServiceAppraiseeInfos = driverServiceAppraiseeInfoMapper.queryAll(new DriverServiceAppraiseeInfo(orderInfo.getOrderId()));
         if (!CollectionUtils.isEmpty(driverServiceAppraiseeInfos)){
             vo.setDescription(driverServiceAppraiseeInfos.get(0).getContent());

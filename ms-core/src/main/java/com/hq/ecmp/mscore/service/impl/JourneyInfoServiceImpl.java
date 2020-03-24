@@ -287,6 +287,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		vo.setServiceType(journeyInfo.getServiceType());
 		vo.setCharterCarType(CharterTypeEnum.format(journeyInfo.getCharterCarType()));
 		vo.setUseCarMode(journeyInfo.getUseCarMode());
+		vo.setTimestamp(DateFormatUtils.formaTimestamp(journeyInfo.getUseCarTime()));
 		vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,journeyInfo.getUseCarTime()));
 		if (ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(applyInfo.getApplyType())){
 			return vo;

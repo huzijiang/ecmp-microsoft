@@ -86,4 +86,6 @@ public interface OrderStateTraceInfoMapper
     public OrderStateTraceInfo queryJouneyCloseOrderIsCanle(Long jouneyId);
     
     public OrderStateTraceInfo queryPowerCloseOrderIsCanle(Long powerId);
+
+    OrderStateTraceInfo getLatestInfoByOrderId(Long orderId);
 }

@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class CarAuthorityInfo {
 	
-	 boolean dispatchOrder;//是否走调度   ture-走调度  false-不走调度
+	 Boolean dispatchOrder;//是否走调度   ture-走调度  false-不走调度
 	String planBeginCityCode;
 	String planEndCityCode;
 	  Long journeyId;//行程编号

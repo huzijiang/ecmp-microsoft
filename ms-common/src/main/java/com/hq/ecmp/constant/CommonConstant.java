@@ -58,6 +58,13 @@ public final class CommonConstant {
      * 开关状态开：自定义
      */
     public static final String SWITCH_ON_CUSTOM = "2";
+    public static final String SYS_CONFIG_PREFIX = "sys.";
+
+    /**
+     * 数字常亮0
+     */
+    public static final int ZERO = 0;
+    public static final int ONE = 1;
 
 
 

@@ -2,6 +2,8 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
 import com.hq.ecmp.mscore.dto.AddFolwDTO;
+import com.hq.ecmp.mscore.vo.ApprovalUserVO;
+import com.hq.ecmp.mscore.vo.ApprovalVO;
 
 import java.util.List;
 
@@ -67,4 +69,7 @@ public interface IApproveTemplateNodeInfoService
     void addFlowTemplate(AddFolwDTO addFolwDTO,Long userId)throws Exception ;
 
     void editFlowTemplate(AddFolwDTO addFolwDTO,Long userId)throws Exception ;
+
+    List<ApprovalUserVO> getApprovalList(Long regimeId);
+
 }

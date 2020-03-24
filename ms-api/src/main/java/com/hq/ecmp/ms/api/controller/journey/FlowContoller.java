@@ -4,27 +4,19 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.ApproveStateEnum;
-import com.hq.ecmp.ms.api.dto.base.RegimeDto;
-import com.hq.ecmp.ms.api.dto.base.UserDto;
-import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
-import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.dto.AddFolwDTO;
 import com.hq.ecmp.mscore.dto.config.ApproveTemplateIDTO;
-import com.hq.ecmp.mscore.service.*;
-import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.mscore.service.IApplyInfoService;
+import com.hq.ecmp.mscore.service.IApproveTemplateInfoService;
+import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
+import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
+import com.hq.ecmp.mscore.vo.ApprovalUserVO;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 /**
  * @Author: caobj
@@ -43,6 +35,13 @@ public class FlowContoller {
     @Autowired
     private IApproveTemplateNodeInfoService nodeInfoService;
 
+
+    @ApiOperation(value = "getApprovalList", notes = "根据用车制度Id,查询审批人列表", httpMethod = "GET")
+    @RequestMapping("/getApprovalList")
+    public ApiResponse<List<ApprovalUserVO>> getApprovalList(@RequestParam(value = "regimenId",required = true) Long regimenId) {
+        List<ApprovalUserVO> list= nodeInfoService.getApprovalList(regimenId);
+        return ApiResponse.success(list);
+    }
 
 
     /**

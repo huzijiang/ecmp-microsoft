@@ -60,6 +60,10 @@ public class OrderVO {
     private int isDisagree;
     @ApiModelProperty(name = "score",value = "订单评分")
     private String score;
+    @ApiModelProperty(name = "isVirtualPhone",value = "是否号码保护")
+    private Integer isVirtualPhone;
+    @ApiModelProperty(name = "orderEndTime",value = "订单结束时间")
+    private String orderEndTime;
     @ApiModelProperty(name = "description",value = "订单评分描述")
     private String description;
     @ApiModelProperty(name = "orderCostDetailVO",value = "费用对象")

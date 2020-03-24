@@ -252,7 +252,8 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
 
     //TODO 审批通过后的发通知
     @Transactional
-    public void saveApplyMessage(Long applyId,Long ecmpId,Long userId,Long orderId,Long powerId) throws Exception{
+    @Override
+    public void saveApplyMessagePass(Long applyId,Long ecmpId,Long userId,Long orderId,Long powerId) throws Exception{
         //通知调度员,通知申请人审批通过
         //判断申请用车城市是否有我车队组织
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
@@ -260,7 +261,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
             throw new Exception("申请单:"+applyId+"不存在");
         }
         List<EcmpMessage> msgList=new ArrayList<>();
-        msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),Long.parseLong(applyInfo.getCreateBy()),applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+        msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),ecmpId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
                 MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您的申请单"+applyId+"审批通过了",MsgConstant.MESSAGE_T001.getType(),userId,new Date()));
         if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){//公务
             //公务需要给申请人和调度员发送通知
@@ -272,6 +273,40 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         }else{//差旅
             ecmpMessageDao.insertList(msgList);//保存消息通知
         }
+        updateApplyMessage(ecmpId,applyId);
+    }
+
+    @Override
+    public void saveApplyMessageReject(Long applyId,Long ecmpId,Long userId) throws Exception{
+        //通知调度员,通知申请人审批驳回
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
+        if (applyInfo==null){
+            throw new Exception("申请单:"+applyId+"不存在");
+        }
+        List<EcmpMessage> msgList=new ArrayList<>();
+        msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),ecmpId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您的申请单"+applyId+"审批驳回了",MsgConstant.MESSAGE_T001.getType(),userId,new Date()));
+            ecmpMessageDao.insertList(msgList);//保存消息通知
+        updateApplyMessage(ecmpId,applyId);
+    }
+
+    @Override
+    public void sendNextApproveUsers(String approveUserId,Long applyId,Long userId) {
+        List<EcmpMessage> msgList=new ArrayList<>();
+        if (StringUtils.isNotBlank(approveUserId)){
+            String[] split = approveUserId.split(",");
+            for(String str:split){
+                msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_APPROVAL.getType(),Long.parseLong(str),applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您有一条待审批的消息",MsgConstant.MESSAGE_T002.getType(),userId,new Date()));
+            }
+            if (CollectionUtils.isNotEmpty(msgList)){
+                ecmpMessageDao.insertList(msgList);
+            }
+        }
+    }
+
+
+    private void updateApplyMessage(Long ecmpId,Long applyId){
         List<EcmpMessage> ecmpMessages = ecmpMessageDao.queryAll(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),MsgStatusConstant.MESSAGE_STATUS_T002.getType(),ecmpId,applyId));
         if (CollectionUtils.isNotEmpty(ecmpMessages)){
             for (EcmpMessage message:ecmpMessages){
@@ -282,7 +317,6 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
             }
         }
     }
-
 
     private List<EcmpMessage> getDispatcherMessage(Long orderId,Long userId,Long powerId){
         List<EcmpMessage> msgList=new ArrayList<>();
