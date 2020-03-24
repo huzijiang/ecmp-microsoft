@@ -18,15 +18,13 @@ public interface IDriverOrderService {
      * @param userId
      * @throws Exception
      */
-    public void  handleDriverOrderStatus(String type,String currentPoint,String orderNo,Long userId) throws Exception;
+    public void  handleDriverOrderStatus(String type,String currentPoint,String orderNo,Long userId,String mileage,String travelTime) throws Exception;
 
     /**
      * 司机是否继续用车，或者还车
-     * @param mileage
-     * @param travelTime
      * @param orderNo
      */
-    public IsContinueReDto isContinue(String mileage, String travelTime, String orderNo,String userId);
+    public IsContinueReDto isContinue(String orderNo,String userId);
 
     /**
      * 司机开启等待和关闭等待的逻辑
