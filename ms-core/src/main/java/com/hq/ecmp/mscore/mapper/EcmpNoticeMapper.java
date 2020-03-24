@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpNotice;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -75,4 +76,18 @@ public interface EcmpNoticeMapper
      * @return 结果
      */
     public int deleteEcmpNoticeByIds(Integer[] noticeIds);
+
+    /**
+     * 分页查询总车队列表
+     * @param search
+     * @return
+     */
+    List<EcmpNotice> selectNoticeSearchList(String search);
+
+    /**
+     * 查询公告列表详情（后台管理系统）
+     * @param //carGroupId
+     * @return
+     */
+    EcmpNotice getNoticeDetails(@Param("noticeId") Integer noticeId);
 }

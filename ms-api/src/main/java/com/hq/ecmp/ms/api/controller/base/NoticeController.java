@@ -11,12 +11,17 @@ import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.domain.EcmpNoticeMapping;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpNoticeDTO;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.EcmpNoticeMappingService;
 import com.hq.ecmp.mscore.service.IEcmpNoticeService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
+import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
+import com.hq.ecmp.mscore.vo.CarGroupListVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,6 +46,41 @@ public class NoticeController {
     private EcmpNoticeMappingService ecmpNoticeMappingService;
     @Autowired
     TokenService tokenService;
+
+    /**
+     * 分页全部查询公告列表（带搜索功能 后台管理系统）
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getNoticeSearchList",notes = "分页查询公告列表",httpMethod ="POST")
+    @PostMapping("/getNoticeSearchList")
+    public ApiResponse<PageResult<EcmpNotice>> getNoticeSearchList(@RequestBody PageRequest pageRequest){
+        try {
+            PageResult<EcmpNotice> list = iEcmpNoticeService.selectNoticeSearchList(pageRequest.getPageNum(),
+                    pageRequest.getPageSize(),pageRequest.getSearch());
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("分页查询公告列表失败");
+        }
+    }
+
+    /**
+     * 查询公告列表详情（后台管理系统）
+     * @param //carGroupId
+     * @return
+     */
+    @ApiOperation(value = "getNoticeDetails",notes = "查询公告列表详情",httpMethod ="POST")
+    @PostMapping("/getNoticeDetails")
+    public ApiResponse<EcmpNotice> getNoticeDetails(@RequestBody Integer noticeId){
+        try {
+            EcmpNotice ecmpNotice = iEcmpNoticeService.getNoticeDetails(noticeId);
+            return ApiResponse.success(ecmpNotice);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询公告列表详情失败");
+        }
+    }
 
     /**
      * 查询所有的公公告信息
