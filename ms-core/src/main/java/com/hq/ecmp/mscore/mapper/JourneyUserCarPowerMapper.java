@@ -75,5 +75,9 @@ public interface JourneyUserCarPowerMapper
 	public Integer batchInsert(@Param("list")List<JourneyUserCarPower> list);
 	
 	public List<CarAuthorityInfo> queryJourneyAllUserAuthority(Long journeyId);
+	
+	public CarAuthorityInfo queryOfficialPowerUseCity(Long powerId);
+	
+	public List<CarAuthorityInfo> queryOfficialOrderNeedPower(Long journeyId);
 
 }

@@ -30,7 +30,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectRegimeInfoVo">
-        select regimen_id, template_id, approve_template_id, regimen_type, name, allow_city,rule_time,allow_date, setout_equal_arrive, service_type, need_approval_process,can_use_car_mode, create_by, create_time, update_by, update_time,rule_city,travel_setout_equal_arrive,as_setout_equal_arrive from regime_info
+        select regimen_id, template_id, approve_template_id, regimen_type, name, allow_city,rule_time,allow_date, setout_equal_arrive, service_type,can_use_car_mode, create_by, create_time, update_by, update_time,rule_city,travel_setout_equal_arrive,as_setout_equal_arrive from regime_info
     </sql>
 
     <select id="selectRegimeInfoList" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo" resultMap="RegimeInfoResult">
