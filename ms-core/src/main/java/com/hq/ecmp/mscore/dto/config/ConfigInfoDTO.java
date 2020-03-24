@@ -3,7 +3,7 @@ package com.hq.ecmp.mscore.dto.config;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Map;
+import java.io.Serializable;
 
 /**
  * @author xueyong
@@ -11,7 +11,7 @@ import java.util.Map;
  * ecmp-microservice.
  */
 @Data
-public class ConfigInfoDTO {
+public class ConfigInfoDTO implements Serializable {
 
     /**
      * 基本信息配置
@@ -38,10 +38,10 @@ public class ConfigInfoDTO {
     private ConfigValueDTO virtualPhoneInfo;
 
     @ApiModelProperty(name = "orderConfirmInfo", value = "确认订单方式配置")
-    private Map<String, Object> orderConfirmInfo;
+    private OrderConfirmSetting orderConfirmInfo;
 
     @ApiModelProperty(name = "dispatchInfo", value = "自动派单方式配置")
-    private ConfigValueDTO dispatchInfo;
+    private ConfigAutoDispatchDTO dispatchInfo;
 
     @ApiModelProperty(name = "waitMaxMinute", value = "往返用车等待时长配置")
     private ConfigValueDTO waitMaxMinute;
