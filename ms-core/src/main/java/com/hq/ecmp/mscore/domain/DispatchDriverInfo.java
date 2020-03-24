@@ -23,5 +23,9 @@ public class DispatchDriverInfo {
 	
 	String state;//改派状态  待改派-S270   已改派-S279    已驳回-S277
 	
+	String content;
+	
+	String rejectReason;//驳回原因
+	
 	
 }
