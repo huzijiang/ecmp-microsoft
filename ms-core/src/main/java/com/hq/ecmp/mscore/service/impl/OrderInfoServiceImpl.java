@@ -1277,15 +1277,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderHistoryTraceDtos;
     }
 
-	@Override
-	public boolean queryOrderDispathIsOline(Long orderId) {
-		OrderInfo orderInfo = selectOrderInfoById(orderId);
-		if(null !=orderInfo && StringUtil.isNotEmpty(orderInfo.getUseCarMode()) && CarConstant.USR_CARD_MODE_NET.equals(orderInfo.getUseCarMode())){
-			return true;
-		}
-		return false;
-	}
-
+	
 
 	private OrderCostDetailVO getOrderCost(String jsonObject){
         OrderCostDetailVO result=new OrderCostDetailVO();
