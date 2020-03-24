@@ -204,7 +204,7 @@ AND a.state in ('S270','S277','S279')  order by a.create_time desc limit 1
 		'S921'
 		)
 		ORDER BY
-		a.create_time
+		a.create_time desc
 		LIMIT 1
 	</select>
     
