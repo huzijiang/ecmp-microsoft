@@ -229,16 +229,20 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
 		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
-		//查询所有处于待派单的订单及关联的信息
+		//查询所有处于待派单(未改派)的订单及关联的信息
 		OrderInfo query = new OrderInfo();
 		query.setState(OrderState.WAITINGLIST.getState());
 		List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
 		if(null !=waitDispatchOrder && waitDispatchOrder.size()>0){
 			//对用的前端状态都为待派车 -S200
 			for (DispatchOrderInfo dispatchOrderInfo : waitDispatchOrder) {
+				//去除改派的单子
+				if(iOrderStateTraceInfoService.isReassignment(dispatchOrderInfo.getOrderId())){
+					continue;
+				}
 				dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
+				result.add(dispatchOrderInfo);
 			}
-			result.addAll(waitDispatchOrder);
 		}
 		//查询所有处于待改派(订单状态为已派车,已发起改派申请)的订单及关联的信息
 		query.setState(OrderState.ALREADYSENDING.getState());
@@ -349,6 +353,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId) {
 		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
+		dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
 		//查询订单对应的上车地点时间,下车地点时间
 		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 		//判断该订单是否改派过
@@ -356,6 +361,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			//是改派过的单子  则查询改派详情
 			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryReassignmentOrderInfo(orderId);
 			dispatchOrderInfo.setDispatchDriverInfo(dispatchDriverInfo);
+			//改派过的订单对应前端状态 待改派-S270
+			dispatchOrderInfo.setState(OrderState.APPLYREASSIGN.getState());
 		}
 		return dispatchOrderInfo;
 	}
@@ -363,6 +370,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public DispatchOrderInfo getCompleteDispatchOrderDetailInfo(Long orderId) {
 		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.queryCompleteDispatchOrderDetail(orderId);
+		//对应前端状态都为已处理-S299 
+		dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
 		//查询订单对应的上车地点时间,下车地点时间
 		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 		if(iOrderStateTraceInfoService.isReassignment(orderId)){
@@ -1266,15 +1275,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderHistoryTraceDtos;
     }
 
-	@Override
-	public boolean queryOrderDispathIsOline(Long orderId) {
-		OrderInfo orderInfo = selectOrderInfoById(orderId);
-		if(null !=orderInfo && StringUtil.isNotEmpty(orderInfo.getUseCarMode()) && CarConstant.USR_CARD_MODE_NET.equals(orderInfo.getUseCarMode())){
-			return true;
-		}
-		return false;
-	}
-
+	
 
 	private OrderCostDetailVO getOrderCost(String jsonObject){
         OrderCostDetailVO result=new OrderCostDetailVO();

@@ -99,7 +99,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     select state from order_state_trace_info where order_id=#{orderId}
     </select>
     
-   <select id="queryReassignmentOrderInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchDriverInfo">
+   <select id="queryApplyReassignmentOrderInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchDriverInfo">
    SELECT
 	b.nick_name AS driverName,
 	b.phonenumber AS driverTel,
@@ -114,39 +114,60 @@ LEFT JOIN order_info c ON c.order_id = a.order_id
 LEFT JOIN car_info d ON d.car_id = c.car_id
 WHERE
 	a.order_id = #{orderId}
-AND a.state in ('S270','S277','S279')  order by a.create_time desc limit 1
+AND a.state ='S270' order by a.create_time desc limit 1
    </select>
-   
-   <select id="queryStateInfo" parameterType="java.lang.Long"  resultType="com.hq.ecmp.mscore.domain.SendCarInfo">
-        SELECT
-            CASE state
-            WHEN 'S200' THEN
-            '已提交用车申请'
-            WHEN 'S299' THEN
-            '派车成功'
-            WHEN 'S270' THEN
-            '已提交改派申请'
-            WHEN 'S277' THEN
-            '改派驳回'
-            ELSE
-            '其他'
-            END AS optType,
-            b.nick_name AS driverName,
-            a.create_time AS optDate
-        FROM
-        order_state_trace_info a
-        LEFT JOIN ecmp_user b ON a.create_by = b.user_id
-        WHERE
-            a.state IN (
-            'S200',
-            'S299',
-            'S270',
-            'S277'
-            )
-            AND order_id = #{orderId}
-            ORDER BY
-        a.create_time
-   </select>
+
+	<select id="queryReassignmentOrderStatus" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.DispatchDriverInfo">
+		SELECT
+		state AS state,
+		content AS content
+		FROM
+		order_state_trace_info
+		WHERE
+		order_id = #{orderId}
+		ORDER BY
+		create_time DESC
+		LIMIT 1
+	</select>
+
+	<select id="queryStateInfo" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.SendCarInfo">
+		SELECT
+		CASE state
+		WHEN 'S100' THEN
+		'已提交用车申请'
+		WHEN 'S200' THEN
+		'已提交用车申请'
+		WHEN 'S299' THEN
+		'派车成功'
+		WHEN 'S279' THEN
+		'派车成功'
+		WHEN 'S270' THEN
+		'已提交改派申请'
+		WHEN 'S277' THEN
+		'改派驳回'
+		ELSE
+		'其他'
+		END AS optType,
+		b.nick_name AS optUserName,
+		a.create_time AS optDate
+		FROM
+		order_state_trace_info a
+		LEFT JOIN ecmp_user b ON a.create_by = b.user_id
+		WHERE
+		a.state IN (
+		'S100',
+		'S200',
+		'S299',
+		'S270',
+		'S277',
+		'S279'
+		)
+		AND order_id = #{orderId}
+		ORDER BY
+		a.create_time
+	</select>
 
 
     <!--手动编写sql start-->
