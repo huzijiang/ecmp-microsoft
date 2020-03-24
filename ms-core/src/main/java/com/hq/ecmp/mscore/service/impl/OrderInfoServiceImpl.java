@@ -109,6 +109,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private EcmpMessageService ecmpMessageService;
     @Resource
     private ISmsTemplateInfoService iSmsTemplateInfoService;
+    @Resource
+    private IJourneyPassengerInfoService iJourneyPassengerInfoService;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -231,6 +233,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		query.setState(OrderState.WAITINGLIST.getState());
 		List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
 		if(null !=waitDispatchOrder && waitDispatchOrder.size()>0){
+			//对用的前端状态都为待派车 -S200
+			for (DispatchOrderInfo dispatchOrderInfo : waitDispatchOrder) {
+				dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
+			}
 			result.addAll(waitDispatchOrder);
 		}
 		//查询所有处于待改派(订单状态为已派车,已发起改派申请)的订单及关联的信息
@@ -304,6 +310,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<DispatchOrderInfo> list = orderInfoMapper.queryCompleteDispatchOrder();
 		if(null !=list && list.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : list) {
+				//对应的前端状态都为已处理-S299
+				dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
 				//查询订单对应的上车地点时间,下车地点时间
 				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 			}
@@ -345,7 +353,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		//判断该订单是否改派过
 		if(iOrderStateTraceInfoService.isReassignment(orderId)){
 			//是改派过的单子  则查询改派详情
-			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryDispatchDriverInfo(orderId);
+			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryReassignmentOrderInfo(orderId);
 			dispatchOrderInfo.setDispatchDriverInfo(dispatchDriverInfo);
 		}
 		return dispatchOrderInfo;
@@ -358,7 +366,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 		if(iOrderStateTraceInfoService.isReassignment(orderId)){
 			//是改派过的单子  则查询改派详情
-			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryDispatchDriverInfo(orderId);
+			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryReassignmentOrderInfo(orderId);
 			dispatchOrderInfo.setDispatchDriverInfo(dispatchDriverInfo);
 		}
 		//查询派车信息
@@ -421,8 +429,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
             if (carInfo!=null){
                 BeanUtils.copyProperties(carInfo,vo);
+                vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
             }
-            vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
             DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
             vo.setDriverScore(driverInfo.getStar()+"");
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
@@ -661,7 +669,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		// 新增订单状态流转记录
 		OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
 		OrderInfo orderInfo = new OrderInfo();
-		// 判读该单子是否是改派单
+		/*// 判读该单子是否是改派单
 		if (iOrderStateTraceInfoService.isReassignment(orderId)) {
 			// 是改派单
 			orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.getState());
@@ -670,7 +678,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			//申请单
 			orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
 			orderInfo.setState(OrderState.ALREADYSENDING.getState());
-		}
+		}*/
+		orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
+		orderInfo.setState(OrderState.ALREADYSENDING.getState());
 		// 查询司机信息
 		DriverInfo driverInfo = driverInfoService.selectDriverInfoById(driverId);
 		orderInfo.setOrderId(orderId);
@@ -784,8 +794,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderAddressInfo.setPowerId(powerId);
                 orderAddressInfo.setUserId(journeyInfo.getUserId()+"");
                 orderAddressInfo.setCreateBy(userId+"");
-                RegimeInfo regimeInfo = iRegimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
-                orderAddressInfo.setCityPostalCode(regimeInfo.getAllowCity());
                 if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState())){
                     SimpleDateFormat si = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String format = si.format(journeyInfo.getFlightPlanTakeOffTime());
@@ -804,6 +812,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLatitude()));
                     orderAddressInfo.setAddress(journeyNodeInfoCh.getPlanBeginAddress());
                     orderAddressInfo.setAddressLong(journeyNodeInfoCh.getPlanBeginLongAddress());
+                    orderAddressInfo.setCityPostalCode(journeyNodeInfoCh.getPlanBeginCityCode());
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
                 //终点
@@ -814,6 +823,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
                     orderAddressInfo.setAddress(journeyNodeInfoCh.getPlanEndAddress());
                     orderAddressInfo.setAddressLong(journeyNodeInfoCh.getPlanEndLongAddress());
+                    orderAddressInfo.setCityPostalCode(journeyNodeInfoCh.getPlanEndCityCode());
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
             }
@@ -1036,10 +1046,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(journeyUserCarPower == null){
             throw new Exception("用车权限不存在");
         }
-//        List<OrderInfo> validOrderByPowerId = orderInfoMapper.getValidOrderByPowerId(applyUseWithTravelDto.getTicketId());
-//        if(validOrderByPowerId!=null && validOrderByPowerId.size()>0){
-//            throw new Exception("此用车权限已存在有效订单");
-//        }
+        List<OrderInfo> validOrderByPowerId = orderInfoMapper.getValidOrderByPowerId(applyUseWithTravelDto.getTicketId());
+        if(validOrderByPowerId!=null && validOrderByPowerId.size()>0){
+            throw new Exception("此用车权限已存在有效订单");
+        }
         JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderNumber(OrderUtils.getOrderNum());
@@ -1050,6 +1060,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //直接约车，约车中。走调度，待派单
         if(applyUseWithTravelDto.getIsDispatch() == 2){
             orderInfo.setState(OrderState.SENDINGCARS.getState());
+            orderInfo.setUseCarMode(CarConstant.USE_CAR_TYPE_TRAVEL);
         }else{
             orderInfo.setState(OrderState.WAITINGLIST.getState());
         }
@@ -1407,6 +1418,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @throws Exception
      */
     private void sendSmsCancelOrder(Long orderId) throws Exception {
+        String useCarTime = null;
         //给司机发送短信
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         String driverMobile = orderInfo.getDriverMobile();
@@ -1414,7 +1426,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
             String planBeginAddress = null;
             String planEndAddress = null;
-            String useCarTime = null;
             Map<String,String> paramsMap = new HashMap<>();
             OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
             orderAddressInfo.setOrderId(orderId);
@@ -1436,6 +1447,23 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_DRIVER,paramsMap,driverMobile);
         }
         //给申请人发送短信
-        orderInfo.getJourneyId();
+        String riderMobile = "";
+        String applyMobile = "";
+        Long journeyId = orderInfo.getJourneyId();
+        JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyId);
+        Long applyUserId = journeyInfo.getUserId();
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(applyUserId);
+        applyMobile = ecmpUser.getPhonenumber();
+        JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
+        journeyPassengerInfo.setItIsPeer("1");
+        List<JourneyPassengerInfo> journeyPassengerInfos = iJourneyPassengerInfoService.selectJourneyPassengerInfoList(journeyPassengerInfo);
+        if(journeyPassengerInfos.size()>0){
+            riderMobile = journeyPassengerInfos.get(0).getMobile();
+            if(!"".equals(riderMobile) && !"".equals(applyMobile) && !riderMobile.equals(applyMobile) ){
+                Map<String,String> paramsMap = new HashMap<>();
+                paramsMap.put("useCarTime",useCarTime);
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_APPLICANT,paramsMap,applyMobile);
+            }
+        }
     }
 }
