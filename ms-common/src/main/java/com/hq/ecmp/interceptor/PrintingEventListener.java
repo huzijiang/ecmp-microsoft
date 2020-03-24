@@ -44,12 +44,10 @@ public final class PrintingEventListener extends EventListener {
         logger.info("name:{} cost:{} callId:{} url:{} param:{}", name, elapsedNanos / 1000000000d, callId, call.request().url(), JSONUtils.toJSONString(requestBody==null?"":requestBody.toString()));
     }
 
-    @Override
     public void proxySelectStart(Call call, HttpUrl url) {
         printEvent("proxySelectStart", call);
     }
 
-    @Override
     public void proxySelectEnd(Call call, HttpUrl url, List<Proxy> proxies) {
         printEvent("proxySelectEnd", call);
     }
