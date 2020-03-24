@@ -1,47 +1,40 @@
 package com.hq.ecmp.ms.api.controller.order;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
-import com.hq.common.utils.DateUtils;
-import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.*;
+import com.hq.ecmp.constant.OrderServiceType;
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.ResignOrderTraceState;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
-import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
-import com.hq.ecmp.ms.api.dto.order.OrderDetailDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
+import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
+import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.service.DriverServiceAppraiseeInfoService;
+import com.hq.ecmp.mscore.service.IOrderAddressInfoService;
+import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OfficialOrderReVo;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
-import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author: zj.hu
@@ -58,28 +51,11 @@ public class OrderController {
     private IOrderInfoService iOrderInfoService;
 
     @Resource
-    private IJourneyNodeInfoService iJourneyNodeInfoService;
-
-    @Resource
-    private IJourneyInfoService iJourneyInfoService;
-
-    @Resource
-    private IApplyInfoService iApplyInfoService;
-
-    @Resource
-    private IJourneyUserCarPowerService iJourneyUserCarPowerService;
-
-    @Resource
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
 
     @Resource
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
 
-    @Autowired
-    private IDriverHeartbeatInfoService driverHeartbeatInfoService;
-
-    @Resource
-    private EcmpMessageService ecmpMessageService;
 
     @Resource
     private IOrderAddressInfoService iOrderAddressInfoService;
