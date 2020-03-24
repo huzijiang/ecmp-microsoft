@@ -121,4 +121,12 @@ public interface IJourneyUserCarPowerService
      */
     public List<CarAuthorityInfo> queryOfficialOrderNeedPower(Long journeyId);
     
+    /**
+     * 更新权限剩余可用次数
+     * @param powerId   权限ID
+     * @param optType   1-申请用车    2-取消订单
+     * @return
+     */
+    public boolean updatePowerSurplus(Long powerId,Integer optType);
+    
 }
