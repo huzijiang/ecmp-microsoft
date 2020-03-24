@@ -1,16 +1,12 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
-import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
-import com.hq.common.utils.OkHttpUtil;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ContactorDto;
 import com.hq.ecmp.mscore.dto.IsContinueReDto;
 import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
 import com.hq.ecmp.mscore.service.*;
-import com.hq.ecmp.util.MacTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,7 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName DriverOrderServiceImpl
@@ -63,6 +62,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
 
     @Resource
     ThirdService thirdService;
+    @Resource
+    IEcmpConfigService iEcmpConfigService;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -77,7 +78,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-        public void handleDriverOrderStatus(String type, String currentPoint, String orderNo,Long userId) throws Exception {
+        public void handleDriverOrderStatus(String type, String currentPoint, String orderNo,Long userId,String mileage,String travelTime) throws Exception {
         Double longitude = null;
         Double latitude = null;
         if(currentPoint!=null && !currentPoint.equals("")){
@@ -200,11 +201,25 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             }else{
                 iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
             }
-            orderInfo.setState(OrderState.STOPSERVICE.getState());
+            int orderConfirmStatus = iEcmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey());
+            //订单轨迹状态 和订单状态
+            if(orderConfirmStatus == 1){//确认行程展示
+                orderInfo.setState(OrderState.STOPSERVICE.getState());
+                orderStateTraceInfo.setState(OrderStateTrace.SERVICEOVER.getState());
+            }else{//确认行程不展示
+                orderInfo.setState(OrderState.ORDERCLOSE.getState());
+                orderStateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
+            }
             iOrderInfoService.updateOrderInfo(orderInfo);
-            //订单轨迹状态
-            orderStateTraceInfo.setState(OrderStateTrace.SERVICEOVER.getState());
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            //添加里程数和总时长
+            OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
+            orderSettlingInfo.setOrderId(orderId);
+            orderSettlingInfo.setTotalMileage(new BigDecimal(mileage).stripTrailingZeros());
+            orderSettlingInfo.setTotalTime(Integer.parseInt(travelTime));
+            orderSettlingInfo.setCreateBy(String.valueOf(userId));
+            iOrderSettlingInfoService.insertOrderSettlingInfo(orderSettlingInfo);
+
         }else{
             throw new Exception("操作类型有误");
         }
@@ -212,15 +227,9 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public IsContinueReDto isContinue(String mileage, String travelTime, String orderNo,String userId) {
+    public IsContinueReDto isContinue(String orderNo,String userId) {
         long orderId = Long.parseLong(orderNo);
-        //添加里程数和总时长
-        OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
-        orderSettlingInfo.setOrderId(orderId);
-        orderSettlingInfo.setTotalMileage(new BigDecimal(mileage).stripTrailingZeros());
-        orderSettlingInfo.setTotalTime(Integer.parseInt(travelTime));
-        orderSettlingInfo.setCreateBy(userId);
-        iOrderSettlingInfoService.insertOrderSettlingInfo(orderSettlingInfo);
+
         //判断是还车还是继续用车
         OrderInfo orderInfoOri = iOrderInfoService.selectOrderInfoById(orderId);
         //车辆

@@ -52,7 +52,9 @@ public class DriverOrderController {
     @RequestMapping(value = "/handleStatus", method = RequestMethod.POST)
     public ApiResponse handleStatus(@RequestParam("type") String type,
                                     @RequestParam("currentPoint") String currentPoint,
-                                    @RequestParam("orderNo") String orderNo) {
+                                    @RequestParam("orderNo") String orderNo,
+                                    @RequestParam("mileage") String mileage,
+                                    @RequestParam("travelTime") String travelTime) {
         //需要处理4种情况 | 司机出发、司机到达、开始服务、服务完成
         //记录订单的状态跟踪表
         try {
@@ -60,7 +62,7 @@ public class DriverOrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId);
+            iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId,mileage,travelTime);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -70,14 +72,10 @@ public class DriverOrderController {
 
     @ApiOperation(value = "司机完成订单接口", notes = "司机完成订单接口,返回还车还是继续用车的相关信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "mileage", value = "订单服务里程（米）", required = true, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "travelTime", value = "订单服务时长（秒）,供参考，真正时长使用服务端时间计时", required = true, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "orderNo", value = "订单号", required = true, paramType = "query", dataType = "String")
+        @ApiImplicitParam(name = "orderNo", value = "订单号", required = true, paramType = "query", dataType = "String")
     })
     @RequestMapping(value = "/completed", method = RequestMethod.POST)
-    public ApiResponse<IsContinueReDto> completed(@RequestParam("mileage") String mileage,
-                                 @RequestParam("travelTime") String travelTime,
+    public ApiResponse<IsContinueReDto> completed(
                                  @RequestParam("orderNo") String orderNo) {
         //需要计算服务时长（从开始服务到服务完成的时长）、记录里程
         //判断此订单的司机和车辆的下一个订单是否是同一个订单，如果是则返回下一个任务信息、如果不是则返回提示语：司机下一个任务的时间
@@ -86,7 +84,7 @@ public class DriverOrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            aContinue = iDriverOrderService.isContinue(mileage, travelTime, orderNo,String.valueOf(userId));
+            aContinue = iDriverOrderService.isContinue(orderNo,String.valueOf(userId));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error();
