@@ -4,8 +4,8 @@ import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseRegisterInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
-import com.hq.ecmp.mscore.vo.registerDriverVO;
-import com.hq.ecmp.mscore.vo.registerUserVO;
+import com.hq.ecmp.mscore.vo.RegisterDriverVO;
+import com.hq.ecmp.mscore.vo.RegisterUserVO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -101,7 +101,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
      * @param
      */
     @Override
-    public List<registerUserVO> queryRegisterUserWait(RegisterDTO registerDTO) {
+    public List<RegisterUserVO> queryRegisterUserWait(RegisterDTO registerDTO) {
         return ecmpEnterpriseRegisterInfoMapper.queryRegisterUserWait(registerDTO.getType());
     }
     /**
@@ -109,7 +109,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
      * @param
      */
     @Override
-    public List<registerDriverVO> queryRegisterDriverWait(RegisterDTO registerDTO){
+    public List<RegisterDriverVO> queryRegisterDriverWait(RegisterDTO registerDTO){
         return ecmpEnterpriseRegisterInfoMapper.queryRegisterDriverWait(registerDTO.getType());
     }
 }
