@@ -418,6 +418,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         and o.driver_id=#{driverId}
          order by IFNULL(oai.action_time,jni.plan_setout_time) asc
         limit 0,1
+
     </select>
     <select id="getNextTaskWithCar" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">
      	 select
