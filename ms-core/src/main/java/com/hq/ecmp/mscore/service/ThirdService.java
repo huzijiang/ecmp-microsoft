@@ -22,13 +22,6 @@ public interface ThirdService {
     FlightInfoVo loadDepartment(String flightCode, String planDate);
 
     /**
-     *  发送短信
-     * @param phoneNum
-     * @param content
-     */
-    boolean sendSms(String phoneNum,String content);
-
-    /**
      * 通过经纬度查询长短地址
      * @param longitude
      * @param latitude
