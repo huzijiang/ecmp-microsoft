@@ -14,6 +14,7 @@ import com.hq.ecmp.mscore.service.IDriverOrderService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,6 +36,7 @@ import java.util.List;
 public class DriverOrderController {
 
     @Resource
+    @Lazy
     IDriverOrderService iDriverOrderService;
 
 
