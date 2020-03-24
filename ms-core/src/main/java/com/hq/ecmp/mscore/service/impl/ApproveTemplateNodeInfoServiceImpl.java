@@ -7,13 +7,16 @@ import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.ApproveTypeEnum;
 import com.hq.ecmp.mscore.domain.ApproveTemplateInfo;
 import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
+import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.dto.AddFolwDTO;
 import com.hq.ecmp.mscore.dto.FolwInfoDTO;
 import com.hq.ecmp.mscore.mapper.ApproveTemplateInfoMapper;
 import com.hq.ecmp.mscore.mapper.ApproveTemplateNodeInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpUserRoleMapper;
+import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
 import com.hq.ecmp.mscore.vo.ApprovalListVO;
+import com.hq.ecmp.mscore.vo.ApprovalUserVO;
 import com.hq.ecmp.util.SortListUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,8 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
     private ApproveTemplateInfoMapper approveTemplateInfoMapper;
     @Autowired
     private EcmpUserRoleMapper userRoleMapper;
+    @Autowired
+    private RegimeInfoMapper regimeInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -167,5 +172,16 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
 
         }
 
+    }
+
+    @Override
+    public List<ApprovalUserVO> getApprovalList(Long regimeId) {
+        RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimeId);
+        if (regimeInfo==null){
+            return null;
+        }
+        String allApproveUserId = approveTemplateNodeInfoMapper.getAllApproveUserId(regimeInfo.getApproveTemplateId());
+        String trim = allApproveUserId.trim();
+        return approveTemplateNodeInfoMapper.getApproveUsers(trim);
     }
 }

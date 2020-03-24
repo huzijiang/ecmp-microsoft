@@ -142,9 +142,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 		@Override
 	public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId) {
 		List<CarAuthorityInfo> carAuthorityInfoList=new ArrayList<>();
-		JourneyInfo query = new JourneyInfo();
-		query.setUserId(userId);
-		List<JourneyInfo> journeyInfoList = selectJourneyInfoList(query);
+		List<JourneyInfo> journeyInfoList =journeyInfoMapper.queryPassJourneyList(userId);
 		if(null !=journeyInfoList && journeyInfoList.size()>0){
 			for (JourneyInfo journeyInfo : journeyInfoList) {
 				//获取是差旅还是公务
@@ -287,6 +285,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		vo.setServiceType(journeyInfo.getServiceType());
 		vo.setCharterCarType(CharterTypeEnum.format(journeyInfo.getCharterCarType()));
 		vo.setUseCarMode(journeyInfo.getUseCarMode());
+		vo.setTimestamp(DateFormatUtils.formaTimestamp(journeyInfo.getUseCarTime()));
 		vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,journeyInfo.getUseCarTime()));
 		if (ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(applyInfo.getApplyType())){
 			return vo;

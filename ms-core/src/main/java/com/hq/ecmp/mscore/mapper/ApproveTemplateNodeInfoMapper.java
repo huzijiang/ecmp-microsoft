@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
+import com.hq.ecmp.mscore.vo.ApprovalUserVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -69,4 +70,7 @@ public interface ApproveTemplateNodeInfoMapper
     String getApproveNodesByTemplateId(Long approveTemplateId);
 
     void deleteByTemplateId(Long approveTemplateId);
+
+    List<ApprovalUserVO> getApproveUsers(String userIds);
+    String getAllApproveUserId(Long approveTemplateId);
 }

@@ -22,7 +22,7 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("/company")
+@RequestMapping("/news")
 public class CompanyNewsController {
    @Autowired
    private IEcmpUserService  iEcmpUserService;
@@ -37,7 +37,7 @@ public class CompanyNewsController {
     */
    @ApiOperation(value = "getCompanyNewsController",notes = "查询企业动态信息",httpMethod = "POST")
    @PostMapping("/getCompanyNewsController")
-   public ApiResponse<Map> getCompanyNewsController(){
+   public ApiResponse<Map> getCompanyNewsController(Long userId){
       Map mapNews = new HashMap();
       int userCount = iEcmpUserService.queryCompanyEmpCunt();
       int driverCount = iDriverInfoService.queryCompanyDriverCount();

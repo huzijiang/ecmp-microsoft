@@ -30,7 +30,6 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,7 +55,6 @@ public class OrderController {
     private TokenService tokenService;
 
     @Resource
-    @Lazy
     private IOrderInfoService iOrderInfoService;
 
     @Resource
@@ -667,11 +665,11 @@ public class OrderController {
      *   @Param  []
      *   @return com.hq.common.core.api.ApiResponse
      **/
-    @ApiOperation(value = "乘客端获取订单详情",httpMethod = "POST")
+    @ApiOperation(value = "乘客端获取订单详情",httpMethod = "GET")
     @RequestMapping("/orderBeServiceDetail")
-    public ApiResponse<OrderVO> orderBeServiceDetail(@RequestBody OrderDto orderDto) {
+    public ApiResponse<OrderVO> orderBeServiceDetail(@RequestParam(value = "flag") String flag,@RequestParam(value = "orderId") String orderId) {
         try {
-            OrderVO orderVO = iOrderInfoService.orderBeServiceDetail(orderDto.getOrderId());
+            OrderVO orderVO = iOrderInfoService.orderBeServiceDetail(Long.parseLong(orderId));
             return ApiResponse.success(orderVO);
         } catch (Exception e) {
             e.printStackTrace();
@@ -684,13 +682,15 @@ public class OrderController {
      *   @Date 10:11 2020/3/4
      *   @return com.hq.common.core.api.ApiResponse
      **/
-    @ApiOperation(value = "获取订单状态",httpMethod = "POST")
+    @ApiOperation(value = "获取订单状态",httpMethod = "GET")
     @RequestMapping("/getOrderState")
     @Transactional
-    public ApiResponse<OrderStateVO> getOrderState(String flag,@RequestBody OrderDto orderDto){
+    public ApiResponse<OrderStateVO> getOrderState(@RequestParam(value = "flag") String flag,@RequestParam(value = "orderId") String orderId){
 //        HttpServletRequest request = ServletUtils.getRequest();
 //        LoginUser loginUser = tokenService.getLoginUser(request);
 //        Long userId = loginUser.getUser().getUserId();
+        OrderDto orderDto=new OrderDto();
+        orderDto.setOrderId(Long.parseLong(orderId));
         try {
             OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderDto.getOrderId());
             orderVO.setDriverLongitude("116.786324");

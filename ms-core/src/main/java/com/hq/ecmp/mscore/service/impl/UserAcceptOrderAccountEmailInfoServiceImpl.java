@@ -3,11 +3,15 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.UserAcceptOrderAccountEmailInfo;
+import com.hq.ecmp.mscore.dto.EmailDTO;
 import com.hq.ecmp.mscore.mapper.UserAcceptOrderAccountEmailInfoMapper;
 import com.hq.ecmp.mscore.service.UserAcceptOrderAccountEmailInfoService;
+import com.hq.ecmp.mscore.vo.EmailVO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.Email;
 import java.util.List;
 
 /**
@@ -34,52 +38,48 @@ public class UserAcceptOrderAccountEmailInfoServiceImpl implements UserAcceptOrd
     }
 
     /**
-     * 查询多条数据
+     * 查询指定行数据
      *
-     * @param userId 查询起始位置
+     * @param userId 用户Id
      * @return 对象列表
      */
     @Override
-    public List<UserAcceptOrderAccountEmailInfo> queryAllByUserId(Long userId) {
-        return userAcceptOrderAccountEmailInfoMapper.queryAllByLimit(userId);
+   public  List<EmailVO> queryEmailByUserId(@Param("用户ID") Long userId){
+        return userAcceptOrderAccountEmailInfoMapper.queryEmailByUserId(userId);
     }
 
     /**
      * 新增数据
      *
-     * @param userAcceptOrderAccountEmailInfo 实例对象
-     * @return 实例对象
+     * @param emailDTO 实例对象
+     * @return 影响行数
      */
     @Override
-    public int insert(UserAcceptOrderAccountEmailInfo userAcceptOrderAccountEmailInfo) {
-
-        userAcceptOrderAccountEmailInfo.setCreateTime(DateUtils.getNowDate());
-        return userAcceptOrderAccountEmailInfoMapper.insert(userAcceptOrderAccountEmailInfo);
+    public int insertEmail(EmailDTO emailDTO){
+        return userAcceptOrderAccountEmailInfoMapper.insertEmail(emailDTO);
     }
 
     /**
      * 修改数据
      *
-     * @param userAcceptOrderAccountEmailInfo 实例对象
-     * @return 实例对象
+     * @param emailDTO 实例对象
+     * @return 影响行数
      */
     @Override
-    public int update(UserAcceptOrderAccountEmailInfo userAcceptOrderAccountEmailInfo) {
-        userAcceptOrderAccountEmailInfo.setCreateTime(DateUtils.getNowDate());
-
-        return userAcceptOrderAccountEmailInfoMapper.update(userAcceptOrderAccountEmailInfo);
-
+    public int updateEmail(EmailDTO emailDTO){
+        return userAcceptOrderAccountEmailInfoMapper.updateEmail(emailDTO);
     }
 
     /**
      * 通过主键删除数据
      *
-     * @param id 主键
-     * @return 是否成功
+     * @param Id 主键
+     * @return 影响行数
      */
     @Override
-    public int deleteById(Integer id) {
-
-        return userAcceptOrderAccountEmailInfoMapper.deleteById(id);
+   public  int deleteEmailById(Integer Id){
+        return userAcceptOrderAccountEmailInfoMapper.deleteEmailById(Id);
     }
+
+
 }

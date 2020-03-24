@@ -1,4 +1,4 @@
-package com.hq.ecmp.ms.api.controller.account;
+package com.hq.ecmp.ms.api.controller.invitation;
 
 import com.hq.common.core.api.ApiResponse;
 
@@ -12,7 +12,7 @@ import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
-import com.hq.ecmp.mscore.vo.registerUserVO;
+import com.hq.ecmp.mscore.vo.RegisterUserVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,13 +66,13 @@ public class UserinvitationController {
      * @return
      */
     @ApiOperation(value = "interInvitationUserZcCommit",notes = "生成邀请",httpMethod = "POST")
-    @PostMapping("/interInvitationInfoCommit")
+    @PostMapping("/interRegisterInfoCommit")
     public ApiResponse interRegisterInfoCommit(@RequestBody EcmpEnterpriseRegisterInfo ecmpEnterpriseRegisterInfo){
         try {
 
             //校验手机号的用户是否已经是企业用户
             int  itIsUser = iEcmpUserService.userItisExist(ecmpEnterpriseRegisterInfo.getMobile());
-            if(itIsUser > 0){
+            if(itIsUser != 0){
                 return ApiResponse.error("员工已经是该企业用户");
             }
             //校验手机号是否已经申请注册，正在等待审批过程中
@@ -152,8 +152,8 @@ public class UserinvitationController {
      */
     @ApiOperation(value = "getRegisterUserWaitList",notes = "员工待审批列表",httpMethod = "POST")
     @PostMapping("/getRegisterUserWaitList")
-    public ApiResponse <List<registerUserVO>>getRegisterUserWaitList(@RequestBody RegisterDTO registerDTO){
-        List<registerUserVO> registerUserVOlist = ecmpEnterpriseRegisterInfoServicee.queryRegisterUserWait(registerDTO);
+    public ApiResponse <List<RegisterUserVO>>getRegisterUserWaitList(@RequestBody RegisterDTO registerDTO){
+        List<RegisterUserVO> registerUserVOlist = ecmpEnterpriseRegisterInfoServicee.queryRegisterUserWait(registerDTO);
         if(CollectionUtils.isNotEmpty(registerUserVOlist)){
             return ApiResponse.success(registerUserVOlist);
         }else {

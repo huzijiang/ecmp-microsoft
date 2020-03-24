@@ -1,4 +1,4 @@
-package com.hq.ecmp.ms.api.controller.account;
+package com.hq.ecmp.ms.api.controller.invitation;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
@@ -10,7 +10,7 @@ import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
-import com.hq.ecmp.mscore.vo.registerDriverVO;
+import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import java.util.List;
  * @Date: 2020-3-16 12:00
  */
 @RestController
-@RequestMapping("/invitationDriver")
+@RequestMapping("/invDriver")
 public class DriverinvitationController {
     @Autowired
     private EcmpEnterpriseInvitationInfoService ecmpEnterpriseInvitationInfoService;
@@ -92,9 +92,9 @@ public class DriverinvitationController {
      * 邀请停用
      * @param
      */
-    @ApiOperation(value = "updateInvatationDriverStop",notes = "邀请停用",httpMethod = "POST")
-    @PostMapping("/updateInvatationDriverStop")
-     public ApiResponse updateInvatationDriverStop(@RequestBody InvitationDto invitationDto){
+    @ApiOperation(value = "updateInDriverStop",notes = "邀请停用",httpMethod = "POST")
+    @PostMapping("/updateInDriverStop")
+     public ApiResponse updateInDriverStop(@RequestBody InvitationDto invitationDto){
         try {
             invitationDto.setState("N000");//默认邀请状态为失效
             ecmpEnterpriseInvitationInfoService.updateInvitationState(invitationDto);
@@ -109,9 +109,9 @@ public class DriverinvitationController {
      * 邀请启用
      * @param
      */
-    @ApiOperation(value = "updateInvatationDriverStart",notes = "邀请启用",httpMethod = "POST")
-    @PostMapping("/updateInvatationDriverStart")
-    public ApiResponse updateInvatationDriverStart(@RequestBody InvitationDto invitationDto){
+    @ApiOperation(value = "updateInDriverStart",notes = "邀请启用",httpMethod = "POST")
+    @PostMapping("/updateInDriverStart")
+    public ApiResponse updateInDriverStart(@RequestBody InvitationDto invitationDto){
         try {
             invitationDto.setState("Y000");//默认邀请状态为失效
             ecmpEnterpriseInvitationInfoService.updateInvitationState(invitationDto);
@@ -125,9 +125,9 @@ public class DriverinvitationController {
      * 待审批数量
      * @param
      */
-    @ApiOperation(value = "getregisterDriverWaitCount",notes = "驾驶员待审批数量",httpMethod = "POST")
-    @PostMapping("/getregisterDriverWaitCount")
-    public ApiResponse getregisterDriverWaitCount(@RequestBody RegisterDTO registerDTO){
+    @ApiOperation(value = "getregDriverWaitCount",notes = "驾驶员待审批数量",httpMethod = "POST")
+    @PostMapping("/getregDriverWaitCount")
+    public ApiResponse getregDriverWaitCount(@RequestBody RegisterDTO registerDTO){
         registerDTO.setState("S000");
         registerDTO.setType("T002");
         int i =ecmpEnterpriseRegisterInfoServicee.waitAmount(registerDTO);
@@ -140,10 +140,10 @@ public class DriverinvitationController {
      * 待审批列表
      * @param
      */
-    @ApiOperation(value = "getRegisterUserDriverList",notes = "驾驶员待审批列表",httpMethod = "POST")
-    @PostMapping("/getRegisterUserDriverList")
-    public ApiResponse <List<registerDriverVO>>getRegisterUserDriverList(@RequestBody RegisterDTO registerDTO){
-        List<registerDriverVO> registerDriverVOlist = ecmpEnterpriseRegisterInfoServicee.queryRegisterDriverWait(registerDTO);
+    @ApiOperation(value = "getRegisterDriverList",notes = "驾驶员待审批列表",httpMethod = "POST")
+    @PostMapping("/getRegisterDriverList")
+    public ApiResponse <List<RegisterDriverVO>>getRegisterDriverList(@RequestBody RegisterDTO registerDTO){
+        List<RegisterDriverVO> registerDriverVOlist = ecmpEnterpriseRegisterInfoServicee.queryRegisterDriverWait(registerDTO);
         if(CollectionUtils.isNotEmpty(registerDriverVOlist)){
             return ApiResponse.success(registerDriverVOlist);
         }else {

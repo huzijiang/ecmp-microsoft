@@ -2,8 +2,8 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
-import com.hq.ecmp.mscore.vo.registerDriverVO;
-import com.hq.ecmp.mscore.vo.registerUserVO;
+import com.hq.ecmp.mscore.vo.RegisterDriverVO;
+import com.hq.ecmp.mscore.vo.RegisterUserVO;
 
 import java.util.List;
 
@@ -70,12 +70,12 @@ public interface EcmpEnterpriseRegisterInfoService {
      * 待审批列表-员工
      * @param
      */
-    List<registerUserVO> queryRegisterUserWait(RegisterDTO registerDTO);
+    List<RegisterUserVO> queryRegisterUserWait(RegisterDTO registerDTO);
     /**
      * 待审批列表-驾驶员
      * @param
      */
-    List<registerDriverVO> queryRegisterDriverWait(RegisterDTO registerDTO);
+    List<RegisterDriverVO> queryRegisterDriverWait(RegisterDTO registerDTO);
 
 
 

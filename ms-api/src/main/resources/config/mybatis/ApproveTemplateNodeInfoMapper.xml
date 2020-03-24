@@ -115,4 +115,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <delete id="deleteByTemplateId">
         delete from approve_template_node_info where approve_template_id=#{approveTemplateId}
     </delete>
+
+    <select id="getApproveUsers" resultType="com.hq.ecmp.mscore.vo.ApprovalUserVO">
+        select user_id userId,nick_name approvalName,phonenumber approvalPhone from ecmp_user
+        where find_in_set(user_id,#{userIds})
+    </select>
+
+    <select id="getAllApproveUserId" resultType="String">
+        select group_concat(distinct user_id) userId from approve_template_node_info where approve_template_id=#{approveTemplateId}
+    </select>
 </mapper>

@@ -130,7 +130,21 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 
 	@Override
 	public DispatchDriverInfo queryReassignmentOrderInfo(Long orderId) {
-		return orderStateTraceInfoMapper.queryReassignmentOrderInfo(orderId);
+		//获取订单改派的申请信息
+		DispatchDriverInfo applyReassignment = orderStateTraceInfoMapper.queryApplyReassignmentOrderInfo(orderId);
+		if(null !=applyReassignment){
+			//获取改订单改派的最新状态
+			DispatchDriverInfo dispatchDriverInfo = orderStateTraceInfoMapper.queryReassignmentOrderStatus(orderId);
+			if(null !=dispatchDriverInfo){
+				applyReassignment.setState(dispatchDriverInfo.getState());
+				if(OrderStateTrace.TURNREASSIGNMENT.getState().equals(dispatchDriverInfo.getState())){
+					//如果已经被驳回
+					applyReassignment.setRejectReason(dispatchDriverInfo.getContent());
+				}
+			}
+			
+		}
+		return applyReassignment;
 	}
 
 	@Override
