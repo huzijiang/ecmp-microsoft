@@ -55,6 +55,7 @@ public class OrderController {
     private TokenService tokenService;
 
     @Resource
+    @Lazy
     private IOrderInfoService iOrderInfoService;
 
     @Resource
@@ -685,7 +686,7 @@ public class OrderController {
     @ApiOperation(value = "获取订单状态",httpMethod = "POST")
     @RequestMapping("/getOrderState")
     @Transactional
-    public ApiResponse<OrderStateVO> getOrderState(@RequestBody OrderDto orderDto){
+    public ApiResponse<OrderStateVO> getOrderState(String flag,@RequestBody OrderDto orderDto){
 //        HttpServletRequest request = ServletUtils.getRequest();
 //        LoginUser loginUser = tokenService.getLoginUser(request);
 //        Long userId = loginUser.getUser().getUserId();
