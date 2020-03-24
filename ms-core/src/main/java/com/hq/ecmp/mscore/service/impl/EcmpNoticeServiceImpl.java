@@ -3,10 +3,14 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.mapper.EcmpNoticeMapper;
 import com.hq.ecmp.mscore.service.IEcmpNoticeService;
+import com.hq.ecmp.mscore.vo.CarGroupListVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -123,6 +127,32 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
     public EcmpNotice selectExpirationDateNewNotice(Long userId) {
         return ecmpNoticeMapper.selectNewEcmpNotice();
 
+    }
+
+    /**
+     * 分页查询总车队列表
+     * @param pageNum
+     * @param pageSize
+     * @param search
+     * @return
+     */
+    @Override
+    public PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize, String search) {
+            PageHelper.startPage(pageNum,pageSize);
+            List<EcmpNotice> list =  ecmpNoticeMapper.selectNoticeSearchList(search);
+            PageInfo<EcmpNotice> info = new PageInfo<>(list);
+            return new PageResult<>(info.getTotal(),info.getPages(),list);
+    }
+
+    /**
+     * 查询公告列表详情（后台管理系统）
+     * @param //carGroupId
+     * @return
+     */
+    @Override
+    public EcmpNotice getNoticeDetails(Integer noticeId) {
+        EcmpNotice EcmpNotice = ecmpNoticeMapper.getNoticeDetails(noticeId);
+        return EcmpNotice;
     }
 
 }

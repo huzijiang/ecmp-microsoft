@@ -20,7 +20,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectEcmpNoticeVo">
-        select notice_id, notice_title, notice_type, notice_content, status, create_by, create_time, update_by, update_time, remark
+        select notice_id, notice_title, notice_type, notice_content, status,publish_time,end_time, create_by, create_time, update_by, update_time, remark
         from ecmp_notice
     </sql>
 
@@ -118,4 +118,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <select id="selectNoticeSearchList" resultMap="EcmpNoticeResult">
+        <include refid="selectEcmpNoticeVo"/>
+    </select>
+
+    <select id="getNoticeDetails" parameterType="java.lang.Integer" resultMap="EcmpNoticeResult">
+        <include refid="selectEcmpNoticeVo"/>
+         <where>
+             <if test="noticeId != null  ">
+                 notice_id = #{noticeId}
+             </if>
+         </where>
+    </select>
 </mapper>

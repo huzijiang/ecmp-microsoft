@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.reflect.TypeToken;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.ConfigTypeEnum;
 import com.hq.ecmp.mscore.domain.EcmpConfig;
 import com.hq.ecmp.mscore.dto.config.*;
@@ -22,8 +23,7 @@ import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
 
-import static com.hq.ecmp.constant.CommonConstant.SWITCH_OFF;
-import static com.hq.ecmp.constant.CommonConstant.SWITCH_ON_CUSTOM;
+import static com.hq.ecmp.constant.CommonConstant.*;
 
 /**
  * 参数配置Service业务层处理
@@ -406,17 +406,17 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
 
     @Override
     public int getOrderConfirmStatus(String key) {
-        if (key.contains("sys.")||ConfigTypeEnum.BASE_INFO.getConfigKey().equals(key)){
-            return 0;
+        if (key.contains(SYS_CONFIG_PREFIX)||ConfigTypeEnum.BASE_INFO.getConfigKey().equals(key)){
+            return ZERO;
         }
         EcmpConfig ecmpConfig = ecmpConfigMapper.selectConfigByKey(new EcmpConfig(key));
         if (ecmpConfig!=null&& StringUtils.isNotEmpty(ecmpConfig.getConfigValue())){
             JSONObject jsonObject = JSONObject.parseObject(ecmpConfig.getConfigValue());
             String status = jsonObject.getString("status");
-            if ("0".equals(status)){
-                return 1;
+            if (SWITCH_ON.equals(status)){
+                return ONE;
             }
         }
-        return 0;
+        return ZERO;
     }
 }

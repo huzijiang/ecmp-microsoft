@@ -229,5 +229,9 @@ AND a.state ='S270' order by a.create_time desc limit 1
 		LIMIT 1
 	</select>
     
-    
+    <select id="getLatestInfoByOrderId" resultMap="OrderStateTraceInfoResult">
+        <include refid="selectOrderStateTraceInfoVo"/>
+        where order_id=#{orderId}
+        order by create_time limit 1
+    </select>
 </mapper>

@@ -28,6 +28,8 @@ public class JourneyDetailVO {
     private Long powerId;
     @ApiModelProperty(name = "useCarTime",value = "用车时间")
     private String useCarTime;
+    @ApiModelProperty(name = "timestamp",value = "时间错")
+    private String timestamp;
     @ApiModelProperty(name = "endLatitude",value = "下车地纬度")
     private String endLatitude;//纬度
     @ApiModelProperty(name = "endLongitude",value = "下车地经度")
