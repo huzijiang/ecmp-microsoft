@@ -3,13 +3,15 @@ package com.hq.ecmp.mscore.dto.config;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * @author xueyong
  * @date 2020/3/16
  * ecmp-microservice.
  */
 @Data
-public class ConfigInfoDTO {
+public class ConfigInfoDTO implements Serializable {
 
     /**
      * 基本信息配置
