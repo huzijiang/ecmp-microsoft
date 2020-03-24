@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.hq.ecmp.mscore.vo.RegimenVO;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -56,7 +58,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
     private ISceneInfoService sceneInfoService;
     @Autowired
     private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
-  
+
 
     /**
      * 根据用车制度id查询用车值得详细信息
@@ -326,5 +328,19 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * app端查询用车制度详情
+	 * @param regimenId
+	 * @return
+	 */
+	@Override
+	public RegimeVo selectRegimeDetailById(Long regimenId) {
+		RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimenId);
+		if(ObjectUtils.isEmpty(regimenId)){
+			throw new RuntimeException("查询制度详情失败");
+		}
+		return regimeVo;
 	}
 }
