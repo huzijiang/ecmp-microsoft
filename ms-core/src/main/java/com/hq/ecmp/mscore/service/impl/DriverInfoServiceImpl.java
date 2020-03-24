@@ -3,6 +3,10 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.Date;
 import java.util.List;
 
+import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
+import com.hq.ecmp.mscore.vo.CarVO;
+import com.hq.ecmp.mscore.vo.DriverVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -41,6 +45,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     
     @Autowired
     private IDriverCarRelationInfoService driverCarRelationInfoService;
+    @Autowired
+    private DriverCarRelationInfoMapper driverCarRelationInfoMapper;
     
 
     /**
@@ -185,6 +191,80 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      */
     public int driverItisExist(String phoneNumber){
         return driverInfoMapper.driverItisExist(phoneNumber);
+    }
+    /**
+     *驾驶员可用车辆列表
+     * @param
+     */
+    public List<DriverCanUseCarsDTO> getDriverCanCar(Long driverId){
+        return driverInfoMapper.getDriverCanCar(driverId);
+    }
+    /**
+     *驾驶员失效列表,离职列表
+     * @param
+     */
+    public List<DriverLoseDTO> getDriverLoseList(Long deptId){
+        return driverInfoMapper.getDriverLoseList(deptId);
+    }
+    /**
+     * 驾驶员已离职数量
+     */
+    public int getDriverLoseCount(Long deptId){
+        return driverInfoMapper.getDriverLoseCount(deptId);
+
+    }
+    /**
+     * 已失效驾驶员进行删除
+     */
+    public int deleteDriver(Long driverId){
+        return driverInfoMapper.deleteDriver(driverId);
+    }
+    /**
+     * 修改驾驶员
+     * @param driverCreateInfo
+     * @return
+     */
+    public int updateDriver(DriverCreateInfo driverCreateInfo){
+        return driverInfoMapper.updateDriver(driverCreateInfo);
+    }
+
+    /**
+     * 修改驾驶员手机号
+     * @param mobile
+     * @return
+     */
+    public int updateDriverMobile(String mobile){
+        return driverInfoMapper.updateDriverMobile(mobile);
+    }
+
+    /**
+     * 设置驾驶员离职日期
+     * @param dimTime
+     * @return
+     */
+    public int updateDriverDimTime(String dimTime){
+        return driverInfoMapper.updateDriverDimTime(dimTime);
+    }
+    /**
+     * 驾驶员绑定车辆
+     * @param driverCarDTO
+     * @return
+     */
+    @Override
+    public void bindDriverCars(DriverCarDTO driverCarDTO, Long userId) throws Exception {
+        Long driverId = driverCarDTO.getDriverId();
+        List<CarVO> cars = driverCarDTO.getCars();
+        DriverCarRelationInfo driverCarRelationInfo = null;
+        for (CarVO car : cars) {
+            driverCarRelationInfo = new DriverCarRelationInfo();
+            driverCarRelationInfo.setUserId(car.getUserId());
+            driverCarRelationInfo.setCarId(car.getCarId());
+            driverCarRelationInfo.setDriverId(driverId);
+            int i = driverCarRelationInfoMapper.insertDriverCarRelationInfo(driverCarRelationInfo);
+            if(i != 1){
+                throw new Exception("驾驶员绑定车辆失败");
+            }
+        }
     }
 
 	@Override

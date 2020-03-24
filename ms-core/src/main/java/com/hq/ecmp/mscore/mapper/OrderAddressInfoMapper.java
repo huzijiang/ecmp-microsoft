@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.OrderAddressInfo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-03-16
  */
+@Repository
 public interface OrderAddressInfoMapper 
 {
     /**

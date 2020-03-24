@@ -4,6 +4,10 @@ import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.DriverQueryResult;
+import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
+import com.hq.ecmp.mscore.dto.DriverCarDTO;
+import com.hq.ecmp.mscore.dto.DriverLoseDTO;
+
 
 import java.util.List;
 
@@ -63,6 +67,7 @@ public interface IDriverInfoService
      * @param driverId 【请填写功能名称】ID
      * @return 结果
      */
+
     public int deleteDriverInfoById(Long driverId);
 
     public boolean createDriver(DriverCreateInfo driverCreateInfo);
@@ -82,7 +87,52 @@ public interface IDriverInfoService
      * @return
      */
     public int driverItisExist(String phoneNumber);
-    
+
     public int updateDriverStatus(Long driverId,String state);
+    /**
+     *驾驶员可用车辆列表
+     * @param
+     */
+    public List<DriverCanUseCarsDTO> getDriverCanCar(Long driverId);
+    /**
+     *驾驶员失效列表,离职列表
+     * @param
+     */
+    public List<DriverLoseDTO> getDriverLoseList(Long deptId);
+    /**
+     * 驾驶员已离职数量
+     */
+    public int getDriverLoseCount(Long deptId);
+    /**
+     * 已失效驾驶员进行删除
+     */
+    public int deleteDriver(Long driverId);
+    /**
+     * 修改驾驶员
+     * @param driverCreateInfo
+     * @return
+     */
+    public int updateDriver(DriverCreateInfo driverCreateInfo);
+
+    /**
+     * 修改驾驶员手机号
+     * @param mobile
+     * @return
+     */
+    public int updateDriverMobile(String mobile);
+
+    /**
+     * 设置驾驶员离职日期
+     * @param dimTime
+     * @return
+     */
+    public int updateDriverDimTime(String dimTime);
+    /**
+     * 驾驶员绑定车辆
+     * @param driverCarDTO
+     * @return
+     */
+    public void bindDriverCars(DriverCarDTO driverCarDTO, Long userId) throws Exception;
+
 
 }

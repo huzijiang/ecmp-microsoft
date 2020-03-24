@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.DriverCarRelationInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface DriverCarRelationInfoMapper
 {
     /**

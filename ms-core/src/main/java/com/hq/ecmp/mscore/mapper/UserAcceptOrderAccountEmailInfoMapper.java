@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.UserAcceptOrderAccountEmailInfo;
+import com.hq.ecmp.mscore.dto.EmailDTO;
+import com.hq.ecmp.mscore.vo.EmailVO;
 import com.sun.jna.platform.win32.WinDef;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -23,13 +25,6 @@ public interface UserAcceptOrderAccountEmailInfoMapper {
      */
     UserAcceptOrderAccountEmailInfo queryById(Integer id);
 
-    /**
-     * 查询指定行数据
-     *
-     * @param userId 用户Id
-     * @return 对象列表
-     */
-    List<UserAcceptOrderAccountEmailInfo> queryAllByLimit(@Param("用户ID") Long userId);
 
 
     /**
@@ -39,29 +34,36 @@ public interface UserAcceptOrderAccountEmailInfoMapper {
      * @return 对象列表
      */
     List<UserAcceptOrderAccountEmailInfo> queryAll(UserAcceptOrderAccountEmailInfo userAcceptOrderAccountEmailInfo);
+    /**
+     * 查询指定行数据
+     *
+     * @param userId 用户Id
+     * @return 对象列表
+     */
+    List<EmailVO> queryEmailByUserId(@Param("用户ID") Long userId);
 
     /**
      * 新增数据
      *
-     * @param userAcceptOrderAccountEmailInfo 实例对象
+     * @param emailDTO 实例对象
      * @return 影响行数
      */
-    int insert(UserAcceptOrderAccountEmailInfo userAcceptOrderAccountEmailInfo);
+    int insertEmail(EmailDTO emailDTO);
 
     /**
      * 修改数据
      *
-     * @param userAcceptOrderAccountEmailInfo 实例对象
+     * @param emailDTO 实例对象
      * @return 影响行数
      */
-    int update(UserAcceptOrderAccountEmailInfo userAcceptOrderAccountEmailInfo);
+    int updateEmail(EmailDTO emailDTO);
 
     /**
      * 通过主键删除数据
      *
-     * @param id 主键
+     * @param Id 主键
      * @return 影响行数
      */
-    int deleteById(Integer id);
+    int deleteEmailById(Integer Id);
 
 }
