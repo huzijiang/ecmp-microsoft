@@ -72,7 +72,9 @@ public interface OrderStateTraceInfoMapper
     public List<String> queryOrderAllState(Long orderId);
 
     
-    public DispatchDriverInfo queryReassignmentOrderInfo (Long orderId);
+    public DispatchDriverInfo queryApplyReassignmentOrderInfo (Long orderId);
+    
+    public DispatchDriverInfo queryReassignmentOrderStatus(Long orderId);
     
     public List<SendCarInfo> queryStateInfo(Long orderId);
 
