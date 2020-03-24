@@ -119,7 +119,7 @@ public interface IRegimeInfoService
      * @return
      */
     String getUserOnlineCarLevels(Long regimenId);
-    
+
     /**
      * 判断是否不调度
      * 仅有网约车时  不调度  走网约
@@ -129,5 +129,12 @@ public interface IRegimeInfoService
      * @return
      */
     public boolean judgeNotDispatch(Long regimeId,String cityCode);
+
+    /**
+     * app端查询用车制度详情
+     * @param regimenId
+     * @return
+     */
+    RegimeVo selectRegimeDetailById(Long regimenId);
 }
 

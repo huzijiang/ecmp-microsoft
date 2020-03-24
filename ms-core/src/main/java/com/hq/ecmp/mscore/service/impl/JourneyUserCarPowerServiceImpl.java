@@ -413,6 +413,26 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		
 		return list;
 	}
+
+	@Override
+	public boolean updatePowerSurplus(Long powerId, Integer optType) {
+		CarAuthorityInfo carAuthorityInfo = journeyUserCarPowerMapper.queryOfficialPowerUseCity(powerId);
+		if(null==carAuthorityInfo || CarConstant.CITY_USE_CAR.equals(carAuthorityInfo.getType())){
+			//不用更新剩余次数
+			return true;
+		}
+		JourneyUserCarPower journeyUserCarPower = new JourneyUserCarPower();
+		journeyUserCarPower.setPowerId(powerId);
+		if(optType==1){
+			//申请用车后  将权限标记为已使用
+			journeyUserCarPower.setState(CarConstant.YES_USER_USE_CAR);
+		}else{
+			//取消订单后  则标记该权限为未使用
+			journeyUserCarPower.setState(CarConstant.NOT_USER_USE_CAR);
+		}
+		journeyUserCarPower.setUpdateTime(new Date());
+		return 	journeyUserCarPowerMapper.updateJourneyUserCarPower(journeyUserCarPower)>0;
+	}
 	
 	
 	
