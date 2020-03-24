@@ -96,6 +96,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private IDriverHeartbeatInfoService iDriverHeartbeatInfoService;
     @Resource
     private OrderAddressInfoMapper orderAddressInfoMapper;
+
     @Resource
     @Lazy
     private IJourneyUserCarPowerService iJourneyUserCarPowerService;
