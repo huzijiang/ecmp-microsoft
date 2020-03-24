@@ -67,29 +67,6 @@ public class ThirdServiceImpl implements ThirdService {
     }
 
     @Override
-    public boolean sendSms(String phoneNum,String content) {
-        try {
-            String macAddress = MacTools.getMacList().get(0);
-            Map<String,Object> param = Maps.newHashMap();
-            param.put("phone",phoneNum);
-            param.put("content",content);
-            param.put("mac",macAddress);
-            param.put("enterpriseId",enterpriseId);
-            param.put("licenseContent",licenseContent);
-            String postJson = OkHttpUtil.postForm(apiUrl+"/service/sendSms", param);
-            JSONObject jsonObject = JSONObject.parseObject(postJson);
-            Integer code = jsonObject.getInteger("code");
-            if (ApiResponse.SUCCESS_CODE!=code) {
-              return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    @Override
     public Map<String,String> locationByLongitudeAndLatitude(String longitude, String latitude) throws Exception {
         String longAddr;
         String shortAddr;

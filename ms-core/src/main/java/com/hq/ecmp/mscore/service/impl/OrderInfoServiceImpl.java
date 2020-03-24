@@ -3,18 +3,21 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.util.StringUtil;
-import com.google.gson.reflect.TypeToken;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
+import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.*;
+import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.MacTools;
+import com.hq.ecmp.util.OrderUtils;
+import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
@@ -29,10 +32,8 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**
@@ -839,6 +840,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
             ((IOrderInfoService)AopContext.currentProxy()).platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),officialOrderReVo.getCarLevel());
         }
+        //用车权限次数变化
+        journeyUserCarCountOp(powerId,1);
         return orderInfo.getOrderId();
     }
 
@@ -1129,6 +1132,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
             ((IOrderInfoService)AopContext.currentProxy()).platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),applyUseWithTravelDto.getGroupId());
         }
+        //用车权限次数变化
+        journeyUserCarCountOp(applyUseWithTravelDto.getTicketId(),1);
         return orderInfo.getOrderId();
     }
 
@@ -1410,6 +1415,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         //插入订单轨迹表
         this.insertOrderStateTrace(String.valueOf(orderId), OrderStateTrace.CANCEL.getState(), String.valueOf(userId),cancelReason);
+        //用车权限次数做变化
+        journeyUserCarCountOp(orderInfoOld.getPowerId(),2);
     }
 
     /**
@@ -1465,5 +1472,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_APPLICANT,paramsMap,applyMobile);
             }
         }
+    }
+
+    /**
+     * 订单取消或者下单成功，用车权限的次数需要做变动
+     * @param powerId
+     * @param opType 1-下单成功 2-订单取消
+     */
+    private void journeyUserCarCountOp(Long powerId,Integer opType){
+        iJourneyUserCarPowerService.updatePowerSurplus(powerId,opType);
     }
 }
