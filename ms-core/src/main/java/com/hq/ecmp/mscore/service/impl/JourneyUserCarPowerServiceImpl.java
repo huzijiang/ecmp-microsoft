@@ -21,6 +21,7 @@ import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
@@ -57,8 +58,6 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     private IApplyInfoService applyInfoService;
     @Autowired
     private IJourneyInfoService journeyInfoService;
-    @Autowired
-    private JourneyInfoMapper journeyInfoMapper;
     @Autowired
     private IRegimeInfoService regimeInfoService;
     @Autowired
@@ -365,7 +364,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(powerId);
 			if(null !=orderStateTraceInfo && OrderStateTrace.CANCEL.getState().equals(orderStateTraceInfo.getState())){
 				//订单是取消的订单
-				if(flag || orderInfoService.queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){
+				if(flag || queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){
 					 //只有网约车  或者 调度的时候选择的是网约车   则状态改为去约车
 					 return OrderState.GETARIDE.getState();
 				 }else{
@@ -378,6 +377,14 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			}
 		}
 		return null;
+	}
+	
+	private boolean queryOrderDispathIsOline(Long orderId) {
+		OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+		if(null !=orderInfo && StringUtil.isNotEmpty(orderInfo.getUseCarMode()) && CarConstant.USR_CARD_MODE_NET.equals(orderInfo.getUseCarMode())){
+			return true;
+		}
+		return false;
 	}
 
 	@Override

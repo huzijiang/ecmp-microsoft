@@ -23,7 +23,6 @@ import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -55,65 +54,61 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
     @Autowired
     private IDriverInfoService driverInfoService;
-    @Autowired
+    @Resource
     private IJourneyInfoService iJourneyInfoService;
-    @Autowired
+    @Resource
     private IJourneyNodeInfoService iJourneyNodeInfoService;
     @Autowired
     private ICarInfoService carInfoService;
-    @Autowired
-    private ICarGroupInfoService carGroupInfoService;
-    @Autowired
+    @Resource
     private JourneyInfoMapper journeyInfoMapper;
-    @Autowired
+    @Resource
     private JourneyUserCarPowerMapper journeyUserCarPowerMapper;
-    @Autowired
+    @Resource
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
-    @Autowired
+    @Resource
     private IDriverInfoService iDriverInfoService;
-    @Autowired
+    @Resource
     private ApplyInfoMapper applyInfoMapper;
-    @Autowired
+    @Resource
     private RedisUtil redisUtil;
-    @Autowired
+    @Resource
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
-    @Autowired
+    @Resource
     private IOrderViaInfoService iOrderViaInfoService;
     @Autowired
     private IRegimeInfoService regimeInfoService;
     @Autowired
     private ICarGroupDispatcherInfoService carGroupDispatcherInfoService;
-    @Autowired
+    @Resource
     private EcmpUserMapper ecmpUserMapper;
-    @Autowired
+    @Resource
     private JourneyPassengerInfoMapper passengerInfoMapper;
     @Autowired
     private IJourneyPassengerInfoService journeyPassengerInfoService;
-    @Autowired
+    @Resource
     private IOrderAddressInfoService iOrderAddressInfoService;
-    @Autowired
+    @Resource
     private IJourneyPlanPriceInfoService iJourneyPlanPriceInfoService;
-    @Autowired
+    @Resource
     private IDriverHeartbeatInfoService iDriverHeartbeatInfoService;
-    @Autowired
+    @Resource
     private OrderAddressInfoMapper orderAddressInfoMapper;
-
-    @Autowired
-    @Lazy
+    @Resource
     private IJourneyUserCarPowerService iJourneyUserCarPowerService;
-    @Autowired
+    @Resource
     IRegimeInfoService iRegimeInfoService;
-    @Autowired
+    @Resource
     ThirdService thirdService;
-    @Autowired
+    @Resource
     private IEcmpConfigService ecmpConfigService;
-    @Autowired
+    @Resource
     private DriverServiceAppraiseeInfoMapper driverServiceAppraiseeInfoMapper;
-    @Autowired
+    @Resource
     private EcmpMessageService ecmpMessageService;
-    @Autowired
+    @Resource
     private ISmsTemplateInfoService iSmsTemplateInfoService;
-    @Autowired
+    @Resource
     private IJourneyPassengerInfoService iJourneyPassengerInfoService;
     @Autowired
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
@@ -517,7 +512,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setOrderId(orderId);
         try {
             boolean reassignment = iOrderStateTraceInfoService.isReassignment(orderId);
-            //改派的订单需要操作改派同意,是否车和司机
+            //改派的订单需要操作改派同意
             if(reassignment){
                 OrderInfo orderInfoRe = new OrderInfo();
                 orderInfoRe.setState(OrderState.WAITINGLIST.getState());
@@ -1280,15 +1275,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderHistoryTraceDtos;
     }
 
-	@Override
-	public boolean queryOrderDispathIsOline(Long orderId) {
-		OrderInfo orderInfo = selectOrderInfoById(orderId);
-		if(null !=orderInfo && StringUtil.isNotEmpty(orderInfo.getUseCarMode()) && CarConstant.USR_CARD_MODE_NET.equals(orderInfo.getUseCarMode())){
-			return true;
-		}
-		return false;
-	}
-
+	
 
 	private OrderCostDetailVO getOrderCost(String jsonObject){
         OrderCostDetailVO result=new OrderCostDetailVO();
@@ -1502,5 +1489,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     private void journeyUserCarCountOp(Long powerId,Integer opType){
         iJourneyUserCarPowerService.updatePowerSurplus(powerId,opType);
+    }
+
+    /**
+     * 网约车，约车成功短信通知
+     */
+    public void sendSmsCallTaxiNet(){
+
     }
 }
