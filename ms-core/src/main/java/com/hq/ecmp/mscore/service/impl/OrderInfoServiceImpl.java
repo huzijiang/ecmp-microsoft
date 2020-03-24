@@ -23,6 +23,7 @@ import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -46,71 +47,71 @@ import java.util.*;
 @Slf4j
 public class OrderInfoServiceImpl implements IOrderInfoService
 {
-	@Autowired
+	@Autowired @Lazy
 	private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
-    @Autowired
+    @Autowired @Lazy
     private OrderInfoMapper orderInfoMapper;
-    @Autowired
+    @Autowired @Lazy
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
-    @Autowired
+    @Autowired @Lazy
     private IDriverInfoService driverInfoService;
-    @Resource
+    @Autowired @Lazy
     private IJourneyInfoService iJourneyInfoService;
-    @Resource
+    @Autowired @Lazy
     private IJourneyNodeInfoService iJourneyNodeInfoService;
-    @Autowired
+    @Autowired @Lazy
     private ICarInfoService carInfoService;
-    @Resource
+    @Autowired @Lazy
     private JourneyInfoMapper journeyInfoMapper;
-    @Resource
+    @Autowired @Lazy
     private JourneyUserCarPowerMapper journeyUserCarPowerMapper;
-    @Resource
+    @Autowired @Lazy
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
-    @Resource
+    @Autowired @Lazy
     private IDriverInfoService iDriverInfoService;
-    @Resource
+    @Autowired @Lazy
     private ApplyInfoMapper applyInfoMapper;
-    @Resource
+    @Autowired @Lazy
     private RedisUtil redisUtil;
-    @Resource
+    @Autowired @Lazy
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
-    @Resource
+    @Autowired @Lazy
     private IOrderViaInfoService iOrderViaInfoService;
-    @Autowired
+    @Autowired @Lazy
     private IRegimeInfoService regimeInfoService;
-    @Autowired
+    @Autowired @Lazy
     private ICarGroupDispatcherInfoService carGroupDispatcherInfoService;
-    @Resource
+    @Autowired @Lazy
     private EcmpUserMapper ecmpUserMapper;
-    @Resource
+    @Autowired @Lazy
     private JourneyPassengerInfoMapper passengerInfoMapper;
-    @Autowired
+    @Autowired @Lazy
     private IJourneyPassengerInfoService journeyPassengerInfoService;
-    @Resource
+    @Autowired @Lazy
     private IOrderAddressInfoService iOrderAddressInfoService;
-    @Resource
+    @Autowired @Lazy
     private IJourneyPlanPriceInfoService iJourneyPlanPriceInfoService;
-    @Resource
+    @Autowired @Lazy
     private IDriverHeartbeatInfoService iDriverHeartbeatInfoService;
-    @Resource
+    @Autowired @Lazy
     private OrderAddressInfoMapper orderAddressInfoMapper;
-    @Resource
+    @Autowired @Lazy
     private IJourneyUserCarPowerService iJourneyUserCarPowerService;
-    @Resource
+    @Autowired @Lazy
     IRegimeInfoService iRegimeInfoService;
-    @Resource
+    @Autowired @Lazy
     ThirdService thirdService;
-    @Resource
+    @Autowired @Lazy
     private IEcmpConfigService ecmpConfigService;
-    @Resource
+    @Autowired @Lazy
     private DriverServiceAppraiseeInfoMapper driverServiceAppraiseeInfoMapper;
-    @Resource
+    @Autowired @Lazy
     private EcmpMessageService ecmpMessageService;
-    @Resource
+    @Autowired @Lazy
     private ISmsTemplateInfoService iSmsTemplateInfoService;
-    @Resource
+    @Autowired @Lazy
     private IJourneyPassengerInfoService iJourneyPassengerInfoService;
-    @Autowired
+    @Autowired @Lazy
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
 
 
