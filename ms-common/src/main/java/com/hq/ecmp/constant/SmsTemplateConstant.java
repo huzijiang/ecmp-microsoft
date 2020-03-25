@@ -24,11 +24,17 @@ public class SmsTemplateConstant {
     public static final String approve_reject_Business = "approve_reject_Business";
     //差旅审批驳回给申请人短信模板
     public static final String approve_reject_Travel = "approve_reject_Travel";
-
     //公务申请，给审批人发送短信的模板码
     public static final String OFFICIAL_APPLY_APPROVER = "official_apply_approver";
     //差旅申请，给审批人发送短信的模板码
     public static final String TRAVEL_APPLY_APPROVER = "travel_apply_approver";
-
+    //约车成功以后给申请人发短信模板码
+    public static final String NETCAR_SUCC_APPLICANT = "netcar_succ_applicant";
+    //约车成功以后给乘车人（企业员工）发短信模板码
+    public static final String NETCAR_SUCC_RIDER_ENTER = "netcar_succ_rider_enter";
+    //约车成功以后给乘车人（非企业员工）发短信模板码
+    public static final String NETCAR_SUCC_RIDER_NO_ENTER = "netcar_succ_rider_no_enter";
+    //约车成功以后给司机发短信模板码
+    public static final String NETCAR_SUCC_DRIVER = "netcar_succ_driver";
 
 }
