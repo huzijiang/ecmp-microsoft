@@ -411,7 +411,8 @@ public class ApplyContoller {
         List<ApprovalListVO> result=new ArrayList<>();
         List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(applyId));
         List<ApprovalInfoVO> list=new ArrayList<>();
-        list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请成功"));
+        //TODO 后期优化
+        list.add(new ApprovalInfoVO(99999999999l,applyUser,applyMobile,"发起申请","申请成功"));
         result.add(new ApprovalListVO(applyId,"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
         if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
            for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){

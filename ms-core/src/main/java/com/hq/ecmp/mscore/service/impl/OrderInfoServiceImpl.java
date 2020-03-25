@@ -408,6 +408,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
         UserVO str= orderStateTraceInfoMapper.getOrderDispatcher(orderId,states);
         vo.setCarGroupPhone(str.getUserPhone());
+        vo.setOrderNumber(orderInfo.getOrderNumber());
         vo.setCarGroupName(str.getUserName());
         vo.setCustomerServicePhone(serviceMobile);
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
@@ -416,8 +417,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
         if (!CollectionUtils.isEmpty(orderAddressInfos)){
             useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderAddressInfos.get(0).getActionTime());
+            vo.setUseCarTimestamp(orderAddressInfos.get(0).getActionTime().getTime());
         }
         vo.setUseCarTime(useCarTime);
+        vo.setCreateTimestamp(orderInfo.getCreateTime().getTime());
         //服务结束时间
         OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){

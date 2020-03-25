@@ -18,6 +18,7 @@ public class OrderVO {
     private Long orderId;
     private Long driverId;
     private Long cardId;
+    private String orderNumber;
     @ApiModelProperty(name = "driverMobile",value = "司机手机")
     private String driverMobile;
     @ApiModelProperty(name = "driverName",value = "司机姓名")
@@ -48,6 +49,10 @@ public class OrderVO {
     private String customerServicePhone;
     @ApiModelProperty(name = "useCarTime",value = "用车时间")
     private String useCarTime;
+    @ApiModelProperty(name = "createTimestamp",value = "下单时间")
+    private Long createTimestamp;
+    @ApiModelProperty(name = "useCarTimestamp",value = "下单时间")
+    private Long useCarTimestamp;
     @ApiModelProperty(name = "duration",value = "用车时长")
     private String duration;
     @ApiModelProperty(name = "distance",value = "里程")
