@@ -39,4 +39,10 @@ public class AddressVO {
     @ApiModelProperty(name = "longitude",value = "经度")
     private String longitude;
 
+    /**
+     * 城市code
+     */
+    @ApiModelProperty(name = "cityCode",value = "城市代码")
+    private String cityCode;  //TODO 新增
+
 }

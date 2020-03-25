@@ -80,4 +80,13 @@ public interface JourneyInfoMapper
      * @return 个数
      */
     int getJourneyListCount(@Param("userId")String userId);
+
+    /**
+     * 查询用户审核通过的用车行程
+     * @param userId
+     * @return
+     */
+    List<JourneyInfo> queryPassJourneyList(Long userId);
+
+    String selectTitleById(Long journeyId);
 }

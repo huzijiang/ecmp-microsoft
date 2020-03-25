@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EcmpNotice;
+import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
 import java.util.Map;
@@ -82,4 +83,20 @@ public interface IEcmpNoticeService
      * @return
      */
     EcmpNotice selectExpirationDateNewNotice(Long userId);
+
+    /**
+     * 分页全部查询公告列表（带搜索功能）
+     * @param pageNum
+     * @param pageSize
+     * @param search
+     * @return
+     */
+    PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize, String search);
+
+    /**
+     * 查询公告列表详情（后台管理系统）
+     * @param //carGroupId
+     * @return
+     */
+    EcmpNotice getNoticeDetails(Integer noticeId);
 }

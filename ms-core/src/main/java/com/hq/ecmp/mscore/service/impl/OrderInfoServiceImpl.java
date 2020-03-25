@@ -7,6 +7,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
+import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
@@ -18,6 +19,7 @@ import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.OrderUtils;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +32,6 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -59,8 +60,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private IJourneyNodeInfoService iJourneyNodeInfoService;
     @Autowired
     private ICarInfoService carInfoService;
-    @Autowired
-    private ICarGroupInfoService carGroupInfoService;
     @Resource
     private JourneyInfoMapper journeyInfoMapper;
     @Resource
@@ -102,9 +101,17 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Resource
     ThirdService thirdService;
     @Resource
-    private EcmpConfigMapper ecmpConfigMapper;
+    private IEcmpConfigService ecmpConfigService;
     @Resource
     private DriverServiceAppraiseeInfoMapper driverServiceAppraiseeInfoMapper;
+    @Resource
+    private EcmpMessageService ecmpMessageService;
+    @Resource
+    private ISmsTemplateInfoService iSmsTemplateInfoService;
+    @Resource
+    private IJourneyPassengerInfoService iJourneyPassengerInfoService;
+    @Autowired
+    private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -222,16 +229,20 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
 		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
-		//查询所有处于待派单的订单及关联的信息
+		//查询所有处于待派单(未改派)的订单及关联的信息
 		OrderInfo query = new OrderInfo();
 		query.setState(OrderState.WAITINGLIST.getState());
 		List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
 		if(null !=waitDispatchOrder && waitDispatchOrder.size()>0){
 			//对用的前端状态都为待派车 -S200
 			for (DispatchOrderInfo dispatchOrderInfo : waitDispatchOrder) {
+				//去除改派的单子
+				if(iOrderStateTraceInfoService.isReassignment(dispatchOrderInfo.getOrderId())){
+					continue;
+				}
 				dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
+				result.add(dispatchOrderInfo);
 			}
-			result.addAll(waitDispatchOrder);
 		}
 		//查询所有处于待改派(订单状态为已派车,已发起改派申请)的订单及关联的信息
 		query.setState(OrderState.ALREADYSENDING.getState());
@@ -342,6 +353,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId) {
 		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
+		dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
 		//查询订单对应的上车地点时间,下车地点时间
 		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 		//判断该订单是否改派过
@@ -349,6 +361,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			//是改派过的单子  则查询改派详情
 			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryReassignmentOrderInfo(orderId);
 			dispatchOrderInfo.setDispatchDriverInfo(dispatchDriverInfo);
+			//改派过的订单对应前端状态 待改派-S270
+			dispatchOrderInfo.setState(OrderState.APPLYREASSIGN.getState());
 		}
 		return dispatchOrderInfo;
 	}
@@ -356,6 +370,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public DispatchOrderInfo getCompleteDispatchOrderDetailInfo(Long orderId) {
 		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.queryCompleteDispatchOrderDetail(orderId);
+		//对应前端状态都为已处理-S299 
+		dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
 		//查询订单对应的上车地点时间,下车地点时间
 		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 		if(iOrderStateTraceInfoService.isReassignment(orderId)){
@@ -390,8 +406,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             return vo;
         }
         String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
-        UserVO str= iOrderStateTraceInfoService.getOrderDispatcher(states,orderId);
+        UserVO str= orderStateTraceInfoMapper.getOrderDispatcher(orderId,states);
         vo.setCarGroupPhone(str.getUserPhone());
+        vo.setOrderNumber(orderInfo.getOrderNumber());
         vo.setCarGroupName(str.getUserName());
         vo.setCustomerServicePhone(serviceMobile);
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
@@ -400,27 +417,33 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
         if (!CollectionUtils.isEmpty(orderAddressInfos)){
             useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderAddressInfos.get(0).getActionTime());
+            vo.setUseCarTimestamp(orderAddressInfos.get(0).getActionTime().getTime());
         }
         vo.setUseCarTime(useCarTime);
-        List<UserEmergencyContactInfo> contactInfos = userEmergencyContactInfoMapper.queryAll(new UserEmergencyContactInfo(journeyInfo.getUserId()));
-        String isAddContact=CollectionUtils.isEmpty(contactInfos)?"0":"1";
+        vo.setCreateTimestamp(orderInfo.getCreateTime().getTime());
+        //服务结束时间
+        OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
+        if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
+            vo.setOrderEndTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderStateTraceInfo.getCreateTime()));
+        }
+       List<UserEmergencyContactInfo> contactInfos = userEmergencyContactInfoMapper.queryAll(new UserEmergencyContactInfo(journeyInfo.getUserId()));
+        String isAddContact=CollectionUtils.isEmpty(contactInfos)?CommonConstant.SWITCH_ON:CommonConstant.SWITCH_OFF;
         vo.setIsAddContact(isAddContact);
         //TODO 查询企业配置是否自动行程确认/异议
-        int isDisagree=0;
-        EcmpConfig ecmpConfig = ecmpConfigMapper.selectConfigByKey(new EcmpConfig(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey()));
-        if (ecmpConfig!=null&&StringUtils.isNotEmpty(ecmpConfig.getConfigValue())){
-            JSONObject jsonObject = JSONObject.parseObject(ecmpConfig.getConfigValue());
-            String status = jsonObject.getString("status");
-            if ("0".equals(status)){
-                isDisagree=1;
-            }
-        }
-        vo.setIsDisagree(isDisagree);
+        int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey());
+        int isVirtualPhone = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey());//是否号码保护
+        vo.setIsDisagree(orderConfirmStatus);
+        vo.setIsVirtualPhone(isVirtualPhone);
         List<DriverServiceAppraiseeInfo> driverServiceAppraiseeInfos = driverServiceAppraiseeInfoMapper.queryAll(new DriverServiceAppraiseeInfo(orderInfo.getOrderId()));
         if (!CollectionUtils.isEmpty(driverServiceAppraiseeInfos)){
-            vo.setDuration(driverServiceAppraiseeInfos.get(0).getContent());
-            vo.setScore(driverServiceAppraiseeInfos.get(0).getScore());
+            vo.setDescription(driverServiceAppraiseeInfos.get(0).getContent());
+            vo.setScore(driverServiceAppraiseeInfos.get(0).getScore()+"");
+        }else{
+            vo.setScore(null);
+            vo.setDuration(null);
         }
+        vo.setDriverId(orderInfo.getDriverId());
+        vo.setCardId(orderInfo.getCarId());
         if(CarModeEnum.ORDER_MODE_HAVE.getKey().equals(orderInfo.getUseCarMode())){//自有车
             //查询车辆信息
             CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
@@ -448,32 +471,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 vo.setDriverScore(split[3]);
             }
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
-                List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
-                if (!CollectionUtils.isEmpty(orderSettlingInfos)){
-                    //TODO 生产记得放开
+//                List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
+//                if (!CollectionUtils.isEmpty(orderSettlingInfos)){
+//                    //TODO 生产记得放开
 //                    OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
-//                    JSONObject jsonObject = JSONObject.parseObject(orderSettlingInfo.getAmountDetail());
-//                    String disMoney = jsonObject.getString("disMoney");//原价
-//                    String distance = jsonObject.getString("distance");//里程
-//                    String distanceFee = jsonObject.getString("distanceFee");//里程费
-//                    String duration = jsonObject.getString("duration");//时长(分钟)
-//                    String durationFee = jsonObject.getString("durationFee");//时长费
-//                    String overDistancePrice = jsonObject.getString("overDistancePrice");//每公里单据
-//                    vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
-//                    vo.setDisMoney(disMoney);
-//                    vo.setDistance(distance+"公里");
-//                    vo.setDistanceFee(distanceFee);
-//                    vo.setDuration(DateFormatUtils.formatMinute(StringUtils.isNotEmpty(duration)?Integer.parseInt(duration):0));
-//                    vo.setDurationFee(durationFee);
-//                    vo.setOverDistancePrice(overDistancePrice);
-                    vo.setAmount("102");
-                    vo.setDisMoney("25");
-                    vo.setDistance("12.5公里");
-                    vo.setDistanceFee("30");
-                    vo.setDuration("1小时50分");
-                    vo.setDurationFee("102");
-                    vo.setOverDistancePrice("8.2");
-                }
+//                    this.getOrderCost(orderSettlingInfo.getAmountDetail());
+//                }
+                OrderCostDetailVO orderCost = this.getOrderCost(null);
+                vo.setOrderCostDetailVO(orderCost);
             }
         }
         vo.setState(orderInfo.getState());
@@ -510,7 +515,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setOrderId(orderId);
         try {
             boolean reassignment = iOrderStateTraceInfoService.isReassignment(orderId);
-            //改派的订单需要操作改派同意,是否车和司机
+            //改派的订单需要操作改派同意
             if(reassignment){
                 OrderInfo orderInfoRe = new OrderInfo();
                 orderInfoRe.setState(OrderState.WAITINGLIST.getState());
@@ -809,8 +814,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderAddressInfo.setPowerId(powerId);
                 orderAddressInfo.setUserId(journeyInfo.getUserId()+"");
                 orderAddressInfo.setCreateBy(userId+"");
-                RegimeInfo regimeInfo = iRegimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
-                orderAddressInfo.setCityPostalCode(regimeInfo.getAllowCity());
                 if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState())){
                     SimpleDateFormat si = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String format = si.format(journeyInfo.getFlightPlanTakeOffTime());
@@ -822,23 +825,25 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     }
                 }
                 //起点
-                if(j == journeyNodeInfoList.size()-1){
+                if(j == 1){
                     orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanSetoutTime());
                     orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLongitude()));
                     orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLatitude()));
                     orderAddressInfo.setAddress(journeyNodeInfoCh.getPlanBeginAddress());
                     orderAddressInfo.setAddressLong(journeyNodeInfoCh.getPlanBeginLongAddress());
+                    orderAddressInfo.setCityPostalCode(journeyNodeInfoCh.getPlanBeginCityCode());
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
                 //终点
-                if(j==1){
+                if(j==journeyNodeInfoList.size()-1){
                     orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanArriveTime());
                     orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
                     orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
                     orderAddressInfo.setAddress(journeyNodeInfoCh.getPlanEndAddress());
                     orderAddressInfo.setAddressLong(journeyNodeInfoCh.getPlanEndLongAddress());
+                    orderAddressInfo.setCityPostalCode(journeyNodeInfoCh.getPlanEndCityCode());
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
             }
@@ -852,8 +857,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //走网约车约车接口
         if(officialOrderReVo.getIsDispatch() == 2){
             this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
-            platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),officialOrderReVo.getCarLevel());
+            ((IOrderInfoService)AopContext.currentProxy()).platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),officialOrderReVo.getCarLevel());
         }
+        //用车权限次数变化
+        journeyUserCarCountOp(powerId,1);
         return orderInfo.getOrderId();
     }
 
@@ -1056,8 +1063,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
-    public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto, Long userId) throws ParseException {
+    public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto, Long userId) throws Exception {
         JourneyUserCarPower journeyUserCarPower = iJourneyUserCarPowerService.selectJourneyUserCarPowerById(applyUseWithTravelDto.getTicketId());
+        if(journeyUserCarPower == null){
+            throw new Exception("用车权限不存在");
+        }
+        List<OrderInfo> validOrderByPowerId = orderInfoMapper.getValidOrderByPowerId(applyUseWithTravelDto.getTicketId());
+        if(validOrderByPowerId!=null && validOrderByPowerId.size()>0){
+            throw new Exception("此用车权限已存在有效订单");
+        }
         JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderNumber(OrderUtils.getOrderNum());
@@ -1068,6 +1082,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //直接约车，约车中。走调度，待派单
         if(applyUseWithTravelDto.getIsDispatch() == 2){
             orderInfo.setState(OrderState.SENDINGCARS.getState());
+            orderInfo.setUseCarMode(CarConstant.USE_CAR_TYPE_TRAVEL);
         }else{
             orderInfo.setState(OrderState.WAITINGLIST.getState());
         }
@@ -1134,8 +1149,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //走网约车约车接口
         if(applyUseWithTravelDto.getIsDispatch() == 2){
             this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
-            platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),applyUseWithTravelDto.getGroupId());
+            ((IOrderInfoService)AopContext.currentProxy()).platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),applyUseWithTravelDto.getGroupId());
         }
+        //用车权限次数变化
+        journeyUserCarCountOp(applyUseWithTravelDto.getTicketId(),1);
         return orderInfo.getOrderId();
     }
 
@@ -1261,12 +1278,226 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderHistoryTraceDtos;
     }
 
-	@Override
-	public boolean queryOrderDispathIsOline(Long orderId) {
-		OrderInfo orderInfo = selectOrderInfoById(orderId);
-		if(null !=orderInfo && StringUtil.isNotEmpty(orderInfo.getUseCarMode()) && CarConstant.USR_CARD_MODE_NET.equals(orderInfo.getUseCarMode())){
-			return true;
-		}
-		return false;
-	}
+	
+
+	private OrderCostDetailVO getOrderCost(String jsonObject){
+        OrderCostDetailVO result=new OrderCostDetailVO();
+        List<OtherCostVO> list=new ArrayList<>();
+        result.setCouponSettleAmout("22");
+        result.setActualPayAmount("129");
+        result.setCustomerPayPrice("107");
+        result.setMileage("27公里");
+        result.setMin("63分钟");
+        list.add(new OtherCostVO("起步价","15","3公里","12分钟","含时长12分钟,含里程3公里"));
+        list.add(new OtherCostVO("超时长费","15","平峰时长:3分钟,高峰时长:13分钟,累计超时时长:26分钟"));
+        list.add(new OtherCostVO("超里程费","14","平峰里程:3公里,高峰里程:1公里,累计超时里程:4公里"));
+        list.add(new OtherCostVO("夜间时长费","13","夜间服务费（里程）单价:1.3,夜间服务里程10公里"));
+        list.add(new OtherCostVO("夜间时长费","12","夜间服务费（时长）单价:1.2,夜间服务时长10分钟"));
+        list.add(new OtherCostVO("等待费","10","等待时长为15分钟"));
+        list.add(new OtherCostVO("长途费","40","长途单价:4元/公里,长途里程10公里"));
+        list.add(new OtherCostVO("其他费用","10","包含停车费、高速费、机场服务费"));
+//        OrderFeeDetailVO orderFeeDetailVO = GsonUtils.jsonToBean(jsonObject, new TypeToken<OrderFeeDetailVO>() {
+//        }.getType());
+//        if (orderFeeDetailVO==null){
+//            return null;
+//        }
+//        BeanUtils.copyProperties(orderFeeDetailVO,result);
+//        //基础套餐费：包含基础时长和基础里程，超出另外计费
+//        String basePrice = orderFeeDetailVO.getBasePrice();
+//        String includeMileage = orderFeeDetailVO.getIncludeMileage();
+//        String includeMinute = orderFeeDetailVO.getIncludeMinute();
+//        if(BigDecimal.ZERO!=new BigDecimal(basePrice)){
+//            list.add(new OtherCostVO("起步价",basePrice,includeMileage,includeMinute,"含时长"+includeMinute+"分钟,含里程"+includeMileage+"公里"));
+//        }
+//        //超时长费：超出基础时长时计算，同时会区分高峰和平峰时段
+//        String overTimeNumTotal = orderFeeDetailVO.getOverTimeNumTotal();//超时长费:高峰时长费+平超时长费
+//        String hotDuration = orderFeeDetailVO.getHotDuration();//高峰时长
+//        String hotDurationFees = orderFeeDetailVO.getHotDurationFees();//高峰时长费
+//        String peakPriceTime = orderFeeDetailVO.getPeakPriceTime();//高峰单价(时长)
+//        String overTimeNum = orderFeeDetailVO.getOverTimeNum();//平超时长
+//        String overTimePrice = orderFeeDetailVO.getOverTimePrice();//平超时长费用
+//        String allTime=new BigDecimal(overTimeNum).add(new BigDecimal(hotDuration)).stripTrailingZeros().toPlainString();
+//        if(BigDecimal.ZERO!=new BigDecimal(overTimeNumTotal)){
+//            list.add(new OtherCostVO("超时长费",overTimeNumTotal,"平峰时长:"+overTimeNum+"分钟,高峰时长:"+hotDuration+"分钟,累计超时时长:"+allTime+"分钟"));
+//        }
+//        //超里程费：超出基础里程时计算，同时会区分高峰和平峰时段
+//        String overMilageNumTotal = orderFeeDetailVO.getOverMilageNumTotal();//超里程费用:高峰里程费+平超里程费
+//        String overMilagePrice = orderFeeDetailVO.getOverMilagePrice();//平超里程费
+//        String overMilageNum = orderFeeDetailVO.getOverMilageNum();//平超里程数
+//        String hotMileageFees = orderFeeDetailVO.getHotMileageFees();//高峰里程费
+//        String hotMileage = orderFeeDetailVO.getHotMileage();//高峰里程
+//        String peakPrice = orderFeeDetailVO.getPeakPrice();//高峰里程单价
+//        String allMileage=new BigDecimal(hotMileage).add(new BigDecimal(overMilageNum)).stripTrailingZeros().toPlainString();
+//        if(BigDecimal.ZERO!=new BigDecimal(overMilageNumTotal)){
+//            list.add(new OtherCostVO("超里程费",overTimeNumTotal,"平峰里程:"+overMilageNum+"公里,高峰里程:"+hotMileage+"公里,累计超时里程:"+allMileage+"公里"));
+//        }
+//        //夜间里程费：用车过程在设定为夜间服务时间的，加收夜间服务费。
+//        String nightDistancePrice = orderFeeDetailVO.getNightDistancePrice();
+//        String nightDistanceNum	 = orderFeeDetailVO.getNightDistanceNum();
+//        String nightPrice = orderFeeDetailVO.getNightPrice();
+//        if(BigDecimal.ZERO!=new BigDecimal(nightDistancePrice)){
+//            list.add(new OtherCostVO("夜间时长费",nightDistancePrice,"夜间服务费（里程）单价:"+nightPrice+",夜间服务里程"+nightDistanceNum+"公里"));
+//        }
+//        //夜间时长费：用车过程在设定为夜间服务时间的，加收夜间服务费。
+//        String nighitDurationFees = orderFeeDetailVO.getNighitDurationFees();
+//        String nighitDuration = orderFeeDetailVO.getNighitDuration();
+//        String nightPriceTime = orderFeeDetailVO.getNightPriceTime();
+//        if(BigDecimal.ZERO!=new BigDecimal(nighitDurationFees)){
+//            list.add(new OtherCostVO("夜间时长费",nighitDurationFees,"夜间服务费（时长）单价:"+nightPriceTime+",夜间服务时长"+nighitDuration+"分钟"));
+//        }
+//        //等待费
+//        String waitingFee = orderFeeDetailVO.getWaitingFee();
+//        String waitingMinutes = orderFeeDetailVO.getWaitingMinutes();
+//        if(BigDecimal.ZERO!=new BigDecimal(waitingFee)){
+//            list.add(new OtherCostVO("等待费",waitingFee,"等待时长为"+waitingMinutes+"分钟"));
+//        }
+//        //长途费：超过长途费起始里程时计算
+//        String longDistancePrice = orderFeeDetailVO.getLongDistancePrice();
+//        String longDistanceNum = orderFeeDetailVO.getLongDistanceNum();
+//        String longPrice = orderFeeDetailVO.getLongPrice();
+//        if(BigDecimal.ZERO!=new BigDecimal(longDistancePrice)){
+//            list.add(new OtherCostVO("长途费",longDistancePrice,"长途单价:"+longPrice+",长途里程"+longDistanceNum+"公里"));
+//        }
+//        //价外税:如高速费和停车费
+//        List<OtherFeeDetailVO> otherCost = orderFeeDetailVO.getOtherCost();
+//        Double otherFee=0.0;
+//        if (!CollectionUtils.isEmpty(otherCost)){
+//            otherFee = otherCost.stream().map(OtherFeeDetailVO::getCostFee).collect(Collectors.reducing(Double::sum)).get();
+//        }
+//        if(BigDecimal.ZERO!=BigDecimal.valueOf(otherFee)){
+//            list.add(new OtherCostVO("其他费用",String.valueOf(otherFee),"包含停车费、高速费、机场服务费"));
+//        }
+        result.setOtherCost(list);
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public void cancelOrder(Long orderId,Long userId,String cancelReason) throws Exception {
+        OrderInfo orderInfoOld = orderInfoMapper.selectOrderInfoById(orderId);
+        if (orderInfoOld == null) {
+            throw new Exception("未查询到订单号【" + orderId+ "】对应的订单信息");
+        }
+        String useCarMode = orderInfoOld.getUseCarMode();
+        String state = orderInfoOld.getState();
+        //消息发送使用
+        Long driverId = orderInfoOld.getDriverId();
+        //状态为约到车未服务的状态，用车方式为网约车，调用三方取消订单接口
+        if (OrderState.getContractedCar().contains(state) && useCarMode.equals(CarConstant.USR_CARD_MODE_NET)) {
+            //TODO 调用网约车的取消订单接口
+            List<String> macList = MacTools.getMacList();
+            String macAdd = macList.get(0);
+            Map<String, String> paramMap = new HashMap<>();
+            paramMap.put("enterpriseId", enterpriseId);
+            paramMap.put("enterpriseOrderId", String.valueOf(orderId));
+            paramMap.put("licenseContent", licenseContent);
+            paramMap.put("mac", macAdd);
+            paramMap.put("reason", cancelReason);
+            String result = OkHttpUtil.postJson(apiUrl + "/service/cancelOrder", paramMap);
+            JSONObject jsonObject = JSONObject.parseObject(result);
+            if (!"0".equals(jsonObject.get("CODE"))) {
+                throw new Exception("调用三方取消订单服务-》取消失败");
+            }
+        }
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setState(OrderState.ORDERCLOSE.getState());
+        orderInfo.setUpdateBy(String.valueOf(userId));
+        orderInfo.setOrderId(orderId);
+        orderInfo.setUpdateTime(DateUtils.getNowDate());
+        int suc = orderInfoMapper.updateOrderInfo(orderInfo);
+        //自有车，且状态变更成功
+        if (suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)) {
+            //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
+            EcmpMessage ecmpMessage = new EcmpMessage();
+            ecmpMessage.setConfigType(2);
+            ecmpMessage.setEcmpId(driverId);
+            ecmpMessage.setType("T001");
+            ecmpMessage.setStatus("0000");
+            ecmpMessage.setContent("");
+            ecmpMessage.setCategory("M005");
+            ecmpMessage.setUrl("");
+            ecmpMessage.setCreateBy(userId);
+            ecmpMessage.setCreateTime(DateUtils.getNowDate());
+            ecmpMessage.setUpdateBy(null);
+            ecmpMessage.setUpdateTime(null);
+            ecmpMessageService.insert(ecmpMessage);
+            //取消订单短信发送
+            sendSmsCancelOrder(orderId);
+        }
+        //插入订单轨迹表
+        this.insertOrderStateTrace(String.valueOf(orderId), OrderStateTrace.CANCEL.getState(), String.valueOf(userId),cancelReason);
+        //用车权限次数做变化
+        journeyUserCarCountOp(orderInfoOld.getPowerId(),2);
+    }
+
+    /**
+     * 取消订单发送短信
+     * @param orderId
+     * @throws Exception
+     */
+    private void sendSmsCancelOrder(Long orderId) throws Exception {
+        String useCarTime = null;
+        //给司机发送短信
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        String driverMobile = orderInfo.getDriverMobile();
+        if(driverMobile != null){
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+            String planBeginAddress = null;
+            String planEndAddress = null;
+            Map<String,String> paramsMap = new HashMap<>();
+            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+            orderAddressInfo.setOrderId(orderId);
+            List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfo);
+            for (OrderAddressInfo orderAddressInfo1:
+                 orderAddressInfos) {
+                if(orderAddressInfo1.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT)){
+                    planBeginAddress = orderAddressInfo1.getAddress();
+                    useCarTime = simpleDateFormat.format(orderAddressInfo1.getActionTime());
+                }else if(orderAddressInfo1.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE)){
+                    planEndAddress = orderAddressInfo1.getAddress();
+                }else{
+
+                }
+            }
+            paramsMap.put("planBeginAddress",planBeginAddress);
+            paramsMap.put("planEndAddress",planEndAddress);
+            paramsMap.put("useCarTime",useCarTime);
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_DRIVER,paramsMap,driverMobile);
+        }
+        //给申请人发送短信
+        String riderMobile = "";
+        String applyMobile = "";
+        Long journeyId = orderInfo.getJourneyId();
+        JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyId);
+        Long applyUserId = journeyInfo.getUserId();
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(applyUserId);
+        applyMobile = ecmpUser.getPhonenumber();
+        JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
+        journeyPassengerInfo.setItIsPeer("1");
+        List<JourneyPassengerInfo> journeyPassengerInfos = iJourneyPassengerInfoService.selectJourneyPassengerInfoList(journeyPassengerInfo);
+        if(journeyPassengerInfos.size()>0){
+            riderMobile = journeyPassengerInfos.get(0).getMobile();
+            if(!"".equals(riderMobile) && !"".equals(applyMobile) && !riderMobile.equals(applyMobile) ){
+                Map<String,String> paramsMap = new HashMap<>();
+                paramsMap.put("useCarTime",useCarTime);
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_APPLICANT,paramsMap,applyMobile);
+            }
+        }
+    }
+
+    /**
+     * 订单取消或者下单成功，用车权限的次数需要做变动
+     * @param powerId
+     * @param opType 1-下单成功 2-订单取消
+     */
+    private void journeyUserCarCountOp(Long powerId,Integer opType){
+        iJourneyUserCarPowerService.updatePowerSurplus(powerId,opType);
+    }
+
+    /**
+     * 网约车，约车成功短信通知
+     */
+    public void sendSmsCallTaxiNet(){
+
+    }
 }

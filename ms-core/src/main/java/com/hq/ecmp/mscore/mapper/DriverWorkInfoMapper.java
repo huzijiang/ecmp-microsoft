@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.DriverWorkInfo;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -77,4 +78,28 @@ public interface DriverWorkInfoMapper
      * @return
      */
     List<DriverDutyPlanVO> selectDriverWorkInfoByMonth(@Param("scheduleDate") String scheduleDate, @Param("driverId") Long driverId);
+
+    /**
+     * 按月查询司机上班时间安排
+     * @param scheduleDate
+     * @param
+     * @return
+     */
+    List<Date> selectDutyDateByMonth(@Param("scheduleDate") String scheduleDate, @Param("driverId") Long driverId);
+
+    /**
+     * 查询司机休假时间
+     * @param scheduleDate
+     * @param driverId
+     * @return
+     */
+    List<String> selectHolidaysByMonth(@Param("scheduleDate")String scheduleDate, @Param("driverId") Long driverId);
+
+    /**
+     * 查询司机某月已出勤天数
+     * @param scheduleDate
+     * @param driverId
+     * @return
+     */
+    int selectDriverAlreadyDutyDays(@Param("scheduleDate") String scheduleDate,@Param("driverId") Long driverId);
 }

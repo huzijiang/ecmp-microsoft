@@ -16,6 +16,9 @@ import java.util.Date;
 public class OrderVO {
 
     private Long orderId;
+    private Long driverId;
+    private Long cardId;
+    private String orderNumber;
     @ApiModelProperty(name = "driverMobile",value = "司机手机")
     private String driverMobile;
     @ApiModelProperty(name = "driverName",value = "司机姓名")
@@ -46,27 +49,29 @@ public class OrderVO {
     private String customerServicePhone;
     @ApiModelProperty(name = "useCarTime",value = "用车时间")
     private String useCarTime;
-    @ApiModelProperty(name = "labelState",value = "辅助状态")
-    private String labelState;
-    @ApiModelProperty(name = "allPrice",value = "优惠后总价")
-    private String amount;
+    @ApiModelProperty(name = "createTimestamp",value = "下单时间")
+    private Long createTimestamp;
+    @ApiModelProperty(name = "useCarTimestamp",value = "下单时间")
+    private Long useCarTimestamp;
+    @ApiModelProperty(name = "duration",value = "用车时长")
+    private String duration;
     @ApiModelProperty(name = "distance",value = "里程")
     private String distance;
-    @ApiModelProperty(name = "distanceFee",value = "里程费")
-    private String distanceFee;
-    @ApiModelProperty(name = "duration",value = "时长（分钟）")
-    private String duration;
-    @ApiModelProperty(name = "durationFee",value = "时长费")
-    private String durationFee;
-    @ApiModelProperty(name = "overDistancePrice",value = "每公里单价")
-    private String overDistancePrice;
-    @ApiModelProperty(name = "disMoney",value = "原价")
-    private String disMoney;
+    @ApiModelProperty(name = "amount",value = "金额")
+    private String amount;
+    @ApiModelProperty(name = "labelState",value = "辅助状态")
+    private String labelState;
     @ApiModelProperty(name = "isDisagree",value = "是否展示异议")
     private int isDisagree;
     @ApiModelProperty(name = "score",value = "订单评分")
-    private int score;
+    private String score;
+    @ApiModelProperty(name = "isVirtualPhone",value = "是否号码保护")
+    private Integer isVirtualPhone;
+    @ApiModelProperty(name = "orderEndTime",value = "订单结束时间")
+    private String orderEndTime;
     @ApiModelProperty(name = "description",value = "订单评分描述")
     private String description;
+    @ApiModelProperty(name = "orderCostDetailVO",value = "费用对象")
+    private OrderCostDetailVO   orderCostDetailVO;
 
 }

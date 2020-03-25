@@ -30,7 +30,7 @@ public class DriverInfoController {
 		IDriverInfoService driverInfoService;
 		@Autowired
 		TokenService tokenService;
-	
+
 	
 	@ApiOperation(value = "create", notes = "新增驾驶员", httpMethod = "POST")
 	@PostMapping("/create")
@@ -59,15 +59,5 @@ public class DriverInfoController {
 	@PostMapping("/detail")
 	public ApiResponse<DriverQueryResult> detail(@RequestBody Long driverId) {
 		return ApiResponse.success(driverInfoService.queryDriverDetail(driverId));
-	}
-	
-	@ApiOperation(value = "optDriver", notes = "驾驶员启用/禁用", httpMethod = "POST")
-	@PostMapping("/optDriver")
-	public ApiResponse optRegime(String driverId,String state) {
-		int updateDriverStatus = driverInfoService.updateDriverStatus(Long.valueOf(driverId), state);
-		if(updateDriverStatus>0){
-			return ApiResponse.success();
-		}
-		return ApiResponse.error();
 	}
 }

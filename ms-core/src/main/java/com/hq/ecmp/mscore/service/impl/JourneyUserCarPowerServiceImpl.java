@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.CarConstant;
@@ -20,10 +21,12 @@ import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
+import com.hq.ecmp.mscore.mapper.CarGroupServeScopeInfoMapper;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
@@ -35,6 +38,8 @@ import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
+
+import javax.annotation.Resource;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -54,16 +59,16 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     @Autowired
     private IJourneyInfoService journeyInfoService;
     @Autowired
-    private JourneyInfoMapper journeyInfoMapper;
-    @Autowired
     private IRegimeInfoService regimeInfoService;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
     @Autowired
+    private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
+    @Autowired
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Autowired
     private IOrderStateTraceInfoService orderStateTraceInfoService;
-    @Autowired
+    @Resource
     private IOrderInfoService orderInfoService;
     
 
@@ -166,12 +171,11 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	}
 
 	@Override
-	public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId) {
+	public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId,String cityCode) {
 		List<UserCarAuthority> list = journeyUserCarPowerMapper.queryNoteAllUserAuthority(nodeId);
 		 RegimeInfo regimeInfo = regimeInfoService.queryUseCarModelByNoteId(nodeId);
-		String[] split = regimeInfo.getCanUseCarMode().split(",");
-		List<String> asList = Arrays.asList(split);
-		boolean flag = !asList.contains(CarConstant.USR_CARD_MODE_HAVE);// true-只有网约车
+		//判断是否走调度
+		 boolean flag = regimeInfoService.judgeNotDispatch(regimeInfo.getRegimenId(), cityCode);//true-不走调度  fasle-走调度
 		// 查询对应的用车方式
 		if (null != list && list.size() > 0) {
 			RegimeInfo selectRegimeInfo = regimeInfoService.selectRegimeInfoById(regimeInfo.getRegimenId());
@@ -323,8 +327,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 
 	@Override
 	public String buildUserAuthorityPowerStatus(boolean flag, Long powerId) {
-		List<String> allOrderState = orderInfoMapper.queryAllOrderStatusByPowerId(powerId);
-		if(null==allOrderState || allOrderState.size()==0 || allOrderState.contains(OrderState.INITIALIZING.getState())){
+		String vaildOrdetrState = orderInfoMapper.queryVaildOrderStatusByPowerId(powerId);
+		if(StringUtil.isEmpty(vaildOrdetrState) ||OrderState.INITIALIZING.getState().equals(vaildOrdetrState)){
 			//还未生成订单  则表示权限未使用过
 			if(flag){
 				//对应前端状态   去约车
@@ -335,32 +339,32 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			}
 			
 		}
-		if(allOrderState.contains(OrderState.WAITINGLIST.getState())){
+		if(OrderState.WAITINGLIST.getState().equals(vaildOrdetrState)){
 			//订单状态为待派单,则对应前端状态为派车中
 			return OrderState.WAITINGLIST.getState();
 		}
 		
-		if(allOrderState.contains(OrderState.SENDINGCARS.getState())){
+		if(OrderState.SENDINGCARS.getState().equals(vaildOrdetrState)){
 			//订单状态为约车中  则对用前端状态为约车车中
 			return OrderState.SENDINGCARS.getState();
 		}
 		
-		if(allOrderState.contains(OrderState.ALREADYSENDING.getState()) || allOrderState.contains(OrderState.READYSERVICE.getState())){
+		if(OrderState.ALREADYSENDING.getState().equals(vaildOrdetrState) || OrderState.READYSERVICE.getState().equals(vaildOrdetrState)){
 			//订单状态为已派车或者准备服务   则对应前端状态为待服务
 			return OrderState.ALREADYSENDING.getState();
 		}
 		
-		if(allOrderState.contains(OrderState.INSERVICE.getState())){
+		if(OrderState.INSERVICE.getState().equals(vaildOrdetrState)){
 			//订单状态为服务中  则对应前端状态为进行中
 			return OrderState.INSERVICE.getState();
 		}
 		
-		if(allOrderState.contains(OrderState.ORDERCLOSE.getState())){
+		if(OrderState.ORDERCLOSE.getState().equals(vaildOrdetrState)){
 			//订单关闭了  判断是否是取消了
 			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(powerId);
 			if(null !=orderStateTraceInfo && OrderStateTrace.CANCEL.getState().equals(orderStateTraceInfo.getState())){
 				//订单是取消的订单
-				if(flag || orderInfoService.queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){
+				if(flag || queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){
 					 //只有网约车  或者 调度的时候选择的是网约车   则状态改为去约车
 					 return OrderState.GETARIDE.getState();
 				 }else{
@@ -374,11 +378,67 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		}
 		return null;
 	}
+	
+	private boolean queryOrderDispathIsOline(Long orderId) {
+		OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+		if(null !=orderInfo && StringUtil.isNotEmpty(orderInfo.getUseCarMode()) && CarConstant.USR_CARD_MODE_NET.equals(orderInfo.getUseCarMode())){
+			return true;
+		}
+		return false;
+	}
 
 	@Override
 	public List<CarAuthorityInfo> queryJourneyAllUserAuthority(Long journeyId) {
 		
 		return journeyUserCarPowerMapper.queryJourneyAllUserAuthority(journeyId);
+	}
+
+	@Override
+	public String queryOfficialPowerUseCity(Long powerId) {
+		CarAuthorityInfo carAuthorityInfo = journeyUserCarPowerMapper.queryOfficialPowerUseCity(powerId);
+		String type = carAuthorityInfo.getType();
+		if(CarConstant.BACK_TRACKING.equals(type)){
+			//是返程 则用车城市为目的地
+			return carAuthorityInfo.getPlanEndCityCode();
+		}
+		//是去程  则用车城市为开始地点
+		return carAuthorityInfo.getPlanBeginCityCode();
+	}
+
+	@Override
+	public List<CarAuthorityInfo> queryOfficialOrderNeedPower(Long journeyId) {
+		List<CarAuthorityInfo> list = journeyUserCarPowerMapper.queryOfficialOrderNeedPower(journeyId);
+		if(null !=list && list.size()>0){
+			for (CarAuthorityInfo carAuthorityInfo : list) {
+				//查询公务权限对应的用车城市
+				String cityCode = queryOfficialPowerUseCity(carAuthorityInfo.getTicketId());
+				//判断该权限用车是否走调度
+				boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(carAuthorityInfo.getRegimenId(), cityCode);
+				carAuthorityInfo.setDispatchOrder(!judgeNotDispatch);
+			}
+		}
+		
+		return list;
+	}
+
+	@Override
+	public boolean updatePowerSurplus(Long powerId, Integer optType) {
+		CarAuthorityInfo carAuthorityInfo = journeyUserCarPowerMapper.queryOfficialPowerUseCity(powerId);
+		if(null==carAuthorityInfo || CarConstant.CITY_USE_CAR.equals(carAuthorityInfo.getType())){
+			//不用更新剩余次数
+			return true;
+		}
+		JourneyUserCarPower journeyUserCarPower = new JourneyUserCarPower();
+		journeyUserCarPower.setPowerId(powerId);
+		if(optType==1){
+			//申请用车后  将权限标记为已使用
+			journeyUserCarPower.setState(CarConstant.YES_USER_USE_CAR);
+		}else{
+			//取消订单后  则标记该权限为未使用
+			journeyUserCarPower.setState(CarConstant.NOT_USER_USE_CAR);
+		}
+		journeyUserCarPower.setUpdateTime(new Date());
+		return 	journeyUserCarPowerMapper.updateJourneyUserCarPower(journeyUserCarPower)>0;
 	}
 	
 	

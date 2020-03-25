@@ -78,7 +78,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <select id="selectDriverAlreadyDutyDays" resultType="int">
-        select count(*) from driver_service_state_info where driver_id = #{driverId} and DATE_FORMAT(create_by,'%y-%m') = #{scheduleDate}
+        select count(1) from driver_service_state_info where driver_id = #{driverId} and DATE_FORMAT(create_by,'%y-%m') = #{scheduleDate}
     </select>
 
 </mapper>

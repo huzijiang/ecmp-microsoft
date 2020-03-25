@@ -9,7 +9,7 @@ import lombok.Data;
 public class DispatchOrderInfo {
 	
 		Long orderId;
-       	String state;//状态   待派车-S200    已派车-S299   待改派-S201
+       	String state;//状态   前端状态  待派车-S100    已处理-S299     待改派-S270
        	
        	String applyType;//用车类型   公务用车-A001   差旅用车-A002
        	

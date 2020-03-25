@@ -4,6 +4,10 @@ import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.DriverQueryResult;
+import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
+import com.hq.ecmp.mscore.dto.DriverDTO;
+import com.hq.ecmp.mscore.dto.DriverLoseDTO;
+
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -139,6 +143,54 @@ public interface DriverInfoMapper
      * @return
      */
     int disableDriver(Long driverId);
-    
-   
+
+
+    /**
+     *驾驶员可用车辆列表
+     * @param
+     */
+    public List<DriverCanUseCarsDTO> getDriverCanCar(Long driverId);
+    /**
+     *驾驶员失效列表,离职列表
+     * @param
+     */
+    public List<DriverLoseDTO> getDriverLoseList(Long deptId);
+    /**
+     * 驾驶员已离职数量
+     */
+    public int getDriverLoseCount(Long deptId);
+    /**
+     * 已失效驾驶员进行删除
+     */
+    public int deleteDriver(Long driverId);
+
+    /**
+     * 修改驾驶员
+     * @param driverCreateInfo
+     * @return
+     */
+    public int updateDriver(DriverCreateInfo driverCreateInfo);
+
+    /**
+     * 修改驾驶员手机号
+     * @param mobile
+     * @return
+     */
+    public int updateDriverMobile(String mobile);
+
+    /**
+     * 设置驾驶员离职日期
+     * @param dimTime
+     * @return
+     */
+    public int updateDriverDimTime(String dimTime);
+
+
+
+    /**
+     * 查询driverId
+     * @param userId
+     * @return
+     */
+    Long selectDriverIdByUserId(Long userId);
 }

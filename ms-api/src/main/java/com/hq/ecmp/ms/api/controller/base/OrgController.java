@@ -1,19 +1,25 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.ms.api.dto.base.UserDto;
+import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -36,7 +42,7 @@ public class OrgController {
      * @param
      * @return
      */
-    /*@ApiOperation(value = "getUserOwnCompanyDept",notes = "查询用户 所在（子）公司的 部门列表 ",httpMethod ="POST")
+    @ApiOperation(value = "getUserOwnCompanyDept",notes = "查询用户 所在（子）公司的 部门列表 ",httpMethod ="POST")
     @PostMapping("/getUserOwnCompanyDept")
     public ApiResponse<List<EcmpOrg>> getUserOwnCompanyDept(@RequestBody UserDto userDto){
         //获取登录用户
@@ -49,7 +55,7 @@ public class OrgController {
        }else {
            return ApiResponse.error("未查询到指定部门");
        }
-    }*/
+    }
 
     /**
      * 删除部门信息

@@ -1,6 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.UserAcceptOrderAccountEmailInfo;
+import com.hq.ecmp.mscore.dto.EmailDTO;
+import com.hq.ecmp.mscore.vo.EmailVO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -21,35 +24,34 @@ public interface UserAcceptOrderAccountEmailInfoService {
     UserAcceptOrderAccountEmailInfo queryById(Integer id);
 
     /**
-     * 查询多条数据
+     * 查询指定行数据
      *
-     * @param userId 查询起始位置
+     * @param userId 用户Id
      * @return 对象列表
      */
-    List<UserAcceptOrderAccountEmailInfo> queryAllByUserId(Long userId);
+    List<EmailVO> queryEmailByUserId(@Param("用户ID") Long userId);
 
     /**
      * 新增数据
      *
-     * @param userAcceptOrderAccountEmailInfo 实例对象
-     * @return 实例对象
+     * @param emailDTO 实例对象
+     * @return 影响行数
      */
-    int insert(UserAcceptOrderAccountEmailInfo userAcceptOrderAccountEmailInfo);
+    int insertEmail(EmailDTO emailDTO);
 
     /**
      * 修改数据
      *
-     * @param userAcceptOrderAccountEmailInfo 实例对象
-     * @return 实例对象
+     * @param emailDTO 实例对象
+     * @return 影响行数
      */
-    int update(UserAcceptOrderAccountEmailInfo userAcceptOrderAccountEmailInfo);
+    int updateEmail(EmailDTO emailDTO);
 
     /**
      * 通过主键删除数据
      *
-     * @param id 主键
-     * @return 是否成功
+     * @param Id 主键
+     * @return 影响行数
      */
-    int deleteById(Integer id);
-
+    int deleteEmailById(Integer Id);
 }

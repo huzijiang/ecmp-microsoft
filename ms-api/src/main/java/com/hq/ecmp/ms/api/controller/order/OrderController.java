@@ -1,47 +1,40 @@
 package com.hq.ecmp.ms.api.controller.order;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
-import com.hq.common.utils.DateUtils;
-import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.*;
+import com.hq.ecmp.constant.OrderServiceType;
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.ResignOrderTraceState;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
-import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
-import com.hq.ecmp.ms.api.dto.order.OrderDetailDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
+import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
+import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.service.DriverServiceAppraiseeInfoService;
+import com.hq.ecmp.mscore.service.IOrderAddressInfoService;
+import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OfficialOrderReVo;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
-import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author: zj.hu
@@ -58,28 +51,11 @@ public class OrderController {
     private IOrderInfoService iOrderInfoService;
 
     @Resource
-    private IJourneyNodeInfoService iJourneyNodeInfoService;
-
-    @Resource
-    private IJourneyInfoService iJourneyInfoService;
-
-    @Resource
-    private IApplyInfoService iApplyInfoService;
-
-    @Resource
-    private IJourneyUserCarPowerService iJourneyUserCarPowerService;
-
-    @Resource
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
 
     @Resource
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
 
-    @Autowired
-    private IDriverHeartbeatInfoService driverHeartbeatInfoService;
-
-    @Resource
-    private EcmpMessageService ecmpMessageService;
 
     @Resource
     private IOrderAddressInfoService iOrderAddressInfoService;
@@ -385,56 +361,8 @@ public class OrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            OrderInfo orderInfoOld = iOrderInfoService.selectOrderInfoById(orderDto.getOrderId());
-            if (orderInfoOld == null) {
-                throw new Exception("未查询到订单号【" + orderDto.getOrderId() + "】对应的订单信息");
-            }
-            String useCarMode = orderInfoOld.getUseCarMode();
-            String state = orderInfoOld.getState();
-            Long orderId = orderInfoOld.getOrderId();
-            //消息发送使用
-            Long driverId = orderInfoOld.getDriverId();
-            //状态为约到车未服务的状态，用车方式为网约车，调用三方取消订单接口
-            if (OrderState.getContractedCar().contains(state) && useCarMode.equals(CarConstant.USR_CARD_MODE_NET)) {
-                //TODO 调用网约车的取消订单接口
-                List<String> macList = MacTools.getMacList();
-                String macAdd = macList.get(0);
-                Map<String, String> paramMap = new HashMap<>();
-                paramMap.put("enterpriseId", enterpriseId);
-                paramMap.put("enterpriseOrderId", String.valueOf(orderId));
-                paramMap.put("licenseContent", licenseContent);
-                paramMap.put("mac", macAdd);
-                paramMap.put("reason", orderDto.getCancelReason());
-                String result = OkHttpUtil.postJson(apiUrl + "/service/cancelOrder", paramMap);
-                JSONObject jsonObject = JSONObject.parseObject(result);
-                if (!"0".equals(jsonObject.get("CODE"))) {
-                    throw new Exception("调用三方取消订单服务-》取消失败");
-                }
-            }
-            OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setState(OrderState.ORDERCLOSE.getState());
-            orderInfo.setUpdateBy(String.valueOf(userId));
-            orderInfo.setOrderId(orderDto.getOrderId());
-            int suc = iOrderInfoService.updateOrderInfo(orderInfo);
-            //自有车，且状态变更成功
-            if (suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)) {
-                //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
-                EcmpMessage ecmpMessage = new EcmpMessage();
-                ecmpMessage.setConfigType(2);
-                ecmpMessage.setEcmpId(driverId);
-                ecmpMessage.setType("T001");
-                ecmpMessage.setStatus("0000");
-                ecmpMessage.setContent("");
-                ecmpMessage.setCategory("M005");
-                ecmpMessage.setUrl("");
-                ecmpMessage.setCreateBy(userId);
-                ecmpMessage.setCreateTime(DateUtils.getNowDate());
-                ecmpMessage.setUpdateBy(null);
-                ecmpMessage.setUpdateTime(null);
-                ecmpMessageService.insert(ecmpMessage);
-            }
-            //插入订单轨迹表
-            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderStateTrace.CANCEL.getState(), String.valueOf(userId),orderDto.getCancelReason());
+            Long orderId = orderDto.getOrderId();
+            iOrderInfoService.cancelOrder(orderId,userId,orderDto.getCancelReason());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("订单取消失败->" + e.getMessage());
@@ -556,12 +484,6 @@ public class OrderController {
         return ApiResponse.success(orderList);
     }
 
-    @ApiOperation(value = "查询订单详情列表", httpMethod = "POST")
-    @RequestMapping("/orderDetail")
-    public ApiResponse<OrderDetailDto> orderDetail(@RequestHeader("token") String token, @RequestParam("orderNo") String orderId) {
-
-        return ApiResponse.success();
-    }
 
     @ApiOperation(value = "改派订单", httpMethod = "POST")
     @RequestMapping("/reassign")
@@ -721,9 +643,9 @@ public class OrderController {
      **/
     @ApiOperation(value = "乘客端获取订单详情",httpMethod = "POST")
     @RequestMapping("/orderBeServiceDetail")
-    public ApiResponse<OrderVO> orderBeServiceDetail(@RequestBody OrderDto orderDto) {
+    public ApiResponse<OrderVO> orderBeServiceDetail(String flag,String orderId) {
         try {
-            OrderVO orderVO = iOrderInfoService.orderBeServiceDetail(orderDto.getOrderId());
+            OrderVO orderVO = iOrderInfoService.orderBeServiceDetail(Long.parseLong(orderId));
             return ApiResponse.success(orderVO);
         } catch (Exception e) {
             e.printStackTrace();
@@ -738,13 +660,10 @@ public class OrderController {
      **/
     @ApiOperation(value = "获取订单状态",httpMethod = "POST")
     @RequestMapping("/getOrderState")
-    @Transactional
-    public ApiResponse<OrderStateVO> getOrderState(@RequestBody OrderDto orderDto){
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
+    public ApiResponse<OrderStateVO> getOrderState(String flag,String orderId){
+        Long orderIdl=Long.parseLong(orderId);
         try {
-            OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderDto.getOrderId());
+            OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderIdl);
             orderVO.setDriverLongitude("116.786324");
             orderVO.setDriverLatitude("39.563521");
             //TODO 记得生产放开

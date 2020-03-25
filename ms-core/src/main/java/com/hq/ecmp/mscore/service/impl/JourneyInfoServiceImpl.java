@@ -142,9 +142,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 		@Override
 	public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId) {
 		List<CarAuthorityInfo> carAuthorityInfoList=new ArrayList<>();
-		JourneyInfo query = new JourneyInfo();
-		query.setUserId(userId);
-		List<JourneyInfo> journeyInfoList = selectJourneyInfoList(query);
+		List<JourneyInfo> journeyInfoList =journeyInfoMapper.queryPassJourneyList(userId);
 		if(null !=journeyInfoList && journeyInfoList.size()>0){
 			for (JourneyInfo journeyInfo : journeyInfoList) {
 				//获取是差旅还是公务
@@ -176,14 +174,11 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 					if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimeInfo.getRegimenType())){
 						//查询公务用车行程下面的用车权限
 						List<CarAuthorityInfo> journeyUserCarPowerList = journeyUserCarPowerService.queryJourneyAllUserAuthority(journeyInfo.getJourneyId());
-						//判断该行程对应的用车制度是否是只有网约车
-						String useCarModel = regimeInfo.getCanUseCarMode();
-						String[] split = useCarModel.split(",");
-						List<String> asList = Arrays.asList(split);
-						boolean flag = !asList.contains(CarConstant.USR_CARD_MODE_HAVE);// true-只有网约车
-						
 						if(null !=journeyUserCarPowerList && journeyUserCarPowerList.size()>0){
 							for (CarAuthorityInfo carAuthorityInfo : journeyUserCarPowerList) {
+								//查询该权限对应的用车城市
+								String cityCode = journeyUserCarPowerService.queryOfficialPowerUseCity(carAuthorityInfo.getTicketId());
+								carAuthorityInfo.setCityCode(cityCode);
 								carAuthorityInfo.setRegimenId(journeyInfo.getRegimenId());
 								carAuthorityInfo.setCarType(regimeInfo.getCanUseCarMode());
 								carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
@@ -202,8 +197,10 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								//公务用车用车方式(取制度里面的)
 								List<String> queryUseCarMode = orderInfoMapper.queryUseCarMode(carAuthorityInfo.getTicketId());
 								carAuthorityInfo.setCarType(journeyInfo.getUseCarMode());
+								//查询改权限是否需要走调度   true-不走调度  走网约
+								boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(journeyInfo.getRegimenId(), cityCode);
 								//查询公务用车的前端状态
-								carAuthorityInfo.setStatus(journeyUserCarPowerService.buildUserAuthorityPowerStatus(flag, carAuthorityInfo.getTicketId()));
+								carAuthorityInfo.setStatus(journeyUserCarPowerService.buildUserAuthorityPowerStatus(judgeNotDispatch, carAuthorityInfo.getTicketId()));
 								carAuthorityInfoList.add(carAuthorityInfo);	
 							}
 						}
@@ -229,9 +226,9 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 				UserAuthorityGroupCity userAuthorityGroupCity = new UserAuthorityGroupCity();
 				userAuthorityGroupCity.setCityName(journeyNodeInfo.getPlanBeginAddress());
 				userAuthorityGroupCity.setVehicle(journeyNodeInfo.getVehicle());
-				userAuthorityGroupCity.setCityId(chinaCityService.queryCityCodeByCityName(journeyNodeInfo.getPlanBeginAddress()));//城市编号
+				userAuthorityGroupCity.setCityId(journeyNodeInfo.getPlanBeginCityCode());//用车城市编号
 				//获取行程节点下的所有用户用车权限
-				userAuthorityGroupCity.setUserCarAuthorityList(journeyUserCarPowerService.queryNoteAllUserAuthority(journeyNodeInfo.getNodeId()));
+				userAuthorityGroupCity.setUserCarAuthorityList(journeyUserCarPowerService.queryNoteAllUserAuthority(journeyNodeInfo.getNodeId(),journeyNodeInfo.getPlanBeginCityCode()));
 				userAuthorityGroupCityList.add(userAuthorityGroupCity);
 			}
 		}
@@ -285,10 +282,11 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		}
 		vo.setApplyType(applyInfo.getApplyType());
 		JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
-		vo.setServiceType(OrderServiceType.format(journeyInfo.getServiceType()));
+		vo.setServiceType(journeyInfo.getServiceType());
 		vo.setCharterCarType(CharterTypeEnum.format(journeyInfo.getCharterCarType()));
 		vo.setUseCarMode(journeyInfo.getUseCarMode());
-		vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,journeyInfo.getUseCarTime()));
+		vo.setTimestamp(DateFormatUtils.formaTimestamp(journeyInfo.getUseCarTime()));
+		vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,journeyInfo.getUseCarTime()));
 		if (ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(applyInfo.getApplyType())){
 			return vo;
 		}

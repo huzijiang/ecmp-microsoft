@@ -119,5 +119,22 @@ public interface IRegimeInfoService
      * @return
      */
     String getUserOnlineCarLevels(Long regimenId);
+
+    /**
+     * 判断是否不调度
+     * 仅有网约车时  不调度  走网约
+     * 自有车+网约车时，但上车地点“不在”车队的用车城市范围内   不走调度  走网约
+     * @param regimeId
+     * @param cityCode
+     * @return
+     */
+    public boolean judgeNotDispatch(Long regimeId,String cityCode);
+
+    /**
+     * app端查询用车制度详情
+     * @param regimenId
+     * @return
+     */
+    RegimeVo selectRegimeDetailById(Long regimenId);
 }
 

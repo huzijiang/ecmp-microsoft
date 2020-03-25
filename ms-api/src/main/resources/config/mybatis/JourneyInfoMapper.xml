@@ -213,4 +213,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
            LEFT JOIN journey_user_car_power d ON a.journey_id = d.journey_id
            WHERE a.state ='S616' ) a
     </select>
+
+	<!-- 查询用户的审核通过后的行程 -->
+	<select id="queryPassJourneyList" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.JourneyInfo">
+		SELECT
+		a.regimen_id AS regimenId,
+		a.journey_id AS journeyId,
+		a.use_car_time AS useCarTime,
+		a.service_type AS serviceType,
+		a.use_car_mode AS useCarMode
+		FROM
+		journey_info a
+		LEFT JOIN apply_info b ON a.journey_id = b.journey_id
+		WHERE
+		b.state = 'S002'
+		AND a.user_id = #{userId}
+	</select>
+    <select id="selectTitleById" resultType="java.lang.String">
+        select title from journey_info where journey_id = #{journeyId}
+    </select>
 </mapper>

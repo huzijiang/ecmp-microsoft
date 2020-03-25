@@ -215,7 +215,7 @@ public interface IOrderInfoService {
      * @param applyUseWithTravelDto
      * @return
      */
-    public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws ParseException;
+    public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws Exception;
 
 
     /**
@@ -226,11 +226,8 @@ public interface IOrderInfoService {
     public List<OrderHistoryTraceDto> getOrderHistoryTrace(Long orderId) throws Exception;
 
 
-    /**
-     * 判断订单的调度方式是网约车
-     * @param orderId
-     * @return
-     */
-    public boolean queryOrderDispathIsOline(Long orderId);
+
+
+    public void cancelOrder(Long orderId,Long userId,String cancelReason) throws Exception;
 }
 

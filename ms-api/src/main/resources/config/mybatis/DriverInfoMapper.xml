@@ -314,8 +314,97 @@ WHERE
     <update id="disableDriver" parameterType="long">
         update driver_info  set lock_state = '1111' where driver_id = #{driverId}
     </update>
-    
+
+    <select id="getDriverCanCar" parameterType="long" resultType="com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO">
+        select a.car_type as carType,a.car_license as carLicense,
+        case a.power_type
+        when 'P001' then '汽油'
+        when 'P002' then '柴油'
+        when 'P003' then '电力'
+        when 'P004' then '混合'
+        else '无能源类型' end as powerType,
+        a.asset_tag as assetTag,b.dept_name as deptName,c.car_group_name as carGroup,
+        case a.source
+        when 'S001' then '购买'
+        when 'S002' then '租赁'
+        when 'S003' then '借调'
+        else '无车辆性质' end as source,
+        case a.state
+        when 'S000' then '启用中'
+        when 'S001' then '禁用中'
+        when 'S002' then '维护中'
+        when 'S003' then '已过期'
+        when 'S101' then '被借调'
+        else '无状态' end as state
+        from car_info a
+        left join ecmp_org b on b.dept_id = a.dept_id
+        left join car_group_info c on c.car_group_id = a.car_group_id
+
+    </select>
+    <select id="getDriverLoseList" parameterType="long" resultType="com.hq.ecmp.mscore.dto.DriverLoseDTO">
+        select a.driver_name as driverName,a.mobile as mobile,e.dept_name as deptName,c.car_group_name as carGroupName,
+        a.dimission_time as dimissionTime,a.state_description as stateDescription
+        from driver_info a
+        left join car_group_driver_relation b on b.driver_id = a.driver_id
+        left join car_group_info c on c.car_group_id = b.car_group_id
+        left join ecmp_user d on d.user_id = a.user_id
+        left join ecmp_org e on e.dept_id = d.dept_id
+        where d.dept_id = #{deptId}
+    </select>
+    <select id="getDriverLoseCount" parameterType="Long" resultType="java.lang.Integer">
+        select count(*) from ( select a.driver_name,a.mobile,e.dept_name,c.car_group_name,a.dimission_time,a.state_description
+        from driver_info a
+        left join car_group_driver_relation b on b.driver_id = a.driver_id
+        left join car_group_info c on c.car_group_id = b.car_group_id
+        left join ecmp_user d on d.user_id = a.user_id
+        left join ecmp_org e on e.dept_id = d.dept_id) as amount
+        where d.dept_id = #{deptId}
+    </select>
+
+    <delete id="deleteDriver" parameterType="Long">
+        delete from driver_info where driver_id = #{driverId}
+    </delete>
+    <update id="updateDriver" parameterType="com.hq.ecmp.mscore.domain.DriverCreateInfo">
+        update driver_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="driverName != null  and driverName != ''">driver_name = #{driverName},</if>
+            <if test="mobile != null  and mobile != ''">mobile = #{mobile},</if>
+            <if test="gender != null  and gender != ''">gender = #{gender},</if>
+            <if test="idCard != null  and idCard != ''">id_card = #{idCard},</if>
+            <if test="licensePhoto != null  and licensePhoto != ''">license_photo = #{licensePhoto},</if>
+            <if test="licenseType != null  and licenseType != ''">license_type = #{licenseType},</if>
+            <if test="licenseIssueDate != null ">license_issue_date = #{licenseIssueDate},</if>
+            <if test="licenseInitIssueDate != null ">license_init_issue_date = #{licenseInitIssueDate},</if>
+            <if test="licenseNumber != null  and licenseNumber != ''">license_number = #{licenseNumber},</if>
+            <if test="licenseExpireDate != null ">license_expire_date = #{licenseExpireDate},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where driver_id = #{driverId}
+    </update>
+
+    <update id="updateDriverMobile" parameterType="java.lang.Long">
+        update driver_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="mobile != null  and mobile != ''">mobile = #{mobile},</if>
+        </trim>
+        where driver_id = #{driverId}
+    </update>
+    <update id="updateDriverDimTime" parameterType="java.lang.Long">
+        update driver_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="dimissionTime != null  and dimissionTime != ''">dimission_time = #{dimissionTime},</if>
+        </trim>
+        where driver_id = #{driverId}
+    </update>
+
+
     <update id="updateDriverStatus">
     update  driver_info  set state=#{state} where driver_id=#{driverId}
     </update>
+    <select id="selectDriverIdByUserId" resultType="java.lang.Long" parameterType="long">
+        select driver_id from driver_info where user_id = #{userId}
+    </select>
 </mapper>

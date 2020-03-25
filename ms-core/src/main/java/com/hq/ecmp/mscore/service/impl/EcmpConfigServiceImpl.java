@@ -1,13 +1,14 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Maps;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.reflect.TypeToken;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.ConfigTypeEnum;
 import com.hq.ecmp.mscore.domain.EcmpConfig;
-import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
-import com.hq.ecmp.mscore.dto.config.ConfigValueDTO;
-import com.hq.ecmp.mscore.dto.config.EnterPriseBaseInfoDTO;
+import com.hq.ecmp.mscore.dto.config.*;
 import com.hq.ecmp.mscore.mapper.EcmpConfigMapper;
 import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import com.hq.ecmp.mscore.service.ZimgService;
@@ -18,9 +19,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static com.hq.ecmp.constant.CommonConstant.*;
 
@@ -149,10 +150,10 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
                 configInfoDTO.setVirtualPhoneInfo(GsonUtils.jsonToBean(virtualPhoneInfo.getConfigValue(), ConfigValueDTO.class));
             }
             if (orderConfirmInfo != null) {
-                configInfoDTO.setOrderConfirmInfo((Map<String, Object>) GsonUtils.jsonToMap(orderConfirmInfo.getConfigValue()));
+                configInfoDTO.setOrderConfirmInfo(GsonUtils.jsonToBean(orderConfirmInfo.getConfigValue(), OrderConfirmSetting.class));
             }
             if (dispatchInfo != null) {
-                configInfoDTO.setDispatchInfo(GsonUtils.jsonToBean(dispatchInfo.getConfigValue(), ConfigValueDTO.class));
+                configInfoDTO.setDispatchInfo(GsonUtils.jsonToBean(dispatchInfo.getConfigValue(), ConfigAutoDispatchDTO.class));
             }
             if (waitInfo != null) {
                 configInfoDTO.setWaitMaxMinute(GsonUtils.jsonToBean(waitInfo.getConfigValue(), ConfigValueDTO.class));
@@ -322,14 +323,17 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey());
+            OrderConfirmSetting orderConfirmSetting = new OrderConfirmSetting();
             if (SWITCH_ON_CUSTOM.equals(status)) {
-                Map<String, String> custom = Maps.newHashMapWithExpectedSize(2);
-                custom.put("owenType", owenType);
-                custom.put("rideHailing", rideHailing);
-                value = JSON.toJSONString(custom);
+                ConfigOrderConfirmDTO configOrderConfirmDTO = new ConfigOrderConfirmDTO();
+                configOrderConfirmDTO.setOwenType(owenType);
+                configOrderConfirmDTO.setRideHailing(rideHailing);
+                orderConfirmSetting.setValue(configOrderConfirmDTO);
+            } else {
+                orderConfirmSetting.setValue(null);
             }
-            ConfigValueDTO configValueDTO = ConfigValueDTO.builder().status(status).value(value).build();
-            baseConfig.setConfigValue(JSON.toJSONString(configValueDTO));
+            orderConfirmSetting.setStatus(status);
+            baseConfig.setConfigValue(JSON.toJSONString(orderConfirmSetting));
             if (backgroundInfo == null) {
                 baseConfig.setConfigName("确认订单");
                 baseConfig.setConfigType(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigType());
@@ -351,8 +355,18 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.DISPATCH_INFO.getConfigKey());
-            ConfigValueDTO configValueDTO = ConfigValueDTO.builder().status(status).value(value).build();
-            baseConfig.setConfigValue(JSON.toJSONString(configValueDTO));
+            ConfigAutoDispatchDTO autoDispatchDTO = new ConfigAutoDispatchDTO();
+            autoDispatchDTO.setStatus(status);
+
+            if (SWITCH_ON_CUSTOM.equals(status)) {
+                Type type = new TypeToken<List<AutoDispatchSetting>>() {
+                }.getType();
+                List<AutoDispatchSetting> autoDispatchSetting = GsonUtils.jsonToBean(value, type);
+                autoDispatchDTO.setValue(autoDispatchSetting);
+            } else {
+                autoDispatchDTO.setValue(null);
+            }
+            baseConfig.setConfigValue(JSON.toJSONString(autoDispatchDTO));
             if (dispatchInfo == null) {
                 baseConfig.setConfigName("自动派单方式");
                 baseConfig.setConfigType(ConfigTypeEnum.DISPATCH_INFO.getConfigType());
@@ -388,5 +402,21 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
         } catch (Exception e) {
             log.error("往返等待时长 {}", e);
         }
+    }
+
+    @Override
+    public int getOrderConfirmStatus(String key) {
+        if (key.contains(SYS_CONFIG_PREFIX)||ConfigTypeEnum.BASE_INFO.getConfigKey().equals(key)){
+            return ZERO;
+        }
+        EcmpConfig ecmpConfig = ecmpConfigMapper.selectConfigByKey(new EcmpConfig(key));
+        if (ecmpConfig!=null&& StringUtils.isNotEmpty(ecmpConfig.getConfigValue())){
+            JSONObject jsonObject = JSONObject.parseObject(ecmpConfig.getConfigValue());
+            String status = jsonObject.getString("status");
+            if (SWITCH_ON.equals(status)){
+                return ONE;
+            }
+        }
+        return ZERO;
     }
 }

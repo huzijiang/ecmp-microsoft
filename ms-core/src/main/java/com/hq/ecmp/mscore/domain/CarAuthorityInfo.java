@@ -12,7 +12,10 @@ import lombok.Data;
  */
 @Data
 public class CarAuthorityInfo {
-		
+	
+	 Boolean dispatchOrder;//是否走调度   ture-走调度  false-不走调度
+	String planBeginCityCode;
+	String planEndCityCode;
 	  Long journeyId;//行程编号
        String type;//差旅/公务
        List<String> cityName;
@@ -50,6 +53,8 @@ public class CarAuthorityInfo {
        String returnIsType;// 公务  T001-去程    T009-返程
        
        String serviceType;//1000-即时用车    2000-预约用车   3000-接机   4000-送机   5000-包车
+       
+       String cityCode;//用车城市编码
        
        
        

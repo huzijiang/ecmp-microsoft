@@ -1,8 +1,9 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
-import com.hq.ecmp.mscore.vo.registerDriverVO;
-import com.hq.ecmp.mscore.vo.registerUserVO;
+
+import com.hq.ecmp.mscore.vo.RegisterDriverVO;
+import com.hq.ecmp.mscore.vo.RegisterUserVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -80,12 +81,12 @@ public interface EcmpEnterpriseRegisterInfoMapper {
      * 待审批列表-员工
      * @param
      */
-    List<registerUserVO> queryRegisterUserWait(String type);
+    List<RegisterUserVO> queryRegisterUserWait(String type);
     /**
      * 待审批列表-驾驶员
      * @param
      */
-    List<registerDriverVO> queryRegisterDriverWait(String type);
+    List<RegisterDriverVO> queryRegisterDriverWait(String type);
 
 
 

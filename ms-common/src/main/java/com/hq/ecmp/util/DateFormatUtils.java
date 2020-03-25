@@ -1,6 +1,9 @@
 package com.hq.ecmp.util;
 
 import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -191,7 +194,24 @@ public class DateFormatUtils {
         }
         return totalTimeStr;
     }
-    
+
+
+    public static String getLastDayOfMonth(Date date){
+        final Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        final int last = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        cal.set(Calendar.DAY_OF_MONTH, last);
+        Date time = cal.getTime();
+        return formatDate(DateFormatUtils.DATE_FORMAT, time);
+
+    }
+
+    public static String formaTimestamp(Date date){
+        String dateStr = formatDate(DATE_TIME_FORMAT, date);
+        long time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).parse(dateStr, new ParsePosition(0)).getTime() / 1000;
+        return String.valueOf(time);
+
+    }
     public static boolean beforeCurrentDate(Date date){
     	Date currentDate=new Date();
     	if(date.getTime()>currentDate.getTime()){

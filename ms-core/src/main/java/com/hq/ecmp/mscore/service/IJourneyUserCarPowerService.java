@@ -75,9 +75,10 @@ public interface IJourneyUserCarPowerService
     /**
      * 获取行程节点下的用户用车权限
      * @param nodeId
+     * 		  cityCode 用车城市
      * @return
      */
-    public List<UserCarAuthority>  queryNoteAllUserAuthority(Long nodeId);
+    public List<UserCarAuthority>  queryNoteAllUserAuthority(Long nodeId,String cityCode);
     
     public List<CarAuthorityInfo> queryJourneyAllUserAuthority(Long journeyId);
     
@@ -105,5 +106,27 @@ public interface IJourneyUserCarPowerService
      * @return
      */
     public String buildUserAuthorityPowerStatus(boolean flag,Long powerId);
+    
+    /**
+     * 查询公务权限的用车城市
+     * @param powerId
+     * @return
+     */
+    public String queryOfficialPowerUseCity(Long powerId);
+    
+    
+    /**
+     * 查询公务用车下单需要的权限信息
+     * @return
+     */
+    public List<CarAuthorityInfo> queryOfficialOrderNeedPower(Long journeyId);
+    
+    /**
+     * 更新权限剩余可用次数
+     * @param powerId   权限ID
+     * @param optType   1-申请用车    2-取消订单
+     * @return
+     */
+    public boolean updatePowerSurplus(Long powerId,Integer optType);
     
 }

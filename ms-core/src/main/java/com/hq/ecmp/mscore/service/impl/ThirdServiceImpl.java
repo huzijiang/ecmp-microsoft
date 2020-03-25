@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import com.hq.common.core.api.ApiResponse;
@@ -8,11 +9,13 @@ import com.hq.ecmp.mscore.service.ThirdService;
 import com.hq.ecmp.mscore.vo.FlightInfoVo;
 import com.hq.ecmp.util.GsonUtils;
 import com.hq.ecmp.util.MacTools;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +28,7 @@ import java.util.Map;
  */
 
 @Service
+@Slf4j
 public class ThirdServiceImpl implements ThirdService {
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -60,5 +64,31 @@ public class ThirdServiceImpl implements ThirdService {
             e.printStackTrace();
         }
         return flightInfoVo;
+    }
+
+    @Override
+    public Map<String,String> locationByLongitudeAndLatitude(String longitude, String latitude) throws Exception {
+        String longAddr;
+        String shortAddr;
+        Map<String,String> address = new HashMap<>();
+        List<String> macList = MacTools.getMacList();
+        String macAdd = macList.get(0);
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("enterpriseId", enterpriseId);
+        paramMap.put("licenseContent", licenseContent);
+        paramMap.put("mac", macAdd);
+        paramMap.put("longitude", String.valueOf(longitude));
+        paramMap.put("latitude",String.valueOf(latitude));
+        String result = OkHttpUtil.postForm(apiUrl + "/service/locateByLongitudeAndLatitude", paramMap);
+        JSONObject jsonObject = JSONObject.parseObject(result);
+        if (ApiResponse.SUCCESS_CODE!=jsonObject.getInteger("code")) {
+            log.error("调用云端经纬度获取长短地址接口失败");
+        }
+        JSONObject data = jsonObject.getJSONObject("data");
+        longAddr = data.getString("addressFullName");
+        shortAddr = data.getString("formatted_address");
+        address.put("longAddr",longAddr);
+        address.put("shortAddr",shortAddr);
+        return address;
     }
 }

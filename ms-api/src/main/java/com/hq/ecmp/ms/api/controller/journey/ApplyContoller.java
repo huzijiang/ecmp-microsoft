@@ -6,8 +6,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.ApproveStateEnum;
-import com.hq.ecmp.constant.MsgTypeConstant;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
@@ -29,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.hq.ecmp.constant.CommonConstant.ONE;
+import static com.hq.ecmp.constant.CommonConstant.ZERO;
 import static java.awt.SystemColor.info;
 
 /**
@@ -260,34 +261,30 @@ public class ApplyContoller {
                             resultInfo.setUpdateTime(new Date());
                             resultInfo.setUpdateBy(userId+"");
                             resultInfoService.updateApplyApproveResultInfo(resultInfo);
+                            //给下一审批人发送消息
+                            ecmpMessageService.sendNextApproveUsers(resultInfo.getApproveUserId(),journeyApplyDto.getApplyId(),userId);
                         }
                     }
                 }
-                //TODO 发送通知消息
-//                EcmpMessage ecmpMessage = new EcmpMessage();
-//                ecmpMessage.setConfigType(3);
-//                ecmpMessage.setEcmpId(Long.parseLong(applyInfo.getCreateBy()));
-//                ecmpMessage.setType(MsgTypeConstant.MESSAGE_TYPE_T001.getType());
-//                ecmpMessage.setStatus("0000");
-//                ecmpMessage.setContent("您的申请单"+journeyApplyDto.getApplyId()+"已审批通过");
-//                ecmpMessage.setCategory("M003");
-//                ecmpMessage.setUrl("");
-//                ecmpMessage.setCreateBy(userId);
-//                ecmpMessage.setCreateTime(DateUtils.getNowDate());
-//                ecmpMessage.setUpdateBy(null);
-//                ecmpMessage.setUpdateTime(null);
-//                ecmpMessageService.insert(ecmpMessage);
             } else if (CollectionUtils.isNotEmpty(waitcollect)&&"0".equals(waitcollect.get(0).getNextNodeId())) {//是最后节点审批人
                 //修改审理状态
                 this.updateApproveResult(waitcollect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
-                ApplyInfo info = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state("S002").build();
+                ApplyInfo info = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state(ApplyStateConstant.APPLY_PASS).build();
                 applyInfoService.updateApplyInfo(info);
                 //TODO 调取生成用车权限,初始化订单
                 boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(journeyApplyDto.getApplyId(), userId);
                 if(!optFlag){
                     return ApiResponse.error("生成用车权限失败");
                 }
-//                orderInfoService.initOrder(journeyApplyDto.getApplyId(),applyInfo.getJourneyId(),userId);
+                List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(applyInfo.getJourneyId());
+                if (CollectionUtils.isNotEmpty(carAuthorityInfos)){
+                    for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
+                        int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:ZERO;
+                        OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
+                        Long orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
+                        ecmpMessageService.saveApplyMessagePass(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
+                    }
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -311,8 +308,12 @@ public class ApplyContoller {
             List<ApplyApproveResultInfo> allcollect = beforeInspect(journeyApplyDto, userId);
             List<ApplyApproveResultInfo> collect = allcollect.stream().filter(p -> ApproveStateEnum.WAIT_APPROVE_STATE.getKey().equals(p.getState()) && StringUtils.isBlank(p.getApproveResult())).collect(Collectors.toList());
             this.updateApproveResult(collect, userId,ApproveStateEnum.APPROVE_FAIL.getKey(),journeyApplyDto.getRejectReason());
-            ApplyInfo info = ApplyInfo.builder().applyId(collect.get(0).getApplyId()).state("S003").build();
-            applyInfoService.updateApplyInfo(info);
+            ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(journeyApplyDto.getApplyId());
+            applyInfo.setState(ApplyStateConstant.REJECT_APPLY);
+            applyInfo.setUpdateBy(String.valueOf(userId));
+            applyInfo.setUpdateTime(new Date());
+            applyInfoService.updateApplyInfo(applyInfo);
+            ecmpMessageService.saveApplyMessageReject(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,journeyApplyDto.getRejectReason());
         }catch (Exception e){
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -364,7 +365,7 @@ public class ApplyContoller {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
        int count= applyInfoService.getApplyApproveCount(userId);
-        return ApiResponse.success(count+"");
+        return ApiResponse.success("查询成功",count+"");
     }
 
 
@@ -410,7 +411,8 @@ public class ApplyContoller {
         List<ApprovalListVO> result=new ArrayList<>();
         List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(applyId));
         List<ApprovalInfoVO> list=new ArrayList<>();
-        list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请成功"));
+        //TODO 后期优化
+        list.add(new ApprovalInfoVO(99999999999l,applyUser,applyMobile,"发起申请","申请成功"));
         result.add(new ApprovalListVO(applyId,"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
         if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
            for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){

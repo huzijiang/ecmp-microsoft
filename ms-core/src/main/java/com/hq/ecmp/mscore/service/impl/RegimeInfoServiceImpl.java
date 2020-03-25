@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.hq.ecmp.mscore.vo.RegimenVO;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.RegimeOpt;
 import com.hq.ecmp.mscore.domain.RegimePo;
@@ -23,6 +25,7 @@ import com.hq.ecmp.mscore.domain.RegimeUseCarTimeRuleInfo;
 import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.domain.SceneInfo;
 import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
+import com.hq.ecmp.mscore.mapper.CarGroupServeScopeInfoMapper;
 import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.mapper.SceneRegimeRelationMapper;
 import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
@@ -30,6 +33,7 @@ import com.hq.ecmp.mscore.service.IRegimeInfoService;
 import com.hq.ecmp.mscore.service.IRegimeUseCarCityRuleInfoService;
 import com.hq.ecmp.mscore.service.IRegimeUseCarTimeRuleInfoService;
 import com.hq.ecmp.mscore.service.ISceneInfoService;
+import com.hq.ecmp.mscore.vo.RegimenVO;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -52,7 +56,9 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
     private IRegimeUseCarTimeRuleInfoService regimeUseCarTimeRuleInfoService;
     @Autowired
     private ISceneInfoService sceneInfoService;
-  
+    @Autowired
+    private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
+
 
     /**
      * 根据用车制度id查询用车值得详细信息
@@ -292,5 +298,49 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	@Override
 	public String getUserOnlineCarLevels(Long regimenId) {
 		return regimeInfoMapper.getUserOnlineCarLevels(regimenId);
+	}
+
+	@Override
+	public boolean judgeNotDispatch(Long regimeId, String cityCode) {
+		if(StringUtil.isEmpty(cityCode)){
+			return false;
+		}
+		RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimeId);
+		if(null==regimeInfo){
+			return false;
+		}
+		String canUseCarMode = regimeInfo.getCanUseCarMode();
+		if(StringUtil.isEmpty(canUseCarMode)){
+			return false;
+		}
+		String[] split = canUseCarMode.split(",");
+		List<String> asList = Arrays.asList(split);
+		if(asList.size()==1){
+			if(CarConstant.USR_CARD_MODE_HAVE.equals(asList.get(0))){
+				return false;
+			}else{
+				return true;
+			}
+		}
+		//自有车+网约车时，但上车地点“不在”车队的用车城市 范围内
+		List<Long> result = carGroupServeScopeInfoMapper.queryCarGroupByCity(cityCode);
+		if(null !=result && result.size()>0){
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * app端查询用车制度详情
+	 * @param regimenId
+	 * @return
+	 */
+	@Override
+	public RegimeVo selectRegimeDetailById(Long regimenId) {
+		RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimenId);
+		if(ObjectUtils.isEmpty(regimenId)){
+			throw new RuntimeException("查询制度详情失败");
+		}
+		return regimeVo;
 	}
 }

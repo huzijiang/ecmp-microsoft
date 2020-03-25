@@ -352,6 +352,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <!--已离职列表-->
+    <!--nick_name as nickName,phonenumber,user_id as userId,
+        (select dept_name from ecmp_org where  dept_type='1' and dept_id= (select parent_id from ecmp_org where dept_id=#{deptId})) as subCompany,
+        (select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept,
+        dimission_time as dimissionTime-->
     <select id="selectDimissionList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
         select
         user_id as userId,
@@ -407,6 +411,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectUserListByUserIds" parameterType="Object" resultMap="EcmpUserResult">
         <include refid="selectEcmpUserVo"/>
         where user_id in (#{userIds})
+    </select>
+
+    <select id="getListByUserIds" parameterType="List" resultMap="EcmpUserResult">
+        <include refid="selectEcmpUserVo"/>
+        where user_id in
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
     </select>
 
     <!--查询上级部门下的所有员工-->
