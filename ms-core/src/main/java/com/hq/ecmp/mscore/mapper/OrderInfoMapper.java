@@ -182,6 +182,13 @@ public interface OrderInfoMapper {
      */
     public String queryVaildOrderStatusByPowerId(Long powerId);
     
+    /**
+     * 查询权限下的有效订单
+     * @param powerId
+     * @return
+     */
+    public Long queryVaildOrderIdByPowerId(Long powerId);
+    
     public List<Long> queryOrderIdListByPowerId(Long powerId);
     
     List<String> queryUseCarMode(Long powerId);
