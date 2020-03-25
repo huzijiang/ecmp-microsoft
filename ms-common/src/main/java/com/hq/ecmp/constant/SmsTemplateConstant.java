@@ -24,4 +24,11 @@ public class SmsTemplateConstant {
     public static final String approve_reject_Business = "approve_reject_Business";
     //差旅审批驳回给申请人短信模板
     public static final String approve_reject_Travel = "approve_reject_Travel";
+
+    //公务申请，给审批人发送短信的模板码
+    public static final String OFFICIAL_APPLY_APPROVER = "official_apply_approver";
+    //差旅申请，给审批人发送短信的模板码
+    public static final String TRAVEL_APPLY_APPROVER = "travel_apply_approver";
+
+
 }
