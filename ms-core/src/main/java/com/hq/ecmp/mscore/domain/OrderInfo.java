@@ -102,6 +102,12 @@ public class OrderInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String orderNumber;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String carModel;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String carColor;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String driverGrade;
 
 
     public OrderInfo(Long orderId, String state) {
