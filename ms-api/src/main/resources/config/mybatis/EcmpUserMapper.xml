@@ -422,4 +422,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectEcmpUserVo"/>
         where user_id in (#{userIds})
     </select>
+
+    <select id="getListByUserIds" parameterType="List" resultMap="EcmpUserResult">
+        <include refid="selectEcmpUserVo"/>
+        where user_id in
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </select>
 </mapper>

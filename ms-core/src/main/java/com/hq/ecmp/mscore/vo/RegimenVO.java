@@ -40,4 +40,7 @@ public class RegimenVO {
      */
     @ApiModelProperty(name = "carType",value = "用车方式 eg 自有车、网约车")
     private String canUseCarMode;
+
+    @ApiModelProperty(name = "regimenType",value = "A001-公务用车  A002-差旅用车")
+    private String regimenType; //TODO 新增
 }

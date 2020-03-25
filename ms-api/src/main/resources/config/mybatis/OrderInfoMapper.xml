@@ -727,6 +727,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
      select state from order_info where power_id=#{powerId} order by create_time desc  limit 1
     </select>
     
+    <select id="queryVaildOrderIdByPowerId" parameterType="java.lang.Long" resultType="java.lang.Long">
+     select order_id from order_info where power_id=#{powerId} and state !='S900' order by create_time desc  limit 1
+    </select>
+    
     <select id="queryOrderIdListByPowerId" parameterType="java.lang.Long" resultType="java.lang.Long">
     select order_id from order_info where power_id=#{powerId} and state not in ('S900')
     </select>

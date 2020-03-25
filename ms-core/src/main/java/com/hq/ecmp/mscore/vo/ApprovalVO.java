@@ -16,7 +16,7 @@ public class ApprovalVO {
     /**
      * 审批人Id
      */
-    private Integer approvalId;
+    private Integer userId;
     /**
      * 审批人姓名
      */

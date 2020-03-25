@@ -641,9 +641,9 @@ public class OrderController {
      *   @Param  []
      *   @return com.hq.common.core.api.ApiResponse
      **/
-    @ApiOperation(value = "乘客端获取订单详情",httpMethod = "GET")
+    @ApiOperation(value = "乘客端获取订单详情",httpMethod = "POST")
     @RequestMapping("/orderBeServiceDetail")
-    public ApiResponse<OrderVO> orderBeServiceDetail(@RequestParam(value = "flag") String flag,@RequestParam(value = "orderId") String orderId) {
+    public ApiResponse<OrderVO> orderBeServiceDetail(String flag,String orderId) {
         try {
             OrderVO orderVO = iOrderInfoService.orderBeServiceDetail(Long.parseLong(orderId));
             return ApiResponse.success(orderVO);
@@ -658,17 +658,12 @@ public class OrderController {
      *   @Date 10:11 2020/3/4
      *   @return com.hq.common.core.api.ApiResponse
      **/
-    @ApiOperation(value = "获取订单状态",httpMethod = "GET")
+    @ApiOperation(value = "获取订单状态",httpMethod = "POST")
     @RequestMapping("/getOrderState")
-    @Transactional
-    public ApiResponse<OrderStateVO> getOrderState(@RequestParam(value = "flag") String flag,@RequestParam(value = "orderId") String orderId){
-//        HttpServletRequest request = ServletUtils.getRequest();
-//        LoginUser loginUser = tokenService.getLoginUser(request);
-//        Long userId = loginUser.getUser().getUserId();
-        OrderDto orderDto=new OrderDto();
-        orderDto.setOrderId(Long.parseLong(orderId));
+    public ApiResponse<OrderStateVO> getOrderState(String flag,String orderId){
+        Long orderIdl=Long.parseLong(orderId);
         try {
-            OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderDto.getOrderId());
+            OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderIdl);
             orderVO.setDriverLongitude("116.786324");
             orderVO.setDriverLatitude("39.563521");
             //TODO 记得生产放开

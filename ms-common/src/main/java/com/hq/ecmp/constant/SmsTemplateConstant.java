@@ -18,10 +18,17 @@ public class SmsTemplateConstant {
     public static final String approve_pass_notDispatch = "approve_pass_notDispatch";
     //审批通过后给申请人走调度模板
     public static final String approve_pass_doDispatch = "approve_pass_doDispatch";
-    //审批通过后给申请人发短信模板
+    //审批通过后给申请人发差旅短信模板
     public static final String approve_pass_applyUser = "approve_pass_applyUser";
     //公务审批驳回后给申请人短信模板
     public static final String approve_reject_Business = "approve_reject_Business";
     //差旅审批驳回给申请人短信模板
     public static final String approve_reject_Travel = "approve_reject_Travel";
+
+    //公务申请，给审批人发送短信的模板码
+    public static final String OFFICIAL_APPLY_APPROVER = "official_apply_approver";
+    //差旅申请，给审批人发送短信的模板码
+    public static final String TRAVEL_APPLY_APPROVER = "travel_apply_approver";
+
+
 }

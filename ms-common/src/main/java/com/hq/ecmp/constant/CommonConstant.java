@@ -58,7 +58,9 @@ public final class CommonConstant {
      * 开关状态开：自定义
      */
     public static final String SWITCH_ON_CUSTOM = "2";
+    //后台基本配置前缀
     public static final String SYS_CONFIG_PREFIX = "sys.";
+    public static final String NOTHING = "无";
 
     /**
      * 数字常亮0

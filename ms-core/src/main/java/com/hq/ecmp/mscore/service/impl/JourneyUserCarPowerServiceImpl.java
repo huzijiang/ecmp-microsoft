@@ -201,22 +201,27 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	
 	@Override
 	public List<ServiceTypeCarAuthority> queryUserAuthorityFromService(String type, Long journeyId) {
-		List<ServiceTypeCarAuthority> list = new ArrayList<ServiceTypeCarAuthority>();
-		// 获取出差城市(去重后的)
-		List<String> cityList = journeyNodeInfoService.queryGroupCity(journeyId);
-		if (null != cityList && cityList.size() > 0) {
-			JourneyUserCarPower query = new JourneyUserCarPower();
-			query.setJourneyId(journeyId);
-			query.setType(type);
-			for (String cityName : cityList) {
-				ServiceTypeCarAuthority serviceTypeCarAuthority = new ServiceTypeCarAuthority();
-				query.setCityName(cityName);
-				serviceTypeCarAuthority.setCityName(cityName);
-				//获取剩余次数
-				serviceTypeCarAuthority.setSurplusCount(journeyUserCarPowerMapper.querySurplusNum(query));
-				//状态
-				serviceTypeCarAuthority.setState("S299");
-				list.add(serviceTypeCarAuthority);
+		List<ServiceTypeCarAuthority> list = journeyUserCarPowerMapper.queryUserAuthorityFromService(type, journeyId);
+		if (null != list && list.size() > 0) {
+			for (ServiceTypeCarAuthority serviceTypeCarAuthority : list) {
+				//剩余次数
+				serviceTypeCarAuthority.parseSurplusCount();
+				RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(serviceTypeCarAuthority.getRegimenId());
+				serviceTypeCarAuthority.setCarType(regimeInfo.getCanUseCarMode());
+				if (CarConstant.CITY_USE_CAR.equals(type)) {
+					// 如果是市内用车
+					serviceTypeCarAuthority.setSetoutEqualArrive(regimeInfo.getTravelSetoutEqualArrive());// 是否允许跨城
+				} else {
+					// 接送机
+					serviceTypeCarAuthority.setSetoutEqualArrive(regimeInfo.getAsSetoutEqualArrive());
+				}
+				// 判断是否走调度
+				boolean flag = regimeInfoService.judgeNotDispatch(serviceTypeCarAuthority.getRegimenId(),
+						serviceTypeCarAuthority.getCityCode());// true-不走调度      fasle-走调度
+				// 生成用车权限对应的前端状态
+				serviceTypeCarAuthority.setState(buildUserAuthorityPowerStatus(flag, serviceTypeCarAuthority.getTicketId()));
+				//获取权限状态对应的有效订单
+				serviceTypeCarAuthority.setOrderId(orderInfoMapper.queryVaildOrderIdByPowerId(serviceTypeCarAuthority.getTicketId()));
 			}
 		}
 		return list;

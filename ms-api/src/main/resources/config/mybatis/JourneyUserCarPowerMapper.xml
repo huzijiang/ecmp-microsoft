@@ -118,21 +118,24 @@ WHERE
 	a.node_id = #{nodeId}
     </select>
     
-    <select id="queryUserAuthorityFromService" parameterType="com.hq.ecmp.mscore.domain.JourneyUserCarPower" resultType="com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority">
-    SELECT
+    <select id="queryUserAuthorityFromService"
+	resultType="com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority">
+	SELECT
+	a.node_id AS noteId,
+	vehicle AS vehicle,
+	b.power_id AS ticketId,
+	b.state as useStatus,
 	a.plan_begin_address AS cityName,
-	count(1) AS surplusCount,
-	b.power_id AS powerId
-FROM
+	a.plan_begin_city_code AS cityCode,
+	c.regimen_id AS regimenId
+	FROM
 	journey_node_info a
-LEFT JOIN journey_user_car_power b ON a.node_id = b.node_id
-WHERE
-	a.journey_id = #{journeyId}
-AND b.state = #{state}
-AND b.type = #{type}
-GROUP BY
-	a.plan_begin_address
-    </select>
+	LEFT JOIN journey_user_car_power b ON a.node_id = b.node_id
+	LEFT JOIN journey_info c ON a.journey_id = c.journey_id
+	WHERE
+	b.type = #{type}
+	AND a.journey_id = #{journeyId}
+</select>
     
     <select id="querySurplusNum" parameterType="com.hq.ecmp.mscore.domain.JourneyUserCarPower" resultType="java.lang.Integer">
     SELECT
