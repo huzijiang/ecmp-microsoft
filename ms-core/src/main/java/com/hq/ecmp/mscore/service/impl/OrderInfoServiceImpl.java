@@ -424,6 +424,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         //服务结束时间
         OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
+        vo.setLabelState(orderStateTraceInfo.getState());
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
             vo.setOrderEndTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderStateTraceInfo.getCreateTime()));
         }
@@ -471,7 +472,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 vo.setCarType(split[2]);
                 vo.setDriverScore(split[3]);
             }
-            if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
+            if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderStateTraceInfo.getState())){
 //                List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
 //                if (!CollectionUtils.isEmpty(orderSettlingInfos)){
 //                    //TODO 生产记得放开
