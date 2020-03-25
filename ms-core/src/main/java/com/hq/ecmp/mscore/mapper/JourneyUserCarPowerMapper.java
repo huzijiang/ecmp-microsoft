@@ -68,8 +68,6 @@ public interface JourneyUserCarPowerMapper
     
     public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId);
     
-	public List<ServiceTypeCarAuthority> queryUserAuthorityFromService(JourneyUserCarPower JourneyUserCarPower);
-
 	public Integer querySurplusNum(JourneyUserCarPower journeyUserCarPower);
 	
 	public Integer batchInsert(@Param("list")List<JourneyUserCarPower> list);
@@ -79,5 +77,13 @@ public interface JourneyUserCarPowerMapper
 	public CarAuthorityInfo queryOfficialPowerUseCity(Long powerId);
 	
 	public List<CarAuthorityInfo> queryOfficialOrderNeedPower(Long journeyId);
+	
+	/**
+	 * 获取差旅指定服务类型下的用车权限
+	 * @param type
+	 * @param journeyId
+	 * @return
+	 */
+	 public List<ServiceTypeCarAuthority>  queryUserAuthorityFromService(@Param("type") String type,@Param("journeyId") Long journeyId);
 
 }
