@@ -959,12 +959,17 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             if (!"0".equals(resultObject.getString("code"))){
                 throw new Exception("获取网约车司机位置异常");
             }
+            Double driverLongitude=null;
+            Double driverLatitude=null;
             if (!OrderState.ORDEROVERTIME.getState().equals(status)&&!OrderState.ORDERCANCEL.getState().equals(status)){//派车成功后所有状态
                 //TODO 将网约车的车辆信息都存在车牌号字段中.格式(车牌号,车辆颜色,车辆名字,司机评分)
                 if (OrderState.READYSERVICE.getState().equals(status)||OrderState.STOPSERVICE.getState().equals(status)){//乘客一上车
                     JSONObject data1 = resultObject.getJSONObject("data");
+                    driverLongitude=Double.parseDouble(data1.getString("x"));
+                    driverLatitude=Double.parseDouble(data1.getString("y"));
                     //TODO 杨军注释
                     if (OrderState.READYSERVICE.getState().equals(status)){
+
                         List<OrderAddressInfo> orderAddressInfos=orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId,OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
                         if(CollectionUtils.isEmpty(orderAddressInfos)){
                             OrderAddressInfo orderAddressInfo=new OrderAddressInfo();
@@ -1001,15 +1006,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 }
             }
             orderInfoMapper.updateOrderInfo(newOrderInfo);
-            iOrderStateTraceInfoService.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderId,status,null,null));
+            iOrderStateTraceInfoService.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderId,status,driverLongitude,driverLatitude));
             if (OrderState.STOPSERVICE.getState().equals(status)||OrderState.ORDERCLOSE.getState().equals(status)||OrderState.DISSENT.getState().equals(status)) {//服务结束
                 //TODO 调财务结算模块
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
                 if (CollectionUtils.isEmpty(orderSettlingInfos)) {
                     JSONObject feeInfoBean = data.getJSONObject("feeInfoBean");
-                    String amount = feeInfoBean.getString("amount");
-                    String distance = feeInfoBean.getString("distance");//里程
-                    String duration = feeInfoBean.getString("duration");//时长
+                    String amount = feeInfoBean.getString("customerPayPrice");
+                    String distance = feeInfoBean.getString("mileage");//里程
+                    String duration = feeInfoBean.getString("min");//时长
                     OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
                     orderSettlingInfo.setOrderId(orderId);
                     orderSettlingInfo.setTotalMileage(new BigDecimal(distance).stripTrailingZeros());
@@ -1403,6 +1408,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             ecmpMessage.setStatus("0000");
             ecmpMessage.setContent("");
             ecmpMessage.setCategory("M005");
+            ecmpMessage.setCategoryId(orderId);
             ecmpMessage.setUrl("");
             ecmpMessage.setCreateBy(userId);
             ecmpMessage.setCreateTime(DateUtils.getNowDate());
