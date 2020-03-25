@@ -60,8 +60,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private IJourneyNodeInfoService iJourneyNodeInfoService;
     @Autowired
     private ICarInfoService carInfoService;
-    @Autowired
-    private ICarGroupInfoService carGroupInfoService;
     @Resource
     private JourneyInfoMapper journeyInfoMapper;
     @Resource
@@ -410,6 +408,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
         UserVO str= orderStateTraceInfoMapper.getOrderDispatcher(orderId,states);
         vo.setCarGroupPhone(str.getUserPhone());
+        vo.setOrderNumber(orderInfo.getOrderNumber());
         vo.setCarGroupName(str.getUserName());
         vo.setCustomerServicePhone(serviceMobile);
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
@@ -418,8 +417,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
         if (!CollectionUtils.isEmpty(orderAddressInfos)){
             useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderAddressInfos.get(0).getActionTime());
+            vo.setUseCarTimestamp(orderAddressInfos.get(0).getActionTime().getTime());
         }
         vo.setUseCarTime(useCarTime);
+        vo.setCreateTimestamp(orderInfo.getCreateTime().getTime());
         //服务结束时间
         OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
@@ -514,7 +515,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setOrderId(orderId);
         try {
             boolean reassignment = iOrderStateTraceInfoService.isReassignment(orderId);
-            //改派的订单需要操作改派同意,是否车和司机
+            //改派的订单需要操作改派同意
             if(reassignment){
                 OrderInfo orderInfoRe = new OrderInfo();
                 orderInfoRe.setState(OrderState.WAITINGLIST.getState());
@@ -1491,5 +1492,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     private void journeyUserCarCountOp(Long powerId,Integer opType){
         iJourneyUserCarPowerService.updatePowerSurplus(powerId,opType);
+    }
+
+    /**
+     * 网约车，约车成功短信通知
+     */
+    public void sendSmsCallTaxiNet(){
+
     }
 }

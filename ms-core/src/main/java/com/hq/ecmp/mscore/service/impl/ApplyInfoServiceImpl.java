@@ -8,10 +8,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
@@ -32,11 +34,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 
@@ -77,6 +82,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private TokenService tokenService;
     @Autowired
     private IApplyApproveResultInfoService applyApproveResultInfoService;
+    @Autowired
+    private EcmpMessageMapper ecmpMessageMapper;
+    @Resource
+    private ISmsTemplateInfoService iSmsTemplateInfoService;
+
+    private ExecutorService executor = Executors.newFixedThreadPool(3);
 
     /**
      * 查询【请填写功能名称】
@@ -191,7 +202,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         for (TravelRequest travelRequest : travelRequests) {
             journeyNodeInfo = new JourneyNodeInfo();
             //设置差旅行程节点表信息
-            SetTravelJourneyNode(travelCommitApply, journeyId, journeyNodeInfo, i, travelRequest);
+            setTravelJourneyNode(travelCommitApply, journeyId, journeyNodeInfo, i, travelRequest);
             i++;
             journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
         }
@@ -231,7 +242,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             travelRequest.setCountDate(null);
             //TODO 返程交通工具暂不做修改
             journeyNodeInfo = new JourneyNodeInfo();
-            SetTravelJourneyNode(applyTravelRequest, journeyId, journeyNodeInfo, i + 1, travelRequest);
+            setTravelJourneyNode(applyTravelRequest, journeyId, journeyNodeInfo, i + 1, travelRequest);
             //新增返程节点
             journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
         }
@@ -245,6 +256,52 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
         // 提交差旅乘客信息表
         journeyPassengerInfoCommit(travelCommitApply, journeyId, journeyPassengerInfo);
+
+        // -------------- 初始化审批流   发通知（给审批人和自己） 、 发短信（给审批人）-----------------------------
+        Long userId = getLoginUserId();
+        Integer regimenId = travelCommitApply.getRegimenId();
+
+
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                //1.初始化审批流
+                applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
+            }
+        });
+
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                String userName = travelCommitApply.getApplyUser().getUserName();
+                Date startDate = travelCommitApply.getStartDate();
+                Date endDate = travelCommitApply.getEndDate();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
+                String format = simpleDateFormat.format(startDate);
+                String format1 = simpleDateFormat.format(endDate);
+                String date = format + "-" + format1;
+                List<ApprovalVO> approvers = travelCommitApply.getApprovers();
+                String title = journeyInfoMapper.selectTitleById(journeyId);
+                for (ApprovalVO approver : approvers) {
+                    //给审批人发通知
+                    sendNoticeToApprover(applyId,userId,approver);
+                    //给审批人发短信  1.员工姓名 2.日期 3.城市
+                    // 员工陈超已提交“2019年08月20日-2019年08月23日，长春-上海-长春”的差旅用车申请，请登录红旗公务APP及时处理。（差旅申请）
+                    Map<String,String> map = new HashMap<>();
+                    map.put("userName",userName);
+                    map.put("date",date);
+                    map.put("city",title);
+                    try {
+                        //给审批人发短信
+                        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TRAVEL_APPLY_APPROVER,map,approver.getApprovalPhone());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                //给自己发通知
+                sendApplyNoticeToSelf(userId,applyId);
+            }
+        });
 
         return applyVO;
     }
@@ -277,7 +334,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 sb.append(list.get(j).getPlanBeginAddress() + "-" + list.get(j).getPlanEndAddress());
             } else {
                 //如果下一个节点的起点是上一个节点的终点，则下一个节点追加  、上海、南京  样字段
-                sb.append("、" + list.get(j).getPlanBeginAddress() + "、" + list.get(j).getPlanEndAddress());
+                sb.append("、"  + list.get(j).getPlanEndAddress());
             }
         }
 
@@ -296,7 +353,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param i
      * @param travelRequest
      */
-    private void SetTravelJourneyNode(ApplyTravelRequest travelCommitApply, Long journeyId, JourneyNodeInfo journeyNodeInfo, int i, TravelRequest travelRequest) {
+    private void setTravelJourneyNode(ApplyTravelRequest travelCommitApply, Long journeyId, JourneyNodeInfo journeyNodeInfo, int i, TravelRequest travelRequest) {
         //3.1 journey_id 非空
         journeyNodeInfo.setJourneyId(journeyId);
         //3.2 user_id 行程申请人 编号
@@ -337,7 +394,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         ///3.17 number 节点在 在整个行程 中的顺序编号 从  1  开始
         journeyNodeInfo.setNumber(i);
         //3.18 create_by 创建者
-        journeyNodeInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
+        journeyNodeInfo.setCreateBy(String.valueOf(getLoginUserId()));
         //3.19 create_time 创建时间
         journeyNodeInfo.setCreateTime(new Date());
         //3.20 update_by 更新者
@@ -580,11 +637,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //4.2 name 姓名
         journeyPassengerInfo.setName(travelCommitApply.getPassenger().getUserName());
         //4.3 mobile
-        journeyPassengerInfo.setMobile(travelCommitApply.getProjectNumber());
+        journeyPassengerInfo.setMobile(travelCommitApply.getApplyUser().getUserPhone());
         //4.4 it_is_peer 是否是同行者 00   是   01   否
         journeyPassengerInfo.setItIsPeer(CommonConstant.IS_NOT_PEER);   // TODO 常量 差旅没有同行人
         //4.5 create_by 创建者
-        journeyPassengerInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
+        journeyPassengerInfo.setCreateBy(String.valueOf(getLoginUserId()));
         //4.6 create_time 创建时间
         journeyPassengerInfo.setCreateTime(new Date());
         //4.7 update_by 更新者
@@ -627,7 +684,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.8 reason 行程原因
         applyInfo.setReason(travelCommitApply.getReason());
         //2.9 create_by 创建者
-        applyInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
+        applyInfo.setCreateBy(String.valueOf(getLoginUserId()));
         //2.10 create_time 创建时间
         applyInfo.setCreateTime(new Date());
         //2.11 update_by 更新者
@@ -672,7 +729,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //1.12 charter_car_type 包车类型：T000  非包车 T001 半日租（4小时）T002 整日租（8小时）
         journeyInfo.setCharterCarType(null);
         //1.13 create_by 创建者
-        journeyInfo.setCreateBy(String.valueOf(travelCommitApply.getApplyUser().getUserId()));
+        journeyInfo.setCreateBy(String.valueOf(getLoginUserId()));
         //1.14 create_time 创建时间
         journeyInfo.setCreateTime(new Date());
         //1.15 update_by 更新者
@@ -687,7 +744,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setTravelCitiesStr(travelCommitApply.getTravelCitiesStr());  //TODO 新增 出差需市内用车城市  需要前端提供
         journeyInfo.setPickupTimes(travelCommitApply.getPickupTimes());    // TODO 新增 出差接送机总次数  需要前端提供
         String firstCityName = travelCommitApply.getTravelRequests().get(0).getStartCity().getCityName();
-        journeyInfo.setTitle(firstCityName+"-"+travelCommitApply.getTravelCitiesStr());  // TODO 新增 出差标题  需要前端提供    北京-上海、南京。需要判断
+        journeyInfo.setTitle(firstCityName);  // TODO 新增 出差标题     北京-上海、南京。需要判断
         journeyInfoMapper.insertJourneyInfo(journeyInfo);
     }
 
@@ -829,19 +886,108 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyPassergerOfficialCommit(officialCommitApply, journeyId, journeyPassengerInfo);
 
         //申请成功后 ---------------1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
+        Long userId = getLoginUserId();
         Integer regimenId = applyOfficialRequest.getRegimenId();
-        //1.初始化审批流
-        applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
-        //2.查询审批人
+
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                //1.初始化审批流
+                applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
+            }
+        });
+
+        List<ApprovalVO> approvers = applyOfficialRequest.getApprovers();
+        //2.给审批人和自己发通知
+        EcmpMessage ecmpMessage = null;
+        executor.submit(new Runnable() {
+            //申请人名字
+            String userName = applyOfficialRequest.getApplyUser().getUserName();
+            //申请用车时间
+            Date applyDate = applyOfficialRequest.getApplyDate();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日HH:mm");
+            String useCarTime = simpleDateFormat.format(applyDate);
+            //短信 员工安宁已提交“2019年08月14日13:00”的公务用车申请，请登录红旗公务APP及时处理。（公务申请）
+            //(1) 员工姓名 （2）日期 时间
+           @Override
+           public void run() {
+               for (ApprovalVO approver : approvers) {
+                   //给审批人发通知
+                   sendNoticeToApprover(applyId, userId, approver);
+                   //给审批人发短信
+                   sendMsgToApprover(SmsTemplateConstant.OFFICIAL_APPLY_APPROVER,userName,useCarTime,approver);
+               }
+               //给自己发通知
+               sendApplyNoticeToSelf(userId, applyId);
+           }
+        });
 
         return applyVO;
     }
 
+    private Long getLoginUserId() {
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        return loginUser.getUser().getUserId();
+    }
 
+    /**
+     * 给自己发申请通知
+     * @param userId 登录用户id
+     * @param applyId 申请id
+     */
+    private void sendApplyNoticeToSelf(Long userId, Long applyId) {
+        EcmpMessage ecmpMessage1 = EcmpMessage.builder().configType(1).ecmpId(userId).categoryId(applyId).type("T001")
+                .status("1111").category("M001").content("你有一条申请待审批").url("")
+                .createBy(userId).createTime(new Date()).updateBy(null).updateTime(null).build();
+        int j = ecmpMessageMapper.insert(ecmpMessage1);
+        if(j != 1){
+            throw new RuntimeException("发送通知失败");
+        }
+    }
 
+    /**
+     * 给审批人发送通知
+     * @param applyId  申请ID
+     * @param userId   登录人id
+     * @param approver  审批人（id,名字，电话）
+     */
+    private void sendNoticeToApprover(Long applyId, Long userId, ApprovalVO approver) {
+        EcmpMessage ecmpMessage;
+        ecmpMessage = EcmpMessage.builder()
+                .configType(4)                 //对应用户类型（1.乘客，2.司机，3.调度员。4，审批员）
+                .ecmpId(Long.valueOf(approver.getUserId()))  //对应用户类型id  configType为 2 此处为 driverId ，否则此处为userId
+                .categoryId(applyId)   // 类别id 申请则为申请id 订单类则为 订单id
+                .type("T001")  //消息类型 T001-业务消息 T002- T003  T004
+                .status("1111")   //消息状态 0000-已读  1111-未读
+                .category("M001")   //消息类别，随业务自行添加 M001  申请通知 M002  审批通知 M003  调度通知 M004  订单改派 M005  订单取消 M999  其他
+                .content("你有一条申请通知")
+                .url("") //事项处理跳转链接地址， 需要密切联系业务调整规则 大部分应该是跳转到  事项处理的列表页 单个具体事项出题 请带上 业务的主键ID，
+                .createBy(userId)
+                .createTime(new Date())
+                .updateBy(null)
+                .updateTime(null)
+                .build();
+        int i = ecmpMessageMapper.insert(ecmpMessage);
+        if(i != 1){
+            throw new RuntimeException("发送通知失败");
+        }
+    }
+
+    //公务申请给审批人发短信
+    private void sendMsgToApprover(String template,String userName, String useCarTime,ApprovalVO approver) {
+        String userPhone = approver.getApprovalPhone();
+        HashMap<String, String> map = Maps.newHashMap();
+        //用车时间
+        map.put("useCarTime",useCarTime);
+        //申请人名字
+        map.put("userName",userName);
+        try {
+            iSmsTemplateInfoService.sendSms(template,map,userPhone);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
     /**
@@ -861,7 +1007,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //4.4 it_is_peer 是否是同行者 00   是   01   否
         journeyPassengerInfo.setItIsPeer(CommonConstant.IS_NOT_PEER);
         //4.5 create_by 创建者
-        journeyPassengerInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));
+        journeyPassengerInfo.setCreateBy(String.valueOf(getLoginUserId()));
         //4.6 create_time 创建时间
         journeyPassengerInfo.setCreateTime(new Date());
         //4.7 update_by 更新者
@@ -880,7 +1026,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 journeyPartner.setName(partner.getUserName());
                 journeyPartner.setMobile(partner.getUserPhone());
                 journeyPartner.setItIsPeer(CommonConstant.IS_PEER);
-                journeyPartner.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));
+                journeyPartner.setCreateBy(String.valueOf(getLoginUserId()));
                 journeyPartner.setCreateTime(new Date());
                 journeyPartner.setUpdateBy(null);
                 journeyPartner.setUpdateTime(null);
@@ -936,7 +1082,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         ///3.17 number 节点在 在整个行程 中的顺序编号 从  1  开始
         journeyNodeInfo.setNumber(null);    // TODO 节点编号单独判断
         //3.18 create_by 创建者
-        journeyNodeInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));  //TODO 申请人 和 创建人
+        journeyNodeInfo.setCreateBy(String.valueOf(getLoginUserId()));  //TODO 申请人 和 创建人
         //3.19 create_time 创建时间
         journeyNodeInfo.setCreateTime(new Date());
         //3.20 update_by 更新者
@@ -983,7 +1129,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.8 reason 行程原因
         applyInfo.setReason(officialCommitApply.getReason());
         //2.9 create_by 创建者
-        applyInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId())); //TODO 创建者 与 申请人区别
+        applyInfo.setCreateBy(String.valueOf(getLoginUserId())); //TODO 创建者 与 申请人区别
         //2.10 create_time 创建时间
         applyInfo.setCreateTime(new Date());
         //2.11 update_by 更新者
@@ -1030,7 +1176,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //1.12 charter_car_type 包车类型：T000  非包车 T001 半日租（4小时）T002 整日租（8小时）
         journeyInfo.setCharterCarType(officialCommitApply.getCharterType());
         //1.13 create_by 创建者
-        journeyInfo.setCreateBy(String.valueOf(officialCommitApply.getApplyUser().getUserId()));  //TODO 数据库中是int
+        journeyInfo.setCreateBy(String.valueOf(getLoginUserId()));  //TODO 数据库中是int
         //1.14 create_time 创建时间
         journeyInfo.setCreateTime(new Date());
         //1.15 update_by 更新者

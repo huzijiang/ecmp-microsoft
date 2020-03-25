@@ -234,5 +234,7 @@ public interface EcmpUserMapper
     UserVO findDeptLeader(long parseLong);
 
     List<EcmpUser> selectUserListByUserIds(String userIds);
+
+    List<EcmpUser> getListByUserIds(List<Long> userIds);
 }
 
