@@ -394,6 +394,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
         BeanUtils.copyProperties(orderInfo,vo);
+        String useCarTime=null;
+        List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
+        if (!CollectionUtils.isEmpty(orderAddressInfos)){
+            useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderAddressInfos.get(0).getActionTime());
+            vo.setUseCarTimestamp(orderAddressInfos.get(0).getActionTime().getTime());
+        }
+        vo.setUseCarTime(useCarTime);
+        vo.setCreateTimestamp(orderInfo.getCreateTime().getTime());
         if (OrderState.WAITINGLIST.getState().equals(orderInfo.getState())||OrderState.GETARIDE.getState().equals(orderInfo.getState())){
             return vo;
         }
@@ -413,14 +421,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         vo.setCustomerServicePhone(serviceMobile);
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
-        String useCarTime=null;
-        List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
-        if (!CollectionUtils.isEmpty(orderAddressInfos)){
-            useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderAddressInfos.get(0).getActionTime());
-            vo.setUseCarTimestamp(orderAddressInfos.get(0).getActionTime().getTime());
-        }
-        vo.setUseCarTime(useCarTime);
-        vo.setCreateTimestamp(orderInfo.getCreateTime().getTime());
         //服务结束时间
         OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
