@@ -74,6 +74,13 @@ public class DepartmentController {
     @ApiOperation(value = "添加部门",notes = "添加部门",httpMethod ="POST")
     @PostMapping("/addDept")
     public ApiResponse addDept(@RequestBody EcmpOrgVo ecmpOrg){
+        String deptCode=ecmpOrg.getDeptCode();
+        if(deptCode!=null&&!("").equals(deptCode)){
+            int j = orgService.selectDeptCodeExist(deptCode);
+            if(j>0){
+                return ApiResponse.error("该编号已存在，不可重复录入！");
+            }
+        }
         int i = orgService.addDept(ecmpOrg);
         if (i == 1){
             return ApiResponse.success("添加部门成功!");
@@ -90,6 +97,13 @@ public class DepartmentController {
     @ApiOperation(value = "修改部门",notes = "修改部门",httpMethod ="POST")
     @PostMapping("/updateDept")
     public ApiResponse updateDept(@RequestBody EcmpOrgVo ecmpOrg){
+        String deptCode=ecmpOrg.getDeptCode();
+        if(deptCode!=null&&!("").equals(deptCode)){
+            int j = orgService.selectDeptCodeExist(deptCode);
+            if(j>0){
+                return ApiResponse.error("该编号已存在，不可重复录入！");
+            }
+        }
         int i = orgService.updateDept(ecmpOrg);
         if (i == 1){
             return ApiResponse.success("修改部门成功!");
@@ -97,19 +111,6 @@ public class DepartmentController {
             return ApiResponse.error("修改部门失败!");
         }
     }
-    /**
-     * 部门编号验证
-     * @param  deptId
-     * @return*/
-    /*@ApiOperation(value = "部门编号验证",notes = "部门编号验证",httpMethod ="GET")
-    @PostMapping("/getCheckingDeptCode")
-    public ApiResponse getCheckingDeptCode(Long deptId){
-        int companyIdNum = orgService.getCheckingDeptCode(deptId);
-        if(companyIdNum==0){
-            return ApiResponse.success("编号可用!");
-        }
-        return ApiResponse.error("编号不可用!");
-    }*/
 
     /**
      * 逻辑删除部门信息
@@ -148,11 +149,6 @@ public class DepartmentController {
             return ApiResponse.error("部门状态不能为空！");
         }
         String s = orgService.updateUseStatus(status,deptId);
-        /*if (i > 0){
-            return ApiResponse.success("启用成功");
-        }else {
-            return ApiResponse.error("启用失败");
-        }*/
         return ApiResponse.error(s);
     }
 }

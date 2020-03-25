@@ -2,7 +2,9 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
+import com.hq.ecmp.mscore.domain.EcmpRoleDept;
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.EcmpUserRole;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.*;
@@ -36,8 +38,12 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     private CarInfoMapper carInfoMapper;
     @Autowired
     private CarGroupInfoMapper carGroupInfoMapper;//车队
+    @Autowired
+    private EcmpRoleDeptMapper ecmpRoleDeptMapper;
+    @Autowired
+    private EcmpUserRoleMapper ecmpUserRoleMapper;
     /**
-     * 查询部门列表
+     * 显示组织结构
      *
      * @param deptId 部门ID
      * @return deptList 部门列表
@@ -87,6 +93,18 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     public EcmpOrgDto getDeptDetails(Long deptId){
         return ecmpOrgMapper.selectByDeptId(deptId);
     }
+
+    /**
+     * 查询分/子公司、部门编号是否已存在
+     *
+     * @param deptCode 分/子公司、部门编号
+     * @return ecmpOrg
+     */
+    public int selectDeptCodeExist(String deptCode){
+            return ecmpOrgMapper.selectDeptCodeExist(deptCode);
+    }
+
+
     /*
      * 添加部门
      *  @param  ecmpOrg
@@ -97,10 +115,33 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     public int addDept(EcmpOrgVo ecmpOrg){
         ecmpOrg.setCreateTime(DateUtils.getNowDate());
         int iz = ecmpOrgMapper.addDept(ecmpOrg);
+        EcmpRoleDept ecmpRoleDept=new EcmpRoleDept();
+        ecmpRoleDept.setDeptId(ecmpOrg.getDeptId());
+        ecmpRoleDept.setRoleId(2L);
+        //添加部门角色关联信息
+        ecmpRoleDeptMapper.insertEcmpRoleDept(ecmpRoleDept);
+        //添加角色用户关联信息
+        EcmpUserRole ecmpUserRole =new  EcmpUserRole();
+        ecmpUserRole.setUserId(ecmpOrg.getUserId());
+        ecmpUserRole.setRoleId(2L);
+        ecmpUserRoleMapper.insertEcmpUserRole(ecmpUserRole);
         if(iz==1){
             return 1;
         }
         return 0;
+    }
+
+    /*
+     * 查询上级部门下的所有员工
+     *  @param  ecmpOrg
+     * @return int
+     * */
+    public List<EcmpUserDto> selectUserByDeptId(EcmpOrgVo ecmpOrg){
+        List<EcmpUserDto> ecmpUserList = ecmpUserMapper.selectUserByDeptId(ecmpOrg.getDeptId());
+        if(ecmpUserList.size()>0){
+            return ecmpUserList;
+        }
+        return null;
     }
 
     /*
@@ -111,24 +152,10 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     @Transactional
     public int updateDept(EcmpOrgVo ecmpOrg){
         ecmpOrg.setUpdateTime(DateUtils.getNowDate());
+        //添加部门
         int ix = ecmpOrgMapper.updateDept(ecmpOrg);
         return ix;
     }
-
-    /**
-     * 部门编号验证
-     * @param  deptCode
-     * @return
-     * */
-    public int  getCheckingDeptCode(String  deptCode){
-
-        return ecmpOrgMapper.getCheckingDeptCode(deptCode);
-    }
-
-
-
-
-
 
     /**
      * 查询部门
@@ -174,6 +201,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     @Transactional
     public int updateEcmpOrg(EcmpOrgVo ecmpOrg) {
         ecmpOrg.setUpdateTime(DateUtils.getNowDate());
+
         return ecmpOrgMapper.updateEcmpOrg(ecmpOrg);
     }
 

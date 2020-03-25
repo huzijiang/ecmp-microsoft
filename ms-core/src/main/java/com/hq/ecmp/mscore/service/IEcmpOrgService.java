@@ -31,6 +31,14 @@ public interface IEcmpOrgService
      * @return ecmpOrg
      */
     public EcmpOrgDto getDeptDetails(Long deptId);
+
+    /**
+     * 查询分/子公司、部门编号是否已存在
+     *
+     * @param deptCode 分/子公司、部门编号
+     * @return ecmpOrg
+     */
+    public int selectDeptCodeExist(String deptCode);
     /*
     * 添加部门
     *  @param  ecmpOrg
@@ -44,13 +52,6 @@ public interface IEcmpOrgService
      * @return int
      * */
     public int updateDept(EcmpOrgVo ecmpOrg);
-    /**
-     * 部门编号验证
-     * @param  deptCode
-     * @return
-     * */
-    public int  getCheckingDeptCode(String deptCode);
-
 
     /**
      * 查询部门

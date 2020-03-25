@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
+import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -42,15 +43,6 @@ public interface EcmpOrgMapper {
      * @return int
      * */
     public  int updateDept(EcmpOrgVo ecmpOrg);
-    /**
-     * 部门编号验证
-     * @param  deptCode
-     * @return
-     * */
-    public  int getCheckingDeptCode(@Param("deptCode")String deptCode);
-
-
-
 
     /**
      * 查询部门
@@ -77,6 +69,14 @@ public interface EcmpOrgMapper {
      * @return 部门集合
      */
     public List<EcmpOrg> selectEcmpOrgList(EcmpOrg ecmpOrg);
+
+    /**
+     * 查询分/子公司、部门编号是否已存在
+     *
+     * @param deptCode 分/子公司、部门编号
+     * @return
+     */
+    public int selectDeptCodeExist(String deptCode);
 
     /**
      * 新增部门
@@ -173,4 +173,5 @@ public interface EcmpOrgMapper {
      * @return
      */
     int selectCountByParentId(Integer parentId);
+
 }
