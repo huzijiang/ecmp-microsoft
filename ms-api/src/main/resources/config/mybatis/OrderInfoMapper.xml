@@ -27,10 +27,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
         <result property="orderNumber"    column="order_number"    />
+        <result property="carModel"    column="car_model"    />
+        <result property="carColor"    column="car_color"    />
+        <result property="driverGrade"    column="driver_grade"    />
     </resultMap>
 
     <sql id="selectOrderInfoVo">
-        select order_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time from order_info
+        select order_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time,car_model,car_color,driver_grade from order_info
     </sql>
     
     <sql id="queryDispatchAchieve">
@@ -116,6 +119,9 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="updateBy != null ">update_by,</if>
             <if test="updateTime != null ">update_time,</if>
             <if test="orderNumber != null and orderNumber != ''">order_number,</if>
+            <if test="carModel != null and carModel != ''">car_model,</if>
+            <if test="carColor != null and carColor != ''">car_color,</if>
+            <if test="driverGrade != null and driverGrade != ''">driver_grade,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">#{journeyId},</if>
@@ -139,6 +145,9 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="updateBy != null ">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
             <if test="orderNumber != null and orderNumber != ''">#{orderNumber},</if>
+            <if test="carModel != null and carModel != ''">#{carModel},</if>
+            <if test="carColor != null and carColor != ''">#{carColor},</if>
+            <if test="driverGrade != null and driverGrade != ''">#{driverGrade},</if>
         </trim>
     </insert>
 
@@ -166,6 +175,9 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="updateBy != null ">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
             <if test="orderNumber != null ">order_number = #{orderNumber},</if>
+            <if test="carModel != null and carModel != ''">car_model =#{carModel},</if>
+            <if test="carColor != null and carColor != ''">car_color =#{carColor},</if>
+            <if test="driverGrade != null and driverGrade != ''">driver_grade =#{driverGrade},</if>
         </trim>
         where order_id = #{orderId}
     </update>
