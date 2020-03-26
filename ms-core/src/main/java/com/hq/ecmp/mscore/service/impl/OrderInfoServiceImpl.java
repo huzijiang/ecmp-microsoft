@@ -696,16 +696,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		// 新增订单状态流转记录
 		OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
 		OrderInfo orderInfo = new OrderInfo();
-		/*// 判读该单子是否是改派单
-		if (iOrderStateTraceInfoService.isReassignment(orderId)) {
-			// 是改派单
-			orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.getState());
-			orderInfo.setState(OrderState.REASSIGNPASS.getState());
-		} else {
-			//申请单
-			orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
-			orderInfo.setState(OrderState.ALREADYSENDING.getState());
-		}*/
+		/*
+		 * // 判读该单子是否是改派单 if
+		 * (iOrderStateTraceInfoService.isReassignment(orderId)) { // 是改派单
+		 * orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.
+		 * getState()); orderInfo.setState(OrderState.REASSIGNPASS.getState());
+		 * } else { //申请单
+		 * orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
+		 * orderInfo.setState(OrderState.ALREADYSENDING.getState()); }
+		 */
 		orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
 		orderInfo.setState(OrderState.ALREADYSENDING.getState());
 		// 查询司机信息
@@ -726,6 +725,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		orderStateTraceInfo.setOrderId(orderId);
 		// 新增订单状态流转记录
 		int insertFlag = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+		// 发送短信
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					sendSmsCallTaxiNet(orderId);
+				} catch (Exception e) {
+					log.error("订单号{}调度自有车,发送短信失败!",orderId);
+					e.printStackTrace();
+				}
+			}
+		}).start();
 		return updateFlag > 0 && insertFlag > 0;
 	}
 
@@ -1652,6 +1663,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             if(carId != null){
                 CarInfo carInfo = carInfoService.selectCarInfoById(carId);
                 carType = carInfo.getCarType();
+                carLicense=carInfo.getCarLicense();
             }
         }else{
             carType = orderInfo.getCarModel();

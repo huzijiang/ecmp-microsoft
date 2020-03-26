@@ -42,4 +42,5 @@ public class SmsTemplateConstant {
     public static final String NETCAR_FAIL_RIDER = "netcar_fail_rider";
 
 
+
 }
