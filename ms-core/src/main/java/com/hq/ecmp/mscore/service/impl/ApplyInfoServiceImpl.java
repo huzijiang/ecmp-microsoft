@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
+import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
@@ -26,7 +27,10 @@ import com.hq.ecmp.mscore.service.IApplyApproveResultInfoService;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.RandomUtil;
 import com.hq.ecmp.util.SortListUtil;
+import io.netty.util.internal.ObjectUtil;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -265,41 +269,49 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                //1.初始化审批流
-                applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
+                try {
+                    //1.初始化审批流
+                    applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                String userName = travelCommitApply.getApplyUser().getUserName();
-                Date startDate = travelCommitApply.getStartDate();
-                Date endDate = travelCommitApply.getEndDate();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
-                String format = simpleDateFormat.format(startDate);
-                String format1 = simpleDateFormat.format(endDate);
-                String date = format + "-" + format1;
-                List<ApprovalVO> approvers = travelCommitApply.getApprovers();
-                String title = journeyInfoMapper.selectTitleById(journeyId);
-                for (ApprovalVO approver : approvers) {
-                    //给审批人发通知
-                    sendNoticeToApprover(applyId,userId,approver);
-                    //给审批人发短信  1.员工姓名 2.日期 3.城市
-                    // 员工陈超已提交“2019年08月20日-2019年08月23日，长春-上海-长春”的差旅用车申请，请登录红旗公务APP及时处理。（差旅申请）
-                    Map<String,String> map = new HashMap<>();
-                    map.put("userName",userName);
-                    map.put("date",date);
-                    map.put("city",title);
-                    try {
-                        //给审批人发短信
-                        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TRAVEL_APPLY_APPROVER,map,approver.getApprovalPhone());
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                try {
+                    String userName = travelCommitApply.getApplyUser().getUserName();
+                    Date startDate = travelCommitApply.getStartDate();
+                    Date endDate = travelCommitApply.getEndDate();
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
+                    String format = simpleDateFormat.format(startDate);
+                    String format1 = simpleDateFormat.format(endDate);
+                    String date = format + "-" + format1;
+                    List<ApprovalVO> approvers = travelCommitApply.getApprovers();
+                    String title = journeyInfoMapper.selectTitleById(journeyId);
+                    for (ApprovalVO approver : approvers) {
+                        //给审批人发通知
+                        sendNoticeToApprover(applyId,userId,approver);
+                        //给审批人发短信  1.员工姓名 2.日期 3.城市
+                        // 员工陈超已提交“2019年08月20日-2019年08月23日，长春-上海-长春”的差旅用车申请，请登录红旗公务APP及时处理。（差旅申请）
+                        Map<String,String> map = new HashMap<>();
+                        map.put("userName",userName);
+                        map.put("date",date);
+                        map.put("city",title);
+                        try {
+                            //给审批人发短信
+                            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TRAVEL_APPLY_APPROVER,map,approver.getApprovalPhone());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
+                    //给自己发通知
+                    sendApplyNoticeToSelf(userId,applyId);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                //给自己发通知
-                sendApplyNoticeToSelf(userId,applyId);
             }
         });
 
@@ -679,6 +691,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setUpdateBy(null);
         //2.12 update_time 更新时间
         applyInfo.setUpdateTime(null);
+        //2.13 申请单编号
+        applyInfo.setApplyNumber(RandomUtil.getRandomNumber());
 
         applyInfoMapper.insertApplyInfo(applyInfo);
     }
@@ -873,40 +887,52 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
         journeyPassergerOfficialCommit(officialCommitApply, journeyId, journeyPassengerInfo);
 
-        //申请成功后 ---------------1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信
+        //公务申请成功后 ---------------1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信
         Long userId = getLoginUserId();
-        Integer regimenId = applyOfficialRequest.getRegimenId();
+        Integer regimenId = officialCommitApply.getRegimenId();
 
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                //1.初始化审批流
-                applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
+                try {
+                    //1.初始化审批流
+                    applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
-        List<ApprovalVO> approvers = applyOfficialRequest.getApprovers();
+        List<ApprovalVO> approvers = officialCommitApply.getApprovers();
         //2.给审批人和自己发通知
-        EcmpMessage ecmpMessage = null;
         executor.submit(new Runnable() {
-            //申请人名字
-            String userName = applyOfficialRequest.getApplyUser().getUserName();
-            //申请用车时间
-            Date applyDate = applyOfficialRequest.getApplyDate();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日HH:mm");
-            String useCarTime = simpleDateFormat.format(applyDate);
-            //短信 员工安宁已提交“2019年08月14日13:00”的公务用车申请，请登录红旗公务APP及时处理。（公务申请）
-            //(1) 员工姓名 （2）日期 时间
            @Override
            public void run() {
-               for (ApprovalVO approver : approvers) {
-                   //给审批人发通知
-                   sendNoticeToApprover(applyId, userId, approver);
-                   //给审批人发短信
-                   sendMsgToApprover(SmsTemplateConstant.OFFICIAL_APPLY_APPROVER,userName,useCarTime,approver);
+               try {
+                   //申请人名字
+                   String userName = officialCommitApply.getApplyUser().getUserName();
+                   //申请用车时间
+                   Date applyDate = officialCommitApply.getApplyDate();
+                   if(applyDate == null){
+                       // 航班到达时间
+                       long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+                       applyDate = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+                   }
+                   SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日HH:mm");
+                   String useCarTime = simpleDateFormat.format(applyDate);
+                   //短信 员工安宁已提交“2019年08月14日13:00”的公务用车申请，请登录红旗公务APP及时处理。（公务申请）
+                   //(1) 员工姓名 （2）日期 时间
+                   for (ApprovalVO approver : approvers) {
+                       //给审批人发通知
+                       sendNoticeToApprover(applyId, userId, approver);
+                       //给审批人发短信
+                       sendMsgToApprover(SmsTemplateConstant.OFFICIAL_APPLY_APPROVER,userName,useCarTime,approver);
+                   }
+                   //给自己发通知
+                   sendApplyNoticeToSelf(userId, applyId);
+               } catch (Exception e) {
+                   e.printStackTrace();
                }
-               //给自己发通知
-               sendApplyNoticeToSelf(userId, applyId);
            }
         });
 
@@ -1124,6 +1150,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setUpdateBy(null);
         //2.12 update_time 更新时间
         applyInfo.setUpdateTime(null);
+        //2.13 申请单编号
+        applyInfo.setApplyNumber(RandomUtil.getRandomNumber());
 
         applyInfoMapper.insertApplyInfo(applyInfo);
     }
@@ -1148,6 +1176,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         if (applyDate != null){
             //String date = dateFormat.format(applyDate);
             journeyInfo.setUseCarTime(applyDate);
+        }else {
+            Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+            Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+            journeyInfo.setUseCarTime(useCarTime);
         }
         //1.6 it_is_return 是否往返 Y000 N444
         journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());    //TODO  有往返的话，创建两个行程
@@ -1171,6 +1203,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUpdateBy(null);
         //1.16 update_time 更新时间
         journeyInfo.setUpdateBy(null);
+        //1.17 预计航班起飞时间
+        journeyInfo.setFlightPlanTakeOffTime(officialCommitApply.getFlightPlanTakeOffTime());
         journeyInfo.setStartDate(officialCommitApply.getApplyDate());       //TODO 新增 行程开始时间，用车时间
         journeyInfo.setEndDate(null);        //TODO 新增 公务行程结束时间，未知。也用不着
         journeyInfo.setTravelPickupCity(null);  //TODO 新增 出差需接送机城市为空
@@ -1178,6 +1212,36 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setPickupTimes(null);    // TODO 新增 出差接送机总次数为空
         journeyInfo.setTitle(officialCommitApply.getReason());  // TODO 新增 公务title为reason
         journeyInfoMapper.insertJourneyInfo(journeyInfo);
+    }
+
+    /**
+     * 接机预计用车时间
+     * @param officialCommitApply   等待时间
+     * @param flightPlanArriveTime   航班到达时间
+     * @return
+     */
+    private Date getUseCarTimeForFlight(ApplyOfficialRequest officialCommitApply, Long flightPlanArriveTime) {
+        Date useCarTime = null;
+        switch (officialCommitApply.getWaitDurition()){
+            case WaitTimeConstant.WAIT_TEN_MINUTE:
+                useCarTime = new Date(10*60*1000 + flightPlanArriveTime);
+                break;
+            case WaitTimeConstant.WAIT_TWENTY_MINUTE:
+                useCarTime = new Date(20*60*1000 + flightPlanArriveTime);
+                break;
+            case WaitTimeConstant.WAIT_THIRTY_MINUTE:
+                useCarTime = new Date(30*60*1000 + flightPlanArriveTime);
+                break;
+            case WaitTimeConstant.WAIT_ONE_HOUR:
+                useCarTime = new Date(60*60*1000 + flightPlanArriveTime);
+                break;
+            case WaitTimeConstant.WAIT_ONE_AND_HALF_HOUR:
+                useCarTime = new Date(90*60*1000 + flightPlanArriveTime);
+                break;
+            default:
+                throw new BaseException("接机航班等待时长有误");
+        }
+        return useCarTime;
     }
 
 }
