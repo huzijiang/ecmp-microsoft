@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
+
 
 /**
  * @author xueyong
@@ -131,5 +133,25 @@ public class CompanyConfigController {
         return ApiResponse.success();
     }
 
+    /**
+     * 获取启动页开屏图（无token）
+     * @return
+     */
+    /*@ApiOperation(value = "getStartupChart ", notes = "获取启动页开屏图（无token）")
+    @PostMapping("/getStartupChart")
+    public ApiResponse getStartupChart() {
+        ConfigInfoDTO onfigInfoDTO= ecmpConfigService.getStartupChart();
+        return ApiResponse.success(onfigInfoDTO);
+    }*/
 
+    /**
+     * 获取首页背景图
+     * @return
+     */
+    /*@ApiOperation(value = "getHomeChart ", notes = "获取首页背景图")
+    @PostMapping("/getHomeChart")
+    public ApiResponse getHomeChart() {
+        ConfigInfoDTO onfigInfoDTO= ecmpConfigService.getHomeChart();
+        return ApiResponse.success(onfigInfoDTO);
+    }*/
 }
