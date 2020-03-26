@@ -74,6 +74,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="estimatePrice != null  and estimatePrice != ''">estimate_price,</if>
             <if test="projectId != null ">project_id,</if>
             <if test="flightNumber != null  and flightNumber != ''">flight_number,</if>
+            <if test="flightPlanTakeOffTime != null ">flight_plan_take_off_time,</if>
             <if test="useTime != null  and useTime != ''">use_time,</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">wait_time_long,</if>
             <if test="charterCarType != null  and charterCarType != ''">charter_car_type,</if>
@@ -99,6 +100,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="estimatePrice != null  and estimatePrice != ''">#{estimatePrice},</if>
             <if test="projectId != null ">#{projectId},</if>
             <if test="flightNumber != null  and flightNumber != ''">#{flightNumber},</if>
+            <if test="flightPlanTakeOffTime != null ">#{flightPlanTakeOffTime},</if>
             <if test="useTime != null  and useTime != ''">#{useTime},</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">#{waitTimeLong},</if>
             <if test="charterCarType != null  and charterCarType != ''">#{charterCarType},</if>

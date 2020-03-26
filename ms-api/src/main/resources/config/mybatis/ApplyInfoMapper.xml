@@ -52,6 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="journeyId != null ">journey_id,</if>
             <if test="projectId != null ">project_id,</if>
             <if test="regimenId != null ">regimen_id,</if>
+            <if test="applyNumber != null ">apply_number,</if>
             <if test="applyType != null ">apply_type,</if>
             <if test="approverName != null  and approverName != ''">approver_name,</if>
             <if test="costCenter != null ">cost_center,</if>
@@ -67,6 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="journeyId != null ">#{journeyId},</if>
             <if test="projectId != null ">#{projectId},</if>
             <if test="regimenId != null ">#{regimenId},</if>
+            <if test="applyNumber != null ">#{applyNumber},</if>
             <if test="applyType != null ">#{applyType},</if>
             <if test="approverName != null  and approverName != ''">#{approverName},</if>
             <if test="costCenter != null ">#{costCenter},</if>
