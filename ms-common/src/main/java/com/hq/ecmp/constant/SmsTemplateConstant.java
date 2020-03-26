@@ -36,5 +36,10 @@ public class SmsTemplateConstant {
     public static final String NETCAR_SUCC_RIDER_NO_ENTER = "netcar_succ_rider_no_enter";
     //约车成功以后给司机发短信模板码
     public static final String NETCAR_SUCC_DRIVER = "netcar_succ_driver";
+    //约车时间到了没约到车，超时短信-申请人
+    public static final String NETCAR_FAIL_APPLICANT = "netcar_fail_applicant";
+    //约车时间到了没约到车，超时短信-乘车人
+    public static final String NETCAR_FAIL_RIDER = "netcar_fail_rider";
+
 
 }
