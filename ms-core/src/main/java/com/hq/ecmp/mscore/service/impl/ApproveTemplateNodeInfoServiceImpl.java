@@ -22,6 +22,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static com.hq.ecmp.constant.CommonConstant.ZERO;
+
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -130,14 +132,14 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
         int count = approveTemplateInfoMapper.insertApproveTemplateInfo(approveTemplateInfo);
         List<FolwInfoDTO> flowList = addFolwDTO.getFlowList();
         if (CollectionUtils.isNotEmpty(flowList)){
-            SortListUtil.sort(flowList, "number", SortListUtil.DESC);
-            String nextNodeId="0";
+            SortListUtil.sort(flowList, "number", SortListUtil.ASC);
+            Long approveNodeId=0l;
             for (int i=0;i<flowList.size();i++){
                 ApproveTemplateNodeInfo nodeInfo=new ApproveTemplateNodeInfo();
                 nodeInfo.setApproverType(flowList.get(i).getType());
                 nodeInfo.setApproveTemplateId(approveTemplateInfo.getApproveTemplateId());
                 nodeInfo.setRoleId(flowList.get(i).getRoleIds());
-                nodeInfo.setNextNodeId(nextNodeId);
+                nodeInfo.setNextNodeId(String.valueOf(ZERO));
                 nodeInfo.setCreateBy(String.valueOf(userId));
                 nodeInfo.setCreateTime(new Date());
                 if (ApproveTypeEnum.APPROVE_T002.getKey().equals(flowList.get(i).getType())){
@@ -147,7 +149,12 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
                     nodeInfo.setUserId(flowList.get(i).getUserIds());
                 }
                 approveTemplateNodeInfoMapper.insertApproveTemplateNodeInfo(nodeInfo);
-                nextNodeId=String.valueOf(nodeInfo.getApproveNodeId());
+                if (i==0){
+                    approveNodeId=nodeInfo.getApproveNodeId();
+                }else if (i>0){
+                    approveTemplateNodeInfoMapper.updateApproveTemplateNodeInfo(new ApproveTemplateNodeInfo(approveNodeId,String.valueOf(nodeInfo.getApproveNodeId())));
+                    approveNodeId=nodeInfo.getApproveNodeId();
+                }
             }
         }
     }

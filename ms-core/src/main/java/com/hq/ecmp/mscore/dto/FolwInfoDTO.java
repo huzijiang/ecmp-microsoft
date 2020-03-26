@@ -25,5 +25,10 @@ public class FolwInfoDTO {
    private String userIds;
    private Long nodeId;
 
-
+   public FolwInfoDTO(int number, String type, String roleIds, String userIds) {
+      this.number = number;
+      this.type = type;
+      this.roleIds = roleIds;
+      this.userIds = userIds;
+   }
 }

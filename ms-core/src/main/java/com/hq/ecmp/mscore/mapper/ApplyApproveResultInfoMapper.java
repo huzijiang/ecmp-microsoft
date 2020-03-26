@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.ApprovaReesultVO;
 import com.hq.ecmp.mscore.vo.ApprovalInfoVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -67,7 +68,7 @@ public interface ApplyApproveResultInfoMapper
 
     MessageDto getApproveMessage(Long userId);
 
-    List<ApplyApproveResultInfo> selectResultList(@Param("userId") Long userId,@Param("state") String state,@Param("roleIds")List<Long> roleIds);
+    List<ApprovaReesultVO> selectResultList(@Param("userId") Long userId, @Param("state") String state);
 
     List<ApprovalInfoVO> getApproveResultList(@Param("applyId") Long applyId,@Param("approveTemplateId")  Long approveTemplateId);
 

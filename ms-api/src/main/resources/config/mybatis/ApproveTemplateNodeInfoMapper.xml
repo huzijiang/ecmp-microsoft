@@ -39,7 +39,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where approve_node_id = #{approveNodeId}
     </select>
 
-    <insert id="insertApproveTemplateNodeInfo" parameterType="com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo">
+    <insert id="insertApproveTemplateNodeInfo" parameterType="com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo" useGeneratedKeys="true" keyProperty="approveNodeId">
         insert into approve_template_node_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="approveNodeId != null ">approve_node_id,</if>

@@ -420,7 +420,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectUserListByUserIds" parameterType="Object" resultMap="EcmpUserResult">
         <include refid="selectEcmpUserVo"/>
-        where user_id in (#{userIds})
+        where find_in_set(user_id,#{userIds})
     </select>
 
     <select id="getListByUserIds" parameterType="List" resultMap="EcmpUserResult">
