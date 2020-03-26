@@ -338,7 +338,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         Long driverId = driverInfo.getDriverId();
         int flag=0;
         if (pageNum==1){//首次刷新
-            String states=OrderState.ALREADYSENDING.getState()+","+OrderState.READYSERVICE.getState();
+            String states=OrderState.ALREADYSENDING.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState();
             int count=orderInfoMapper.getDriverOrderCount(driverId,states);
             if(count>20){
                 flag=1;
