@@ -601,6 +601,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     if (j != 1) {
                         throw new Exception("约车失败");
                     }
+                    //超时短信通知
+                    ((OrderInfoServiceImpl)AopContext.currentProxy()).sendSmsCallTaxiNetFail(orderId);
                     break;
                 }
                 OrderInfo orderInfoPre = orderInfoMapper.selectOrderInfoById(orderId);
@@ -1554,8 +1556,33 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * 网约车约车失败短信发送
      * @param orderId
      */
+    @Async
     public void sendSmsCallTaxiNetFail(Long orderId){
+        try {
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
+            String riderMobile = applyAndRiderMobile.get("riderMobile");
+            String applyMobile = applyAndRiderMobile.get("applyMobile");
+            Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
+            String useCarTime = orderCommonInfo.get("useCarTime");
+            String planBeginAddress = orderCommonInfo.get("planBeginAddress");
+            String planEndAddress = orderCommonInfo.get("planEndAddress");
+            Map<String,String> paramsMapRider = new HashMap<>();
+            paramsMapRider.put("useCarTime",useCarTime);
+            paramsMapRider.put("planBeginAddress",planBeginAddress);
+            paramsMapRider.put("planEndAddress",planEndAddress);
+            if(riderAndApplyMatch(applyAndRiderMobile)){
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_FAIL_RIDER,paramsMapRider ,riderMobile);
+            }else{
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_FAIL_RIDER,paramsMapRider ,riderMobile);
+                Map<String,String> paramsMapApplicant = new HashMap<>();
+                paramsMapApplicant.put("riderMobile",riderMobile);
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_FAIL_APPLICANT,paramsMapApplicant,applyMobile);
+            }
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
