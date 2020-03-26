@@ -193,21 +193,21 @@ public class JourneyController {
         return null;
     }
 
-    /**@author shixin
+    /**@author
      * @Date 10:11 2020/3/9
      * @Description 查询用户当前进行中的行程列
      * @return
      */
-/*    @ApiOperation(value = "getUserJourneys",notes = "查询用户当前进行中的行程信息 ",httpMethod ="POST")
-    @PostMapping("/getUserJourneys")
-    public ApiResponse<List<JourneyVO>> getUserJourneys(){
+    @ApiOperation(value = "getUserJourneysList",notes = "查询用户当前进行中的行程信息 ",httpMethod ="POST")
+    @PostMapping("/getUserJourneysList")
+    public ApiResponse<List<JourneyVO>> getUserJourneysList(){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         List<JourneyVO>  journeylistjxz = journeyInfoService.getJourneyList(userId);
         return ApiResponse.success(journeylistjxz);
-    }*/
-    /** @author shixin
+    }
+    /** @author
      *  @Date 10:11 2020/3/9
      *  @Description 查询用户当前进行中的行程个数
      */

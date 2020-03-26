@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
+import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -66,5 +67,9 @@ public interface InvoiceInfoMapper
      * 根据时间区间、开票状态查询发票信息
      */
     public List<InvoiceInfo> selectInvoiceInfoListByTimeAndState(@Param("startTime") String startTime, @Param("endTime") String endTime,@Param("state") String state);
+    /**
+     * 新增发票抬头
+     */
+    public int insertInvoiceHeader(InvoiceHeaderVO invoiceHeaderVO);
 
 }

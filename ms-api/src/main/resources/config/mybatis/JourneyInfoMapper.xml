@@ -164,7 +164,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <!--正在进行中行程列表-->
-    <select id="getJourneyList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.JourneyVO" >
+    <select id="getJourneyList" parameterType="Long" resultType="com.hq.ecmp.mscore.vo.JourneyVO" >
         SELECT a.use_car_mode,
                  CASE a.use_car_mode
                       WHEN 'W100' THEN '自有车'
@@ -203,7 +203,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     </select>
     <!--正在进行中行程个数-->
-    <select id="getJourneyListCount"  parameterType="Object" resultType="int" >
+    <select id="getJourneyListCount"  parameterType="Long" resultType="java.lang.Integer" >
         SELECT count(*) from (
            SELECT a.use_car_mode, a.actual_setout_time,a.actual_arrive_address,b.service_type,c.apply_type,
             b.it_is_return,d.type

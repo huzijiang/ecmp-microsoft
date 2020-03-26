@@ -246,7 +246,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	 * @return list
 	 */
 	@Override
-	public List<JourneyVO> getJourneyList(String userId){
+	public List<JourneyVO> getJourneyList(Long userId){
 
 		return journeyInfoMapper.getJourneyList(userId);
 	}
@@ -257,7 +257,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	 * @return list
 	 */
 	@Override
-	public int getJourneyListCount(String userId) {
+	public int getJourneyListCount(Long userId) {
 		return journeyInfoMapper.getJourneyListCount(userId);
 	}
 

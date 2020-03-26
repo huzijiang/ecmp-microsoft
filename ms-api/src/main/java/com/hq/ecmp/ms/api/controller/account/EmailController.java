@@ -75,7 +75,7 @@ public class EmailController {
      */
      @ApiOperation(value = "emailInfoDelete",notes = "删除邮箱信息",httpMethod = "POST")
      @PostMapping("/emailInfoDelete")
-     public ApiResponse emailInfoDelete(@RequestParam("Id") Long Id){
+     public ApiResponse emailInfoDelete(Long Id){
          try {
              System.out.println("发票ID"+Id);
              userAcceptOrderAccountEmailInfoService.deleteEmailById(Id);

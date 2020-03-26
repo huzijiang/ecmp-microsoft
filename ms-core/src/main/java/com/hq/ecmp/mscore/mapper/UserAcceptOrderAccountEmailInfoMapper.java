@@ -40,7 +40,7 @@ public interface UserAcceptOrderAccountEmailInfoMapper {
      * @param userId 用户Id
      * @return 对象列表
      */
-    List<EmailVO> queryEmailByUserId(@Param("用户ID") Long userId);
+    List<EmailVO> queryEmailByUserId(Long userId);
 
     /**
      * 新增数据
@@ -64,6 +64,6 @@ public interface UserAcceptOrderAccountEmailInfoMapper {
      * @param Id 主键
      * @return 影响行数
      */
-    int deleteEmailById(Integer Id);
+    int deleteEmailById(Long Id);
 
 }

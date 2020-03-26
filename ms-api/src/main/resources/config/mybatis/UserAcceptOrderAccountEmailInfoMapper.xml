@@ -99,12 +99,7 @@
     <select id="queryEmailByUserId"  resultType="com.hq.ecmp.mscore.vo.EmailVO">
         select
           id as Id, user_id as userId, email as email, state as state
-        from user_accept_order_account_email_info
-        <where>
-        <if test="user_id != null">
-            and user_id = #{userId}
-        </if>
-        </where>
+        from user_accept_order_account_email_info where user_id = #{userId}
     </select>
     <!--用户邮箱新增-->
     <insert id="insertEmail"  parameterType="com.hq.ecmp.mscore.dto.EmailDTO">
