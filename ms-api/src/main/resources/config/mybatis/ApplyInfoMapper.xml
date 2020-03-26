@@ -113,7 +113,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select t1.apply_id applyId,t1.state,t1.apply_type applyType,t2.title,t2.start_date startDate,t2.end_date endDate
         from apply_info t1
         left join journey_info t2 on t1.journey_id = t2.journey_id
-        where t2.user_id = #{userId}
+        where t2.create_by = #{userId}
         order by
         CASE WHEN t1.state='S001' THEN t1.create_time END DESC,t1.update_time DESC
     </select>
