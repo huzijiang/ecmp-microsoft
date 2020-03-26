@@ -3,8 +3,10 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.InvoiceAddress;
+import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
 import com.hq.ecmp.mscore.mapper.InvoiceAddressMapper;
 import com.hq.ecmp.mscore.service.IInvoiceAddressService;
+import com.hq.ecmp.mscore.vo.InvoiceAddVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,39 +37,39 @@ public class InvoiceAddressServiceImpl implements IInvoiceAddressService
     /**
      * 查询【请填写功能名称】列表
      *
-     * @param invoiceAddress 【请填写功能名称】
+     * @param  【请填写功能名称】
      * @return 【请填写功能名称】
      */
     @Override
-    public List<InvoiceAddress> selectInvoiceAddressList(InvoiceAddress invoiceAddress)
+    public List<InvoiceAddVO> selectInvoiceAddressList()
     {
-        return invoiceAddressMapper.selectInvoiceAddressList(invoiceAddress);
+        return invoiceAddressMapper.selectInvoiceAddressList();
     }
 
     /**
      * 新增【请填写功能名称】
      *
-     * @param invoiceAddress 【请填写功能名称】
+     * @param invoiceAddressDTO 【请填写功能名称】
      * @return 结果
      */
     @Override
-    public int insertInvoiceAddress(InvoiceAddress invoiceAddress)
+    public int insertInvoiceAddress(InvoiceAddressDTO invoiceAddressDTO)
     {
-        invoiceAddress.setCreateTime(DateUtils.getNowDate());
-        return invoiceAddressMapper.insertInvoiceAddress(invoiceAddress);
+       // invoiceAddress.setCreateTime(DateUtils.getNowDate());
+        return invoiceAddressMapper.insertInvoiceAddress(invoiceAddressDTO);
     }
 
     /**
      * 修改【请填写功能名称】
      *
-     * @param invoiceAddress 【请填写功能名称】
+     * @param invoiceAddressDTO 【请填写功能名称】
      * @return 结果
      */
     @Override
-    public int updateInvoiceAddress(InvoiceAddress invoiceAddress)
+    public int updateInvoiceAddress(InvoiceAddressDTO invoiceAddressDTO)
     {
-        invoiceAddress.setUpdateTime(DateUtils.getNowDate());
-        return invoiceAddressMapper.updateInvoiceAddress(invoiceAddress);
+       // invoiceAddress.setUpdateTime(DateUtils.getNowDate());
+        return invoiceAddressMapper.updateInvoiceAddress(invoiceAddressDTO);
     }
 
     /**

@@ -77,7 +77,7 @@ public class UserAcceptOrderAccountEmailInfoServiceImpl implements UserAcceptOrd
      * @return 影响行数
      */
     @Override
-   public  int deleteEmailById(Integer Id){
+   public  int deleteEmailById(Long Id){
         return userAcceptOrderAccountEmailInfoMapper.deleteEmailById(Id);
     }
 

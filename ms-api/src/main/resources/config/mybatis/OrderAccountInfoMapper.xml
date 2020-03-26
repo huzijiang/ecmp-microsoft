@@ -94,7 +94,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="getAccountList" resultType="com.hq.ecmp.mscore.vo.OrderAccountVO">
         select createTime accountDate,ROUND(sum(amount),2) amount from (SELECT DATE_FORMAT(create_time, '%Y-%m') createTime,amount from order_settling_info
-        where bill_id in (select bill_id from order_account_info  where state=#{state})) a group by a.createTime
+        where bill_id in (select bill_id from order_account_info  where state='S008')) a group by a.createTime
+    </select>
+
+    <select id="getAccountViewList" resultType="com.hq.ecmp.mscore.vo.OrderAccountViewVO">
+        select createTime accountDate,count(order_id) orderNum,ROUND(sum(amount),2) amount,ROUND(sum(out_price),2) amountOut from
+        (SELECT DATE_FORMAT(create_time, '%Y-%m') createTime,amount,order_id,out_price from order_settling_info
+        where bill_id in (select bill_id from order_account_info)) a group by a.createTime
     </select>
 
 </mapper>

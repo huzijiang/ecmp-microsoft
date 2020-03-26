@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service;
-
+import com.hq.ecmp.mscore.vo.InvoiceAddVO;
 import com.hq.ecmp.mscore.domain.InvoiceAddress;
+import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
+
 
 import java.util.List;
 
@@ -23,26 +25,26 @@ public interface IInvoiceAddressService
     /**
      * 查询【请填写功能名称】列表
      *
-     * @param invoiceAddress 【请填写功能名称】
+     * @param  【请填写功能名称】
      * @return 【请填写功能名称】集合
      */
-    public List<InvoiceAddress> selectInvoiceAddressList(InvoiceAddress invoiceAddress);
+    public List<InvoiceAddVO> selectInvoiceAddressList();
 
     /**
      * 新增【请填写功能名称】
      *
-     * @param invoiceAddress 【请填写功能名称】
+     * @param invoiceAddressDTO 【请填写功能名称】
      * @return 结果
      */
-    public int insertInvoiceAddress(InvoiceAddress invoiceAddress);
+    public int insertInvoiceAddress(InvoiceAddressDTO invoiceAddressDTO);
 
     /**
      * 修改【请填写功能名称】
      *
-     * @param invoiceAddress 【请填写功能名称】
+     * @param invoiceAddressDTO 【请填写功能名称】
      * @return 结果
      */
-    public int updateInvoiceAddress(InvoiceAddress invoiceAddress);
+    public int updateInvoiceAddress(InvoiceAddressDTO invoiceAddressDTO);
 
     /**
      * 批量删除【请填写功能名称】

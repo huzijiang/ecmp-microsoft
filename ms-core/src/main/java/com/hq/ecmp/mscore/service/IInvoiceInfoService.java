@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
+import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -65,5 +66,8 @@ public interface IInvoiceInfoService
      * 根据时间区间、开票状态查询发票信息
      */
     public List<InvoiceInfo> selectInvoiceInfoByTimeAndState(String startTime, String endTime, String state);
-
+    /**
+     * 新增发票抬头
+     */
+    public int insertInvoiceHeader(InvoiceHeaderVO invoiceHeaderVO);
 }

@@ -7,10 +7,7 @@ import com.hq.ecmp.mscore.service.UserAcceptOrderAccountEmailInfoService;
 import com.hq.ecmp.mscore.vo.EmailVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -78,13 +75,14 @@ public class EmailController {
      */
      @ApiOperation(value = "emailInfoDelete",notes = "删除邮箱信息",httpMethod = "POST")
      @PostMapping("/emailInfoDelete")
-     public ApiResponse emailInfoDelete(@RequestBody Integer Id){
+     public ApiResponse emailInfoDelete(@RequestParam("Id") Long Id){
          try {
+             System.out.println("发票ID"+Id);
              userAcceptOrderAccountEmailInfoService.deleteEmailById(Id);
          } catch (Exception e) {
              e.printStackTrace();
              return ApiResponse.error("删除失败");
          }
-         return ApiResponse.success("删除成功");
+         return ApiResponse.success("删除邮箱成功"+Id);
      }
 }

@@ -6,7 +6,9 @@ import com.hq.ecmp.ms.api.dto.base.DictTypeDto;
 import com.hq.ecmp.ms.api.dto.invoice.InvoiceDto;
 import com.hq.ecmp.mscore.domain.EcmpDictType;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
+import com.hq.ecmp.mscore.dto.EmailDTO;
 import com.hq.ecmp.mscore.service.IInvoiceInfoService;
+import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -126,6 +128,22 @@ public class InvoiceInfoController {
         return  ApiResponse.success(nvoiceInfodownLoad);
     }
 
+    /**
+     * 新增发票抬头
+     * @param invoiceHeaderVO
+     * @return
+     */
+    @ApiOperation(value = "invoiceHeaderCommit",notes = "新增邮箱信息",httpMethod = "POST")
+    @PostMapping("/invoiceHeaderCommit")
+    public ApiResponse invoiceHeaderCommit(@RequestBody InvoiceHeaderVO invoiceHeaderVO){
+        try {
+            invoiceInfoService.insertInvoiceHeader(invoiceHeaderVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("新增失败");
+        }
+        return ApiResponse.success("新增成功");
 
+    }
 
  }
