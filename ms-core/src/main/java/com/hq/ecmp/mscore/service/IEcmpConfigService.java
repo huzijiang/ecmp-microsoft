@@ -5,6 +5,7 @@ import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
 import com.hq.ecmp.mscore.dto.config.EnterPriseBaseInfoDTO;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -137,4 +138,16 @@ public interface IEcmpConfigService
      * 获取行程确认/异议 开关状态(0:关,1开)
      */
     int getOrderConfirmStatus(String key);
+
+    /**
+     * 获取启动页开屏图（无token）
+     * @return
+     */
+    //ConfigInfoDTO  getStartupChart();
+
+    /**
+     * 获取首页背景图的接口
+     * @return
+     */
+    //ConfigInfoDTO getHomeChart();
 }
