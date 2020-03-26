@@ -184,6 +184,104 @@ public class SmsBusinessImpl implements IsmsBusiness{
         log.info("短信结束-订单{},取消", orderId);
     }
 
+    /**
+     * 自有车司机到达发送短信
+     * @param orderId
+     */
+    @Async
+    @Override
+    public void sendSmsDriverArrivePrivate(Long orderId) {
+        log.info("短信开始-订单{},自有车司机到达", orderId);
+        try {
+            Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
+            //司机姓名
+            String driverName =  orderCommonInfo.get("driverName");
+            //乘车人
+            String riderMobile = orderCommonInfo.get("riderMobile");
+            //申请人
+            String applyMobile = orderCommonInfo.get("applyMobile");
+            //车牌号
+            String carLicense =  orderCommonInfo.get("carLicense");
+
+            Map<String,String> paramsMap = new HashMap<>();
+            paramsMap.put("driverName", driverName);
+            paramsMap.put("carLicense", carLicense);
+            //乘车人和申请人不是一个人
+            if(!riderAndApplyMatch(orderCommonInfo)){
+                //申请人短信
+                Map<String,String> paramsMapApplicant = new HashMap<>();
+                paramsMapApplicant.put("riderMobile", riderMobile);
+                paramsMapApplicant.put("driverName", riderMobile);
+                paramsMapApplicant.put("carLicense", riderMobile);
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_READY_APPLICANT,paramsMapApplicant,applyMobile);
+                //乘车人短信
+                if(isEnterpriseWorker(riderMobile)){//企业员工
+                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_ARR_RIDER_ENTER,paramsMap,riderMobile );
+                }else{//非企业员
+                    Map<String,String> paramsMapRiderNoE = new HashMap<>();
+                    paramsMapRiderNoE.put("applyMobile", applyMobile);
+                    paramsMapRiderNoE.put("driverName",driverName);
+                    paramsMapRiderNoE.put("carLicense",carLicense);
+                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_ARR_RIDER_NO_ENTER,paramsMapRiderNoE,riderMobile);
+                }
+            }else{//乘车人和申请人是一个人
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_SUCC_RIDER_ENTER,paramsMap,riderMobile );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        log.info("短信结束-订单{},自有车司机到达", orderId);
+    }
+
+    /**
+     * 司机开始服务发送短信
+     * @param orderId
+     */
+    @Override
+    @Async
+    public void sendSmsDriverBeginService(Long orderId) {
+        log.info("短信开始-订单{},司机开始服务", orderId);
+        try {
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
+            //乘车人
+            String riderMobile = applyAndRiderMobile.get("riderMobile");
+            String applyMobile = applyAndRiderMobile.get("applyMobile");
+            if(!riderAndApplyMatch(applyAndRiderMobile)){
+                Map<String,String> paramsMap = new HashMap<>();
+                paramsMap.put("riderMobile", riderMobile);
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.DRIVER_BEGINSERVICE_APPLICANT,paramsMap,applyMobile);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        log.info("短信结束-订单{},司机开始服务", orderId);
+    }
+
+    /**
+     * 司机服务结束发送短信
+     * @param orderId
+     */
+    @Async
+    @Override
+    public void sendSmsDriverServiceComplete(Long orderId) {
+        log.info("短信开始-订单{},司机服务结束", orderId);
+        try {
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
+            //乘车人
+            String riderMobile = applyAndRiderMobile.get("riderMobile");
+            String applyMobile = applyAndRiderMobile.get("applyMobile");
+            if(!riderAndApplyMatch(applyAndRiderMobile)){
+                Map<String,String> paramsMap = new HashMap<>();
+                paramsMap.put("riderMobile", riderMobile);
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.DRIVER_COMPLETESERVICE_APPLICANT,paramsMap,applyMobile);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        log.info("短信结束-订单{},司机服务结束", orderId);
+    }
 
     /**
      * 申请人和乘车人是否是同一人的验证
