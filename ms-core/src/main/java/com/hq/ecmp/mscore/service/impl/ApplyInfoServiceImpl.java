@@ -585,44 +585,32 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Override
     public List<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
         PageHelper.startPage(pageIndex,pageSize);
-        List<EcmpUserRole> list=userRoleMapper.selectEcmpUserRoleList(new EcmpUserRole(userId));
-        List<Long> roleIds = list.stream().map(EcmpUserRole::getRoleId).collect(Collectors.toList());
-        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey(),roleIds);
-        List<ApprovaReesultVO> approvaReesultVOs=new ArrayList<>();
+//        List<EcmpUserRole> list=userRoleMapper.selectEcmpUserRoleList(new EcmpUserRole(userId));
+//        List<Long> roleIds = list.stream().map(EcmpUserRole::getRoleId).collect(Collectors.toList());
+        List<ApprovaReesultVO> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
         if (!CollectionUtils.isEmpty(applyApproveResultInfos)){
-            for (ApplyApproveResultInfo info:applyApproveResultInfos){
-                ApprovaReesultVO vo=new ApprovaReesultVO();
-                BeanUtils.copyProperties(info,vo);
+            for (ApprovaReesultVO info:applyApproveResultInfos){
                 //查询申请信息
-                vo.setState(ApproveStateEnum.format(info.getState()));
-                ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(info.getApplyId());
-                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
-                vo.setApplyName(ecmpUser.getNickName());
-                vo.setApplyTime(applyInfo.getCreateTime());
-                vo.setApplyType(ApplyTypeEnum.format(applyInfo.getApplyType()));
-                JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(applyInfo.getJourneyId());
-                vo.setItIsReturn(journeyInfo.getItIsReturn());
-                vo.setTitle(journeyInfo.getTitle());
-                List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId()));
+                info.setState(ApproveStateEnum.format(info.getState()));
+                List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(info.getJouneyId()));
                 if (!CollectionUtils.isEmpty(journeyNodeInfos)){
                     //判断是差旅还是公务
-                    if (ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(applyInfo.getApplyType())){//差旅
-                        vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,journeyInfo.getStartDate())+"-"+DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,journeyInfo.getEndDate()));
+                    if (ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(info.getApplyType())){//差旅
+                        info.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_FORMAT_CN,info.getStartDate())+"-"+DateFormatUtils.formatDate(DateFormatUtils.DATE_FORMAT_CN,info.getEndDate()));
                         String stroke="";
                         for (JourneyNodeInfo nodeInfo:journeyNodeInfos){
                             stroke+=","+nodeInfo.getPlanBeginAddress()+"-"+nodeInfo.getPlanEndAddress();
                         }
-                        vo.setStroke(stroke.substring(1));
+                        info.setStroke(stroke.substring(1));
                     }else{//公务
-                        vo.setStartAddress(journeyNodeInfos.get(0).getPlanBeginAddress());
-                        vo.setEndAddress(journeyNodeInfos.get(0).getPlanEndAddress());
-                        vo.setUseCarTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,journeyInfo.getUseCarTime()));
+                        info.setStartAddress(journeyNodeInfos.get(0).getPlanBeginAddress());
+                        info.setEndAddress(journeyNodeInfos.get(0).getPlanEndAddress());
                     }
                 }
-                approvaReesultVOs.add(vo);
+                info.setApplyType(ApplyTypeEnum.format(info.getApplyType()));
             }
         }
-        return approvaReesultVOs;
+        return applyApproveResultInfos;
     }
 
     /**
