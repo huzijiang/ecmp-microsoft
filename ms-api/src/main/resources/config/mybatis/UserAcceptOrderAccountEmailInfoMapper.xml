@@ -92,18 +92,17 @@
     </update>
 
     <!--用户邮箱删除-->
-    <delete id="deleteEmailById">
-        delete from ecmp.user_accept_order_account_email_info where id = #{Id}
+    <delete id="deleteEmailById" >
+        delete from ecmp.user_accept_order_account_email_info  where id = #{Id}
     </delete>
     <!--查询用户的邮箱列表-->
-    <select id="queryEmailByUserId" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.EmailVO">
+    <select id="queryEmailByUserId"  resultType="com.hq.ecmp.mscore.vo.EmailVO">
         select
-          id, user_id, email, state
-        from ecmp.user_accept_order_account_email_info
-        where user_id={userId}
+          id as Id, user_id as userId, email as email, state as state
+        from user_accept_order_account_email_info where user_id = #{userId}
     </select>
     <!--用户邮箱新增-->
-    <insert id="insertEmail" parameterType="com.hq.ecmp.mscore.dto.EmailDTO">
+    <insert id="insertEmail"  parameterType="com.hq.ecmp.mscore.dto.EmailDTO">
         insert into ecmp.user_accept_order_account_email_info(user_id, email, state)
         values (#{userId}, #{email}, #{state})
     </insert>
@@ -111,8 +110,12 @@
     <update id="updateEmail" parameterType="com.hq.ecmp.mscore.dto.EmailDTO">
         update ecmp.user_accept_order_account_email_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="email != null  and email != ''">email,</if>
-            <if test="state != null ">#{state},</if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="state != null ">
+                state = #{state},
+            </if>
         </trim>
         where id = #{Id}
     </update>

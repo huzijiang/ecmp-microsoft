@@ -53,5 +53,5 @@ public interface UserAcceptOrderAccountEmailInfoService {
      * @param Id 主键
      * @return 影响行数
      */
-    int deleteEmailById(Integer Id);
+    int deleteEmailById(Long Id);
 }

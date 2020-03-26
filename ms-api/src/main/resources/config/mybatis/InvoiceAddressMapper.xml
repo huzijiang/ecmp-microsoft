@@ -20,58 +20,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select address_id, accepter, mobile, address, it_is_default, create_by, create_time, update_by, update_time from invoice_address
     </sql>
 
-    <select id="selectInvoiceAddressList" parameterType="com.hq.ecmp.mscore.domain.InvoiceAddress" resultMap="InvoiceAddressResult">
-        <include refid="selectInvoiceAddressVo"/>
-        <where>
-            <if test="accepter != null  and accepter != ''"> and accepter = #{accepter}</if>
-            <if test="mobile != null  and mobile != ''"> and mobile = #{mobile}</if>
-            <if test="address != null  and address != ''"> and address = #{address}</if>
-            <if test="itIsDefault != null  and itIsDefault != ''"> and it_is_default = #{itIsDefault}</if>
-        </where>
-    </select>
+
 
     <select id="selectInvoiceAddressById" parameterType="Long" resultMap="InvoiceAddressResult">
         <include refid="selectInvoiceAddressVo"/>
         where address_id = #{addressId}
     </select>
 
-    <insert id="insertInvoiceAddress" parameterType="com.hq.ecmp.mscore.domain.InvoiceAddress">
+    <insert id="insertInvoiceAddress" parameterType="com.hq.ecmp.mscore.dto.InvoiceAddressDTO">
         insert into invoice_address
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="addressId != null ">address_id,</if>
             <if test="accepter != null  and accepter != ''">accepter,</if>
             <if test="mobile != null  and mobile != ''">mobile,</if>
             <if test="address != null  and address != ''">address,</if>
-            <if test="itIsDefault != null  and itIsDefault != ''">it_is_default,</if>
-            <if test="createBy != null ">create_by,</if>
-            <if test="createTime != null ">create_time,</if>
-            <if test="updateBy != null ">update_by,</if>
-            <if test="updateTime != null ">update_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="addressId != null ">#{addressId},</if>
             <if test="accepter != null  and accepter != ''">#{accepter},</if>
             <if test="mobile != null  and mobile != ''">#{mobile},</if>
             <if test="address != null  and address != ''">#{address},</if>
-            <if test="itIsDefault != null  and itIsDefault != ''">#{itIsDefault},</if>
-            <if test="createBy != null ">#{createBy},</if>
-            <if test="createTime != null ">#{createTime},</if>
-            <if test="updateBy != null ">#{updateBy},</if>
-            <if test="updateTime != null ">#{updateTime},</if>
          </trim>
     </insert>
 
-    <update id="updateInvoiceAddress" parameterType="com.hq.ecmp.mscore.domain.InvoiceAddress">
+    <update id="updateInvoiceAddress" parameterType="com.hq.ecmp.mscore.dto.InvoiceAddressDTO">
         update invoice_address
         <trim prefix="SET" suffixOverrides=",">
             <if test="accepter != null  and accepter != ''">accepter = #{accepter},</if>
             <if test="mobile != null  and mobile != ''">mobile = #{mobile},</if>
             <if test="address != null  and address != ''">address = #{address},</if>
-            <if test="itIsDefault != null  and itIsDefault != ''">it_is_default = #{itIsDefault},</if>
-            <if test="createBy != null ">create_by = #{createBy},</if>
-            <if test="createTime != null ">create_time = #{createTime},</if>
-            <if test="updateBy != null ">update_by = #{updateBy},</if>
-            <if test="updateTime != null ">update_time = #{updateTime},</if>
         </trim>
         where address_id = #{addressId}
     </update>
@@ -86,5 +61,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{addressId}
         </foreach>
     </delete>
+    <!--查询收货地址列表-->
+    <select id="selectInvoiceAddressList"  resultType="com.hq.ecmp.mscore.vo.InvoiceAddVO">
+        select
+          address_id  as addressId, accepter, mobile, address
+        from invoice_address
+    </select>
+
 
 </mapper>

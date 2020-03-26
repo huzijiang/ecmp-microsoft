@@ -147,4 +147,16 @@ public class ApplyOfficialRequest {
     @ApiModelProperty(name = "regimeId", value = "用车制度id", required = true, position = 21)
     private Integer regimenId;  // TODO 新增
 
+    /**
+     * 航班计划起飞时间
+     */
+    @ApiModelProperty(name = "flightPlanTakeOffTime", value = "航班计划起飞时间", required = false, position = 21)
+    private Date flightPlanTakeOffTime;  // TODO 新增
+
+    /**
+     * 航班计划到达时间
+     */
+    @ApiModelProperty(name = "flightPlanArriveTime", value = "航班计划到达时间", required = false, position = 22)
+    private Date flightPlanArriveTime;  // TODO 新增
+
 }

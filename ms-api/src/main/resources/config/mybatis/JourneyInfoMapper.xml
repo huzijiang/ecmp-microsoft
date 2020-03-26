@@ -74,6 +74,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="estimatePrice != null  and estimatePrice != ''">estimate_price,</if>
             <if test="projectId != null ">project_id,</if>
             <if test="flightNumber != null  and flightNumber != ''">flight_number,</if>
+            <if test="flightPlanTakeOffTime != null ">flight_plan_take_off_time,</if>
             <if test="useTime != null  and useTime != ''">use_time,</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">wait_time_long,</if>
             <if test="charterCarType != null  and charterCarType != ''">charter_car_type,</if>
@@ -99,6 +100,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="estimatePrice != null  and estimatePrice != ''">#{estimatePrice},</if>
             <if test="projectId != null ">#{projectId},</if>
             <if test="flightNumber != null  and flightNumber != ''">#{flightNumber},</if>
+            <if test="flightPlanTakeOffTime != null ">#{flightPlanTakeOffTime},</if>
             <if test="useTime != null  and useTime != ''">#{useTime},</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">#{waitTimeLong},</if>
             <if test="charterCarType != null  and charterCarType != ''">#{charterCarType},</if>
@@ -164,7 +166,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <!--正在进行中行程列表-->
-    <select id="getJourneyList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.JourneyVO" >
+    <select id="getJourneyList" parameterType="Long" resultType="com.hq.ecmp.mscore.vo.JourneyVO" >
         SELECT a.use_car_mode,
                  CASE a.use_car_mode
                       WHEN 'W100' THEN '自有车'
@@ -203,7 +205,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     </select>
     <!--正在进行中行程个数-->
-    <select id="getJourneyListCount"  parameterType="Object" resultType="int" >
+    <select id="getJourneyListCount"  parameterType="Long" resultType="java.lang.Integer" >
         SELECT count(*) from (
            SELECT a.use_car_mode, a.actual_setout_time,a.actual_arrive_address,b.service_type,c.apply_type,
             b.it_is_return,d.type

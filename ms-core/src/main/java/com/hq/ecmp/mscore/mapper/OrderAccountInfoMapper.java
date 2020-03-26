@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.OrderAccountInfo;
 import com.hq.ecmp.mscore.vo.OrderAccountVO;
+import com.hq.ecmp.mscore.vo.OrderAccountViewVO;
 
 import java.util.List;
 
@@ -61,5 +62,6 @@ public interface OrderAccountInfoMapper
      */
     public int deleteOrderAccountInfoByIds(Long[] accountIds);
 
-    List<OrderAccountVO> getAccountList(String state);
+    List<OrderAccountVO> getAccountList();
+    List<OrderAccountViewVO> getAccountViewList();
 }

@@ -137,4 +137,27 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and create_time <![CDATA[<=]]> #{endTime}
         </if>
     </select>
+    <insert id="insertInvoiceHeader" parameterType="com.hq.ecmp.mscore.vo.InvoiceHeaderVO" useGeneratedKeys="true" keyProperty="invoiceId">
+        insert into invoice_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="header != null  and header != ''">header,</if>
+            <if test="tin != null  and tin != ''">tin,</if>
+            <if test="bankName != null  and bankName != ''">bank_name,</if>
+            <if test="bankCardNo != null  and bankCardNo != ''">bank_card_no,</if>
+            <if test="registedAddress != null  and registedAddress != ''">registed_address,</if>
+            <if test="telephone != null  and telephone != ''">telephone,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="header != null  and header != ''">#{header},</if>
+            <if test="tin != null  and tin != ''">#{tin},</if>
+            <if test="bankName != null  and bankName != ''">#{bankName},</if>
+            <if test="bankCardNo != null  and bankCardNo != ''">#{bankCardNo},</if>
+            <if test="registedAddress != null  and registedAddress != ''">#{registedAddress},</if>
+            <if test="telephone != null  and telephone != ''">#{telephone},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+        </trim>
+    </insert>
 </mapper>

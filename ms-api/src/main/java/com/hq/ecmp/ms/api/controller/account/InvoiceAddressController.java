@@ -2,8 +2,10 @@ package com.hq.ecmp.ms.api.controller.account;
 
 
 import com.hq.common.core.api.ApiResponse;
-import com.hq.ecmp.mscore.domain.InvoiceAddress;
+
+import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
 import com.hq.ecmp.mscore.service.IInvoiceAddressService;
+import com.hq.ecmp.mscore.vo.InvoiceAddVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,32 +22,32 @@ import java.util.List;
  *
  */
  @RestController
- @RequestMapping("/invoiceAddress")
+ @RequestMapping("/invoiceAdd")
 public class InvoiceAddressController {
 
     @Autowired
     private IInvoiceAddressService invoiceAddressService;
     /**
      * 发票地址查询-查询所有的发票地址
-     * @param invoiceAddress
+     * @param
      * @return list
      */
     @ApiOperation(value = "getInvoiceAddressList",notes = "查询所有的发票地址信息",httpMethod = "POST")
     @PostMapping("/getInvoiceAddressList")
-    public ApiResponse<List<InvoiceAddress>> getInvoiceAddressList(InvoiceAddress invoiceAddress){
-        List<InvoiceAddress> invoiceAddressList = invoiceAddressService.selectInvoiceAddressList(invoiceAddress);
-        return ApiResponse.success();
+    public ApiResponse<List<InvoiceAddVO>> getInvoiceAddressList(){
+        List<InvoiceAddVO> invoiceAddressList = invoiceAddressService.selectInvoiceAddressList();
+        return ApiResponse.success(invoiceAddressList);
     }
     /**
      * 发票地址新增
-     * @param invoiceAddress
+     * @param invoiceAddressDTO
      * @return
      */
     @ApiOperation(value = "invoiceAddCommit",notes = "新增发票地址信息",httpMethod = "POST")
     @PostMapping("/invoiceAddCommit")
-     public ApiResponse invoiceAddCommit(@RequestBody InvoiceAddress invoiceAddress){
+     public ApiResponse invoiceAddCommit(@RequestBody InvoiceAddressDTO invoiceAddressDTO){
          try {
-             invoiceAddressService.insertInvoiceAddress(invoiceAddress);
+             invoiceAddressService.insertInvoiceAddress(invoiceAddressDTO);
          } catch (Exception e) {
              e.printStackTrace();
              return ApiResponse.error("新增失败");
@@ -55,15 +57,15 @@ public class InvoiceAddressController {
      }
     /**
      * 发票地址修改
-     * @param invoiceAddress
+     * @param invoiceAddressDTO
      * @return
      */
      @ApiOperation(value = "invoiceAddUpdate",notes = "修改发票地址信息",httpMethod = "POST")
      @PostMapping("/invoiceAddUpdate")
-     public ApiResponse invoiceAddUpdate(@RequestBody InvoiceAddress invoiceAddress){
+     public ApiResponse invoiceAddUpdate(@RequestBody InvoiceAddressDTO invoiceAddressDTO){
 
          try {
-             invoiceAddressService.updateInvoiceAddress(invoiceAddress);
+             invoiceAddressService.updateInvoiceAddress(invoiceAddressDTO);
          } catch (Exception e) {
              e.printStackTrace();
              return ApiResponse.error("修改失败");
@@ -72,14 +74,14 @@ public class InvoiceAddressController {
      }
     /**
      * 发票地址删除
-     * @param invoiceAddress
+     * @param addressId
      * @return
      */
      @ApiOperation(value = "invoiceAddDelete",notes = "删除发票地址信息",httpMethod = "POST")
      @PostMapping("/invoiceAddDelete")
-     public ApiResponse invoiceAddDelete(@RequestBody InvoiceAddress invoiceAddress){
+     public ApiResponse invoiceAddDelete(Long addressId){
          try {
-             invoiceAddressService.deleteInvoiceAddressById(invoiceAddress.getAddressId());
+             invoiceAddressService.deleteInvoiceAddressById(addressId);
          } catch (Exception e) {
              e.printStackTrace();
              return ApiResponse.error("删除失败");

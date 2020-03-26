@@ -10,7 +10,7 @@ public class EmailVO {
     /**
      * 邮箱ID
      */
-    private Integer Id;
+    private Long Id;
     /**
      *用户ID
      */

@@ -5,6 +5,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
 import com.hq.ecmp.mscore.mapper.InvoiceInfoMapper;
 import com.hq.ecmp.mscore.service.IInvoiceInfoService;
+import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -101,6 +102,12 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
      */
     public List<InvoiceInfo> selectInvoiceInfoByTimeAndState(String startTime, String endTime, String state){
         return invoiceInfoMapper.selectInvoiceInfoListByTimeAndState(startTime,endTime,state);
-}
+    }
+    /**
+     * 新增发票抬头
+     */
+    public int insertInvoiceHeader(InvoiceHeaderVO invoiceHeaderVO){
+        return invoiceInfoMapper.insertInvoiceHeader(invoiceHeaderVO);
+    }
 
 }
