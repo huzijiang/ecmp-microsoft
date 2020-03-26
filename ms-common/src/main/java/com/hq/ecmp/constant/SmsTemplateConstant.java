@@ -37,4 +37,5 @@ public class SmsTemplateConstant {
     //约车成功以后给司机发短信模板码
     public static final String NETCAR_SUCC_DRIVER = "netcar_succ_driver";
 
+
 }
