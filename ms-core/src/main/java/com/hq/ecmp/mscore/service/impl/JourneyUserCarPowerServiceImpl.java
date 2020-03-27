@@ -178,14 +178,36 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId,String cityCode) {
 		List<UserCarAuthority> list = journeyUserCarPowerMapper.queryNoteAllUserAuthority(nodeId);
 		 RegimeInfo regimeInfo = regimeInfoService.queryUseCarModelByNoteId(nodeId);
-		//判断是否走调度
+		//判断是否走调度   true-不走调度  走网约    false-走调度 
 		 boolean flag = regimeInfoService.judgeNotDispatch(regimeInfo.getRegimenId(), cityCode);//true-不走调度  fasle-走调度
 		// 查询对应的用车方式
 		if (null != list && list.size() > 0) {
 			RegimeInfo selectRegimeInfo = regimeInfoService.selectRegimeInfoById(regimeInfo.getRegimenId());
 			for (UserCarAuthority userCarAuthority : list) {
 				userCarAuthority.setRegimenId(regimeInfo.getRegimenId());
-				userCarAuthority.setCarType(regimeInfo.getCanUseCarMode());
+				// 返给前端是跳转到自有车页面还是网约车页面 carType   先从订单表里取  如果没有则取是否走调度的
+				String carType;
+				Long orderId = userCarAuthority.getOrderId();
+				if (null != orderId) {
+					OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+					String useCarMode = orderInfo.getUseCarMode();
+					if (StringUtil.isNotEmpty(useCarMode)) {
+						carType = useCarMode;
+					} else {
+						if (flag) {
+							carType = CarConstant.USR_CARD_MODE_NET;
+						} else {
+							carType = CarConstant.USR_CARD_MODE_HAVE;
+						}
+					}
+				} else {
+					if (flag) {
+						carType = CarConstant.USR_CARD_MODE_NET;
+					} else {
+						carType = CarConstant.USR_CARD_MODE_HAVE;
+					}
+				}
+				userCarAuthority.setCarType(carType);
 				// 获取接机or送机剩余次数
 				userCarAuthority.handCount();
 				String type = userCarAuthority.getType();
@@ -358,8 +380,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			return OrderState.SENDINGCARS.getState();
 		}
 		
-		if(OrderState.ALREADYSENDING.getState().equals(vaildOrdetrState) || OrderState.READYSERVICE.getState().equals(vaildOrdetrState)){
-			//订单状态为已派车或者准备服务   则对应前端状态为待服务
+		if(OrderState.ALREADYSENDING.getState().equals(vaildOrdetrState) || OrderState.READYSERVICE.getState().equals(vaildOrdetrState) || OrderState.REASSIGNMENT.getState().equals(vaildOrdetrState)){
+			//订单状态为已派车或者准备服务或者前往出发地   则对应前端状态为待服务
 			return OrderState.ALREADYSENDING.getState();
 		}
 		
