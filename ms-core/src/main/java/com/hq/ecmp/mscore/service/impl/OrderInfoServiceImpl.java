@@ -81,8 +81,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private ICarGroupDispatcherInfoService carGroupDispatcherInfoService;
     @Resource
     private EcmpUserMapper ecmpUserMapper;
-    @Resource
-    private JourneyPassengerInfoMapper passengerInfoMapper;
     @Autowired
     private IJourneyPassengerInfoService journeyPassengerInfoService;
     @Resource
@@ -96,8 +94,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Resource
     private IJourneyUserCarPowerService iJourneyUserCarPowerService;
     @Resource
-    IRegimeInfoService iRegimeInfoService;
-    @Resource
     ThirdService thirdService;
     @Resource
     private IEcmpConfigService ecmpConfigService;
@@ -105,12 +101,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private DriverServiceAppraiseeInfoMapper driverServiceAppraiseeInfoMapper;
     @Resource
     private EcmpMessageService ecmpMessageService;
-    @Resource
-    private ISmsTemplateInfoService iSmsTemplateInfoService;
-    @Resource
-    private IJourneyPassengerInfoService iJourneyPassengerInfoService;
     @Autowired
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
+    @Resource
+    private IsmsBusiness ismsBusiness;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -603,6 +597,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     if (j != 1) {
                         throw new Exception("约车失败");
                     }
+                    //超时短信通知
+                    ismsBusiness.sendSmsCallTaxiNetFail(orderId);
                     break;
                 }
                 OrderInfo orderInfoPre = orderInfoMapper.selectOrderInfoById(orderId);
@@ -677,7 +673,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                         throw new Exception("约车失败");
                     }
                     //发送短信
-                    ((OrderInfoServiceImpl)AopContext.currentProxy()).sendSmsCallTaxiNet(orderId);
+                    ismsBusiness.sendSmsCallTaxiNet(orderId);
                     break;
                 }
             }
@@ -739,7 +735,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			@Override
 			public void run() {
 				try {
-					sendSmsCallTaxiNet(orderId);
+                    ismsBusiness.sendSmsCallTaxiNet(orderId);
 				} catch (Exception e) {
 					log.error("订单号{}调度自有车,发送短信失败!",orderId);
 					e.printStackTrace();
@@ -881,13 +877,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //插入订单轨迹表
         this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null);
         this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
+        //用车权限次数变化
+        journeyUserCarCountOp(powerId,1);
         //走网约车约车接口
         if(officialOrderReVo.getIsDispatch() == 2){
             this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
             ((IOrderInfoService)AopContext.currentProxy()).platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),officialOrderReVo.getCarLevel());
         }
-        //用车权限次数变化
-        journeyUserCarCountOp(powerId,1);
         return orderInfo.getOrderId();
     }
 
@@ -1168,13 +1164,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderAddressInfo.setAddress(applyUseWithTravelDto.getEndAddr());
         orderAddressInfo.setAddressLong(applyUseWithTravelDto.getEndAddrLong());
         iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+        //用车权限次数变化
+        journeyUserCarCountOp(applyUseWithTravelDto.getTicketId(),1);
         //走网约车约车接口
         if(applyUseWithTravelDto.getIsDispatch() == 2){
             this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
             ((IOrderInfoService)AopContext.currentProxy()).platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),applyUseWithTravelDto.getGroupId());
         }
-        //用车权限次数变化
-        journeyUserCarCountOp(applyUseWithTravelDto.getTicketId(),1);
         return orderInfo.getOrderId();
     }
 
@@ -1452,7 +1448,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             ecmpMessage.setUpdateTime(null);
             ecmpMessageService.insert(ecmpMessage);
             //取消订单短信发送
-            ((OrderInfoServiceImpl)AopContext.currentProxy()).sendSmsCancelOrder(orderId);
+            ismsBusiness.sendSmsCancelOrder(orderId);
         }
         //插入订单轨迹表
         this.insertOrderStateTrace(String.valueOf(orderId), OrderStateTrace.CANCEL.getState(), String.valueOf(userId),cancelReason);
@@ -1460,40 +1456,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         journeyUserCarCountOp(orderInfoOld.getPowerId(),2);
     }
 
-    /**
-     * 取消订单发送短信
-     * @param orderId
-     * @throws Exception
-     */
-    @Async
-    public void sendSmsCancelOrder(Long orderId)  {
-        try {
-            Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
-            String planBeginAddress = orderCommonInfo.get("planBeginAddress");
-            String planEndAddress = orderCommonInfo.get("planEndAddress");
-            String useCarTime = orderCommonInfo.get("useCarTime");
-            //给司机发送短信
-            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
-            String driverMobile = orderInfo.getDriverMobile();
-            if(driverMobile != null){
-                Map<String,String> paramsMap = new HashMap<>();
-                paramsMap.put("planBeginAddress",planBeginAddress);
-                paramsMap.put("planEndAddress",planEndAddress);
-                paramsMap.put("useCarTime",useCarTime);
-                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_DRIVER,paramsMap,driverMobile);
-            }
-            //给申请人发送短信
-            Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
-            if(!riderAndApplyMatch(applyAndRiderMobile)){
-                String applyMobile = applyAndRiderMobile.get("applyMobile");
-                Map<String,String> paramsMapApplicant = new HashMap<>();
-                paramsMapApplicant.put("useCarTime",useCarTime);
-                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_APPLICANT,paramsMapApplicant,applyMobile);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
 
     /**
      * 订单取消或者下单成功，用车权限的次数需要做变动
@@ -1502,213 +1465,5 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     private void journeyUserCarCountOp(Long powerId,Integer opType){
         iJourneyUserCarPowerService.updatePowerSurplus(powerId,opType);
-    }
-
-    /**
-     * 网约车，约车成功短信通知
-     */
-    @Async
-    public void sendSmsCallTaxiNet(Long orderId)  {
-        try {
-            Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
-            //司机姓名
-            String driverName =  orderCommonInfo.get("driverName");
-            //乘车人
-            String riderMobile = orderCommonInfo.get("riderMobile");
-            //乘车人姓名
-            String riderName = orderCommonInfo.get("riderName");
-            //申请人
-            String applyMobile = orderCommonInfo.get("applyMobile");
-            //用车时间
-            String useCarTime =  orderCommonInfo.get("useCarTime");
-            //车型
-            String carType =  orderCommonInfo.get("carType");
-            //车牌号
-            String carLicense =  orderCommonInfo.get("carLicense");
-            //上车地址
-            String planBeginAddress =  orderCommonInfo.get("planBeginAddress");
-            //下车地址
-            String planEndAddress =  orderCommonInfo.get("planEndAddress");
-            //订单号
-            String orderNum = orderCommonInfo.get("orderNum");
-
-            //乘车人和申请人不是一个人
-            if(!riderAndApplyMatch(orderCommonInfo)){
-                //申请人短信
-                Map<String,String> paramsMapApplicant = new HashMap<>();
-                paramsMapApplicant.put("riderMobile", riderMobile);
-                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_SUCC_APPLICANT,paramsMapApplicant,applyMobile);
-                //乘车人短信
-                if(isEnterpriseWorker(riderMobile)){//企业员工
-                    Map<String,String> paramsMapRider = new HashMap<>();
-                    paramsMapRider.put("useCarTime", useCarTime);
-                    paramsMapRider.put("driverName", driverName);
-                    paramsMapRider.put("carType", carType);
-                    paramsMapRider.put("carLicense", carLicense);
-                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_SUCC_RIDER_ENTER,paramsMapRider,riderMobile );
-                }else{//非企业员
-                    Map<String,String> paramsMapRiderNoE = new HashMap<>();
-                    paramsMapRiderNoE.put("applyMobile", applyMobile);
-                    paramsMapRiderNoE.put("useCarTime",useCarTime);
-                    paramsMapRiderNoE.put("planBeginAddress", planBeginAddress);
-                    paramsMapRiderNoE.put("planEndAddress",planEndAddress);
-                    paramsMapRiderNoE.put("driverName",driverName);
-                    paramsMapRiderNoE.put("carType",carType);
-                    paramsMapRiderNoE.put("carLicense",carLicense);
-                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_SUCC_RIDER_NO_ENTER,paramsMapRiderNoE,riderMobile);
-                }
-            }else{//乘车人和申请人是一个人
-                Map<String,String> paramsMap = new HashMap<>();
-                paramsMap.put("useCarTime", useCarTime);
-                paramsMap.put("driverName", driverName);
-                paramsMap.put("carType", carType);
-                paramsMap.put("carLicense", carLicense);
-                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_SUCC_RIDER_ENTER,paramsMap,riderMobile );
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 网约车约车失败短信发送
-     * @param orderId
-     */
-    public void sendSmsCallTaxiNetFail(Long orderId){
-
-    }
-
-    /**
-     * 申请人和乘车人是否是同一人的验证
-     * @param mapMobiles
-     * @return
-     */
-    public boolean riderAndApplyMatch(Map<String,String> mapMobiles) throws Exception {
-        if(mapMobiles == null || "".equals(mapMobiles.get("riderMobile"))||"".equals(mapMobiles.get("applyMobile")))
-            throw new Exception("乘车人或申请人信息异常");
-        return  mapMobiles.get("riderMobile").equals(mapMobiles.get("applyMobile"));
-
-    }
-
-    /**
-     * 获取申请人和乘车人电话
-     * @return
-     */
-    public Map<String,String> getApplyAndRiderMobile(OrderInfo orderInfo){
-        Map<String,String> mapMobiles = new HashMap<>();
-        String riderMobile = "";
-        String applyMobile = "";
-        String riderName = "";
-        Long journeyId = orderInfo.getJourneyId();
-        JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyId);
-        Long applyUserId = journeyInfo.getUserId();
-        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(applyUserId);
-        applyMobile = ecmpUser.getPhonenumber();
-        JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
-        journeyPassengerInfo.setItIsPeer("1");
-        List<JourneyPassengerInfo> journeyPassengerInfos = iJourneyPassengerInfoService.selectJourneyPassengerInfoList(journeyPassengerInfo);
-        if(journeyPassengerInfos.size()>0){
-            riderMobile = journeyPassengerInfos.get(0).getMobile();
-            riderName = journeyPassengerInfos.get(0).getName();
-        }
-        if(!"".equals(riderMobile) && !"".equals(applyMobile)){
-            mapMobiles.put("riderMobile", riderMobile);
-            mapMobiles.put("applyMobile", applyMobile);
-            mapMobiles.put("riderName", riderName);
-            return mapMobiles;
-        }
-
-       return null;
-    }
-
-    /**
-     * 通过手机号判断是否是企业员
-     * @return
-     */
-    public boolean isEnterpriseWorker(String riderMobile){
-        EcmpUser ecmpUser = new EcmpUser();
-        ecmpUser.setPhonenumber(riderMobile);
-        List<EcmpUser> ecmpUsers = ecmpUserMapper.selectEcmpUserList(ecmpUser);
-        if(ecmpUser != null && ecmpUsers.size()>0){
-            return true;
-        }
-        return false;
-    }
-    /**
-     * 获取订单公共信息
-     */
-    public Map<String,String> getOrderCommonInfo(Long orderId){
-        Map<String,String> result = new HashMap<>();
-        //用车时间
-        String useCarTime = null;
-        //出发地
-        String planBeginAddress = null;
-        //目的地
-        String planEndAddress = null;
-        //司机姓名
-        String driverName = null;
-        //司机手机号
-        String driverMobile = null;
-        //乘车人手机号
-        String riderMobile = null;
-        //乘车人姓名
-        String riderName = null;
-        //申请人手机号
-        String applyMobile = null;
-        //车型
-        String carType = null;
-        //车牌号
-        String carLicense = null;
-        //订单号
-        String orderNum = null;
-
-        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
-        driverName = orderInfo.getDriverName();
-        driverMobile = orderInfo.getDriverMobile();
-        carLicense = orderInfo.getCarLicense();
-        orderNum = orderInfo.getOrderNumber();
-        if(orderInfo.getUseCarMode().equals(CarConstant.USR_CARD_MODE_HAVE)){
-            Long carId = orderInfo.getCarId();
-            if(carId != null){
-                CarInfo carInfo = carInfoService.selectCarInfoById(carId);
-                carType = carInfo.getCarType();
-                carLicense=carInfo.getCarLicense();
-            }
-        }else{
-            carType = orderInfo.getCarModel();
-        }
-        Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
-        riderMobile = applyAndRiderMobile.get("riderMobile");
-        applyMobile = applyAndRiderMobile.get("applyMobile");
-        riderName = applyAndRiderMobile.get("riderName");
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
-        OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
-        orderAddressInfo.setOrderId(orderId);
-        List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfo);
-        if(orderAddressInfos != null && orderAddressInfos.size()>0 ){
-            for (OrderAddressInfo orderAddressInfo1:
-                    orderAddressInfos) {
-                if(orderAddressInfo1.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT)){
-                    planBeginAddress = orderAddressInfo1.getAddress();
-                    useCarTime = simpleDateFormat.format(orderAddressInfo1.getActionTime());
-                }else if(orderAddressInfo1.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE)){
-                    planEndAddress = orderAddressInfo1.getAddress();
-                }else{
-
-                }
-            }
-        }
-        result.put("useCarTime", useCarTime);
-        result.put("planBeginAddress", planBeginAddress);
-        result.put("planEndAddress",planEndAddress);
-        result.put("driverName",driverName );
-        result.put("driverMobile",driverMobile);
-        result.put("riderMobile",riderMobile);
-        result.put("riderName",riderName);
-        result.put("applyMobile",applyMobile);
-        result.put("carType",carType);
-        result.put("carLicense",carLicense);
-        result.put("orderNum",orderNum);
-        return result;
     }
 }

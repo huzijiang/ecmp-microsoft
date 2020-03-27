@@ -38,8 +38,10 @@ public class FlowContoller {
 
     @ApiOperation(value = "getApprovalList", notes = "根据用车制度Id,查询审批人列表", httpMethod = "GET")
     @RequestMapping("/getApprovalList")
-    public ApiResponse<List<ApprovalUserVO>> getApprovalList(@RequestParam(value = "regimenId",required = true) Long regimenId) {
-        List<ApprovalUserVO> list= nodeInfoService.getApprovalList(regimenId);
+    public ApiResponse<List<ApprovalUserVO>> getApprovalList(@RequestParam(value = "regimenId",required = true) Long regimenId,@RequestParam(value = "projectId",required = true) Long projectId) {
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        List<ApprovalUserVO> list= nodeInfoService.getApprovalList(regimenId,projectId,loginUser.getUser().getUserId());
         return ApiResponse.success(list);
     }
 
