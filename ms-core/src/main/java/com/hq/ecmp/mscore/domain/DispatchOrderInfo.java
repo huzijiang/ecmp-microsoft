@@ -31,6 +31,8 @@ public class DispatchOrderInfo {
        	
        	Date endDate;//预计结束时间
        	
+       	String itIsReturn;//是否往返   Y000-是        N444 -否
+       	
        	Long waitMinute;//等待时间  分钟
        	
        	String useCarMode;//自有车- W100   网约车  -W200    多个以"、"分隔

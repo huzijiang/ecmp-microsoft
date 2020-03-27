@@ -492,4 +492,10 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         }
         return msgList;
     }
+
+	@Override
+	public void saveDispatchCarComplete(Long orderId) {
+		OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+		
+	}
 }
