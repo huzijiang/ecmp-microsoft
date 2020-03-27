@@ -161,7 +161,6 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      *  @param  ecmpOrg
      * @return int
      * */
-    @Override
     public List<EcmpUserDto> selectUserByDeptId(EcmpOrgVo ecmpOrg){
         List<EcmpUserDto> ecmpUserList = ecmpUserMapper.selectUserByDeptId(ecmpOrg.getDeptId());
         if(ecmpUserList.size()>0){
