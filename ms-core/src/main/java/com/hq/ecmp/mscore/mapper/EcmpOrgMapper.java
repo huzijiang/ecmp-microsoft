@@ -167,11 +167,32 @@ public interface EcmpOrgMapper {
     * */
     public int selectByAncestorsLikeDeptId(Long deptId);
 
+    /*
+    *根据parentId查询组织下级分/子公司的组织id
+    * @param parentId 部门ID
+    * @return 结果
+    * */
+    public List<Long> selectCompanyByParentId(@Param("parentId")Long parentId,@Param("deptType")String deptType);
+
+    /*
+    *根据组织Id和组织类别查询公司列表
+    * @param parentId 部门ID deptType组织类型
+    * @return 结果
+    * */
+    public EcmpOrgDto selectCompanyList(@Param("deptId")Long deptId,@Param("deptType")String deptType);
+
     /**
      * 查询下级组织数量
      * @param
      * @return
      */
     int selectCountByParentId(Integer parentId);
+
+    /**
+     * 按照分子公司名称或编号模糊
+     * @param deptName  deptCode
+     * @return 结果
+     */
+    public List<EcmpOrgDto> selectCompanyByDeptNameOrCode(String deptName,String deptCode);
 
 }

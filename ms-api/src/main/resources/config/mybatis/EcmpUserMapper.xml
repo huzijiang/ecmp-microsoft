@@ -276,7 +276,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select
         nick_name as nickName,phonenumber,user_id as userId,
         (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='1') as subCompany,
-        (select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept,
+        if(isnull((select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept),'',subDept) as subDept,
         `status`
         from  ecmp_user
         where

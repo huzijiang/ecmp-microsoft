@@ -70,6 +70,9 @@ public class EcmpOrgDto {
     @ApiModelProperty(value = "新增临时字段  分/子公司人数")
     private String numOfSub;
 
+    @ApiModelProperty(value = "新增临时字段  下级公司数")
+    private String numOfSonCom;
+
 
     @ApiModelProperty(value = "新增临时字段  上级公司")
     private String supComName;

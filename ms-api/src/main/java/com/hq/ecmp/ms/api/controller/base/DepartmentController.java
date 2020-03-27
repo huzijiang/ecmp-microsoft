@@ -26,13 +26,13 @@ public class DepartmentController {
     private IEcmpUserService ecmpUserService;
 
     /**
-     * 查询部门列表
+     * 查询部门组织结构
      * @param  deptId
      * @return*/
-    @ApiOperation(value = "查询部门列表",notes = "查询部门列表",httpMethod ="POST")
-    @PostMapping("/getDeptList")
-    public ApiResponse<List<EcmpOrgDto>> getDeptList(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptType",required = false) String deptType){
-        List<EcmpOrgDto> deptList = orgService.getDeptList(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptType);
+    @ApiOperation(value = "显示部门组织结构",notes = "显示部门组织结构",httpMethod ="POST")
+    @PostMapping("/selectCombinationOfCompany")
+    public ApiResponse<List<EcmpOrgDto>> selectCombinationOfCompany(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptType",required = false) String deptType){
+        List<EcmpOrgDto> deptList = orgService.selectCombinationOfCompany(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptType);
         return ApiResponse.success(deptList);
     }
     /**

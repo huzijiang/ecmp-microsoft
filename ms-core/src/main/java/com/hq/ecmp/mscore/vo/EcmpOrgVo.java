@@ -72,5 +72,8 @@ public class EcmpOrgVo {
 
     @ApiModelProperty(value = "角色id")
     private Long roleId;
+
+    @ApiModelProperty(value = "公司名称或编号")
+    private String deptNameOrCode;
 }
 

@@ -87,16 +87,32 @@ public class OrgController {
 
 
     /**
-     * 查询公司列表
+     * 显示公司组织结构
      * @param  ecmpOrgVo
      * @return*/
-    @ApiOperation(value = "查询公司列表",notes = "查询公司列表",httpMethod ="POST")
-    @PostMapping("/getSubCompanyList")
-    public ApiResponse<List<EcmpOrgDto>> selectSubCompany(@RequestBody EcmpOrgVo ecmpOrgVo){
+    @ApiOperation(value = "显示公司组织结构",notes = "显示公司组织结构",httpMethod ="POST")
+    @PostMapping("/selectCombinationOfCompany")
+    public ApiResponse<List<EcmpOrgDto>> selectCombinationOfCompany(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
         String deptType=ecmpOrgVo.getDeptType();
-        List<EcmpOrgDto> deptList = orgService.getDeptList(deptId,deptType);
+        List<EcmpOrgDto> deptList = orgService.selectCombinationOfCompany(deptId,deptType);
         return ApiResponse.success(deptList);
+    }
+
+    /**
+     * 显示公司列表
+     * @param  ecmpOrgVo
+     * @return*/
+    @ApiOperation(value = "显示公司列表",notes = "显示公司列表",httpMethod ="POST")
+    @PostMapping("/selectCompanyList")
+    public ApiResponse<List<EcmpOrgDto>> selectCompanyList(@RequestBody EcmpOrgVo ecmpOrgVo){
+        Long deptId=ecmpOrgVo.getDeptId();
+        String deptType=ecmpOrgVo.getDeptType();
+        if(deptId==null){
+            return ApiResponse.error("组织id不能为空！");
+        }
+        List<EcmpOrgDto> companyList = orgService.selectCompanyList(deptId,deptType);
+        return ApiResponse.success(companyList);
     }
 
     /**
@@ -218,6 +234,21 @@ public class OrgController {
             return ApiResponse.error("启用失败");
         }*/
         return ApiResponse.error(s);
+    }
+
+    /**
+     * 按照分子公司名称或编号模糊
+     * @param  ecmpOrgVo
+     * @return*/
+    @ApiOperation(value = "按照分子公司名称或编号模糊",notes = "按照分子公司名称或编号模糊",httpMethod ="POST")
+    @PostMapping("/selectCompanyByDeptNameOrCode")
+    public ApiResponse<List<EcmpOrgDto>> selectCompanyByDeptNameOrCode(@RequestBody EcmpOrgVo ecmpOrgVo){
+        String deptNameOrCode=ecmpOrgVo.getDeptNameOrCode();
+        if("".equals(deptNameOrCode.trim())){
+            return ApiResponse.error("请输入有效的公司名称或编号！");
+        }
+        List<EcmpOrgDto> companyList = orgService.selectCompanyByDeptNameOrCode(deptNameOrCode);
+        return ApiResponse.success(companyList);
     }
 
 }
