@@ -1,24 +1,18 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
-import com.hq.ecmp.mscore.domain.EcmpRoleDept;
 import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.domain.EcmpUserRole;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
-import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -98,12 +92,12 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         List<EcmpOrgDto> companyList = new ArrayList<>();
         List<Long> deptIdList = new ArrayList<>();
         if(deptId!=null){
-            deptIdList = ecmpOrgMapper.selectCompanyByParentId(deptId, OrgConstant.DEPT_TYPE_1);
+            deptIdList = ecmpOrgMapper.selectCompanyByParentId(deptId, "1");
             EcmpOrgDto supDto=ecmpOrgMapper.getSubDetail(deptId);
             String supComName=supDto.getDeptName();
             if(deptIdList.size()>0){
                 for (Long deptId1:deptIdList) {
-                    EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectCompanyList(deptId1,OrgConstant.DEPT_TYPE_1);
+                    EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectCompanyList(deptId1,"1");
                     ecmpOrgDto.setSupComName(supComName);
                     companyList.add(ecmpOrgDto);
                 }
