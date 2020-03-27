@@ -379,7 +379,7 @@ LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
         d.longitude endLongitude ,
         d.latitude endLatitude,
         g.charter_car_type ,
-        (select state from order_state_trace_info where order_id=#{orderId} order by create_time desc limit 1) labelState
+        (select state from order_state_trace_info sti where sti.order_id=#{orderId} order by SUBSTRING(sti.state,1) desc limit 1) labelState
 	    from order_info a
 	        inner join journey_info g on g.journey_id=a.journey_id
             inner join order_address_info e on e.order_id=a.order_id and e.type='A000'
