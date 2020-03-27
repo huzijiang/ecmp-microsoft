@@ -95,19 +95,25 @@ public class DispatchController {
     	return ApiResponse.error();
     }
 
-    @ApiOperation(value = "ownCarSendCar", notes = "自有车派车", httpMethod = "POST")
-    @PostMapping("/ownCarSendCar")
-    public ApiResponse ownCarSendCar(String OrderNo,String driverId,String carId) {
-    	 HttpServletRequest request = ServletUtils.getRequest();
-         LoginUser loginUser = tokenService.getLoginUser(request);
-         boolean ownCarSendCar = iOrderInfoService.ownCarSendCar(Long.valueOf(OrderNo), Long.valueOf(driverId), Long.valueOf(carId), loginUser.getUser().getUserId());
-         if(ownCarSendCar){
-        	 return ApiResponse.success();
-         }else{
-        	 return ApiResponse.error("调派单【"+OrderNo+"】自有车派车失败");
-         }
-    }
+	@ApiOperation(value = "ownCarSendCar", notes = "自有车派车", httpMethod = "POST")
+	@PostMapping("/ownCarSendCar")
+	public ApiResponse ownCarSendCar(String OrderNo, String driverId, String carId) {
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		try {
+			boolean ownCarSendCar = iOrderInfoService.ownCarSendCar(Long.valueOf(OrderNo), Long.valueOf(driverId),
+					Long.valueOf(carId), loginUser.getUser().getUserId());
+			if (ownCarSendCar) {
+				return ApiResponse.success();
+			} else {
+				return ApiResponse.error("调派单【" + OrderNo + "】自有车派车失败");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error("调派单【" + OrderNo + "】自有车派车异常", e);
+		}
 
+	}
 
     /**
      *调度-获取可选择的车辆
