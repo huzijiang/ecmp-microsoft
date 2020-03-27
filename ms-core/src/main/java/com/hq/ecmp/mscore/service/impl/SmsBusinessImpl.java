@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.*;
@@ -354,6 +355,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         Long journeyId = orderInfo.getJourneyId();
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journeyId);
         Long applyUserId = journeyInfo.getUserId();
+        mapMobiles.put("applyUserId", applyUserId.toString());
         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(applyUserId);
         applyMobile = ecmpUser.getPhonenumber();
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
@@ -411,12 +413,16 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String driverName = null;
         //司机手机号
         String driverMobile = null;
+        //司机编号
+        String driverId=null;
         //乘车人手机号
         String riderMobile = null;
         //乘车人姓名
         String riderName = null;
         //申请人手机号
         String applyMobile = null;
+        //申请人编号
+        String applyUserId=null;
         //车型
         String carType = null;
         //车牌号
@@ -427,6 +433,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         driverName = orderInfo.getDriverName();
         driverMobile = orderInfo.getDriverMobile();
+        driverId=(null==orderInfo.getDriverId()?null:orderInfo.getDriverId().toString());
         carLicense = orderInfo.getCarLicense();
         orderNum = orderInfo.getOrderNumber();
         if(orderInfo.getUseCarMode().equals(CarConstant.USR_CARD_MODE_HAVE)){
@@ -442,6 +449,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
         riderMobile = applyAndRiderMobile.get("riderMobile");
         applyMobile = applyAndRiderMobile.get("applyMobile");
+        applyUserId=applyAndRiderMobile.get("applyUserId");
         riderName = applyAndRiderMobile.get("riderName");
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
         OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
@@ -465,6 +473,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         result.put("planEndAddress",planEndAddress);
         result.put("driverName",driverName );
         result.put("driverMobile",driverMobile);
+        result.put("driverId",driverId);
         result.put("riderMobile",riderMobile);
         result.put("riderName",riderName);
         result.put("applyMobile",applyMobile);
@@ -616,4 +625,32 @@ public class SmsBusinessImpl implements IsmsBusiness{
         ecmpMessage.setUpdateTime(null);
         ecmpMessageMapper.insert(ecmpMessage);
     }
+
+
+	@Override
+	@Async
+	public void sendMessageDispatchCarComplete(Long orderId, Long userId) {
+		Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
+		String driverId = orderCommonInfo.get("driverId");
+		if (null != driverId) {
+			// 给司机发送消息
+			sendMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(), Long.valueOf(driverId),
+					MsgConstant.MESSAGE_T007.getType(), MsgTypeConstant.MESSAGE_TYPE_T001.getType(), orderId, userId,
+					String.format(MessageTemplateConstant.DISPATCH_CAR_COMPLETE_DRIVER, orderCommonInfo.get("orderNum"),
+							orderCommonInfo.get("useCarTime"), orderCommonInfo.get("riderName"),
+							orderCommonInfo.get("riderMobile")));
+		}
+
+		String applyUserId = orderCommonInfo.get("applyUserId");
+		if (null != applyUserId) {
+			// 给申请人发消息
+			sendMessage(MsgUserConstant.MESSAGE_USER_APPLICANT.getType(), Long.valueOf(applyUserId),
+					MsgConstant.MESSAGE_T003.getType(), MsgTypeConstant.MESSAGE_TYPE_T001.getType(), orderId, userId,
+					String.format(MessageTemplateConstant.DISPATCH_CAR_COMPLETE_APPLY,
+							orderCommonInfo.get("useCarTime"), orderCommonInfo.get("driverName"),
+							orderCommonInfo.get("driverMobile"), orderCommonInfo.get("carType"),
+							orderCommonInfo.get("carLicense")));
+		}
+
+	}
 }
