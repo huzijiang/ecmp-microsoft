@@ -142,6 +142,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 		@Override
 	public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId) {
 		List<CarAuthorityInfo> carAuthorityInfoList=new ArrayList<>();
+		//获取申请人的用车权限
 		List<JourneyInfo> journeyInfoList =journeyInfoMapper.queryPassJourneyList(userId);
 		if(null !=journeyInfoList && journeyInfoList.size()>0){
 			for (JourneyInfo journeyInfo : journeyInfoList) {
@@ -246,7 +247,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	 * @return list
 	 */
 	@Override
-	public List<JourneyVO> getJourneyList(String userId){
+	public List<JourneyVO> getJourneyList(Long userId){
 
 		return journeyInfoMapper.getJourneyList(userId);
 	}
@@ -257,7 +258,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	 * @return list
 	 */
 	@Override
-	public int getJourneyListCount(String userId) {
+	public int getJourneyListCount(Long userId) {
 		return journeyInfoMapper.getJourneyListCount(userId);
 	}
 

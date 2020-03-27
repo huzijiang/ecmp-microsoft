@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.service.IInvoiceInfoService;
 import com.hq.ecmp.mscore.service.IOrderAccountInfoService;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
 import com.hq.ecmp.mscore.vo.OrderAccountVO;
+import com.hq.ecmp.mscore.vo.OrderAccountViewVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +26,7 @@ import java.util.List;
  *
  */
  @RestController
- @RequestMapping("/accountinfo")
+ @RequestMapping("/account")
 public class AccountInfoController {
 
     @Autowired
@@ -36,21 +37,25 @@ public class AccountInfoController {
     private IOrderSettlingInfoService OrderSettlingInfoService;
 
     /**
-     * 网约车账务订单总览查询i
-     * @param rderAccountInfo
+     * 网约车账务订单总览查询
+     * @param
      * @return list
      */
-    @ApiOperation(value = "getOrderAccountList",notes = "查询账务订单信息",httpMethod = "POST")
-    @PostMapping("/getOrderAccountList")
-    public ApiResponse<List<OrderAccountInfo>> getOrderAccountList(OrderAccountInfo rderAccountInfo){
-        List<OrderAccountInfo> invoiceInfoList = iOrderAccountInfoService.selectOrderAccountInfoList(rderAccountInfo);
-        return ApiResponse.success();
+    @ApiOperation(value = "getAccountViewList",notes = "查询账务订单信息",httpMethod = "POST")
+    @PostMapping("/getAccountViewList")
+    public ApiResponse<List<OrderAccountViewVO>> getAccountViewList(){
+        List<OrderAccountViewVO> invoiceViewList = iOrderAccountInfoService.getAccountViewList();
+        return ApiResponse.success(invoiceViewList);
     }
-
+    /**
+     * 开发票下拉列表
+     * @param
+     * @return list
+     */
     @ApiOperation(value = "getAccountList",notes = "获取为开发票的订单统计列表",httpMethod = "POST")
     @PostMapping("/getAccountList")
-    public ApiResponse<List<OrderAccountVO>> getAccountList(OrderAccountInfo rderAccountInfo){
-        List<OrderAccountVO> invoiceInfoList = iOrderAccountInfoService.getAccountList("S999");
+    public ApiResponse<List<OrderAccountVO>> getAccountList(){
+        List<OrderAccountVO> invoiceInfoList = iOrderAccountInfoService.getAccountList();
         return ApiResponse.success(invoiceInfoList);
     }
 

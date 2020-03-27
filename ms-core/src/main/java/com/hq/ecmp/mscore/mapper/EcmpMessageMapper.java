@@ -3,6 +3,8 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.EcmpMessage;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +14,7 @@ import java.util.Map;
  * @author makejava
  * @since 2020-03-13 15:25:47
  */
+@Repository
 public interface EcmpMessageMapper {
 
     /**
@@ -73,5 +76,5 @@ public interface EcmpMessageMapper {
     List<MessageDto> getRunMessageForDrive(@Param("driverId") Long driverId,@Param("categorys") String categorys);
     List<MessageDto> getRunMessageForDispatcher(@Param("ecmpId") Long ecmpId,@Param("category") String category);
 
-    void insertList(List<EcmpMessage> msgList);
+    void insertList(@Param("msgList")List<EcmpMessage> msgList);
 }

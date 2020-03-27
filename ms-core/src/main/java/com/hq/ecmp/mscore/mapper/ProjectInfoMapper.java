@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.vo.ProjectInfoVO;
 import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface ProjectInfoMapper
 {
     /**

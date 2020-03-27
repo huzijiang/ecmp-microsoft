@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
 import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
 import com.hq.ecmp.mscore.vo.CarGroupListVO;
+import com.hq.ecmp.mscore.vo.CarGroupPhoneVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
@@ -113,4 +114,11 @@ public interface ICarGroupInfoService
 
     //查询下级车队列表
     List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);
+
+    /**
+     * 车队调度员信息及座机查询
+     * @param userId
+     * @return
+     */
+    CarGroupPhoneVO getCarGroupPhone(Long userId);
 }

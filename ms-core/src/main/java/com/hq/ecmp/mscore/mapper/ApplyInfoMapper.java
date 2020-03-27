@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface ApplyInfoMapper
 {
     /**

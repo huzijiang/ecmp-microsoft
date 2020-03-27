@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.ChinaProvinceMapper">
+
+	<select id="queryProvince" resultType="com.hq.ecmp.mscore.vo.ProvinceVO">
+		select province_code as provinceCode , province_name as provinceName from china_province
+	</select>
+	<select id="queryCityByProvince" resultType="com.hq.ecmp.mscore.vo.ProvinceCityVO">
+		select province_code as provinceCode,city_code as cityCode,city_name as cityName from china_city
+		where province_code=#{provinceCode}
+	</select>
+</mapper>

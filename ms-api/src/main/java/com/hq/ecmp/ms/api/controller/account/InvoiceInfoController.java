@@ -6,7 +6,9 @@ import com.hq.ecmp.ms.api.dto.base.DictTypeDto;
 import com.hq.ecmp.ms.api.dto.invoice.InvoiceDto;
 import com.hq.ecmp.mscore.domain.EcmpDictType;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
+import com.hq.ecmp.mscore.dto.EmailDTO;
 import com.hq.ecmp.mscore.service.IInvoiceInfoService;
+import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +25,7 @@ import java.util.List;
  *
  */
  @RestController
- @RequestMapping("/invoiceinfo")
+ @RequestMapping("/invoice")
 public class InvoiceInfoController {
 
     @Autowired
@@ -94,21 +96,21 @@ public class InvoiceInfoController {
      * @param invoiceInfo
      * @return
      */
-    @ApiOperation(value = "getinvoiceInfoDetail",notes = "发票信息详情",httpMethod ="POST")
-    @PostMapping("/getinvoiceInfoDetail")
-    public ApiResponse<InvoiceInfo> getinvoiceInfoDetail(InvoiceInfo invoiceInfo){
-        InvoiceInfo nvoiceInfoDetail = invoiceInfoService.selectInvoiceInfoById(invoiceInfo.getInvoiceId());
-        return  ApiResponse.success(nvoiceInfoDetail);
+    @ApiOperation(value = "getInvoiceInfoDetail",notes = "发票信息详情",httpMethod ="POST")
+    @PostMapping("/getInvoiceInfoDetail")
+    public ApiResponse<InvoiceInfo> getInvoiceInfoDetail(InvoiceInfo invoiceInfo){
+        InvoiceInfo invoiceInfoDetail = invoiceInfoService.selectInvoiceInfoById(invoiceInfo.getInvoiceId());
+        return  ApiResponse.success(invoiceInfoDetail);
     }
 
-    /**
+    /**I
      * 根据时间区间、开票状态查询发票信息
      * @param invoiceDto
      * @return
      */
-    @ApiOperation(value = "getinvoiceByTimeAndState",notes = "发票信息详情",httpMethod ="POST")
-    @PostMapping("/getinvoiceByTimeAndState")
-    public ApiResponse<List<InvoiceInfo>>  getinvoiceByTimeAndState(InvoiceDto invoiceDto){
+    @ApiOperation(value = "getInvoiceByTimeAndState",notes = "发票信息详情",httpMethod ="POST")
+    @PostMapping("/getInvoiceByTimeAndState")
+    public ApiResponse<List<InvoiceInfo>>  getInvoiceByTimeAndState(InvoiceDto invoiceDto){
         List<InvoiceInfo>  invoiceInfoList = invoiceInfoService.selectInvoiceInfoByTimeAndState(invoiceDto.getStartTime(),invoiceDto.getEndTime(),invoiceDto.getState());
         return ApiResponse.success(invoiceInfoList);
     }
@@ -126,6 +128,22 @@ public class InvoiceInfoController {
         return  ApiResponse.success(nvoiceInfodownLoad);
     }
 
+    /**
+     * 新增发票抬头
+     * @param invoiceHeaderVO
+     * @return
+     */
+    @ApiOperation(value = "invoiceHeaderCommit",notes = "新增发票抬头",httpMethod = "POST")
+    @PostMapping("/invoiceHeaderCommit")
+    public ApiResponse invoiceHeaderCommit(@RequestBody InvoiceHeaderVO invoiceHeaderVO){
+        try {
+            invoiceInfoService.insertInvoiceHeader(invoiceHeaderVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("新增失败");
+        }
+        return ApiResponse.success("新增成功");
 
+    }
 
  }

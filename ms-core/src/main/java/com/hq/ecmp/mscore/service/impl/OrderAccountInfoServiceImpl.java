@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.domain.OrderAccountInfo;
 import com.hq.ecmp.mscore.mapper.OrderAccountInfoMapper;
 import com.hq.ecmp.mscore.service.IOrderAccountInfoService;
 import com.hq.ecmp.mscore.vo.OrderAccountVO;
+import com.hq.ecmp.mscore.vo.OrderAccountViewVO;
 import com.hq.ecmp.util.DateFormatUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,8 +99,8 @@ public class OrderAccountInfoServiceImpl implements IOrderAccountInfoService
     }
 
     @Override
-    public List<OrderAccountVO> getAccountList(String state) {
-        List<OrderAccountVO> accountList = orderAccountInfoMapper.getAccountList(state);
+    public List<OrderAccountVO> getAccountList() {
+        List<OrderAccountVO> accountList = orderAccountInfoMapper.getAccountList();
         if (CollectionUtils.isNotEmpty(accountList)){
             for (OrderAccountVO vo:accountList){
                 String beginMonth=vo.getAccountDate()+"-01";
@@ -109,5 +110,19 @@ public class OrderAccountInfoServiceImpl implements IOrderAccountInfoService
             }
         }
         return accountList;
+    }
+    @Override
+    public List<OrderAccountViewVO> getAccountViewList(){
+        List<OrderAccountViewVO> accountViewList = orderAccountInfoMapper.getAccountViewList();
+        if(CollectionUtils.isNotEmpty(accountViewList)){
+            for (OrderAccountViewVO vo:accountViewList){
+                String beginMonth= vo.getAccountDate()+"-01";
+                String endMonth= DateFormatUtils.getLastDayOfMonth(DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT,beginMonth));
+                String desc=beginMonth+"至"+endMonth;
+                vo.setDesc(desc);
+
+            }
+        }
+        return accountViewList;
     }
 }

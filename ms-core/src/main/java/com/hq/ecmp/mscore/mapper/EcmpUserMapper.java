@@ -231,7 +231,7 @@ public interface EcmpUserMapper
     public int userItisExist(String phoneNumber);
 
     //查询该员工部门领导
-    UserVO findDeptLeader(long parseLong);
+    UserVO findDeptLeader(Long deptId);
 
     List<EcmpUser> selectUserListByUserIds(String userIds);
 

@@ -52,6 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="journeyId != null ">journey_id,</if>
             <if test="projectId != null ">project_id,</if>
             <if test="regimenId != null ">regimen_id,</if>
+            <if test="applyNumber != null ">apply_number,</if>
             <if test="applyType != null ">apply_type,</if>
             <if test="approverName != null  and approverName != ''">approver_name,</if>
             <if test="costCenter != null ">cost_center,</if>
@@ -67,6 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="journeyId != null ">#{journeyId},</if>
             <if test="projectId != null ">#{projectId},</if>
             <if test="regimenId != null ">#{regimenId},</if>
+            <if test="applyNumber != null ">#{applyNumber},</if>
             <if test="applyType != null ">#{applyType},</if>
             <if test="approverName != null  and approverName != ''">#{approverName},</if>
             <if test="costCenter != null ">#{costCenter},</if>
@@ -111,7 +113,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select t1.apply_id applyId,t1.state,t1.apply_type applyType,t2.title,t2.start_date startDate,t2.end_date endDate
         from apply_info t1
         left join journey_info t2 on t1.journey_id = t2.journey_id
-        where t2.user_id = #{userId}
+        where t2.create_by = #{userId}
         order by
         CASE WHEN t1.state='S001' THEN t1.create_time END DESC,t1.update_time DESC
     </select>

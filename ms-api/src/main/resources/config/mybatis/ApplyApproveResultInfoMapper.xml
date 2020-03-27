@@ -132,16 +132,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
            )  a group by a.messageType
     </select>
 
-    <select id="selectResultList" parameterType="Object" resultType="com.hq.ecmp.mscore.domain.ApplyApproveResultInfo">
+
+    <select id="selectResultList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ApprovaReesultVO">
         select
-        apply_id applyId,approve_node_id approveNodeId,approver,approver_mobile approverMobile,
-        approve_result approveResult,content,
-        if (approve_result='pass' or approve_result='fail',approve_result,state) state
-        from apply_approve_result_info
+        A.apply_id applyId,A.approve_node_id approveNodeId,A.approve_result approveResult,A.content,
+        if (A.approve_result='pass' or A.approve_result='fail',A.approve_result,A.state) state,
+        B.create_time applyTime,B.apply_type applyType,B.journey_id jouneyId,C.nick_name applyName,
+        D.it_is_return itIsReturn,D.title,DATE_FORMAT(D.use_car_time, '%Y年%m月%d日 %H:%i') useCarTime,
+        D.start_date startDate,D.end_date endDate
+        from apply_approve_result_info A
+        left join apply_info B on B.apply_id=A.apply_id
+        left join ecmp_user C on C.user_id=B.create_by
+        left join journey_info D on D.journey_id=B.journey_id
+        where find_in_set(#{userId},A.approve_user_id)
+        <if test="state!=null and state!=''">and A.state!=#{state}</if>
+        order by A.state = 'ST01' DESC,
+        case when A.state='ST01' then A.create_time end asc,A.update_time desc
+    </select>
+
+    <select id="getApprovePageCount" resultType="int">
+        select count(*) from apply_approve_result_info
         where find_in_set(#{userId},approve_user_id)
-         <if test="state!=null and state!=''">and state!=#{state}</if>
-        order by
-        case when state='ST01' then create_time end asc,update_time desc
+        <if test="state!=null and state!=''">and state!=#{state}</if>
     </select>
 
     <select id="getApproveResultList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ApprovalInfoVO">

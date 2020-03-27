@@ -18,6 +18,7 @@ import lombok.Data;
  * @author hqer
  * @date 2020-01-02
  */
+
 public interface IJourneyInfoService {
     /**
      * 查询【请填写功能名称】
@@ -85,7 +86,7 @@ public interface IJourneyInfoService {
      * @param userId
      * @return list
      */
-    public List<JourneyVO> getJourneyList(String userId);
+    public List<JourneyVO> getJourneyList(Long userId);
 
     /**
      * 获取正在进行中的行程个数
@@ -93,7 +94,7 @@ public interface IJourneyInfoService {
      * @param userId
      * @return 个数
      */
-    public int getJourneyListCount(String userId);
+    public int getJourneyListCount(Long userId);
 
     JourneyDetailVO getItineraryDetail(Long powerId) throws Exception ;
 

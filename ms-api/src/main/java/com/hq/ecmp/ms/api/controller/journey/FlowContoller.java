@@ -36,10 +36,19 @@ public class FlowContoller {
     private IApproveTemplateNodeInfoService nodeInfoService;
 
 
-    @ApiOperation(value = "getApprovalList", notes = "根据用车制度Id,查询审批人列表", httpMethod = "GET")
+    @ApiOperation(value = "getApprovalList", notes = "根据用车制度Id,查询审批人", httpMethod = "POST")
     @RequestMapping("/getApprovalList")
-    public ApiResponse<List<ApprovalUserVO>> getApprovalList(@RequestParam(value = "regimenId",required = true) Long regimenId) {
-        List<ApprovalUserVO> list= nodeInfoService.getApprovalList(regimenId);
+    public ApiResponse<List<ApprovalUserVO>> getApprovalList(@RequestParam(value = "regimenId",required = true) String regimenId,
+                                                             @RequestParam(value = "projectId",required = false) String projectId) {
+        List<ApprovalUserVO> list= null;
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            list = nodeInfoService.getApprovalList(regimenId,projectId,loginUser.getUser());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
         return ApiResponse.success(list);
     }
 

@@ -19,6 +19,7 @@ import com.hq.ecmp.mscore.service.EcmpMessageService;
 import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.SortListUtil;
+import com.sun.org.apache.regexp.internal.RE;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -29,6 +30,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import static com.hq.ecmp.constant.CommonConstant.ONE;
+import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
 /**
  * (EcmpMessage)表服务实现类
@@ -266,6 +268,27 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
     public void saveApplyMessagePass(Long applyId,Long ecmpId,Long userId,Long orderId,Long powerId,int isDispatch) throws Exception{
         //通知调度员,通知申请人审批通过
         //判断申请用车城市是否有我车队组织
+        if (isDispatch==ZERO){
+            return;
+        }
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(applyInfo.getJourneyId());
+        List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId()));
+        List<EcmpMessage> dispatcherMessage=new ArrayList<>();
+        if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){//公务
+            //公务需要给申请人和调度员发送通知
+            dispatcherMessage = this.getDispatcherMessage(orderId, userId, powerId);
+        }
+        if (CollectionUtils.isNotEmpty(dispatcherMessage)){
+            ecmpMessageDao.insertList(dispatcherMessage);//保存消息通知
+        }
+        //给调度员发短信
+        this.sendMessageForDispatch(dispatcherMessage,journeyInfo,journeyNodeInfos);
+    }
+
+    @Async
+    @Override
+    public void applyUserPassMessage(Long applyId,Long ecmpId,Long userId,Long orderId,Long powerId,int isDispatch) throws Exception{
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
         if (applyInfo==null){
             throw new Exception("申请单:"+applyId+"不存在");
@@ -274,23 +297,11 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         if (journeyInfo==null){
             throw new Exception("此申请对应给行程不存在");
         }
-        List<EcmpMessage> msgList=new ArrayList<>();
-        msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),ecmpId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+        ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),ecmpId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
                 MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您的申请单"+applyId+"审批通过了",MsgConstant.MESSAGE_T001.getType(),userId,new Date()));
-        List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId()));
-        List<EcmpMessage> dispatcherMessage=new ArrayList<>();
-        if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){//公务
-            //公务需要给申请人和调度员发送通知
-            dispatcherMessage = this.getDispatcherMessage(orderId, userId, powerId);
-            msgList.addAll(dispatcherMessage);
-        }else{//差旅
-        }
-        ecmpMessageDao.insertList(msgList);//保存消息通知
-        //给申请人发短信
-        //给调度员发短信
-        this.sendMessageForDispatch(dispatcherMessage,journeyInfo,journeyNodeInfos);
-        sendMessageForApplyUser(journeyInfo,journeyNodeInfos,applyInfo,isDispatch,ecmpId,ApproveStateEnum.APPROVE_PASS.getKey(),null);
         updateApplyMessage(ecmpId,applyId);
+        List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId()));
+        sendMessageForApplyUser(journeyInfo,journeyNodeInfos,applyInfo,isDispatch,ecmpId,ApproveStateEnum.APPROVE_PASS.getKey(),null);
     }
 
     @Override
@@ -301,10 +312,9 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         if (applyInfo==null){
             throw new Exception("申请单:"+applyId+"不存在");
         }
-        List<EcmpMessage> msgList=new ArrayList<>();
-        msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),ecmpId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
-                MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您的申请单"+applyId+"审批驳回了",MsgConstant.MESSAGE_T001.getType(),userId,new Date()));
-            ecmpMessageDao.insertList(msgList);//保存消息通知
+        EcmpMessage ecmpMessage=new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),ecmpId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您的申请单"+applyId+"审批驳回了",MsgConstant.MESSAGE_T001.getType(),userId,new Date());
+            ecmpMessageDao.insert(ecmpMessage);//保存消息通知
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(applyInfo.getJourneyId());
         if (journeyInfo==null){
             throw new Exception("此申请对应给行程不存在");
@@ -326,6 +336,17 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
             }
             if (CollectionUtils.isNotEmpty(msgList)){
                 ecmpMessageDao.insertList(msgList);
+            }
+        }
+    }
+
+    @Override
+    public void readMessage(MessageDto messageDto, SysUser user) {
+        List<EcmpMessage> ecmpMessages = ecmpMessageDao.queryAll(new EcmpMessage(messageDto.getConfigType(), MsgStatusConstant.MESSAGE_STATUS_T002.getType(), user.getUserId(), messageDto.getMessageId(),messageDto.getMessageType()));
+        if (ecmpMessages!=null){
+            for (EcmpMessage ecmpMessage:ecmpMessages){
+                ecmpMessage.setStatus(MsgStatusConstant.MESSAGE_STATUS_T001.getType());
+                ecmpMessageDao.update(ecmpMessage);
             }
         }
     }
@@ -416,7 +437,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
 
     //审批通过后修改之前相同申请单相关的未读消息为已读状态
     private void updateApplyMessage(Long ecmpId,Long applyId){
-        List<EcmpMessage> ecmpMessages = ecmpMessageDao.queryAll(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),MsgStatusConstant.MESSAGE_STATUS_T002.getType(),ecmpId,applyId));
+        List<EcmpMessage> ecmpMessages = ecmpMessageDao.queryAll(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),MsgStatusConstant.MESSAGE_STATUS_T002.getType(),ecmpId,applyId,MsgConstant.MESSAGE_T001.getType()));
         if (CollectionUtils.isNotEmpty(ecmpMessages)){
             for (EcmpMessage message:ecmpMessages){
                 message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T001.getType());
@@ -471,4 +492,10 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         }
         return msgList;
     }
+
+	@Override
+	public void saveDispatchCarComplete(Long orderId) {
+		OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+		
+	}
 }
