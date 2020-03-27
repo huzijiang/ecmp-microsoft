@@ -45,6 +45,10 @@ public class DispatchOrderInfo {
        	
        	Date applyReassignmentDate;//申请改派时间     改派单
        	
+       	Date updateDate;//用作排序的时间
+       	
+       	Date applyPassDate;//用车申请单通过的时间
+       	
        
        	String carType;//车型
        	String carLicense;//车牌号
