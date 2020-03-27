@@ -97,7 +97,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             String supComName=supDto.getDeptName();
             if(deptIdList.size()>0){
                 for (Long deptId1:deptIdList) {
-                    EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectCompanyList(deptId1,OrgConstant."1");
+                    EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectCompanyList(deptId1,"1");
                     ecmpOrgDto.setSupComName(supComName);
                     companyList.add(ecmpOrgDto);
                 }
