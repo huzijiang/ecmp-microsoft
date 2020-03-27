@@ -422,11 +422,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @return
      */
     @Override
-    public List<ApplyInfoDTO> selectApplyInfoListByPage(Long userId, Integer pageNum, Integer pageSize) {
+    public PageResult<ApplyInfoDTO> selectApplyInfoListByPage(Long userId, Integer pageNum, Integer pageSize) {
         //分页查询申请列表
         PageHelper.startPage(pageNum,pageSize);
         List<ApplyInfoDTO> all = applyInfoMapper.selectApplyInfoListByPage(userId);
-        return all;
+        PageInfo<ApplyInfoDTO> pageInfo = new PageInfo<>(all);
+        PageResult<ApplyInfoDTO> pageResult = new PageResult<>(pageInfo.getTotal(),pageInfo.getPages(),all);
+        return pageResult;
     }
 
     /**

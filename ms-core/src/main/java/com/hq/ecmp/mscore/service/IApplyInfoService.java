@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.vo.ApplyDetailVO;
 import com.hq.ecmp.mscore.vo.ApplyVO;
 import com.hq.ecmp.mscore.vo.ApprovaReesultVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
 
@@ -91,7 +92,7 @@ public interface IApplyInfoService
      * @param pageNum
      * @return
      */
-    List<ApplyInfoDTO> selectApplyInfoListByPage(Long userId, Integer pageNum, Integer pageSize);
+    PageResult<ApplyInfoDTO> selectApplyInfoListByPage(Long userId, Integer pageNum, Integer pageSize);
 
     /**
      * 查询申请单详情
