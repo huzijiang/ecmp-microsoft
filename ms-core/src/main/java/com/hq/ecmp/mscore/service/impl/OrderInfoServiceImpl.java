@@ -1161,6 +1161,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(applyUseWithTravelDto.getIsDispatch() == 2){
             this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
             ((IOrderInfoService)AopContext.currentProxy()).platCallTaxi(orderInfo.getOrderId(),enterpriseId,licenseContent,apiUrl,String.valueOf(userId),applyUseWithTravelDto.getGroupId());
+        }else{
+            ismsBusiness.sendMessagePriTravelOrderSucc(orderInfo.getOrderId(),userId);
         }
         return orderInfo.getOrderId();
     }
@@ -1391,6 +1393,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Transactional
     public void cancelOrder(Long orderId,Long userId,String cancelReason) throws Exception {
         OrderInfo orderInfoOld = orderInfoMapper.selectOrderInfoById(orderId);
+        Double cancelFee = 0d;
         if (orderInfoOld == null) {
             throw new Exception("未查询到订单号【" + orderId+ "】对应的订单信息");
         }
@@ -1413,6 +1416,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             JSONObject jsonObject = JSONObject.parseObject(result);
             if (!"0".equals(jsonObject.get("CODE"))) {
                 throw new Exception("调用三方取消订单服务-》取消失败");
+            }else{
+                JSONObject data = jsonObject.getJSONObject("data");
+                cancelFee = data.getDouble("cancelFee");
             }
         }
         OrderInfo orderInfo = new OrderInfo();
@@ -1424,23 +1430,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //自有车，且状态变更成功
         if (suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)) {
             //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
-            EcmpMessage ecmpMessage = new EcmpMessage();
-            ecmpMessage.setConfigType(2);
-            ecmpMessage.setEcmpId(driverId);
-            ecmpMessage.setType("T001");
-            ecmpMessage.setStatus("0000");
-            ecmpMessage.setContent("");
-            ecmpMessage.setCategory("M005");
-            ecmpMessage.setCategoryId(orderId);
-            ecmpMessage.setUrl("");
-            ecmpMessage.setCreateBy(userId);
-            ecmpMessage.setCreateTime(DateUtils.getNowDate());
-            ecmpMessage.setUpdateBy(null);
-            ecmpMessage.setUpdateTime(null);
-            ecmpMessageService.insert(ecmpMessage);
-            //取消订单短信发送
-            ismsBusiness.sendSmsCancelOrder(orderId);
+            ismsBusiness.sendMessageCancelOrder(orderId,userId);
         }
+        //取消订单短信发送
+        if(cancelFee == 0d){
+            ismsBusiness.sendSmsCancelOrder(orderId);
+        }else{
+            ismsBusiness.sendSmsCancelOrderHaveFee(orderId,cancelFee);
+        }
+
         //插入订单轨迹表
         this.insertOrderStateTrace(String.valueOf(orderId), OrderStateTrace.CANCEL.getState(), String.valueOf(userId),cancelReason);
         //用车权限次数做变化
@@ -1456,5 +1454,43 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     private void journeyUserCarCountOp(Long powerId,Integer opType){
         iJourneyUserCarPowerService.updatePowerSurplus(powerId,opType);
+    }
+
+    /**
+     * 改派订单
+     * @param orderNo
+     * @param rejectReason
+     * @param status
+     * @param userId
+     * @throws Exception
+     */
+    @Transactional
+    public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception {
+        if ("1".equals(status)) {
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setState(OrderState.WAITINGLIST.getState());
+            orderInfo.setUpdateBy(String.valueOf(userId));
+            orderInfo.setOrderId(Long.parseLong(orderNo));
+            orderInfo.setUpdateTime(DateUtils.getNowDate());
+            orderInfoMapper.updateOrderInfo(orderInfo);
+            OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+            orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+            orderStateTraceInfo.setState(ResignOrderTraceState.AGREE.getState());
+            orderStateTraceInfo.setOrderId(Long.parseLong(orderNo));
+            orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
+            orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+            //改派订单消息通知
+            ismsBusiness.sendMessageReassignSucc(Long.parseLong(orderNo),userId);
+        } else if ("2".equals(status)) {
+            OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+            orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+            orderStateTraceInfo.setState(ResignOrderTraceState.DISAGREE.getState());
+            orderStateTraceInfo.setOrderId(Long.parseLong(orderNo));
+            orderStateTraceInfo.setContent(rejectReason);
+            orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
+            orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+        } else {
+            throw new Exception("操作异常");
+        }
     }
 }

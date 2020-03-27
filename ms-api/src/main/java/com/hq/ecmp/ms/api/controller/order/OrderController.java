@@ -494,27 +494,7 @@ public class OrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            if ("1".equals(status)) {
-                OrderInfo orderInfo = new OrderInfo();
-                orderInfo.setState(OrderState.WAITINGLIST.getState());
-                orderInfo.setUpdateBy(String.valueOf(userId));
-                orderInfo.setOrderId(Long.parseLong(orderNo));
-                iOrderInfoService.updateOrderInfo(orderInfo);
-                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
-                orderStateTraceInfo.setCreateBy(String.valueOf(userId));
-                orderStateTraceInfo.setState(ResignOrderTraceState.AGREE.getState());
-                orderStateTraceInfo.setOrderId(Long.parseLong(orderNo));
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-            } else if ("2".equals(status)) {
-                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
-                orderStateTraceInfo.setCreateBy(String.valueOf(userId));
-                orderStateTraceInfo.setState(ResignOrderTraceState.DISAGREE.getState());
-                orderStateTraceInfo.setOrderId(Long.parseLong(orderNo));
-                orderStateTraceInfo.setContent(rejectReason);
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-            } else {
-                throw new Exception("操作异常");
-            }
+            iOrderInfoService.reassign(orderNo,rejectReason,status,userId);
         } catch (Exception e) {
             e.printStackTrace();
         }

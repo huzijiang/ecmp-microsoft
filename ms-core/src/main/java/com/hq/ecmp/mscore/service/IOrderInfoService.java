@@ -226,8 +226,24 @@ public interface IOrderInfoService {
     public List<OrderHistoryTraceDto> getOrderHistoryTrace(Long orderId) throws Exception;
 
 
-
-
+    /**
+     * 取消订单
+     * @param orderId
+     * @param userId
+     * @param cancelReason
+     * @throws Exception
+     */
     public void cancelOrder(Long orderId,Long userId,String cancelReason) throws Exception;
+
+
+    /**
+     * 改派订单
+     * @param orderNo
+     * @param rejectReason
+     * @param status
+     * @param userId
+     * @throws Exception
+     */
+    public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception;
 }
 

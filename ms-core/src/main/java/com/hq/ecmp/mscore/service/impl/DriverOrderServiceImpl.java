@@ -168,6 +168,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
             //司机开始服务发送短信
             ismsBusiness.sendSmsDriverBeginService(orderId);
+            //司机开始服务发送消息给乘车人和申请人（行程通知）
+            ismsBusiness.sendMessageServiceStart(orderId, userId);
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             String longAddr = "";
