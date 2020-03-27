@@ -2,13 +2,13 @@ package com.hq.ecmp.mscore.service.impl;
 
 import java.util.*;
 
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.ApproveTypeEnum;
-import com.hq.ecmp.mscore.domain.ApproveTemplateInfo;
-import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
-import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.constant.CommonConstant;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.AddFolwDTO;
 import com.hq.ecmp.mscore.dto.FolwInfoDTO;
 import com.hq.ecmp.mscore.mapper.*;
@@ -45,6 +45,8 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
     private EcmpUserMapper ecmpUserMapper;
     @Autowired
     private ProjectInfoMapper projectInfoMapper;
+    @Autowired
+    private EcmpOrgMapper ecmpOrgMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -185,31 +187,71 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
     }
 
     @Override
-    public List<ApprovalUserVO> getApprovalList(Long regimeId,Long projectId,Long userId) {
-        RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimeId);
+    public List<ApprovalUserVO> getApprovalList(String regimeId, String projectId, SysUser user) throws Exception{
+        RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(Long.parseLong(regimeId));
         if (regimeInfo==null){
-            return null;
+            throw new Exception("用车制度:"+regimeId+"不存在");
         }
         List<ApproveTemplateNodeInfo> nodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId()));
         String userIds="";
         if (CollectionUtils.isNotEmpty(nodeInfos)){
-            for (ApproveTemplateNodeInfo info:nodeInfos){
-
+            SortListUtil.sort(nodeInfos,"approveNodeId",SortListUtil.ASC);
+            ApproveTemplateNodeInfo info=nodeInfos.get(0);
                 if (ApproveTypeEnum.APPROVE_T001.getKey().equals(info.getApproverType())){//部门主管
-                    UserVO deptUser=ecmpUserMapper.findDeptLeader(userId);
-                    userIds+=","+deptUser.getUserId();
-                }else
-                if (ApproveTypeEnum.APPROVE_T004.getKey().equals(info.getApproverType())){//项目负责人
-                    UserVO userVO=projectInfoMapper.findLeader(projectId);
-                    userIds+=","+userVO.getUserId();
+                    UserVO deptLeader = getDeptLeader(user.getDeptId());
+                    userIds=String.valueOf(deptLeader.getUserId());
+                }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(info.getApproverType())){//项目负责人
+                    if (StringUtils.isEmpty(projectId)){
+                        return null;
+                    }
+                    UserVO projectLeader = getProjectLeader(Long.parseLong(projectId));
+                    userIds=String.valueOf(projectLeader.getUserId());
                 }else{
-                    userIds+=","+info.getUserId();
+                    userIds=info.getUserId();
+                }
+            }
+        return approveTemplateNodeInfoMapper.getApproveUsers(userIds);
+    }
+
+    private UserVO getDeptLeader(Long deptId)throws Exception{
+        UserVO deptUser=ecmpUserMapper.findDeptLeader(deptId);
+        if (deptUser!=null){
+            return deptUser;
+        }
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
+        if (ecmpOrg==null){
+            throw new Exception("该部门/公司不存在");
+        }
+        String ancestors = ecmpOrg.getAncestors();
+        if (StringUtils.isNotEmpty(ancestors)){
+            String[] split = ancestors.split(",");
+            for (int i=split.length-2;i>=0;i--){
+                deptUser=ecmpUserMapper.findDeptLeader(Long.parseLong(split[i]));
+                if (deptUser!=null){
+                    return deptUser;
                 }
             }
         }
-        if (StringUtils.isNotEmpty(userIds)){
-            userIds=userIds.substring(1);
+        if (StringUtils.isEmpty(ecmpOrg.getLeader())){
+            throw new Exception("该公司未设置领导层");
         }
-        return approveTemplateNodeInfoMapper.getApproveUsers(userIds);
+        return deptUser;
+
+    }
+
+    private UserVO getProjectLeader(Long projectId) throws Exception{
+        UserVO userVO=projectInfoMapper.findLeader(projectId);
+        if (userVO!=null){
+            return userVO;
+        }
+        ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectId);
+        if (projectInfo.getFatherProjectId()!=ZERO){
+            userVO=projectInfoMapper.findLeader(projectInfo.getFatherProjectId());
+        }
+        if (userVO==null){
+            EcmpUser user1 = ecmpUserMapper.selectEcmpUserById(Long.parseLong(projectInfo.getCreateBy()));
+            userVO = getDeptLeader(user1.getDeptId());
+        }
+        return userVO;
     }
 }

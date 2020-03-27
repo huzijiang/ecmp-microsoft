@@ -54,7 +54,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	a.driver_mobile AS driverTel,
 	f.car_type as carType,
 	f.car_license AS carLicense,
-	h.regimen_id as regimenId
+	h.regimen_id as regimenId,
+	h.it_is_return as itIsReturn
 FROM
 	order_info a
 LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
@@ -270,14 +271,19 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 left join (select order_id,state from order_state_trace_info where order_id in(select order_id from order_info where driver_id=#{driverId}) order by create_time desc limit 1) otc on  otc.order_id=o.order_id
 				where o.driver_id=#{driverId}
 				<if test="flag==1">
-                   and  (o.state="S299" or o.state="S600" or o.state="S616" )
+                   and  (o.state="S299"  or  o.state='S500' or o.state="S600" or o.state="S616" )
                     order by useCarTime  asc
                 </if>
                 <if test="flag==0">
-                    and  (o.state='S299' or o.state='S600' or o.state='S616' or o.state='S900' )
+                    and  (o.state='S299' or  o.state='S500' or o.state='S600' or o.state='S616' or o.state='S900' )
                     order by o.state='S900' asc,o.state asc,
                     CASE WHEN o.state='S900' THEN o.update_time  END DESC,useCarTime asc
                 </if>
+    </select>
+
+    <select id="getDriverOrderListCount" resultType="int">
+        select count(*) from order_info
+        where driver_id=#{driverId} and find_in_set(state,#{states})
     </select>
 
     <select id="selectOrderDetail" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.DriverOrderInfoVO">
@@ -396,7 +402,8 @@ LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
 	a.actual_arrive_address AS endSite,
 	a.actual_arrive_time AS endDate, -->
 	h.use_car_mode AS useCarMode,
-	h.regimen_id as regimenId
+	h.regimen_id as regimenId,
+	h.it_is_return as itIsReturn
 FROM
 	order_info a
 LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id

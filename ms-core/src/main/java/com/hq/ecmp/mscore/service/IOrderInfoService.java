@@ -144,7 +144,7 @@ public interface IOrderInfoService {
     * @param userId
     * @return
     */
-    public boolean ownCarSendCar(Long orderId,Long driverId,Long carId,Long userId);
+    public boolean ownCarSendCar(Long orderId,Long driverId,Long carId,Long userId)throws Exception ;
 
     /**
      * 公务下单（网约车派车）
@@ -245,5 +245,7 @@ public interface IOrderInfoService {
      * @throws Exception
      */
     public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception;
+
+    Integer getDriverOrderListCount(Long userId) throws Exception;
 }
 

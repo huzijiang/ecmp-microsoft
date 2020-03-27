@@ -156,7 +156,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     }
 
     /*
-     * 获取上级组织id中的员工姓名和电话
+     * 获取上级组织id中的员工姓名和电话、邮箱
      *  @param  ecmpUserVo
      * @return List<EcmpUserDto>
      * */
@@ -441,6 +441,16 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
                 }
             }
         }
+    }
+
+    /**
+     * 查询员工工号是否已存在
+     *
+     * @param jobNumber 员工工号
+     * @return
+     */
+    public int selectJobNumberExist(String jobNumber){
+        return ecmpUserMapper.selectJobNumberExist(jobNumber);
     }
 
     /**

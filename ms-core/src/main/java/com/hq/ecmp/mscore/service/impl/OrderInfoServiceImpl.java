@@ -334,7 +334,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         Long driverId = driverInfo.getDriverId();
         int flag=0;
         if (pageNum==1){//首次刷新
-            String states=OrderState.ALREADYSENDING.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState();
+            String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState();
             int count=orderInfoMapper.getDriverOrderCount(driverId,states);
             if(count>20){
                 flag=1;
@@ -343,6 +343,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         PageHelper.startPage(pageNum,pageSize);
         List<OrderDriverListInfo> driverOrderList = orderInfoMapper.getDriverOrderList(driverId,flag);
         return driverOrderList;
+    }
+
+    @Override
+    public Integer getDriverOrderListCount(Long userId) throws Exception{
+        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
+        if (CollectionUtils.isEmpty(driverInfos)){
+            throw new Exception("当前登录人不是司机");
+        }
+        DriverInfo driverInfo = driverInfos.get(0);
+        Long driverId = driverInfo.getDriverId();
+        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState()+","+OrderState.ORDERCLOSE.getState();
+        return orderInfoMapper.getDriverOrderListCount(driverId,states);
     }
 
 	@Override
@@ -690,20 +702,28 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
-	public boolean ownCarSendCar(Long orderId, Long driverId, Long carId, Long userId) {
-		// 新增订单状态流转记录
-		OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+	public boolean ownCarSendCar(Long orderId, Long driverId, Long carId, Long userId) throws Exception {
 		OrderInfo orderInfo = new OrderInfo();
-		/*
-		 * // 判读该单子是否是改派单 if
+		/* * // 判读该单子是否是改派单 if
 		 * (iOrderStateTraceInfoService.isReassignment(orderId)) { // 是改派单
 		 * orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.
 		 * getState()); orderInfo.setState(OrderState.REASSIGNPASS.getState());
 		 * } else { //申请单
 		 * orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
-		 * orderInfo.setState(OrderState.ALREADYSENDING.getState()); }
-		 */
-		orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
+		 * orderInfo.setState(OrderState.ALREADYSENDING.getState()); }*/
+		 
+		 if(iOrderStateTraceInfoService.isReassignment(orderId)){
+			 //是改派单 
+			 reassign(orderId.toString(), null, "1", userId);
+		 }else{
+			 //是申请单
+			OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+			orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
+			orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+			orderStateTraceInfo.setOrderId(orderId);
+			// 新增订单状态流转记录
+			int insertFlag = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+		 }
 		orderInfo.setState(OrderState.ALREADYSENDING.getState());
 		// 查询司机信息
 		DriverInfo driverInfo = driverInfoService.selectDriverInfoById(driverId);
@@ -725,11 +745,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		orderInfo.setUpdateTime(new Date());
 		// 更新订单信息
 		int updateFlag = updateOrderInfo(orderInfo);
-
-		orderStateTraceInfo.setCreateBy(String.valueOf(userId));
-		orderStateTraceInfo.setOrderId(orderId);
-		// 新增订单状态流转记录
-		int insertFlag = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
 		// 发送短信
 		new Thread(new Runnable() {
 			@Override
@@ -742,7 +757,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				}
 			}
 		}).start();
-		return updateFlag > 0 && insertFlag > 0;
+		return updateFlag >0;
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
@@ -1476,12 +1491,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Transactional
     public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception {
         if ("1".equals(status)) {
-            OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setState(OrderState.WAITINGLIST.getState());
-            orderInfo.setUpdateBy(String.valueOf(userId));
-            orderInfo.setOrderId(Long.parseLong(orderNo));
-            orderInfo.setUpdateTime(DateUtils.getNowDate());
-            orderInfoMapper.updateOrderInfo(orderInfo);
             OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
             orderStateTraceInfo.setCreateBy(String.valueOf(userId));
             orderStateTraceInfo.setState(ResignOrderTraceState.AGREE.getState());
@@ -1502,4 +1511,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             throw new Exception("操作异常");
         }
     }
+
+
 }

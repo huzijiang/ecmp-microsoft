@@ -201,15 +201,12 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "getPassengerOwnerApplies",notes = "获取乘客自身 行程申请列表 ",httpMethod ="POST")
     @PostMapping("/getPassengerOwnerApplies")
-    public ApiResponse<List<ApplyInfoDTO>>   getPassengerOwnerApplies(@RequestBody PageRequest applyPage){
+    public ApiResponse<PageResult<ApplyInfoDTO>>   getPassengerOwnerApplies(@RequestBody PageRequest applyPage){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         //分页查询乘客申请列表
-        List<ApplyInfoDTO> applyInfoList = applyInfoService.selectApplyInfoListByPage(loginUser.getUser()
+        PageResult<ApplyInfoDTO> applyInfoList = applyInfoService.selectApplyInfoListByPage(loginUser.getUser()
                 .getUserId(),applyPage.getPageNum(),applyPage.getPageSize());
-        if(CollectionUtils.isEmpty(applyInfoList)){
-            return ApiResponse.error("未查到申请列表数据");
-        }
         return ApiResponse.success(applyInfoList);
     }
 
@@ -236,7 +233,6 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "applyPass",notes = "行程申请-审核通过 ",httpMethod ="POST")
     @PostMapping("/applyPass")
-    @Transactional
     public ApiResponse applyPass(@RequestBody ApplyDTO journeyApplyDto){
         //1.校验信息
         HttpServletRequest request = ServletUtils.getRequest();
@@ -262,7 +258,8 @@ public class ApplyContoller {
                             resultInfo.setUpdateBy(userId+"");
                             resultInfoService.updateApplyApproveResultInfo(resultInfo);
                             //给下一审批人发送消息
-                            ecmpMessageService.sendNextApproveUsers(resultInfo.getApproveUserId(),journeyApplyDto.getApplyId(),userId);
+                            //TODO 第一期发起申请就会给所有级审批员发消息
+//                            ecmpMessageService.sendNextApproveUsers(resultInfo.getApproveUserId(),journeyApplyDto.getApplyId(),userId);
                         }
                     }
                 }
@@ -278,6 +275,8 @@ public class ApplyContoller {
                 }
                 List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(applyInfo.getJourneyId());
                 if (CollectionUtils.isNotEmpty(carAuthorityInfos)){
+                    int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
+                    ecmpMessageService.applyUserPassMessage(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
                     for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
                         int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:ZERO;
                         OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
@@ -332,12 +331,13 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "getApprovePage",notes = "审批列表 ",httpMethod ="POST")
     @PostMapping("/getApprovePage")
-    public ApiResponse<List<ApprovaReesultVO>> getApprovePage(@RequestBody ApproveInfoDTO approveInfoDTO){
+    public ApiResponse<PageResult<ApprovaReesultVO>> getApprovePage(@RequestBody ApproveInfoDTO approveInfoDTO){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId=loginUser.getUser().getUserId();
         List<ApprovaReesultVO> page= applyInfoService.getApprovePage(approveInfoDTO.getPageIndex(),approveInfoDTO.getPageSize(),userId);
-        return ApiResponse.success(page);
+        Integer count=applyInfoService.getApprovePageCount(userId);
+        return ApiResponse.success(new PageResult<ApprovaReesultVO>(Long.valueOf(count), page));
     }
 
     /**

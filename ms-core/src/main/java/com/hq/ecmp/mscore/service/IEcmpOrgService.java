@@ -18,12 +18,20 @@ public interface IEcmpOrgService
 {
 
     /**
-     * 查询部门列表
+     * 显示公司组织结构
      *
      * @param deptId 部门ID
-     * @return deptList
+     * @return
      */
-    public List<EcmpOrgDto> getDeptList(Long deptId,String deptType);
+    public List<EcmpOrgDto> selectCombinationOfCompany(Long deptId,String deptType);
+
+    /**
+     * 显示公司列表
+     *
+     * @param deptId 部门ID
+     * @return
+     */
+    public List<EcmpOrgDto> selectCompanyList(Long deptId,String deptType);
     /**
      * 查询部门详情
      *
@@ -31,6 +39,14 @@ public interface IEcmpOrgService
      * @return ecmpOrg
      */
     public EcmpOrgDto getDeptDetails(Long deptId);
+
+    /**
+     * 查询分/子公司、部门编号是否已存在
+     *
+     * @param deptCode 分/子公司、部门编号
+     * @return ecmpOrg
+     */
+    public int selectDeptCodeExist(String deptCode);
     /*
     * 添加部门
     *  @param  ecmpOrg
@@ -44,13 +60,6 @@ public interface IEcmpOrgService
      * @return int
      * */
     public int updateDept(EcmpOrgVo ecmpOrg);
-    /**
-     * 部门编号验证
-     * @param  deptCode
-     * @return
-     * */
-    public int  getCheckingDeptCode(String deptCode);
-
 
     /**
      * 查询部门
@@ -149,5 +158,13 @@ public interface IEcmpOrgService
      * @return 结果
      */
     public String updateUseStatus(String status,Long userId);
+
+    /**
+     * 按照分子公司名称或编号模糊
+     *
+     * @param deptName deptCode
+     * @return 结果
+     */
+    public List<EcmpOrgDto> selectCompanyByDeptNameOrCode(String deptNameOrCode);
 
 }

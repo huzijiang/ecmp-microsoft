@@ -99,7 +99,7 @@ public interface EcmpUserMapper
     public int updateRelationUseStatus(@Param("deptId") Long deptId, @Param("status") String status);
 
     /*
-     * 获取上级组织id中的员工姓名和电话
+     * 获取上级组织id中的员工姓名和电话、邮箱
      *  @param  deptid--上级组织id
      * @return List<EcmpUserDto>
      * */
@@ -231,10 +231,26 @@ public interface EcmpUserMapper
     public int userItisExist(String phoneNumber);
 
     //查询该员工部门领导
-    UserVO findDeptLeader(long parseLong);
+    UserVO findDeptLeader(Long deptId);
 
     List<EcmpUser> selectUserListByUserIds(String userIds);
 
     List<EcmpUser> getListByUserIds(List<Long> userIds);
+
+    /**
+     * 查询上级部门下的所有员工
+     * @param
+     * @return
+     */
+    List<EcmpUserDto> selectUserByDeptId(Long deptId);
+
+    /**
+     * 查询员工工号是否已存在
+     *
+     * @param jobNumber 员工工号
+     * @return
+     */
+    public int selectJobNumberExist(String jobNumber);
+    List<EcmpUser> getListByUserIds(@Param("userIds") List<Long> userIds);
 }
 
