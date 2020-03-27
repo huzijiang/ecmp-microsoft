@@ -124,4 +124,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getAllApproveUserId" resultType="String">
         select group_concat(distinct user_id) userId from approve_template_node_info where approve_template_id=#{approveTemplateId}
     </select>
+    <select id="selectFirstOpproveNode" resultMap="ApproveTemplateNodeInfoResult">
+         SELECT t1.approve_node_id, t1.approve_template_id, t1.approver_type, t1.leader_level, t1.role_id, t1.user_id,t1.next_node_id
+         FROM approve_template_node_info t1
+        WHERE t1.approve_template_id = (SELECT t2.approve_template_id FROM regime_info t2 WHERE regimen_id = #{regimeId})
+        ORDER BY t1.approve_node_id ASC
+        LIMIT 0,1
+    </select>
 </mapper>

@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.vo.RegimenVO;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,19 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.mscore.domain.RegimeInfo;
-import com.hq.ecmp.mscore.domain.RegimeOpt;
-import com.hq.ecmp.mscore.domain.RegimePo;
-import com.hq.ecmp.mscore.domain.RegimeQueryPo;
-import com.hq.ecmp.mscore.domain.RegimeUseCarCityRuleInfo;
-import com.hq.ecmp.mscore.domain.RegimeUseCarTimeRuleInfo;
-import com.hq.ecmp.mscore.domain.RegimeVo;
-import com.hq.ecmp.mscore.domain.SceneInfo;
-import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
-import com.hq.ecmp.mscore.mapper.CarGroupServeScopeInfoMapper;
-import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
-import com.hq.ecmp.mscore.mapper.SceneRegimeRelationMapper;
-import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
 import com.hq.ecmp.mscore.service.IRegimeUseCarCityRuleInfoService;
 import com.hq.ecmp.mscore.service.IRegimeUseCarTimeRuleInfoService;
@@ -58,6 +47,8 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
     private ISceneInfoService sceneInfoService;
     @Autowired
     private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
+    @Autowired
+	private ApproveTemplateNodeInfoMapper approveTemplateNodeInfoMapper;
 
 
     /**
@@ -155,7 +146,15 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
             regimeIds.retainAll(regimenIds2);
         }
         //根据regimeId集合查询RegimeInfo集合
-        List<RegimenVO> regimeInfoList = regimeIds.stream().map(regimeId->regimeInfoMapper.selectRegimenVOById(regimeId)).collect(Collectors.toList());
+		List<RegimenVO> regimeInfoList = new ArrayList<>();
+		for (Long regimeId : regimeIds) {
+			RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(regimeId);
+			//查询制度对应的审批第一个节点类型
+			ApproveTemplateNodeInfo approveTemplateNodeInfo = approveTemplateNodeInfoMapper.selectFirstOpproveNode(regimeId);
+			String approverType = approveTemplateNodeInfo.getApproverType();
+			regimenVO.setFirstOpproveNodeTypeIsProjectLeader(approverType == "T004" ? true : false);
+			regimeInfoList.add(regimenVO);
+		}
         return regimeInfoList;
     }
 
