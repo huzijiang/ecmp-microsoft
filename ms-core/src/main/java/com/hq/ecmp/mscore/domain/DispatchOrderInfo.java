@@ -31,6 +31,8 @@ public class DispatchOrderInfo {
        	
        	Date endDate;//预计结束时间
        	
+       	String itIsReturn;//是否往返   Y000-是        N444 -否
+       	
        	Long waitMinute;//等待时间  分钟
        	
        	String useCarMode;//自有车- W100   网约车  -W200    多个以"、"分隔
@@ -44,6 +46,10 @@ public class DispatchOrderInfo {
        	Date auditSuccessDate;//调度单审批通过时间    调度单
        	
        	Date applyReassignmentDate;//申请改派时间     改派单
+       	
+       	Date updateDate;//用作排序的时间
+       	
+       	Date applyPassDate;//用车申请单通过的时间
        	
        
        	String carType;//车型

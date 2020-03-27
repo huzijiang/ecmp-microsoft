@@ -8,9 +8,7 @@ import com.hq.ecmp.mscore.dto.IsContinueReDto;
 import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
 import com.hq.ecmp.mscore.service.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,41 +30,42 @@ import java.util.Map;
 @Slf4j
 public class DriverOrderServiceImpl implements IDriverOrderService {
 
-    @Autowired
-    @Lazy
+    @Resource
     IOrderInfoService iOrderInfoService;
 
-    @Autowired
+    @Resource
     IOrderStateTraceInfoService iOrderStateTraceInfoService;
 
-    @Autowired
+    @Resource
     IOrderWaitTraceInfoService iOrderWaitTraceInfoService;
 
-    @Autowired
+    @Resource
     IOrderSettlingInfoService iOrderSettlingInfoService;
 
-    @Autowired
+    @Resource
     IJourneyPassengerInfoService iJourneyPassengerInfoService;
 
-    @Autowired
+    @Resource
     ICarInfoService iCarInfoService;
 
-    @Autowired
+    @Resource
     IDriverInfoService iDriverInfoService;
 
-    @Autowired
+    @Resource
     IOrderViaInfoService iOrderViaInfoService;
 
-    @Autowired
+    @Resource
     ICarGroupInfoService iCarGroupInfoService;
 
-    @Autowired
+    @Resource
     IOrderAddressInfoService iOrderAddressInfoService;
 
-    @Autowired
+    @Resource
     ThirdService thirdService;
-    @Autowired
+    @Resource
     IEcmpConfigService iEcmpConfigService;
+    @Resource
+    IsmsBusiness ismsBusiness;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -118,6 +117,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             //订单轨迹状态
             orderStateTraceInfo.setState(OrderStateTrace.PRESERVICE.getState());
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            //司机到达发送短信
+            ismsBusiness.sendSmsDriverArrivePrivate(orderId);
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             String longAddr = "";
@@ -165,6 +166,10 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             //订单轨迹状态
             orderStateTraceInfo.setState(OrderStateTrace.SERVICE.getState());
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            //司机开始服务发送短信
+            ismsBusiness.sendSmsDriverBeginService(orderId);
+            //司机开始服务发送消息给乘车人和申请人（行程通知）
+            ismsBusiness.sendMessageServiceStart(orderId, userId);
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             String longAddr = "";
@@ -222,6 +227,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderSettlingInfo.setTotalTime(Integer.parseInt(travelTime));
             orderSettlingInfo.setCreateBy(String.valueOf(userId));
             iOrderSettlingInfoService.insertOrderSettlingInfo(orderSettlingInfo);
+            //司机服务结束发送短信
+            ismsBusiness.sendSmsDriverServiceComplete(orderId);
 
         }else{
             throw new Exception("操作类型有误");

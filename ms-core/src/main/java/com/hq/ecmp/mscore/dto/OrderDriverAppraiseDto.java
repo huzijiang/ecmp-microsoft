@@ -31,7 +31,7 @@ public class OrderDriverAppraiseDto {
     private String item;
 
     @ApiModelProperty(value = "得分",notes = "0-10分  对应 5颗星,比如：3分 代表1颗半星")
-    private int  score;
+    private String  score;
 
     @ApiModelProperty(value = "评价内容")
     private String content;

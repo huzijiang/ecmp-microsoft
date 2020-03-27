@@ -20,10 +20,7 @@ import com.hq.ecmp.mscore.service.DriverServiceAppraiseeInfoService;
 import com.hq.ecmp.mscore.service.IOrderAddressInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
-import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
-import com.hq.ecmp.mscore.vo.OfficialOrderReVo;
-import com.hq.ecmp.mscore.vo.OrderStateVO;
-import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -432,21 +429,25 @@ public class OrderController {
      * @param carId
      * @return
      */
-    @ApiOperation(value = "ownCarSendCar", notes = "自有车派车", httpMethod = "POST")
-    @PostMapping("/ownCarSendCar")
-    public ApiResponse ownCarSendCar(Long orderId,Long driverId,Long carId) {
-    	 HttpServletRequest request = ServletUtils.getRequest();
-         LoginUser loginUser = tokenService.getLoginUser(request);
-         Long userId = loginUser.getUser().getUserId();
-         boolean ownCarSendCar = iOrderInfoService.ownCarSendCar(orderId, driverId, carId, userId);
-         if(ownCarSendCar){
-        	 return ApiResponse.success();
-         }else{
-        	 return ApiResponse.error("调派单【"+orderId+"】自有车派车失败");
-         }
+	@ApiOperation(value = "ownCarSendCar", notes = "自有车派车", httpMethod = "POST")
+	@PostMapping("/ownCarSendCar")
+	public ApiResponse ownCarSendCar(Long orderId, Long driverId, Long carId) {
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		Long userId = loginUser.getUser().getUserId();
+		try {
+			boolean ownCarSendCar = iOrderInfoService.ownCarSendCar(orderId, driverId, carId, userId);
+			if (ownCarSendCar) {
+				return ApiResponse.success();
+			} else {
+				return ApiResponse.error("调派单【" + orderId + "】自有车派车失败");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error("调派单【" + orderId + "】自有车派车异常", e);
+		}
 
-    }
-
+	}
 
     /**
      * 评价 订单
@@ -494,27 +495,7 @@ public class OrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            if ("1".equals(status)) {
-                OrderInfo orderInfo = new OrderInfo();
-                orderInfo.setState(OrderState.WAITINGLIST.getState());
-                orderInfo.setUpdateBy(String.valueOf(userId));
-                orderInfo.setOrderId(Long.parseLong(orderNo));
-                iOrderInfoService.updateOrderInfo(orderInfo);
-                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
-                orderStateTraceInfo.setCreateBy(String.valueOf(userId));
-                orderStateTraceInfo.setState(ResignOrderTraceState.AGREE.getState());
-                orderStateTraceInfo.setOrderId(Long.parseLong(orderNo));
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-            } else if ("2".equals(status)) {
-                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
-                orderStateTraceInfo.setCreateBy(String.valueOf(userId));
-                orderStateTraceInfo.setState(ResignOrderTraceState.DISAGREE.getState());
-                orderStateTraceInfo.setOrderId(Long.parseLong(orderNo));
-                orderStateTraceInfo.setContent(rejectReason);
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-            } else {
-                throw new Exception("操作异常");
-            }
+            iOrderInfoService.reassign(orderNo,rejectReason,status,userId);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -531,18 +512,19 @@ public class OrderController {
     **/
     @ApiOperation(value = "driverOrderList", notes = "获取司机的我的任务列表")
     @RequestMapping("/driverOrderList")
-    public ApiResponse<List<OrderDriverListInfo>> driverOrderList(@RequestBody PageRequest driverListRequest) {
+    public ApiResponse<PageResult<OrderDriverListInfo>> driverOrderList(@RequestBody PageRequest driverListRequest) {
         List<OrderDriverListInfo> driverOrderList = null;
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
             driverOrderList = iOrderInfoService.getDriverOrderList(userId, driverListRequest.getPageNum(), driverListRequest.getPageSize());
+            Integer count=iOrderInfoService.getDriverOrderListCount(userId);
+            return ApiResponse.success(new PageResult<OrderDriverListInfo>(Long.valueOf(count),driverOrderList));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
         }
-        return ApiResponse.success(driverOrderList);
     }
 
     /**
@@ -619,7 +601,7 @@ public class OrderController {
             driverServiceAppraiseeInfo.setCarId(orderDriverAppraiseDto.getCardId());
             driverServiceAppraiseeInfo.setContent(orderDriverAppraiseDto.getContent());
             driverServiceAppraiseeInfo.setDriverId(orderDriverAppraiseDto.getDriverId());
-            driverServiceAppraiseeInfo.setScore(orderDriverAppraiseDto.getScore());
+            driverServiceAppraiseeInfo.setScore(Double.parseDouble(orderDriverAppraiseDto.getScore()));
             driverServiceAppraiseeInfo.setOrderId(orderDriverAppraiseDto.getOrderId());
             driverServiceAppraiseeInfo.setItem(orderDriverAppraiseDto.getItem());
             driverServiceAppraiseeInfo.setCreateBy(userId);

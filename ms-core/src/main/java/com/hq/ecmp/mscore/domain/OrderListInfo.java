@@ -26,9 +26,9 @@ public class OrderListInfo {
     //出发日期
     private String setOutTime;
     //出发地址
-    private AddressVO setOutAddress;
+    private String setOutAddress;
     //到达地
-    private AddressVO arriveAddress;
+    private String arriveAddress;
     //订单编号
     private String orderNumber;
 

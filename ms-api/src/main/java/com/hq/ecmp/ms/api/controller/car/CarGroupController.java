@@ -11,10 +11,7 @@ import com.hq.ecmp.mscore.dto.CarGroupDTO;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.SubGroupListDTO;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
-import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
-import com.hq.ecmp.mscore.vo.CarGroupListVO;
-import com.hq.ecmp.mscore.vo.PageResult;
-import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -186,4 +183,21 @@ public class CarGroupController {
             return ApiResponse.error("查询下级车队列表失败");
         }
     }
+
+    /**
+     * 查询车队所有调度员及车队座机
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCarGroupPhone",notes = "查询车队联系电话",httpMethod ="POST")
+    @PostMapping("/getCarGroupPhone")
+    public ApiResponse<CarGroupPhoneVO> getCarGroupPhone(String cityCode){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        //TODO 要找哪个车队  到外地用车，外地有多个车队，我该找哪个
+        CarGroupPhoneVO  carGroupPhone = carGroupInfoService.getCarGroupPhone(userId);
+        return null;
+    }
+
 }

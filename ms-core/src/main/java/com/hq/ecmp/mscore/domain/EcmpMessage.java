@@ -82,13 +82,15 @@ M999  其他
         this.categoryId = categoryId;
     }
 
-    public EcmpMessage(Integer configType, String status,Long ecmpId) {
+    public EcmpMessage(Integer configType, String status, Long ecmpId, Long categoryId, String category) {
         this.configType = configType;
-        this.status = status;
         this.ecmpId = ecmpId;
+        this.categoryId = categoryId;
+        this.status = status;
+        this.category = category;
     }
 
-    public EcmpMessage(Integer configType, Long ecmpId, Long categoryId, String type, String status, String content, String category,Long createBy,Date createTime) {
+    public EcmpMessage(Integer configType, Long ecmpId, Long categoryId, String type, String status, String content, String category, Long createBy, Date createTime) {
         this.configType = configType;
         this.ecmpId = ecmpId;
         this.categoryId = categoryId;

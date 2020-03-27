@@ -25,6 +25,7 @@ public class MessageDto {
     private Long messageId;
     private Long id;
     private String useCarMode;
+    private Integer configType;
 
     public MessageDto() {
     }

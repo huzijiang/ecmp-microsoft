@@ -127,15 +127,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
     <!--根据时间区间、开票状态查询发票信息-->
-    <select id="queryAllByLimit" resultMap="InvoiceInfoResult">
-      select invoice_id, amount, header, accept_address, content, status
-      from invoice_info where status = #{state} and
+    <select id="queryAllByTimeState" resultType="com.hq.ecmp.mscore.vo.InvoiceRecordVO">
+        select create_time as createTime,header as header,amount as amount,content as content,accept_address as acceptAddress,status as status from invoice_info
+        <where>
         <if test="startTime != null and startTime != '' ">
             and create_time <![CDATA[>=]]> #{startTime}
         </if>
         <if test="endTime != null and endTime != '' ">
             and create_time <![CDATA[<=]]> #{endTime}
         </if>
+        <if test="status != null and status != '' ">
+            and status = #{state}
+        </if>
+        </where>
     </select>
     <insert id="insertInvoiceHeader" parameterType="com.hq.ecmp.mscore.vo.InvoiceHeaderVO" useGeneratedKeys="true" keyProperty="invoiceId">
         insert into invoice_info

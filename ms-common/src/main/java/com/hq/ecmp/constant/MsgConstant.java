@@ -16,6 +16,7 @@ public enum MsgConstant {
     MESSAGE_T006("行程通知","M006"),
     MESSAGE_T007("新任务通知","M007"),
     MESSAGE_T00("任务即将开始通知","M008"),
+    MESSAGE_T009("派车通知","M009"),
     MESSAGE_T999("其他","M999");
 
 

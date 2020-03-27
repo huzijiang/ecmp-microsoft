@@ -105,6 +105,8 @@ public class JourneyNodeInfoServiceImpl implements IJourneyNodeInfoService
 			for (JourneyNodeInfo journeyNodeInfo : list) {
 				cityList.add(journeyNodeInfo.getPlanBeginAddress());
 			}
+			//获取行程的目的城市
+			cityList.add(list.get(list.size()-1).getPlanEndAddress());
 		}
 		return cityList;
 	}

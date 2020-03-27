@@ -422,11 +422,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @return
      */
     @Override
-    public List<ApplyInfoDTO> selectApplyInfoListByPage(Long userId, Integer pageNum, Integer pageSize) {
+    public PageResult<ApplyInfoDTO> selectApplyInfoListByPage(Long userId, Integer pageNum, Integer pageSize) {
         //分页查询申请列表
         PageHelper.startPage(pageNum,pageSize);
         List<ApplyInfoDTO> all = applyInfoMapper.selectApplyInfoListByPage(userId);
-        return all;
+        PageInfo<ApplyInfoDTO> pageInfo = new PageInfo<>(all);
+        PageResult<ApplyInfoDTO> pageResult = new PageResult<>(pageInfo.getTotal(),pageInfo.getPages(),all);
+        return pageResult;
     }
 
     /**
@@ -623,6 +625,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             }
         }
         return applyApproveResultInfos;
+    }
+
+    @Override
+    public Integer getApprovePageCount(Long userId) {
+        return resultInfoMapper.getApprovePageCount(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
     }
 
     /**
@@ -951,8 +958,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param applyId 申请id
      */
     private void sendApplyNoticeToSelf(Long userId, Long applyId) {
-        EcmpMessage ecmpMessage1 = EcmpMessage.builder().configType(1).ecmpId(userId).categoryId(applyId).type("T001")
-                .status("1111").category("M001").content("你有一条申请待审批").url("")
+        EcmpMessage ecmpMessage1 = EcmpMessage.builder().configType(MsgUserConstant.MESSAGE_USER_USER.getType())
+                .ecmpId(userId).categoryId(applyId).type(MsgTypeConstant.MESSAGE_TYPE_T001.getType())
+                .status(MsgStatusConstant.MESSAGE_STATUS_T002.getType())
+                .category(MsgConstant.MESSAGE_T001.getType()).content("你有一条申请待审批").url("")
                 .createBy(userId).createTime(new Date()).updateBy(null).updateTime(null).build();
         int j = ecmpMessageMapper.insert(ecmpMessage1);
         if(j != 1){
@@ -969,12 +978,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private void sendNoticeToApprover(Long applyId, Long userId, ApprovalVO approver) {
         EcmpMessage ecmpMessage;
         ecmpMessage = EcmpMessage.builder()
-                .configType(4)                 //对应用户类型（1.乘客，2.司机，3.调度员。4，审批员）
+                .configType(MsgUserConstant.MESSAGE_USER_APPROVAL.getType())                 //对应用户类型（1.乘客，2.司机，3.调度员。4，审批员）
                 .ecmpId(Long.valueOf(approver.getUserId()))  //对应用户类型id  configType为 2 此处为 driverId ，否则此处为userId
                 .categoryId(applyId)   // 类别id 申请则为申请id 订单类则为 订单id
-                .type("T001")  //消息类型 T001-业务消息 T002- T003  T004
-                .status("1111")   //消息状态 0000-已读  1111-未读
-                .category("M001")   //消息类别，随业务自行添加 M001  申请通知 M002  审批通知 M003  调度通知 M004  订单改派 M005  订单取消 M999  其他
+                .type(MsgTypeConstant.MESSAGE_TYPE_T001.getType())  //消息类型 T001-业务消息 T002- T003  T004
+                .status(MsgStatusConstant.MESSAGE_STATUS_T002.getType())   //消息状态 0000-已读  1111-未读
+                .category(MsgConstant.MESSAGE_T001.getType())   //消息类别，随业务自行添加 M001  申请通知 M002  审批通知 M003  调度通知 M004  订单改派 M005  订单取消 M999  其他
                 .content("你有一条申请通知")
                 .url("") //事项处理跳转链接地址， 需要密切联系业务调整规则 大部分应该是跳转到  事项处理的列表页 单个具体事项出题 请带上 业务的主键ID，
                 .createBy(userId)
