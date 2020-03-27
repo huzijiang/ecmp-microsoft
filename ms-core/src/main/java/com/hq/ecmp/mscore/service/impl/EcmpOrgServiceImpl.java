@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
@@ -92,12 +93,12 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         List<EcmpOrgDto> companyList = new ArrayList<>();
         List<Long> deptIdList = new ArrayList<>();
         if(deptId!=null){
-            deptIdList = ecmpOrgMapper.selectCompanyByParentId(deptId, "1");
+            deptIdList = ecmpOrgMapper.selectCompanyByParentId(deptId, OrgConstant.DEPT_TYPE_1);
             EcmpOrgDto supDto=ecmpOrgMapper.getSubDetail(deptId);
             String supComName=supDto.getDeptName();
             if(deptIdList.size()>0){
                 for (Long deptId1:deptIdList) {
-                    EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectCompanyList(deptId1,"1");
+                    EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectCompanyList(deptId1,OrgConstant.DEPT_TYPE_1);
                     ecmpOrgDto.setSupComName(supComName);
                     companyList.add(ecmpOrgDto);
                 }
@@ -112,6 +113,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @param deptId 部门ID
      * @return ecmpOrg
      */
+    @Override
     public EcmpOrgDto getDeptDetails(Long deptId){
         return ecmpOrgMapper.selectByDeptId(deptId);
     }
@@ -122,6 +124,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @param deptCode 分/子公司、部门编号
      * @return ecmpOrg
      */
+    @Override
     public int selectDeptCodeExist(String deptCode){
             return ecmpOrgMapper.selectDeptCodeExist(deptCode);
     }
@@ -172,6 +175,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @return int
      * */
     @Transactional
+    @Override
     public int updateDept(EcmpOrgVo ecmpOrg){
         ecmpOrg.setUpdateTime(DateUtils.getNowDate());
         //添加部门
@@ -273,6 +277,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      *查询子公司列表
      * @return
      */
+    @Override
     public String[] selectSubCompany(Long deptId) {
         String[] subCompany = ecmpOrgMapper.selectSubCompany(deptId);
         return subCompany;
@@ -282,6 +287,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      *查询分/子公司详情
      * @return
      */
+    @Override
     public EcmpOrgDto getSubDetail(Long deptId) {
         return ecmpOrgMapper.getSubDetail(deptId);
     }
@@ -293,6 +299,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @return 结果
      */
     @Transactional
+    @Override
     public String updateDelFlagById(String deptType,Long deptId) {
         //根据deptId查询组织下级是否有数据信息 ecmpOrgNum>0不可删除
         int ecmpOrgNum = ecmpOrgMapper.selectByAncestorsLikeDeptId(deptId);
@@ -336,6 +343,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @return 结果
      */
     @Transactional
+    @Override
     public int updateDelFlagByIds(Long[] deptIds) {
         return ecmpOrgMapper.updateDelFlagByIds(deptIds);
     }
@@ -347,6 +355,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @return 结果
      */
     @Transactional
+    @Override
     public String updateUseStatus(String status,Long deptId){
         //禁用/启用  分/子公司
         int i = ecmpOrgMapper.updateUseStatus(status,deptId.toString(),deptId);
@@ -365,6 +374,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @param deptNameOrCode
      * @return 结果
      */
+    @Override
     public List<EcmpOrgDto> selectCompanyByDeptNameOrCode(String deptNameOrCode){
         return ecmpOrgMapper.selectCompanyByDeptNameOrCode(deptNameOrCode,deptNameOrCode);
     }
