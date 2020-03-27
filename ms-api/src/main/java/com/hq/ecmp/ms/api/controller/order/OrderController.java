@@ -599,7 +599,7 @@ public class OrderController {
             driverServiceAppraiseeInfo.setCarId(orderDriverAppraiseDto.getCardId());
             driverServiceAppraiseeInfo.setContent(orderDriverAppraiseDto.getContent());
             driverServiceAppraiseeInfo.setDriverId(orderDriverAppraiseDto.getDriverId());
-            driverServiceAppraiseeInfo.setScore(orderDriverAppraiseDto.getScore());
+            driverServiceAppraiseeInfo.setScore(Double.parseDouble(orderDriverAppraiseDto.getScore()));
             driverServiceAppraiseeInfo.setOrderId(orderDriverAppraiseDto.getOrderId());
             driverServiceAppraiseeInfo.setItem(orderDriverAppraiseDto.getItem());
             driverServiceAppraiseeInfo.setCreateBy(userId);

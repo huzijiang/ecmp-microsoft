@@ -87,11 +87,12 @@ public class MessageController {
 		HttpServletRequest request = ServletUtils.getRequest();
 		LoginUser loginUser = tokenService.getLoginUser(request);
 		try{
-			EcmpMessage message = ecmpMessageService.queryById(messageDto.getId());
-			if (message!=null&&!MsgStatusConstant.MESSAGE_STATUS_T001.getType().equals(message.getStatus())){
-				message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T001.getType());
-				ecmpMessageService.update(message);
-			}
+			ecmpMessageService.readMessage(messageDto,loginUser.getUser());
+//			EcmpMessage message = ecmpMessageService.queryById(messageDto.getId());
+//			if (message!=null&&!MsgStatusConstant.MESSAGE_STATUS_T001.getType().equals(message.getStatus())){
+//				message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T001.getType());
+//				ecmpMessageService.update(message);
+//			}
 			return ApiResponse.success();
 		}catch (Exception e){
 			e.printStackTrace();

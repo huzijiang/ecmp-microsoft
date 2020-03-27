@@ -625,6 +625,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         return applyApproveResultInfos;
     }
 
+    @Override
+    public Integer getApprovePageCount(Long userId) {
+        return resultInfoMapper.getApprovePageCount(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
+    }
+
     /**
      * 提交差旅乘客信息表
      * @param travelCommitApply

@@ -108,4 +108,5 @@ public interface IApplyInfoService
 
     List<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId);
 
+    Integer getApprovePageCount(Long userId);
 }

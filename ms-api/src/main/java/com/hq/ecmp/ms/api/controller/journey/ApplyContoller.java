@@ -262,7 +262,8 @@ public class ApplyContoller {
                             resultInfo.setUpdateBy(userId+"");
                             resultInfoService.updateApplyApproveResultInfo(resultInfo);
                             //给下一审批人发送消息
-                            ecmpMessageService.sendNextApproveUsers(resultInfo.getApproveUserId(),journeyApplyDto.getApplyId(),userId);
+                            //TODO 第一期发起申请就会给所有级审批员发消息
+//                            ecmpMessageService.sendNextApproveUsers(resultInfo.getApproveUserId(),journeyApplyDto.getApplyId(),userId);
                         }
                     }
                 }
@@ -278,6 +279,8 @@ public class ApplyContoller {
                 }
                 List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(applyInfo.getJourneyId());
                 if (CollectionUtils.isNotEmpty(carAuthorityInfos)){
+                    int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
+                    ecmpMessageService.applyUserPassMessage(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
                     for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
                         int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:ZERO;
                         OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
@@ -332,12 +335,13 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "getApprovePage",notes = "审批列表 ",httpMethod ="POST")
     @PostMapping("/getApprovePage")
-    public ApiResponse<List<ApprovaReesultVO>> getApprovePage(@RequestBody ApproveInfoDTO approveInfoDTO){
+    public ApiResponse<PageResult<ApprovaReesultVO>> getApprovePage(@RequestBody ApproveInfoDTO approveInfoDTO){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId=loginUser.getUser().getUserId();
         List<ApprovaReesultVO> page= applyInfoService.getApprovePage(approveInfoDTO.getPageIndex(),approveInfoDTO.getPageSize(),userId);
-        return ApiResponse.success(page);
+        Integer count=applyInfoService.getApprovePageCount(userId);
+        return ApiResponse.success(new PageResult<ApprovaReesultVO>(Long.valueOf(count), page));
     }
 
     /**

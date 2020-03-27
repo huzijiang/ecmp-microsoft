@@ -77,4 +77,6 @@ public interface ApplyApproveResultInfoMapper
     void insertList(List<ApplyApproveResultInfo> list);
 
     List<ApplyApproveResultInfo> selectByUserId(@Param("applyId") Long applyId,@Param("userId")  Long userId,@Param("state") String state);
+
+    Integer getApprovePageCount(@Param("userId") Long userId, @Param("state") String state);
 }
