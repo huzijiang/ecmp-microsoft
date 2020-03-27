@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.*;
 
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.ApproveTypeEnum;
 import com.hq.ecmp.mscore.domain.ApproveTemplateInfo;
@@ -10,17 +11,17 @@ import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.dto.AddFolwDTO;
 import com.hq.ecmp.mscore.dto.FolwInfoDTO;
-import com.hq.ecmp.mscore.mapper.ApproveTemplateInfoMapper;
-import com.hq.ecmp.mscore.mapper.ApproveTemplateNodeInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpUserRoleMapper;
-import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
 import com.hq.ecmp.mscore.vo.ApprovalListVO;
 import com.hq.ecmp.mscore.vo.ApprovalUserVO;
+import com.hq.ecmp.mscore.vo.UserVO;
 import com.hq.ecmp.util.SortListUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
 
 /**
@@ -40,6 +41,10 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
     private EcmpUserRoleMapper userRoleMapper;
     @Autowired
     private RegimeInfoMapper regimeInfoMapper;
+    @Autowired
+    private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private ProjectInfoMapper projectInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -130,14 +135,14 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
         int count = approveTemplateInfoMapper.insertApproveTemplateInfo(approveTemplateInfo);
         List<FolwInfoDTO> flowList = addFolwDTO.getFlowList();
         if (CollectionUtils.isNotEmpty(flowList)){
-            SortListUtil.sort(flowList, "number", SortListUtil.DESC);
-            String nextNodeId="0";
+            SortListUtil.sort(flowList, "number", SortListUtil.ASC);
+            Long approveNodeId=0l;
             for (int i=0;i<flowList.size();i++){
                 ApproveTemplateNodeInfo nodeInfo=new ApproveTemplateNodeInfo();
                 nodeInfo.setApproverType(flowList.get(i).getType());
                 nodeInfo.setApproveTemplateId(approveTemplateInfo.getApproveTemplateId());
                 nodeInfo.setRoleId(flowList.get(i).getRoleIds());
-                nodeInfo.setNextNodeId(nextNodeId);
+                nodeInfo.setNextNodeId(String.valueOf(ZERO));
                 nodeInfo.setCreateBy(String.valueOf(userId));
                 nodeInfo.setCreateTime(new Date());
                 if (ApproveTypeEnum.APPROVE_T002.getKey().equals(flowList.get(i).getType())){
@@ -147,7 +152,12 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
                     nodeInfo.setUserId(flowList.get(i).getUserIds());
                 }
                 approveTemplateNodeInfoMapper.insertApproveTemplateNodeInfo(nodeInfo);
-                nextNodeId=String.valueOf(nodeInfo.getApproveNodeId());
+                if (i==0){
+                    approveNodeId=nodeInfo.getApproveNodeId();
+                }else if (i>0){
+                    approveTemplateNodeInfoMapper.updateApproveTemplateNodeInfo(new ApproveTemplateNodeInfo(approveNodeId,String.valueOf(nodeInfo.getApproveNodeId())));
+                    approveNodeId=nodeInfo.getApproveNodeId();
+                }
             }
         }
     }
@@ -175,13 +185,31 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
     }
 
     @Override
-    public List<ApprovalUserVO> getApprovalList(Long regimeId) {
+    public List<ApprovalUserVO> getApprovalList(Long regimeId,Long projectId,Long userId) {
         RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimeId);
         if (regimeInfo==null){
             return null;
         }
-        String allApproveUserId = approveTemplateNodeInfoMapper.getAllApproveUserId(regimeInfo.getApproveTemplateId());
-        String trim = allApproveUserId.trim();
-        return approveTemplateNodeInfoMapper.getApproveUsers(trim);
+        List<ApproveTemplateNodeInfo> nodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId()));
+        String userIds="";
+        if (CollectionUtils.isNotEmpty(nodeInfos)){
+            for (ApproveTemplateNodeInfo info:nodeInfos){
+
+                if (ApproveTypeEnum.APPROVE_T001.getKey().equals(info.getApproverType())){//部门主管
+                    UserVO deptUser=ecmpUserMapper.findDeptLeader(userId);
+                    userIds+=","+deptUser.getUserId();
+                }else
+                if (ApproveTypeEnum.APPROVE_T004.getKey().equals(info.getApproverType())){//项目负责人
+                    UserVO userVO=projectInfoMapper.findLeader(projectId);
+                    userIds+=","+userVO.getUserId();
+                }else{
+                    userIds+=","+info.getUserId();
+                }
+            }
+        }
+        if (StringUtils.isNotEmpty(userIds)){
+            userIds=userIds.substring(1);
+        }
+        return approveTemplateNodeInfoMapper.getApproveUsers(userIds);
     }
 }

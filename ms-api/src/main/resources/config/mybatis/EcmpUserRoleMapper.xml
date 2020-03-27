@@ -57,6 +57,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="findUserIds" resultType="String">
         select group_concat(distinct user_id) from  ecmp_user_role
-        where role_id in (#{roleId})
+        where find_in_set(role_id,#{roleId})
     </select>
 </mapper>

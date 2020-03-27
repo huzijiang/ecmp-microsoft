@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.reflect.TypeToken;
+import com.google.gson.JsonObject;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CommonConstant;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Type;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.hq.ecmp.constant.CommonConstant.*;
@@ -419,4 +421,32 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
         }
         return ZERO;
     }
+
+    /**
+     * 获取启动页开屏图（无token）
+     * @return
+     */
+    /*@Override
+    public ConfigInfoDTO getStartupChart() {
+        EcmpConfig welcomeInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WELCOME_IMAGE_INFO.getConfigKey()).build());
+        ConfigInfoDTO configInfoDTO = new ConfigInfoDTO();
+        if (welcomeInfo != null) {
+            configInfoDTO.setWelcomeImageInfo(GsonUtils.jsonToBean(welcomeInfo.getConfigValue(), ConfigValueDTO.class));
+        }
+        return configInfoDTO;
+    }*/
+
+    /**
+     * 获取首页背景图
+     * @return
+     */
+    /*@Override
+    public ConfigInfoDTO getHomeChart() {
+        EcmpConfig backgroundInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BACKGROUND_IMAGE_INFO.getConfigKey()).build());        ConfigInfoDTO configInfoDTO = new ConfigInfoDTO();
+        ConfigInfoDTO configInfo = new ConfigInfoDTO();
+        if (backgroundInfo != null) {
+            configInfo.setBackgroundImageInfo(GsonUtils.jsonToBean(backgroundInfo.getConfigValue(), ConfigValueDTO.class));
+        }
+        return configInfo;
+    }*/
 }

@@ -44,6 +44,8 @@ public class ApprovaReesultVO {
     private String applyType;
     //是否往返
     private String itIsReturn;
+    private Date StartDate;
+    private Date endDate;
 
     public ApprovaReesultVO() {
 

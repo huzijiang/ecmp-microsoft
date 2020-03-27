@@ -70,6 +70,6 @@ public interface IApproveTemplateNodeInfoService
 
     void editFlowTemplate(AddFolwDTO addFolwDTO,Long userId)throws Exception ;
 
-    List<ApprovalUserVO> getApprovalList(Long regimeId);
+    List<ApprovalUserVO> getApprovalList(Long regimeId,Long projectId,Long userId);
 
 }

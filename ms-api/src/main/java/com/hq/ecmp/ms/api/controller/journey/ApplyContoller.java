@@ -281,7 +281,10 @@ public class ApplyContoller {
                     for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
                         int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:ZERO;
                         OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
-                        Long orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
+                        Long orderId=null;
+                        if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
+                            orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
+                        }
                         ecmpMessageService.saveApplyMessagePass(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
                     }
                 }
@@ -368,51 +371,12 @@ public class ApplyContoller {
         return ApiResponse.success("查询成功",count+"");
     }
 
-
-    //审批流信息排序
-//    private List<ApprovalListVO> getApproveList(String applyUser,String applyMobile,Long applyId,Date time){
-//        List<ApprovalListVO> result=new ArrayList<>();
-//        List<ApprovalInfoVO> applyApproveResultInfos = resultInfoService.getApproveResultList(new ApplyApproveResultInfo(applyId));
-//        List<ApprovalInfoVO> list=new ArrayList<>();
-//        list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请成功"));
-//        result.add(new ApprovalListVO(applyId,"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
-//        if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
-//            Map<String, List<ApprovalInfoVO>> collect = applyApproveResultInfos.stream().collect(Collectors.groupingBy(ApprovalInfoVO::getNextNodeId));
-//            if (collect!=null&&collect.size()>0){
-//                for ( Map.Entry<String, List<ApprovalInfoVO>> entry:collect.entrySet()){
-//                    List<ApprovalInfoVO> infoList=new ArrayList<>();
-//                    Date updateTime=entry.getValue().get(0).getTime();
-//                    String approveTime=updateTime==null?"":DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time);
-//                    for (ApprovalInfoVO info:entry.getValue()){
-//                        info.setApproveResult(ApproveStateEnum.format(info.getApproveResult()));
-//                        info.setApproveState(ApproveStateEnum.format(info.getApproveState()));
-//                        infoList.add(info);
-//                    }
-//                    result.add(new ApprovalListVO(applyId,"审批人",infoList,approveTime));
-//                }
-//            }
-//        }
-//        Collections.sort(result, new Comparator<ApprovalListVO>() {
-//            @Override
-//            public int compare(ApprovalListVO o1, ApprovalListVO o2) {
-//                int i = o1.getList().get(0).getApprovalNodeId().intValue()- o2.getList().get(0).getApprovalNodeId().intValue();
-//                if(i == 0){
-//                    return o1.getList().get(0).getApprovalNodeId().intValue() - o2.getList().get(0).getApprovalNodeId().intValue();
-//                }
-//                return i;
-//            }
-//        });
-//        return result;
-//    }
-
-
-
     private List<ApprovalListVO> getApproveList(String applyUser,String applyMobile,Long applyId,Date time){
         List<ApprovalListVO> result=new ArrayList<>();
         List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(applyId));
         List<ApprovalInfoVO> list=new ArrayList<>();
         //TODO 后期优化
-        list.add(new ApprovalInfoVO(99999999999l,applyUser,applyMobile,"发起申请","申请成功"));
+        list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请成功"));
         result.add(new ApprovalListVO(applyId,"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
         if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
            for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){
@@ -437,7 +401,7 @@ public class ApplyContoller {
             Collections.sort(result, new Comparator<ApprovalListVO>() {
                 @Override
                 public int compare(ApprovalListVO o1, ApprovalListVO o2) {
-                    int i = o2.getList().get(0).getApprovalNodeId().intValue()- o1.getList().get(0).getApprovalNodeId().intValue();
+                    int i = o1.getList().get(0).getApprovalNodeId().intValue()- o2.getList().get(0).getApprovalNodeId().intValue();
                     if(i == 0){
                         return o1.getList().get(0).getApprovalNodeId().intValue() - o2.getList().get(0).getApprovalNodeId().intValue();
                     }

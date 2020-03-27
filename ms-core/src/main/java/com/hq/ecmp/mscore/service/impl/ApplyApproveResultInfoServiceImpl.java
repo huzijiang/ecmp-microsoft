@@ -172,6 +172,12 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
         return applyApproveResultInfoMapper.selectByUserId(applyId,userId,state);
     }
 
+    /**
+     * 初始化审批流
+     * @param applyId 申请id
+     * @param regimenId 用车制度id
+     * @param userId 登录人id
+     */
     @Override
     public void initApproveResultInfo(Long applyId,Long regimenId,Long userId) {
         //查询审批模板
@@ -179,7 +185,7 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
         RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimenId);
         if (regimeInfo!=null){
             List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId()));
-            SortListUtil.sort(approveTemplateNodeInfos,"approveNodeId",SortListUtil.DESC);
+            SortListUtil.sort(approveTemplateNodeInfos,"approveNodeId",SortListUtil.ASC);
             if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos)){
                 for (int i=0;i<approveTemplateNodeInfos.size();i++ ){
                     ApproveTemplateNodeInfo info = approveTemplateNodeInfos.get(i);
