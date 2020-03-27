@@ -445,6 +445,17 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         return list;
     }
 
+    /**
+     * 车队调度员信息及座机查询
+     * @param userId
+     * @return
+     */
+    @Override
+    public CarGroupPhoneVO getCarGroupPhone(Long userId) {
+        //
+        return null;
+    }
+
 
     /**
      * 判断车队下是否有车辆

@@ -12,7 +12,9 @@ import com.hq.ecmp.mscore.domain.EcmpNoticeMapping;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpNoticeDTO;
 import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
 import com.hq.ecmp.mscore.service.EcmpNoticeMappingService;
+import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import com.hq.ecmp.mscore.service.IEcmpNoticeService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
@@ -44,8 +46,12 @@ public class NoticeController {
 
     @Autowired
     private EcmpNoticeMappingService ecmpNoticeMappingService;
+
     @Autowired
     TokenService tokenService;
+
+    @Autowired
+    private IEcmpConfigService ecmpConfigService;
 
     /**
      * 分页全部查询公告列表（带搜索功能 后台管理系统）
@@ -208,5 +214,14 @@ public class NoticeController {
         return ApiResponse.success("修改成功");
     }
 
+    /**
+     * 获取企业配置信息
+     */
+    @ApiOperation(value = "queryCompanyInfo ", notes = "获取企业配置信息")
+    @PostMapping("/queryCompanyInfo")
+    public ApiResponse<ConfigInfoDTO> query() {
+        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo();
+        return ApiResponse.success(configInfoDTO);
+    }
 
 }
