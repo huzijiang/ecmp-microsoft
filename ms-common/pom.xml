@@ -20,19 +20,19 @@
 	</properties>
 
 	<dependencies>
-		<!-- 红旗车辆管理系统后台基础框架包 -->
-		<dependency>
-			<groupId>com.hq.ecmp</groupId>
-			<artifactId>ecmp-base</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
+        <!-- 红旗车辆管理系统后台基础框架包 -->
+        <dependency>
+            <groupId>com.hq.ecmp</groupId>
+            <artifactId>ecmp-base</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>com.squareup.okhttp3</groupId>-->
-<!--			<artifactId>okhttp</artifactId>-->
-<!--			<version>4.2.2</version>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.2.2</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

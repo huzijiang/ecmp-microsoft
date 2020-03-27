@@ -214,25 +214,29 @@ public class JourneyController {
         int count= journeyInfoService.getJourneyListCount(userId);
         return ApiResponse.success("查询成功",count+"");
     }
+    /** @author
+     *  @Date 10:11 2020/3/9
+     *  @Description 判断是否有进行中的行程
+     */
+    @ApiOperation(value = "getWhetherJourney",notes = "判断是否有进行中的行程",httpMethod ="POST")
+    @PostMapping("/getWhetherJourney")
+    public ApiResponse<String> getWhetherJourney(){
 
-    /**
-     *
-     *   @Description 获取正在进行中行程详情
-     *   @Date 10:11 2020/3/10
-     *   @Param  []
-     *   @return com.hq.common.core.api.ApiResponse
-     **/
-   /* @ApiOperation(value = "获取正在进行中行程详情",httpMethod = "POST")
-    @RequestMapping("/getJourneyDetail")
-    public ApiResponse<OrderVO>getJourneyDetail(@RequestBody OrderDto orderDto){
         try {
-            OrderVO  orderVO = iOrderInfoService.orderBeServiceDetail(orderDto.getOrderId());
-            return ApiResponse.success(orderVO);
-        }catch (Exception e){
+            //获取调用接口的用户信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            int count = journeyInfoService.getWhetherJourney(userId);
+            if(count!=0){
+                return ApiResponse.success("有未完成的行程","1");
+            }
+            return ApiResponse.success("无未完成的行程","0");
+        } catch (Exception e) {
             e.printStackTrace();
-            return  ApiResponse.error("加载订单列表失败");
+            return ApiResponse.error(e.getMessage());
         }
-    }*/
 
+    }
 
 }

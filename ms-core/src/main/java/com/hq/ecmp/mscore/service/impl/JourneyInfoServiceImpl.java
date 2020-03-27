@@ -315,4 +315,13 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
         }
 		return vo;
 	}
+	/**
+	 * 判断是否有正在进行中的行程
+	 * @param userId
+	 * @return list
+	 */
+	@Override
+	public int getWhetherJourney(Long userId) {
+		return journeyInfoMapper.getWhetherJourney(userId);
+	}
 }

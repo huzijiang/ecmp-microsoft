@@ -357,7 +357,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(applyUserId);
         applyMobile = ecmpUser.getPhonenumber();
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
-        journeyPassengerInfo.setItIsPeer("1");
+        journeyPassengerInfo.setItIsPeer("01");
+        journeyPassengerInfo.setJourneyId(orderInfo.getJourneyId());
         List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(journeyPassengerInfo);
         if(journeyPassengerInfos.size()>0){
             riderMobile = journeyPassengerInfos.get(0).getMobile();

@@ -89,4 +89,11 @@ public interface JourneyInfoMapper
     List<JourneyInfo> queryPassJourneyList(Long userId);
 
     String selectTitleById(Long journeyId);
+    /**
+     * 判断是否有正在进行中的行程
+     *
+     * @param userId
+     * @return 个数
+     */
+    public int getWhetherJourney(Long userId);
 }

@@ -230,4 +230,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectTitleById" resultType="java.lang.String">
         select title from journey_info where journey_id = #{journeyId}
     </select>
+    <!--判断是否有正在进行中行程-->
+    <select id="getWhetherJourney"  parameterType="Long" resultType="java.lang.Integer" >
+      SELECT count(*) from (select a.order_id from order_info as a
+      left join journey_info as b on b.journey_id = a.journey_id
+      where  a.state!='S900' and b.user_id=#{userId}) c
+    </select>
 </mapper>

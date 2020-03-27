@@ -97,5 +97,11 @@ public interface IJourneyInfoService {
     public int getJourneyListCount(Long userId);
 
     JourneyDetailVO getItineraryDetail(Long powerId) throws Exception ;
-
+    /**
+     * 判断是否有正在进行中的行程
+     *
+     * @param userId
+     * @return 个数
+     */
+    public int getWhetherJourney(Long userId);
 }

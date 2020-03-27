@@ -584,9 +584,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Override
     public int getApplyApproveCount(Long userId) {
         //获取用户权限
-        List<EcmpUserRole> list=userRoleMapper.selectEcmpUserRoleList(new EcmpUserRole(userId));
-        List<Long> collect = list.stream().map(EcmpUserRole::getRoleId).collect(Collectors.toList());
-        return applyInfoMapper.getApplyApproveCount(userId, ApproveStateEnum.WAIT_APPROVE_STATE.getKey(),collect);
+//        List<EcmpUserRole> list=userRoleMapper.selectEcmpUserRoleList(new EcmpUserRole(userId));
+//        List<Long> collect = list.stream().map(EcmpUserRole::getRoleId).collect(Collectors.toList());
+        return applyInfoMapper.getApplyApproveCount(userId, ApproveStateEnum.WAIT_APPROVE_STATE.getKey(),null);
     }
 
     /**
