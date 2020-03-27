@@ -1,11 +1,11 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.hq.common.utils.DateUtils;
 import com.hq.core.sms.service.ISmsTemplateInfoService;
-import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.constant.OrderConstant;
-import com.hq.ecmp.constant.SmsTemplateConstant;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.mapper.*;
+import com.hq.ecmp.mscore.service.EcmpMessageService;
 import com.hq.ecmp.mscore.service.IsmsBusiness;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -42,6 +42,13 @@ public class SmsBusinessImpl implements IsmsBusiness{
     private CarInfoMapper carInfoMapper;
     @Resource
     private OrderAddressInfoMapper orderAddressInfoMapper;
+    @Resource
+    private EcmpMessageMapper ecmpMessageMapper;
+    @Resource
+    private CarGroupInfoMapper carGroupInfoMapper;
+    @Resource
+    private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
+
 
 
     /**
@@ -147,7 +154,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
 
 
     /**
-     * 取消订单发送短信
+     * 取消订单无取消费发送短信
      * @param orderId
      * @throws Exception
      */
@@ -182,6 +189,45 @@ public class SmsBusinessImpl implements IsmsBusiness{
             e.printStackTrace();
         }
         log.info("短信结束-订单{},取消", orderId);
+    }
+
+    /**
+     * 取消订单有取消费发送短信
+     * @param orderId
+     */
+    @Async
+    @Override
+    public void sendSmsCancelOrderHaveFee(Long orderId,Double comAmount) {
+        log.info("短信开始-订单{},取消-收费", orderId);
+        try {
+            Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
+            String useCarTime = orderCommonInfo.get("useCarTime");
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            //给乘车人发送短信
+
+            Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
+            String applyMobile = applyAndRiderMobile.get("applyMobile");
+            String riderMobile = applyAndRiderMobile.get("riderMobile");
+            //乘车人发
+            if(isEnterpriseWorker(riderMobile)){//企业员工
+                Map<String,String> paramsMap = new HashMap<>();
+                paramsMap.put("useCarTime",useCarTime);
+                paramsMap.put("comAmount",String.valueOf(comAmount));
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_HAVEFEE_RIDER_ENTER,paramsMap,riderMobile);
+            }
+            //申请人发
+            if(!riderAndApplyMatch(applyAndRiderMobile)){
+                Map<String,String> paramsMap = new HashMap<>();
+                paramsMap.put("riderMobile",riderMobile);
+                paramsMap.put("useCarTime",useCarTime);
+                paramsMap.put("comAmount",String.valueOf(comAmount));
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_HAVEFEE_APPLICANT,paramsMap,applyMobile);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        log.info("短信结束-订单{},取消-收费", orderId);
+
     }
 
     /**
@@ -304,6 +350,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String riderMobile = "";
         String applyMobile = "";
         String riderName = "";
+        String riderId = "";
         Long journeyId = orderInfo.getJourneyId();
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journeyId);
         Long applyUserId = journeyInfo.getUserId();
@@ -315,14 +362,23 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if(journeyPassengerInfos.size()>0){
             riderMobile = journeyPassengerInfos.get(0).getMobile();
             riderName = journeyPassengerInfos.get(0).getName();
+            EcmpUser ecmpUser1 = new EcmpUser();
+            ecmpUser1.setPhonenumber(riderMobile);
+            List<EcmpUser> ecmpUsers = ecmpUserMapper.selectEcmpUserList(ecmpUser1);
+            if(ecmpUsers.size()>0){
+                EcmpUser ecmpUserCh = ecmpUsers.get(0);
+                riderId = ecmpUserCh.getUserId()+"";
+            }
+
         }
         if(!"".equals(riderMobile) && !"".equals(applyMobile)){
             mapMobiles.put("riderMobile", riderMobile);
             mapMobiles.put("applyMobile", applyMobile);
             mapMobiles.put("riderName", riderName);
+            mapMobiles.put("applyUserId", String.valueOf(applyUserId));
+            mapMobiles.put("riderId",riderId);
             return mapMobiles;
         }
-
         return null;
     }
 
@@ -415,5 +471,148 @@ public class SmsBusinessImpl implements IsmsBusiness{
         result.put("carLicense",carLicense);
         result.put("orderNum",orderNum);
         return result;
+    }
+
+    /**
+     * 消息通知-订单取消-给司机发通知（自有车）
+     * @param orderId
+     * @param createId
+     */
+    @Async
+    @Override
+    public void sendMessageCancelOrder(Long orderId,Long createId){
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        sendMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),orderInfo.getDriverId(),
+                MsgConstant.MESSAGE_T005.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                orderId,createId,"您有一条任务被取消，请及时查看！");
+    }
+
+    /**
+     * 服务开始消息通知
+     * @param orderId
+     * @param createId
+     */
+    @Override
+    @Async
+    public void sendMessageServiceStart(Long orderId, Long createId) {
+        try {
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
+            String applyUserId = applyAndRiderMobile.get("applyUserId");
+            String riderId = applyAndRiderMobile.get("riderId");
+            //申请人
+            sendMessage(MsgUserConstant.MESSAGE_USER_APPLICANT.getType(),Long.parseLong(applyUserId),
+                    MsgConstant.MESSAGE_T006.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                    orderId,createId,"您有一个行程正在进行中，请及时查看！");
+            if(!riderAndApplyMatch(applyAndRiderMobile)){
+                //乘车人
+                if(!"".equals(riderId)){
+                    sendMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),Long.parseLong(riderId),
+                            MsgConstant.MESSAGE_T006.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                            orderId,createId,"您有一个行程正在进行中，请及时查看！");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 改派成功消息通知
+     * @param orderId
+     * @param createId
+     */
+    @Override
+    @Async
+    public void sendMessageReassignSucc(Long orderId, Long createId) {
+        try {
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
+            Long driverId = orderInfo.getDriverId();
+            String applyUserId = applyAndRiderMobile.get("applyUserId");
+            String riderId = applyAndRiderMobile.get("riderId");
+            //司机
+            if(driverId != null){
+                sendMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),driverId,
+                        MsgConstant.MESSAGE_T004.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        orderId,createId,"您有一条改派通知，请及时查看！");
+            }
+            //申请人
+            sendMessage(MsgUserConstant.MESSAGE_USER_APPLICANT.getType(),Long.parseLong(applyUserId),
+                    MsgConstant.MESSAGE_T004.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                    orderId,createId,"您有一个行程发生改派变更，请及时查看！");
+            if(!riderAndApplyMatch(applyAndRiderMobile)){
+                //乘车人
+                if(!"".equals(riderId)){
+                    sendMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),Long.parseLong(riderId),
+                            MsgConstant.MESSAGE_T004.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                            orderId,createId,"您有一个行程发生改派变更，请及时查看！");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 差旅下单成功，发送消息通知-调度员
+     * @param orderId
+     * @param createId
+     */
+    @Override
+    @Async
+    public void sendMessagePriTravelOrderSucc(Long orderId, Long createId) {
+        OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+        orderAddressInfo.setOrderId(orderId);
+        List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(orderAddressInfo);
+        if(orderAddressInfos.size()>0){
+            for (OrderAddressInfo orderAddressInfoCh1:
+            orderAddressInfos) {
+                if(orderAddressInfoCh1.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT)){
+                    String cityPostalCode = orderAddressInfoCh1.getCityPostalCode();
+                    CarGroupInfo carGroupInfo = new CarGroupInfo();
+                    carGroupInfo.setCity(cityPostalCode);
+                    List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectCarGroupInfoList(carGroupInfo);
+                    CarGroupInfo carGroupInfoCh = carGroupInfos.get(0);
+                    CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+                    carGroupDispatcherInfo.setCarGroupId(carGroupInfoCh.getCarGroupId());
+                    List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
+                    for (CarGroupDispatcherInfo carGroupDispatcherInfo1:
+                    carGroupDispatcherInfos) {
+                        sendMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(),carGroupDispatcherInfo1.getUserId(),
+                                MsgConstant.MESSAGE_T009.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                                orderId,createId,"您有一条调度任务待处理,请注意查看！");
+                    }
+                    break;
+                 }
+            }
+        }
+    }
+
+    /**
+     * 基础方法
+     * @param role
+     * @param personId
+     * @param type
+     * @param businessType
+     * @param businessId
+     * @param createId
+     * @param msg
+     */
+    private void sendMessage(int role,Long personId ,String type,String businessType,Long businessId,Long createId,String msg){
+        EcmpMessage ecmpMessage = new EcmpMessage();
+        ecmpMessage.setConfigType(role);
+        ecmpMessage.setEcmpId(personId);
+        ecmpMessage.setType(businessType);
+        ecmpMessage.setStatus(MsgStatusConstant.MESSAGE_STATUS_T002.getType());
+        ecmpMessage.setContent(msg);
+        ecmpMessage.setCategory(type);
+        ecmpMessage.setCategoryId(businessId);
+        ecmpMessage.setUrl("");
+        ecmpMessage.setCreateBy(createId);
+        ecmpMessage.setCreateTime(DateUtils.getNowDate());
+        ecmpMessage.setUpdateBy(null);
+        ecmpMessage.setUpdateTime(null);
+        ecmpMessageMapper.insert(ecmpMessage);
     }
 }

@@ -50,7 +50,10 @@ public class SmsTemplateConstant {
     public static final String DRIVER_BEGINSERVICE_APPLICANT = "driver_beginservice_applicant";
     //司机结束服务发送短信-申请人（乘车人和申请人不是一个人）
     public static final String DRIVER_COMPLETESERVICE_APPLICANT = "driver_completeservice_applicant";
-
+    //取消订单-收费-发申请人短信模板
+    public static final String CANCEL_ORDER_HAVEFEE_APPLICANT = "cancel_order_havefee_applicant";
+    //取消订单-收费-发乘车人（企业员）短信模板
+    public static final String CANCEL_ORDER_HAVEFEE_RIDER_ENTER = "cancel_order_havefee_rider_enter";
 
 
 

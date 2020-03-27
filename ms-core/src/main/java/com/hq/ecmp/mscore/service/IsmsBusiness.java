@@ -1,7 +1,5 @@
 package com.hq.ecmp.mscore.service;
 
-import org.springframework.scheduling.annotation.Async;
-
 public interface IsmsBusiness {
 
     /**
@@ -17,10 +15,17 @@ public interface IsmsBusiness {
     public void sendSmsCallTaxiNet(Long orderId);
 
     /**
-     * 取消订单发送短信
+     * 取消订单无取消费发送短信
      * @param orderId
      */
     public void sendSmsCancelOrder(Long orderId);
+
+    /**
+     * 取消订单有取消费发送短信
+     * @param orderId
+     * @param comAmount
+     */
+    public void sendSmsCancelOrderHaveFee(Long orderId,Double comAmount);
 
     /**
      * 自有车司机到达发送短信
@@ -39,4 +44,32 @@ public interface IsmsBusiness {
      * @param orderId
      */
     public void sendSmsDriverServiceComplete(Long orderId);
+
+    /**
+     * 取消订单消息通知
+     * @param orderId
+     * @param createId
+     */
+    public void sendMessageCancelOrder(Long orderId,Long createId);
+
+    /**
+     * 服务开始消息通知（申请人和乘车人）
+     * @param orderId
+     * @param createId
+     */
+    public void sendMessageServiceStart(Long orderId,Long createId);
+
+    /**
+     * 改派成功消息通知（申请人，乘车人，司机）
+     * @param orderId
+     * @param createId
+     */
+    public void sendMessageReassignSucc(Long orderId,Long createId);
+
+    /**
+     * 差旅自有车下单成功，给调度员发通知
+     * @param orderId
+     * @param createId
+     */
+    public void sendMessagePriTravelOrderSucc(Long orderId,Long createId);
 }

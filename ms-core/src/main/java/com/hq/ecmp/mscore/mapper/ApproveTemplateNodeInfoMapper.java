@@ -73,4 +73,12 @@ public interface ApproveTemplateNodeInfoMapper
 
     List<ApprovalUserVO> getApproveUsers(String userIds);
     String getAllApproveUserId(Long approveTemplateId);
+
+    /**
+     * 查询第一个审批节点
+     * @param regimeId
+     * @return
+     */
+    ApproveTemplateNodeInfo selectFirstOpproveNode(Long regimeId);
+
 }
