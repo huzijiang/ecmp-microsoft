@@ -28,7 +28,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/org")
-@Api(description="分子公司 操作处理")
+@Api(description="分/子公司 操作处理")
 public class OrgController {
 
     @Autowired
@@ -87,16 +87,32 @@ public class OrgController {
 
 
     /**
-     * 查询公司列表
+     * 显示公司组织结构
      * @param  ecmpOrgVo
      * @return*/
-    @ApiOperation(value = "查询公司列表",notes = "查询公司列表",httpMethod ="POST")
-    @PostMapping("/getSubCompanyList")
-    public ApiResponse<List<EcmpOrgDto>> selectSubCompany(@RequestBody EcmpOrgVo ecmpOrgVo){
+    @ApiOperation(value = "显示公司组织结构",notes = "显示公司组织结构",httpMethod ="POST")
+    @PostMapping("/selectCombinationOfCompany")
+    public ApiResponse<List<EcmpOrgDto>> selectCombinationOfCompany(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
         String deptType=ecmpOrgVo.getDeptType();
-        List<EcmpOrgDto> deptList = orgService.getDeptList(deptId,deptType);
+        List<EcmpOrgDto> deptList = orgService.selectCombinationOfCompany(deptId,deptType);
         return ApiResponse.success(deptList);
+    }
+
+    /**
+     * 显示公司列表
+     * @param  ecmpOrgVo
+     * @return*/
+    @ApiOperation(value = "显示公司列表",notes = "显示公司列表",httpMethod ="POST")
+    @PostMapping("/selectCompanyList")
+    public ApiResponse<List<EcmpOrgDto>> selectCompanyList(@RequestBody EcmpOrgVo ecmpOrgVo){
+        Long deptId=ecmpOrgVo.getDeptId();
+        String deptType=ecmpOrgVo.getDeptType();
+        if(deptId==null){
+            return ApiResponse.error("组织id不能为空！");
+        }
+        List<EcmpOrgDto> companyList = orgService.selectCompanyList(deptId,deptType);
+        return ApiResponse.success(companyList);
     }
 
     /**
@@ -114,42 +130,73 @@ public class OrgController {
     }
 
     /**
-     * 添加单个分子公司
+     * 查询分/子公司、部门编号是否已存在
      * @param  ecmpOrg
      * @return
      */
-    @ApiOperation(value = "insertCompany",notes = "添加分子公司",httpMethod ="POST")
+    @ApiOperation(value = "selectDeptCodeExist",notes = "添加分/子公司",httpMethod ="POST")
+    @PostMapping("/selectDeptCodeExist")
+    public ApiResponse selectDeptCodeExist(@RequestBody EcmpOrgVo ecmpOrg){
+        String deptCode=ecmpOrg.getDeptCode();
+        if(deptCode!=null&&!("").equals(deptCode)){
+            int j = orgService.selectDeptCodeExist(deptCode);
+            if(j>0){
+                return ApiResponse.error("该编号已存在，不可重复录入！");
+            }
+        }
+            return ApiResponse.success();
+    }
+    /**
+     * 添加单个分/子公司
+     * @param  ecmpOrg
+     * @return
+     */
+    @ApiOperation(value = "insertCompany",notes = "添加分/子公司",httpMethod ="POST")
     @PostMapping("/insertCompany")
     public ApiResponse insertCompany(@RequestBody EcmpOrgVo ecmpOrg){
+        String deptCode=ecmpOrg.getDeptCode();
+        if(deptCode!=null&&!("").equals(deptCode)){
+            int j = orgService.selectDeptCodeExist(deptCode);
+            if(j>0){
+                return ApiResponse.error("该编号已存在，不可重复录入！");
+            }
+        }
         int i = orgService.addDept(ecmpOrg);
-        if (i == 0){
-            return ApiResponse.success("添加分子公司成功");
+        if (i == 1){
+            return ApiResponse.success("添加分/子公司成功");
         }else {
-            return ApiResponse.error("添加分子公司失败");
+            return ApiResponse.error("添加分/子公司失败");
         }
     }
 
     /**
-     * 修改单个分子公司信息
+     * 修改单个分/子公司信息
      * @param  ecmpOrg
      * @return
      */
-    @ApiOperation(value = "updateCompany",notes = "修改分子公司信息",httpMethod ="POST")
+    @ApiOperation(value = "updateCompany",notes = "修改分/子公司信息",httpMethod ="POST")
     @PostMapping("/updateCompany")
     public ApiResponse updateCompany(@RequestBody EcmpOrgVo ecmpOrg){
+        String deptCode=ecmpOrg.getDeptCode();
+        if(deptCode!=null&&!("").equals(deptCode)){
+            int j = orgService.selectDeptCodeExist(deptCode);
+            if(j>0){
+                return ApiResponse.error("该编号已存在，不可重复录入！");
+            }
+        }
         int i = orgService.updateEcmpOrg(ecmpOrg);
         if (i > 0){
-            return ApiResponse.success("修改分子公司成功");
+            return ApiResponse.success("修改分/子公司成功");
         }else {
-            return ApiResponse.error("修改分子公司失败");
+            return ApiResponse.error("修改分/子公司失败");
         }
     }
     /**
-     * 逻辑删除分子公司信息
+     * 逻辑删除分/子公司信息
      * @param  ecmpOrgVo
      * @return
      */
-    @ApiOperation(value = "updateDelFlagById",notes = "删除分子公司信息",httpMethod ="POST")
+    @ApiOperation(value = "updateDelFlagById",notes = "删除分/子公司信息",httpMethod ="POST")
     @PostMapping("/updateDelFlagById")
     public ApiResponse updateDelFlagById(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
@@ -187,6 +234,21 @@ public class OrgController {
             return ApiResponse.error("启用失败");
         }*/
         return ApiResponse.error(s);
+    }
+
+    /**
+     * 按照分子公司名称或编号模糊
+     * @param  ecmpOrgVo
+     * @return*/
+    @ApiOperation(value = "按照分子公司名称或编号模糊",notes = "按照分子公司名称或编号模糊",httpMethod ="POST")
+    @PostMapping("/selectCompanyByDeptNameOrCode")
+    public ApiResponse<List<EcmpOrgDto>> selectCompanyByDeptNameOrCode(@RequestBody EcmpOrgVo ecmpOrgVo){
+        String deptNameOrCode=ecmpOrgVo.getDeptNameOrCode();
+        if("".equals(deptNameOrCode.trim())){
+            return ApiResponse.error("请输入有效的公司名称或编号！");
+        }
+        List<EcmpOrgDto> companyList = orgService.selectCompanyByDeptNameOrCode(deptNameOrCode);
+        return ApiResponse.success(companyList);
     }
 
 }

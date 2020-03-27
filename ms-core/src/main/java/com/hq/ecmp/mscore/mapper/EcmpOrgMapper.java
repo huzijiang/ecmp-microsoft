@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
+import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -42,15 +43,6 @@ public interface EcmpOrgMapper {
      * @return int
      * */
     public  int updateDept(EcmpOrgVo ecmpOrg);
-    /**
-     * 部门编号验证
-     * @param  deptCode
-     * @return
-     * */
-    public  int getCheckingDeptCode(@Param("deptCode")String deptCode);
-
-
-
 
     /**
      * 查询部门
@@ -77,6 +69,14 @@ public interface EcmpOrgMapper {
      * @return 部门集合
      */
     public List<EcmpOrg> selectEcmpOrgList(EcmpOrg ecmpOrg);
+
+    /**
+     * 查询分/子公司、部门编号是否已存在
+     *
+     * @param deptCode 分/子公司、部门编号
+     * @return
+     */
+    public int selectDeptCodeExist(String deptCode);
 
     /**
      * 新增部门
@@ -167,10 +167,32 @@ public interface EcmpOrgMapper {
     * */
     public int selectByAncestorsLikeDeptId(Long deptId);
 
+    /*
+    *根据parentId查询组织下级分/子公司的组织id
+    * @param parentId 部门ID
+    * @return 结果
+    * */
+    public List<Long> selectCompanyByParentId(@Param("parentId")Long parentId,@Param("deptType")String deptType);
+
+    /*
+    *根据组织Id和组织类别查询公司列表
+    * @param parentId 部门ID deptType组织类型
+    * @return 结果
+    * */
+    public EcmpOrgDto selectCompanyList(@Param("deptId")Long deptId,@Param("deptType")String deptType);
+
     /**
      * 查询下级组织数量
      * @param
      * @return
      */
     int selectCountByParentId(Integer parentId);
+
+    /**
+     * 按照分子公司名称或编号模糊
+     * @param deptName  deptCode
+     * @return 结果
+     */
+    public List<EcmpOrgDto> selectCompanyByDeptNameOrCode(String deptName,String deptCode);
+
 }

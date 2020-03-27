@@ -182,4 +182,12 @@ public interface IEcmpUserService {
      * @return
     * */
     public void checkDimissionEcmpUser();
+
+    /**
+     * 查询员工工号是否已存在
+     *
+     * @param jobNumber 员工工号
+     * @return
+     */
+    public int selectJobNumberExist(String jobNumber);
 }
