@@ -25,7 +25,7 @@ import java.util.List;
  *
  */
  @RestController
- @RequestMapping("/invoiceinfo")
+ @RequestMapping("/invoice")
 public class InvoiceInfoController {
 
     @Autowired
@@ -96,21 +96,21 @@ public class InvoiceInfoController {
      * @param invoiceInfo
      * @return
      */
-    @ApiOperation(value = "getinvoiceInfoDetail",notes = "发票信息详情",httpMethod ="POST")
-    @PostMapping("/getinvoiceInfoDetail")
-    public ApiResponse<InvoiceInfo> getinvoiceInfoDetail(InvoiceInfo invoiceInfo){
-        InvoiceInfo nvoiceInfoDetail = invoiceInfoService.selectInvoiceInfoById(invoiceInfo.getInvoiceId());
-        return  ApiResponse.success(nvoiceInfoDetail);
+    @ApiOperation(value = "getInvoiceInfoDetail",notes = "发票信息详情",httpMethod ="POST")
+    @PostMapping("/getInvoiceInfoDetail")
+    public ApiResponse<InvoiceInfo> getInvoiceInfoDetail(InvoiceInfo invoiceInfo){
+        InvoiceInfo invoiceInfoDetail = invoiceInfoService.selectInvoiceInfoById(invoiceInfo.getInvoiceId());
+        return  ApiResponse.success(invoiceInfoDetail);
     }
 
-    /**
+    /**I
      * 根据时间区间、开票状态查询发票信息
      * @param invoiceDto
      * @return
      */
-    @ApiOperation(value = "getinvoiceByTimeAndState",notes = "发票信息详情",httpMethod ="POST")
-    @PostMapping("/getinvoiceByTimeAndState")
-    public ApiResponse<List<InvoiceInfo>>  getinvoiceByTimeAndState(InvoiceDto invoiceDto){
+    @ApiOperation(value = "getInvoiceByTimeAndState",notes = "发票信息详情",httpMethod ="POST")
+    @PostMapping("/getInvoiceByTimeAndState")
+    public ApiResponse<List<InvoiceInfo>>  getInvoiceByTimeAndState(InvoiceDto invoiceDto){
         List<InvoiceInfo>  invoiceInfoList = invoiceInfoService.selectInvoiceInfoByTimeAndState(invoiceDto.getStartTime(),invoiceDto.getEndTime(),invoiceDto.getState());
         return ApiResponse.success(invoiceInfoList);
     }
@@ -133,7 +133,7 @@ public class InvoiceInfoController {
      * @param invoiceHeaderVO
      * @return
      */
-    @ApiOperation(value = "invoiceHeaderCommit",notes = "新增邮箱信息",httpMethod = "POST")
+    @ApiOperation(value = "invoiceHeaderCommit",notes = "新增发票抬头",httpMethod = "POST")
     @PostMapping("/invoiceHeaderCommit")
     public ApiResponse invoiceHeaderCommit(@RequestBody InvoiceHeaderVO invoiceHeaderVO){
         try {
