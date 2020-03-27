@@ -166,7 +166,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			return false;
 		}
 		List<String> list = Arrays.asList(canUseCarMode.split(","));
-		if(list.contains("W001")){
+		if(list.contains(CarConstant.USR_CARD_MODE_HAVE)){
 			return true;
 		}else{
 			return false;

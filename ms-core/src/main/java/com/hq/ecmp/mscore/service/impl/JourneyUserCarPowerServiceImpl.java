@@ -14,6 +14,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.ConfigTypeEnum;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
@@ -32,6 +33,7 @@ import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
+import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
 import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
@@ -70,6 +72,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     private IOrderStateTraceInfoService orderStateTraceInfoService;
     @Resource
     private IOrderInfoService orderInfoService;
+    @Autowired
+    private IEcmpConfigService ecmpConfigService;
     
 
     /**
@@ -362,6 +366,18 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		if(OrderState.INSERVICE.getState().equals(vaildOrdetrState)){
 			//订单状态为服务中  则对应前端状态为进行中
 			return OrderState.INSERVICE.getState();
+		}
+		
+		if(OrderState.STOPSERVICE.getState().equals(vaildOrdetrState)){
+			//订单状态为服务结束  判断该订单是否需要确认
+			 int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey());
+			if(orderConfirmStatus == 1){
+				//需要去确认   对应前端状态为待确认-S960 
+				return OrderState.WAITCONFIRMED.getState();
+			}else{
+				//不需要确认  对应前端状态为已完成-S699
+				return OrderState.STOPSERVICE.getState();
+			}
 		}
 		
 		if(OrderState.ORDERCLOSE.getState().equals(vaildOrdetrState)){
