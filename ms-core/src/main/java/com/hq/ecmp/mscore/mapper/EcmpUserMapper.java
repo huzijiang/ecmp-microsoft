@@ -235,6 +235,6 @@ public interface EcmpUserMapper
 
     List<EcmpUser> selectUserListByUserIds(String userIds);
 
-    List<EcmpUser> getListByUserIds(List<Long> userIds);
+    List<EcmpUser> getListByUserIds(@Param("userIds") List<Long> userIds);
 }
 
