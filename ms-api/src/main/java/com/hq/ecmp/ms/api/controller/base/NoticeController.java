@@ -190,8 +190,8 @@ public class NoticeController {
      */
     @ApiOperation(value = "deleteNotice",notes = "新增公告信息",httpMethod ="POST")
     @PostMapping("/deleteNotice")
-    public ApiResponse deleteNotice(Integer noticeId){
-        iEcmpNoticeService.deleteEcmpNoticeById(noticeId);
+    public ApiResponse deleteNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
+        iEcmpNoticeService.deleteEcmpNoticeById(ecmpNoticeDTO.getNoticeId());
         return ApiResponse.success("删除成功");
     }
 
