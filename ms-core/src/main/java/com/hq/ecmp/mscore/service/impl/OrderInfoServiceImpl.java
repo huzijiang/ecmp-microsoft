@@ -1433,7 +1433,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             paramMap.put("licenseContent", licenseContent);
             paramMap.put("mac", macAdd);
             paramMap.put("reason", cancelReason);
+            log.info("网约车订单{}取消参数{}",orderId,paramMap);
             String result = OkHttpUtil.postJson(apiUrl + "/service/cancelOrder", paramMap);
+            log.info("网约车订单{}取消返回结果{}",orderId,result);
             JSONObject jsonObject = JSONObject.parseObject(result);
             if (!"0".equals(jsonObject.get("CODE"))) {
                 throw new Exception("调用三方取消订单服务-》取消失败");
