@@ -720,6 +720,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			orderStateTraceInfo.setOrderId(orderId);
 			// 新增订单状态流转记录
 			int insertFlag = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+			//发送给司机和申请人消息通知
+			ismsBusiness.sendMessageDispatchCarComplete(orderId, userId);
 		 }
 		orderInfo.setState(OrderState.ALREADYSENDING.getState());
 		// 查询司机信息
