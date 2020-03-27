@@ -235,7 +235,6 @@ public interface EcmpUserMapper
 
     List<EcmpUser> selectUserListByUserIds(String userIds);
 
-    List<EcmpUser> getListByUserIds(List<Long> userIds);
 
     /**
      * 查询上级部门下的所有员工
