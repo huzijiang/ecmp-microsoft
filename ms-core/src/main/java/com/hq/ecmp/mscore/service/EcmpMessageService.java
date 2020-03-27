@@ -82,4 +82,6 @@ public interface EcmpMessageService {
     void saveApplyMessageReject(Long applyId,Long ecmpId,Long userId,String reson) throws Exception;
 
     void sendNextApproveUsers(String approveUserId,Long applyId,Long userId);
+    
+    void saveDispatchCarComplete(Long orderId);
 }
