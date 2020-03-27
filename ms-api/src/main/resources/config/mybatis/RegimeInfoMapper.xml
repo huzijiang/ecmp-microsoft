@@ -218,7 +218,8 @@ update regime_info set status=#{status},update_by=#{optUserId},update_time=now()
 select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regime_info where regimen_id=#{regimeId}
 </select>
     <select id="selectRegimenVOById" resultType="com.hq.ecmp.mscore.vo.RegimenVO" parameterType="long">
-        select name,template_id as templateId,can_use_car_mode as canUseCarMode,regimen_type as regimenType,regimen_id as regimenId
+        select name,template_id as templateId,can_use_car_mode as canUseCarMode,regimen_type as regimenType,regimen_id as regimenId,
+            service_type as serviceType,need_approval_process as needApprovalProcess,travel_allow_in_travel_city_use_car as travelAllowInTravelCityUseCar
         from regime_info
         where regimen_id = #{regimeId}
     </select>

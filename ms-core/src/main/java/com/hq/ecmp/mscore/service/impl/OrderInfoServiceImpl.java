@@ -233,6 +233,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				if(iOrderStateTraceInfoService.isReassignment(dispatchOrderInfo.getOrderId())){
 					continue;
 				}
+				//正常申请的调度单取对应的用车申请单的通过时间来排序
+				dispatchOrderInfo.setUpdateDate(dispatchOrderInfo.getApplyPassDate());
 				dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
 				result.add(dispatchOrderInfo);
 			}
@@ -710,6 +712,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		if (null != driverInfo) {
 			orderInfo.setDriverName(driverInfo.getDriverName());
 			orderInfo.setDriverMobile(driverInfo.getMobile());
+		}
+		//查询车辆信息
+		CarInfo carInfo = carInfoService.selectCarInfoById(carId);
+		if(null !=carInfo){
+			orderInfo.setCarLicense(carInfo.getCarLicense());
+			orderInfo.setCarModel(carInfo.getCarType());
+			orderInfo.setCarColor(carInfo.getCarColor());
 		}
 		orderInfo.setCarId(carId);
 		orderInfo.setUpdateBy(String.valueOf(userId));
