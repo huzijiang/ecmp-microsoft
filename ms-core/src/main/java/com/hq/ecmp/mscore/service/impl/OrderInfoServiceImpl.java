@@ -6,7 +6,6 @@ import com.github.pagehelper.util.StringUtil;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
-import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
@@ -99,8 +98,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private IEcmpConfigService ecmpConfigService;
     @Resource
     private DriverServiceAppraiseeInfoMapper driverServiceAppraiseeInfoMapper;
-    @Resource
-    private EcmpMessageService ecmpMessageService;
     @Autowired
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Resource

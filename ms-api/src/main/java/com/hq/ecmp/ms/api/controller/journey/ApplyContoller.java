@@ -233,7 +233,6 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "applyPass",notes = "行程申请-审核通过 ",httpMethod ="POST")
     @PostMapping("/applyPass")
-    @Transactional
     public ApiResponse applyPass(@RequestBody ApplyDTO journeyApplyDto){
         //1.校验信息
         HttpServletRequest request = ServletUtils.getRequest();

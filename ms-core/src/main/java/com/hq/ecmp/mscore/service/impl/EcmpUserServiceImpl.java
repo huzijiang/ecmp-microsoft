@@ -1,8 +1,10 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.EcmpUserRole;
+import com.hq.ecmp.mscore.domain.RegimeVo;
+import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
@@ -10,16 +12,12 @@ import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.util.DateFormatUtils;
-import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -156,7 +154,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     }
 
     /*
-     * 获取上级组织id中的员工姓名和电话
+     * 获取上级组织id中的员工姓名和电话、邮箱
      *  @param  ecmpUserVo
      * @return List<EcmpUserDto>
      * */
@@ -216,6 +214,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     /*
      *查询手机号是否已经存在
      * */
+    @Override
     public int selectPhoneNumberExist(String phonenumber){
         return ecmpUserMapper.selectPhoneNumberExist(phonenumber);
 
@@ -224,6 +223,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     /*
      *查询邮箱是否已经存在
      * */
+    @Override
     public int selectEmailExist(String email){
         return ecmpUserMapper.selectEmailExist(email);
     }
@@ -235,6 +235,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @return 结果
      */
     @Transactional
+    @Override
     public String updateUseStatus(String status,Long userId){
         //禁用/启用  员工
         int i1 = ecmpUserMapper.updateUseStatus(userId, status);
@@ -256,6 +257,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @return 结果
      */
     @Transactional
+    @Override
     public int updateDelFlagById(Long userId) {
         /*若该员工在业务表中有数据，如是某个审批流的审批人等，则弹出提示不可删除操作
         无法【删除】该员工！；*/
@@ -320,6 +322,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @param  userId员工编号
     * @return
     * */
+    @Override
     public EcmpUserDto selectEcmpUserDetail(Long userId){
         EcmpUserDto ecmpUserDto = ecmpUserMapper.selectEcmpUserDetail(userId);
         List<EcmpRoleDto> roleList = ecmpUserMapper.selectRoleNameByEcmpUserId(userId);
@@ -362,6 +365,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @param  dimissionTime
      * @return
     * */
+    @Override
     public int updateDimissionTime(Date dimissionTime,Long userId){
         return ecmpUserMapper.updateDimissionTime(dimissionTime,userId);
     }
@@ -444,8 +448,20 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     }
 
     /**
+     * 查询员工工号是否已存在
+     *
+     * @param jobNumber 员工工号
+     * @return
+     */
+    @Override
+    public int selectJobNumberExist(String jobNumber){
+        return ecmpUserMapper.selectJobNumberExist(jobNumber);
+    }
+
+    /**
      * 员工邀请判断是否该手机号是否已经注册
      */
+    @Override
     public int userItisExist(String phoneNumber) {
 
         return ecmpUserMapper.userItisExist(phoneNumber);

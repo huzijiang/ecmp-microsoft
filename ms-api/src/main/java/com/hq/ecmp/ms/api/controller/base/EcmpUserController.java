@@ -35,6 +35,13 @@ public class EcmpUserController {
     @ApiOperation(value = "添加员工",notes = "添加员工",httpMethod ="POST")
     @PostMapping("/addEcmpUser")
     public ApiResponse addEcmpUser(@RequestBody EcmpUserVo ecmpUser){
+        String jobNumber=ecmpUser.getJobNumber();
+        if(jobNumber!=null&&!("").equals(jobNumber)){
+            int j = ecmpUserService.selectJobNumberExist(jobNumber);
+            if(j>0){
+                return ApiResponse.error("该工号已存在，不可重复录入！");
+            }
+        }
         /*用户可自由选择该员工所属部门*/
         String s = ecmpUserService.addEcmpUser(ecmpUser);
         /*保存用车制度 （多个）*/
@@ -43,7 +50,7 @@ public class EcmpUserController {
 
     /**
      * 禁用/启用  员工
-     * @param  deptId
+     * @param  ecmpUser
      * @return
      */
     @ApiOperation(value = "updateUseStatus",notes = "禁用/启用  员工",httpMethod ="POST")
@@ -82,7 +89,7 @@ public class EcmpUserController {
     }
 
     /**
-     * 员工列表（按部门）
+     * 员工列表（按组织id）
      * @param  ecmpUser
      * @return*/
     @ApiOperation(value = "查询员工列表",notes = "查询员工列表",httpMethod ="POST")
@@ -105,6 +112,13 @@ public class EcmpUserController {
     @ApiOperation(value = "修改员工",notes = "修改员工",httpMethod ="POST")
     @PostMapping("/updateEcmpUser")
     public ApiResponse updateEcmpUser(@RequestBody EcmpUserVo ecmpUser ){
+        String jobNumber=ecmpUser.getJobNumber();
+        if(jobNumber!=null&&!("").equals(jobNumber)){
+            int j = ecmpUserService.selectJobNumberExist(jobNumber);
+            if(j>0){
+                return ApiResponse.error("该工号已存在，不可重复录入！");
+            }
+        }
         int i = ecmpUserService.updateEcmpUser(ecmpUser);
         if (i == 1){
             return ApiResponse.success("修改员工成功!");
