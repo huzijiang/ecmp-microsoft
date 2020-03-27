@@ -44,7 +44,7 @@ N005  着装不整
 比如：3分 代表1颗半星
 
     */
-    private Integer score;
+    private Double score;
     /**
     * 评价内容
     */
@@ -95,11 +95,11 @@ N005  着装不整
         this.item = item;
     }
 
-    public Integer getScore() {
+    public Double getScore() {
         return score;
     }
 
-    public void setScore(Integer score) {
+    public void setScore(Double score) {
         this.score = score;
     }
 

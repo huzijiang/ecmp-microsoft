@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 public class PageResult<T> {
     private Long total;// 总条数
+    private Integer pageSize=20;// 每页个数
     private Integer totalPage;// 总页数
     private List<T> items;// 当前页数据
 
@@ -28,4 +29,5 @@ public class PageResult<T> {
         this.totalPage = totalPage;
         this.items = items;
     }
+
 }

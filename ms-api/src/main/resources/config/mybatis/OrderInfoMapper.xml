@@ -271,14 +271,19 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 left join (select order_id,state from order_state_trace_info where order_id in(select order_id from order_info where driver_id=#{driverId}) order by create_time desc limit 1) otc on  otc.order_id=o.order_id
 				where o.driver_id=#{driverId}
 				<if test="flag==1">
-                   and  (o.state="S299" or o.state="S600" or o.state="S616" )
+                   and  (o.state="S299"  or  o.state='S500' or o.state="S600" or o.state="S616" )
                     order by useCarTime  asc
                 </if>
                 <if test="flag==0">
-                    and  (o.state='S299' or o.state='S600' or o.state='S616' or o.state='S900' )
+                    and  (o.state='S299' or  o.state='S500' or o.state='S600' or o.state='S616' or o.state='S900' )
                     order by o.state='S900' asc,o.state asc,
                     CASE WHEN o.state='S900' THEN o.update_time  END DESC,useCarTime asc
                 </if>
+    </select>
+
+    <select id="getDriverOrderListCount" resultType="int">
+        select count(*) from order_info
+        where driver_id=#{driverId} and find_in_set(state,#{states})
     </select>
 
     <select id="selectOrderDetail" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.DriverOrderInfoVO">

@@ -79,9 +79,12 @@ public interface EcmpMessageService {
     List<MessageDto> getRunMessageForDrive(SysUser user)throws Exception ;
 
     void saveApplyMessagePass(Long applyId,Long ecmpId,Long userId,Long orderId,Long powerId,int isDispatch) throws Exception;
+    void applyUserPassMessage(Long applyId,Long ecmpId,Long userId,Long orderId,Long powerId,int isDispatch) throws Exception;
     void saveApplyMessageReject(Long applyId,Long ecmpId,Long userId,String reson) throws Exception;
 
     void sendNextApproveUsers(String approveUserId,Long applyId,Long userId);
-    
+
     void saveDispatchCarComplete(Long orderId);
+
+    void readMessage(MessageDto messageDto, SysUser user);
 }
