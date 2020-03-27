@@ -98,7 +98,7 @@ public interface OrderInfoMapper {
      * @return
      */
     public List<OrderDriverListInfo> getDriverOrderList(@Param("driverId") long driverId, @Param("flag") int flag);
-
+    Integer getDriverOrderListCount(@Param("driverId") Long driverId,@Param("states")  String states);
     public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
 
     public DispatchOrderInfo queryCompleteDispatchOrderDetail(Long orderId);
@@ -199,5 +199,7 @@ public interface OrderInfoMapper {
      * @return
      */
     List<OrderInfo> getValidOrderByPowerId(Long powerId);
+
+
 }
 

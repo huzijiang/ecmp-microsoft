@@ -334,7 +334,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         Long driverId = driverInfo.getDriverId();
         int flag=0;
         if (pageNum==1){//首次刷新
-            String states=OrderState.ALREADYSENDING.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState();
+            String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState();
             int count=orderInfoMapper.getDriverOrderCount(driverId,states);
             if(count>20){
                 flag=1;
@@ -343,6 +343,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         PageHelper.startPage(pageNum,pageSize);
         List<OrderDriverListInfo> driverOrderList = orderInfoMapper.getDriverOrderList(driverId,flag);
         return driverOrderList;
+    }
+
+    @Override
+    public Integer getDriverOrderListCount(Long userId) throws Exception{
+        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
+        if (CollectionUtils.isEmpty(driverInfos)){
+            throw new Exception("当前登录人不是司机");
+        }
+        DriverInfo driverInfo = driverInfos.get(0);
+        Long driverId = driverInfo.getDriverId();
+        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState()+","+OrderState.ORDERCLOSE.getState();
+        return orderInfoMapper.getDriverOrderListCount(driverId,states);
     }
 
 	@Override
@@ -1502,4 +1514,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             throw new Exception("操作异常");
         }
     }
+
+
 }

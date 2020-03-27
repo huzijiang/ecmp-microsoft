@@ -245,5 +245,7 @@ public interface IOrderInfoService {
      * @throws Exception
      */
     public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception;
+
+    Integer getDriverOrderListCount(Long userId) throws Exception;
 }
 
