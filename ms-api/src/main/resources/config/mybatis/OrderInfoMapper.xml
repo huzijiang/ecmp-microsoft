@@ -375,6 +375,7 @@ LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
 		a.order_id AS orderId,
 		a.journey_id journeyId,
 	    a.state,
+	    a.driver_id driverId,
 	    a.use_car_mode useCarMode,
 	    a.driver_mobile driverPhone,
         e.address startAddress,

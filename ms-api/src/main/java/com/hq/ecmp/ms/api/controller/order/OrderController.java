@@ -653,10 +653,12 @@ public class OrderController {
             //TODO 记得生产放开
             if (CarConstant.USR_CARD_MODE_HAVE.equals(orderVO.getUseCarMode())){//自有车
                 DriverHeartbeatInfo driverHeartbeatInfo = driverHeartbeatInfoService.findNowLocation(orderVO.getDriverId(), orderNo);
-                String latitude=driverHeartbeatInfo.getLatitude().stripTrailingZeros().toPlainString();
-                String longitude=driverHeartbeatInfo.getLongitude().stripTrailingZeros().toPlainString();
-                orderVO.setDriverLongitude(longitude);
-                orderVO.setDriverLatitude(latitude);
+                if(driverHeartbeatInfo!=null){
+                    String latitude=driverHeartbeatInfo.getLatitude().stripTrailingZeros().toPlainString();
+                    String longitude=driverHeartbeatInfo.getLongitude().stripTrailingZeros().toPlainString();
+                    orderVO.setDriverLongitude(longitude);
+                    orderVO.setDriverLatitude(latitude);
+                }
             }else {
                 orderVO = iOrderInfoService.getTaxiState(orderVO, orderNo);
             }
