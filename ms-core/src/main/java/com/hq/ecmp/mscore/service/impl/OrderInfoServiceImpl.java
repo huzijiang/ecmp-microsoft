@@ -102,6 +102,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Resource
     private IsmsBusiness ismsBusiness;
+    @Resource
+    private  EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -645,7 +647,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 paramMap.put("estimatedAmount",journeyPlanPriceInfos.get(0).getPrice()+"");
             }
 
-
             //调用查询订单状态的接口参数
             Map<String,Object> queryOrderStateMap = new HashMap<>();
             queryOrderStateMap.put("enterpriseId", enterpriseId);
@@ -1080,7 +1081,38 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             orderInfo.setState(OrderState.WAITINGLIST.getState());
         }
         String type = applyUseWithTravelDto.getType();
-        orderInfo.setDemandCarLevel(applyUseWithTravelDto.getGroupId());
+        //添加预估价
+        String groupId = applyUseWithTravelDto.getGroupId();
+        String[] splits = groupId.split(",|，");
+        StringBuilder demandCarLevel = new StringBuilder();
+        for (String split:
+        splits) {
+            String[] split1 = split.split(":");
+            String carLevel = split1[0];
+            String price = split1[1];
+            JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+            journeyPlanPriceInfo.setNodeId(journeyUserCarPower.getNodeId());
+            journeyPlanPriceInfo.setJourneyId(journeyUserCarPower.getJourneyId());
+            journeyPlanPriceInfo.setPrice(new BigDecimal(price));
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.format(DateUtils.getNowDate()));
+            journeyPlanPriceInfo.setPlannedDepartureTime(simpleDateFormat.format(DateUtils.getNowDate()));
+            journeyPlanPriceInfo.setDuration("10");
+            EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
+            enterpriseCarTypeInfo.setLevel(carLevel);
+            List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
+            if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
+                EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
+                journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
+            }
+            iJourneyPlanPriceInfoService.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+            demandCarLevel.append(carLevel+",");
+
+        }
+        String s = demandCarLevel.toString();
+        String substring = s.substring(0, s.lastIndexOf(","));
+        orderInfo.setDemandCarLevel(substring);
+        applyUseWithTravelDto.setGroupId(substring);
         if(OrderServiceType.ORDER_SERVICE_TYPE_NOW.getPrState().equals(type) || OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getPrState().equals(type)){
             orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
         }else if(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getPrState().equals(type)){
@@ -1145,6 +1177,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(applyUseWithTravelDto.getIsDispatch() == 1){
             ismsBusiness.sendMessagePriTravelOrderSucc(orderInfo.getOrderId(),userId);
         }
+
         return orderInfo.getOrderId();
     }
 
