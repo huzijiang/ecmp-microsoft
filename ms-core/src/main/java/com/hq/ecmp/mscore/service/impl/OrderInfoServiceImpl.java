@@ -3,19 +3,18 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.util.StringUtil;
+import com.google.gson.reflect.TypeToken;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.DateFormatUtils;
-import com.hq.ecmp.util.MacTools;
-import com.hq.ecmp.util.OrderUtils;
-import com.hq.ecmp.util.RedisUtil;
+import com.hq.ecmp.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
@@ -32,6 +31,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -419,9 +419,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
         UserVO str= orderStateTraceInfoMapper.getOrderDispatcher(orderId,states);
-        vo.setCarGroupPhone(str.getUserPhone());
+        if (str!=null){
+            vo.setCarGroupPhone(str.getUserPhone());
+            vo.setCarGroupName(str.getUserName());
+        }
         vo.setOrderNumber(orderInfo.getOrderNumber());
-        vo.setCarGroupName(str.getUserName());
         vo.setCustomerServicePhone(serviceMobile);
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
@@ -978,105 +980,31 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderInfoMapper.getOrderListDetail(orderNo);
     }
 
+
     @Override
-    public JSONObject getTaxiOrderState(Long orderId) throws  Exception{
-        JSONObject data = getThirdPartyOrderState(orderId);
-        String status = data.getString("status");
-        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
-        int newState = Integer.parseInt(status.substring(1));
-        int i = Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1));
-        if(!status.equals(orderInfo.getState())&&newState>i){
-            OrderInfo newOrderInfo = new OrderInfo(orderId,status);
-            Map<String,String> queryOrderStateMap = new HashMap<>();
-            queryOrderStateMap.put("enterpriseId", enterpriseId);
-            queryOrderStateMap.put("licenseContent", licenseContent);
-            queryOrderStateMap.put("mac", MacTools.getMacList().get(0));
-            queryOrderStateMap.put("driverPhone",orderInfo.getDriverMobile());
-            String resultJson = OkHttpUtil.postJson(apiUrl + "/service/driverLocation", queryOrderStateMap);
-            JSONObject resultObject = JSONObject.parseObject(resultJson);
-            if (!"0".equals(resultObject.getString("code"))){
-                throw new Exception("获取网约车司机位置异常");
-            }
-            Double driverLongitude=null;
-            Double driverLatitude=null;
-            if (!OrderState.ORDEROVERTIME.getState().equals(status)&&!OrderState.ORDERCANCEL.getState().equals(status)){//派车成功后所有状态
-                //TODO 将网约车的车辆信息都存在车牌号字段中.格式(车牌号,车辆颜色,车辆名字,司机评分)
-                if (OrderState.READYSERVICE.getState().equals(status)||OrderState.STOPSERVICE.getState().equals(status)){//乘客一上车
-                    JSONObject data1 = resultObject.getJSONObject("data");
-                    driverLongitude=Double.parseDouble(data1.getString("x"));
-                    driverLatitude=Double.parseDouble(data1.getString("y"));
-                    //TODO 杨军注释
-                    if (OrderState.READYSERVICE.getState().equals(status)){
-
-                        List<OrderAddressInfo> orderAddressInfos=orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId,OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
-                        if(CollectionUtils.isEmpty(orderAddressInfos)){
-                            OrderAddressInfo orderAddressInfo=new OrderAddressInfo();
-                            BeanUtils.copyProperties(orderInfo,orderAddressInfo);
-                            orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
-                            orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
-                            orderAddressInfo.setActionTime(new Date());
-                            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
-                            orderAddressInfoMapper.insertOrderAddressInfo(orderAddressInfo);
-                        }else{
-                            OrderAddressInfo orderAddressInfo = orderAddressInfos.get(0);
-                            orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
-                            orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
-                            orderAddressInfoMapper.updateOrderAddressInfo(orderAddressInfo);
-                        }
-                    }else {
-                        List<OrderAddressInfo> orderAddressInfos=orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId,OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE));
-                        if(CollectionUtils.isEmpty(orderAddressInfos)){
-                            OrderAddressInfo orderAddressInfo=new OrderAddressInfo();
-                            BeanUtils.copyProperties(orderInfo,orderAddressInfo);
-                            orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
-                            orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
-                            orderAddressInfo.setActionTime(new Date());
-                            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
-                            orderAddressInfoMapper.insertOrderAddressInfo(orderAddressInfo);
-                        }else{
-                            OrderAddressInfo orderAddressInfo = orderAddressInfos.get(0);
-                            orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
-                            orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
-                            orderAddressInfoMapper.updateOrderAddressInfo(orderAddressInfo);
-                        }
-                    }
-
-                }
-            }
-            orderInfoMapper.updateOrderInfo(newOrderInfo);
-            iOrderStateTraceInfoService.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderId,status,driverLongitude,driverLatitude));
-            if (OrderState.STOPSERVICE.getState().equals(status)||OrderState.ORDERCLOSE.getState().equals(status)||OrderState.DISSENT.getState().equals(status)) {//服务结束
-                //TODO 调财务结算模块
-                List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
-                if (CollectionUtils.isEmpty(orderSettlingInfos)) {
-                    JSONObject feeInfoBean = data.getJSONObject("feeInfoBean");
-                    String amount = feeInfoBean.getString("customerPayPrice");
-                    String distance = feeInfoBean.getString("mileage");//里程
-                    String duration = feeInfoBean.getString("min");//时长
-                    OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
-                    orderSettlingInfo.setOrderId(orderId);
-                    orderSettlingInfo.setTotalMileage(new BigDecimal(distance).stripTrailingZeros());
-                    orderSettlingInfo.setTotalTime(Integer.parseInt(duration));
-                    orderSettlingInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
-                    orderSettlingInfo.setAmountDetail(feeInfoBean.toString());
-                    orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
-                }
-
-            }
-            return resultObject;
-        }else{
-            return null;
+    public JSONObject getDriverLocation(String driverPhone)throws Exception{
+        Map<String,Object> queryOrderStateMap = new HashMap<>();
+        queryOrderStateMap.put("enterpriseId", enterpriseId);
+        queryOrderStateMap.put("licenseContent", licenseContent);
+        queryOrderStateMap.put("mac", MacTools.getMacList().get(0));
+        queryOrderStateMap.put("driverPhone",driverPhone);
+        String resultJson = OkHttpUtil.postForm(apiUrl + "/service/driverLocation", queryOrderStateMap);
+        JSONObject resultObject = JSONObject.parseObject(resultJson);
+        JSONObject data = resultObject.getJSONObject("data");
+        if (!"0".equals(resultObject.getString("code"))){
+            throw new Exception("获取网约车司机位置异常");
         }
+        return data;
     }
-
-    private JSONObject getThirdPartyOrderState(Long orderId)throws Exception{
-        Map<String,String> queryOrderStateMap = new HashMap<>();
+    @Override
+    public JSONObject getThirdPartyOrderState(Long orderId)throws Exception{
+        Map<String,Object> queryOrderStateMap = new HashMap<>();
         queryOrderStateMap.put("enterpriseId", enterpriseId);
         queryOrderStateMap.put("licenseContent", licenseContent);
         queryOrderStateMap.put("mac", MacTools.getMacList().get(0));
         queryOrderStateMap.put("enterpriseOrderId",orderId+"");
         queryOrderStateMap.put("status","S200");
-        String resultQuery = OkHttpUtil.postJson(apiUrl + "/service/getOrderState", queryOrderStateMap);
+         String resultQuery = OkHttpUtil.postForm(apiUrl + "/service/getOrderState", queryOrderStateMap);
         JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
         JSONObject data = jsonObjectQuery.getJSONObject("data");
         if(!"0".equals(jsonObjectQuery.getString("code"))){
@@ -1309,97 +1237,96 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	private OrderCostDetailVO getOrderCost(Long orderId){
         OrderCostDetailVO result=new OrderCostDetailVO();
         List<OtherCostVO> list=new ArrayList<>();
-        result.setCouponSettleAmout("22");
-        result.setActualPayAmount("129");
-        result.setCustomerPayPrice("107");
-        result.setMileage("27公里");
-        result.setMin("63分钟");
-        list.add(new OtherCostVO("起步价","15","3公里","12分钟","含时长12分钟,含里程3公里"));
-        list.add(new OtherCostVO("超时长费","15","平峰时长:3分钟,高峰时长:13分钟,累计超时时长:26分钟"));
-        list.add(new OtherCostVO("超里程费","14","平峰里程:3公里,高峰里程:1公里,累计超时里程:4公里"));
-        list.add(new OtherCostVO("夜间时长费","13","夜间服务费（里程）单价:1.3,夜间服务里程10公里"));
-        list.add(new OtherCostVO("夜间时长费","12","夜间服务费（时长）单价:1.2,夜间服务时长10分钟"));
-        list.add(new OtherCostVO("等待费","10","等待时长为15分钟"));
-        list.add(new OtherCostVO("长途费","40","长途单价:4元/公里,长途里程10公里"));
-        list.add(new OtherCostVO("其他费用","10","包含停车费、高速费、机场服务费"));
-//        List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
-//        OrderFeeDetailVO orderFeeDetailVO=null;
-//        if (!CollectionUtils.isEmpty(orderSettlingInfos)){
-//            //TODO 生产记得放开
-//            OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
-//            String amountDetail = orderSettlingInfo.getAmountDetail();
-//            orderFeeDetailVO = GsonUtils.jsonToBean(amountDetail, new TypeToken<OrderFeeDetailVO>() {
-//            }.getType());
-//        }
-//        if (orderFeeDetailVO==null){
-//            return null;
-//        }
-//        BeanUtils.copyProperties(orderFeeDetailVO,result);
-//        //基础套餐费：包含基础时长和基础里程，超出另外计费
-//        String basePrice = orderFeeDetailVO.getBasePrice();
-//        String includeMileage = orderFeeDetailVO.getIncludeMileage();
-//        String includeMinute = orderFeeDetailVO.getIncludeMinute();
-//        if(BigDecimal.ZERO!=new BigDecimal(basePrice)){
-//            list.add(new OtherCostVO("起步价",basePrice,includeMileage,includeMinute,"含时长"+includeMinute+"分钟,含里程"+includeMileage+"公里"));
-//        }
-//        //超时长费：超出基础时长时计算，同时会区分高峰和平峰时段
-//        String overTimeNumTotal = orderFeeDetailVO.getOverTimeNumTotal();//超时长费:高峰时长费+平超时长费
-//        String hotDuration = orderFeeDetailVO.getHotDuration();//高峰时长
-//        String hotDurationFees = orderFeeDetailVO.getHotDurationFees();//高峰时长费
-//        String peakPriceTime = orderFeeDetailVO.getPeakPriceTime();//高峰单价(时长)
-//        String overTimeNum = orderFeeDetailVO.getOverTimeNum();//平超时长
-//        String overTimePrice = orderFeeDetailVO.getOverTimePrice();//平超时长费用
-//        String allTime=new BigDecimal(overTimeNum).add(new BigDecimal(hotDuration)).stripTrailingZeros().toPlainString();
-//        if(BigDecimal.ZERO!=new BigDecimal(overTimeNumTotal)){
-//            list.add(new OtherCostVO("超时长费",overTimeNumTotal,"平峰时长:"+overTimeNum+"分钟,高峰时长:"+hotDuration+"分钟,累计超时时长:"+allTime+"分钟"));
-//        }
-//        //超里程费：超出基础里程时计算，同时会区分高峰和平峰时段
-//        String overMilageNumTotal = orderFeeDetailVO.getOverMilageNumTotal();//超里程费用:高峰里程费+平超里程费
-//        String overMilagePrice = orderFeeDetailVO.getOverMilagePrice();//平超里程费
-//        String overMilageNum = orderFeeDetailVO.getOverMilageNum();//平超里程数
-//        String hotMileageFees = orderFeeDetailVO.getHotMileageFees();//高峰里程费
-//        String hotMileage = orderFeeDetailVO.getHotMileage();//高峰里程
-//        String peakPrice = orderFeeDetailVO.getPeakPrice();//高峰里程单价
-//        String allMileage=new BigDecimal(hotMileage).add(new BigDecimal(overMilageNum)).stripTrailingZeros().toPlainString();
-//        if(BigDecimal.ZERO!=new BigDecimal(overMilageNumTotal)){
-//            list.add(new OtherCostVO("超里程费",overTimeNumTotal,"平峰里程:"+overMilageNum+"公里,高峰里程:"+hotMileage+"公里,累计超时里程:"+allMileage+"公里"));
-//        }
-//        //夜间里程费：用车过程在设定为夜间服务时间的，加收夜间服务费。
-//        String nightDistancePrice = orderFeeDetailVO.getNightDistancePrice();
-//        String nightDistanceNum	 = orderFeeDetailVO.getNightDistanceNum();
-//        String nightPrice = orderFeeDetailVO.getNightPrice();
-//        if(BigDecimal.ZERO!=new BigDecimal(nightDistancePrice)){
-//            list.add(new OtherCostVO("夜间时长费",nightDistancePrice,"夜间服务费（里程）单价:"+nightPrice+",夜间服务里程"+nightDistanceNum+"公里"));
-//        }
-//        //夜间时长费：用车过程在设定为夜间服务时间的，加收夜间服务费。
-//        String nighitDurationFees = orderFeeDetailVO.getNighitDurationFees();
-//        String nighitDuration = orderFeeDetailVO.getNighitDuration();
-//        String nightPriceTime = orderFeeDetailVO.getNightPriceTime();
-//        if(BigDecimal.ZERO!=new BigDecimal(nighitDurationFees)){
-//            list.add(new OtherCostVO("夜间时长费",nighitDurationFees,"夜间服务费（时长）单价:"+nightPriceTime+",夜间服务时长"+nighitDuration+"分钟"));
-//        }
-//        //等待费
-//        String waitingFee = orderFeeDetailVO.getWaitingFee();
-//        String waitingMinutes = orderFeeDetailVO.getWaitingMinutes();
-//        if(BigDecimal.ZERO!=new BigDecimal(waitingFee)){
-//            list.add(new OtherCostVO("等待费",waitingFee,"等待时长为"+waitingMinutes+"分钟"));
-//        }
-//        //长途费：超过长途费起始里程时计算
-//        String longDistancePrice = orderFeeDetailVO.getLongDistancePrice();
-//        String longDistanceNum = orderFeeDetailVO.getLongDistanceNum();
-//        String longPrice = orderFeeDetailVO.getLongPrice();
-//        if(BigDecimal.ZERO!=new BigDecimal(longDistancePrice)){
-//            list.add(new OtherCostVO("长途费",longDistancePrice,"长途单价:"+longPrice+",长途里程"+longDistanceNum+"公里"));
-//        }
-//        //价外税:如高速费和停车费
-//        List<OtherFeeDetailVO> otherCost = orderFeeDetailVO.getOtherCost();
-//        Double otherFee=0.0;
-//        if (!CollectionUtils.isEmpty(otherCost)){
-//            otherFee = otherCost.stream().map(OtherFeeDetailVO::getCostFee).collect(Collectors.reducing(Double::sum)).get();
-//        }
-//        if(BigDecimal.ZERO!=BigDecimal.valueOf(otherFee)){
-//            list.add(new OtherCostVO("其他费用",String.valueOf(otherFee),"包含停车费、高速费、机场服务费"));
-//        }
+//        result.setCouponSettleAmout("22");
+//        result.setActualPayAmount("129");
+//        result.setCustomerPayPrice("107");
+//        result.setMileage("27公里");
+//        result.setMin("63分钟");
+//        list.add(new OtherCostVO("起步价","15","3公里","12分钟","含时长12分钟,含里程3公里"));
+//        list.add(new OtherCostVO("超时长费","15","平峰时长:3分钟,高峰时长:13分钟,累计超时时长:26分钟"));
+//        list.add(new OtherCostVO("超里程费","14","平峰里程:3公里,高峰里程:1公里,累计超时里程:4公里"));
+//        list.add(new OtherCostVO("夜间时长费","13","夜间服务费（里程）单价:1.3,夜间服务里程10公里"));
+//        list.add(new OtherCostVO("夜间时长费","12","夜间服务费（时长）单价:1.2,夜间服务时长10分钟"));
+//        list.add(new OtherCostVO("等待费","10","等待时长为15分钟"));
+//        list.add(new OtherCostVO("长途费","40","长途单价:4元/公里,长途里程10公里"));
+//        list.add(new OtherCostVO("其他费用","10","包含停车费、高速费、机场服务费"));
+        List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
+        OrderFeeDetailVO orderFeeDetailVO=null;
+        if (!CollectionUtils.isEmpty(orderSettlingInfos)){
+            //TODO 生产记得放开
+            OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
+            String amountDetail = orderSettlingInfo.getAmountDetail();
+            orderFeeDetailVO = JSONObject.parseObject(amountDetail, OrderFeeDetailVO.class);
+        }
+        if (orderFeeDetailVO==null){
+            return null;
+        }
+        BeanUtils.copyProperties(orderFeeDetailVO,result);
+        //基础套餐费：包含基础时长和基础里程，超出另外计费
+        String basePrice = orderFeeDetailVO.getBasePrice();
+        String includeMileage = orderFeeDetailVO.getIncludeMileage();
+        String includeMinute = orderFeeDetailVO.getIncludeMinute();
+        if(BigDecimal.ZERO!=new BigDecimal(basePrice)){
+            list.add(new OtherCostVO("起步价",basePrice,includeMileage,includeMinute,"含时长"+includeMinute+"分钟,含里程"+includeMileage+"公里"));
+        }
+        //超时长费：超出基础时长时计算，同时会区分高峰和平峰时段
+        String overTimeNumTotal = orderFeeDetailVO.getOverTimeNumTotal();//超时长费:高峰时长费+平超时长费
+        String hotDuration = orderFeeDetailVO.getHotDuration();//高峰时长
+        String hotDurationFees = orderFeeDetailVO.getHotDurationFees();//高峰时长费
+        String peakPriceTime = orderFeeDetailVO.getPeakPriceTime();//高峰单价(时长)
+        String overTimeNum = orderFeeDetailVO.getOverTimeNum();//平超时长
+        String overTimePrice = orderFeeDetailVO.getOverTimePrice();//平超时长费用
+        String allTime=new BigDecimal(overTimeNum).add(new BigDecimal(hotDuration)).stripTrailingZeros().toPlainString();
+        if(BigDecimal.ZERO!=new BigDecimal(overTimeNumTotal)){
+            list.add(new OtherCostVO("超时长费",overTimeNumTotal,"平峰时长:"+overTimeNum+"分钟,高峰时长:"+hotDuration+"分钟,累计超时时长:"+allTime+"分钟"));
+        }
+        //超里程费：超出基础里程时计算，同时会区分高峰和平峰时段
+        String overMilageNumTotal = orderFeeDetailVO.getOverMilageNumTotal();//超里程费用:高峰里程费+平超里程费
+        String overMilagePrice = orderFeeDetailVO.getOverMilagePrice();//平超里程费
+        String overMilageNum = orderFeeDetailVO.getOverMilageNum();//平超里程数
+        String hotMileageFees = orderFeeDetailVO.getHotMileageFees();//高峰里程费
+        String hotMileage = orderFeeDetailVO.getHotMileage();//高峰里程
+        String peakPrice = orderFeeDetailVO.getPeakPrice();//高峰里程单价
+        String allMileage=new BigDecimal(hotMileage).add(new BigDecimal(overMilageNum)).stripTrailingZeros().toPlainString();
+        if(BigDecimal.ZERO!=new BigDecimal(overMilageNumTotal)){
+            list.add(new OtherCostVO("超里程费",overTimeNumTotal,"平峰里程:"+overMilageNum+"公里,高峰里程:"+hotMileage+"公里,累计超时里程:"+allMileage+"公里"));
+        }
+        //夜间里程费：用车过程在设定为夜间服务时间的，加收夜间服务费。
+        String nightDistancePrice = orderFeeDetailVO.getNightDistancePrice();
+        String nightDistanceNum	 = orderFeeDetailVO.getNightDistanceNum();
+        String nightPrice = orderFeeDetailVO.getNightPrice();
+        if(BigDecimal.ZERO!=new BigDecimal(nightDistancePrice)){
+            list.add(new OtherCostVO("夜间时长费",nightDistancePrice,"夜间服务费（里程）单价:"+nightPrice+",夜间服务里程"+nightDistanceNum+"公里"));
+        }
+        //夜间时长费：用车过程在设定为夜间服务时间的，加收夜间服务费。
+        String nighitDurationFees = orderFeeDetailVO.getNighitDurationFees();
+        String nighitDuration = orderFeeDetailVO.getNighitDuration();
+        String nightPriceTime = orderFeeDetailVO.getNightPriceTime();
+        if(BigDecimal.ZERO!=new BigDecimal(nighitDurationFees)){
+            list.add(new OtherCostVO("夜间时长费",nighitDurationFees,"夜间服务费（时长）单价:"+nightPriceTime+",夜间服务时长"+nighitDuration+"分钟"));
+        }
+        //等待费
+        String waitingFee = orderFeeDetailVO.getWaitingFee();
+        String waitingMinutes = orderFeeDetailVO.getWaitingMinutes();
+        if(BigDecimal.ZERO!=new BigDecimal(waitingFee)){
+            list.add(new OtherCostVO("等待费",waitingFee,"等待时长为"+waitingMinutes+"分钟"));
+        }
+        //长途费：超过长途费起始里程时计算
+        String longDistancePrice = orderFeeDetailVO.getLongDistancePrice();
+        String longDistanceNum = orderFeeDetailVO.getLongDistanceNum();
+        String longPrice = orderFeeDetailVO.getLongPrice();
+        if(BigDecimal.ZERO!=new BigDecimal(longDistancePrice)){
+            list.add(new OtherCostVO("长途费",longDistancePrice,"长途单价:"+longPrice+",长途里程"+longDistanceNum+"公里"));
+        }
+        //价外税:如高速费和停车费
+        List<OtherFeeDetailVO> otherCost = orderFeeDetailVO.getOtherCost();
+        Double otherFee=0.0;
+        if (!CollectionUtils.isEmpty(otherCost)){
+            otherFee = otherCost.stream().map(OtherFeeDetailVO::getCostFee).collect(Collectors.reducing(Double::sum)).get();
+        }
+        if(BigDecimal.ZERO!=BigDecimal.valueOf(otherFee)){
+            list.add(new OtherCostVO("其他费用",String.valueOf(otherFee),"包含停车费、高速费、机场服务费"));
+        }
         result.setOtherCost(list);
         return result;
     }
@@ -1505,5 +1432,113 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
     }
 
+    /**
+     * 获取网约车状态
+     */
+    @Override
+    public OrderStateVO getTaxiState(OrderStateVO orderVO,Long orderNo)throws Exception{
+        if (OrderState.STOPSERVICE.getState().equals(orderVO.getState())||OrderState.ORDERCLOSE.getState().equals(orderVO.getState())){
+            return orderVO;
+        }
+        JSONObject thirdPartyOrderState = this.getThirdPartyOrderState(orderNo);
+        String status = thirdPartyOrderState.getString("status");
+        String lableState=thirdPartyOrderState.getString("status");
+        Double longitude=null;
+        Double latitude=null;
+        int newState = Integer.parseInt(status.substring(1));
+        int startState = Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1));
+        int endState= Integer.parseInt(OrderState.STOPSERVICE.getState().substring(1));
+        OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
+        if (!status.equals(orderVO.getState())) {
+            if (newState >= startState && newState <= endState) {//服务中的状态
+                if (!OrderState.STOPSERVICE.getState().equals(status)){
+                    JSONObject data = this.getDriverLocation(orderVO.getDriverPhone());
+                    if (data != null) {
+                        if (StringUtils.isNotEmpty(data.getString("x"))) {
+                            longitude = Double.parseDouble(data.getString("x"));
+                            latitude = Double.parseDouble(data.getString("y"));
+                        }
+                    }
+//                    this.updateOrderAddress(orderNo,status,data);
+                }
+                String json = thirdPartyOrderState.getString("driverInfo");
+                DriverCloudDto driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
+                newOrderInfo.setDriverName(driverCloudDto.getDriverName());
+                newOrderInfo.setDriverMobile(driverCloudDto.getPhone());
+                newOrderInfo.setDriverGrade(driverCloudDto.getDriverRate());
+                newOrderInfo.setCarLicense(driverCloudDto.getLicensePlates());
+                newOrderInfo.setCarColor(driverCloudDto.getVehicleColor());
+                newOrderInfo.setCarModel(driverCloudDto.getModelName());
+                newOrderInfo.setDemandCarLevel(driverCloudDto.getGroupName());
+                newOrderInfo.setTripartiteOrderId(thirdPartyOrderState.getString("orderNo"));
+                if (OrderState.STOPSERVICE.getState().equals(status)) {//服务结束
+                    //TODO 调财务结算模块
+                    JSONObject feeInfoBean = thirdPartyOrderState.getJSONObject("feeInfoBean");
+                    List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderNo));
+                    if (CollectionUtils.isEmpty(orderSettlingInfos)) {
+                        String amount = feeInfoBean.getString("customerPayPrice");
+                        String distance = feeInfoBean.getString("mileage");//里程
+                        String duration = feeInfoBean.getString("min");//时长
+                        OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
+                        orderSettlingInfo.setOrderId(orderNo);
+                        orderSettlingInfo.setTotalMileage(new BigDecimal(distance).stripTrailingZeros());
+                        orderSettlingInfo.setTotalTime(Integer.parseInt(duration));
+                        orderSettlingInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
+                        orderSettlingInfo.setAmountDetail(feeInfoBean.toString());
+                        orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
+                    }
+                }
+            } else if (OrderState.ORDERCANCEL.getState().equals(status)) {//订单取消
+                newOrderInfo.setState(OrderState.ORDERCLOSE.getState());
+            }
+            orderInfoMapper.updateOrderInfo(newOrderInfo);
+            orderStateTraceInfoMapper.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderNo,lableState,longitude,latitude));
+        }
+        orderVO.setDriverLongitude(String.valueOf(longitude));
+        orderVO.setState(status);
+        orderVO.setLabelState(lableState);
+        orderVO.setDriverLatitude(String.valueOf(latitude));
+        if (OrderState.ALREADYSENDING.getState().equals(status)){
+            ismsBusiness.sendSmsCallTaxiNet(orderNo);
+        }
+        return orderVO;
+    }
+
+    private void updateOrderAddress(Long orderId,String status,JSONObject data1){
+        OrderInfo orderInfo=orderInfoMapper.selectOrderInfoById(orderId);
+        if (OrderState.READYSERVICE.getState().equals(status)){
+            List<OrderAddressInfo> orderAddressInfos=orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId,OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
+            if(CollectionUtils.isEmpty(orderAddressInfos)){
+                OrderAddressInfo orderAddressInfo=new OrderAddressInfo();
+                BeanUtils.copyProperties(orderInfo,orderAddressInfo);
+                orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
+                orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
+                orderAddressInfo.setActionTime(new Date());
+                orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+                orderAddressInfoMapper.insertOrderAddressInfo(orderAddressInfo);
+            }else{
+                OrderAddressInfo orderAddressInfo = orderAddressInfos.get(0);
+                orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
+                orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
+                orderAddressInfoMapper.updateOrderAddressInfo(orderAddressInfo);
+            }
+        }else {
+            List<OrderAddressInfo> orderAddressInfos=orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId,OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE));
+            if(CollectionUtils.isEmpty(orderAddressInfos)){
+                OrderAddressInfo orderAddressInfo=new OrderAddressInfo();
+                BeanUtils.copyProperties(orderInfo,orderAddressInfo);
+                orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
+                orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
+                orderAddressInfo.setActionTime(new Date());
+                orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+                orderAddressInfoMapper.insertOrderAddressInfo(orderAddressInfo);
+            }else{
+                OrderAddressInfo orderAddressInfo = orderAddressInfos.get(0);
+                orderAddressInfo.setLatitude(Double.parseDouble(data1.getString("y")));
+                orderAddressInfo.setLongitude(Double.parseDouble(data1.getString("x")));
+                orderAddressInfoMapper.updateOrderAddressInfo(orderAddressInfo);
+            }
+        }
+    }
 
 }
