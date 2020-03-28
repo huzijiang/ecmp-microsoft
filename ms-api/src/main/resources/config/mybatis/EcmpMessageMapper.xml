@@ -187,10 +187,10 @@
     </select>
 
     <insert id="insertList" parameterType="List">
-        insert into ecmp_message(config_type, ecmp_id, category_id,type, status, category, url, create_by, create_time, update_by, update_time,content )
+        insert into ecmp_message(config_type, ecmp_id, category_id,type, status, category, url, create_by, create_time, update_by,content )
         values
         <foreach collection="msgList" item="item" index="index" separator=",">
-            ( #{item.configType}, #{item.ecmpId}, #{item.categoryId},#{item.type}, #{item.status}, #{item.category}, #{item.url}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime},#{item.content})
+            ( #{item.configType}, #{item.ecmpId}, #{item.categoryId},#{item.type}, #{item.status}, #{item.category}, #{item.url}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.content})
         </foreach>
     </insert>
 
