@@ -82,7 +82,7 @@ public interface EcmpNoticeMapper
      * @param search
      * @return
      */
-    List<EcmpNotice> selectNoticeSearchList(String search);
+    List<EcmpNotice> selectNoticeSearchList();
 
     /**
      * 查询公告列表详情（后台管理系统）
