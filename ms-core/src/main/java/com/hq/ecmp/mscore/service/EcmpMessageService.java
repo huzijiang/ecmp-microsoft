@@ -84,7 +84,5 @@ public interface EcmpMessageService {
 
     void sendNextApproveUsers(String approveUserId,Long applyId,Long userId);
 
-    void saveDispatchCarComplete(Long orderId);
-
     void readMessage(MessageDto messageDto, SysUser user);
 }

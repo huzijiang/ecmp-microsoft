@@ -72,4 +72,10 @@ public interface IsmsBusiness {
      * @param createId
      */
     public void sendMessagePriTravelOrderSucc(Long orderId,Long createId);
+    
+    /**
+     * 调度自有车成功后给司机,申请人发通知
+     * @param orderId
+     */
+    public void sendMessageDispatchCarComplete(Long orderId,Long userId);
 }

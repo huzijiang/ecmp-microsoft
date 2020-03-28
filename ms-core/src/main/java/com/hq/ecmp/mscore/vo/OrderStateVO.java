@@ -51,4 +51,5 @@ public class OrderStateVO {
     private String planPrice;
     @ApiModelProperty(name = "isDisagree",value = "是否展示异议")
     private int isDisagree;
+    private String driverPhone;
 }

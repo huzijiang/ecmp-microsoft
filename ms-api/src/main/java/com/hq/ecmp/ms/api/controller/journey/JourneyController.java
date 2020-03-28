@@ -216,9 +216,9 @@ public class JourneyController {
     }
     /** @author
      *  @Date 10:11 2020/3/9
-     *  @Description 判断是否有进行中的行程
+     *  @Description 判断是否有待确认的行程
      */
-    @ApiOperation(value = "getWhetherJourney",notes = "判断是否有进行中的行程",httpMethod ="POST")
+    @ApiOperation(value = "getWhetherJourney",notes = "判断是否有待确认的行程",httpMethod ="POST")
     @PostMapping("/getWhetherJourney")
     public ApiResponse<String> getWhetherJourney(){
 
@@ -229,9 +229,9 @@ public class JourneyController {
             Long userId = loginUser.getUser().getUserId();
             int count = journeyInfoService.getWhetherJourney(userId);
             if(count!=0){
-                return ApiResponse.success("有未完成的行程","1");
+                return ApiResponse.success("有待确认的行程","1");
             }
-            return ApiResponse.success("无未完成的行程","0");
+            return ApiResponse.success("无待确认的行程","0");
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());

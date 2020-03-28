@@ -192,7 +192,9 @@ public interface IOrderInfoService {
     OrderDetailBackDto getOrderListDetail(String orderNo);
 
     //查询网约车状态
-    JSONObject getTaxiOrderState(Long orderId)throws Exception;
+    JSONObject getThirdPartyOrderState(Long orderId)throws Exception;
+    JSONObject getDriverLocation(String driverPhone)throws Exception;
+    OrderStateVO getTaxiState(OrderStateVO orderVO,Long orderNo)throws Exception;
     
     public List<ApplyDispatchVo> queryApplyDispatchList(ApplyDispatchQuery query);
     

@@ -7,13 +7,15 @@ import java.util.List;
 
 /**
  * @Author: chao.zhang
- * @Date: 2020/3/26 23:04
+ * @Date: 2020/3/27 23:44
  */
 @Data
-public class CarGroupPhoneVO {
+public class DispatcherAndFixedLineVO {
+
+
 
     @ApiModelProperty(name = "dispatchers",value = "车队调度员信息")
-    private List<UserVO> dispatchers;
+    private UserVO dispatchers;
 
     @ApiModelProperty(name = "phone",value = "车队座机")
     private String phone;

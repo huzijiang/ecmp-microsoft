@@ -375,6 +375,8 @@ LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
 		a.order_id AS orderId,
 		a.journey_id journeyId,
 	    a.state,
+	    a.use_car_mode useCarMode,
+	    a.driver_mobile driverPhone,
         e.address startAddress,
         DATE_FORMAT(e.action_time, '%m月%d日 %H:%i ') useCarTime,
         e.longitude startLongitude,
@@ -382,12 +384,12 @@ LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
         d.address endAddress,
         d.longitude endLongitude ,
         d.latitude endLatitude,
-        g.charter_car_type ,
+        g.charter_car_type charterCarType,
         (select state from order_state_trace_info sti where sti.order_id=#{orderId} order by SUBSTRING(sti.state,1) desc limit 1) labelState
 	    from order_info a
-	        inner join journey_info g on g.journey_id=a.journey_id
-            inner join order_address_info e on e.order_id=a.order_id and e.type='A000'
-            inner join order_address_info d on d.order_id=a.order_id and d.type='A999'
+	        left join journey_info g on g.journey_id=a.journey_id
+            left join order_address_info e on e.order_id=a.order_id and e.type='A000'
+            left join order_address_info d on d.order_id=a.order_id and d.type='A999'
 		where a.order_id=#{orderId}
 	</select>
 

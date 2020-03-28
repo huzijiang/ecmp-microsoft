@@ -4,9 +4,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.OrderServiceType;
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.constant.ResignOrderTraceState;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
@@ -14,23 +12,24 @@ import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
+import com.hq.ecmp.mscore.dto.DriverCloudDto;
 import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.service.DriverServiceAppraiseeInfoService;
-import com.hq.ecmp.mscore.service.IOrderAddressInfoService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
+import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -53,11 +52,12 @@ public class OrderController {
 
     @Resource
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
-
-
     @Resource
-    private IOrderAddressInfoService iOrderAddressInfoService;
-
+    private IDriverHeartbeatInfoService driverHeartbeatInfoService;
+    @Resource
+    private IOrderSettlingInfoService orderSettlingInfoService;
+    @Resource
+    private IsmsBusiness ismsBusiness;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -647,51 +647,23 @@ public class OrderController {
     @ApiOperation(value = "获取订单状态",httpMethod = "POST")
     @RequestMapping("/getOrderState")
     public ApiResponse<OrderStateVO> getOrderState(String flag,String orderId){
-        Long orderIdl=Long.parseLong(orderId);
+        Long orderNo=Long.parseLong(orderId);
         try {
-            OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderIdl);
-            orderVO.setDriverLongitude("116.786324");
-            orderVO.setDriverLatitude("39.563521");
+            OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderNo);
             //TODO 记得生产放开
-//            if (CarConstant.USR_CARD_MODE_HAVE.equals(orderVO.getUseCarMode())){//自有车
-//                DriverHeartbeatInfo driverHeartbeatInfo = driverHeartbeatInfoService.findNowLocation(orderVO.getDriverId(), orderDto.getOrderId());
-//                String latitude=driverHeartbeatInfo.getLatitude().stripTrailingZeros().toPlainString();
-//                String longitude=driverHeartbeatInfo.getLongitude().stripTrailingZeros().toPlainString();
-//                orderVO.setDriverLongitude(longitude);
-//                orderVO.setDriverLatitude(latitude);
-//                //获取出发地目的地
-//                if (orderVO.getApplyType().equals(ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey())){//公务
-//                    //获取坐标和地址
-//                    List<JourneyNodeInfo> journeyNodeInfos = iJourneyNodeInfoService.selectJourneyNodeInfoList(new JourneyNodeInfo(orderVO.getJourneyId(), CommonConstant.NO_PASS));
-//                    if (CollectionUtils.isNotEmpty(journeyNodeInfos)&&journeyNodeInfos.size()==2){
-//                        JourneyNodeInfo endNode = journeyNodeInfos.get(0);//结束点
-//                        JourneyNodeInfo startNode = journeyNodeInfos.get(1);//结束点
-//                        orderVO.setEndAddress(endNode.getPlanEndAddress());
-//                        orderVO.setEndLatitude(endNode.getPlanEndLatitude());
-//                        orderVO.setEndLongitude(endNode.getPlanBeginLongitude());
-//                        orderVO.setStartAddress(startNode.getPlanBeginAddress());
-//                        orderVO.setStartLongitude(startNode.getPlanBeginLongAddress());
-//                        orderVO.setStartLatitude(startNode.getPlanBeginLatitude());
-//                    }
-//                }
-//                return ApiResponse.success(orderVO);
-//            }else {
-//                JSONObject taxiOrderState = iOrderInfoService.getTaxiOrderState(orderDto.getOrderId(), enterpriseId, licenseContent, MacTools.getMacList().get(0), apiUrl);
-//                String longitude="";
-//                String latitude="";
-//                if(taxiOrderState!=null){
-//                  JSONObject data1 = taxiOrderState.getJSONObject("data");
-//                        longitude=data1.getString("x");
-//                        latitude=data1.getString("y");
-//                }
-//                OrderStateVO  orderVO1 = iOrderInfoService.getOrderState(orderDto.getOrderId());
-//                orderVO1.setDriverLongitude(longitude);
-//                orderVO1.setDriverLatitude(latitude);
-                return ApiResponse.success(orderVO);
-//            }
+            if (CarConstant.USR_CARD_MODE_HAVE.equals(orderVO.getUseCarMode())){//自有车
+                DriverHeartbeatInfo driverHeartbeatInfo = driverHeartbeatInfoService.findNowLocation(orderVO.getDriverId(), orderNo);
+                String latitude=driverHeartbeatInfo.getLatitude().stripTrailingZeros().toPlainString();
+                String longitude=driverHeartbeatInfo.getLongitude().stripTrailingZeros().toPlainString();
+                orderVO.setDriverLongitude(longitude);
+                orderVO.setDriverLatitude(latitude);
+            }else {
+                orderVO = iOrderInfoService.getTaxiState(orderVO, orderNo);
+            }
+            return ApiResponse.success(orderVO);
         }catch (Exception e){
             e.printStackTrace();
-            return  ApiResponse.error("获取订单状态失败");
+            return  ApiResponse.error(e.getMessage());
         }
     }
 

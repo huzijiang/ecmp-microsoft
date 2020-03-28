@@ -115,7 +115,7 @@ LEFT JOIN (
 		power_id
 ) b ON a.power_id = b.power_id
 WHERE
-	a.node_id = #{nodeId}
+	a.node_id = #{nodeId} ORDER BY a.power_id 
     </select>
     
     <select id="queryUserAuthorityFromService"

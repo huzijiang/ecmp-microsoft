@@ -225,7 +225,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN apply_info b ON a.journey_id = b.journey_id
 		WHERE
 		b.state = 'S002'
-		AND b.create_by = #{userId}
+		AND b.create_by = #{userId} ORDER BY b.update_time desc
 	</select>
     <select id="selectTitleById" resultType="java.lang.String">
         select title from journey_info where journey_id = #{journeyId}
@@ -234,6 +234,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getWhetherJourney"  parameterType="Long" resultType="java.lang.Integer" >
       SELECT count(*) from (select a.order_id from order_info as a
       left join journey_info as b on b.journey_id = a.journey_id
-      where  a.state!='S900' and b.user_id=#{userId}) c
+      where  a.state ='S699' and b.user_id=#{userId}) c
     </select>
 </mapper>
