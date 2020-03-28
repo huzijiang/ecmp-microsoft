@@ -189,10 +189,24 @@ public interface EcmpOrgMapper {
     int selectCountByParentId(Integer parentId);
 
     /**
+     * 按照分子公司名称或编号模糊查询匹配的组织id
+     * @param deptName  deptCode
+     * @return 结果
+     */
+    public List<Long> selectDeptIdsByDeptNameOrCode(String deptName,String deptCode);
+
+    /**
      * 按照分子公司名称或编号模糊
      * @param deptName  deptCode
      * @return 结果
      */
-    public List<EcmpOrgDto> selectCompanyByDeptNameOrCode(String deptName,String deptCode);
+    public EcmpOrgDto selectCompanyByDeptNameOrCode(String deptName,String deptCode,Long deptId);
+
+    /**
+     * 查询当前机构信息
+     * @param deptId
+     * @return 结果
+     */
+    public EcmpOrgDto selectCurrentDeptInformation(Long deptId);
 
 }

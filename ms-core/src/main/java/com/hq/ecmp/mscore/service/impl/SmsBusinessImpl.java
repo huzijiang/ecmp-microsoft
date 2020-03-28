@@ -477,6 +477,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         result.put("riderMobile",riderMobile);
         result.put("riderName",riderName);
         result.put("applyMobile",applyMobile);
+        result.put("applyUserId",applyUserId);
         result.put("carType",carType);
         result.put("carLicense",carLicense);
         result.put("orderNum",orderNum);

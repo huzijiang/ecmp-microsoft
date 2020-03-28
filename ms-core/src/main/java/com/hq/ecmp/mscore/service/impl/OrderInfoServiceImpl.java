@@ -701,28 +701,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public boolean ownCarSendCar(Long orderId, Long driverId, Long carId, Long userId) throws Exception {
 		OrderInfo orderInfo = new OrderInfo();
-		/* * // 判读该单子是否是改派单 if
-		 * (iOrderStateTraceInfoService.isReassignment(orderId)) { // 是改派单
-		 * orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.
-		 * getState()); orderInfo.setState(OrderState.REASSIGNPASS.getState());
-		 * } else { //申请单
-		 * orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
-		 * orderInfo.setState(OrderState.ALREADYSENDING.getState()); }*/
-		 
-		 if(iOrderStateTraceInfoService.isReassignment(orderId)){
-			 //是改派单 
-			 reassign(orderId.toString(), null, "1", userId);
-		 }else{
-			 //是申请单
-			OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
-			orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
-			orderStateTraceInfo.setCreateBy(String.valueOf(userId));
-			orderStateTraceInfo.setOrderId(orderId);
-			// 新增订单状态流转记录
-			int insertFlag = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-			//发送给司机和申请人消息通知
-			ismsBusiness.sendMessageDispatchCarComplete(orderId, userId);
-		 }
 		orderInfo.setState(OrderState.ALREADYSENDING.getState());
 		// 查询司机信息
 		DriverInfo driverInfo = driverInfoService.selectDriverInfoById(driverId);
@@ -732,9 +710,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			orderInfo.setDriverName(driverInfo.getDriverName());
 			orderInfo.setDriverMobile(driverInfo.getMobile());
 		}
-		//查询车辆信息
+		// 查询车辆信息
 		CarInfo carInfo = carInfoService.selectCarInfoById(carId);
-		if(null !=carInfo){
+		if (null != carInfo) {
 			orderInfo.setCarLicense(carInfo.getCarLicense());
 			orderInfo.setCarModel(carInfo.getCarType());
 			orderInfo.setCarColor(carInfo.getCarColor());
@@ -744,19 +722,33 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		orderInfo.setUpdateTime(new Date());
 		// 更新订单信息
 		int updateFlag = updateOrderInfo(orderInfo);
+		/*
+		 * * // 判读该单子是否是改派单 if
+		 * (iOrderStateTraceInfoService.isReassignment(orderId)) { // 是改派单
+		 * orderStateTraceInfo.setState(OrderStateTrace.PASSREASSIGNMENT.
+		 * getState()); orderInfo.setState(OrderState.REASSIGNPASS.getState());
+		 * } else { //申请单
+		 * orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
+		 * orderInfo.setState(OrderState.ALREADYSENDING.getState()); }
+		 */
+
+		if (iOrderStateTraceInfoService.isReassignment(orderId)) {
+			// 是改派单
+			reassign(orderId.toString(), null, "1", userId);
+		} else {
+			// 是申请单
+			OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+			orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
+			orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+			orderStateTraceInfo.setOrderId(orderId);
+			// 新增订单状态流转记录
+			int insertFlag = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+			// 发送给司机和申请人消息通知
+			ismsBusiness.sendMessageDispatchCarComplete(orderId, userId);
+		}
 		// 发送短信
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-                    ismsBusiness.sendSmsCallTaxiNet(orderId);
-				} catch (Exception e) {
-					log.error("订单号{}调度自有车,发送短信失败!",orderId);
-					e.printStackTrace();
-				}
-			}
-		}).start();
-		return updateFlag >0;
+		ismsBusiness.sendSmsCallTaxiNet(orderId);
+		return updateFlag > 0;
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
