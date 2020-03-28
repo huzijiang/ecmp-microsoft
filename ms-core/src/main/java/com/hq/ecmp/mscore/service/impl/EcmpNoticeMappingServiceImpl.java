@@ -78,4 +78,13 @@ public class EcmpNoticeMappingServiceImpl implements EcmpNoticeMappingService {
     public boolean deleteById(Long id) {
         return this.ecmpNoticeMappingDao.deleteById(id) > 0;
     }
+
+    /**
+     * 通过公告id修改
+     * @param mapping
+     */
+    @Override
+    public void updateEcmpNoticeMapping(EcmpNoticeMapping mapping) {
+        ecmpNoticeMappingDao.updateEcmpNoticeMapping(mapping);
+    }
 }

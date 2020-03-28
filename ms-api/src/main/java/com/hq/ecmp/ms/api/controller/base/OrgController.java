@@ -116,6 +116,21 @@ public class OrgController {
     }
 
     /**
+     * 显示公司列表
+     * @param  ecmpOrgVo
+     * @return*/
+    @ApiOperation(value = "查询当前机构信息",notes = "查询当前机构信息",httpMethod ="POST")
+    @PostMapping("/selectCurrentDeptInformation")
+    public ApiResponse<EcmpOrgDto> selectCurrentDeptInformation(@RequestBody EcmpOrgVo ecmpOrgVo){
+        Long deptId=ecmpOrgVo.getDeptId();
+        if(deptId==null){
+            return ApiResponse.error("组织id不能为空！");
+        }
+        EcmpOrgDto ecmpOrgDto = orgService.selectCurrentDeptInformation(deptId);
+        return ApiResponse.success(ecmpOrgDto);
+    }
+
+    /**
      * 查询子公司详情
      * @return*/
     @ApiOperation(value = "getSubDetail",notes = "查询子公司详情",httpMethod ="POST")
@@ -237,7 +252,7 @@ public class OrgController {
     }
 
     /**
-     * 按照分子公司名称或编号模糊
+     * 按照分子公司名称或编号模糊查询匹配的列表
      * @param  ecmpOrgVo
      * @return*/
     @ApiOperation(value = "按照分子公司名称或编号模糊",notes = "按照分子公司名称或编号模糊",httpMethod ="POST")
@@ -248,7 +263,11 @@ public class OrgController {
             return ApiResponse.error("请输入有效的公司名称或编号！");
         }
         List<EcmpOrgDto> companyList = orgService.selectCompanyByDeptNameOrCode(deptNameOrCode);
-        return ApiResponse.success(companyList);
+        if(companyList.size()>0){
+            return ApiResponse.success(companyList);
+        }else{
+            return ApiResponse.error("无匹配数据！");
+        }
     }
 
 }

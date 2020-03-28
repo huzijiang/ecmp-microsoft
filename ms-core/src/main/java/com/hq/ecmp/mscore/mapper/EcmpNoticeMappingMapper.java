@@ -62,4 +62,9 @@ public interface EcmpNoticeMappingMapper {
      */
     int deleteById(Long id);
 
+    /**
+     * 通过公告id修改
+     * @param mapping
+     */
+    void updateEcmpNoticeMapping(EcmpNoticeMapping mapping);
 }

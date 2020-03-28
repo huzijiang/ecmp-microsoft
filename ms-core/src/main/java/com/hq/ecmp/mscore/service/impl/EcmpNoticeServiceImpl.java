@@ -137,9 +137,9 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
      * @return
      */
     @Override
-    public PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize, String search) {
+    public PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize) {
             PageHelper.startPage(pageNum,pageSize);
-            List<EcmpNotice> list =  ecmpNoticeMapper.selectNoticeSearchList(search);
+            List<EcmpNotice> list =  ecmpNoticeMapper.selectNoticeSearchList();
             PageInfo<EcmpNotice> info = new PageInfo<>(list);
             return new PageResult<>(info.getTotal(),info.getPages(),list);
     }

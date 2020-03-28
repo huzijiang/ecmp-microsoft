@@ -251,5 +251,8 @@ public interface EcmpUserMapper
      */
     public int selectJobNumberExist(String jobNumber);
     List<EcmpUser> getListByUserIds(@Param("userIds") List<Long> userIds);
+
+    UserVO selectUserVoById(Long userId);
+
 }
 

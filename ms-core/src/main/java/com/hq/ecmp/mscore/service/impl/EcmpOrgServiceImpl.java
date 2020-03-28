@@ -82,6 +82,17 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     }
 
     /**
+     * 当前机构信息；分/子公司编号；分/子公司主管；分/子公司人数
+     *
+     * @param deptId 部门ID
+     * @return ecmpOrg
+     */
+    @Override
+    public EcmpOrgDto selectCurrentDeptInformation(Long deptId){
+        return ecmpOrgMapper.selectCurrentDeptInformation(deptId);
+    }
+
+    /**
      * 显示公司列表
      *
      * @param deptId 部门ID
@@ -370,13 +381,21 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     }
 
     /**
-     * 按照分子公司名称或编号模糊
+     * 按照分子公司名称或编号模糊查询匹配的列表
      * @param deptNameOrCode
      * @return 结果
      */
     @Override
     public List<EcmpOrgDto> selectCompanyByDeptNameOrCode(String deptNameOrCode){
-        return ecmpOrgMapper.selectCompanyByDeptNameOrCode(deptNameOrCode,deptNameOrCode);
+        List<EcmpOrgDto> ecmpOrgDtoList=new ArrayList<>();
+        List<Long> deptIds = ecmpOrgMapper.selectDeptIdsByDeptNameOrCode(deptNameOrCode, deptNameOrCode);
+        if(deptIds.size()>0){
+            for (Long deptId:deptIds) {
+                EcmpOrgDto ecmpOrgDto = ecmpOrgMapper.selectCompanyByDeptNameOrCode(deptNameOrCode, deptNameOrCode, deptId);
+                ecmpOrgDtoList.add(ecmpOrgDto);
+            }
+        }
+        return ecmpOrgDtoList;
     }
 
 }

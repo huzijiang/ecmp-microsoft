@@ -218,8 +218,28 @@ update regime_info set status=#{status},update_by=#{optUserId},update_time=now()
 select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regime_info where regimen_id=#{regimeId}
 </select>
     <select id="selectRegimenVOById" resultType="com.hq.ecmp.mscore.vo.RegimenVO" parameterType="long">
-        select name,template_id as templateId,can_use_car_mode as canUseCarMode,regimen_type as regimenType,regimen_id as regimenId,
-            service_type as serviceType,need_approval_process as needApprovalProcess,travel_allow_in_travel_city_use_car as travelAllowInTravelCityUseCar
+        select name,template_id as templateId,
+        can_use_car_mode as canUseCarMode,
+        regimen_type as regimenType,
+        regimen_id as regimenId,
+        service_type as serviceType,
+        need_approval_process as needApprovalProcess,
+        travel_allow_in_travel_city_use_car as travelAllowInTravelCityUseCar,
+        use_car_mode_owner_level AS useCarModeOwnerLevel,
+	    use_car_mode_online_level AS useCarModeOnlineLevel,
+	    allow_date AS allowDate,
+	    rule_time AS ruleTime,
+	    rule_city AS ruleCity,
+	    setout_equal_arrive AS setoutEqualArrive,
+	    as_allow_airport_shuttle AS asAllowAirportShuttle,
+	    travel_use_car_mode_owner_level AS travelUseCarModeOwnerLevel,
+	    travel_use_car_mode_online_level AS travelUseCarModeOnlineLevel,
+	    travel_allow_date_round AS travelAllowDateRound,
+	    travel_setout_equal_arrive AS travelSetoutEqualArrive,
+	    as_use_car_mode_owner_level AS asUseCarModeOwnerLevel,
+	    as_use_car_mode_online_level AS asUseCarModeOnlineLevel,
+	    as_allow_date_round AS asAllowDateRound,
+	    as_setout_equal_arrive AS asSetoutEqualArrive
         from regime_info
         where regimen_id = #{regimeId}
     </select>

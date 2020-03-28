@@ -133,5 +133,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              inner join ecmp_org on car_group_info.owner_org = ecmp_org.dept_id
              where ecmp_org.dept_id = #{deptId}
     </select>
+    <select id="selectValidCarGroupListByCity" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+        select car_group_id as carGroupId,car_group_name as carGroupName, telephone
+         from car_group_info
+         where city = #{cityCode}
+    </select>
 
 </mapper>
