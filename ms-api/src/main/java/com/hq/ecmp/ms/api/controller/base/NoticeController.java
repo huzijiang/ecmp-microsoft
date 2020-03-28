@@ -3,6 +3,7 @@ import	java.util.Map;
 
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +56,7 @@ public class NoticeController {
     private IEcmpConfigService ecmpConfigService;
 
     /**
-     * 分页全部查询公告列表（带搜索功能 后台管理系统）
+     * 分页全部查询公告列表（后台管理系统）
      * @param
      * @return
      */
@@ -63,7 +65,7 @@ public class NoticeController {
     public ApiResponse<PageResult<EcmpNotice>> getNoticeSearchList(@RequestBody PageRequest pageRequest){
         try {
             PageResult<EcmpNotice> list = iEcmpNoticeService.selectNoticeSearchList(pageRequest.getPageNum(),
-                    pageRequest.getPageSize(),pageRequest.getSearch());
+                    pageRequest.getPageSize());
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
@@ -166,19 +168,37 @@ public class NoticeController {
      */
     @ApiOperation(value = "addNotice",notes = "新增公告信息",httpMethod ="POST")
     @PostMapping("/addNotice")
-    public ApiResponse addNotice(EcmpNoticeDTO ecmpNoticeDTO){
+    public ApiResponse addNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
+        HttpServletRequest request = ServletUtils.getRequest();
+        //获取登陆用户的信息
+        LoginUser loginUser = tokenService.getLoginUser(request);
         EcmpNotice notice = new EcmpNotice();
+        //标题
         notice.setNoticeTitle(ecmpNoticeDTO.getNoticeTitle());
+        //内容
         notice.setNoticeContent(ecmpNoticeDTO.getNoticeContent());
+        //开始时间
         notice.setPublishTime(ecmpNoticeDTO.getPublishTime());
+        //默认是公告
+        notice.setNoticeType("2");
+        //结束时间
         notice.setEndTime(ecmpNoticeDTO.getEndTime());
+        //默认是开启状态
         notice.setStatus("0");
+        //操作人的用户名
+        notice.setCreateBy(loginUser.getUsername());
         long noticeId = iEcmpNoticeService.insertEcmpNotice(notice);
         EcmpNoticeMapping mapping = new EcmpNoticeMapping();
+        //类型：1.全部用户，2.角色，3.部门
         mapping.setConfigType(ecmpNoticeDTO.getConfigType());
+        //对应id
         mapping.setBucId(ecmpNoticeDTO.getBucId());
+        //status
         mapping.setStatus("0");
-        mapping.setNoticeId(noticeId);
+        //公告id
+        mapping.setNoticeId(notice.getNoticeId().longValue());
+        //创建时间
+        mapping.setCreateTime(DateUtils.getNowDate());
         ecmpNoticeMappingService.insert(mapping);
         return ApiResponse.success();
     }
@@ -202,7 +222,10 @@ public class NoticeController {
      */
     @ApiOperation(value = "updateNotice",notes = "新增公告信息",httpMethod ="POST")
     @PostMapping("/updateNotice")
-    public ApiResponse updateNotice(EcmpNoticeDTO ecmpNoticeDTO){
+    public ApiResponse updateNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
+        HttpServletRequest request = ServletUtils.getRequest();
+        //获取登陆用户的信息
+        LoginUser loginUser = tokenService.getLoginUser(request);
         EcmpNotice notice = new EcmpNotice();
         notice.setNoticeTitle(ecmpNoticeDTO.getNoticeTitle());
         notice.setNoticeContent(ecmpNoticeDTO.getNoticeContent());
@@ -210,7 +233,20 @@ public class NoticeController {
         notice.setEndTime(ecmpNoticeDTO.getEndTime());
         notice.setNoticeId(ecmpNoticeDTO.getNoticeId());
         notice.setStatus(ecmpNoticeDTO.getStatus());
+        notice.setUpdateBy(loginUser.getUsername());
+        notice.setUpdateTime(DateUtils.getNowDate());
+        notice.setRemark(loginUser.getUsername());
         iEcmpNoticeService.updateEcmpNotice(notice);
+        EcmpNoticeMapping mapping = new EcmpNoticeMapping();
+        //类型：1.全部用户，2.角色，3.部门
+        mapping.setConfigType(ecmpNoticeDTO.getConfigType());
+        //对应id
+        mapping.setBucId(ecmpNoticeDTO.getBucId());
+        //公告id
+        mapping.setNoticeId(ecmpNoticeDTO.getNoticeId().longValue());
+        //创建时间
+        mapping.setUpdateTime(DateUtils.getNowDate());
+        ecmpNoticeMappingService.updateEcmpNoticeMapping(mapping);
         return ApiResponse.success("修改成功");
     }
 

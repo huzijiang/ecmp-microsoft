@@ -90,7 +90,7 @@
                 update_time = #{updateTime},
             </if>
         </set>
-        where  = #{id}
+        where  id= #{id}
     </update>
 
     <!--通过主键删除-->
@@ -98,4 +98,19 @@
         delete from ecmp.ecmp_notice_mapping where  = #{id}
     </delete>
 
+    <update id="updateEcmpNoticeMapping">
+        update ecmp.ecmp_notice_mapping
+        <set>
+            <if test="configType != null and configType != ''">
+                config_type = #{configType},
+            </if>
+            <if test="bucId != null">
+                buc_id = #{bucId},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where notice_id = #{noticeId}
+    </update>
 </mapper>
