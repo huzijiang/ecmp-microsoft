@@ -9,6 +9,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
@@ -20,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -45,6 +50,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     private EcmpOrgMapper ecmpOrgMapper;
     @Autowired
     private DriverInfoMapper driverInfoMapper;
+    @Autowired
+    private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
+    @Autowired
+    private TokenService tokenService;
 
 
     /**
@@ -216,6 +225,20 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //短地址
                 .shortAddress(carGroupInfo.getShortAddress())
                 .build();
+        List<UserVO> dispatchers = getCarGroupDispatchers(carGroupId);
+        carGroupDetailVO.setDispatchers(dispatchers);
+        //查询车队人数
+        int countDriver = carGroupDriverRelationMapper.selectCountDriver(carGroupId);
+        carGroupDetailVO.setCountDriver(countDriver);
+        return carGroupDetailVO;
+    }
+
+    /**
+     * 查询车队所有调度员
+     * @param carGroupId
+     * @return
+     */
+    private List<UserVO> getCarGroupDispatchers(Long carGroupId) {
         //查询调度员列表
         CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
         carGroupDispatcherInfo.setCarGroupId(carGroupId);
@@ -229,16 +252,14 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             for (Long userId : list) {
                 userVO = new UserVO();
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(userId);
-                userVO.setUserPhone(ecmpUser.getPhonenumber());
-                userVO.setUserName(ecmpUser.getUserName());
-                dispatchers.add(userVO);
+                if(!ObjectUtils.isEmpty(ecmpUser)){
+                    userVO.setUserPhone(ecmpUser.getPhonenumber());
+                    userVO.setUserName(ecmpUser.getUserName());
+                    dispatchers.add(userVO);
+                }
             }
         }
-        carGroupDetailVO.setDispatchers(dispatchers);
-        //查询车队人数
-        int countDriver = carGroupDriverRelationMapper.selectCountDriver(carGroupId);
-        carGroupDetailVO.setCountDriver(countDriver);
-        return carGroupDetailVO;
+        return dispatchers;
     }
 
     /**
@@ -446,13 +467,63 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     }
 
     /**
-     * 车队调度员信息及座机查询
-     * @param userId
+     * 查询指定城市所有车队调度员及车队座机
+     * @param
      * @return
      */
     @Override
-    public CarGroupPhoneVO getCarGroupPhone(Long userId) {
-        //
+    public List<CarGroupPhoneVO> getCarGroupPhone(String cityCode) {
+        //查询城市所有车队
+        List<CarGroupInfo> list = carGroupInfoMapper.selectValidCarGroupListByCity(cityCode);
+        List<CarGroupPhoneVO> carGroupPhoneVOS = new ArrayList<>();
+        CarGroupPhoneVO carGroupPhoneVO = null;
+        if(CollectionUtils.isEmpty(list)){
+            //如果城市内没有车队，则查询公司所有车队调度员及车队座机
+
+            Long loginUserId = getLoginUserId();
+            //1. 查询员工所在公司
+            //2. 查询公司所有车队
+            //3. 查詢公司所有調度員
+        }
+        for (CarGroupInfo carGroupInfo : list) {
+            carGroupPhoneVO = new CarGroupPhoneVO();
+            carGroupPhoneVO.setPhone(carGroupInfo.getTelephone());
+            carGroupPhoneVO.setCarGroupName(carGroupInfo.getCarGroupName());
+            //查询车队所有调度员
+            List<UserVO> carGroupDispatchers = getCarGroupDispatchers(carGroupInfo.getCarGroupId());
+            if(!CollectionUtils.isEmpty(carGroupDispatchers)){
+                carGroupPhoneVO.setDispatchers(carGroupDispatchers);
+            }
+            carGroupPhoneVOS.add(carGroupPhoneVO);
+        }
+        return carGroupPhoneVOS;
+    }
+
+    //获取登录用户id
+    public Long getLoginUserId(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        return loginUser.getUser().getUserId();
+    }
+
+    /**
+     *
+     */
+
+    /**
+     * 查询调度员电话机调度员所在车队座机
+     * @param
+     * @return
+     */
+    @Override
+    public DispatcherAndFixedLineVO getDispatcherAndFixedLine(Long traceId) {
+        //查询调度员信息
+        OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.selectOrderStateTraceInfoById(traceId);
+        String userId = orderStateTraceInfo.getCreateBy();//TODO CreateBy 是 userId 还是 driverId
+        UserVO userVO = ecmpUserMapper.selectUserVoById(Long.valueOf(userId));
+        //查询车队电话
+
+
         return null;
     }
 

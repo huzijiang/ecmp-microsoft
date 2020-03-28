@@ -80,4 +80,12 @@ public interface CarGroupInfoMapper
      * @return
      */
     List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);
+
+    /**
+     * 查询城市内所有车队
+     * @param cityCode
+     * @return
+     */
+    List<CarGroupInfo> selectValidCarGroupListByCity(String cityCode);
+
 }

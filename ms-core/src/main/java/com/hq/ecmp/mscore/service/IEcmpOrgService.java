@@ -160,11 +160,18 @@ public interface IEcmpOrgService
     public String updateUseStatus(String status,Long userId);
 
     /**
-     * 按照分子公司名称或编号模糊
+     * 按照分子公司名称或编号模糊查询匹配的列表
      *
-     * @param deptName deptCode
+     * @param deptNameOrCode
      * @return 结果
      */
     public List<EcmpOrgDto> selectCompanyByDeptNameOrCode(String deptNameOrCode);
 
+    /**
+     * 当前登录机构的名称；分/子公司编号；分/子公司主管；分/子公司人数
+     *
+     * @param deptId 部门ID
+     * @return
+     */
+    public EcmpOrgDto selectCurrentDeptInformation(Long deptId);
 }
