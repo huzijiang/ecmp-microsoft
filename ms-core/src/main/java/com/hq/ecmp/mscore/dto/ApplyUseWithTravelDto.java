@@ -39,7 +39,4 @@ public class ApplyUseWithTravelDto extends ParallelOrderDto {
     private String   planDate;
     @ApiModelProperty(value = "1.走调度（包含自有车）  2 直接约车（只有网约车）")
     private int isDispatch;
-
-
-
 }

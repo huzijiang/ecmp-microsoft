@@ -248,7 +248,6 @@ public class OrderController {
             if(orderInfoOld.equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getPrState())){
                 throw new Exception("网约车不支持包车");
             }
-
             iOrderInfoService.platCallTaxiParamValid(orderId,String.valueOf(userId),carLevel);
         } catch (Exception e) {
             e.printStackTrace();
@@ -584,6 +583,18 @@ public class OrderController {
             Long userId = loginUser.getUser().getUserId();
             orderId = iOrderInfoService.applyUseCarWithTravel(applyUseWithTravelDto,userId);
             if(applyUseWithTravelDto.getIsDispatch() == 2){
+                String groupId = applyUseWithTravelDto.getGroupId();
+                String[] splits = groupId.split(",|，");
+                StringBuilder demandCarLevel = new StringBuilder();
+                for (String split:
+                        splits) {
+                    String[] split1 = split.split(":");
+                    String carLevel = split1[0];
+                    demandCarLevel.append(carLevel+",");
+                }
+                String s = demandCarLevel.toString();
+                String substring = s.substring(0, s.lastIndexOf(","));
+                applyUseWithTravelDto.setGroupId(substring);
                 iOrderInfoService.insertOrderStateTrace(String.valueOf(orderId), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
                 iOrderInfoService.platCallTaxiParamValid(orderId,String.valueOf(userId),applyUseWithTravelDto.getGroupId());
             }
