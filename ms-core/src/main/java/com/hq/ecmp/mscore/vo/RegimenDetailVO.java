@@ -73,10 +73,13 @@ public class RegimenDetailVO {
     @ApiModelProperty(value="接送服务 网约车车型级别",example = "P001,P002,P003",position = 10)
     private String asUseCarModeOnlineLevel;// 接送服务 网约车车型配置
 
-    @ApiModelProperty(value="接送服务 使用期限",example = "0 不限制 N 天数",position = 10)
+    @ApiModelProperty(value="接送服务 使用期限 指定用车日期范围\n" +
+            "允许围绕 出差日期 周围的 可用日期",example = "0 不限制 N 天数",position = 10)
     private String asAllowDateRound;// 接送服务 使用期限 0 不限制 N 天数
 
-    @ApiModelProperty(value="接送服务 使用期限",example = "Y000---不允许跨域 N111--允许跨域",position = 10)
+    @ApiModelProperty(value="同城限制\n" +
+            "\n" +
+            "起点和终点 是否要求在一个城市",example = "Y000---不允许跨域 N111--允许跨域",position = 10)
     private String asSetoutEqualArrive;// 接送服务 同城限制 Y000 ：相等---不允许跨域 N111 ：不相等--允许跨域
 
 

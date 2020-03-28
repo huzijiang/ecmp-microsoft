@@ -2,10 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
-import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
-import com.hq.ecmp.mscore.vo.CarGroupListVO;
-import com.hq.ecmp.mscore.vo.CarGroupPhoneVO;
-import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
 
@@ -116,9 +113,16 @@ public interface ICarGroupInfoService
     List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);
 
     /**
-     * 车队调度员信息及座机查询
-     * @param userId
+     * 查询指定城市所有车队调度员及车队座机
+     * @param
      * @return
      */
-    CarGroupPhoneVO getCarGroupPhone(Long userId);
+    List<CarGroupPhoneVO> getCarGroupPhone(String cityCode);
+
+    /**
+     * 查询调度员电话及调度员所在车队座机
+     * @param
+     * @return
+     */
+    DispatcherAndFixedLineVO getDispatcherAndFixedLine(Long traceId);
 }
