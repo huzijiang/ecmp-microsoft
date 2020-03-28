@@ -45,7 +45,11 @@ public enum OrderState {
 
     //已找到车未服务的状态集合
     public static List<String> getNoAppointmentCar() {
-        return Arrays.asList(ALREADYSENDING.getState(), READYSERVICE.getState());
+        return Arrays.asList(ALREADYSENDING.getState(), READYSERVICE.getState(),REASSIGNMENT.getState());
+    }
+    //网约车已经约到车的状态
+    public static List<String> getNetCarHave() {
+        return Arrays.asList(ALREADYSENDING.getState(), READYSERVICE.getState(),REASSIGNMENT.getState(),INSERVICE.getState(),STOPSERVICE.getState(),ORDERCLOSE.getState());
     }
 
     //未找到车的状态
