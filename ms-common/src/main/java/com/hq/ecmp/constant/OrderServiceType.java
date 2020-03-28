@@ -1,5 +1,8 @@
 package com.hq.ecmp.constant;
 
+import java.util.Arrays;
+import java.util.List;
+
 public enum OrderServiceType {
 
     //订单下单类型
@@ -53,5 +56,9 @@ public enum OrderServiceType {
             }
         }
         return null;
+    }
+
+    public static List<String> getNetServiceType(){
+        return Arrays.asList(ORDER_SERVICE_TYPE_NOW.getBcState(),ORDER_SERVICE_TYPE_APPOINTMENT.getBcState(),ORDER_SERVICE_TYPE_PICK_UP.getBcState(),ORDER_SERVICE_TYPE_SEND.getBcState());
     }
 }

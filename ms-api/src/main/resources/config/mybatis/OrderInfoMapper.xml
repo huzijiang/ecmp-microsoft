@@ -30,10 +30,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carModel"    column="car_model"    />
         <result property="carColor"    column="car_color"    />
         <result property="driverGrade"    column="driver_grade"    />
+        <result property="flightPlanTakeOffTime"    column="flight_plan_take_off_time"    />
+
     </resultMap>
 
     <sql id="selectOrderInfoVo">
-        select order_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time,car_model,car_color,driver_grade from order_info
+        select order_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time,car_model,car_color,driver_grade ,flight_plan_take_off_time from order_info
     </sql>
     
     <sql id="queryDispatchAchieve">
@@ -123,6 +125,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carModel != null and carModel != ''">car_model,</if>
             <if test="carColor != null and carColor != ''">car_color,</if>
             <if test="driverGrade != null and driverGrade != ''">driver_grade,</if>
+            <if test="flightPlanTakeOffTime != null ">flight_plan_take_off_time,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">#{journeyId},</if>
@@ -149,6 +152,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carModel != null and carModel != ''">#{carModel},</if>
             <if test="carColor != null and carColor != ''">#{carColor},</if>
             <if test="driverGrade != null and driverGrade != ''">#{driverGrade},</if>
+            <if test="flightPlanTakeOffTime != null ">#{flightPlanTakeOffTime},</if>
         </trim>
     </insert>
 

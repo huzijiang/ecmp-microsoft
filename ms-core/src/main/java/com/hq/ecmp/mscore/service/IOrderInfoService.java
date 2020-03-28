@@ -247,5 +247,14 @@ public interface IOrderInfoService {
     public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception;
 
     Integer getDriverOrderListCount(Long userId) throws Exception;
+
+    /**
+     * 网约车参数校验+调用
+     * @param orderId
+     * @param userId
+     * @param carLevel
+     * @throws Exception
+     */
+    public void platCallTaxiParamValid(Long  orderId,String userId,String carLevel) throws Exception;
 }
 
