@@ -720,6 +720,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		orderInfo.setCarId(carId);
 		orderInfo.setUpdateBy(String.valueOf(userId));
 		orderInfo.setUpdateTime(new Date());
+		orderInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
 		// 更新订单信息
 		int updateFlag = updateOrderInfo(orderInfo);
 		/*

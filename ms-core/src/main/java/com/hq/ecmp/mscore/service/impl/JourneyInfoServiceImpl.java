@@ -11,6 +11,9 @@ import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.SortListUtil;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
+import com.hq.ecmp.mscore.domain.UserCarAuthority;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
@@ -43,6 +47,7 @@ import com.hq.ecmp.mscore.vo.JourneyVO;
  * @date 2020-01-02
  */
 @Service
+@Slf4j
 public class JourneyInfoServiceImpl implements IJourneyInfoService
 {
     @Autowired
@@ -240,24 +245,84 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 
 	@Override
 public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
-		List<UserAuthorityGroupCity> userAuthorityGroupCityList=new ArrayList<UserAuthorityGroupCity>();
-		
-		//根据行程查询下面的行程节点
+		List<UserAuthorityGroupCity> userAuthorityGroupCityList = new ArrayList<UserAuthorityGroupCity>();
+
+		// 根据行程查询下面的行程节点
 		JourneyNodeInfo journeyNodeQuery = new JourneyNodeInfo();
 		journeyNodeQuery.setJourneyId(journeyId);
 		List<JourneyNodeInfo> journeyNodeInfoList = journeyNodeInfoService.selectJourneyNodeInfoList(journeyNodeQuery);
-		if(null !=journeyNodeInfoList && journeyNodeInfoList.size()>0){
-			for (JourneyNodeInfo journeyNodeInfo : journeyNodeInfoList) {
-				UserAuthorityGroupCity userAuthorityGroupCity = new UserAuthorityGroupCity();
-				userAuthorityGroupCity.setCityName(journeyNodeInfo.getPlanBeginAddress());
-				userAuthorityGroupCity.setVehicle(journeyNodeInfo.getVehicle());
-				userAuthorityGroupCity.setCityId(journeyNodeInfo.getPlanBeginCityCode());//用车城市编号
-				//获取行程节点下的所有用户用车权限
-				userAuthorityGroupCity.setUserCarAuthorityList(journeyUserCarPowerService.queryNoteAllUserAuthority(journeyNodeInfo.getNodeId(),journeyNodeInfo.getPlanBeginCityCode()));
-				userAuthorityGroupCityList.add(userAuthorityGroupCity);
+		if (null != journeyNodeInfoList && journeyNodeInfoList.size() > 0) {
+			if (journeyNodeInfoList.size() == 1) {
+				//只有一个节点  北京-上海
+				buildAloneNoteAuthority(journeyNodeInfoList.get(0), userAuthorityGroupCityList);
+			} else {
+				for (int i = 0; i < journeyNodeInfoList.size(); i++) {
+					//判断当前节点的目的地是否是下一节点的出发地
+					boolean flag;
+					JourneyNodeInfo currentNote = journeyNodeInfoList.get(i);
+					if(i==journeyNodeInfoList.size()-1){
+						//当前城市的出发地是上一节点的目的地
+						JourneyNodeInfo lastNote=journeyNodeInfoList.get(i-1);
+						flag=lastNote.getPlanEndCityCode().equals(currentNote.getPlanBeginCityCode());
+					}else{
+						//当前节点的目的地是下一节点的出发地 
+						JourneyNodeInfo nextNote = journeyNodeInfoList.get(i + 1);
+						flag=currentNote.getPlanEndCityCode().equals(nextNote.getPlanBeginCityCode());
+					}
+					if (flag) {
+						//当前节点的目的地是下一节点的出发地或者当前城市的出发地是上一节点的目的地  北京-上海-广州
+						UserAuthorityGroupCity userAuthorityGroupCity = new UserAuthorityGroupCity();
+						userAuthorityGroupCity.setCityName(currentNote.getPlanBeginAddress());
+						userAuthorityGroupCity.setVehicle(currentNote.getVehicle());
+						userAuthorityGroupCity.setCityId(currentNote.getPlanBeginCityCode());// 用车城市编号
+						// 获取行程节点下的所有用户用车权限
+						userAuthorityGroupCity.setUserCarAuthorityList(
+								journeyUserCarPowerService.queryNoteAllUserAuthority(currentNote.getNodeId(),
+										currentNote.getPlanBeginCityCode()));
+						userAuthorityGroupCityList.add(userAuthorityGroupCity);
+					} else {
+						// 当前节点的目的地不是下一节点的出发地 北京-上海 广州-深圳
+						buildAloneNoteAuthority(currentNote, userAuthorityGroupCityList);
+					}
+				}
 			}
+
 		}
 		return userAuthorityGroupCityList;
+	}
+	
+	/**
+	 * 获取单程节点  北京-上海  或者北京-上海 广州-深圳 这样行程的权限
+	 * @param journeyNodeInfo
+	 * @param userAuthorityGroupCityList
+	 */
+	private void buildAloneNoteAuthority(JourneyNodeInfo journeyNodeInfo,List<UserAuthorityGroupCity> userAuthorityGroupCityList){
+		//开始城市的权限
+		UserAuthorityGroupCity beginUserAuthorityGroupCity = new UserAuthorityGroupCity();
+		beginUserAuthorityGroupCity.setCityName(journeyNodeInfo.getPlanBeginAddress());
+		beginUserAuthorityGroupCity.setVehicle(journeyNodeInfo.getVehicle());
+		beginUserAuthorityGroupCity.setCityId(journeyNodeInfo.getPlanBeginCityCode());//用车城市编号
+		//获取行程节点下的所有用户用车权限
+		List<UserCarAuthority> beginNoteAllUserAuthority = journeyUserCarPowerService.queryNoteAllUserAuthority(journeyNodeInfo.getNodeId(),journeyNodeInfo.getPlanBeginCityCode());
+		log.info("行程节点编号【"+journeyNodeInfo.getNodeId()+"】单程节点出发城市查询出的权限信息:",beginNoteAllUserAuthority.toString());
+		//取数组中的第一个作为开始城市的用车权限(送机)
+		List<UserCarAuthority> beginUserCarAuthorityList=new ArrayList<UserCarAuthority>(1);
+		beginUserCarAuthorityList.add(beginNoteAllUserAuthority.get(0));
+		beginUserAuthorityGroupCity.setUserCarAuthorityList(beginUserCarAuthorityList);
+		userAuthorityGroupCityList.add(beginUserAuthorityGroupCity);
+		//结束城市的权限
+		UserAuthorityGroupCity endUserAuthorityGroupCity = new UserAuthorityGroupCity();
+		endUserAuthorityGroupCity.setCityName(journeyNodeInfo.getPlanEndAddress());
+		endUserAuthorityGroupCity.setVehicle(journeyNodeInfo.getVehicle());
+		endUserAuthorityGroupCity.setCityId(journeyNodeInfo.getPlanEndCityCode());//用车城市编号
+		//获取行程节点下的所有用户用车权限
+		List<UserCarAuthority> endNoteAllUserAuthority = journeyUserCarPowerService.queryNoteAllUserAuthority(journeyNodeInfo.getNodeId(),journeyNodeInfo.getPlanEndCityCode());
+		log.info("行程节点编号【"+journeyNodeInfo.getNodeId()+"】单程节点结束城市查询出的权限信息:",endNoteAllUserAuthority.toString());
+		//取数组中的最后一个作为目的城市的用车权限(接机);
+		List<UserCarAuthority> endUserCarAuthorityList=new ArrayList<UserCarAuthority>(1);
+		endUserCarAuthorityList.add(endNoteAllUserAuthority.get(endNoteAllUserAuthority.size()-1));
+		endUserAuthorityGroupCity.setUserCarAuthorityList(endUserCarAuthorityList);
+		userAuthorityGroupCityList.add(endUserAuthorityGroupCity);
 	}
 
 	@Override
