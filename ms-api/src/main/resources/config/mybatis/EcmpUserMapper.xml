@@ -420,6 +420,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{userId}
         </foreach>
     </select>
+    <select id="selectUserVoById" resultType="com.hq.ecmp.mscore.vo.UserVO">
+        select user_name as userName,mobile as userPhone,user_id as userId
+        from ecmp_user
+       where user_id = #{userId}
+    </select>
+
 
     <!--查询上级部门下的所有员工-->
     <select id="selectUserByDeptId" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">

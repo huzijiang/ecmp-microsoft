@@ -7,17 +7,12 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.CarInfo;
-import com.hq.ecmp.mscore.dto.CarGroupDTO;
-import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.dto.SubGroupListDTO;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -185,19 +180,38 @@ public class CarGroupController {
     }
 
     /**
-     * 查询车队所有调度员及车队座机
+     * 查询指定城市所有车队调度员及车队座机/城市没有车队则查询公司所有车队调度员及车队座机
      * @param
      * @return
      */
     @ApiOperation(value = "getCarGroupPhone",notes = "查询车队联系电话",httpMethod ="POST")
     @PostMapping("/getCarGroupPhone")
-    public ApiResponse<CarGroupPhoneVO> getCarGroupPhone(String cityCode){
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
-        //TODO 要找哪个车队  到外地用车，外地有多个车队，我该找哪个
-        CarGroupPhoneVO  carGroupPhone = carGroupInfoService.getCarGroupPhone(userId);
-        return null;
+    public ApiResponse<List<CarGroupPhoneVO>> getCarGroupPhone(@RequestBody CarGroupPhoneDTO carGroupPhoneDTO){
+        List<CarGroupPhoneVO>  list = null;
+        try {
+            list = carGroupInfoService.getCarGroupPhone(carGroupPhoneDTO.getCityCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success(list);
+    }
+
+    /**
+     * 查询调度员电话机和调度员所在车队座机
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getDispatcherAndFixedLine",notes = "查询调度员电话机和调度员所在车队座机",httpMethod ="POST")
+    @PostMapping("/getDispatcherAndFixedLine")
+    public ApiResponse<DispatcherAndFixedLineVO> getDispatcherAndFixedLine(@RequestBody DispatcherAndFixedLineDTO
+                                                                           dispatcherAndFixedLineDTO){
+        DispatcherAndFixedLineVO  vo = null;
+        try {
+             vo = carGroupInfoService.getDispatcherAndFixedLine(dispatcherAndFixedLineDTO.getTraceId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success(vo);
     }
 
 }
