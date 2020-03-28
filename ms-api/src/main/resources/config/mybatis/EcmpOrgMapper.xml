@@ -321,7 +321,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       from
             ecmp_org
        where
-            del_flag = 0 and `status`=0
+            del_flag = 0
         <if test="parentId != null ">and parent_id = #{parentId}</if>
         <if test="deptType != null  and deptType != ''">and dept_type = #{deptType}</if>
     </select>
@@ -348,8 +348,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="deptCode != null "> and dept_Code = #{deptCode}</if>
     </select>
 
+    <!--查询当前机构信息-->
+    <select id="selectCurrentDeptInformation" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+        select
+        if(isnull(dept_code),'',dept_code) as deptCode,leader,
+        (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
+        from ecmp_org
+        where
+        <if test="deptId != null ">  dept_id = #{deptId}</if>
+    </select>
 
-    <!--获取上级组织id中的员工姓名和电话、邮箱-->
+    <!-- 按照分子公司名称或编号模糊查询匹配的组织id -->
+    <select id="selectDeptIdsByDeptNameOrCode" resultType="Long">
+        select
+        dept_id as deptId
+        from
+        ecmp_org
+        where
+        del_flag = 0
+        and  (dept_name like concat('%', #{deptName}, '%') or   dept_code like concat('%', #{deptCode}, '%'))
+    </select>
+
+
+    <!--按照分子公司名称或编号模糊查询匹配的列表-->
     <select id="selectCompanyByDeptNameOrCode" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
       select
         dept_name as deptName,
@@ -357,6 +378,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         leader,
         (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
         (select count(1) from ecmp_org where parent_id=#{deptId}) as numOfSonCom,status
-        from ecmp_org where  (dept_name like concat('%', #{deptName}, '%') or   dept_code like concat('%', #{deptCode}, '%'))
+        from ecmp_org
+        where del_flag = 0
+        and  (dept_name like concat('%', #{deptName}, '%') or   dept_code like concat('%', #{deptCode}, '%'))
     </select>
 </mapper>
