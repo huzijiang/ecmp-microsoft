@@ -103,6 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		WHERE
 		c.user_id = #{userId}
 		AND b.effect_status = '0'
+		GROUP BY b.scene_id
 		ORDER BY
 		b.sort_no
 	</select>
