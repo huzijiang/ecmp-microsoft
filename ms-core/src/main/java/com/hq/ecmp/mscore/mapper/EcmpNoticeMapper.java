@@ -67,7 +67,7 @@ public interface EcmpNoticeMapper
      * @param noticeId 通知公告ID
      * @return 结果
      */
-    public int deleteEcmpNoticeById(Integer noticeId);
+    public int deleteEcmpNoticeById(@Param("noticeId") Integer noticeId);
 
     /**
      * 批量删除通知公告

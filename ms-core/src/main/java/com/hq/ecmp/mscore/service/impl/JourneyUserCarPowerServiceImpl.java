@@ -14,6 +14,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.ConfigTypeEnum;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
@@ -32,6 +33,7 @@ import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
+import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
 import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
@@ -70,6 +72,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     private IOrderStateTraceInfoService orderStateTraceInfoService;
     @Autowired
     private IOrderInfoService orderInfoService;
+    @Autowired
+    private IEcmpConfigService ecmpConfigService;
     
 
     /**
@@ -174,14 +178,36 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	public List<UserCarAuthority> queryNoteAllUserAuthority(Long nodeId,String cityCode) {
 		List<UserCarAuthority> list = journeyUserCarPowerMapper.queryNoteAllUserAuthority(nodeId);
 		 RegimeInfo regimeInfo = regimeInfoService.queryUseCarModelByNoteId(nodeId);
-		//判断是否走调度
+		//判断是否走调度   true-不走调度  走网约    false-走调度 
 		 boolean flag = regimeInfoService.judgeNotDispatch(regimeInfo.getRegimenId(), cityCode);//true-不走调度  fasle-走调度
 		// 查询对应的用车方式
 		if (null != list && list.size() > 0) {
 			RegimeInfo selectRegimeInfo = regimeInfoService.selectRegimeInfoById(regimeInfo.getRegimenId());
 			for (UserCarAuthority userCarAuthority : list) {
 				userCarAuthority.setRegimenId(regimeInfo.getRegimenId());
-				userCarAuthority.setCarType(regimeInfo.getCanUseCarMode());
+				// 返给前端是跳转到自有车页面还是网约车页面 carType   先从订单表里取  如果没有则取是否走调度的
+				String carType;
+				Long orderId = userCarAuthority.getOrderId();
+				if (null != orderId) {
+					OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+					String useCarMode = orderInfo.getUseCarMode();
+					if (StringUtil.isNotEmpty(useCarMode)) {
+						carType = useCarMode;
+					} else {
+						if (flag) {
+							carType = CarConstant.USR_CARD_MODE_NET;
+						} else {
+							carType = CarConstant.USR_CARD_MODE_HAVE;
+						}
+					}
+				} else {
+					if (flag) {
+						carType = CarConstant.USR_CARD_MODE_NET;
+					} else {
+						carType = CarConstant.USR_CARD_MODE_HAVE;
+					}
+				}
+				userCarAuthority.setCarType(carType);
 				// 获取接机or送机剩余次数
 				userCarAuthority.handCount();
 				String type = userCarAuthority.getType();
@@ -354,14 +380,26 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			return OrderState.SENDINGCARS.getState();
 		}
 		
-		if(OrderState.ALREADYSENDING.getState().equals(vaildOrdetrState) || OrderState.READYSERVICE.getState().equals(vaildOrdetrState)){
-			//订单状态为已派车或者准备服务   则对应前端状态为待服务
+		if(OrderState.ALREADYSENDING.getState().equals(vaildOrdetrState) || OrderState.READYSERVICE.getState().equals(vaildOrdetrState) || OrderState.REASSIGNMENT.getState().equals(vaildOrdetrState)){
+			//订单状态为已派车或者准备服务或者前往出发地   则对应前端状态为待服务
 			return OrderState.ALREADYSENDING.getState();
 		}
 		
 		if(OrderState.INSERVICE.getState().equals(vaildOrdetrState)){
 			//订单状态为服务中  则对应前端状态为进行中
 			return OrderState.INSERVICE.getState();
+		}
+		
+		if(OrderState.STOPSERVICE.getState().equals(vaildOrdetrState)){
+			//订单状态为服务结束  判断该订单是否需要确认
+			 int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey());
+			if(orderConfirmStatus == 1){
+				//需要去确认   对应前端状态为待确认-S960 
+				return OrderState.WAITCONFIRMED.getState();
+			}else{
+				//不需要确认  对应前端状态为已完成-S699
+				return OrderState.STOPSERVICE.getState();
+			}
 		}
 		
 		if(OrderState.ORDERCLOSE.getState().equals(vaildOrdetrState)){

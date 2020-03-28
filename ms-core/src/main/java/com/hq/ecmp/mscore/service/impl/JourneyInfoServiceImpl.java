@@ -15,12 +15,14 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
 import com.hq.ecmp.mscore.dto.MessageDto;
@@ -181,7 +183,6 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								String cityCode = journeyUserCarPowerService.queryOfficialPowerUseCity(carAuthorityInfo.getTicketId());
 								carAuthorityInfo.setCityCode(cityCode);
 								carAuthorityInfo.setRegimenId(journeyInfo.getRegimenId());
-								carAuthorityInfo.setCarType(regimeInfo.getCanUseCarMode());
 								carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
 								carAuthorityInfo.setType(regimeInfo.getRegimenType());
 								carAuthorityInfo.setServiceType(journeyInfo.getServiceType());
@@ -198,8 +199,31 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								//公务用车用车方式(取制度里面的)
 								List<String> queryUseCarMode = orderInfoMapper.queryUseCarMode(carAuthorityInfo.getTicketId());
 								carAuthorityInfo.setCarType(journeyInfo.getUseCarMode());
-								//查询改权限是否需要走调度   true-不走调度  走网约
+								//查询改权限是否需要走调度   true-不走调度  走网约    false-走调度 
 								boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(journeyInfo.getRegimenId(), cityCode);
+								// 返给前端是跳转到自有车页面还是网约车页面 carType   先从订单表里取  如果没有则取是否走调度的
+								String carType;
+								Long orderId = carAuthorityInfo.getOrderId();
+								if (null != orderId) {
+									OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+									String useCarMode = orderInfo.getUseCarMode();
+									if (StringUtil.isNotEmpty(useCarMode)) {
+										carType = useCarMode;
+									} else {
+										if (judgeNotDispatch) {
+											carType = CarConstant.USR_CARD_MODE_NET;
+										} else {
+											carType = CarConstant.USR_CARD_MODE_HAVE;
+										}
+									}
+								} else {
+									if (judgeNotDispatch) {
+										carType = CarConstant.USR_CARD_MODE_NET;
+									} else {
+										carType = CarConstant.USR_CARD_MODE_HAVE;
+									}
+								}
+								carAuthorityInfo.setCarType(carType);
 								//查询公务用车的前端状态
 								carAuthorityInfo.setStatus(journeyUserCarPowerService.buildUserAuthorityPowerStatus(judgeNotDispatch, carAuthorityInfo.getTicketId()));
 								carAuthorityInfoList.add(carAuthorityInfo);	
