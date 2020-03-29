@@ -43,6 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="journeyId != null ">journey_id,</if>
             <if test="nodeId != null ">node_id,</if>
             <if test="orderId != null ">order_id,</if>
+            <if test="powerId != null ">power_id,</if>
             <if test="carTypeId != null ">car_type_id,</if>
             <if test="price != null ">price,</if>
             <if test="plannedDepartureTime != null ">planned_departure_time,</if>
@@ -58,6 +59,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="journeyId != null ">#{journeyId},</if>
             <if test="nodeId != null ">#{nodeId},</if>
             <if test="orderId != null ">#{orderId},</if>
+            <if test="powerId != null ">#{powerId},</if>
             <if test="carTypeId != null ">#{carTypeId},</if>
             <if test="price != null ">#{price},</if>
             <if test="plannedDepartureTime != null ">#{plannedDepartureTime},</if>
