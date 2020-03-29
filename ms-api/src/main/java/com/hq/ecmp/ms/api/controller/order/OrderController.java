@@ -246,7 +246,7 @@ public class OrderController {
             iOrderInfoService.platCallTaxiParamValid(orderId,String.valueOf(userId),carLevel);
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.success(e.getMessage());
+            return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("约车成功");
     }
