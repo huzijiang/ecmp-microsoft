@@ -22,7 +22,7 @@ public class ApprovalListVO {
 
     private Long applyId;
     private String type;//申请人/审批人
-    private String time;
+    private String time;//申请时间/审批通过/驳回时间
     private List<ApprovalInfoVO> list;
 
     public ApprovalListVO() {

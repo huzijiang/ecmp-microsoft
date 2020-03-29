@@ -37,7 +37,7 @@
     <select id="queryAll" resultMap="DriverServiceAppraiseeInfoMap">
         select
           appraise_id, order_id, item, score, content, driver_id, car_id, car_license, create_by, create_time, update_by, update_time
-        from ecmp.driver_service_appraisee_info
+        from driver_service_appraisee_info
         <where>
             <if test="appraiseId != null">
                 and appraise_id = #{appraiseId}
@@ -130,5 +130,12 @@
     <delete id="deleteById">
         delete from ecmp.driver_service_appraisee_info where appraise_id = #{appraiseId}
     </delete>
+
+    <select id="queryByOrderId" resultMap="DriverServiceAppraiseeInfoMap">
+        select
+          appraise_id, order_id, item, score, content, driver_id, car_id, car_license, create_by, create_time, update_by, update_time
+        from ecmp.driver_service_appraisee_info
+        where order_id=#{orderId} limit 1
+    </select>
 
 </mapper>

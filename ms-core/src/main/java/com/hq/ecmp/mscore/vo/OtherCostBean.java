@@ -2,7 +2,9 @@ package com.hq.ecmp.mscore.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
@@ -12,8 +14,10 @@ import java.math.BigDecimal;
  * @date 2020/1/4
  * ecmp-proxy.
  */
-@ApiModel(description = "地址模型")
-public class OtherFeeDetailVO {
+
+@AllArgsConstructor
+@NoArgsConstructor
+public class OtherCostBean {
 
     private String typeName;
     private String cost;
@@ -36,14 +40,7 @@ public class OtherFeeDetailVO {
     }
 
     public Double getCostFee() {
-        return costFee;
+        return Double.valueOf(cost);
     }
-
-    public void setCostFee(String cost) {
-        if (StringUtils.isBlank(cost)){
-            this.costFee=0.0;
-        }
-        BigDecimal big=new BigDecimal(cost).stripTrailingZeros();
-        this.costFee = Double.parseDouble(big.toPlainString());
-    }
+    
 }

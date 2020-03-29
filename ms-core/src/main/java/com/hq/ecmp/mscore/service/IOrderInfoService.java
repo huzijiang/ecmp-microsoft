@@ -258,5 +258,12 @@ public interface IOrderInfoService {
      * @throws Exception
      */
     public void platCallTaxiParamValid(Long  orderId,String userId,String carLevel) throws Exception;
+
+    /**
+     * 获取网约车服务结束费用
+     * @param orderId
+     * @return
+     */
+    OrderCostDetailVO getOrderCost(Long orderId);
 }
 
