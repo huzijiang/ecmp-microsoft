@@ -1,7 +1,10 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.ecmp.mscore.vo.CarCostVO;
+import com.hq.ecmp.mscore.vo.EstimatePriceVo;
 import com.hq.ecmp.mscore.vo.FlightInfoVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,5 +31,10 @@ public interface ThirdService {
      */
     Map<String,String> locationByLongitudeAndLatitude(String longitude, String latitude) throws Exception;
 
-
+    /**
+     * 查询车型对应的预估价格
+     * @param estimatePriceVo
+     * @return
+     */
+    List<CarCostVO> enterpriseOrderGetCalculatePrice(EstimatePriceVo estimatePriceVo);
 }

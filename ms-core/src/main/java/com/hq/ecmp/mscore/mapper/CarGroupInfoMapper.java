@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
+import com.hq.ecmp.mscore.vo.CarGroupFixedPhoneVO;
 import com.hq.ecmp.mscore.vo.CarGroupListVO;
+import com.hq.ecmp.mscore.vo.CarGroupPhoneVO;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -87,5 +89,12 @@ public interface CarGroupInfoMapper
      * @return
      */
     List<CarGroupInfo> selectValidCarGroupListByCity(String cityCode);
+
+    /**
+     * 查询车队电话及车队名字
+     * @param groupIds
+     * @return
+     */
+    List<CarGroupFixedPhoneVO> selectCarGroupPhones(List<Long> groupIds);
 
 }

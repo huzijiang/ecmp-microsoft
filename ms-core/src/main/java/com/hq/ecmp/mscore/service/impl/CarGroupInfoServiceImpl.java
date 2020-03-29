@@ -516,15 +516,22 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @return
      */
     @Override
-    public DispatcherAndFixedLineVO getDispatcherAndFixedLine(Long traceId) {
-        //查询调度员信息
-        OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.selectOrderStateTraceInfoById(traceId);
-        String userId = orderStateTraceInfo.getCreateBy();//TODO CreateBy 是 userId 还是 driverId
+    public DispatcherAndFixedLineVO getDispatcherAndFixedLine(Long orderId) {
+        //根据订单id查询调度员的userId
+        String userId  = orderStateTraceInfoMapper.selectDispatcherUserId(orderId);
+       //查询调度员信息
         UserVO userVO = ecmpUserMapper.selectUserVoById(Long.valueOf(userId));
+        //查询调度员所在车队及车队座机
+        CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+        carGroupDispatcherInfo.setUserId(Long.valueOf(userId));
+        List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
+        List<Long> groupIds = carGroupDispatcherInfos.stream().map(CarGroupDispatcherInfo::getCarGroupId).collect(Collectors.toList());
         //查询车队电话
-
-
-        return null;
+        List<CarGroupFixedPhoneVO> groupPhones = carGroupInfoMapper.selectCarGroupPhones(groupIds);
+        DispatcherAndFixedLineVO vo = new DispatcherAndFixedLineVO();
+        vo.setDispatcher(userVO);
+        vo.setGroupPhones(groupPhones);
+        return vo;
     }
 
 

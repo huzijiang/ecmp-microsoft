@@ -39,4 +39,10 @@ public class ApplyUseWithTravelDto extends ParallelOrderDto {
     private String   planDate;
     @ApiModelProperty(value = "1.走调度（包含自有车）  2 直接约车（只有网约车）")
     private int isDispatch;
+    @ApiModelProperty(value = "预估时长(分钟),isDispatch 为2 时传")
+    private String duration;
+    @ApiModelProperty(value = "预估价格参考开始时间，isDispatch 为2 时传")
+    private String calculatePriceStartTime;
+    @ApiModelProperty(value = "预估价格来源，isDispatch 为2 时传")
+    private String source;
 }

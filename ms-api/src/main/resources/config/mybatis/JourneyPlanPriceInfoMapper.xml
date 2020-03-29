@@ -48,6 +48,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="plannedDepartureTime != null ">planned_departure_time,</if>
             <if test="duration != null ">duration,</if>
             <if test="plannedArrivalTime != null ">planned_arrival_time,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="priceId != null ">#{priceId},</if>
@@ -59,6 +63,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="plannedDepartureTime != null ">#{plannedDepartureTime},</if>
             <if test="duration != null ">#{duration},</if>
             <if test="plannedArrivalTime != null ">#{plannedArrivalTime},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
          </trim>
     </insert>
 

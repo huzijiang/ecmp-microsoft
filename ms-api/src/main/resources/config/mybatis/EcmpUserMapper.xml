@@ -421,7 +421,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </select>
     <select id="selectUserVoById" resultType="com.hq.ecmp.mscore.vo.UserVO">
-        select user_name as userName,mobile as userPhone,user_id as userId
+        select user_name as userName,phonenumber as userPhone,user_id as userId
         from ecmp_user
        where user_id = #{userId}
     </select>

@@ -90,4 +90,11 @@ public interface OrderStateTraceInfoMapper
     public OrderStateTraceInfo queryPowerCloseOrderIsCanle(Long powerId);
 
     OrderStateTraceInfo getLatestInfoByOrderId(Long orderId);
+
+    /**
+     * 根据订单id查询调度员的userId
+     * @param orderId
+     * @return
+     */
+    String selectDispatcherUserId(Long orderId);
 }

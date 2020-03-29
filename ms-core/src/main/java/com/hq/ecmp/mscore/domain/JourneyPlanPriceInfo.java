@@ -1,11 +1,13 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 【请填写功能名称】对象 journey_plan_price_info
@@ -13,6 +15,7 @@ import java.math.BigDecimal;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class JourneyPlanPriceInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -27,8 +30,6 @@ public class JourneyPlanPriceInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long nodeId;
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long orderId;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -36,11 +37,33 @@ public class JourneyPlanPriceInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long powerId;   //TODO 新增
+
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long orderId;
+
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private BigDecimal price;
 
-    private String plannedDepartureTime;
-    private String duration;
-    private String plannedArrivalTime;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date plannedDepartureTime;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Integer duration;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date plannedArrivalTime;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String source;  //TODO 新增
+
+
 
     public void setPriceId(Long priceId)
     {
@@ -96,27 +119,27 @@ public class JourneyPlanPriceInfo extends BaseEntity
         this.orderId = orderId;
     }
 
-    public String getPlannedDepartureTime() {
+    public Date getPlannedDepartureTime() {
         return plannedDepartureTime;
     }
 
-    public void setPlannedDepartureTime(String plannedDepartureTime) {
+    public void setPlannedDepartureTime(Date plannedDepartureTime) {
         this.plannedDepartureTime = plannedDepartureTime;
     }
 
-    public String getDuration() {
+    public Integer getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(Integer duration) {
         this.duration = duration;
     }
 
-    public String getPlannedArrivalTime() {
+    public Date getPlannedArrivalTime() {
         return plannedArrivalTime;
     }
 
-    public void setPlannedArrivalTime(String plannedArrivalTime) {
+    public void setPlannedArrivalTime(Date plannedArrivalTime) {
         this.plannedArrivalTime = plannedArrivalTime;
     }
 
