@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
 
+import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.JourneyPlanPriceInfo;
 import com.hq.ecmp.mscore.mapper.JourneyPlanPriceInfoMapper;
 import com.hq.ecmp.mscore.service.IJourneyPlanPriceInfoService;
@@ -53,6 +54,7 @@ public class JourneyPlanPriceInfoServiceImpl implements IJourneyPlanPriceInfoSer
     @Override
     public int insertJourneyPlanPriceInfo(JourneyPlanPriceInfo journeyPlanPriceInfo)
     {
+        journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
         return journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
     }
 

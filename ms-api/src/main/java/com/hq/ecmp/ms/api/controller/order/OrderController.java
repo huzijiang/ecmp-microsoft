@@ -88,11 +88,6 @@ public class OrderController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
             orderId = iOrderInfoService.officialOrder(officialOrderReVo,userId);
-            //如果是网约车，发起异步约车请求
-            if(officialOrderReVo.getIsDispatch() == 2){
-                iOrderInfoService.insertOrderStateTrace(String.valueOf(orderId), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
-                iOrderInfoService.platCallTaxiParamValid(orderId,String.valueOf(userId),officialOrderReVo.getCarLevel());
-            }
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -582,23 +577,6 @@ public class OrderController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
             orderId = iOrderInfoService.applyUseCarWithTravel(applyUseWithTravelDto,userId);
-            if(applyUseWithTravelDto.getIsDispatch() == 2){
-                String groupId = applyUseWithTravelDto.getGroupId();
-                String[] splits = groupId.split(",|，");
-                StringBuilder demandCarLevel = new StringBuilder();
-                for (String split:
-                        splits) {
-                    String[] split1 = split.split(":");
-                    String carLevel = split1[0];
-                    demandCarLevel.append(carLevel+",");
-                }
-                String s = demandCarLevel.toString();
-                String substring = s.substring(0, s.lastIndexOf(","));
-                applyUseWithTravelDto.setGroupId(substring);
-                iOrderInfoService.insertOrderStateTrace(String.valueOf(orderId), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
-                iOrderInfoService.platCallTaxiParamValid(orderId,String.valueOf(userId),applyUseWithTravelDto.getGroupId());
-
-            }
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("申请派车失败");

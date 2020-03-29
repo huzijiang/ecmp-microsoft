@@ -210,6 +210,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @param updateState
      * @return
      */
+    @Transactional
     public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason){
         OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
         orderStateTraceInfo.setOrderId(Long.parseLong(orderId));
@@ -580,6 +581,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                         for (CarLevelAndPriceReVo carLevelAndPriceReVo:
                                 carlevelAndPriceByOrderId) {
                             JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+                            journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
+                            journeyPlanPriceInfo.setOrderId(orderId);
+                            journeyPlanPriceInfo.setPowerId(orderInfo.getPowerId());
+                            journeyPlanPriceInfo.setSource(carLevelAndPriceReVo.getSource());
                             journeyPlanPriceInfo.setNodeId(orderInfo1.getNodeId());
                             journeyPlanPriceInfo.setJourneyId(orderInfo1.getJourneyId());
                             journeyPlanPriceInfo.setPrice(new BigDecimal(carLevelAndPriceReVo.getEstimatePrice()));
@@ -1007,6 +1012,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
         //用车权限次数变化
         journeyUserCarCountOp(powerId,1);
+        //如果是网约车，发起异步约车请求
+        if(officialOrderReVo.getIsDispatch() == 2){
+            ((OrderInfoServiceImpl)AopContext.currentProxy()).insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
+            ((OrderInfoServiceImpl)AopContext.currentProxy()).platCallTaxiParamValid(orderInfo.getOrderId(),String.valueOf(userId),officialOrderReVo.getCarLevel());
+        }
         return orderInfo.getOrderId();
     }
 
@@ -1159,6 +1169,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 String carLevel = split1[0];
                 String price = split1[1];
                 JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+                journeyPlanPriceInfo.setSource(applyUseWithTravelDto.getSource());
+                journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
                 journeyPlanPriceInfo.setNodeId(journeyUserCarPower.getNodeId());
                 journeyPlanPriceInfo.setJourneyId(journeyUserCarPower.getJourneyId());
                 journeyPlanPriceInfo.setPrice(new BigDecimal(price));
@@ -1180,6 +1192,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
             String s = demandCarLevel.toString();
             String substring = s.substring(0, s.lastIndexOf(","));
+            applyUseWithTravelDto.setGroupId(substring);
             orderInfo.setDemandCarLevel(substring);
         }else{
             orderInfo.setState(OrderState.WAITINGLIST.getState());
@@ -1249,7 +1262,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(applyUseWithTravelDto.getIsDispatch() == 1){
             ismsBusiness.sendMessagePriTravelOrderSucc(orderInfo.getOrderId(),userId);
         }
-
+        //如果调网约车进行参数校验和成功则下单
+        if(applyUseWithTravelDto.getIsDispatch() == 2){
+            ((OrderInfoServiceImpl)AopContext.currentProxy()).insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
+            ((OrderInfoServiceImpl)AopContext.currentProxy()).platCallTaxiParamValid(orderInfo.getOrderId(),String.valueOf(userId),applyUseWithTravelDto.getGroupId());
+        }
         return orderInfo.getOrderId();
     }
 
