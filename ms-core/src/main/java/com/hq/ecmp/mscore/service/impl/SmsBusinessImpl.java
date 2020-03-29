@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.github.pagehelper.util.StringUtil;
+import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
@@ -305,6 +307,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         log.info("短信结束-订单{},司机开始服务", orderId);
     }
 
+
     /**
      * 司机服务结束发送短信
      * @param orderId
@@ -521,6 +524,100 @@ public class SmsBusinessImpl implements IsmsBusiness{
                     sendMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),Long.parseLong(riderId),
                             MsgConstant.MESSAGE_T006.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
                             orderId,createId,"您有一个行程正在进行中，请及时查看！");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 服务结束未确认行程
+     * @param orderId
+     */
+    @Override
+    @Async
+    public void endServiceNotConfirm(Long orderId){
+        log.info("短信开始-订单{},司机服务结束乘客未确认行程", orderId);
+        try {
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
+            //乘车人
+            String riderMobile = applyAndRiderMobile.get("riderMobile");
+            String applyMobile = applyAndRiderMobile.get("applyMobile");
+            if(!riderAndApplyMatch(applyAndRiderMobile)){
+                Map<String,String> paramsMap = new HashMap<>();
+                paramsMap.put("riderMobile", riderMobile);
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.DRIVER_COMPLETE_NOT_CONFIRM,paramsMap,applyMobile);
+            }else{
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.DRIVER_COMPLETE_NOT_CONFIRM_RIDER,null,applyMobile);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        log.info("短信结束-订单{},司机服务结束", orderId);
+    }
+
+    /**
+     * 司机已到达短信(网约车)
+     * @param orderId
+     */
+    @Override
+    @Async
+    public void driverArriveMessage(Long orderId) {
+        try {
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
+            Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
+            String riderId = applyAndRiderMobile.get("riderId");
+            //乘车人企业员工
+            Map<String,String> paramsMap= Maps.newHashMap();
+            paramsMap.put("driverrName",orderCommonInfo.get("driverrName"));
+            paramsMap.put("time",orderCommonInfo.get("useCarTime").substring(11));
+            paramsMap.put("carLicense",orderCommonInfo.get("carLicense"));
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TAXI_DRIVER_ARR_RIDER_ENTER,paramsMap,applyAndRiderMobile.get("riderMobile"));
+            if(!riderAndApplyMatch(applyAndRiderMobile)){
+                //乘车人非企业员
+                if(StringUtils.isEmpty(riderId)){
+                    paramsMap.put("applyMobile",applyAndRiderMobile.get("applyMobile"));
+                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TAXI_DRIVER_ARR_RIDER_NO_ENTER,paramsMap,applyAndRiderMobile.get("riderMobile"));
+                }else{//申请人
+                    paramsMap.put("riderMobile",applyAndRiderMobile.get("riderMobile"));
+                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TAXI_DRIVER_ARR_APPLY,paramsMap,applyAndRiderMobile.get("applyMobile"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 开始服务发送短信网约车
+     * @param orderId
+     * @param createId
+     */
+    @Override
+    @Async
+    public void startService(Long orderId,Long createId) {
+        try {
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
+            Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
+            String riderId = applyAndRiderMobile.get("riderId");
+            //乘车人企业员工
+
+            if(!riderAndApplyMatch(applyAndRiderMobile)){
+                //乘车人非企业员
+                Map<String,String> paramsMap= Maps.newHashMap();
+                paramsMap.put("driverrName",orderCommonInfo.get("driverrName"));
+                paramsMap.put("time",orderCommonInfo.get("useCarTime").substring(11));
+                paramsMap.put("carLicense",orderCommonInfo.get("carLicense"));
+                if(StringUtils.isEmpty(riderId)){
+                    paramsMap.put("applyMobile",applyAndRiderMobile.get("applyMobile"));
+                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TAXI_DRIVER_ARR_RIDER_NO_ENTER,paramsMap,applyAndRiderMobile.get("riderMobile"));
+                }else{//申请人
+                    paramsMap.put("riderMobile",applyAndRiderMobile.get("riderMobile"));
+                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TAXI_DRIVER_ARR_RIDER_NO_ENTER,paramsMap,applyAndRiderMobile.get("applyMobile"));
                 }
             }
         } catch (Exception e) {

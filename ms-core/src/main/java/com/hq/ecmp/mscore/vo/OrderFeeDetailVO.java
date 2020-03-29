@@ -1,12 +1,12 @@
 package com.hq.ecmp.mscore.vo;
 
-import io.swagger.annotations.ApiModelProperty;
+import com.alibaba.fastjson.JSONObject;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,8 +14,9 @@ import java.util.List;
  * @Date: 2020/3/5 11:10
  */
 @Data
-@Builder
-public class OrderFeeDetailVO {
+@AllArgsConstructor
+@NoArgsConstructor
+public class OrderFeeDetailVO implements Serializable {
 
     private String total;       //订单总金额，计算公式1.2.6
     private String mileage;       //订单总里程
@@ -61,7 +62,7 @@ public class OrderFeeDetailVO {
     private double channelDiscountAmount;       //        实际渠道优惠金额
     private double channelFlodAmount;       //优惠固定金额
     private double channelDiscountPercent;       //        渠道折扣
-    private List<OtherFeeDetailVO> otherCost;       //其他费用(包含停车费、高速费、机场服务费、食宿费、语音服务费)
+    private List<OtherCostBean> otherCost;       //其他费用(包含停车费、高速费、机场服务费、食宿费、语音服务费)
     private String timePrice;       //分钟定价
     private double languageServiceFee;       //语言服务费
     private String designatedDriverFee;       //指定司机费，如无该项功能可忽略
