@@ -61,4 +61,11 @@ public interface EnterpriseCarTypeInfoMapper
      * @return 结果
      */
     public int deleteEnterpriseCarTypeInfoByIds(Long[] carTypeIds);
+
+    /**
+     * 根据车型查询id
+     * @param onlineCarLevel
+     * @return
+     */
+    Long selectCarTypeId(String onlineCarLevel);
 }

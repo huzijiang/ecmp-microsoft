@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.dto;
 
 import com.hq.ecmp.mscore.vo.AddressVO;
 import com.hq.ecmp.mscore.vo.ApprovalVO;
+import com.hq.ecmp.mscore.vo.CarLevelAndPriceVO;
 import com.hq.ecmp.mscore.vo.UserVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -158,5 +159,11 @@ public class ApplyOfficialRequest {
      */
     @ApiModelProperty(name = "flightPlanArriveTime", value = "航班计划到达时间", required = false, position = 22)
     private Date flightPlanArriveTime;  // TODO 新增
+
+    /**
+     * 航班计划到达时间
+     */
+    @ApiModelProperty(name = "carLevelAndPriceVOs", value = "车型及预估价集合", required = false, position = 23)
+    List<CarLevelAndPriceVO> carLevelAndPriceVOs;
 
 }

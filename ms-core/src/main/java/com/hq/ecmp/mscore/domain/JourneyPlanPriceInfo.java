@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -14,6 +15,7 @@ import java.util.Date;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class JourneyPlanPriceInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -28,8 +30,6 @@ public class JourneyPlanPriceInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long nodeId;
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long orderId;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -37,11 +37,33 @@ public class JourneyPlanPriceInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long powerId;   //TODO 新增
+
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long orderId;
+
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private BigDecimal price;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Date plannedDepartureTime;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Integer duration;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Date plannedArrivalTime;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String source;  //TODO 新增
+
+
 
     public void setPriceId(Long priceId)
     {
