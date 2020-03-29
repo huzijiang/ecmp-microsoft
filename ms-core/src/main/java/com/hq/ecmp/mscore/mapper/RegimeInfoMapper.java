@@ -106,4 +106,7 @@ public interface RegimeInfoMapper
      * @return
      */
     String getUserOnlineCarLevels(Long regimenId);
+    
+    
+    public RegimeVo queryRegimeInfoByOrderId(Long orderId);
 }

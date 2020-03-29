@@ -12,6 +12,6 @@ import lombok.Data;
 @Data
 public class RegimeQueryPo extends Page {
            Long sceneId;//场景编号
-           Integer  status;// 0-启用    1-禁用
+           String  state;// Y000   生效中    N111  已失效
            String regimeName;//制度名称
 }

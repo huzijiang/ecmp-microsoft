@@ -246,8 +246,8 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	@Transactional(propagation=Propagation.REQUIRED)
 	@Override
 	public boolean optRegime(RegimeOpt regimeOpt) {
-		Integer optType = regimeOpt.getOptType();
-		if(optType==1 || optType==0){
+		String optType = regimeOpt.getOptType();
+		if("Y000".equals(optType) || "N111".equals(optType)){
 			regimeInfoMapper.updateStatus(regimeOpt);
 		}else{
 			//物理删除
@@ -341,5 +341,40 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			throw new RuntimeException("查询制度详情失败");
 		}
 		return regimeVo;
+	}
+
+	@Override
+	public String queryCarModeLevel(Long orderId, String useCarMode) {
+		String carModeLevel;
+		RegimeVo regimeVo = regimeInfoMapper.queryRegimeInfoByOrderId(orderId);
+		String regimenType = regimeVo.getRegimenType();
+		if (StringUtil.isNotEmpty(useCarMode)) {
+			// 传入了用车方式
+			if (CarConstant.USR_CARD_MODE_NET.equals(useCarMode)) {
+				// 用车方式-网约车
+				if (CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimenType)) {
+					// 公务
+					carModeLevel = regimeVo.getUseCarModeOnlineLevel();
+				} else {
+					// 差旅
+					carModeLevel = regimeVo.getTravelUseCarModeOnlineLevel();
+				}
+			} else {
+				// 用车方式-自有车
+				if (CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimenType)) {
+					carModeLevel = regimeVo.getUseCarModeOwnerLevel();
+				} else {
+					carModeLevel = regimeVo.getTravelUseCarModeOwnerLevel();
+				}
+			}
+		} else {
+			// 没有传用车方式 则默认取网约车的车型配置
+			if (CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimenType)) {
+				carModeLevel = regimeVo.getUseCarModeOnlineLevel();
+			} else {
+				carModeLevel = regimeVo.getTravelUseCarModeOnlineLevel();
+			}
+		}
+		return carModeLevel;
 	}
 }
