@@ -511,7 +511,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderInfoMapper.getOrderMessage(userId,states,driveId);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void platCallTaxiParamValid(Long  orderId,String userId,String carLevel) throws Exception {
         //使用汽车的方式，改为网约
         OrderInfo orderInfoUp = new OrderInfo();
@@ -1495,7 +1495,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(Long orderId,Long userId,String cancelReason) throws Exception {
         OrderInfo orderInfoOld = orderInfoMapper.selectOrderInfoById(orderId);
         Double cancelFee = 0d;
@@ -1571,7 +1571,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @param userId
      * @throws Exception
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception {
         if ("1".equals(status)) {
             OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();

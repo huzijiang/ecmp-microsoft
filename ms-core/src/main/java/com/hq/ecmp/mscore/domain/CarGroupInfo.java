@@ -76,6 +76,10 @@ public class CarGroupInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String latitude;   //TODO 新增
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long ownerCompany;   //TODO 新增 所属公司id
+
 
     public String getTelephone() {
         return telephone;
