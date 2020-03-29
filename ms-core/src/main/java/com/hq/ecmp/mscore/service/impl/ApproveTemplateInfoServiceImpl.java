@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.ApproveTemplateInfo;
 import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.mapper.ApproveTemplateInfoMapper;
 import com.hq.ecmp.mscore.mapper.ApproveTemplateNodeInfoMapper;
 import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
@@ -115,8 +117,9 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
     }
 
     @Override
-    public List<ApprovaTemplateVO> getTemplateList() {
-        List<ApprovaTemplateVO> templateList = approveTemplateInfoMapper.getTemplateList();
+    public List<ApprovaTemplateVO> getTemplateList(PageRequest pageRequest) {
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+        List<ApprovaTemplateVO> templateList = approveTemplateInfoMapper.getTemplateList(pageRequest.getSearch());
         if (CollectionUtils.isNotEmpty(templateList)){
             for (ApprovaTemplateVO vo:templateList){
                 List<ApprovaTemplateNodeVO> nodeIds = vo.getNodeIds();
@@ -170,5 +173,10 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
         if (i>0){
             approveTemplateNodeInfoMapper.deleteByTemplateId(approveTemplateId);
         }
+    }
+
+    @Override
+    public Long getTemplateListCount(String search) {
+        return approveTemplateInfoMapper.getTemplateListCount(search);
     }
 }

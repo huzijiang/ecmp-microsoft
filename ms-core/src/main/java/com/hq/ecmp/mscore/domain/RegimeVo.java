@@ -20,7 +20,7 @@ public class RegimeVo {
 
 	Integer approveTemplateId;// 审批模板
 
-	Integer status;// 0-启用 1-禁用
+	String state;// N111  已失效    Y000   生效中
 
 	String canUseCarMode;// 用车方式 W100 自有车 W200 网约车
 
@@ -39,9 +39,9 @@ public class RegimeVo {
 
 	String ruleCity;// C001：不限 C002：限制可用城市 C003：限制不可用城市
 
-	String useCarModeOwnerLevel;// 差旅 自有车车型配置
+	String useCarModeOwnerLevel;// 公务 自有车车型配置
 
-	String useCarModeOnlineLevel;// 差旅 网约车车型配置
+	String useCarModeOnlineLevel;// 公务 网约车车型配置
 
 	/**
 	 * 差旅制度

@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class RegimeOpt {
 		Long regimeId;
-		Integer optType;//0-启用   1-停用  3-删除
+		String optType;//Y000-启用   N111-停用  M100-删除
 		Long optUserId;//操作人员ID
 }

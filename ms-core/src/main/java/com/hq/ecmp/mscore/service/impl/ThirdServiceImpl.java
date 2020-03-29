@@ -6,9 +6,12 @@ import com.google.common.reflect.TypeToken;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.ecmp.mscore.service.ThirdService;
+import com.hq.ecmp.mscore.vo.CarCostVO;
+import com.hq.ecmp.mscore.vo.EstimatePriceVo;
 import com.hq.ecmp.mscore.vo.FlightInfoVo;
 import com.hq.ecmp.util.GsonUtils;
 import com.hq.ecmp.util.MacTools;
+import com.hq.ecmp.util.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -81,7 +84,9 @@ public class ThirdServiceImpl implements ThirdService {
         paramMap.put("mac", macAdd);
         paramMap.put("longitude", String.valueOf(longitude));
         paramMap.put("latitude",String.valueOf(latitude));
+        log.info("经纬度查长短地址入参：{}", paramMap);
         String result = OkHttpUtil.postForm(apiUrl + "/service/locateByLongitudeAndLatitude", paramMap);
+        log.info("经纬度查长短地址结果：{}", result);
         JSONObject jsonObject = JSONObject.parseObject(result);
         if (ApiResponse.SUCCESS_CODE!=jsonObject.getInteger("code")) {
             log.error("调用云端经纬度获取长短地址接口失败");
@@ -92,5 +97,41 @@ public class ThirdServiceImpl implements ThirdService {
         address.put("longAddr",longAddr);
         address.put("shortAddr",shortAddr);
         return address;
+    }
+
+    /**
+     * 车型查预估价
+     * @param estimatePriceVo
+     * @return
+     */
+    @Override
+    public List<CarCostVO> enterpriseOrderGetCalculatePrice(EstimatePriceVo estimatePriceVo) {
+        try{
+            String macAddress = MacTools.getMacList().get(0);
+            Map<String, Object> map = ObjectUtils.objectToMap(estimatePriceVo);
+            map.put("mac",macAddress);
+            map.put("address","");
+            map.put("cpu","");
+            map.put("license","");
+            map.put("machineIp","");
+            map.put("name","");
+            map.put("os","");
+            map.put("platId","");
+            map.put("socialCreditCode","");
+            map.put("telephone","");
+            map.put("enterpriseId",enterpriseId);
+            map.put("licenseContent",licenseContent);
+            log.info("预估计接口入参：{}", map);
+            String postJson = OkHttpUtil.postForm(apiUrl+"/service/enterpriseOrderGetCalculatePrice", map);
+            log.info("预估计接口结果：{}", postJson);
+            ApiResponse<List<CarCostVO>> result = GsonUtils.jsonToBean(postJson, new com.google.gson.reflect.TypeToken<ApiResponse<List<CarCostVO>>>() {
+            }.getType());
+            if(ApiResponse.SUCCESS_CODE ==result.getCode()){
+                return result.getData();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }

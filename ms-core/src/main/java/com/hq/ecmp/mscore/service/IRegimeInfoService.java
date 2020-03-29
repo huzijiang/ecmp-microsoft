@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.domain.RegimeOpt;
 import com.hq.ecmp.mscore.domain.RegimePo;
 import com.hq.ecmp.mscore.domain.RegimeQueryPo;
 import com.hq.ecmp.mscore.domain.RegimeVo;
+import com.hq.ecmp.mscore.vo.CarLevelAndPriceReVo;
 import com.hq.ecmp.mscore.vo.RegimenVO;
 
 /**
@@ -136,5 +137,20 @@ public interface IRegimeInfoService
      * @return
      */
     RegimeVo selectRegimeDetailById(Long regimenId);
+    
+    /**
+     * 
+     * @param orderId 订单ID
+     * @param useCarMode  非必传   用车方式  W100-自有车    W200-网约车    
+     * @return  车型    P001   P002    P003   多个用,拼接
+     */
+    String queryCarModeLevel(Long orderId,String useCarMode);
+
+    /**
+     * 通过订单，用车方式获取车型以及预估价格等相关信息
+     * @param orderId
+     * @param useCarMode,不传默认为网约车 W100-自有车 	W200-网约车
+     */
+    List<CarLevelAndPriceReVo> getCarlevelAndPriceByOrderId(Long orderId, String useCarMode);
 }
 

@@ -597,6 +597,7 @@ public class OrderController {
                 applyUseWithTravelDto.setGroupId(substring);
                 iOrderInfoService.insertOrderStateTrace(String.valueOf(orderId), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
                 iOrderInfoService.platCallTaxiParamValid(orderId,String.valueOf(userId),applyUseWithTravelDto.getGroupId());
+
             }
         } catch (Exception e) {
             e.printStackTrace();
