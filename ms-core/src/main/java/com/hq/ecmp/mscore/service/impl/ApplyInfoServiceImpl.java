@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,6 +11,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
+import com.google.gson.reflect.TypeToken;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
@@ -29,6 +31,7 @@ import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.GsonUtils;
 import com.hq.ecmp.util.RandomUtil;
 import com.hq.ecmp.util.SortListUtil;
 import io.netty.util.internal.ObjectUtil;
@@ -218,42 +221,31 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         }
         //如果有往返，则创建返程节点。返程 出发地为最初目的地，返程目的地为最初出发地。返程开始时间为去程结束时间
         if(CommonConstant.IS_RETURN.equals(travelCommitApply.getIsGoBack())) {
-            ApplyTravelRequest applyTravelRequest = ApplyTravelRequest.builder().applyType(travelCommitApply.getApplyType())
-                    .applyUser(travelCommitApply.getApplyUser())
-                    .approvers(travelCommitApply.getApprovers())
-                    .costCenter(travelCommitApply.getCostCenter())
-                    .endDate(travelCommitApply.getEndDate())
-                    .isGoBack(travelCommitApply.getIsGoBack())
-                    .passenger(travelCommitApply.getPassenger())
-                    .pickupTimes(travelCommitApply.getPickupTimes())
-                    .projectNumber(travelCommitApply.getProjectNumber())
-                    .reason(travelCommitApply.getReason())
-                    .regimenId(travelCommitApply.getRegimenId())
-                    .startDate(travelCommitApply.getStartDate())
-                    .travelCitiesStr(travelCommitApply.getTravelCitiesStr())
-                    .travelCount(travelCommitApply.getTravelCount())
-                    .travelPickupCity(travelCommitApply.getTravelPickupCity())
-                    .travelRequests(travelCommitApply.getTravelRequests())
-                    .useType(travelCommitApply.getUseType())
-                    .build();
-            List<TravelRequest> travelRequestsRev = applyTravelRequest.getTravelRequests();
-            int size = travelRequestsRev.size();
+
+            String json = GsonUtils.objectToJson(travelCommitApply);
+            Type type = new TypeToken<ApplyTravelRequest>() {
+            }.getRawType();
+            ApplyTravelRequest applyTravelRequestCopy = GsonUtils.jsonToBean(json, type);
+            List<TravelRequest> travelRequestsCopy = applyTravelRequestCopy.getTravelRequests();
+            int size = travelRequestsCopy.size();
             //得到去程节点
-            TravelRequest travelRequest = travelRequestsRev.get(0);
+            TravelRequest travelRequest2 = travelRequestsCopy.get(0);
+            CityInfo startCity = travelRequest2.getStartCity();
             TravelRequest travelRequestSetout = travelRequests.get(size - 1);
+            CityInfo endCity = travelRequestSetout.getEndCity();
             //设置返程出发地为最初目的地
-            travelRequest.setStartCity(travelRequestSetout.getEndCity());
+            travelRequest2.setStartCity(endCity);
             //设置返程目的地为最初出发地
-            travelRequest.setEndCity(travelRequest.getStartCity());
+            travelRequest2.setEndCity(startCity);
             //设置返程开始日期为去程结束日期
-            travelRequest.setStartDate(travelRequestSetout.getEndDate());
+            travelRequest2.setStartDate(travelRequestSetout.getEndDate());
             //设置返程结束日期为空
-            travelRequest.setEndDate(null);
+            travelRequest2.setEndDate(null);
             //设置返程节点时长为空
-            travelRequest.setCountDate(null);
+            travelRequest2.setCountDate(null);
             //TODO 返程交通工具暂不做修改
             journeyNodeInfo = new JourneyNodeInfo();
-            setTravelJourneyNode(applyTravelRequest, journeyId, journeyNodeInfo, i + 1, travelRequest);
+            setTravelJourneyNode(applyTravelRequestCopy, journeyId, journeyNodeInfo, i + 1, travelRequest2);
             //新增返程节点
             journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
         }
@@ -786,29 +778,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
 
         ApplyVO applyVO = ApplyVO.builder().applyId(applyId).journeyId(journeyId).build();
 
-        //复制参数对象
-        ApplyOfficialRequest applyOfficialRequest = ApplyOfficialRequest.builder().
-                applyDate(officialCommitApply.getApplyDate())
-               .applyType(officialCommitApply.getApplyType())
-               .applyUser(officialCommitApply.getApplyUser())
-               .approvers(officialCommitApply.getApprovers())
-               .charterType(officialCommitApply.getCharterType())
-               .costCenter(officialCommitApply.getCostCenter())
-               .endAddr(officialCommitApply.getEndAddr())
-               .estimatePrice(officialCommitApply.getEstimatePrice())
-               .flightNumber(officialCommitApply.getFlightNumber())
-               .isGoBack(officialCommitApply.getIsGoBack())
-               .partner(officialCommitApply.getPartner())
-               .passedAddress(officialCommitApply.getPassedAddress())
-               .passenger(officialCommitApply.getPassenger())
-               .projectNumber(officialCommitApply.getProjectNumber())
-               .reason(officialCommitApply.getReason())
-               .regimenId(officialCommitApply.getRegimenId())
-               .returnWaitTime(officialCommitApply.getReturnWaitTime())
-               .serviceType(officialCommitApply.getServiceType())
-               .startAddr(officialCommitApply.getStartAddr())
-               .useType(officialCommitApply.getUseType())
-               .waitDurition(officialCommitApply.getWaitDurition()).build();
+        String json = GsonUtils.objectToJson(officialCommitApply);
+        Type type = new TypeToken<ApplyOfficialRequest>() {
+        }.getRawType();
+        ApplyOfficialRequest applyOfficialRequest = GsonUtils.jsonToBean(json, type);
         //3.保存行程节点信息 journey_node_info表
         JourneyNodeInfo journeyNodeInfo = null;
         // TODO 公务是一个行程  如果往返，需要创建两个行程节点还是一个？此处创建一个
@@ -828,10 +801,25 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //如果没有途经点 就只有一个行程节点
         Long nodeIdNoReturn = 0L;
         Long nodeIdIsReturn = 0L;
+        //预估行驶时间
+        Integer duration2 = officialCommitApply.getCarLevelAndPriceVOs().get(0).getDuration();
         if(size == 0){
             journeyNodeInfo = new JourneyNodeInfo();
             //设置行程节点信息表
             journeyNodeOfficialCommit(applyOfficialRequest, journeyId, journeyNodeInfo);
+            //设置用车时间
+            // use_car_time 用车时间
+            Date applyDate = officialCommitApply.getApplyDate();
+            if (applyDate != null){
+                journeyNodeInfo.setPlanSetoutTime(applyDate);
+                journeyNodeInfo.setPlanArriveTime(new Date(applyDate.getTime() + duration2*60*1000));
+            }else {
+                //如果applyDate为空，则表示接机
+                Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+                Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+                journeyNodeInfo.setPlanSetoutTime(useCarTime);
+                journeyNodeInfo.setPlanArriveTime(new Date(useCarTime.getTime() + duration2*60*1000));
+            }
             //判断是否途经点  er模型中  是这样的   途经点  同样具有顺序  Y000     是  N111    否
             journeyNodeInfo.setItIsViaPoint(CommonConstant.NO_PASS);  // TODO 常量
             //节点编号
@@ -851,6 +839,18 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyNodeInfo.setItIsViaPoint(CommonConstant.PASS);   //TODO 常量
             //节点编号
             journeyNodeInfo.setNumber(n);
+            // use_car_time 用车时间
+            Date applyDate = officialCommitApply.getApplyDate();
+            if (applyDate != null){
+                journeyNodeInfo.setPlanSetoutTime(applyDate);
+                journeyNodeInfo.setPlanArriveTime(null);
+            }else {
+                //如果applyDate为空，则表示接机
+                Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+                Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+                journeyNodeInfo.setPlanSetoutTime(useCarTime);
+                journeyNodeInfo.setPlanArriveTime(null);
+            }
             //保存数据
             journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
             //B...提交最后一个节点
@@ -866,6 +866,17 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyNodeInfo.setItIsViaPoint(CommonConstant.NO_PASS);  //TODO 常量
             //节点编号
             journeyNodeInfo.setNumber(n+size);
+            // use_car_time 用车时间
+            if (applyDate != null){
+                journeyNodeInfo.setPlanSetoutTime(null);
+                journeyNodeInfo.setPlanArriveTime(new Date(applyDate.getTime() + duration2*60*1000));
+            }else {
+                //如果applyDate为空，则表示接机
+                Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+                Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+                journeyNodeInfo.setPlanSetoutTime(null);
+                journeyNodeInfo.setPlanArriveTime(new Date(useCarTime.getTime() + duration2*60*1000));
+            }
             //保存数据
             journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
 
@@ -900,6 +911,14 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyNodeInfo.setItIsViaPoint(CommonConstant.NO_PASS);  // TODO 常量
             //设置节点编号
             journeyNodeInfo.setNumber(n+size+1);
+            // use_car_time 用车时间
+            Date applyDate = officialCommitApply.getApplyDate();
+            if (applyDate != null) {
+                //接机是没有往返的
+                Long time = applyDate.getTime() + duration2 * 60 * 1000 + Long.valueOf(officialCommitApply.getReturnWaitTime());
+                journeyNodeInfo.setPlanSetoutTime(new Date(time));
+                journeyNodeInfo.setPlanArriveTime(new Date(time + duration2 * 60 * 1000));
+            }
             //保存数据
             journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
             nodeIdIsReturn = journeyNodeInfo.getNodeId();
