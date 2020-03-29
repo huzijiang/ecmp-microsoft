@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.vo.CarCostVO;
 import com.hq.ecmp.mscore.vo.EstimatePriceVo;
 import com.hq.ecmp.mscore.vo.FlightInfoVo;
 
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
 
@@ -36,5 +37,5 @@ public interface ThirdService {
      * @param estimatePriceVo
      * @return
      */
-    List<CarCostVO> enterpriseOrderGetCalculatePrice(EstimatePriceVo estimatePriceVo);
+    List<CarCostVO> enterpriseOrderGetCalculatePrice(EstimatePriceVo estimatePriceVo) throws Exception;
 }

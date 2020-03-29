@@ -1472,7 +1472,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             String result = OkHttpUtil.postForm(apiUrl + "/service/cancelOrder", paramMap);
             log.info("网约车订单{}取消返回结果{}",orderId,result);
             JSONObject jsonObject = JSONObject.parseObject(result);
-            if (!"0".equals(jsonObject.get("code"))) {
+            if (ApiResponse.SUCCESS_CODE != jsonObject.getInteger("code")) {
                 throw new Exception("调用三方取消订单服务-》取消失败");
             }else{
                 JSONObject data = jsonObject.getJSONObject("data");
