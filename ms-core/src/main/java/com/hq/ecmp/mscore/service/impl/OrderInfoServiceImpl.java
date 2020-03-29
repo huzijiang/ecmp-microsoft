@@ -1593,8 +1593,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             } else if (OrderState.ORDERCANCEL.getState().equals(status)) {//订单取消
                 newOrderInfo.setState(OrderState.ORDERCLOSE.getState());
             }
-            orderInfoMapper.updateOrderInfo(newOrderInfo);
-            orderStateTraceInfoMapper.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderNo,lableState,longitude,latitude));
+            if (!OrderState.ORDERCANCEL.getState().equals(status)){//订单取消
+                orderInfoMapper.updateOrderInfo(newOrderInfo);
+                orderStateTraceInfoMapper.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderNo,lableState,longitude,latitude));
+            }
         }
         orderVO.setDriverLongitude(String.valueOf(longitude));
         orderVO.setState(status);
