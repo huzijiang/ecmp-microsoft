@@ -379,10 +379,14 @@ public class ApplyContoller {
         list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请成功"));
         result.add(new ApprovalListVO(applyId,"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
         if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
+            String approveTime=null;
            for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){
                String approveUserId = resultInfo.getApproveUserId();
                String appresult = resultInfo.getApproveResult();
                String state = resultInfo.getState();
+               if (ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(resultInfo.getState())&&resultInfo.getUpdateTime()!=null){
+                   approveTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,resultInfo.getUpdateTime());
+               }
                list=new ArrayList<>();
                if (StringUtils.isNotBlank(approveUserId)){
                    List<EcmpUser> userList=ecmpUserService.selectUserListByUserIds(approveUserId);
@@ -394,7 +398,7 @@ public class ApplyContoller {
                        }
                    }
                }
-               result.add(new ApprovalListVO(applyId,"审批人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
+               result.add(new ApprovalListVO(applyId,"审批人",list, approveTime));
            }
         }
         if (CollectionUtils.isNotEmpty(result)&&result.size()>1){
@@ -441,9 +445,6 @@ public class ApplyContoller {
         if (CollectionUtils.isEmpty(applyApproveResultInfos)){
             throw new Exception("您未有此申请单的审批权限");
         }
-//        if (ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(applyApproveResultInfos.get(0).getState())){
-//            throw new Exception("已审批");
-//        }
         List<ApplyApproveResultInfo> resultInfoList = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(),regimeInfo.getApproveTemplateId()));
         //所有待审批的记录
         List<ApplyApproveResultInfo> collect = resultInfoList.stream().filter(p -> ApproveStateEnum.WAIT_APPROVE_STATE.getKey().equals(p.getState()) && StringUtils.isBlank(p.getApproveResult())).collect(Collectors.toList());

@@ -66,5 +66,6 @@ public interface DriverServiceAppraiseeInfoMapper {
      * @return 影响行数
      */
     int deleteById(Long appraiseId);
+    DriverServiceAppraiseeInfo queryByOrderId(Long orderId);
 
 }

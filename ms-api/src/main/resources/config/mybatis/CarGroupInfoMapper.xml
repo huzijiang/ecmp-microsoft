@@ -138,5 +138,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          from car_group_info
          where city = #{cityCode}
     </select>
+    <select id="selectCarGroupPhones" resultType="com.hq.ecmp.mscore.vo.CarGroupFixedPhoneVO" parameterType="long">
+            select car_group_name as carGroupName, telephone as phone
+            from car_group_info
+            where car_group_id in
+        <foreach collection="list" item="groupId" index="index" open="(" close=")" separator=",">
+            #{groupId}
+        </foreach>
+    </select>
 
 </mapper>

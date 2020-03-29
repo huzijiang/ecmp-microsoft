@@ -207,7 +207,7 @@ public class CarGroupController {
                                                                            dispatcherAndFixedLineDTO){
         DispatcherAndFixedLineVO  vo = null;
         try {
-             vo = carGroupInfoService.getDispatcherAndFixedLine(dispatcherAndFixedLineDTO.getTraceId());
+             vo = carGroupInfoService.getDispatcherAndFixedLine(dispatcherAndFixedLineDTO.getOrderId());
         } catch (Exception e) {
             e.printStackTrace();
         }

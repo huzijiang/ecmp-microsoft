@@ -68,6 +68,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertJourneyNodeInfo" parameterType="com.hq.ecmp.mscore.domain.JourneyNodeInfo">
+        <selectKey keyColumn="node_id" keyProperty="nodeId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into journey_node_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="nodeId != null ">node_id,</if>
