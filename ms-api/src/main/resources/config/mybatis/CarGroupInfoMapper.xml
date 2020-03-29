@@ -27,6 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="city != null "> and city = #{city}</if>
             <if test="ownerOrg != null "> and owner_org = #{ownerOrg}</if>
             <if test="leader != null "> and leader = #{leader}</if>
+            <if test="ownerCompany != null "> and owner_company = #{ownerCompany}</if>
         </where>
     </select>
 
