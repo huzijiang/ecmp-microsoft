@@ -1572,6 +1572,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             return orderVO;
         }
         JSONObject thirdPartyOrderState = this.getThirdPartyOrderState(orderNo);
+        log.info("获取网约车订单详情:"+thirdPartyOrderState);
         String status = thirdPartyOrderState.getString("status");
         String lableState=thirdPartyOrderState.getString("status");
         Double longitude=null;
@@ -1632,31 +1633,32 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderInfoMapper.updateOrderInfo(newOrderInfo);
                 orderStateTraceInfoMapper.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderNo,lableState,longitude,latitude));
             }
+            if (OrderState.ALREADYSENDING.getState().equals(status)){//约车成功 发短信，发通知
+                ismsBusiness.sendSmsCallTaxiNet(orderNo);
+            }
+            if (OrderState.READYSERVICE.getState().equals(status)){//驾驶员已到达
+                ismsBusiness.driverArriveMessage(orderNo);
+            }else
+            if (OrderState.INSERVICE.getState().equals(status)){//开始服务 发送通知
+                ismsBusiness.sendSmsDriverBeginService(orderNo);
+                //司机开始服务发送消息给乘车人和申请人（行程通知）
+                ismsBusiness.sendMessageServiceStart(orderNo, orderVO.getUserId());
+            }else
+            if (OrderState.STOPSERVICE.getState().equals(status)){//任务结束
+                ismsBusiness.endServiceNotConfirm(orderNo);
+            }else
+            if (OrderState.ORDERCLOSE.getState().equals(status)){//任务关闭
+                ismsBusiness.sendSmsDriverServiceComplete(orderNo);
+            }else
+            if (OrderState.ORDERCANCEL.getState().equals(status)){//任务取消
+//            ismsBusiness.sendSmsCancelOrder(orderNo);
+            }
         }
         orderVO.setDriverLongitude(String.valueOf(longitude));
         orderVO.setState(status);
         orderVO.setLabelState(lableState);
         orderVO.setDriverLatitude(String.valueOf(latitude));
-        if (OrderState.ALREADYSENDING.getState().equals(status)){//约车成功 发短信，发通知
-            ismsBusiness.sendSmsCallTaxiNet(orderNo);
-        }
-        if (OrderState.READYSERVICE.getState().equals(status)){//驾驶员已到达
-            ismsBusiness.driverArriveMessage(orderNo);
-        }else
-        if (OrderState.INSERVICE.getState().equals(status)){//开始服务 发送通知
-            ismsBusiness.sendSmsDriverBeginService(orderNo);
-            //司机开始服务发送消息给乘车人和申请人（行程通知）
-            ismsBusiness.sendMessageServiceStart(orderNo, orderVO.getUserId());
-        }else
-        if (OrderState.STOPSERVICE.getState().equals(status)){//任务结束
-            ismsBusiness.endServiceNotConfirm(orderNo);
-        }else
-        if (OrderState.ORDERCLOSE.getState().equals(status)){//任务关闭
-            ismsBusiness.sendSmsDriverServiceComplete(orderNo);
-        }else
-        if (OrderState.ORDERCANCEL.getState().equals(status)){//任务取消
-//            ismsBusiness.sendSmsCancelOrder(orderNo);
-        }
+
         return orderVO;
     }
 
