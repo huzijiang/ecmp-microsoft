@@ -91,5 +91,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{carTypeId}
         </foreach>
     </delete>
+    <select id="selectCarTypeId" resultType="java.lang.Long">
+        select car_type_id from enterprise_car_type_info where level = #{onlineCarLevel}
+    </select>
 
 </mapper>

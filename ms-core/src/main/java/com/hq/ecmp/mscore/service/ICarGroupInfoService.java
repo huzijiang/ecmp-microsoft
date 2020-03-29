@@ -124,5 +124,5 @@ public interface ICarGroupInfoService
      * @param
      * @return
      */
-    DispatcherAndFixedLineVO getDispatcherAndFixedLine(Long traceId);
+    DispatcherAndFixedLineVO getDispatcherAndFixedLine(Long orderId);
 }
