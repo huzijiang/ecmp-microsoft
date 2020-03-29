@@ -58,6 +58,7 @@ public class JourneyPlanPriceInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Date plannedArrivalTime;
+    
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -149,8 +150,17 @@ public class JourneyPlanPriceInfo extends BaseEntity
     public JourneyPlanPriceInfo(Long orderId) {
         this.orderId = orderId;
     }
+    
+   
+    public Long getPowerId() {
+		return powerId;
+	}
 
-    @Override
+	public void setPowerId(Long powerId) {
+		this.powerId = powerId;
+	}
+
+	@Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("priceId", getPriceId())
