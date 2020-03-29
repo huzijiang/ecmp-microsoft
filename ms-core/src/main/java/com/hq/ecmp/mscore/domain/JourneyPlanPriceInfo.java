@@ -42,6 +42,8 @@ public class JourneyPlanPriceInfo extends BaseEntity
     private Date plannedDepartureTime;
     private Integer duration;
     private Date plannedArrivalTime;
+    
+    private Long powerId;
 
     public void setPriceId(Long priceId)
     {
@@ -127,8 +129,17 @@ public class JourneyPlanPriceInfo extends BaseEntity
     public JourneyPlanPriceInfo(Long orderId) {
         this.orderId = orderId;
     }
+    
+   
+    public Long getPowerId() {
+		return powerId;
+	}
 
-    @Override
+	public void setPowerId(Long powerId) {
+		this.powerId = powerId;
+	}
+
+	@Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("priceId", getPriceId())
