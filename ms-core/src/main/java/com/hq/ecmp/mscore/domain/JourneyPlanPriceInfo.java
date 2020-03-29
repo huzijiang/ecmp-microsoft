@@ -59,7 +59,6 @@ public class JourneyPlanPriceInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Date plannedArrivalTime;
     
-    private Long powerId;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
