@@ -136,5 +136,13 @@ public interface IRegimeInfoService
      * @return
      */
     RegimeVo selectRegimeDetailById(Long regimenId);
+    
+    /**
+     * 
+     * @param orderId 订单ID
+     * @param useCarMode  非必传   用车方式  W100-自有车    W200-网约车    
+     * @return  车型    P001   P002    P003   多个用,拼接
+     */
+    String queryCarModeLevel(Long orderId,String useCarMode);
 }
 

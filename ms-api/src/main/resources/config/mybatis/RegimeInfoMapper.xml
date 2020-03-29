@@ -165,20 +165,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	c. NAME AS
 	sceneName,
 	a.approve_template_id AS approveTemplateId,
-	a. STATUS AS STATUS
+	a. state AS state
 	FROM
 	regime_info a
 	LEFT JOIN scene_regime_relation b ON a.regimen_id = b.regimen_id
 	LEFT JOIN scene_info c ON b.scene_id = c.scene_id
 	WHERE
 	1=1
-	<if test="null !=sceneId">
+	<if test="null !=sceneId and sceneId !=''">
 		and c.scene_id = #{sceneId}
 	</if>
-	<if test="null !=status">
-		and a.STATUS =#{status}
+	<if test="null !=state and state !=''">
+		and a.state =#{state}
 	</if>
-	<if test="null !=regimeName">
+	<if test="null !=regimeName and regimeName !=''">
 		and a.NAME like CONCAT('%',#{regimeName},'%')
 	</if>
 	<if test="offset != null and pageSize != null">
@@ -199,19 +199,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	c.scene_id
 	WHERE
 	1=1
-	<if test="null !=sceneId">
+		<if test="null !=sceneId and sceneId !=''">
 		and c.scene_id = #{sceneId}
 	</if>
-	<if test="null !=status">
-		and a.STATUS =#{status}
+	<if test="null !=state and state !=''">
+		and a.state =#{state}
 	</if>
-	<if test="null !=regimeName">
+	<if test="null !=regimeName and regimeName !=''">
 		and a.NAME like CONCAT('%',#{regimeName},'%')
 	</if>
 </select>
 
 <update id="updateStatus" parameterType="com.hq.ecmp.mscore.domain.RegimeOpt">
-update regime_info set status=#{status},update_by=#{optUserId},update_time=now() where regimen_id=#{regimeId}
+update regime_info set state=#{optType},update_by=#{optUserId},update_time=now() where regimen_id=#{regimeId}
 </update>
 
 <select id="queryRegimeType" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeInfo">
@@ -366,6 +366,24 @@ WHERE
         SELECT  use_car_mode_online_level
         FROM regime_info
         WHERE regimen_id = #{regimenId}
+</select>
+
+
+<select id="queryRegimeInfoByOrderId" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeVo">
+SELECT
+	a.use_car_mode_online_level AS useCarModeOnlineLevel,
+	a.use_car_mode_owner_level AS useCarModeOwnerLevel,
+	a.travel_use_car_mode_owner_level AS travelUseCarModeOwnerLevel,
+	a.travel_use_car_mode_online_level AS travelUseCarModeOnlineLevel,
+	a.as_use_car_mode_owner_level AS asUseCarModeOwnerLevel,
+	a.as_use_car_mode_online_level AS asUseCarModeOnlineLevel
+FROM
+	regime_info a
+LEFT JOIN journey_info b ON a.regimen_id = b.regimen_id
+LEFT JOIN order_info c ON b.journey_id = c.journey_id
+WHERE
+	order_id = #{orderId}
+LIMIT 1
 </select>
 
 </mapper>
