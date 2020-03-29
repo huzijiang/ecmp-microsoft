@@ -20,6 +20,7 @@ public class OrderStateVO {
      * 审批人Id
      */
     private Long orderId;
+    private Long userId;
     private String state;
     private String labelState;
     private Long driverId;

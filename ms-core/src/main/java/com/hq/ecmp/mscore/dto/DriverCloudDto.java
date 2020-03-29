@@ -31,6 +31,7 @@ public class DriverCloudDto {
     private String vehiclePic;
     //车颜色
     private String vehicleColor;
-
+    //坐标
+    private String driverPoint;
 
 }

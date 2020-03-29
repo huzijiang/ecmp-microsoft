@@ -78,4 +78,23 @@ public interface IsmsBusiness {
      * @param orderId
      */
     public void sendMessageDispatchCarComplete(Long orderId,Long userId);
+
+    /**
+     * 网约车司机已到达发短信
+     * @param orderId
+     */
+    public void driverArriveMessage(Long orderId);
+
+    /**
+     * 开始服务网约车
+     * @param orderId
+     * @param createId
+     */
+    public void startService(Long orderId,Long createId);
+
+    /**
+     * 结束服务未确认行程短信
+     * @param orderId
+     */
+    public void endServiceNotConfirm(Long orderId);
 }

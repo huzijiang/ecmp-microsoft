@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Type;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,32 +106,36 @@ public class ThirdServiceImpl implements ThirdService {
      * @return
      */
     @Override
-    public List<CarCostVO> enterpriseOrderGetCalculatePrice(EstimatePriceVo estimatePriceVo) {
-        try{
+    public List<CarCostVO> enterpriseOrderGetCalculatePrice(EstimatePriceVo estimatePriceVo) throws Exception {
+        try {
             String macAddress = MacTools.getMacList().get(0);
             Map<String, Object> map = ObjectUtils.objectToMap(estimatePriceVo);
-            map.put("mac",macAddress);
-            map.put("address","");
-            map.put("cpu","");
-            map.put("license","");
-            map.put("machineIp","");
-            map.put("name","");
-            map.put("os","");
-            map.put("platId","");
-            map.put("socialCreditCode","");
-            map.put("telephone","");
-            map.put("enterpriseId",enterpriseId);
-            map.put("licenseContent",licenseContent);
+            map.put("mac", macAddress);
+            map.put("address", "");
+            map.put("cpu", "");
+            map.put("license", "");
+            map.put("machineIp", "");
+            map.put("name", "");
+            map.put("os", "");
+            map.put("platId", "");
+            map.put("socialCreditCode", "");
+            map.put("telephone", "");
+            map.put("enterpriseId", enterpriseId);
+            map.put("licenseContent", licenseContent);
             log.info("预估计接口入参：{}", map);
-            String postJson = OkHttpUtil.postForm(apiUrl+"/service/enterpriseOrderGetCalculatePrice", map);
+            String postJson = OkHttpUtil.postForm(apiUrl + "/service/enterpriseOrderGetCalculatePrice", map);
             log.info("预估计接口结果：{}", postJson);
             ApiResponse<List<CarCostVO>> result = GsonUtils.jsonToBean(postJson, new com.google.gson.reflect.TypeToken<ApiResponse<List<CarCostVO>>>() {
             }.getType());
-            if(ApiResponse.SUCCESS_CODE ==result.getCode()){
+            if (ApiResponse.SUCCESS_CODE == result.getCode()) {
                 return result.getData();
             }
+        }catch(SocketTimeoutException e){
+            e.printStackTrace();
+            throw new SocketTimeoutException("预估价格查询超时");
         }catch (Exception e){
             e.printStackTrace();
+            throw new Exception("预估价格查询失败");
         }
         return null;
     }

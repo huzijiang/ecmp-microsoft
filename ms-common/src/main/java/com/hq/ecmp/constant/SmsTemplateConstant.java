@@ -54,6 +54,17 @@ public class SmsTemplateConstant {
     public static final String CANCEL_ORDER_HAVEFEE_APPLICANT = "cancel_order_havefee_applicant";
     //取消订单-收费-发乘车人（企业员）短信模板
     public static final String CANCEL_ORDER_HAVEFEE_RIDER_ENTER = "cancel_order_havefee_rider_enter";
+    //网约车司机已到达乘车人企业员工
+    public static final String TAXI_DRIVER_ARR_RIDER_ENTER = "taxi_driver_arr_rider_enter";
+    //网约车司机已到达乘车人非企业员工
+    public static final String TAXI_DRIVER_ARR_RIDER_NO_ENTER = "taxi_driver_arr_rider_no_enter";
+    //网约车司机已到达申请人
+    public static final String TAXI_DRIVER_ARR_APPLY = "taxi_driver_arr_apply";
+    //服务结束未确认行程申请人
+    public static final String DRIVER_COMPLETE_NOT_CONFIRM = "driver_complete_not_confirm_apply";
+    //服务结束未确认行程乘车人
+    public static final String DRIVER_COMPLETE_NOT_CONFIRM_RIDER = "driver_complete_not_confirm_rider";
+
 
 
 

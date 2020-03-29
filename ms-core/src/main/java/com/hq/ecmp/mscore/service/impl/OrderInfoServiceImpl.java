@@ -3,7 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.util.StringUtil;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
@@ -14,7 +14,10 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.*;
+import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.MacTools;
+import com.hq.ecmp.util.OrderUtils;
+import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
@@ -207,6 +210,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @param updateState
      * @return
      */
+    @Transactional
     public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason){
         OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
         orderStateTraceInfo.setOrderId(Long.parseLong(orderId));
@@ -443,10 +447,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         int isVirtualPhone = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey());//是否号码保护
         vo.setIsDisagree(orderConfirmStatus);
         vo.setIsVirtualPhone(isVirtualPhone);
-        List<DriverServiceAppraiseeInfo> driverServiceAppraiseeInfos = driverServiceAppraiseeInfoMapper.queryAll(new DriverServiceAppraiseeInfo(orderInfo.getOrderId()));
-        if (!CollectionUtils.isEmpty(driverServiceAppraiseeInfos)){
-            vo.setDescription(driverServiceAppraiseeInfos.get(0).getContent());
-            vo.setScore(driverServiceAppraiseeInfos.get(0).getScore()+"");
+        DriverServiceAppraiseeInfo driverServiceAppraiseeInfos = driverServiceAppraiseeInfoMapper.queryByOrderId(orderId);
+        if (driverServiceAppraiseeInfos!=null){
+            vo.setDescription(driverServiceAppraiseeInfos.getContent());
+            vo.setScore(driverServiceAppraiseeInfos.getScore()+"");
         }else{
             vo.setScore(null);
             vo.setDuration(null);
@@ -577,6 +581,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                         for (CarLevelAndPriceReVo carLevelAndPriceReVo:
                                 carlevelAndPriceByOrderId) {
                             JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+                            journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
+                            journeyPlanPriceInfo.setOrderId(orderId);
+                            journeyPlanPriceInfo.setPowerId(orderInfo.getPowerId());
+                            journeyPlanPriceInfo.setSource(carLevelAndPriceReVo.getSource());
                             journeyPlanPriceInfo.setNodeId(orderInfo1.getNodeId());
                             journeyPlanPriceInfo.setJourneyId(orderInfo1.getJourneyId());
                             journeyPlanPriceInfo.setPrice(new BigDecimal(carLevelAndPriceReVo.getEstimatePrice()));
@@ -720,9 +728,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 if(state.equals(OrderState.ORDERCLOSE.getState())){
                     break;
                 }
-
                 //发起约车
-
                 //订单类型,1:随叫随到;2:预约用车;3:接机;5:送机
                 String result = null;
 
@@ -817,6 +823,34 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		orderInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
 		// 更新订单信息
 		int updateFlag = updateOrderInfo(orderInfo);
+		//生成行程预估价格记录
+        List<CarLevelAndPriceReVo> carlevelAndPriceByOrderId = regimeInfoService.getCarlevelAndPriceByOrderId(orderId, CarConstant.USR_CARD_MODE_HAVE);
+        OrderInfo orderInfo1 = orderInfoMapper.selectOrderInfoById(orderId);
+        if(carlevelAndPriceByOrderId !=null && carlevelAndPriceByOrderId.size()>0){
+            for (CarLevelAndPriceReVo carLevelAndPriceReVo:
+                    carlevelAndPriceByOrderId) {
+                JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+                journeyPlanPriceInfo.setNodeId(orderInfo1.getNodeId());
+                journeyPlanPriceInfo.setJourneyId(orderInfo1.getJourneyId());
+                journeyPlanPriceInfo.setOrderId(orderId);
+                journeyPlanPriceInfo.setPowerId(orderInfo1.getPowerId());
+                journeyPlanPriceInfo.setPrice(new BigDecimal(carLevelAndPriceReVo.getEstimatePrice()));
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date parse = carLevelAndPriceReVo.getBookingStartTime();
+                String formatEnd = simpleDateFormat.format(parse.getTime() + (carLevelAndPriceReVo.getDuration() * 60000));
+                journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
+                journeyPlanPriceInfo.setPlannedDepartureTime(parse);
+                journeyPlanPriceInfo.setDuration(carLevelAndPriceReVo.getDuration());
+                EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
+                enterpriseCarTypeInfo.setLevel(carLevelAndPriceReVo.getOnlineCarLevel());
+                List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
+                if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
+                    EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
+                    journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
+                }
+                iJourneyPlanPriceInfoService.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+            }
+        }
 		/*
 		 * * // 判读该单子是否是改派单 if
 		 * (iOrderStateTraceInfoService.isReassignment(orderId)) { // 是改派单
@@ -978,6 +1012,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
         //用车权限次数变化
         journeyUserCarCountOp(powerId,1);
+        //如果是网约车，发起异步约车请求
+        if(officialOrderReVo.getIsDispatch() == 2){
+            ((OrderInfoServiceImpl)AopContext.currentProxy()).insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
+            ((OrderInfoServiceImpl)AopContext.currentProxy()).platCallTaxiParamValid(orderInfo.getOrderId(),String.valueOf(userId),officialOrderReVo.getCarLevel());
+        }
         return orderInfo.getOrderId();
     }
 
@@ -1120,7 +1159,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //直接约车，约车中。走调度，待派单
         if(applyUseWithTravelDto.getIsDispatch() == 2){
             orderInfo.setState(OrderState.SENDINGCARS.getState());
-            //添加预估价
             String groupId = applyUseWithTravelDto.getGroupId();
             String[] splits = groupId.split(",|，");
             StringBuilder demandCarLevel = new StringBuilder();
@@ -1128,25 +1166,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     splits) {
                 String[] split1 = split.split(":");
                 String carLevel = split1[0];
-                String price = split1[1];
-                JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
-                journeyPlanPriceInfo.setNodeId(journeyUserCarPower.getNodeId());
-                journeyPlanPriceInfo.setJourneyId(journeyUserCarPower.getJourneyId());
-                journeyPlanPriceInfo.setPrice(new BigDecimal(price));
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date parse = simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime());
-                String formatEnd = simpleDateFormat.format(parse.getTime() + (Integer.parseInt(applyUseWithTravelDto.getDuration()) * 60000));
-                journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
-                journeyPlanPriceInfo.setPlannedDepartureTime(simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime()));
-                journeyPlanPriceInfo.setDuration(Integer.parseInt(applyUseWithTravelDto.getDuration()));
-                EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
-                enterpriseCarTypeInfo.setLevel(carLevel);
-                List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
-                if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
-                    EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
-                    journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
-                }
-                iJourneyPlanPriceInfoService.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
                 demandCarLevel.append(carLevel+",");
             }
             String s = demandCarLevel.toString();
@@ -1172,6 +1191,44 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setCreateTime(DateUtils.getNowDate());
         orderInfo.setCreateBy(userId+"");
         orderInfoMapper.insertOrderInfo(orderInfo);
+        if(applyUseWithTravelDto.getIsDispatch() == 2){
+            //添加预估价
+            String groupId = applyUseWithTravelDto.getGroupId();
+            String[] splits = groupId.split(",|，");
+            StringBuilder demandCarLevel = new StringBuilder();
+            for (String split:
+                    splits) {
+                String[] split1 = split.split(":");
+                String carLevel = split1[0];
+                String price = split1[1];
+                JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+                journeyPlanPriceInfo.setSource(applyUseWithTravelDto.getSource());
+                journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
+                journeyPlanPriceInfo.setNodeId(journeyUserCarPower.getNodeId());
+                journeyPlanPriceInfo.setJourneyId(journeyUserCarPower.getJourneyId());
+                journeyPlanPriceInfo.setPrice(new BigDecimal(price));
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date parse = simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime());
+                String formatEnd = simpleDateFormat.format(parse.getTime() + (Integer.parseInt(applyUseWithTravelDto.getDuration()) * 60000));
+                journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
+                journeyPlanPriceInfo.setPlannedDepartureTime(simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime()));
+                journeyPlanPriceInfo.setDuration(Integer.parseInt(applyUseWithTravelDto.getDuration()));
+                journeyPlanPriceInfo.setPowerId(applyUseWithTravelDto.getTicketId());
+                journeyPlanPriceInfo.setOrderId(orderInfo.getOrderId());
+                EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
+                enterpriseCarTypeInfo.setLevel(carLevel);
+                List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
+                if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
+                    EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
+                    journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
+                }
+                iJourneyPlanPriceInfoService.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+                demandCarLevel.append(carLevel+",");
+            }
+            String s = demandCarLevel.toString();
+            String substring = s.substring(0, s.lastIndexOf(","));
+            applyUseWithTravelDto.setGroupId(substring);
+        }
         //订单轨迹
         this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null);
         this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
@@ -1220,7 +1277,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(applyUseWithTravelDto.getIsDispatch() == 1){
             ismsBusiness.sendMessagePriTravelOrderSucc(orderInfo.getOrderId(),userId);
         }
-
+        //如果调网约车进行参数校验和成功则下单
+        if(applyUseWithTravelDto.getIsDispatch() == 2){
+            ((OrderInfoServiceImpl)AopContext.currentProxy()).insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
+            ((OrderInfoServiceImpl)AopContext.currentProxy()).platCallTaxiParamValid(orderInfo.getOrderId(),String.valueOf(userId),applyUseWithTravelDto.getGroupId());
+        }
         return orderInfo.getOrderId();
     }
 
@@ -1347,30 +1408,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
 	
-
-	private OrderCostDetailVO getOrderCost(Long orderId){
+    @Override
+	public OrderCostDetailVO getOrderCost(Long orderId){
         OrderCostDetailVO result=new OrderCostDetailVO();
         List<OtherCostVO> list=new ArrayList<>();
-//        result.setCouponSettleAmout("22");
-//        result.setActualPayAmount("129");
-//        result.setCustomerPayPrice("107");
-//        result.setMileage("27公里");
-//        result.setMin("63分钟");
-//        list.add(new OtherCostVO("起步价","15","3公里","12分钟","含时长12分钟,含里程3公里"));
-//        list.add(new OtherCostVO("超时长费","15","平峰时长:3分钟,高峰时长:13分钟,累计超时时长:26分钟"));
-//        list.add(new OtherCostVO("超里程费","14","平峰里程:3公里,高峰里程:1公里,累计超时里程:4公里"));
-//        list.add(new OtherCostVO("夜间时长费","13","夜间服务费（里程）单价:1.3,夜间服务里程10公里"));
-//        list.add(new OtherCostVO("夜间时长费","12","夜间服务费（时长）单价:1.2,夜间服务时长10分钟"));
-//        list.add(new OtherCostVO("等待费","10","等待时长为15分钟"));
-//        list.add(new OtherCostVO("长途费","40","长途单价:4元/公里,长途里程10公里"));
-//        list.add(new OtherCostVO("其他费用","10","包含停车费、高速费、机场服务费"));
         List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
         OrderFeeDetailVO orderFeeDetailVO=null;
         if (!CollectionUtils.isEmpty(orderSettlingInfos)){
             //TODO 生产记得放开
             OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
             String amountDetail = orderSettlingInfo.getAmountDetail();
-            orderFeeDetailVO = JSONObject.parseObject(amountDetail, OrderFeeDetailVO.class);
+            System.out.println(amountDetail);
+            orderFeeDetailVO=new Gson().fromJson(amountDetail,OrderFeeDetailVO.class);
         }
         if (orderFeeDetailVO==null){
             return null;
@@ -1391,7 +1440,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String overTimeNum = orderFeeDetailVO.getOverTimeNum();//平超时长
         String overTimePrice = orderFeeDetailVO.getOverTimePrice();//平超时长费用
         String allTime=new BigDecimal(overTimeNum).add(new BigDecimal(hotDuration)).stripTrailingZeros().toPlainString();
-        if(BigDecimal.ZERO!=new BigDecimal(overTimeNumTotal)){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(overTimeNumTotal).stripTrailingZeros())<0){
             list.add(new OtherCostVO("超时长费",overTimeNumTotal,"平峰时长:"+overTimeNum+"分钟,高峰时长:"+hotDuration+"分钟,累计超时时长:"+allTime+"分钟"));
         }
         //超里程费：超出基础里程时计算，同时会区分高峰和平峰时段
@@ -1402,43 +1451,43 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String hotMileage = orderFeeDetailVO.getHotMileage();//高峰里程
         String peakPrice = orderFeeDetailVO.getPeakPrice();//高峰里程单价
         String allMileage=new BigDecimal(hotMileage).add(new BigDecimal(overMilageNum)).stripTrailingZeros().toPlainString();
-        if(BigDecimal.ZERO!=new BigDecimal(overMilageNumTotal)){
-            list.add(new OtherCostVO("超里程费",overTimeNumTotal,"平峰里程:"+overMilageNum+"公里,高峰里程:"+hotMileage+"公里,累计超时里程:"+allMileage+"公里"));
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(overMilageNumTotal))<0){
+            list.add(new OtherCostVO("超里程费",overMilageNumTotal,"平峰里程:"+overMilageNum+"公里,高峰里程:"+hotMileage+"公里,累计超时里程:"+allMileage+"公里"));
         }
         //夜间里程费：用车过程在设定为夜间服务时间的，加收夜间服务费。
         String nightDistancePrice = orderFeeDetailVO.getNightDistancePrice();
         String nightDistanceNum	 = orderFeeDetailVO.getNightDistanceNum();
         String nightPrice = orderFeeDetailVO.getNightPrice();
-        if(BigDecimal.ZERO!=new BigDecimal(nightDistancePrice)){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(nightDistancePrice))<0){
             list.add(new OtherCostVO("夜间时长费",nightDistancePrice,"夜间服务费（里程）单价:"+nightPrice+",夜间服务里程"+nightDistanceNum+"公里"));
         }
         //夜间时长费：用车过程在设定为夜间服务时间的，加收夜间服务费。
         String nighitDurationFees = orderFeeDetailVO.getNighitDurationFees();
         String nighitDuration = orderFeeDetailVO.getNighitDuration();
         String nightPriceTime = orderFeeDetailVO.getNightPriceTime();
-        if(BigDecimal.ZERO!=new BigDecimal(nighitDurationFees)){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(nighitDurationFees))<0){
             list.add(new OtherCostVO("夜间时长费",nighitDurationFees,"夜间服务费（时长）单价:"+nightPriceTime+",夜间服务时长"+nighitDuration+"分钟"));
         }
         //等待费
         String waitingFee = orderFeeDetailVO.getWaitingFee();
         String waitingMinutes = orderFeeDetailVO.getWaitingMinutes();
-        if(BigDecimal.ZERO!=new BigDecimal(waitingFee)){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(waitingFee))<0){
             list.add(new OtherCostVO("等待费",waitingFee,"等待时长为"+waitingMinutes+"分钟"));
         }
         //长途费：超过长途费起始里程时计算
         String longDistancePrice = orderFeeDetailVO.getLongDistancePrice();
         String longDistanceNum = orderFeeDetailVO.getLongDistanceNum();
         String longPrice = orderFeeDetailVO.getLongPrice();
-        if(BigDecimal.ZERO!=new BigDecimal(longDistancePrice)){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(longDistancePrice))<0){
             list.add(new OtherCostVO("长途费",longDistancePrice,"长途单价:"+longPrice+",长途里程"+longDistanceNum+"公里"));
         }
         //价外税:如高速费和停车费
-        List<OtherFeeDetailVO> otherCost = orderFeeDetailVO.getOtherCost();
+        List<OtherCostBean>otherCostBeans = orderFeeDetailVO.getOtherCost();
         Double otherFee=0.0;
-        if (!CollectionUtils.isEmpty(otherCost)){
-            otherFee = otherCost.stream().map(OtherFeeDetailVO::getCostFee).collect(Collectors.reducing(Double::sum)).get();
+        if (!CollectionUtils.isEmpty(otherCostBeans)){
+            otherFee = otherCostBeans.stream().map(OtherCostBean::getCostFee).collect(Collectors.reducing(Double::sum)).get();
         }
-        if(BigDecimal.ZERO!=BigDecimal.valueOf(otherFee)){
+        if(BigDecimal.ZERO.compareTo(BigDecimal.valueOf(otherFee))<0){
             list.add(new OtherCostVO("其他费用",String.valueOf(otherFee),"包含停车费、高速费、机场服务费"));
         }
         result.setOtherCost(list);
@@ -1472,7 +1521,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             String result = OkHttpUtil.postForm(apiUrl + "/service/cancelOrder", paramMap);
             log.info("网约车订单{}取消返回结果{}",orderId,result);
             JSONObject jsonObject = JSONObject.parseObject(result);
-            if (!"0".equals(jsonObject.get("code"))) {
+            if (ApiResponse.SUCCESS_CODE != jsonObject.getInteger("code")) {
                 throw new Exception("调用三方取消订单服务-》取消失败");
             }else{
                 JSONObject data = jsonObject.getJSONObject("data");
@@ -1555,28 +1604,35 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             return orderVO;
         }
         JSONObject thirdPartyOrderState = this.getThirdPartyOrderState(orderNo);
+        log.info("获取网约车订单详情:"+thirdPartyOrderState);
         String status = thirdPartyOrderState.getString("status");
         String lableState=thirdPartyOrderState.getString("status");
         Double longitude=null;
         Double latitude=null;
         int newState = Integer.parseInt(status.substring(1));
-        int startState = Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1));
+        int startState = Integer.parseInt(OrderState.REASSIGNPASS.getState().substring(1));
         int endState= Integer.parseInt(OrderState.STOPSERVICE.getState().substring(1));
         OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
         if (!status.equals(orderVO.getState())) {
             if (newState >= startState && newState <= endState) {//服务中的状态
-                if (!OrderState.STOPSERVICE.getState().equals(status)){
-                    JSONObject data = this.getDriverLocation(orderVO.getDriverPhone());
-                    if (data != null) {
-                        if (StringUtils.isNotEmpty(data.getString("x"))) {
-                            longitude = Double.parseDouble(data.getString("x"));
-                            latitude = Double.parseDouble(data.getString("y"));
-                        }
-                    }
-//                    this.updateOrderAddress(orderNo,status,data);
-                }
+//                if (!OrderState.STOPSERVICE.getState().equals(status)){
+//                    JSONObject data = this.getDriverLocation(orderVO.getDriverPhone());
+//                    if (data != null) {
+//                        if (StringUtils.isNotEmpty(data.getString("x"))) {
+//                            longitude = Double.parseDouble(data.getString("x"));
+//                            latitude = Double.parseDouble(data.getString("y"));
+//                        }
+//                    }
+////                    this.updateOrderAddress(orderNo,status,data);
+//                }
                 String json = thirdPartyOrderState.getString("driverInfo");
                 DriverCloudDto driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
+                String driverPoint = driverCloudDto.getDriverPoint();
+                if (StringUtils.isNotEmpty(driverPoint)){
+                    String[] split = driverPoint.split(",");
+                    longitude = Double.parseDouble(split[0]);
+                    latitude = Double.parseDouble(split[1]);
+                }
                 newOrderInfo.setDriverName(driverCloudDto.getDriverName());
                 newOrderInfo.setDriverMobile(driverCloudDto.getPhone());
                 newOrderInfo.setDriverGrade(driverCloudDto.getDriverRate());
@@ -1605,16 +1661,36 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             } else if (OrderState.ORDERCANCEL.getState().equals(status)) {//订单取消
                 newOrderInfo.setState(OrderState.ORDERCLOSE.getState());
             }
-            orderInfoMapper.updateOrderInfo(newOrderInfo);
-            orderStateTraceInfoMapper.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderNo,lableState,longitude,latitude));
+            if (!OrderState.ORDERCANCEL.getState().equals(status)){//订单取消
+                orderInfoMapper.updateOrderInfo(newOrderInfo);
+                orderStateTraceInfoMapper.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderNo,lableState,longitude,latitude));
+            }
+            if (OrderState.ALREADYSENDING.getState().equals(status)){//约车成功 发短信，发通知
+                ismsBusiness.sendSmsCallTaxiNet(orderNo);
+            }
+            if (OrderState.READYSERVICE.getState().equals(status)){//驾驶员已到达
+                ismsBusiness.driverArriveMessage(orderNo);
+            }else
+            if (OrderState.INSERVICE.getState().equals(status)){//开始服务 发送通知
+                ismsBusiness.sendSmsDriverBeginService(orderNo);
+                //司机开始服务发送消息给乘车人和申请人（行程通知）
+                ismsBusiness.sendMessageServiceStart(orderNo, orderVO.getUserId());
+            }else
+            if (OrderState.STOPSERVICE.getState().equals(status)){//任务结束
+                ismsBusiness.endServiceNotConfirm(orderNo);
+            }else
+            if (OrderState.ORDERCLOSE.getState().equals(status)){//任务关闭
+                ismsBusiness.sendSmsDriverServiceComplete(orderNo);
+            }else
+            if (OrderState.ORDERCANCEL.getState().equals(status)){//任务取消
+//            ismsBusiness.sendSmsCancelOrder(orderNo);
+            }
         }
         orderVO.setDriverLongitude(String.valueOf(longitude));
         orderVO.setState(status);
         orderVO.setLabelState(lableState);
         orderVO.setDriverLatitude(String.valueOf(latitude));
-        if (OrderState.ALREADYSENDING.getState().equals(status)){
-            ismsBusiness.sendSmsCallTaxiNet(orderNo);
-        }
+
         return orderVO;
     }
 
