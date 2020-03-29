@@ -583,9 +583,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                             Date parse = carLevelAndPriceReVo.getBookingStartTime();
                             String formatEnd = simpleDateFormat.format(parse.getTime() + (carLevelAndPriceReVo.getDuration() * 60000));
-                            journeyPlanPriceInfo.setPlannedArrivalTime(formatEnd);
-                            journeyPlanPriceInfo.setPlannedDepartureTime(simpleDateFormat.format(parse));
-                            journeyPlanPriceInfo.setDuration(carLevelAndPriceReVo.getDuration()+"");
+                            journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
+                            journeyPlanPriceInfo.setPlannedDepartureTime(parse);
+                            journeyPlanPriceInfo.setDuration(carLevelAndPriceReVo.getDuration());
                             EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
                             enterpriseCarTypeInfo.setLevel(carLevelAndPriceReVo.getOnlineCarLevel());
                             List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
@@ -1136,9 +1136,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date parse = simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime());
                 String formatEnd = simpleDateFormat.format(parse.getTime() + (Integer.parseInt(applyUseWithTravelDto.getDuration()) * 60000));
-                journeyPlanPriceInfo.setPlannedArrivalTime(formatEnd);
-                journeyPlanPriceInfo.setPlannedDepartureTime(applyUseWithTravelDto.getCalculatePriceStartTime());
-                journeyPlanPriceInfo.setDuration(applyUseWithTravelDto.getDuration());
+                journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
+                journeyPlanPriceInfo.setPlannedDepartureTime(simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime()));
+                journeyPlanPriceInfo.setDuration(Integer.parseInt(applyUseWithTravelDto.getDuration()));
                 EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
                 enterpriseCarTypeInfo.setLevel(carLevel);
                 List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);

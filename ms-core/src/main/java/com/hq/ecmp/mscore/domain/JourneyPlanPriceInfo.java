@@ -6,6 +6,7 @@ import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 【请填写功能名称】对象 journey_plan_price_info
@@ -38,9 +39,9 @@ public class JourneyPlanPriceInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private BigDecimal price;
 
-    private String plannedDepartureTime;
-    private String duration;
-    private String plannedArrivalTime;
+    private Date plannedDepartureTime;
+    private Integer duration;
+    private Date plannedArrivalTime;
 
     public void setPriceId(Long priceId)
     {
@@ -96,27 +97,27 @@ public class JourneyPlanPriceInfo extends BaseEntity
         this.orderId = orderId;
     }
 
-    public String getPlannedDepartureTime() {
+    public Date getPlannedDepartureTime() {
         return plannedDepartureTime;
     }
 
-    public void setPlannedDepartureTime(String plannedDepartureTime) {
+    public void setPlannedDepartureTime(Date plannedDepartureTime) {
         this.plannedDepartureTime = plannedDepartureTime;
     }
 
-    public String getDuration() {
+    public Integer getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(Integer duration) {
         this.duration = duration;
     }
 
-    public String getPlannedArrivalTime() {
+    public Date getPlannedArrivalTime() {
         return plannedArrivalTime;
     }
 
-    public void setPlannedArrivalTime(String plannedArrivalTime) {
+    public void setPlannedArrivalTime(Date plannedArrivalTime) {
         this.plannedArrivalTime = plannedArrivalTime;
     }
 
