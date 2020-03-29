@@ -1,14 +1,13 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.hq.ecmp.constant.OrderConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.mapper.*;
-import com.hq.ecmp.mscore.vo.RegimenVO;
+import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,11 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.mscore.service.IRegimeInfoService;
-import com.hq.ecmp.mscore.service.IRegimeUseCarCityRuleInfoService;
-import com.hq.ecmp.mscore.service.IRegimeUseCarTimeRuleInfoService;
-import com.hq.ecmp.mscore.service.ISceneInfoService;
 import com.hq.ecmp.mscore.vo.RegimenVO;
+
+import javax.annotation.Resource;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -49,6 +46,12 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
     private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Autowired
 	private ApproveTemplateNodeInfoMapper approveTemplateNodeInfoMapper;
+    @Resource
+	private ThirdService thirdService;
+    @Resource
+	private OrderAddressInfoMapper orderAddressInfoMapper;
+    @Resource
+	private OrderInfoMapper orderInfoMapper;
 
 
     /**
@@ -376,5 +379,51 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			}
 		}
 		return carModeLevel;
+	}
+
+	/**
+	 * 通过订单，用车方式获取车型以及预估价格等相关信息
+	 * @param orderId
+	 * @param useCarMode,不传默认为网约车 W100-自有车 	W200-网约车
+	 */
+	public List<CarLevelAndPriceReVo> getCarlevelAndPriceByOrderId(Long orderId,String useCarMode){
+		Date bookingStartTime = null;
+		String groupIds = queryCarModeLevel(orderId, useCarMode);
+		OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+		EstimatePriceVo estimatePriceVo = new EstimatePriceVo();
+		estimatePriceVo.setServiceType(Integer.parseInt(orderInfo.getServiceType()));
+		estimatePriceVo.setGroups(groupIds);
+		OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+		orderAddressInfo.setOrderId(orderId);
+		List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(orderAddressInfo);
+		for (OrderAddressInfo orderAddressInfoCh:
+			 orderAddressInfos) {
+			if(orderAddressInfoCh.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT)){
+				estimatePriceVo.setCityId(orderAddressInfoCh.getCityPostalCode());
+				estimatePriceVo.setBookingDate((orderAddressInfoCh.getActionTime().getTime()+"").substring(0,10));
+				bookingStartTime = orderAddressInfoCh.getActionTime();
+				estimatePriceVo.setBookingStartAddr(orderAddressInfoCh.getAddress());
+				estimatePriceVo.setBookingStartPointLo(orderAddressInfoCh.getLongitude()+"");
+				estimatePriceVo.setBookingStartPointLa(orderAddressInfoCh.getLatitude()+"");
+			}else if(orderAddressInfoCh.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE)){
+				estimatePriceVo.setBookingEndAddr(orderAddressInfoCh.getAddress());
+				estimatePriceVo.setBookingEndPointLo(orderAddressInfoCh.getLongitude()+"");
+				estimatePriceVo.setBookingEndPointLa(orderAddressInfoCh.getLatitude()+"");
+			}
+		}
+		List<CarCostVO> carCostVOS = thirdService.enterpriseOrderGetCalculatePrice(estimatePriceVo);
+		List<CarLevelAndPriceReVo> result = new ArrayList<>();
+		String[] split = groupIds.split(",|，");
+		for (int i = 0; i < carCostVOS.size() ; i++) {
+			CarCostVO carCostVO = carCostVOS.get(i);
+			CarLevelAndPriceReVo carLevelAndPriceReVo = new CarLevelAndPriceReVo();
+			carLevelAndPriceReVo.setDuration(Integer.parseInt(carCostVO.getDuration()));
+			carLevelAndPriceReVo.setOnlineCarLevel(split[i]);
+			carLevelAndPriceReVo.setEstimatePrice(carCostVO.getDisMoney());
+			carLevelAndPriceReVo.setSource(carCostVO.getSource());
+			carLevelAndPriceReVo.setBookingStartTime(bookingStartTime);
+			result.add(carLevelAndPriceReVo);
+		}
+		return result;
 	}
 }
