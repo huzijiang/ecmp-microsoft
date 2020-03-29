@@ -1620,7 +1620,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             ismsBusiness.sendSmsDriverServiceComplete(orderNo);
         }else
         if (OrderState.ORDERCANCEL.getState().equals(status)){//任务取消
-            ismsBusiness.sendSmsCancelOrder(orderNo);
+//            ismsBusiness.sendSmsCancelOrder(orderNo);
         }
         return orderVO;
     }
