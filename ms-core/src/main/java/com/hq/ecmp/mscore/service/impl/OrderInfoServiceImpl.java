@@ -1159,7 +1159,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //直接约车，约车中。走调度，待派单
         if(applyUseWithTravelDto.getIsDispatch() == 2){
             orderInfo.setState(OrderState.SENDINGCARS.getState());
-            //添加预估价
             String groupId = applyUseWithTravelDto.getGroupId();
             String[] splits = groupId.split(",|，");
             StringBuilder demandCarLevel = new StringBuilder();
@@ -1167,32 +1166,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     splits) {
                 String[] split1 = split.split(":");
                 String carLevel = split1[0];
-                String price = split1[1];
-                JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
-                journeyPlanPriceInfo.setSource(applyUseWithTravelDto.getSource());
-                journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
-                journeyPlanPriceInfo.setNodeId(journeyUserCarPower.getNodeId());
-                journeyPlanPriceInfo.setJourneyId(journeyUserCarPower.getJourneyId());
-                journeyPlanPriceInfo.setPrice(new BigDecimal(price));
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date parse = simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime());
-                String formatEnd = simpleDateFormat.format(parse.getTime() + (Integer.parseInt(applyUseWithTravelDto.getDuration()) * 60000));
-                journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
-                journeyPlanPriceInfo.setPlannedDepartureTime(simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime()));
-                journeyPlanPriceInfo.setDuration(Integer.parseInt(applyUseWithTravelDto.getDuration()));
-                EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
-                enterpriseCarTypeInfo.setLevel(carLevel);
-                List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
-                if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
-                    EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
-                    journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
-                }
-                iJourneyPlanPriceInfoService.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
                 demandCarLevel.append(carLevel+",");
             }
             String s = demandCarLevel.toString();
             String substring = s.substring(0, s.lastIndexOf(","));
-            applyUseWithTravelDto.setGroupId(substring);
             orderInfo.setDemandCarLevel(substring);
         }else{
             orderInfo.setState(OrderState.WAITINGLIST.getState());
@@ -1214,6 +1191,44 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setCreateTime(DateUtils.getNowDate());
         orderInfo.setCreateBy(userId+"");
         orderInfoMapper.insertOrderInfo(orderInfo);
+        if(applyUseWithTravelDto.getIsDispatch() == 2){
+            //添加预估价
+            String groupId = applyUseWithTravelDto.getGroupId();
+            String[] splits = groupId.split(",|，");
+            StringBuilder demandCarLevel = new StringBuilder();
+            for (String split:
+                    splits) {
+                String[] split1 = split.split(":");
+                String carLevel = split1[0];
+                String price = split1[1];
+                JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+                journeyPlanPriceInfo.setSource(applyUseWithTravelDto.getSource());
+                journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
+                journeyPlanPriceInfo.setNodeId(journeyUserCarPower.getNodeId());
+                journeyPlanPriceInfo.setJourneyId(journeyUserCarPower.getJourneyId());
+                journeyPlanPriceInfo.setPrice(new BigDecimal(price));
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date parse = simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime());
+                String formatEnd = simpleDateFormat.format(parse.getTime() + (Integer.parseInt(applyUseWithTravelDto.getDuration()) * 60000));
+                journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
+                journeyPlanPriceInfo.setPlannedDepartureTime(simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime()));
+                journeyPlanPriceInfo.setDuration(Integer.parseInt(applyUseWithTravelDto.getDuration()));
+                journeyPlanPriceInfo.setPowerId(applyUseWithTravelDto.getTicketId());
+                journeyPlanPriceInfo.setOrderId(orderInfo.getOrderId());
+                EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
+                enterpriseCarTypeInfo.setLevel(carLevel);
+                List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
+                if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
+                    EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
+                    journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
+                }
+                iJourneyPlanPriceInfoService.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+                demandCarLevel.append(carLevel+",");
+            }
+            String s = demandCarLevel.toString();
+            String substring = s.substring(0, s.lastIndexOf(","));
+            applyUseWithTravelDto.setGroupId(substring);
+        }
         //订单轨迹
         this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null);
         this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
