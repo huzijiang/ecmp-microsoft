@@ -237,13 +237,14 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                     .useType(travelCommitApply.getUseType())
                     .build();
             List<TravelRequest> travelRequestsRev = applyTravelRequest.getTravelRequests();
+            int size = travelRequestsRev.size();
             //得到去程节点
             TravelRequest travelRequest = travelRequestsRev.get(0);
-            TravelRequest travelRequestSetout = travelRequests.get(0);
+            TravelRequest travelRequestSetout = travelRequests.get(size - 1);
             //设置返程出发地为最初目的地
             travelRequest.setStartCity(travelRequestSetout.getEndCity());
             //设置返程目的地为最初出发地
-            travelRequest.setEndCity(travelRequestSetout.getStartCity());
+            travelRequest.setEndCity(travelRequest.getStartCity());
             //设置返程开始日期为去程结束日期
             travelRequest.setStartDate(travelRequestSetout.getEndDate());
             //设置返程结束日期为空
@@ -961,8 +962,21 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
 
         List<CarLevelAndPriceVO> carLevelAndPriceVOs = officialCommitApply.getCarLevelAndPriceVOs();
         for (CarLevelAndPriceVO carLevelAndPriceVO : carLevelAndPriceVOs) {
+            Integer duration = carLevelAndPriceVO.getDuration();
+            Date applyDate = officialCommitApply.getApplyDate();
             String isGoBack = officialCommitApply.getIsGoBack();
             JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+
+            //如果是接机，时间单独判断
+            if (applyDate != null){
+                journeyPlanPriceInfo.setPlannedDepartureTime(applyDate);
+                journeyPlanPriceInfo.setPlannedArrivalTime(new Date(duration*60*1000+applyDate.getTime()));
+            }else {
+                Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+                Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+                journeyPlanPriceInfo.setPlannedDepartureTime(useCarTime);
+                journeyPlanPriceInfo.setPlannedArrivalTime(new Date(useCarTime.getTime() + duration*60*1000));
+            }
             //根據车型查询车型id
             String onlineCarLevel = carLevelAndPriceVO.getOnlineCarLevel();
             Long carTypeId = enterpriseCarTypeInfoMapper.selectCarTypeId(onlineCarLevel);
@@ -972,11 +986,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyPlanPriceInfo.setPowerId(null);
             journeyPlanPriceInfo.setOrderId(null);
             journeyPlanPriceInfo.setPrice(BigDecimal.valueOf(carLevelAndPriceVO.getEstimatePrice()));
-            Date applyDate = officialCommitApply.getApplyDate();
-            journeyPlanPriceInfo.setPlannedDepartureTime(applyDate);
-            Integer duration = carLevelAndPriceVO.getDuration();
+
             journeyPlanPriceInfo.setDuration(duration);
-            journeyPlanPriceInfo.setPlannedArrivalTime(new Date(duration*60*1000+applyDate.getTime()));
             journeyPlanPriceInfo.setSource(carLevelAndPriceVO.getSource());
             journeyPlanPriceInfo.setCreateBy(String.valueOf(getLoginUserId()));
             journeyPlanPriceInfo.setCreateTime(new Date());

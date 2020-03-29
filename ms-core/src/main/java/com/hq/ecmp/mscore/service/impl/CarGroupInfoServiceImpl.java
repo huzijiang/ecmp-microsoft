@@ -479,24 +479,49 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         CarGroupPhoneVO carGroupPhoneVO = null;
         if(CollectionUtils.isEmpty(list)){
             //如果城市内没有车队，则查询公司所有车队调度员及车队座机
-
             Long loginUserId = getLoginUserId();
-            //1. 查询员工所在公司
-            //2. 查询公司所有车队
-            //3. 查詢公司所有調度員
-        }
-        for (CarGroupInfo carGroupInfo : list) {
-            carGroupPhoneVO = new CarGroupPhoneVO();
-            carGroupPhoneVO.setPhone(carGroupInfo.getTelephone());
-            carGroupPhoneVO.setCarGroupName(carGroupInfo.getCarGroupName());
-            //查询车队所有调度员
-            List<UserVO> carGroupDispatchers = getCarGroupDispatchers(carGroupInfo.getCarGroupId());
-            if(!CollectionUtils.isEmpty(carGroupDispatchers)){
-                carGroupPhoneVO.setDispatchers(carGroupDispatchers);
+            //1. 查询员工所在部门
+            EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(loginUserId);
+            Long deptId = ecmpUser.getDeptId();
+            //查询员工所在公司
+            EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
+            //只要查询出来的部门type不为1（不为公司类型），则向上查询
+            while (!"1".equals(ecmpOrg.getDeptType())){
+                ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpOrg.getParentId());
+                if(ecmpOrg == null || ecmpOrg.getParentId()  == null){
+                    break;
+                }
             }
+            CarGroupInfo carGroupInfo = new CarGroupInfo();
+            carGroupInfo.setOwnerCompany(ecmpOrg.getDeptId());
+            List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectCarGroupInfoList(carGroupInfo);
+            //查询车队
+            getCarGroupsPhones(carGroupInfos,carGroupPhoneVOS);
+
+            return carGroupPhoneVOS;
+        }
+        getCarGroupsPhones(list, carGroupPhoneVOS);
+        return carGroupPhoneVOS;
+    }
+
+    /**
+     * 查询车队集合的所有座机，及调度员信息
+     * @param list
+     * @param carGroupPhoneVOS
+     */
+    private void getCarGroupsPhones(List<CarGroupInfo> list, List<CarGroupPhoneVO> carGroupPhoneVOS) {
+        CarGroupPhoneVO carGroupPhoneVO;
+        for (CarGroupInfo carGroupInfo : list) {
+                carGroupPhoneVO = new CarGroupPhoneVO();
+                carGroupPhoneVO.setPhone(carGroupInfo.getTelephone());
+                carGroupPhoneVO.setCarGroupName(carGroupInfo.getCarGroupName());
+                //查询车队所有调度员
+                List<UserVO> carGroupDispatchers = getCarGroupDispatchers(carGroupInfo.getCarGroupId());
+                if(!CollectionUtils.isEmpty(carGroupDispatchers)){
+                    carGroupPhoneVO.setDispatchers(carGroupDispatchers);
+                }
             carGroupPhoneVOS.add(carGroupPhoneVO);
         }
-        return carGroupPhoneVOS;
     }
 
     //获取登录用户id
