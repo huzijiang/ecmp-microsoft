@@ -116,7 +116,7 @@ public class EvaluationController {
 
            List<EcmpUserFeedbackInfo> feedbackInfos = feedbackInfoService.selectEcmpUserFeedbackInfoList(new EcmpUserFeedbackInfo(evaluationDto.getOrderId()));
            if (CollectionUtils.isEmpty(feedbackInfos)){
-               return  ApiResponse.error("行程异议反馈不存在");
+               return  ApiResponse.success();
            }
            EcmpUserFeedbackInfo ecmpUserFeedbackInfo = feedbackInfos.get(0);
            BeanUtils.copyProperties(ecmpUserFeedbackInfo,evaluationDto);
