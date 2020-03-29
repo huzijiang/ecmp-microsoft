@@ -1,16 +1,19 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
+import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.dto.AddFolwDTO;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.config.ApproveTemplateIDTO;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IApproveTemplateInfoService;
 import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
 import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
 import com.hq.ecmp.mscore.vo.ApprovalUserVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -81,10 +84,11 @@ public class FlowContoller {
     @Deprecated()
     @ApiOperation(value = "flowTemplateList",notes = "审批流列表 ",httpMethod ="POST")
     @PostMapping("/flowTemplateList")
-    public ApiResponse<List<ApprovaTemplateVO>> flowTemplateList(){
+    public ApiResponse<PageResult<ApprovaTemplateVO>> flowTemplateList(PageRequest pageRequest){
         //提交行程申请
-        List<ApprovaTemplateVO> list=templateInfoService.getTemplateList();
-        return ApiResponse.success(list);
+        List<ApprovaTemplateVO> list=templateInfoService.getTemplateList(pageRequest);
+        Long count=templateInfoService.getTemplateListCount(pageRequest.getSearch());
+        return ApiResponse.success(new PageResult<ApprovaTemplateVO>(count,list));
     }
 
     /**

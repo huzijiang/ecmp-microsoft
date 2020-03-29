@@ -21,6 +21,7 @@ import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -74,19 +75,24 @@ public class OrderController {
      * 根据行程申请信息生成订单信息
      * 改变订单的状态为  初始化
      *
-     * @param OfficialOrderReVo
+     * @param officialOrderReVo
      * @return
      */
     @ApiOperation(value = "公务创建订单", notes = "公务创建订单", httpMethod = "POST")
     @PostMapping("/officialOrder")
-    public ApiResponse officialOrder(@RequestBody OfficialOrderReVo OfficialOrderReVo) {
+    public ApiResponse officialOrder(@RequestBody OfficialOrderReVo officialOrderReVo) {
         Long orderId;
         try {
             //获取调用接口的用户信息
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            orderId = iOrderInfoService.officialOrder(OfficialOrderReVo,userId);
+            orderId = iOrderInfoService.officialOrder(officialOrderReVo,userId);
+            //如果是网约车，发起异步约车请求
+            if(officialOrderReVo.getIsDispatch() == 2){
+                iOrderInfoService.insertOrderStateTrace(String.valueOf(orderId), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
+                iOrderInfoService.platCallTaxiParamValid(orderId,String.valueOf(userId),officialOrderReVo.getCarLevel());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -242,14 +248,7 @@ public class OrderController {
             if(orderInfoOld.equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getPrState())){
                 throw new Exception("网约车不支持包车");
             }
-            OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setOrderId(orderId);
-            orderInfo.setState(OrderState.SENDINGCARS.getState());
-            int i = iOrderInfoService.updateOrderInfo(orderInfo);
-            if (i != 1) {
-                throw new Exception("约车失败");
-            }
-            iOrderInfoService.platCallTaxi(orderId,enterpriseId,licenseContent,apiUrl,String.valueOf(userId),carLevel);
+            iOrderInfoService.platCallTaxiParamValid(orderId,String.valueOf(userId),carLevel);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.success(e.getMessage());
@@ -583,6 +582,22 @@ public class OrderController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
             orderId = iOrderInfoService.applyUseCarWithTravel(applyUseWithTravelDto,userId);
+            if(applyUseWithTravelDto.getIsDispatch() == 2){
+                String groupId = applyUseWithTravelDto.getGroupId();
+                String[] splits = groupId.split(",|，");
+                StringBuilder demandCarLevel = new StringBuilder();
+                for (String split:
+                        splits) {
+                    String[] split1 = split.split(":");
+                    String carLevel = split1[0];
+                    demandCarLevel.append(carLevel+",");
+                }
+                String s = demandCarLevel.toString();
+                String substring = s.substring(0, s.lastIndexOf(","));
+                applyUseWithTravelDto.setGroupId(substring);
+                iOrderInfoService.insertOrderStateTrace(String.valueOf(orderId), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
+                iOrderInfoService.platCallTaxiParamValid(orderId,String.valueOf(userId),applyUseWithTravelDto.getGroupId());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("申请派车失败");
@@ -649,10 +664,12 @@ public class OrderController {
             //TODO 记得生产放开
             if (CarConstant.USR_CARD_MODE_HAVE.equals(orderVO.getUseCarMode())){//自有车
                 DriverHeartbeatInfo driverHeartbeatInfo = driverHeartbeatInfoService.findNowLocation(orderVO.getDriverId(), orderNo);
-                String latitude=driverHeartbeatInfo.getLatitude().stripTrailingZeros().toPlainString();
-                String longitude=driverHeartbeatInfo.getLongitude().stripTrailingZeros().toPlainString();
-                orderVO.setDriverLongitude(longitude);
-                orderVO.setDriverLatitude(latitude);
+                if(driverHeartbeatInfo!=null){
+                    String latitude=driverHeartbeatInfo.getLatitude().stripTrailingZeros().toPlainString();
+                    String longitude=driverHeartbeatInfo.getLongitude().stripTrailingZeros().toPlainString();
+                    orderVO.setDriverLongitude(longitude);
+                    orderVO.setDriverLatitude(latitude);
+                }
             }else {
                 orderVO = iOrderInfoService.getTaxiState(orderVO, orderNo);
             }

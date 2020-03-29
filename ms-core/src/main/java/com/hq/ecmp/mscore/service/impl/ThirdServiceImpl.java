@@ -49,7 +49,9 @@ public class ThirdServiceImpl implements ThirdService {
             param.put("mac",macAddress);
             param.put("enterpriseId",enterpriseId);
             param.put("licenseContent",licenseContent);
+            log.info("航班信息入参：{}", param);
             String postJson = OkHttpUtil.postForm(apiUrl+"/service/getFlightInfo", param);
+            log.info("航班信息返回结果：{}", postJson);
             Type type = new TypeToken<ApiResponse<List<FlightInfoVo>>>() {
             }.getType();
             ApiResponse<List<FlightInfoVo>> result = GsonUtils.jsonToBean(postJson, type);

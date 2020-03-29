@@ -82,7 +82,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="getTemplateList" resultMap="TemplateInfoList">
          select approve_template_id,name from approve_template_info
+         <if test="search!=null and search!=''">
+             where name=#{search}
+         </if>
     </select>
+    <select id="getTemplateListCount" resultType="Long">
+        select count(*) from approve_template_info
+        <if test="search!=null and search!=''">
+            where name=#{search}
+        </if>
+    </select>
+
     <select id="getNodeList" resultType="com.hq.ecmp.mscore.vo.ApprovaTemplateNodeVO">
          select approve_node_id approveNodeId, approver_type type, role_id roleId, user_id userId,next_node_id nextNodeId
          from approve_template_node_info

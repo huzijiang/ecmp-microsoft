@@ -91,7 +91,7 @@ public interface IEcmpNoticeService
      * @param search
      * @return
      */
-    PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize, String search);
+    PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize);
 
     /**
      * 查询公告列表详情（后台管理系统）
