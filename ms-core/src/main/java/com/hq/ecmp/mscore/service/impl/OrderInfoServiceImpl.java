@@ -1611,10 +1611,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             //司机开始服务发送消息给乘车人和申请人（行程通知）
             ismsBusiness.sendMessageServiceStart(orderNo, orderVO.getUserId());
         }else
-        if (OrderState.ORDERCANCEL.getState().equals(status)){//任务结束
+        if (OrderState.STOPSERVICE.getState().equals(status)){//任务结束
             ismsBusiness.endServiceNotConfirm(orderNo);
         }else
-        if (OrderState.ORDERCANCEL.getState().equals(status)){//任务关闭
+        if (OrderState.ORDERCLOSE.getState().equals(status)){//任务关闭
             ismsBusiness.sendSmsDriverServiceComplete(orderNo);
         }else
         if (OrderState.ORDERCANCEL.getState().equals(status)){//任务取消
