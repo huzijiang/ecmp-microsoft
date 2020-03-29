@@ -1460,7 +1460,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             String result = OkHttpUtil.postForm(apiUrl + "/service/cancelOrder", paramMap);
             log.info("网约车订单{}取消返回结果{}",orderId,result);
             JSONObject jsonObject = JSONObject.parseObject(result);
-            if (!"0".equals(jsonObject.get("code"))) {
+            if (jsonObject.getInteger("code")!=CommonConstant.ZERO) {
                 throw new Exception("调用三方取消订单服务-》取消失败");
             }else{
                 JSONObject data = jsonObject.getJSONObject("data");
@@ -1553,18 +1553,24 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
         if (!status.equals(orderVO.getState())) {
             if (newState >= startState && newState <= endState) {//服务中的状态
-                if (!OrderState.STOPSERVICE.getState().equals(status)){
-                    JSONObject data = this.getDriverLocation(orderVO.getDriverPhone());
-                    if (data != null) {
-                        if (StringUtils.isNotEmpty(data.getString("x"))) {
-                            longitude = Double.parseDouble(data.getString("x"));
-                            latitude = Double.parseDouble(data.getString("y"));
-                        }
-                    }
-//                    this.updateOrderAddress(orderNo,status,data);
-                }
+//                if (!OrderState.STOPSERVICE.getState().equals(status)){
+//                    JSONObject data = this.getDriverLocation(orderVO.getDriverPhone());
+//                    if (data != null) {
+//                        if (StringUtils.isNotEmpty(data.getString("x"))) {
+//                            longitude = Double.parseDouble(data.getString("x"));
+//                            latitude = Double.parseDouble(data.getString("y"));
+//                        }
+//                    }
+////                    this.updateOrderAddress(orderNo,status,data);
+//                }
                 String json = thirdPartyOrderState.getString("driverInfo");
                 DriverCloudDto driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
+                String driverPoint = driverCloudDto.getDriverPoint();
+                if (StringUtils.isNotEmpty(driverPoint)){
+                    String[] split = driverPoint.split(",");
+                    longitude = Double.parseDouble(split[0]);
+                    latitude = Double.parseDouble(split[1]);
+                }
                 newOrderInfo.setDriverName(driverCloudDto.getDriverName());
                 newOrderInfo.setDriverMobile(driverCloudDto.getPhone());
                 newOrderInfo.setDriverGrade(driverCloudDto.getDriverRate());
