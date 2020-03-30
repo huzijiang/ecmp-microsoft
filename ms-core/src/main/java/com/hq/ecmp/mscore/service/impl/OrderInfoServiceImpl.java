@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
 import com.hq.common.core.api.ApiResponse;
@@ -1111,9 +1112,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    public List<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
+    public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
         PageHelper.startPage(orderListBackDto.getPageNum(),orderListBackDto.getPageSize());
-        return orderInfoMapper.getOrderListBackDto(orderListBackDto);
+        List<OrderListBackDto> list = orderInfoMapper.getOrderListBackDto(orderListBackDto);
+        PageInfo<OrderListBackDto> info = new PageInfo<>(list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
 
     @Override
@@ -1390,10 +1393,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             for (DriverHeartbeatInfo driverHeartbeatInfo1:
             driverHeartbeatInfos) {
                 OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();
-                BeanUtils.copyProperties(driverHeartbeatInfo1,orderHistoryTraceDto);
+                //BeanUtils.copyProperties(driverHeartbeatInfo1,orderHistoryTraceDto);
+                orderHistoryTraceDto.setOrderId(driverHeartbeatInfo1.getOrderId().toString());
+                orderHistoryTraceDto.setLatitude(driverHeartbeatInfo1.getLatitude().toString());
+                orderHistoryTraceDto.setLongitude(driverHeartbeatInfo1.getLongitude().toString());
+                orderHistoryTraceDto.setCreateTime(driverHeartbeatInfo1.getCreateTime());
                 orderHistoryTraceDtos.add(orderHistoryTraceDto);
             }
-            System.out.println(orderHistoryTraceDtos);
         }else if(useCarMode.equals(CarConstant.USR_CARD_MODE_NET)){
             Map<String,Object> paramsMap = new HashMap<>();
             paramsMap.put("enterPriseOrderNo",orderId+"");
@@ -1627,6 +1633,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String status = thirdPartyOrderState.getString("status");
         String lableState=thirdPartyOrderState.getString("status");
         String json = thirdPartyOrderState.getString("driverInfo");
+        if (OrderState.STOPSERVICE.getState().equals(status)){
+            return orderVO;
+        }
         DriverCloudDto driverCloudDto=new DriverCloudDto();
         if (StringUtils.isNotEmpty(json)){
            driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
@@ -1668,7 +1677,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                         orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
                     }
                     int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderVO.getUseCarMode());
-                    if (orderConfirmStatus==CommonConstant.ONE){
+                    orderVO.setIsDisagree(orderConfirmStatus);
+                    if (orderConfirmStatus==CommonConstant.ZERO){
                         status=OrderState.ORDERCLOSE.getState();
                         lableState=OrderState.ORDERCLOSE.getState();
                         newOrderInfo.setState(status);

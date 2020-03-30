@@ -453,4 +453,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and <![CDATA[ user_id<=#{endUserId} ]]>
         </if>
     </select>
+
+    <!--根据用户id查询用户名-->
+    <select id="findNameByUserIds" resultType="String">
+        select group_concat(distinct nick_name) from  ecmp_user where find_in_set(user_id,#{userIds})
+    </select>
 </mapper>
