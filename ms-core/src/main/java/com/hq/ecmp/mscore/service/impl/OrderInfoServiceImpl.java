@@ -1607,24 +1607,27 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         JSONObject thirdPartyOrderState = this.getThirdPartyOrderState(orderNo);
         log.info("获取网约车订单详情:"+thirdPartyOrderState);
-        String status = thirdPartyOrderState.getString("status");
-        String lableState=thirdPartyOrderState.getString("status");
         Double longitude=null;
         Double latitude=null;
+        String status = thirdPartyOrderState.getString("status");
+        String lableState=thirdPartyOrderState.getString("status");
+        String json = thirdPartyOrderState.getString("driverInfo");
+        DriverCloudDto driverCloudDto=new DriverCloudDto();
+        if (StringUtils.isNotEmpty(json)){
+           driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
+           String driverPoint = driverCloudDto.getDriverPoint();
+           if (StringUtils.isNotEmpty(driverPoint)){
+               String[] split = driverPoint.split(",");
+               longitude = Double.parseDouble(split[0]);
+               latitude = Double.parseDouble(split[1]);
+           }
+        }
         int newState = Integer.parseInt(status.substring(1));
         int startState = Integer.parseInt(OrderState.REASSIGNPASS.getState().substring(1));
         int endState= Integer.parseInt(OrderState.STOPSERVICE.getState().substring(1));
         OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
         if (!status.equals(orderVO.getState())) {
             if (newState >= startState && newState <= endState) {//服务中的状态
-                String json = thirdPartyOrderState.getString("driverInfo");
-                DriverCloudDto driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
-                String driverPoint = driverCloudDto.getDriverPoint();
-                if (StringUtils.isNotEmpty(driverPoint)){
-                    String[] split = driverPoint.split(",");
-                    longitude = Double.parseDouble(split[0]);
-                    latitude = Double.parseDouble(split[1]);
-                }
                 newOrderInfo.setDriverName(driverCloudDto.getDriverName());
                 newOrderInfo.setDriverMobile(driverCloudDto.getPhone());
                 newOrderInfo.setDriverGrade(driverCloudDto.getDriverRate());

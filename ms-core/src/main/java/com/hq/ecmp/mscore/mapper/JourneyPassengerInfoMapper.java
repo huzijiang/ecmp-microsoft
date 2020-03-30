@@ -63,6 +63,6 @@ public interface JourneyPassengerInfoMapper
     public int deleteJourneyPassengerInfoByIds(Long[] journeyPassengerIds);
 
     String getPeerPeople(Long journeyId);
-    
+
     public Integer queryPeerCount(Long journeyId);
 }

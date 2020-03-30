@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 
+import com.hq.ecmp.mscore.bo.OrderTaskClashBo;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
@@ -151,46 +152,48 @@ public interface OrderInfoMapper {
      * @return
      */
     OrderDetailBackDto getOrderListDetail(@Param("orderId") String orderNo);
-    
-    
+
+
     /**
      * pc端分页获取申请调派订单
      * @param query
      * @return
      */
     public List<ApplyDispatchVo> queryApplyDispatchList(ApplyDispatchQuery query);
-    
+
     public Integer queryApplyDispatchListCount(ApplyDispatchQuery query);
-    
+
     public List<ApplyDispatchVo> queryReassignmentDispatchList(ApplyDispatchQuery query);
-    
+
     public Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query);
 
     OrderInfo selectDriverOrder(@Param("driverId")Long driverId,@Param("state") String state);
-    
+
     /**
      * 查询指定行程下的所有订单状态
      * @param journeyId
      * @return
      */
     public List<String> queryAllOrderStatusByJourneyId(Long journeyId);
-    
+
     /**
      * 查询指定权限下的有效订单状态
      * @param powerId
      * @return
      */
     public String queryVaildOrderStatusByPowerId(Long powerId);
-    
+
     /**
      * 查询权限下的有效订单
      * @param powerId
      * @return
      */
     public Long queryVaildOrderIdByPowerId(Long powerId);
-    
+
+    public List<String> queryAllOrderStatusByPowerId(Long powerId);
+
     public List<Long> queryOrderIdListByPowerId(Long powerId);
-    
+
     List<String> queryUseCarMode(Long powerId);
 
     /**
@@ -199,6 +202,34 @@ public interface OrderInfoMapper {
      * @return
      */
     List<OrderInfo> getValidOrderByPowerId(Long powerId);
+
+
+
+    /**
+     * 获取 指定车辆 与出发时间冲突的任务
+     * @return
+     */
+    public List<OrderInfo> getSetOutClashTask(OrderTaskClashBo carTaskClashBo);
+
+    /**
+     * 获取 指定车辆 与 到达时间冲突的任务
+     * @return
+     */
+    public List<OrderInfo> getArrivalClashTask(OrderTaskClashBo carTaskClashBo);
+
+
+    /**
+     * 获取 指定车辆 与出发时间 不冲突 的订单任务
+     * @return
+     */
+    public List<OrderInfo> getSetOutBeforeTaskForCar(OrderTaskClashBo carTaskClashBo);
+
+    /**
+     * 获取 指定车辆 与到达时间 不冲突 的订单任务
+     * @return
+     */
+    public List<OrderInfo> getArrivalAfterTaskForCar(OrderTaskClashBo carTaskClashBo);
+
 
 
 }

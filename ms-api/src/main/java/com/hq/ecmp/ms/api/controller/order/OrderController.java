@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +46,7 @@ public class OrderController {
     private TokenService tokenService;
 
     @Resource
+    @Lazy
     private IOrderInfoService iOrderInfoService;
 
     @Resource

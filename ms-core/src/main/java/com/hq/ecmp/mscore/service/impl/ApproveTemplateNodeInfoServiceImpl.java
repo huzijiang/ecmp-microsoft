@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.utils.DateUtils;
@@ -17,9 +18,11 @@ import com.hq.ecmp.mscore.vo.ApprovalListVO;
 import com.hq.ecmp.mscore.vo.ApprovalUserVO;
 import com.hq.ecmp.mscore.vo.UserVO;
 import com.hq.ecmp.util.SortListUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
@@ -31,6 +34,7 @@ import static com.hq.ecmp.constant.CommonConstant.ZERO;
  * @date 2020-01-02
  */
 @Service
+@Slf4j
 public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeInfoService
 {
     @Autowired
@@ -129,6 +133,7 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
     }
 
     @Override
+    @Transactional
     public void addFlowTemplate(AddFolwDTO addFolwDTO,Long userId) throws Exception {
         ApproveTemplateInfo approveTemplateInfo = new ApproveTemplateInfo();
         approveTemplateInfo.setName(addFolwDTO.getName());
@@ -136,35 +141,11 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
         approveTemplateInfo.setCreateTime(new Date());
         int count = approveTemplateInfoMapper.insertApproveTemplateInfo(approveTemplateInfo);
         List<FolwInfoDTO> flowList = addFolwDTO.getFlowList();
-        if (CollectionUtils.isNotEmpty(flowList)){
-            SortListUtil.sort(flowList, "number", SortListUtil.ASC);
-            Long approveNodeId=0l;
-            for (int i=0;i<flowList.size();i++){
-                ApproveTemplateNodeInfo nodeInfo=new ApproveTemplateNodeInfo();
-                nodeInfo.setApproverType(flowList.get(i).getType());
-                nodeInfo.setApproveTemplateId(approveTemplateInfo.getApproveTemplateId());
-                nodeInfo.setRoleId(flowList.get(i).getRoleIds());
-                nodeInfo.setNextNodeId(String.valueOf(ZERO));
-                nodeInfo.setCreateBy(String.valueOf(userId));
-                nodeInfo.setCreateTime(new Date());
-                if (ApproveTypeEnum.APPROVE_T002.getKey().equals(flowList.get(i).getType())){
-                    String userIds=userRoleMapper.findUserIds(flowList.get(i).getRoleIds());
-                    nodeInfo.setUserId(userIds);
-                }else{
-                    nodeInfo.setUserId(flowList.get(i).getUserIds());
-                }
-                approveTemplateNodeInfoMapper.insertApproveTemplateNodeInfo(nodeInfo);
-                if (i==0){
-                    approveNodeId=nodeInfo.getApproveNodeId();
-                }else if (i>0){
-                    approveTemplateNodeInfoMapper.updateApproveTemplateNodeInfo(new ApproveTemplateNodeInfo(approveNodeId,String.valueOf(nodeInfo.getApproveNodeId())));
-                    approveNodeId=nodeInfo.getApproveNodeId();
-                }
-            }
-        }
+        addTemeplateNode(flowList,approveTemplateInfo.getApproveTemplateId(),userId);
     }
 
     @Override
+    @Transactional
     public void editFlowTemplate(AddFolwDTO addFolwDTO,Long userId) throws Exception {
         ApproveTemplateInfo approveTemplateInfo = approveTemplateInfoMapper.selectApproveTemplateInfoById(addFolwDTO.getApproveTemplateId());
         if (approveTemplateInfo==null){
@@ -177,13 +158,14 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
             approveTemplateInfoMapper.updateApproveTemplateInfo(approveTemplateInfo);
         }
         List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(addFolwDTO.getApproveTemplateId()));
+        if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos))
+            approveTemplateNodeInfoMapper.deleteByTemplateId(addFolwDTO.getApproveTemplateId());
+            log.info(addFolwDTO.getApproveTemplateId()+"审批模板节点删除成功!");
 
         List<FolwInfoDTO> flowList = addFolwDTO.getFlowList();
-        if (CollectionUtils.isNotEmpty(flowList)){
-            SortListUtil.sort(flowList, "number", SortListUtil.DESC);
-        }
         //TODO 修改逻辑有缺失
-
+        this.addTemeplateNode(flowList,addFolwDTO.getApproveTemplateId(),userId);
+        log.info(addFolwDTO.getApproveTemplateId()+"审批模板及节点修改成功!");
     }
 
     @Override
@@ -253,5 +235,36 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
             userVO = getDeptLeader(user1.getDeptId());
         }
         return userVO;
+    }
+
+    private Boolean addTemeplateNode(List<FolwInfoDTO> flowList,Long approveTemplateId,Long userId)throws Exception{
+        if (CollectionUtils.isEmpty(flowList)){
+            throw new Exception("审批节点为空");
+        }
+        SortListUtil.sort(flowList, "number", SortListUtil.ASC);
+        Long approveNodeId = 0l;
+        for (int i = 0; i < flowList.size(); i++) {
+            ApproveTemplateNodeInfo nodeInfo = new ApproveTemplateNodeInfo();
+            nodeInfo.setApproverType(flowList.get(i).getType());
+            nodeInfo.setApproveTemplateId(approveTemplateId);
+            nodeInfo.setRoleId(flowList.get(i).getRoleIds());
+            nodeInfo.setNextNodeId(String.valueOf(ZERO));
+            nodeInfo.setCreateBy(String.valueOf(userId));
+            nodeInfo.setCreateTime(new Date());
+            if (ApproveTypeEnum.APPROVE_T002.getKey().equals(flowList.get(i).getType())) {
+                String userIds = userRoleMapper.findUserIds(flowList.get(i).getRoleIds());
+                nodeInfo.setUserId(userIds);
+            } else {
+                nodeInfo.setUserId(flowList.get(i).getUserIds());
+            }
+            approveTemplateNodeInfoMapper.insertApproveTemplateNodeInfo(nodeInfo);
+            if (i == 0) {
+                approveNodeId = nodeInfo.getApproveNodeId();
+            } else if (i > 0) {
+                approveTemplateNodeInfoMapper.updateApproveTemplateNodeInfo(new ApproveTemplateNodeInfo(approveNodeId, String.valueOf(nodeInfo.getApproveNodeId())));
+                approveNodeId = nodeInfo.getApproveNodeId();
+            }
+        }
+        return true;
     }
 }
