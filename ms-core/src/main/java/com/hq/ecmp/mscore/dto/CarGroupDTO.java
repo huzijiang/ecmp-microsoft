@@ -60,5 +60,7 @@ public class CarGroupDTO {
     @ApiModelProperty(name = "dispatchers", value = "调度员列表")
     private List<UserVO> dispatchers;
 
+    @ApiModelProperty(name = "owneCompany", value = "所属公司id")
+    private Long owneCompany;   //TODO 新增
 
 }

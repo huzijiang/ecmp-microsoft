@@ -18,6 +18,7 @@ public class ApprovaTemplateNodeVO {
     private String type;
     private String userId;
     private String roleId;
+    private String deptProjectId;
     private String nextNodeId;
     private int number;
 }
