@@ -17,6 +17,7 @@ import com.hq.ecmp.mscore.service.IApproveTemplateInfoService;
 import com.hq.ecmp.mscore.vo.ApprovaTemplateNodeVO;
 import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
 import com.hq.ecmp.util.SortListUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -33,6 +34,7 @@ import sun.rmi.log.LogInputStream;
  * @date 2020-01-02
  */
 @Service
+@Slf4j
 public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoService
 {
     @Autowired
@@ -171,7 +173,10 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
         }
         int i = approveTemplateInfoMapper.deleteApproveTemplateInfoById(approveTemplateId);
         if (i>0){
-            approveTemplateNodeInfoMapper.deleteByTemplateId(approveTemplateId);
+            int count = approveTemplateNodeInfoMapper.deleteByTemplateId(approveTemplateId);
+            if (count>0){
+                log.info(approveTemplateId+"审批模板及节点删除成功!");
+            }
         }
     }
 

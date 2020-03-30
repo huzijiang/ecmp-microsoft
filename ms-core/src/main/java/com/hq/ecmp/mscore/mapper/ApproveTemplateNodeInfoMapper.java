@@ -69,7 +69,7 @@ public interface ApproveTemplateNodeInfoMapper
     /**根据模板id查询所有审批节点id*/
     String getApproveNodesByTemplateId(Long approveTemplateId);
 
-    void deleteByTemplateId(Long approveTemplateId);
+    int deleteByTemplateId(Long approveTemplateId);
 
     List<ApprovalUserVO> getApproveUsers(String userIds);
     String getAllApproveUserId(Long approveTemplateId);
