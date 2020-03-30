@@ -49,7 +49,6 @@ public class OrderBackController {
             e.printStackTrace();
             return ApiResponse.error();
         }
-        return ApiResponse.success(orderListBackDtos);
     }
 
     @ApiOperation(value = "订单详情查询")
