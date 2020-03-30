@@ -8,6 +8,7 @@ import com.hq.core.web.domain.BaseEntity;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.sql.Timestamp;
 
 /**
  * 【请填写功能名称】对象 journey_plan_price_info
@@ -31,6 +32,9 @@ public class JourneyPlanPriceInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long nodeId;
 
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long orderId;
+
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carTypeId;
@@ -39,8 +43,6 @@ public class JourneyPlanPriceInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long powerId;   //TODO 新增
 
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long orderId;
 
 
     /** $column.columnComment */
@@ -58,12 +60,11 @@ public class JourneyPlanPriceInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Date plannedArrivalTime;
-    
+
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String source;  //TODO 新增
-
 
 
     public void setPriceId(Long priceId)
@@ -150,8 +151,8 @@ public class JourneyPlanPriceInfo extends BaseEntity
     public JourneyPlanPriceInfo(Long orderId) {
         this.orderId = orderId;
     }
-    
-   
+
+
     public Long getPowerId() {
 		return powerId;
 	}

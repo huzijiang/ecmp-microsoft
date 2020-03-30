@@ -1,5 +1,9 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.bo.SelectCarConditionBo;
+import com.hq.ecmp.mscore.bo.SelectDriverConditionBo;
+import com.hq.ecmp.mscore.bo.WaitSelectedCarBo;
+import com.hq.ecmp.mscore.bo.WaitSelectedDriverBo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
@@ -102,7 +106,7 @@ public interface DriverInfoMapper
      * @return 结果
      */
     public int updateUseStatus(@Param("deptId") Long deptId, @Param("state") String state);
-    
+
     /**
      * 禁用/启用  驾驶员
      *
@@ -193,4 +197,36 @@ public interface DriverInfoMapper
      * @return
      */
     Long selectDriverIdByUserId(Long userId);
+
+
+    /**
+     * 查询司机信息列表
+     * @param selectDriverConditionBo
+     * @return
+     */
+    public List<WaitSelectedDriverBo> dispatcherSelectDriver(SelectDriverConditionBo selectDriverConditionBo);
+
+    /**
+     *  通过 司机姓名 或者手机号 查询 司机信息列表
+     * @param selectDriverConditionBo
+     * @return
+     */
+    public List<WaitSelectedDriverBo> dispatcherSelectDriverUseDriverNameOrPhone(SelectDriverConditionBo selectDriverConditionBo);
+
+    /**
+     * 锁定司机
+     * @param driverId
+     * @return
+     */
+    public int lockDriver(Long driverId);
+
+    /**
+     * 解除锁定司机
+     * @param driverId
+     * @return
+     */
+    public int unlockDriver(Long driverId);
+
+
+
 }
