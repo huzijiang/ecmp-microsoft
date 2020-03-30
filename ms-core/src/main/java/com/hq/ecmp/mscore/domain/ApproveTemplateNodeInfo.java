@@ -37,6 +37,8 @@ public class ApproveTemplateNodeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String userId;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String deptProjectId;
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String nextNodeId;
@@ -102,6 +104,14 @@ public class ApproveTemplateNodeInfo extends BaseEntity
 
     public void setNextNodeId(String nextNodeId) {
         this.nextNodeId = nextNodeId;
+    }
+
+    public String getDeptProjectId() {
+        return deptProjectId;
+    }
+
+    public void setDeptProjectId(String deptProjectId) {
+        this.deptProjectId = deptProjectId;
     }
 
     public ApproveTemplateNodeInfo() {

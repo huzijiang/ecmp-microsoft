@@ -1,12 +1,17 @@
 package com.hq.ecmp.ms.api.controller.car;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.ecmp.constant.EnterpriseCarTypeConstant;
+import com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo;
+import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.service.ICarInfoService;
+import com.hq.ecmp.mscore.service.IEcmpEnterpriseInfoService;
+import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +32,10 @@ import java.util.List;
 @Api(value = "后管车辆监控",tags = "车辆监控")
 public class CarMonitorController {
 
-    @Autowired
+    @Resource
     private ICarInfoService iCarInfoService;
+    @Resource
+    private IEnterpriseCarTypeInfoService iEnterpriseCarTypeInfoService;
 
     /**
      * 车辆检索和定位
@@ -44,5 +51,23 @@ public class CarMonitorController {
             return ApiResponse.error();
         }
         return ApiResponse.success(carLocationVos);
+    }
+
+    /**
+     * 获取所有的车型
+     * @return
+     */
+    @ApiOperation(value = "获取所有车型")
+    @PostMapping("/getAllCarType")
+    public ApiResponse< List<EnterpriseCarTypeInfo> > getAllCarType(){
+        try {
+            EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
+            enterpriseCarTypeInfo.setStatus(EnterpriseCarTypeConstant.VALID);
+            List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = iEnterpriseCarTypeInfoService.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
+            return ApiResponse.success(enterpriseCarTypeInfos);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("车型获取失败");
+        }
     }
 }

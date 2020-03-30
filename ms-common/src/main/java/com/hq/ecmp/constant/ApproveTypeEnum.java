@@ -55,4 +55,12 @@ public enum  ApproveTypeEnum {
         Map<String, ApproveTypeEnum> param = ApproveTypeEnum.getParam();
         return param.get(key);
     }
+    public static String formatKey(String key){
+        if (StringUtils.isBlank(key)){
+            return null;
+        }
+        Map<String, ApproveTypeEnum> param = ApproveTypeEnum.getParam();
+        return param.get(key).getDesc();
+    }
+
 }

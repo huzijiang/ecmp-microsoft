@@ -6,13 +6,10 @@ import java.util.stream.Collectors;
 
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.domain.ApproveTemplateInfo;
-import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
-import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.constant.ApproveTypeEnum;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.mapper.ApproveTemplateInfoMapper;
-import com.hq.ecmp.mscore.mapper.ApproveTemplateNodeInfoMapper;
-import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApproveTemplateInfoService;
 import com.hq.ecmp.mscore.vo.ApprovaTemplateNodeVO;
 import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
@@ -43,6 +40,14 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
     private ApproveTemplateNodeInfoMapper approveTemplateNodeInfoMapper;
     @Autowired
     private RegimeInfoMapper regimeInfoMapper;
+    @Autowired
+    private EcmpOrgMapper ecmpOrgMapper;
+    @Autowired
+    private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private EcmpRoleMapper roleMapper;
+    @Autowired
+    private ProjectInfoMapper projectInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -127,9 +132,22 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
                 List<ApprovaTemplateNodeVO> nodeIds = vo.getNodeIds();
                 if (CollectionUtils.isNotEmpty(nodeIds)){
                     List<ApprovaTemplateNodeVO> vos=new ArrayList<>();
-                    SortListUtil.sort(nodeIds,"approveNodeId",SortListUtil.DESC);
+                    SortListUtil.sort(nodeIds,"approveNodeId",SortListUtil.ASC);
                     for (int i=0;i<nodeIds.size();i++){
                         ApprovaTemplateNodeVO nodeVO = nodeIds.get(i);
+                        if (ApproveTypeEnum.APPROVE_T001.getKey().equals(nodeVO.getType())){
+                            EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(Long.parseLong(nodeVO.getDeptProjectId()));
+                            nodeVO.setName(ecmpOrg.getDeptName()+"主管审批");
+                        }else if (ApproveTypeEnum.APPROVE_T002.getKey().equals(nodeVO.getType())){
+                            EcmpRole ecmpRole = roleMapper.selectEcmpRoleById(Long.parseLong(nodeVO.getRoleId()));
+                            nodeVO.setName(ecmpRole.getRoleName()+"审批");
+                        }else if (ApproveTypeEnum.APPROVE_T003.getKey().equals(nodeVO.getType())){
+//                            String userName= ecmpUserMapper.findNameByUserIds(nodeVO.getUserId());
+                            nodeVO.setName("指定员工审批");
+                        }else{
+                            ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(Long.parseLong(nodeVO.getDeptProjectId()));
+                            nodeVO.setName(projectInfo.getName()+"主管审批");
+                        }
                         nodeVO.setNumber(i);
                         vos.add(nodeVO);
                     }
@@ -146,6 +164,8 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
         ApproveTemplateInfo approveTemplateInfo = approveTemplateInfoMapper.selectApproveTemplateInfoById(templateId);
         vo.setApproveTemplateId(templateId);
         vo.setName(approveTemplateInfo.getName());
+        List<RegimeInfo> regimeInfos = regimeInfoMapper.selectRegimeInfoList(new RegimeInfo(templateId));
+        vo.setIsBingRegime(regimeInfos.size());
         List<ApproveTemplateNodeInfo> approveTemplateInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(templateId));
         SortListUtil.sort(approveTemplateInfos,"approveNodeId",SortListUtil.DESC);
         List<ApprovaTemplateNodeVO> list=new ArrayList();
@@ -155,6 +175,7 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
                 BeanUtils.copyProperties(approveTemplateInfos.get(0),nodeVO);
                 nodeVO.setType(approveTemplateInfos.get(0).getApproverType());
                 nodeVO.setNumber(i);
+                nodeVO.setName(ApproveTypeEnum.format(approveTemplateInfos.get(0).getApproverType()).getDesc());
                 list.add(nodeVO);
             }
         }

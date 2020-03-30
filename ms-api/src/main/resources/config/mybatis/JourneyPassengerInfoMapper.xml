@@ -88,8 +88,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <!-- 手动编写sql start-->
-    <select id="getPeerPeople" parameterType="Object" resultType="String">
-        select group_concat(distinct name) from journey_passenger_info where journey_id = #{journeyId}
+    <select id="getPeerPeople" parameterType="java.lang.Long" resultType="String">
+        select name from journey_passenger_info where journey_id = #{journeyId} AND it_is_peer='01' limit 1
     </select>
 
 	<select id="queryPeerCount" parameterType="java.lang.Long"

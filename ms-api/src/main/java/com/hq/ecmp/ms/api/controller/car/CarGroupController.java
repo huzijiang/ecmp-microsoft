@@ -57,9 +57,9 @@ public class CarGroupController {
      */
     @ApiOperation(value = "getCarGroupDetail",notes = "车队详情",httpMethod ="POST")
     @PostMapping("/getCarGroupDetail")
-    public ApiResponse<CarGroupDetailVO> getCarGroupDetail(Long carGroupId){
+    public ApiResponse<CarGroupDetailVO> getCarGroupDetail(@RequestBody CarGroupDTO carGroupDTO){
         try {
-            CarGroupDetailVO carGroupDetailVO = carGroupInfoService.getCarGroupDetail(carGroupId);
+            CarGroupDetailVO carGroupDetailVO = carGroupInfoService.getCarGroupDetail(carGroupDTO.getCarGroupId());
             return ApiResponse.success(carGroupDetailVO);
         } catch (Exception e) {
             e.printStackTrace();

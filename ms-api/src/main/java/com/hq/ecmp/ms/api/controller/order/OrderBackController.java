@@ -5,6 +5,7 @@ import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -34,10 +35,16 @@ public class OrderBackController {
 
     @ApiOperation(value = "订单列表查询")
     @PostMapping(value = "/getOrderList")
-    public ApiResponse<List<OrderListBackDto>> getOrderList(@RequestBody  OrderListBackDto orderListBackDto){
-        List<OrderListBackDto> orderListBackDtos;
+    public ApiResponse<PageResult<OrderListBackDto>> getOrderList(@RequestBody  OrderListBackDto orderListBackDto){
         try {
-            orderListBackDtos  = iOrderInfoService.getOrderListBackDto(orderListBackDto);
+            //根据与前台协商   首次进去订单管理 默认 10  - 1
+            if(orderListBackDto.getPageSize()==null && orderListBackDto.getPageNum()==null){
+                orderListBackDto.setPageSize(10);
+                orderListBackDto.setPageNum(1);
+            }
+            //获取订单列表
+            PageResult<OrderListBackDto> orderListBackDtos  = iOrderInfoService.getOrderListBackDto(orderListBackDto);
+            return ApiResponse.success(orderListBackDtos);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error();
