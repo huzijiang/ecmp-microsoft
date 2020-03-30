@@ -183,7 +183,7 @@ public interface IOrderInfoService {
      * @param orderListBackDto
      * @return
      */
-    List<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto);
+    PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto);
 
     /**
      * PC端查询订单详情
