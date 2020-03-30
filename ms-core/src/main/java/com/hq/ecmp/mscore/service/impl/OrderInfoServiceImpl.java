@@ -830,6 +830,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             for (CarLevelAndPriceReVo carLevelAndPriceReVo:
                     carlevelAndPriceByOrderId) {
                 JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+                journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
                 journeyPlanPriceInfo.setNodeId(orderInfo1.getNodeId());
                 journeyPlanPriceInfo.setJourneyId(orderInfo1.getJourneyId());
                 journeyPlanPriceInfo.setOrderId(orderId);
@@ -841,6 +842,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
                 journeyPlanPriceInfo.setPlannedDepartureTime(parse);
                 journeyPlanPriceInfo.setDuration(carLevelAndPriceReVo.getDuration());
+                journeyPlanPriceInfo.setSource(carLevelAndPriceReVo.getSource());
                 EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
                 enterpriseCarTypeInfo.setLevel(carLevelAndPriceReVo.getOnlineCarLevel());
                 List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);

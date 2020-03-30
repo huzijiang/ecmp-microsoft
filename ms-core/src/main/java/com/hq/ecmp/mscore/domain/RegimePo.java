@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
@@ -53,6 +54,7 @@ public class RegimePo {
 	 * 用车时段限制类型： T001: 不限    T002: 工作日/节假日   T003: 自定义
 	 */
 	String ruleTime;
+	
 	List<RegimeUseCarTimeRuleInfo>  regimeUseCarTimeRuleInfoList;
 
 	String useCarModeOwnerLevel;// 差旅 自有车车型配置
@@ -82,5 +84,7 @@ public class RegimePo {
 	String asAllowDateRound;// 接送服务 使用期限 0 不限制 N 天数
 
 	String asSetoutEqualArrive;// 接送服务 同城限制 Y000 ：相等---不允许跨域 N111 ：不相等--允许跨域
+	
+	Date createTime ;
 
 }
