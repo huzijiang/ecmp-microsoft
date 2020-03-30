@@ -392,7 +392,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		
 		if(OrderState.STOPSERVICE.getState().equals(vaildOrdetrState)){
 			//订单状态为服务结束  判断该订单是否需要确认
-			 int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey());
+			List<String> queryUseCarMode = orderInfoMapper.queryUseCarMode(powerId);
+			 int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),queryUseCarMode.get(0));
 			if(orderConfirmStatus == 1){
 				//需要去确认   对应前端状态为待确认-S960 
 				return OrderState.WAITCONFIRMED.getState();

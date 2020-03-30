@@ -137,7 +137,7 @@ public interface IEcmpConfigService
     /**
      * 获取行程确认/异议 开关状态(0:关,1开)
      */
-    int getOrderConfirmStatus(String key);
+    int getOrderConfirmStatus(String key,String useCarMode);
 
     /**
      * 获取启动页开屏图（无token）

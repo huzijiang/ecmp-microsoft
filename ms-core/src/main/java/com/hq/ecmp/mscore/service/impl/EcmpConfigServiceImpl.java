@@ -6,6 +6,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonObject;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
+import com.hq.ecmp.constant.CarModeEnum;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.ConfigTypeEnum;
 import com.hq.ecmp.mscore.domain.EcmpConfig;
@@ -406,8 +407,13 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
         }
     }
 
+    /**
+     * 获取是否配置自动行程确认/异议
+     * @param key
+     * @return
+     */
     @Override
-    public int getOrderConfirmStatus(String key) {
+    public int getOrderConfirmStatus(String key,String useCarMode) {
         if (key.contains(SYS_CONFIG_PREFIX)||ConfigTypeEnum.BASE_INFO.getConfigKey().equals(key)){
             return ZERO;
         }
@@ -415,9 +421,22 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
         if (ecmpConfig!=null&& StringUtils.isNotEmpty(ecmpConfig.getConfigValue())){
             JSONObject jsonObject = JSONObject.parseObject(ecmpConfig.getConfigValue());
             String status = jsonObject.getString("status");
-            if (SWITCH_ON.equals(status)){
+            if (SWITCH_ON.equals(status)){//开
                 return ONE;
+            }else if(SWITCH_ON_CUSTOM.equals(status)){//自定义
+                String valueJson = jsonObject.getString("value");
+                JSONObject value = JSONObject.parseObject(valueJson);
+                if (CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){//自有车
+                    if (SWITCH_ON.equals(value.getString("owenType"))){
+                        return ONE;
+                    }
+                }else{//网约车
+                    if (SWITCH_ON.equals(value.getString("rideHailing"))){
+                        return ONE;
+                    }
+                }
             }
+
         }
         return ZERO;
     }

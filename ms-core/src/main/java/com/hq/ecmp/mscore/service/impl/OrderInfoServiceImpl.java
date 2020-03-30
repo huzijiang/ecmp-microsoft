@@ -443,8 +443,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String isAddContact=CollectionUtils.isEmpty(contactInfos)?CommonConstant.SWITCH_ON:CommonConstant.SWITCH_OFF;
         vo.setIsAddContact(isAddContact);
         //TODO 查询企业配置是否自动行程确认/异议
-        int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey());
-        int isVirtualPhone = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey());//是否号码保护
+        int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderInfo.getUseCarMode());
+        int isVirtualPhone = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey(),null);//是否号码保护
         vo.setIsDisagree(orderConfirmStatus);
         vo.setIsVirtualPhone(isVirtualPhone);
         DriverServiceAppraiseeInfo driverServiceAppraiseeInfos = driverServiceAppraiseeInfoMapper.queryByOrderId(orderId);
@@ -511,7 +511,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderInfoMapper.getOrderMessage(userId,states,driveId);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void platCallTaxiParamValid(Long  orderId,String userId,String carLevel) throws Exception {
         //使用汽车的方式，改为网约
         OrderInfo orderInfoUp = new OrderInfo();
@@ -1495,7 +1495,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(Long orderId,Long userId,String cancelReason) throws Exception {
         OrderInfo orderInfoOld = orderInfoMapper.selectOrderInfoById(orderId);
         Double cancelFee = 0d;
@@ -1571,7 +1571,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @param userId
      * @throws Exception
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception {
         if ("1".equals(status)) {
             OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
@@ -1615,16 +1615,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
         if (!status.equals(orderVO.getState())) {
             if (newState >= startState && newState <= endState) {//服务中的状态
-//                if (!OrderState.STOPSERVICE.getState().equals(status)){
-//                    JSONObject data = this.getDriverLocation(orderVO.getDriverPhone());
-//                    if (data != null) {
-//                        if (StringUtils.isNotEmpty(data.getString("x"))) {
-//                            longitude = Double.parseDouble(data.getString("x"));
-//                            latitude = Double.parseDouble(data.getString("y"));
-//                        }
-//                    }
-////                    this.updateOrderAddress(orderNo,status,data);
-//                }
                 String json = thirdPartyOrderState.getString("driverInfo");
                 DriverCloudDto driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
                 String driverPoint = driverCloudDto.getDriverPoint();
@@ -1657,13 +1647,20 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                         orderSettlingInfo.setAmountDetail(feeInfoBean.toString());
                         orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
                     }
+                    int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderVO.getUseCarMode());
+                    if (orderConfirmStatus==CommonConstant.ONE){
+                        status=OrderState.ORDERCLOSE.getState();
+                        lableState=OrderState.ORDERCLOSE.getState();
+                        newOrderInfo.setState(status);
+                    }
                 }
-            } else if (OrderState.ORDERCANCEL.getState().equals(status)) {//订单取消
-                newOrderInfo.setState(OrderState.ORDERCLOSE.getState());
             }
             if (!OrderState.ORDERCANCEL.getState().equals(status)){//订单取消
                 orderInfoMapper.updateOrderInfo(newOrderInfo);
-                orderStateTraceInfoMapper.insertOrderStateTraceInfo(new OrderStateTraceInfo(orderNo,lableState,longitude,latitude));
+                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderNo, lableState, longitude, latitude);
+                orderStateTraceInfo.setCreateBy(String.valueOf(orderVO.getUserId()));
+                orderStateTraceInfo.setCreateTime(new Date());
+                orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
             }
             if (OrderState.ALREADYSENDING.getState().equals(status)){//约车成功 发短信，发通知
                 ismsBusiness.sendSmsCallTaxiNet(orderNo);
@@ -1678,12 +1675,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }else
             if (OrderState.STOPSERVICE.getState().equals(status)){//任务结束
                 ismsBusiness.endServiceNotConfirm(orderNo);
-            }else
-            if (OrderState.ORDERCLOSE.getState().equals(status)){//任务关闭
-                ismsBusiness.sendSmsDriverServiceComplete(orderNo);
-            }else
-            if (OrderState.ORDERCANCEL.getState().equals(status)){//任务取消
-//            ismsBusiness.sendSmsCancelOrder(orderNo);
             }
         }
         orderVO.setDriverLongitude(String.valueOf(longitude));
