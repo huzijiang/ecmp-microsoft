@@ -344,30 +344,30 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
 	<select id="queryCompleteDispatchOrder" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
 		 SELECT
-	a.order_id AS orderId,
-	a.state,
-	d.apply_type AS applyType,
-	b.type AS serverType,
-	c.plan_begin_address AS useCarCity,
-	e.nick_name AS applyUserName,
-	e.nick_name AS useCarUserName,
-	a.use_car_mode AS useCarMode,
-	a.driver_name AS driverName,
-	a.driver_mobile AS driverTel,
-	f.car_type as carType,
-	f.car_license AS carLicense,
-	h.regimen_id as regimenId,
-	m.create_time as updateDate
-FROM
-	order_info a
-LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
-LEFT JOIN journey_node_info c ON a.node_id = c.node_id
-LEFT JOIN apply_info d ON b.apply_id = d.apply_id
-LEFT JOIN ecmp_user e ON e.user_id = c.user_id
-LEFT JOIN car_info f  ON a.car_id=f.car_id
-LEFT JOIN journey_info h on a.journey_id=h.journey_id
-LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
-		where a.state in ('S299','S600','S616','S699','S900')  and m.state in ('S299','S279')
+            a.order_id AS orderId,
+            a.state,
+            d.apply_type AS applyType,
+            b.type AS serverType,
+            c.plan_begin_address AS useCarCity,
+            e.nick_name AS applyUserName,
+            e.nick_name AS useCarUserName,
+            a.use_car_mode AS useCarMode,
+            a.driver_name AS driverName,
+            a.driver_mobile AS driverTel,
+            f.car_type as carType,
+            f.car_license AS carLicense,
+            h.regimen_id as regimenId,
+            m.create_time as updateDate
+        FROM
+            order_info a
+        LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
+        LEFT JOIN journey_node_info c ON a.node_id = c.node_id
+        LEFT JOIN apply_info d ON b.apply_id = d.apply_id
+        LEFT JOIN ecmp_user e ON e.user_id = c.user_id
+        LEFT JOIN car_info f  ON a.car_id=f.car_id
+        LEFT JOIN journey_info h on a.journey_id=h.journey_id
+        LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
+        where a.state in ('S299','S600','S616','S699','S900')  and m.state in ('S299','S279')
 	</select>
 
 	<select id="getOrderState" resultType="com.hq.ecmp.mscore.vo.OrderStateVO">
@@ -396,30 +396,30 @@ LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
 	</select>
 
     <select id="getWaitDispatchOrderDetailInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
-    SELECT
-	a.order_id AS orderId,
-	a.state,
-	d.apply_type AS applyType,
-	b.type AS serverType,
-	c.plan_begin_address AS useCarCity,
-	e.nick_name AS applyUserName,
-	e.nick_name AS useCarUserName,
-	e.phonenumber AS applyUserTel,
-<!-- 	a.actual_setout_address AS startSite,
-	a.actual_setout_time AS useCarDate,
-	a.actual_arrive_address AS endSite,
-	a.actual_arrive_time AS endDate, -->
-	h.use_car_mode AS useCarMode,
-	h.regimen_id as regimenId,
-	h.it_is_return as itIsReturn
-FROM
-	order_info a
-LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
-LEFT JOIN journey_node_info c ON a.node_id = c.node_id
-LEFT JOIN journey_info h ON h.journey_id=a.journey_id
-LEFT JOIN apply_info d ON b.apply_id = d.apply_id
-LEFT JOIN ecmp_user e ON e.user_id = c.user_id
- where a.order_id=#{orderId}
+       SELECT
+            a.order_id AS orderId,
+            a.state,
+            d.apply_type AS applyType,
+            b.type AS serverType,
+            c.plan_begin_address AS useCarCity,
+            e.nick_name AS applyUserName,
+            e.nick_name AS useCarUserName,
+            e.phonenumber AS applyUserTel,
+        <!-- 	a.actual_setout_address AS startSite,
+            a.actual_setout_time AS useCarDate,
+            a.actual_arrive_address AS endSite,
+            a.actual_arrive_time AS endDate, -->
+            h.use_car_mode AS useCarMode,
+            h.regimen_id as regimenId,
+            h.it_is_return as itIsReturn
+        FROM
+            order_info a
+        LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
+        LEFT JOIN journey_node_info c ON a.node_id = c.node_id
+        LEFT JOIN journey_info h ON h.journey_id=a.journey_id
+        LEFT JOIN apply_info d ON b.apply_id = d.apply_id
+        LEFT JOIN ecmp_user e ON e.user_id = c.user_id
+         where a.order_id=#{orderId}
     </select>
 
 	<select id="queryCompleteDispatchOrderDetail" parameterType="java.lang.Long"
@@ -780,6 +780,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="queryVaildOrderIdByPowerId" parameterType="java.lang.Long" resultType="java.lang.Long">
      select order_id from order_info where power_id=#{powerId} and state !='S900' order by create_time desc  limit 1
+    </select>
 
     <select id="queryAllOrderStatusByPowerId" parameterType="java.lang.Long" resultType="string">
      select state from order_info where power_id=#{powerId}
