@@ -5,6 +5,7 @@ import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -12,6 +13,7 @@ import org.apache.ibatis.annotations.Param;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface CarGroupDispatcherInfoMapper
 {
     /**
@@ -61,9 +63,9 @@ public interface CarGroupDispatcherInfoMapper
      * @return 结果
      */
     public int deleteCarGroupDispatcherInfoByIds(Long[] dispatcherIds);
-    
+
     public List<Long> queryCarGroupIdList(Long userId);
-    
+
     public List<Long> queryUserByCarGroup(@Param("list")List<Long> list);
 
     /**

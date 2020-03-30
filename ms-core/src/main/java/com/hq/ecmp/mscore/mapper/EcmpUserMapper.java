@@ -254,5 +254,6 @@ public interface EcmpUserMapper
 
     UserVO selectUserVoById(Long userId);
 
+    List<Long> findUserIds(@Param("startUserId") Long startUserId,@Param("endUserId") Long endUserId);
 }
 

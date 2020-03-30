@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.bo.SelectCarConditionBo;
+import com.hq.ecmp.mscore.bo.WaitSelectedCarBo;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
@@ -103,4 +105,36 @@ public interface CarInfoMapper
      * @return
      */
     int disableCarByCarId(Long carId);
+
+
+
+    /**
+     * 调度员  根据条件查询车队的所有车辆
+     * @param selectCarConditionBo
+     * @return
+     */
+    public List<WaitSelectedCarBo> dispatcherSelectCarGroupOwnedCarInfoList(SelectCarConditionBo selectCarConditionBo);
+
+    /**
+     * 调度员  根据条件查询车辆
+     * @param selectCarConditionBo
+     * @return
+     */
+    public List<WaitSelectedCarBo> dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense(SelectCarConditionBo selectCarConditionBo);
+
+    /**
+     * 车辆锁定,
+     * @param carId
+     * @return
+     */
+    public int lockCar(Long  carId);
+
+    /**
+     * 车辆 解除 锁定
+     * @param carId
+     * @return
+     */
+    public int unlockCar(Long carId);
+
+
 }

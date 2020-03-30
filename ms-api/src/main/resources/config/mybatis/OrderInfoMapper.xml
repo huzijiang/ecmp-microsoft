@@ -37,7 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <sql id="selectOrderInfoVo">
         select order_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time,car_model,car_color,driver_grade ,flight_plan_take_off_time from order_info
     </sql>
-    
+
     <sql id="queryDispatchAchieve">
     SELECT
 	a.order_id AS orderId,
@@ -61,7 +61,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 FROM
 	order_info a
 LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
-LEFT JOIN journey_node_info c ON a.node_id = c.node_id 
+LEFT JOIN journey_node_info c ON a.node_id = c.node_id
 LEFT JOIN apply_info d ON b.apply_id = d.apply_id
 LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 LEFT JOIN car_info f  ON a.car_id=f.car_id
@@ -197,7 +197,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             #{orderId}
         </foreach>
     </delete>
-    
+
     <select id="getOrderList" parameterType="Long"  resultType="com.hq.ecmp.mscore.domain.OrderListInfo">
         select
             o.order_id orderId,
@@ -344,30 +344,30 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
 	<select id="queryCompleteDispatchOrder" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
 		 SELECT
-	a.order_id AS orderId,
-	a.state,
-	d.apply_type AS applyType,
-	b.type AS serverType,
-	c.plan_begin_address AS useCarCity,
-	e.nick_name AS applyUserName,
-	e.nick_name AS useCarUserName,
-	a.use_car_mode AS useCarMode,
-	a.driver_name AS driverName,
-	a.driver_mobile AS driverTel,
-	f.car_type as carType,
-	f.car_license AS carLicense,
-	h.regimen_id as regimenId,
-	m.create_time as updateDate
-FROM
-	order_info a
-LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
-LEFT JOIN journey_node_info c ON a.node_id = c.node_id 
-LEFT JOIN apply_info d ON b.apply_id = d.apply_id
-LEFT JOIN ecmp_user e ON e.user_id = c.user_id
-LEFT JOIN car_info f  ON a.car_id=f.car_id
-LEFT JOIN journey_info h on a.journey_id=h.journey_id
-LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
-		where a.state in ('S299','S600','S616','S699','S900')  and m.state in ('S299','S279')
+            a.order_id AS orderId,
+            a.state,
+            d.apply_type AS applyType,
+            b.type AS serverType,
+            c.plan_begin_address AS useCarCity,
+            e.nick_name AS applyUserName,
+            e.nick_name AS useCarUserName,
+            a.use_car_mode AS useCarMode,
+            a.driver_name AS driverName,
+            a.driver_mobile AS driverTel,
+            f.car_type as carType,
+            f.car_license AS carLicense,
+            h.regimen_id as regimenId,
+            m.create_time as updateDate
+        FROM
+            order_info a
+        LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
+        LEFT JOIN journey_node_info c ON a.node_id = c.node_id
+        LEFT JOIN apply_info d ON b.apply_id = d.apply_id
+        LEFT JOIN ecmp_user e ON e.user_id = c.user_id
+        LEFT JOIN car_info f  ON a.car_id=f.car_id
+        LEFT JOIN journey_info h on a.journey_id=h.journey_id
+        LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
+        where a.state in ('S299','S600','S616','S699','S900')  and m.state in ('S299','S279')
 	</select>
 
 	<select id="getOrderState" resultType="com.hq.ecmp.mscore.vo.OrderStateVO">
@@ -396,32 +396,32 @@ LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
 	</select>
 
     <select id="getWaitDispatchOrderDetailInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
-    SELECT
-	a.order_id AS orderId,
-	a.state,
-	d.apply_type AS applyType,
-	b.type AS serverType,
-	c.plan_begin_address AS useCarCity,
-	e.nick_name AS applyUserName,
-	e.nick_name AS useCarUserName,
-	e.phonenumber AS applyUserTel,
-<!-- 	a.actual_setout_address AS startSite,
-	a.actual_setout_time AS useCarDate,
-	a.actual_arrive_address AS endSite,
-	a.actual_arrive_time AS endDate, -->
-	h.use_car_mode AS useCarMode,
-	h.regimen_id as regimenId,
-	h.it_is_return as itIsReturn
-FROM
-	order_info a
-LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
-LEFT JOIN journey_node_info c ON a.node_id = c.node_id 
-LEFT JOIN journey_info h ON h.journey_id=a.journey_id
-LEFT JOIN apply_info d ON b.apply_id = d.apply_id
-LEFT JOIN ecmp_user e ON e.user_id = c.user_id
- where a.order_id=#{orderId}
+       SELECT
+            a.order_id AS orderId,
+            a.state,
+            d.apply_type AS applyType,
+            b.type AS serverType,
+            c.plan_begin_address AS useCarCity,
+            e.nick_name AS applyUserName,
+            e.nick_name AS useCarUserName,
+            e.phonenumber AS applyUserTel,
+        <!-- 	a.actual_setout_address AS startSite,
+            a.actual_setout_time AS useCarDate,
+            a.actual_arrive_address AS endSite,
+            a.actual_arrive_time AS endDate, -->
+            h.use_car_mode AS useCarMode,
+            h.regimen_id as regimenId,
+            h.it_is_return as itIsReturn
+        FROM
+            order_info a
+        LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
+        LEFT JOIN journey_node_info c ON a.node_id = c.node_id
+        LEFT JOIN journey_info h ON h.journey_id=a.journey_id
+        LEFT JOIN apply_info d ON b.apply_id = d.apply_id
+        LEFT JOIN ecmp_user e ON e.user_id = c.user_id
+         where a.order_id=#{orderId}
     </select>
-    
+
 	<select id="queryCompleteDispatchOrderDetail" parameterType="java.lang.Long"
 		resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
 		<include refid="queryDispatchAchieve" />
@@ -495,7 +495,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         order by IFNULL(oai.action_time,jni.plan_setout_time) asc
         limit 0,1;
 </select>
-    
+
 
     <select id="getCancelOrderMessage" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
          SELECT messageId,messageType,'取消任务' messageTypeStr,count(*) messageCount from (
@@ -655,7 +655,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			LIMIT #{offset},#{pageSize}
 		</if>
 	</select>
-	
+
    <select id="queryApplyDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="java.lang.Integer">
    SELECT
 		count(1)
@@ -728,7 +728,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			LIMIT #{offset},#{pageSize}
 		</if>
 	</select>
-	
+
 	<select id="queryReassignmentDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
 		resultType="java.lang.Integer">
 		SELECT
@@ -769,23 +769,27 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <![CDATA[AND DATE_FORMAT(b.action_time, '%Y-%m-%d %H:%i:%s') <= DATE_FORMAT(DATE_ADD(now() ,INTERVAL 30 MINUTE ), '%Y-%m-%d %H:%i:%s') ]]> limit 1
 
     </select>
-    
+
     <select id="queryAllOrderStatusByJourneyId" parameterType="java.lang.Long" resultType="string">
     select state  from order_info where journey_id=#{journeyId}
     </select>
-    
+
     <select id="queryVaildOrderStatusByPowerId" parameterType="java.lang.Long" resultType="string">
      select state from order_info where power_id=#{powerId} order by create_time desc  limit 1
     </select>
-    
+
     <select id="queryVaildOrderIdByPowerId" parameterType="java.lang.Long" resultType="java.lang.Long">
      select order_id from order_info where power_id=#{powerId} and state !='S900' order by create_time desc  limit 1
     </select>
-    
+
+    <select id="queryAllOrderStatusByPowerId" parameterType="java.lang.Long" resultType="string">
+     select state from order_info where power_id=#{powerId}
+    </select>
+
     <select id="queryOrderIdListByPowerId" parameterType="java.lang.Long" resultType="java.lang.Long">
     select order_id from order_info where power_id=#{powerId} and state not in ('S900')
     </select>
-    
+
     <select id="queryUseCarMode" parameterType="java.lang.Long" resultType="string">
     select use_car_mode from order_info where power_id=#{powerId}
     </select>
@@ -795,4 +799,63 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         where power_id=#{powerId}
         AND STATE !='S900'
     </select>
+
+
+    <select id="getSetOutClashTask" parameterType="com.hq.ecmp.mscore.bo.OrderTaskClashBo" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
+        SELECT
+           ord.*
+        FROM  order_info ord
+        LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
+        <where>
+            <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
+            <if test="setOutTime != null and  setOutTime!='' "> and jpp.planned_arrival_time > #{setOutTime}  </if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}  </if>
+        </where>
+        ORDER BY  ord.order_id DESC
+    </select>
+
+    <select id="getArrivalClashTask" parameterType="com.hq.ecmp.mscore.bo.OrderTaskClashBo" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
+        SELECT
+            ord.*
+        FROM  order_info ord
+        LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
+        <where>
+            <if test="carId != null and  carId!=''"> and  ord.car_id = #{carId} </if>
+            <if test="arrivalTime != null and  arrivalTime!='' "> and #{arrivalTime} > jpp.planned_departure_time</if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
+        </where>
+        ORDER BY  ord.order_id DESC
+    </select>
+
+    <!-- 查询不冲突的 前任务 借用create_time-->
+    <select id="getSetOutBeforeTaskForCar" parameterType="com.hq.ecmp.mscore.bo.OrderTaskClashBo" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
+        SELECT
+            ord.order_id,
+            jpp.planned_departure_time as create_time
+        FROM  order_info ord
+        LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
+        <where>
+            <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
+            <if test="setOutTime != null and  setOutTime!='' "> and jpp.planned_arrival_time >#{setOutTime}  </if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
+        </where>
+        ORDER BY  ord.order_id DESC
+    </select>
+
+    <!-- 查询不冲突的 后任务,借用update_time传递值-->
+    <select id="getArrivalAfterTaskForCar" parameterType="com.hq.ecmp.mscore.bo.OrderTaskClashBo" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
+        SELECT
+            ord.order_id,
+            jpp.planned_arrival_time as update_time
+        FROM  order_info ord
+        LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
+        <where>
+            <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId} </if>
+            <if test="arrivalTime != null and  arrivalTime!='' "> and #{arrivalTime} > jpp.planned_departure_time </if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId} </if>
+        </where>
+        ORDER BY  ord.order_id DESC
+    </select>
+
+
 </mapper>
