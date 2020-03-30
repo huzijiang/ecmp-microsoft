@@ -401,10 +401,107 @@ WHERE
     </update>
 
 
+
     <update id="updateDriverStatus">
-    update  driver_info  set state=#{state} where driver_id=#{driverId}
+        update  driver_info  set state=#{state} where driver_id=#{driverId}
     </update>
     <select id="selectDriverIdByUserId" resultType="java.lang.Long" parameterType="long">
         select driver_id from driver_info where user_id = #{userId}
+    </select>
+
+    <update id="lockDriver" parameterType="long">
+        UPDATE driver_info
+        SET lock_state='1111'
+        <where>
+            1=1
+            and  lock_state='0000'
+            <if test="driverId != null  and driverId!= '' "> and driver_id=#{driverId}s</if>
+        </where>
+    </update>
+
+    <update id="unlockDriver" parameterType="long">
+        UPDATE driver_info
+        SET lock_state='0000'
+        <where>
+            1=1
+            and  lock_state='1111'
+            <if test="driverId != null  and driverId!= '' "> and driver_id=#{driverId}</if>
+        </where>
+    </update>
+
+    <select id="dispatcherSelectDriver" resultType="com.hq.ecmp.mscore.bo.WaitSelectedDriverBo" parameterType="com.hq.ecmp.mscore.bo.SelectDriverConditionBo">
+        SELECT
+            DISTINCTROW
+                dri.driver_name,
+                dri.driver_id,
+                dwi.caledar_date,
+                dwi.leave_status,
+                dcr.car_id,
+                cgd.car_group_id
+            FROM  driver_info  dri
+            LEFT JOIN  driver_work_info dwi ON dwi.driver_id=dri.driver_id
+            LEFT JOIN  driver_car_relation_info dcr  ON dcr.driver_id=dri.driver_id
+            LEFT JOIN  car_group_driver_relation cgd ON cgd.driver_id=dri.driver_id
+        <where>
+            1=1
+            AND dcr.car_id IS NOT NULL
+            AND cgd.car_group_id IS NOT NULL
+            AND dwi.leave_status='X999'
+            <if test="workDay != null  and workDay!= '' "> and dwi.caledar_date=#{workDay}</if>
+            <if test="driverId != null  and driverId!= '' "> and dri.driver_id=#{driverId}</if>
+            <if test="carId != null  and carId!= '' "> and dcr.car_id=#{carId}</if>
+            <if test="carGroupId != null  and carGroupId!= '' "> and cgd.car_group_id=#{carGroupId}</if>
+        </where>
+    </select>
+
+    <select id="dispatcherSelectDriverUseDriverNameOrPhone" resultType="com.hq.ecmp.mscore.bo.WaitSelectedDriverBo" parameterType="com.hq.ecmp.mscore.bo.SelectDriverConditionBo">
+        SELECT
+            DISTINCTROW
+            dri.driver_name,
+            dri.driver_id,
+            dwi.caledar_date,
+            dwi.leave_status,
+            dcr.car_id,
+            cgd.car_group_id
+        FROM  driver_info  dri
+        LEFT JOIN  driver_work_info dwi ON dwi.driver_id=dri.driver_id
+        LEFT JOIN  driver_car_relation_info dcr  ON dcr.driver_id=dri.driver_id
+        LEFT JOIN  car_group_driver_relation cgd ON cgd.driver_id=dri.driver_id
+        <where>
+            1=1
+            AND dcr.car_id IS NOT NULL
+            AND cgd.car_group_id IS NOT NULL
+            <if test="driverNameOrPhone != null  and driverNameOrPhone!= '' "> and dri.driver_name like CONCAT('%',#{driverNameOrPhone},'%')</if>
+            <if test="workDay != null  and workDay!= '' "> and dwi.caledar_date=#{workDay}</if>
+            <if test="driverId != null  and driverId!= '' "> and dri.driver_id=#{driverId}</if>
+            <if test="carId != null  and carId!= '' "> and dcr.car_id=#{carId}</if>
+            <if test="carGroupId != null  and carGroupId!= '' "> and cgd.car_group_id=#{carGroupId}</if>
+        </where>
+
+        UNION
+
+        SELECT
+            DISTINCTROW
+            dri.driver_name,
+            dri.driver_id,
+            dwi.caledar_date,
+            dwi.leave_status,
+            dcr.car_id,
+            cgd.car_group_id
+        FROM  driver_info  dri
+        LEFT JOIN  driver_work_info dwi ON dwi.driver_id=dri.driver_id
+        LEFT JOIN  driver_car_relation_info dcr  ON dcr.driver_id=dri.driver_id
+        LEFT JOIN  car_group_driver_relation cgd ON cgd.driver_id=dri.driver_id
+        <where>
+            1=1
+            AND dcr.car_id IS NOT NULL
+            AND cgd.car_group_id IS NOT NULL
+            <if test="driverNameOrPhone != null  and driverNameOrPhone!= '' "> and dri.mobile like CONCAT('%',#{driverNameOrPhone},'%')</if>
+            <if test="workDay != null  and workDay!= '' "> and dwi.caledar_date=#{workDay}</if>
+            <if test="driverId != null  and driverId!= '' "> and dri.driver_id=#{driverId}</if>
+            <if test="carId != null  and carId!= '' "> and dcr.car_id=#{carId}</if>
+            <if test="carGroupId != null  and carGroupId!= '' "> and cgd.car_group_id=#{carGroupId}</if>
+        </where>
+
     </select>
 </mapper>

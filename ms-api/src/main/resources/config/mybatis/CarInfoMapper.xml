@@ -235,7 +235,79 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectGroupEffectiveCarIds" resultType="java.lang.Long" parameterType="long">
         select car_id  from car_info where car_group_id = #{carGropuId} and state = 'S001'
     </select>
+
+    <!-- 查询车队的所有车辆信息，自动剔除不能用的-->
+    <select id="dispatcherSelectCarGroupOwnedCarInfoList" resultType="com.hq.ecmp.mscore.bo.WaitSelectedCarBo" parameterType="com.hq.ecmp.mscore.bo.SelectCarConditionBo">
+        select
+            cg.car_group_id as  group_id,
+            cg.car_group_name as group_name,
+            car.car_id,
+            car.car_license,
+            car.seat_num,
+            car.state,
+            car.lock_state,
+            ect.level,
+            ect.name
+        from car_group_info cg
+        LEFT JOIN car_info  car on  car.car_group_id=cg.car_group_id
+        LEFT JOIN enterprise_car_type_info ect  on  ect.car_type_id=car.car_type_id
+        <where>
+            1=1
+            and  cg.state='Y000'
+            and  car.state='S000'
+            and  car.lock_state='0000'
+            <if test="passengers != null  and passengers != ''">    and car.seat_num>#{passengers}</if>
+            <if test="carGroupId != null  and carGroupId != '' ">    and cg.car_group_id=#{carGroupId}</if>
+            <if test="carLevel != null  and carLevel != '' ">    and ect.car_group_id=#{carLevel}</if>
+        </where>
+    </select>
+
+    <!-- 查询可用的车辆信息,使用车牌号，-->
+    <select id="dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense" resultType="com.hq.ecmp.mscore.bo.WaitSelectedCarBo" parameterType="com.hq.ecmp.mscore.bo.SelectCarConditionBo">
+        select
+            cg.car_group_id as  group_id,
+            cg.car_group_name as group_name,
+            car.car_id,
+            car.car_license,
+            car.seat_num,
+            car.state,
+            car.lock_state,
+            ect.level,
+            ect.name
+        from car_group_info cg
+        LEFT JOIN car_info  car on  car.car_group_id=cg.car_group_id
+        LEFT JOIN enterprise_car_type_info ect  on  ect.car_type_id=car.car_type_id
+        <where>
+            1=1
+            and  cg.state='Y000'
+            <if test="carGroupId != null  and carGroupId != '' ">    and cg.car_group_id=#{carGroupId}</if>
+        </where>
+    </select>
+
     <update id="disableCarByCarId" parameterType="long" >
         update car_info set state = 'S001' where car_id = #{carId}
     </update>
+
+
+    <update id="lockCar"  parameterType="long">
+        update car_info
+        set lock_state = '1111'
+        <where>
+            1=1
+            and  lock_state='0000'
+            <if test="carId != null  and carId != '' ">    and car_id=#{carId}</if>
+        </where>
+    </update>
+
+    <update id="unlockCar" parameterType="long">
+        update car_info
+        set lock_state = '0000'
+        <where>
+            1=1
+            and lock_state='1111'
+            <if test="carId != null  and carId != '' ">    and car_id=#{carId}</if>
+        </where>
+    </update>
+
+
 </mapper>

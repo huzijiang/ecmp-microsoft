@@ -1,9 +1,12 @@
 package com.hq.ecmp.mscore.vo;
 
+import com.hq.ecmp.mscore.bo.WaitSelectedCarBo;
+import com.hq.ecmp.mscore.bo.WaitSelectedDriverBo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -18,13 +21,13 @@ public class DispatchResultVo {
      * 可选车辆列表
      */
     @ApiModelProperty(name="carList",value="可选车辆列表")
-    private LinkedList<CarInfoVO> carList;
+    private List<WaitSelectedCarBo> carList;
 
     /**
      * 可选司机列表
      */
     @ApiModelProperty(name="driverList",value="可选司机列表")
-    private LinkedList<DriverInfoVO> driverList;
+    private List<WaitSelectedDriverBo> driverList;
 
     /**
      * 是否有车辆

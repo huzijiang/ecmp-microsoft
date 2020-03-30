@@ -5,6 +5,10 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
+import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
+import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectCarDto;
+import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectDriverDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +45,7 @@ public class DispatchController {
 
     @Resource
     private IDispatchService dispatchService;
-    
+
     @Autowired
     private TokenService tokenService;
 
@@ -120,9 +124,8 @@ public class DispatchController {
      */
     @ApiOperation(value = "getWaitSelectedCars", notes = "调度 获取可选择的车辆", httpMethod = "POST")
     @PostMapping("/getWaitSelectedCars")
-    public ApiResponse<DispatchResultVo> getWaitSelectedCars(DispatchInfoDto dispatchInfoDto) {
-
-        return dispatchService.getWaitSelectedCars(dispatchInfoDto);
+    public ApiResponse<DispatchResultVo> getWaitSelectedCars(DispatchSelectCarDto dispatchSelectCarDto) {
+        return dispatchService.getWaitSelectedCars(dispatchSelectCarDto);
     }
 
     /**
@@ -130,9 +133,17 @@ public class DispatchController {
      */
     @ApiOperation(value = "lockSelectedCar", notes = "调度-锁定 被选中的车辆，防止为其他司机选择", httpMethod = "POST")
     @PostMapping("/lockSelectedCar")
-    public ApiResponse<DispatchResultVo> lockSelectedCar(DispatchInfoDto dispatchInfoDto) {
+    public ApiResponse<DispatchResultVo> lockSelectedCar(DispatchLockCarDto dispatchLockCarDto) {
+        return  dispatchService.lockSelectedCar(dispatchLockCarDto);
+    }
 
-        return  dispatchService.lockSelectedCar(dispatchInfoDto);
+    /**
+     *调度-锁定 被选中的车辆，防止为其他司机选择
+     */
+    @ApiOperation(value = "lockSelectedCar", notes = "调度-锁定 被选中的车辆，防止为其他司机选择", httpMethod = "POST")
+    @PostMapping("/lockSelectedCar")
+    public ApiResponse unlockSelectedCar(DispatchLockCarDto dispatchLockCarDto) {
+        return  dispatchService.unlockSelectedCar(dispatchLockCarDto);
     }
 
     /**
@@ -140,21 +151,26 @@ public class DispatchController {
      */
     @ApiOperation(value = "getWaitSelectedDrivers", notes = "调度-获取可选择的司机", httpMethod = "POST")
     @PostMapping("/getWaitSelectedDrivers")
-    public ApiResponse<DispatchResultVo> getWaitSelectedDrivers(DispatchInfoDto dispatchInfoDto) {
-
-        return  dispatchService.getWaitSelectedDrivers(dispatchInfoDto);
+    public ApiResponse<DispatchResultVo> getWaitSelectedDrivers(DispatchSelectDriverDto dispatchSelectDriverDto) {
+        return  dispatchService.getWaitSelectedDrivers(dispatchSelectDriverDto);
     }
 
     /**
-     *调度-锁定 被选中的车辆，防止为其他司机选择
+     *调度-锁定 被选中的司机，防止为其他调度员选择
      */
     @ApiOperation(value = "lockSelectedDriver", notes = "调度-锁定 被选中的车辆，防止为其他司机选择", httpMethod = "POST")
     @PostMapping("/lockSelectedDriver")
-    public ApiResponse<DispatchResultVo> lockSelectedDriver(DispatchInfoDto dispatchInfoDto) {
-
-        return  dispatchService.lockSelectedDriver(dispatchInfoDto);
+    public ApiResponse<DispatchResultVo> lockSelectedDriver(DispatchLockDriverDto dispatchLockDriverDto) {
+        return  dispatchService.lockSelectedDriver(dispatchLockDriverDto);
     }
 
-
+    /**
+     *调度-解除锁定 被选中的司机
+     */
+    @ApiOperation(value = "unlockSelectedDriver", notes = "调度-锁定 被选中的车辆，防止为其他司机选择", httpMethod = "POST")
+    @PostMapping("/unlockSelectedDriver")
+    public ApiResponse unlockSelectedDriver(DispatchLockDriverDto dispatchLockDriverDto) {
+        return  dispatchService.unlockSelectedDriver(dispatchLockDriverDto);
+    }
 
 }
