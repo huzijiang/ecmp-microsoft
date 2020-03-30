@@ -31,6 +31,8 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -582,6 +584,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                                 carlevelAndPriceByOrderId) {
                             JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
                             journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
+                            journeyPlanPriceInfo.setCreateBy(userId);
                             journeyPlanPriceInfo.setOrderId(orderId);
                             journeyPlanPriceInfo.setPowerId(orderInfo.getPowerId());
                             journeyPlanPriceInfo.setSource(carLevelAndPriceReVo.getSource());
@@ -732,26 +735,31 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 //订单类型,1:随叫随到;2:预约用车;3:接机;5:送机
                 String result = null;
 
-                if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_NOW.getBcState())|| serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState())){
-                     paramMap.put("serviceType",OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
-                    result = OkHttpUtil.postForm(apiUrl + "/service/applyPlatReceiveOrder", paramMap);
-                }else if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState())){
-                    paramMap.put("serviceType",OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState());
-                    if(icaoCode!=null && icaoCode.contains("\\,")){
-                        String[] split = icaoCode.split("\\,|\\，");
-                        paramMap.put("depCode",split[0]);
-                        paramMap.put("arrCode",split[1]);
+                try {
+                    if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_NOW.getBcState())|| serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState())){
+                         paramMap.put("serviceType",OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
+                        result = OkHttpUtil.postForm(apiUrl + "/service/applyPlatReceiveOrder", paramMap);
+                    }else if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState())){
+                        paramMap.put("serviceType",OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState());
+                        if(icaoCode!=null && icaoCode.contains("\\,")){
+                            String[] split = icaoCode.split("\\,|\\，");
+                            paramMap.put("depCode",split[0]);
+                            paramMap.put("arrCode",split[1]);
+                        }
+                        paramMap.put("airlineNum",orderInfoOld.getFlightNumber());
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        String formatDate = simpleDateFormat.format(orderInfoOld.getFlightPlanTakeOffTime());
+                        paramMap.put("planDate",formatDate);
+                        result = OkHttpUtil.postForm(apiUrl + "/service/applyPlatReceivePickUpOrder", paramMap);
+                    }else if(serviceType.equals((OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState()))){
+                        paramMap.put("serviceType","4000");
+                        result = OkHttpUtil.postForm(apiUrl + "/service/applyPlatReceiveSendToOrder", paramMap);
+                    }else{
+                        break;
                     }
-                    paramMap.put("airlineNum",orderInfoOld.getFlightNumber());
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String formatDate = simpleDateFormat.format(orderInfoOld.getFlightPlanTakeOffTime());
-                    paramMap.put("planDate",formatDate);
-                    result = OkHttpUtil.postForm(apiUrl + "/service/applyPlatReceivePickUpOrder", paramMap);
-                }else if(serviceType.equals((OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState()))){
-                    paramMap.put("serviceType","4000");
-                    result = OkHttpUtil.postForm(apiUrl + "/service/applyPlatReceiveSendToOrder", paramMap);
-                }else{
-                    break;
+                } catch (SocketTimeoutException e) {
+                    e.printStackTrace();
+                    continue;
                 }
 
                 log.info("订单{}下单参数，{}",orderId,paramMap);
@@ -771,7 +779,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 }
                 //调用查询订单状态的方法
                 log.info("订单{}查询参数，{}",orderId,queryOrderStateMap);
-                String resultQuery = OkHttpUtil.postForm(apiUrl + "/service/getOrderState", queryOrderStateMap);
+                String resultQuery = null;
+                try {
+                    resultQuery = OkHttpUtil.postForm(apiUrl + "/service/getOrderState", queryOrderStateMap);
+                } catch (SocketTimeoutException e) {
+                    e.printStackTrace();
+                    continue;
+                }
                 log.info("订单{}查询结果，{}",orderId,resultQuery);
                 JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
                 if(!"0".equals(jsonObjectQuery.getString("code"))){
@@ -787,7 +801,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 }
             }
             log.debug("订单【"+orderId+"】约车成功");
-        } catch (Exception e) {
+        }catch (Exception e) {
             e.printStackTrace();
         }finally {
             log.debug("订单【"+orderId+"】约车次数删除");
@@ -1204,6 +1218,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
                 journeyPlanPriceInfo.setSource(applyUseWithTravelDto.getSource());
                 journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
+                journeyPlanPriceInfo.setCreateBy(String.valueOf(userId));
                 journeyPlanPriceInfo.setNodeId(journeyUserCarPower.getNodeId());
                 journeyPlanPriceInfo.setJourneyId(journeyUserCarPower.getJourneyId());
                 journeyPlanPriceInfo.setPrice(new BigDecimal(price));
