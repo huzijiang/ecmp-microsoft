@@ -140,8 +140,8 @@ public class DispatchController {
     /**
      *调度-锁定 被选中的车辆，防止为其他司机选择
      */
-    @ApiOperation(value = "lockSelectedCar", notes = "调度-锁定 被选中的车辆，防止为其他司机选择", httpMethod = "POST")
-    @PostMapping("/lockSelectedCar")
+    @ApiOperation(value = "unlockSelectedCar", notes = "调度-锁定 被选中的车辆，防止为其他司机选择", httpMethod = "POST")
+    @PostMapping("/unlockSelectedCar")
     public ApiResponse unlockSelectedCar(DispatchLockCarDto dispatchLockCarDto) {
         return  dispatchService.unlockSelectedCar(dispatchLockCarDto);
     }
