@@ -247,64 +247,60 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
 <insert id="insertRegime" parameterType="com.hq.ecmp.mscore.domain.RegimePo" useGeneratedKeys="true" keyProperty="regimenId">
      insert into regime_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="regimenId != null ">regimen_id,</if>
-            <if test="templateId != null ">template_id,</if>
+            <if test="regimenId != null and regimenId != ''">regimen_id,</if>
+            <if test="templateId != null and templateId !=''">template_id,</if>
             <if test="name != null  and name != ''">name,</if>
-             <if test="regimenType != null">regimen_type,</if>
-            <if test="canUseCarMode != null">can_use_car_mode,</if>
-            <if test="serviceType != null">service_type,</if>
-            <if test="allowDate != null">allow_date,</if>
-             <if test="needApprovalProcess != null">need_approval_process,</if>
-             <if test="approveTemplateId != null">approve_template_id,</if>
-              <if test="setoutEqualArrive != null">setout_equal_arrive,</if>
-               <if test="useCarModeOwnerLevel != null">use_car_mode_owner_level,</if>
-               <if test="useCarModeOnlineLevel != null">use_car_mode_online_level,</if>
-               <if test="ruleCity != null">rule_city,</if>
-               <if test="ruleTime != null">rule_time,</if>
-                <if test="travelAllowInTravelCityUseCar != null">travel_allow_in_travel_city_use_car,</if>
-                <if test="travelUseCarModeOwnerLevel != null">travel_use_car_mode_owner_level,</if>
-                <if test="travelUseCarModeOnlineLevel != null">travel_use_car_mode_online_level,</if>
-                <if test="travelAllowDateRound != null">travel_allow_date_round,</if>
-                 <if test="travelSetoutEqualArrive != null">travel_setout_equal_arrive,</if>
-                 <if test="asAllowAirportShuttle != null">as_allow_airport_shuttle,</if>
-                  <if test="asUseCarModeOwnerLevel != null">as_use_car_mode_owner_level,</if>
-                  <if test="asUseCarModeOnlineLevel != null">as_use_car_mode_online_level,</if>
-                   <if test="asAllowDateRound != null">as_allow_date_round,</if>
-                   <if test="asSetoutEqualArrive != null">as_setout_equal_arrive,</if>
-            <if test="createBy != null ">create_by,</if>
+             <if test="regimenType != null and regimenType !=''">regimen_type,</if>
+            <if test="canUseCarMode != null and canUseCarMode !=''">can_use_car_mode,</if>
+            <if test="serviceType != null and serviceType!=''">service_type,</if>
+            <if test="allowDate != null and allowDate !=''">allow_date,</if>
+             <if test="needApprovalProcess != null and needApprovalProcess !=''">need_approval_process,</if>
+             <if test="approveTemplateId != null and approveTemplateId !=''">approve_template_id,</if>
+              <if test="setoutEqualArrive != null and setoutEqualArrive !=''">setout_equal_arrive,</if>
+               <if test="useCarModeOwnerLevel != null and useCarModeOwnerLevel !=''">use_car_mode_owner_level,</if>
+               <if test="useCarModeOnlineLevel != null and useCarModeOnlineLevel !=''">use_car_mode_online_level,</if>
+               <if test="ruleCity != null and ruleCity !=''">rule_city,</if>
+               <if test="ruleTime != null and ruleTime !=''">rule_time,</if>
+                <if test="travelAllowInTravelCityUseCar != null and travelAllowInTravelCityUseCar !=''">travel_allow_in_travel_city_use_car,</if>
+                <if test="travelUseCarModeOwnerLevel != null and travelUseCarModeOwnerLevel !=''">travel_use_car_mode_owner_level,</if>
+                <if test="travelUseCarModeOnlineLevel != null and travelUseCarModeOnlineLevel !=''">travel_use_car_mode_online_level,</if>
+                <if test="travelAllowDateRound != null and travelAllowDateRound !=''">travel_allow_date_round,</if>
+                 <if test="travelSetoutEqualArrive != null and travelSetoutEqualArrive !=''">travel_setout_equal_arrive,</if>
+                 <if test="asAllowAirportShuttle != null and asAllowAirportShuttle !=''">as_allow_airport_shuttle,</if>
+                  <if test="asUseCarModeOwnerLevel != null and asUseCarModeOwnerLevel !=''">as_use_car_mode_owner_level,</if>
+                  <if test="asUseCarModeOnlineLevel != null and asUseCarModeOnlineLevel !=''">as_use_car_mode_online_level,</if>
+                   <if test="asAllowDateRound != null and asAllowDateRound !=''">as_allow_date_round,</if>
+                   <if test="asSetoutEqualArrive != null and asSetoutEqualArrive !=''">as_setout_equal_arrive,</if>
+            <if test="optId != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
-            <if test="updateBy != null ">update_by,</if>
-            <if test="updateTime != null ">update_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="regimenId != null ">#{regimenId},</if>
-            <if test="templateId != null ">#{templateId},</if>
+            <if test="regimenId != null and regimenId != ''">#{regimenId},</if>
+            <if test="templateId != null and templateId !=''">#{templateId},</if>
             <if test="name != null  and name != ''">#{name},</if>
-            <if test="regimenType != null">#{regimenType},</if>
-           <if test="canUseCarMode != null">#{canUseCarMode},</if>
-           <if test="serviceType != null">#{serviceType},</if>
-           <if test="allowDate != null">#{allowDate},</if>
-           <if test="needApprovalProcess != null">#{needApprovalProcess},</if>
-            <if test="approveTemplateId != null">#{approveTemplateId},</if>
-            <if test="setoutEqualArrive != null">#{setoutEqualArrive},</if>
-            <if test="useCarModeOwnerLevel != null">#{useCarModeOwnerLevel},</if>
-            <if test="useCarModeOnlineLevel != null">#{useCarModeOnlineLevel},</if>
-            <if test="ruleCity != null">#{ruleCity},</if>
-             <if test="ruleTime != null">#{ruleTime},</if>
-            <if test="travelAllowInTravelCityUseCar != null">#{travelAllowInTravelCityUseCar},</if>
-             <if test="travelUseCarModeOwnerLevel != null">#{travelUseCarModeOwnerLevel},</if>
-              <if test="travelUseCarModeOnlineLevel != null">#{travelUseCarModeOnlineLevel},</if>
-              <if test="travelAllowDateRound != null">#{travelAllowDateRound},</if>
-              <if test="travelSetoutEqualArrive != null">#{travelSetoutEqualArrive},</if>
-              <if test="asAllowAirportShuttle != null">#{asAllowAirportShuttle},</if>
-              <if test="asUseCarModeOwnerLevel != null">#{asUseCarModeOwnerLevel},</if>
-              <if test="asUseCarModeOnlineLevel != null">#{asUseCarModeOnlineLevel},</if>
-              <if test="asAllowDateRound != null">#{asAllowDateRound},</if>
-              <if test="asSetoutEqualArrive != null">#{asSetoutEqualArrive},</if>
-            <if test="createBy != null ">#{createBy},</if>
-            <if test="createTime != null ">#{createTime},</if>
-            <if test="updateBy != null ">#{updateBy},</if>
-            <if test="updateTime != null ">#{updateTime},</if>
+            <if test="regimenType != null and regimenType !=''">#{regimenType},</if>
+           <if test="canUseCarMode != null and canUseCarMode !=''">#{canUseCarMode},</if>
+           <if test="serviceType != null and serviceType!=''">#{serviceType},</if>
+           <if test="allowDate != null and allowDate !=''">#{allowDate},</if>
+           <if test="needApprovalProcess != null and needApprovalProcess !=''">#{needApprovalProcess},</if>
+            <if test="approveTemplateId != null and approveTemplateId !=''">#{approveTemplateId},</if>
+            <if test="setoutEqualArrive != null and setoutEqualArrive !=''">#{setoutEqualArrive},</if>
+            <if test="useCarModeOwnerLevel != null and useCarModeOwnerLevel !=''">#{useCarModeOwnerLevel},</if>
+            <if test="useCarModeOnlineLevel != null and useCarModeOnlineLevel !=''">#{useCarModeOnlineLevel},</if>
+            <if test="ruleCity != null and ruleCity !=''">#{ruleCity},</if>
+             <if test="ruleTime != null and ruleTime !=''">#{ruleTime},</if>
+            <if test="travelAllowInTravelCityUseCar != null and travelAllowInTravelCityUseCar !=''">#{travelAllowInTravelCityUseCar},</if>
+             <if test="travelUseCarModeOwnerLevel != null and travelUseCarModeOwnerLevel !=''">#{travelUseCarModeOwnerLevel},</if>
+              <if test="travelUseCarModeOnlineLevel != null and travelUseCarModeOnlineLevel !=''">#{travelUseCarModeOnlineLevel},</if>
+              <if test="travelAllowDateRound != null and travelAllowDateRound !=''">#{travelAllowDateRound},</if>
+              <if test="travelSetoutEqualArrive != null and travelSetoutEqualArrive !=''">#{travelSetoutEqualArrive},</if>
+              <if test="asAllowAirportShuttle != null and asAllowAirportShuttle !=''">#{asAllowAirportShuttle},</if>
+              <if test="asUseCarModeOwnerLevel != null and asUseCarModeOwnerLevel !=''">#{asUseCarModeOwnerLevel},</if>
+              <if test="asUseCarModeOnlineLevel != null and asUseCarModeOnlineLevel !=''">#{asUseCarModeOnlineLevel},</if>
+              <if test="asAllowDateRound != null and asAllowDateRound !=''">#{asAllowDateRound},</if>
+              <if test="asSetoutEqualArrive != null and asSetoutEqualArrive !=''">#{asSetoutEqualArrive},</if>
+            <if test="optId != null ">#{optId},</if>
+            <if test="createTime != null ">now(),</if>
          </trim>
 </insert>
 
