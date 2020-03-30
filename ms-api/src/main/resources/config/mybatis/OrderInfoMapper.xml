@@ -648,28 +648,28 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
 		WHERE
 		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S199','S200','S299','S600','S616','S699','S900')
-		<if test="null !=applyMobile">
+		<if test="null !=applyMobile and applyMobile !=''">
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>
-		<if test="null !=applyName">
+		<if test="null !=applyName and applyName !=''">
 			and AND b.nick_name LIKE concat('%',#{applyName},'%')
 		</if>
-		<if test="null !=cityCode">
+		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}
 		</if>
-		<if test="null !=optStartDate">
+		<if test="null !=optStartDate and optStartDate !=''">
 			AND a.update_time &gt;= #{optStartDate}
 		</if>
-		<if test="null !=optEndDate">
+		<if test="null !=optEndDate and optEndDate !=''">
 			AND a.update_time &lt;= #{optEndDate}
 		</if>
-		<if test="null !=useCarMode">
+		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
-		<if test="offset != null and pageSize != null">
+		 <if test="offset != null and pageSize != null">
 			LIMIT #{offset},#{pageSize}
-		</if>
+		</if> 
 	</select>
 
    <select id="queryApplyDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="java.lang.Integer">
@@ -682,22 +682,22 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
 		WHERE
 		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S199','S200','S299','S600','S616','S699','S900')
-		<if test="null !=applyMobile">
+		<if test="null !=applyMobile and applyMobile  !=''">
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>
-		<if test="null !=applyName">
+		<if test="null !=applyName and applyName !=''">
 			and AND b.nick_name LIKE concat('%',#{applyName},'%')
 		</if>
-		<if test="null !=cityCode">
+		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}
 		</if>
-		<if test="null !=optStartDate">
+		<if test="null !=optStartDate and optStartDate !=''">
 			AND a.update_time &gt;= #{optStartDate}
 		</if>
-		<if test="null !=optEndDate">
+		<if test="null !=optEndDate and optEndDate !=''">
 			AND a.update_time &lt;= #{optEndDate}
 		</if>
-		<if test="null !=useCarMode">
+		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id

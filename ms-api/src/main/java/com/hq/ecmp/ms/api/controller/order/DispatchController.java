@@ -11,6 +11,7 @@ import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectCarDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectDriverDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,7 +54,7 @@ public class DispatchController {
 
     @ApiOperation(value = "getApplyDispatchList", notes = "获取申请调度列表 ", httpMethod = "POST")
     @PostMapping("/getApplyDispatchList")
-    public ApiResponse<PageResult<ApplyDispatchVo>> getUserDispatchedOrder(ApplyDispatchQuery query){
+    public ApiResponse<PageResult<ApplyDispatchVo>> getUserDispatchedOrder(@RequestBody ApplyDispatchQuery query){
     	List<ApplyDispatchVo> list = iOrderInfoService.queryApplyDispatchList(query);
     	Integer totalNum = iOrderInfoService.queryApplyDispatchListCount(query);
     	PageResult<ApplyDispatchVo> pageResult = new PageResult<ApplyDispatchVo>(Long.valueOf(totalNum), list);
@@ -64,14 +65,14 @@ public class DispatchController {
 
     @ApiOperation(value = "detail", notes = "获取系统已经完成调派或已过期的订单详细信息(包含申请和改派的) ", httpMethod = "POST")
     @PostMapping("/detail")
-    public ApiResponse<DispatchOrderInfo> detail(String orderId) {
+    public ApiResponse<DispatchOrderInfo> detail(@RequestBody String orderId) {
     	return ApiResponse.success(iOrderInfoService.getCompleteDispatchOrderDetailInfo(Long.valueOf(orderId)));
     }
 
 
     @ApiOperation(value = "sendDetail", notes = "派车详情页(包含申请和改派的)", httpMethod = "POST")
     @PostMapping("/sendDetail")
-    public ApiResponse<DispatchOrderInfo> sendDetail(Long orderId) {
+    public ApiResponse<DispatchOrderInfo> sendDetail(@RequestBody Long orderId) {
     	return ApiResponse.success(iOrderInfoService.getWaitDispatchOrderDetailInfo(orderId));
     }
 
