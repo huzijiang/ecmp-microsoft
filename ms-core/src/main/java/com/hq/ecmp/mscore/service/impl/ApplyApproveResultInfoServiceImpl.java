@@ -199,8 +199,8 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                     resultInfo.setState(state);
                     switch (ApproveTypeEnum.format(info.getApproverType())) {
                         case  APPROVE_T001://部门负责人
-                            UserVO deptUser=ecmpUserMapper.findDeptLeader(Long.parseLong(applyInfo.getCreateBy()));
-                            resultInfo.setApproveUserId(String.valueOf(deptUser.getUserId()));
+//                            UserVO deptUser=ecmpUserMapper.findDeptLeader(Long.parseLong(applyInfo.getCreateBy()));
+                            resultInfo.setApproveUserId(info.getUserId());
                             break;
                         case  APPROVE_T002://指定角色
                             resultInfo.setApproveRoleId(info.getRoleId());
@@ -211,8 +211,8 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                             resultInfo.setApproveUserId(info.getUserId());
                             break;
                         case  APPROVE_T004://项目负责人
-                            UserVO userVO=projectInfoMapper.findLeader(applyInfo.getProjectId());
-                            resultInfo.setApproveUserId(String.valueOf(userVO.getUserId()));
+//                            UserVO userVO=projectInfoMapper.findLeader(applyInfo.getProjectId());
+                            resultInfo.setApproveUserId(info.getUserId());
                             break;
                         }
                     applyApproveResultInfoMapper.insertApplyApproveResultInfo(resultInfo);

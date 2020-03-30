@@ -1627,6 +1627,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String status = thirdPartyOrderState.getString("status");
         String lableState=thirdPartyOrderState.getString("status");
         String json = thirdPartyOrderState.getString("driverInfo");
+        if (OrderState.STOPSERVICE.getState().equals(status)){
+            return orderVO;
+        }
         DriverCloudDto driverCloudDto=new DriverCloudDto();
         if (StringUtils.isNotEmpty(json)){
            driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
@@ -1668,7 +1671,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                         orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
                     }
                     int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderVO.getUseCarMode());
-                    if (orderConfirmStatus==CommonConstant.ONE){
+                    orderVO.setIsDisagree(orderConfirmStatus);
+                    if (orderConfirmStatus==CommonConstant.ZERO){
                         status=OrderState.ORDERCLOSE.getState();
                         lableState=OrderState.ORDERCLOSE.getState();
                         newOrderInfo.setState(status);

@@ -179,18 +179,18 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
         if (CollectionUtils.isNotEmpty(nodeInfos)){
             SortListUtil.sort(nodeInfos,"approveNodeId",SortListUtil.ASC);
             ApproveTemplateNodeInfo info=nodeInfos.get(0);
-                if (ApproveTypeEnum.APPROVE_T001.getKey().equals(info.getApproverType())){//部门主管
-                    UserVO deptLeader = getDeptLeader(user.getDeptId());
-                    userIds=String.valueOf(deptLeader.getUserId());
-                }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(info.getApproverType())){//项目负责人
-                    if (StringUtils.isEmpty(projectId)){
-                        return null;
-                    }
-                    UserVO projectLeader = getProjectLeader(Long.parseLong(projectId));
-                    userIds=String.valueOf(projectLeader.getUserId());
-                }else{
+//                if (ApproveTypeEnum.APPROVE_T001.getKey().equals(info.getApproverType())){//部门主管
+//                    UserVO deptLeader = getDeptLeader(user.getDeptId());
+//                    userIds=String.valueOf(deptLeader.getUserId());
+//                }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(info.getApproverType())){//项目负责人
+//                    if (StringUtils.isEmpty(projectId)){
+//                        return null;
+//                    }
+//                    UserVO projectLeader = getProjectLeader(Long.parseLong(projectId));
+//                    userIds=String.valueOf(projectLeader.getUserId());
+//                }else{
                     userIds=info.getUserId();
-                }
+//                }
             }
         return approveTemplateNodeInfoMapper.getApproveUsers(userIds);
     }
@@ -248,13 +248,23 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
             nodeInfo.setApproverType(flowList.get(i).getType());
             nodeInfo.setApproveTemplateId(approveTemplateId);
             nodeInfo.setRoleId(flowList.get(i).getRoleIds());
+            nodeInfo.setDeptProjectId(flowList.get(i).getDeptProjectId());
             nodeInfo.setNextNodeId(String.valueOf(ZERO));
             nodeInfo.setCreateBy(String.valueOf(userId));
             nodeInfo.setCreateTime(new Date());
             if (ApproveTypeEnum.APPROVE_T002.getKey().equals(flowList.get(i).getType())) {
                 String userIds = userRoleMapper.findUserIds(flowList.get(i).getRoleIds());
                 nodeInfo.setUserId(userIds);
-            } else {
+            } else if(ApproveTypeEnum.APPROVE_T001.getKey().equals(flowList.get(i).getType())){
+                String deptId = flowList.get(i).getDeptProjectId();
+                UserVO deptLeader = getDeptLeader(Long.parseLong(deptId));
+                nodeInfo.setUserId(String.valueOf(deptLeader.getUserId()));
+            }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(flowList.get(i).getType())){
+                String projectId = flowList.get(i).getDeptProjectId();
+//                ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(Long.parseLong(projectId));
+                UserVO projectLeader = getProjectLeader(Long.parseLong(projectId));
+                nodeInfo.setUserId(String.valueOf(projectLeader.getUserId()));
+            }else{
                 nodeInfo.setUserId(flowList.get(i).getUserIds());
             }
             approveTemplateNodeInfoMapper.insertApproveTemplateNodeInfo(nodeInfo);
