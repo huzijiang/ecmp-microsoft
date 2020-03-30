@@ -6,8 +6,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="com.hq.ecmp.mscore.domain.CarGroupInfo" id="CarGroupInfoResult">
         <result property="carGroupId"    column="car_group_id"    />
+        <result property="carGroupName"    column="car_group_name"    />
+        <result property="carGroupCode"    column="car_group_code"    />
         <result property="city"    column="city"    />
         <result property="cityName"    column="city_name"    />
+        <result property="fullAddress"    column="full_address"    />
+        <result property="shortAddress"    column="short_address"    />
+        <result property="ownerCompany"    column="owner_company"    />
         <result property="ownerOrg"    column="owner_org"    />
         <result property="leader"    column="leader"    />
         <result property="telephone"    column="telephone"    />
@@ -123,7 +128,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 or car_group_id like concat('%', #{search}, '%')
             </if>
         </where>
-             and order by car_group_name
+             order by car_group_name
     </select>
 
     <select id="selectSubCarGroupInfoList" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO" parameterType="long">
