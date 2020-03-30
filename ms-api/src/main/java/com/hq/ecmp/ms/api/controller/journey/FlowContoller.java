@@ -84,7 +84,7 @@ public class FlowContoller {
     @Deprecated()
     @ApiOperation(value = "flowTemplateList",notes = "审批流列表 ",httpMethod ="POST")
     @PostMapping("/flowTemplateList")
-    public ApiResponse<PageResult<ApprovaTemplateVO>> flowTemplateList(PageRequest pageRequest){
+    public ApiResponse<PageResult<ApprovaTemplateVO>> flowTemplateList(@RequestBody PageRequest pageRequest){
         //提交行程申请
         List<ApprovaTemplateVO> list=templateInfoService.getTemplateList(pageRequest);
         Long count=templateInfoService.getTemplateListCount(pageRequest.getSearch());
