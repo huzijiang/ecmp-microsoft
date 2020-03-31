@@ -3,6 +3,7 @@ package com.hq.ecmp.ms.api.controller.account;
 
 import com.hq.common.core.api.ApiResponse;
 
+import com.hq.ecmp.mscore.dto.InvoiceAddUpdateDTO;
 import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
 import com.hq.ecmp.mscore.service.IInvoiceAddressService;
 import com.hq.ecmp.mscore.vo.InvoiceAddVO;
@@ -57,15 +58,15 @@ public class InvoiceAddressController {
      }
     /**
      * 发票地址修改
-     * @param invoiceAddressDTO
+     * @param invoiceAddUpdateDTO
      * @return
      */
      @ApiOperation(value = "invoiceAddUpdate",notes = "修改发票地址信息",httpMethod = "POST")
      @PostMapping("/invoiceAddUpdate")
-     public ApiResponse invoiceAddUpdate(@RequestBody InvoiceAddressDTO invoiceAddressDTO){
+     public ApiResponse invoiceAddUpdate(@RequestBody InvoiceAddUpdateDTO invoiceAddUpdateDTO){
 
          try {
-             invoiceAddressService.updateInvoiceAddress(invoiceAddressDTO);
+             invoiceAddressService.updateInvoiceAddress(invoiceAddUpdateDTO);
          } catch (Exception e) {
              e.printStackTrace();
              return ApiResponse.error("修改失败");
@@ -74,14 +75,14 @@ public class InvoiceAddressController {
      }
     /**
      * 发票地址删除
-     * @param addressId
+     * @param invoiceAddUpdateDTO
      * @return
      */
      @ApiOperation(value = "invoiceAddDelete",notes = "删除发票地址信息",httpMethod = "POST")
      @PostMapping("/invoiceAddDelete")
-     public ApiResponse invoiceAddDelete(Long addressId){
+     public ApiResponse invoiceAddDelete(@RequestBody InvoiceAddUpdateDTO invoiceAddUpdateDTO){
          try {
-             invoiceAddressService.deleteInvoiceAddressById(addressId);
+             invoiceAddressService.deleteInvoiceAddressById(invoiceAddUpdateDTO.getAddressId());
          } catch (Exception e) {
              e.printStackTrace();
              return ApiResponse.error("删除失败");

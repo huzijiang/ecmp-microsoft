@@ -11,6 +11,7 @@ import com.hq.ecmp.mscore.dto.ProjectUserDTO;
 import com.hq.ecmp.mscore.mapper.ProjectInfoMapper;
 import com.hq.ecmp.mscore.mapper.ProjectUserRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.ProjectInfoVO;
 import com.hq.ecmp.mscore.vo.ProjectUserVO;
 import com.hq.ecmp.util.DateFormatUtils;
@@ -117,10 +118,11 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     }
 
     @Override
-    public PageInfo<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, String search,Long fatherProjectId) {
+    public PageResult<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, String search, Long fatherProjectId) {
         PageHelper.startPage(pageNum,pageSize);
         List<ProjectInfoVO> list= projectInfoMapper.getProjectList(search,fatherProjectId);
-        return new PageInfo<>(list);
+        Long count=projectInfoMapper.getProjectListCount(search,fatherProjectId);
+        return new PageResult<ProjectInfoVO>(count,list);
     }
 
     @Override

@@ -3,9 +3,11 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
+import com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO;
 import com.hq.ecmp.mscore.mapper.InvoiceInfoMapper;
 import com.hq.ecmp.mscore.service.IInvoiceInfoService;
 import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
+import com.hq.ecmp.mscore.vo.InvoiceRecordVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,13 +39,13 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
     /**
      * 查询【请填写功能名称】列表
      *
-     * @param invoiceInfo 【请填写功能名称】
+     * @param 【请填写功能名称】
      * @return 【请填写功能名称】
      */
     @Override
-    public List<InvoiceInfo> selectInvoiceInfoList(InvoiceInfo invoiceInfo)
+    public List<InvoiceRecordVO> selectInvoiceInfoList()
     {
-        return invoiceInfoMapper.selectInvoiceInfoList(invoiceInfo);
+        return invoiceInfoMapper.selectInvoiceInfoList();
     }
 
     /**
@@ -100,8 +102,12 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
     /**
      * 根据时间区间、开票状态查询发票信息
      */
-    public List<InvoiceInfo> selectInvoiceInfoByTimeAndState(String startTime, String endTime, String state){
+   /* public List<InvoiceInfo> selectInvoiceInfoByTimeAndState(String startTime, String endTime, String state){
         return invoiceInfoMapper.selectInvoiceInfoListByTimeAndState(startTime,endTime,state);
+    }*/
+
+    public List<InvoiceRecordVO> queryAllByTimeState(InvoiceByTimeStateDTO invoiceByTimeStateDTO){
+        return invoiceInfoMapper.queryAllByTimeState(invoiceByTimeStateDTO);
     }
     /**
      * 新增发票抬头

@@ -15,12 +15,12 @@ public class SelectDriverConditionBo{
     /**
      * 调度员编号
      */
-    private String  dispatcherId;
+    private Long  dispatcherId;
 
     /**
      * 车队编号
      */
-    private String  carGroupId;
+    private Long  carGroupId;
 
     /**
      * 城市代码
@@ -30,7 +30,7 @@ public class SelectDriverConditionBo{
     /**
      * 指定的司机编号
      */
-    private String  driverId;
+    private Long  driverId;
 
     /**
      * 司机姓名或者电话

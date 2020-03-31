@@ -9,6 +9,9 @@ import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
+import com.hq.ecmp.mscore.vo.OrgTreeVo;
+import com.hq.ecmp.mscore.vo.UserTreeVo;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,6 +93,39 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     @Override
     public EcmpOrgDto selectCurrentDeptInformation(Long deptId){
         return ecmpOrgMapper.selectCurrentDeptInformation(deptId);
+    }
+
+    /**
+     * 部门树
+     * @param deptId
+     * @return
+     */
+    @Override
+    public List<OrgTreeVo> selectDeptTree(Long deptId,String deptName) {
+        List<OrgTreeVo> orgTreeVos = ecmpOrgMapper.selectDeptTree(deptId, deptName);
+        return orgTreeVos;
+    }
+
+    /**
+     * 员工树
+     * @param deptId
+     * @param deptName
+     * @return
+     */
+    @Override
+    public List<OrgTreeVo> selectDeptUserTree(Long deptId, String deptName) {
+        List<OrgTreeVo> orgTreeVos = ecmpOrgMapper.selectDeptTree(deptId, deptName);
+        if (CollectionUtils.isNotEmpty(orgTreeVos)){
+            for (OrgTreeVo orgTreeVo:orgTreeVos){
+                List<UserTreeVo> userList = this.getUserList(orgTreeVo.getDeptId());
+                orgTreeVo.setUsers(userList);
+            }
+        }
+        return orgTreeVos;
+    }
+
+    private List<UserTreeVo> getUserList(Long deptId){
+        return ecmpUserMapper.selectListByDeptId(deptId);
     }
 
     /**
