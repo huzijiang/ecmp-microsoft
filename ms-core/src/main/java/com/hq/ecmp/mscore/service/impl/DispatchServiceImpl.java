@@ -67,6 +67,9 @@ public class DispatchServiceImpl implements IDispatchService {
     @Autowired
     JourneyPlanPriceInfoMapper journeyPlanPriceInfoMapper;
 
+    @Autowired
+    EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
+
     /**
      *
      * 调度-获取可选择的车辆
@@ -289,6 +292,13 @@ public class DispatchServiceImpl implements IDispatchService {
         cars.stream().forEach(carInfo->{
             WaitSelectedCarBo waitSelectedCarBo=new WaitSelectedCarBo();
             waitSelectedCarBo.setCarId(carInfo.getCarId());
+            waitSelectedCarBo.setCarModelName(carInfo.getCarType());
+            EnterpriseCarTypeInfo enterpriseCarTypeInfo=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
+            waitSelectedCarBo.setCarType(enterpriseCarTypeInfo.getName());
+
+            waitSelectedCarBo.setColor(carInfo.getCarColor());
+            waitSelectedCarBo.setPlateLicence(carInfo.getCarLicense());
+            waitSelectedCarBo.setStatus(carInfo.getState());
             waitSelectedCarBo.setCarGroupId(carInfo.getCarGroupId());
             waitSelectedCarBo.setState(carInfo.getState());
 

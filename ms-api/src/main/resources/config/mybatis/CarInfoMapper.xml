@@ -8,7 +8,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carId"    column="car_id"    />
         <result property="carGroupId"    column="car_group_id"    />
         <result property="deptId"    column="dept_id"    />
-        <result property="enterpriseCarTypeId"    column="car_type_id"    />
+        <result property="carTypeId"    column="car_type_id"    />
         <result property="carLicense"    column="car_license"    />
         <result property="state"    column="state"    />
         <result property="carType"    column="car_type"    />

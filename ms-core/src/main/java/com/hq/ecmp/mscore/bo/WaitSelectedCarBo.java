@@ -4,6 +4,7 @@ import com.hq.ecmp.constant.enumerate.CarLockStateEnum;
 import com.hq.ecmp.constant.enumerate.CarStateEnum;
 import com.hq.ecmp.constant.enumerate.TaskConflictEnum;
 import com.hq.ecmp.mscore.domain.CarInfo;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.sql.Timestamp;
@@ -30,16 +31,6 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
      * 优先值 最低 1
      */
     private int priority;
-
-//    /**
-//     * 车辆状态
-//     * S000    启用中
-//     * S001    禁用中
-//     * S002    维护中
-//     * S003    已到期
-//     * S101    被借调
-//     */
-//    private String state;
 
     /**
      * 车辆锁定状态
@@ -99,21 +90,35 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
      */
     private Long  afterTaskOrderId;
 
+    private String carModelName;
     /**
      * 车辆级别
      */
     private String level;
 
     /**
+     * 车辆级别
+     */
+    private String color;
+
+    /**
+     * 车牌号
+     */
+    private String plateLicence;
+
+    /**
      * 车队名称
      */
     private String carGroupName;
+
+
+
     /**
      *
      * 综合状态： 根据各种状态综合判断
      *
      */
-    private String compositeState;
+    private String status="";
 
 
 
@@ -130,36 +135,36 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
 
     public void   embellish(){
         if(CarStateEnum.EFFECTIVE.getCode().equals(this.getState())){
-            this.compositeState.concat(CarStateEnum.EFFECTIVE.getDesc());
+            this.status=CarStateEnum.EFFECTIVE.getDesc();
         }
         if(CarStateEnum.NONEFFECTIVE.getCode().equals(this.getState())){
-            this.compositeState.concat(CarStateEnum.NONEFFECTIVE.getDesc());
+            this.status=CarStateEnum.NONEFFECTIVE.getDesc();
         }
         if(CarStateEnum.MAINTENANCE.getCode().equals(this.getState())){
-            this.compositeState.concat(CarStateEnum.MAINTENANCE.getDesc());
+            this.status=CarStateEnum.MAINTENANCE.getDesc();
         }
         if(CarStateEnum.EXPIRE.getCode().equals(this.getState())){
-            this.compositeState.concat(CarStateEnum.EXPIRE.getDesc());
+            this.status=CarStateEnum.EXPIRE.getDesc();
         }
         if(CarStateEnum.WAS_BORROWED.getCode().equals(this.getState())){
-            this.compositeState.concat(CarStateEnum.WAS_BORROWED.getDesc());
+            this.status=CarStateEnum.WAS_BORROWED.getDesc();
         }
 
         if(CarLockStateEnum.UNLOCK.getCode().equals(this.lockState)){
-            this.compositeState.concat(CarLockStateEnum.UNLOCK.getDesc());
+            this.status=CarLockStateEnum.UNLOCK.getDesc()+this.status;
         }
 
         if(TaskConflictEnum.BEFORE_TASK_CLASH.getCode().equals(this.getTaskConflict())){
-            this.compositeState.concat(TaskConflictEnum.BEFORE_TASK_CLASH.getDesc());
+            this.status=TaskConflictEnum.BEFORE_TASK_CLASH.getDesc()+this.status;
         }
         if(TaskConflictEnum.AFTER_TASK_CLASH.getCode().equals(this.getTaskConflict())){
-            this.compositeState.concat(TaskConflictEnum.AFTER_TASK_CLASH.getDesc());
+            this.status=TaskConflictEnum.AFTER_TASK_CLASH.getDesc()+this.status;
         }
         if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getCode().equals(this.getTaskConflict())){
-            this.compositeState.concat(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc());
+            this.status=TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc()+this.status;
         }
         if(TaskConflictEnum.CONFLICT_FREE.getCode().equals(this.getTaskConflict())){
-            this.compositeState.concat(TaskConflictEnum.CONFLICT_FREE.getDesc());
+            this.status=TaskConflictEnum.CONFLICT_FREE.getDesc()+this.status;
         }
 
     }
