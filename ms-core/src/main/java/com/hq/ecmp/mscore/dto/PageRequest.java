@@ -23,6 +23,14 @@ public class PageRequest {
     @ApiModelProperty(name = "search", value = "搜索关键字",required = false)
     private String search;
 
+    //搜索字段
+    @ApiModelProperty(name = "state", value = "状态",required = false)
+    private String state;
+
+    //搜索字段
+    @ApiModelProperty(name = "level", value = "车型级别",required = false)
+    private String level;
+
     private Long carId;
 
     private Long carGroupId;

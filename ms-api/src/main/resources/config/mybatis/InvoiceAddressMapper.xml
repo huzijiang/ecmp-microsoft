@@ -33,11 +33,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="accepter != null  and accepter != ''">accepter,</if>
             <if test="mobile != null  and mobile != ''">mobile,</if>
             <if test="address != null  and address != ''">address,</if>
+            <if test="createTime != null ">create_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="accepter != null  and accepter != ''">#{accepter},</if>
             <if test="mobile != null  and mobile != ''">#{mobile},</if>
             <if test="address != null  and address != ''">#{address},</if>
+            <if test="createTime != null ">#{createTime},</if>
          </trim>
     </insert>
 
@@ -47,6 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="accepter != null  and accepter != ''">accepter = #{accepter},</if>
             <if test="mobile != null  and mobile != ''">mobile = #{mobile},</if>
             <if test="address != null  and address != ''">address = #{address},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
         </trim>
         where address_id = #{addressId}
     </update>
@@ -63,9 +66,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
     <!--查询收货地址列表-->
     <select id="selectInvoiceAddressList"  resultType="com.hq.ecmp.mscore.vo.InvoiceAddVO">
-        select
-          address_id  as addressId, accepter, mobile, address
-        from invoice_address
+         select
+         address_id  as addressId, accepter, mobile, address
+         from invoice_address order by create_time,update_time
     </select>
 
 

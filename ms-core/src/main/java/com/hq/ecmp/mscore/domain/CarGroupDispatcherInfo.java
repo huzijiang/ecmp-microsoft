@@ -27,9 +27,8 @@ public class CarGroupDispatcherInfo extends BaseEntity
     private Long userId;
 
     /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "${comment}", readConverterExp = "$\ncolumn.readConverterExp()")
     private String name;
-
     public void setDispatcherId(Long dispatcherId)
     {
         this.dispatcherId = dispatcherId;

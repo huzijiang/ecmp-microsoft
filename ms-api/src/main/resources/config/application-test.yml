@@ -98,3 +98,9 @@ thirdService:
   enterpriseId: 10000
   licenseContent: AAAAAAAA
   apiUrl: http://10.117.1.231:51002
+
+dispatch:
+  #不回车队驻地缓冲时间: 60分钟
+  notBackCarGroup: 60
+  #回车队驻地缓冲时间: 90分钟
+  backCarGroup: 90

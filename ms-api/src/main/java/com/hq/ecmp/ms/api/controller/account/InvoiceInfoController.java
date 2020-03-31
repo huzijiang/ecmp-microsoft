@@ -7,8 +7,10 @@ import com.hq.ecmp.ms.api.dto.invoice.InvoiceDto;
 import com.hq.ecmp.mscore.domain.EcmpDictType;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
 import com.hq.ecmp.mscore.dto.EmailDTO;
+import com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO;
 import com.hq.ecmp.mscore.service.IInvoiceInfoService;
 import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
+import com.hq.ecmp.mscore.vo.InvoiceRecordVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,16 +32,16 @@ public class InvoiceInfoController {
 
     @Autowired
     private IInvoiceInfoService invoiceInfoService;
-    /**
-     * 发票信息查询
-     * @param invoiceInfo
-     * @return list
+    /**I
+     * 根据时间区间、开票状态查询发票记录信息
+     * @param invoiceByTimeStateDTO
+     * @return
      */
-    @ApiOperation(value = "getInvoiceInfoList",notes = "查询所有的发票详细信息",httpMethod = "POST")
+    @ApiOperation(value = "getInvoiceInfoList",notes = "发票记录列表查询",httpMethod = "POST")
     @PostMapping("/getInvoiceInfoList")
-    public ApiResponse<List<InvoiceInfo>> getInvoiceInfoList(InvoiceInfo invoiceInfo){
-        List<InvoiceInfo> invoiceInfoList = invoiceInfoService.selectInvoiceInfoList(invoiceInfo);
-        return ApiResponse.success();
+    public ApiResponse<List<InvoiceRecordVO>> getInvoiceInfoList(@RequestBody InvoiceByTimeStateDTO invoiceByTimeStateDTO){
+        List<InvoiceRecordVO> invoiceInfoList = invoiceInfoService.queryAllByTimeState(invoiceByTimeStateDTO);
+        return ApiResponse.success(invoiceInfoList);
     }
     /**
      * 发票信息新增
@@ -58,39 +60,8 @@ public class InvoiceInfoController {
          return ApiResponse.success("新增成功");
 
      }
-    /**
-     * 发票信息修改
-     * @param invoiceInfo
-     * @return
-     */
-     @ApiOperation(value = "invoiceInfoUpdate",notes = "修改发票信息",httpMethod = "POST")
-     @PostMapping("/invoiceInfoUpdate")
-     public ApiResponse invoiceInfoUpdate(@RequestBody InvoiceInfo invoiceInfo){
 
-         try {
-             invoiceInfoService.updateInvoiceInfo(invoiceInfo);
-         } catch (Exception e) {
-             e.printStackTrace();
-             return ApiResponse.error("修改失败");
-         }
-         return ApiResponse.success("修改成功");
-     }
-    /**
-     * 发票信息删除
-     * @param invoiceInfo
-     * @return
-     */
-     @ApiOperation(value = "invoiceInfoDelete",notes = "删除发票信息",httpMethod = "POST")
-     @PostMapping("/invoiceInfoDelete")
-     public ApiResponse invoiceInfoDelete(@RequestBody InvoiceInfo invoiceInfo){
-         try {
-             invoiceInfoService.deleteInvoiceInfoById(invoiceInfo.getInvoiceId());
-         } catch (Exception e) {
-             e.printStackTrace();
-             return ApiResponse.error("删除失败");
-         }
-         return ApiResponse.success("删除成功");
-     }
+
     /**
      * 发票信息详情
      * @param invoiceInfo
@@ -103,17 +74,6 @@ public class InvoiceInfoController {
         return  ApiResponse.success(invoiceInfoDetail);
     }
 
-    /**I
-     * 根据时间区间、开票状态查询发票信息
-     * @param invoiceDto
-     * @return
-     */
-    @ApiOperation(value = "getInvoiceByTimeAndState",notes = "发票信息详情",httpMethod ="POST")
-    @PostMapping("/getInvoiceByTimeAndState")
-    public ApiResponse<List<InvoiceInfo>>  getInvoiceByTimeAndState(InvoiceDto invoiceDto){
-        List<InvoiceInfo>  invoiceInfoList = invoiceInfoService.selectInvoiceInfoByTimeAndState(invoiceDto.getStartTime(),invoiceDto.getEndTime(),invoiceDto.getState());
-        return ApiResponse.success(invoiceInfoList);
-    }
 
 
     /**
@@ -121,11 +81,11 @@ public class InvoiceInfoController {
      * @param invoiceInfo
      * @return
      */
-    @ApiOperation(value = "getinvoiceInfodownLoad",notes = "发票下载",httpMethod ="POST")
-    @PostMapping("/getinvoiceInfodownLoad")
-    public ApiResponse<InvoiceInfo> getinvoiceInfodownLoad(InvoiceInfo invoiceInfo){
-        InvoiceInfo nvoiceInfodownLoad = invoiceInfoService.selectInvoiceInfoById(invoiceInfo.getInvoiceId());
-        return  ApiResponse.success(nvoiceInfodownLoad);
+    @ApiOperation(value = "getInvoiceDownLoad",notes = "发票下载",httpMethod ="POST")
+    @PostMapping("/getInvoiceDownLoad")
+    public ApiResponse<InvoiceInfo> getInvoiceDownLoad(InvoiceInfo invoiceInfo){
+        InvoiceInfo downLoad = invoiceInfoService.selectInvoiceInfoById(invoiceInfo.getInvoiceId());
+        return  ApiResponse.success(downLoad);
     }
 
     /**

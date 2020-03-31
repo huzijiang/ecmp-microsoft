@@ -373,8 +373,8 @@ public class ApplyContoller {
         list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请成功"));
         result.add(new ApprovalListVO(applyId,"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
         if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
-            String approveTime=null;
            for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){
+               String approveTime=null;
                String approveUserId = resultInfo.getApproveUserId();
                String appresult = resultInfo.getApproveResult();
                String state = resultInfo.getState();

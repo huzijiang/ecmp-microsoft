@@ -836,7 +836,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
-            <if test="setOutTime != null and  setOutTime!='' "> and jpp.planned_arrival_time > #{setOutTime}  </if>
+            <if test="setOutTime != null "> and jpp.planned_arrival_time > #{setOutTime}  </if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}  </if>
         </where>
         ORDER BY  ord.order_id DESC
@@ -849,7 +849,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id = #{carId} </if>
-            <if test="arrivalTime != null and  arrivalTime!='' "> and #{arrivalTime} > jpp.planned_departure_time</if>
+            <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time</if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
         </where>
         ORDER BY  ord.order_id DESC
@@ -864,7 +864,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
-            <if test="setOutTime != null and  setOutTime!='' "> and jpp.planned_arrival_time >#{setOutTime}  </if>
+            <if test="setOutTime != null "> and jpp.planned_arrival_time >#{setOutTime}  </if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
         </where>
         ORDER BY  ord.order_id DESC
@@ -879,7 +879,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId} </if>
-            <if test="arrivalTime != null and  arrivalTime!='' "> and #{arrivalTime} > jpp.planned_departure_time </if>
+            <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time </if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId} </if>
         </where>
         ORDER BY  ord.order_id DESC

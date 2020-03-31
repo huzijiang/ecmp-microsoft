@@ -5,6 +5,7 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.*;
+import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
@@ -80,6 +81,7 @@ public class OrderController {
      * @param officialOrderReVo
      * @return
      */
+    @Log(value = "公务创建订单")
     @ApiOperation(value = "公务创建订单", notes = "公务创建订单", httpMethod = "POST")
     @PostMapping("/officialOrder")
     public ApiResponse officialOrder(@RequestBody OfficialOrderReVo officialOrderReVo) {
@@ -230,6 +232,7 @@ public class OrderController {
      * @param
      * @return
      */
+    @Log(value = "自动约车")
     @ApiOperation(value = "letPlatCallTaxi", notes = "自动约车-向网约车平台发起约车请求 改变订单的状态为  约车中-->已派单", httpMethod = "POST")
     @PostMapping("/letPlatCallTaxi")
     public ApiResponse letPlatCallTaxi( @RequestParam("orderNo") String orderNo,
@@ -310,6 +313,7 @@ public class OrderController {
      * @param orderDto 行程申请信息
      * @return
      */
+    @Log(value = "确认订单")
     @ApiOperation(value = "affirmOrder", notes = "用户确认订单 ", httpMethod = "POST")
     @PostMapping("/affirmOrder")
     public ApiResponse affirmOrder(@RequestBody OrderDto orderDto) {
@@ -347,6 +351,7 @@ public class OrderController {
      * @param orderDto 行程申请信息
      * @return
      */
+    @Log(value = "取消订单")
     @ApiOperation(value = "cancelOrder", notes = "用户取消订单 ", httpMethod = "POST")
     @PostMapping("/cancelOrder")
     public ApiResponse cancelOrder(@RequestBody OrderDto orderDto) {
@@ -465,6 +470,7 @@ public class OrderController {
      * @Date 10:11 2020/3/4
      * @Param []
      **/
+    @Log(value = "我的行程列表")
     @ApiOperation(value = "我的行程订单列表", httpMethod = "POST")
     @RequestMapping("/getOrderList")
     public ApiResponse<List<OrderListInfo>> getIncompleteOrderList(@RequestBody PageRequest orderPage) {
@@ -481,7 +487,7 @@ public class OrderController {
         return ApiResponse.success(orderList);
     }
 
-
+    @Log(value = "改派订单")
     @ApiOperation(value = "改派订单", httpMethod = "POST")
     @RequestMapping("/reassign")
     public ApiResponse reassign(@RequestParam(value = "orderNo") String orderNo,
@@ -569,6 +575,7 @@ public class OrderController {
     *   @Param  [applyUseWithTravelDto]
     *   @return com.hq.common.core.api.ApiResponse
     **/
+    @Log(value = "差旅下单")
     @ApiOperation(value = "差旅下单接口",notes = "")
     @RequestMapping("/travelOrder")
     public ApiResponse travelOrder(@RequestBody ApplyUseWithTravelDto applyUseWithTravelDto){
@@ -586,6 +593,7 @@ public class OrderController {
         return ApiResponse.success("申请派车成功",orderId);
     }
 
+    @Log(value = "驾驶员评价")
     @ApiOperation(value = "驾驶员评价接口")
     @PostMapping("/orderDriverAppraise")
     public ApiResponse orderDriverAppraise(@RequestBody  OrderDriverAppraiseDto orderDriverAppraiseDto){
