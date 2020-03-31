@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.HomePageSortMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo" id="HomePageSortInfoResult">
+        <result property="Id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="panelId"    column="panel_id"    />
+        <result property="panelName"    column="panel_name"    />
+        <result property="sortNum"    column="sort_num"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectHomePageSortInfoVo">
+        select id, user_id, dept_id, company_id,panel_id, panel_name, sort_num, create_by, create_time, update_by, update_time from user_console_home_page_sort_info
+    </sql>
+
+    <select id="getHomeSort" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo" resultType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
+        select panel_id AS panelId, panel_name AS panelName, sort_num AS sortNum from user_console_home_page_sort_info
+    </select>
+
+    <select id="getHomeSortById" parameterType="Long" resultMap="HomePageSortInfoResult">
+        <include refid="selectHomePageSortInfoVo"/>
+        where id = #{Id}
+    </select>
+
+
+
+    <update id="updateHomeSort" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
+        update user_console_home_page_sort_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="panelName != null ">panel_name = #{panelName},</if>
+            <if test="sortNum != null ">sort_num = #{sortNum},</if>
+        </trim>
+        where panel_id = #{panelId}
+    </update>
+</mapper>

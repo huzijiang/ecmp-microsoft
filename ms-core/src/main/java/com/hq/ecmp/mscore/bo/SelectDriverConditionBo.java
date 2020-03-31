@@ -40,7 +40,7 @@ public class SelectDriverConditionBo{
     /**
      * 上班日
      */
-    private Date    workDay;
+    private String    workDay;
 
     /**
      * 车辆编号

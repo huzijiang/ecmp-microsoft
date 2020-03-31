@@ -429,15 +429,10 @@ WHERE
         </where>
     </update>
 
-    <select id="dispatcherSelectDriver" resultType="com.hq.ecmp.mscore.bo.WaitSelectedDriverBo" parameterType="com.hq.ecmp.mscore.bo.SelectDriverConditionBo">
+    <select id="dispatcherSelectDriver" resultMap="DriverInfoResult" parameterType="com.hq.ecmp.mscore.bo.SelectDriverConditionBo">
         SELECT
             DISTINCTROW
-                dri.driver_name,
-                dri.driver_id,
-                dwi.caledar_date,
-                dwi.leave_status,
-                dcr.car_id,
-                cgd.car_group_id
+                dri.*
             FROM  driver_info  dri
             LEFT JOIN  driver_work_info dwi ON dwi.driver_id=dri.driver_id
             LEFT JOIN  driver_car_relation_info dcr  ON dcr.driver_id=dri.driver_id
@@ -447,22 +442,17 @@ WHERE
             AND dcr.car_id IS NOT NULL
             AND cgd.car_group_id IS NOT NULL
             AND dwi.leave_status='X999'
-            <if test="workDay != null  and workDay!= '' "> and dwi.caledar_date=#{workDay}</if>
+            <if test="workDay != null  "> and dwi.caledar_date=#{workDay}</if>
             <if test="driverId != null  and driverId!= '' "> and dri.driver_id=#{driverId}</if>
             <if test="carId != null  and carId!= '' "> and dcr.car_id=#{carId}</if>
             <if test="carGroupId != null  and carGroupId!= '' "> and cgd.car_group_id=#{carGroupId}</if>
         </where>
     </select>
 
-    <select id="dispatcherSelectDriverUseDriverNameOrPhone" resultType="com.hq.ecmp.mscore.bo.WaitSelectedDriverBo" parameterType="com.hq.ecmp.mscore.bo.SelectDriverConditionBo">
+    <select id="dispatcherSelectDriverUseDriverNameOrPhone" resultMap="DriverInfoResult" parameterType="com.hq.ecmp.mscore.bo.SelectDriverConditionBo">
         SELECT
             DISTINCTROW
-            dri.driver_name,
-            dri.driver_id,
-            dwi.caledar_date,
-            dwi.leave_status,
-            dcr.car_id,
-            cgd.car_group_id
+                dri.*
         FROM  driver_info  dri
         LEFT JOIN  driver_work_info dwi ON dwi.driver_id=dri.driver_id
         LEFT JOIN  driver_car_relation_info dcr  ON dcr.driver_id=dri.driver_id
@@ -472,7 +462,7 @@ WHERE
             AND dcr.car_id IS NOT NULL
             AND cgd.car_group_id IS NOT NULL
             <if test="driverNameOrPhone != null  and driverNameOrPhone!= '' "> and dri.driver_name like CONCAT('%',#{driverNameOrPhone},'%')</if>
-            <if test="workDay != null  and workDay!= '' "> and dwi.caledar_date=#{workDay}</if>
+            <if test="workDay != null  "> and dwi.caledar_date=#{workDay}</if>
             <if test="driverId != null  and driverId!= '' "> and dri.driver_id=#{driverId}</if>
             <if test="carId != null  and carId!= '' "> and dcr.car_id=#{carId}</if>
             <if test="carGroupId != null  and carGroupId!= '' "> and cgd.car_group_id=#{carGroupId}</if>
@@ -482,12 +472,7 @@ WHERE
 
         SELECT
             DISTINCTROW
-            dri.driver_name,
-            dri.driver_id,
-            dwi.caledar_date,
-            dwi.leave_status,
-            dcr.car_id,
-            cgd.car_group_id
+                dri.*
         FROM  driver_info  dri
         LEFT JOIN  driver_work_info dwi ON dwi.driver_id=dri.driver_id
         LEFT JOIN  driver_car_relation_info dcr  ON dcr.driver_id=dri.driver_id
@@ -497,7 +482,7 @@ WHERE
             AND dcr.car_id IS NOT NULL
             AND cgd.car_group_id IS NOT NULL
             <if test="driverNameOrPhone != null  and driverNameOrPhone!= '' "> and dri.mobile like CONCAT('%',#{driverNameOrPhone},'%')</if>
-            <if test="workDay != null  and workDay!= '' "> and dwi.caledar_date=#{workDay}</if>
+            <if test="workDay != null "> and dwi.caledar_date=#{workDay}</if>
             <if test="driverId != null  and driverId!= '' "> and dri.driver_id=#{driverId}</if>
             <if test="carId != null  and carId!= '' "> and dcr.car_id=#{carId}</if>
             <if test="carGroupId != null  and carGroupId!= '' "> and cgd.car_group_id=#{carGroupId}</if>
