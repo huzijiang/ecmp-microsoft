@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 public enum  CarStateEnum {
 
-    EFFECTIVE("S000","可用"),
+    EFFECTIVE("S000","车况良好"),
     NONEFFECTIVE("S001","禁用中"),
     MAINTENANCE("S002","维护中"),
     EXPIRE("S003","车辆已到期"),

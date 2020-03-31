@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.config.dispatch.DispatchContent;
@@ -373,12 +374,12 @@ public class DispatchServiceImpl implements IDispatchService {
             return  ApiResponse.error(orderTaskClashBoApiResponse.getMsg());
         }
         Date setOutDate=new Date(orderTaskClashBoApiResponse.getData().getSetOutTime().getTime());
-        selectDriverConditionBo.setWorkDay(setOutDate);
+        selectDriverConditionBo.setWorkDay(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD,setOutDate));
 
-        List<WaitSelectedDriverBo> drivers=new ArrayList<>();
+        List<DriverInfo> drivers=new ArrayList<>();
 
         for (CarGroupServeScopeInfo carGroupServeScopeInfo:carGroupServiceScopesApiResponse.getData()) {
-            List<WaitSelectedDriverBo> adrivers;
+            List<DriverInfo> adrivers;
             selectDriverConditionBo.setCarGroupId(carGroupServeScopeInfo.getCarGroupId());
             if(StringUtils.isEmpty(selectDriverConditionBo.getCarId())){
                 adrivers=driverInfoMapper.dispatcherSelectDriver(selectDriverConditionBo);
@@ -397,54 +398,69 @@ public class DispatchServiceImpl implements IDispatchService {
         }
         OrderTaskClashBo orderTaskClashBo=apiResponseSelectOrderSetOutAndArrivalTime.getData();
 
+        List<WaitSelectedDriverBo> waitSelectedDriverBoList=new ArrayList<>();
 
         drivers.stream().forEach(driver->{
             orderTaskClashBo.setDriverId(driver.getDriverId());
+
+            WaitSelectedDriverBo waitSelectedDriverBo=new WaitSelectedDriverBo();
+            waitSelectedDriverBo.setDriverId(driver.getDriverId());
+            waitSelectedDriverBo.setDriverName(driver.getDriverName());
+            waitSelectedDriverBo.setState(driver.getState());
+            waitSelectedDriverBo.setMobile(driver.getMobile());
+            waitSelectedDriverBo.setDriverPhone(driver.getMobile());
+
+            //查询车队电话,任意一个车队应该都已
+            List<CarGroupInfo> carGroupInfo;
+            carGroupInfo=carGroupInfoMapper.selectCarGroupsByDriverId(driver.getDriverId());
+            waitSelectedDriverBo.setFleetPhone(carGroupInfo.get(0).getTelephone());
+
             List<OrderInfo> orderInfosSetOutClash=orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
             List<OrderInfo> orderInfosArrivalClash=orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
 
             if(orderInfosSetOutClash.isEmpty() && orderInfosArrivalClash.isEmpty()){
-                driver.setTaskConflict("000");
+                waitSelectedDriverBo.setTaskConflict("000");
                 List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCar(orderTaskClashBo);
                 List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCar(orderTaskClashBo);
 
                 if(orderInfosBefore.size()>0){
-                    driver.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
-                    driver.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
+                    waitSelectedDriverBo.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
                 }
                 if(orderInfosAfter.size()>0){
-                    driver.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    driver.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
+                    waitSelectedDriverBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
                 }
             }
             if((!orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())){
-                driver.setTaskConflict("101");
+                waitSelectedDriverBo.setTaskConflict("101");
             }
             if((!orderInfosSetOutClash.isEmpty()) && (orderInfosArrivalClash.isEmpty())){
-                driver.setTaskConflict("100");
+                waitSelectedDriverBo.setTaskConflict("100");
                 List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCar(orderTaskClashBo);
                 if(orderInfosAfter.size()>0){
-                    driver.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    driver.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
+                    waitSelectedDriverBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
                 }
             }
             if((orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())){
-                driver.setTaskConflict("001");
+                waitSelectedDriverBo.setTaskConflict("001");
 
                 List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCar(orderTaskClashBo);
                 if(orderInfosBefore.size()>0){
-                    driver.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
-                    driver.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
+                    waitSelectedDriverBo.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
                 }
             }
+            waitSelectedDriverBoList.add(waitSelectedDriverBo);
         });
 
-        drivers.stream().forEach(driver->{
+        waitSelectedDriverBoList.stream().forEach(driver->{
             driver.embellish();
         });
 
 
-        return ApiResponse.success(drivers);
+        return ApiResponse.success(waitSelectedDriverBoList);
     }
 
     /**

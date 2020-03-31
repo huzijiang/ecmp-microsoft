@@ -151,20 +151,20 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
         }
 
         if(CarLockStateEnum.UNLOCK.getCode().equals(this.lockState)){
-            this.status=CarLockStateEnum.UNLOCK.getDesc()+this.status;
+            this.status=CarLockStateEnum.UNLOCK.getDesc()+","+this.status;
         }
 
         if(TaskConflictEnum.BEFORE_TASK_CLASH.getCode().equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.BEFORE_TASK_CLASH.getDesc()+this.status;
+            this.status=TaskConflictEnum.BEFORE_TASK_CLASH.getDesc()+","+this.status;
         }
         if(TaskConflictEnum.AFTER_TASK_CLASH.getCode().equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.AFTER_TASK_CLASH.getDesc()+this.status;
+            this.status=TaskConflictEnum.AFTER_TASK_CLASH.getDesc()+","+this.status;
         }
         if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getCode().equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc()+this.status;
+            this.status=TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc()+","+this.status;
         }
         if(TaskConflictEnum.CONFLICT_FREE.getCode().equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.CONFLICT_FREE.getDesc()+this.status;
+            this.status=TaskConflictEnum.CONFLICT_FREE.getDesc()+","+this.status;
         }
 
     }
