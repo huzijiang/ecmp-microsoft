@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.InvoiceAddress;
+import com.hq.ecmp.mscore.dto.InvoiceAddUpdateDTO;
 import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
 import com.hq.ecmp.mscore.mapper.InvoiceAddressMapper;
 import com.hq.ecmp.mscore.service.IInvoiceAddressService;
@@ -55,21 +56,21 @@ public class InvoiceAddressServiceImpl implements IInvoiceAddressService
     @Override
     public int insertInvoiceAddress(InvoiceAddressDTO invoiceAddressDTO)
     {
-       // invoiceAddress.setCreateTime(DateUtils.getNowDate());
+        invoiceAddressDTO.setCreateTime(DateUtils.getNowDate());
         return invoiceAddressMapper.insertInvoiceAddress(invoiceAddressDTO);
     }
 
     /**
      * 修改【请填写功能名称】
      *
-     * @param invoiceAddressDTO 【请填写功能名称】
+     * @param invoiceAddUpdateDTO 【请填写功能名称】
      * @return 结果
      */
     @Override
-    public int updateInvoiceAddress(InvoiceAddressDTO invoiceAddressDTO)
+    public int updateInvoiceAddress(InvoiceAddUpdateDTO invoiceAddUpdateDTO)
     {
-       // invoiceAddress.setUpdateTime(DateUtils.getNowDate());
-        return invoiceAddressMapper.updateInvoiceAddress(invoiceAddressDTO);
+        invoiceAddUpdateDTO.setUpdateTime(DateUtils.getNowDate());
+        return invoiceAddressMapper.updateInvoiceAddress(invoiceAddUpdateDTO);
     }
 
     /**

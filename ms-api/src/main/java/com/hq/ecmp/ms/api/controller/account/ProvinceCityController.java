@@ -44,7 +44,7 @@ public class ProvinceCityController {
      */
     @ApiOperation(value = "getProvinceCity",notes = "查询省份",httpMethod = "POST")
     @PostMapping("/getProvinceCity")
-   public  ApiResponse<List<ProvinceCityVO>> getProvinceCity(String provinceCode){
+    public  ApiResponse<List<ProvinceCityVO>> getProvinceCity(String provinceCode){
         List<ProvinceCityVO>  cityList = chinaProvinceService.queryCityByProvince(provinceCode);
         return ApiResponse.success(cityList);
    }

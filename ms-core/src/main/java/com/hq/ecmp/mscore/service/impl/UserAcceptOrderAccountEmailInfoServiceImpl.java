@@ -4,6 +4,7 @@ package com.hq.ecmp.mscore.service.impl;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.UserAcceptOrderAccountEmailInfo;
 import com.hq.ecmp.mscore.dto.EmailDTO;
+import com.hq.ecmp.mscore.dto.EmailUpdateDTO;
 import com.hq.ecmp.mscore.mapper.UserAcceptOrderAccountEmailInfoMapper;
 import com.hq.ecmp.mscore.service.UserAcceptOrderAccountEmailInfoService;
 import com.hq.ecmp.mscore.vo.EmailVO;
@@ -56,18 +57,20 @@ public class UserAcceptOrderAccountEmailInfoServiceImpl implements UserAcceptOrd
      */
     @Override
     public int insertEmail(EmailDTO emailDTO){
+        emailDTO.setCreateTime(DateUtils.getNowDate());
         return userAcceptOrderAccountEmailInfoMapper.insertEmail(emailDTO);
     }
 
     /**
      * 修改数据
      *
-     * @param emailDTO 实例对象
+     * @param emailUpdateDTO 实例对象
      * @return 影响行数
      */
     @Override
-    public int updateEmail(EmailDTO emailDTO){
-        return userAcceptOrderAccountEmailInfoMapper.updateEmail(emailDTO);
+    public int updateEmail(EmailUpdateDTO emailUpdateDTO){
+        emailUpdateDTO.setUpdateTime(DateUtils.getNowDate());
+        return userAcceptOrderAccountEmailInfoMapper.updateEmail(emailUpdateDTO);
     }
 
     /**
