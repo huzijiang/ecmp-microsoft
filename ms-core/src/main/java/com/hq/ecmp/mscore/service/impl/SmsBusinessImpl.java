@@ -572,7 +572,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             String riderId = applyAndRiderMobile.get("riderId");
             //乘车人企业员工
             Map<String,String> paramsMap= Maps.newHashMap();
-            paramsMap.put("driverrName",orderCommonInfo.get("driverrName"));
+            paramsMap.put("driverName",orderCommonInfo.get("driverName"));
             paramsMap.put("time",orderCommonInfo.get("useCarTime").substring(11));
             paramsMap.put("carLicense",orderCommonInfo.get("carLicense"));
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TAXI_DRIVER_ARR_RIDER_ENTER,paramsMap,applyAndRiderMobile.get("riderMobile"));
@@ -609,7 +609,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             if(!riderAndApplyMatch(applyAndRiderMobile)){
                 //乘车人非企业员
                 Map<String,String> paramsMap= Maps.newHashMap();
-                paramsMap.put("driverrName",orderCommonInfo.get("driverrName"));
+                paramsMap.put("driverName",orderCommonInfo.get("driverName"));
                 paramsMap.put("time",orderCommonInfo.get("useCarTime").substring(11));
                 paramsMap.put("carLicense",orderCommonInfo.get("carLicense"));
                 if(StringUtils.isEmpty(riderId)){

@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.controller.car;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.constant.EnterpriseCarTypeConstant;
+import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo;
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
@@ -40,6 +41,7 @@ public class CarMonitorController {
     /**
      * 车辆检索和定位
      */
+    @Log(value = "车辆检索")
     @ApiOperation(value = "车辆检索")
     @PostMapping("/locationCars")
     public ApiResponse<List<CarLocationVo>> locationCars(@RequestBody CarLocationDto carLocationDto){
@@ -57,6 +59,7 @@ public class CarMonitorController {
      * 获取所有的车型
      * @return
      */
+    @Log(value = "获取所有车型")
     @ApiOperation(value = "获取所有车型")
     @PostMapping("/getAllCarType")
     public ApiResponse< List<EnterpriseCarTypeInfo> > getAllCarType(){
