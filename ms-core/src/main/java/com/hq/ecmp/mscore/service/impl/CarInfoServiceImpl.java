@@ -11,9 +11,11 @@ import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.dto.CarSaveDTO;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.ICarInfoService;
 import com.hq.ecmp.mscore.vo.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -278,18 +280,15 @@ public class CarInfoServiceImpl implements ICarInfoService
 
     /**
      * 分页查询车队的车辆列表信息
-     * @param pageNum
-     * @param pageSize
-     * @param carGroupId
      * @return
      */
     @Override
-    public PageResult<CarListVO> selectCarListByGroup(Integer pageNum, Integer pageSize, Long carGroupId) {
-        PageHelper.startPage(pageNum,pageSize);
+    public PageResult<CarListVO> selectCarListByGroup(PageRequest pageRequest) {
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         CarInfo carInfo1 = new CarInfo();
-        carInfo1.setCarGroupId(carGroupId);
+        carInfo1.setCarGroupId(pageRequest.getCarGroupId());
         //查询车辆所属车队
-        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(pageRequest.getCarGroupId());
         String carGroupName = carGroupInfo.getCarGroupName();
         List<CarInfo> carInfos = carInfoMapper.selectCarInfoList(carInfo1);
         CarListVO carListVO = null;
@@ -301,7 +300,10 @@ public class CarInfoServiceImpl implements ICarInfoService
             String fuelType = selectFuelType(carId);
             //查询level
             EnterpriseCarTypeInfo enterpriseCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(enterpriseCarTypeId);
-            String level = enterpriseCarTypeInfo.getLevel();
+            String level = null;
+            if(enterpriseCarTypeInfo != null){
+                level = enterpriseCarTypeInfo.getLevel();
+            }
             //查詢车辆可选驾驶员
             List<DriverVO> list2 = selectCarEffectiveDrivers(carId);
             carListVO = CarListVO.builder().carType(carInfo.getCarType())
@@ -331,9 +333,9 @@ public class CarInfoServiceImpl implements ICarInfoService
     @Override
     public CarDetailVO selectCarDetail(Long carId) {
         CarInfo carInfo = carInfoMapper.selectCarInfoById(carId);
-        Long ownerOrgId = carInfo.getOwnerOrgId();
+        Long deptId = carInfo.getDeptId();
         //查询所属公司  TODO
-        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ownerOrgId);
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
         String deptName = ecmpOrg.getDeptName();
         //根据车辆id 查询可用驾驶员
         List<DriverVO> drivers = selectCarEffectiveDrivers(carId);
@@ -409,7 +411,10 @@ public class CarInfoServiceImpl implements ICarInfoService
         CarRefuelInfo carRefuelInfo = new CarRefuelInfo();
         carRefuelInfo.setCarId(carId);
         List<CarRefuelInfo> carRefuelInfos = carRefuelInfoMapper.selectCarRefuelInfoList(carRefuelInfo);
-        String fuelType = carRefuelInfos.get(0).getFuelType();
+        String fuelType = null;
+        if (CollectionUtils.isNotEmpty(carRefuelInfos)) {
+            fuelType = carRefuelInfos.get(0).getFuelType();
+        }
         return fuelType;
     }
 

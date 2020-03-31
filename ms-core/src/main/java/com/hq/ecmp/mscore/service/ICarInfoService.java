@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.dto.CarSaveDTO;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.CarDetailVO;
 import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
@@ -86,12 +87,10 @@ public interface ICarInfoService
 
     /**
      * 分页查询车队的车辆列表信息
-     * @param pageNum
-     * @param pageSize
-     * @param carGroupId
+     *
      * @return
      */
-    PageResult<CarListVO> selectCarListByGroup(Integer pageNum, Integer pageSize, Long carGroupId);
+    PageResult<CarListVO> selectCarListByGroup(PageRequest pageRequest);
 
     /**
      * 查询车辆详情
