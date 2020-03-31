@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.controller.base;
 
+import com.alibaba.fastjson.JSON;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
 import com.hq.ecmp.mscore.dto.AddFolwDTO;
@@ -10,9 +11,12 @@ import com.hq.ecmp.mscore.mapper.ProjectInfoMapper;
 import com.hq.ecmp.mscore.mapper.ProjectUserRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IApproveTemplateInfoService;
 import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
+import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
+import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,7 +29,7 @@ import java.util.List;
  * @Date: 2020/2/25 10:25
  */
 
-//@SpringBootTest
+@SpringBootTest
 class OrgControllerTest {
 
     @Autowired
@@ -38,6 +42,10 @@ class OrgControllerTest {
     private ProjectUserRelationInfoMapper projectUserRelationInfoMapper;
     @Autowired
     private EcmpUserMapper userMapper;
+    @Autowired
+    private IProjectInfoService iProjectInfoService;
+    @Autowired
+    private IEcmpOrgService orgService;
 
     @Test
     void getUserOwnCompanyDept() {
@@ -86,6 +94,34 @@ class OrgControllerTest {
         }
     }
 
+    @Test
+    public void getListByUserId(){
+        try {
+            List<ProjectInfo> listByUserId = iProjectInfoService.getListByUserId(101l, null);
+            System.out.println(listByUserId.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void deptTree(){
+        try {
+            List<OrgTreeVo> orgTreeVos = orgService.selectDeptTree(null, null);
+            System.out.println(JSON.toJSONString(orgTreeVos));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    public void deptUserTree(){
+        try {
+            List<OrgTreeVo> orgTreeVos = orgService.selectDeptUserTree(null, null);
+            System.out.println(orgTreeVos.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
     @Test

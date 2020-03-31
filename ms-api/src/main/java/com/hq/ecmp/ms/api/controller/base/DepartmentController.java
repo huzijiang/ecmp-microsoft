@@ -33,19 +33,17 @@ public class DepartmentController {
     @ApiOperation(value = "显示部门组织结构",notes = "显示部门组织结构",httpMethod ="POST")
     @PostMapping("/selectDeptTree")
     public ApiResponse<List<OrgTreeVo>> selectDeptTree(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptName",required = false)String deptName){
-
         List<OrgTreeVo> deptList = orgService.selectDeptTree(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptName);
         return ApiResponse.success(deptList);
     }
 
     /**
-     * 部门树
+     * 员工树
      * @param  deptId
      * @return*/
-    @ApiOperation(value = "显示部门组织结构",notes = "显示部门组织结构",httpMethod ="POST")
+    @ApiOperation(value = "显示部门及员工树",notes = "显示部门及员工树",httpMethod ="POST")
     @PostMapping("/selectDeptUserTree")
     public ApiResponse<List<OrgTreeVo>> selectDeptUserTree(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptName",required = false)String deptName){
-
         List<OrgTreeVo> deptList = orgService.selectDeptUserTree(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptName);
         return ApiResponse.success(deptList);
     }

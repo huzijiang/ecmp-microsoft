@@ -10,6 +10,8 @@ import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.OrgTreeVo;
+import com.hq.ecmp.mscore.vo.UserTreeVo;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,7 +114,18 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      */
     @Override
     public List<OrgTreeVo> selectDeptUserTree(Long deptId, String deptName) {
-        return null;
+        List<OrgTreeVo> orgTreeVos = ecmpOrgMapper.selectDeptTree(deptId, deptName);
+        if (CollectionUtils.isNotEmpty(orgTreeVos)){
+            for (OrgTreeVo orgTreeVo:orgTreeVos){
+                List<UserTreeVo> userList = this.getUserList(orgTreeVo.getDeptId());
+                orgTreeVo.setUsers(userList);
+            }
+        }
+        return orgTreeVos;
+    }
+
+    private List<UserTreeVo> getUserList(Long deptId){
+        return ecmpUserMapper.selectListByDeptId(deptId);
     }
 
     /**

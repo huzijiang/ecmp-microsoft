@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@ApiModel("员工管理vo(传入后端)")
+@ApiModel("员工数模型")
 public class UserTreeVo {
 
     @ApiModelProperty(value = "部门ID")
@@ -20,8 +20,6 @@ public class UserTreeVo {
     private String userName;
     @ApiModelProperty(value =  "用户昵称")
     private String nickName;
-    @ApiModelProperty(value = "用户类型 0=0系统用户")
-    private String userType;
     @ApiModelProperty(value =  "手机号码")
     private String phonenumber;
     @ApiModelProperty(value =  "用户性别 0=男,1=女,2=未知")
