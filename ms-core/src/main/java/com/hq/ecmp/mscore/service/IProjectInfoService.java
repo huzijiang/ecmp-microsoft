@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.dto.ProjectUserDTO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.ProjectInfoVO;
 import com.hq.ecmp.mscore.vo.ProjectUserVO;
 
@@ -65,7 +66,7 @@ public interface IProjectInfoService
     public int deleteProjectInfoById(Long projectId);
     public List<ProjectInfo> getListByUserId(Long userId,String projectName);
 
-    PageInfo<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, String search,Long fatherProjectId);
+    PageResult<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, String search, Long fatherProjectId);
 
     ProjectInfoVO getProjectInfo(Long projectId);
 

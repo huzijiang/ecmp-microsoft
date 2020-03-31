@@ -5,6 +5,7 @@ import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import com.hq.ecmp.mscore.vo.OrgTreeVo;
 
 import java.util.List;
 
@@ -174,4 +175,20 @@ public interface IEcmpOrgService
      * @return
      */
     public EcmpOrgDto selectCurrentDeptInformation(Long deptId);
+
+    /**
+     * 部门树
+     * @param deptId
+     * @param deptName
+     * @return
+     */
+    List<OrgTreeVo> selectDeptTree(Long deptId,String deptName);
+
+    /**
+     * 员工树
+     * @param deptId
+     * @param deptName
+     * @return
+     */
+    List<OrgTreeVo> selectDeptUserTree(Long deptId, String deptName);
 }
