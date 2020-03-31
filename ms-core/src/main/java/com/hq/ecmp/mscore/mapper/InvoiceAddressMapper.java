@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.InvoiceAddress;
+import com.hq.ecmp.mscore.dto.InvoiceAddUpdateDTO;
 import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
 import com.hq.ecmp.mscore.vo.InvoiceAddVO;
 import org.springframework.stereotype.Repository;
@@ -43,10 +44,10 @@ public interface InvoiceAddressMapper
     /**
      * 修改【请填写功能名称】
      *
-     * @param invoiceAddressDTO 【请填写功能名称】
+     * @param invoiceAddUpdateDTO 【请填写功能名称】
      * @return 结果
      */
-    public int updateInvoiceAddress(InvoiceAddressDTO invoiceAddressDTO);
+    public int updateInvoiceAddress(InvoiceAddUpdateDTO invoiceAddUpdateDTO);
 
     /**
      * 删除【请填写功能名称】

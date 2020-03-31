@@ -8,18 +8,17 @@ import java.util.Date;
 
 @Data
 @ApiModel("发票地址信息")
-public class InvoiceAddressDTO {
-  //  @ApiModelProperty(value = "发票地址Id")
- //   private String addressId;
+public class InvoiceAddUpdateDTO {
+    @ApiModelProperty(value = "发票地址Id")
+    private Long addressId;
     @ApiModelProperty(value = "收货地址")
     private String address;
     @ApiModelProperty(value = "收件人")
     private String accepter;
     @ApiModelProperty(value = "联系电话")
     private String mobile;
-    @ApiModelProperty(value = "创建时间")
-    private Date createTime;
-
+    @ApiModelProperty(value = "更新时间")
+    private Date updateTime;
 
 
 }
