@@ -37,10 +37,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectRegimeInfoVo"/>
         <where>
             <if test="templateId != null "> and template_id = #{templateId}</if>
-            <if test="sceneFlowId != null "> and scene_flow_id = #{sceneFlowId}</if>
+            <if test="approveTemplateId != null "> and approve_template_id = #{approveTemplateId}</if>
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="allowCity != null  and allowCity != ''"> and allow_city = #{allowCity}</if>
-            <if test="allowTime != null  and allowTime != ''"> and allow_time = #{allowTime}</if>
             <if test="setoutAddress != null  and setoutAddress != ''"> and setout_address = #{setoutAddress}</if>
             <if test="arriveAddress != null  and arriveAddress != ''"> and arrive_address = #{arriveAddress}</if>
             <if test="allowDate != null  and allowDate != ''"> and allow_date = #{allowDate}</if>
@@ -372,7 +371,8 @@ SELECT
 	a.travel_use_car_mode_owner_level AS travelUseCarModeOwnerLevel,
 	a.travel_use_car_mode_online_level AS travelUseCarModeOnlineLevel,
 	a.as_use_car_mode_owner_level AS asUseCarModeOwnerLevel,
-	a.as_use_car_mode_online_level AS asUseCarModeOnlineLevel
+	a.as_use_car_mode_online_level AS asUseCarModeOnlineLevel,
+	a.regimen_type as regimenType
 FROM
 	regime_info a
 LEFT JOIN journey_info b ON a.regimen_id = b.regimen_id

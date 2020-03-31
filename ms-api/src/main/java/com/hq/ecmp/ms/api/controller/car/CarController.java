@@ -203,7 +203,7 @@ public class CarController {
      */
     @ApiOperation(value = "carDetail",notes = "车辆详情",httpMethod ="POST")
     @PostMapping("/carDetail")
-    public ApiResponse<CarDetailVO> carDetail(CarDto carDto){
+    public ApiResponse<CarDetailVO> carDetail(@RequestBody CarDto carDto){
         try {
             CarDetailVO carDetailVO =  carInfoService.selectCarDetail(carDto.getCarId());
             return ApiResponse.success(carDetailVO);
@@ -341,8 +341,7 @@ public class CarController {
     @PostMapping("/getCarListByGroup")
     public ApiResponse<PageResult<CarListVO>> getCarListByGroup(@RequestBody PageRequest pageRequest){
         try {
-            PageResult<CarListVO> list = carInfoService.selectCarListByGroup(pageRequest.getPageNum(),
-                    pageRequest.getPageSize(),pageRequest.getCarGroupId());
+            PageResult<CarListVO> list = carInfoService.selectCarListByGroup(pageRequest);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();

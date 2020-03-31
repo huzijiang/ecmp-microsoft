@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +25,28 @@ public class DepartmentController {
 
     @Autowired
     private IEcmpUserService ecmpUserService;
+
+    /**
+     * 部门树
+     * @param  deptId
+     * @return*/
+    @ApiOperation(value = "显示部门组织结构",notes = "显示部门组织结构",httpMethod ="POST")
+    @PostMapping("/selectDeptTree")
+    public ApiResponse<List<OrgTreeVo>> selectDeptTree(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptName",required = false)String deptName){
+        List<OrgTreeVo> deptList = orgService.selectDeptTree(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptName);
+        return ApiResponse.success(deptList);
+    }
+
+    /**
+     * 员工树
+     * @param  deptId
+     * @return*/
+    @ApiOperation(value = "显示部门及员工树",notes = "显示部门及员工树",httpMethod ="POST")
+    @PostMapping("/selectDeptUserTree")
+    public ApiResponse<List<OrgTreeVo>> selectDeptUserTree(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptName",required = false)String deptName){
+        List<OrgTreeVo> deptList = orgService.selectDeptUserTree(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptName);
+        return ApiResponse.success(deptList);
+    }
 
     /**
      * 查询部门组织结构

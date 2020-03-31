@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
+import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -209,4 +210,10 @@ public interface EcmpOrgMapper {
      */
     public EcmpOrgDto selectCurrentDeptInformation(Long deptId);
 
+    /**
+     * 部门树
+     * @param deptId
+     * @return
+     */
+    List<OrgTreeVo> selectDeptTree(@Param("deptId") Long deptId,@Param("deptName") String deptName);
 }

@@ -14,11 +14,13 @@ public class ProjectInfoVO
 
     private String name;
     //项目主管
+    private String leader;
     private String leaderName;
     private String leaderPhone;
     private String projectCode;
 
     private String fatherProjectId;
+    private String fatherProjectName;
 
     private String startDate;
 

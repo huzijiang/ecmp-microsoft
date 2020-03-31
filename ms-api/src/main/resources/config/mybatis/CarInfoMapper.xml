@@ -8,7 +8,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carId"    column="car_id"    />
         <result property="carGroupId"    column="car_group_id"    />
         <result property="deptId"    column="dept_id"    />
-        <result property="carTypeId"    column="car_type_id"    />
+        <result property="enterpriseCarTypeId"    column="car_type_id"    />
         <result property="carLicense"    column="car_license"    />
         <result property="state"    column="state"    />
         <result property="carType"    column="car_type"    />
@@ -22,6 +22,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="enginePower"    column="engine_power"    />
         <result property="carNumber"    column="car_number"    />
         <result property="carImgaeUrl"    column="car_imgae_url"    />
+        <result property="source"    column="source"    />
+        <result property="price"    column="price"    />
+        <result property="licensePrice"    column="license_price"    />
+        <result property="lockState"    column="lock_state"    />
         <result property="carDrivingLicenseImagesUrl"    column="car_driving_license_images_url"    />
         <result property="carLicenseImageUrl"    column="car_license_image_url"    />
         <result property="buyDate"    column="buy_date"    />
@@ -34,7 +38,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="selectCarInfoVo">
 
-        select car_id, car_group_id, dept_id, car_type_id, car_license, state, car_type, seat_num, car_color, car_license_color, power_type, car_type, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, create_by, create_time, update_by, update_time from car_info
+        select car_id, car_group_id, dept_id, car_type_id, car_license,lock_state, state,license_price, car_type, seat_num,price, car_color, car_license_color,source, power_type, car_type, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, create_by, create_time, update_by, update_time from car_info
 
     </sql>
 
@@ -237,17 +241,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <!-- 查询车队的所有车辆信息，自动剔除不能用的-->
-    <select id="dispatcherSelectCarGroupOwnedCarInfoList" resultType="com.hq.ecmp.mscore.bo.WaitSelectedCarBo" parameterType="com.hq.ecmp.mscore.bo.SelectCarConditionBo">
+    <select id="dispatcherSelectCarGroupOwnedCarInfoList" resultMap="CarInfoResult" parameterType="com.hq.ecmp.mscore.bo.SelectCarConditionBo">
         select
-            cg.car_group_id as  group_id,
-            cg.car_group_name as group_name,
-            car.car_id,
-            car.car_license,
-            car.seat_num,
-            car.state,
-            car.lock_state,
-            ect.level,
-            ect.name
+           car.*
         from car_group_info cg
         LEFT JOIN car_info  car on  car.car_group_id=cg.car_group_id
         LEFT JOIN enterprise_car_type_info ect  on  ect.car_type_id=car.car_type_id
@@ -263,24 +259,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <!-- 查询可用的车辆信息,使用车牌号，-->
-    <select id="dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense" resultType="com.hq.ecmp.mscore.bo.WaitSelectedCarBo" parameterType="com.hq.ecmp.mscore.bo.SelectCarConditionBo">
+    <select id="dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense" resultMap="CarInfoResult" parameterType="com.hq.ecmp.mscore.bo.SelectCarConditionBo">
         select
-            cg.car_group_id as  group_id,
-            cg.car_group_name as group_name,
-            car.car_id,
-            car.car_license,
-            car.seat_num,
-            car.state,
-            car.lock_state,
-            ect.level,
-            ect.name
+            car.*
         from car_group_info cg
         LEFT JOIN car_info  car on  car.car_group_id=cg.car_group_id
         LEFT JOIN enterprise_car_type_info ect  on  ect.car_type_id=car.car_type_id
         <where>
             1=1
             and  cg.state='Y000'
+            <if test="carLicense != null  and carLicense != '' ">     AND  car.car_license LIKE CONCAT('%',#{carLicense},'%') </if>
             <if test="carGroupId != null  and carGroupId != '' ">    and cg.car_group_id=#{carGroupId}</if>
+            <if test="passengers != null  and passengers != ''">    and car.seat_num>#{passengers}</if>
+            <if test="carLevel != null  and carLevel != '' ">    AND  ect.`level`=#{carLevel}</if>
         </where>
     </select>
 

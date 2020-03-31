@@ -13,6 +13,7 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.mscore.bo.CityInfo;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
 import com.hq.ecmp.mscore.mapper.*;
@@ -54,6 +55,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private ChinaCityMapper chinaCityMapper;
 
 
     /**
@@ -213,6 +216,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     public CarGroupDetailVO getCarGroupDetail(Long carGroupId) {
         //1.查询车队信息
         CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+        //根据cityCode查询城市名字
+        CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(carGroupInfo.getCity());
         CarGroupDetailVO carGroupDetailVO = CarGroupDetailVO.builder()
                 //车队编号
                 .carGroupCode(carGroupInfo.getCarGroupCode())
@@ -221,7 +226,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //所属组织
                 .ownerOrg(carGroupInfo.getOwnerOrg())
                 //所属城市
-                .cityName(carGroupInfo.getCityName())
+                .cityName(cityInfo.getCityName())
                 //详细地址
                 .fullAddress(carGroupInfo.getFullAddress())
                 //短地址
@@ -400,9 +405,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @return
      */
     @Override
-    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search) {
+    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state) {
         PageHelper.startPage(pageNum,pageSize);
-        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search);
+        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search,state);
         getCarGroupExtraInfo(list);
         PageInfo<CarGroupListVO> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);

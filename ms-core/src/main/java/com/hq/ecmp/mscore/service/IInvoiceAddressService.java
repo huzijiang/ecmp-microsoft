@@ -1,4 +1,5 @@
 package com.hq.ecmp.mscore.service;
+import com.hq.ecmp.mscore.dto.InvoiceAddUpdateDTO;
 import com.hq.ecmp.mscore.vo.InvoiceAddVO;
 import com.hq.ecmp.mscore.domain.InvoiceAddress;
 import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
@@ -41,10 +42,10 @@ public interface IInvoiceAddressService
     /**
      * 修改【请填写功能名称】
      *
-     * @param invoiceAddressDTO 【请填写功能名称】
+     * @param invoiceAddUpdateDTO 【请填写功能名称】
      * @return 结果
      */
-    public int updateInvoiceAddress(InvoiceAddressDTO invoiceAddressDTO);
+    public int updateInvoiceAddress(InvoiceAddUpdateDTO invoiceAddUpdateDTO);
 
     /**
      * 批量删除【请填写功能名称】

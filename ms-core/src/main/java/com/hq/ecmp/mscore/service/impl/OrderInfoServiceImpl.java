@@ -10,6 +10,8 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.*;
+import com.hq.ecmp.mscore.bo.CityInfo;
+import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
@@ -110,6 +112,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private IsmsBusiness ismsBusiness;
     @Resource
     private  EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
+    @Autowired
+    private ChinaCityMapper chinaCityMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -530,7 +534,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         String serviceType = orderInfo.getServiceType();
         if(serviceType == null || !OrderServiceType.getNetServiceType().contains(serviceType)){
-            throw new Exception("调用网约车参数异常");
+            throw new Exception("调用网约车参数异常-》服务类型异常！");
         }
 
         OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
@@ -543,19 +547,19 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState())){
                     String icaoCode = orderAddressInfo1.getIcaoCode();
                     if(icaoCode == null || "".equals(icaoCode)){
-                        throw new Exception("调用网约车参数异常");
+                        throw new Exception("调用网约车参数异常-》接机类型，三字码数据不能为空！");
                     }
                 }
                 Date timeSt = orderAddressInfo1.getActionTime();
                 if(timeSt == null || orderAddressInfo1.getCityPostalCode() ==null
                         || orderAddressInfo1.getLongitude() == null || orderAddressInfo1.getLatitude() == null
                         || orderAddressInfo1.getAddress() ==null){
-                    throw new Exception("调用网约车参数异常");
+                    throw new Exception("调用网约车参数异常-》起点地址相关信息异常！");
                 }
             }else if(orderAddressInfo1.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE)){//到达地址
                 if(orderAddressInfo1.getLongitude() == null || orderAddressInfo1.getLatitude() == null
                         || orderAddressInfo1.getAddress() ==null){
-                    throw new Exception("调用网约车参数异常");
+                    throw new Exception("调用网约车参数异常-》终点地址相关信息异常！");
                 }
             }
         }
@@ -563,7 +567,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(userIdOrder);
         if(ecmpUser == null || ecmpUser.getUserName() == null || "".equals(ecmpUser.getUserName())
         || ecmpUser.getPhonenumber() == null||"".equals(ecmpUser.getPhonenumber())){
-            throw new Exception("调用网约车参数异常");
+            throw new Exception("调用网约车参数异常-》乘车人姓名或电话信息异常！");
         }
 
         ApplyInfo applyInfo = new ApplyInfo();
@@ -576,7 +580,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             if(carLevel == null || carLevel.equals("")){
                 String groups = regimeInfoService.queryCarModeLevel(orderId, null);
                 if("".equals(groups)){
-                    throw new Exception("调用网约车参数异常");
+                    throw new Exception("调用网约车参数异常-》差旅用车，获取车型失败！");
                 }else{
                     List<CarLevelAndPriceReVo> carlevelAndPriceByOrderId = regimeInfoService.getCarlevelAndPriceByOrderId(orderId, null);
                     OrderInfo orderInfo1 = orderInfoMapper.selectOrderInfoById(orderId);
@@ -610,13 +614,21 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     }
                 }
             }
+        }else if(applyType.equals(CarConstant.USE_CAR_TYPE_OFFICIAL)){ //如果是公务用车，没传车型（不是取消后选车型的情况），校验车型价格表是否有数据
+            if(carLevel == null || carLevel.equals("")){
+                String groups = regimeInfoService.queryCarModeLevel(orderId, null);
+                if("".equals(groups) || groups == null){
+                    throw new Exception("调用网约车参数异常-》公务用车，获取车型失败！");
+                }
+            }
         }
+        //校验车型价格表是否有数据
         JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
         journeyPlanPriceInfo.setJourneyId(orderInfo.getJourneyId());
         journeyPlanPriceInfo.setNodeId(orderInfo.getNodeId());
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos = iJourneyPlanPriceInfoService.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
         if(journeyPlanPriceInfos == null || journeyPlanPriceInfos.size()==0){
-            throw new Exception("调用网约车参数异常");
+            throw new Exception("调用网约车参数异常-》车型价格表无可用数据，预估价获取失败！");
         }
          ((IOrderInfoService)AopContext.currentProxy()).platCallTaxi(orderId,enterpriseId,licenseContent,apiUrl,userId,carLevel);
     }
@@ -1327,6 +1339,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		}
 		return applyDispatchVoList;
 	}
+	
 
 	@Override
 	public Integer queryApplyDispatchListCount(ApplyDispatchQuery query) {
@@ -1751,5 +1764,110 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
     }
+
+	@Override
+	public DispatchSendCarPageInfo getDispatchSendCarPageInfo(Long orderId) {
+		DispatchSendCarPageInfo dispatchSendCarPageInfo = new DispatchSendCarPageInfo();
+		OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+		if(null !=orderInfo){
+			JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+			if(null !=journeyInfo){
+				dispatchSendCarPageInfo.setServiceType(journeyInfo.getServiceType());
+				dispatchSendCarPageInfo.setUseCarMode(journeyInfo.getUseCarMode());
+				dispatchSendCarPageInfo.setItIsReturn(journeyInfo.getItIsReturn());
+				Long applyUserId = journeyInfo.getUserId();
+				if(null !=applyUserId){
+					//申请人手机名字
+					 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(applyUserId);
+					 dispatchSendCarPageInfo.setApplyUserMobile(ecmpUser.getPhonenumber());
+					 dispatchSendCarPageInfo.setApplyUserName(ecmpUser.getNickName());
+				}
+			//查询乘车人和同行人
+				String peerPeople = journeyPassengerInfoService.getPeerPeople(journeyInfo.getJourneyId());
+				dispatchSendCarPageInfo.setUseCarUser(peerPeople);
+				List<String> peerUserList = journeyPassengerInfoService.queryPeerUserNameList(journeyInfo.getJourneyId());
+				dispatchSendCarPageInfo.setPeerUserList(peerUserList);
+			}
+			//查询上下车地点 时间
+			DispatchOrderInfo dispatchOrderInfo = new DispatchOrderInfo();
+			dispatchOrderInfo.setOrderId(orderId);
+			buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+			dispatchSendCarPageInfo.setSetOutAderess(dispatchOrderInfo.getStartSite());
+			dispatchSendCarPageInfo.setStartDate(dispatchOrderInfo.getUseCarDate());
+			dispatchSendCarPageInfo.setArriveAdress(dispatchOrderInfo.getEndSite());
+			dispatchSendCarPageInfo.setEndDate(dispatchOrderInfo.getEndDate());
+			//查询用车城市
+			OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+			orderAddressInfo.setOrderId(orderId);
+			List<OrderAddressInfo> selectOrderAddressInfoList = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfo);
+			if(null !=selectOrderAddressInfoList && selectOrderAddressInfoList.size()>0){
+				String cityPostalCode = selectOrderAddressInfoList.get(0).getCityPostalCode();
+				if(StringUtil.isNotEmpty(cityPostalCode)){
+					CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(cityPostalCode);
+					if(null !=cityInfo){
+						dispatchSendCarPageInfo.setCityName(cityInfo.getCityName());
+					}
+				}
+			}
+			
+		}
+		return dispatchSendCarPageInfo;
+	}
+
+	@Override
+	public DispatchSendCarPageInfo getUserDispatchedOrder(Long orderId) {
+		DispatchSendCarPageInfo dispatchSendCarPageInfo = getDispatchSendCarPageInfo(orderId);
+		if(iOrderStateTraceInfoService.isReassignment(orderId)){
+			//是改派过的单子  则查询原有调度信息
+			DispatchOptRecord oldDispatchOptRecord =new DispatchOptRecord();
+			oldDispatchOptRecord.setUseCarModel(CarConstant.USR_CARD_MODE_HAVE);
+			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryReassignmentOrderInfo(orderId);
+			if(null !=dispatchDriverInfo){
+				oldDispatchOptRecord.setCarLicense(dispatchDriverInfo.getCarLicense());
+				oldDispatchOptRecord.setCarType(dispatchDriverInfo.getCarType());
+				oldDispatchOptRecord.setDriverMobile(dispatchDriverInfo.getDriverTel());
+				oldDispatchOptRecord.setDriverName(dispatchDriverInfo.getDriverName());
+			}
+			//查询上次调度的时候调度员信息和时间
+			OrderStateTraceInfo orderStateTraceInfo = iOrderStateTraceInfoService.queryFirstDispatchIndo(orderId);
+			if(null !=orderStateTraceInfo){
+				oldDispatchOptRecord.setDispatchDate(orderStateTraceInfo.getCreateTime());
+				EcmpUser user = ecmpUserMapper.selectEcmpUserById(Long.valueOf(orderStateTraceInfo.getCreateBy()));
+				if(null !=user){
+					oldDispatchOptRecord.setDispatchMobile(user.getPhonenumber());
+					oldDispatchOptRecord.setDispatchName(user.getNickName());
+				}
+			}
+			dispatchSendCarPageInfo.setOldDispatchOptRecord(oldDispatchOptRecord);
+		}
+		//查询当前调度的信息
+		DispatchOptRecord currentDispatchOptRecord =new DispatchOptRecord();
+		OrderStateTraceInfo currentOrderStateTraceInfo = iOrderStateTraceInfoService.queryRecentlyDispatchInfo(orderId);
+		if(null !=currentOrderStateTraceInfo){
+			currentDispatchOptRecord.setDispatchDate(currentOrderStateTraceInfo.getCreateTime());
+			//调度员信息
+			EcmpUser currentUser = ecmpUserMapper.selectEcmpUserById(Long.valueOf(currentOrderStateTraceInfo.getCreateBy()));
+			if(null !=currentUser){
+				currentDispatchOptRecord.setDispatchMobile(currentUser.getPhonenumber());
+				currentDispatchOptRecord.setDispatchName(currentUser.getNickName());
+			}
+			if(OrderStateTrace.TURNREASSIGNMENT.equals(currentOrderStateTraceInfo.getState())){
+				//审核驳回
+				currentDispatchOptRecord.setRejectReason(currentOrderStateTraceInfo.getContent());
+			}else{
+				//派车或者改派通过
+				OrderInfo currentOrder = orderInfoMapper.selectOrderInfoById(orderId);
+				if(null !=currentOrder){
+					currentDispatchOptRecord.setUseCarModel(currentOrder.getUseCarMode());
+					currentDispatchOptRecord.setDriverMobile(currentOrder.getDriverMobile());
+					currentDispatchOptRecord.setDriverName(currentOrder.getDriverName());
+					currentDispatchOptRecord.setCarType(currentOrder.getCarModel());
+					currentDispatchOptRecord.setCarLicense(currentOrder.getCarLicense());
+				}
+			}
+		}
+		dispatchSendCarPageInfo.setCurrentDispatchOptRecord(currentDispatchOptRecord);
+		return dispatchSendCarPageInfo;
+	}
 
 }

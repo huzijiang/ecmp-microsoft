@@ -79,4 +79,6 @@ public interface ProjectInfoMapper
     List<ProjectInfo> checkProject(String date);
 
     UserVO findLeader(Long projectId);
+
+    Long getProjectListCount(String search, Long fatherProjectId);
 }

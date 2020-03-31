@@ -24,7 +24,7 @@ public class ProjectInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long leader;
+    private String leader;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -63,12 +63,12 @@ public class ProjectInfo extends BaseEntity
     {
         return name;
     }
-    public void setLeader(Long leader)
+    public void setLeader(String leader)
     {
         this.leader = leader;
     }
 
-    public Long getLeader()
+    public String getLeader()
     {
         return leader;
     }
@@ -133,6 +133,10 @@ public class ProjectInfo extends BaseEntity
 
     public ProjectInfo(Long projectId, Integer isEffective) {
         this.projectId = projectId;
+        this.isEffective = isEffective;
+    }
+
+    public ProjectInfo(Integer isEffective) {
         this.isEffective = isEffective;
     }
 

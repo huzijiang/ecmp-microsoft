@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
+import com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO;
 import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
+import com.hq.ecmp.mscore.vo.InvoiceRecordVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -25,10 +27,10 @@ public interface IInvoiceInfoService
     /**
      * 查询【请填写功能名称】列表
      *
-     * @param invoiceInfo 【请填写功能名称】
+     * @param  【请填写功能名称】
      * @return 【请填写功能名称】集合
      */
-    public List<InvoiceInfo> selectInvoiceInfoList(InvoiceInfo invoiceInfo);
+    public List<InvoiceRecordVO> selectInvoiceInfoList();
 
     /**
      * 新增【请填写功能名称】
@@ -65,7 +67,9 @@ public interface IInvoiceInfoService
     /**
      * 根据时间区间、开票状态查询发票信息
      */
-    public List<InvoiceInfo> selectInvoiceInfoByTimeAndState(String startTime, String endTime, String state);
+   // public List<InvoiceInfo> selectInvoiceInfoByTimeAndState(String startTime, String endTime, String state);
+
+    public List<InvoiceRecordVO> queryAllByTimeState(InvoiceByTimeStateDTO invoiceByTimeStateDTO);
     /**
      * 新增发票抬头
      */

@@ -98,24 +98,37 @@
     <!--查询用户的邮箱列表-->
     <select id="queryEmailByUserId"  resultType="com.hq.ecmp.mscore.vo.EmailVO">
         select
-          id as Id, user_id as userId, email as email, state as state
+          id as Id, email as email
         from user_accept_order_account_email_info where user_id = #{userId}
     </select>
     <!--用户邮箱新增-->
     <insert id="insertEmail"  parameterType="com.hq.ecmp.mscore.dto.EmailDTO">
-        insert into ecmp.user_accept_order_account_email_info(user_id, email, state)
-        values (#{userId}, #{email}, #{state})
+        insert into user_accept_order_account_email_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="email != null  and email != ''">email,</if>
+            <if test="state != null  and state != ''">state,</if>
+            <if test="userId != null  and userId != ''">user_id,</if>
+            <if test="createTime != null ">create_time,</if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="email != null  and email != ''">#{email},</if>
+            <if test="state != null  and state != ''">#{state},</if>
+            <if test="userId != null  and userId != ''">#{userId},</if>
+            <if test="createTime != null ">#{createTime},</if>
+
+        </trim>
+
     </insert>
+
     <!--用户邮箱修改-->
     <update id="updateEmail" parameterType="com.hq.ecmp.mscore.dto.EmailDTO">
-        update ecmp.user_accept_order_account_email_info
+        update user_accept_order_account_email_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="email != null and email != ''">
-                email = #{email},
-            </if>
-            <if test="state != null ">
-                state = #{state},
-            </if>
+            <if test="email != null and email != ''">email = #{email},</if>
+            <if test="userId != null ">user_id = #{userId},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+
         </trim>
         where id = #{Id}
     </update>

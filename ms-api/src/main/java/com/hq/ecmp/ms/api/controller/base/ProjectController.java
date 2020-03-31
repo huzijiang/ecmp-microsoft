@@ -5,6 +5,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.ms.api.dto.base.ProjectDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpUser;
@@ -14,6 +15,7 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.service.IProjectUserRelationInfoService;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.ProjectInfoVO;
 import com.hq.ecmp.mscore.vo.ProjectUserVO;
 import io.swagger.annotations.ApiOperation;
@@ -49,19 +51,13 @@ public class ProjectController {
     private IProjectUserRelationInfoService iProjectUserRelationInfoService;
 
     /**
-     * 查询用户 所在（子）公司的项目信息
-     * @param userDto  审批人信息
+     * 项目下拉选
      * @return
      */
-    @ApiOperation(value = "getProjectsByUser",notes = "查询用户 所在（子）公司的项目信息 ",httpMethod ="POST")
-    @PostMapping("/getProjectsByUser")
-    public ApiResponse<List<ProjectInfo>> getProjectsByUser(UserDto userDto){
-        //根据用户Id查询用户和项目关联关系对象
-        ProjectUserRelationInfo projectUserRelationInfo = iProjectUserRelationInfoService.selectProjectUserRelationInfoById(userDto.getUserId());
-        //根据项目id查询项目对象
-        ProjectInfo projectInfo = iProjectInfoService.selectProjectInfoById(projectUserRelationInfo.getProjectId());
-        //根据项目对象查询项目信息列表
-        List<ProjectInfo> projectInfoList = iProjectInfoService.selectProjectInfoList(projectInfo);
+    @ApiOperation(value = "selectProjectsList",notes = "项目下拉选 ",httpMethod ="POST")
+    @PostMapping("/selectProjectsList")
+    public ApiResponse<List<ProjectInfo>> selectProjectsList(){
+        List<ProjectInfo> projectInfoList = iProjectInfoService.selectProjectInfoList(new ProjectInfo(CommonConstant.ONE));
         if (CollectionUtils.isNotEmpty(projectInfoList)){
             return ApiResponse.success(projectInfoList);
         }else {
@@ -116,8 +112,8 @@ public class ProjectController {
      */
     @ApiOperation(value = "getProjectList",notes = "获取项目列表",httpMethod ="POST")
     @PostMapping("/getProjectList")
-    public ApiResponse<PageInfo<ProjectInfoVO>> getProjectList(@RequestBody PageRequest page){
-        PageInfo<ProjectInfoVO> pageInfo= iProjectInfoService.getProjectList(page.getPageNum(),page.getPageSize(),page.getSearch(),page.getFatherProjectId());
+    public ApiResponse<PageResult<ProjectInfoVO>> getProjectList(@RequestBody PageRequest page){
+        PageResult<ProjectInfoVO> pageInfo= iProjectInfoService.getProjectList(page.getPageNum(),page.getPageSize(),page.getSearch(),page.getFatherProjectId());
         return ApiResponse.success(pageInfo);
     }
 

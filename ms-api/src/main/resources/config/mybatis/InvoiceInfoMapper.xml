@@ -28,24 +28,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select invoice_id, amount, header, tin, bank_name, bank_card_no, registed_address, telephone, accept_address, applyer, content, type, status, create_by, create_time, update_by, update_time from invoice_info
     </sql>
 
-    <select id="selectInvoiceInfoList" parameterType="com.hq.ecmp.mscore.domain.InvoiceInfo" resultMap="InvoiceInfoResult">
-        <include refid="selectInvoiceInfoVo"/>
-        <where>
-            <if test="amount != null "> and amount = #{amount}</if>
-            <if test="header != null  and header != ''"> and header = #{header}</if>
-            <if test="tin != null  and tin != ''"> and tin = #{tin}</if>
-            <if test="bankName != null  and bankName != ''"> and bank_name like concat('%', #{bankName}, '%')</if>
-            <if test="bankCardNo != null  and bankCardNo != ''"> and bank_card_no = #{bankCardNo}</if>
-            <if test="registedAddress != null  and registedAddress != ''"> and registed_address = #{registedAddress}</if>
-            <if test="telephone != null  and telephone != ''"> and telephone = #{telephone}</if>
-            <if test="acceptAddress != null  and acceptAddress != ''"> and accept_address = #{acceptAddress}</if>
-            <if test="applyer != null "> and applyer = #{applyer}</if>
-            <if test="content != null  and content != ''"> and content = #{content}</if>
-            <if test="type != null  and type != ''"> and type = #{type}</if>
-            <if test="status != null  and status != ''"> and status = #{status}</if>
-        </where>
-    </select>
-
     <select id="selectInvoiceInfoById" parameterType="Long" resultMap="InvoiceInfoResult">
         <include refid="selectInvoiceInfoVo"/>
         where invoice_id = #{invoiceId}
@@ -126,19 +108,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{invoiceId}
         </foreach>
     </delete>
-    <!--根据时间区间、开票状态查询发票信息-->
-    <select id="queryAllByTimeState" resultType="com.hq.ecmp.mscore.vo.InvoiceRecordVO">
+
+    <select id="queryAll" resultType="com.hq.ecmp.mscore.vo.InvoiceRecordVO">
         select create_time as createTime,header as header,amount as amount,content as content,accept_address as acceptAddress,status as status from invoice_info
+    </select>
+    <!--根据时间区间、开票状态查询发票信息-->
+    <select id="queryAllByTimeState" resultType="com.hq.ecmp.mscore.vo.InvoiceRecordVO"  parameterType="com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO">
+        select create_time as createTime,header as header,amount as amount,
+        CASE content WHEN '01' THEN '客运服务费'
+        else '无发票内容' END as content,
+        accept_address as acceptAddress,
+        CASE status WHEN '11' THEN '未开票'
+        WHEN '00' THEN '已开票'
+        else '无开票状态' END as status
+        from invoice_info
         <where>
-        <if test="startTime != null and startTime != '' ">
-            and create_time <![CDATA[>=]]> #{startTime}
-        </if>
-        <if test="endTime != null and endTime != '' ">
-            and create_time <![CDATA[<=]]> #{endTime}
-        </if>
-        <if test="status != null and status != '' ">
-            and status = #{state}
-        </if>
+            <if test="startTime != null and startTime != '' ">
+                and DATE_FORMAT(create_time, '%Y-%m-%d')   <![CDATA[>=]]> DATE_FORMAT (#{startTime}, '%Y-%m-%d')
+            </if>
+            <if test="endTime != null and endTime != '' ">
+                and DATE_FORMAT(create_time, '%Y-%m-%d')   <![CDATA[<=]]> DATE_FORMAT (#{endTime}, '%Y-%m-%d')
+            </if>
+            <if test="status != null and status != '' ">
+                and status = #{status}
+            </if>
         </where>
     </select>
     <insert id="insertInvoiceHeader" parameterType="com.hq.ecmp.mscore.vo.InvoiceHeaderVO" useGeneratedKeys="true" keyProperty="invoiceId">
