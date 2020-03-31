@@ -129,17 +129,6 @@ public class WaitSelectedDriverBo extends DriverInfo implements Comparable<WaitS
         return this.priority - o.priority;
     }
 
-    /**
-     *
-     * @return
-     *
-     */
-    @Override
-    public String toString() {
-
-        return this.type + "#" + this.priority + "#" + this.beforeTaskEndTime.getTime() + "#" + this.afterTaskBeginTime.getTime();
-    }
-
     public void   embellish(){
 
         if(DriverStateEnum.EFFECTIVE.getCode().equals(this.getState())){
