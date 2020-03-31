@@ -534,7 +534,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         String serviceType = orderInfo.getServiceType();
         if(serviceType == null || !OrderServiceType.getNetServiceType().contains(serviceType)){
-            throw new Exception("调用网约车参数异常");
+            throw new Exception("调用网约车参数异常-》服务类型异常");
         }
 
         OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
@@ -547,19 +547,19 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState())){
                     String icaoCode = orderAddressInfo1.getIcaoCode();
                     if(icaoCode == null || "".equals(icaoCode)){
-                        throw new Exception("调用网约车参数异常");
+                        throw new Exception("调用网约车参数异常-》接机类型，三字码数据不能为空");
                     }
                 }
                 Date timeSt = orderAddressInfo1.getActionTime();
                 if(timeSt == null || orderAddressInfo1.getCityPostalCode() ==null
                         || orderAddressInfo1.getLongitude() == null || orderAddressInfo1.getLatitude() == null
                         || orderAddressInfo1.getAddress() ==null){
-                    throw new Exception("调用网约车参数异常");
+                    throw new Exception("调用网约车参数异常-》起点地址相关信息异常");
                 }
             }else if(orderAddressInfo1.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE)){//到达地址
                 if(orderAddressInfo1.getLongitude() == null || orderAddressInfo1.getLatitude() == null
                         || orderAddressInfo1.getAddress() ==null){
-                    throw new Exception("调用网约车参数异常");
+                    throw new Exception("调用网约车参数异常-》终点地址相关信息异常");
                 }
             }
         }
@@ -567,7 +567,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(userIdOrder);
         if(ecmpUser == null || ecmpUser.getUserName() == null || "".equals(ecmpUser.getUserName())
         || ecmpUser.getPhonenumber() == null||"".equals(ecmpUser.getPhonenumber())){
-            throw new Exception("调用网约车参数异常");
+            throw new Exception("调用网约车参数异常-》乘车人姓名或电话信息异常");
         }
 
         ApplyInfo applyInfo = new ApplyInfo();
@@ -580,7 +580,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             if(carLevel == null || carLevel.equals("")){
                 String groups = regimeInfoService.queryCarModeLevel(orderId, null);
                 if("".equals(groups)){
-                    throw new Exception("调用网约车参数异常");
+                    throw new Exception("调用网约车参数异常-》差旅用车，获取车型失败");
                 }else{
                     List<CarLevelAndPriceReVo> carlevelAndPriceByOrderId = regimeInfoService.getCarlevelAndPriceByOrderId(orderId, null);
                     OrderInfo orderInfo1 = orderInfoMapper.selectOrderInfoById(orderId);
@@ -614,13 +614,21 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     }
                 }
             }
+        }else if(applyType.equals(CarConstant.USE_CAR_TYPE_OFFICIAL)){ //如果是公务用车，没传车型（不是取消后选车型的情况），校验车型价格表是否有数据
+            if(carLevel == null || carLevel.equals("")){
+                String groups = regimeInfoService.queryCarModeLevel(orderId, null);
+                if("".equals(groups) || groups == null){
+                    throw new Exception("调用网约车参数异常-》公务用车，获取车型失败");
+                }
+            }
         }
+        //校验车型价格表是否有数据
         JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
         journeyPlanPriceInfo.setJourneyId(orderInfo.getJourneyId());
         journeyPlanPriceInfo.setNodeId(orderInfo.getNodeId());
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos = iJourneyPlanPriceInfoService.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
         if(journeyPlanPriceInfos == null || journeyPlanPriceInfos.size()==0){
-            throw new Exception("调用网约车参数异常");
+            throw new Exception("调用网约车参数异常-》车型价格表无可用数据，预估价获取失败");
         }
          ((IOrderInfoService)AopContext.currentProxy()).platCallTaxi(orderId,enterpriseId,licenseContent,apiUrl,userId,carLevel);
     }
