@@ -265,5 +265,9 @@ public interface IOrderInfoService {
      * @return
      */
     OrderCostDetailVO getOrderCost(Long orderId);
+    
+    public DispatchSendCarPageInfo  getDispatchSendCarPageInfo(Long orderId);
+    
+    public DispatchSendCarPageInfo getUserDispatchedOrder(Long orderId);
 }
 

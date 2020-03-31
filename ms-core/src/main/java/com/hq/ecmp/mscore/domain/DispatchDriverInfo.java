@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.domain;
 
+import java.util.Date;
+
 import lombok.Data;
 
 /**
@@ -27,5 +29,6 @@ public class DispatchDriverInfo {
 	
 	String rejectReason;//驳回原因
 	
+
 	
 }

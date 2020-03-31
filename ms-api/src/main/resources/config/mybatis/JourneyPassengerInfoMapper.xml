@@ -102,5 +102,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		journey_id = #{journeyId}
 		AND it_is_peer = '00'
 	</select>
+	
+	<select id="queryPeerUserNameList" parameterType="java.lang.Long" resultType="string">
+	SELECT
+		name
+		FROM
+		journey_passenger_info
+		WHERE
+		journey_id = #{journeyId}
+		AND it_is_peer = '00'
+	</select>
 
 </mapper>

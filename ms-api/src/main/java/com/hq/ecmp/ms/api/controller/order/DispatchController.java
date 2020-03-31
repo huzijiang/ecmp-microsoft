@@ -23,6 +23,7 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
+import com.hq.ecmp.mscore.domain.DispatchSendCarPageInfo;
 import com.hq.ecmp.mscore.dto.DispatchInfoDto;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
@@ -66,21 +67,21 @@ public class DispatchController {
 
     @ApiOperation(value = "detail", notes = "获取系统已经完成调派或已过期的订单详细信息(包含申请和改派的) ", httpMethod = "POST")
     @PostMapping("/detail")
-    public ApiResponse<DispatchOrderInfo> detail(@RequestBody String orderId) {
-    	return ApiResponse.success(iOrderInfoService.getCompleteDispatchOrderDetailInfo(Long.valueOf(orderId)));
+    public ApiResponse<DispatchSendCarPageInfo> detail(@RequestBody String orderId) {
+    	return ApiResponse.success(iOrderInfoService.getUserDispatchedOrder(Long.valueOf(orderId)));
     }
 
 
     @ApiOperation(value = "sendDetail", notes = "派车详情页(包含申请和改派的)", httpMethod = "POST")
     @PostMapping("/sendDetail")
-    public ApiResponse<DispatchOrderInfo> sendDetail(@RequestBody Long orderId) {
-    	return ApiResponse.success(iOrderInfoService.getWaitDispatchOrderDetailInfo(orderId));
+    public ApiResponse<DispatchSendCarPageInfo> sendDetail(@RequestBody Long orderId) {
+    	return ApiResponse.success(iOrderInfoService.getDispatchSendCarPageInfo(orderId));
     }
 
 
     @ApiOperation(value = "getReassignmentDispatchList", notes = "获取改派列表 ", httpMethod = "POST")
     @PostMapping("/getReassignmentDispatchList")
-    public ApiResponse<PageResult<ApplyDispatchVo>> getReassignmentDispatchList(ApplyDispatchQuery query){
+    public ApiResponse<PageResult<ApplyDispatchVo>> getReassignmentDispatchList(@RequestBody ApplyDispatchQuery query){
     	List<ApplyDispatchVo> list = iOrderInfoService.queryReassignmentDispatchList(query);
     	Integer totalNum = iOrderInfoService.queryReassignmentDispatchListCount(query);
     	PageResult<ApplyDispatchVo> pageResult = new PageResult<ApplyDispatchVo>(Long.valueOf(totalNum), list);
