@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.vo;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -10,6 +12,8 @@ import java.util.List;
  * @Date: 2020/3/15 23:41
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CarGroupListVO {
 
 
@@ -37,7 +41,7 @@ public class CarGroupListVO {
 
     //8
     @ApiModelProperty(name = "state", value = "车队状态")
-    private Integer state;
+    private String state;
 
     //9
     @ApiModelProperty(name = "carGroupId", value = "车队id")

@@ -160,6 +160,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setLatitude(carGroupDTO.getLatitude());
         //车队座机
         carGroupInfo.setTelephone(carGroupDTO.getTelephone());
+        //所属公司
+        carGroupInfo.setOwnerCompany(carGroupDTO.getOwneCompany());
         int i = insertCarGroupInfo(carGroupInfo);
         if(i != 1){
             throw new Exception();

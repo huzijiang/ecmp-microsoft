@@ -667,9 +667,15 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.1 journey_id 非空
         applyInfo.setJourneyId(journeyId);
         //2.2 project_id
-        applyInfo.setProjectId(Long.valueOf(travelCommitApply.getProjectNumber()));
+        String projectNumber = travelCommitApply.getProjectNumber();
+        if(projectNumber != null) {
+            applyInfo.setProjectId(Long.valueOf(projectNumber));
+        }
         //2.3 regimen_id 非空
-        applyInfo.setRegimenId(Long.valueOf(travelCommitApply.getRegimenId()));  // TODO 判空
+        Integer regimenId = travelCommitApply.getRegimenId();
+        if(regimenId != null) {
+            applyInfo.setRegimenId(Long.valueOf(regimenId));
+        }
         //2.4 apply_type 用车申请类型；A001:  公务用车 A002:  差旅用车
         applyInfo.setApplyType(String.valueOf(travelCommitApply.getApplyType()));
         //2.5 approver_name 第一审批阶段 审批人列表，前两位
@@ -684,7 +690,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         }
         applyInfo.setApproverName(approversName);
         //2.6 cost_center 成本中心 从组织机构表 中获取
-        applyInfo.setCostCenter(Long.valueOf(travelCommitApply.getCostCenter())); //TODO 判空
+        String costCenter = travelCommitApply.getCostCenter();
+        if(costCenter != null) {
+            applyInfo.setCostCenter(Long.valueOf(costCenter));
+        }
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
         applyInfo.setState(ApplyStateConstant.ON_APPLYING); //TODO 枚举
         //2.8 reason 行程原因
@@ -710,9 +719,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      */
     private void journeyInfoTravelCommit(ApplyTravelRequest travelCommitApply, JourneyInfo journeyInfo) {
         //1.1 userId     申请人用户编号     非空
-        journeyInfo.setUserId(Long.valueOf(travelCommitApply.getApplyUser().getUserId())); // TODO 判空
+        journeyInfo.setUserId(Long.valueOf(travelCommitApply.getApplyUser().getUserId()));
         //1.2 用车制度id        非空
-        journeyInfo.setRegimenId(Long.valueOf(travelCommitApply.getRegimenId()));  // TODO 判空
+        Integer regimenId = travelCommitApply.getRegimenId();
+        if(regimenId != null) {
+            journeyInfo.setRegimenId(Long.valueOf(regimenId));
+        }
         //1.3 service_type 预约、接机、送机、包车 1000预约 2001接机 2002送机 3000包车
         journeyInfo.setServiceType(null);
         //1.4 use_car_mode 用车方式（自有、网约车）
@@ -721,13 +733,16 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         Date startDate = travelCommitApply.getTravelRequests().get(0).getStartDate();
         //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
         //String startDateStr = dateFormat.format(startDate);
-        journeyInfo.setUseCarTime(startDate);  //TODO 用车时间
+        journeyInfo.setUseCarTime(startDate);
         //1.6 it_is_return 是否往返 Y000 N444
         journeyInfo.setItIsReturn(travelCommitApply.getIsGoBack());
         //1.7 estimate_price 预估价格     非空
         journeyInfo.setEstimatePrice(null);
         //1.8 project_id  项目编号
-        journeyInfo.setProjectId(Long.valueOf(travelCommitApply.getProjectNumber()));  // TODO 判空
+        String projectNumber = travelCommitApply.getProjectNumber();
+        if(projectNumber != null) {
+            journeyInfo.setProjectId(Long.valueOf(projectNumber));
+        }
         //1.9 flight_number 航班编号
         journeyInfo.setFlightNumber(null);
         //1.10 use_time 行程总时长  多少天
@@ -744,15 +759,15 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUpdateBy(null);
         //1.16 update_time 更新时间
         journeyInfo.setUpdateTime(null);
-        journeyInfo.setStartDate(travelCommitApply.getStartDate());       //TODO 新增 出差开始时间  需要前端提供
-        journeyInfo.setEndDate(travelCommitApply.getEndDate());        //TODO 新增 出差最终结束时间  需要前端提供
+        journeyInfo.setStartDate(travelCommitApply.getStartDate());
+        journeyInfo.setEndDate(travelCommitApply.getEndDate());
         List<TravelPickupCity> travelPickupCityList = travelCommitApply.getTravelPickupCity();
         String travelPickupCityStr  = JSONArray.toJSON(travelPickupCityList).toString();
-        journeyInfo.setTravelPickupCity(travelPickupCityStr);  //TODO 新增 出差需接送机城市数组  需要前端提供
-        journeyInfo.setTravelCitiesStr(travelCommitApply.getTravelCitiesStr());  //TODO 新增 出差需市内用车城市  需要前端提供
-        journeyInfo.setPickupTimes(travelCommitApply.getPickupTimes());    // TODO 新增 出差接送机总次数  需要前端提供
+        journeyInfo.setTravelPickupCity(travelPickupCityStr);
+        journeyInfo.setTravelCitiesStr(travelCommitApply.getTravelCitiesStr());
+        journeyInfo.setPickupTimes(travelCommitApply.getPickupTimes());
         String firstCityName = travelCommitApply.getTravelRequests().get(0).getStartCity().getCityName();
-        journeyInfo.setTitle(firstCityName);  // TODO 新增 出差标题     北京-上海、南京。需要判断
+        journeyInfo.setTitle(firstCityName);  //
         journeyInfoMapper.insertJourneyInfo(journeyInfo);
     }
 
@@ -784,7 +799,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         ApplyOfficialRequest applyOfficialRequest = GsonUtils.jsonToBean(json, type);
         //3.保存行程节点信息 journey_node_info表
         JourneyNodeInfo journeyNodeInfo = null;
-        // TODO 公务是一个行程  如果往返，需要创建两个行程节点还是一个？此处创建一个
+        //  公务是一个行程  如果往返，需要创建两个行程节点还是一个？ 创建两个
         // 遍历途径地
         List<AddressVO> passedAddressList = officialCommitApply.getPassedAddress();
         // 途径地数量为size个

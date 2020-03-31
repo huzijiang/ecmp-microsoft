@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.vo.CarGroupFixedPhoneVO;
 import com.hq.ecmp.mscore.vo.CarGroupListVO;
 import com.hq.ecmp.mscore.vo.CarGroupPhoneVO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -65,7 +66,7 @@ public interface CarGroupInfoMapper
      */
     public int deleteCarGroupInfoByIds(Long[] carGroupIds);
 
-    List<CarGroupListVO> selectAllByPage(String search);
+    List<CarGroupListVO> selectAllByPage(@Param("search") String search);
 
 
     /**
