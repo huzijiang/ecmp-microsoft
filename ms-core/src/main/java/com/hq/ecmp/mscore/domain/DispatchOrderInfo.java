@@ -51,6 +51,8 @@ public class DispatchOrderInfo {
        	
        	Date applyPassDate;//用车申请单通过的时间
        	
+       	List<String> peerUserList;//同行人
+       	
        
        	String carType;//车型
        	String carLicense;//车牌号

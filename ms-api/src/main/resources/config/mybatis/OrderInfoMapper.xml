@@ -640,12 +640,16 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		a.node_id AS nodeId,
 		a.update_time AS optDate,
 		a.state AS state,
-		a.service_type as serviceType
+		a.service_type as serviceType,
+		h.it_is_return as itIsReturn,
+		f.SHORT_NAME as cityName
 		FROM
-		order_state_trace_info d
-		LEFT JOIN order_info a ON a.order_id = d.order_id
+		order_info a
+		LEFT JOIN order_state_trace_info d ON a.order_id = d.order_id
 		LEFT JOIN ecmp_user b ON a.user_id = b.user_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
+		LEFT JOIN journey_info h on a.journey_id=h.journey_id
+		LEFT JOIN china_city f  ON c.city_postal_code =f.CITY_CODE
 		WHERE
 		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S199','S200','S299','S600','S616','S699','S900')
 		<if test="null !=applyMobile and applyMobile !=''">
@@ -667,17 +671,18 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
-		 <if test="offset != null and pageSize != null">
+		<!--  <if test="offset != null and pageSize != null">
 			LIMIT #{offset},#{pageSize}
-		</if> 
+		</if>  -->
 	</select>
 
    <select id="queryApplyDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="java.lang.Integer">
-   SELECT
+   select count(1) from 
+   (SELECT
 		count(1)
 		FROM
-		order_state_trace_info d
-		LEFT JOIN order_info a ON a.order_id = d.order_id
+		order_info a
+		LEFT JOIN order_state_trace_info d  ON a.order_id = d.order_id
 		LEFT JOIN ecmp_user b ON a.user_id = b.user_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
 		WHERE
@@ -701,81 +706,88 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
+		) m
    </select>
 
 	<select id="queryReassignmentDispatchList" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
 		resultType="com.hq.ecmp.mscore.vo.ApplyDispatchVo">
 		SELECT
 		a.order_id AS orderId,
-		b.nick_name AS applyUserName,
-		b.user_name AS applyUserMobile,
+		b.driver_name AS applyUserName,
+		b.mobile AS applyUserMobile,
 		a.journey_id AS journeyId,
 		a.node_id AS nodeId,
 		a.update_time AS optDate,
-		a.state AS state
+		a.state AS state,
+		h.it_is_return as itIsReturn,
+		f.SHORT_NAME as cityName
 		FROM
-		order_state_trace_info d
-		LEFT JOIN order_info a ON a.order_id = d.order_id
+		order_info a
+		LEFT JOIN order_state_trace_info d ON a.order_id = d.order_id
 		LEFT JOIN driver_info b ON a.driver_id = b.driver_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
+		LEFT JOIN journey_info h on a.journey_id=h.journey_id
+		LEFT JOIN china_city f  ON c.city_postal_code =f.CITY_CODE
 		WHERE
 		d.state IN ('S270', 'S277', 'S279') and a.state in
 		('S199','S200','S299','S600','S616','S699','S900')
-		<if test="null !=driverMobile">
+		<if test="null !=driverMobile and driverMobile !=''">
 			and b.mobile LIKE concat('%',#{driverMobile},'%')
 		</if>
-		<if test="null !=driverName">
+		<if test="null !=driverName and driverName !=''">
 			and AND b.driver_name LIKE concat('%',#{driverName},'%')
 		</if>
-		<if test="null !=cityCode">
+		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}
 		</if>
-		<if test="null !=optStartDate">
+		<if test="null !=optStartDate and optStartDate !=''">
 			AND a.update_time &gt;= #{optStartDate}
 		</if>
-		<if test="null !=optEndDate">
+		<if test="null !=optEndDate and optEndDate !=''">
 			AND a.update_time &lt;= #{optEndDate}
 		</if>
-		<if test="null !=useCarMode">
+		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
-		<if test="offset != null and pageSize != null">
+		<!--  <if test="offset != null and pageSize != null">
 			LIMIT #{offset},#{pageSize}
-		</if>
+		</if>  -->
 	</select>
 
 	<select id="queryReassignmentDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
 		resultType="java.lang.Integer">
-		SELECT
+		select count(1) from 
+		(SELECT
 		count(1)
 		FROM
-		order_state_trace_info d
-		LEFT JOIN order_info a ON a.order_id = d.order_id
+		order_info a
+		LEFT JOIN order_state_trace_info d  ON a.order_id = d.order_id
 		LEFT JOIN driver_info b ON a.driver_id = b.driver_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
 		WHERE
 		d.state IN ('S270', 'S277', 'S279') and a.state in
 		('S199','S200','S299','S600','S616','S699','S900')
-		<if test="null !=driverMobile">
+		<if test="null !=driverMobile and driverMobile !=''">
 			and b.mobile LIKE concat('%',#{driverMobile},'%')
 		</if>
-		<if test="null !=driverName">
+		<if test="null !=driverName and driverName !=''">
 			and AND b.driver_name LIKE concat('%',#{driverName},'%')
 		</if>
-		<if test="null !=cityCode">
+		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}
 		</if>
-		<if test="null !=optStartDate">
+		<if test="null !=optStartDate and optStartDate !=''">
 			AND a.update_time &gt;= #{optStartDate}
 		</if>
-		<if test="null !=optEndDate">
+		<if test="null !=optEndDate and optEndDate !=''">
 			AND a.update_time &lt;= #{optEndDate}
 		</if>
-		<if test="null !=useCarMode">
+		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
+		) m
 	</select>
 
     <select id="selectDriverOrder" parameterType="Object" resultType="com.hq.ecmp.mscore.domain.OrderInfo">

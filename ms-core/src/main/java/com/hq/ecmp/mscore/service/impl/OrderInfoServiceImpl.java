@@ -10,6 +10,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.*;
+import com.hq.ecmp.mscore.bo.CityInfo;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
@@ -110,6 +111,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private IsmsBusiness ismsBusiness;
     @Resource
     private  EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
+    @Autowired
+    private ChinaCityMapper chinaCityMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -1327,6 +1330,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		}
 		return applyDispatchVoList;
 	}
+	
 
 	@Override
 	public Integer queryApplyDispatchListCount(ApplyDispatchQuery query) {
@@ -1751,5 +1755,110 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
     }
+
+	@Override
+	public DispatchSendCarPageInfo getDispatchSendCarPageInfo(Long orderId) {
+		DispatchSendCarPageInfo dispatchSendCarPageInfo = new DispatchSendCarPageInfo();
+		OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+		if(null !=orderInfo){
+			JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+			if(null !=journeyInfo){
+				dispatchSendCarPageInfo.setServiceType(journeyInfo.getServiceType());
+				dispatchSendCarPageInfo.setUseCarMode(journeyInfo.getUseCarMode());
+				dispatchSendCarPageInfo.setItIsReturn(journeyInfo.getItIsReturn());
+				Long applyUserId = journeyInfo.getUserId();
+				if(null !=applyUserId){
+					//申请人手机名字
+					 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(applyUserId);
+					 dispatchSendCarPageInfo.setApplyUserMobile(ecmpUser.getPhonenumber());
+					 dispatchSendCarPageInfo.setApplyUserName(ecmpUser.getNickName());
+				}
+			//查询乘车人和同行人
+				String peerPeople = journeyPassengerInfoService.getPeerPeople(journeyInfo.getJourneyId());
+				dispatchSendCarPageInfo.setUseCarUser(peerPeople);
+				List<String> peerUserList = journeyPassengerInfoService.queryPeerUserNameList(journeyInfo.getJourneyId());
+				dispatchSendCarPageInfo.setPeerUserList(peerUserList);
+			}
+			//查询上下车地点 时间
+			DispatchOrderInfo dispatchOrderInfo = new DispatchOrderInfo();
+			dispatchOrderInfo.setOrderId(orderId);
+			buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+			dispatchSendCarPageInfo.setSetOutAderess(dispatchOrderInfo.getStartSite());
+			dispatchSendCarPageInfo.setStartDate(dispatchOrderInfo.getUseCarDate());
+			dispatchSendCarPageInfo.setArriveAdress(dispatchOrderInfo.getEndSite());
+			dispatchSendCarPageInfo.setEndDate(dispatchOrderInfo.getEndDate());
+			//查询用车城市
+			OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+			orderAddressInfo.setOrderId(orderId);
+			List<OrderAddressInfo> selectOrderAddressInfoList = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfo);
+			if(null !=selectOrderAddressInfoList && selectOrderAddressInfoList.size()>0){
+				String cityPostalCode = selectOrderAddressInfoList.get(0).getCityPostalCode();
+				if(StringUtil.isNotEmpty(cityPostalCode)){
+					CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(cityPostalCode);
+					if(null !=cityInfo){
+						dispatchSendCarPageInfo.setCityName(cityInfo.getCityName());
+					}
+				}
+			}
+			
+		}
+		return dispatchSendCarPageInfo;
+	}
+
+	@Override
+	public DispatchSendCarPageInfo getUserDispatchedOrder(Long orderId) {
+		DispatchSendCarPageInfo dispatchSendCarPageInfo = getDispatchSendCarPageInfo(orderId);
+		if(iOrderStateTraceInfoService.isReassignment(orderId)){
+			//是改派过的单子  则查询原有调度信息
+			DispatchOptRecord oldDispatchOptRecord =new DispatchOptRecord();
+			oldDispatchOptRecord.setUseCarModel(CarConstant.USR_CARD_MODE_HAVE);
+			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryReassignmentOrderInfo(orderId);
+			if(null !=dispatchDriverInfo){
+				oldDispatchOptRecord.setCarLicense(dispatchDriverInfo.getCarLicense());
+				oldDispatchOptRecord.setCarType(dispatchDriverInfo.getCarType());
+				oldDispatchOptRecord.setDriverMobile(dispatchDriverInfo.getDriverTel());
+				oldDispatchOptRecord.setDriverName(dispatchDriverInfo.getDriverName());
+			}
+			//查询上次调度的时候调度员信息和时间
+			OrderStateTraceInfo orderStateTraceInfo = iOrderStateTraceInfoService.queryFirstDispatchIndo(orderId);
+			if(null !=orderStateTraceInfo){
+				oldDispatchOptRecord.setDispatchDate(orderStateTraceInfo.getCreateTime());
+				EcmpUser user = ecmpUserMapper.selectEcmpUserById(Long.valueOf(orderStateTraceInfo.getCreateBy()));
+				if(null !=user){
+					oldDispatchOptRecord.setDispatchMobile(user.getPhonenumber());
+					oldDispatchOptRecord.setDispatchName(user.getNickName());
+				}
+			}
+			dispatchSendCarPageInfo.setOldDispatchOptRecord(oldDispatchOptRecord);
+		}
+		//查询当前调度的信息
+		DispatchOptRecord currentDispatchOptRecord =new DispatchOptRecord();
+		OrderStateTraceInfo currentOrderStateTraceInfo = iOrderStateTraceInfoService.queryRecentlyDispatchInfo(orderId);
+		if(null !=currentOrderStateTraceInfo){
+			currentDispatchOptRecord.setDispatchDate(currentOrderStateTraceInfo.getCreateTime());
+			//调度员信息
+			EcmpUser currentUser = ecmpUserMapper.selectEcmpUserById(Long.valueOf(currentOrderStateTraceInfo.getCreateBy()));
+			if(null !=currentUser){
+				currentDispatchOptRecord.setDispatchMobile(currentUser.getPhonenumber());
+				currentDispatchOptRecord.setDispatchName(currentUser.getNickName());
+			}
+			if(OrderStateTrace.TURNREASSIGNMENT.equals(currentOrderStateTraceInfo.getState())){
+				//审核驳回
+				currentDispatchOptRecord.setRejectReason(currentOrderStateTraceInfo.getContent());
+			}else{
+				//派车或者改派通过
+				OrderInfo currentOrder = orderInfoMapper.selectOrderInfoById(orderId);
+				if(null !=currentOrder){
+					currentDispatchOptRecord.setUseCarModel(currentOrder.getUseCarMode());
+					currentDispatchOptRecord.setDriverMobile(currentOrder.getDriverMobile());
+					currentDispatchOptRecord.setDriverName(currentOrder.getDriverName());
+					currentDispatchOptRecord.setCarType(currentOrder.getCarModel());
+					currentDispatchOptRecord.setCarLicense(currentOrder.getCarLicense());
+				}
+			}
+		}
+		dispatchSendCarPageInfo.setCurrentDispatchOptRecord(currentDispatchOptRecord);
+		return dispatchSendCarPageInfo;
+	}
 
 }

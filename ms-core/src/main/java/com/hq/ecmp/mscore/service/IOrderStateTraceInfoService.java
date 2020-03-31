@@ -120,4 +120,8 @@ public interface IOrderStateTraceInfoService
      * @return
      */
     public OrderStateTraceInfo queryJourneyOrderIsCancel(Long journeyId);
+    
+    public OrderStateTraceInfo queryFirstDispatchIndo(Long orderId);
+    
+    public OrderStateTraceInfo queryRecentlyDispatchInfo(Long orderId);
 }
