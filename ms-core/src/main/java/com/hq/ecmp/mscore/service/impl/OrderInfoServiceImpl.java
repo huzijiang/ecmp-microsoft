@@ -1640,7 +1640,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             return orderVO;
         }
         JSONObject thirdPartyOrderState = this.getThirdPartyOrderState(orderNo);
-        log.info("获取网约车订单详情:"+thirdPartyOrderState);
+        log.info("获取网约车"+orderNo+"订单详情:"+thirdPartyOrderState);
         Double longitude=null;
         Double latitude=null;
         String status = thirdPartyOrderState.getString("status");
