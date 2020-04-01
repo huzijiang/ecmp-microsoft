@@ -1137,6 +1137,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
+        //订单管理需要的状态 已取消  S911    已完成 S900  待确认 S699     服务中S616  待上车 S600   接驾中 S500  待服务 S299
         PageHelper.startPage(orderListBackDto.getPageNum(),orderListBackDto.getPageSize());
         List<OrderListBackDto> list = orderInfoMapper.getOrderListBackDto(orderListBackDto);
         PageInfo<OrderListBackDto> info = new PageInfo<>(list);

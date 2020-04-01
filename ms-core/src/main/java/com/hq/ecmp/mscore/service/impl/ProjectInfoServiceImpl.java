@@ -1,12 +1,16 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
+import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
 import com.hq.ecmp.mscore.dto.ProjectUserDTO;
 import com.hq.ecmp.mscore.mapper.ProjectInfoMapper;
 import com.hq.ecmp.mscore.mapper.ProjectUserRelationInfoMapper;
@@ -18,6 +22,7 @@ import com.hq.ecmp.util.DateFormatUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -131,15 +136,27 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     }
 
     @Override
-    public PageInfo<ProjectUserVO> getProjectUserList(Long projectId,int pageNum,int pageSize,String search) {
+    public PageResult<ProjectUserVO> getProjectUserList(Long projectId,int pageNum,int pageSize,String search) {
         PageHelper.startPage(pageNum,pageSize);
         List<ProjectUserVO> list= projectUserRelationInfoMapper.getProjectUserList(projectId,search);
-        return new PageInfo<>(list);
+        Long count=projectUserRelationInfoMapper.getProjectUserListCount(projectId,search);
+        return new PageResult<>(count,list);
     }
 
     @Override
-    public int removeProjectUser(ProjectUserDTO projectUserDTO) {
-        return projectUserRelationInfoMapper.removeProjectUser(projectUserDTO.getProjectId(),projectUserDTO.getUserId());
+    @Transactional
+    public int removeProjectUser(ProjectUserDTO projectUserDTO,Long userId) {
+        int i = projectUserRelationInfoMapper.removeProjectUser(projectUserDTO.getProjectId(), projectUserDTO.getUserId());
+        if (i>0){
+            ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectUserDTO.getProjectId());
+            if (projectInfo!=null&& CommonConstant.ONE==projectInfo.getIsAllUserUse()){
+                projectInfo.setIsAllUserUse(CommonConstant.ZERO);
+                projectInfo.setUpdateBy(String.valueOf(userId));
+                projectInfo.setUpdateTime(new Date());
+                projectInfoMapper.updateProjectInfo(projectInfo);
+            }
+        }
+        return i;
     }
 
     @Override
@@ -160,5 +177,15 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
                 projectInfoMapper.updateProjectInfo(info);
             }
         }
+    }
+
+    @Override
+    public List<Long> getProjectUserInfo(Long projectId) {
+        List<ProjectUserRelationInfo> projectUserRelationInfos = projectUserRelationInfoMapper.selectProjectUserRelationInfoList(new ProjectUserRelationInfo(projectId));
+        List<Long> collect=new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(projectUserRelationInfos)){
+            collect = projectUserRelationInfos.stream().map(ProjectUserRelationInfo::getUserId).collect(Collectors.toList());
+        }
+        return collect;
     }
 }

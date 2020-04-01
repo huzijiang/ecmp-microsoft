@@ -415,7 +415,7 @@ WHERE
         <where>
             1=1
             and  lock_state='0000'
-            <if test="driverId != null  and driverId!= '' "> and driver_id=#{driverId}s</if>
+            <if test="driverId != null  and driverId!= '' "> and driver_id=#{driverId}</if>
         </where>
     </update>
 
