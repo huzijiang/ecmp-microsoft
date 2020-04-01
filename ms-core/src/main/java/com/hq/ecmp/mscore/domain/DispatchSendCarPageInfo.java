@@ -42,4 +42,6 @@ public class DispatchSendCarPageInfo {
 	DispatchOptRecord oldDispatchOptRecord;//原有调度信息
 	
 	DispatchOptRecord  currentDispatchOptRecord;//当前调度信息
+	
+	String carLevel;//网约车车型
 }

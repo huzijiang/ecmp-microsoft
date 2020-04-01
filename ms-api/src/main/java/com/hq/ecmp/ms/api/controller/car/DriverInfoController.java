@@ -14,6 +14,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.DriverQueryResult;
@@ -60,4 +61,14 @@ public class DriverInfoController {
 	public ApiResponse<DriverQueryResult> detail(@RequestBody Long driverId) {
 		return ApiResponse.success(driverInfoService.queryDriverDetail(driverId));
 	}
+	
+	
+	
+	@ApiOperation(value = "carGroup", notes = "指定车队下的可用驾驶员", httpMethod = "POST")
+	@PostMapping("/carGroup")
+	public ApiResponse<CarGroupDriverInfo> queryCarGroupDriverList(@RequestBody Long carGroupId) {
+		return ApiResponse.success(driverInfoService.queryCarGroupDriverList(carGroupId));
+	}
+	
+	
 }

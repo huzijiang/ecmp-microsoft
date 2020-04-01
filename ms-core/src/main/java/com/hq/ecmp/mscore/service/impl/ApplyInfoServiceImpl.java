@@ -1222,7 +1222,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.1 journey_id 非空
         applyInfo.setJourneyId(journeyId);
         //2.2 project_id
-        applyInfo.setProjectId(Long.valueOf(officialCommitApply.getProjectNumber())); //TODO 要判空
+        Long projectId=StringUtils.isBlank(officialCommitApply.getProjectNumber())?null:Long.valueOf(officialCommitApply.getProjectNumber());
+        applyInfo.setProjectId(projectId); //TODO 要判空
         //2.3 regimen_id 非空
         applyInfo.setRegimenId(Long.valueOf(officialCommitApply.getRegimenId()));
         //2.4 apply_type 用车申请类型；A001:  公务用车 A002:  差旅用车
@@ -1242,8 +1243,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             }
             applyInfo.setApproverName(approversName);
         }
+        Long costCenter=StringUtils.isBlank(officialCommitApply.getCostCenter())?null:Long.valueOf(officialCommitApply.getCostCenter());
         //2.6 cost_center 成本中心 从组织机构表 中获取
-        applyInfo.setCostCenter(Long.valueOf(officialCommitApply.getCostCenter())); //TODO 要判空
+        applyInfo.setCostCenter(costCenter); //TODO 要判空
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
         applyInfo.setState(ApplyStateConstant.ON_APPLYING);
         //2.8 reason 行程原因
@@ -1291,8 +1293,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());    //TODO  有往返的话，创建两个行程
         //1.7 estimate_price 预估价格     非空
         journeyInfo.setEstimatePrice(String.valueOf(officialCommitApply.getEstimatePrice()));
-        //1.8 project_id  项目编号
-        journeyInfo.setProjectId(Long.valueOf(officialCommitApply.getProjectNumber()));  //TODO 要判空
+        //1.8 project_id  项目id
+        Long projectId=StringUtils.isBlank(officialCommitApply.getProjectNumber())?null:Long.valueOf(officialCommitApply.getProjectNumber());
+        journeyInfo.setProjectId(projectId);  //TODO 要判空
         //1.9 flight_number 航班编号
         journeyInfo.setFlightNumber(officialCommitApply.getFlightNumber());
         //1.10 use_time 行程总时长  多少天

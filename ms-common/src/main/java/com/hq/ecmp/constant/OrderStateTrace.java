@@ -1,5 +1,8 @@
 package com.hq.ecmp.constant;
 
+import java.util.Arrays;
+import java.util.List;
+
 public enum OrderStateTrace {
     APPLYREASSIGNMENT("S270","司机申请改派"),
     
@@ -42,6 +45,8 @@ public enum OrderStateTrace {
         this.stateName = stateName;
     }
 
-   
+    public static List<String> getNetCarHave() {
+        return Arrays.asList(APPLYREASSIGNMENT.getState(), TURNREASSIGNMENT.getState());
+    }
 
 }

@@ -489,4 +489,18 @@ WHERE
         </where>
 
     </select>
+
+
+	<select id="queryDriverInfoList" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.DriverQueryResult">
+		SELECT
+		a.driver_name AS driverName,
+		a.driver_id AS driverId
+		FROM
+		driver_info a
+		LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
+		WHERE
+		b.car_group_id = #{carGroupId}
+		AND a.state = 'V000'
+	</select>
 </mapper>

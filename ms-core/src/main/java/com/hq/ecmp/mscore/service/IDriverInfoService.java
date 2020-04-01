@@ -1,5 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
+import java.util.List;
+
+import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
@@ -7,11 +10,6 @@ import com.hq.ecmp.mscore.domain.DriverQueryResult;
 import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
 import com.hq.ecmp.mscore.dto.DriverCarDTO;
 import com.hq.ecmp.mscore.dto.DriverLoseDTO;
-
-
-import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
 
 /**
  * 【请填写功能名称】Service接口
@@ -133,6 +131,13 @@ public interface IDriverInfoService
      * @return
      */
     public void bindDriverCars(DriverCarDTO driverCarDTO, Long userId) throws Exception;
+    
+    /**
+     * 查询指定车队下的可用驾驶员
+     * @param carGroupId
+     * @return
+     */
+    public  CarGroupDriverInfo queryCarGroupDriverList(Long carGroupId);
 
 
 }
