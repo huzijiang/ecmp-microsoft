@@ -14,6 +14,8 @@ import com.hq.ecmp.mscore.bo.CityInfo;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
+import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
@@ -114,6 +116,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private  EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
     @Autowired
     private ChinaCityMapper chinaCityMapper;
+    @Autowired
+    private IDispatchService dispatchService;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -850,6 +854,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		orderInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
 		// 更新订单信息
 		int updateFlag = updateOrderInfo(orderInfo);
+		//释放司车辆
+		DispatchLockCarDto dispatchLockCarDto = new DispatchLockCarDto();
+		dispatchLockCarDto.setCarId(carId.toString());
+		dispatchService.unlockSelectedCar(dispatchLockCarDto);
+		//释放司机 
+		DispatchLockDriverDto dispatchLockDriverDto = new DispatchLockDriverDto();
+		dispatchLockDriverDto.setDriverId(driverId.toString());
+		dispatchService.unlockSelectedDriver(dispatchLockDriverDto);
 		//生成行程预估价格记录
         List<CarLevelAndPriceReVo> carlevelAndPriceByOrderId = regimeInfoService.getCarlevelAndPriceByOrderId(orderId, CarConstant.USR_CARD_MODE_HAVE);
         OrderInfo orderInfo1 = orderInfoMapper.selectOrderInfoById(orderId);
@@ -1125,6 +1137,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
+        //订单管理需要的状态 已取消  S911    已完成 S900  待确认 S699     服务中S616  待上车 S600   接驾中 S500  待服务 S299
         PageHelper.startPage(orderListBackDto.getPageNum(),orderListBackDto.getPageSize());
         List<OrderListBackDto> list = orderInfoMapper.getOrderListBackDto(orderListBackDto);
         PageInfo<OrderListBackDto> info = new PageInfo<>(list);
@@ -1340,6 +1353,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		return applyDispatchVoList;
 	}
 	
+	
 
 	@Override
 	public Integer queryApplyDispatchListCount(ApplyDispatchQuery query) {
@@ -1362,8 +1376,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				dispatchOrderInfo.setOrderId(orderId);
 				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 				applyDispatchVo.parseOrderStartAndEndSiteAndTime(dispatchOrderInfo);
-				//转化状态
-				applyDispatchVo.parseReassignmentDispatchStatus();
+				//查询订单最新的状态流转记录
+				DispatchDriverInfo dispatchDriverInfo = orderStateTraceInfoMapper.queryReassignmentOrderStatus(orderId);
+				applyDispatchVo.parseReassignmentDispatchStatus(dispatchDriverInfo.getState());
 			}
 		}
 		return reassignmentDispatchList;
@@ -1768,6 +1783,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public DispatchSendCarPageInfo getDispatchSendCarPageInfo(Long orderId) {
 		DispatchSendCarPageInfo dispatchSendCarPageInfo = new DispatchSendCarPageInfo();
+		//查询对应制度里面的网约车车型
+		regimeInfoService.queryCarModeLevel(orderId,CarConstant.USR_CARD_MODE_NET);
 		OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
 		if(null !=orderInfo){
 			JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());

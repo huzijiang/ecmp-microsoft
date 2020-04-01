@@ -74,7 +74,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	<delete id="deleteUserRegimeRelationInfoByRegimeId" parameterType="java.lang.Long">
-	delete from user_regime_relation_info where user_regime_relation_info=#{regimeId}
+	delete from user_regime_relation_info where regimen_id=#{regimeId}
 	</delete>
 
 </mapper>

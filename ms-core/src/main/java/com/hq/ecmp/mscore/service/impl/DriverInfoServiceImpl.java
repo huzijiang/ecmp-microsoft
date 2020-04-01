@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
 import com.hq.ecmp.mscore.vo.CarVO;
 import com.hq.ecmp.mscore.vo.DriverVO;
@@ -13,14 +14,18 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.CarGroupDriverRelation;
+import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.DriverCarRelationInfo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.DriverQueryResult;
+import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
+import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
 import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
@@ -47,6 +52,10 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     private IDriverCarRelationInfoService driverCarRelationInfoService;
     @Autowired
     private DriverCarRelationInfoMapper driverCarRelationInfoMapper;
+    @Autowired
+    private CarGroupInfoMapper carGroupInfoMapper;
+    @Autowired
+    private EcmpOrgMapper ecmpOrgMapper;
     
 
     /**
@@ -270,6 +279,32 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	@Override
 	public int updateDriverStatus(Long driverId, String state) {
 		return driverInfoMapper.updateDriverStatus(driverId, state);
+	}
+
+	@Override
+	public CarGroupDriverInfo queryCarGroupDriverList(Long carGroupId) {
+		CarGroupDriverInfo carGroupDriverInfo = new CarGroupDriverInfo();
+		List<DriverQueryResult> list = driverInfoMapper.queryDriverInfoList(carGroupId);
+		carGroupDriverInfo.setDriverList(list);
+		//查询车队对应的部门和公司
+		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+		if(null !=carGroupInfo){
+			Long ownerCompany = carGroupInfo.getOwnerCompany();
+			if(null !=ownerCompany){
+				EcmpOrg company = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
+				if(null !=company){
+					carGroupDriverInfo.setCompanyName(company.getDeptName());
+				}
+			}
+			Long ownerOrg = carGroupInfo.getOwnerOrg();
+			if(null !=ownerOrg){
+				EcmpOrg dept = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
+				if(null !=dept){
+					carGroupDriverInfo.setDeptName(dept.getDeptName());
+				}
+			}
+		}
+		return carGroupDriverInfo;
 	}
 
 
