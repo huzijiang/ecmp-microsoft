@@ -5,6 +5,7 @@ import java.util.*;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.ApproveStateEnum;
 import com.hq.ecmp.constant.ApproveTypeEnum;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.*;
@@ -182,14 +183,17 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
     public void initApproveResultInfo(Long applyId,Long regimenId,Long userId) {
         //查询审批模板
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
-        RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimenId);
-        if (regimeInfo!=null){
-            List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId()));
+        RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimenId);
+        if (regimeVo!=null){
+            if (CommonConstant.NO_PASS.equals(regimeVo.getNeedApprovalProcess())){
+                return;
+            }
+            List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(Long.valueOf(regimeVo.getApproveTemplateId())));
             SortListUtil.sort(approveTemplateNodeInfos,"approveNodeId",SortListUtil.ASC);
             if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos)){
                 for (int i=0;i<approveTemplateNodeInfos.size();i++ ){
                     ApproveTemplateNodeInfo info = approveTemplateNodeInfos.get(i);
-                    ApplyApproveResultInfo resultInfo=new ApplyApproveResultInfo(applyId,regimeInfo.getApproveTemplateId(),info.getApproveNodeId(),info.getApproverType(),info.getNextNodeId());
+                    ApplyApproveResultInfo resultInfo=new ApplyApproveResultInfo(applyId,Long.valueOf(regimeVo.getApproveTemplateId()),info.getApproveNodeId(),info.getApproverType(),info.getNextNodeId());
                     resultInfo.setCreateTime(new Date());
                     resultInfo.setCreateBy(String.valueOf(userId));
                     String state= ApproveStateEnum.NOT_ARRIVED_STATE.getKey();
