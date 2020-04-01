@@ -16,6 +16,7 @@ import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +39,7 @@ import static java.awt.SystemColor.info;
  */
 @RestController
 @RequestMapping("/apply")
+@Slf4j
 public class ApplyContoller {
 
     @Autowired
@@ -241,28 +243,19 @@ public class ApplyContoller {
         try{
             ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(journeyApplyDto.getApplyId());
             List<ApplyApproveResultInfo> resultInfoList = beforeInspect(journeyApplyDto, userId);
-//            ApproveTemplateNodeInfo approveTemplateNodeInfo = nodeInfoService.selectApproveTemplateNodeInfoById(collect.get(0).getApproveNodeId());
             //判断当前审批人是不是最后审批人
             Map<String, List<ApplyApproveResultInfo>> resultMap = resultInfoList.stream().collect(Collectors.groupingBy(ApplyApproveResultInfo::getState));
             List<ApplyApproveResultInfo> waitcollect = resultMap.get(ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
-            if (CollectionUtils.isNotEmpty(waitcollect)&&!"0".equals(waitcollect.get(0).getNextNodeId())) {//不是最后审批人
+            String nextNodeId=waitcollect.get(0).getNextNodeId();
+            log.info("申请单:"+journeyApplyDto.getApplyId()+"的下一审批人为"+nextNodeId);
+            if (CollectionUtils.isNotEmpty(waitcollect)&&!"0".equals(nextNodeId)) {//不是最后审批人
                 //修改当前审批记录状态已审批/审批通过，修改下一审批记录为待审批（）对应消息通知
                 this.updateApproveResult(waitcollect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
+                log.info("申请单:"+journeyApplyDto.getApplyId()+"当前被"+userId+"审批通过");
                 List<ApplyApproveResultInfo> noArrivecollect = resultMap.get(ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
-                //下一审批人修改为待审批
-                if (CollectionUtils.isNotEmpty(noArrivecollect)) {
-                    for (ApplyApproveResultInfo resultInfo:noArrivecollect){
-                        if(ApproveStateEnum.NOT_ARRIVED_STATE.getKey().equals(resultInfo.getState())&&waitcollect.get(0).getNextNodeId().equals(resultInfo.getApproveNodeId())){
-                            resultInfo.setState(ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
-                            resultInfo.setUpdateTime(new Date());
-                            resultInfo.setUpdateBy(userId+"");
-                            resultInfoService.updateApplyApproveResultInfo(resultInfo);
-                            //给下一审批人发送消息
-                            //TODO 第一期发起申请就会给所有级审批员发消息
-//                            ecmpMessageService.sendNextApproveUsers(resultInfo.getApproveUserId(),journeyApplyDto.getApplyId(),userId);
-                        }
-                    }
-                }
+                //修改下一审批节点为待审批
+                this.updateNextApproveResult(noArrivecollect,Long.parseLong(nextNodeId),journeyApplyDto.getApplyId(),userId);
+                log.info("申请单:"+journeyApplyDto.getApplyId()+"修改下一审批节点"+nextNodeId+"待审批");
             } else if (CollectionUtils.isNotEmpty(waitcollect)&&"0".equals(waitcollect.get(0).getNextNodeId())) {//是最后节点审批人
                 //修改审理状态
                 this.updateApproveResult(waitcollect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
@@ -315,6 +308,7 @@ public class ApplyContoller {
             applyInfo.setUpdateBy(String.valueOf(userId));
             applyInfo.setUpdateTime(new Date());
             applyInfoService.updateApplyInfo(applyInfo);
+            log.info("申请单:"+journeyApplyDto.getApplyId()+"当前被"+userId+"审批驳回");
             ecmpMessageService.saveApplyMessageReject(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,journeyApplyDto.getRejectReason());
         }catch (Exception e){
             e.printStackTrace();
@@ -379,8 +373,8 @@ public class ApplyContoller {
         list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请成功"));
         result.add(new ApprovalListVO(applyId,"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
         if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
-            String approveTime=null;
            for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){
+               String approveTime=null;
                String approveUserId = resultInfo.getApproveUserId();
                String appresult = resultInfo.getApproveResult();
                String state = resultInfo.getState();
@@ -457,4 +451,22 @@ public class ApplyContoller {
         }
         return resultInfoList;
     }
+
+    private void updateNextApproveResult(List<ApplyApproveResultInfo> noArrivecollect,Long nextNodeId,Long applyId,Long userId){
+        //下一审批人修改为待审批
+        if (CollectionUtils.isNotEmpty(noArrivecollect)) {
+            for (ApplyApproveResultInfo resultInfo:noArrivecollect){
+                if(ApproveStateEnum.NOT_ARRIVED_STATE.getKey().equals(resultInfo.getState())&&nextNodeId==resultInfo.getApproveNodeId()){
+                    resultInfo.setState(ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
+                    resultInfo.setUpdateTime(new Date());
+                    resultInfo.setUpdateBy(userId+"");
+                    resultInfoService.updateApplyApproveResultInfo(resultInfo);
+                    //给下一审批人发送消息
+                    //TODO 第一期发起申请就会给所有级审批员发消息
+                    ecmpMessageService.sendNextApproveUsers(resultInfo.getApproveUserId(),applyId,userId);
+                }
+            }
+        }
+    }
+
 }

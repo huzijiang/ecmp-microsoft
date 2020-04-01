@@ -113,14 +113,14 @@ public interface CarInfoMapper
      * @param selectCarConditionBo
      * @return
      */
-    public List<WaitSelectedCarBo> dispatcherSelectCarGroupOwnedCarInfoList(SelectCarConditionBo selectCarConditionBo);
+    public List<CarInfo> dispatcherSelectCarGroupOwnedCarInfoList(SelectCarConditionBo selectCarConditionBo);
 
     /**
      * 调度员  根据条件查询车辆
      * @param selectCarConditionBo
      * @return
      */
-    public List<WaitSelectedCarBo> dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense(SelectCarConditionBo selectCarConditionBo);
+    public List<CarInfo> dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense(SelectCarConditionBo selectCarConditionBo);
 
     /**
      * 车辆锁定,

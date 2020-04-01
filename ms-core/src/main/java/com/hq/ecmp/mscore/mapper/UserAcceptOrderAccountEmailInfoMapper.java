@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.UserAcceptOrderAccountEmailInfo;
 import com.hq.ecmp.mscore.dto.EmailDTO;
+import com.hq.ecmp.mscore.dto.EmailUpdateDTO;
 import com.hq.ecmp.mscore.vo.EmailVO;
 import com.sun.jna.platform.win32.WinDef;
 import org.apache.ibatis.annotations.Param;
@@ -53,10 +54,10 @@ public interface UserAcceptOrderAccountEmailInfoMapper {
     /**
      * 修改数据
      *
-     * @param emailDTO 实例对象
+     * @param emailUpdateDTO 实例对象
      * @return 影响行数
      */
-    int updateEmail(EmailDTO emailDTO);
+    int updateEmail(EmailUpdateDTO emailUpdateDTO);
 
     /**
      * 通过主键删除数据

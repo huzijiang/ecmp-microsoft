@@ -159,6 +159,10 @@ public class CarInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Date  drivingLicenseEndDate; // TODO 新增 牌号费
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String  lockState; // TODO 新增 牌号费
+
     public void setCarId(Long carId)
     {
         this.carId = carId;

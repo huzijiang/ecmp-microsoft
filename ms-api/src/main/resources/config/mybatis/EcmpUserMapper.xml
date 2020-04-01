@@ -432,6 +432,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select nick_name as nickName,user_id as  userId from ecmp_user where dept_id =
          #{deptId}
     </select>
+    <!--根据部门id查询正常使用用户-->
+    <select id="selectListByDeptId" resultType="com.hq.ecmp.mscore.vo.UserTreeVo">
+        select nick_name as nickName,user_id as  userId,dept_id deptId,user_name userName,
+        phonenumber,sex,job_number jobNumber,it_is_driver itIsDriver,it_is_dispatcher itIsDispatcher
+         from ecmp_user
+        where dept_id = #{deptId} and  status=0 and del_flag=0
+    </select>
 
 
     <!--查询工号是否已存在-->
@@ -452,5 +459,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="endUserId!=null">
             and <![CDATA[ user_id<=#{endUserId} ]]>
         </if>
+    </select>
+
+    <!--根据用户id查询用户名-->
+    <select id="findNameByUserIds" resultType="String">
+        select group_concat(distinct nick_name) from  ecmp_user where find_in_set(user_id,#{userIds})
     </select>
 </mapper>

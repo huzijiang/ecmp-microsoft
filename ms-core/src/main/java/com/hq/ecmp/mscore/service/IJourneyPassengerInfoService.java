@@ -68,4 +68,7 @@ public interface IJourneyPassengerInfoService
      * @return
      */
     public Integer queryPeerCount(Long journeyId);
+    
+    //查询指定行程中所有同行人
+    public List<String> queryPeerUserNameList(Long journeyId);
 }

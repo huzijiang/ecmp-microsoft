@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import com.hq.ecmp.mscore.vo.UserTreeVo;
 import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -255,5 +256,9 @@ public interface EcmpUserMapper
     UserVO selectUserVoById(Long userId);
 
     List<Long> findUserIds(@Param("startUserId") Long startUserId,@Param("endUserId") Long endUserId);
+
+    String findNameByUserIds(String userIds);
+
+    List<UserTreeVo> selectListByDeptId(Long deptId);
 }
 

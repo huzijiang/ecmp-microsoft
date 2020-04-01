@@ -204,14 +204,14 @@ public interface DriverInfoMapper
      * @param selectDriverConditionBo
      * @return
      */
-    public List<WaitSelectedDriverBo> dispatcherSelectDriver(SelectDriverConditionBo selectDriverConditionBo);
+    public List<DriverInfo> dispatcherSelectDriver(SelectDriverConditionBo selectDriverConditionBo);
 
     /**
      *  通过 司机姓名 或者手机号 查询 司机信息列表
      * @param selectDriverConditionBo
      * @return
      */
-    public List<WaitSelectedDriverBo> dispatcherSelectDriverUseDriverNameOrPhone(SelectDriverConditionBo selectDriverConditionBo);
+    public List<DriverInfo> dispatcherSelectDriverUseDriverNameOrPhone(SelectDriverConditionBo selectDriverConditionBo);
 
     /**
      * 锁定司机

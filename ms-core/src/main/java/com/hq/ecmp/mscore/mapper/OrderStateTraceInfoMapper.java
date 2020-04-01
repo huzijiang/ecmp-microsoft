@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
+import com.hq.ecmp.mscore.domain.DispatchOptRecord;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.domain.SendCarInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
@@ -97,4 +98,9 @@ public interface OrderStateTraceInfoMapper
      * @return
      */
     String selectDispatcherUserId(Long orderId);
+    
+    public OrderStateTraceInfo queryFirstDispatchIndo(Long orderId);
+    
+    
+    public OrderStateTraceInfo queryRecentlyDispatchInfo(Long orderId);
 }

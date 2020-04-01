@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
+import com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO;
 import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
+import com.hq.ecmp.mscore.vo.InvoiceRecordVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -25,12 +27,12 @@ public interface InvoiceInfoMapper
     public InvoiceInfo selectInvoiceInfoById(Long invoiceId);
 
     /**
-     * 查询【发票信息】列表
+     * 查询发票记录列表
      *
-     * @param invoiceInfo 【发票信息】
+     * @param  【发票信息】
      * @return 【发票信息】集合
      */
-    public List<InvoiceInfo> selectInvoiceInfoList(InvoiceInfo invoiceInfo);
+    public List<InvoiceRecordVO> selectInvoiceInfoList();
 
     /**
      * 新增【发票信息】
@@ -66,7 +68,8 @@ public interface InvoiceInfoMapper
     /**
      * 根据时间区间、开票状态查询发票信息
      */
-    public List<InvoiceInfo> selectInvoiceInfoListByTimeAndState(@Param("startTime") String startTime, @Param("endTime") String endTime,@Param("state") String state);
+    //public List<InvoiceInfo> selectInvoiceInfoListByTimeAndState(@Param("startTime") String startTime, @Param("endTime") String endTime,@Param("state") String state);
+    public List<InvoiceRecordVO> queryAllByTimeState(InvoiceByTimeStateDTO invoiceByTimeStateDTO);
     /**
      * 新增发票抬头
      */

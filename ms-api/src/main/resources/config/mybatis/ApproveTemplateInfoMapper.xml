@@ -17,6 +17,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <id column="approve_template_id" property="approveTemplateId"/>
         <result property="approveTemplateId"    column="approve_template_id"    />
         <result property="name"    column="name"    />
+        <result property="isBingRegime"    column="isBingRegime"    />
         <collection property="nodeIds" select="getNodeList" column="approve_template_id">
         </collection>
     </resultMap>
@@ -81,7 +82,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <select id="getTemplateList" resultMap="TemplateInfoList">
-         select approve_template_id,name from approve_template_info
+         select approve_template_id,name,(select count(*) from regime_info where approve_template_id=a.approve_template_id ) isBingRegime from approve_template_info a
          <if test="search!=null and search!=''">
              where name=#{search}
          </if>
@@ -94,7 +95,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="getNodeList" resultType="com.hq.ecmp.mscore.vo.ApprovaTemplateNodeVO">
-         select approve_node_id approveNodeId, approver_type type, role_id roleId, user_id userId,next_node_id nextNodeId
+         select approve_node_id approveNodeId,dept_project_id deptProjectId, approver_type type, role_id roleId, user_id userId,next_node_id nextNodeId
          from approve_template_node_info
          WHERE approve_template_id=#{approve_template_id}
     </select>

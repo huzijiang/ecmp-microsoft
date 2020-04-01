@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.config.dispatch.DispatchContent;
@@ -19,6 +20,7 @@ import lombok.Synchronized;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -66,6 +68,9 @@ public class DispatchServiceImpl implements IDispatchService {
     @Autowired
     JourneyPlanPriceInfoMapper journeyPlanPriceInfoMapper;
 
+    @Autowired
+    EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
+
     /**
      *
      * 调度-获取可选择的车辆
@@ -108,8 +113,8 @@ public class DispatchServiceImpl implements IDispatchService {
                                 selectCarConditionBo.setPassengers(passengers);
                                 selectCarConditionBo.setCityCode(userCarCity);
                                 selectCarConditionBo.setDriverId(dispatchSelectCarDto.getDriverId());
-                                selectCarConditionBo.setDispatcherId(dispatchSelectCarDto.getDispatcherId());
-                                selectCarConditionBo.setCarLicense(dispatchSelectCarDto.getCarLicence());
+                                selectCarConditionBo.setDispatcherId(loginUser.getUser().getUserId().toString());
+                                selectCarConditionBo.setCarLicense(dispatchSelectCarDto.getPlateLicence());
 
         List<WaitSelectedCarBo> cars=selectCars(selectCarConditionBo,orderInfo).getData();
 
@@ -200,8 +205,8 @@ public class DispatchServiceImpl implements IDispatchService {
 
         //指定司机 暂不考虑
         selectDriverConditionBo.setCityCode(orderAddressInfo.getCityPostalCode());
-        selectDriverConditionBo.setDriverId(dispatchSelectDriverDto.getDriverId());
-        selectDriverConditionBo.setDispatcherId(dispatchSelectDriverDto.getDispatcherId());
+//        selectDriverConditionBo.setDriverId(dispatchSelectDriverDto.getDriverId());
+        selectDriverConditionBo.setDispatcherId(loginUser.getUser().getUserId());
         selectDriverConditionBo.setDriverNameOrPhone(dispatchSelectDriverDto.getDriverNameOrPhone());
 
         List<WaitSelectedDriverBo>   waitSelectedDriverBos=selectDrivers(selectDriverConditionBo,orderInfo).getData();
@@ -263,14 +268,18 @@ public class DispatchServiceImpl implements IDispatchService {
         if(!carGroupServiceScopes.isSuccess()){
             return ApiResponse.error(carGroupServiceScopes.getMsg());
         }
-        CarGroupServeScopeInfo carGroupServeScopeInfo=carGroupServiceScopes.getData().get(0);
-        selectCarConditionBo.setCarGroupId(carGroupServeScopeInfo.getCarGroupId().toString());
 
-        List<WaitSelectedCarBo> cars;
-        if(StringUtils.isEmpty(selectCarConditionBo.getCarLicense())) {
-            cars=carInfoMapper.dispatcherSelectCarGroupOwnedCarInfoList(selectCarConditionBo);
-        }else{
-            cars=carInfoMapper.dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense(selectCarConditionBo);
+        List<CarInfo> cars=new ArrayList<>();
+
+        for (CarGroupServeScopeInfo carGroupServeScopeInfo:carGroupServiceScopes.getData()) {
+            selectCarConditionBo.setCarGroupId(carGroupServeScopeInfo.getCarGroupId().toString());
+            List<CarInfo> acars;
+            if(StringUtils.isEmpty(selectCarConditionBo.getCarLicense())) {
+                acars=carInfoMapper.dispatcherSelectCarGroupOwnedCarInfoList(selectCarConditionBo);
+            }else{
+                acars=carInfoMapper.dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense(selectCarConditionBo);
+            }
+            cars.addAll(acars);
         }
 
         ApiResponse<OrderTaskClashBo>  apiResponseSelectOrderSetOutAndArrivalTime=selectOrderSetOutAndArrivalTime(orderInfo);
@@ -280,10 +289,22 @@ public class DispatchServiceImpl implements IDispatchService {
 
         OrderTaskClashBo orderTaskClashBo=apiResponseSelectOrderSetOutAndArrivalTime.getData();
 
-        cars.stream().forEach(waitSelectedCarBo->{
+        List<WaitSelectedCarBo> waitSelectedCarBoList=new LinkedList<>();
+        cars.stream().forEach(carInfo->{
+            WaitSelectedCarBo waitSelectedCarBo=new WaitSelectedCarBo();
+            waitSelectedCarBo.setCarId(carInfo.getCarId());
+            waitSelectedCarBo.setCarModelName(carInfo.getCarType());
+            EnterpriseCarTypeInfo enterpriseCarTypeInfo=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
+            waitSelectedCarBo.setCarType(enterpriseCarTypeInfo.getName());
 
-            orderTaskClashBo.setCarId(waitSelectedCarBo.getCarId());
-            orderTaskClashBo.setCarLicense(waitSelectedCarBo.getCarLicense());
+            waitSelectedCarBo.setColor(carInfo.getCarColor());
+            waitSelectedCarBo.setPlateLicence(carInfo.getCarLicense());
+            waitSelectedCarBo.setStatus(carInfo.getState());
+            waitSelectedCarBo.setCarGroupId(carInfo.getCarGroupId());
+            waitSelectedCarBo.setState(carInfo.getState());
+
+            orderTaskClashBo.setCarId(carInfo.getCarId());
+            orderTaskClashBo.setCarLicense(carInfo.getCarLicense());
 
             List<OrderInfo> orderInfosSetOutClash=orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
             List<OrderInfo> orderInfosArrivalClash=orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
@@ -323,14 +344,14 @@ public class DispatchServiceImpl implements IDispatchService {
                 }
             }
 
+            waitSelectedCarBoList.add(waitSelectedCarBo);
         });
 
-        //修饰
-        cars.stream().forEach(waitSelectedCarBo->{
+        waitSelectedCarBoList.stream().forEach(waitSelectedCarBo->{
             waitSelectedCarBo.embellish();
         });
 
-        return  ApiResponse.success(cars);
+        return  ApiResponse.success(waitSelectedCarBoList);
     }
 
 
@@ -343,7 +364,7 @@ public class DispatchServiceImpl implements IDispatchService {
     public ApiResponse<List<WaitSelectedDriverBo>> selectDrivers(SelectDriverConditionBo selectDriverConditionBo,
                                                                  OrderInfo orderInfo){
         ApiResponse<List<CarGroupServeScopeInfo>>  carGroupServiceScopesApiResponse=selectCarGroupServiceScope(selectDriverConditionBo.getCityCode(),
-                Long.parseLong(selectDriverConditionBo.getDispatcherId()));
+                selectDriverConditionBo.getDispatcherId());
         if(!carGroupServiceScopesApiResponse.isSuccess()){
             return ApiResponse.error(carGroupServiceScopesApiResponse.getMsg());
         }
@@ -353,14 +374,22 @@ public class DispatchServiceImpl implements IDispatchService {
             return  ApiResponse.error(orderTaskClashBoApiResponse.getMsg());
         }
         Date setOutDate=new Date(orderTaskClashBoApiResponse.getData().getSetOutTime().getTime());
-        selectDriverConditionBo.setWorkDay(setOutDate);
+        selectDriverConditionBo.setWorkDay(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD,setOutDate));
 
-        List<WaitSelectedDriverBo> drivers;
-        if(StringUtils.isEmpty(selectDriverConditionBo.getCarId())){
-            drivers=driverInfoMapper.dispatcherSelectDriver(selectDriverConditionBo);
-        }else{
-            drivers=driverInfoMapper.dispatcherSelectDriverUseDriverNameOrPhone(selectDriverConditionBo);
+        List<DriverInfo> drivers=new ArrayList<>();
+
+        for (CarGroupServeScopeInfo carGroupServeScopeInfo:carGroupServiceScopesApiResponse.getData()) {
+            List<DriverInfo> adrivers;
+            selectDriverConditionBo.setCarGroupId(carGroupServeScopeInfo.getCarGroupId());
+            if(StringUtils.isEmpty(selectDriverConditionBo.getCarId())){
+                adrivers=driverInfoMapper.dispatcherSelectDriver(selectDriverConditionBo);
+            }else{
+                adrivers=driverInfoMapper.dispatcherSelectDriverUseDriverNameOrPhone(selectDriverConditionBo);
+            }
+            drivers.addAll(adrivers);
         }
+
+
 
 
         ApiResponse<OrderTaskClashBo>  apiResponseSelectOrderSetOutAndArrivalTime=selectOrderSetOutAndArrivalTime(orderInfo);
@@ -369,54 +398,69 @@ public class DispatchServiceImpl implements IDispatchService {
         }
         OrderTaskClashBo orderTaskClashBo=apiResponseSelectOrderSetOutAndArrivalTime.getData();
 
+        List<WaitSelectedDriverBo> waitSelectedDriverBoList=new ArrayList<>();
 
         drivers.stream().forEach(driver->{
             orderTaskClashBo.setDriverId(driver.getDriverId());
+
+            WaitSelectedDriverBo waitSelectedDriverBo=new WaitSelectedDriverBo();
+            waitSelectedDriverBo.setDriverId(driver.getDriverId());
+            waitSelectedDriverBo.setDriverName(driver.getDriverName());
+            waitSelectedDriverBo.setState(driver.getState());
+            waitSelectedDriverBo.setMobile(driver.getMobile());
+            waitSelectedDriverBo.setDriverPhone(driver.getMobile());
+
+            //查询车队电话,任意一个车队应该都已
+            List<CarGroupInfo> carGroupInfo;
+            carGroupInfo=carGroupInfoMapper.selectCarGroupsByDriverId(driver.getDriverId());
+            waitSelectedDriverBo.setFleetPhone(carGroupInfo.get(0).getTelephone());
+
             List<OrderInfo> orderInfosSetOutClash=orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
             List<OrderInfo> orderInfosArrivalClash=orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
 
             if(orderInfosSetOutClash.isEmpty() && orderInfosArrivalClash.isEmpty()){
-                driver.setTaskConflict("000");
+                waitSelectedDriverBo.setTaskConflict("000");
                 List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCar(orderTaskClashBo);
                 List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCar(orderTaskClashBo);
 
                 if(orderInfosBefore.size()>0){
-                    driver.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
-                    driver.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
+                    waitSelectedDriverBo.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
                 }
                 if(orderInfosAfter.size()>0){
-                    driver.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    driver.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
+                    waitSelectedDriverBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
                 }
             }
             if((!orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())){
-                driver.setTaskConflict("101");
+                waitSelectedDriverBo.setTaskConflict("101");
             }
             if((!orderInfosSetOutClash.isEmpty()) && (orderInfosArrivalClash.isEmpty())){
-                driver.setTaskConflict("100");
+                waitSelectedDriverBo.setTaskConflict("100");
                 List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCar(orderTaskClashBo);
                 if(orderInfosAfter.size()>0){
-                    driver.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    driver.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
+                    waitSelectedDriverBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
                 }
             }
             if((orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())){
-                driver.setTaskConflict("001");
+                waitSelectedDriverBo.setTaskConflict("001");
 
                 List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCar(orderTaskClashBo);
                 if(orderInfosBefore.size()>0){
-                    driver.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
-                    driver.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
+                    waitSelectedDriverBo.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
                 }
             }
+            waitSelectedDriverBoList.add(waitSelectedDriverBo);
         });
 
-        drivers.stream().forEach(driver->{
+        waitSelectedDriverBoList.stream().forEach(driver->{
             driver.embellish();
         });
 
 
-        return ApiResponse.success(drivers);
+        return ApiResponse.success(waitSelectedDriverBoList);
     }
 
     /**
@@ -454,37 +498,53 @@ public class DispatchServiceImpl implements IDispatchService {
      * 根据 调度员信息 查询 调度员归属的车队是否符合服务范围要求
      * @return ApiResponse<List<CarGroupServeScopeInfo>>
      */
-    public ApiResponse<List<CarGroupServeScopeInfo>> selectCarGroupServiceScope(String cityCode,Long dispatcherId){
+    public ApiResponse<List<CarGroupServeScopeInfo>> selectCarGroupServiceScope(String cityCode,Long dispatcherUserId){
         //找到调度员管理的车队
-        CarGroupDispatcherInfo carGroupDispatcherInfo=carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoById(dispatcherId);
-        if(carGroupDispatcherInfo==null){
+        CarGroupDispatcherInfo carGroupDispatcher=new CarGroupDispatcherInfo();
+                               carGroupDispatcher.setUserId(dispatcherUserId);
+        List<CarGroupDispatcherInfo> carGroupDispatcherInfos=carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcher);
+        if(carGroupDispatcherInfos.isEmpty()){
             return ApiResponse.error("当前调度员不存在");
         }
 
-        Long carGroupId=carGroupDispatcherInfo.getCarGroupId();
-        CarGroupInfo carGroupInfo=carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
-        if(carGroupInfo==null){
-            return ApiResponse.error("没有找到调度员的归属车队");
-        }
+        List<CarGroupServeScopeInfo> carGroupServeScopeInfoListResult = new LinkedList<>();
 
-        //查看车队是否满足城市要求
-        CarGroupServeScopeInfo  carGroupServeScopeInfo=new CarGroupServeScopeInfo();
-        carGroupServeScopeInfo.setCarGroupId(carGroupInfo.getCarGroupId());
-        List<CarGroupServeScopeInfo> carGroupServeScopeInfoList=carGroupServeScopeInfoMapper.queryAll(carGroupServeScopeInfo);
-        if(carGroupServeScopeInfoList.isEmpty()){
-            return ApiResponse.error("车队服务范围不满足");
-        }
-
-        Boolean serviceCitySatisfy=false;
-        for (CarGroupServeScopeInfo c:carGroupServeScopeInfoList) {
-            if(cityCode.equals(c.getCity())){
-                serviceCitySatisfy=true;
+        for (CarGroupDispatcherInfo carGroupDispatcherInfo:carGroupDispatcherInfos) {
+            Long carGroupId=carGroupDispatcherInfo.getCarGroupId();
+            CarGroupInfo carGroupInfo=carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+            if(carGroupInfo==null){
+                return ApiResponse.error("没有找到调度员的归属车队");
             }
+
+            //查看车队是否满足城市要求
+            CarGroupServeScopeInfo  carGroupServeScopeInfo=new CarGroupServeScopeInfo();
+                                    carGroupServeScopeInfo.setCarGroupId(carGroupInfo.getCarGroupId());
+            List<CarGroupServeScopeInfo> carGroupServeScopeInfoList=carGroupServeScopeInfoMapper.queryAll(carGroupServeScopeInfo);
+            if(carGroupServeScopeInfoList.isEmpty()){
+                continue;
+            }
+
+            Iterator<CarGroupServeScopeInfo> iterator=carGroupServeScopeInfoList.iterator();
+            Boolean serviceCitySatisfy=false;
+            while (iterator.hasNext()){
+                CarGroupServeScopeInfo cgss=iterator.next();
+                if(cityCode.equals(cgss.getCity())){
+                    serviceCitySatisfy=true;
+                }else {
+                    iterator.remove();
+                }
+            }
+
+            if(serviceCitySatisfy){
+                carGroupServeScopeInfoListResult.addAll(carGroupServeScopeInfoList);
+            }
+
         }
-        if(!serviceCitySatisfy){
+
+        if(carGroupServeScopeInfoListResult.isEmpty()){
             return ApiResponse.error("您的车队服务范围不满足订单要求");
         }
 
-        return ApiResponse.success(carGroupServeScopeInfoList);
+        return ApiResponse.success(carGroupServeScopeInfoListResult);
     }
 }

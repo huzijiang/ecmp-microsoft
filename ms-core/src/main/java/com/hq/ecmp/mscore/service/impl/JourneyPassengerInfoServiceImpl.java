@@ -102,6 +102,11 @@ public class JourneyPassengerInfoServiceImpl implements IJourneyPassengerInfoSer
 	@Override
 	public Integer queryPeerCount(Long journeyId) {
 		// TODO Auto-generated method stub
-		return null;
+		return journeyPassengerInfoMapper.queryPeerCount(journeyId);
+	}
+
+	@Override
+	public List<String> queryPeerUserNameList(Long journeyId) {
+		return journeyPassengerInfoMapper.queryPeerUserNameList(journeyId);
 	}
 }

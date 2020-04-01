@@ -183,7 +183,7 @@ public interface IOrderInfoService {
      * @param orderListBackDto
      * @return
      */
-    List<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto);
+    PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto);
 
     /**
      * PC端查询订单详情
@@ -265,5 +265,9 @@ public interface IOrderInfoService {
      * @return
      */
     OrderCostDetailVO getOrderCost(Long orderId);
+    
+    public DispatchSendCarPageInfo  getDispatchSendCarPageInfo(Long orderId);
+    
+    public DispatchSendCarPageInfo getUserDispatchedOrder(Long orderId);
 }
 

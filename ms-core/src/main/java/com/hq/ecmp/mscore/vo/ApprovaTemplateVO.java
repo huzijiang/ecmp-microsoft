@@ -21,6 +21,7 @@ public class ApprovaTemplateVO {
      */
     private Long approveTemplateId;
     private String name;
+    private Integer isBingRegime;
     private List<ApprovaTemplateNodeVO> nodeIds;
     public ApprovaTemplateVO() {
     }

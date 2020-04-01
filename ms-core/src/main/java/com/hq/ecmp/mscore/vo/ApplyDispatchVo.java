@@ -36,6 +36,8 @@ public class ApplyDispatchVo {
 	String cityName;// 用车城市
 	
 	String state;
+	
+	String itIsReturn;//是否往返
 
 	/**
 	 * 

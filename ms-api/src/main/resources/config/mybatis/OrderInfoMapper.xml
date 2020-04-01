@@ -511,21 +511,37 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="getOrderListBackDto" parameterType="com.hq.ecmp.mscore.dto.OrderListBackDto" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
         select
+        -- 申请人姓名
         eu.user_name applyName,
+        -- 申请人手机号
         eu.phonenumber applyPhoneNumber,
+        -- 乘车人
         jpi.name passengerName,
-        GROUP_CONCAT(jpi1.name) peer_name,
-        oai.action_time begin_time,
-        oai2.action_time end_time,
-        oai.address begin_address,
-        oai2.address end_address,
-        ji.service_type ,
-        ji.charter_car_type,
+        -- 同行人
+        GROUP_CONCAT(jpi1.name) peerName,
+        -- 实际用车时间
+        oai.action_time beginTime,
+        -- 实际下车时间
+        oai2.action_time endTime,
+        -- 实际上车地址
+        oai.address  beginAddress,
+        -- 实际下车地址
+        oai2.address endAddress,
+        -- 服务类型 1000预约  2001接机 2002送机 3000包车
+        ji.service_type serviceType,
+        -- 包车类型  T000  非包车 T001 半日租（4小时） T002 整日租（8小时）
+        ji.charter_car_type  charterCarType,
+        -- 用车时间
         ji.use_car_time,
-        s.use_car_mode,
-        s.order_id,
+        -- 用车方式 自有车   W100 网约车   W200
+        s.use_car_mode useCarMode,
+        -- 订单id
+        s.order_id orderId,
+        -- 订单状态
         s.state orderState,
-        osi.amount,
+        -- 费用合计
+        osi.amount  amount,
+        -- 订单编号
         s.order_number orderNumber
         from order_info s
         LEFT join journey_user_car_power jucp on jucp.power_id=s.power_id
@@ -547,7 +563,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="useCarTimeBegin != null and  useCarTimeBegin!='' "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{useCarTimeBegin},'%Y-%m-%d %H:%i:%S')</if>
                 <if test="useCarTimeEnd != null and  useCarTimeEnd!='' "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{useCarTimeEnd},'%Y-%m-%d %H:%i:%S')</if>
                 <if test="orderState != null and  orderState!='' "> and s.state = #{orderState}</if>
-                <if test="orderId != null and  orderId!=''"> and s.order_id  concat('%',#{orderId},'%') </if>
+                <if test="orderId != null and  orderId!=''"> and s.order_id  like concat('%',#{orderId},'%') </if>
             </where>
             group by s.order_id
             order by a.create_time desc
@@ -556,7 +572,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="getOrderListDetail" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.OrderDetailBackDto">
         select
-        s.order_id,
+        s.order_id orderId,
         s.order_number orderNumber,
         eu.user_name applyName,
         eu.phonenumber,
@@ -624,142 +640,154 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		a.node_id AS nodeId,
 		a.update_time AS optDate,
 		a.state AS state,
-		a.service_type as serviceType
+		a.service_type as serviceType,
+		h.it_is_return as itIsReturn,
+		f.SHORT_NAME as cityName
 		FROM
-		order_state_trace_info d
-		LEFT JOIN order_info a ON a.order_id = d.order_id
+		order_info a
+		LEFT JOIN order_state_trace_info d ON a.order_id = d.order_id
 		LEFT JOIN ecmp_user b ON a.user_id = b.user_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
+		LEFT JOIN journey_info h on a.journey_id=h.journey_id
+		LEFT JOIN china_city f  ON c.city_postal_code =f.CITY_CODE
 		WHERE
 		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S199','S200','S299','S600','S616','S699','S900')
-		<if test="null !=applyMobile">
+		<if test="null !=applyMobile and applyMobile !=''">
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>
-		<if test="null !=applyName">
+		<if test="null !=applyName and applyName !=''">
 			and AND b.nick_name LIKE concat('%',#{applyName},'%')
 		</if>
-		<if test="null !=cityCode">
+		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}
 		</if>
-		<if test="null !=optStartDate">
+		<if test="null !=optStartDate and optStartDate !=''">
 			AND a.update_time &gt;= #{optStartDate}
 		</if>
-		<if test="null !=optEndDate">
+		<if test="null !=optEndDate and optEndDate !=''">
 			AND a.update_time &lt;= #{optEndDate}
 		</if>
-		<if test="null !=useCarMode">
+		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
-		<if test="offset != null and pageSize != null">
+		<!--  <if test="offset != null and pageSize != null">
 			LIMIT #{offset},#{pageSize}
-		</if>
+		</if>  -->
 	</select>
 
    <select id="queryApplyDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="java.lang.Integer">
-   SELECT
+   select count(1) from 
+   (SELECT
 		count(1)
 		FROM
-		order_state_trace_info d
-		LEFT JOIN order_info a ON a.order_id = d.order_id
+		order_info a
+		LEFT JOIN order_state_trace_info d  ON a.order_id = d.order_id
 		LEFT JOIN ecmp_user b ON a.user_id = b.user_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
 		WHERE
 		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S199','S200','S299','S600','S616','S699','S900')
-		<if test="null !=applyMobile">
+		<if test="null !=applyMobile and applyMobile  !=''">
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>
-		<if test="null !=applyName">
+		<if test="null !=applyName and applyName !=''">
 			and AND b.nick_name LIKE concat('%',#{applyName},'%')
 		</if>
-		<if test="null !=cityCode">
+		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}
 		</if>
-		<if test="null !=optStartDate">
+		<if test="null !=optStartDate and optStartDate !=''">
 			AND a.update_time &gt;= #{optStartDate}
 		</if>
-		<if test="null !=optEndDate">
+		<if test="null !=optEndDate and optEndDate !=''">
 			AND a.update_time &lt;= #{optEndDate}
 		</if>
-		<if test="null !=useCarMode">
+		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
+		) m
    </select>
 
 	<select id="queryReassignmentDispatchList" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
 		resultType="com.hq.ecmp.mscore.vo.ApplyDispatchVo">
 		SELECT
 		a.order_id AS orderId,
-		b.nick_name AS applyUserName,
-		b.user_name AS applyUserMobile,
+		b.driver_name AS applyUserName,
+		b.mobile AS applyUserMobile,
 		a.journey_id AS journeyId,
 		a.node_id AS nodeId,
 		a.update_time AS optDate,
-		a.state AS state
+		a.state AS state,
+		h.it_is_return as itIsReturn,
+		f.SHORT_NAME as cityName
 		FROM
-		order_state_trace_info d
-		LEFT JOIN order_info a ON a.order_id = d.order_id
+		order_info a
+		LEFT JOIN order_state_trace_info d ON a.order_id = d.order_id
 		LEFT JOIN driver_info b ON a.driver_id = b.driver_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
+		LEFT JOIN journey_info h on a.journey_id=h.journey_id
+		LEFT JOIN china_city f  ON c.city_postal_code =f.CITY_CODE
 		WHERE
 		d.state IN ('S270', 'S277', 'S279') and a.state in
 		('S199','S200','S299','S600','S616','S699','S900')
-		<if test="null !=driverMobile">
+		<if test="null !=driverMobile and driverMobile !=''">
 			and b.mobile LIKE concat('%',#{driverMobile},'%')
 		</if>
-		<if test="null !=driverName">
+		<if test="null !=driverName and driverName !=''">
 			and AND b.driver_name LIKE concat('%',#{driverName},'%')
 		</if>
-		<if test="null !=cityCode">
+		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}
 		</if>
-		<if test="null !=optStartDate">
+		<if test="null !=optStartDate and optStartDate !=''">
 			AND a.update_time &gt;= #{optStartDate}
 		</if>
-		<if test="null !=optEndDate">
+		<if test="null !=optEndDate and optEndDate !=''">
 			AND a.update_time &lt;= #{optEndDate}
 		</if>
-		<if test="null !=useCarMode">
+		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
-		<if test="offset != null and pageSize != null">
+		<!--  <if test="offset != null and pageSize != null">
 			LIMIT #{offset},#{pageSize}
-		</if>
+		</if>  -->
 	</select>
 
 	<select id="queryReassignmentDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
 		resultType="java.lang.Integer">
-		SELECT
+		select count(1) from 
+		(SELECT
 		count(1)
 		FROM
-		order_state_trace_info d
-		LEFT JOIN order_info a ON a.order_id = d.order_id
+		order_info a
+		LEFT JOIN order_state_trace_info d  ON a.order_id = d.order_id
 		LEFT JOIN driver_info b ON a.driver_id = b.driver_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
 		WHERE
 		d.state IN ('S270', 'S277', 'S279') and a.state in
 		('S199','S200','S299','S600','S616','S699','S900')
-		<if test="null !=driverMobile">
+		<if test="null !=driverMobile and driverMobile !=''">
 			and b.mobile LIKE concat('%',#{driverMobile},'%')
 		</if>
-		<if test="null !=driverName">
+		<if test="null !=driverName and driverName !=''">
 			and AND b.driver_name LIKE concat('%',#{driverName},'%')
 		</if>
-		<if test="null !=cityCode">
+		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}
 		</if>
-		<if test="null !=optStartDate">
+		<if test="null !=optStartDate and optStartDate !=''">
 			AND a.update_time &gt;= #{optStartDate}
 		</if>
-		<if test="null !=optEndDate">
+		<if test="null !=optEndDate and optEndDate !=''">
 			AND a.update_time &lt;= #{optEndDate}
 		</if>
-		<if test="null !=useCarMode">
+		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
+		) m
 	</select>
 
     <select id="selectDriverOrder" parameterType="Object" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
@@ -808,7 +836,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
-            <if test="setOutTime != null and  setOutTime!='' "> and jpp.planned_arrival_time > #{setOutTime}  </if>
+            <if test="setOutTime != null "> and jpp.planned_arrival_time > #{setOutTime}  </if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}  </if>
         </where>
         ORDER BY  ord.order_id DESC
@@ -821,7 +849,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id = #{carId} </if>
-            <if test="arrivalTime != null and  arrivalTime!='' "> and #{arrivalTime} > jpp.planned_departure_time</if>
+            <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time</if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
         </where>
         ORDER BY  ord.order_id DESC
@@ -836,7 +864,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
-            <if test="setOutTime != null and  setOutTime!='' "> and jpp.planned_arrival_time >#{setOutTime}  </if>
+            <if test="setOutTime != null "> and jpp.planned_arrival_time >#{setOutTime}  </if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
         </where>
         ORDER BY  ord.order_id DESC
@@ -851,7 +879,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId} </if>
-            <if test="arrivalTime != null and  arrivalTime!='' "> and #{arrivalTime} > jpp.planned_departure_time </if>
+            <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time </if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId} </if>
         </where>
         ORDER BY  ord.order_id DESC

@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.bo;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  *车辆任务是否冲突数据封装类
@@ -39,11 +40,12 @@ public class OrderTaskClashBo {
     /**
      * 出发时间 已经算上了缓冲时间
      */
-    private Timestamp  setOutTime;
+    private Date  setOutTime;
 
     /**
      * 到达时间  已经算上车辆缓冲时间
      */
-    private Timestamp arrivalTime;
+    private Date arrivalTime;
+
 
 }

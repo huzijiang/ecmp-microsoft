@@ -9,4 +9,5 @@ import java.util.List;
 public interface ChinaProvinceService {
 	public List<ProvinceVO> queryProvince();
 	public List<ProvinceCityVO> queryCityByProvince(String provinceCode);
+
 }

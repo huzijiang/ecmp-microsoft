@@ -65,4 +65,6 @@ public interface JourneyPassengerInfoMapper
     String getPeerPeople(Long journeyId);
 
     public Integer queryPeerCount(Long journeyId);
+    
+    public List<String> queryPeerUserNameList(Long journeyId);
 }

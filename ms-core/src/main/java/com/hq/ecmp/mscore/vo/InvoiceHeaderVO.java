@@ -10,7 +10,7 @@ public class InvoiceHeaderVO {
 
 
     @ApiModelProperty(value = "发票抬头")
-    private Integer header;
+    private String header;
 
     @ApiModelProperty(value = "纳税人识别号")
     private String tin;

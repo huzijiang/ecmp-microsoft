@@ -209,4 +209,14 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 		
 		
 	}
+
+	@Override
+	public OrderStateTraceInfo queryFirstDispatchIndo(Long orderId) {
+		return orderStateTraceInfoMapper.queryFirstDispatchIndo(orderId);
+	}
+
+	@Override
+	public OrderStateTraceInfo queryRecentlyDispatchInfo(Long orderId) {
+		return orderStateTraceInfoMapper.queryRecentlyDispatchInfo(orderId);
+	}
 }
