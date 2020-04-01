@@ -226,6 +226,8 @@ public interface DriverInfoMapper
      * @return
      */
     public int unlockDriver(Long driverId);
+    
+    public List<DriverQueryResult>  queryDriverInfoList(Long carGroupId);
 
 
 

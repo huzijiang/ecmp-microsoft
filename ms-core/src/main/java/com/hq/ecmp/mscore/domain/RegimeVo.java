@@ -67,5 +67,6 @@ public class RegimeVo {
 	String asAllowDateRound;// 接送服务 使用期限 0 不限制 N 天数
 
 	String asSetoutEqualArrive;// 接送服务 同城限制 Y000 ：相等---不允许跨域 N111 ：不相等--允许跨域
+	
 
 }
