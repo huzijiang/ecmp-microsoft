@@ -655,7 +655,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN journey_info h on a.journey_id=h.journey_id
 		LEFT JOIN china_city f  ON c.city_postal_code =f.CITY_CODE
 		WHERE
-		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S199','S200','S299','S600','S616','S699','S900')
+		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S100','S199','S299','S500','S600','S616','S699','S900')
+		and (a.use_car_mode is null or a.use_car_mode='W100')
 		<if test="null !=applyMobile and applyMobile !=''">
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>
@@ -690,7 +691,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN ecmp_user b ON a.user_id = b.user_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
 		WHERE
-		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S199','S200','S299','S600','S616','S699','S900')
+		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S100','S199','S299','S500','S600','S616','S699','S900')
+		and (a.use_car_mode is null or a.use_car_mode='W100')
 		<if test="null !=applyMobile and applyMobile  !=''">
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>
@@ -734,7 +736,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN china_city f  ON c.city_postal_code =f.CITY_CODE
 		WHERE
 		d.state IN ('S270', 'S277', 'S279') and a.state in
-		('S199','S200','S299','S600','S616','S699','S900')
+		('S299','S500','S600','S616','S900','S699') and a.use_car_mode is not null
 		<if test="null !=driverMobile and driverMobile !=''">
 			and b.mobile LIKE concat('%',#{driverMobile},'%')
 		</if>
@@ -771,7 +773,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
 		WHERE
 		d.state IN ('S270', 'S277', 'S279') and a.state in
-		('S199','S200','S299','S600','S616','S699','S900')
+		('S299','S500','S600','S616','S900','S699') and a.use_car_mode is not null
 		<if test="null !=driverMobile and driverMobile !=''">
 			and b.mobile LIKE concat('%',#{driverMobile},'%')
 		</if>

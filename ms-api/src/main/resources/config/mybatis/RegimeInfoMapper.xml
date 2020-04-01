@@ -164,7 +164,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	c. NAME AS
 	sceneName,
 	a.approve_template_id AS approveTemplateId,
-	a. state AS state
+	a. state AS state,
+	a.need_approval_process as needApprovalProcess
 	FROM
 	regime_info a
 	LEFT JOIN scene_regime_relation b ON a.regimen_id = b.regimen_id
@@ -180,6 +181,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<if test="null !=regimeName and regimeName !=''">
 		and a.NAME like CONCAT('%',#{regimeName},'%')
 	</if>
+	group by a.regimen_id
 	<!-- <if test="offset != null and pageSize != null">
 		LIMIT #{offset},#{pageSize}
 	</if> -->
@@ -188,7 +190,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 <select id="queryRegimeListCount" parameterType="com.hq.ecmp.mscore.domain.RegimeQueryPo"
 	resultType="java.lang.Integer">
-	SELECT
+	select count(1) from 
+	(SELECT
 	count(1)
 	FROM
 	regime_info a
@@ -207,6 +210,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<if test="null !=regimeName and regimeName !=''">
 		and a.NAME like CONCAT('%',#{regimeName},'%')
 	</if>
+	group by a.regimen_id
+	) m
 </select>
 
 <update id="updateStatus" parameterType="com.hq.ecmp.mscore.domain.RegimeOpt">
