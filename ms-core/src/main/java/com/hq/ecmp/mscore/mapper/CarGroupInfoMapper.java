@@ -98,4 +98,13 @@ public interface CarGroupInfoMapper
      */
     List<CarGroupFixedPhoneVO> selectCarGroupPhones(List<Long> groupIds);
 
+
+    /**
+     * 查询指定司机的
+     *车队信息
+     * @param driverId
+     * @return List<CarGroupInfo>
+     */
+    List<CarGroupInfo> selectCarGroupsByDriverId(Long driverId);
+
 }

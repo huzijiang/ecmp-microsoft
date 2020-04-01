@@ -245,13 +245,19 @@ AND a.state ='S270' order by a.create_time desc limit 1
         LIMIT 1
     </select>
     
-    <select id="queryFirstDispatchIndo" parameterType="java.lang.Long" resultMap="OrderStateTraceInfoResult">
-    <include refid="selectOrderStateTraceInfoVo"/>
-    where state in ('S279','S299') order by create_time limit 1
-    </select>
+    <select id="queryFirstDispatchIndo" parameterType="java.lang.Long"
+	resultType="com.hq.ecmp.mscore.domain.OrderStateTraceInfo">
+	select state as state,content as content,create_by as createBy,create_time as
+	createTime from order_state_trace_info
+	where state in ('S279','S299') and order_id=#{orderId} order by create_time
+	limit 1
+</select>
    
-    <select id=" queryRecentlyDispatchInfo" parameterType="java.lang.Long" resultMap="OrderStateTraceInfoResult">
-    <include refid="selectOrderStateTraceInfoVo"/>
-    where state in ('S277','S279','S299') order by create_time desc limit 1
-    </select>
+    <select id="queryRecentlyDispatchInfo" parameterType="java.lang.Long"
+	resultType="com.hq.ecmp.mscore.domain.OrderStateTraceInfo">
+	select state as state,content as content,create_by as createBy,create_time as
+	createTime from order_state_trace_info
+	where state in ('S277','S279','S299') and order_id=#{orderId} order by
+	create_time desc limit 1
+</select>
 </mapper>

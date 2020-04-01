@@ -170,11 +170,14 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
 
     @Override
     public List<ApprovalUserVO> getApprovalList(String regimeId, String projectId, SysUser user) throws Exception{
-        RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(Long.parseLong(regimeId));
+        RegimeVo regimeInfo = regimeInfoMapper.queryRegimeDetail(Long.parseLong(regimeId));
         if (regimeInfo==null){
             throw new Exception("用车制度:"+regimeId+"不存在");
         }
-        List<ApproveTemplateNodeInfo> nodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId()));
+        if (CommonConstant.NO_PASS.equals(regimeInfo.getNeedApprovalProcess())){
+            return null;
+        }
+        List<ApproveTemplateNodeInfo> nodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(Long.valueOf(regimeInfo.getApproveTemplateId())));
         String userIds="";
         if (CollectionUtils.isNotEmpty(nodeInfos)){
             SortListUtil.sort(nodeInfos,"approveNodeId",SortListUtil.ASC);

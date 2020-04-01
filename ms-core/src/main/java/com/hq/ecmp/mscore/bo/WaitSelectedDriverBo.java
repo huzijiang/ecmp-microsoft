@@ -119,9 +119,17 @@ public class WaitSelectedDriverBo extends DriverInfo implements Comparable<WaitS
     /**
      * 综合状态： 根据各种状态综合判断
      */
-    private String compositeState;
+    private String status;
 
+    /**
+     * 司机电话
+     */
+    private String driverPhone;
 
+    /**
+     * 车队电话
+     */
+    private String fleetPhone;
 
     @Override
     public int compareTo(WaitSelectedDriverBo o) {
@@ -132,26 +140,26 @@ public class WaitSelectedDriverBo extends DriverInfo implements Comparable<WaitS
     public void   embellish(){
 
         if(DriverStateEnum.EFFECTIVE.getCode().equals(this.getState())){
-            this.compositeState.concat(DriverStateEnum.EFFECTIVE.getDesc());
+            this.status=DriverStateEnum.EFFECTIVE.getDesc();
         }
         if(DriverStateEnum.WAIT_CHECK.getCode().equals(this.getState())){
-            this.compositeState.concat(DriverStateEnum.WAIT_CHECK.getDesc());
+            this.status=DriverStateEnum.WAIT_CHECK.getDesc();
         }
         if(DriverStateEnum.DIMISSION.getCode().equals(this.getState())){
-            this.compositeState.concat(DriverStateEnum.DIMISSION.getDesc());
+            this.status=DriverStateEnum.DIMISSION.getDesc();
         }
 
-        if(TaskConflictEnum.BEFORE_TASK_CLASH.getCode().equals(this.taskConflict)){
-            this.compositeState.concat(TaskConflictEnum.BEFORE_TASK_CLASH.getDesc());
+        if(TaskConflictEnum.BEFORE_TASK_CLASH.getCode().equals(this.getTaskConflict())){
+            this.status=TaskConflictEnum.BEFORE_TASK_CLASH.getDesc()+","+this.status;
         }
-        if(TaskConflictEnum.AFTER_TASK_CLASH.getCode().equals(this.taskConflict)){
-            this.compositeState.concat(TaskConflictEnum.AFTER_TASK_CLASH.getDesc());
+        if(TaskConflictEnum.AFTER_TASK_CLASH.getCode().equals(this.getTaskConflict())){
+            this.status=TaskConflictEnum.AFTER_TASK_CLASH.getDesc()+","+this.status;
         }
-        if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getCode().equals(this.taskConflict)){
-            this.compositeState.concat(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc());
+        if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getCode().equals(this.getTaskConflict())){
+            this.status=TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc()+","+this.status;
         }
-        if(TaskConflictEnum.CONFLICT_FREE.getCode().equals(this.taskConflict)){
-            this.compositeState.concat(TaskConflictEnum.CONFLICT_FREE.getDesc());
+        if(TaskConflictEnum.CONFLICT_FREE.getCode().equals(this.getTaskConflict())){
+            this.status=TaskConflictEnum.CONFLICT_FREE.getDesc()+","+this.status;
         }
     }
 
