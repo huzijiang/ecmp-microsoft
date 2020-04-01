@@ -70,11 +70,13 @@ public interface IProjectInfoService
 
     ProjectInfoVO getProjectInfo(Long projectId);
 
-    PageInfo<ProjectUserVO> getProjectUserList(Long projectId,int pageNum,int pageSize,String search);
+    PageResult<ProjectUserVO> getProjectUserList(Long projectId,int pageNum,int pageSize,String search);
 
-    int removeProjectUser(ProjectUserDTO projectUserDTO);
+    int removeProjectUser(ProjectUserDTO projectUserDTO,Long userId);
 
     int deleteProject(ProjectUserDTO projectUserDTO);
 
     void checkProject();
+
+    List<Long> getProjectUserInfo(Long projectId);
 }
