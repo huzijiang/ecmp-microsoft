@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.SceneInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -67,7 +68,7 @@ public interface SceneInfoMapper
      * 查询所有场景（带搜索功能）
      * @return
      */
-    List<SceneInfo> selectAll(String name);
+    List<SceneInfo> selectAll(@Param("name") String name);
     
     public SceneInfo querySceneByRegimeId(Long regimeId);
 }
