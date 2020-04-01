@@ -232,9 +232,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<if test="null !=carGroupId">
 		AND b.car_group_id = #{carGroupId}
 	</if>
-	<if test="offset != null and pageSize != null">
+	<!-- <if test="offset != null and pageSize != null">
 		LIMIT #{offset},#{pageSize}
-	</if>
+	</if> -->
 </select>
 
 <select id="queryDriverListCount" parameterType="com.hq.ecmp.mscore.domain.DriverQuery" resultType="java.lang.Integer">
@@ -279,7 +279,7 @@ FROM
 LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
 LEFT JOIN car_group_info c ON c.car_group_id = b.car_group_id
 WHERE
-	b.car_group_id = #{driverId}
+	a.driver_id = #{driverId}
 
 </select>
     <select id="selectEffectiveDriverInfoById" resultMap="DriverInfoResult">
