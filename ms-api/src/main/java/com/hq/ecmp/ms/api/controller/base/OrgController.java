@@ -149,7 +149,7 @@ public class OrgController {
      * @param  ecmpOrg
      * @return
      */
-    @ApiOperation(value = "selectDeptCodeExist",notes = "添加分/子公司",httpMethod ="POST")
+    @ApiOperation(value = "selectDeptCodeExist",notes = "查询分/子公司、部门编号是否已存在",httpMethod ="POST")
     @PostMapping("/selectDeptCodeExist")
     public ApiResponse selectDeptCodeExist(@RequestBody EcmpOrgVo ecmpOrg){
         String deptCode=ecmpOrg.getDeptCode();
@@ -170,12 +170,38 @@ public class OrgController {
     @PostMapping("/insertCompany")
     public ApiResponse insertCompany(@RequestBody EcmpOrgVo ecmpOrg){
         String deptCode=ecmpOrg.getDeptCode();
-        if(deptCode!=null&&!("").equals(deptCode)){
+        /*if(deptCode!=null&&!("").equals(deptCode.trim())){
             int j = orgService.selectDeptCodeExist(deptCode);
             if(j>0){
                 return ApiResponse.error("该编号已存在，不可重复录入！");
             }
         }
+        String deptName=ecmpOrg.getDeptName();
+        if(deptName==null&&("").equals(deptName.trim())){
+                return ApiResponse.error("名称不可为空！");
+        }
+        String leader=ecmpOrg.getLeader();
+        if(leader==null&&("").equals(leader.trim())){
+                return ApiResponse.error("主管姓名不可为空！");
+        }
+        String phone=ecmpOrg.getPhone();
+        if(phone==null&&("").equals(phone.trim())){
+            return ApiResponse.error("主管手机号不可为空！");
+        }else{
+            int j = ecmpUserService.selectPhoneNumberExist(phone);
+            if(j>0){
+                return ApiResponse.error("该手机号已存在，不可重复录入！");
+            }
+        }
+        String email=ecmpOrg.getEmail();
+        if(email==null&&("").equals(email.trim())){
+            return ApiResponse.error("主管邮箱不可为空！");
+        }else{
+            int j = ecmpUserService.selectEmailExist(email);
+            if(j>0){
+                return ApiResponse.error("该邮箱已存在，不可重复录入！");
+            }
+        }*/
         int i = orgService.addDept(ecmpOrg);
         if (i == 1){
             return ApiResponse.success("添加分/子公司成功");
@@ -192,13 +218,13 @@ public class OrgController {
     @ApiOperation(value = "updateCompany",notes = "修改分/子公司信息",httpMethod ="POST")
     @PostMapping("/updateCompany")
     public ApiResponse updateCompany(@RequestBody EcmpOrgVo ecmpOrg){
-        String deptCode=ecmpOrg.getDeptCode();
+        /*String deptCode=ecmpOrg.getDeptCode();
         if(deptCode!=null&&!("").equals(deptCode)){
             int j = orgService.selectDeptCodeExist(deptCode);
             if(j>0){
                 return ApiResponse.error("该编号已存在，不可重复录入！");
             }
-        }
+        }*/
         int i = orgService.updateEcmpOrg(ecmpOrg);
         if (i > 0){
             return ApiResponse.success("修改分/子公司成功");
@@ -248,7 +274,7 @@ public class OrgController {
         }else {
             return ApiResponse.error("启用失败");
         }*/
-        return ApiResponse.error(s);
+        return ApiResponse.success(s);
     }
 
     /**

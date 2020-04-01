@@ -76,7 +76,7 @@ public interface EcmpOrgMapper {
      * @param deptCode 分/子公司、部门编号
      * @return
      */
-    public int selectDeptCodeExist(String deptCode);
+    public int selectDeptCodeExist(@Param("deptCode")String deptCode);
 
     /**
      * 新增部门
@@ -193,20 +193,20 @@ public interface EcmpOrgMapper {
      * @param deptName  deptCode
      * @return 结果
      */
-    public List<Long> selectDeptIdsByDeptNameOrCode(String deptName,String deptCode);
+    public List<Long> selectDeptIdsByDeptNameOrCode(@Param("deptName")String deptName,@Param("deptCode")String deptCode);
 
     /**
      * 按照分子公司名称或编号模糊
      * @param deptName  deptCode
      * @return 结果
      */
-    public EcmpOrgDto selectCompanyByDeptNameOrCode(String deptName,String deptCode,Long deptId);
+    public EcmpOrgDto selectCompanyByDeptNameOrCode(@Param("deptName")String deptName,@Param("deptCode")String deptCode,@Param("deptId")Long deptId);
 
     /**
      * 查询当前机构信息
      * @param deptId
      * @return 结果
      */
-    public EcmpOrgDto selectCurrentDeptInformation(Long deptId);
+    public EcmpOrgDto selectCurrentDeptInformation(@Param("deptId")Long deptId,@Param("ancestors") String ancestors);
 
 }
