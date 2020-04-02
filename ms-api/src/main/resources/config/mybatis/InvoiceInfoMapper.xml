@@ -33,46 +33,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where invoice_id = #{invoiceId}
     </select>
 
-    <insert id="insertInvoiceInfo" parameterType="com.hq.ecmp.mscore.domain.InvoiceInfo">
+    <insert id="insertInvoiceInfo" parameterType="com.hq.ecmp.mscore.dto.InvoiceInsertDTO" useGeneratedKeys="true" keyProperty="invoiceId">
         insert into invoice_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="invoiceId != null ">invoice_id,</if>
             <if test="amount != null ">amount,</if>
             <if test="header != null  and header != ''">header,</if>
             <if test="tin != null  and tin != ''">tin,</if>
-            <if test="bankName != null  and bankName != ''">bank_name,</if>
-            <if test="bankCardNo != null  and bankCardNo != ''">bank_card_no,</if>
-            <if test="registedAddress != null  and registedAddress != ''">registed_address,</if>
-            <if test="telephone != null  and telephone != ''">telephone,</if>
-            <if test="acceptAddress != null  and acceptAddress != ''">accept_address,</if>
-            <if test="applyer != null ">applyer,</if>
             <if test="content != null  and content != ''">content,</if>
             <if test="type != null  and type != ''">type,</if>
+            <if test="acceptAddress != null  and acceptAddress != ''">accept_address,</if>
             <if test="status != null  and status != ''">status,</if>
-            <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
-            <if test="updateBy != null ">update_by,</if>
-            <if test="updateTime != null ">update_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="invoiceId != null ">#{invoiceId},</if>
             <if test="amount != null ">#{amount},</if>
             <if test="header != null  and header != ''">#{header},</if>
             <if test="tin != null  and tin != ''">#{tin},</if>
-            <if test="bankName != null  and bankName != ''">#{bankName},</if>
-            <if test="bankCardNo != null  and bankCardNo != ''">#{bankCardNo},</if>
-            <if test="registedAddress != null  and registedAddress != ''">#{registedAddress},</if>
-            <if test="telephone != null  and telephone != ''">#{telephone},</if>
-            <if test="acceptAddress != null  and acceptAddress != ''">#{acceptAddress},</if>
-            <if test="applyer != null ">#{applyer},</if>
             <if test="content != null  and content != ''">#{content},</if>
             <if test="type != null  and type != ''">#{type},</if>
+            <if test="acceptAddress != null  and acceptAddress != ''">#{acceptAddress},</if>
             <if test="status != null  and status != ''">#{status},</if>
-            <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
-            <if test="updateBy != null ">#{updateBy},</if>
-            <if test="updateTime != null ">#{updateTime},</if>
          </trim>
+
     </insert>
 
     <update id="updateInvoiceInfo" parameterType="com.hq.ecmp.mscore.domain.InvoiceInfo">
@@ -109,14 +92,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
-    <select id="queryAll" resultType="com.hq.ecmp.mscore.vo.InvoiceRecordVO">
-        select create_time as createTime,header as header,amount as amount,content as content,accept_address as acceptAddress,status as status from invoice_info
+    <select id="queryInvoiceById" resultType="com.hq.ecmp.mscore.vo.InvoiceRecordVO"  parameterType="Long">
+        select create_time as createTime,header as header,amount as amount, content as content,tin as tin,
+        accept_address as acceptAddress,
+        case type when '2000' then '增值税专用电子发票'
+        else '无发票类型' END as type,
+        CASE status WHEN '11' THEN '未开票'
+        WHEN '00' THEN '已开票'
+        else '无开票状态' END as status
+        from invoice_info where invoice_id = #{invoiceId}
     </select>
     <!--根据时间区间、开票状态查询发票信息-->
     <select id="queryAllByTimeState" resultType="com.hq.ecmp.mscore.vo.InvoiceRecordVO"  parameterType="com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO">
-        select create_time as createTime,header as header,amount as amount,
-        CASE content WHEN '01' THEN '客运服务费'
-        else '无发票内容' END as content,
+        select invoice_id as invoiceId,create_time as createTime,header as header,amount as amount, content as content,
         accept_address as acceptAddress,
         CASE status WHEN '11' THEN '未开票'
         WHEN '00' THEN '已开票'
@@ -134,8 +122,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
         </where>
     </select>
-    <insert id="insertInvoiceHeader" parameterType="com.hq.ecmp.mscore.vo.InvoiceHeaderVO" useGeneratedKeys="true" keyProperty="invoiceId">
-        insert into invoice_info
+    <insert id="insertInvoiceHeader" parameterType="com.hq.ecmp.mscore.dto.InvoiceHeaderDTO">
+        insert into invoice_header_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="header != null  and header != ''">header,</if>
             <if test="tin != null  and tin != ''">tin,</if>
@@ -143,7 +131,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="bankCardNo != null  and bankCardNo != ''">bank_card_no,</if>
             <if test="registedAddress != null  and registedAddress != ''">registed_address,</if>
             <if test="telephone != null  and telephone != ''">telephone,</if>
-            <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -153,8 +140,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="bankCardNo != null  and bankCardNo != ''">#{bankCardNo},</if>
             <if test="registedAddress != null  and registedAddress != ''">#{registedAddress},</if>
             <if test="telephone != null  and telephone != ''">#{telephone},</if>
-            <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
         </trim>
     </insert>
+    <select id="queryInvoiceHeader" resultType="com.hq.ecmp.mscore.vo.InvoiceHeaderVO">
+        select create_time as createTime,header as header,tin as tin,bank_name as bankName,bank_card_no as bankCardNo,
+        registed_address as registedAddress,telephone as telephone from invoice_header_info ORDER BY create_time
+    </select>
+    <delete id="deleteInvoiceHeader">
+        delete from invoice_header_info
+    </delete>
+    <insert id="addInvoicePeriod">
+        insert into invoice_period_info(invoice_id, period_id) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.invoiceId},#{item.periodId})
+        </foreach>
+    </insert>
+
+    <select id="getPeriodListByInvoiceId" resultType="com.hq.ecmp.mscore.vo.PeriodsVO">
+     SELECT begin_date as beginDate,end_date as endDate,total as total  from order_account_period_info
+     where period_id in (select period_id from invoice_period_info where invoice_id=#{invoiceId})
+    </select>
+
 </mapper>
