@@ -127,12 +127,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 state,city
              from car_group_info
         <where>
-            <if test="search != null ">
-                car_group_name like concat('%', #{search}, '%')
-                or car_group_id like concat('%', #{search}, '%')
+            <if test="search != null and search != '' ">
+                (car_group_name like concat('%', #{search}, '%')
+                or car_group_id like concat('%', #{search}, '%'))
             </if>
-            <if test="state != null">
+            <if test="state != null and state != ''">
                 and state = #{state}
+            </if>
+            <if test="deptId != null">
+                and owner_company = #{deptId}
             </if>
         </where>
              order by car_group_name

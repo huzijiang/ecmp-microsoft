@@ -415,5 +415,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          select * from ecmp_org
         where status=0 and del_flag=0 and parent_id=#{dept_id}
     </select>
+    <select id="selectCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
+        select * from ecmp_org
+        where parent_id = #{deptId} and dept_type = '3'
+    </select>
+    <select id="selectCompanyTree" resultType="com.hq.ecmp.mscore.vo.CompanyTreeVO">
+        select * from ecmp_org
+        where parent_id = #{deptId} and dept_type = '1'
+    </select>
+    <select id="selectCompanyCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CompanyCarGroupTreeVO" parameterType="long">
+        select  dept_id as deptId,
+                dept_name as deptName,
+                dept_type as deptType,
+                dept_code as deptCode,
+                parent_id as parentId,
+                leader
+        from ecmp_org
+        where parent_id = #{parentId} and (dept_type = '3' or dept_type = '1')
+    </select>
 
 </mapper>
