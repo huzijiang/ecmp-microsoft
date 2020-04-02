@@ -14,10 +14,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="plannedArrivalTime"    column="planned_arrival_time"    />
         <result property="carTypeId"    column="car_type_id"    />
         <result property="price"    column="price"    />
+        <result property="useCarMode"    column="use_car_mode"    />
     </resultMap>
 
     <sql id="selectJourneyPlanPriceInfoVo">
-        select price_id, journey_id, node_id,order_id, car_type_id, price,planned_departure_time,duration,planned_arrival_time from journey_plan_price_info
+        select price_id, journey_id, node_id,order_id, car_type_id, price,planned_departure_time,duration,planned_arrival_time,use_car_mode from journey_plan_price_info
     </sql>
 
     <select id="selectJourneyPlanPriceInfoList" parameterType="com.hq.ecmp.mscore.domain.JourneyPlanPriceInfo" resultMap="JourneyPlanPriceInfoResult">
@@ -54,6 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
             <if test="updateTime != null ">update_time,</if>
+            <if test="useCarMode != null ">use_car_mode,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="priceId != null ">#{priceId},</if>
@@ -71,6 +73,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
+            <if test="useCarMode != null ">#{useCarMode},</if>
          </trim>
     </insert>
 
