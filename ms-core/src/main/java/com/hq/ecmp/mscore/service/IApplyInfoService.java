@@ -4,11 +4,9 @@ import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
-import com.hq.ecmp.mscore.vo.ApplyDetailVO;
-import com.hq.ecmp.mscore.vo.ApplyVO;
-import com.hq.ecmp.mscore.vo.ApprovaReesultVO;
-import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -110,4 +108,6 @@ public interface IApplyInfoService
     List<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId);
 
     Integer getApprovePageCount(Long userId);
+    //获取审批流信息
+    List<ApprovalListVO> getApproveList(String applyUser, String applyMobile, Long applyId, Date time);
 }

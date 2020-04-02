@@ -12,6 +12,7 @@ import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
@@ -54,8 +55,6 @@ public class ApplyContoller {
     private IApplyApproveResultInfoService resultInfoService;
     @Autowired
     private IRegimeInfoService regimeInfoService;
-    @Autowired
-    private IApproveTemplateNodeInfoService nodeInfoService;
     @Autowired
     private IEcmpUserService ecmpUserService;
     @Autowired
@@ -164,7 +163,7 @@ public class ApplyContoller {
             return ApiResponse.error("此行程申请不存在");
         }
         EcmpUser ecmpUser = ecmpUserService.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
-        List<ApprovalListVO> approveList = this.getApproveList(ecmpUser.getNickName(), ecmpUser.getPhonenumber(), journeyApplyDto.getApplyId(),applyInfo.getCreateTime());
+        List<ApprovalListVO> approveList = applyInfoService.getApproveList(ecmpUser.getNickName(), ecmpUser.getPhonenumber(), journeyApplyDto.getApplyId(),applyInfo.getCreateTime());
         return ApiResponse.success(approveList);
     }
 
@@ -345,9 +344,10 @@ public class ApplyContoller {
         TravelApprovalVO vo=new TravelApprovalVO();
         ApplyDetailVO  applyDetailVO = applyInfoService.selectApplyDetail(journeyApplyDto.getApplyId());
         //查询审批流信息
-        List<ApprovalListVO> approveList = getApproveList(applyDetailVO.getApplyUser(), applyDetailVO.getApplyMobile(), journeyApplyDto.getApplyId(),applyDetailVO.getTime());
-        vo.setApplyDetailVO(applyDetailVO);
+        //如果申请单无需审批则不展示审批流相关信息
+        List<ApprovalListVO> approveList =applyInfoService.getApproveList(applyDetailVO.getApplyUser(), applyDetailVO.getApplyMobile(), journeyApplyDto.getApplyId(),applyDetailVO.getTime());
         vo.setApprovalVOS(approveList);
+        vo.setApplyDetailVO(applyDetailVO);
         return ApiResponse.success(vo);
     }
 
@@ -365,50 +365,6 @@ public class ApplyContoller {
         return ApiResponse.success("查询成功",count+"");
     }
 
-    private List<ApprovalListVO> getApproveList(String applyUser,String applyMobile,Long applyId,Date time){
-        List<ApprovalListVO> result=new ArrayList<>();
-        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(applyId));
-        List<ApprovalInfoVO> list=new ArrayList<>();
-        //TODO 后期优化
-        list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请成功"));
-        result.add(new ApprovalListVO(applyId,"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
-        if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
-           for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){
-               String approveTime=null;
-               String approveUserId = resultInfo.getApproveUserId();
-               String appresult = resultInfo.getApproveResult();
-               String state = resultInfo.getState();
-               if (ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(resultInfo.getState())&&resultInfo.getUpdateTime()!=null){
-                   approveTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,resultInfo.getUpdateTime());
-               }
-               list=new ArrayList<>();
-               if (StringUtils.isNotBlank(approveUserId)){
-                   List<EcmpUser> userList=ecmpUserService.selectUserListByUserIds(approveUserId);
-                   if (CollectionUtils.isNotEmpty(userList)) {
-                       for (EcmpUser user:userList){
-                           ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO(resultInfo.getApproveNodeId(), user.getNickName(), user.getPhonenumber(), ApproveStateEnum.format(appresult), ApproveStateEnum.format(state));
-                           approvalInfoVO.setContent(resultInfo.getContent());
-                           list.add(approvalInfoVO);
-                       }
-                   }
-               }
-               result.add(new ApprovalListVO(applyId,"审批人",list, approveTime));
-           }
-        }
-        if (CollectionUtils.isNotEmpty(result)&&result.size()>1){
-            Collections.sort(result, new Comparator<ApprovalListVO>() {
-                @Override
-                public int compare(ApprovalListVO o1, ApprovalListVO o2) {
-                    int i = o1.getList().get(0).getApprovalNodeId().intValue()- o2.getList().get(0).getApprovalNodeId().intValue();
-                    if(i == 0){
-                        return o1.getList().get(0).getApprovalNodeId().intValue() - o2.getList().get(0).getApprovalNodeId().intValue();
-                    }
-                    return i;
-                }
-            });
-        }
-        return result;
-    }
 
 
     private void updateApproveResult(List<ApplyApproveResultInfo> collect, Long userId,String result,String content) {
