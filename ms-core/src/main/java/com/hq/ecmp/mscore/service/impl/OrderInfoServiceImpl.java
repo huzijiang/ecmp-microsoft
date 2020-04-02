@@ -1661,7 +1661,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String status = thirdPartyOrderState.getString("status");
         String lableState=thirdPartyOrderState.getString("status");
         String json = thirdPartyOrderState.getString("driverInfo");
-        if (OrderState.STOPSERVICE.getState().equals(status)){
+        if (OrderState.STOPSERVICE.getState().equals(orderVO.getState())){
             return orderVO;
         }
         DriverCloudDto driverCloudDto=new DriverCloudDto();

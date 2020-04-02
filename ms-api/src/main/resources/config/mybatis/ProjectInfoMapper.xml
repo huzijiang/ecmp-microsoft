@@ -149,8 +149,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="getProjectInfo" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ProjectInfoVO">
-            select a.project_id projectId, name,a.project_code projectCode,b.nick_name leaderName,b.phonenumber leaderPhone,
-            if(is_all_user_use=0,'仅本项目员工','全部员工'),a.start_date startDate,a.close_date closeDate,if(is_effective=0,'无效','有效')
+        select a.project_id projectId, name,a.project_code projectCode,b.nick_name leaderName,b.phonenumber leaderPhone,
+        if(is_all_user_use=0,'仅本项目员工','全部员工') isAllUserUse,a.start_date startDate,a.close_date closeDate, a.is_effective isEffective,
+        IF
+        (
+        is_all_user_use = 1,
+        ( SELECT count( * ) FROM ecmp_user WHERE STATUS = 0 AND del_flag = 0 ),
+        ( SELECT count(*) FROM project_user_relation_info WHERE project_id = a.project_id )
+        ) userCount
             from project_info a
             inner join ecmp_user b on b.user_id=a.leader
             where a.project_id=#{projectId}
