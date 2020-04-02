@@ -20,6 +20,6 @@ public class SceneDetailVO {
     private String icon;
 
     @ApiModelProperty(name = "regimenInfos", value = "用车制度信息集合")
-    private List<Map<String,Long>> regimenInfos;
+    private List<Map<String,String>> regimenInfos;
 
 }

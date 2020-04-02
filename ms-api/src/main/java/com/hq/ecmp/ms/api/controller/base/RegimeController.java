@@ -127,6 +127,22 @@ public class RegimeController {
 		return ApiResponse.error();
 	}
 	
+	
+	@ApiOperation(value = "updateRegime", notes = "修改用车制度", httpMethod = "POST")
+	@PostMapping("/updateRegime")
+	public ApiResponse updateRegime(@RequestBody RegimePo regimePo) {
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		regimePo.setOptId(loginUser.getUser().getUserId());
+		boolean updateRegime = regimeInfoService.updateRegime(regimePo);
+		if (updateRegime) {
+			return ApiResponse.success();
+		}
+		return ApiResponse.error();
+	}
+	
+	
+	
 	@ApiOperation(value = "queryRegimeList", notes = "查询制度列表", httpMethod = "POST")
 	@PostMapping("/queryRegimeList")
 	public ApiResponse<PageResult<RegimeVo>> queryRegimeList(@RequestBody RegimeQueryPo regimeQueryPo) {
