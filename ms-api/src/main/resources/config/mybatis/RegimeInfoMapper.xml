@@ -7,30 +7,38 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.domain.RegimeInfo" id="RegimeInfoResult">
         <result property="regimenId"    column="regimen_id"    />
         <result property="templateId"    column="template_id"    />
-        <result property="approveTemplateId"    column="approve_template_id" />
+        <result property="approveTemplateId"    column="approve_template_id"    />
         <result property="regimenType"    column="regimen_type"    />
         <result property="name"    column="name"    />
-        <result property="allowCity"    column="allow_city"    />
-        <result property="ruleTime"    column="rule_time"    />
-        <result property="setoutAddress"    column="setout_address"    />
-        <result property="arriveAddress"    column="arrive_address"    />
-        <result property="allowDate"    column="allow_date"    />
-        <result property="setoutEqualArrive"    column="setout_equal_arrive"    />
-        <result property="serviceType"    column="service_type"    />
-        <result property="ruleCity"    column="rule_city"    />
-        <result property="approvalProcess"    column="need_approval_process"    />
         <result property="canUseCarMode"    column="can_use_car_mode"    />
+        <result property="serviceType"    column="service_type"    />
+        <result property="allowCity"    column="allow_city"    />
+        <result property="allowDate"    column="allow_date"    />
+        <result property="ruleTime"    column="rule_time"    />
+        <result property="ruleCity"    column="rule_city"    />
+        <result property="setoutEqualArrive"    column="setout_equal_arrive"    />
+        <result property="useCarModeOwnerLevel"    column="use_car_mode_owner_level"    />
+        <result property="needApprovalProcess"    column="need_approval_process"    />
+        <result property="useCarModeOnlineLevel"    column="use_car_mode_online_level"    />
+        <result property="travelAllowInTravelCityUseCar"    column="travel_allow_in_travel_city_use_car"    />
+        <result property="travelUseCarModeOwnerLevel"    column="travel_use_car_mode_owner_level"    />
+        <result property="travelUseCarModeOnlineLevel"    column="travel_use_car_mode_online_level"    />
+        <result property="travelAllowDateRound"    column="travel_allow_date_round"    />
+        <result property="travelSetoutEqualArrive"    column="travel_setout_equal_arrive"    />
+        <result property="asAllowAirportShuttle"    column="as_allow_airport_shuttle"    />
+        <result property="asUseCarModeOwnerLevel"    column="as_use_car_mode_owner_level"    />
+        <result property="asUseCarModeOnlineLevel"    column="as_use_car_mode_online_level"    />
+        <result property="asAllowDateRound"    column="as_allow_date_round"    />
+        <result property="asSetoutEqualArrive"    column="as_setout_equal_arrive"    />
+        <result property="state"    column="state"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
-        <result property="travelSetoutEqualArrive"    column="travel_setout_equal_arrive"/>
-         <result property="asSetoutEqualArrive"    column="as_setout_equal_arrive"    />
-        
     </resultMap>
 
     <sql id="selectRegimeInfoVo">
-        select regimen_id, template_id, approve_template_id, regimen_type, name, allow_city,rule_time,allow_date, setout_equal_arrive, service_type,can_use_car_mode, create_by, create_time, update_by, update_time,rule_city,travel_setout_equal_arrive,as_setout_equal_arrive from regime_info
+         select regimen_id, template_id, approve_template_id, regimen_type, name, can_use_car_mode, service_type, allow_city, allow_date, rule_time, rule_city, setout_equal_arrive, use_car_mode_owner_level, need_approval_process, use_car_mode_online_level, travel_allow_in_travel_city_use_car, travel_use_car_mode_owner_level, travel_use_car_mode_online_level, travel_allow_date_round, travel_setout_equal_arrive, as_allow_airport_shuttle, as_use_car_mode_owner_level, as_use_car_mode_online_level, as_allow_date_round, as_setout_equal_arrive, state, create_by, create_time, update_by, update_time from regime_info
     </sql>
 
     <select id="selectRegimeInfoList" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo" resultMap="RegimeInfoResult">
@@ -62,7 +70,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertRegimeInfo" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo">
         insert into regime_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="regimenId != null ">regimen_id,</if>
             <if test="templateId != null ">template_id,</if>
             <if test="sceneFlowId != null ">scene_flow_id,</if>
             <if test="name != null  and name != ''">name,</if>
@@ -86,7 +93,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null ">update_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="regimenId != null ">#{regimenId},</if>
             <if test="templateId != null ">#{templateId},</if>
             <if test="sceneFlowId != null ">#{sceneFlowId},</if>
             <if test="name != null  and name != ''">#{name},</if>

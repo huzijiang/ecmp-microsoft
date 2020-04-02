@@ -89,6 +89,9 @@ public interface IRegimeInfoService
      
      public boolean createRegime(RegimePo regimePo);
      
+     
+     public boolean updateRegime(RegimePo regimePo);
+     
      /**
       * 分页查询制度列表
       * @param regimeQueryPo

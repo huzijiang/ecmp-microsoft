@@ -428,4 +428,16 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}
 		return result;
 	}
+
+	@Override
+	public boolean updateRegime(RegimePo regimePo) {
+		// 将旧的制度标记为停用
+		RegimeOpt regimeOpt = new RegimeOpt();
+		regimeOpt.setOptType("N111");
+		regimeOpt.setRegimeId(regimePo.getRegimenId());
+		optRegime(regimeOpt);
+		// 创建新的制度
+		createRegime(regimePo);
+		return true;
+	}
 }
