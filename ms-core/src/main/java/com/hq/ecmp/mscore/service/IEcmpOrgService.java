@@ -3,9 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
-import com.hq.ecmp.mscore.vo.EcmpOrgVo;
-import com.hq.ecmp.mscore.vo.EcmpUserVo;
-import com.hq.ecmp.mscore.vo.OrgTreeVo;
+import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
 
@@ -215,4 +213,17 @@ public interface IEcmpOrgService
      * @return
      */
     List<OrgTreeVo> selectDeptUserTree(Long deptId, String deptName);
+
+    /**
+     * 查询车队树
+     * @param deptId
+     * @return
+     */
+    List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
+
+    //公司车队树
+    List<CompanyTreeVO> selectCarGroupAndCompanyTree(Long deptId);
+
+    //公司车队树
+    List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId);
 }

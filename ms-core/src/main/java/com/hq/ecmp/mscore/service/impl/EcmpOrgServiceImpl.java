@@ -10,9 +10,7 @@ import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
-import com.hq.ecmp.mscore.vo.EcmpOrgVo;
-import com.hq.ecmp.mscore.vo.OrgTreeVo;
-import com.hq.ecmp.mscore.vo.UserTreeVo;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -138,6 +136,89 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             }
         }
         return orgTreeVos;
+    }
+
+    /**
+     * 递归车队
+     * @param deptId
+     * @return
+     */
+    @Override
+    public List<CarGroupTreeVO> selectCarGroupTree(Long deptId) {
+        //查询子公司下的所有车队
+        List<CarGroupTreeVO> list = ecmpOrgMapper.selectCarGroupTree(deptId);
+        if(list.size() > 0){
+            //递归查询车队
+            for (int i = 0; i <list.size() ; i++) {
+                List<CarGroupTreeVO> list1 = this.selectCarGroupTree(list.get(i).getDeptGroupId());
+                list.get(i).setChildrenList(list1);
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public List<CompanyTreeVO> selectCarGroupAndCompanyTree(Long deptId) {
+        List<CompanyTreeVO> companyTree = getCompanyTree(deptId);
+        int size = companyTree.size();
+        if(size > 0){
+            for (int i = 0; i < size; i++) {
+                Long deptCompanyId = companyTree.get(i).getDeptCompanyId();
+                List<CarGroupTreeVO> list = this.selectCarGroupTree(deptCompanyId);
+                companyTree.get(i).setCarGroupTreeVO(list);
+            }
+        }
+        return companyTree;
+    }
+
+    //公司车队树
+    @Override
+    public List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId) {
+       /* if(deptId == null){
+            EcmpOrg ecmpOrg = new EcmpOrg();
+            ecmpOrg.setParentId(0L);
+            List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
+            deptId = ecmpOrgs.get(0).getDeptId();
+        }*/
+        /*EcmpOrg ecmpOrg = new EcmpOrg();
+        ecmpOrg.setParentId(deptId);*/
+        List<CompanyCarGroupTreeVO> tree = ecmpOrgMapper.selectCompanyCarGroupTree(deptId);
+        int size = tree.size();
+        if ( size > 0){
+            for (int i = 0; i < size; i++) {
+                if (tree.get(i) != null) {
+                    String leader = tree.get(i).getLeader();
+                    if(leader != null) {
+                        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.valueOf(leader));
+                        if(ecmpUser != null ){
+                            tree.get(i).setLeaderName(ecmpUser.getUserName());
+                        }
+                    }
+                    tree.get(i).setChildrenList(this.selectCompanyCarGroupTree(tree.get(i).getDeptId()));
+                }
+            }
+        }
+        return tree;
+    }
+
+    //递归公司
+    public List<CompanyTreeVO> getCompanyTree(Long deptId){
+        if (deptId == null){
+            EcmpOrg ecmpOrg = new EcmpOrg();
+            ecmpOrg.setParentId(0L);
+            List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
+            deptId = ecmpOrgs.get(0).getDeptId();
+        }
+        //根据deptId查询下级公司
+        List<CompanyTreeVO> list = ecmpOrgMapper.selectCompanyTree(deptId);
+        int size = list.size();
+        if(size > 0){
+            for (int i = 0; i < size; i++) {
+                List<CompanyTreeVO> companyTree = this.getCompanyTree(list.get(i).getDeptCompanyId());
+                list.get(i).setChildrenList(companyTree);
+            }
+        }
+        return list;
     }
 
     private List<UserTreeVo> getUserList(Long deptId){

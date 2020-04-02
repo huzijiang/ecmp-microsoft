@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.alibaba.fastjson.JSON;
+import com.hq.api.system.domain.SysUser;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
 import com.hq.ecmp.mscore.dto.AddFolwDTO;
@@ -9,12 +10,8 @@ import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.mapper.ProjectInfoMapper;
 import com.hq.ecmp.mscore.mapper.ProjectUserRelationInfoMapper;
-import com.hq.ecmp.mscore.service.IApproveTemplateInfoService;
-import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
-import com.hq.ecmp.mscore.service.IEcmpOrgService;
-import com.hq.ecmp.mscore.service.IProjectInfoService;
-import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
-import com.hq.ecmp.mscore.vo.OrgTreeVo;
+import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -46,6 +43,8 @@ class OrgControllerTest {
     private IProjectInfoService iProjectInfoService;
     @Autowired
     private IEcmpOrgService orgService;
+    @Autowired
+    private IApplyInfoService applyInfoService;
 
     @Test
     void getUserOwnCompanyDept() {
@@ -123,7 +122,6 @@ class OrgControllerTest {
         }
     }
 
-
     @Test
     public void addProjectUser(){//添加项目与新用户绑定
         Long startuserId=0l;
@@ -144,4 +142,44 @@ class OrgControllerTest {
             projectUserRelationInfoMapper.insertProjectList(list);
         }
     }
+
+    @Test
+    public void objEquls(){//测试两个对象是否相等
+        try {
+            ProjectUserRelationInfo info1=new ProjectUserRelationInfo(1l,1l);
+            ProjectUserRelationInfo info2=new ProjectUserRelationInfo(1l,1l);
+            System.out.println(info1.equals(info2));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    public void getApprovalList(){//根据制度获取审批人
+        try {
+            SysUser sysUser = new SysUser();
+            sysUser.setUserId(106l);
+            sysUser.setDeptId(252L);
+            List<ApprovalUserVO> approvalList = nodeInfoService.getApprovalList("1", "7", sysUser);
+            System.out.println(approvalList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void selectApplyDetail(){//获取审批流信息
+        try {
+            Long applyId=891l;
+            ApplyDetailVO applyDetailVO = applyInfoService.selectApplyDetail(applyId);
+            //查询审批流信息
+            //如果申请单无需审批则不展示审批流相关信息
+            List<ApprovalListVO> approveList = applyInfoService.getApproveList(applyDetailVO.getApplyUser(), applyDetailVO.getApplyMobile(),applyId,applyDetailVO.getTime());
+            System.out.println(approveList);
+            System.out.println(applyDetailVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }

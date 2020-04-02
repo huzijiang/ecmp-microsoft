@@ -222,8 +222,8 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         SceneInfo sceneInfo = sceneInfoMapper.selectSceneInfoById(sceneId);
         sceneDetailVO.setIcon(sceneInfo.getIcon());
         sceneDetailVO.setName(sceneInfo.getIcon());
-        Map<String, Long> map = Maps.newHashMap();
-        ArrayList<Map<String, Long>> list = Lists.newArrayList();
+        Map<String, String> map = Maps.newHashMap();
+        ArrayList<Map<String, String>> list = Lists.newArrayList();
         //根据sceneId查询对应的制度id集合
         List<Long> regimenIds = sceneRegimeRelationMapper.selectRegimenIdsBySceneId(sceneId);
         //根据制度id集合查询制度信息
@@ -231,7 +231,7 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         for (Long regimenId : regimenIds) {
             regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimenId);
             String name = regimeInfo.getName();
-            Long approvalProcess = regimeInfo.getApprovalProcess();
+            String approvalProcess = regimeInfo.getNeedApprovalProcess();
             map.put(name,approvalProcess);
             list.add(map);
         }
@@ -270,7 +270,7 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         }
         //解析分页结果
         PageInfo<SceneInfo> info = new PageInfo<>(sceneInfos);
-        return new PageResult<>(info.getTotal(),list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
 
     /**

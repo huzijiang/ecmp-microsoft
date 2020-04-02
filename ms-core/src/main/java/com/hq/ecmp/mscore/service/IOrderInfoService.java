@@ -269,5 +269,9 @@ public interface IOrderInfoService {
     public DispatchSendCarPageInfo  getDispatchSendCarPageInfo(Long orderId);
     
     public DispatchSendCarPageInfo getUserDispatchedOrder(Long orderId);
+    //回调修改订单状态
+    void callBackOrderState(String jsonResult)throws Exception;
+    
+    public boolean sendCarBeforeCreatePlanPrice(Long orderId,Long userId) throws Exception ;
 }
 

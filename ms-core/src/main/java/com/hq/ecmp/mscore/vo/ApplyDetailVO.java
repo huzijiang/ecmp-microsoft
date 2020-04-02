@@ -108,6 +108,9 @@ public class ApplyDetailVO {
     @ApiModelProperty(name = "rejectReason",value = "拒绝原因")
     private String rejectReason;
 
+    @ApiModelProperty(name = "needApprovalProcess",value = " N111 不需要审批 不限制 Y000 需要审批")
+    private String needApprovalProcess;
+
     /**
      * 审批流
      */

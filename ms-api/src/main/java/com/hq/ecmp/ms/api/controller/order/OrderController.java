@@ -430,7 +430,7 @@ public class OrderController {
      * @param carId
      * @return
      */
-	@ApiOperation(value = "ownCarSendCar", notes = "自有车派车", httpMethod = "POST")
+	@ApiOperation(value = "", notes = "自有车派车", httpMethod = "POST")
 	@PostMapping("/ownCarSendCar")
 	public ApiResponse ownCarSendCar(Long orderId, Long driverId, Long carId) {
 		HttpServletRequest request = ServletUtils.getRequest();
@@ -449,6 +449,34 @@ public class OrderController {
 		}
 
 	}
+	
+	/**
+     * 调度 选择了自有车后生成行程预估价
+     * @param orderId
+     * @param driverId
+     * @param carId
+     * @return
+     */
+	@ApiOperation(value = "sendCarBeforeCreatePlanPrice", notes = "调度 选择了自有车后生成行程预估价", httpMethod = "POST")
+	@PostMapping("/sendCarBeforeCreatePlanPrice")
+	public ApiResponse sendCarBeforeCreatePlanPrice(Long orderId) {
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		Long userId = loginUser.getUser().getUserId();
+		try {
+			boolean ownCarSendCar = iOrderInfoService.sendCarBeforeCreatePlanPrice(orderId,userId);
+			if (ownCarSendCar) {
+				return ApiResponse.success();
+			} else {
+				return ApiResponse.error("调派单【" + orderId + "】自有车派车前生成行程预估价失败");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error("调派单【" + orderId + "】自有车派车前生成行程预估价异常", e);
+		}
+
+	}
+	
 
     /**
      * 评价 订单

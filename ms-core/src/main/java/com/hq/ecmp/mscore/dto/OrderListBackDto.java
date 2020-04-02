@@ -70,5 +70,6 @@ public class OrderListBackDto extends PageRequest {
     private String orderState;
     @ApiModelProperty(value = "订单编号")
     private String orderNumber;
-
+    @ApiModelProperty(value = "用车制度")
+    private String regimenName;
 }

@@ -3,8 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
-import com.hq.ecmp.mscore.vo.EcmpOrgVo;
-import com.hq.ecmp.mscore.vo.OrgTreeVo;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -239,4 +238,12 @@ public interface EcmpOrgMapper {
      * @return
      */
     List<OrgTreeVo> selectDeptTree(@Param("deptId") Long deptId,@Param("deptName") String deptName);
+
+    List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
+
+    //查询公司树
+    List<CompanyTreeVO> selectCompanyTree(Long deptId);
+
+    //公司车队树
+    List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long  parentId);
 }

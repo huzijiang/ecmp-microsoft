@@ -218,14 +218,21 @@ public interface DriverInfoMapper
      * @param driverId
      * @return
      */
-    public int lockDriver(Long driverId);
+    public int lockDriver(@Param("driverId") long driverId);
 
     /**
      * 解除锁定司机
      * @param driverId
      * @return
      */
-    public int unlockDriver(Long driverId);
+
+    public List<DriverQueryResult>  queryDriverInfoList(Long carGroupId);
+
+    public int unlockDriver(@Param("driverId") long driverId);
+    
+    
+    public Integer queryDriverNumOfStateAndCarGroup(DriverQuery query);
+
 
 
 

@@ -11,10 +11,9 @@ import lombok.Data;
  */
 @Data
 @ApiModel(description = "发票列表模型")
-public class OrderAccountVO {
+public class PeriodsVO {
 
-    @ApiModelProperty(name = "periodId",value = "账期Id")
-    private int periodId;
+
     @ApiModelProperty(name = "beginDate",value = "开始时间")
     private String beginDate;
     @ApiModelProperty(name = "endDate",value = "结束时间")
@@ -26,8 +25,8 @@ public class OrderAccountVO {
 
     @Override
     public String toString() {
-        return "OrderAccountVO{" +
-                "periodId='" + periodId + '\'' +
+        return "PeriodsVO{" +
+
                 "beginDate='" + beginDate + '\'' +
                 "endDate='" + endDate + '\'' +
                 ", desc='" + desc + '\'' +

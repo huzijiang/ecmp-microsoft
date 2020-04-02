@@ -69,4 +69,6 @@ public interface ProjectUserRelationInfoMapper
     List<ProjectUserVO> getProjectUserList(@Param("projectId")Long projectId,@Param("search") String search);
 
     int removeProjectUser(@Param("projectId")Long projectId, @Param("userId")Long userId);
+
+    Long getProjectUserListCount(@Param("projectId")Long projectId,@Param("search") String search);
 }
