@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
@@ -154,6 +155,22 @@ public interface EcmpUserMapper
     public List<Long> getEcmpUserIdsByDeptId(@Param("deptId") Long deptId);
 
     /**
+     * 查询该部门下的所有员工编号
+     *
+     * @param deptId 部门编号
+     * @return 结果
+     */
+    public Long selectEcmpUserSubDeptCount(@Param("deptId") Long deptId);
+
+    /**
+     * 查询该部门下的所有员工编号
+     *
+     * @param deptId 部门编号
+     * @return 结果
+     */
+    public String selectEcmpUserSubDept(@Param("deptId") Long deptId);
+
+    /**
      * 获取员工列表
      *
      * @param deptId 部门编号
@@ -251,6 +268,24 @@ public interface EcmpUserMapper
      * @return
      */
     public int selectJobNumberExist(String jobNumber);
+
+
+    /**
+     * 按照姓名/工号/手机号模糊查询匹配userId
+     * @param  nickName
+     * @return 结果
+     */
+    public List<Long> selectUserIdsByNickNameOrJobNumber(@Param("nickName")String nickName,@Param("phonenumber")String phonenumber,@Param("jobNumber")String jobNumber);
+
+
+    /**
+     * 按照姓名/工号/手机号模糊查询匹配员工列表
+     * @param nickName
+     * @return 结果
+     */
+    public EcmpUserDto selectUserByNickNameOrJobNumber(@Param("nickName")String nickName,@Param("phonenumber")String phonenumber,@Param("jobNumber")String jobNumber, @Param("userId")Long userId);
+
+
     List<EcmpUser> getListByUserIds(@Param("userIds") List<Long> userIds);
 
     UserVO selectUserVoById(Long userId);

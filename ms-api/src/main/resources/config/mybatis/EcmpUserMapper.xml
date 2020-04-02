@@ -158,11 +158,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       and  user_id =#{userId}
     </update>
 
-    <!--获取上级组织id中的员工姓名和电话、邮箱-->
+    <!--获取上级组织id中的员工姓名和电话、邮箱
+    and  (nick_name like concat('%', #{nickNameOrPhone}, '%') or   phonenumber like concat('%', #{nickNameOrPhone}, '%'))
+    -->
     <select id="getEcmpUserNameAndPhone" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
-      SELECT nick_name as nickName,phonenumber from ecmp_user
+      SELECT
+      user_id as userId,
+      nick_name as nickName,phonenumber from ecmp_user
       where  status = 0 and del_flag = 0 and dept_id=#{deptId}
-      and  (nick_name like concat('%', #{nickNameOrPhone}, '%') or   phonenumber like concat('%', #{nickNameOrPhone}, '%'))
+    </select>
+
+    <!--按照姓名/工号/手机号模糊查询匹配userId-->
+    <select id="selectUserIdsByNickNameOrJobNumber" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+      SELECT
+      user_id as userId
+      where   del_flag = 0
+      and  (nick_name like concat('%', #{nickName}, '%') or   job_number like concat('%', #{jobNumber}, '%') or   phonenumber like concat('%', #{phonenumber}, '%'))
+    </select>
+
+    <!--按照姓名/工号/手机号模糊查询匹配员工列表-->
+    <select id="selectUserByNickNameOrJobNumber" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+      SELECT
+      nick_name as nickName,phonenumber,user_id as userId,
+      (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='1') as subCompany,
+      `status`
+      where   del_flag = 0
+      and user_id = #{userId}
+      and  (nick_name like concat('%', #{nickName}, '%') or   job_number like concat('%', #{jobNumber}, '%') or   phonenumber like concat('%', #{phonenumber}, '%'))
     </select>
 
     <!--新增员工信息-->
@@ -270,13 +292,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
     </select>
 
+    <!--查询员工归属的部门-->
+    <select id="selectEcmpUserSubDeptCount" resultType="java.lang.Long" >
+        select count from ecmp_org where  dept_type='2'
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
+    </select>
+
+    <select id="selectEcmpUserSubDept" resultType="java.lang.String" >
+        select dept_name from ecmp_org where  dept_type='2'
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
+    </select>
+
     <!--查询员工列表-->
     <!--select `name` from regime_info where regime_id in (select regime_id from  user_regime_relation_info where user_id=#{userId}) as regimeName-->
+    <!--if(isnull((select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept),'',subDept) as subDept,-->
     <select id="getEcmpUserList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
         select
         nick_name as nickName,phonenumber,user_id as userId,
         (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='1') as subCompany,
-        if(isnull((select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept),'',subDept) as subDept,
         `status`
         from  ecmp_user
         where

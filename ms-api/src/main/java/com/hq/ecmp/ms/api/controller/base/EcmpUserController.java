@@ -1,17 +1,18 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.UserReqimensDTO;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
+import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
@@ -93,7 +94,7 @@ public class EcmpUserController {
      * @param  ecmpUser
      * @return*/
     @ApiOperation(value = "查询员工列表",notes = "查询员工列表",httpMethod ="POST")
-    @PostMapping("/getEcmpList")
+    @PostMapping("/getEcmpUserList")
     public ApiResponse<List<EcmpUserDto>> getEcmpUserList(@RequestBody EcmpUserVo ecmpUser){
         Long deptId=ecmpUser.getDeptId();
         if(deptId==null){
@@ -228,6 +229,26 @@ public class EcmpUserController {
             return ApiResponse.error("设置用车制度失败");
         }
         return ApiResponse.success("设置成功");
+    }
+
+
+    /**
+     * 按照姓名/工号/手机号模糊查询匹配的列表
+     * @param  ecmpUser
+     * @return*/
+    @ApiOperation(value = "按照姓名/工号/手机号模糊查询匹配的列表",notes = "按照姓名/工号/手机号模糊查询匹配的列表",httpMethod ="POST")
+    @PostMapping("/selectDeptByDeptNameOrCode")
+    public ApiResponse<List<EcmpUserDto>> selectUserByNameOrJobNumberOrPhone(@RequestBody EcmpUserVo ecmpUser){
+        String nameOrJobNumberOrPhone=ecmpUser.getNameOrJobNumberOrPhone();
+        if("".equals(nameOrJobNumberOrPhone.trim())){
+            return ApiResponse.error("请输入有效的员工名称或编号！");
+        }
+        List<EcmpUserDto> companyList = ecmpUserService.selectUserByNickNameOrJobNumber(nameOrJobNumberOrPhone);
+        if(companyList.size()>0){
+            return ApiResponse.success(companyList);
+        }else{
+            return ApiResponse.error("无匹配数据！");
+        }
     }
 
 }
