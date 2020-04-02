@@ -4,10 +4,11 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 @ApiModel(description = "发票抬头")
 public class InvoiceHeaderVO {
-
 
     @ApiModelProperty(value = "发票抬头")
     private String header;
@@ -26,6 +27,12 @@ public class InvoiceHeaderVO {
 
     @ApiModelProperty(value = "银行账号")
     private String bankCardNo;
+
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
+
+
+
 
 
 }

@@ -4,9 +4,7 @@ import java.util.*;
 
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
-import com.hq.ecmp.constant.ApproveStateEnum;
-import com.hq.ecmp.constant.ApproveTypeEnum;
-import com.hq.ecmp.constant.CommonConstant;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.*;
@@ -159,6 +157,10 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
         RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimenId);
         if (regimeVo!=null){
             if (CommonConstant.NO_PASS.equals(regimeVo.getNeedApprovalProcess())){
+                applyInfo.setState(ApplyStateConstant.APPLY_PASS);
+                applyInfo.setUpdateTime(new Date());
+                applyInfo.setUpdateBy(String.valueOf(userId));
+                applyInfoMapper.updateApplyInfo(applyInfo);
                 return;
             }
             List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(Long.valueOf(regimeVo.getApproveTemplateId())));
