@@ -204,7 +204,7 @@ public interface IEcmpOrgService
      * @param deptName
      * @return
      */
-    List<OrgTreeVo> selectDeptTree(Long deptId,String deptName);
+    OrgTreeVo selectDeptTree(Long deptId,String deptName);
 
     /**
      * 员工树
@@ -212,7 +212,7 @@ public interface IEcmpOrgService
      * @param deptName
      * @return
      */
-    List<OrgTreeVo> selectDeptUserTree(Long deptId, String deptName);
+    OrgTreeVo selectDeptUserTree(Long deptId, String deptName);
 
     /**
      * 查询车队树
