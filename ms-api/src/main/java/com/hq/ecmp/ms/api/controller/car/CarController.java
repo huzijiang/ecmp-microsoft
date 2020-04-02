@@ -206,12 +206,15 @@ public class CarController {
     @ApiOperation(value = "carDetail",notes = "车辆详情",httpMethod ="POST")
     @PostMapping("/carDetail")
     public ApiResponse<CarDetailVO> carDetail(@RequestBody CarDto carDto){
+
         try {
             CarDetailVO carDetailVO =  carInfoService.selectCarDetail(carDto.getCarId());
             return ApiResponse.success(carDetailVO);
-        } finally {
+        } catch (Exception e) {
+            e.printStackTrace();
             return ApiResponse.error("查询车辆详情失败");
         }
+
     }
 
     /**
@@ -341,9 +344,9 @@ public class CarController {
      */
     @ApiOperation(value = "getCarListByGroup",notes = "按车队id查询车辆列表",httpMethod ="POST")
     @PostMapping("/getCarListByGroup")
-    public ApiResponse<PageResult<CarListVO>> getCarListByGroup(@RequestBody PageRequest pageRequest){
+    public ApiResponse<PageResult<CarListVO>> getCarListByGroup(@RequestBody PageRequest pageRequest,HttpServletRequest request){
         try {
-            PageResult<CarListVO> list = carInfoService.selectCarListByGroup(pageRequest);
+           PageResult<CarListVO> list = carInfoService.selectCarListByGroup(pageRequest);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
