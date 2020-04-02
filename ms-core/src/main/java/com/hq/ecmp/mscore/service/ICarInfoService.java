@@ -1,15 +1,16 @@
 package com.hq.ecmp.mscore.service;
 
+import java.util.List;
+
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.dto.CarSaveDTO;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.CarDetailVO;
+import com.hq.ecmp.mscore.vo.CarGroupCarInfo;
 import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
 import com.hq.ecmp.mscore.vo.PageResult;
-
-import java.util.List;
 
 /**
  * 【请填写功能名称】Service接口
@@ -112,4 +113,7 @@ public interface ICarInfoService
     public int queryCompanyCarCount();
 
     public List<CarLocationVo> locationCars(CarLocationDto carLocationDto);
+    
+    
+    public CarGroupCarInfo queryCarGroupCarList(Long carGroupId);
 }

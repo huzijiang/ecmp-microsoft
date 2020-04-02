@@ -301,5 +301,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </update>
 
+	<select id="queryCarGroupCarList" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.vo.CarListVO">
+		SELECT
+		car_license AS carLicense,
+		car_type AS carType
+		FROM
+		car_info a
+		WHERE
+		car_group_id = #{carGroupId}
+		AND state = 'S000'
+	</select>
+
 
 </mapper>

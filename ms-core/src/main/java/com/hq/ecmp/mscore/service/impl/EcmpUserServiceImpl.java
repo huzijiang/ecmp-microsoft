@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.EcmpUserRole;
 import com.hq.ecmp.mscore.domain.RegimeVo;
@@ -163,6 +164,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo) {
         List<EcmpUserDto> ecmpUserList = null;
         ecmpUserList = ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo);
+       /* for (EcmpUserDto ecmpUserDto:ecmpUserList){
+
+        }*/
         return ecmpUserList;
     }
 
@@ -277,6 +281,13 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         List<Long> userIds=ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
         for (int i = 0; i < userIds.size(); i++) {
             EcmpUserDto ecmpUserDto = ecmpUserMapper.getEcmpUserList(deptId, userIds.get(i));
+            Long num = ecmpUserMapper.selectEcmpUserSubDeptCount(deptId);
+            if(num>0){
+                String subDept = ecmpUserMapper.selectEcmpUserSubDept(deptId);
+                ecmpUserDto.setSubDept(subDept);
+            }else{
+                ecmpUserDto.setSubDept("无");
+            }
             String regimeName = "";
             List<RegimeVo> regimeVoList =  regimeInfoMapper.selectByUserId(userIds.get(i));
             if(regimeVoList.size()>0){
@@ -456,6 +467,25 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public int selectJobNumberExist(String jobNumber){
         return ecmpUserMapper.selectJobNumberExist(jobNumber);
+    }
+
+
+    /**
+     * 按照姓名/工号/手机号模糊查询匹配的列表
+     *
+     * @param nameOrJobNumberOrPhone
+     * @return 结果
+     */
+    public List<EcmpUserDto> selectUserByNickNameOrJobNumber(String nameOrJobNumberOrPhone){
+        List<EcmpUserDto> ecmpUserList=null;
+        List<Long> userIds = ecmpUserMapper.selectUserIdsByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone);
+        if(userIds.size()>0){
+            for (int i = 0; i < userIds.size(); i++) {
+                EcmpUserDto ecmpUserDto = ecmpUserMapper.selectUserByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone, userIds.get(i));
+                ecmpUserList.add(ecmpUserDto);
+            }
+        }
+        return ecmpUserList;
     }
 
     /**

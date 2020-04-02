@@ -1,6 +1,10 @@
 package com.hq.ecmp.ms.api.controller.base;
 
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
@@ -14,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -25,7 +30,8 @@ public class DepartmentController {
 
     @Autowired
     private IEcmpUserService ecmpUserService;
-
+    @Autowired
+    private TokenService tokenService;
     /**
      * 部门树
      * @param  deptId
@@ -108,7 +114,7 @@ public class DepartmentController {
         if (i == 1){
             return ApiResponse.success("添加部门成功!");
         }else {
-            return ApiResponse.error("添加部门失败!");
+            return ApiResponse.success("添加部门失败!");
         }
     }
     /*
@@ -152,11 +158,12 @@ public class DepartmentController {
             return ApiResponse.error("组织类别不能为空！");
         }
         String msg = orgService.updateDelFlagById(deptType,deptId);
-        return ApiResponse.error(msg);
+        return ApiResponse.success(msg);
     }
 
     /**
      * 禁用/启用  部门
+     * @param  ecmpOrg
      * @return
      */
     @ApiOperation(value = "updateUseStatus",notes = "禁用/启用  部门",httpMethod ="POST")
@@ -171,6 +178,74 @@ public class DepartmentController {
             return ApiResponse.error("部门状态不能为空！");
         }
         String s = orgService.updateUseStatus(status,deptId);
-        return ApiResponse.error(s);
+        return ApiResponse.success(s);
+    }
+
+
+    /**
+     * 按照部门名称或编号模糊查询匹配的列表
+     * @param  ecmpOrgVo
+     * @return*/
+    @ApiOperation(value = "按照部门名称或编号模糊查询匹配的列表",notes = "按照部门名称或编号模糊查询匹配的列表",httpMethod ="POST")
+    @PostMapping("/selectDeptByDeptNameOrCode")
+    public ApiResponse<List<EcmpOrgDto>> selectDeptByDeptNameOrCode(@RequestBody EcmpOrgVo ecmpOrgVo){
+        String deptNameOrCode=ecmpOrgVo.getDeptNameOrCode();
+        if("".equals(deptNameOrCode.trim())){
+            return ApiResponse.error("请输入有效的公司名称或编号！");
+        }
+        List<EcmpOrgDto> companyList = orgService.selectDeptByDeptNameOrCode(deptNameOrCode);
+        if(companyList.size()>0){
+            return ApiResponse.success(companyList);
+        }else{
+            return ApiResponse.error("无匹配数据！");
+        }
+    }
+
+    /**
+     * 显示部门列表
+     * @param  ecmpOrgVo
+     * @return*/
+    @ApiOperation(value = "显示部门列表",notes = "显示部门列表",httpMethod ="POST")
+    @PostMapping("/selectDeptList")
+    public ApiResponse<List<EcmpOrgDto>> selectDeptList(@RequestBody EcmpOrgVo ecmpOrgVo){
+        Long deptId=ecmpOrgVo.getDeptId();
+        String deptType=ecmpOrgVo.getDeptType();
+        if(deptId==null){
+            return ApiResponse.error("组织id不能为空！");
+        }
+        List<EcmpOrgDto> companyList = orgService.selectDeptList(deptId,deptType);
+        return ApiResponse.success(companyList);
+    }
+
+
+    /**
+     * 显示公司列表
+     * @param  ecmpOrgVo
+     * @return*/
+    @ApiOperation(value = "查询当前机构信息",notes = "查询当前机构信息",httpMethod ="POST")
+    @PostMapping("/selectCurrentDeptInformation")
+    public ApiResponse<EcmpOrgDto> selectCurrentDeptInformation(@RequestBody EcmpOrgVo ecmpOrgVo){
+        Long deptId=ecmpOrgVo.getDeptId();
+        if(deptId==null){
+            return ApiResponse.error("组织id不能为空！");
+        }
+        EcmpOrgDto ecmpOrgDto = orgService.selectCurrentDeptInformation(deptId);
+        return ApiResponse.success(ecmpOrgDto);
+    }
+
+
+
+    /**
+     * 显示当前登陆用户所属公司与公司下的部门
+     * @param  deptId
+     * @return*/
+    @ApiOperation(value = "显示当前登陆用户所属公司与公司下的部门",notes = "显示当前登陆用户所属公司与公司下的部门",httpMethod ="POST")
+    @PostMapping("/selectDeptComTree")
+    public ApiResponse<List<EcmpOrgDto>> selectDeptComTree(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptType",required = false) String deptType){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        SysUser user = loginUser.getUser();
+        List<EcmpOrgDto> deptList = orgService.selectDeptComTree(StringUtils.isEmpty(deptId) ?user.getDeptId():Long.valueOf(deptId),deptType);
+        return ApiResponse.success(deptList);
     }
 }

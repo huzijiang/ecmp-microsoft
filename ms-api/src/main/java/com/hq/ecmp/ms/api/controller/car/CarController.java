@@ -8,6 +8,7 @@ import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
+import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarDriverDTO;
@@ -18,6 +19,7 @@ import com.hq.ecmp.mscore.service.ICarInfoService;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
 import com.hq.ecmp.mscore.vo.CarDetailVO;
+import com.hq.ecmp.mscore.vo.CarGroupCarInfo;
 import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.DriverVO;
 import com.hq.ecmp.mscore.vo.PageResult;
@@ -351,4 +353,10 @@ public class CarController {
             return ApiResponse.error("查询失败");
         }
     }
+    
+    @ApiOperation(value = "carGroup", notes = "指定车队下的可用车辆", httpMethod = "POST")
+	@PostMapping("/carGroup")
+	public ApiResponse<CarGroupCarInfo> queryCarGroupCarList(@RequestBody Long carGroupId) {
+		return ApiResponse.success(carInfoService.queryCarGroupCarList(carGroupId));
+	}
 }

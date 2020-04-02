@@ -23,6 +23,13 @@ public interface IEcmpOrgService
      * @return
      */
     public List<EcmpOrgDto> selectCombinationOfCompany(Long deptId,String deptType);
+    /**
+     * 显示当前登陆用户所属公司与公司下的部门
+     *
+     * @param deptId 部门ID
+     * @return
+     */
+    public List<EcmpOrgDto> selectDeptComTree(Long deptId,String deptType);
 
     /**
      * 显示公司列表
@@ -31,6 +38,14 @@ public interface IEcmpOrgService
      * @return
      */
     public List<EcmpOrgDto> selectCompanyList(Long deptId,String deptType);
+
+    /**
+     * 显示部门列表
+     *
+     * @param deptId 部门ID
+     * @return
+     */
+    public List<EcmpOrgDto> selectDeptList(Long deptId,String deptType);
     /**
      * 查询部门详情
      *
@@ -173,6 +188,15 @@ public interface IEcmpOrgService
      * @return
      */
     public EcmpOrgDto selectCurrentDeptInformation(Long deptId);
+
+    /**
+     * 按照部门名称或编号模糊查询匹配的列表
+     *
+     * @param deptNameOrCode
+     * @return 结果
+     */
+    public List<EcmpOrgDto> selectDeptByDeptNameOrCode(String deptNameOrCode);
+
 
     /**
      * 部门树
