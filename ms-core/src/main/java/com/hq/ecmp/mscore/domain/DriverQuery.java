@@ -11,4 +11,6 @@ public class DriverQuery extends Page {
 		Long carGroupId;//车队编号
 		
 		Long driverId;//驾驶员编号
+		
+		String state;
 }

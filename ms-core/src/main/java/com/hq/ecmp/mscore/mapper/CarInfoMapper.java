@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.bo.SelectCarConditionBo;
 import com.hq.ecmp.mscore.bo.WaitSelectedCarBo;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
+import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -137,5 +138,5 @@ public interface CarInfoMapper
      */
     public int unlockCar(@Param("carId")long carId);
 
-
+    public List<CarListVO> queryCarGroupCarList(Long carGroupId);
 }

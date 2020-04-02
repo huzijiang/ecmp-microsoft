@@ -13,8 +13,11 @@ public class CarGroupDriverInfo {
 	
 	String deptLeader;//部门负责人
 	
-	Integer deptUserNum;//部门下的用户人数
+	Integer deptUserNum=0;//部门下的用户人数
 	
+	Integer waitAuditDriverNum=0;//待审核驾驶员人数
+	
+	Integer loseDriverNum=0;//已失效驾驶员人数
 	
 	List<DriverQueryResult> driverList;//司机列表
 }
