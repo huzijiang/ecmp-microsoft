@@ -237,7 +237,7 @@ public interface EcmpOrgMapper {
      * @param deptId
      * @return
      */
-    List<OrgTreeVo> selectDeptTree(@Param("deptId") Long deptId,@Param("deptName") String deptName);
+    OrgTreeVo selectDeptTree(@Param("deptId") Long deptId,@Param("deptName") String deptName);
 
     List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
 
