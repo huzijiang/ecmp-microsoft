@@ -103,9 +103,11 @@ public class OrderAccountInfoServiceImpl implements IOrderAccountInfoService
         List<OrderAccountVO> accountList = orderAccountInfoMapper.getAccountList();
         if (CollectionUtils.isNotEmpty(accountList)){
             for (OrderAccountVO vo:accountList){
-                String beginMonth=vo.getAccountDate()+"-01";
-                String endMonth= DateFormatUtils.getLastDayOfMonth(DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT,beginMonth));
-                String desc=beginMonth+"至"+endMonth+" "+vo.getAmount()+ "元 (未开票)";
+             //   String beginMonth=vo.getAccountDate()+"-01";
+             //   String endMonth= DateFormatUtils.getLastDayOfMonth(DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT,beginMonth));
+                String beginMonth=vo.getBeginDate();
+                String endMonth=vo.getEndDate();
+                String desc=beginMonth+"至"+endMonth+" "+vo.getTotal()+ "元 (未开票)";
                 vo.setDesc(desc);
             }
         }

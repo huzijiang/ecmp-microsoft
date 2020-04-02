@@ -74,7 +74,7 @@ public interface IApplyApproveResultInfoService
      * @param applyId 申请id
      * @param regimenId 用车制度id
      */
-    void initApproveResultInfo(Long applyId,Long regimenId,Long userId);
+    void initApproveResultInfo(Long applyId,Long regimenId,Long userId)throws Exception;
 
     List<ApprovalInfoVO> getApproveResultList(ApplyApproveResultInfo applyApproveResultInfo);
 

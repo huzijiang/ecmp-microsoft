@@ -25,7 +25,7 @@ public class ProjectInfoVO
     private String startDate;
 
     private String closeDate;
-
+    private String isAllUserUse;
     private Integer userCount;
     private Integer isEffective;
 

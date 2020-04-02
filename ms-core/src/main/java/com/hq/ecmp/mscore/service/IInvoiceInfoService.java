@@ -2,8 +2,13 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
 import com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO;
+import com.hq.ecmp.mscore.dto.InvoiceHeaderDTO;
+import com.hq.ecmp.mscore.dto.InvoiceInsertDTO;
+import com.hq.ecmp.mscore.dto.InvoicePeriodDTO;
+import com.hq.ecmp.mscore.vo.InvoiceDetailVO;
 import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
 import com.hq.ecmp.mscore.vo.InvoiceRecordVO;
+import com.hq.ecmp.mscore.vo.PeriodsVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -33,12 +38,12 @@ public interface IInvoiceInfoService
     public List<InvoiceRecordVO> selectInvoiceInfoList();
 
     /**
-     * 新增【请填写功能名称】
+     * 新增【发票信息】
      *
-     * @param invoiceInfo 【请填写功能名称】
+     * @param invoiceInsertDTO 【发票信息】
      * @return 结果
      */
-    public int insertInvoiceInfo(InvoiceInfo invoiceInfo);
+    public Long insertInvoiceInfo(InvoiceInsertDTO invoiceInsertDTO);
 
     /**
      * 修改【请填写功能名称】
@@ -73,5 +78,29 @@ public interface IInvoiceInfoService
     /**
      * 新增发票抬头
      */
-    public int insertInvoiceHeader(InvoiceHeaderVO invoiceHeaderVO);
+    public int insertInvoiceHeader(InvoiceHeaderDTO invoiceHeaderDTO);
+    /**
+     * 发票抬头查询
+     */
+    public List<InvoiceHeaderVO> queryInvoiceHeader();
+    /**
+     * 发票抬头删除所有数据
+     */
+    public int deleteInvoiceHeader();
+    /**
+     * 发票账期关联表新增
+     */
+    public int addInvoicePeriod(List<InvoicePeriodDTO> invoicePeriodList);
+    /**
+     * 发票详情
+     */
+    public InvoiceDetailVO getInvoiceDetail(Long invoiceId);
+    /**
+     * 根据ID查询发票表信息
+     */
+    public InvoiceRecordVO queryInvoiceById(Long invoiceId);
+    /**
+     * 根据ID查询账期表信息
+     */
+    List<PeriodsVO> getPeriodListByInvoiceId(Long invoiceId);
 }

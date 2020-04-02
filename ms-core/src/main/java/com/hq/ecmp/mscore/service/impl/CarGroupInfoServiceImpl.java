@@ -245,7 +245,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param carGroupId
      * @return
      */
-    private List<UserVO> getCarGroupDispatchers(Long carGroupId) {
+    private List<UserVO>  getCarGroupDispatchers(Long carGroupId) {
         //查询调度员列表
         CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
         carGroupDispatcherInfo.setCarGroupId(carGroupId);

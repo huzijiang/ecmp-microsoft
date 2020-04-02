@@ -1,11 +1,5 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
@@ -21,23 +15,15 @@ import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
-import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
-import com.hq.ecmp.mscore.dto.ApplyTravelRequest;
-import com.hq.ecmp.mscore.dto.JourneyCommitApplyDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApplyApproveResultInfoService;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
-import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.GsonUtils;
 import com.hq.ecmp.util.RandomUtil;
-import com.hq.ecmp.util.SortListUtil;
-import io.netty.util.internal.ObjectUtil;
-import org.apache.commons.lang.ObjectUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,13 +31,12 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 
 /**
@@ -61,6 +46,7 @@ import java.util.stream.Collectors;
  * @date 2020-01-02
  */
 @Service
+@Slf4j
 public class ApplyInfoServiceImpl implements IApplyInfoService
 {
     @Autowired
@@ -75,6 +61,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private JourneyPassengerInfoMapper journeyPassengerInfoMapper;
     @Autowired
     private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private EcmpOrgMapper ecmpOrgMapper;
     @Autowired
     private ApproveTemplateInfoMapper templateInfoMapper;
     @Autowired
@@ -439,15 +427,25 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     public ApplyDetailVO selectApplyDetail(Long applyId) {
         //1.根据applyId查询申请表相关信息
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
+        String projectName="";
+        String costCenter="";
+        ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(applyInfo.getProjectId());
+        if (projectInfo!=null){
+            projectName=projectInfo.getName();
+        }
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(applyInfo.getCostCenter());
+        if (ecmpOrg!=null){
+            costCenter=ecmpOrg.getDeptName();
+        }
         ApplyDetailVO applyDetailVO = ApplyDetailVO.builder()
                 //申请原因
                 .reason(applyInfo.getReason()).applyId(applyInfo.getApplyId())
                 //行程id
                 .jouneyId(applyInfo.getJourneyId())
                 //成本中心
-                .costCenter(String.valueOf(applyInfo.getCostCenter()))
+                .costCenter(costCenter)
                 //项目编号
-                .projectNumber(String.valueOf(applyInfo.getProjectId()))
+                .projectNumber(projectName)
                 //申请状态
                 .status(applyInfo.getState())
                 .time(applyInfo.getCreateTime())
@@ -470,7 +468,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyDetailVO.setWaitingTime(journeyInfo.getWaitTimeLong());
         //预估价格
         applyDetailVO.setEstimatePrice(journeyInfo.getEstimatePrice());
-
+        //根据制度id查询是否需要审批
+        RegimeVo regimeInfo = regimeInfoMapper.queryRegimeDetail(applyInfo.getRegimenId());
+        applyDetailVO.setNeedApprovalProcess(regimeInfo.getNeedApprovalProcess());
         //3.根据journeyId查询行程乘客表相关信息
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
         journeyPassengerInfo.setJourneyId(applyInfo.getJourneyId());
@@ -1222,7 +1222,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.1 journey_id 非空
         applyInfo.setJourneyId(journeyId);
         //2.2 project_id
-        applyInfo.setProjectId(Long.valueOf(officialCommitApply.getProjectNumber())); //TODO 要判空
+        Long projectId=StringUtils.isBlank(officialCommitApply.getProjectNumber())?null:Long.valueOf(officialCommitApply.getProjectNumber());
+        applyInfo.setProjectId(projectId); //TODO 要判空
         //2.3 regimen_id 非空
         applyInfo.setRegimenId(Long.valueOf(officialCommitApply.getRegimenId()));
         //2.4 apply_type 用车申请类型；A001:  公务用车 A002:  差旅用车
@@ -1242,8 +1243,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             }
             applyInfo.setApproverName(approversName);
         }
+        Long costCenter=StringUtils.isBlank(officialCommitApply.getCostCenter())?null:Long.valueOf(officialCommitApply.getCostCenter());
         //2.6 cost_center 成本中心 从组织机构表 中获取
-        applyInfo.setCostCenter(Long.valueOf(officialCommitApply.getCostCenter())); //TODO 要判空
+        applyInfo.setCostCenter(costCenter); //TODO 要判空
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
         applyInfo.setState(ApplyStateConstant.ON_APPLYING);
         //2.8 reason 行程原因
@@ -1291,8 +1293,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());    //TODO  有往返的话，创建两个行程
         //1.7 estimate_price 预估价格     非空
         journeyInfo.setEstimatePrice(String.valueOf(officialCommitApply.getEstimatePrice()));
-        //1.8 project_id  项目编号
-        journeyInfo.setProjectId(Long.valueOf(officialCommitApply.getProjectNumber()));  //TODO 要判空
+        //1.8 project_id  项目id
+        Long projectId=StringUtils.isBlank(officialCommitApply.getProjectNumber())?null:Long.valueOf(officialCommitApply.getProjectNumber());
+        journeyInfo.setProjectId(projectId);  //TODO 要判空
         //1.9 flight_number 航班编号
         journeyInfo.setFlightNumber(officialCommitApply.getFlightNumber());
         //1.10 use_time 行程总时长  多少天
@@ -1348,6 +1351,59 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 throw new BaseException("接机航班等待时长有误");
         }
         return useCarTime;
+    }
+
+    @Override
+    public List<ApprovalListVO> getApproveList(String applyUser,String applyMobile,Long applyId,Date time){
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
+        //根据制度id查询是否需要审批
+        RegimeVo regimeInfo = regimeInfoMapper.queryRegimeDetail(applyInfo.getRegimenId());
+        if (regimeInfo!=null&&CommonConstant.NO_PASS.equals(regimeInfo.getNeedApprovalProcess())){
+            log.info("申请单"+applyId+"制度id"+applyInfo.getRegimenId()+"无需审批");
+            return null;
+        }
+        List<ApprovalListVO> result=new ArrayList<>();
+        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoMapper.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(applyId));
+        List<ApprovalInfoVO> list=new ArrayList<>();
+        //TODO 后期优化
+        list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请成功"));
+        result.add(new ApprovalListVO(applyId,"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(applyApproveResultInfos)){
+            for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){
+                String approveTime=null;
+                String approveUserId = resultInfo.getApproveUserId();
+                String appresult = resultInfo.getApproveResult();
+                String state = resultInfo.getState();
+                if (ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(resultInfo.getState())&&resultInfo.getUpdateTime()!=null){
+                    approveTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,resultInfo.getUpdateTime());
+                }
+                list=new ArrayList<>();
+                if (StringUtils.isNotBlank(approveUserId)){
+                    List<EcmpUser> userList=ecmpUserMapper.selectUserListByUserIds(approveUserId);
+                    if (org.apache.commons.collections.CollectionUtils.isNotEmpty(userList)) {
+                        for (EcmpUser user:userList){
+                            ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO(resultInfo.getApproveNodeId(), user.getNickName(), user.getPhonenumber(), ApproveStateEnum.format(appresult), ApproveStateEnum.format(state));
+                            approvalInfoVO.setContent(resultInfo.getContent());
+                            list.add(approvalInfoVO);
+                        }
+                    }
+                }
+                result.add(new ApprovalListVO(applyId,"审批人",list, approveTime));
+            }
+        }
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(result)&&result.size()>1){
+            Collections.sort(result, new Comparator<ApprovalListVO>() {
+                @Override
+                public int compare(ApprovalListVO o1, ApprovalListVO o2) {
+                    int i = o1.getList().get(0).getApprovalNodeId().intValue()- o2.getList().get(0).getApprovalNodeId().intValue();
+                    if(i == 0){
+                        return o1.getList().get(0).getApprovalNodeId().intValue() - o2.getList().get(0).getApprovalNodeId().intValue();
+                    }
+                    return i;
+                }
+            });
+        }
+        return result;
     }
 
 }
