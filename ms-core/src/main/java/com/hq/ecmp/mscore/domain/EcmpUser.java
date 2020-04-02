@@ -252,6 +252,14 @@ public class EcmpUser extends BaseEntity
         this.itIsDispatcher = itIsDispatcher;
     }
 
+    public EcmpUser() {
+    }
+
+    public EcmpUser(String status, String delFlag) {
+        this.status = status;
+        this.delFlag = delFlag;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

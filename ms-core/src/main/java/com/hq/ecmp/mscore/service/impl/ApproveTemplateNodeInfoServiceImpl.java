@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.hq.ecmp.constant.CommonConstant.DEPT_TYPE_ORG;
 import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
 
@@ -170,32 +171,41 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
 
     @Override
     public List<ApprovalUserVO> getApprovalList(String regimeId, String projectId, SysUser user) throws Exception{
-        RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(Long.parseLong(regimeId));
+        RegimeVo regimeInfo = regimeInfoMapper.queryRegimeDetail(Long.parseLong(regimeId));
         if (regimeInfo==null){
             throw new Exception("用车制度:"+regimeId+"不存在");
         }
-        List<ApproveTemplateNodeInfo> nodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(regimeInfo.getApproveTemplateId()));
+        if (CommonConstant.NO_PASS.equals(regimeInfo.getNeedApprovalProcess())){
+            return null;
+        }
+        List<ApproveTemplateNodeInfo> nodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(Long.valueOf(regimeInfo.getApproveTemplateId())));
         String userIds="";
         if (CollectionUtils.isNotEmpty(nodeInfos)){
             SortListUtil.sort(nodeInfos,"approveNodeId",SortListUtil.ASC);
             ApproveTemplateNodeInfo info=nodeInfos.get(0);
-//                if (ApproveTypeEnum.APPROVE_T001.getKey().equals(info.getApproverType())){//部门主管
-//                    UserVO deptLeader = getDeptLeader(user.getDeptId());
-//                    userIds=String.valueOf(deptLeader.getUserId());
-//                }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(info.getApproverType())){//项目负责人
-//                    if (StringUtils.isEmpty(projectId)){
-//                        return null;
-//                    }
-//                    UserVO projectLeader = getProjectLeader(Long.parseLong(projectId));
-//                    userIds=String.valueOf(projectLeader.getUserId());
-//                }else{
+                if (ApproveTypeEnum.APPROVE_T001.getKey().equals(info.getApproverType())){//部门主管
+                    UserVO deptLeader =ecmpUserMapper.findDeptLeader(user.getDeptId());
+                    if (deptLeader==null){
+                        deptLeader=this.getOrgByDeptId(user.getDeptId());
+                    }
+                    log.info("制度id:"+regimeId+"的部门主管审批对象为:"+deptLeader.toString());
+                    userIds=String.valueOf(deptLeader.getUserId());
+                }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(info.getApproverType())){//项目负责人
+                    if (StringUtils.isEmpty(projectId)){
+                        return null;
+                    }
+                    UserVO projectLeader = getProjectLeader(Long.parseLong(projectId),user.getDeptId());
+                    if (projectLeader!=null){
+                        userIds=String.valueOf(projectLeader.getUserId());
+                    }
+                }else{
                     userIds=info.getUserId();
-//                }
+                }
             }
         return approveTemplateNodeInfoMapper.getApproveUsers(userIds);
     }
 
-    private UserVO getDeptLeader(Long deptId)throws Exception{
+    public UserVO getDeptLeader(Long deptId)throws Exception{
         UserVO deptUser=ecmpUserMapper.findDeptLeader(deptId);
         if (deptUser!=null){
             return deptUser;
@@ -221,19 +231,12 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
 
     }
 
-    private UserVO getProjectLeader(Long projectId) throws Exception{
+    public UserVO getProjectLeader(Long projectId,Long deptId) throws Exception{
         UserVO userVO=projectInfoMapper.findLeader(projectId);
         if (userVO!=null){
             return userVO;
         }
-        ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectId);
-        if (projectInfo.getFatherProjectId()!=ZERO){
-            userVO=projectInfoMapper.findLeader(projectInfo.getFatherProjectId());
-        }
-        if (userVO==null){
-            EcmpUser user1 = ecmpUserMapper.selectEcmpUserById(Long.parseLong(projectInfo.getCreateBy()));
-            userVO = getDeptLeader(user1.getDeptId());
-        }
+        userVO=this.getOrgByDeptId(deptId);
         return userVO;
     }
 
@@ -256,14 +259,15 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
                 String userIds = userRoleMapper.findUserIds(flowList.get(i).getRoleIds());
                 nodeInfo.setUserId(userIds);
             } else if(ApproveTypeEnum.APPROVE_T001.getKey().equals(flowList.get(i).getType())){
-                String deptId = flowList.get(i).getDeptProjectId();
-                UserVO deptLeader = getDeptLeader(Long.parseLong(deptId));
-                nodeInfo.setUserId(String.valueOf(deptLeader.getUserId()));
+//                String deptId = flowList.get(i).getDeptProjectId();
+//                UserVO deptLeader = getDeptLeader(Long.parseLong(deptId));
+//                nodeInfo.setUserId(String.valueOf(deptLeader.getUserId()));
             }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(flowList.get(i).getType())){
-                String projectId = flowList.get(i).getDeptProjectId();
+                //TODO 产品需求不明确以防万一更改
+//                String projectId = flowList.get(i).getDeptProjectId();
 //                ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(Long.parseLong(projectId));
-                UserVO projectLeader = getProjectLeader(Long.parseLong(projectId));
-                nodeInfo.setUserId(String.valueOf(projectLeader.getUserId()));
+//                UserVO projectLeader = getProjectLeader(Long.parseLong(projectId));
+//                nodeInfo.setUserId(String.valueOf(projectLeader.getUserId()));
             }else{
                 nodeInfo.setUserId(flowList.get(i).getUserIds());
             }
@@ -276,5 +280,25 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
             }
         }
         return true;
+    }
+
+
+    private UserVO getOrgByDeptId(Long deptId){
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
+        if (DEPT_TYPE_ORG.equals(ecmpOrg.getDeptType())){//是公司
+            return ecmpUserMapper.findDeptLeader(deptId);
+        }else{
+            String ancestors = ecmpOrg.getAncestors();
+            if (StringUtils.isNotEmpty(ancestors)){
+                String[] split = ancestors.split(",");
+                for (int i=split.length-1;i>=0;i--){
+                    EcmpOrg org= ecmpOrgMapper.selectEcmpOrgById(Long.parseLong(split[i]));
+                    if (DEPT_TYPE_ORG.equals(org.getDeptType())){//是公司
+                        return ecmpUserMapper.findDeptLeader(org.getDeptId());
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

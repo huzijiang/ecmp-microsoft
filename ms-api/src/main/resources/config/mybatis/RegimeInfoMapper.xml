@@ -164,7 +164,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	c. NAME AS
 	sceneName,
 	a.approve_template_id AS approveTemplateId,
-	a. state AS state
+	a. state AS state,
+	a.need_approval_process as needApprovalProcess
 	FROM
 	regime_info a
 	LEFT JOIN scene_regime_relation b ON a.regimen_id = b.regimen_id
@@ -180,15 +181,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<if test="null !=regimeName and regimeName !=''">
 		and a.NAME like CONCAT('%',#{regimeName},'%')
 	</if>
-	<if test="offset != null and pageSize != null">
+	group by a.regimen_id
+	<!-- <if test="offset != null and pageSize != null">
 		LIMIT #{offset},#{pageSize}
-	</if>
+	</if> -->
 </select>
 
 
 <select id="queryRegimeListCount" parameterType="com.hq.ecmp.mscore.domain.RegimeQueryPo"
 	resultType="java.lang.Integer">
-	SELECT
+	select count(1) from 
+	(SELECT
 	count(1)
 	FROM
 	regime_info a
@@ -207,6 +210,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<if test="null !=regimeName and regimeName !=''">
 		and a.NAME like CONCAT('%',#{regimeName},'%')
 	</if>
+	group by a.regimen_id
+	) m
 </select>
 
 <update id="updateStatus" parameterType="com.hq.ecmp.mscore.domain.RegimeOpt">
@@ -219,6 +224,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
     <select id="selectRegimenVOById" resultType="com.hq.ecmp.mscore.vo.RegimenVO" parameterType="long">
         select name,template_id as templateId,
         can_use_car_mode as canUseCarMode,
+        approve_template_id as approveTemplateId,
         regimen_type as regimenType,
         regimen_id as regimenId,
         service_type as serviceType,
@@ -307,6 +313,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
 SELECT
 	regimen_type AS regimenType,
 	NAME AS regimeName,
+	approve_template_id as approveTemplateId,
 	can_use_car_mode as canUseCarMode,
 	service_type AS serviceType,
 	allow_date AS allowDate,

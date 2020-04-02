@@ -145,7 +145,7 @@ public class ProjectController {
     }
 
     private void saveUserProject(Long projectId){
-        List<EcmpUser> ecmpUsers = ecmpUserService.selectEcmpUserList(null);
+        List<EcmpUser> ecmpUsers = ecmpUserService.selectEcmpUserList(new EcmpUser(CommonConstant.SWITCH_ON,CommonConstant.SWITCH_ON));
         List<ProjectUserRelationInfo> list=new ArrayList<>();
         for(EcmpUser user:ecmpUsers){
             list.add(new ProjectUserRelationInfo(projectId,user.getUserId()));
@@ -184,10 +184,16 @@ public class ProjectController {
 
     @ApiOperation(value = "getProjectUserList",notes = "获取成员列表",httpMethod ="POST")
     @PostMapping("/getProjectUserList")
-    @Transactional
-    public ApiResponse<PageInfo<ProjectUserVO>> getProjectUserList(@RequestBody PageRequest pageRequest){
-        PageInfo<ProjectUserVO> VO=iProjectInfoService.getProjectUserList(pageRequest.getFatherProjectId(),pageRequest.getPageNum(),pageRequest.getPageSize(),pageRequest.getSearch());
+    public ApiResponse<PageResult<ProjectUserVO>> getProjectUserList(@RequestBody PageRequest pageRequest){
+        PageResult<ProjectUserVO> VO=iProjectInfoService.getProjectUserList(pageRequest.getFatherProjectId(),pageRequest.getPageNum(),pageRequest.getPageSize(),pageRequest.getSearch());
         return ApiResponse.success(VO);
+    }
+
+    @ApiOperation(value = "getProjectUserInfo",notes = "根据项目id获取已绑定所有成员列表",httpMethod ="GET")
+    @RequestMapping("/getProjectUserInfo")
+    public ApiResponse<List<Long>> getProjectUserInfo(String projectId){
+        List<Long> users=iProjectInfoService.getProjectUserInfo(Long.parseLong(projectId));
+        return ApiResponse.success(users);
     }
 
     @ApiOperation(value = "removeProjectUser",notes = "移除成员",httpMethod ="POST")
@@ -195,7 +201,9 @@ public class ProjectController {
     @Transactional
     public ApiResponse removeProjectUser(@RequestBody ProjectUserDTO projectUserDTO){
         //TODO 暂时不考虑当前用户是否有未完成的项目报销
-        int count=iProjectInfoService.removeProjectUser(projectUserDTO);
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        int count=iProjectInfoService.removeProjectUser(projectUserDTO,loginUser.getUser().getUserId());
         return ApiResponse.success();
     }
 
@@ -216,7 +224,7 @@ public class ProjectController {
         return ApiResponse.success();
     }
 
-    @ApiOperation(value = "deleteProject",notes = "删除项目成员",httpMethod ="POST")
+    @ApiOperation(value = "deleteProject",notes = "删除项目",httpMethod ="POST")
     @PostMapping("/deleteProject")
     @Transactional
     public ApiResponse deleteProject(@RequestBody ProjectUserDTO projectUserDTO){

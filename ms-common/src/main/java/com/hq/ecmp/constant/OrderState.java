@@ -57,6 +57,8 @@ public enum OrderState {
         return Arrays.asList(INITIALIZING.getState(), WAITINGLIST.getState(),GETARIDE.getState(),SENDINGCARS.getState());
     }
 
-
-
+    
+    public static List<String> getSendCar() {
+        return Arrays.asList(ALREADYSENDING.getState(), REASSIGNMENT.getState(),READYSERVICE.getState(),INSERVICE.getState(),STOPSERVICE.getState(),ORDERCLOSE.getState());
+    }
 }

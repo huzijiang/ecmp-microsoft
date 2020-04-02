@@ -89,7 +89,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       from
             ecmp_org
        where
-            del_flag = 0 and `status`=0
+            del_flag = 0
             <if test="deptId != null "> and dept_id = #{deptId}</if>
             <if test="parentId != null "> and parent_id = #{parentId}</if>
             <if test="deptType != null  and deptType != ''"> and dept_type = #{deptType}</if>
@@ -238,19 +238,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateEcmpOrg"  parameterType="com.hq.ecmp.mscore.vo.EcmpOrgVo" >
         update ecmp_org
         <trim prefix="SET" suffixOverrides=",">
-            <if test="parentId != null ">parent_id = #{parentId},</if>
             <if test="deptCode != null ">dept_code = #{deptCode},</if>
             <if test="ancestors != null  and ancestors != ''">ancestors = #{ancestors},</if>
             <if test="deptName != null  and deptName != ''">dept_name = #{deptName},</if>
-            <if test="deptType != null  and deptType != ''">dept_type = #{deptType},</if>
-            <if test="orderNum != null ">order_num = #{orderNum},</if>
             <if test="leader != null  and leader != ''">leader = #{leader},</if>
             <if test="phone != null  and phone != ''">phone = #{phone},</if>
             <if test="email != null  and email != ''">email = #{email},</if>
-            <if test="status != null  and status != ''">status = #{status},</if>
-            <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
-            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
-            <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
         </trim>
@@ -318,7 +311,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!--查询分/子公司详情-->
     <select id="getSubDetail" parameterType="Long" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
-        SELECT dept_name as deptName,if(isnull(dept_code),'',dept_code) as deptCode,
+        SELECT dept_name as deptName,
+       if(isnull(dept_code),'',dept_code) as deptCode,
       (SELECT dept_name from  ecmp_org where dept_id =
       (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
       leader ,  `phone`,  `email`,
@@ -341,11 +335,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!-- 根据组织Id和组织类别查询公司列表 -->
     <select id="selectCompanyList" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
         select
+        dept_type as deptType,
+        dept_id as deptId,
         dept_name as deptName,
         if(isnull(dept_code),'',dept_code) as deptCode,
         leader,
         (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
-        (select count(1) from ecmp_org where parent_id=#{deptId}) as numOfSonCom,status
+        (select count(1) from ecmp_org where parent_id=#{deptId} and dept_type='1') as numOfSonCom,status
         from ecmp_org where dept_id=#{deptId} and dept_type = #{deptType}
     </select>
 
@@ -363,11 +359,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--查询当前机构信息-->
     <select id="selectCurrentDeptInformation" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
         select
+        dept_id as deptId,
+        dept_name as deptName,
         if(isnull(dept_code),'',dept_code) as deptCode,leader,
-        (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
+        (select count(1) from ecmp_user where dept_id in (select dept_id from  ecmp_org where ancestors like concat('%', #{ancestors}, '%' ) or dept_id=#{deptId} )) as numOfSub
         from ecmp_org
         where
-        <if test="deptId != null ">  dept_id = #{deptId}</if>
+        dept_id = #{deptId}
     </select>
 
     <!-- 按照分子公司名称或编号模糊查询匹配的组织id -->
@@ -379,12 +377,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where
         del_flag = 0
         and  (dept_name like concat('%', #{deptName}, '%') or   dept_code like concat('%', #{deptCode}, '%'))
+        <if test="deptType != null  and deptType != ''">and dept_type = #{deptType}</if>
     </select>
 
 
     <!--按照分子公司名称或编号模糊查询匹配的列表-->
     <select id="selectCompanyByDeptNameOrCode" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
       select
+        dept_id as deptId,
         dept_name as deptName,
         if(isnull(dept_code),'',dept_code) as deptCode,
         leader,
@@ -393,6 +393,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from ecmp_org
         where del_flag = 0
         and  (dept_name like concat('%', #{deptName}, '%') or   dept_code like concat('%', #{deptCode}, '%'))
+        and dept_id = #{deptId}
+        <if test="deptType != null  and deptType != ''">and dept_type = #{deptType}</if>
     </select>
 
     <select id="selectDeptTree" parameterType="Object" resultMap="orgTreeVO">

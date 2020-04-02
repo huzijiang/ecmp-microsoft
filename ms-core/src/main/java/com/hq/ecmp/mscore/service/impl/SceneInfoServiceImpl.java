@@ -270,7 +270,7 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         }
         //解析分页结果
         PageInfo<SceneInfo> info = new PageInfo<>(sceneInfos);
-        return new PageResult<>(info.getTotal(),list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
 
     /**
