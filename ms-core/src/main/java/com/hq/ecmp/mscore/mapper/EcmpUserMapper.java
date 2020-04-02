@@ -260,5 +260,7 @@ public interface EcmpUserMapper
     String findNameByUserIds(String userIds);
 
     List<UserTreeVo> selectListByDeptId(Long deptId);
+
+    List<UserTreeVo> selectUserListByDeptIdAndProjectId(@Param("projectId")Long projectId);
 }
 

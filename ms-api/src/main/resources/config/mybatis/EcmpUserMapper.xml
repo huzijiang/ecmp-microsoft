@@ -437,7 +437,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select nick_name as nickName,user_id as  userId,dept_id deptId,user_name userName,
         phonenumber,sex,job_number jobNumber,it_is_driver itIsDriver,it_is_dispatcher itIsDispatcher
          from ecmp_user
-        where dept_id = #{deptId} and  status=0 and del_flag=0
+        where  status=0 and del_flag=0
+        <if test="deptId!=null">
+           and dept_id = #{deptId}
+        </if>
     </select>
 
 
@@ -464,5 +467,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--根据用户id查询用户名-->
     <select id="findNameByUserIds" resultType="String">
         select group_concat(distinct nick_name) from  ecmp_user where find_in_set(user_id,#{userIds})
+    </select>
+
+    <select id="selectUserListByDeptIdAndProjectId" resultType="com.hq.ecmp.mscore.vo.UserTreeVo">
+         select nick_name as nickName,user_id as  userId,dept_id deptId,user_name userName,
+        phonenumber,sex,job_number jobNumber,it_is_driver itIsDriver,it_is_dispatcher itIsDispatcher
+         from ecmp_user
+        where status=0 and del_flag=0
+        and user_id not in (SELECT user_id from project_user_relation_info where project_id=#{projectId} )
     </select>
 </mapper>
