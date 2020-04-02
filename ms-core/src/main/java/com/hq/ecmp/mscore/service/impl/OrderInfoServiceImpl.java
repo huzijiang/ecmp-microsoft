@@ -862,36 +862,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		DispatchLockDriverDto dispatchLockDriverDto = new DispatchLockDriverDto();
 		dispatchLockDriverDto.setDriverId(driverId.toString());
 		dispatchService.unlockSelectedDriver(dispatchLockDriverDto);
-		//生成行程预估价格记录
-        List<CarLevelAndPriceReVo> carlevelAndPriceByOrderId = regimeInfoService.getCarlevelAndPriceByOrderId(orderId, CarConstant.USR_CARD_MODE_HAVE);
-        OrderInfo orderInfo1 = orderInfoMapper.selectOrderInfoById(orderId);
-        if(carlevelAndPriceByOrderId !=null && carlevelAndPriceByOrderId.size()>0){
-            for (CarLevelAndPriceReVo carLevelAndPriceReVo:
-                    carlevelAndPriceByOrderId) {
-                JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
-                journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
-                journeyPlanPriceInfo.setNodeId(orderInfo1.getNodeId());
-                journeyPlanPriceInfo.setJourneyId(orderInfo1.getJourneyId());
-                journeyPlanPriceInfo.setOrderId(orderId);
-                journeyPlanPriceInfo.setPowerId(orderInfo1.getPowerId());
-                journeyPlanPriceInfo.setPrice(new BigDecimal(carLevelAndPriceReVo.getEstimatePrice()));
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date parse = carLevelAndPriceReVo.getBookingStartTime();
-                String formatEnd = simpleDateFormat.format(parse.getTime() + (carLevelAndPriceReVo.getDuration() * 60000));
-                journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
-                journeyPlanPriceInfo.setPlannedDepartureTime(parse);
-                journeyPlanPriceInfo.setDuration(carLevelAndPriceReVo.getDuration());
-                journeyPlanPriceInfo.setSource(carLevelAndPriceReVo.getSource());
-                EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
-                enterpriseCarTypeInfo.setLevel(carLevelAndPriceReVo.getOnlineCarLevel());
-                List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
-                if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
-                    EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
-                    journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
-                }
-                iJourneyPlanPriceInfoService.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
-            }
-        }
 		/*
 		 * * // 判读该单子是否是改派单 if
 		 * (iOrderStateTraceInfoService.isReassignment(orderId)) { // 是改派单
@@ -2006,5 +1976,41 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             ismsBusiness.endServiceNotConfirm(orderNo);
         }
     }
+
+	@Override
+	public boolean sendCarBeforeCreatePlanPrice(Long orderId,Long userId) throws Exception {
+		//生成行程预估价格记录
+        List<CarLevelAndPriceReVo> carlevelAndPriceByOrderId = regimeInfoService.getCarlevelAndPriceByOrderId(orderId, CarConstant.USR_CARD_MODE_HAVE);
+        OrderInfo orderInfo1 = orderInfoMapper.selectOrderInfoById(orderId);
+        if(carlevelAndPriceByOrderId !=null && carlevelAndPriceByOrderId.size()>0){
+            for (CarLevelAndPriceReVo carLevelAndPriceReVo:
+                    carlevelAndPriceByOrderId) {
+                JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+                journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
+                journeyPlanPriceInfo.setCreateBy(userId.toString());
+                journeyPlanPriceInfo.setOrderId(orderId);
+                journeyPlanPriceInfo.setPowerId(orderInfo1.getPowerId());
+                journeyPlanPriceInfo.setSource(carLevelAndPriceReVo.getSource());
+                journeyPlanPriceInfo.setNodeId(orderInfo1.getNodeId());
+                journeyPlanPriceInfo.setJourneyId(orderInfo1.getJourneyId());
+                journeyPlanPriceInfo.setPrice(new BigDecimal(carLevelAndPriceReVo.getEstimatePrice()));
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date parse = carLevelAndPriceReVo.getBookingStartTime();
+                String formatEnd = simpleDateFormat.format(parse.getTime() + (carLevelAndPriceReVo.getDuration() * 60000));
+                journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
+                journeyPlanPriceInfo.setPlannedDepartureTime(parse);
+                journeyPlanPriceInfo.setDuration(carLevelAndPriceReVo.getDuration());
+                EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
+                enterpriseCarTypeInfo.setLevel(carLevelAndPriceReVo.getOnlineCarLevel());
+                List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
+                if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
+                    EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
+                    journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
+                }
+                iJourneyPlanPriceInfoService.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+            }
+        }
+		return true;
+	}
 
 }
