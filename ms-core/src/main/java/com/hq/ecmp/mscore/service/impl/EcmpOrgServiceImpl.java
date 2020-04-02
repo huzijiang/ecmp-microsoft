@@ -10,9 +10,7 @@ import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
-import com.hq.ecmp.mscore.vo.EcmpOrgVo;
-import com.hq.ecmp.mscore.vo.OrgTreeVo;
-import com.hq.ecmp.mscore.vo.UserTreeVo;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,6 +72,20 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         return ecmpOrgList;
     }
 
+    /**
+     * 显示当前登陆用户所属公司与公司下的部门
+     *
+     * @param deptId 部门ID deptType组织类型 1公司 2部门
+     * @return
+     */
+    @Override
+    public List<EcmpOrgDto> selectDeptComTree(Long deptId,String deptType){
+        EcmpOrgDto subDetail = ecmpOrgMapper.getSubComDept(deptId);
+        Long subComDeptId=subDetail.getDeptId();
+        List<EcmpOrgDto> ecmpOrgDtoList = ecmpOrgMapper.selectByEcmpOrgParentId(subComDeptId, null, OrgConstant.DEPT_TYPE_1);
+        return ecmpOrgDtoList;
+    }
+
     public List<EcmpOrgDto> loadEcmpOrg(Long deptId,Long parentId,String deptType) {
         List<EcmpOrgDto> list = new ArrayList<>();
         List<EcmpOrgDto> deptList = ecmpOrgMapper.selectByEcmpOrgParentId(null,parentId,deptType);
@@ -126,6 +138,89 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         return orgTreeVos;
     }
 
+    /**
+     * 递归车队
+     * @param deptId
+     * @return
+     */
+    @Override
+    public List<CarGroupTreeVO> selectCarGroupTree(Long deptId) {
+        //查询子公司下的所有车队
+        List<CarGroupTreeVO> list = ecmpOrgMapper.selectCarGroupTree(deptId);
+        if(list.size() > 0){
+            //递归查询车队
+            for (int i = 0; i <list.size() ; i++) {
+                List<CarGroupTreeVO> list1 = this.selectCarGroupTree(list.get(i).getDeptGroupId());
+                list.get(i).setChildrenList(list1);
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public List<CompanyTreeVO> selectCarGroupAndCompanyTree(Long deptId) {
+        List<CompanyTreeVO> companyTree = getCompanyTree(deptId);
+        int size = companyTree.size();
+        if(size > 0){
+            for (int i = 0; i < size; i++) {
+                Long deptCompanyId = companyTree.get(i).getDeptCompanyId();
+                List<CarGroupTreeVO> list = this.selectCarGroupTree(deptCompanyId);
+                companyTree.get(i).setCarGroupTreeVO(list);
+            }
+        }
+        return companyTree;
+    }
+
+    //公司车队树
+    @Override
+    public List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId) {
+       /* if(deptId == null){
+            EcmpOrg ecmpOrg = new EcmpOrg();
+            ecmpOrg.setParentId(0L);
+            List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
+            deptId = ecmpOrgs.get(0).getDeptId();
+        }*/
+        /*EcmpOrg ecmpOrg = new EcmpOrg();
+        ecmpOrg.setParentId(deptId);*/
+        List<CompanyCarGroupTreeVO> tree = ecmpOrgMapper.selectCompanyCarGroupTree(deptId);
+        int size = tree.size();
+        if ( size > 0){
+            for (int i = 0; i < size; i++) {
+                if (tree.get(i) != null) {
+                    String leader = tree.get(i).getLeader();
+                    if(leader != null) {
+                        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.valueOf(leader));
+                        if(ecmpUser != null ){
+                            tree.get(i).setLeaderName(ecmpUser.getUserName());
+                        }
+                    }
+                    tree.get(i).setChildrenList(this.selectCompanyCarGroupTree(tree.get(i).getDeptId()));
+                }
+            }
+        }
+        return tree;
+    }
+
+    //递归公司
+    public List<CompanyTreeVO> getCompanyTree(Long deptId){
+        if (deptId == null){
+            EcmpOrg ecmpOrg = new EcmpOrg();
+            ecmpOrg.setParentId(0L);
+            List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
+            deptId = ecmpOrgs.get(0).getDeptId();
+        }
+        //根据deptId查询下级公司
+        List<CompanyTreeVO> list = ecmpOrgMapper.selectCompanyTree(deptId);
+        int size = list.size();
+        if(size > 0){
+            for (int i = 0; i < size; i++) {
+                List<CompanyTreeVO> companyTree = this.getCompanyTree(list.get(i).getDeptCompanyId());
+                list.get(i).setChildrenList(companyTree);
+            }
+        }
+        return list;
+    }
+
     private List<UserTreeVo> getUserList(Long deptId){
         return ecmpUserMapper.selectListByDeptId(deptId);
     }
@@ -148,6 +243,32 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             if(deptIdList.size()>0){
                 for (Long deptId1:deptIdList) {
                     EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectCompanyList(deptId1,OrgConstant.DEPT_TYPE_1);
+                    ecmpOrgDto.setSupComName(supComName);
+                    companyList.add(ecmpOrgDto);
+                }
+            }
+        }
+        return companyList;
+    }
+
+    /**
+     * 显示公司列表
+     *
+     * @param deptId 部门ID
+     * @return ecmpOrg
+     */
+    @Override
+    public List<EcmpOrgDto> selectDeptList(Long deptId,String deptType){
+        /*列表：部门名称、编号、部门主管、部门人数、所属组织、下属部门数、状态*/
+        List<EcmpOrgDto> companyList = new ArrayList<>();
+        List<Long> deptIdList = new ArrayList<>();
+        if(deptId!=null){
+            deptIdList = ecmpOrgMapper.selectCompanyByParentId(deptId, OrgConstant.DEPT_TYPE_2);
+            EcmpOrgDto supDto=ecmpOrgMapper.getSubDetail(deptId);
+            String supComName=supDto.getDeptName();
+            if(deptIdList.size()>0){
+                for (Long deptId1:deptIdList) {
+                    EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectDeptList(deptId1,OrgConstant.DEPT_TYPE_2);
                     ecmpOrgDto.setSupComName(supComName);
                     companyList.add(ecmpOrgDto);
                 }
@@ -189,21 +310,22 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     public int addDept(EcmpOrgVo ecmpOrg){
         ecmpOrg.setCreateTime(DateUtils.getNowDate());
         int iz = ecmpOrgMapper.addDept(ecmpOrg);
-       /* EcmpRoleDept ecmpRoleDept=new EcmpRoleDept();
+        //添加部门角色关联信息
+        //添加角色用户关联信息
+        /*EcmpRoleDept ecmpRoleDept=new EcmpRoleDept();
         EcmpUserRole ecmpUserRole =new  EcmpUserRole();
         ecmpRoleDept.setDeptId(ecmpOrg.getDeptId());
-        ecmpUserRole.setUserId(ecmpOrg.getUserId());
-        List<Long> roleId=ecmpOrg.getRoleId();
-        if(roleId.size()>0){
-            for (Long roleId1:roleId) {
-                ecmpRoleDept.setRoleId(roleId1);
-                ecmpUserRole.setRoleId(roleId1);
-                ecmpRoleDeptMapper.insertEcmpRoleDept(ecmpRoleDept);
+        ecmpRoleDept.setRoleId(ecmpOrg.getRoleId());
+        ecmpRoleDeptMapper.insertEcmpRoleDept(ecmpRoleDept);
+        ecmpUserRole.setRoleId(ecmpOrg.getRoleId());
+        List<Long> userIdList=ecmpOrg.getUserId();
+        if(userIdList.size()>0){
+            for (Long userId:userIdList) {
+                ecmpUserRole.setUserId(userId);
                 ecmpUserRoleMapper.insertEcmpUserRole(ecmpUserRole);
             }
         }*/
-        //添加部门角色关联信息
-        //添加角色用户关联信息
+        //不可重复选择员工，通过手机号码校验
         if(iz==1){
             return 1;
         }
@@ -432,10 +554,28 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     @Override
     public List<EcmpOrgDto> selectCompanyByDeptNameOrCode(String deptNameOrCode){
         List<EcmpOrgDto> ecmpOrgDtoList=new ArrayList<>();
-        List<Long> deptIds = ecmpOrgMapper.selectDeptIdsByDeptNameOrCode(deptNameOrCode, deptNameOrCode);
+        List<Long> deptIds = ecmpOrgMapper.selectDeptIdsByDeptNameOrCode(deptNameOrCode, deptNameOrCode,OrgConstant.DEPT_TYPE_1);
         if(deptIds.size()>0){
             for (int i = 0; i < deptIds.size(); i++) {
                 EcmpOrgDto ecmpOrgDto = ecmpOrgMapper.selectCompanyByDeptNameOrCode(deptNameOrCode, deptNameOrCode, deptIds.get(i));
+                ecmpOrgDtoList.add(ecmpOrgDto);
+            }
+        }
+        return ecmpOrgDtoList;
+    }
+
+    /**
+     * 按照部门名称或编号模糊查询匹配的列表
+     * @param deptNameOrCode
+     * @return 结果
+     */
+    @Override
+    public List<EcmpOrgDto> selectDeptByDeptNameOrCode(String deptNameOrCode){
+        List<EcmpOrgDto> ecmpOrgDtoList=new ArrayList<>();
+        List<Long> deptIds = ecmpOrgMapper.selectDeptIdsByDeptNameOrCode(deptNameOrCode, deptNameOrCode,OrgConstant.DEPT_TYPE_2);
+        if(deptIds.size()>0){
+            for (int i = 0; i < deptIds.size(); i++) {
+                EcmpOrgDto ecmpOrgDto = ecmpOrgMapper.selectDeptByDeptNameOrCode(deptNameOrCode, deptNameOrCode, deptIds.get(i));
                 ecmpOrgDtoList.add(ecmpOrgDto);
             }
         }

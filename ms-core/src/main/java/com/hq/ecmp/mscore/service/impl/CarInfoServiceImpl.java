@@ -423,4 +423,30 @@ public class CarInfoServiceImpl implements ICarInfoService
         List<CarLocationVo> carLocationVos = carInfoMapper.locationCars(carLocationDto);
         return carLocationVos;
     }
+
+	@Override
+	public CarGroupCarInfo queryCarGroupCarList(Long carGroupId) {
+		CarGroupCarInfo carGroupCarInfo = new CarGroupCarInfo();
+		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId);
+		carGroupCarInfo.setList(queryCarGroupCarList);
+		// 查询车队对应的部门和公司
+		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+		if (null != carGroupInfo) {
+			Long ownerCompany = carGroupInfo.getOwnerCompany();
+			if (null != ownerCompany) {
+				EcmpOrg company = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
+				if (null != company) {
+					carGroupCarInfo.setCompanyName(company.getDeptName());
+				}
+			}
+			Long ownerOrg = carGroupInfo.getOwnerOrg();
+			if (null != ownerOrg) {
+				EcmpOrg dept = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
+				if (null != dept) {
+					carGroupCarInfo.setDeptName(dept.getDeptName());
+				}
+			}
+		}
+		return carGroupCarInfo;
+	}
 }

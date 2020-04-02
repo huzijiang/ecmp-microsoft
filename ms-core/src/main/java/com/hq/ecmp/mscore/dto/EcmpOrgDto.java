@@ -77,6 +77,9 @@ public class EcmpOrgDto {
     @ApiModelProperty(value = "新增临时字段  上级公司")
     private String supComName;
 
+    @ApiModelProperty(value = "新增临时字段  下级部门数")
+    private String numOfSonDept;
+
     /*新增临时字段 */
     @ApiModelProperty(value = "组织下级")
     private List<EcmpOrgDto> deptList;

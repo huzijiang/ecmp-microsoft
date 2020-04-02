@@ -405,9 +405,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @return
      */
     @Override
-    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state) {
+    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId) {
         PageHelper.startPage(pageNum,pageSize);
-        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search,state);
+        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search,state,deptId);
         getCarGroupExtraInfo(list);
         PageInfo<CarGroupListVO> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);

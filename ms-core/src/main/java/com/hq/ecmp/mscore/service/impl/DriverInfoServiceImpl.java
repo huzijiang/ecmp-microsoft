@@ -320,6 +320,16 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 				}
 			}
 		}
+		//查询待审核驾驶员人数
+		DriverQuery driverQuery = new DriverQuery();
+		driverQuery.setCarGroupId(carGroupId);
+		driverQuery.setState("W001");
+		Integer waitAuditDriverNum = driverInfoMapper.queryDriverNumOfStateAndCarGroup(driverQuery);
+		//查询已失效驾驶员人数
+		driverQuery.setState("NV00");
+		Integer loseDriverNum = driverInfoMapper.queryDriverNumOfStateAndCarGroup(driverQuery);
+		carGroupDriverInfo.setWaitAuditDriverNum(waitAuditDriverNum);
+		carGroupDriverInfo.setLoseDriverNum(loseDriverNum);
 		return carGroupDriverInfo;
 	}
 
