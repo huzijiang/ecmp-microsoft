@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
+import com.hq.ecmp.mscore.dto.DriverInvitationDTO;
 import com.hq.ecmp.mscore.dto.InvitationDto;
+import com.hq.ecmp.mscore.dto.UserInvitationDTO;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
 import org.apache.ibatis.annotations.Param;
@@ -92,5 +94,17 @@ public interface EcmpEnterpriseInvitationInfoMapper {
      */
     public InvitationDriverVO  queryInvitationDriverDetial(String invitationId);
 
+    /**
+     *
+     * @param driverInvitationDTO
+     * @return
+     */
+    public int insertDriverInvitation(DriverInvitationDTO driverInvitationDTO);
+    /**
+     *
+     * @param uerInvitationDTO
+     * @return
+     */
+    public int insertUserInvitation(UserInvitationDTO uerInvitationDTO);
 
 }

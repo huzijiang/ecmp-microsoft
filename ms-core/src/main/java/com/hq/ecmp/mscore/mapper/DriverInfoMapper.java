@@ -15,6 +15,7 @@ import com.hq.ecmp.mscore.dto.DriverLoseDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -180,14 +181,14 @@ public interface DriverInfoMapper
      * @param mobile
      * @return
      */
-    public int updateDriverMobile(String mobile);
+    public int updateDriverMobile(String mobile,Long driverId);
 
     /**
      * 设置驾驶员离职日期
      * @param dimTime
      * @return
      */
-    public int updateDriverDimTime(String dimTime);
+    public int updateDriverDimTime(Date dimTime,Long driverId);
 
 
 
@@ -232,6 +233,8 @@ public interface DriverInfoMapper
     
     
     public Integer queryDriverNumOfStateAndCarGroup(DriverQuery query);
+
+
 
 
 

@@ -296,4 +296,18 @@ public class OrgController {
         }
     }
 
+    /**
+     * 查询分/子公司下的部门名称和deptId
+     * @return*/
+    @ApiOperation(value = "selectDeptByCompany",notes = "查询分/子公司下的部门名称和deptId",httpMethod ="POST")
+    @PostMapping("/selectDeptByCompany")
+    public ApiResponse<List<EcmpOrgDto>> selectDeptByCompany(@RequestBody EcmpOrgVo ecmpOrgVo){
+        Long deptId=ecmpOrgVo.getDeptId();
+        if(deptId==null){
+            return ApiResponse.error("组织id不能为空！");
+        }
+        List<EcmpOrgDto> ecmpOrgList = orgService.selectDeptByCompany(deptId);
+        return ApiResponse.success(ecmpOrgList);
+    }
+
 }

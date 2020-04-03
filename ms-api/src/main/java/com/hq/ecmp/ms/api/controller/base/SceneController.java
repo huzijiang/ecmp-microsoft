@@ -93,7 +93,7 @@ public class SceneController {
 			if(i == 1){
 				return ApiResponse.success("删除成功");
 			}else {
-				return ApiResponse.error("删除场景失败");
+				return ApiResponse.error("请先删除该用车场景下的所有制度");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
