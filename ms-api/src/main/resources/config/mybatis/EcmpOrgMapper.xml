@@ -58,13 +58,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <resultMap type="com.hq.ecmp.mscore.vo.OrgTreeVo" id="orgTreeVO">
-        <id column="dept_id" property="deptId"/>
+        <id column="dept_id" property="id"/>
         <result property="parentId"    column="parent_id"    />
-        <result property="ancestors"    column="ancestors"    />
-        <result property="deptName"    column="dept_name"    />
-        <result property="deptType"    column="dept_type"    />
-        <result property="deptCode"    column="dept_code"    />
-        <result property="leader"    column="leader"    />
+        <result property="showname"    column="dept_name"    />
+        <result property="type"    column="type"    />
         <collection property="children" ofType="OrgTreeVo" javaType="java.util.ArrayList" select="getOrgNodeList" column="dept_id">
         </collection>
     </resultMap>
@@ -441,7 +438,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectDeptTree" parameterType="Object" resultMap="orgTreeVO">
-        select * from ecmp_org
+        select dept_id, parent_id,dept_name,0 type from ecmp_org
         where status=0 and del_flag=0 and dept_type!=3
         <if test="deptId!=null">
             and dept_id=#{deptId}
@@ -455,7 +452,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     </select>
     <select id="getOrgNodeList" parameterType="Object" resultMap="orgTreeVO">
-         select * from ecmp_org
+         select dept_id, parent_id,dept_name,'0' type from ecmp_org
         where status=0 and del_flag=0 and parent_id=#{dept_id} and dept_type!=3
     </select>
     <select id="selectCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">

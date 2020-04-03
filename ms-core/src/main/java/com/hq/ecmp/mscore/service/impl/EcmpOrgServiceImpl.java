@@ -130,32 +130,32 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 
         OrgTreeVo orgTreeVos = ecmpOrgMapper.selectDeptTree(deptId, deptName);
         List<EcmpUser> userTreeVos = ecmpUserMapper.selectEcmpUserList(null);
-        OrgTreeVo deptUserChild = getDeptUserChild(orgTreeVos, userTreeVos);
-        return deptUserChild;
-    }
-
-    private OrgTreeVo getDeptUserChild(OrgTreeVo orgTreeVos,List<EcmpUser> userTreeVos){
-        if (CollectionUtils.isEmpty(userTreeVos)) {
-            return orgTreeVos;
-        }
-        List<UserTreeVo> users = new ArrayList<>();
-        for (EcmpUser ecmpUser : userTreeVos) {
-            UserTreeVo userTreeVo = new UserTreeVo();
-            BeanUtils.copyProperties(ecmpUser, userTreeVo);
-            if (ecmpUser.getDeptId() == orgTreeVos.getDeptId()) {
-                users.add(userTreeVo);
-            }
-        }
-        orgTreeVos.setUsers(users);
-        if (CollectionUtils.isEmpty(orgTreeVos.getChildren())) {
-            return orgTreeVos;
-        } else {
-            for (OrgTreeVo deptAndUser : orgTreeVos.getChildren()) {
-                getDeptUserChild(deptAndUser, userTreeVos);
-            }
-        }
+//        OrgTreeVo deptUserChild = getDeptUserChild(orgTreeVos, userTreeVos);
         return orgTreeVos;
     }
+
+//    private OrgTreeVo getDeptUserChild(OrgTreeVo orgTreeVos,List<EcmpUser> userTreeVos){
+//        if (CollectionUtils.isEmpty(userTreeVos)) {
+//            return orgTreeVos;
+//        }
+//        List<UserTreeVo> users = new ArrayList<>();
+//        for (EcmpUser ecmpUser : userTreeVos) {
+//            UserTreeVo userTreeVo = new UserTreeVo();
+//            BeanUtils.copyProperties(ecmpUser, userTreeVo);
+//            if (ecmpUser.getDeptId() == orgTreeVos.getDeptId()) {
+//                users.add(userTreeVo);
+//            }
+//        }
+//        orgTreeVos.setUsers(users);
+//        if (CollectionUtils.isEmpty(orgTreeVos.getChildren())) {
+//            return orgTreeVos;
+//        } else {
+//            for (OrgTreeVo deptAndUser : orgTreeVos.getChildren()) {
+//                getDeptUserChild(deptAndUser, userTreeVos);
+//            }
+//        }
+//        return orgTreeVos;
+//    }
     /**
      * 递归车队
      * @param deptId

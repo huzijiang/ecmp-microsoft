@@ -160,6 +160,9 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     @Override
     @Transactional
     public int removeProjectUser(ProjectUserDTO projectUserDTO,Long userId) {
+        if (projectUserDTO.getUserId()==null||projectUserDTO.getProjectId()==null){
+            return 0;
+        }
         int i = projectUserRelationInfoMapper.removeProjectUser(projectUserDTO.getProjectId(), projectUserDTO.getUserId());
         if (i>0){
             ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectUserDTO.getProjectId());
@@ -194,48 +197,49 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     }
 
     @Override
-    public List<Long> getProjectUserInfo(Long projectId) {
-        List<ProjectUserRelationInfo> projectUserRelationInfos = projectUserRelationInfoMapper.selectProjectUserRelationInfoList(new ProjectUserRelationInfo(projectId));
-        List<Long> collect=new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(projectUserRelationInfos)){
-            collect = projectUserRelationInfos.stream().map(ProjectUserRelationInfo::getUserId).collect(Collectors.toList());
-        }
-        return collect;
+    public List<ProjectUserVO> getProjectUserInfo(Long projectId) {
+        List<ProjectUserVO> list= projectUserRelationInfoMapper.getProjectUserList(projectId,null);
+        return list;
     }
 
     @Override
-    public OrgTreeVo selectProjectUserTree(String projectId) {
+    public OrgTreeVo selectProjectUserTree(Long projectId) {
         String str =(String) redisUtil.get(String.format(PROJECT_USER_TREE, projectId));
         if (StringUtils.isNotEmpty(str)){
             OrgTreeVo orgTreeVo = JSONObject.parseObject(str, OrgTreeVo.class);
             return orgTreeVo;
         }
         OrgTreeVo orgTreeVo = ecmpOrgMapper.selectDeptTree(null,null);
-        List<UserTreeVo> userList =ecmpUserMapper.selectUserListByDeptIdAndProjectId(Long.parseLong(projectId));
+        List<UserTreeVo> userList =ecmpUserMapper.selectUserListByDeptIdAndProjectId(projectId);
         OrgTreeVo childNode = getChildNode(orgTreeVo, userList);
         redisUtil.set(String.format(PROJECT_USER_TREE, projectId), JSON.toJSONString(childNode));
         return childNode;
     }
 
 
-    private OrgTreeVo getChildNode(OrgTreeVo deptAndUserBean, List<UserTreeVo> userList) {
+    private OrgTreeVo getChildNode(OrgTreeVo orgTreeVos, List<UserTreeVo> userList) {
         if (CollectionUtils.isEmpty(userList)) {
-            return deptAndUserBean;
+            return orgTreeVos;
         }
-        List<UserTreeVo> users = new ArrayList<>();
+        List<OrgTreeVo> children = orgTreeVos.getChildren();
         for (UserTreeVo vo:userList) {
-            if (deptAndUserBean.getDeptId() == vo.getDeptId()) {
-                users.add(vo);
+            if (orgTreeVos.getId() == vo.getDeptId()&&String.valueOf(CommonConstant.ZERO).equals(orgTreeVos.getType()) ){
+                OrgTreeVo userVo=new OrgTreeVo();
+                userVo.setParentId(vo.getDeptId());
+                userVo.setId(vo.getUserId());
+                userVo.setShowname(vo.getNickName());
+                userVo.setType(CommonConstant.SWITCH_OFF);
+                children.add(userVo);
             }
         }
-        deptAndUserBean.setUsers(users);
-        if (CollectionUtils.isEmpty(deptAndUserBean.getChildren())) {
-            return deptAndUserBean;
+        orgTreeVos.setChildren(children);
+        if (CollectionUtils.isEmpty(orgTreeVos.getChildren())) {
+            return orgTreeVos;
         } else {
-            for (OrgTreeVo deptAndUser : deptAndUserBean.getChildren()) {
+            for (OrgTreeVo deptAndUser : orgTreeVos.getChildren()) {
                 getChildNode(deptAndUser, userList);
             }
         }
-        return deptAndUserBean;
+        return orgTreeVos;
     }
 }

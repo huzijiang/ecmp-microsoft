@@ -22,7 +22,7 @@ public class ProjectInfoDTO
 
     private String projectCode;
 
-    private String fatherProjectId;
+    private Long fatherProjectId;
     private Integer isFinite;
 
     private String startDate;

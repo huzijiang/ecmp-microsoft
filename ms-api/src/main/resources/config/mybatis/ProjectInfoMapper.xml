@@ -146,19 +146,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fatherProjectId!=null">
                 and  a.father_project_id=#{fatherProjectId}
             </if>
+            <if test="fatherProjectId==null or fatherProjectId=0">
+                and  (a.father_project_id is null or   a.father_project_id=0)
+            </if>
     </select>
 
     <select id="getProjectInfo" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ProjectInfoVO">
-        select a.project_id projectId, name,a.project_code projectCode,b.nick_name leaderName,b.phonenumber leaderPhone,
-        if(is_all_user_use=0,'仅本项目员工','全部员工') isAllUserUse,a.start_date startDate,a.close_date closeDate, a.is_effective isEffective,
+        select a.project_id projectId, a.name,a.project_code projectCode,b.nick_name leaderName,b.phonenumber leaderPhone,
+        if(a.is_all_user_use=0,'仅本项目员工','全部员工') isAllUserUse,a.start_date startDate,a.close_date closeDate, a.is_effective isEffective,
+        if(a.start_date is null and a.close_date is null,0,1) isFinite,if(c.name is null,'',c.name) fatherProjectName,a.father_project_id fatherProjectId,
         IF
         (
-        is_all_user_use = 1,
+        a.is_all_user_use = 1,
         ( SELECT count( * ) FROM ecmp_user WHERE STATUS = 0 AND del_flag = 0 ),
         ( SELECT count(*) FROM project_user_relation_info WHERE project_id = a.project_id )
         ) userCount
             from project_info a
-            inner join ecmp_user b on b.user_id=a.leader
+            left join ecmp_user b on b.user_id=a.leader
+            left join project_info c on c.project_id=a.father_project_id
             where a.project_id=#{projectId}
     </select>
 
@@ -180,6 +185,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
             <if test="fatherProjectId!=null">
                 and  father_project_id=#{fatherProjectId}
+            </if>
+            <if test="fatherProjectId==null or fatherProjectId=0">
+                and  (a.father_project_id is null or   a.father_project_id=0)
             </if>
     </select>
 </mapper>
