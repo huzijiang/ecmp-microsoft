@@ -355,7 +355,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     @Transactional
     public void disableCarGroup(Long carGroupId, Long userId) throws Exception {
         //递归启用车队及下属车队的驾驶员和车辆
-        while(carGroupId != 0) {
+        while(carGroupId != null && carGroupId != 0) {
             //查询车队信息
             CarGroupInfo carGroupBean = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
             if(carGroupBean != null) {
@@ -379,7 +379,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //获得车队下的驾驶员集合
                 List<CarGroupDriverRelation> driverList = carGroupDriverRelationMapper.selectCarGroupDriverRelationList(carGroupDriverRelation);
                 //禁用驾驶员
-                driverInfoMapper.updateDriverState(driverList, String.valueOf(userId),"NV00");
+                if(driverList != null && driverList.size() != 0)
+                    driverInfoMapper.updateDriverState(driverList, String.valueOf(userId),"NV00");
                 //车队归属直接组织(包含-所有总公司、分公司、部门、车队)
                 carGroupId = carGroupBean.getOwnerOrg();
             } else {
@@ -409,7 +410,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     @Override
     public void startUpCarGroup(Long carGroupId, Long userId) throws Exception {
         //递归启用车队及下属车队的驾驶员和车辆
-        while(carGroupId != 0) {
+        while(carGroupId != null && carGroupId != 0) {
             //查询车队信息
             CarGroupInfo carGroupBean = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
             if(carGroupBean != null) {
@@ -433,7 +434,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //获得车队下的驾驶员集合
                 List<CarGroupDriverRelation> driverList = carGroupDriverRelationMapper.selectCarGroupDriverRelationList(carGroupDriverRelation);
                 //启用驾驶员
-                driverInfoMapper.updateDriverState(driverList, String.valueOf(userId),"V000");
+                if(driverList != null && driverList.size() != 0)
+                    driverInfoMapper.updateDriverState(driverList, String.valueOf(userId),"V000");
                 //车队归属直接组织(包含-所有总公司、分公司、部门、车队)
                 carGroupId = carGroupBean.getOwnerOrg();
             } else {
@@ -499,7 +501,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             throw new Exception("请先删除该车队下的所有车辆及人员信息");
         }
         int delRow;
-        while(carGroupId != 0) {
+        while(carGroupId != null && carGroupId != 0) {
             //查询车队信息
             CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
             if(carGroupInfo != null) {
@@ -653,7 +655,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @return
      */
     public boolean existCarOrDriver(Long carGroupId) {
-        while (carGroupId != 0){
+        while (carGroupId != null && carGroupId != 0){
             //查询车队信息
             CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
             if(carGroupInfo != null) {
