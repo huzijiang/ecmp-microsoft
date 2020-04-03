@@ -258,7 +258,6 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
 <insert id="insertRegime" parameterType="com.hq.ecmp.mscore.domain.RegimePo" useGeneratedKeys="true" keyProperty="regimenId">
      insert into regime_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="regimenId != null and regimenId != ''">regimen_id,</if>
             <if test="templateId != null and templateId !=''">template_id,</if>
             <if test="name != null  and name != ''">name,</if>
              <if test="regimenType != null and regimenType !=''">regimen_type,</if>
@@ -286,7 +285,6 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
             <if test="createTime != null ">create_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="regimenId != null and regimenId != ''">#{regimenId},</if>
             <if test="templateId != null and templateId !=''">#{templateId},</if>
             <if test="name != null  and name != ''">#{name},</if>
             <if test="regimenType != null and regimenType !=''">#{regimenType},</if>

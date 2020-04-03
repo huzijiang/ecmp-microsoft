@@ -473,12 +473,12 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         List<EcmpUserDto> ecmpUserList=null;
         List<EcmpUserDto> ecmpUserDtoList = ecmpUserMapper.selectUserIdsByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone);
         if(ecmpUserDtoList.size()>0){
-            /*for (EcmpUserDto ecmpUserDto1: ecmpUserDtoList) {
-                Long userId=ecmpUserDto1.getUserId;
-                Long deptId=ecmpUserDto1.getDeptId;
+            for (EcmpUserDto ecmpUserDto1: ecmpUserDtoList) {
+                Long userId=ecmpUserDto1.getUserId();
+                Long deptId=ecmpUserDto1.getDeptId();
                 EcmpUserDto ecmpUserDto = ecmpUserMapper.selectUserByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone, userId,deptId);
                 ecmpUserList.add(ecmpUserDto);
-            }*/
+            }
         }
         return ecmpUserList;
     }

@@ -65,13 +65,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     @Autowired
     private OrderInfoMapper orderInfoMapper;
     @Autowired
-    private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
-    @Autowired
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
-    @Autowired
-    private IOrderStateTraceInfoService orderStateTraceInfoService;
-    @Autowired
-    private IOrderInfoService orderInfoService;
     @Autowired
     private IEcmpConfigService ecmpConfigService;
     

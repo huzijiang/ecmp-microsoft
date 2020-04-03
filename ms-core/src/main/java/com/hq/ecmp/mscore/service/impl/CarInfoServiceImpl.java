@@ -187,8 +187,8 @@ public class CarInfoServiceImpl implements ICarInfoService
         CarInfo carInfo = new CarInfo();
         carInfo.setCarType(carSaveDTO.getCarType());
         carInfo.setCarLicense(carSaveDTO.getCarLicense());
-        carInfo.setEnterpriseCarTypeId(carSaveDTO.getEnterpriseCarTypeId());
-        carInfo.setOwnerOrgId(carSaveDTO.getOwnerOrgId());
+        carInfo.setCarTypeId(carSaveDTO.getEnterpriseCarTypeId());
+        carInfo.setDeptId(carSaveDTO.getOwnerOrgId());
         carInfo.setCarGroupId(carSaveDTO.getCarGroupId());
         carInfo.setSource(carSaveDTO.getSource());  //TODO 新增
         carInfo.setBuyDate(carSaveDTO.getBuyDate());

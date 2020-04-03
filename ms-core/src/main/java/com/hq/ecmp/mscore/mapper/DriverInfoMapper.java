@@ -4,10 +4,7 @@ import com.hq.ecmp.mscore.bo.SelectCarConditionBo;
 import com.hq.ecmp.mscore.bo.SelectDriverConditionBo;
 import com.hq.ecmp.mscore.bo.WaitSelectedCarBo;
 import com.hq.ecmp.mscore.bo.WaitSelectedDriverBo;
-import com.hq.ecmp.mscore.domain.DriverCreateInfo;
-import com.hq.ecmp.mscore.domain.DriverInfo;
-import com.hq.ecmp.mscore.domain.DriverQuery;
-import com.hq.ecmp.mscore.domain.DriverQueryResult;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
 import com.hq.ecmp.mscore.dto.DriverDTO;
 import com.hq.ecmp.mscore.dto.DriverLoseDTO;
@@ -234,9 +231,13 @@ public interface DriverInfoMapper
     
     public Integer queryDriverNumOfStateAndCarGroup(DriverQuery query);
 
-
-
-
-
+    /**
+     * 更新驾驶员的状态
+     * @param list
+     * @param state W001 待审核 V000 生效中 NV00 失效/离职
+     * @return
+     */
+    public int updateDriverState(@Param("list") List<CarGroupDriverRelation> list,
+                                 @Param("updateBy") String updateBy, @Param("state") String state);
 
 }

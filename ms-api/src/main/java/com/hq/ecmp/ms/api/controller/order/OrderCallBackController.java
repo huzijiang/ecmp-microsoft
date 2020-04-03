@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +33,11 @@ public class OrderCallBackController {
     private IOrderInfoService iOrderInfoService;
 
     @ApiOperation(value = "网约车订单状态回调接口")
-    @PostMapping(value = "/callBackOrderState")
-    public ApiResponse callBackOrderState(String json){
+    @RequestMapping(value = "/callBackOrderState")
+    public ApiResponse callBackOrderState(@RequestParam("json") String json){
+        if (StringUtils.isBlank(json)){
+            return ApiResponse.success("参数为空");
+        }
         try {
             iOrderInfoService.callBackOrderState(json);
             return ApiResponse.success("订单状态回调成功");
