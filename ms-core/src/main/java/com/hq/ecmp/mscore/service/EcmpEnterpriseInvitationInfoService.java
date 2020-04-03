@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
+import com.hq.ecmp.mscore.dto.DriverInvitationDTO;
 import com.hq.ecmp.mscore.dto.InvitationDto;
 import com.hq.ecmp.mscore.dto.InvitationInfoDTO;
+import com.hq.ecmp.mscore.dto.UserInvitationDTO;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
 
@@ -78,4 +80,17 @@ public interface EcmpEnterpriseInvitationInfoService {
      * 邀请驾驶员详情
      */
     public InvitationDriverVO  queryInvitationDriverDetial(String invitationId);
+    /**
+     *
+     * @param driverInvitationDTO
+     * @return
+     */
+    public int insertDriverInvitation(DriverInvitationDTO driverInvitationDTO);
+    /**
+     *
+     * @param uerInvitationDTO
+     * @return
+     */
+    public int insertUserInvitation(UserInvitationDTO uerInvitationDTO);
+
 }

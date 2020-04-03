@@ -87,7 +87,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carTypeId != null ">car_type_id,</if>
             <if test="carLicense != null  and carLicense != ''">car_license,</if>
             <if test="state != null  and state != ''">state,</if>
-            <if test="carType != null  and carType != ''">car_type,</if>
             <if test="seatNum != null ">seat_num,</if>
             <if test="carColor != null  and carColor != ''">car_color,</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">car_license_color,</if>
@@ -119,7 +118,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carTypeId != null ">#{carTypeId},</if>
             <if test="carLicense != null  and carLicense != ''">#{carLicense},</if>
             <if test="state != null  and state != ''">#{state},</if>
-            <if test="carType != null  and carType != ''">#{carType},</if>
             <if test="seatNum != null ">#{seatNum},</if>
             <if test="carColor != null  and carColor != ''">#{carColor},</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">#{carLicenseColor},</if>
@@ -300,12 +298,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carId != null  and carId != '' ">    and car_id=#{carId}</if>
         </where>
     </update>
+    <select id="selectCarInfoListByGroupId" resultMap="CarInfoResult">
+        <include refid="selectCarInfoVo"/>
+        <where>
+        <if test="carGroupId != null "> and car_group_id = #{carGroupId}</if>
+        <if test="carTypeId != null "> and carTypeId = #{carTypeId}</if>
+        <if test="state != null "> and state = #{state}</if>
+        <if test="search != null "> and car_license like CONCAT('%',#{search},'%')</if>
+        </where>
+    </select>
 
 	<select id="queryCarGroupCarList" parameterType="java.lang.Long"
 		resultType="com.hq.ecmp.mscore.vo.CarListVO">
 		SELECT
 		car_license AS carLicense,
-		car_type AS carType
+		car_type AS carType,
+		a.car_id as carId
 		FROM
 		car_info a
 		WHERE

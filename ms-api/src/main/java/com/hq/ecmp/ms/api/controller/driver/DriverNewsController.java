@@ -6,12 +6,12 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
-import com.hq.ecmp.mscore.dto.CarDriverDTO;
-import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
-import com.hq.ecmp.mscore.dto.DriverCarDTO;
-import com.hq.ecmp.mscore.dto.DriverLoseDTO;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
+import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
+import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
+import com.hq.ecmp.mscore.vo.DriverLoseCountVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import java.util.List;
  * @Date： 2020-3-20
  */
 @RestController
-@RequestMapping("/driverInfo")
+@RequestMapping("/driverNews")
 public class DriverNewsController {
     @Autowired
     private IDriverInfoService iDriverInfoService;
@@ -37,15 +37,18 @@ public class DriverNewsController {
     private IDriverCarRelationInfoService driverCarRelationInfoService;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private IDriverWorkInfoService driverWorkInfoService;
+
     /**
      *驾驶员可用车辆列表
-     * @param driverId
+     * @param driverDTO
      * @return
      */
     @ApiOperation(value="getDriverCanUseCarsList" ,notes="查询驾驶员可用车辆列表", httpMethod = "POST")
     @PostMapping("/getDriverCanUseCarsList")
-    public ApiResponse<List<DriverCanUseCarsDTO>> getDriverCanUseCarsList(Long driverId){
-        List<DriverCanUseCarsDTO>  driverCanUseCarsList = iDriverInfoService.getDriverCanCar(driverId);
+    public ApiResponse<List<DriverCanUseCarsDTO>> getDriverCanUseCarsList(@RequestBody DriverNewDTO driverDTO){
+        List<DriverCanUseCarsDTO>  driverCanUseCarsList = iDriverInfoService.getDriverCanCar(driverDTO.getDriverId());
         if(CollectionUtils.isNotEmpty(driverCanUseCarsList)){
             return ApiResponse.success(driverCanUseCarsList);
         }else {
@@ -54,13 +57,13 @@ public class DriverNewsController {
     }
     /**
      *驾驶员失效列表
-     * @param deptId
+     * @param driverDTO
      * @return
      */
     @ApiOperation(value="getDriverLoseList" ,notes="查询驾驶员失效列表", httpMethod = "POST")
     @PostMapping("/getDriverLoseList")
-    public ApiResponse<List<DriverLoseDTO>> getDriverLoseList(Long deptId){
-        List<DriverLoseDTO>  driverLoseList = iDriverInfoService.getDriverLoseList(deptId);
+    public ApiResponse<List<DriverLoseDTO>> getDriverLoseList(@RequestBody DriverNewDTO driverDTO){
+        List<DriverLoseDTO>  driverLoseList = iDriverInfoService.getDriverLoseList(driverDTO.getDeptId());
         if(CollectionUtils.isNotEmpty(driverLoseList)){
             return ApiResponse.success(driverLoseList);
         }else {
@@ -69,13 +72,13 @@ public class DriverNewsController {
     }
     /**
      *驾驶员失效数量
-     * @param deptId
+     * @param driverDTO
      * @return
      */
     @ApiOperation(value="getDriverLoseCount" ,notes="查询驾驶员失效数量", httpMethod = "POST")
     @PostMapping("/getDriverLoseCount")
-    public ApiResponse  getDriverLoseCount(Long deptId){
-        int driverCount = iDriverInfoService.getDriverLoseCount(deptId);
+    public ApiResponse  getDriverLoseCount(@RequestBody DriverNewDTO driverDTO){
+        int driverCount = iDriverInfoService.getDriverLoseCount(driverDTO.getDeptId());
         if(driverCount >0){
             return ApiResponse.success(driverCount);
         }
@@ -84,13 +87,13 @@ public class DriverNewsController {
     }
     /**
      *已失效驾驶员进行删除
-     * @param driverId
+     * @param driverDTO
      * @return
      */
     @ApiOperation(value="getDriverDelete" ,notes="删除已失效驾驶员", httpMethod = "POST")
     @PostMapping("/getDriverDelete")
-    public ApiResponse  getDriverDelete(Long driverId){
-        int deleteDriver = iDriverInfoService.deleteDriver(driverId);
+    public ApiResponse  getDriverDelete(@RequestBody DriverNewDTO driverDTO){
+        int deleteDriver = iDriverInfoService.deleteDriver(driverDTO.getDriverId());
         if(deleteDriver !=0){
             return ApiResponse.success("删除已失效驾驶员成功");
         }
@@ -113,13 +116,13 @@ public class DriverNewsController {
     }
     /**
      *修改驾驶员手机号
-     * @param mobile
+     * @param driverNewDTO
      * @return
      */
     @ApiOperation(value="getDriverUpdateMobile" ,notes="修改驾驶员手机号", httpMethod = "POST")
     @PostMapping("/getDriverUpdateMobile")
-    public ApiResponse  getDriverUpdateMobile(String mobile){
-        int updateDriverMob = iDriverInfoService.updateDriverMobile(mobile);
+    public ApiResponse  getDriverUpdateMobile(@RequestBody DriverNewDTO driverNewDTO){
+        int updateDriverMob = iDriverInfoService.updateDriverMobile(driverNewDTO.getMobile(),driverNewDTO.getDriverId());
         if(updateDriverMob !=0){
             return ApiResponse.success("成功修改驾驶员手机号");
         }
@@ -127,13 +130,13 @@ public class DriverNewsController {
     }
     /**
      *设置驾驶员离职日期
-     * @param dimTime
+     * @param driverNewDTO
      * @return
      */
     @ApiOperation(value="getDriverUpdateDimTime" ,notes="修改驾驶员离职日期", httpMethod = "POST")
     @PostMapping("/getDriverUpdateDimTime")
-    public ApiResponse  getDriverUpdateDimTime(String dimTime){
-        int updateDriverDimTime = iDriverInfoService.updateDriverDimTime(dimTime);
+    public ApiResponse  getDriverUpdateDimTime(@RequestBody DriverNewDTO driverNewDTO){
+        int updateDriverDimTime = iDriverInfoService.updateDriverDimTime(driverNewDTO.getDimTime(),driverNewDTO.getDriverId());
         if(updateDriverDimTime !=0){
             return ApiResponse.success("成功修改驾驶员离职日期");
         }
@@ -176,10 +179,45 @@ public class DriverNewsController {
         }
         return ApiResponse.success("新增车辆成功");
     }
+
+    /**
+     * 查询司机当月排班日期对应的出勤情况列表
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "loadScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
+    @PostMapping("/loadScheduleInfo")
+    public ApiResponse<DriverDutyPlanVO> loadScheduleInfo(@RequestBody(required = false) String scheduleDate){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            //查询司机当月排班日期对应的出勤情况列表
+            DriverDutyPlanVO result = driverWorkInfoService.selectDriverScheduleByMonth(scheduleDate,userId);
+            return ApiResponse.success(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("加载司机当月排班日期对应的出勤情况列表失败");
+        }
+    }
     /**
      * 驾驶员班次设置
      * @param
      * @return
      */
-
+    @ApiOperation(value = "updateDriverWork",notes = "驾驶员班次设置",httpMethod ="POST")
+    @PostMapping("/updateDriverWork")
+    public ApiResponse updateDriverWork(@RequestBody List<DriverWorkDTO> DriverWorkList){
+        //获取登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+         //   iDriverInfoService.bindDriverCars(DriverWorkDTO,userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success("新增车辆成功");
+    }
 }
