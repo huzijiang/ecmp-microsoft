@@ -600,4 +600,13 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         return ecmpOrgDtoList;
     }
 
+    /**
+     *查询分/子公司下的部门名称和deptId
+     * @return
+     */
+    @Override
+    public List<EcmpOrgDto> selectDeptByCompany(Long deptId) {
+        return ecmpOrgMapper.selectDeptByCompany(deptId);
+    }
+
 }
