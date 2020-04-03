@@ -10,17 +10,17 @@ import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.ms.api.dto.base.ProjectDto;
 import com.hq.ecmp.ms.api.dto.base.ProjectUserDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
+import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
 import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
+import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.service.IProjectUserRelationInfoService;
-import com.hq.ecmp.mscore.vo.OrgTreeVo;
-import com.hq.ecmp.mscore.vo.PageResult;
-import com.hq.ecmp.mscore.vo.ProjectInfoVO;
-import com.hq.ecmp.mscore.vo.ProjectUserVO;
+import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.RedisUtil;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.hq.ecmp.constant.CommonConstant.DEPT_TYPE_ORG;
 import static com.hq.ecmp.constant.CommonConstant.PROJECT_USER_TREE;
 
 /**
@@ -55,6 +56,8 @@ public class ProjectController {
     private IProjectUserRelationInfoService iProjectUserRelationInfoService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private IEcmpOrgService ecmpOrgService;
 
     /**
      * 项目下拉选
@@ -100,7 +103,7 @@ public class ProjectController {
         }
         List<ProjectInfo> projectInfos = iProjectInfoService.selectProjectInfoList(new ProjectInfo(projectInfoDto.getProjectCode()));
         if (CollectionUtils.isNotEmpty(projectInfos)){
-            return ApiResponse.error("该编号已存在,不可重复录入!");
+            return ApiResponse.success("该编号已存在,不可重复录入!");
         }
         return ApiResponse.success();
     }
@@ -138,6 +141,11 @@ public class ProjectController {
         ProjectInfo projectInfo = new ProjectInfo();
         BeanUtils.copyProperties(projectInfoDto,projectInfo);
         projectInfo.setIsEffective(1);
+        EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+        if (ecmpOrg!=null){
+            projectInfo.setOwnerCompany(ecmpOrg.getDeptId());
+        }
+        projectInfo.setOwnerOrg(loginUser.getUser().getDeptId());
         if (projectInfoDto.getFatherProjectId()==null){
             projectInfo.setFatherProjectId(0l);
         }
@@ -264,9 +272,33 @@ public class ProjectController {
     @Transactional
     public ApiResponse deleteProject(@RequestBody ProjectUserDTO projectUserDTO){
         //TODO 暂时不考虑当前用户是否有未完成的项目报销
-        int count=iProjectInfoService.deleteProject(projectUserDTO);
-        redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDTO.getProjectId()));
+        try {
+            int count=iProjectInfoService.deleteProject(projectUserDTO);
+            redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDTO.getProjectId()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("删除项目失败");
+        }
         return ApiResponse.success();
+    }
+
+    private EcmpOrg getOrgByDeptId(Long deptId){
+        EcmpOrg ecmpOrg = ecmpOrgService.selectEcmpOrgById(deptId);
+        if (DEPT_TYPE_ORG.equals(ecmpOrg.getDeptType())){//是公司
+            return ecmpOrg;
+        }else{
+            String ancestors = ecmpOrg.getAncestors();
+            if (StringUtils.isNotEmpty(ancestors)){
+                String[] split = ancestors.split(",");
+                for (int i=split.length-1;i>=0;i--){
+                    EcmpOrg org= ecmpOrgService.selectEcmpOrgById(Long.parseLong(split[i]));
+                    if (DEPT_TYPE_ORG.equals(org.getDeptType())){//是公司
+                        return org;
+                    }
+                }
+            }
+            return null;
+        }
     }
 
 }

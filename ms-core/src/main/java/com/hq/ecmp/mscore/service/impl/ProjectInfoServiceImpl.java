@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.hq.ecmp.constant.CommonConstant.PROJECT_USER_TREE;
+import static com.hq.ecmp.constant.CommonConstant.*;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -140,6 +140,16 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     public PageResult<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, String search, Long fatherProjectId) {
         PageHelper.startPage(pageNum,pageSize);
         List<ProjectInfoVO> list= projectInfoMapper.getProjectList(search,fatherProjectId);
+        if(CollectionUtils.isNotEmpty(list)){
+            for (ProjectInfoVO vo:list){
+                int isdeleteCount=  projectInfoMapper.selectChildProject(vo.getProjectId());
+                if (isdeleteCount>0){
+                    vo.setIsCanDelete(ZERO);
+                }else{
+                    vo.setIsCanDelete(ONE);
+                }
+            }
+        }
         Long count=projectInfoMapper.getProjectListCount(search,fatherProjectId);
         return new PageResult<ProjectInfoVO>(count,list);
     }
@@ -166,8 +176,8 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         int i = projectUserRelationInfoMapper.removeProjectUser(projectUserDTO.getProjectId(), projectUserDTO.getUserId());
         if (i>0){
             ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectUserDTO.getProjectId());
-            if (projectInfo!=null&& CommonConstant.ONE==projectInfo.getIsAllUserUse()){
-                projectInfo.setIsAllUserUse(CommonConstant.ZERO);
+            if (projectInfo!=null&& ONE==projectInfo.getIsAllUserUse()){
+                projectInfo.setIsAllUserUse(ZERO);
                 projectInfo.setUpdateBy(String.valueOf(userId));
                 projectInfo.setUpdateTime(new Date());
                 projectInfoMapper.updateProjectInfo(projectInfo);
@@ -177,8 +187,12 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     }
 
     @Override
-    public int deleteProject(ProjectUserDTO projectUserDTO) {
-        int i = projectInfoMapper.updateProjectInfo(new ProjectInfo(projectUserDTO.getProjectId(), -1));
+    public int deleteProject(ProjectUserDTO projectUserDTO) throws Exception{
+        int isdeleteCount=  projectInfoMapper.selectChildProject(projectUserDTO.getProjectId());
+        if (isdeleteCount>0){
+            throw new Exception("该项目:"+projectUserDTO.getProjectId()+"下有");
+        }
+        int i = projectInfoMapper.updateProjectInfo(new ProjectInfo(projectUserDTO.getProjectId(), 4));
         if (i>0){
             projectUserRelationInfoMapper.deleteProjectUserRelationInfoById(projectUserDTO.getProjectId());
         }
@@ -223,7 +237,7 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         }
         List<OrgTreeVo> children = orgTreeVos.getChildren();
         for (UserTreeVo vo:userList) {
-            if (orgTreeVos.getId() == vo.getDeptId()&&String.valueOf(CommonConstant.ZERO).equals(orgTreeVos.getType()) ){
+            if (orgTreeVos.getId() == vo.getDeptId()&&String.valueOf(ZERO).equals(orgTreeVos.getType()) ){
                 OrgTreeVo userVo=new OrgTreeVo();
                 userVo.setParentId(vo.getDeptId());
                 userVo.setId(vo.getUserId());

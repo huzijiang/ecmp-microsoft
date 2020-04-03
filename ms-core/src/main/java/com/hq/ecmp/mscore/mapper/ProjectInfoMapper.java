@@ -81,4 +81,6 @@ public interface ProjectInfoMapper
     UserVO findLeader(Long projectId);
 
     Long getProjectListCount(String search, Long fatherProjectId);
+
+    int selectChildProject(Long projectId);
 }
