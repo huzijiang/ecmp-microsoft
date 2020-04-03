@@ -682,7 +682,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 	</select>
 
    <select id="queryApplyDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="java.lang.Integer">
-   select count(1) from 
+   select count(1) from
    (SELECT
 		count(1)
 		FROM
@@ -763,7 +763,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
 	<select id="queryReassignmentDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
 		resultType="java.lang.Integer">
-		select count(1) from 
+		select count(1) from
 		(SELECT
 		count(1)
 		FROM
@@ -862,7 +862,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </select>
 
     <!-- 查询不冲突的 前任务 借用create_time-->
-    <select id="getSetOutBeforeTaskForCar" parameterType="com.hq.ecmp.mscore.bo.OrderTaskClashBo" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
+    <select id="getSetOutBeforeTaskForCarOrDriver" parameterType="com.hq.ecmp.mscore.bo.OrderTaskClashBo" resultMap="OrderInfoResult">
         SELECT
             ord.order_id,
             jpp.planned_departure_time as create_time
@@ -877,7 +877,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </select>
 
     <!-- 查询不冲突的 后任务,借用update_time传递值-->
-    <select id="getArrivalAfterTaskForCar" parameterType="com.hq.ecmp.mscore.bo.OrderTaskClashBo" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
+    <select id="getArrivalAfterTaskForCarOrDriver" parameterType="com.hq.ecmp.mscore.bo.OrderTaskClashBo" resultMap="OrderInfoResult">
         SELECT
             ord.order_id,
             jpp.planned_arrival_time as update_time

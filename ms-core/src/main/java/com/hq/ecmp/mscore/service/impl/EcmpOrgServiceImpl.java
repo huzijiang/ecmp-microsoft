@@ -3,15 +3,14 @@ package com.hq.ecmp.mscore.service.impl;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
-import com.hq.ecmp.mscore.domain.EcmpRoleDept;
 import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.domain.EcmpUserRole;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,8 +114,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @return
      */
     @Override
-    public List<OrgTreeVo> selectDeptTree(Long deptId,String deptName) {
-        List<OrgTreeVo> orgTreeVos = ecmpOrgMapper.selectDeptTree(deptId, deptName);
+    public OrgTreeVo selectDeptTree(Long deptId,String deptName) {
+        OrgTreeVo orgTreeVos = ecmpOrgMapper.selectDeptTree(deptId, deptName);
         return orgTreeVos;
     }
 
@@ -127,17 +126,36 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @return
      */
     @Override
-    public List<OrgTreeVo> selectDeptUserTree(Long deptId, String deptName) {
-        List<OrgTreeVo> orgTreeVos = ecmpOrgMapper.selectDeptTree(deptId, deptName);
-        if (CollectionUtils.isNotEmpty(orgTreeVos)){
-            for (OrgTreeVo orgTreeVo:orgTreeVos){
-                List<UserTreeVo> userList = this.getUserList(orgTreeVo.getDeptId());
-                orgTreeVo.setUsers(userList);
-            }
-        }
+    public OrgTreeVo selectDeptUserTree(Long deptId, String deptName) {
+
+        OrgTreeVo orgTreeVos = ecmpOrgMapper.selectDeptTree(deptId, deptName);
+        List<EcmpUser> userTreeVos = ecmpUserMapper.selectEcmpUserList(null);
+//        OrgTreeVo deptUserChild = getDeptUserChild(orgTreeVos, userTreeVos);
         return orgTreeVos;
     }
 
+//    private OrgTreeVo getDeptUserChild(OrgTreeVo orgTreeVos,List<EcmpUser> userTreeVos){
+//        if (CollectionUtils.isEmpty(userTreeVos)) {
+//            return orgTreeVos;
+//        }
+//        List<UserTreeVo> users = new ArrayList<>();
+//        for (EcmpUser ecmpUser : userTreeVos) {
+//            UserTreeVo userTreeVo = new UserTreeVo();
+//            BeanUtils.copyProperties(ecmpUser, userTreeVo);
+//            if (ecmpUser.getDeptId() == orgTreeVos.getDeptId()) {
+//                users.add(userTreeVo);
+//            }
+//        }
+//        orgTreeVos.setUsers(users);
+//        if (CollectionUtils.isEmpty(orgTreeVos.getChildren())) {
+//            return orgTreeVos;
+//        } else {
+//            for (OrgTreeVo deptAndUser : orgTreeVos.getChildren()) {
+//                getDeptUserChild(deptAndUser, userTreeVos);
+//            }
+//        }
+//        return orgTreeVos;
+//    }
     /**
      * 递归车队
      * @param deptId

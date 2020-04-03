@@ -5,24 +5,31 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
 import com.hq.ecmp.mscore.dto.ProjectUserDTO;
+import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
+import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.mapper.ProjectInfoMapper;
 import com.hq.ecmp.mscore.mapper.ProjectUserRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
-import com.hq.ecmp.mscore.vo.PageResult;
-import com.hq.ecmp.mscore.vo.ProjectInfoVO;
-import com.hq.ecmp.mscore.vo.ProjectUserVO;
+import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.RedisUtil;
+import com.sun.org.apache.regexp.internal.RE;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.hq.ecmp.constant.CommonConstant.PROJECT_USER_TREE;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -37,6 +44,13 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     private ProjectInfoMapper projectInfoMapper;
     @Autowired
     private ProjectUserRelationInfoMapper projectUserRelationInfoMapper;
+    @Autowired
+    private EcmpOrgMapper ecmpOrgMapper;
+
+    @Autowired
+    private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 查询【请填写功能名称】
@@ -146,6 +160,9 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     @Override
     @Transactional
     public int removeProjectUser(ProjectUserDTO projectUserDTO,Long userId) {
+        if (projectUserDTO.getUserId()==null||projectUserDTO.getProjectId()==null){
+            return 0;
+        }
         int i = projectUserRelationInfoMapper.removeProjectUser(projectUserDTO.getProjectId(), projectUserDTO.getUserId());
         if (i>0){
             ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectUserDTO.getProjectId());
@@ -180,12 +197,49 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     }
 
     @Override
-    public List<Long> getProjectUserInfo(Long projectId) {
-        List<ProjectUserRelationInfo> projectUserRelationInfos = projectUserRelationInfoMapper.selectProjectUserRelationInfoList(new ProjectUserRelationInfo(projectId));
-        List<Long> collect=new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(projectUserRelationInfos)){
-            collect = projectUserRelationInfos.stream().map(ProjectUserRelationInfo::getUserId).collect(Collectors.toList());
+    public List<ProjectUserVO> getProjectUserInfo(Long projectId) {
+        List<ProjectUserVO> list= projectUserRelationInfoMapper.getProjectUserList(projectId,null);
+        return list;
+    }
+
+    @Override
+    public OrgTreeVo selectProjectUserTree(Long projectId) {
+        String str =(String) redisUtil.get(String.format(PROJECT_USER_TREE, projectId));
+        if (StringUtils.isNotEmpty(str)){
+            OrgTreeVo orgTreeVo = JSONObject.parseObject(str, OrgTreeVo.class);
+            return orgTreeVo;
         }
-        return collect;
+        OrgTreeVo orgTreeVo = ecmpOrgMapper.selectDeptTree(null,null);
+        List<UserTreeVo> userList =ecmpUserMapper.selectUserListByDeptIdAndProjectId(projectId);
+        OrgTreeVo childNode = getChildNode(orgTreeVo, userList);
+        redisUtil.set(String.format(PROJECT_USER_TREE, projectId), JSON.toJSONString(childNode));
+        return childNode;
+    }
+
+
+    private OrgTreeVo getChildNode(OrgTreeVo orgTreeVos, List<UserTreeVo> userList) {
+        if (CollectionUtils.isEmpty(userList)) {
+            return orgTreeVos;
+        }
+        List<OrgTreeVo> children = orgTreeVos.getChildren();
+        for (UserTreeVo vo:userList) {
+            if (orgTreeVos.getId() == vo.getDeptId()&&String.valueOf(CommonConstant.ZERO).equals(orgTreeVos.getType()) ){
+                OrgTreeVo userVo=new OrgTreeVo();
+                userVo.setParentId(vo.getDeptId());
+                userVo.setId(vo.getUserId());
+                userVo.setShowname(vo.getNickName());
+                userVo.setType(CommonConstant.SWITCH_OFF);
+                children.add(userVo);
+            }
+        }
+        orgTreeVos.setChildren(children);
+        if (CollectionUtils.isEmpty(orgTreeVos.getChildren())) {
+            return orgTreeVos;
+        } else {
+            for (OrgTreeVo deptAndUser : orgTreeVos.getChildren()) {
+                getChildNode(deptAndUser, userList);
+            }
+        }
+        return orgTreeVos;
     }
 }

@@ -75,7 +75,7 @@ public interface IApplyInfoService
      * 提交公务行程申请
      * @param officialCommitApply
      */
-    ApplyVO applyOfficialCommit(ApplyOfficialRequest officialCommitApply);
+    ApplyVO applyOfficialCommit(ApplyOfficialRequest officialCommitApply) throws Exception;
 
     /**
      * 提交差旅行程申请

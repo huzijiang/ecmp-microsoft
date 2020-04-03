@@ -25,6 +25,11 @@ public class RegimeUseCarCityRuleInfoServiceImpl implements IRegimeUseCarCityRul
 	public Integer batchInsert(List<RegimeUseCarCityRuleInfo> list) {
 		return regimeUseCarCityRuleInfoMapper.batchInsert(list);
 	}
+
+	@Override
+	public List<String> queryLimitCityCodeList(Long regimenId) {
+		return regimeUseCarCityRuleInfoMapper.queryLimitCityCodeList(regimenId);
+	}
 	
 	
 	

@@ -3,10 +3,12 @@ package com.hq.ecmp.ms.api.controller.base;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.ms.api.dto.base.ProjectDto;
+import com.hq.ecmp.ms.api.dto.base.ProjectUserDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
@@ -15,23 +17,25 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.service.IProjectUserRelationInfoService;
+import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.ProjectInfoVO;
 import com.hq.ecmp.mscore.vo.ProjectUserVO;
+import com.hq.ecmp.util.RedisUtil;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.hq.ecmp.constant.CommonConstant.PROJECT_USER_TREE;
 
 /**
  * @Author: zj.hu
@@ -49,6 +53,8 @@ public class ProjectController {
     private IEcmpUserService ecmpUserService;
     @Autowired
     private IProjectUserRelationInfoService iProjectUserRelationInfoService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 项目下拉选
@@ -89,6 +95,9 @@ public class ProjectController {
     @ApiOperation(value = "checkProjectCode",notes = "校验项目编号",httpMethod ="POST")
     @PostMapping("/checkProjectCode")
     public ApiResponse checkProjectCode(@RequestBody ProjectInfoDTO projectInfoDto){
+        if (StringUtils.isEmpty(projectInfoDto.getProjectCode())){
+            return ApiResponse.success();
+        }
         List<ProjectInfo> projectInfos = iProjectInfoService.selectProjectInfoList(new ProjectInfo(projectInfoDto.getProjectCode()));
         if (CollectionUtils.isNotEmpty(projectInfos)){
             return ApiResponse.error("该编号已存在,不可重复录入!");
@@ -124,16 +133,23 @@ public class ProjectController {
     @ApiOperation(value = "createProject",notes = "新增项目",httpMethod ="POST")
     @PostMapping("/createProject")
     public ApiResponse createProject(@RequestBody ProjectInfoDTO projectInfoDto){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
         ProjectInfo projectInfo = new ProjectInfo();
         BeanUtils.copyProperties(projectInfoDto,projectInfo);
         projectInfo.setIsEffective(1);
+        if (projectInfoDto.getFatherProjectId()==null){
+            projectInfo.setFatherProjectId(0l);
+        }
+        projectInfo.setCreateBy(String.valueOf(loginUser.getUser().getUserId()));
+        projectInfo.setCreateTime(new Date());
         int i = iProjectInfoService.insertProjectInfo(projectInfo);
         if (i>0){
             if (projectInfoDto.getIsAllUserUse()==1){//全部员工
                 this.saveUserProject(projectInfo.getProjectId());
             }
         }
-        return ApiResponse.error("新建项目成功");
+        return ApiResponse.success("新建项目成功");
     }
 
     @ApiOperation(value = "getProjectInfo",notes = "详情",httpMethod ="POST")
@@ -189,10 +205,22 @@ public class ProjectController {
         return ApiResponse.success(VO);
     }
 
+    /**
+     * 成员树
+     * @return*/
+    @ApiOperation(value = "显示部门及员工树",notes = "显示部门及员工树",httpMethod ="POST")
+    @PostMapping("/selectProjectUserTree")
+    public ApiResponse<List<OrgTreeVo>> selectProjectUserTree(@RequestBody ProjectInfoDTO projectInfoDto){
+        OrgTreeVo deptList = iProjectInfoService.selectProjectUserTree(projectInfoDto.getProjectId());
+        List<OrgTreeVo> lsit=new ArrayList<>();
+        lsit.add(deptList);
+        return ApiResponse.success(lsit);
+    }
+
     @ApiOperation(value = "getProjectUserInfo",notes = "根据项目id获取已绑定所有成员列表",httpMethod ="GET")
     @RequestMapping("/getProjectUserInfo")
-    public ApiResponse<List<Long>> getProjectUserInfo(String projectId){
-        List<Long> users=iProjectInfoService.getProjectUserInfo(Long.parseLong(projectId));
+    public ApiResponse<List<ProjectUserVO>> getProjectUserInfo(String projectId){
+        List<ProjectUserVO> users=iProjectInfoService.getProjectUserInfo(Long.parseLong(projectId));
         return ApiResponse.success(users);
     }
 
@@ -204,23 +232,30 @@ public class ProjectController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         int count=iProjectInfoService.removeProjectUser(projectUserDTO,loginUser.getUser().getUserId());
-        return ApiResponse.success();
+        if (count>0){
+            redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDTO.getProjectId()));
+            return ApiResponse.success();
+        }else {
+            return ApiResponse.error("移除失败");
+        }
     }
 
     @ApiOperation(value = "addProjectUser",notes = "添加项目成员",httpMethod ="POST")
     @PostMapping("/addProjectUser")
     @Transactional
-    public ApiResponse addProjectUser(@RequestBody AddProjectUserDTO projectUserDTO){
+    public ApiResponse addProjectUser(@RequestBody List<ProjectUserDto> projectUserDtos){
         //TODO 暂时不考虑当前用户是否有未完成的项目报销
+        if (CollectionUtils.isEmpty(projectUserDtos)){
+            return ApiResponse.error("成员列表为空");
+        }
         List<ProjectUserRelationInfo> list=new ArrayList<>();
-        List<ProjectUserRelationInfo> projectUserRelationInfos = iProjectUserRelationInfoService.selectProjectUserRelationInfoList(new ProjectUserRelationInfo(projectUserDTO.getProjectId()));
-        if (projectUserDTO.getUserIds()!=null&&projectUserDTO.getUserIds().length>0){
-            for (Long userId:projectUserDTO.getUserIds()){
-                list.add(new ProjectUserRelationInfo(projectUserDTO.getProjectId(),userId));
-            }
+        List<ProjectUserRelationInfo> projectUserRelationInfos = iProjectUserRelationInfoService.selectProjectUserRelationInfoList(new ProjectUserRelationInfo(projectUserDtos.get(0).getProjectId()));
+        for (ProjectUserDto projectUserDto:projectUserDtos){
+            list.add(new ProjectUserRelationInfo(projectUserDto.getProjectId(),projectUserDto.getUserId()));
         }
         list.removeAll(projectUserRelationInfos);
         int count=iProjectUserRelationInfoService.insertProjectList(list);
+        redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDtos.get(0).getProjectId()));
         return ApiResponse.success();
     }
 
@@ -230,6 +265,7 @@ public class ProjectController {
     public ApiResponse deleteProject(@RequestBody ProjectUserDTO projectUserDTO){
         //TODO 暂时不考虑当前用户是否有未完成的项目报销
         int count=iProjectInfoService.deleteProject(projectUserDTO);
+        redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDTO.getProjectId()));
         return ApiResponse.success();
     }
 

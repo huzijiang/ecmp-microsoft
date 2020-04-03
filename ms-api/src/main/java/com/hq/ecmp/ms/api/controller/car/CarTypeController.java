@@ -16,10 +16,7 @@ import com.hq.ecmp.mscore.vo.CarTypeVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -71,7 +68,7 @@ public class CarTypeController {
      * @param
      * @return
      */
-    @ApiOperation(value = "updateCarType",notes = "新增车型",httpMethod ="POST")
+    @ApiOperation(value = "updateCarType",notes = "修改车型",httpMethod ="POST")
     @PostMapping("/updateCarType")
     public ApiResponse updateCarType(@RequestBody CarTypeDTO carTypeDto){
         //获取登录用户
@@ -92,9 +89,9 @@ public class CarTypeController {
      */
     @ApiOperation(value = "deleteCarType",notes = "删除车型")
     @PostMapping("/deleteCarType")
-    public ApiResponse deleteCarType(@RequestBody CarTypeDTO carTypeDto){
+    public ApiResponse deleteCarType(@RequestBody Long carTypeId){
         try {
-            enterpriseCarTypeInfoService.deleteEnterpriseCarTypeInfoById(carTypeDto.getCarTypeId());
+            enterpriseCarTypeInfoService.deleteEnterpriseCarTypeInfoById(carTypeId);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -109,9 +106,9 @@ public class CarTypeController {
      */
     @ApiOperation(value = "getCarTypeList",notes = "查询车型列表")
     @PostMapping("/getCarTypeList")
-    public ApiResponse<List<CarTypeVO>> getCarTypeList(@RequestBody CarTypeDTO carTypeDto){
+    public ApiResponse<List<CarTypeVO>> getCarTypeList(@RequestBody Long enterpriseId){
         try {
-            List<CarTypeVO> result = enterpriseCarTypeInfoService.getCarTypeList(carTypeDto.getEnterpriseId());
+            List<CarTypeVO> result = enterpriseCarTypeInfoService.getCarTypeList(enterpriseId);
             return ApiResponse.success("查询成功",result);
         } catch (Exception e) {
             e.printStackTrace();

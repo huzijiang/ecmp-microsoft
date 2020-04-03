@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.ecmp.mscore.dto.DirectionDto;
 import com.hq.ecmp.mscore.vo.CarCostVO;
 import com.hq.ecmp.mscore.vo.EstimatePriceVo;
 import com.hq.ecmp.mscore.vo.FlightInfoVo;
@@ -38,4 +39,14 @@ public interface ThirdService {
      * @return
      */
     List<CarCostVO> enterpriseOrderGetCalculatePrice(EstimatePriceVo estimatePriceVo) throws Exception;
+
+    /**
+     * 通过出发地和目的地经纬度查询时长和里程
+     * @param startPoint (格式：精度,纬度)
+     * @param endPoint (格式：精度,纬度)
+     * @return
+     */
+    DirectionDto drivingRoute(String startPoint, String endPoint);
+
+
 }

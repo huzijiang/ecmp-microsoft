@@ -8,8 +8,7 @@ import com.hq.ecmp.mscore.domain.DriverInfo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.sql.Date;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * 等待被选中的司机对象
@@ -76,7 +75,7 @@ public class WaitSelectedDriverBo extends DriverInfo implements Comparable<WaitS
     /**
      * 前续个任务结束时间 这里是不冲突的任务
      */
-    private Timestamp beforeTaskEndTime;
+    private Date beforeTaskEndTime;
 
     /**
      * 前续个任务订单编号，这里是不冲突的任务
@@ -90,7 +89,7 @@ public class WaitSelectedDriverBo extends DriverInfo implements Comparable<WaitS
     /**
      * 后续个任务开始时间 这里是不冲突的任务
      */
-    private Timestamp afterTaskBeginTime;
+    private Date afterTaskBeginTime;
 
     /**
      * 后续任务订单编号,这里是不冲突的任务

@@ -12,6 +12,7 @@ import com.hq.ecmp.mscore.mapper.ProjectInfoMapper;
 import com.hq.ecmp.mscore.mapper.ProjectUserRelationInfoMapper;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.RedisUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.hq.ecmp.constant.CommonConstant.PROJECT_USER_TREE;
 
 /**
  * @Author: chao.zhang
@@ -45,6 +48,8 @@ class OrgControllerTest {
     private IEcmpOrgService orgService;
     @Autowired
     private IApplyInfoService applyInfoService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Test
     void getUserOwnCompanyDept() {
@@ -106,7 +111,7 @@ class OrgControllerTest {
     @Test
     public void deptTree(){
         try {
-            List<OrgTreeVo> orgTreeVos = orgService.selectDeptTree(null, null);
+            OrgTreeVo orgTreeVos = orgService.selectDeptTree(null, null);
             System.out.println(JSON.toJSONString(orgTreeVos));
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,7 +120,7 @@ class OrgControllerTest {
     @Test
     public void deptUserTree(){
         try {
-            List<OrgTreeVo> orgTreeVos = orgService.selectDeptUserTree(null, null);
+            OrgTreeVo orgTreeVos = orgService.selectDeptUserTree(null, null);
             System.out.println(orgTreeVos.toString());
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,19 +159,6 @@ class OrgControllerTest {
         }
     }
     @Test
-    public void getApprovalList(){//根据制度获取审批人
-        try {
-            SysUser sysUser = new SysUser();
-            sysUser.setUserId(106l);
-            sysUser.setDeptId(252L);
-            List<ApprovalUserVO> approvalList = nodeInfoService.getApprovalList("1", "7", sysUser);
-            System.out.println(approvalList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
     public void selectApplyDetail(){//获取审批流信息
         try {
             Long applyId=891l;
@@ -181,5 +173,42 @@ class OrgControllerTest {
         }
     }
 
+
+    @Test
+    public void getApprovalList(){//根据制度获取审批人
+        try {
+            SysUser sysUser = new SysUser();
+            sysUser.setUserId(106l);
+            sysUser.setDeptId(252L);
+            List<ApprovalUserVO> approvalList = nodeInfoService.getApprovalList("1", "7", sysUser);
+            System.out.println(approvalList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    public void getOrgTree(){//根据制度获取审批人
+        try {
+            OrgTreeVo orgTreeVos = iProjectInfoService.selectProjectUserTree( 3l );
+            System.out.println(JSON.toJSONString(orgTreeVos));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    public void delRedis(){//根据制度获取审批人
+        try {
+            redisUtil.delKey(String.format(PROJECT_USER_TREE,1));
+            redisUtil.delKey(String.format(PROJECT_USER_TREE,2));
+            redisUtil.delKey(String.format(PROJECT_USER_TREE,3));
+            redisUtil.delKey(String.format(PROJECT_USER_TREE,4));
+            redisUtil.delKey(String.format(PROJECT_USER_TREE,5));
+            redisUtil.delKey(String.format(PROJECT_USER_TREE,6));
+            redisUtil.delKey(String.format(PROJECT_USER_TREE,7));
+            System.out.println("chengg");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
