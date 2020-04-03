@@ -1,7 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import java.util.List;
-
+import java.util.Date;
 import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
@@ -117,14 +117,14 @@ public interface IDriverInfoService
      * @param mobile
      * @return
      */
-    public int updateDriverMobile(String mobile);
+    public int updateDriverMobile(String mobile,Long driverId);
 
     /**
      * 设置驾驶员离职日期
      * @param dimTime
      * @return
      */
-    public int updateDriverDimTime(String dimTime);
+    public int updateDriverDimTime(Date dimTime,Long driverId);
     /**
      * 驾驶员绑定车辆
      * @param driverCarDTO

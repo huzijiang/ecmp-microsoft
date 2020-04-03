@@ -79,7 +79,7 @@ public interface IProjectInfoService
 
     void checkProject();
 
-    List<Long> getProjectUserInfo(Long projectId);
+    List<ProjectUserVO> getProjectUserInfo(Long projectId);
 
-    OrgTreeVo selectProjectUserTree( String projectId);
+    OrgTreeVo selectProjectUserTree( Long projectId);
 }

@@ -226,4 +226,7 @@ public interface IEcmpOrgService
 
     //公司车队树
     List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId);
+
+    /*查询公司车队总人数*/
+    CarGroupCountVO selectCarGroupCount(Long deptId);
 }

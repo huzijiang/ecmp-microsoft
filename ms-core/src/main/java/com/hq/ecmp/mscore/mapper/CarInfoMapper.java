@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -139,4 +140,6 @@ public interface CarInfoMapper
     public int unlockCar(@Param("carId")long carId);
 
     public List<CarListVO> queryCarGroupCarList(Long carGroupId);
+    /*根据车队id 条件查询车辆列表*/
+    List<CarInfo> selectCarInfoListByGroupId(@Param("carGroupId") Long carGroupId,@Param("carTypeId") Long carTypeId,@Param("state") String state,@Param("search") String search);
 }

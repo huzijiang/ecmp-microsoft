@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.dto.InvitationDto;
 
 import com.hq.ecmp.mscore.dto.InvitationInfoDTO;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
+import com.hq.ecmp.mscore.dto.UserInvitationDTO;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
@@ -42,16 +43,15 @@ public class UserinvitationController {
 
     /**
      * 生成邀请
-     * @param ecmpEnterpriseInvitationInfo
+     * @param userInvitationDTO
      * @return
      */
     @ApiOperation(value = "interInvitationUserCommit",notes = "生成邀请",httpMethod = "POST")
     @PostMapping("/interInvitationUserCommit")
-    public ApiResponse interInvitationUserCommit(@RequestBody EcmpEnterpriseInvitationInfo ecmpEnterpriseInvitationInfo){
+    public ApiResponse interInvitationUserCommit(@RequestBody UserInvitationDTO userInvitationDTO){
         try {
-            ecmpEnterpriseInvitationInfo.setType("T001");//员工邀请
-            ecmpEnterpriseInvitationInfo.setState("Y000");//默认邀请状态为有效
-            ecmpEnterpriseInvitationInfoService.insert(ecmpEnterpriseInvitationInfo);
+
+            ecmpEnterpriseInvitationInfoService.insertUserInvitation(userInvitationDTO);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("新增员工邀请失败");
