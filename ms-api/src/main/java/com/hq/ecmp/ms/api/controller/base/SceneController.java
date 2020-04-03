@@ -184,5 +184,22 @@ public class SceneController {
 		return ApiResponse.success("修改场景顺序成功");
 	}
 
-
+	/**
+	 * 获取所有可用的用车场景
+	 * @param
+	 * @return
+	 */
+	@ApiOperation(value = "getAllUseScene", notes = "获取所有可用的用车场景", httpMethod ="POST")
+	@PostMapping("/getAllUseScene")
+	public ApiResponse<List<SceneInfo>> getAllUseScene() {
+		try {
+			SceneInfo sceneInfo = new SceneInfo();
+			sceneInfo.setEffectStatus("0");
+			List<SceneInfo> selectSceneInfoList = sceneInfoService.selectSceneInfoList(sceneInfo);
+			return ApiResponse.success(selectSceneInfoList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error("查询所有可用用车场景失败");
+		}
+	}
 }
