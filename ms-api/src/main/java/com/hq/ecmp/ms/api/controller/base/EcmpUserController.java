@@ -238,7 +238,7 @@ public class EcmpUserController {
      * @param  ecmpUser
      * @return*/
     @ApiOperation(value = "按照姓名/工号/手机号模糊查询匹配的列表",notes = "按照姓名/工号/手机号模糊查询匹配的列表",httpMethod ="POST")
-    @PostMapping("/selectDeptByDeptNameOrCode")
+    @PostMapping("/selectUserByNameOrJobNumberOrPhone")
     public ApiResponse<List<EcmpUserDto>> selectUserByNameOrJobNumberOrPhone(@RequestBody EcmpUserVo ecmpUser){
         String nameOrJobNumberOrPhone=ecmpUser.getNameOrJobNumberOrPhone();
         if("".equals(nameOrJobNumberOrPhone.trim())){

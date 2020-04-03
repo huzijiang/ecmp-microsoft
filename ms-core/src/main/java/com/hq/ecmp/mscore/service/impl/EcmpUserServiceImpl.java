@@ -281,13 +281,6 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         List<Long> userIds=ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
         for (int i = 0; i < userIds.size(); i++) {
             EcmpUserDto ecmpUserDto = ecmpUserMapper.getEcmpUserList(deptId, userIds.get(i));
-            Long num = ecmpUserMapper.selectEcmpUserSubDeptCount(deptId);
-            if(num>0){
-                String subDept = ecmpUserMapper.selectEcmpUserSubDept(deptId);
-                ecmpUserDto.setSubDept(subDept);
-            }else{
-                ecmpUserDto.setSubDept("无");
-            }
             String regimeName = "";
             List<RegimeVo> regimeVoList =  regimeInfoMapper.selectByUserId(userIds.get(i));
             if(regimeVoList.size()>0){
@@ -478,12 +471,14 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      */
     public List<EcmpUserDto> selectUserByNickNameOrJobNumber(String nameOrJobNumberOrPhone){
         List<EcmpUserDto> ecmpUserList=null;
-        List<Long> userIds = ecmpUserMapper.selectUserIdsByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone);
-        if(userIds.size()>0){
-            for (int i = 0; i < userIds.size(); i++) {
-                EcmpUserDto ecmpUserDto = ecmpUserMapper.selectUserByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone, userIds.get(i));
+        List<EcmpUserDto> ecmpUserDtoList = ecmpUserMapper.selectUserIdsByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone);
+        if(ecmpUserDtoList.size()>0){
+            /*for (EcmpUserDto ecmpUserDto1: ecmpUserDtoList) {
+                Long userId=ecmpUserDto1.getUserId;
+                Long deptId=ecmpUserDto1.getDeptId;
+                EcmpUserDto ecmpUserDto = ecmpUserMapper.selectUserByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone, userId,deptId);
                 ecmpUserList.add(ecmpUserDto);
-            }
+            }*/
         }
         return ecmpUserList;
     }

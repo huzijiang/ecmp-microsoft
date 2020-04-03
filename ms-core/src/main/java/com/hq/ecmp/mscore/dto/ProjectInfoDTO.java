@@ -18,11 +18,11 @@ public class ProjectInfoDTO
 
     private String name;
     //项目主管
-    private Long leader;
+    private String leader;
 
     private String projectCode;
 
-    private String fatherProjectId;
+    private Long fatherProjectId;
     private Integer isFinite;
 
     private String startDate;
