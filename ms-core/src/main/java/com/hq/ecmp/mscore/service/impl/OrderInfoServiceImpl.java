@@ -715,6 +715,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
             journeyPlanPriceInfo.setJourneyId(orderInfoOld.getJourneyId());
             journeyPlanPriceInfo.setNodeId(orderInfoOld.getNodeId());
+            journeyPlanPriceInfo.setUseCarMode(CarConstant.USR_CARD_MODE_NET);
             List<JourneyPlanPriceInfo> journeyPlanPriceInfos = iJourneyPlanPriceInfoService.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
             if(journeyPlanPriceInfos.size()>0){
                 paramMap.put("estimatedAmount",journeyPlanPriceInfos.get(0).getPrice()+"");
@@ -728,7 +729,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             queryOrderStateMap.put("enterpriseOrderId",orderId+"");
             queryOrderStateMap.put("status","S200");
             for(;;){
-                if((DateUtils.getNowDate().getTime()/1000)>=timeSt){
+                if((DateUtils.getNowDate().getTime())>=timeSt){
                     //订单超时退出循环
                     orderInfo.setState(OrderState.ORDERCLOSE.getState());
                     int j = orderInfoMapper.updateOrderInfo(orderInfo);
@@ -1295,11 +1296,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //自有车添加车型预估价格表时长里程数据
         if(applyUseWithTravelDto.getIsDispatch() == 1){
             DirectionDto directionDto = thirdService.drivingRoute(startPoint, endPoint);
-            if(directionDto == null){
+            if(directionDto == null || directionDto.getCount() == 0){
                 throw new Exception("获取时长和里程失败");
             }
-            PathDto pathDto = directionDto.getRoute().getPaths().get(0);
-
+            List<PathDto> paths = directionDto.getRoute().getPaths();
+            int totalTime = 0;
+            for (int i = 0; i <paths.size() ; i++) {
+                totalTime = totalTime + paths.get(i).getDuration();
+            }
+            totalTime = Math.round(totalTime/paths.size());
             JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
             journeyPlanPriceInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
             journeyPlanPriceInfo.setSource("高德");
@@ -1310,10 +1315,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             journeyPlanPriceInfo.setPrice(new BigDecimal(0));
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date parse = simpleDateFormat.parse(applyUseWithTravelDto.getBookingDate());
-            String formatEnd = simpleDateFormat.format(parse.getTime() + (pathDto.getDuration() * 1000));
+            String formatEnd = simpleDateFormat.format(parse.getTime() + (totalTime * 1000));
             journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
             journeyPlanPriceInfo.setPlannedDepartureTime(simpleDateFormat.parse(applyUseWithTravelDto.getBookingDate()));
-            journeyPlanPriceInfo.setDuration((int)TimeUnit.MINUTES.convert(pathDto.getDuration(), TimeUnit.SECONDS));
+            journeyPlanPriceInfo.setDuration((int)TimeUnit.MINUTES.convert(totalTime, TimeUnit.SECONDS));
             journeyPlanPriceInfo.setPowerId(applyUseWithTravelDto.getTicketId());
             journeyPlanPriceInfo.setOrderId(orderInfo.getOrderId());
             String groupIds = regimeInfoService.queryCarModeLevel(orderInfo.getOrderId(), CarConstant.USR_CARD_MODE_HAVE);
