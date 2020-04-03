@@ -114,7 +114,7 @@ public class CarGroupController {
      */
     @ApiOperation(value = "disableCarGroup",notes = "禁用车队",httpMethod ="POST")
     @PostMapping("/disableCarGroup")
-    public ApiResponse disableCarGroup(Long carGroupId){
+    public ApiResponse disableCarGroup(@RequestBody Long carGroupId){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
@@ -134,7 +134,7 @@ public class CarGroupController {
      */
     @ApiOperation(value = "startUpCarGroup",notes = "启用车队",httpMethod ="POST")
     @PostMapping("/startUpCarGroup")
-    public ApiResponse startUpCarGroup(Long carGroupId){
+    public ApiResponse startUpCarGroup(@RequestBody Long carGroupId){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
