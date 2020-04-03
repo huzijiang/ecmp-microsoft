@@ -4,6 +4,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.*;
@@ -11,6 +12,7 @@ import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +42,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     private EcmpRoleDeptMapper ecmpRoleDeptMapper;
     @Autowired
     private EcmpUserRoleMapper ecmpUserRoleMapper;
+    @Autowired
+    private CarGroupDriverRelationMapper carGroupDriverRelationMapper;
     /**
      * 显示公司组织结构
      *
@@ -156,6 +160,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         }
         return orgTreeVos;
     }
+
     /**
      * 递归车队
      * @param deptId
@@ -168,8 +173,11 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         if(list.size() > 0){
             //递归查询车队
             for (int i = 0; i <list.size() ; i++) {
-                List<CarGroupTreeVO> list1 = this.selectCarGroupTree(list.get(i).getDeptGroupId());
-                list.get(i).setChildrenList(list1);
+                //查询车队人数
+                Long deptGroupId = list.get(i).getDeptGroupId();
+                int num = carGroupDriverRelationMapper.selectCountDriver(deptGroupId);
+                list.get(i).setCount(num);
+                list.get(i).setChildrenList(this.selectCarGroupTree(list.get(i).getDeptGroupId()));
             }
         }
         return list;
@@ -217,6 +225,53 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             }
         }
         return tree;
+    }
+
+
+
+    /*根据公司id查询公司车队总人数*/
+    @Override
+    public CarGroupCountVO selectCarGroupCount(Long deptId) {
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
+        CarGroupCountVO carGroupCountVO = new CarGroupCountVO();
+        //公司编号
+        if(ObjectUtils.isNotEmpty(ecmpOrgMapper)){
+            carGroupCountVO.setDeptCode(ecmpOrg.getDeptCode());
+        }
+        String leader = ecmpOrg.getLeader();
+        if( leader != null) {
+            EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.valueOf(leader));
+            //公司负责人
+            carGroupCountVO.setLeaderName(ecmpUser.getUserName());
+        }
+        CarGroupInfo carGroupInfo = new CarGroupInfo();
+        carGroupInfo.setOwnerCompany(deptId);
+        List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectCarGroupInfoList(carGroupInfo);
+        int size = carGroupInfos.size();
+        int num = 0;
+        if(size > 0){
+            for (CarGroupInfo groupInfo : carGroupInfos) {
+                if (carGroupInfo != null) {
+                    Long carGroupId = groupInfo.getCarGroupId();
+                    int i = carGroupDriverRelationMapper.selectCountDriver(carGroupId);
+                    num += i;
+                }
+            }
+        }
+        carGroupCountVO.setTotalMember(num);
+       /* List<CarGroupTreeVO> list = selectCarGroupTree(deptId);
+        int num = 0;
+        for (CarGroupTreeVO carGroupTreeVO : list) {
+            num += carGroupCountVO.getTotalMember();
+            List<CarGroupTreeVO> childrenList = carGroupTreeVO.getChildrenList();
+            if(CollectionUtils.isNotEmpty(childrenList)){
+                for (CarGroupTreeVO groupTreeVO : childrenList) {
+                    num += groupTreeVO.getCount();
+                }
+            }
+        }
+        carGroupCountVO.setTotalMember(num);*/
+        return carGroupCountVO;
     }
 
     //递归公司

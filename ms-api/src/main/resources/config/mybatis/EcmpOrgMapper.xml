@@ -11,6 +11,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="deptName"    column="dept_name"    />
         <result property="deptType"    column="dept_type"    />
         <result property="orderNum"    column="order_num"    />
+        <result property="deptCode"    column="dept_code"    />
         <result property="leader"    column="leader"    />
         <result property="phone"    column="phone"    />
         <result property="email"    column="email"    />
@@ -70,7 +71,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectEcmpOrgVo">
-        select dept_id, parent_id,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
+        select dept_id, parent_id,dept_code,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
     </sql>
     <sql id="selectEcmpOrg">
         select dept_id, parent_id,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
@@ -459,7 +460,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where status=0 and del_flag=0 and parent_id=#{dept_id} and dept_type!=3
     </select>
     <select id="selectCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
-        select * from ecmp_org
+        select  dept_id as deptGroupId,
+                dept_name as deptGroupName,
+                dept_type as deptType,
+        from ecmp_org
         where parent_id = #{deptId} and dept_type = '3'
     </select>
     <select id="selectCompanyTree" resultType="com.hq.ecmp.mscore.vo.CompanyTreeVO">
