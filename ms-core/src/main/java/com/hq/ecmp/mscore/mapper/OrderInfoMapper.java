@@ -222,13 +222,13 @@ public interface OrderInfoMapper {
      * 获取 指定车辆 与出发时间 不冲突 的订单任务
      * @return
      */
-    public List<OrderInfo> getSetOutBeforeTaskForCar(OrderTaskClashBo carTaskClashBo);
+    public List<OrderInfo> getSetOutBeforeTaskForCarOrDriver(OrderTaskClashBo carTaskClashBo);
 
     /**
      * 获取 指定车辆 与到达时间 不冲突 的订单任务
      * @return
      */
-    public List<OrderInfo> getArrivalAfterTaskForCar(OrderTaskClashBo carTaskClashBo);
+    public List<OrderInfo> getArrivalAfterTaskForCarOrDriver(OrderTaskClashBo carTaskClashBo);
 
 
 
