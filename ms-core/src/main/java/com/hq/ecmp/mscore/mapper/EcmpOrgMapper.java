@@ -226,6 +226,13 @@ public interface EcmpOrgMapper {
     public EcmpOrgDto selectDeptByDeptNameOrCode(@Param("deptName")String deptName,@Param("deptCode")String deptCode,@Param("deptId")Long deptId);
 
     /**
+     * 查询分/子公司下的部门名称和deptId
+     * @param   deptId
+     * @return 结果
+     */
+    public List<EcmpOrgDto> selectDeptByCompany(@Param("deptId")Long deptId);
+
+    /**
      * 查询当前机构信息
      * @param deptId
      * @return 结果

@@ -158,6 +158,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       and  user_id =#{userId}
     </update>
 
+
+
     <!--获取上级组织id中的员工姓名和电话、邮箱
     and  (nick_name like concat('%', #{nickNameOrPhone}, '%') or   phonenumber like concat('%', #{nickNameOrPhone}, '%'))
     -->
@@ -169,7 +171,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <!--按照姓名/工号/手机号模糊查询匹配userId-->
-    <select id="selectUserIdsByNickNameOrJobNumber" resultType="Long" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+    <select id="selectUserIdsByNickNameOrJobNumber" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
       SELECT
       user_id as userId,
       dept_id as deptId
@@ -184,7 +186,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectUserByNickNameOrJobNumber" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
       SELECT
       nick_name as nickName,phonenumber,
-      job_number as jobNumber,
+      if(isnull(job_number),'',job_number) as jobNumber,
       user_id as userId,
       dept_id as deptId,
       (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='2') as subDept,
@@ -319,7 +321,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getEcmpUserList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
         select
         nick_name as nickName,phonenumber,
-        job_number as jobNumber,
+        if(isnull(job_number),'',job_number) as jobNumber,
         user_id as userId,
         dept_id as deptId,
         (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='2') as subDept,
@@ -497,7 +499,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where del_flag = 0
         <if test="jobNumber != null "> and job_number = #{jobNumber}</if>
     </select>
-
 
     <!--测试查询新增用户-->
     <select id="findUserIds" resultType="String">
