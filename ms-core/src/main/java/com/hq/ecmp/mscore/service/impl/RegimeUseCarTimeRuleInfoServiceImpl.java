@@ -21,6 +21,12 @@ public class RegimeUseCarTimeRuleInfoServiceImpl implements IRegimeUseCarTimeRul
 		return regimeUseCarTimeRuleInfoMapper.batchInsert(list);
 	}
 
+	@Override
+	public List<RegimeUseCarTimeRuleInfo> queryRegimeUseCarTimeRuleInfoList(Long regimenId) {
+		
+		return regimeUseCarTimeRuleInfoMapper.queryRegimeUseCarTimeRuleInfoList(regimenId);
+	}
+
 	
 	
 	

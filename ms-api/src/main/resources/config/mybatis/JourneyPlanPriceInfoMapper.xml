@@ -15,10 +15,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carTypeId"    column="car_type_id"    />
         <result property="price"    column="price"    />
         <result property="useCarMode"    column="use_car_mode"    />
+        <result property="source"    column="source"    />
+        <result property="powerId"    column="power_id"    />
     </resultMap>
 
     <sql id="selectJourneyPlanPriceInfoVo">
-        select price_id, journey_id, node_id,order_id, car_type_id, price,planned_departure_time,duration,planned_arrival_time,use_car_mode from journey_plan_price_info
+        select price_id, journey_id, node_id,order_id, car_type_id, price,planned_departure_time,duration,planned_arrival_time,use_car_mode,power_id,source from journey_plan_price_info
     </sql>
 
     <select id="selectJourneyPlanPriceInfoList" parameterType="com.hq.ecmp.mscore.domain.JourneyPlanPriceInfo" resultMap="JourneyPlanPriceInfoResult">
@@ -29,6 +31,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="orderId != null "> and order_id = #{orderId}</if>
             <if test="carTypeId != null "> and car_type_id = #{carTypeId}</if>
             <if test="price != null "> and price = #{price}</if>
+            <if test="plannedDepartureTime != null "> and planned_departure_time = #{plannedDepartureTime}</if>
+            <if test="duration != null "> and duration = #{duration}</if>
+            <if test="plannedArrivalTime != null "> and planned_arrival_time = #{plannedArrivalTime}</if>
+            <if test="useCarMode != null "> and use_car_mode = #{useCarMode}</if>
+            <if test="powerId != null "> and power_id = #{powerId}</if>
+            <if test="source != null "> and source = #{source}</if>
         </where>
     </select>
 

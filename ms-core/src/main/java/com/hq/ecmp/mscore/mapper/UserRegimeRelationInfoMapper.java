@@ -78,6 +78,8 @@ public interface UserRegimeRelationInfoMapper {
     public Integer queryRegimeUserCount(Long regimenId);
     
     
+    public List<Long> queryRegimeUser(Long regimenId);
+    
     public Integer deleteUserRegimeRelationInfoByRegimeId(Long regimeId);
 
 

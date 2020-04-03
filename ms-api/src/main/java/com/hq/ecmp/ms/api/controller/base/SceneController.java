@@ -85,8 +85,10 @@ public class SceneController {
 	 */
 	@ApiOperation(value = "deleteScene", notes = "删除用车场景", httpMethod ="POST")
 	@RequestMapping("/deleteScene")
-	public ApiResponse deleteScene(@RequestBody SceneDTO sceneDTO) {
+	public ApiResponse deleteScene(@RequestBody Long sceneId) {
 		try {
+			SceneDTO sceneDTO = new SceneDTO();
+			sceneDTO.setSceneId(sceneId);
 			int i = sceneInfoService.deleteSceneInfoById(sceneDTO.getSceneId());
 			if(i == 1){
 				return ApiResponse.success("删除成功");
@@ -127,8 +129,10 @@ public class SceneController {
 	 */
 	@ApiOperation(value = "getSceneDetail", notes = "查询用车场景详情", httpMethod ="POST")
 	@PostMapping("/getSceneDetail")
-	public ApiResponse<SceneDetailVO> getSceneDetail(@RequestBody SceneDTO sceneDTO) {
+	public ApiResponse<SceneDetailVO> getSceneDetail(@RequestBody Long sceneId) {
 		try {
+			SceneDTO sceneDTO = new SceneDTO();
+			sceneDTO.setSceneId(sceneId);
 			//查询场景详情
 			SceneDetailVO sceneDetailVO = sceneInfoService.selectSceneDetail(sceneDTO);
 			if(ObjectUtils.isEmpty(sceneDetailVO)){
@@ -180,5 +184,22 @@ public class SceneController {
 		return ApiResponse.success("修改场景顺序成功");
 	}
 
-
+	/**
+	 * 获取所有可用的用车场景
+	 * @param
+	 * @return
+	 */
+	@ApiOperation(value = "getAllUseScene", notes = "获取所有可用的用车场景", httpMethod ="POST")
+	@PostMapping("/getAllUseScene")
+	public ApiResponse<List<SceneInfo>> getAllUseScene() {
+		try {
+			SceneInfo sceneInfo = new SceneInfo();
+			sceneInfo.setEffectStatus("0");
+			List<SceneInfo> selectSceneInfoList = sceneInfoService.selectSceneInfoList(sceneInfo);
+			return ApiResponse.success(selectSceneInfoList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error("查询所有可用用车场景失败");
+		}
+	}
 }
