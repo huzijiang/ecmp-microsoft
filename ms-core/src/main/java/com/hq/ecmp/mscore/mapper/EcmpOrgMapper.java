@@ -125,6 +125,14 @@ public interface EcmpOrgMapper {
      */
     public EcmpOrgDto getSubDetail(Long deptId);
 
+    /**
+     * 查询部门所属的公司组织
+     *
+     * @param deptId 部门ID
+     * @return 部门
+     */
+    public EcmpOrgDto getSubComDept(Long deptId);
+
 
     /**
      * 逻辑删除部门信息
@@ -181,6 +189,13 @@ public interface EcmpOrgMapper {
     * */
     public EcmpOrgDto selectCompanyList(@Param("deptId")Long deptId,@Param("deptType")String deptType);
 
+    /*
+    *根据组织Id和组织类别查询部门列表
+    * @param parentId 部门ID deptType组织类型
+    * @return 结果
+    * */
+    public EcmpOrgDto selectDeptList(@Param("deptId")Long deptId,@Param("deptType")String deptType);
+
     /**
      * 查询下级组织数量
      * @param
@@ -193,7 +208,7 @@ public interface EcmpOrgMapper {
      * @param deptName  deptCode
      * @return 结果
      */
-    public List<Long> selectDeptIdsByDeptNameOrCode(@Param("deptName")String deptName,@Param("deptCode")String deptCode);
+    public List<Long> selectDeptIdsByDeptNameOrCode(@Param("deptName")String deptName,@Param("deptCode")String deptCode,@Param("deptType")String deptId);
 
     /**
      * 按照分子公司名称或编号模糊
@@ -201,6 +216,14 @@ public interface EcmpOrgMapper {
      * @return 结果
      */
     public EcmpOrgDto selectCompanyByDeptNameOrCode(@Param("deptName")String deptName,@Param("deptCode")String deptCode,@Param("deptId")Long deptId);
+
+
+    /**
+     * 按照部门名称或编号模糊查询匹配的列表
+     * @param deptName  deptCode
+     * @return 结果
+     */
+    public EcmpOrgDto selectDeptByDeptNameOrCode(@Param("deptName")String deptName,@Param("deptCode")String deptCode,@Param("deptId")Long deptId);
 
     /**
      * 查询当前机构信息
@@ -214,7 +237,7 @@ public interface EcmpOrgMapper {
      * @param deptId
      * @return
      */
-    List<OrgTreeVo> selectDeptTree(@Param("deptId") Long deptId,@Param("deptName") String deptName);
+    OrgTreeVo selectDeptTree(@Param("deptId") Long deptId,@Param("deptName") String deptName);
 
     List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
 

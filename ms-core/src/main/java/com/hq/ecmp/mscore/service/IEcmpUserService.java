@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 
@@ -190,4 +191,13 @@ public interface IEcmpUserService {
      * @return
      */
     public int selectJobNumberExist(String jobNumber);
+
+
+    /**
+     * 按照姓名/工号/手机号模糊查询匹配的列表
+     *
+     * @param nameOrJobNumberOrPhone
+     * @return 结果
+     */
+    public List<EcmpUserDto> selectUserByNickNameOrJobNumber(String nameOrJobNumberOrPhone);
 }

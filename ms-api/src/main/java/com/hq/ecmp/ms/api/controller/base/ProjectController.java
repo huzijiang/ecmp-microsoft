@@ -3,6 +3,7 @@ package com.hq.ecmp.ms.api.controller.base;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
@@ -15,6 +16,7 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.service.IProjectUserRelationInfoService;
+import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.ProjectInfoVO;
 import com.hq.ecmp.mscore.vo.ProjectUserVO;
@@ -23,10 +25,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -89,6 +88,9 @@ public class ProjectController {
     @ApiOperation(value = "checkProjectCode",notes = "校验项目编号",httpMethod ="POST")
     @PostMapping("/checkProjectCode")
     public ApiResponse checkProjectCode(@RequestBody ProjectInfoDTO projectInfoDto){
+        if (StringUtils.isEmpty(projectInfoDto.getProjectCode())){
+            return ApiResponse.success();
+        }
         List<ProjectInfo> projectInfos = iProjectInfoService.selectProjectInfoList(new ProjectInfo(projectInfoDto.getProjectCode()));
         if (CollectionUtils.isNotEmpty(projectInfos)){
             return ApiResponse.error("该编号已存在,不可重复录入!");
@@ -187,6 +189,16 @@ public class ProjectController {
     public ApiResponse<PageResult<ProjectUserVO>> getProjectUserList(@RequestBody PageRequest pageRequest){
         PageResult<ProjectUserVO> VO=iProjectInfoService.getProjectUserList(pageRequest.getFatherProjectId(),pageRequest.getPageNum(),pageRequest.getPageSize(),pageRequest.getSearch());
         return ApiResponse.success(VO);
+    }
+
+    /**
+     * 成员树
+     * @return*/
+    @ApiOperation(value = "显示部门及员工树",notes = "显示部门及员工树",httpMethod ="POST")
+    @PostMapping("/selectProjectUserTree")
+    public ApiResponse<OrgTreeVo> selectProjectUserTree(String projectId){
+        OrgTreeVo deptList = iProjectInfoService.selectProjectUserTree(projectId);
+        return ApiResponse.success(deptList);
     }
 
     @ApiOperation(value = "getProjectUserInfo",notes = "根据项目id获取已绑定所有成员列表",httpMethod ="GET")

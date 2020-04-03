@@ -176,7 +176,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select count(*) from  project_info a
          where is_effective!=-1
             <if test="search!=null">
-                and ( project_code=#{search} or name =#{search})
+                and (a.name like CONCAT('%',#{search},'%') or a.project_code = #{search})
             </if>
             <if test="fatherProjectId!=null">
                 and  father_project_id=#{fatherProjectId}

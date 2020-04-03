@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.OkHttpUtil;
+import com.hq.ecmp.mscore.dto.DirectionDto;
 import com.hq.ecmp.mscore.service.ThirdService;
 import com.hq.ecmp.mscore.vo.CarCostVO;
 import com.hq.ecmp.mscore.vo.EstimatePriceVo;
@@ -136,6 +137,37 @@ public class ThirdServiceImpl implements ThirdService {
         }catch (Exception e){
             e.printStackTrace();
             throw new Exception("预估价格查询失败");
+        }
+        return null;
+    }
+
+    /**
+     * 经纬度查询时长和里程
+     * @param startPoint (格式：精度,纬度)
+     * @param endPoint (格式：精度,纬度)
+     * @return
+     */
+
+    @Override
+    public DirectionDto drivingRoute(String startPoint, String endPoint) {
+        try {
+            String macAddress = MacTools.getMacList().get(0);
+            Map<String, Object> map = new HashMap<>();
+            map.put("mac", macAddress);
+            map.put("enterpriseId", enterpriseId);
+            map.put("licenseContent", licenseContent);
+            map.put("startPoint", startPoint);
+            map.put("endPoint", endPoint);
+            log.info("出发地和目的地预估时长和里程接口入参：{}", map);
+            String postJson = OkHttpUtil.postForm(apiUrl + "/service/drivingRoute", map);
+            log.info("出发地和目的地预估时长和里程接口结果：{}", postJson);
+            ApiResponse<DirectionDto> result = GsonUtils.jsonToBean(postJson, new com.google.gson.reflect.TypeToken<ApiResponse<DirectionDto>>() {
+            }.getType());
+            if(ApiResponse.SUCCESS_CODE == result.getCode()){
+                return result.getData();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }

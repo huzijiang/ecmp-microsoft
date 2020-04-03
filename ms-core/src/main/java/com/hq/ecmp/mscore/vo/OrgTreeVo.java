@@ -27,7 +27,7 @@ public class OrgTreeVo {
     @ApiModelProperty(value = "负责人")
     private String leader;
     //子部门列表
-    private List<OrgTreeVo> childrenList;
+    private List<OrgTreeVo> children;
     //部门下的员工
     private List<UserTreeVo> users;
 }
