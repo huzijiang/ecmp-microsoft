@@ -305,7 +305,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		resultType="com.hq.ecmp.mscore.vo.CarListVO">
 		SELECT
 		car_license AS carLicense,
-		car_type AS carType
+		car_type AS carType,
+		a.car_id as carId
 		FROM
 		car_info a
 		WHERE
