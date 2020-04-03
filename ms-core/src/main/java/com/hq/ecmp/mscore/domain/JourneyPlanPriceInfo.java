@@ -66,6 +66,25 @@ public class JourneyPlanPriceInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String source;  //TODO 新增
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String useCarMode;  //TODO 新增
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getUseCarMode() {
+        return useCarMode;
+    }
+
+    public void setUseCarMode(String useCarMode) {
+        this.useCarMode = useCarMode;
+    }
 
     public void setPriceId(Long priceId)
     {

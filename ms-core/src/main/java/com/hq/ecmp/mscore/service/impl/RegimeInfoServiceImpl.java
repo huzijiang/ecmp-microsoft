@@ -276,10 +276,26 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			SceneInfo sceneInfo = sceneInfoService.querySceneByRegimeId(regimeId);
 			if(null !=sceneInfo){
 				regimeVo.setSceneName(sceneInfo.getName());
+				regimeVo.setSceneId(sceneInfo.getSceneId());
 			}
 			//查询制度使用人数
 			Integer userCount = userRegimeRelationInfoMapper.queryRegimeUserCount(regimeId);
 			regimeVo.setUseNum(userCount);
+			//查询使用该制度的用户
+			regimeVo.setUserList(userRegimeRelationInfoMapper.queryRegimeUser(regimeId));
+			//如果是公务用车制度  则查询用车时段限制和用车城市限制
+			if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimeVo.getRegimenType())){
+				String ruleCity = regimeVo.getRuleCity();
+				if(!"C001".equals(ruleCity)){
+					List<String> queryLimitCityCodeList = regimeUseCarCityRuleInfoService.queryLimitCityCodeList(regimeId);
+					regimeVo.setCityLimitIds(queryLimitCityCodeList);
+				}
+				
+				if(!"T001".equals(regimeVo.getRuleTime())){
+					List<RegimeUseCarTimeRuleInfo> queryRegimeUseCarTimeRuleInfoList = regimeUseCarTimeRuleInfoService.queryRegimeUseCarTimeRuleInfoList(regimeId);
+					regimeVo.setRegimeUseCarTimeRuleInfoList(queryRegimeUseCarTimeRuleInfoList);
+				}
+			}
 		}
 		return regimeVo;
 	}
@@ -427,5 +443,17 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			result.add(carLevelAndPriceReVo);
 		}
 		return result;
+	}
+
+	@Override
+	public boolean updateRegime(RegimePo regimePo) {
+		// 将旧的制度标记为停用
+		RegimeOpt regimeOpt = new RegimeOpt();
+		regimeOpt.setOptType("N111");
+		regimeOpt.setRegimeId(regimePo.getRegimenId());
+		optRegime(regimeOpt);
+		// 创建新的制度
+		createRegime(regimePo);
+		return true;
 	}
 }

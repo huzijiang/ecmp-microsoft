@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
+import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +30,11 @@ public class CarGroupController {
     private ICarGroupInfoService carGroupInfoService;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private IEcmpOrgService ecmpOrgService;
 
     /**
-     * 新增车队（车队作为部门，同时也要新增部门 ）
+     * 新增车队
      * @param  carGroupDTO 车队信息
      * @return
      */
@@ -154,7 +157,7 @@ public class CarGroupController {
     public ApiResponse<PageResult<CarGroupListVO>> getCarGroupList(@RequestBody PageRequest pageRequest){
         try {
             PageResult<CarGroupListVO> list = carGroupInfoService.selectCarGroupInfoByPage(pageRequest.getPageNum(),
-                    pageRequest.getPageSize(),pageRequest.getSearch(),pageRequest.getState());
+                    pageRequest.getPageSize(),pageRequest.getSearch(),pageRequest.getState(),pageRequest.getDeptId());
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
@@ -212,6 +215,45 @@ public class CarGroupController {
             e.printStackTrace();
         }
         return ApiResponse.success(vo);
+    }
+
+    /**
+     * 查询公司车队树
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCarGroupTree",notes = "公司车队树",httpMethod ="POST")
+    @PostMapping("/getCarGroupTree")
+    public ApiResponse<List<CompanyCarGroupTreeVO>> getCarGroupTree(
+            @RequestBody EcmpOrgDto ecmpOrgDto){
+        //根据公司id查询车队列表
+        List<CompanyCarGroupTreeVO>  list = null;
+        try {
+            list = ecmpOrgService.selectCompanyCarGroupTree(ecmpOrgDto.getDeptId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success(list);
+    }
+
+    /**
+     * 查询公司车队树
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCarGroupCount",notes = "车队人数统计",httpMethod ="POST")
+    @PostMapping("/getCarGroupCount")
+    public ApiResponse<CarGroupCountVO> getCarGroupCount(
+            @RequestBody EcmpOrgDto ecmpOrgDto){
+        //根据公司id查询车队人数
+        CarGroupCountVO carGroupCountVO = null;
+        try {
+            carGroupCountVO = ecmpOrgService.selectCarGroupCount(ecmpOrgDto.getDeptId());
+            return ApiResponse.success(carGroupCountVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询失败");
+        }
     }
 
 }

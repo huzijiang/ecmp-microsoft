@@ -31,6 +31,13 @@ public class PageRequest {
     @ApiModelProperty(name = "level", value = "车型级别",required = false)
     private String level;
 
+    //搜索字段
+    @ApiModelProperty(name = "deptId", value = "组织id",required = false)
+    private Long deptId;
+
+    @ApiModelProperty(name = "carTypeId", value = "车型级别id",required = false)
+    private Long carTypeId;
+
     private Long carId;
 
     private Long carGroupId;

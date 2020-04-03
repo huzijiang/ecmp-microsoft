@@ -3,9 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
-import com.hq.ecmp.mscore.vo.EcmpOrgVo;
-import com.hq.ecmp.mscore.vo.EcmpUserVo;
-import com.hq.ecmp.mscore.vo.OrgTreeVo;
+import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
 
@@ -25,6 +23,13 @@ public interface IEcmpOrgService
      * @return
      */
     public List<EcmpOrgDto> selectCombinationOfCompany(Long deptId,String deptType);
+    /**
+     * 显示当前登陆用户所属公司与公司下的部门
+     *
+     * @param deptId 部门ID
+     * @return
+     */
+    public List<EcmpOrgDto> selectDeptComTree(Long deptId,String deptType);
 
     /**
      * 显示公司列表
@@ -33,6 +38,14 @@ public interface IEcmpOrgService
      * @return
      */
     public List<EcmpOrgDto> selectCompanyList(Long deptId,String deptType);
+
+    /**
+     * 显示部门列表
+     *
+     * @param deptId 部门ID
+     * @return
+     */
+    public List<EcmpOrgDto> selectDeptList(Long deptId,String deptType);
     /**
      * 查询部门详情
      *
@@ -177,12 +190,21 @@ public interface IEcmpOrgService
     public EcmpOrgDto selectCurrentDeptInformation(Long deptId);
 
     /**
+     * 按照部门名称或编号模糊查询匹配的列表
+     *
+     * @param deptNameOrCode
+     * @return 结果
+     */
+    public List<EcmpOrgDto> selectDeptByDeptNameOrCode(String deptNameOrCode);
+
+
+    /**
      * 部门树
      * @param deptId
      * @param deptName
      * @return
      */
-    List<OrgTreeVo> selectDeptTree(Long deptId,String deptName);
+    OrgTreeVo selectDeptTree(Long deptId,String deptName);
 
     /**
      * 员工树
@@ -190,5 +212,21 @@ public interface IEcmpOrgService
      * @param deptName
      * @return
      */
-    List<OrgTreeVo> selectDeptUserTree(Long deptId, String deptName);
+    OrgTreeVo selectDeptUserTree(Long deptId, String deptName);
+
+    /**
+     * 查询车队树
+     * @param deptId
+     * @return
+     */
+    List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
+
+    //公司车队树
+    List<CompanyTreeVO> selectCarGroupAndCompanyTree(Long deptId);
+
+    //公司车队树
+    List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId);
+
+    /*查询公司车队总人数*/
+    CarGroupCountVO selectCarGroupCount(Long deptId);
 }

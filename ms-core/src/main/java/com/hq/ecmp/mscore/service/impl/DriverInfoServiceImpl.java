@@ -301,9 +301,35 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 				EcmpOrg dept = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
 				if(null !=dept){
 					carGroupDriverInfo.setDeptName(dept.getDeptName());
+					//查询部门负责人
+					String leader = dept.getLeader();
+					if(null !=leader){
+						EcmpUser deptLeader = ecmpUserService.selectEcmpUserById(Long.valueOf(leader));
+						if(null !=deptLeader){
+							carGroupDriverInfo.setDeptName(deptLeader.getNickName());
+						}
+					}
+					//查询所属该部门的员工人数
+					EcmpUser queryEcmpUser = new EcmpUser();
+					queryEcmpUser.setDeptId(ownerOrg);
+					List<EcmpUser> selectEcmpUserList = ecmpUserService.selectEcmpUserList(queryEcmpUser);
+					if(null!=selectEcmpUserList){
+						carGroupDriverInfo.setDeptUserNum(selectEcmpUserList.size());
+					}
+					
 				}
 			}
 		}
+		//查询待审核驾驶员人数
+		DriverQuery driverQuery = new DriverQuery();
+		driverQuery.setCarGroupId(carGroupId);
+		driverQuery.setState("W001");
+		Integer waitAuditDriverNum = driverInfoMapper.queryDriverNumOfStateAndCarGroup(driverQuery);
+		//查询已失效驾驶员人数
+		driverQuery.setState("NV00");
+		Integer loseDriverNum = driverInfoMapper.queryDriverNumOfStateAndCarGroup(driverQuery);
+		carGroupDriverInfo.setWaitAuditDriverNum(waitAuditDriverNum);
+		carGroupDriverInfo.setLoseDriverNum(loseDriverNum);
 		return carGroupDriverInfo;
 	}
 

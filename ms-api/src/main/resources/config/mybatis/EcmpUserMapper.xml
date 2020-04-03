@@ -158,11 +158,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       and  user_id =#{userId}
     </update>
 
-    <!--获取上级组织id中的员工姓名和电话、邮箱-->
+    <!--获取上级组织id中的员工姓名和电话、邮箱
+    and  (nick_name like concat('%', #{nickNameOrPhone}, '%') or   phonenumber like concat('%', #{nickNameOrPhone}, '%'))
+    -->
     <select id="getEcmpUserNameAndPhone" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
-      SELECT nick_name as nickName,phonenumber from ecmp_user
+      SELECT
+      user_id as userId,
+      nick_name as nickName,phonenumber from ecmp_user
       where  status = 0 and del_flag = 0 and dept_id=#{deptId}
-      and  (nick_name like concat('%', #{nickNameOrPhone}, '%') or   phonenumber like concat('%', #{nickNameOrPhone}, '%'))
+    </select>
+
+    <!--按照姓名/工号/手机号模糊查询匹配userId-->
+    <select id="selectUserIdsByNickNameOrJobNumber" resultType="Long" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+      SELECT
+      user_id as userId,
+      dept_id as deptId
+      from ecmp_user
+      where   del_flag = 0
+      and  (nick_name like concat('%', #{nickName}, '%') or   job_number like concat('%', #{jobNumber}, '%') or   phonenumber like concat('%', #{phonenumber}, '%'))
+    </select>
+
+    <!--按照姓名/工号/手机号模糊查询匹配员工列表
+    列表：姓名、手机号、工号、所属公司、所属部门、状态、用车制度、操作
+    -->
+    <select id="selectUserByNickNameOrJobNumber" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+      SELECT
+      nick_name as nickName,phonenumber,
+      job_number as jobNumber,
+      user_id as userId,
+      dept_id as deptId,
+      (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='2') as subDept,
+      (select dept_name from ecmp_org where dept_id= (select parent_id from ecmp_org where dept_id=#{deptId} and dept_type='2')) as subCompany,
+      `status`
+      from ecmp_user
+      where   del_flag = 0
+      and user_id = #{userId}
+      and  (nick_name like concat('%', #{nickName}, '%') or   job_number like concat('%', #{jobNumber}, '%') or   phonenumber like concat('%', #{phonenumber}, '%'))
     </select>
 
     <!--新增员工信息-->
@@ -270,13 +301,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
     </select>
 
+    <!--查询员工是否有归属部门-->
+    <!--<select id="selectEcmpUserSubDeptCount" resultType="java.lang.Integer" >
+        select count from ecmp_org where  dept_type='2'
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
+    </select>-->
+
+    <!--查询员工归属部门名称-->
+    <!--<select id="selectEcmpUserSubDept" resultType="java.lang.String" >
+        select dept_name from ecmp_org where  dept_type='2'
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
+    </select>-->
+
     <!--查询员工列表-->
     <!--select `name` from regime_info where regime_id in (select regime_id from  user_regime_relation_info where user_id=#{userId}) as regimeName-->
+    <!--if(isnull((select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept),'',subDept) as subDept,-->
     <select id="getEcmpUserList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
         select
-        nick_name as nickName,phonenumber,user_id as userId,
-        (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='1') as subCompany,
-        if(isnull((select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept),'',subDept) as subDept,
+        nick_name as nickName,phonenumber,
+        job_number as jobNumber,
+        user_id as userId,
+        dept_id as deptId,
+        (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='2') as subDept,
+        (select dept_name from ecmp_org where dept_id= (select parent_id from ecmp_org where dept_id=#{deptId} and dept_type='2')) as subCompany,
         `status`
         from  ecmp_user
         where
@@ -437,7 +484,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select nick_name as nickName,user_id as  userId,dept_id deptId,user_name userName,
         phonenumber,sex,job_number jobNumber,it_is_driver itIsDriver,it_is_dispatcher itIsDispatcher
          from ecmp_user
-        where dept_id = #{deptId} and  status=0 and del_flag=0
+        where  status=0 and del_flag=0
+        <if test="deptId!=null">
+           and dept_id = #{deptId}
+        </if>
     </select>
 
 
@@ -464,5 +514,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--根据用户id查询用户名-->
     <select id="findNameByUserIds" resultType="String">
         select group_concat(distinct nick_name) from  ecmp_user where find_in_set(user_id,#{userIds})
+    </select>
+
+    <select id="selectUserListByDeptIdAndProjectId" resultType="com.hq.ecmp.mscore.vo.UserTreeVo">
+         select nick_name as nickName,user_id as  userId,dept_id deptId,user_name userName,
+        phonenumber,sex,job_number jobNumber,it_is_driver itIsDriver,it_is_dispatcher itIsDispatcher
+         from ecmp_user
+        where status=0 and del_flag=0
+        and user_id not in (SELECT user_id from project_user_relation_info where project_id=#{projectId} )
     </select>
 </mapper>

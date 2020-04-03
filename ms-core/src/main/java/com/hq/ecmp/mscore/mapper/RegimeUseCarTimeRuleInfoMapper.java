@@ -13,6 +13,9 @@ public interface RegimeUseCarTimeRuleInfoMapper
 {
    
         public Integer batchInsert(@Param("list")List<RegimeUseCarTimeRuleInfo> list);
+        
+        
+        public List<RegimeUseCarTimeRuleInfo> queryRegimeUseCarTimeRuleInfoList(Long regimenId);
 
 
 }

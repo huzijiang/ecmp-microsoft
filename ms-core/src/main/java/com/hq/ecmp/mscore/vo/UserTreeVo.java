@@ -30,4 +30,5 @@ public class UserTreeVo {
     private String itIsDispatcher;
     @ApiModelProperty(value= "工号")
     private String jobNumber;
+    private Integer isSelect;
 }

@@ -8,6 +8,7 @@ import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
+import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarDriverDTO;
@@ -18,6 +19,7 @@ import com.hq.ecmp.mscore.service.ICarInfoService;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
 import com.hq.ecmp.mscore.vo.CarDetailVO;
+import com.hq.ecmp.mscore.vo.CarGroupCarInfo;
 import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.DriverVO;
 import com.hq.ecmp.mscore.vo.PageResult;
@@ -204,12 +206,15 @@ public class CarController {
     @ApiOperation(value = "carDetail",notes = "车辆详情",httpMethod ="POST")
     @PostMapping("/carDetail")
     public ApiResponse<CarDetailVO> carDetail(@RequestBody CarDto carDto){
+
         try {
             CarDetailVO carDetailVO =  carInfoService.selectCarDetail(carDto.getCarId());
             return ApiResponse.success(carDetailVO);
-        } finally {
+        } catch (Exception e) {
+            e.printStackTrace();
             return ApiResponse.error("查询车辆详情失败");
         }
+
     }
 
     /**
@@ -341,11 +346,17 @@ public class CarController {
     @PostMapping("/getCarListByGroup")
     public ApiResponse<PageResult<CarListVO>> getCarListByGroup(@RequestBody PageRequest pageRequest){
         try {
-            PageResult<CarListVO> list = carInfoService.selectCarListByGroup(pageRequest);
+           PageResult<CarListVO> list = carInfoService.selectCarListByGroup(pageRequest);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("查询失败");
         }
     }
+    
+    @ApiOperation(value = "carGroup", notes = "指定车队下的可用车辆", httpMethod = "POST")
+	@PostMapping("/carGroup")
+	public ApiResponse<CarGroupCarInfo> queryCarGroupCarList(@RequestBody Long carGroupId) {
+		return ApiResponse.success(carInfoService.queryCarGroupCarList(carGroupId));
+	}
 }

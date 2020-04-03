@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.EcmpUserRole;
 import com.hq.ecmp.mscore.domain.RegimeVo;
@@ -163,6 +164,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo) {
         List<EcmpUserDto> ecmpUserList = null;
         ecmpUserList = ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo);
+       /* for (EcmpUserDto ecmpUserDto:ecmpUserList){
+
+        }*/
         return ecmpUserList;
     }
 
@@ -456,6 +460,27 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public int selectJobNumberExist(String jobNumber){
         return ecmpUserMapper.selectJobNumberExist(jobNumber);
+    }
+
+
+    /**
+     * 按照姓名/工号/手机号模糊查询匹配的列表
+     *
+     * @param nameOrJobNumberOrPhone
+     * @return 结果
+     */
+    public List<EcmpUserDto> selectUserByNickNameOrJobNumber(String nameOrJobNumberOrPhone){
+        List<EcmpUserDto> ecmpUserList=null;
+        List<EcmpUserDto> ecmpUserDtoList = ecmpUserMapper.selectUserIdsByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone);
+        if(ecmpUserDtoList.size()>0){
+            /*for (EcmpUserDto ecmpUserDto1: ecmpUserDtoList) {
+                Long userId=ecmpUserDto1.getUserId;
+                Long deptId=ecmpUserDto1.getDeptId;
+                EcmpUserDto ecmpUserDto = ecmpUserMapper.selectUserByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone, userId,deptId);
+                ecmpUserList.add(ecmpUserDto);
+            }*/
+        }
+        return ecmpUserList;
     }
 
     /**

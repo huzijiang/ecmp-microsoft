@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.dto.ProjectUserDTO;
+import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.ProjectInfoVO;
 import com.hq.ecmp.mscore.vo.ProjectUserVO;
@@ -78,5 +79,7 @@ public interface IProjectInfoService
 
     void checkProject();
 
-    List<Long> getProjectUserInfo(Long projectId);
+    List<ProjectUserVO> getProjectUserInfo(Long projectId);
+
+    OrgTreeVo selectProjectUserTree( Long projectId);
 }

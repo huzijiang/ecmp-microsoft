@@ -165,6 +165,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setTelephone(carGroupDTO.getTelephone());
         //所属公司
         carGroupInfo.setOwnerCompany(carGroupDTO.getOwneCompany());
+        //初始化可用
+        carGroupInfo.setState("Y000");
         int i = insertCarGroupInfo(carGroupInfo);
         if(i != 1){
             throw new Exception();
@@ -174,25 +176,30 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         if(!ObjectUtils.isEmpty(carGroupId)){
             CarGroupDispatcherInfo carGroupDispatcherInfo = null;
             List<UserVO> dispatchers = carGroupDTO.getDispatchers();
-            for (UserVO dispatcher : dispatchers) {
-                carGroupDispatcherInfo = new CarGroupDispatcherInfo();
-                //车队id
-                carGroupDispatcherInfo.setCarGroupId(carGroupId);
-                //调度员id
-                carGroupDispatcherInfo.setDispatcherId(dispatcher.getUserId());
-                //调度员名字
-                carGroupDispatcherInfo.setName(dispatcher.getUserName());
-                //创建人
-                carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
-                //创建时间
-                carGroupDispatcherInfo.setCreateTime(new Date());
-                int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
-                if(j != 1){
-                    throw new Exception();
+            if(!CollectionUtils.isEmpty(dispatchers)) {
+                for (UserVO dispatcher : dispatchers) {
+                    if(dispatcher == null){
+                        continue;
+                    }
+                    carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+                    //车队id
+                    carGroupDispatcherInfo.setCarGroupId(carGroupId);
+                    //调度员id
+                    carGroupDispatcherInfo.setUserId(dispatcher.getUserId());
+                    //调度员名字
+                    carGroupDispatcherInfo.setName(dispatcher.getUserName());
+                    //创建人
+                    carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
+                    //创建时间
+                    carGroupDispatcherInfo.setCreateTime(new Date());
+                    int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
+                    if (j != 1) {
+                        throw new Exception();
+                    }
                 }
             }
         }
-        //车队 作为部门形式保存
+       /* //车队 作为部门形式保存
         EcmpOrgVo ecmpOrgVo = new EcmpOrgVo();
         ecmpOrgVo.setDeptName(carGroupDTO.getCarGroupName());
         ecmpOrgVo.setParentId(carGroupDTO.getOwnerOrg());
@@ -204,7 +211,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         int j = ecmpOrgMapper.addDept(ecmpOrgVo);
         if(j!=1){
             throw new RuntimeException();
-        }
+        }*/
     }
 
     /**
@@ -218,13 +225,22 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
         //根据cityCode查询城市名字
         CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(carGroupInfo.getCity());
+        //查询所属组织名字
+        Long ownerOrg = carGroupInfo.getOwnerOrg();
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
+        String deptName = null;
+        if(ecmpOrg != null){
+            deptName = ecmpOrg.getDeptName();
+        }
         CarGroupDetailVO carGroupDetailVO = CarGroupDetailVO.builder()
                 //车队编号
                 .carGroupCode(carGroupInfo.getCarGroupCode())
                 //车队名字
                 .carGroupName(carGroupInfo.getCarGroupName())
                 //所属组织
-                .ownerOrg(carGroupInfo.getOwnerOrg())
+                .ownerOrg(ownerOrg)
+                //所属组织名字
+                .ownerOrgName(deptName)
                 //所属城市
                 .cityName(cityInfo.getCityName())
                 //详细地址
@@ -405,9 +421,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @return
      */
     @Override
-    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state) {
+    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId) {
         PageHelper.startPage(pageNum,pageSize);
-        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search,state);
+        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search,state,deptId);
         getCarGroupExtraInfo(list);
         PageInfo<CarGroupListVO> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);

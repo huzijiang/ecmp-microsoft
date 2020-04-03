@@ -36,4 +36,5 @@ public interface CarConstant {
 	String START_CAR_TYPE = "S000";  //车型 有效
 	String DISABLE_CAR_TYPE = "S444";  // 车型 失效
 
+
 }

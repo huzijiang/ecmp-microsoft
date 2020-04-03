@@ -67,11 +67,11 @@ public class EcmpOrgVo {
     @ApiModelProperty(value = "更新时间")
     private Date updateTime;
 
-    @ApiModelProperty(value = "用户id")
-    private Long userId;
+    @ApiModelProperty(value = "用户id字符串")
+    private List<Long> userId;
 
     @ApiModelProperty(value = "角色id")
-    private List<Long> roleId;
+    private Long roleId;
 
     @ApiModelProperty(value = "公司名称或编号")
     private String deptNameOrCode;

@@ -221,18 +221,20 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         //根据sceneId查询场景信息
         SceneInfo sceneInfo = sceneInfoMapper.selectSceneInfoById(sceneId);
         sceneDetailVO.setIcon(sceneInfo.getIcon());
-        sceneDetailVO.setName(sceneInfo.getIcon());
-        Map<String, Long> map = Maps.newHashMap();
-        ArrayList<Map<String, Long>> list = Lists.newArrayList();
+        sceneDetailVO.setName(sceneInfo.getName());
+        ArrayList<Map<String, String>> list = Lists.newArrayList();
         //根据sceneId查询对应的制度id集合
         List<Long> regimenIds = sceneRegimeRelationMapper.selectRegimenIdsBySceneId(sceneId);
         //根据制度id集合查询制度信息
         RegimeInfo regimeInfo = null;
         for (Long regimenId : regimenIds) {
+            Map<String, String> map = Maps.newHashMap();
             regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimenId);
             String name = regimeInfo.getName();
-            Long approvalProcess = regimeInfo.getApprovalProcess();
-            map.put(name,approvalProcess);
+            String approvalProcess = regimeInfo.getNeedApprovalProcess();
+            map.put("name",name);
+            map.put("approvalProcess",approvalProcess);
+            //map.put(name,approvalProcess);
             list.add(map);
         }
         sceneDetailVO.setRegimenInfos(list);
@@ -282,16 +284,18 @@ public class SceneInfoServiceImpl implements ISceneInfoService
     public void sortScene(SceneSortDTO sceneSortDTO, Long userId) {
         //查询主场景
         SceneInfo mainSceneInfo = sceneInfoMapper.selectSceneInfoById(sceneSortDTO.getMainSceneId());
+        Long main =mainSceneInfo.getSortNo();
         //查询目标场景
         SceneInfo targetSceneInfo = sceneInfoMapper.selectSceneInfoById(sceneSortDTO.getTargetSceneId());
+        Long target =targetSceneInfo.getSortNo();
         //修改主场景
         mainSceneInfo.setCreateBy(String.valueOf(userId));
-        mainSceneInfo.setSortNo(targetSceneInfo.getSortNo());
+        mainSceneInfo.setSortNo(target);
         mainSceneInfo.setCreateTime(new Date());
         sceneInfoMapper.updateSceneInfo(mainSceneInfo);
         //修改目标场景
         targetSceneInfo.setCreateTime(new Date());
-        targetSceneInfo.setSortNo(mainSceneInfo.getSortNo());
+        targetSceneInfo.setSortNo(main);
         targetSceneInfo.setCreateBy(String.valueOf(userId));
         sceneInfoMapper.updateSceneInfo(targetSceneInfo);
     }

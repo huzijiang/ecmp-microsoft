@@ -286,23 +286,27 @@ public class CarInfoServiceImpl implements ICarInfoService
     public PageResult<CarListVO> selectCarListByGroup(PageRequest pageRequest) {
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         CarInfo carInfo1 = new CarInfo();
-        carInfo1.setCarGroupId(pageRequest.getCarGroupId());
+        Long carGroupId = pageRequest.getCarGroupId();
+        String state = pageRequest.getState();
+        String search = pageRequest.getSearch();
         //查询车辆所属车队
         CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(pageRequest.getCarGroupId());
         String carGroupName = carGroupInfo.getCarGroupName();
-        List<CarInfo> carInfos = carInfoMapper.selectCarInfoList(carInfo1);
+        List<CarInfo> carInfos = carInfoMapper.selectCarInfoListByGroupId(carGroupId,pageRequest.getCarTypeId(),state,search);
         CarListVO carListVO = null;
         List<CarListVO> list = new ArrayList<>();
         for (CarInfo carInfo : carInfos) {
             Long carId = carInfo.getCarId();
-            Long enterpriseCarTypeId = carInfo.getEnterpriseCarTypeId();
+            Long carTypeId = carInfo.getCarTypeId();
             //查询fuelType
             String fuelType = selectFuelType(carId);
             //查询level
-            EnterpriseCarTypeInfo enterpriseCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(enterpriseCarTypeId);
+            EnterpriseCarTypeInfo enterpriseCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carTypeId);
             String level = null;
+            String levelName = null;
             if(enterpriseCarTypeInfo != null){
                 level = enterpriseCarTypeInfo.getLevel();
+                levelName = enterpriseCarTypeInfo.getName();
             }
             //查詢车辆可选驾驶员
             List<DriverVO> list2 = selectCarEffectiveDrivers(carId);
@@ -310,8 +314,10 @@ public class CarInfoServiceImpl implements ICarInfoService
                     .carLicense(carInfo.getCarLicense())
                     .fuelType(fuelType)
                     .level(level)
+                    .levelName(levelName)
                     .assetTag(carInfo.getAssetTag())
                     .ownerOrgId(carInfo.getOwnerOrgId())
+                    .carTypeId(carTypeId)
                     .carGroupName(carGroupName)
                     .driverInfo(list2)
                     .driverNum(list2.size())
@@ -423,4 +429,30 @@ public class CarInfoServiceImpl implements ICarInfoService
         List<CarLocationVo> carLocationVos = carInfoMapper.locationCars(carLocationDto);
         return carLocationVos;
     }
+
+	@Override
+	public CarGroupCarInfo queryCarGroupCarList(Long carGroupId) {
+		CarGroupCarInfo carGroupCarInfo = new CarGroupCarInfo();
+		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId);
+		carGroupCarInfo.setList(queryCarGroupCarList);
+		// 查询车队对应的部门和公司
+		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+		if (null != carGroupInfo) {
+			Long ownerCompany = carGroupInfo.getOwnerCompany();
+			if (null != ownerCompany) {
+				EcmpOrg company = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
+				if (null != company) {
+					carGroupCarInfo.setCompanyName(company.getDeptName());
+				}
+			}
+			Long ownerOrg = carGroupInfo.getOwnerOrg();
+			if (null != ownerOrg) {
+				EcmpOrg dept = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
+				if (null != dept) {
+					carGroupCarInfo.setDeptName(dept.getDeptName());
+				}
+			}
+		}
+		return carGroupCarInfo;
+	}
 }

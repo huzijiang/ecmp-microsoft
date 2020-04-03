@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.vo;
 
+import io.swagger.models.auth.In;
 import lombok.Data;
 
 /**
@@ -19,13 +20,13 @@ public class ProjectInfoVO
     private String leaderPhone;
     private String projectCode;
 
-    private String fatherProjectId;
+    private Long fatherProjectId;
     private String fatherProjectName;
-
+    private Integer isFinite;
     private String startDate;
 
     private String closeDate;
-
+    private String isAllUserUse;
     private Integer userCount;
     private Integer isEffective;
 
