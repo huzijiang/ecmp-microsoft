@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.vo;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.aspectj.apache.bcel.generic.LineNumberGen;
 
 /**
  * 用户邀请信息
@@ -36,4 +38,20 @@ public class InvitationUserVO {
      * 待审核人数
      */
     private String amountWait;
+
+
+    @ApiModelProperty(name = "state", value = "状态")
+    private String state;
+
+    @ApiModelProperty(name = "invitationId", value = "邀请ID")
+    private Long invitationId;
+
+    @ApiModelProperty(name = "stateValue", value = "状态value")
+    private String stateValue;
+
+    @ApiModelProperty(name = "roseId", value = "角色id")
+    private Long roseId;
+
+    @ApiModelProperty(name = "roseName", value = "角色Name")
+    private String roseName;
 }

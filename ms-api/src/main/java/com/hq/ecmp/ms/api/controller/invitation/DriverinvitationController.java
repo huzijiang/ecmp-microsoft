@@ -1,8 +1,12 @@
 package com.hq.ecmp.ms.api.controller.invitation;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
+import com.hq.ecmp.mscore.dto.DriverInvitationDTO;
 import com.hq.ecmp.mscore.dto.InvitationDto;
 import com.hq.ecmp.mscore.dto.InvitationInfoDTO;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -36,20 +41,29 @@ public class DriverinvitationController {
     private EcmpEnterpriseRegisterInfoService ecmpEnterpriseRegisterInfoServicee;
     @Autowired
     private IDriverInfoService iDriverInfoService;
+    @Autowired
+    private TokenService tokenService;
+
 
 
     /**
      * 生成邀请
-     * @param ecmpEnterpriseInvitationInfo
+     * @param driverInvitationDTO
      * @return
      */
     @ApiOperation(value = "interInvitationDriverCommit",notes = "生成邀请",httpMethod = "POST")
     @PostMapping("/interInvitationDriverCommit")
-    public ApiResponse interInvitationDriverCommit(@RequestBody EcmpEnterpriseInvitationInfo ecmpEnterpriseInvitationInfo){
+    public ApiResponse interInvitationDriverCommit(@RequestBody DriverInvitationDTO driverInvitationDTO){
         try {
-            ecmpEnterpriseInvitationInfo.setType("T002");//驾驶员邀请
-            ecmpEnterpriseInvitationInfo.setState("Y000");//默认邀请状态为有效
-            ecmpEnterpriseInvitationInfoService.insert(ecmpEnterpriseInvitationInfo);
+            //driverInvitationDTO.setType("T002");//驾驶员邀请
+           // driverInvitationDTO.setState("Y000");//默认邀请状态为有效
+
+            //获取调用接口的用户信息
+/*            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();*/
+
+            ecmpEnterpriseInvitationInfoService.insertDriverInvitation(driverInvitationDTO);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("新增驾驶员邀请失败");
@@ -143,6 +157,7 @@ public class DriverinvitationController {
     @ApiOperation(value = "getRegisterDriverList",notes = "驾驶员待审批列表",httpMethod = "POST")
     @PostMapping("/getRegisterDriverList")
     public ApiResponse <List<RegisterDriverVO>>getRegisterDriverList(@RequestBody RegisterDTO registerDTO){
+        registerDTO.setState("");
         List<RegisterDriverVO> registerDriverVOlist = ecmpEnterpriseRegisterInfoServicee.queryRegisterDriverWait(registerDTO);
         if(CollectionUtils.isNotEmpty(registerDriverVOlist)){
             return ApiResponse.success(registerDriverVOlist);
@@ -157,7 +172,9 @@ public class DriverinvitationController {
     @ApiOperation(value = "getInvitationDriverList",notes = "驾驶员邀请列表",httpMethod = "POST")
     @PostMapping("/getInvitationDriverList")
     public ApiResponse<List<InvitationDriverVO>> getInvitationDriverList(@RequestBody InvitationInfoDTO invitationInfoDTO){
+
         List<InvitationDriverVO> invitationDriverVOList = ecmpEnterpriseInvitationInfoService.queryInvitationDriver(invitationInfoDTO);
+
         if(CollectionUtils.isNotEmpty(invitationDriverVOList)){
             return ApiResponse.success(invitationDriverVOList);
         }else {

@@ -242,8 +242,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * @param mobile
      * @return
      */
-    public int updateDriverMobile(String mobile){
-        return driverInfoMapper.updateDriverMobile(mobile);
+    public int updateDriverMobile(String mobile,Long driverId){
+        return driverInfoMapper.updateDriverMobile(mobile,driverId);
     }
 
     /**
@@ -251,8 +251,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * @param dimTime
      * @return
      */
-    public int updateDriverDimTime(String dimTime){
-        return driverInfoMapper.updateDriverDimTime(dimTime);
+    public int updateDriverDimTime(Date dimTime,Long driverId){
+        return driverInfoMapper.updateDriverDimTime(dimTime,driverId);
     }
     /**
      * 驾驶员绑定车辆
