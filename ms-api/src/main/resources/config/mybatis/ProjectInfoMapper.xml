@@ -140,13 +140,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         project_info a
         LEFT JOIN ecmp_user b ON b.user_id = a.leader
         where a.is_effective!=-1
-            <if test="search!=null">
+            <if test="search!=null and search!=''">
               and (a.name like CONCAT('%',#{search},'%') or a.project_code = #{search})
             </if>
             <if test="fatherProjectId!=null">
                 and  a.father_project_id=#{fatherProjectId}
             </if>
-            <if test="fatherProjectId==null or fatherProjectId=0">
+            <if test="fatherProjectId==null or fatherProjectId==0">
                 and  (a.father_project_id is null or   a.father_project_id=0)
             </if>
     </select>
@@ -180,14 +180,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getProjectListCount" resultType="Long">
         select count(*) from  project_info a
          where is_effective!=-1
-            <if test="search!=null">
+            <if test="search!=null and search!=''">
                 and (a.name like CONCAT('%',#{search},'%') or a.project_code = #{search})
             </if>
             <if test="fatherProjectId!=null">
                 and  father_project_id=#{fatherProjectId}
             </if>
-            <if test="fatherProjectId==null or fatherProjectId=0">
-                and  (a.father_project_id is null or   a.father_project_id=0)
+            <if test="fatherProjectId==null or fatherProjectId==0">
+                and  (a.father_project_id is null or  a.father_project_id=0)
             </if>
     </select>
 </mapper>
