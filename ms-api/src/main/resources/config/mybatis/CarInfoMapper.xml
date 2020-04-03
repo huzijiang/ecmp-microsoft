@@ -298,6 +298,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carId != null  and carId != '' ">    and car_id=#{carId}</if>
         </where>
     </update>
+    <select id="selectCarInfoListByGroupId" resultMap="CarInfoResult">
+        <include refid="selectCarInfoVo"/>
+        <where>
+        <if test="carGroupId != null "> and car_group_id = #{carGroupId}</if>
+        <if test="carTypeId != null "> and carTypeId = #{carTypeId}</if>
+        <if test="state != null "> and state = #{state}</if>
+        <if test="search != null "> and car_license like CONCAT('%',#{search},'%')</if>
+        </where>
+    </select>
 
 	<select id="queryCarGroupCarList" parameterType="java.lang.Long"
 		resultType="com.hq.ecmp.mscore.vo.CarListVO">

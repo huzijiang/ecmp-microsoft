@@ -146,11 +146,17 @@
 
     <!--邀请员工列表-->
     <select id="queryInvitationUser" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationUserVO">
-        select a.name as yqName,c.dept_name as companyName,e.dept_name as deptName,group_concat(b.name) as regimeUser ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait
+         select a.invitation_id as invitationId ,a.name as yqName,c.dept_name as companyName,e.dept_name as deptName,group_concat(b.name) as regimeUser ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait,
+a.state as state,a.rose_id as roseId,f.role_name as roseName,
+      CASE a.state
+                      WHEN 'Y000' THEN '有效'
+                      WHEN 'N000' THEN '失效'
+                      else '无状态' END as stateValue
         from ecmp_enterprise_invitation_info  a
         left join regime_info b
         on find_in_set(b.regimen_id,a.regime_ids)
         left join ecmp_org c on c.dept_id = a.enterprise_id
+        left join ecmp_role f on f.role_id = a.rose_id
         left join ecmp_org e on e.dept_id = a.department_id
         left join (select d.invitation_id, count(*) as amountPass from ecmp_enterprise_register_info d where d.state='S001' group by d.invitation_id) d_amountPass on d_amountPass.invitation_id = a.invitation_id
         left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
@@ -172,10 +178,16 @@
     </select>
     <!--驾驶员工列表-->
     <select id="queryInvitationDriver" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationDriverVO">
-        select a.name as yqName,c.dept_name as companyName,e.car_group_name as carGroupName,b_amountCar.carNum as carNum ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait
+       select a.invitation_id as invitationId, a.name as yqName,c.dept_name as companyName,e.car_group_name as carGroupName,b_amountCar.carNum as carNum ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait,
+       a.state as state,a.rose_id as roseId,f.role_name as roseName,
+       CASE a.state
+                      WHEN 'Y000' THEN '有效'
+                      WHEN 'N000' THEN '失效'
+                      else '无状态' END as stateValue
         from ecmp_enterprise_invitation_info  a
         left join (select b.car_group_id,count(*) as carNum from car_info b where b.state='S000' group by b.car_group_id ) b_amountCar on b_amountCar.car_group_id=a.car_group_id
         left join ecmp_org c on c.dept_id = a.enterprise_id
+        left join ecmp_role f on f.role_id = a.rose_id
         left join car_group_info e on e.car_group_id= a.car_group_id
         left join (select d.invitation_id, count(*) as amountPass from ecmp_enterprise_register_info d where d.state='S001' group by d.invitation_id) d_amountPass on d_amountPass.invitation_id = a.invitation_id
         left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
@@ -183,17 +195,32 @@
         group by a.name,a.enterprise_id,a.car_group_id
     </select>
     <!--驾驶员工详情-->
-    <select id="queryInvitationDriverDetial" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationDriverVO">
-        select a.name as yqName,c.dept_name as companyName,e.car_group_name as carGroupName,b_amountCar.carNum as carNum ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait
+    <select id="queryInvitationDriverDetial" parameterType="Long" resultType="com.hq.ecmp.mscore.vo.InvitationDriverVO">
+
+        select a.invitation_id as invitationId, a.name as yqName,c.dept_name as companyName,e.car_group_name as carGroupName,b_amountCar.carNum as carNum ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait,
+       a.state as state,a.rose_id as roseId,f.role_name as roseName,
+       CASE a.state
+                      WHEN 'Y000' THEN '有效'
+                      WHEN 'N000' THEN '失效'
+                      else '无状态' END as stateValue
         from ecmp_enterprise_invitation_info  a
         left join (select b.car_group_id,count(*) as carNum from car_info b where b.state='S000' group by b.car_group_id ) b_amountCar on b_amountCar.car_group_id=a.car_group_id
         left join ecmp_org c on c.dept_id = a.enterprise_id
+        left join ecmp_role f on f.role_id = a.rose_id
         left join car_group_info e on e.car_group_id= a.car_group_id
         left join (select d.invitation_id, count(*) as amountPass from ecmp_enterprise_register_info d where d.state='S001' group by d.invitation_id) d_amountPass on d_amountPass.invitation_id = a.invitation_id
         left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
         where a.type='T002'and a.invitation_id = #{invitationId}
         group by a.name,a.enterprise_id,a.car_group_id
-    </select>
 
+    </select>
+    <insert id="insertDriverInvitation" keyProperty="invitationId" useGeneratedKeys="true">
+        insert into ecmp_enterprise_invitation_info(name, enterprise_id, car_group_id, type, rose_id, regime_ids, url, state, create_time)
+        values (#{name}, #{enterpriseId}, #{departmentId}, #{carGroupId}, #{type}, #{roseId}, #{regimeIds}, #{url}, #{state},  #{createTime})
+    </insert>
+    <insert id="insertUserInvitation" keyProperty="invitationId" useGeneratedKeys="true">
+        insert into ecmp_enterprise_invitation_info(name, enterprise_id, department_id, type, rose_id, regime_ids, url, state, create_time)
+        values (#{name}, #{enterpriseId}, #{departmentId}, #{type}, #{roseId}, #{regimeIds}, #{url}, #{state}, #{createTime})
+    </insert>
 
 </mapper>

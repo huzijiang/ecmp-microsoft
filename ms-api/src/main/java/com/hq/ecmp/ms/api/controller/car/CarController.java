@@ -344,7 +344,7 @@ public class CarController {
      */
     @ApiOperation(value = "getCarListByGroup",notes = "按车队id查询车辆列表",httpMethod ="POST")
     @PostMapping("/getCarListByGroup")
-    public ApiResponse<PageResult<CarListVO>> getCarListByGroup(@RequestBody PageRequest pageRequest,HttpServletRequest request){
+    public ApiResponse<PageResult<CarListVO>> getCarListByGroup(@RequestBody PageRequest pageRequest){
         try {
            PageResult<CarListVO> list = carInfoService.selectCarListByGroup(pageRequest);
             return ApiResponse.success(list);
