@@ -118,7 +118,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <select id="querySceneByRegimeId" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.SceneInfo">
 SELECT
-	a. NAME AS NAME
+	a. NAME AS NAME,
+	a.scene_id as sceneId
 FROM
 	scene_info a
 LEFT JOIN scene_regime_relation b ON a.scene_id = b.scene_id

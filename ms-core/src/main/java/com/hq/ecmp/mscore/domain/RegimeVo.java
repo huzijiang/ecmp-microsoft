@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.domain;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -15,8 +17,12 @@ public class RegimeVo {
 	String regimeName;// 制度名称
 
 	String sceneName;// 场景名称
+	
+	Long sceneId;//场景编号
 
 	Integer useNum;// 使用人数
+	
+	List<Long> userList;// 可用员工 
 
 	Integer approveTemplateId;// 审批模板
 
@@ -34,10 +40,14 @@ public class RegimeVo {
 	String allowDate;// 可用日期
 
 	String ruleTime;// 用车时段限制类型： T001: 不限 T002: 工作日/节假日 T003: 自定义
+	
+	List<RegimeUseCarTimeRuleInfo>  regimeUseCarTimeRuleInfoList;//用车时间段限制
 
 	String setoutEqualArrive;// 同城限制 yes 相等 no 不相等
 
 	String ruleCity;// C001：不限 C002：限制可用城市 C003：限制不可用城市
+	
+	List<String> cityLimitIds;//限制城市编号
 
 	String useCarModeOwnerLevel;// 公务 自有车车型配置
 

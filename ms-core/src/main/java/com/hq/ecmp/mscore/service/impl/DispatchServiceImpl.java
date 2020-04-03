@@ -314,8 +314,8 @@ public class DispatchServiceImpl implements IDispatchService {
             if(orderInfosSetOutClash.isEmpty() && orderInfosArrivalClash.isEmpty()){
                 waitSelectedCarBo.setTaskConflict("000");
 
-                List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCar(orderTaskClashBo);
-                List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCar(orderTaskClashBo);
+                List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCarOrDriver(orderTaskClashBo);
+                List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCarOrDriver(orderTaskClashBo);
 
                 if(orderInfosBefore.size()>0){
                     waitSelectedCarBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
@@ -323,7 +323,7 @@ public class DispatchServiceImpl implements IDispatchService {
                 }
                 if(orderInfosAfter.size()>0){
                     waitSelectedCarBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    waitSelectedCarBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
+                    waitSelectedCarBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getUpdateTime().getTime()));
                 }
             }
             if((!orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())){
@@ -331,15 +331,15 @@ public class DispatchServiceImpl implements IDispatchService {
             }
             if((!orderInfosSetOutClash.isEmpty()) && (orderInfosArrivalClash.isEmpty())){
                 waitSelectedCarBo.setTaskConflict("100");
-                List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCar(orderTaskClashBo);
+                List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCarOrDriver(orderTaskClashBo);
                 if(orderInfosAfter.size()>0){
                     waitSelectedCarBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    waitSelectedCarBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
+                    waitSelectedCarBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getUpdateTime().getTime()));
                 }
             }
             if((orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())){
                 waitSelectedCarBo.setTaskConflict("001");
-                List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCar(orderTaskClashBo);
+                List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCarOrDriver(orderTaskClashBo);
                 if(orderInfosBefore.size()>0){
                     waitSelectedCarBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
                     waitSelectedCarBo.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
@@ -422,16 +422,16 @@ public class DispatchServiceImpl implements IDispatchService {
 
             if(orderInfosSetOutClash.isEmpty() && orderInfosArrivalClash.isEmpty()){
                 waitSelectedDriverBo.setTaskConflict("000");
-                List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCar(orderTaskClashBo);
-                List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCar(orderTaskClashBo);
+                List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCarOrDriver(orderTaskClashBo);
+                List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCarOrDriver(orderTaskClashBo);
 
                 if(orderInfosBefore.size()>0){
                     waitSelectedDriverBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
-                    waitSelectedDriverBo.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setBeforeTaskEndTime(orderInfosBefore.get(0).getCreateTime());
                 }
                 if(orderInfosAfter.size()>0){
                     waitSelectedDriverBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    waitSelectedDriverBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setAfterTaskBeginTime(orderInfosAfter.get(0).getUpdateTime());
                 }
             }
             if((!orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())){
@@ -439,19 +439,19 @@ public class DispatchServiceImpl implements IDispatchService {
             }
             if((!orderInfosSetOutClash.isEmpty()) && (orderInfosArrivalClash.isEmpty())){
                 waitSelectedDriverBo.setTaskConflict("100");
-                List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCar(orderTaskClashBo);
+                List<OrderInfo> orderInfosAfter=orderInfoMapper.getArrivalAfterTaskForCarOrDriver(orderTaskClashBo);
                 if(orderInfosAfter.size()>0){
                     waitSelectedDriverBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    waitSelectedDriverBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setAfterTaskBeginTime(orderInfosAfter.get(0).getUpdateTime());
                 }
             }
             if((orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())){
                 waitSelectedDriverBo.setTaskConflict("001");
 
-                List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCar(orderTaskClashBo);
+                List<OrderInfo> orderInfosBefore=orderInfoMapper.getSetOutBeforeTaskForCarOrDriver(orderTaskClashBo);
                 if(orderInfosBefore.size()>0){
                     waitSelectedDriverBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
-                    waitSelectedDriverBo.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
+                    waitSelectedDriverBo.setBeforeTaskEndTime(orderInfosBefore.get(0).getCreateTime());
                 }
             }
             waitSelectedDriverBoList.add(waitSelectedDriverBo);
