@@ -106,7 +106,7 @@ class OrgControllerTest {
     @Test
     public void deptTree(){
         try {
-            List<OrgTreeVo> orgTreeVos = orgService.selectDeptTree(null, null);
+            OrgTreeVo orgTreeVos = orgService.selectDeptTree(null, null);
             System.out.println(JSON.toJSONString(orgTreeVos));
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,7 +115,7 @@ class OrgControllerTest {
     @Test
     public void deptUserTree(){
         try {
-            List<OrgTreeVo> orgTreeVos = orgService.selectDeptUserTree(null, null);
+            OrgTreeVo orgTreeVos = orgService.selectDeptUserTree(null, null);
             System.out.println(orgTreeVos.toString());
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,19 +154,6 @@ class OrgControllerTest {
         }
     }
     @Test
-    public void getApprovalList(){//根据制度获取审批人
-        try {
-            SysUser sysUser = new SysUser();
-            sysUser.setUserId(106l);
-            sysUser.setDeptId(252L);
-            List<ApprovalUserVO> approvalList = nodeInfoService.getApprovalList("1", "7", sysUser);
-            System.out.println(approvalList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
     public void selectApplyDetail(){//获取审批流信息
         try {
             Long applyId=891l;
@@ -181,5 +168,27 @@ class OrgControllerTest {
         }
     }
 
+
+    @Test
+    public void getApprovalList(){//根据制度获取审批人
+        try {
+            SysUser sysUser = new SysUser();
+            sysUser.setUserId(106l);
+            sysUser.setDeptId(252L);
+            List<ApprovalUserVO> approvalList = nodeInfoService.getApprovalList("1", "7", sysUser);
+            System.out.println(approvalList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    public void getOrgTree(){//根据制度获取审批人
+        try {
+            OrgTreeVo orgTreeVos = iProjectInfoService.selectProjectUserTree( "1");
+            System.out.println(orgTreeVos.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
