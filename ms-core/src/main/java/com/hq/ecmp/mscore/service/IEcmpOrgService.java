@@ -229,4 +229,6 @@ public interface IEcmpOrgService
 
     /*查询公司车队总人数*/
     CarGroupCountVO selectCarGroupCount(Long deptId);
+
+    List<EcmpOrgDto> selectDeptByCompany(Long deptId);
 }
