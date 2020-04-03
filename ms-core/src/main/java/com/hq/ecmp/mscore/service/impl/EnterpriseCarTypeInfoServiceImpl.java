@@ -204,7 +204,8 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
             carTypeVO = CarTypeVO.builder().carTypeId(carTypeInfo.getCarTypeId())
                     .countryCarTypeId(carTypeInfo.getCountryCarTypeId())
                     .level(carTypeInfo.getLevel())
-                    .name(carTypeInfo.getLevel())
+                    .name(carTypeInfo.getName())
+                    .status(carTypeInfo.getStatus())
                     .enterpriseId(carTypeInfo.getEnterpriseId())
                     .build();
             list.add(carTypeVO);
@@ -220,11 +221,13 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
     @Override
     public void sortCarType(Long mainCarTypeId, Long targetCarTypeId,Long userId) throws Exception {
         EnterpriseCarTypeInfo mainCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(mainCarTypeId);
+        String min=mainCarTypeInfo.getLevel();
         EnterpriseCarTypeInfo targetCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(targetCarTypeId);
-        mainCarTypeInfo.setLevel(targetCarTypeInfo.getLevel());
+        String target = targetCarTypeInfo.getLevel();
+        mainCarTypeInfo.setLevel(target);
         mainCarTypeInfo.setUpdateTime(new Date());
         mainCarTypeInfo.setUpdateBy(String.valueOf(userId));
-        targetCarTypeInfo.setLevel(mainCarTypeInfo.getLevel());
+        targetCarTypeInfo.setLevel(min);
         targetCarTypeInfo.setUpdateBy(String.valueOf(userId));
         targetCarTypeInfo.setUpdateTime(new Date());
         int i = enterpriseCarTypeInfoMapper.updateEnterpriseCarTypeInfo(mainCarTypeInfo);

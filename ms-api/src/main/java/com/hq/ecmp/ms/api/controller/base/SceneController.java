@@ -85,8 +85,10 @@ public class SceneController {
 	 */
 	@ApiOperation(value = "deleteScene", notes = "删除用车场景", httpMethod ="POST")
 	@RequestMapping("/deleteScene")
-	public ApiResponse deleteScene(@RequestBody SceneDTO sceneDTO) {
+	public ApiResponse deleteScene(@RequestBody Long sceneId) {
 		try {
+			SceneDTO sceneDTO = new SceneDTO();
+			sceneDTO.setSceneId(sceneId);
 			int i = sceneInfoService.deleteSceneInfoById(sceneDTO.getSceneId());
 			if(i == 1){
 				return ApiResponse.success("删除成功");
@@ -127,8 +129,10 @@ public class SceneController {
 	 */
 	@ApiOperation(value = "getSceneDetail", notes = "查询用车场景详情", httpMethod ="POST")
 	@PostMapping("/getSceneDetail")
-	public ApiResponse<SceneDetailVO> getSceneDetail(@RequestBody SceneDTO sceneDTO) {
+	public ApiResponse<SceneDetailVO> getSceneDetail(@RequestBody Long sceneId) {
 		try {
+			SceneDTO sceneDTO = new SceneDTO();
+			sceneDTO.setSceneId(sceneId);
 			//查询场景详情
 			SceneDetailVO sceneDetailVO = sceneInfoService.selectSceneDetail(sceneDTO);
 			if(ObjectUtils.isEmpty(sceneDetailVO)){
