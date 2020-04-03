@@ -33,7 +33,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       <foreach collection="list" separator="," item="item">
       (#{item.regimenId},#{item.ruleAction},#{item.cityCode},#{item.createBy},#{item.createTime})
       </foreach>
-    
     </insert>
+    
+    <select id="queryLimitCityCodeList" parameterType="java.lang.Long" resultType="string">
+    select city_code from regime_use_car_city_rule_info where regimen_id=#{regimenId}
+    </select>
   
 </mapper>

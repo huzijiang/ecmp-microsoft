@@ -12,5 +12,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       (#{item.regimenId},#{item.ruleAction},#{item.ruleKey},#{item.startTime},#{item.endTime},#{item.createBy},#{item.createTime})
       </foreach>
     </insert>
+    
+    <select id="queryRegimeUseCarTimeRuleInfoList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeUseCarTimeRuleInfo">
+    select rule_key as ruleKey,start_time as startTime,end_time as endTime from regime_use_car_time_rule_info where regimen_id=#{regimenId}
+    </select>
   
 </mapper>

@@ -15,6 +15,8 @@ public interface RegimeUseCarCityRuleInfoMapper
         public Integer insert(RegimeUseCarCityRuleInfo regimeUseCarCityRuleInfo);
         
         public Integer batchInsert(@Param("list")List<RegimeUseCarCityRuleInfo> list);
+        
+        public List<String> queryLimitCityCodeList(Long regimenId);
 
 
 }
