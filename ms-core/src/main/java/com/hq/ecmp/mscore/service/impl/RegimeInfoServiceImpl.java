@@ -276,10 +276,26 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			SceneInfo sceneInfo = sceneInfoService.querySceneByRegimeId(regimeId);
 			if(null !=sceneInfo){
 				regimeVo.setSceneName(sceneInfo.getName());
+				regimeVo.setSceneId(sceneInfo.getSceneId());
 			}
 			//查询制度使用人数
 			Integer userCount = userRegimeRelationInfoMapper.queryRegimeUserCount(regimeId);
 			regimeVo.setUseNum(userCount);
+			//查询使用该制度的用户
+			regimeVo.setUserList(userRegimeRelationInfoMapper.queryRegimeUser(regimeId));
+			//如果是公务用车制度  则查询用车时段限制和用车城市限制
+			if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimeVo.getRegimenType())){
+				String ruleCity = regimeVo.getRuleCity();
+				if(!"C001".equals(ruleCity)){
+					List<String> queryLimitCityCodeList = regimeUseCarCityRuleInfoService.queryLimitCityCodeList(regimeId);
+					regimeVo.setCityLimitIds(queryLimitCityCodeList);
+				}
+				
+				if(!"T001".equals(regimeVo.getRuleTime())){
+					List<RegimeUseCarTimeRuleInfo> queryRegimeUseCarTimeRuleInfoList = regimeUseCarTimeRuleInfoService.queryRegimeUseCarTimeRuleInfoList(regimeId);
+					regimeVo.setRegimeUseCarTimeRuleInfoList(queryRegimeUseCarTimeRuleInfoList);
+				}
+			}
 		}
 		return regimeVo;
 	}

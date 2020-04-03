@@ -8,4 +8,7 @@ public interface IRegimeUseCarCityRuleInfoService {
 	  public Integer insert(RegimeUseCarCityRuleInfo regimeUseCarCityRuleInfo);
 	  
 	  public Integer batchInsert(List<RegimeUseCarCityRuleInfo> list);
+	  
+	  
+	  public List<String> queryLimitCityCodeList(Long regimenId);
 }
