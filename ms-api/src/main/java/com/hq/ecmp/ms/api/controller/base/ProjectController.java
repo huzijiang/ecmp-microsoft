@@ -35,8 +35,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.hq.ecmp.constant.CommonConstant.DEPT_TYPE_ORG;
-import static com.hq.ecmp.constant.CommonConstant.PROJECT_USER_TREE;
+import static com.hq.ecmp.constant.CommonConstant.*;
 
 /**
  * @Author: zj.hu
@@ -140,7 +139,7 @@ public class ProjectController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         ProjectInfo projectInfo = new ProjectInfo();
         BeanUtils.copyProperties(projectInfoDto,projectInfo);
-        projectInfo.setIsEffective(1);
+        projectInfo.setIsEffective(ZERO);
         EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
         if (ecmpOrg!=null){
             projectInfo.setOwnerCompany(ecmpOrg.getDeptId());
@@ -195,7 +194,7 @@ public class ProjectController {
         int i = iProjectInfoService.updateProjectInfo(projectInfo);
         if (i>0){
             if (isAlluser!=projectInfoDto.getIsAllUserUse()){
-                if (projectInfoDto.getIsAllUserUse()==1){//全部员工
+                if (projectInfoDto.getIsAllUserUse()==ZERO){//全部员工
                     saveUserProject(projectInfoDto.getProjectId());
                 }else{
                     iProjectUserRelationInfoService.deleteProjectUserRelationInfoById(projectInfoDto.getProjectId());

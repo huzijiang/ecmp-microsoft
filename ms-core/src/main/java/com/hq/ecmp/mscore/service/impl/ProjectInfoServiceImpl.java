@@ -204,7 +204,7 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         List<ProjectInfo> list= projectInfoMapper.checkProject(DateFormatUtils.formatDate(DateFormatUtils.DATE_FORMAT,new Date()));
         if (CollectionUtils.isNotEmpty(list)){
             for (ProjectInfo info:list){
-                info.setIsEffective(0);
+                info.setIsEffective(ONE);
                 projectInfoMapper.updateProjectInfo(info);
             }
         }
