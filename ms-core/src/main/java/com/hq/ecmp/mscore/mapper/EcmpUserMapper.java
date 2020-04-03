@@ -160,7 +160,7 @@ public interface EcmpUserMapper
      * @param deptId 部门编号
      * @return 结果
      */
-    public Long selectEcmpUserSubDeptCount(@Param("deptId") Long deptId);
+    /*public Long selectEcmpUserSubDeptCount(@Param("deptId") Long deptId);*/
 
     /**
      * 查询该部门下的所有员工编号
@@ -168,7 +168,7 @@ public interface EcmpUserMapper
      * @param deptId 部门编号
      * @return 结果
      */
-    public String selectEcmpUserSubDept(@Param("deptId") Long deptId);
+    /*public String selectEcmpUserSubDept(@Param("deptId") Long deptId);*/
 
     /**
      * 获取员工列表
@@ -275,7 +275,7 @@ public interface EcmpUserMapper
      * @param  nickName
      * @return 结果
      */
-    public List<Long> selectUserIdsByNickNameOrJobNumber(@Param("nickName")String nickName,@Param("phonenumber")String phonenumber,@Param("jobNumber")String jobNumber);
+    public List<EcmpUserDto> selectUserIdsByNickNameOrJobNumber(@Param("nickName")String nickName,@Param("phonenumber")String phonenumber,@Param("jobNumber")String jobNumber);
 
 
     /**
@@ -283,7 +283,7 @@ public interface EcmpUserMapper
      * @param nickName
      * @return 结果
      */
-    public EcmpUserDto selectUserByNickNameOrJobNumber(@Param("nickName")String nickName,@Param("phonenumber")String phonenumber,@Param("jobNumber")String jobNumber, @Param("userId")Long userId);
+    public EcmpUserDto selectUserByNickNameOrJobNumber(@Param("nickName")String nickName,@Param("phonenumber")String phonenumber,@Param("jobNumber")String jobNumber, @Param("userId")Long userId, @Param("deptId")Long deptId);
 
 
     List<EcmpUser> getListByUserIds(@Param("userIds") List<Long> userIds);
