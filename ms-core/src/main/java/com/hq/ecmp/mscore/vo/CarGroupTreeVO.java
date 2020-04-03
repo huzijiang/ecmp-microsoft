@@ -32,8 +32,8 @@ public class CarGroupTreeVO {
     @ApiModelProperty(value = "组织类别（1 公司 2 部门 3 车队）")
     private String deptType;
 
-  //  @ApiModelProperty(value = "负责人")
-  //  private String leader;
+    @ApiModelProperty(value = "车队人数")
+    private Integer count;
 
     //子部门列表
     private List<CarGroupTreeVO> childrenList;

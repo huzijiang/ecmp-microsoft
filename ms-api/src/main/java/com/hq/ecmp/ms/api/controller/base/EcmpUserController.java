@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.UserReqimensDTO;
@@ -237,7 +238,7 @@ public class EcmpUserController {
      * @param  ecmpUser
      * @return*/
     @ApiOperation(value = "按照姓名/工号/手机号模糊查询匹配的列表",notes = "按照姓名/工号/手机号模糊查询匹配的列表",httpMethod ="POST")
-    @PostMapping("/selectDeptByDeptNameOrCode")
+    @PostMapping("/selectUserByNameOrJobNumberOrPhone")
     public ApiResponse<List<EcmpUserDto>> selectUserByNameOrJobNumberOrPhone(@RequestBody EcmpUserVo ecmpUser){
         String nameOrJobNumberOrPhone=ecmpUser.getNameOrJobNumberOrPhone();
         if("".equals(nameOrJobNumberOrPhone.trim())){
@@ -250,5 +251,22 @@ public class EcmpUserController {
             return ApiResponse.error("无匹配数据！");
         }
     }
+    
+    
+    
+    /**
+     * 查询所有有效员工
+     * @param  ecmpUser
+     * @return*/
+    @ApiOperation(value = "查询所有有效员工",notes = "查询所有有效员工",httpMethod ="POST")
+    @PostMapping("/queryAllValidUserList")
+    public ApiResponse<List<EcmpUser>> queryAllValidUserList(){
+    	EcmpUser ecmpUser = new EcmpUser();
+    	ecmpUser.setStatus("0");
+    	ecmpUser.setDelFlag("0");
+    	List<EcmpUser> selectEcmpUserList = ecmpUserService.selectEcmpUserList(ecmpUser);
+    	return ApiResponse.success(selectEcmpUserList);
+    }
+    	
 
 }

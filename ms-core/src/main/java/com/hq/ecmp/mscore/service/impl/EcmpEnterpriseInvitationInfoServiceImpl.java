@@ -1,8 +1,11 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
+import com.hq.ecmp.mscore.dto.DriverInvitationDTO;
 import com.hq.ecmp.mscore.dto.InvitationDto;
 import com.hq.ecmp.mscore.dto.InvitationInfoDTO;
+import com.hq.ecmp.mscore.dto.UserInvitationDTO;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
@@ -117,4 +120,27 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
     public InvitationDriverVO  queryInvitationDriverDetial(String invitationId){
         return ecmpEnterpriseInvitationInfoMapper.queryInvitationDriverDetial(invitationId);
     }
+    /**
+     *
+     * @param driverInvitationDTO
+     * @return
+     */
+    public int insertDriverInvitation(DriverInvitationDTO driverInvitationDTO){
+        driverInvitationDTO.setCreateTime(DateUtils.getNowDate());
+        driverInvitationDTO.setState("Y000");
+        driverInvitationDTO.setType("T002");
+        return ecmpEnterpriseInvitationInfoMapper.insertDriverInvitation(driverInvitationDTO);
+    }
+    /**
+     *
+     * @param uerInvitationDTO
+     * @return
+     */
+    public int insertUserInvitation(UserInvitationDTO uerInvitationDTO){
+        uerInvitationDTO.setCreateTime(DateUtils.getNowDate());
+        uerInvitationDTO.setState("Y000");
+        uerInvitationDTO.setType("T001");
+        return ecmpEnterpriseInvitationInfoMapper.insertUserInvitation(uerInvitationDTO);
+    }
+
 }
