@@ -26,7 +26,7 @@ public class CarListVO {
     //3.能源类型
     private String fuelType;  //能源表
 
-    //4.车型 行政级
+    //4.车型 行政级(代码)
     private String level;  //车型表
 
     //5.资产编号
@@ -50,4 +50,10 @@ public class CarListVO {
 
     //11.车辆id
     private Long carId;
+
+    //12.车型 行政级(名字)
+    private String levelName;
+
+    //13.车型 行政级(id)
+    private Long carTypeId;
 }

@@ -25,8 +25,11 @@ public class CarGroupDetailVO {
     @ApiModelProperty(name = "carGroupCode", value = "车队编号")
     private String carGroupCode;
 
-    @ApiModelProperty(name = "ownerOrg", value = "所属组织",example = "北京分公司")
+    @ApiModelProperty(name = "ownerOrg", value = "所属组织id",example = "北京分公司id")
     private Long ownerOrg;
+
+    @ApiModelProperty(name = "ownerOrg", value = "所属组织名字",example = "北京分公司")
+    private String ownerOrgName;
 
     @ApiModelProperty(name = "cityName", value = "归属城市名字")
     private String cityName;
