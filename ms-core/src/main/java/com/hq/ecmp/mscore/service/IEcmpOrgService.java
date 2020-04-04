@@ -197,6 +197,11 @@ public interface IEcmpOrgService
      */
     public List<EcmpOrgDto> selectDeptByDeptNameOrCode(String deptNameOrCode);
 
+    /**
+     *查询分/子公司下的部门名称和deptId
+     * @return
+     */
+    public List<EcmpOrgDto> selectDeptByCompany(Long deptId);
 
     /**
      * 部门树
