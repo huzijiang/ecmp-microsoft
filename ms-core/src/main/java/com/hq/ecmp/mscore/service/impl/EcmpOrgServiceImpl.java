@@ -274,7 +274,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         return carGroupCountVO;
     }
 
-    //递归公司
+    //递归公司  (公司树)
     public List<CompanyTreeVO> getCompanyTree(Long deptId){
         if (deptId == null){
             EcmpOrg ecmpOrg = new EcmpOrg();
@@ -287,8 +287,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         int size = list.size();
         if(size > 0){
             for (int i = 0; i < size; i++) {
-                List<CompanyTreeVO> companyTree = this.getCompanyTree(list.get(i).getDeptCompanyId());
-                list.get(i).setChildrenList(companyTree);
+                /* List<CompanyTreeVO> companyTree = this.getCompanyTree(list.get(i).getDeptCompanyId());*/
+                list.get(i).setChildrenList(this.getCompanyTree(list.get(i).getDeptCompanyId()));
             }
         }
         return list;

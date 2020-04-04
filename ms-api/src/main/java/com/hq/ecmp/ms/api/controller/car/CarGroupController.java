@@ -237,6 +237,26 @@ public class CarGroupController {
     }
 
     /**
+     * 查询公司树
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCompanyTree",notes = "公司树",httpMethod ="POST")
+    @PostMapping("/getCarGroup")
+    public ApiResponse<List<CompanyCarGroupTreeVO>> getCompanyTree(
+            @RequestBody EcmpOrgDto ecmpOrgDto){
+        //根据公司id查询公司树
+        List<CompanyCarGroupTreeVO>  list = null;
+        try {
+            list = ecmpOrgService.selectCompanyCarGroupTree(ecmpOrgDto.getDeptId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success(list);
+    }
+
+
+    /**
      * 查询公司车队树
      * @param
      * @return

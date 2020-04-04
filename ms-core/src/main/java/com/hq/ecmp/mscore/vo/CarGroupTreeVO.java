@@ -17,15 +17,6 @@ public class CarGroupTreeVO {
     @ApiModelProperty(value = "组织id")
     private Long deptGroupId;
 
-   // @ApiModelProperty(value = "上级组织id")
-   // private Long parentId;
-
-  //  @ApiModelProperty(value = "企业自定义机构编码")
-   // private String  deptCode;
-
-   // @ApiModelProperty(value = "祖级列表")
-   // private String ancestors;
-
     @ApiModelProperty(value = "组织名称")
     private String deptGroupName;
 
@@ -34,6 +25,12 @@ public class CarGroupTreeVO {
 
     @ApiModelProperty(value = "车队人数")
     private Integer count;
+
+    @ApiModelProperty(value = "车队名称")
+    private String carGroupName;
+
+    @ApiModelProperty(value = "车队id")
+    private Long carGroupId;
 
     //子部门列表
     private List<CarGroupTreeVO> childrenList;

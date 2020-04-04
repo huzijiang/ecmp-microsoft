@@ -700,4 +700,17 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
         return carGroupDelFlag;
     }
+
+    /*递归车队  （车队树）    根据*/
+    public List<CarGroupTreeVO> selectCarGroupTree(Long deptId){
+        List<CarGroupTreeVO> list = carGroupInfoMapper.selectCarGroupTree(deptId);
+        int size = list.size();
+        if(size > 0){
+            for (int i = 0; i < size; i++) {
+                list.get(i).setChildrenList(selectCarGroupTree(list.get(i).getCarGroupId()));
+            }
+        }
+        return list;
+    }
+
 }

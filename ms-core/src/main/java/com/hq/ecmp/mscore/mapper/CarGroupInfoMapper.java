@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.vo.CarGroupFixedPhoneVO;
 import com.hq.ecmp.mscore.vo.CarGroupListVO;
 import com.hq.ecmp.mscore.vo.CarGroupPhoneVO;
+import com.hq.ecmp.mscore.vo.CarGroupTreeVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -107,5 +108,8 @@ public interface CarGroupInfoMapper
      */
     List<CarGroupInfo> selectCarGroupsByDriverId(Long driverId);
 
+
+    /*车队树*/
+    List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
 
 }
