@@ -363,7 +363,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     public void disableCarGroup(Long carGroupId, Long userId) throws Exception {
         //递归禁用车队及下属车队的驾驶员和车辆
         changeState(carGroupId, null, String.valueOf(userId), CarConstant.DISABLE_CAR_GROUP,
-                CarConstant.DISABLE_CAR, CarConstant.DISABLE_DRIVER_TYPE);
+                CarConstant.SABLE_CAR, CarConstant.DISABLE_DRIVER_TYPE);
     }
 
     //查询车队下的可用驾驶员
