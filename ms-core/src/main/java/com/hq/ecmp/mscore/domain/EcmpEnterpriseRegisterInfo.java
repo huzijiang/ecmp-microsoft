@@ -58,6 +58,8 @@ public class EcmpEnterpriseRegisterInfo extends BaseEntity{
     private Long auditor;
     
     private Date auditTime;
+    /* 新增审核拒绝原因*/
+    private String rejectReason;
     
 
 
@@ -237,6 +239,11 @@ public class EcmpEnterpriseRegisterInfo extends BaseEntity{
         this.auditTime = auditTime;
     }
 
+    public String getRejectReason() {
+        return rejectReason;
+    }
 
-
+    public void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
+    }
 }
