@@ -1977,8 +1977,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 status=OrderState.ALREADYSENDING.getState();
                 newOrderInfo.setState(OrderState.ALREADYSENDING.getState());
             }
-        }else if (OrderState.STOPSERVICE.getState().equals(status)) {//服务结束
-                //TODO 调财务结算模块
+        } else if (OrderState.STOPSERVICE.getState().equals(status)) {//服务结束
+            //TODO 调财务结算模块
             JSONObject feeInfoBean = thirdPartyOrderState.getJSONObject("feeInfoBean");
             List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderNo));
             if (CollectionUtils.isEmpty(orderSettlingInfos)) {
@@ -1994,13 +1994,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
             }
 
-            int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderInfo.getUseCarMode());
-                if (orderConfirmStatus==CommonConstant.ZERO){
-                    status=OrderState.ORDERCLOSE.getState();
-                    lableState=OrderState.ORDERCLOSE.getState();
-                    newOrderInfo.setState(status);
-                }
+            int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
+            if (orderConfirmStatus == CommonConstant.ZERO) {
+                status = OrderState.ORDERCLOSE.getState();
+                lableState = OrderState.ORDERCLOSE.getState();
+                newOrderInfo.setState(status);
             }
+        }else if (OrderState.ORDEROVERTIME.getState().equals(status)){//订单超时
+            status = OrderState.ORDERCLOSE.getState();
+            newOrderInfo.setState(status);
+        }
         if (!OrderState.ORDERCANCEL.getState().equals(status)){//订单取消
             orderInfoMapper.updateOrderInfo(newOrderInfo);
             OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderNo, lableState, longitude, latitude);
@@ -2008,19 +2011,23 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             orderStateTraceInfo.setCreateTime(new Date());
             orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
         }
-        if (OrderState.ALREADYSENDING.getState().equals(status)){//约车成功 发短信，发通知
+        if (OrderState.ALREADYSENDING.getState().equals(lableState)){//约车成功 发短信，发通知
             ismsBusiness.sendSmsCallTaxiNet(orderNo);
-        }
-        if (OrderState.READYSERVICE.getState().equals(status)){//驾驶员已到达
+        }else
+        if (OrderState.READYSERVICE.getState().equals(lableState)){//驾驶员已到达
             ismsBusiness.driverArriveMessage(orderNo);
         }else
-        if (OrderState.INSERVICE.getState().equals(status)){//开始服务 发送通知
+        if (OrderState.INSERVICE.getState().equals(lableState)){//开始服务 发送通知
             ismsBusiness.sendSmsDriverBeginService(orderNo);
             //司机开始服务发送消息给乘车人和申请人（行程通知）
             ismsBusiness.sendMessageServiceStart(orderNo, orderInfo.getUserId());
         }else
-        if (OrderState.STOPSERVICE.getState().equals(status)){//任务结束
+        if (OrderState.STOPSERVICE.getState().equals(lableState)){//任务结束
             ismsBusiness.endServiceNotConfirm(orderNo);
+        }
+        else
+        if (OrderState.ORDEROVERTIME.getState().equals(lableState)){//订单超时
+            ismsBusiness.sendSmsCallTaxiNetFail(orderNo);
         }
     }
 
