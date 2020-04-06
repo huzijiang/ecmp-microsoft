@@ -140,6 +140,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         CarGroupInfo carGroupInfo = new CarGroupInfo();
         //车队编码
         carGroupInfo.setCarGroupCode(carGroupDTO.getCarGroupCode());
+        //父车队id
+        Long parentCarGroupId = carGroupDTO.getParentCarGroupId();
+        if(parentCarGroupId == null){
+            parentCarGroupId = 0L;
+        }
+        carGroupInfo.setParentCarGroupId(parentCarGroupId);
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
         //所属城市名字
@@ -734,5 +740,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
         return list;
     }
+
+
 
 }

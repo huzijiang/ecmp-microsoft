@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
+import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterUserVO;
 
@@ -76,6 +77,17 @@ public interface EcmpEnterpriseRegisterInfoService {
      * @param
      */
     List<RegisterDriverVO> queryRegisterDriverWait(RegisterDTO registerDTO);
+    /**
+     * 注册申请：拒绝/通过
+     */
+    public int updateRegisterState(RegisterDTO registerDTO);
+
+    /**
+     * 员工注册
+     * @param userRegisterDTO
+     * @return
+     */
+    UserRegisterDTO insertUserRegister(UserRegisterDTO userRegisterDTO);
 
 
 

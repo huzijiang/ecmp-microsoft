@@ -136,8 +136,12 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
                     for (int i=0;i<nodeIds.size();i++){
                         ApprovaTemplateNodeVO nodeVO = nodeIds.get(i);
                         if (ApproveTypeEnum.APPROVE_T001.getKey().equals(nodeVO.getType())){
-                            EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(Long.parseLong(nodeVO.getDeptProjectId()));
-                            nodeVO.setName(ecmpOrg.getDeptName()+"主管审批");
+                            if (StringUtils.isNotBlank(nodeVO.getDeptProjectId())){
+                                EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(Long.parseLong(nodeVO.getDeptProjectId()));
+                                nodeVO.setName(ecmpOrg.getDeptName()+"主管审批");
+                            }else {
+                                nodeVO.setName("部门主管审批");
+                            }
                         }else if (ApproveTypeEnum.APPROVE_T002.getKey().equals(nodeVO.getType())){
                             EcmpRole ecmpRole = roleMapper.selectEcmpRoleById(Long.parseLong(nodeVO.getRoleId()));
                             nodeVO.setName(ecmpRole.getRoleName()+"审批");
@@ -145,8 +149,12 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
 //                            String userName= ecmpUserMapper.findNameByUserIds(nodeVO.getUserId());
                             nodeVO.setName("指定员工审批");
                         }else{
-                            ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(Long.parseLong(nodeVO.getDeptProjectId()));
-                            nodeVO.setName(projectInfo.getName()+"主管审批");
+                            if (StringUtils.isNotBlank(nodeVO.getDeptProjectId())){
+                                ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(Long.parseLong(nodeVO.getDeptProjectId()));
+                                nodeVO.setName(projectInfo.getName()+"主管审批");
+                            }else {
+                                nodeVO.setName("项目主管审批");
+                            }
                         }
                         nodeVO.setNumber(i);
                         vos.add(nodeVO);

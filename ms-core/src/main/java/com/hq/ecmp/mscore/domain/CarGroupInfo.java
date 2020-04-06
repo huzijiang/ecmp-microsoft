@@ -28,6 +28,10 @@ public class CarGroupInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long parentCarGroupId;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String city;  //TODO Long改动
 
     /** $column.columnComment */

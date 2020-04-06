@@ -107,15 +107,15 @@ public class ProjectController {
         return ApiResponse.success();
     }
 
-    /**
-     * 获取项目主管列表
-     * @return
-     */
-    @ApiOperation(value = "getProjectDirector",notes = "获取项目主管列表",httpMethod ="POST")
-    @PostMapping("/getProjectDirector")
-    public ApiResponse getProjectDirector(@RequestBody ProjectInfoDTO projectInfoDto){
-        return ApiResponse.success();
-    }
+//    /**
+//     * 获取项目主管列表
+//     * @return
+//     */
+//    @ApiOperation(value = "getProjectDirector",notes = "获取项目主管列表",httpMethod ="POST")
+//    @PostMapping("/getProjectDirector")
+//    public ApiResponse getProjectDirector(@RequestBody ProjectInfoDTO projectInfoDto){
+//        return ApiResponse.success();
+//    }
 
     /**
      * 获取项目列表
@@ -224,10 +224,10 @@ public class ProjectController {
         return ApiResponse.success(lsit);
     }
 
-    @ApiOperation(value = "getProjectUserInfo",notes = "根据项目id获取已绑定所有成员列表",httpMethod ="GET")
+    @ApiOperation(value = "getProjectUserInfo",notes = "根据项目id获取已绑定所有成员列表",httpMethod ="POST")
     @RequestMapping("/getProjectUserInfo")
-    public ApiResponse<List<ProjectUserVO>> getProjectUserInfo(String projectId){
-        List<ProjectUserVO> users=iProjectInfoService.getProjectUserInfo(Long.parseLong(projectId));
+    public ApiResponse<List<ProjectUserVO>> getProjectUserInfo(@RequestParam("projectId") Long projectId){
+        List<ProjectUserVO> users=iProjectInfoService.getProjectUserInfo(projectId);
         return ApiResponse.success(users);
     }
 
