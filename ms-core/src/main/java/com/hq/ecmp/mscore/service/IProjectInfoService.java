@@ -75,7 +75,7 @@ public interface IProjectInfoService
 
     int removeProjectUser(ProjectUserDTO projectUserDTO,Long userId);
 
-    int deleteProject(ProjectUserDTO projectUserDTO);
+    int deleteProject(ProjectUserDTO projectUserDTO)throws Exception;
 
     void checkProject();
 

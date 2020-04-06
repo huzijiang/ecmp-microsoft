@@ -6,10 +6,12 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
+import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
+import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
@@ -103,7 +105,7 @@ public class OrgController {
      * 显示公司列表
      * @param  ecmpOrgVo
      * @return*/
-    @ApiOperation(value = "显示公司列表",notes = "显示公司列表",httpMethod ="POST")
+   /* @ApiOperation(value = "显示公司列表",notes = "显示公司列表",httpMethod ="POST")
     @PostMapping("/selectCompanyList")
     public ApiResponse<List<EcmpOrgDto>> selectCompanyList(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
@@ -114,9 +116,29 @@ public class OrgController {
         List<EcmpOrgDto> companyList = orgService.selectCompanyList(deptId,deptType);
         return ApiResponse.success(companyList);
     }
+*/
 
     /**
      * 显示公司列表
+     * @param  ecmpOrgVo
+     * @return*/
+    @ApiOperation(value = "显示公司列表",notes = "显示公司列表",httpMethod ="POST")
+    @PostMapping("/selectCompanyList")
+    public ApiResponse<PageResult<EcmpOrgDto>> selectCompanyList(@RequestBody EcmpOrgVo ecmpOrgVo){
+        Long deptId=ecmpOrgVo.getDeptId();
+        String deptType=ecmpOrgVo.getDeptType();
+        if(deptId==null){
+            return ApiResponse.error("组织id不能为空！");
+        }
+        List<EcmpOrgDto> companyList = orgService.selectCompanyList(deptId,deptType);
+        //总条数
+        Integer count = orgService.queryCompanyListCount(ecmpOrgVo);
+        PageResult<EcmpOrgDto> pageResult = new PageResult<EcmpOrgDto>(Long.valueOf(count), companyList);
+        return ApiResponse.success(pageResult);
+    }
+
+    /**
+     * 查询当前机构信息
      * @param  ecmpOrgVo
      * @return*/
     @ApiOperation(value = "查询当前机构信息",notes = "查询当前机构信息",httpMethod ="POST")
@@ -294,6 +316,20 @@ public class OrgController {
         }else{
             return ApiResponse.error("无匹配数据！");
         }
+    }
+
+    /**
+     * 查询分/子公司下的部门名称和deptId
+     * @return*/
+    @ApiOperation(value = "selectDeptByCompany",notes = "查询分/子公司下的部门名称和deptId",httpMethod ="POST")
+    @PostMapping("/selectDeptByCompany")
+    public ApiResponse<List<EcmpOrgDto>> selectDeptByCompany(@RequestBody EcmpOrgVo ecmpOrgVo){
+        Long deptId=ecmpOrgVo.getDeptId();
+        if(deptId==null){
+            return ApiResponse.error("组织id不能为空！");
+        }
+        List<EcmpOrgDto> ecmpOrgList = orgService.selectDeptByCompany(deptId);
+        return ApiResponse.success(ecmpOrgList);
     }
 
 }

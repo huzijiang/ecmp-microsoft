@@ -114,7 +114,7 @@ public class CarGroupController {
      */
     @ApiOperation(value = "disableCarGroup",notes = "禁用车队",httpMethod ="POST")
     @PostMapping("/disableCarGroup")
-    public ApiResponse disableCarGroup(Long carGroupId){
+    public ApiResponse disableCarGroup(@RequestBody Long carGroupId){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
@@ -134,7 +134,7 @@ public class CarGroupController {
      */
     @ApiOperation(value = "startUpCarGroup",notes = "启用车队",httpMethod ="POST")
     @PostMapping("/startUpCarGroup")
-    public ApiResponse startUpCarGroup(Long carGroupId){
+    public ApiResponse startUpCarGroup(@RequestBody Long carGroupId){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
@@ -217,14 +217,14 @@ public class CarGroupController {
         return ApiResponse.success(vo);
     }
 
-    /**
+   /**
      * 查询公司车队树
      * @param
      * @return
      */
-    @ApiOperation(value = "getCarGroupTree",notes = "公司车队树",httpMethod ="POST")
-    @PostMapping("/getCarGroupTree")
-    public ApiResponse<List<CompanyCarGroupTreeVO>> getCarGroupTree(
+    @ApiOperation(value = "getCompanyCarGroupTree",notes = "公司车队树",httpMethod ="POST")
+    @PostMapping("/getCompanyCarGroupTree")
+    public ApiResponse<List<CompanyCarGroupTreeVO>> getCompanyCarGroupTree(
             @RequestBody EcmpOrgDto ecmpOrgDto){
         //根据公司id查询车队列表
         List<CompanyCarGroupTreeVO>  list = null;
@@ -237,7 +237,46 @@ public class CarGroupController {
     }
 
     /**
-     * 查询公司车队树
+     * 查询  公司树
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCompanyTree",notes = "公司树",httpMethod ="POST")
+    @PostMapping("/getCompanyTree")
+    public ApiResponse<List<CompanyTreeVO>> getCompanyTree(
+            @RequestBody EcmpOrgDto ecmpOrgDto){
+        //根据公司id查询公司树
+        List<CompanyTreeVO>  list = null;
+        try {
+            list = ecmpOrgService.getCompanyTree(ecmpOrgDto.getDeptId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success(list);
+    }
+
+    /**
+     * 根据分/子公司id查询  车队树
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCarGroupTree",notes = "公司树",httpMethod ="POST")
+    @PostMapping("/getCarGroupTree")
+    public ApiResponse<List<CarGroupTreeVO>> getCarGroupTree(
+            @RequestBody EcmpOrgDto ecmpOrgDto){
+        //根据公司id查询公司树
+        List<CarGroupTreeVO>  list = null;
+        try {
+            list = carGroupInfoService.selectCarGroupTree(ecmpOrgDto.getDeptId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success(list);
+    }
+
+
+    /**
+     * 车队人数统计
      * @param
      * @return
      */

@@ -103,13 +103,6 @@ public class DepartmentController {
     @ApiOperation(value = "添加部门",notes = "添加部门",httpMethod ="POST")
     @PostMapping("/addDept")
     public ApiResponse addDept(@RequestBody EcmpOrgVo ecmpOrg){
-        String deptCode=ecmpOrg.getDeptCode();
-        if(deptCode!=null&&!("").equals(deptCode)){
-            int j = orgService.selectDeptCodeExist(deptCode);
-            if(j>0){
-                return ApiResponse.error("该编号已存在，不可重复录入！");
-            }
-        }
         int i = orgService.addDept(ecmpOrg);
         if (i == 1){
             return ApiResponse.success("添加部门成功!");
@@ -126,13 +119,6 @@ public class DepartmentController {
     @ApiOperation(value = "修改部门",notes = "修改部门",httpMethod ="POST")
     @PostMapping("/updateDept")
     public ApiResponse updateDept(@RequestBody EcmpOrgVo ecmpOrg){
-        String deptCode=ecmpOrg.getDeptCode();
-        if(deptCode!=null&&!("").equals(deptCode)){
-            int j = orgService.selectDeptCodeExist(deptCode);
-            if(j>0){
-                return ApiResponse.error("该编号已存在，不可重复录入！");
-            }
-        }
         int i = orgService.updateDept(ecmpOrg);
         if (i == 1){
             return ApiResponse.success("修改部门成功!");
@@ -219,7 +205,7 @@ public class DepartmentController {
 
 
     /**
-     * 显示公司列表
+     * 查询当前机构信息
      * @param  ecmpOrgVo
      * @return*/
     @ApiOperation(value = "查询当前机构信息",notes = "查询当前机构信息",httpMethod ="POST")

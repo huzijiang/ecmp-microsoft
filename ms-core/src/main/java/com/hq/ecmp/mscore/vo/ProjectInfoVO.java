@@ -21,10 +21,13 @@ public class ProjectInfoVO
     private String projectCode;
 
     private Long fatherProjectId;
+    private Long ownerCompany;
+    private Long ownerOrg;
     private String fatherProjectName;
     private Integer isFinite;
     private String startDate;
-
+    //1可以删除，0不可删除
+    private Integer isCanDelete;
     private String closeDate;
     private String isAllUserUse;
     private Integer userCount;

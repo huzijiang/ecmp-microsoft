@@ -11,6 +11,7 @@ import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
+import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.util.DateFormatUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -299,6 +300,18 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserList;
     }
 
+
+    /**
+     * 显示查询总条数
+     * @param ecmpUser
+     * @return
+     */
+    @Override
+    public Integer queryUserListCount(EcmpUserVo ecmpUser){
+        return ecmpUserMapper.queryUserListCount(ecmpUser.getDeptId());
+    }
+
+
     /*只修改手机号
     @param  ecmpOrg
      * @return
@@ -470,15 +483,15 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @return 结果
      */
     public List<EcmpUserDto> selectUserByNickNameOrJobNumber(String nameOrJobNumberOrPhone){
-        List<EcmpUserDto> ecmpUserList=null;
+        List<EcmpUserDto> ecmpUserList=new ArrayList<>();
         List<EcmpUserDto> ecmpUserDtoList = ecmpUserMapper.selectUserIdsByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone);
         if(ecmpUserDtoList.size()>0){
-            /*for (EcmpUserDto ecmpUserDto1: ecmpUserDtoList) {
-                Long userId=ecmpUserDto1.getUserId;
-                Long deptId=ecmpUserDto1.getDeptId;
+            for (EcmpUserDto ecmpUserDto1: ecmpUserDtoList) {
+                Long userId=ecmpUserDto1.getUserId();
+                Long deptId=ecmpUserDto1.getDeptId();
                 EcmpUserDto ecmpUserDto = ecmpUserMapper.selectUserByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone, userId,deptId);
                 ecmpUserList.add(ecmpUserDto);
-            }*/
+            }
         }
         return ecmpUserList;
     }

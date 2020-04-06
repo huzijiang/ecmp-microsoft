@@ -164,15 +164,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ancestors != null  and ancestors != ''">ancestors = #{ancestors},</if>
             <if test="deptCode != null  and deptCode != ''">dept_code = #{deptCode},</if>
             <if test="deptName != null  and deptName != ''">dept_name = #{deptName},</if>
-            <if test="deptType != null  and deptType != ''">dept_type = #{deptType},</if>
             <if test="orderNum != null ">order_num = #{orderNum},</if>
             <if test="leader != null  and leader != ''">leader = #{leader},</if>
             <if test="phone != null  and phone != ''">phone = #{phone},</if>
             <if test="email != null  and email != ''">email = #{email},</if>
             <if test="status != null  and status != ''">status = #{status},</if>
             <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
-            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
-            <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
         </trim>
@@ -351,6 +348,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          dept_id=#{deptId} and dept_type = #{deptType}
     </select>
 
+    <!-- 显示查询总条数 -->
+    <select id="queryCompanyListCount" resultType="java.lang.Integer">
+        select
+        count(1)
+        from ecmp_org where
+        del_flag = 0 and
+        parent_id=#{parentId} and dept_type = #{deptType}
+    </select>
+
     <!-- 根据组织Id和组织类别查询部门列表
     列表：部门名称、编号、部门主管、部门人数、所属组织、下属部门数、状态
     -->
@@ -389,6 +395,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from ecmp_org
         where
         dept_id = #{deptId}
+    </select>
+
+    <!--查询分/子公司下的部门名称和deptId-->
+    <select id="selectDeptByCompany" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+      select
+        dept_id as deptId,
+        dept_name as deptName
+        from ecmp_org
+        where del_flag = 0
+        and parent_id=#{deptId}
     </select>
 
     <!-- 按照分子公司名称或编号模糊查询匹配的组织id -->
@@ -464,7 +480,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where parent_id = #{deptId} and dept_type = '3'
     </select>
     <select id="selectCompanyTree" resultType="com.hq.ecmp.mscore.vo.CompanyTreeVO">
-        select * from ecmp_org
+        select dept_id as deptCompanyId,
+                dept_name as deptCompanyName,
+                dept_type as deptType,
+        from ecmp_org
         where parent_id = #{deptId} and dept_type = '1'
     </select>
     <select id="selectCompanyCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CompanyCarGroupTreeVO" parameterType="long">
@@ -475,7 +494,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 parent_id as parentId,
                 leader
         from ecmp_org
-        where parent_id = #{parentId} and (dept_type = '3' or dept_type = '1')
+        where parent_id = #{parentId} and  dept_type = '1'
     </select>
 
 </mapper>

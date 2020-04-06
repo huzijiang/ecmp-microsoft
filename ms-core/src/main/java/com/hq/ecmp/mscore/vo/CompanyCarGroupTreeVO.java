@@ -36,4 +36,5 @@ public class CompanyCarGroupTreeVO {
     private List<CompanyCarGroupTreeVO> childrenList;
     //部门下的员工
     //private List<UserTreeVo> users;
+    private List<CarGroupTreeVO> carGroupTreeVO;
 }

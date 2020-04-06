@@ -142,4 +142,11 @@ public interface CarInfoMapper
     public List<CarListVO> queryCarGroupCarList(Long carGroupId);
     /*根据车队id 条件查询车辆列表*/
     List<CarInfo> selectCarInfoListByGroupId(@Param("carGroupId") Long carGroupId,@Param("carTypeId") Long carTypeId,@Param("state") String state,@Param("search") String search);
+
+    /**
+     * 通过车队ID更新车辆状态
+     * @param carInfo
+     * @return
+     */
+    public int updateCarInfoByCarGroupId(CarInfo carInfo);
 }

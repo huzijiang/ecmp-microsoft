@@ -189,6 +189,13 @@ public interface EcmpOrgMapper {
     * */
     public EcmpOrgDto selectCompanyList(@Param("deptId")Long deptId,@Param("deptType")String deptType);
 
+    /**
+     * 显示查询总条数
+     * @param
+     * @return
+     */
+    public Integer queryCompanyListCount(@Param("parentId")Long parentId,@Param("deptType")String deptType);
+
     /*
     *根据组织Id和组织类别查询部门列表
     * @param parentId 部门ID deptType组织类型
@@ -224,6 +231,13 @@ public interface EcmpOrgMapper {
      * @return 结果
      */
     public EcmpOrgDto selectDeptByDeptNameOrCode(@Param("deptName")String deptName,@Param("deptCode")String deptCode,@Param("deptId")Long deptId);
+
+    /**
+     * 查询分/子公司下的部门名称和deptId
+     * @param   deptId
+     * @return 结果
+     */
+    public List<EcmpOrgDto> selectDeptByCompany(@Param("deptId")Long deptId);
 
     /**
      * 查询当前机构信息

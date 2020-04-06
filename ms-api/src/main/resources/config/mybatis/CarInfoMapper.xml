@@ -311,7 +311,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		resultType="com.hq.ecmp.mscore.vo.CarListVO">
 		SELECT
 		car_license AS carLicense,
-		car_type AS carType
+		car_type AS carType,
+		a.car_id as carId
 		FROM
 		car_info a
 		WHERE
@@ -319,5 +320,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		AND state = 'S000'
 	</select>
 
+    <update id="updateCarInfoByCarGroupId" parameterType="com.hq.ecmp.mscore.domain.CarInfo">
+        update car_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where car_group_id = #{carGroupId}
+    </update>
 
 </mapper>

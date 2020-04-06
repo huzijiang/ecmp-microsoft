@@ -62,6 +62,16 @@ public class DriverInfoController {
 		return ApiResponse.success(driverInfoService.queryDriverDetail(driverId));
 	}
 	
+	@ApiOperation(value = "optDriver", notes = "驾驶员启用/禁用", httpMethod = "POST")
+	@PostMapping("/optDriver")
+	public ApiResponse optRegime(String driverId,String state) {
+		int updateDriverStatus = driverInfoService.updateDriverStatus(Long.valueOf(driverId), state);
+		if(updateDriverStatus>0){
+			return ApiResponse.success();
+		}
+		return ApiResponse.error();
+	}
+	
 	
 	
 	@ApiOperation(value = "carGroup", notes = "指定车队下的可用驾驶员", httpMethod = "POST")

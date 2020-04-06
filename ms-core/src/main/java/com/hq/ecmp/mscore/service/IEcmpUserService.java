@@ -4,6 +4,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 
 import java.util.Date;
@@ -131,6 +132,13 @@ public interface IEcmpUserService {
      * @return
      */
     public List<EcmpUserDto> getEcmpUserList(Long deptId);
+
+    /**
+     * 显示查询总条数
+     * @param ecmpUser
+     * @return
+     */
+    public Integer queryUserListCount(EcmpUserVo ecmpUser);
 
     /*只修改手机号
     @param  ecmpOrg

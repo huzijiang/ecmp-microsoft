@@ -44,6 +44,10 @@ public class ProjectInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String closeDate;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long ownerCompany;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long ownerOrg;
 
     public void setProjectId(Long projectId)
     {
@@ -129,6 +133,22 @@ public class ProjectInfo extends BaseEntity
 
     public ProjectInfo(String projectCode) {
         this.projectCode = projectCode;
+    }
+
+    public Long getOwnerCompany() {
+        return ownerCompany;
+    }
+
+    public void setOwnerCompany(Long ownerCompany) {
+        this.ownerCompany = ownerCompany;
+    }
+
+    public Long getOwnerOrg() {
+        return ownerOrg;
+    }
+
+    public void setOwnerOrg(Long ownerOrg) {
+        this.ownerOrg = ownerOrg;
     }
 
     public ProjectInfo(Long projectId, Integer isEffective) {
