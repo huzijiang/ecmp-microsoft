@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.InvitionStateEnum;
+import com.hq.ecmp.constant.InvitionTypeEnum;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.domain.EcmpUser;
@@ -151,7 +152,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
     }
 
     @Override
-    public int updateRegisterPast(Long registerId,Long userId) throws Exception {
+    public int updateRegisterApprove(Long registerId,Long userId,String reason,String state) throws Exception {
         EcmpEnterpriseRegisterInfo registerInfo = ecmpEnterpriseRegisterInfoMapper.queryById(registerId);
         if (registerInfo==null){
             throw new Exception("该注册员工id:"+registerId+"不存在");
@@ -160,13 +161,22 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         if (ecmpEnterpriseInvitationInfo==null){
             throw new Exception("该注册员工来源不明");
         }
+        if (!InvitionTypeEnum.USER.getKey().equals(registerInfo.getType())){//不是员工
+            throw new Exception("不可审核驾驶员");
+        }
         registerInfo.setAuditTime(new Date());
         registerInfo.setAuditor(userId);
         registerInfo.setUpdateBy(String.valueOf(userId));
         registerInfo.setUpdateTime(new Date());
-        registerInfo.setState(InvitionStateEnum.APPROVEPASS.getKey());
+        registerInfo.setState(state);
+        if (InvitionStateEnum.APPROVEREJECT.getKey().equals(state)){
+            registerInfo.setRejectReason(reason);
+        }
         int count = ecmpEnterpriseRegisterInfoMapper.update(registerInfo);
         log.info(registerId+"邀请注册被员工"+userId+"审核通过");
+        if (InvitionStateEnum.APPROVEREJECT.getKey().equals(state)){
+            return count;
+        }
         if (count>0){
             EcmpUser ecmpUser = new EcmpUser();
             ecmpUser.setPhonenumber(registerInfo.getMobile());
@@ -188,6 +198,18 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
             log.info("员工"+registerInfo.getMobile()+"审核添加成功");
         }
         return count;
+    }
+
+    @Override
+    public void updateRegisterRefuse(Long registerId, String reason) throws Exception {
+        EcmpEnterpriseRegisterInfo registerInfo = ecmpEnterpriseRegisterInfoMapper.queryById(registerId);
+        if (registerInfo==null){
+            throw new Exception("该注册员工id:"+registerId+"不存在");
+        }
+        EcmpEnterpriseInvitationInfo ecmpEnterpriseInvitationInfo = invitationInfoMapper.queryById(registerInfo.getInvitationId());
+        if (ecmpEnterpriseInvitationInfo==null){
+            throw new Exception("该注册员工来源不明");
+        }
     }
 
 

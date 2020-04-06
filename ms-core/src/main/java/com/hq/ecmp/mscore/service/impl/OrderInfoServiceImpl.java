@@ -11,7 +11,6 @@ import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.bo.CityInfo;
-import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
@@ -36,7 +35,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -1958,28 +1956,30 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
         if(OrderState.ALREADYSENDING.getState().equals(status)||OrderState.REASSIGNPASS.getState().equals(status)){
-            DriverCloudDto driverCloudDto=new DriverCloudDto();
-            String driverPoint = driverCloudDto.getDriverPoint();
-            if (StringUtils.isNotEmpty(driverPoint)){
-                String[] split = driverPoint.split(",");
-                longitude = Double.parseDouble(split[0]);
-                latitude = Double.parseDouble(split[1]);
-            }
-            newOrderInfo.setDriverName(driverCloudDto.getDriverName());
-            newOrderInfo.setDriverMobile(driverCloudDto.getPhone());
-            newOrderInfo.setDriverGrade(driverCloudDto.getDriverRate());
-            newOrderInfo.setCarLicense(driverCloudDto.getLicensePlates());
-            newOrderInfo.setCarColor(driverCloudDto.getVehicleColor());
-            newOrderInfo.setCarModel(driverCloudDto.getModelName());
-            newOrderInfo.setDemandCarLevel(driverCloudDto.getGroupName());
-            newOrderInfo.setTripartiteOrderId(thirdPartyOrderState.getString("orderNo"));
-            if (OrderState.REASSIGNPASS.getState().equals(status)){//改派通过订单状态为299,轨迹为279
-                status=OrderState.ALREADYSENDING.getState();
-                newOrderInfo.setState(OrderState.ALREADYSENDING.getState());
+            if(StringUtils.isNotEmpty(json)){
+                DriverCloudDto driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
+                String driverPoint = driverCloudDto.getDriverPoint();
+                if (StringUtils.isNotEmpty(driverPoint)){
+                    String[] split = driverPoint.split(",");
+                    longitude = Double.parseDouble(split[0]);
+                    latitude = Double.parseDouble(split[1]);
+                }
+                newOrderInfo.setDriverName(driverCloudDto.getDriverName());
+                newOrderInfo.setDriverMobile(driverCloudDto.getPhone());
+                newOrderInfo.setDriverGrade(driverCloudDto.getDriverRate());
+                newOrderInfo.setCarLicense(driverCloudDto.getLicensePlates());
+                newOrderInfo.setCarColor(driverCloudDto.getVehicleColor());
+                newOrderInfo.setCarModel(driverCloudDto.getModelName());
+                newOrderInfo.setDemandCarLevel(driverCloudDto.getGroupName());
+                newOrderInfo.setTripartiteOrderId(thirdPartyOrderState.getString("orderNo"));
+                if (OrderState.REASSIGNPASS.getState().equals(status)){//改派通过订单状态为299,轨迹为279
+                    status=OrderState.ALREADYSENDING.getState();
+                    newOrderInfo.setState(OrderState.ALREADYSENDING.getState());
+                }
             }
         } else if (OrderState.STOPSERVICE.getState().equals(status)) {//服务结束
             //TODO 调财务结算模块
-            JSONObject feeInfoBean = thirdPartyOrderState.getJSONObject("feeInfoBean");
+            JSONObject feeInfoBean = thirdPartyOrderState.getJSONObject("feeInfo");
             List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderNo));
             if (CollectionUtils.isEmpty(orderSettlingInfos)) {
                 String amount = feeInfoBean.getString("customerPayPrice");
