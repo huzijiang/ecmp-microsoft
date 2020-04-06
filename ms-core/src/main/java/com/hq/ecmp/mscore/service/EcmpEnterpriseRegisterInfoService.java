@@ -92,5 +92,5 @@ public interface EcmpEnterpriseRegisterInfoService {
     UserRegisterDTO insertUserRegister(UserRegisterDTO userRegisterDTO);
 
 
-
+    int updateRegisterPast(Long registerId,Long userId) throws Exception;
 }
