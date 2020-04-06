@@ -141,7 +141,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         (select name from project_info where project_id=a.father_project_id) fatherProjectName,
         a.start_date startDate,
         a.close_date closeDate,
+        if(a.start_date is null and a.close_date is null,'0','1') isFinite,
         a.is_effective isEffective,
+        a.is_all_user_use isAllUserUse,
         IF
         (
         is_all_user_use = 0,
@@ -166,7 +168,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getProjectInfo" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ProjectInfoVO">
         select a.project_id projectId, a.name,a.project_code projectCode,b.nick_name leaderName,b.phonenumber leaderPhone,
         if(a.is_all_user_use=1,'仅本项目员工','全部员工') isAllUserUse,a.start_date startDate,a.close_date closeDate, a.is_effective isEffective,
-        if(a.start_date is null and a.close_date is null,0,1) isFinite,if(c.name is null,'',c.name) fatherProjectName,a.father_project_id fatherProjectId,
+        if(a.start_date is null and a.close_date is null,'0','1') isFinite,if(c.name is null,'',c.name) fatherProjectName,a.father_project_id fatherProjectId,
         a.owner_company ownerCompany,
         a.owner_org ownerOrg,
         IF

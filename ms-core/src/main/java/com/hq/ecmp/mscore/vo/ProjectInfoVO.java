@@ -24,7 +24,7 @@ public class ProjectInfoVO
     private Long ownerCompany;
     private Long ownerOrg;
     private String fatherProjectName;
-    private Integer isFinite;
+    private String isFinite;
     private String startDate;
     //1可以删除，0不可删除
     private Integer isCanDelete;
