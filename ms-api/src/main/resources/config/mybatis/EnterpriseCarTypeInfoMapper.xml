@@ -21,15 +21,44 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select car_type_id, enterprise_id, country_car_type_id, name, level, status, create_by, create_time, update_by, update_time from enterprise_car_type_info
     </sql>
 
-    <select id="selectEnterpriseCarTypeInfoList" parameterType="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo" resultMap="EnterpriseCarTypeInfoResult">
-        <include refid="selectEnterpriseCarTypeInfoVo"/>
+    <select id="selectEnterpriseCarTypeInfoList" parameterType="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo" resultType="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo">
+        SELECT
+        ecti.car_type_id AS carTypeId,
+        ecti.enterprise_id AS enterpriseId,
+        ecti.country_car_type_id AS country_carTypeId,
+        ecti. NAME,
+        ecti. LEVEL,
+        ecti. STATUS,
+        ecti.create_by,
+        ecti.create_time,
+        ecti.update_by,
+        ecti.update_time,
+        GROUP_CONCAT(ci.car_type) carType,
+        ci_two.num carNum
+        FROM
+        enterprise_car_type_info ecti
+        LEFT JOIN(
+        SELECT
+        car_type_id,
+        car_type
+        FROM
+        car_info
+        GROUP BY
+        car_type
+        )ci ON ecti.car_type_id = ci.car_type_id
+        LEFT JOIN
+        (select car_type_id,count(car_type)num from  car_info GROUP BY car_type_id) ci_two on ecti.car_type_id = ci_two.car_type_id
         <where>
-            <if test="enterpriseId != null "> and enterprise_id = #{enterpriseId}</if>
-            <if test="countryCarTypeId != null "> and country_car_type_id = #{countryCarTypeId}</if>
-            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
-            <if test="level != null  and level != ''"> and level = #{level}</if>
-            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="enterpriseId != null "> and ecti.enterprise_id = #{enterpriseId}</if>
+            <if test="countryCarTypeId != null "> and ecti.country_car_type_id = #{countryCarTypeId}</if>
+            <if test="name != null  and name != ''"> and ecti.name like concat('%', #{name}, '%')</if>
+            <if test="level != null  and level != ''"> and ecti.level = #{level}</if>
+            <if test="status != null  and status != ''"> and ecti.status = #{status}</if>
         </where>
+        GROUP BY
+        ecti.car_type_id
+        ORDER BY
+        ecti. LEVEL DESC
     </select>
 
     <select id="selectEnterpriseCarTypeInfoById" parameterType="Long" resultMap="EnterpriseCarTypeInfoResult">
@@ -95,4 +124,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select car_type_id from enterprise_car_type_info where level = #{onlineCarLevel}
     </select>
 
+    <select id="getCarTypeDTOById" parameterType="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo" resultMap="EnterpriseCarTypeInfoResult">
+        select level from enterprise_car_type_info
+    </select>
 </mapper>
