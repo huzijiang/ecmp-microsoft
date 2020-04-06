@@ -192,7 +192,7 @@ public interface EcmpUserMapper
      * @param phonenumber 手机号
      * @return 结果
      */
-    public int updatePhoneNum(@Param("phonenumber")String phonenumber,@Param("userName")String userName,@Param("userId")Long userId);
+    public int updatePhoneNum(@Param("phonenumber")String phonenumber,@Param("userName")String userName);
 
     /*员工详情
     @param  userId员工编号

@@ -144,7 +144,7 @@ public interface IEcmpUserService {
     @param  ecmpOrg
      * @return
     * */
-    public String updatePhoneNum(String newPhoneNum,String reWritePhone,Long userId);
+    public String updatePhoneNum(String newPhoneNum,String reWritePhone,String userName);
 
     /*员工详情
    @param  userId员工编号

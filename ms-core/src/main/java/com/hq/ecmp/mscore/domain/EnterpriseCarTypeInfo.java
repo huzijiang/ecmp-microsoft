@@ -38,6 +38,14 @@ public class EnterpriseCarTypeInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String status;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String carType;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String carNum;
+
     public void setCarTypeId(Long carTypeId)
     {
         this.carTypeId = carTypeId;
@@ -93,6 +101,22 @@ public class EnterpriseCarTypeInfo extends BaseEntity
         return status;
     }
 
+    public String getCarType() {
+        return carType;
+    }
+
+    public void setCarType(String carType) {
+        this.carType = carType;
+    }
+
+    public String getCarNum() {
+        return carNum;
+    }
+
+    public void setCarNum(String carNum) {
+        this.carNum = carNum;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -106,6 +130,8 @@ public class EnterpriseCarTypeInfo extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
+            .append("carType", getCarType())
+            .append("carNum", getCarNum())
             .toString();
     }
 }
