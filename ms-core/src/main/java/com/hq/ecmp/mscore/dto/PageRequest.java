@@ -26,6 +26,8 @@ public class PageRequest {
     //搜索字段
     @ApiModelProperty(name = "state", value = "状态",required = false)
     private String state;
+    @ApiModelProperty(name = "type", value = "注册用户类型：T001员工/T002驾驶员",required = false)
+    private String type;
 
     //搜索字段
     @ApiModelProperty(name = "level", value = "车型级别",required = false)

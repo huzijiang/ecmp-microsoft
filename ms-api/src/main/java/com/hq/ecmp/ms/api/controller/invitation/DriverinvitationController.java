@@ -5,6 +5,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.ms.api.dto.base.InviteDto;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.dto.DriverInvitationDTO;
@@ -137,11 +138,10 @@ public class DriverinvitationController {
      */
     @ApiOperation(value = "getregDriverWaitCount",notes = "驾驶员待审批数量",httpMethod = "POST")
     @PostMapping("/getregDriverWaitCount")
-    public ApiResponse<RegisterVO>  getregDriverWaitCount(RegisterDTO registerDTO){
+    public ApiResponse<RegisterVO>  getregDriverWaitCount(@RequestBody InviteDto inviteDto){
         RegisterVO registerVO =new RegisterVO();
-        registerDTO.setState("S000");
-        registerDTO.setType("T002");
-        int waitCount =ecmpEnterpriseRegisterInfoServicee.waitAmount(registerDTO);
+        inviteDto.setType("T002");
+        int waitCount =ecmpEnterpriseRegisterInfoServicee.waitAmount(inviteDto.getDeptId(),inviteDto.getType());
         registerVO.setRegisterCount(waitCount);
         return ApiResponse.success(registerVO);
 

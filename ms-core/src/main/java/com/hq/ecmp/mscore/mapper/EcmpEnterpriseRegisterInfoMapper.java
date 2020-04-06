@@ -78,7 +78,7 @@ public interface EcmpEnterpriseRegisterInfoMapper {
      * 待审批列表-员工
      * @param
      */
-    List<RegisterUserVO> queryRegisterUserWait(String type);
+    List<RegisterUserVO> queryRegisterUserWait(@Param("deptId") Long deptId,@Param("type") String type);
     /**
      * 待审批列表-驾驶员
      * @param
@@ -88,7 +88,7 @@ public interface EcmpEnterpriseRegisterInfoMapper {
      * 待审批数量
      * @param
      */
-    public int waitAmountCount(String type,String state);
+    public int waitAmountCount(@Param("deptId") Long deptId,@Param("type") String type);
     /**
      * 注册申请：拒绝/通过
      */
@@ -101,4 +101,5 @@ public interface EcmpEnterpriseRegisterInfoMapper {
     UserRegisterDTO insertUserRegister(UserRegisterDTO userRegisterDTO);
 
 
+    Long queryRegisterUserWaitCount(@Param("deptId") Long deptId,@Param("type") String type);
 }

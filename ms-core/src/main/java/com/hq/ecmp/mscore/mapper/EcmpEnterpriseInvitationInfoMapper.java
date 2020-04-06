@@ -107,4 +107,5 @@ public interface  EcmpEnterpriseInvitationInfoMapper {
      */
     public int insertUserInvitation(UserInvitationDTO uerInvitationDTO);
 
+    Long queryInvitationUserCount(String type);
 }

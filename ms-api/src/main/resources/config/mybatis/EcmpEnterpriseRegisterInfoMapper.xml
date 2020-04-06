@@ -229,16 +229,35 @@
     </delete>
     <!--待审核数量员工/驾驶员-->
     <select id="waitAmountCount" parameterType="com.hq.ecmp.mscore.dto.RegisterDTO" resultType="java.lang.Integer">
-       select COUNT(*) from ecmp_enterprise_register_info d where d.state=#{state} and d.type=#{type}
+       select COUNT(*) from ecmp_enterprise_register_info a
+       <if test="deptId!=null">
+           left join ecmp_enterprise_invitation_info b on a.invitation_id=a.invitation_id
+       </if>
+       where d.state='S000' and d.type=#{type}
+       <if test="deptId!=null">
+           and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
+    </if>
     </select>
     <!--待审核列表员工-->
     <select id="queryRegisterUserWait" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.RegisterUserVO">
-        select a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.dept_name as deptName,a.reason as reason
+        select a.register_id registerId,a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.dept_name as deptName,a.reason as reason
         from ecmp_enterprise_register_info  a
         left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
         left join ecmp_org c on c.dept_id = b.enterprise_id
         left join ecmp_org e on e.dept_id = b.department_id
-        where a.type='T001' and a.state='S000'
+        where a.type=#{type} and a.state='S000'
+        <if test="deptId!=null">
+            and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
+        </if>
+    </select>
+    <!--待审核列表员工数量-->
+    <select id="queryRegisterUserWaitCount" resultType="Long">
+        select count(*) from from ecmp_enterprise_register_info  a
+        left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
+        where a.type=#{type} and a.state='S000'
+        <if test="deptId!=null">
+            and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
+        </if>
     </select>
     <!--待审核列表驾驶员-->
     <select id="queryRegisterDriverWait" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.RegisterDriverVO">
