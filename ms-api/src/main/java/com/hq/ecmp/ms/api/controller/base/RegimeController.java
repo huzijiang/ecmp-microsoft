@@ -68,6 +68,19 @@ public class RegimeController {
 
     /**
      *
+     * 根据场景id查询用车制度集合
+     * @param
+     * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
+     */
+    @ApiOperation(value = "getRegimesBySceneId",notes = "根据用车场景查询用车制度",httpMethod ="POST")
+    @PostMapping("/getRegimesBySceneId")
+    public ApiResponse<List<RegimenVO>> getRegimesBySceneId(@RequestBody UserDto userDto){
+        List<RegimenVO> all = regimeInfoService.selectRegimesBySceneId(userDto.getSceneId());
+        return ApiResponse.success(all);
+    }
+
+    /**
+     *
      * 查询所有的用车制度信息
      * @param
      * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
@@ -78,6 +91,8 @@ public class RegimeController {
         List<RegimeInfo> all = regimeInfoService.selectAll();
         return ApiResponse.success(all);
     }
+
+
 
     /**
      *

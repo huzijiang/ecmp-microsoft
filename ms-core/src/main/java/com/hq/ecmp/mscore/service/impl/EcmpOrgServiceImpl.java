@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.*;
+import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,6 +45,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     private EcmpUserRoleMapper ecmpUserRoleMapper;
     @Autowired
     private CarGroupDriverRelationMapper carGroupDriverRelationMapper;
+    @Autowired
+    private ICarGroupInfoService carGroupInfoService;
     /**
      * 显示公司组织结构
      *
@@ -188,6 +191,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                             tree.get(i).setLeaderName(ecmpUser.getUserName());
                         }
                     }
+                    tree.get(i).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(tree.get(i).getDeptId()));
                     tree.get(i).setChildrenList(this.selectCompanyCarGroupTree(tree.get(i).getDeptId()));
                 }
             }
