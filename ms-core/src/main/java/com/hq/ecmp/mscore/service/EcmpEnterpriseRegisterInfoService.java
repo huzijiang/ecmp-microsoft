@@ -92,5 +92,7 @@ public interface EcmpEnterpriseRegisterInfoService {
     UserRegisterDTO insertUserRegister(UserRegisterDTO userRegisterDTO);
 
 
+    int updateRegisterApprove(Long registerId,Long userId,String reason,String state) throws Exception;
 
+    void updateRegisterRefuse(Long registerId, String reason)throws Exception;;
 }

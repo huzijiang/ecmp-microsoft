@@ -11,7 +11,6 @@ import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.bo.CityInfo;
-import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
@@ -36,7 +35,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -721,36 +719,36 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 paramMap.put("estimatedAmount",journeyPlanPriceInfos.get(0).getPrice()+"");
             }
 
-            //调用查询订单状态的接口参数
-            Map<String,Object> queryOrderStateMap = new HashMap<>();
-            queryOrderStateMap.put("enterpriseId", enterpriseId);
-            queryOrderStateMap.put("licenseContent", licenseContent);
-            queryOrderStateMap.put("mac", macAdd);
-            queryOrderStateMap.put("enterpriseOrderId",orderId+"");
-            queryOrderStateMap.put("status","S200");
-            for(;;){
-                if((DateUtils.getNowDate().getTime())>=timeSt){
-                    //订单超时退出循环
-                    orderInfo.setState(OrderState.ORDERCLOSE.getState());
-                    int j = orderInfoMapper.updateOrderInfo(orderInfo);
-                    OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
-                    orderStateTraceInfo.setOrderId(orderId);
-                    orderStateTraceInfo.setState(OrderStateTrace.ORDEROVERTIME.getState());
-                    orderStateTraceInfo.setCreateBy(userId);
-                    iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-                    if (j != 1) {
-                        throw new Exception("约车失败");
-                    }
-                    //超时短信通知
-                    ismsBusiness.sendSmsCallTaxiNetFail(orderId);
-                    break;
-                }
-                OrderInfo orderInfoPre = orderInfoMapper.selectOrderInfoById(orderId);
-                String state = orderInfoPre.getState();
-                //订单取消/超时/关闭 则退出循环
-                if(state.equals(OrderState.ORDERCLOSE.getState())){
-                    break;
-                }
+//            //调用查询订单状态的接口参数
+//            Map<String,Object> queryOrderStateMap = new HashMap<>();
+//            queryOrderStateMap.put("enterpriseId", enterpriseId);
+//            queryOrderStateMap.put("licenseContent", licenseContent);
+//            queryOrderStateMap.put("mac", macAdd);
+//            queryOrderStateMap.put("enterpriseOrderId",orderId+"");
+//            queryOrderStateMap.put("status","S200");
+//            for(;;){
+//                if((DateUtils.getNowDate().getTime())>=timeSt){
+//                    //订单超时退出循环
+//                    orderInfo.setState(OrderState.ORDERCLOSE.getState());
+//                    int j = orderInfoMapper.updateOrderInfo(orderInfo);
+//                    OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+//                    orderStateTraceInfo.setOrderId(orderId);
+//                    orderStateTraceInfo.setState(OrderStateTrace.ORDEROVERTIME.getState());
+//                    orderStateTraceInfo.setCreateBy(userId);
+//                    iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+//                    if (j != 1) {
+//                        throw new Exception("约车失败");
+//                    }
+//                    //超时短信通知
+//                    ismsBusiness.sendSmsCallTaxiNetFail(orderId);
+//                    break;
+//                }
+//                OrderInfo orderInfoPre = orderInfoMapper.selectOrderInfoById(orderId);
+//                String state = orderInfoPre.getState();
+//                //订单取消/超时/关闭 则退出循环
+//                if(state.equals(OrderState.ORDERCLOSE.getState())){
+//                    break;
+//                }
                 //发起约车
                 //订单类型,1:随叫随到;2:预约用车;3:接机;5:送机
                 String result = null;
@@ -775,59 +773,60 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                         paramMap.put("serviceType","4000");
                         result = OkHttpUtil.postForm(apiUrl + "/service/applyPlatReceiveSendToOrder", paramMap);
                     }else{
-                        break;
+//                        break;
                     }
                 } catch (SocketTimeoutException e) {
                     e.printStackTrace();
-                    continue;
+//                    continue;
                 }
 
                 log.info("订单{}下单参数，{}",orderId,paramMap);
                 log.info("订单{}下单结果，{}",orderId,result);
-                JSONObject jsonObject = JSONObject.parseObject(result);
-                if(!"0".equals(jsonObject.getString("code"))){
-                    continue;
-                }
+//                JSONObject jsonObject = JSONObject.parseObject(result);
+//                if(!"0".equals(jsonObject.getString("code"))){
+//                    continue;
+//                }
 
-                redisUtil.increment(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"",1L);
-                log.debug("订单【"+orderId+"】次数加一");
-                Thread.sleep(60000*3);
-                //调云端查询之前，先查数据库，如果约到车直接退出
-                OrderInfo orderInfoSel = orderInfoMapper.selectOrderInfoById(orderId);
-                if(OrderState.getNetCarHave().contains(orderInfoSel.getState())){
-                    break;
-                }
-                //调用查询订单状态的方法
-                log.info("订单{}查询参数，{}",orderId,queryOrderStateMap);
-                String resultQuery = null;
-                try {
-                    resultQuery = OkHttpUtil.postForm(apiUrl + "/service/getOrderState", queryOrderStateMap);
-                } catch (SocketTimeoutException e) {
-                    e.printStackTrace();
-                    continue;
-                }
-                log.info("订单{}查询结果，{}",orderId,resultQuery);
-                JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
-                if(!"0".equals(jsonObjectQuery.getString("code"))){
-                    continue;
-                }
+//                redisUtil.increment(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"",1L);
+//                log.debug("订单【"+orderId+"】次数加一");
+//                Thread.sleep(60000*3);
+//                //调云端查询之前，先查数据库，如果约到车直接退出
+//                OrderInfo orderInfoSel = orderInfoMapper.selectOrderInfoById(orderId);
+//                if(OrderState.getNetCarHave().contains(orderInfoSel.getState())){
+//                    break;
+//                }
+//                //调用查询订单状态的方法
+//                log.info("订单{}查询参数，{}",orderId,queryOrderStateMap);
+//                String resultQuery = null;
+//                try {
+//                    resultQuery = OkHttpUtil.postForm(apiUrl + "/service/getOrderState", queryOrderStateMap);
+//                } catch (SocketTimeoutException e) {
+//                    e.printStackTrace();
+//                    continue;
+//                }
+//                log.info("订单{}查询结果，{}",orderId,resultQuery);
+//                JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
+//                if(!"0".equals(jsonObjectQuery.getString("code"))){
+//                    continue;
+//                }
                 //判断状态,如果约到车直接退出，数据修改放到订单状态轮循接口中
-                JSONObject data = jsonObjectQuery.getJSONObject("data");
-                if(data == null){
-                    continue;
-                }
-                if(data.getString("status").equals(OrderState.ALREADYSENDING.getState())){
-                    break;
-                }
-            }
-            log.debug("订单【"+orderId+"】约车成功");
+//                JSONObject data = jsonObjectQuery.getJSONObject("data");
+//                if(data == null){
+//                    continue;
+//                }
+//                if(data.getString("status").equals(OrderState.ALREADYSENDING.getState())){
+//                    break;
+//                }
+//            }
+//            log.debug("订单【"+orderId+"】约车成功");
         }catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            log.debug("订单【"+orderId+"】约车次数删除");
-            redisUtil.delKey(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"");
-            log.debug("订单【"+orderId+"】约车次数删除成功");
         }
+//        finally {
+//            log.debug("订单【"+orderId+"】约车次数删除");
+//            redisUtil.delKey(CommonConstant.APPOINTMENT_NUMBER_PREFIX+orderId+"");
+//            log.debug("订单【"+orderId+"】约车次数删除成功");
+//        }
     }
 
 
@@ -1575,7 +1574,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //消息发送使用
         Long driverId = orderInfoOld.getDriverId();
         //状态为约到车未服务的状态，用车方式为网约车，调用三方取消订单接口
-        if (OrderState.getNoAppointmentCar().contains(state) && useCarMode.equals(CarConstant.USR_CARD_MODE_NET)) {
+        if (useCarMode.equals(CarConstant.USR_CARD_MODE_NET)) {
             //TODO 调用网约车的取消订单接口
             List<String> macList = MacTools.getMacList();
             String macAdd = macList.get(0);
@@ -1958,28 +1957,30 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
         if(OrderState.ALREADYSENDING.getState().equals(status)||OrderState.REASSIGNPASS.getState().equals(status)){
-            DriverCloudDto driverCloudDto=new DriverCloudDto();
-            String driverPoint = driverCloudDto.getDriverPoint();
-            if (StringUtils.isNotEmpty(driverPoint)){
-                String[] split = driverPoint.split(",");
-                longitude = Double.parseDouble(split[0]);
-                latitude = Double.parseDouble(split[1]);
+            if(StringUtils.isNotEmpty(json)){
+                DriverCloudDto driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
+                String driverPoint = driverCloudDto.getDriverPoint();
+                if (StringUtils.isNotEmpty(driverPoint)){
+                    String[] split = driverPoint.split(",");
+                    longitude = Double.parseDouble(split[0]);
+                    latitude = Double.parseDouble(split[1]);
+                }
+                newOrderInfo.setDriverName(driverCloudDto.getDriverName());
+                newOrderInfo.setDriverMobile(driverCloudDto.getPhone());
+                newOrderInfo.setDriverGrade(driverCloudDto.getDriverRate());
+                newOrderInfo.setCarLicense(driverCloudDto.getLicensePlates());
+                newOrderInfo.setCarColor(driverCloudDto.getVehicleColor());
+                newOrderInfo.setCarModel(driverCloudDto.getModelName());
+                newOrderInfo.setDemandCarLevel(driverCloudDto.getGroupName());
+                newOrderInfo.setTripartiteOrderId(thirdPartyOrderState.getString("orderNo"));
+                if (OrderState.REASSIGNPASS.getState().equals(status)){//改派通过订单状态为299,轨迹为279
+                    status=OrderState.ALREADYSENDING.getState();
+                    newOrderInfo.setState(OrderState.ALREADYSENDING.getState());
+                }
             }
-            newOrderInfo.setDriverName(driverCloudDto.getDriverName());
-            newOrderInfo.setDriverMobile(driverCloudDto.getPhone());
-            newOrderInfo.setDriverGrade(driverCloudDto.getDriverRate());
-            newOrderInfo.setCarLicense(driverCloudDto.getLicensePlates());
-            newOrderInfo.setCarColor(driverCloudDto.getVehicleColor());
-            newOrderInfo.setCarModel(driverCloudDto.getModelName());
-            newOrderInfo.setDemandCarLevel(driverCloudDto.getGroupName());
-            newOrderInfo.setTripartiteOrderId(thirdPartyOrderState.getString("orderNo"));
-            if (OrderState.REASSIGNPASS.getState().equals(status)){//改派通过订单状态为299,轨迹为279
-                status=OrderState.ALREADYSENDING.getState();
-                newOrderInfo.setState(OrderState.ALREADYSENDING.getState());
-            }
-        }else if (OrderState.STOPSERVICE.getState().equals(status)) {//服务结束
-                //TODO 调财务结算模块
-            JSONObject feeInfoBean = thirdPartyOrderState.getJSONObject("feeInfoBean");
+        } else if (OrderState.STOPSERVICE.getState().equals(status)) {//服务结束
+            //TODO 调财务结算模块
+            JSONObject feeInfoBean = thirdPartyOrderState.getJSONObject("feeInfo");
             List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderNo));
             if (CollectionUtils.isEmpty(orderSettlingInfos)) {
                 String amount = feeInfoBean.getString("customerPayPrice");
@@ -1994,13 +1995,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
             }
 
-            int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderInfo.getUseCarMode());
-                if (orderConfirmStatus==CommonConstant.ZERO){
-                    status=OrderState.ORDERCLOSE.getState();
-                    lableState=OrderState.ORDERCLOSE.getState();
-                    newOrderInfo.setState(status);
-                }
+            int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
+            if (orderConfirmStatus == CommonConstant.ZERO) {
+                status = OrderState.ORDERCLOSE.getState();
+                lableState = OrderState.ORDERCLOSE.getState();
+                newOrderInfo.setState(status);
             }
+        }else if (OrderState.ORDEROVERTIME.getState().equals(status)){//订单超时
+            status = OrderState.ORDERCLOSE.getState();
+            newOrderInfo.setState(status);
+        }
         if (!OrderState.ORDERCANCEL.getState().equals(status)){//订单取消
             orderInfoMapper.updateOrderInfo(newOrderInfo);
             OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderNo, lableState, longitude, latitude);
@@ -2008,19 +2012,23 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             orderStateTraceInfo.setCreateTime(new Date());
             orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
         }
-        if (OrderState.ALREADYSENDING.getState().equals(status)){//约车成功 发短信，发通知
+        if (OrderState.ALREADYSENDING.getState().equals(lableState)){//约车成功 发短信，发通知
             ismsBusiness.sendSmsCallTaxiNet(orderNo);
-        }
-        if (OrderState.READYSERVICE.getState().equals(status)){//驾驶员已到达
+        }else
+        if (OrderState.READYSERVICE.getState().equals(lableState)){//驾驶员已到达
             ismsBusiness.driverArriveMessage(orderNo);
         }else
-        if (OrderState.INSERVICE.getState().equals(status)){//开始服务 发送通知
+        if (OrderState.INSERVICE.getState().equals(lableState)){//开始服务 发送通知
             ismsBusiness.sendSmsDriverBeginService(orderNo);
             //司机开始服务发送消息给乘车人和申请人（行程通知）
             ismsBusiness.sendMessageServiceStart(orderNo, orderInfo.getUserId());
         }else
-        if (OrderState.STOPSERVICE.getState().equals(status)){//任务结束
+        if (OrderState.STOPSERVICE.getState().equals(lableState)){//任务结束
             ismsBusiness.endServiceNotConfirm(orderNo);
+        }
+        else
+        if (OrderState.ORDEROVERTIME.getState().equals(lableState)){//订单超时
+            ismsBusiness.sendSmsCallTaxiNetFail(orderNo);
         }
     }
 

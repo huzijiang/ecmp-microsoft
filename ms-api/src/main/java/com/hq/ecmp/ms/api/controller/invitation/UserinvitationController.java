@@ -3,6 +3,10 @@ package com.hq.ecmp.ms.api.controller.invitation;
 import com.hq.common.core.api.ApiResponse;
 
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.InvitionStateEnum;
 import com.hq.ecmp.ms.api.dto.base.InviteDto;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
@@ -15,11 +19,9 @@ import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -37,6 +39,8 @@ public class UserinvitationController {
     private EcmpEnterpriseRegisterInfoService ecmpEnterpriseRegisterInfoServicee;
     @Autowired
     private IEcmpUserService iEcmpUserService;
+    @Autowired
+    private TokenService tokenService;
 
 
     /**
@@ -127,19 +131,19 @@ public class UserinvitationController {
      * 邀请注册通过
      * @param
      */
-    @ApiOperation(value = "申请拒绝",notes = "申请拒绝",httpMethod = "POST")
+    @ApiOperation(value = "邀请注册通过",notes = "邀请注册通过",httpMethod = "POST")
     @PostMapping("/updateRegisterPast")
-    public ApiResponse updateRegisterPast(@RequestBody RegisterDTO registerDTO){
+    public ApiResponse updateRegisterPast(@RequestParam("registerId") Long registerId){
         try {
             //S000 申请中,S001 申请通过,S002 申请拒绝
-            registerDTO.setState("S001");
-            registerDTO.setUpdateTime(DateUtils.getNowDate());
-            ecmpEnterpriseRegisterInfoServicee.updateRegisterState(registerDTO);
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            int i=ecmpEnterpriseRegisterInfoServicee.updateRegisterApprove(registerId,loginUser.getUser().getUserId(),null, InvitionStateEnum.APPROVEPASS.getKey());
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("申请拒绝失败");
+            return ApiResponse.error(e.getMessage());
         }
-        return ApiResponse.success("申请拒绝成功");
+        return ApiResponse.success("审核通过");
     }
     /**
      * 邀请注册拒绝
@@ -147,12 +151,12 @@ public class UserinvitationController {
      */
     @ApiOperation(value = "申请拒绝",notes = "申请拒绝",httpMethod = "POST")
     @PostMapping("/updateRegisterRefuse")
-    public ApiResponse updateRegisterRefuse(@RequestBody RegisterDTO registerDTO){
+    public ApiResponse updateRegisterRefuse(@RequestParam("reason") String reason,@RequestParam("registerId") Long registerId){
         try {
             //registerDTO.setState("S002");//S000 申请中,S001 申请通过,S002 申请拒绝
-            registerDTO.setState("S002");
-            registerDTO.setUpdateTime(DateUtils.getNowDate());
-            ecmpEnterpriseRegisterInfoServicee.updateRegisterState(registerDTO);
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            int i=ecmpEnterpriseRegisterInfoServicee.updateRegisterApprove(registerId,loginUser.getUser().getUserId(),reason, InvitionStateEnum.APPROVEREJECT.getKey());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("申请拒绝失败");

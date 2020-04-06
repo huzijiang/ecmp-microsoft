@@ -467,6 +467,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         for (CarGroupListVO carGroupListVO : list) {
             Long carGroupId = carGroupListVO.getCarGroupId();
             Integer ownerOrg = carGroupListVO.getOwnerOrg();
+            //查询所属公司名字
+            Long ownerCompany = carGroupListVO.getOwnerCompany();
+            EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
+            if(ecmpOrg != null){
+                carGroupListVO.setOwnerCompanyName(ecmpOrg.getDeptName());
+            }
             //查询车队绑定车辆数
             int carNum = carInfoMapper.selectCountGroupCarByGroupId(carGroupId);
             carGroupListVO.setCarNum(carNum);
@@ -495,14 +501,16 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param carGroupId
      */
     @Override
-    public void deleteCarGroup(Long carGroupId) throws Exception {
+    public String deleteCarGroup(Long carGroupId) throws Exception {
         //判断车队及下属车队下是否有车辆和驾驶员
+        carGroupDelFlag = false;
         if(existCarOrDriver(carGroupId, null)){
             carGroupDelFlag = false;
-            throw new Exception("请先删除该车队下的所有车辆及人员信息");
+            return "请先删除该车队下的所有车辆及人员信息";
         }
         //执行删除
         executeDeleteCarGroup(carGroupId, null);
+        return "删除成功";
     }
 
     /**
@@ -718,11 +726,30 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             for (int i = 0; i < size; i++) {
                 CarGroupTreeVO carGroupTreeVO = list.get(i);
                 if(carGroupTreeVO != null) {
-                    carGroupTreeVO.setChildrenList(this.getCarGroupTree(carGroupTreeVO.getCarGroupId()));
+                    carGroupTreeVO.setCarGroupTreeVO(this.getCarGroupTree(carGroupTreeVO.getDeptId()));
                 }
             }
         }
         return list;
+    }
+
+    /*查询所有车队编号*/
+    @Override
+    public List<String> selectAllCarGroupCode() {
+        List<String> list = carGroupInfoMapper.selectAllCarGroupCode();
+        return list;
+    }
+
+    /*判断车队编号是否存在*/
+    @Override
+    public boolean judgeCarGroupCode(String carGroupCode) {
+        List<String> list = selectAllCarGroupCode();
+        for (String s : list) {
+            if (carGroupCode.equals(s)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /*根据车队id查询车队树*/
@@ -735,7 +762,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 if(carGroupTreeVO == null){
                     continue;
                 }
-                carGroupTreeVO.setChildrenList(this.getCarGroupTree(carGroupTreeVO.getCarGroupId()));
+                carGroupTreeVO.setCarGroupTreeVO(this.getCarGroupTree(carGroupTreeVO.getDeptId()));
             }
         }
         return list;
