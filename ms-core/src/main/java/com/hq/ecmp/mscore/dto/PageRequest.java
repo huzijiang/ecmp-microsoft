@@ -43,4 +43,9 @@ public class PageRequest {
     private Long carGroupId;
 
     private Long fatherProjectId;
+
+    private String workState;
+    private String itIsFullTime;
+    private String businessFlag;
+
 }
