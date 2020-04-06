@@ -316,7 +316,7 @@ WHERE
 
     <!--//禁用/启用  驾驶员   员工-->
     <update id="updateDriverUseStatus" >
-      update  driver_info  set `state`=#{state} where user_id==#{userId})
+      update  driver_info  set `state`=#{state} where user_id=#{userId}
     </update>
     <!--//邀请驾驶员是否已经是企业司机-->
     <select id="driverItisExist"  resultType="java.lang.Integer">
