@@ -99,8 +99,8 @@ public class CarGroupController {
     @PostMapping("/deleteCarGroup")
     public ApiResponse deleteCarGroup(@RequestBody CarGroupDTO carGroupDTO){
         try {
-            carGroupInfoService.deleteCarGroup(carGroupDTO.getCarGroupId());
-            return ApiResponse.success("删除成功");
+            String rtnMsg = carGroupInfoService.deleteCarGroup(carGroupDTO.getCarGroupId());
+            return ApiResponse.success(rtnMsg);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());

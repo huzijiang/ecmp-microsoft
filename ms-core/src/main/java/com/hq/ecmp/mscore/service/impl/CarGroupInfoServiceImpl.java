@@ -501,14 +501,16 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param carGroupId
      */
     @Override
-    public void deleteCarGroup(Long carGroupId) throws Exception {
+    public String deleteCarGroup(Long carGroupId) throws Exception {
         //判断车队及下属车队下是否有车辆和驾驶员
+        carGroupDelFlag = false;
         if(existCarOrDriver(carGroupId, null)){
             carGroupDelFlag = false;
-            throw new Exception("请先删除该车队下的所有车辆及人员信息");
+            return "请先删除该车队下的所有车辆及人员信息";
         }
         //执行删除
         executeDeleteCarGroup(carGroupId, null);
+        return "删除成功";
     }
 
     /**
