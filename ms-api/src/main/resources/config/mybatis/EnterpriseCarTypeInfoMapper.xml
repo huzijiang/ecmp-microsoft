@@ -124,7 +124,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select car_type_id from enterprise_car_type_info where level = #{onlineCarLevel}
     </select>
 
-    <select id="getCarTypeDTOById" parameterType="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo" resultMap="EnterpriseCarTypeInfoResult">
-        select level from enterprise_car_type_info
+    <select id="getCarTypeDTOById" parameterType="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo" resultType="String">
+        select MAX(level) level from enterprise_car_type_info
     </select>
 </mapper>
