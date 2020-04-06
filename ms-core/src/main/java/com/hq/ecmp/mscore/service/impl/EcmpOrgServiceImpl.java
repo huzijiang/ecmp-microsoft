@@ -161,41 +161,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 //        return orgTreeVos;
 //    }
 
-    /**
-     * 递归车队
-     * @param deptId
-     * @return
-     */
-    @Override
-    public List<CarGroupTreeVO> selectCarGroupTree(Long deptId) {
-        //查询子公司下的所有车队
-        List<CarGroupTreeVO> list = ecmpOrgMapper.selectCarGroupTree(deptId);
-        if(list.size() > 0){
-            //递归查询车队
-            for (int i = 0; i <list.size() ; i++) {
-                //查询车队人数
-                Long deptGroupId = list.get(i).getDeptGroupId();
-                int num = carGroupDriverRelationMapper.selectCountDriver(deptGroupId);
-                list.get(i).setCount(num);
-                list.get(i).setChildrenList(this.selectCarGroupTree(list.get(i).getDeptGroupId()));
-            }
-        }
-        return list;
-    }
 
-    @Override
-    public List<CompanyTreeVO> selectCarGroupAndCompanyTree(Long deptId) {
-        List<CompanyTreeVO> companyTree = getCompanyTree(deptId);
-        int size = companyTree.size();
-        if(size > 0){
-            for (int i = 0; i < size; i++) {
-                Long deptCompanyId = companyTree.get(i).getDeptCompanyId();
-                List<CarGroupTreeVO> list = this.selectCarGroupTree(deptCompanyId);
-                companyTree.get(i).setCarGroupTreeVO(list);
-            }
-        }
-        return companyTree;
-    }
+
+
 
     //公司车队树
     @Override
@@ -274,6 +242,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         return carGroupCountVO;
     }
 
+
     //递归公司  (公司树)
     public List<CompanyTreeVO> getCompanyTree(Long deptId){
         if (deptId == null){
@@ -287,7 +256,6 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         int size = list.size();
         if(size > 0){
             for (int i = 0; i < size; i++) {
-                /* List<CompanyTreeVO> companyTree = this.getCompanyTree(list.get(i).getDeptCompanyId());*/
                 list.get(i).setChildrenList(this.getCompanyTree(list.get(i).getDeptCompanyId()));
             }
         }

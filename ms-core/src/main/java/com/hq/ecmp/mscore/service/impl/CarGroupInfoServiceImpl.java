@@ -701,13 +701,34 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         return carGroupDelFlag;
     }
 
-    /*递归车队  （车队树）    根据*/
+    /*根据公司id 查询车队树*/
+    @Override
     public List<CarGroupTreeVO> selectCarGroupTree(Long deptId){
-        List<CarGroupTreeVO> list = carGroupInfoMapper.selectCarGroupTree(deptId);
+        //查询分子公司的一级车队
+        List<CarGroupTreeVO> list = carGroupInfoMapper.selectFirstLevelCarGroupList(deptId);
         int size = list.size();
-        if(size > 0){
+        if(size>0){
             for (int i = 0; i < size; i++) {
-                list.get(i).setChildrenList(selectCarGroupTree(list.get(i).getCarGroupId()));
+                CarGroupTreeVO carGroupTreeVO = list.get(i);
+                if(carGroupTreeVO != null) {
+                    carGroupTreeVO.setChildrenList(this.getCarGroupTree(carGroupTreeVO.getCarGroupId()));
+                }
+            }
+        }
+        return list;
+    }
+
+    /*根据车队id查询车队树*/
+    public List<CarGroupTreeVO> getCarGroupTree(Long carGroupId){
+        List<CarGroupTreeVO> list = carGroupInfoMapper.getCarGroupTree(carGroupId);
+        int size = list.size();
+        if (size > 0){
+            for (int i = 0; i < size; i++) {
+                CarGroupTreeVO carGroupTreeVO = list.get(i);
+                if(carGroupTreeVO == null){
+                    continue;
+                }
+                carGroupTreeVO.setChildrenList(this.getCarGroupTree(carGroupTreeVO.getCarGroupId()));
             }
         }
         return list;

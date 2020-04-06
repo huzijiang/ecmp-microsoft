@@ -478,7 +478,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 parent_id as parentId,
                 leader
         from ecmp_org
-        where parent_id = #{parentId} and (dept_type = '3' or dept_type = '1')
+        where parent_id = #{parentId} and  dept_type = '1'
     </select>
 
 </mapper>

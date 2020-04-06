@@ -178,11 +178,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         AND cgi.car_group_id IS NOT NULL
         AND dri.driver_id=#{driverId}
     </select>
-    <select id="selectCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
+
+    <select id="selectFirstLevelCarGroupList" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
+         select car_group_id as carGroupId,
+               car_group_name as carGroupName
+        from   car_group_info
+        where  owner_company = #{deptId} and parent_car_group_id = 0
+    </select>
+    <select id="getCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
         select car_group_id as carGroupId,
                car_group_name as carGroupName
         from   car_group_info
-        where  owner_org = #{deptId}
+        where  parent_car_group_id = #{carGroupId}
     </select>
 
 </mapper>

@@ -109,7 +109,10 @@ public interface CarGroupInfoMapper
     List<CarGroupInfo> selectCarGroupsByDriverId(Long driverId);
 
 
-    /*车队树*/
-    List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
 
+    /*根据分子公司id查询一级车队*/
+    List<CarGroupTreeVO> selectFirstLevelCarGroupList(Long deptId);
+
+    /*根据车队id查询车队树*/
+    List<CarGroupTreeVO> getCarGroupTree(Long carGroupId);
 }
