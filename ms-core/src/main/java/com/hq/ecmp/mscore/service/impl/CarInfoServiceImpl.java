@@ -154,7 +154,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         CarInfo carInfo = setCarInfo(carSaveDTO);
         carInfo.setCreateBy(String.valueOf(userId));
         carInfo.setCreateTime(new Date());
-        carInfo.setState(CarConstant.SABLE_CAR);   //初始化禁用车辆
+        carInfo.setState(CarConstant.DISABLE_CAR);   //初始化禁用车辆
         //新增车辆表
         int i = carInfoMapper.insertCarInfo(carInfo);
         if(i!= 1){
@@ -250,7 +250,7 @@ public class CarInfoServiceImpl implements ICarInfoService
     @Override
     public int disableCar(Long carId, Long userId) throws Exception {
         CarInfo carInfo = new CarInfo();
-        carInfo.setState(CarConstant.SABLE_CAR);
+        carInfo.setState(CarConstant.DISABLE_CAR);
         carInfo.setUpdateBy(String.valueOf(userId));
         carInfo.setUpdateTime(new Date());
         carInfo.setCarId(carId);
@@ -270,7 +270,7 @@ public class CarInfoServiceImpl implements ICarInfoService
     @Override
     public void maintainCar(Long carId, Long userId) throws Exception {
         CarInfo carInfo = new CarInfo();
-        carInfo.setState(CarConstant.MAINTEDINANCE_CAR);
+        carInfo.setState(CarConstant.MAINTENANCE_CAR);
         carInfo.setUpdateTime(new Date());
         carInfo.setUpdateBy(String.valueOf(userId));
         carInfo.setCarId(carId);
