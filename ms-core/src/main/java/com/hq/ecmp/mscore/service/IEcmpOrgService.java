@@ -40,6 +40,13 @@ public interface IEcmpOrgService
     public List<EcmpOrgDto> selectCompanyList(Long deptId,String deptType);
 
     /**
+     * 显示查询总条数
+     * @param ecmpOrg
+     * @return
+     */
+    public Integer queryCompanyListCount(EcmpOrgVo ecmpOrg);
+
+    /**
      * 显示部门列表
      *
      * @param deptId 部门ID

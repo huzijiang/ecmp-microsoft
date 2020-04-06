@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.mscore.vo.OrgTreeVo;
+import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -96,13 +97,15 @@ public class EcmpUserController {
      * @return*/
     @ApiOperation(value = "查询员工列表",notes = "查询员工列表",httpMethod ="POST")
     @PostMapping("/getEcmpUserList")
-    public ApiResponse<List<EcmpUserDto>> getEcmpUserList(@RequestBody EcmpUserVo ecmpUser){
+    public ApiResponse<PageResult<EcmpUserDto>> getEcmpUserList(@RequestBody EcmpUserVo ecmpUser){
         Long deptId=ecmpUser.getDeptId();
         if(deptId==null){
             return ApiResponse.error("部门id不能为空！");
         }
         List<EcmpUserDto> ecmpUserList = ecmpUserService.getEcmpUserList(deptId);
-        return ApiResponse.success(ecmpUserList);
+        Integer count = ecmpUserService.queryUserListCount(ecmpUser);
+        PageResult<EcmpUserDto> pageResult = new PageResult<EcmpUserDto>(Long.valueOf(count), ecmpUserList);
+        return ApiResponse.success(pageResult);
     }
 
     /*

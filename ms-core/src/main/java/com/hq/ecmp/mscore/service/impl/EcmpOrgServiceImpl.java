@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.mapper.*;
+import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,6 +45,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     private EcmpUserRoleMapper ecmpUserRoleMapper;
     @Autowired
     private CarGroupDriverRelationMapper carGroupDriverRelationMapper;
+    @Autowired
+    private ICarGroupInfoService carGroupInfoService;
     /**
      * 显示公司组织结构
      *
@@ -188,6 +191,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                             tree.get(i).setLeaderName(ecmpUser.getUserName());
                         }
                     }
+                    tree.get(i).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(tree.get(i).getDeptId()));
                     tree.get(i).setChildrenList(this.selectCompanyCarGroupTree(tree.get(i).getDeptId()));
                 }
             }
@@ -293,7 +297,16 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     }
 
     /**
-     * 显示公司列表
+     * 显示查询总条数
+     * @param ecmpOrg
+     * @return
+     */
+    public Integer queryCompanyListCount(EcmpOrgVo ecmpOrg){
+        return ecmpOrgMapper.queryCompanyListCount(ecmpOrg.getDeptId(),ecmpOrg.getDeptType());
+    }
+
+    /**
+     * 显示部门列表
      *
      * @param deptId 部门ID
      * @return ecmpOrg
@@ -351,21 +364,6 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     public int addDept(EcmpOrgVo ecmpOrg){
         ecmpOrg.setCreateTime(DateUtils.getNowDate());
         int iz = ecmpOrgMapper.addDept(ecmpOrg);
-        //添加部门角色关联信息
-        //添加角色用户关联信息
-        /*EcmpRoleDept ecmpRoleDept=new EcmpRoleDept();
-        EcmpUserRole ecmpUserRole =new  EcmpUserRole();
-        ecmpRoleDept.setDeptId(ecmpOrg.getDeptId());
-        ecmpRoleDept.setRoleId(ecmpOrg.getRoleId());
-        ecmpRoleDeptMapper.insertEcmpRoleDept(ecmpRoleDept);
-        ecmpUserRole.setRoleId(ecmpOrg.getRoleId());
-        List<Long> userIdList=ecmpOrg.getUserId();
-        if(userIdList.size()>0){
-            for (Long userId:userIdList) {
-                ecmpUserRole.setUserId(userId);
-                ecmpUserRoleMapper.insertEcmpUserRole(ecmpUserRole);
-            }
-        }*/
         //不可重复选择员工，通过手机号码校验
         if(iz==1){
             return 1;
@@ -397,7 +395,21 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         ecmpOrg.setUpdateTime(DateUtils.getNowDate());
         //添加部门
         int ix = ecmpOrgMapper.updateDept(ecmpOrg);
-        //修改角色用户关联信息
+        //添加部门角色关联信息
+        //添加角色用户关联信息
+        /*EcmpRoleDept ecmpRoleDept=new EcmpRoleDept();
+        EcmpUserRole ecmpUserRole =new  EcmpUserRole();
+        ecmpRoleDept.setDeptId(ecmpOrg.getDeptId());
+        ecmpRoleDept.setRoleId(ecmpOrg.getRoleId());
+        ecmpRoleDeptMapper.insertEcmpRoleDept(ecmpRoleDept);
+        ecmpUserRole.setRoleId(ecmpOrg.getRoleId());
+        List<Long> userIdList=ecmpOrg.getUserId();
+        if(userIdList.size()>0){
+            for (Long userId:userIdList) {
+                ecmpUserRole.setUserId(userId);
+                ecmpUserRoleMapper.insertEcmpUserRole(ecmpUserRole);
+            }
+        }*/
         return ix;
     }
 

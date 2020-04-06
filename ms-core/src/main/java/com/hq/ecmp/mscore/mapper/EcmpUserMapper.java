@@ -179,6 +179,13 @@ public interface EcmpUserMapper
     public EcmpUserDto getEcmpUserList(@Param("deptId") Long deptId,@Param("userId")Long userId);
 
     /**
+     * 显示查询总条数
+     * @param
+     * @return
+     */
+    public Integer queryUserListCount(@Param("deptId")Long deptId);
+
+    /**
      * 逻辑删除员工信息
      *
      * @param phonenumber 手机号
