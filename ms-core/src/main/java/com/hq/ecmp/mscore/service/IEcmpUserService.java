@@ -4,6 +4,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 
 import java.util.Date;
