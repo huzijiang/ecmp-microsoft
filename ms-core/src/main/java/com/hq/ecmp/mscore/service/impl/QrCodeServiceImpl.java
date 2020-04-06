@@ -1,24 +1,11 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-
-import javax.imageio.ImageIO;
-
-import org.apache.http.entity.ContentType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.hq.ecmp.mscore.service.ZimgService;
-
 import QrCodeService.QrCodeService;
+import com.hq.ecmp.mscore.service.ZimgService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Data
 @Service
