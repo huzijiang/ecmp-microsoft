@@ -18,7 +18,7 @@ import java.util.List;
  * @since 2020-03-16 18:28:44
  */
 @Repository
-public interface EcmpEnterpriseInvitationInfoMapper {
+public interface  EcmpEnterpriseInvitationInfoMapper {
 
     /**
      * 通过ID查询单条数据
@@ -84,7 +84,7 @@ public interface EcmpEnterpriseInvitationInfoMapper {
     /**
      * 邀请员工详情
      */
-    public InvitationUserVO  queryInvitationUserDetial(String invitationId);
+    public InvitationUserVO  queryInvitationUserDetial(Long invitationId);
     /**
      * 邀请列表-驾驶员
      */
@@ -92,7 +92,7 @@ public interface EcmpEnterpriseInvitationInfoMapper {
     /**
      * 邀请驾驶员详情
      */
-    public InvitationDriverVO  queryInvitationDriverDetial(String invitationId);
+    public InvitationDriverVO  queryInvitationDriverDetial(Long invitationId);
 
     /**
      *
@@ -107,4 +107,5 @@ public interface EcmpEnterpriseInvitationInfoMapper {
      */
     public int insertUserInvitation(UserInvitationDTO uerInvitationDTO);
 
+    Long queryInvitationUserCount(String type);
 }

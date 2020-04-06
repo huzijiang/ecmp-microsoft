@@ -28,6 +28,10 @@ public class CarGroupInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long parentCarGroupId;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String city;  //TODO Long改动
 
     /** $column.columnComment */
@@ -79,6 +83,11 @@ public class CarGroupInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long ownerCompany;   //TODO 新增 所属公司id
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long parentCarGroupId;   //TODO 上级车队id
+
 
 
     public String getTelephone() {

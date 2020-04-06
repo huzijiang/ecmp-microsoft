@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.hq.common.enums.ErrorCodeEnum.SUCCESS;
 import static com.hq.ecmp.constant.CommonConstant.*;
 
 /**
@@ -102,20 +103,20 @@ public class ProjectController {
         }
         List<ProjectInfo> projectInfos = iProjectInfoService.selectProjectInfoList(new ProjectInfo(projectInfoDto.getProjectCode()));
         if (CollectionUtils.isNotEmpty(projectInfos)){
-            return ApiResponse.success("该编号已存在,不可重复录入!");
+            return ApiResponse.success(SUCCESS.getMsg(),"该编号已存在,不可重复录入!");
         }
         return ApiResponse.success();
     }
 
-    /**
-     * 获取项目主管列表
-     * @return
-     */
-    @ApiOperation(value = "getProjectDirector",notes = "获取项目主管列表",httpMethod ="POST")
-    @PostMapping("/getProjectDirector")
-    public ApiResponse getProjectDirector(@RequestBody ProjectInfoDTO projectInfoDto){
-        return ApiResponse.success();
-    }
+//    /**
+//     * 获取项目主管列表
+//     * @return
+//     */
+//    @ApiOperation(value = "getProjectDirector",notes = "获取项目主管列表",httpMethod ="POST")
+//    @PostMapping("/getProjectDirector")
+//    public ApiResponse getProjectDirector(@RequestBody ProjectInfoDTO projectInfoDto){
+//        return ApiResponse.success();
+//    }
 
     /**
      * 获取项目列表
@@ -191,14 +192,19 @@ public class ProjectController {
         ProjectInfo oldInfo = iProjectInfoService.selectProjectInfoById(projectInfoDto.getProjectId());
         int isAlluser=oldInfo.getIsAllUserUse();
         BeanUtils.copyProperties(projectInfoDto,projectInfo);
+        if (projectInfoDto.getIsFinite()==ZERO){//无限
+            projectInfo.setStartDate(null);
+            projectInfo.setCloseDate(null);
+        }
         int i = iProjectInfoService.updateProjectInfo(projectInfo);
         if (i>0){
             if (isAlluser!=projectInfoDto.getIsAllUserUse()){
                 if (projectInfoDto.getIsAllUserUse()==ZERO){//全部员工
                     saveUserProject(projectInfoDto.getProjectId());
-                }else{
-                    iProjectUserRelationInfoService.deleteProjectUserRelationInfoById(projectInfoDto.getProjectId());
                 }
+//                else{
+//                    iProjectUserRelationInfoService.deleteProjectUserRelationInfoById(projectInfoDto.getProjectId());
+//                }
             }
         }
         return ApiResponse.success("编辑项目成功");
@@ -224,10 +230,10 @@ public class ProjectController {
         return ApiResponse.success(lsit);
     }
 
-    @ApiOperation(value = "getProjectUserInfo",notes = "根据项目id获取已绑定所有成员列表",httpMethod ="GET")
+    @ApiOperation(value = "getProjectUserInfo",notes = "根据项目id获取已绑定所有成员列表",httpMethod ="POST")
     @RequestMapping("/getProjectUserInfo")
-    public ApiResponse<List<ProjectUserVO>> getProjectUserInfo(String projectId){
-        List<ProjectUserVO> users=iProjectInfoService.getProjectUserInfo(Long.parseLong(projectId));
+    public ApiResponse<List<ProjectUserVO>> getProjectUserInfo(@RequestParam("projectId") Long projectId){
+        List<ProjectUserVO> users=iProjectInfoService.getProjectUserInfo(projectId);
         return ApiResponse.success(users);
     }
 

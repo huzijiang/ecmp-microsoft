@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -443,6 +444,21 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			result.add(carLevelAndPriceReVo);
 		}
 		return result;
+	}
+
+	/*根據场景id查询制度集合*/
+	@Override
+	public List<RegimenVO> selectRegimesBySceneId(Long sceneId) {
+		//根据sceneId查询制度id集合
+		List<Long> regimenIds = sceneRegimeRelationMapper.selectRegimenIdsBySceneId(sceneId);
+		List<RegimenVO> regimeVOs = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(regimenIds)){
+			for (Long regimeId : regimenIds) {
+				RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(regimeId);
+				regimeVOs.add(regimenVO);
+			}
+		}
+		return regimeVOs;
 	}
 
 	@Override

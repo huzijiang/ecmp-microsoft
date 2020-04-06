@@ -228,17 +228,36 @@
         delete from ecmp.ecmp_enterprise_register_info where register_id = #{registerId}
     </delete>
     <!--待审核数量员工/驾驶员-->
-    <select id="waitAmount" parameterType="Object" resultType="java.lang.Integer">
-       select COUNT(*) as amountWaitUser from ecmp_enterprise_register_info d where d.state=#{state} and d.type=#{type}
+    <select id="waitAmountCount" parameterType="com.hq.ecmp.mscore.dto.RegisterDTO" resultType="java.lang.Integer">
+       select COUNT(*) from ecmp_enterprise_register_info a
+       <if test="deptId!=null">
+           left join ecmp_enterprise_invitation_info b on a.invitation_id=a.invitation_id
+       </if>
+       where d.state='S000' and d.type=#{type}
+       <if test="deptId!=null">
+           and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
+    </if>
     </select>
     <!--待审核列表员工-->
     <select id="queryRegisterUserWait" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.RegisterUserVO">
-        select a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.dept_name as deptName,a.reason as reason
+        select a.register_id registerId,a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.dept_name as deptName,a.reason as reason
         from ecmp_enterprise_register_info  a
         left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
         left join ecmp_org c on c.dept_id = b.enterprise_id
         left join ecmp_org e on e.dept_id = b.department_id
-        where a.type='T001' and a.state='S000'
+        where a.type=#{type} and a.state='S000'
+        <if test="deptId!=null">
+            and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
+        </if>
+    </select>
+    <!--待审核列表员工数量-->
+    <select id="queryRegisterUserWaitCount" resultType="Long">
+        select count(*) from from ecmp_enterprise_register_info  a
+        left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
+        where a.type=#{type} and a.state='S000'
+        <if test="deptId!=null">
+            and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
+        </if>
     </select>
     <!--待审核列表驾驶员-->
     <select id="queryRegisterDriverWait" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.RegisterDriverVO">
@@ -249,5 +268,46 @@
         left join car_group_info e on e.car_group_id = a.car_group_id
         where a.type='T002' and a.state='S000'
     </select>
+    <!--通过主键修改数据-->
+    <update id="updateRegisterState" parameterType="com.hq.ecmp.mscore.dto.RegisterDTO">
+        update ecmp_enterprise_register_info
+        <set>
+            <if test="state != null and state != ''">
+                state = #{state},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where register_id = #{registerId}
+    </update>
+    <select id="itIsRegistration"  resultType="java.lang.Integer">
+          select count(*) from ecmp_enterprise_register_info  where mobile=#{phoneNum} and state = #{state}
+    </select>
+    <insert id="insertUserRegister" parameterType="com.hq.ecmp.mscore.dto.UserRegisterDTO">
+        insert into ecmp_enterprise_register_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="invitationId != null ">invitation_id,</if>
+            <if test="name != null ">name,</if>
+            <if test="gender != null ">gender,</if>
+            <if test="jobNumber != null ">job_number,</if>
+            <if test="email != null ">email,</if>
+            <if test="mobile != null ">mobile,</if>
+            <if test="smsAuthCode != null  and smsAuthCode != ''">sms_auth_code,</if>
+            <if test="reason != null  and reason != ''">reason,</if>
+            <if test="createTime != null ">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="invitationId != null ">#{invitationId},</if>
+            <if test="name != null ">#{name},</if>
+            <if test="gender != null ">#{gender},</if>
+            <if test="jobNumber != null ">#{jobNumber},</if>
+            <if test="email != null ">#{email},</if>
+            <if test="mobile != null ">#{mobile},</if>
+            <if test="smsAuthCode != null  and smsAuthCode != ''">#{smsAuthCode},</if>
+            <if test="reason != null  and reason != ''">#{reason},</if>
+            <if test="createTime != null ">#{createTime},</if>
 
+        </trim>
+    </insert>
 </mapper>

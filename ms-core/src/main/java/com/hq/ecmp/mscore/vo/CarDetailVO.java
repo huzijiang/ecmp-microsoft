@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,6 +46,7 @@ public class CarDetailVO {
 
 
     //9.购买日期
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date buyDate;
 
     //10.可用驾驶员人数
@@ -74,6 +77,8 @@ public class CarDetailVO {
     //8.行驶证实照
     private String carDrivingLicenseImagesUrl;
 
-
+    //.车辆id
+    @ApiModelProperty(name = "carId", value = "车辆id")
+    private Long carId;
 
 }

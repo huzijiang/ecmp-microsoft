@@ -157,7 +157,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''">car_color = #{carColor},</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">car_license_color = #{carLicenseColor},</if>
             <if test="powerType != null  and powerType != ''">power_type = #{powerType},</if>
-            <if test="carType != null  and carType != ''">car_type = #{carType},</if>
             <if test="engineNumber != null  and engineNumber != ''">engine_number = #{engineNumber},</if>
             <if test="engineCc != null  and engineCc != ''">engine_cc = #{engineCc},</if>
             <if test="enginePower != null  and enginePower != ''">engine_power = #{enginePower},</if>
@@ -302,9 +301,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectCarInfoVo"/>
         <where>
         <if test="carGroupId != null "> and car_group_id = #{carGroupId}</if>
-        <if test="carTypeId != null "> and carTypeId = #{carTypeId}</if>
-        <if test="state != null "> and state = #{state}</if>
-        <if test="search != null "> and car_license like CONCAT('%',#{search},'%')</if>
+        <if test="carTypeId != null and carTypeId!='' "> and car_type_id = #{carTypeId}</if>
+        <if test="state != null and state!=''"> and state = #{state}</if>
+        <if test="search != null and search!='' "> and car_license like CONCAT('%',#{search},'%')</if>
         </where>
     </select>
 

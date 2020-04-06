@@ -1,11 +1,9 @@
 package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
-import com.hq.ecmp.mscore.dto.DriverInvitationDTO;
-import com.hq.ecmp.mscore.dto.InvitationDto;
-import com.hq.ecmp.mscore.dto.InvitationInfoDTO;
-import com.hq.ecmp.mscore.dto.UserInvitationDTO;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
 
@@ -66,11 +64,11 @@ public interface EcmpEnterpriseInvitationInfoService {
     /**
      * 邀请列表-员工
      */
-    public List<InvitationUserVO> queryInvitationUser(InvitationInfoDTO invitationInfoDTO);
+    public PageResult<InvitationUserVO> queryInvitationUser(PageRequest PageRequest);
     /**
      * 邀请员工详情
      */
-    public InvitationUserVO  queryInvitationUserDetial(String invitationId);
+    public InvitationUserVO  queryInvitationUserDetial(Long invitationId);
 
     /**
      * 邀请列表-驾驶员
@@ -79,7 +77,7 @@ public interface EcmpEnterpriseInvitationInfoService {
     /**
      * 邀请驾驶员详情
      */
-    public InvitationDriverVO  queryInvitationDriverDetial(String invitationId);
+    public InvitationDriverVO  queryInvitationDriverDetial(Long invitationId);
     /**
      *
      * @param driverInvitationDTO
@@ -92,5 +90,7 @@ public interface EcmpEnterpriseInvitationInfoService {
      * @return
      */
     public int insertUserInvitation(UserInvitationDTO uerInvitationDTO);
+
+
 
 }

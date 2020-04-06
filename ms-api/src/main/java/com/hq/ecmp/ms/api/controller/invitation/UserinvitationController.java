@@ -2,18 +2,16 @@ package com.hq.ecmp.ms.api.controller.invitation;
 
 import com.hq.common.core.api.ApiResponse;
 
+import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.ms.api.dto.base.InviteDto;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
-import com.hq.ecmp.mscore.dto.InvitationDto;
+import com.hq.ecmp.mscore.dto.*;
 
-import com.hq.ecmp.mscore.dto.InvitationInfoDTO;
-import com.hq.ecmp.mscore.dto.RegisterDTO;
-import com.hq.ecmp.mscore.dto.UserInvitationDTO;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
-import com.hq.ecmp.mscore.vo.InvitationUserVO;
-import com.hq.ecmp.mscore.vo.RegisterUserVO;
+import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,26 +60,26 @@ public class UserinvitationController {
 
       /**
      * 邀请注册
-     * @param ecmpEnterpriseRegisterInfo
+     * @param userRegisterDTO
      * @return
      */
     @ApiOperation(value = "interInvitationUserZcCommit",notes = "生成邀请",httpMethod = "POST")
     @PostMapping("/interRegisterInfoCommit")
-    public ApiResponse interRegisterInfoCommit(@RequestBody EcmpEnterpriseRegisterInfo ecmpEnterpriseRegisterInfo){
+    public ApiResponse interRegisterInfoCommit(@RequestBody UserRegisterDTO userRegisterDTO){
         try {
 
             //校验手机号的用户是否已经是企业用户
-            int  itIsUser = iEcmpUserService.userItisExist(ecmpEnterpriseRegisterInfo.getMobile());
+            int  itIsUser = iEcmpUserService.userItisExist(userRegisterDTO);
             if(itIsUser != 0){
                 return ApiResponse.error("员工已经是该企业用户");
             }
             //校验手机号是否已经申请注册，正在等待审批过程中
             String state="S000";
-            int itIsReg = ecmpEnterpriseRegisterInfoServicee.itIsRegistration(ecmpEnterpriseRegisterInfo.getMobile(),state);
+            int itIsReg = ecmpEnterpriseRegisterInfoServicee.itIsRegistration(userRegisterDTO.getMobile(),state);
             if(itIsReg > 0){
                 return ApiResponse.error("该手机号已申请完成，请等待审批");
             }
-            ecmpEnterpriseRegisterInfoServicee.insert(ecmpEnterpriseRegisterInfo);
+            ecmpEnterpriseRegisterInfoServicee.insertUserRegister(userRegisterDTO);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("员工邀请注册失败");
@@ -98,6 +96,7 @@ public class UserinvitationController {
      public ApiResponse updateInvatationStop(@RequestBody InvitationDto invitationDto){
         try {
             invitationDto.setState("N000");//默认邀请状态为失效
+            invitationDto.setUpdateTime(DateUtils.getNowDate());
             ecmpEnterpriseInvitationInfoService.updateInvitationState(invitationDto);
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,6 +114,7 @@ public class UserinvitationController {
     public ApiResponse updateInvatationStart(@RequestBody InvitationDto invitationDto){
         try {
             invitationDto.setState("Y000");//默认邀请状态为失效
+            invitationDto.setUpdateTime(DateUtils.getNowDate());
             ecmpEnterpriseInvitationInfoService.updateInvitationState(invitationDto);
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,27 +124,54 @@ public class UserinvitationController {
     }
 
     /**
-     * 邀请申请通过
+     * 邀请注册通过
      * @param
      */
+    @ApiOperation(value = "申请拒绝",notes = "申请拒绝",httpMethod = "POST")
+    @PostMapping("/updateRegisterPast")
+    public ApiResponse updateRegisterPast(@RequestBody RegisterDTO registerDTO){
+        try {
+            //S000 申请中,S001 申请通过,S002 申请拒绝
+            registerDTO.setState("S001");
+            registerDTO.setUpdateTime(DateUtils.getNowDate());
+            ecmpEnterpriseRegisterInfoServicee.updateRegisterState(registerDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("申请拒绝失败");
+        }
+        return ApiResponse.success("申请拒绝成功");
+    }
     /**
-     * 邀请申请拒绝
+     * 邀请注册拒绝
      * @param
      */
+    @ApiOperation(value = "申请拒绝",notes = "申请拒绝",httpMethod = "POST")
+    @PostMapping("/updateRegisterRefuse")
+    public ApiResponse updateRegisterRefuse(@RequestBody RegisterDTO registerDTO){
+        try {
+            //registerDTO.setState("S002");//S000 申请中,S001 申请通过,S002 申请拒绝
+            registerDTO.setState("S002");
+            registerDTO.setUpdateTime(DateUtils.getNowDate());
+            ecmpEnterpriseRegisterInfoServicee.updateRegisterState(registerDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("申请拒绝失败");
+        }
+        return ApiResponse.success("申请拒绝成功");
+    }
     /**
      * 待审批数量
      * @param
      */
     @ApiOperation(value = "getregisterUserWaitCount",notes = "员工待审批数量",httpMethod = "POST")
     @PostMapping("/getregisterUserWaitCount")
-    public ApiResponse getregisterUserWaitCount(@RequestBody RegisterDTO registerDTO){
-        registerDTO.setState("S000");
-        registerDTO.setType("T001");
-        int i =ecmpEnterpriseRegisterInfoServicee.waitAmount(registerDTO);
-        if(i>0){
-            return ApiResponse.success(i);
-        }
-        return ApiResponse.error("待审批用户数量为0");
+    public ApiResponse<RegisterVO> getregisterUserWaitCount(@RequestBody InviteDto inviteDto){
+        RegisterVO registerVO =new RegisterVO();
+        int waitCount =ecmpEnterpriseRegisterInfoServicee.waitAmount(inviteDto.getDeptId(),inviteDto.getType());
+        registerVO.setRegisterCount(waitCount);
+        int resignationCount = iEcmpUserService.selectDimissionCount();
+        registerVO.setResignationCount(resignationCount);
+        return ApiResponse.success(registerVO);
     }
     /**
      * 待审批列表
@@ -152,13 +179,9 @@ public class UserinvitationController {
      */
     @ApiOperation(value = "getRegisterUserWaitList",notes = "员工待审批列表",httpMethod = "POST")
     @PostMapping("/getRegisterUserWaitList")
-    public ApiResponse <List<RegisterUserVO>>getRegisterUserWaitList(@RequestBody RegisterDTO registerDTO){
-        List<RegisterUserVO> registerUserVOlist = ecmpEnterpriseRegisterInfoServicee.queryRegisterUserWait(registerDTO);
-        if(CollectionUtils.isNotEmpty(registerUserVOlist)){
-            return ApiResponse.success(registerUserVOlist);
-        }else {
-            return ApiResponse.error("未查询到待审批员工列表");
-        }
+    public ApiResponse <PageResult<RegisterUserVO>>getRegisterUserWaitList(@RequestBody PageRequest pageRequest){
+        PageResult<RegisterUserVO> registerUserVOlist = ecmpEnterpriseRegisterInfoServicee.queryRegisterUserWait(pageRequest);
+        return ApiResponse.success(registerUserVOlist);
     }
 
     /**
@@ -166,22 +189,18 @@ public class UserinvitationController {
      */
     @ApiOperation(value = "getInvitationUserList",notes = "获取员工邀请列表",httpMethod = "POST")
     @PostMapping("/getInvitationUserList")
-    public ApiResponse<List<InvitationUserVO>> getInvitationUserList(@RequestBody InvitationInfoDTO invitationInfoDTO){
-        List<InvitationUserVO> invitationVOList = ecmpEnterpriseInvitationInfoService.queryInvitationUser(invitationInfoDTO);
-        if(CollectionUtils.isNotEmpty(invitationVOList)){
-            return ApiResponse.success(invitationVOList);
-        }else {
-            return ApiResponse.error("未查询到员工邀请列表");
-        }
+    public ApiResponse<PageResult<InvitationUserVO>> getInvitationUserList(@RequestBody PageRequest PageRequest){
+        PageResult<InvitationUserVO> invitationVOList = ecmpEnterpriseInvitationInfoService.queryInvitationUser(PageRequest);
+        return ApiResponse.success(invitationVOList);
     }
     /**
     * 获取邀请详情-员工
     */
     @ApiOperation(value = "getInvitationUserDetail",notes = "获取员工邀请详情",httpMethod = "POST")
     @PostMapping("/getInvitationUserDetail")
-    public ApiResponse<InvitationUserVO> getInvitationUserDetail(@RequestBody String invitationId){
+    public ApiResponse<InvitationUserVO> getInvitationUserDetail(@RequestBody InvitationDto invitationDto){
 
-        InvitationUserVO InvitationUser=ecmpEnterpriseInvitationInfoService.queryInvitationUserDetial(invitationId);
+        InvitationUserVO InvitationUser=ecmpEnterpriseInvitationInfoService.queryInvitationUserDetial(invitationDto.getInvitationId());
         return ApiResponse.success(InvitationUser);
 
     }

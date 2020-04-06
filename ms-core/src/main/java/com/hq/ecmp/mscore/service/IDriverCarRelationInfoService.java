@@ -96,5 +96,5 @@ public interface IDriverCarRelationInfoService
      * @param carId
      * @return
      */
-    PageResult<DriverVO> selectCarDriversByPage(Integer pageNum, Integer pageSize, Long carId);
+    PageResult<DriverVO> selectCarDriversByPage(Integer pageNum, Integer pageSize, Long carId,String workState,String itIsFullTime,String businessFlag);
 }

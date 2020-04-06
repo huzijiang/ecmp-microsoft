@@ -155,5 +155,8 @@ public interface IRegimeInfoService
      * @param useCarMode,不传默认为网约车 W100-自有车 	W200-网约车
      */
     List<CarLevelAndPriceReVo> getCarlevelAndPriceByOrderId(Long orderId, String useCarMode) throws Exception;
+
+    /*根据场景id查询制度集合*/
+    List<RegimenVO> selectRegimesBySceneId(Long sceneId);
 }
 

@@ -118,7 +118,7 @@ public class CarInfoServiceImpl implements ICarInfoService
     public int deleteCarInfoById(Long carId) throws Exception {
         //判断车辆下是否绑定驾驶员
         if(judgeCarBindDriver(carId)){
-            throw new Exception("删除失败，请先解绑驾驶员");
+            throw new Exception("请先删除该车辆下的所有驾驶员，再尝试删除");
         }
         int i = carInfoMapper.deleteCarInfoById(carId);
         if(i != 1){
@@ -185,6 +185,7 @@ public class CarInfoServiceImpl implements ICarInfoService
      */
     private CarInfo setCarInfo(CarSaveDTO carSaveDTO) {
         CarInfo carInfo = new CarInfo();
+        carInfo.setCarId(carSaveDTO.getCarId());
         carInfo.setCarType(carSaveDTO.getCarType());
         carInfo.setCarLicense(carSaveDTO.getCarLicense());
         carInfo.setCarTypeId(carSaveDTO.getEnterpriseCarTypeId());
@@ -225,11 +226,11 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setUpdateBy(String.valueOf(userId));
         carInfo.setUpdateTime(new Date());
         carInfo.setCarId(carId);
-        int i = carInfoMapper.updateCarInfo(carInfo);
-        if(i!=1){
+        int row = carInfoMapper.updateCarInfo(carInfo);
+        if(row != 1){
             throw new Exception("启用失败");
         }
-        return i;
+        return row;
     }
 
     /**
@@ -253,11 +254,11 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setUpdateBy(String.valueOf(userId));
         carInfo.setUpdateTime(new Date());
         carInfo.setCarId(carId);
-        int i = carInfoMapper.updateCarInfo(carInfo);
-        if(i!=1){
+        int row = carInfoMapper.updateCarInfo(carInfo);
+        if(row != 1){
             throw new Exception("禁用失败");
         }
-        return i;
+        return row;
     }
 
     /**
@@ -272,6 +273,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setState(CarConstant.MAINTENANCE_CAR);
         carInfo.setUpdateTime(new Date());
         carInfo.setUpdateBy(String.valueOf(userId));
+        carInfo.setCarId(carId);
         int i = carInfoMapper.updateCarInfo(carInfo);
         if(i!= 1){
             throw new Exception();
@@ -362,6 +364,7 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .licensePrice(carInfo.getLicensePrice())
                 .carImgaeUrl(carInfo.getCarImgaeUrl())
                 .carDrivingLicenseImagesUrl(carInfo.getCarDrivingLicenseImagesUrl())
+                .carId(carId)
                 .build();
         return carDetailVO;
     }

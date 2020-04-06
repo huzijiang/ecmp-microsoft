@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.vo.CarGroupFixedPhoneVO;
 import com.hq.ecmp.mscore.vo.CarGroupListVO;
 import com.hq.ecmp.mscore.vo.CarGroupPhoneVO;
+import com.hq.ecmp.mscore.vo.CarGroupTreeVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -108,4 +109,17 @@ public interface CarGroupInfoMapper
     List<CarGroupInfo> selectCarGroupsByDriverId(Long driverId);
 
 
+
+    /*根据分子公司id查询一级车队*/
+    List<CarGroupTreeVO> selectFirstLevelCarGroupList(Long deptId);
+
+    /*根据车队id查询车队树*/
+    List<CarGroupTreeVO> getCarGroupTree(Long carGroupId);
+
+    /**
+     * 查询下级车队数量
+     * @param
+     * @return
+     */
+    int selectCountByParentId(Long parentId);
 }

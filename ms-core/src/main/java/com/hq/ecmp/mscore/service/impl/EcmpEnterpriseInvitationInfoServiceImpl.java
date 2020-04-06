@@ -1,16 +1,14 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
-import com.hq.ecmp.mscore.dto.DriverInvitationDTO;
-import com.hq.ecmp.mscore.dto.InvitationDto;
-import com.hq.ecmp.mscore.dto.InvitationInfoDTO;
-import com.hq.ecmp.mscore.dto.UserInvitationDTO;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.hq.ecmp.mscore.vo.PageResult;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,7 +22,7 @@ import java.util.List;
  */
 @Service("ecmpEnterpriseInvitationInfoService")
 public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseInvitationInfoService {
-    @Autowired
+    @Resource
     private EcmpEnterpriseInvitationInfoMapper ecmpEnterpriseInvitationInfoMapper;
 
     /**
@@ -98,14 +96,16 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
     /**
      * 邀请列表-员工
      */
-    public List<InvitationUserVO> queryInvitationUser(InvitationInfoDTO invitationInfoDTO){
-        invitationInfoDTO.setType("T001");
-        return ecmpEnterpriseInvitationInfoMapper.queryInvitationUser(invitationInfoDTO.getType());
+    public PageResult<InvitationUserVO> queryInvitationUser(PageRequest PageRequest){
+        PageHelper.startPage(PageRequest.getPageNum(),PageRequest.getPageSize());
+        List<InvitationUserVO> invitationUserVOS = ecmpEnterpriseInvitationInfoMapper.queryInvitationUser(PageRequest.getType());
+        Long count=ecmpEnterpriseInvitationInfoMapper.queryInvitationUserCount(PageRequest.getType());
+        return new PageResult<>(count,invitationUserVOS);
     }
     /**
      * 邀请员工详情
      */
-    public InvitationUserVO  queryInvitationUserDetial(String invitationId){
+    public InvitationUserVO  queryInvitationUserDetial(Long invitationId){
         return ecmpEnterpriseInvitationInfoMapper.queryInvitationUserDetial(invitationId);
     }
     /**
@@ -114,10 +114,11 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
     public List<InvitationDriverVO> queryInvitationDriver(InvitationInfoDTO invitationInfoDTO){
         return ecmpEnterpriseInvitationInfoMapper.queryInvitationDriver(invitationInfoDTO.getType());
     }
+
     /**
      * 邀请驾驶员详情
      */
-    public InvitationDriverVO  queryInvitationDriverDetial(String invitationId){
+    public InvitationDriverVO  queryInvitationDriverDetial(Long invitationId){
         return ecmpEnterpriseInvitationInfoMapper.queryInvitationDriverDetial(invitationId);
     }
     /**
@@ -129,6 +130,7 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
         driverInvitationDTO.setCreateTime(DateUtils.getNowDate());
         driverInvitationDTO.setState("Y000");
         driverInvitationDTO.setType("T002");
+        driverInvitationDTO.setUrl("http:Driver.cn");
         return ecmpEnterpriseInvitationInfoMapper.insertDriverInvitation(driverInvitationDTO);
     }
     /**
@@ -140,7 +142,10 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
         uerInvitationDTO.setCreateTime(DateUtils.getNowDate());
         uerInvitationDTO.setState("Y000");
         uerInvitationDTO.setType("T001");
+        uerInvitationDTO.setUrl("http:User.cn");
         return ecmpEnterpriseInvitationInfoMapper.insertUserInvitation(uerInvitationDTO);
     }
+
+
 
 }

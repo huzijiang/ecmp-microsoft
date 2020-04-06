@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.dto;
 
 import com.hq.ecmp.mscore.vo.DriverVO;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -12,6 +13,9 @@ import java.util.List;
  */
 @Data
 public class CarSaveDTO {
+
+    //1.车辆ID
+    private Long carId;
 
     //1.车辆品牌
     private String carType;

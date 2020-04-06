@@ -1,9 +1,16 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
+import com.hq.ecmp.mscore.dto.InvitationDto;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
+import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseRegisterInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,10 +98,8 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
      * 待审批数量 员工/驾驶员
      * @param
      */
-    public int waitAmount(RegisterDTO registerDTO){
-
-
-        return ecmpEnterpriseRegisterInfoMapper.waitAmount(registerDTO.getType());
+    public int waitAmount(Long deptId,String type){
+        return ecmpEnterpriseRegisterInfoMapper.waitAmountCount(deptId,type);
     }
 
     /**
@@ -102,8 +107,11 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
      * @param
      */
     @Override
-    public List<RegisterUserVO> queryRegisterUserWait(RegisterDTO registerDTO) {
-        return ecmpEnterpriseRegisterInfoMapper.queryRegisterUserWait(registerDTO.getType());
+    public PageResult<RegisterUserVO> queryRegisterUserWait(PageRequest pageRequest) {
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+        List<RegisterUserVO> registerUserVOS = ecmpEnterpriseRegisterInfoMapper.queryRegisterUserWait(pageRequest.getDeptId(),pageRequest.getType());
+        Long count= ecmpEnterpriseRegisterInfoMapper.queryRegisterUserWaitCount(pageRequest.getDeptId(),pageRequest.getType());
+        return new PageResult<>(count,registerUserVOS);
     }
     /**
      * 待审批列表-驾驶员
@@ -113,4 +121,22 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
     public List<RegisterDriverVO> queryRegisterDriverWait(RegisterDTO registerDTO){
         return ecmpEnterpriseRegisterInfoMapper.queryRegisterDriverWait(registerDTO.getType());
     }
+    /**
+     * 注册申请：拒绝/通过
+     */
+    @Override
+    public int updateRegisterState(RegisterDTO registerDTO){
+        return ecmpEnterpriseRegisterInfoMapper.updateRegisterState(registerDTO);
+    }
+    /**
+     * 员工注册
+     * @param userRegisterDTO
+     * @return
+     */
+    public UserRegisterDTO insertUserRegister(UserRegisterDTO userRegisterDTO){
+        userRegisterDTO.setCreateTime(DateUtils.getNowDate());
+        return ecmpEnterpriseRegisterInfoMapper.insertUserRegister(userRegisterDTO);
+    }
+
+
 }
