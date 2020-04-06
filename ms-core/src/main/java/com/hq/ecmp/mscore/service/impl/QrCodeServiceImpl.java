@@ -13,6 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.common.BitMatrix;
 import com.hq.ecmp.mscore.service.ZimgService;
 
 import QrCodeService.QrCodeService;
@@ -29,7 +33,7 @@ public class QrCodeServiceImpl implements QrCodeService{
 	
 	@Override
 	public String createQrCode(String content) throws Exception {
-/*		int w=79;
+		int w=79;
 		int h =79;
 		  // 1.根据内容参数生成二维码
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
@@ -58,8 +62,8 @@ public class QrCodeServiceImpl implements QrCodeService{
        // MultipartFile file = new MockMultipartFile(ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream);
         MultipartFile file = new MockMultipartFile(ContentType.APPLICATION_XML.toString(), inputStream);
         String uploadImage = zimgService.uploadImage(file);
-        System.out.println(uploadImage);*/
-		return null;
+        System.out.println(uploadImage);
+		return uploadImage;
 	}
 			
 	

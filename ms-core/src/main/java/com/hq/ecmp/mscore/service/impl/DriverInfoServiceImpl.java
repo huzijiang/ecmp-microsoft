@@ -145,6 +145,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	ecmpUser.setUserName(driverCreateInfo.getMobile());
     	ecmpUser.setNickName(driverCreateInfo.getDriverName());
     	ecmpUser.setItIsDriver("0");
+    	ecmpUser.setPhonenumber(driverCreateInfo.getMobile());
     	ecmpUser.setCreateBy(driverCreateInfo.getOptUserId().toString());
     	ecmpUser.setCreateTime(new Date());;
     	ecmpUserService.insertEcmpUser(ecmpUser);
@@ -157,7 +158,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	carGroupDriverRelationService.insertCarGroupDriverRelation(carGroupDriverRelation);
     	//生成驾驶员-车辆记录
     	DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
-    	driverCarRelationInfo.setUserId(driverCreateInfo.getUserId());
+    	driverCarRelationInfo.setUserId(ecmpUser.getUserId());
     	driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
     	driverCarRelationInfo.setCarIdList(driverCreateInfo.getCarId());
     	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);

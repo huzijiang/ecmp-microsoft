@@ -212,6 +212,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	a.driver_id AS driverId,
 	a.user_id AS
 	userId,
+	a.mobile as mobile,
 	a.state AS state,
 	a.it_is_full_time AS itIsFullTime,
 	c.car_group_name AS carGroupName

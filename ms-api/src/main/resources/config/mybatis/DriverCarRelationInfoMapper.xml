@@ -65,7 +65,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="batchDriverCarList" parameterType="com.hq.ecmp.mscore.domain.DriverCarRelationInfo">
           insert into driver_car_relation_info  (user_id,driver_id,car_id)
           values
-          <foreach collection="carIdList" item="item" separator="">
+          <foreach collection="carIdList" item="item" separator=",">
           (#{userId},#{driverId},#{item})
           </foreach>
     </insert>
