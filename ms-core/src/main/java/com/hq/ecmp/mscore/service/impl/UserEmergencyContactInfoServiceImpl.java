@@ -3,7 +3,6 @@ package com.hq.ecmp.mscore.service.impl;
 import com.hq.ecmp.mscore.domain.UserEmergencyContactInfo;
 import com.hq.ecmp.mscore.mapper.UserEmergencyContactInfoMapper;
 import com.hq.ecmp.mscore.service.UserEmergencyContactInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 @Service("userEmergencyContactInfoService")
 public class UserEmergencyContactInfoServiceImpl implements UserEmergencyContactInfoService {
-    @Autowired
+    @Resource
     private UserEmergencyContactInfoMapper userEmergencyContactInfoDao;
 
     /**

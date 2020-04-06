@@ -4,7 +4,6 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.DriverServiceAppraiseeInfo;
 import com.hq.ecmp.mscore.mapper.DriverServiceAppraiseeInfoMapper;
 import com.hq.ecmp.mscore.service.DriverServiceAppraiseeInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -22,7 +21,7 @@ import java.util.List;
  */
 @Service("driverServiceAppraiseeInfoService")
 public class DriverServiceAppraiseeInfoServiceImpl implements DriverServiceAppraiseeInfoService {
-    @Autowired
+    @Resource
     private DriverServiceAppraiseeInfoMapper driverServiceAppraiseeInfoMapper;
 
     /**

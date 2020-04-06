@@ -229,9 +229,7 @@ public class DispatchServiceImpl implements IDispatchService {
         if(StringUtils.isEmpty(dispatchLockDriverDto.getDriverId())){
             return  ApiResponse.error("没有需要解除锁定的车辆编号");
         }
-        String driverId=dispatchLockDriverDto.getDriverId();
-        long k=Long.parseLong(driverId);
-        int i=driverInfoMapper.lockDriver(k);
+        int i=driverInfoMapper.lockDriver(Long.parseLong(dispatchLockDriverDto.getDriverId()));
 
         if(i<=0){
             return ApiResponse.error("解除锁定失败,该车已被其他调度员选中锁定");

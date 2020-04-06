@@ -40,7 +40,7 @@ import static com.hq.ecmp.constant.CommonConstant.ZERO;
  */
 @Service("ecmpMessageService")
 public class EcmpMessageServiceImpl implements EcmpMessageService {
-    @Autowired
+    @Resource
     private EcmpMessageMapper ecmpMessageDao;
 
     @Autowired
