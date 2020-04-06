@@ -252,6 +252,22 @@ public class EcmpUser extends BaseEntity
         this.itIsDispatcher = itIsDispatcher;
     }
 
+    public String getPayMode() {
+        return payMode;
+    }
+
+    public void setPayMode(String payMode) {
+        this.payMode = payMode;
+    }
+
+    public String getJobNumber() {
+        return jobNumber;
+    }
+
+    public void setJobNumber(String jobNumber) {
+        this.jobNumber = jobNumber;
+    }
+
     public EcmpUser() {
     }
 
