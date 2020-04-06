@@ -295,4 +295,22 @@ public class CarGroupController {
         }
     }
 
+    /**
+     * 判断车队编号是否存在
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "judgeCarGroupCode",notes = "判断车队编号是否存在",httpMethod ="POST")
+    @PostMapping("/judgeCarGroupCode")
+    public ApiResponse<Boolean> judgeCarGroupCode(
+            @RequestBody CarGroupDTO carGroupDTO){
+        try {
+           boolean exist = carGroupInfoService.judgeCarGroupCode(carGroupDTO.getCarGroupCode());
+           return ApiResponse.success(exist);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("判断失败");
+        }
+    }
+
 }
