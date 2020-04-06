@@ -226,18 +226,14 @@ public interface IEcmpOrgService
      */
     OrgTreeVo selectDeptUserTree(Long deptId, String deptName);
 
-    /**
-     * 查询车队树
-     * @param deptId
-     * @return
-     */
-    List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
 
-    //公司车队树
-    List<CompanyTreeVO> selectCarGroupAndCompanyTree(Long deptId);
+
 
     //公司车队树
     List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId);
+
+    /*公司树*/
+    public List<CompanyTreeVO> getCompanyTree(Long deptId);
 
     /*查询公司车队总人数*/
     CarGroupCountVO selectCarGroupCount(Long deptId);

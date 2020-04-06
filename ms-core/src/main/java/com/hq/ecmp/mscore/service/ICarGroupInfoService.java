@@ -125,4 +125,7 @@ public interface ICarGroupInfoService
      * @return
      */
     DispatcherAndFixedLineVO getDispatcherAndFixedLine(Long orderId);
+
+    /*根据分子公司id查询车队树*/
+    List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
 }
