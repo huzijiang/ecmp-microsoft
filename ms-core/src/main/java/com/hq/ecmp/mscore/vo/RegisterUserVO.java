@@ -14,6 +14,7 @@ import lombok.Data;
 public class RegisterUserVO {
 
 
+    private String registerId;
     @ApiModelProperty(name = "userName",value = "姓名")
     private String userName;
     @ApiModelProperty(name = "mobilePhone",value = "手机号")

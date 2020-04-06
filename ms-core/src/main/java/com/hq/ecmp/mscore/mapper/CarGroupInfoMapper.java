@@ -115,4 +115,11 @@ public interface CarGroupInfoMapper
 
     /*根据车队id查询车队树*/
     List<CarGroupTreeVO> getCarGroupTree(Long carGroupId);
+
+    /**
+     * 查询下级车队数量
+     * @param
+     * @return
+     */
+    int selectCountByParentId(Long parentId);
 }

@@ -329,7 +329,7 @@ public class CarController {
         PageResult<DriverVO> pageResult = null;
         try {
             pageResult = driverCarRelationInfoService.selectCarDriversByPage(pageRequest.getPageNum(),
-                    pageRequest.getPageSize(), pageRequest.getCarId());
+                    pageRequest.getPageSize(), pageRequest.getCarId(),pageRequest.getWorkState(),pageRequest.getItIsFullTime(),pageRequest.getBusinessFlag());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("查询驾驶员列表信息失败");

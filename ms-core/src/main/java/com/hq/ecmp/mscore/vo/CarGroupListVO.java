@@ -55,4 +55,10 @@ public class CarGroupListVO {
     @ApiModelProperty(name = "countDriver", value = "车队人数（驾驶员 加 调度员） ")
     private Integer countMember;
 
+    @ApiModelProperty(value = "所属公司名称")
+    private String ownerOrgName;
+
+    @ApiModelProperty(value = "当前车队的车辆数")
+    private  int carNum;
+
 }

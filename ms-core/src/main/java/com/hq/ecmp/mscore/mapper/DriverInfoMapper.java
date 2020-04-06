@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
 import com.hq.ecmp.mscore.dto.DriverDTO;
 import com.hq.ecmp.mscore.dto.DriverLoseDTO;
 
+import com.hq.ecmp.mscore.vo.DriverVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -239,5 +240,7 @@ public interface DriverInfoMapper
      */
     public int updateDriverState(@Param("list") List<CarGroupDriverRelation> list,
                                  @Param("updateBy") String updateBy, @Param("state") String state);
+
+    public List<DriverVO> selectDriverInfoByCarId(@Param("workState") String workState, @Param("itIsFullTime") String itIsFullTime, @Param("businessFlag") String businessFlag,@Param("carId") Long carId);
 
 }

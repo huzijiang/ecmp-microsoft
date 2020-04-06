@@ -176,8 +176,8 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         int i = projectUserRelationInfoMapper.removeProjectUser(projectUserDTO.getProjectId(), projectUserDTO.getUserId());
         if (i>0){
             ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectUserDTO.getProjectId());
-            if (projectInfo!=null&& ONE==projectInfo.getIsAllUserUse()){
-                projectInfo.setIsAllUserUse(ZERO);
+            if (projectInfo!=null&& ZERO==projectInfo.getIsAllUserUse()){
+                projectInfo.setIsAllUserUse(ONE);
                 projectInfo.setUpdateBy(String.valueOf(userId));
                 projectInfo.setUpdateTime(new Date());
                 projectInfoMapper.updateProjectInfo(projectInfo);

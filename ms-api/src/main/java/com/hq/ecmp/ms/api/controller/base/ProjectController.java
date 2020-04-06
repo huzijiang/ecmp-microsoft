@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.hq.common.enums.ErrorCodeEnum.SUCCESS;
 import static com.hq.ecmp.constant.CommonConstant.*;
 
 /**
@@ -102,7 +103,7 @@ public class ProjectController {
         }
         List<ProjectInfo> projectInfos = iProjectInfoService.selectProjectInfoList(new ProjectInfo(projectInfoDto.getProjectCode()));
         if (CollectionUtils.isNotEmpty(projectInfos)){
-            return ApiResponse.success("该编号已存在,不可重复录入!");
+            return ApiResponse.success(SUCCESS.getMsg(),"该编号已存在,不可重复录入!");
         }
         return ApiResponse.success();
     }
@@ -191,14 +192,19 @@ public class ProjectController {
         ProjectInfo oldInfo = iProjectInfoService.selectProjectInfoById(projectInfoDto.getProjectId());
         int isAlluser=oldInfo.getIsAllUserUse();
         BeanUtils.copyProperties(projectInfoDto,projectInfo);
+        if (projectInfoDto.getIsFinite()==ZERO){//无限
+            projectInfo.setStartDate(null);
+            projectInfo.setCloseDate(null);
+        }
         int i = iProjectInfoService.updateProjectInfo(projectInfo);
         if (i>0){
             if (isAlluser!=projectInfoDto.getIsAllUserUse()){
                 if (projectInfoDto.getIsAllUserUse()==ZERO){//全部员工
                     saveUserProject(projectInfoDto.getProjectId());
-                }else{
-                    iProjectUserRelationInfoService.deleteProjectUserRelationInfoById(projectInfoDto.getProjectId());
                 }
+//                else{
+//                    iProjectUserRelationInfoService.deleteProjectUserRelationInfoById(projectInfoDto.getProjectId());
+//                }
             }
         }
         return ApiResponse.success("编辑项目成功");

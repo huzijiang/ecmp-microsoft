@@ -92,8 +92,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="leader != null ">leader = #{leader},</if>
             <if test="projectCode != null  and projectCode != ''">project_code = #{projectCode},</if>
             <if test="fatherProjectId != null  and fatherProjectId != ''">father_project_id = #{fatherProjectId},</if>
-            <if test="startDate != null  and startDate != ''">start_date = #{startDate},</if>
-            <if test="closeDate != null  and closeDate != ''">close_date = #{closeDate},</if>
+            start_date = #{startDate},
+            close_date = #{closeDate},
             <if test="isAllUserUse != null">is_all_user_use = #{isAllUserUse},</if>
             <if test="isEffective != null">is_effective = #{isEffective},</if>
             <if test="ownerCompany != null">owner_company = #{ownerCompany},</if>

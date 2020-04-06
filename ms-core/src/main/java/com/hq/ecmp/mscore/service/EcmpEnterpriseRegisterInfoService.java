@@ -1,8 +1,10 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
 import com.hq.ecmp.mscore.dto.UserRegisterDTO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterUserVO;
 
@@ -66,12 +68,12 @@ public interface EcmpEnterpriseRegisterInfoService {
      * 待审批数量 员工/驾驶员
      * @param
      */
-    int waitAmount(RegisterDTO registerDTO);
+    int waitAmount(Long deptId,String type);
     /**
      * 待审批列表-员工
      * @param
      */
-    List<RegisterUserVO> queryRegisterUserWait(RegisterDTO registerDTO);
+    PageResult<RegisterUserVO> queryRegisterUserWait(PageRequest pageRequest);
     /**
      * 待审批列表-驾驶员
      * @param
