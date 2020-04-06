@@ -185,6 +185,7 @@ public class CarInfoServiceImpl implements ICarInfoService
      */
     private CarInfo setCarInfo(CarSaveDTO carSaveDTO) {
         CarInfo carInfo = new CarInfo();
+        carInfo.setCarId(carSaveDTO.getCarId());
         carInfo.setCarType(carSaveDTO.getCarType());
         carInfo.setCarLicense(carSaveDTO.getCarLicense());
         carInfo.setCarTypeId(carSaveDTO.getEnterpriseCarTypeId());
@@ -272,6 +273,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setState(CarConstant.MAINTENANCE_CAR);
         carInfo.setUpdateTime(new Date());
         carInfo.setUpdateBy(String.valueOf(userId));
+        carInfo.setCarId(carId);
         int i = carInfoMapper.updateCarInfo(carInfo);
         if(i!= 1){
             throw new Exception();

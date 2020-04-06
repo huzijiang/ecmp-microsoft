@@ -18,6 +18,10 @@ public class CarGroupDTO {
     @ApiModelProperty(name = "carGroupId", value = "车队id",required = false)
     private Long carGroupId;
 
+
+    @ApiModelProperty(name = "parentCarGroupId", value = "父车队id",required = false)
+    private Long parentCarGroupId; //TODO 新增
+
     @ApiModelProperty(name = "carGroupName", value = "车队名称")
     private String carGroupName;   //TODO 新增
 

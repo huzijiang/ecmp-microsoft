@@ -140,6 +140,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         CarGroupInfo carGroupInfo = new CarGroupInfo();
         //车队编码
         carGroupInfo.setCarGroupCode(carGroupDTO.getCarGroupCode());
+        //父车队id
+        Long parentCarGroupId = carGroupDTO.getParentCarGroupId();
+        if(parentCarGroupId == null){
+            parentCarGroupId = 0L;
+        }
+        carGroupInfo.setParentCarGroupId(parentCarGroupId);
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
         //所属城市名字
@@ -700,4 +706,40 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
         return carGroupDelFlag;
     }
+
+    /*根据公司id 查询车队树*/
+    @Override
+    public List<CarGroupTreeVO> selectCarGroupTree(Long deptId){
+        //查询分子公司的一级车队
+        List<CarGroupTreeVO> list = carGroupInfoMapper.selectFirstLevelCarGroupList(deptId);
+        int size = list.size();
+        if(size>0){
+            for (int i = 0; i < size; i++) {
+                CarGroupTreeVO carGroupTreeVO = list.get(i);
+                if(carGroupTreeVO != null) {
+                    carGroupTreeVO.setChildrenList(this.getCarGroupTree(carGroupTreeVO.getCarGroupId()));
+                }
+            }
+        }
+        return list;
+    }
+
+    /*根据车队id查询车队树*/
+    public List<CarGroupTreeVO> getCarGroupTree(Long carGroupId){
+        List<CarGroupTreeVO> list = carGroupInfoMapper.getCarGroupTree(carGroupId);
+        int size = list.size();
+        if (size > 0){
+            for (int i = 0; i < size; i++) {
+                CarGroupTreeVO carGroupTreeVO = list.get(i);
+                if(carGroupTreeVO == null){
+                    continue;
+                }
+                carGroupTreeVO.setChildrenList(this.getCarGroupTree(carGroupTreeVO.getCarGroupId()));
+            }
+        }
+        return list;
+    }
+
+
+
 }

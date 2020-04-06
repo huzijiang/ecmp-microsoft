@@ -52,6 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into car_group_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="carGroupId != null ">car_group_id,</if>
+            <if test="parentCarGroupId != null ">parent_car_group_id,</if>
             <if test="city != null ">city,</if>
             <if test="cityName != null  and cityName != ''">city_name,</if>
             <if test="ownerOrg != null ">owner_org,</if>
@@ -73,6 +74,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="carGroupId != null ">#{carGroupId},</if>
+            <if test="parentCarGroupId != null ">#{parentCarGroupId},</if>
             <if test="city != null ">#{city},</if>
             <if test="cityName != null  and cityName != ''">#{cityName},</if>
             <if test="ownerOrg != null ">#{ownerOrg},</if>
@@ -177,6 +179,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         WHERE 1=1
         AND cgi.car_group_id IS NOT NULL
         AND dri.driver_id=#{driverId}
+    </select>
+
+    <select id="selectFirstLevelCarGroupList" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
+         select car_group_id as carGroupId,
+               car_group_name as carGroupName
+        from   car_group_info
+        where  owner_company = #{deptId} and parent_car_group_id = 0
+    </select>
+    <select id="getCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
+        select car_group_id as carGroupId,
+               car_group_name as carGroupName
+        from   car_group_info
+        where  parent_car_group_id = #{carGroupId}
     </select>
 
 </mapper>

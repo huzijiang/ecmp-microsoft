@@ -40,6 +40,13 @@ public interface IEcmpOrgService
     public List<EcmpOrgDto> selectCompanyList(Long deptId,String deptType);
 
     /**
+     * 显示查询总条数
+     * @param ecmpOrg
+     * @return
+     */
+    public Integer queryCompanyListCount(EcmpOrgVo ecmpOrg);
+
+    /**
      * 显示部门列表
      *
      * @param deptId 部门ID
@@ -219,18 +226,14 @@ public interface IEcmpOrgService
      */
     OrgTreeVo selectDeptUserTree(Long deptId, String deptName);
 
-    /**
-     * 查询车队树
-     * @param deptId
-     * @return
-     */
-    List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
 
-    //公司车队树
-    List<CompanyTreeVO> selectCarGroupAndCompanyTree(Long deptId);
+
 
     //公司车队树
     List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId);
+
+    /*公司树*/
+    public List<CompanyTreeVO> getCompanyTree(Long deptId);
 
     /*查询公司车队总人数*/
     CarGroupCountVO selectCarGroupCount(Long deptId);
