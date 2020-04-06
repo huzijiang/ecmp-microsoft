@@ -467,6 +467,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         for (CarGroupListVO carGroupListVO : list) {
             Long carGroupId = carGroupListVO.getCarGroupId();
             Integer ownerOrg = carGroupListVO.getOwnerOrg();
+            //查询所属公司名字
+            Long ownerCompany = carGroupListVO.getOwnerCompany();
+            EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
+            if(ecmpOrg != null){
+                carGroupListVO.setOwnerCompanyName(ecmpOrg.getDeptName());
+            }
             //查询车队绑定车辆数
             int carNum = carInfoMapper.selectCountGroupCarByGroupId(carGroupId);
             carGroupListVO.setCarNum(carNum);
@@ -718,11 +724,30 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             for (int i = 0; i < size; i++) {
                 CarGroupTreeVO carGroupTreeVO = list.get(i);
                 if(carGroupTreeVO != null) {
-                    carGroupTreeVO.setChildrenList(this.getCarGroupTree(carGroupTreeVO.getCarGroupId()));
+                    carGroupTreeVO.setCarGroupTreeVO(this.getCarGroupTree(carGroupTreeVO.getDeptId()));
                 }
             }
         }
         return list;
+    }
+
+    /*查询所有车队编号*/
+    @Override
+    public List<String> selectAllCarGroupCode() {
+        List<String> list = carGroupInfoMapper.selectAllCarGroupCode();
+        return list;
+    }
+
+    /*判断车队编号是否存在*/
+    @Override
+    public boolean judgeCarGroupCode(String carGroupCode) {
+        List<String> list = selectAllCarGroupCode();
+        for (String s : list) {
+            if (carGroupCode.equals(s)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /*根据车队id查询车队树*/
@@ -735,7 +760,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 if(carGroupTreeVO == null){
                     continue;
                 }
-                carGroupTreeVO.setChildrenList(this.getCarGroupTree(carGroupTreeVO.getCarGroupId()));
+                carGroupTreeVO.setCarGroupTreeVO(this.getCarGroupTree(carGroupTreeVO.getDeptId()));
             }
         }
         return list;
