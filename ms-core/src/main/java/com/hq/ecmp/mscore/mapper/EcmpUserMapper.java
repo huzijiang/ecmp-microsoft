@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.mscore.vo.UserTreeVo;
 import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -246,7 +247,7 @@ public interface EcmpUserMapper
     /**
      * 员工邀请判断是否该手机号是否已经注册
      */
-    public int userItisExist(String phoneNumber);
+    public int userItisExist( @Param("phoneNumber")String phoneNumber);
 
     //查询该员工部门领导
     UserVO findDeptLeader(Long deptId);

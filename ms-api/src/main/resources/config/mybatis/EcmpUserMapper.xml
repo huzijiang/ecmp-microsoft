@@ -448,7 +448,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       select it_is_driver from ecmp_user where user_id = #{userId}
     </select>
 
-    <select id="userItisExist"  resultType="java.lang.Integer">
+    <select id="userItisExist" parameterType="String" resultType="java.lang.Integer">
           select count(*) from ecmp_user  where phonenumber=#{phoneNumber}
     </select>
 

@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
@@ -487,9 +488,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * 员工邀请判断是否该手机号是否已经注册
      */
     @Override
-    public int userItisExist(String phoneNumber) {
+    public int userItisExist(UserRegisterDTO userRegisterDTO) {
 
-        return ecmpUserMapper.userItisExist(phoneNumber);
+        return ecmpUserMapper.userItisExist(userRegisterDTO.getMobile());
 
     }
 }

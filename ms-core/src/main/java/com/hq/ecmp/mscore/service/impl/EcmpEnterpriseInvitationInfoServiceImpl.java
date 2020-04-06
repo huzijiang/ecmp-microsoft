@@ -2,10 +2,7 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
-import com.hq.ecmp.mscore.dto.DriverInvitationDTO;
-import com.hq.ecmp.mscore.dto.InvitationDto;
-import com.hq.ecmp.mscore.dto.InvitationInfoDTO;
-import com.hq.ecmp.mscore.dto.UserInvitationDTO;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
@@ -104,7 +101,7 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
     /**
      * 邀请员工详情
      */
-    public InvitationUserVO  queryInvitationUserDetial(String invitationId){
+    public InvitationUserVO  queryInvitationUserDetial(Long invitationId){
         return ecmpEnterpriseInvitationInfoMapper.queryInvitationUserDetial(invitationId);
     }
     /**
@@ -113,10 +110,11 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
     public List<InvitationDriverVO> queryInvitationDriver(InvitationInfoDTO invitationInfoDTO){
         return ecmpEnterpriseInvitationInfoMapper.queryInvitationDriver(invitationInfoDTO.getType());
     }
+
     /**
      * 邀请驾驶员详情
      */
-    public InvitationDriverVO  queryInvitationDriverDetial(String invitationId){
+    public InvitationDriverVO  queryInvitationDriverDetial(Long invitationId){
         return ecmpEnterpriseInvitationInfoMapper.queryInvitationDriverDetial(invitationId);
     }
     /**
@@ -128,6 +126,7 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
         driverInvitationDTO.setCreateTime(DateUtils.getNowDate());
         driverInvitationDTO.setState("Y000");
         driverInvitationDTO.setType("T002");
+        driverInvitationDTO.setUrl("http:Driver.cn");
         return ecmpEnterpriseInvitationInfoMapper.insertDriverInvitation(driverInvitationDTO);
     }
     /**
@@ -139,7 +138,10 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
         uerInvitationDTO.setCreateTime(DateUtils.getNowDate());
         uerInvitationDTO.setState("Y000");
         uerInvitationDTO.setType("T001");
+        uerInvitationDTO.setUrl("http:User.cn");
         return ecmpEnterpriseInvitationInfoMapper.insertUserInvitation(uerInvitationDTO);
     }
+
+
 
 }

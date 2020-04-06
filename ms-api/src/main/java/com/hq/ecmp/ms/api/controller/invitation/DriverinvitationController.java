@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.invitation;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
@@ -15,6 +16,7 @@ import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
+import com.hq.ecmp.mscore.vo.RegisterVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,13 +57,6 @@ public class DriverinvitationController {
     @PostMapping("/interInvitationDriverCommit")
     public ApiResponse interInvitationDriverCommit(@RequestBody DriverInvitationDTO driverInvitationDTO){
         try {
-            //driverInvitationDTO.setType("T002");//驾驶员邀请
-           // driverInvitationDTO.setState("Y000");//默认邀请状态为有效
-
-            //获取调用接口的用户信息
-/*            HttpServletRequest request = ServletUtils.getRequest();
-            LoginUser loginUser = tokenService.getLoginUser(request);
-            Long userId = loginUser.getUser().getUserId();*/
 
             ecmpEnterpriseInvitationInfoService.insertDriverInvitation(driverInvitationDTO);
         } catch (Exception e) {
@@ -111,6 +106,7 @@ public class DriverinvitationController {
      public ApiResponse updateInDriverStop(@RequestBody InvitationDto invitationDto){
         try {
             invitationDto.setState("N000");//默认邀请状态为失效
+            invitationDto.setUpdateTime(DateUtils.getNowDate());
             ecmpEnterpriseInvitationInfoService.updateInvitationState(invitationDto);
         } catch (Exception e) {
             e.printStackTrace();
@@ -141,15 +137,16 @@ public class DriverinvitationController {
      */
     @ApiOperation(value = "getregDriverWaitCount",notes = "驾驶员待审批数量",httpMethod = "POST")
     @PostMapping("/getregDriverWaitCount")
-    public ApiResponse getregDriverWaitCount(@RequestBody RegisterDTO registerDTO){
+    public ApiResponse<RegisterVO>  getregDriverWaitCount(RegisterDTO registerDTO){
+        RegisterVO registerVO =new RegisterVO();
         registerDTO.setState("S000");
         registerDTO.setType("T002");
-        int i =ecmpEnterpriseRegisterInfoServicee.waitAmount(registerDTO);
-        if(i>0){
-            return ApiResponse.success(i);
-        }
-        return ApiResponse.error("待审批驾驶员数量为0");
+        int waitCount =ecmpEnterpriseRegisterInfoServicee.waitAmount(registerDTO);
+        registerVO.setRegisterCount(waitCount);
+        return ApiResponse.success(registerVO);
+
     }
+
     /**
      * 待审批列表
      * @param
@@ -157,7 +154,7 @@ public class DriverinvitationController {
     @ApiOperation(value = "getRegisterDriverList",notes = "驾驶员待审批列表",httpMethod = "POST")
     @PostMapping("/getRegisterDriverList")
     public ApiResponse <List<RegisterDriverVO>>getRegisterDriverList(@RequestBody RegisterDTO registerDTO){
-        registerDTO.setState("");
+
         List<RegisterDriverVO> registerDriverVOlist = ecmpEnterpriseRegisterInfoServicee.queryRegisterDriverWait(registerDTO);
         if(CollectionUtils.isNotEmpty(registerDriverVOlist)){
             return ApiResponse.success(registerDriverVOlist);
@@ -186,9 +183,9 @@ public class DriverinvitationController {
     */
     @ApiOperation(value = "getInvitationDriverDetail",notes = "获取驾驶员邀请详情",httpMethod = "POST")
     @PostMapping("/getInvitationDriverDetail")
-    public ApiResponse<InvitationDriverVO> getInvitationDriverDetail(@RequestBody String invitationId){
+    public ApiResponse<InvitationDriverVO> getInvitationDriverDetail(@RequestBody InvitationDto invitationDto){
 
-        InvitationDriverVO InvitationDriver=ecmpEnterpriseInvitationInfoService.queryInvitationDriverDetial(invitationId);
+        InvitationDriverVO InvitationDriver=ecmpEnterpriseInvitationInfoService.queryInvitationDriverDetial(invitationDto.getInvitationId());
         return ApiResponse.success(InvitationDriver);
 
     }

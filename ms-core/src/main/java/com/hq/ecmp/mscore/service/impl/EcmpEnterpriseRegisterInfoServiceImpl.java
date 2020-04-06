@@ -1,7 +1,10 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
+import com.hq.ecmp.mscore.dto.InvitationDto;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
+import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseRegisterInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
@@ -93,7 +96,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
     public int waitAmount(RegisterDTO registerDTO){
 
 
-        return ecmpEnterpriseRegisterInfoMapper.waitAmount(registerDTO.getType());
+        return ecmpEnterpriseRegisterInfoMapper.waitAmountCount(registerDTO.getType(),registerDTO.getState());
     }
 
     /**
@@ -112,4 +115,22 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
     public List<RegisterDriverVO> queryRegisterDriverWait(RegisterDTO registerDTO){
         return ecmpEnterpriseRegisterInfoMapper.queryRegisterDriverWait(registerDTO.getType());
     }
+    /**
+     * 注册申请：拒绝/通过
+     */
+    @Override
+    public int updateRegisterState(RegisterDTO registerDTO){
+        return ecmpEnterpriseRegisterInfoMapper.updateRegisterState(registerDTO);
+    }
+    /**
+     * 员工注册
+     * @param userRegisterDTO
+     * @return
+     */
+    public UserRegisterDTO insertUserRegister(UserRegisterDTO userRegisterDTO){
+        userRegisterDTO.setCreateTime(DateUtils.getNowDate());
+        return ecmpEnterpriseRegisterInfoMapper.insertUserRegister(userRegisterDTO);
+    }
+
+
 }

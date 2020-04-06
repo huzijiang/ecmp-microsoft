@@ -1,12 +1,15 @@
 package com.hq.ecmp.mscore.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiParam;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
+
 /**
- * @Author: shixin
+ * @Author:
  * @Date: 2020-03-17 15:26
  */
 @Data
@@ -28,5 +31,10 @@ public class InvitationDto {
     @NotEmpty
     @NotNull
     private String state;
+
+    @ApiParam(required = true)
+    @NotEmpty
+    @NotNull
+    private Date updateTime;
 
 }

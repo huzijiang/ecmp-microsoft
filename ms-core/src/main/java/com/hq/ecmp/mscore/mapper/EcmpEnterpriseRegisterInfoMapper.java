@@ -2,6 +2,8 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 
+import com.hq.ecmp.mscore.dto.RegisterDTO;
+import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterUserVO;
 import org.apache.ibatis.annotations.Param;
@@ -70,13 +72,8 @@ public interface EcmpEnterpriseRegisterInfoMapper {
     /**
      * 手机号是否已经申请注册
      */
-    int itIsRegistration(String phoneNum,String state);
+    int itIsRegistration(@Param("phoneNum") String phoneNum, @Param("state") String state);
 
-    /**
-     * 待审批数量
-     * @param
-     */
-    int waitAmount(String type);
     /**
      * 待审批列表-员工
      * @param
@@ -87,7 +84,21 @@ public interface EcmpEnterpriseRegisterInfoMapper {
      * @param
      */
     List<RegisterDriverVO> queryRegisterDriverWait(String type);
-
+    /**
+     * 待审批数量
+     * @param
+     */
+    public int waitAmountCount(String type,String state);
+    /**
+     * 注册申请：拒绝/通过
+     */
+    int updateRegisterState(RegisterDTO registerDTO);
+    /**
+     * 员工注册
+     * @param userRegisterDTO
+     * @return
+     */
+    UserRegisterDTO insertUserRegister(UserRegisterDTO userRegisterDTO);
 
 
 }
