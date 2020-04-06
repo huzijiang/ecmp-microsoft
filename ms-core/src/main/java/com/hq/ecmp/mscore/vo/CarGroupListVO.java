@@ -61,4 +61,11 @@ public class CarGroupListVO {
     @ApiModelProperty(value = "当前车队的车辆数")
     private  int carNum;
 
+    //新增
+    @ApiModelProperty(name = "ownerCompanyName", value = "所属公司名字")
+    private String ownerCompanyName;
+
+    //新增
+    @ApiModelProperty(name = "ownerCompany", value = "所属公司id")
+    private Long ownerCompany;
 }
