@@ -15,14 +15,14 @@ import java.util.List;
 public class CarGroupTreeVO {
 
     @ApiModelProperty(value = "组织id")
-    private Long carGroupId;
+    private Long deptId;
 
     @ApiModelProperty(value = "组织名称")
-    private String carGroupName;
+    private String deptName;
 
 
 
     //子部门列表
-    private List<CarGroupTreeVO> childrenList;
+    private List<CarGroupTreeVO> carGroupTreeVO;
 
 }

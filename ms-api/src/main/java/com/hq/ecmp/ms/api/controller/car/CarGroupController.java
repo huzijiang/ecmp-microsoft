@@ -99,8 +99,8 @@ public class CarGroupController {
     @PostMapping("/deleteCarGroup")
     public ApiResponse deleteCarGroup(@RequestBody CarGroupDTO carGroupDTO){
         try {
-            carGroupInfoService.deleteCarGroup(carGroupDTO.getCarGroupId());
-            return ApiResponse.success("删除成功");
+            String rtnMsg = carGroupInfoService.deleteCarGroup(carGroupDTO.getCarGroupId());
+            return ApiResponse.success(rtnMsg);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -292,6 +292,24 @@ public class CarGroupController {
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("查询失败");
+        }
+    }
+
+    /**
+     * 判断车队编号是否存在
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "judgeCarGroupCode",notes = "判断车队编号是否存在",httpMethod ="POST")
+    @PostMapping("/judgeCarGroupCode")
+    public ApiResponse<Boolean> judgeCarGroupCode(
+            @RequestBody CarGroupDTO carGroupDTO){
+        try {
+           boolean exist = carGroupInfoService.judgeCarGroupCode(carGroupDTO.getCarGroupCode());
+           return ApiResponse.success(exist);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("判断失败");
         }
     }
 

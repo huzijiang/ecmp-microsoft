@@ -132,6 +132,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             select car_group_id as carGroupId, car_group_name as carGroupName,
                 car_group_code as carGroupCode,owner_org as ownerOrg,
                 eo.dept_name ownerOrgName,
+                owner_company as ownerCompany,
                 state,city
              from car_group_info
              left join ecmp_org eo on eo.dept_id=owner_org
@@ -195,6 +196,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                car_group_name as carGroupName
         from   car_group_info
         where  parent_car_group_id = #{carGroupId}
+    </select>
+    <select id="selectAllCarGroupCode" resultType="java.lang.String">
+        SELECT car_group_code FROM car_group_info
     </select>
 
     <select id="selectCountByParentId" resultType="int">

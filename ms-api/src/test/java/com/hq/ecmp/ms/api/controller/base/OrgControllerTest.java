@@ -1,5 +1,15 @@
 package com.hq.ecmp.ms.api.controller.base;
 
+import static com.hq.ecmp.constant.CommonConstant.PROJECT_USER_TREE;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import com.alibaba.fastjson.JSON;
 import com.hq.api.system.domain.SysUser;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
@@ -10,19 +20,19 @@ import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.mapper.ProjectInfoMapper;
 import com.hq.ecmp.mscore.mapper.ProjectUserRelationInfoMapper;
-import com.hq.ecmp.mscore.service.*;
-import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.mscore.service.IApplyInfoService;
+import com.hq.ecmp.mscore.service.IApproveTemplateInfoService;
+import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
+import com.hq.ecmp.mscore.service.IEcmpOrgService;
+import com.hq.ecmp.mscore.service.IProjectInfoService;
+import com.hq.ecmp.mscore.vo.ApplyDetailVO;
+import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
+import com.hq.ecmp.mscore.vo.ApprovalListVO;
+import com.hq.ecmp.mscore.vo.ApprovalUserVO;
+import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import com.hq.ecmp.util.RedisUtil;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.hq.ecmp.constant.CommonConstant.PROJECT_USER_TREE;
+import QrCodeService.QrCodeService;
 
 /**
  * @Author: chao.zhang
@@ -50,6 +60,7 @@ class OrgControllerTest {
     private IApplyInfoService applyInfoService;
     @Autowired
     private RedisUtil redisUtil;
+ 
 
     @Test
     void getUserOwnCompanyDept() {
@@ -210,5 +221,7 @@ class OrgControllerTest {
             e.printStackTrace();
         }
     }
+    
+   
 
 }

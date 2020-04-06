@@ -74,5 +74,5 @@ public interface EnterpriseCarTypeInfoMapper
      * 查詢最大的車型級別
      * @return
      */
-    CarTypeDTO getCarTypeDTOById();
+    String getCarTypeDTOById();
 }

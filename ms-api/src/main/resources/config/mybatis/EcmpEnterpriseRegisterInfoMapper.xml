@@ -25,6 +25,7 @@
         <result property="state" column="state" jdbcType="VARCHAR"/>
         <result property="auditor" column="auditor" jdbcType="INTEGER"/>
         <result property="auditTime" column="audit_time" jdbcType="TIMESTAMP"/>
+        <result property="rejectReason" column="reject_reason" jdbcType="VARCHAR"/>
         <result property="createBy" column="create_by" jdbcType="INTEGER"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
@@ -34,7 +35,7 @@
     <!--查询单个-->
     <select id="queryById" resultMap="EcmpEnterpriseRegisterInfoMap">
         select
-          register_id, invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time
+          register_id, invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time,reject_reason
         from ecmp.ecmp_enterprise_register_info
         where register_id = #{registerId}
     </select>
@@ -42,7 +43,7 @@
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="EcmpEnterpriseRegisterInfoMap">
         select
-          register_id, invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time
+          register_id, invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time,reject_reason
         from ecmp.ecmp_enterprise_register_info
         limit #{offset}, #{limit}
     </select>
@@ -50,7 +51,7 @@
     <!--通过实体作为筛选条件查询-->
     <select id="queryAll" resultMap="EcmpEnterpriseRegisterInfoMap">
         select
-          register_id, invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time
+          register_id, invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time,reject_reason
         from ecmp.ecmp_enterprise_register_info
         <where>
             <if test="registerId != null">
@@ -136,8 +137,8 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="registerId" useGeneratedKeys="true">
-        insert into ecmp.ecmp_enterprise_register_info(invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time)
-        values (#{invitationId}, #{type}, #{name}, #{gender}, #{jobNumber}, #{email}, #{mobile}, #{smsAuthCode}, #{reason}, #{idCard}, #{carGroupId}, #{licenseType}, #{licenseInitIssueDate}, #{licenseIssueDate}, #{licenseExpireDate}, #{licenseNumber}, #{licenseArchivesNumber}, #{licenseImages}, #{state}, #{auditor}, #{auditTime}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
+        insert into ecmp.ecmp_enterprise_register_info(invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time,reject_reason)
+        values (#{invitationId}, #{type}, #{name}, #{gender}, #{jobNumber}, #{email}, #{mobile}, #{smsAuthCode}, #{reason}, #{idCard}, #{carGroupId}, #{licenseType}, #{licenseInitIssueDate}, #{licenseIssueDate}, #{licenseExpireDate}, #{licenseNumber}, #{licenseArchivesNumber}, #{licenseImages}, #{state}, #{auditor}, #{auditTime}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime},#{rejectReason})
     </insert>
 
     <!--通过主键修改数据-->
@@ -201,6 +202,9 @@
             <if test="state != null and state != ''">
                 state = #{state},
             </if>
+            <if test="rejectReason != null and rejectReason != ''">
+                reject_reason = #{rejectReason},
+            </if>
             <if test="auditor != null">
                 auditor = #{auditor},
             </if>
@@ -230,11 +234,11 @@
     <!--待审核数量员工/驾驶员-->
     <select id="waitAmountCount" parameterType="com.hq.ecmp.mscore.dto.RegisterDTO" resultType="java.lang.Integer">
        select COUNT(*) from ecmp_enterprise_register_info a
-       <if test="deptId!=null">
+       <if test="deptId!=null and deptId >0">
            left join ecmp_enterprise_invitation_info b on a.invitation_id=a.invitation_id
        </if>
-       where d.state='S000' and d.type=#{type}
-       <if test="deptId!=null">
+       where a.state='S000' and a.type=#{type}
+       <if test="deptId!=null and deptId >0">
            and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
     </if>
     </select>
@@ -246,16 +250,16 @@
         left join ecmp_org c on c.dept_id = b.enterprise_id
         left join ecmp_org e on e.dept_id = b.department_id
         where a.type=#{type} and a.state='S000'
-        <if test="deptId!=null">
+        <if test="deptId!=null and deptId >0">
             and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
         </if>
     </select>
     <!--待审核列表员工数量-->
     <select id="queryRegisterUserWaitCount" resultType="Long">
-        select count(*) from from ecmp_enterprise_register_info  a
+        select count(*) from ecmp_enterprise_register_info  a
         left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
         where a.type=#{type} and a.state='S000'
-        <if test="deptId!=null">
+        <if test="deptId!=null and deptId >0">
             and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
         </if>
     </select>

@@ -122,4 +122,8 @@ public interface CarGroupInfoMapper
      * @return
      */
     int selectCountByParentId(Long parentId);
+
+    /*查询所有车队编号*/
+    List<String> selectAllCarGroupCode();
+
 }
