@@ -157,7 +157,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''">car_color = #{carColor},</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">car_license_color = #{carLicenseColor},</if>
             <if test="powerType != null  and powerType != ''">power_type = #{powerType},</if>
-            <if test="carType != null  and carType != ''">car_type = #{carType},</if>
             <if test="engineNumber != null  and engineNumber != ''">engine_number = #{engineNumber},</if>
             <if test="engineCc != null  and engineCc != ''">engine_cc = #{engineCc},</if>
             <if test="enginePower != null  and enginePower != ''">engine_power = #{enginePower},</if>
