@@ -14,9 +14,12 @@ public class InviteDto {
     /**
      * 用车制度编号
      */
+    @ApiParam(required = false)
     Long deptId;
     //T001员工,T002驾驶员
+    @ApiParam(required = true)
     String type;
+    @ApiParam(required = false)
     String state;
 
 
