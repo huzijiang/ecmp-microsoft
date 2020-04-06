@@ -5,21 +5,14 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@ApiModel(description = "审批模型")
 public class RegisterVO {
-
 
     @ApiModelProperty(value = "人数")
     private int registerCount;
 
+    @ApiModelProperty(value = "人数")
+    private int resignationCount;
 
-    @Override
-    public String toString() {
-        return "RegisterVO{" +
-                "registerCount='" + registerCount + '\'' +
-
-                '}';
-    }
 
 
 }

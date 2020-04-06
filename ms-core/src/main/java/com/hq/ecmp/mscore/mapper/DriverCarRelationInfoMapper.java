@@ -74,4 +74,11 @@ public interface DriverCarRelationInfoMapper
     public Integer queryDriverUseCarCount(Long driverId);
 
     int deleteCarDriver(@Param("carId") Long carId,@Param("userId") Long userId,@Param("driverId") Long driverId);
+
+    /**
+     * 通过司机id查询可用车辆数
+     * @param driverId
+     * @return
+     */
+    int queryCountCarByDriverId(@Param("driverId") Long driverId);
 }

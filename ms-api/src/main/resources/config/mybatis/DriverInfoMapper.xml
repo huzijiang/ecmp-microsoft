@@ -316,7 +316,7 @@ WHERE
 
     <!--//禁用/启用  驾驶员   员工-->
     <update id="updateDriverUseStatus" >
-      update  driver_info  set `state`=#{state} where user_id==#{userId})
+      update  driver_info  set `state`=#{state} where user_id=#{userId}
     </update>
     <!--//邀请驾驶员是否已经是企业司机-->
     <select id="driverItisExist"  resultType="java.lang.Integer">
@@ -540,4 +540,23 @@ WHERE
             #{item.driverId}
         </foreach>
     </update>
+
+    <select id="selectDriverInfoByCarId"  resultType="com.hq.ecmp.mscore.vo.DriverVO">
+        SELECT
+        dcri.driver_id driverId,
+        dcri.user_id userId,
+        di.driver_name driverName,
+        di.mobile driverMobile,
+        di.it_is_full_time itIsFullTime,
+        dwi.leave_status workState
+        FROM driver_car_relation_info  dcri
+        LEFT JOIN driver_info di on dcri.driver_id=di.driver_id
+        left join driver_work_info dwi on dwi.driver_id=di.driver_id and dwi.caledar_date=DATE_FORMAT(now(),'%Y-%m-%d')
+        <where>
+            <if test="workState != null and workState != ''"> and dwi.leave_status = #{workState}</if>
+            <if test="itIsFullTime != null and itIsFullTime != ''"> and  di.it_is_full_time = #{itIsFullTime}</if>
+            <if test="businessFlag != null and businessFlag!='' "> and (di.driver_name like concat('%',#{businessFlag},'%') or di.mobile=#{businessFlag} or dcri.user_id=#{businessFlag} )</if>
+            <if test="carId !=null"> and dcri.car_id=#{carId}</if>
+        </where>
+    </select>
 </mapper>

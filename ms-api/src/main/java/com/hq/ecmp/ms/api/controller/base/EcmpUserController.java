@@ -141,7 +141,7 @@ public class EcmpUserController {
     public ApiResponse updatePhoneNum(@RequestBody EcmpUserVo ecmpUserVo){
         String newPhoneNum=ecmpUserVo.getNewPhoneNum();
         String reWritePhone=ecmpUserVo.getReWritePhone();
-        Long userId=ecmpUserVo.getUserId();
+        String userName=ecmpUserVo.getUserName();
         if(newPhoneNum==null||newPhoneNum.trim()==""){
             return ApiResponse.error("手机号不能为空！");
         }
@@ -151,7 +151,7 @@ public class EcmpUserController {
         if(!reWritePhone.equals(newPhoneNum)){
             return ApiResponse.error("手机号码不一致！");
         }
-        String s= ecmpUserService.updatePhoneNum(newPhoneNum,reWritePhone,userId);
+        String s= ecmpUserService.updatePhoneNum(newPhoneNum,reWritePhone,userName);
             return ApiResponse.success(s);
     }
 
@@ -209,7 +209,7 @@ public class EcmpUserController {
      * */
     @ApiOperation(value = "已离职列表",notes = "已离职列表",httpMethod ="POST")
     @PostMapping("/selectDimissionList")
-    public ApiResponse selectDimissionList(@RequestBody EcmpUserVo ecmpUser){
+    public ApiResponse<List<EcmpUserDto>> selectDimissionList(@RequestBody EcmpUserVo ecmpUser){
         Long deptId=ecmpUser.getDeptId();
         if(deptId==null){
             return ApiResponse.error("部门id不能为空！");

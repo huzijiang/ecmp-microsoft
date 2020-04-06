@@ -163,6 +163,11 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
         where a.type='T001'
         group by a.name,a.enterprise_id,a.department_id
     </select>
+
+    <select id="queryInvitationUserCount" resultType="Long">
+        select count(*) from ecmp_enterprise_invitation_info  a
+        where a.type=#{type}
+    </select>
     <!--邀请员工详情-->
     <select id="queryInvitationUserDetial" parameterType="Long" resultType="com.hq.ecmp.mscore.vo.InvitationUserVO">
         select a.invitation_id as invitationId ,a.name as yqName,c.dept_name as companyName,e.dept_name as deptName,group_concat(b.name) as regimeUser ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait,

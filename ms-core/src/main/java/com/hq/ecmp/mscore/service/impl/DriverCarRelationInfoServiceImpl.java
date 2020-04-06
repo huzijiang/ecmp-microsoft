@@ -1,16 +1,19 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.hq.ecmp.mscore.domain.DriverCarRelationInfo;
-import com.hq.ecmp.mscore.domain.DriverInfo;
+import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.OrgConstant;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CarDriverDTO;
-import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
-import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
+import com.hq.ecmp.mscore.dto.EcmpOrgDto;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.vo.DriverVO;
 import com.hq.ecmp.mscore.vo.PageResult;
@@ -36,6 +39,16 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
     private DriverCarRelationInfoMapper driverCarRelationInfoMapper;
     @Autowired
     private DriverInfoMapper driverInfoMapper;
+    @Autowired
+    private CarInfoMapper carInfoMapper;
+    @Autowired
+    private CarGroupInfoMapper carGroupInfoMapper;
+    @Autowired
+    private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private EcmpOrgMapper ecmpOrgMapper;
+    @Autowired
+    private DriverWorkInfoMapper driverWorkInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -166,20 +179,41 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
      * @return
      */
     @Override
-    public PageResult<DriverVO> selectCarDriversByPage(Integer pageNum, Integer pageSize, Long carId) {
+    public PageResult<DriverVO> selectCarDriversByPage(Integer pageNum, Integer pageSize, Long carId,String workState,String itIsFullTime,String businessFlag) {
         PageHelper.startPage(pageNum,pageSize);
         DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+        CarInfo carInfo = carInfoMapper.selectCarInfoById(carId);
+        Long carGroupId = carInfo.getCarGroupId();
+        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+        String carGroupName = carGroupInfo.getCarGroupName();
         driverCarRelationInfo.setCarId(carId);
-        List<DriverCarRelationInfo> driverCarRelationInfos = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo);
+        List<DriverVO> driverCarRelationInfos = driverInfoMapper.selectDriverInfoByCarId(workState, itIsFullTime, businessFlag, carId);
         DriverVO driverVO = null;
         List<DriverVO> list = new ArrayList<>();
-        for (DriverCarRelationInfo carRelationInfo : driverCarRelationInfos) {
+        for (DriverVO carRelationInfo : driverCarRelationInfos) {
             driverVO = new DriverVO();
             Long driverId = carRelationInfo.getDriverId();
-            DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(driverId);
             driverVO.setDriverId(driverId);
-            driverVO.setDriverName(driverInfo.getDriverName());
-            driverVO.setUserId(driverInfo.getUserId());
+            driverVO.setDriverName(carRelationInfo.getDriverName());
+            driverVO.setUserId(carRelationInfo.getUserId());
+            driverVO.setItIsFullTime(carRelationInfo.getItIsFullTime());
+            driverVO.setCarGroupId(carGroupId);
+            driverVO.setCarGroupName(carGroupName);
+            driverVO.setDriverMobile(carRelationInfo.getDriverMobile());
+            int carCount = driverCarRelationInfoMapper.queryCountCarByDriverId(driverId);
+            driverVO.setCarCount(carCount);
+            EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carRelationInfo.getUserId());
+            EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
+            String ancestors = ecmpOrg.getAncestors();
+            String[] split = ancestors.split(",");
+            for (int i = split.length-1; i >=0 ; i++) {
+                EcmpOrg ecmpOrgDto1 = ecmpOrgMapper.selectEcmpOrgById(Long.parseLong(split[i]));
+                if(ecmpOrgDto1.getDeptType().equals(OrgConstant.DEPT_TYPE_1)){
+                    driverVO.setCompany(ecmpOrgDto1.getDeptName());
+                    break;
+                }
+            }
+            driverVO.setWorkState(carRelationInfo.getWorkState());
             list.add(driverVO);
         }
         PageInfo<DriverVO> pageInfo = new PageInfo<>(list);

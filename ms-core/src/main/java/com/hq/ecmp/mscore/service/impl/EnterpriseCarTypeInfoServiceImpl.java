@@ -158,7 +158,11 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
         EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
         enterpriseCarTypeInfo.setEnterpriseId(carDto.getEnterpriseId());
         enterpriseCarTypeInfo.setName(carDto.getName());
-        enterpriseCarTypeInfo.setLevel(carDto.getLevel());
+        //增加車型級別
+        String Level = enterpriseCarTypeInfoMapper.getCarTypeDTOById();
+        String carLevel = Level.substring(1);
+        String newEquipmentNo = String.format("P" + "%03d", Integer.parseInt(carLevel.substring(1))+1);
+        enterpriseCarTypeInfo.setLevel(newEquipmentNo);
         // 初始化状态为生效  状态   S000   生效中    S444   失效中
         enterpriseCarTypeInfo.setStatus(CarConstant.START_CAR_TYPE);
         enterpriseCarTypeInfo.setCreateBy(String.valueOf(userId));
@@ -207,6 +211,8 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
                     .name(carTypeInfo.getName())
                     .status(carTypeInfo.getStatus())
                     .enterpriseId(carTypeInfo.getEnterpriseId())
+                    .carType(carTypeInfo.getCarType())
+                    .carNum(carTypeInfo.getCarNum())
                     .build();
             list.add(carTypeVO);
         }

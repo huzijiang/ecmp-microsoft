@@ -3,6 +3,7 @@ package com.hq.ecmp.ms.api.controller.invitation;
 import com.hq.common.core.api.ApiResponse;
 
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.ms.api.dto.base.InviteDto;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.dto.*;
@@ -10,10 +11,7 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
-import com.hq.ecmp.mscore.vo.InvitationUserVO;
-import com.hq.ecmp.mscore.vo.NewsVO;
-import com.hq.ecmp.mscore.vo.RegisterUserVO;
-import com.hq.ecmp.mscore.vo.RegisterVO;
+import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,12 +165,12 @@ public class UserinvitationController {
      */
     @ApiOperation(value = "getregisterUserWaitCount",notes = "员工待审批数量",httpMethod = "POST")
     @PostMapping("/getregisterUserWaitCount")
-    public ApiResponse<RegisterVO> getregisterUserWaitCount(RegisterDTO registerDTO){
+    public ApiResponse<RegisterVO> getregisterUserWaitCount(@RequestBody InviteDto inviteDto){
         RegisterVO registerVO =new RegisterVO();
-        registerDTO.setState("S000");
-        registerDTO.setType("T001");
-        int waitCount =ecmpEnterpriseRegisterInfoServicee.waitAmount(registerDTO);
+        int waitCount =ecmpEnterpriseRegisterInfoServicee.waitAmount(inviteDto.getDeptId(),inviteDto.getType());
         registerVO.setRegisterCount(waitCount);
+        int resignationCount = iEcmpUserService.selectDimissionCount();
+        registerVO.setResignationCount(resignationCount);
         return ApiResponse.success(registerVO);
     }
     /**
@@ -181,13 +179,9 @@ public class UserinvitationController {
      */
     @ApiOperation(value = "getRegisterUserWaitList",notes = "员工待审批列表",httpMethod = "POST")
     @PostMapping("/getRegisterUserWaitList")
-    public ApiResponse <List<RegisterUserVO>>getRegisterUserWaitList(@RequestBody RegisterDTO registerDTO){
-        List<RegisterUserVO> registerUserVOlist = ecmpEnterpriseRegisterInfoServicee.queryRegisterUserWait(registerDTO);
-        if(CollectionUtils.isNotEmpty(registerUserVOlist)){
-            return ApiResponse.success(registerUserVOlist);
-        }else {
-            return ApiResponse.error("未查询到待审批员工列表");
-        }
+    public ApiResponse <PageResult<RegisterUserVO>>getRegisterUserWaitList(@RequestBody PageRequest pageRequest){
+        PageResult<RegisterUserVO> registerUserVOlist = ecmpEnterpriseRegisterInfoServicee.queryRegisterUserWait(pageRequest);
+        return ApiResponse.success(registerUserVOlist);
     }
 
     /**
@@ -195,13 +189,9 @@ public class UserinvitationController {
      */
     @ApiOperation(value = "getInvitationUserList",notes = "获取员工邀请列表",httpMethod = "POST")
     @PostMapping("/getInvitationUserList")
-    public ApiResponse<List<InvitationUserVO>> getInvitationUserList(@RequestBody InvitationInfoDTO invitationInfoDTO){
-        List<InvitationUserVO> invitationVOList = ecmpEnterpriseInvitationInfoService.queryInvitationUser(invitationInfoDTO);
-        if(CollectionUtils.isNotEmpty(invitationVOList)){
-            return ApiResponse.success(invitationVOList);
-        }else {
-            return ApiResponse.error("未查询到员工邀请列表");
-        }
+    public ApiResponse<PageResult<InvitationUserVO>> getInvitationUserList(@RequestBody PageRequest PageRequest){
+        PageResult<InvitationUserVO> invitationVOList = ecmpEnterpriseInvitationInfoService.queryInvitationUser(PageRequest);
+        return ApiResponse.success(invitationVOList);
     }
     /**
     * 获取邀请详情-员工

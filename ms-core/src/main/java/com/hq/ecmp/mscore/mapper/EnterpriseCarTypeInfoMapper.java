@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
+import com.hq.ecmp.mscore.dto.CarTypeDTO;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -68,4 +69,10 @@ public interface EnterpriseCarTypeInfoMapper
      * @return
      */
     Long selectCarTypeId(String onlineCarLevel);
+
+    /**
+     * 查詢最大的車型級別
+     * @return
+     */
+    String getCarTypeDTOById();
 }

@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.dto.*;
@@ -7,6 +8,7 @@ import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -94,9 +96,11 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
     /**
      * 邀请列表-员工
      */
-    public List<InvitationUserVO> queryInvitationUser(InvitationInfoDTO invitationInfoDTO){
-        invitationInfoDTO.setType("T001");
-        return ecmpEnterpriseInvitationInfoMapper.queryInvitationUser(invitationInfoDTO.getType());
+    public PageResult<InvitationUserVO> queryInvitationUser(PageRequest PageRequest){
+        PageHelper.startPage(PageRequest.getPageNum(),PageRequest.getPageSize());
+        List<InvitationUserVO> invitationUserVOS = ecmpEnterpriseInvitationInfoMapper.queryInvitationUser(PageRequest.getType());
+        Long count=ecmpEnterpriseInvitationInfoMapper.queryInvitationUserCount(PageRequest.getType());
+        return new PageResult<>(count,invitationUserVOS);
     }
     /**
      * 邀请员工详情

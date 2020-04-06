@@ -346,7 +346,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!--修改手机号-->
     <update id="updatePhoneNum" >
-      update ecmp_user  SET phonenumber=#{phonenumber},user_name=#{userName} where user_id = #{userId}
+      update ecmp_user  SET phonenumber=#{phonenumber},user_name=#{userName} where user_name = #{userName}
     </update>
 
     <!--获取员工详情-->
@@ -454,7 +454,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <!--判断员工是否为驾驶员-->
-    <select id="selectEcmpUserIsDirver" >
+    <select id="selectEcmpUserIsDirver" resultType="String">
       select it_is_driver from ecmp_user where user_id = #{userId}
     </select>
 

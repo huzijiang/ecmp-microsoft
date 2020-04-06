@@ -364,6 +364,7 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .licensePrice(carInfo.getLicensePrice())
                 .carImgaeUrl(carInfo.getCarImgaeUrl())
                 .carDrivingLicenseImagesUrl(carInfo.getCarDrivingLicenseImagesUrl())
+                .carId(carId)
                 .build();
         return carDetailVO;
     }

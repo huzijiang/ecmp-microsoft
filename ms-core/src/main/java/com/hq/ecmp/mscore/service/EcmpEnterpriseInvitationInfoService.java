@@ -3,6 +3,7 @@ import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
 
@@ -63,7 +64,7 @@ public interface EcmpEnterpriseInvitationInfoService {
     /**
      * 邀请列表-员工
      */
-    public List<InvitationUserVO> queryInvitationUser(InvitationInfoDTO invitationInfoDTO);
+    public PageResult<InvitationUserVO> queryInvitationUser(PageRequest PageRequest);
     /**
      * 邀请员工详情
      */

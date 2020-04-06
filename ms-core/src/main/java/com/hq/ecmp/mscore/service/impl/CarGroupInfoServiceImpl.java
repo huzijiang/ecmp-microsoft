@@ -468,9 +468,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             Long carGroupId = carGroupListVO.getCarGroupId();
             Integer ownerOrg = carGroupListVO.getOwnerOrg();
             //查询车队绑定车辆数
-            //int carNum = carInfoMapper.selectCountGroupCarByGroupId(carGroupId);
+            int carNum = carInfoMapper.selectCountGroupCarByGroupId(carGroupId);
+            carGroupListVO.setCarNum(carNum);
             // 1.查询下级车队数
-            int subGroupNum = ecmpOrgMapper.selectCountByParentId(ownerOrg);
+            int subGroupNum = carGroupInfoMapper.selectCountByParentId(carGroupId);
             carGroupListVO.setCountSubCarGroup(subGroupNum);
             // 2.查询车队驾驶员数(调度员是从驾驶员里选出来的)
             int driverNum = carGroupDriverRelationMapper.selectCountDriver(carGroupId);

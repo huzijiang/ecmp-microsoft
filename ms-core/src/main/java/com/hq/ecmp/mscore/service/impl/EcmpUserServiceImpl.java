@@ -246,7 +246,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         //禁用/启用  员工
         int i1 = ecmpUserMapper.updateUseStatus(userId, status);
         String it_is_driver = ecmpUserMapper.selectEcmpUserIsDirver(userId);
-        if("0".equals(it_is_driver)){
+        /*是否司机 0否 1是*/
+        if("1".equals(it_is_driver)){
             driverInfoMapper.updateDriverUseStatus(userId,"NV00");
             /*清除用户token消息      delLoginUser(String token)*/
         }
@@ -321,13 +322,13 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     * */
     @Override
     @Transactional
-    public String updatePhoneNum(String newPhoneNum,String reWritePhone,Long userId){
+    public String updatePhoneNum(String newPhoneNum,String reWritePhone,String userName){
         String msg="";
         int i = ecmpUserMapper.selectPhoneNumberExist(newPhoneNum);
         if(i>0){
             msg="该手机号已存在，不可重复录入！";
         }else{
-            int i1 = ecmpUserMapper.updatePhoneNum(newPhoneNum,reWritePhone,userId);
+            int i1 = ecmpUserMapper.updatePhoneNum(newPhoneNum,userName);
             if(i1==1){
                 msg="手机号码修改成功！";
             }else {
