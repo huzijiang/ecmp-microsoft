@@ -230,7 +230,7 @@
     <!--待审核数量员工/驾驶员-->
     <select id="waitAmountCount" parameterType="com.hq.ecmp.mscore.dto.RegisterDTO" resultType="java.lang.Integer">
        select COUNT(*) from ecmp_enterprise_register_info a
-       <if test="deptId!=null">
+       <if test="deptId!=null and deptId >0">
            left join ecmp_enterprise_invitation_info b on a.invitation_id=a.invitation_id
        </if>
        where a.state='S000' and a.type=#{type}
