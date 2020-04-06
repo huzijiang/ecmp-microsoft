@@ -252,7 +252,7 @@
     </select>
     <!--待审核列表员工数量-->
     <select id="queryRegisterUserWaitCount" resultType="Long">
-        select count(*) from from ecmp_enterprise_register_info  a
+        select count(*) from ecmp_enterprise_register_info  a
         left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
         where a.type=#{type} and a.state='S000'
         <if test="deptId!=null and deptId >0">
