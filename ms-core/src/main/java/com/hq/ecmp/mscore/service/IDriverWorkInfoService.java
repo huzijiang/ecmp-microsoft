@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
+import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
 
 import java.util.List;
 
@@ -83,4 +84,6 @@ public interface IDriverWorkInfoService
      * @return
      */
     DriverDutyPlanVO selectDriverScheduleByMonth(String scheduleDate, Long userId);
+
+    public DriverDutyWorkVO selectDriverSchedule(String scheduleDate, Long driverId);
 }

@@ -8,14 +8,12 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.InviteDto;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
-import com.hq.ecmp.mscore.dto.DriverInvitationDTO;
-import com.hq.ecmp.mscore.dto.InvitationDto;
-import com.hq.ecmp.mscore.dto.InvitationInfoDTO;
-import com.hq.ecmp.mscore.dto.RegisterDTO;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
+import com.hq.ecmp.mscore.vo.InvitationUrlVO;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterVO;
 import io.swagger.annotations.ApiOperation;
@@ -58,39 +56,49 @@ public class DriverinvitationController {
     @PostMapping("/interInvitationDriverCommit")
     public ApiResponse interInvitationDriverCommit(@RequestBody DriverInvitationDTO driverInvitationDTO){
         try {
-
+            String urlApi=driverInvitationDTO.getApiUrl();
             ecmpEnterpriseInvitationInfoService.insertDriverInvitation(driverInvitationDTO);
+            Long invitationId = driverInvitationDTO.getInvitationId();
+            System.out.println("新增邀请链接返回ID："+ invitationId);
+            InvitationUrlVO invitationUrlVO = new InvitationUrlVO();
+            String url=urlApi+"/invitePage/"+invitationId;
+            invitationUrlVO.setUrl(urlApi+"/invitePage/"+invitationId);
+            UserInvitationUrlDTO userUrl= new UserInvitationUrlDTO();
+            userUrl.setUrl(url);
+            userUrl.setInvitationId(invitationId);
+            ecmpEnterpriseInvitationInfoService.updateInvitationUrl(userUrl);
+            return ApiResponse.success(invitationUrlVO);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("新增驾驶员邀请失败");
         }
-        return ApiResponse.success("新增驾驶员邀请成功");
+
 
     }
 
       /**
      * 邀请注册
-     * @param ecmpEnterpriseRegisterInfo
+     * @param driverRegisterDTO
      * @return
      */
-    @ApiOperation(value = "interInviDriverZCCommit",notes = "生成邀请",httpMethod = "POST")
-    @PostMapping("/interInviDriverZCCommit")
-    public ApiResponse interInviDriverZCCommit(@RequestBody EcmpEnterpriseRegisterInfo ecmpEnterpriseRegisterInfo){
+    @ApiOperation(value = "interInvitationDriverZCCommit",notes = "生成邀请",httpMethod = "POST")
+    @PostMapping("/interInvitationDriverZCCommit")
+    public ApiResponse interInvitationDriverZCCommit(@RequestBody DriverRegisterDTO driverRegisterDTO){
         try {
 
             //校验手机号的用户是否已经是企业用户
-            int  itIsDriver = iDriverInfoService.driverItisExist(ecmpEnterpriseRegisterInfo.getMobile());
+            int  itIsDriver = iDriverInfoService.driverItisExist(driverRegisterDTO);
 
-            if(itIsDriver > 0){
+           if(itIsDriver > 0){
                 return ApiResponse.error("员工已经是该企业用户");
             }
             //校验手机号是否已经申请注册，正在等待审批过程中
             String state="S000";
-            int itIsReg = ecmpEnterpriseRegisterInfoServicee.itIsRegistration(ecmpEnterpriseRegisterInfo.getMobile(),state);
+            int itIsReg = ecmpEnterpriseRegisterInfoServicee.itIsRegistration(driverRegisterDTO.getMobile(),state);
             if(itIsReg > 0){
                 return ApiResponse.error("该手机号已申请完成，请等待审批");
             }
-            ecmpEnterpriseRegisterInfoServicee.insert(ecmpEnterpriseRegisterInfo);
+            ecmpEnterpriseRegisterInfoServicee.insertDriverRegister(driverRegisterDTO);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("驾驶员邀请注册失败");
@@ -189,6 +197,35 @@ public class DriverinvitationController {
         return ApiResponse.success(InvitationDriver);
 
     }
+
+    /**
+     * 获取邀请URL-驾驶员
+     */
+    @ApiOperation(value = "getInvitationDriverUrl",notes = "获取邀请URL",httpMethod = "POST")
+    @PostMapping("/getInvitationDriverUrl")
+    public ApiResponse<InvitationUrlVO> getInvitationDriverUrl(@RequestBody InvitationDto invitationDto){
+
+        InvitationUrlVO invitationUrlVO=ecmpEnterpriseInvitationInfoService.queryInvitationUserUrl(invitationDto.getInvitationId());
+        return ApiResponse.success(invitationUrlVO);
+
+    }
+    /**
+     * 删除邀请
+     */
+    @ApiOperation(value = "getInvitationDriverDel",notes = "删除邀请",httpMethod = "POST")
+    @PostMapping("/getInvitationDriverDel")
+    public ApiResponse  getInvitationDriverDel(@RequestBody InvitationDto invitationDto){
+
+        try {
+            ecmpEnterpriseInvitationInfoService.invitationDel(invitationDto.getInvitationId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("删除失败");
+        }
+        return ApiResponse.success("删除邮箱成功"+invitationDto.getInvitationId());
+
+    }
+
 
 
 }

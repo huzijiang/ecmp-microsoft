@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -28,7 +29,9 @@ public class DriverNewDTO {
     /**
      * 离职时间
      */
+    @ApiModelProperty(value= "离职时间")
     private Date dimTime;
+
 
 
 

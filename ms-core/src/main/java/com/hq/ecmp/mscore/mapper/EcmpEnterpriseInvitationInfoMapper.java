@@ -5,6 +5,7 @@ import com.hq.ecmp.mscore.dto.DriverInvitationDTO;
 import com.hq.ecmp.mscore.dto.InvitationDto;
 import com.hq.ecmp.mscore.dto.UserInvitationDTO;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
+import com.hq.ecmp.mscore.vo.InvitationUrlVO;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -105,7 +106,12 @@ public interface  EcmpEnterpriseInvitationInfoMapper {
      * @param uerInvitationDTO
      * @return
      */
-    public int insertUserInvitation(UserInvitationDTO uerInvitationDTO);
+     int insertUserInvitation(UserInvitationDTO uerInvitationDTO);
+
+    public InvitationUrlVO queryInvitationUserUrl(@Param("invitationId") Long invitationId );
+    public int invitationDel(@Param("invitationId") Long invitationId );
 
     Long queryInvitationUserCount(String type);
+
+    int  updateInvitationUrl(@Param("invitationId") Long invitationId ,@Param("url") String url );
 }

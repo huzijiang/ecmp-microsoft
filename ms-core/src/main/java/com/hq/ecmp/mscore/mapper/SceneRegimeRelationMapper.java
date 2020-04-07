@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -65,7 +66,7 @@ public interface SceneRegimeRelationMapper
      * @param sceneId
      * @return
      */
-    List<Long> selectRegimenIdsBySceneId(Long sceneId);
+    List<Long> selectRegimenIdsBySceneId(@Param("sceneId") Long sceneId );
     
     public Integer deleteSceneRegimeRelationByRegimeId(Long regimeId);
 

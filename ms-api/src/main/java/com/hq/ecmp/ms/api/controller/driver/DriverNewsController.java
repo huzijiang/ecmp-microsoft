@@ -11,14 +11,12 @@ import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
+import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
 import com.hq.ecmp.mscore.vo.DriverLoseCountVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -133,7 +131,7 @@ public class DriverNewsController {
      * @param driverNewDTO
      * @return
      */
-    @ApiOperation(value="getDriverUpdateDimTime" ,notes="修改驾驶员离职日期", httpMethod = "POST")
+    @ApiOperation(value="getDriverUpdateDimTime" ,notes="设置驾驶员离职日期", httpMethod = "POST")
     @PostMapping("/getDriverUpdateDimTime")
     public ApiResponse  getDriverUpdateDimTime(@RequestBody DriverNewDTO driverNewDTO){
         int updateDriverDimTime = iDriverInfoService.updateDriverDimTime(driverNewDTO.getDimTime(),driverNewDTO.getDriverId());
@@ -185,15 +183,16 @@ public class DriverNewsController {
      * @param
      * @return
      */
-    @ApiOperation(value = "loadScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
-    @PostMapping("/loadScheduleInfo")
-    public ApiResponse<DriverDutyPlanVO> loadScheduleInfo(@RequestBody(required = false) String scheduleDate){
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
+    @ApiOperation(value = "getDriverScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
+    @PostMapping("/getDriverScheduleInfo")
+    public ApiResponse<DriverDutyWorkVO> getDriverScheduleInfo(@RequestBody(required = false) String scheduleDate,
+                                                          @RequestParam("driverId") Long driverId){
+      //  HttpServletRequest request = ServletUtils.getRequest();
+      //  LoginUser loginUser = tokenService.getLoginUser(request);
+      //  Long userId = loginUser.getUser().getUserId();
         try {
             //查询司机当月排班日期对应的出勤情况列表
-            DriverDutyPlanVO result = driverWorkInfoService.selectDriverScheduleByMonth(scheduleDate,userId);
+            DriverDutyWorkVO result = driverWorkInfoService.selectDriverSchedule(scheduleDate,driverId);
             return ApiResponse.success(result);
         } catch (Exception e) {
             e.printStackTrace();
