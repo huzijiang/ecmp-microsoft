@@ -275,7 +275,7 @@ public interface EcmpUserMapper
      * @param jobNumber 员工工号
      * @return
      */
-    public int selectJobNumberExist(String jobNumber);
+    public int selectJobNumberExist(@Param("jobNumber") String jobNumber);
 
 
     /**

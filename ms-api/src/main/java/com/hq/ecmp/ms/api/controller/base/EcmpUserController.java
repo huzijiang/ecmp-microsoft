@@ -4,6 +4,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.InvoiceInsertDTO;
 import com.hq.ecmp.mscore.dto.UserReqimensDTO;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
@@ -38,13 +39,13 @@ public class EcmpUserController {
     @ApiOperation(value = "添加员工",notes = "添加员工",httpMethod ="POST")
     @PostMapping("/addEcmpUser")
     public ApiResponse addEcmpUser(@RequestBody EcmpUserVo ecmpUser){
-        String jobNumber=ecmpUser.getJobNumber();
+       /* String jobNumber=ecmpUser.getJobNumber();
         if(jobNumber!=null&&!("").equals(jobNumber)){
             int j = ecmpUserService.selectJobNumberExist(jobNumber);
             if(j>0){
-                return ApiResponse.error("该工号已存在，不可重复录入！");
+                return ApiResponse.error(1,"该工号已存在，不可重复录入！",null);
             }
-        }
+        }*/
         /*用户可自由选择该员工所属部门*/
         String s = ecmpUserService.addEcmpUser(ecmpUser);
         /*保存用车制度 （多个）*/
@@ -62,10 +63,10 @@ public class EcmpUserController {
         Long userId=ecmpUser.getUserId();
         String status=ecmpUser.getStatus();
         if(userId==null){
-            return  ApiResponse.error("员工id不能为空！");
+            return  ApiResponse.error(1,"员工id不能为空！",null);
         }
         if(status==null){
-            return  ApiResponse.error("帐号状态不能为空！");
+            return  ApiResponse.error(1,"帐号状态不能为空！",null);
         }
         String s = ecmpUserService.updateUseStatus(status,userId);
         return ApiResponse.error(s);
@@ -87,7 +88,7 @@ public class EcmpUserController {
         if(i==1){
             return ApiResponse.success("删除员工成功");
         }else {
-            return ApiResponse.error("删除员工失败");
+            return ApiResponse.error(1,"删除员工失败",null);
         }
     }
 
@@ -100,7 +101,7 @@ public class EcmpUserController {
     public ApiResponse<PageResult<EcmpUserDto>> getEcmpUserList(@RequestBody EcmpUserVo ecmpUser){
         Long deptId=ecmpUser.getDeptId();
         if(deptId==null){
-            return ApiResponse.error("部门id不能为空！");
+            return ApiResponse.error(1,"部门id不能为空！",null);
         }
         List<EcmpUserDto> ecmpUserList = ecmpUserService.getEcmpUserList(deptId);
         Integer count = ecmpUserService.queryUserListCount(ecmpUser);
@@ -121,14 +122,14 @@ public class EcmpUserController {
         if(jobNumber!=null&&!("").equals(jobNumber)){
             int j = ecmpUserService.selectJobNumberExist(jobNumber);
             if(j>0){
-                return ApiResponse.error("该工号已存在，不可重复录入！");
+                return ApiResponse.error(1,"该工号已存在，不可重复录入！",null);
             }
         }
         int i = ecmpUserService.updateEcmpUser(ecmpUser);
         if (i == 1){
             return ApiResponse.success("修改员工成功!");
         }else {
-            return ApiResponse.error("修改员工失败!");
+            return ApiResponse.error(1,"修改员工失败!",null);
         }
     }
 
@@ -143,13 +144,13 @@ public class EcmpUserController {
         String reWritePhone=ecmpUserVo.getReWritePhone();
         String userName=ecmpUserVo.getUserName();
         if(newPhoneNum==null||newPhoneNum.trim()==""){
-            return ApiResponse.error("手机号不能为空！");
+            return ApiResponse.error(1,"手机号不能为空！",null);
         }
         if(reWritePhone==null||reWritePhone.trim()==""){
-            return ApiResponse.error("需要再次输入手机号！");
+            return ApiResponse.error(1,"需要再次输入手机号！",null);
         }
         if(!reWritePhone.equals(newPhoneNum)){
-            return ApiResponse.error("手机号码不一致！");
+            return ApiResponse.error(1,"手机号码不一致！",null);
         }
         String s= ecmpUserService.updatePhoneNum(newPhoneNum,reWritePhone,userName);
             return ApiResponse.success(s);
@@ -164,7 +165,7 @@ public class EcmpUserController {
     public ApiResponse<EcmpUserDto> selectEcmpUserDetail(@RequestBody EcmpUserVo ecmpUser){
         Long userId=ecmpUser.getUserId();
         if(userId==null){
-            return ApiResponse.error("员工id不能为空！");
+            return ApiResponse.error(1,"员工id不能为空！",null);
         }
         EcmpUserDto EcmpUserDto = ecmpUserService.selectEcmpUserDetail(userId);
             return ApiResponse.success(EcmpUserDto);
@@ -180,16 +181,16 @@ public class EcmpUserController {
          Date dimissionTime=ecmpUser.getDimissionTime();
          Long userId=ecmpUser.getUserId();
          if(userId==null){
-             return ApiResponse.error("员工id不能为空！");
+             return ApiResponse.error(1,"员工id不能为空！",null);
          }
          if(dimissionTime==null){
-             return ApiResponse.error("离职日期不能为空！");
+             return ApiResponse.error(1,"离职日期不能为空！",null);
          }
          int i = ecmpUserService.updateDimissionTime(dimissionTime,userId);
          if (i == 1){
-             return ApiResponse.success("设置离职日期成功!");
+             return ApiResponse.success(1,"设置离职日期成功!",null);
          }else {
-             return ApiResponse.error("设置离职日期失败!");
+             return ApiResponse.error(1,"设置离职日期失败!",null);
          }
      }
     /*已离职数量
@@ -212,7 +213,7 @@ public class EcmpUserController {
     public ApiResponse<List<EcmpUserDto>> selectDimissionList(@RequestBody EcmpUserVo ecmpUser){
         Long deptId=ecmpUser.getDeptId();
         if(deptId==null){
-            return ApiResponse.error("部门id不能为空！");
+            return ApiResponse.error(1,"部门id不能为空！",null);
         }
         List<EcmpUserDto>  dimissionList= ecmpUserService.selectDimissionList(deptId);
         return ApiResponse.success(dimissionList);
@@ -230,7 +231,7 @@ public class EcmpUserController {
             ecmpUserService.bindUserRegimens(userReqimensDTO.getUserId(),userReqimensDTO.getRegimenIds());
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("设置用车制度失败");
+            return ApiResponse.error(1,"设置用车制度失败",null);
         }
         return ApiResponse.success("设置成功");
     }
@@ -245,13 +246,13 @@ public class EcmpUserController {
     public ApiResponse<List<EcmpUserDto>> selectUserByNameOrJobNumberOrPhone(@RequestBody EcmpUserVo ecmpUser){
         String nameOrJobNumberOrPhone=ecmpUser.getNameOrJobNumberOrPhone();
         if("".equals(nameOrJobNumberOrPhone.trim())){
-            return ApiResponse.error("请输入有效的员工名称或编号！");
+            return ApiResponse.error(1,"请输入有效的员工名称或编号！",null);
         }
         List<EcmpUserDto> companyList = ecmpUserService.selectUserByNickNameOrJobNumber(nameOrJobNumberOrPhone);
         if(companyList.size()>0){
             return ApiResponse.success(companyList);
         }else{
-            return ApiResponse.error("无匹配数据！");
+            return ApiResponse.error(1,"无匹配数据！",null);
         }
     }
     
