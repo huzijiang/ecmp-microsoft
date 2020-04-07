@@ -34,14 +34,14 @@ public class OrderSettlingInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long outPrice;
+    private BigDecimal outPrice;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private BigDecimal totalMileage;// TODO 新增。实际里程
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Integer totalTime;// TODO 新增。实际时长
+    private BigDecimal totalTime;// TODO 新增。实际时长
     public void setTotalMileage(BigDecimal totalMileage)
     {
         this.totalMileage = totalMileage;
@@ -51,11 +51,11 @@ public class OrderSettlingInfo extends BaseEntity
         return totalMileage;
     }
 
-    public void setTotalTime(Integer totalTime)
+    public void setTotalTime(BigDecimal totalTime)
     {
         this.totalTime = totalTime;
     }
-    public Integer getTotalTime()
+    public BigDecimal getTotalTime()
     {
         return totalTime;
     }
@@ -96,12 +96,12 @@ public class OrderSettlingInfo extends BaseEntity
     {
         return amountDetail;
     }
-    public void setOutPrice(Long outPrice)
+    public void setOutPrice(BigDecimal outPrice)
     {
         this.outPrice = outPrice;
     }
 
-    public Long getOutPrice()
+    public BigDecimal getOutPrice()
     {
         return outPrice;
     }
@@ -109,7 +109,7 @@ public class OrderSettlingInfo extends BaseEntity
     public OrderSettlingInfo() {
     }
 
-    public OrderSettlingInfo(Long orderId, BigDecimal amount, String amountDetail, BigDecimal totalMileage, Integer totalTime) {
+    public OrderSettlingInfo(Long orderId, BigDecimal amount, String amountDetail, BigDecimal totalMileage, BigDecimal totalTime) {
         this.orderId = orderId;
         this.amount = amount;
         this.amountDetail = amountDetail;

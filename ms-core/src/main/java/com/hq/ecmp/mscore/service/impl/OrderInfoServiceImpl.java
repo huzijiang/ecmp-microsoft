@@ -481,7 +481,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
                     vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
-                    vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime()));
+                    vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime().intValue()));
                     vo.setAmount(orderSettlingInfos.get(0).getAmount().toPlainString());
                 }
             }
@@ -1714,7 +1714,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                         OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
                         orderSettlingInfo.setOrderId(orderNo);
                         orderSettlingInfo.setTotalMileage(new BigDecimal(distance).stripTrailingZeros());
-                        orderSettlingInfo.setTotalTime(Integer.parseInt(duration));
+                        orderSettlingInfo.setTotalTime(new BigDecimal(duration).stripTrailingZeros());
                         orderSettlingInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
                         orderSettlingInfo.setAmountDetail(feeInfoBean.toString());
                         orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
@@ -1955,15 +1955,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             throw new Exception("订单:"+orderNo+"不存在");
         }
         OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
+        DriverCloudDto driverCloudDto=null;
+        if(StringUtils.isNotEmpty(json)){
+            driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
+            String driverPoint = driverCloudDto.getDriverPoint();
+            if (StringUtils.isNotEmpty(driverPoint)){
+                String[] split = driverPoint.split(",");
+                longitude = Double.parseDouble(split[0]);
+                latitude = Double.parseDouble(split[1]);
+            }
+        }
         if(OrderState.ALREADYSENDING.getState().equals(status)||OrderState.REASSIGNPASS.getState().equals(status)){
-            if(StringUtils.isNotEmpty(json)){
-                DriverCloudDto driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
-                String driverPoint = driverCloudDto.getDriverPoint();
-                if (StringUtils.isNotEmpty(driverPoint)){
-                    String[] split = driverPoint.split(",");
-                    longitude = Double.parseDouble(split[0]);
-                    latitude = Double.parseDouble(split[1]);
-                }
+            if(driverCloudDto!=null){
                 newOrderInfo.setDriverName(driverCloudDto.getDriverName());
                 newOrderInfo.setDriverMobile(driverCloudDto.getPhone());
                 newOrderInfo.setDriverGrade(driverCloudDto.getDriverRate());
@@ -1987,8 +1990,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 String duration = feeInfoBean.getString("min");//时长
                 OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
                 orderSettlingInfo.setOrderId(orderNo);
-                orderSettlingInfo.setTotalMileage(new BigDecimal(distance).stripTrailingZeros());
-                orderSettlingInfo.setTotalTime(Integer.parseInt(duration));
+                orderSettlingInfo.setTotalMileage(new BigDecimal(distance).multiply(new BigDecimal("1000")).stripTrailingZeros());
+//                BigDecimal bigDecimal = new BigDecimal(duration).multiply(new BigDecimal("60")).stripTrailingZeros();
+                orderSettlingInfo.setTotalTime(new BigDecimal(duration).stripTrailingZeros());
                 orderSettlingInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
                 orderSettlingInfo.setAmountDetail(feeInfoBean.toString());
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
