@@ -393,8 +393,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       SELECT
       count(1)
       from ecmp_user
-      where
-      dimission_time is not null
+      where status='1'
     </select>
 
     <!--设置离职日期-->
