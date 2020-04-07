@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 import java.util.List;
 
 import com.hq.ecmp.mscore.vo.RegimenVO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import com.hq.ecmp.mscore.domain.RegimeInfo;
@@ -88,7 +89,7 @@ public interface RegimeInfoMapper
 
 
 
-    public RegimenVO selectRegimenVOById(Long regimeId);
+    public RegimenVO selectRegimenVOById(@Param("regimeId") Long regimeId );
 
 
     public RegimeInfo queryUseCarModelByNoteId(Long noteId);

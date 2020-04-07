@@ -136,9 +136,7 @@ public interface DriverInfoMapper
      * @param phoneNumber
      * @return
      */
-    public int driverItisExist(String phoneNumber);
-
-
+    public int driverItisExist( @Param("phoneNumber") String phoneNumber);
 
     /**
      * 禁用驾驶员
@@ -179,14 +177,14 @@ public interface DriverInfoMapper
      * @param mobile
      * @return
      */
-    public int updateDriverMobile(String mobile,Long driverId);
+    public int updateDriverMobile(@Param("mobile") String mobile,@Param("driverId") Long driverId);
 
     /**
      * 设置驾驶员离职日期
      * @param dimTime
      * @return
      */
-    public int updateDriverDimTime(Date dimTime,Long driverId);
+    public int updateDriverDimTime(@Param("dimTime")Date dimTime,@Param("driverId")Long driverId);
 
 
 

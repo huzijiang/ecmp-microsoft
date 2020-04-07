@@ -11,6 +11,7 @@ import com.hq.ecmp.mscore.mapper.DriverWorkInfoMapper;
 import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
+import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -153,11 +154,32 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
         //查询司机driverId
         Long driverId = driverInfoMapper.selectDriverIdByUserId(userId);
         //查询司机上班时间
-      //  List<Date> dutyDate = driverWorkInfoMapper.selectDutyDateByMonth(scheduleDate,driverId);
+        List<String> dutyDate = driverWorkInfoMapper.selectDutyDateByMonth(scheduleDate,driverId);
         //查询司机休假时间
         List<String> holidays = driverWorkInfoMapper.selectHolidaysByMonth(scheduleDate,driverId);
         driverDutyPlanVO.setHolidays(holidays);
+        driverDutyPlanVO.setDutyDate(dutyDate);
         return driverDutyPlanVO;
+    }
+
+    /**
+     * 按查询司机排班详情信息
+     * @param scheduleDate
+     * @param driverId
+     * @return
+     */
+    @Override
+    public DriverDutyWorkVO selectDriverSchedule(String scheduleDate, Long driverId) {
+        DriverDutyWorkVO driverDutyWorkVO = new DriverDutyWorkVO();
+        //查询司机driverId
+       // Long driverId = driverInfoMapper.selectDriverIdByUserId(userId);
+        //查询司机上班时间
+         // List<Date> dutyDate = driverWorkInfoMapper.selectDutyDateByMonth(scheduleDate,driverId);
+        //查询司机休假时间
+        List<String> holidays = driverWorkInfoMapper.selectHolidaysByMonth(scheduleDate,driverId);
+        driverDutyWorkVO.setHolidays(holidays);
+      //  driverDutyWorkVO.setDutyDate(dutyDate);
+        return driverDutyWorkVO;
     }
 
 }

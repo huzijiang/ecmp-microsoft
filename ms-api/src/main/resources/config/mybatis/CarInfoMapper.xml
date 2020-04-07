@@ -30,7 +30,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carLicenseImageUrl"    column="car_license_image_url"    />
         <result property="assetTag"    column="asset_tag"    />
         <result property="buyDate"    column="buy_date"    />
+        <result property="borrowStartDate"    column="borrow_start_date"    />
+        <result property="borrowEndDate"    column="borrow_end_date"    />
         <result property="rentEndDate"    column="rent_end_date"    />
+        <result property="drivingLicenseEndDate"    column="driving_license_end_date"    />
+        <result property="drivingLicenseStartDate"    column="driving_license_start_date"    />
+        <result property="drivingLicense"    column="driving_license"    />
+        <result property="tax"    column="tax"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -39,7 +45,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="selectCarInfoVo">
 
-        select car_id,asset_tag, car_group_id, dept_id,power_type, car_type_id, car_license,lock_state, state,license_price, car_type, seat_num,price, car_color, car_license_color,source, power_type, car_type, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, create_by, create_time, update_by, update_time from car_info
+        select car_id,asset_tag,borrow_end_date,borrow_start_date,tax,driving_license, car_group_id,driving_license_start_date,driving_license_end_date, dept_id,power_type, car_type_id, car_license,lock_state, state,license_price, car_type, seat_num,price, car_color, car_license_color,source, power_type, car_type, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, create_by, create_time, update_by, update_time from car_info
 
     </sql>
 
@@ -106,6 +112,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rentStartDate != null ">rent_start_date,</if>
             <if test="borrowStartDate != null ">borrow_start_date,</if>
             <if test="borrowEndDate != null ">borrow_end_date,</if>
+            <if test="drivingLicenseEndDate != null ">driving_license_end_date,</if>
+            <if test="drivingLicenseStartDate != null ">driving_license_end_date,</if>
+            <if test="drivingLicense != null ">driving_license,</if>
+            <if test="tax != null ">tax,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -134,9 +144,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rentEndDate != null ">#{rentEndDate},</if>
             <if test="ownerOrgId != null ">#{ownerOrgId},</if>
             <if test="enterpriseCarTypeId != null ">#{enterpriseCarTypeId},</if>
-            <if test="rentEndDate != null ">#{rentEndDate},</if>
+            <if test="rentStartDate != null ">#{rentStartDate},</if>
             <if test="borrowStartDate != null ">#{borrowStartDate},</if>
             <if test="borrowEndDate != null ">#{borrowEndDate},</if>
+            <if test="drivingLicenseEndDate != null ">#{drivingLicenseEndDate},</if>
+            <if test="drivingLicenseStartDate != null ">#{drivingLicenseStartDate},</if>
+            <if test="drivingLicense != null ">#{drivingLicense},</if>
+            <if test="tax != null ">#{tax},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -250,9 +264,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and  cg.state='Y000'
             and  car.state='S000'
             and  car.lock_state='0000'
-            <if test="passengers != null  and passengers != ''">    and car.seat_num>#{passengers}</if>
-            <if test="carGroupId != null  and carGroupId != '' ">    and cg.car_group_id=#{carGroupId}</if>
-            <if test="carLevel != null  and carLevel != '' ">    and ect.car_group_id=#{carLevel}</if>
+            <if test="carTypeInfo != null  and carTypeInfo != '' ">     AND  car.car_type LIKE CONCAT('%',#{carTypeInfo},'%') </if>
+            <if test="passengers != null  and passengers != ''">    AND car.seat_num>#{passengers}</if>
+            <if test="carGroupId != null  and carGroupId != '' ">    AND cg.car_group_id=#{carGroupId}</if>
+            <if test="carLevel != null  and carLevel != '' ">    AND ect.car_group_id=#{carLevel}</if>
         </where>
     </select>
 
@@ -266,9 +281,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>
             1=1
             and  cg.state='Y000'
+            <if test="carTypeInfo != null  and carTypeInfo != '' ">     AND  car.car_type LIKE CONCAT('%',#{carTypeInfo},'%') </if>
             <if test="carLicense != null  and carLicense != '' ">     AND  car.car_license LIKE CONCAT('%',#{carLicense},'%') </if>
-            <if test="carGroupId != null  and carGroupId != '' ">    and cg.car_group_id=#{carGroupId}</if>
-            <if test="passengers != null  and passengers != ''">    and car.seat_num>#{passengers}</if>
+            <if test="carGroupId != null  and carGroupId != '' ">    AND cg.car_group_id=#{carGroupId}</if>
+            <if test="passengers != null  and passengers != ''">    AND car.seat_num>#{passengers}</if>
             <if test="carLevel != null  and carLevel != '' ">    AND  ect.`level`=#{carLevel}</if>
         </where>
     </select>

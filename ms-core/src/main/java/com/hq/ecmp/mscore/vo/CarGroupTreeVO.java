@@ -21,7 +21,6 @@ public class CarGroupTreeVO {
     private String deptName;
 
 
-
     //子部门列表
     private List<CarGroupTreeVO> carGroupTreeVO;
 
