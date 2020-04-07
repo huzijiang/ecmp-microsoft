@@ -16,6 +16,9 @@ public class InvoiceByTimeStateDTO {
     private String endTime;
     @ApiModelProperty(value = "状态")
     private String status;
+    private Integer pageNum;
+    private Integer pageSize;
+
 
 
 

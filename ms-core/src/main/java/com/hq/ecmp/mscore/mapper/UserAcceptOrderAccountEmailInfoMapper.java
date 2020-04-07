@@ -67,4 +67,5 @@ public interface UserAcceptOrderAccountEmailInfoMapper {
      */
     int deleteEmailById(Long Id);
 
+    Long queryEmailByUserIdCount(Long userId);
 }
