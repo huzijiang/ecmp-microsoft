@@ -280,13 +280,16 @@ SELECT
 	a.license_photo AS licensePhoto,
 	a.license_init_issue_date AS licenseInitIssueDate,
 	a.license_expire_date AS licenseExpireDate,
+	a.license_issue_date AS licenseIssueDate,
 	a.gender AS gender,
 	a.driver_name AS driverName,
 	a.driver_id AS driverId,
 	a.user_id AS userId,
 	a.state AS state,
 	a.it_is_full_time AS itIsFullTime,
-	c.car_group_name AS carGroupName
+	a.mobile AS mobile,
+	c.car_group_name AS carGroupName,
+	c.car_group_id AS carGroupId
 FROM
 	driver_info a
 LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id

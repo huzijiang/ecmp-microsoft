@@ -392,8 +392,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 
     /*已离职数量*/
     @Override
-    public int selectDimissionCount(){
-        return ecmpUserMapper.selectDimissionCount();
+    public int selectDimissionCount(Long deptId){
+        return ecmpUserMapper.selectDimissionCount(deptId);
     }
 
     /*已离职列表*/
