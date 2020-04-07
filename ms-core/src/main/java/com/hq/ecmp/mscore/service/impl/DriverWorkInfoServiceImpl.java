@@ -9,9 +9,8 @@ import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverServiceStateInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverWorkInfoMapper;
 import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
-import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
-import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
-import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
+import com.hq.ecmp.mscore.vo.*;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -182,4 +181,23 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
         return driverDutyWorkVO;
     }
 
+    /**
+     * 按月获取司机的排班详情
+     * @param driverId
+     * @param month
+     * @return
+     */
+    @Override
+    public List<DriverWorkInfoMonthVo> getDriverWorkInfoMonthList(Long driverId, String month){
+        return driverWorkInfoMapper.getDriverWorkInfoMonthList(driverId, month);
+    }
+
+    /**
+     * 按月更新司机的排班信息
+     * @param driverWorkInfoDetailVo
+     */
+    @Override
+    public void updateDriverWorkDetailMonth(DriverWorkInfoDetailVo driverWorkInfoDetailVo,Long userId) {
+        driverWorkInfoMapper.updateDriverWorkDetailMonth(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos(),userId,DateUtils.getNowDate());
+    }
 }
