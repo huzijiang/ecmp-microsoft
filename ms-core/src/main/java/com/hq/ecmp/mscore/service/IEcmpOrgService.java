@@ -37,7 +37,7 @@ public interface IEcmpOrgService
      * @param deptId 部门ID
      * @return
      */
-    public List<EcmpOrgDto> selectCompanyList(Long deptId,String deptType);
+    public PageResult<EcmpOrgDto> selectCompanyList(Long deptId,String deptType,int pageSize,int pageNum);
 
     /**
      * 显示查询总条数
@@ -52,7 +52,7 @@ public interface IEcmpOrgService
      * @param deptId 部门ID
      * @return
      */
-    public List<EcmpOrgDto> selectDeptList(Long deptId,String deptType);
+    public PageResult<EcmpOrgDto> selectDeptList(Long deptId,String deptType,int pageNum,int pageSize);
     /**
      * 查询部门详情
      *
