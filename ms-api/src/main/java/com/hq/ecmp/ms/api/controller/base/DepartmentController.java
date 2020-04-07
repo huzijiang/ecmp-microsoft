@@ -7,11 +7,13 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.mscore.vo.OrgTreeVo;
+import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -189,17 +191,17 @@ public class DepartmentController {
 
     /**
      * 显示部门列表
-     * @param  ecmpOrgVo
+     * @param
      * @return*/
     @ApiOperation(value = "显示部门列表",notes = "显示部门列表",httpMethod ="POST")
     @PostMapping("/selectDeptList")
-    public ApiResponse<List<EcmpOrgDto>> selectDeptList(@RequestBody EcmpOrgVo ecmpOrgVo){
-        Long deptId=ecmpOrgVo.getDeptId();
-        String deptType=ecmpOrgVo.getDeptType();
+    public ApiResponse<PageResult<EcmpOrgDto>> selectDeptList(@RequestBody PageRequest pageRequest){
+        Long deptId=pageRequest.getDeptId();
+        String deptType=pageRequest.getDeptType();
         if(deptId==null){
             return ApiResponse.error("组织id不能为空！");
         }
-        List<EcmpOrgDto> companyList = orgService.selectDeptList(deptId,deptType);
+        PageResult<EcmpOrgDto> companyList = orgService.selectDeptList(deptId,deptType,pageRequest.getPageNum(),pageRequest.getPageSize());
         return ApiResponse.success(companyList);
     }
 

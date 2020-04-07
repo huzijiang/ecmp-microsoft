@@ -8,6 +8,7 @@ import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
@@ -120,20 +121,21 @@ public class OrgController {
 
     /**
      * 显示公司列表
-     * @param  ecmpOrgVo
+     * @param
      * @return*/
     @ApiOperation(value = "显示公司列表",notes = "显示公司列表",httpMethod ="POST")
     @PostMapping("/selectCompanyList")
-    public ApiResponse<PageResult<EcmpOrgDto>> selectCompanyList(@RequestBody EcmpOrgVo ecmpOrgVo){
-        Long deptId=ecmpOrgVo.getDeptId();
-        String deptType=ecmpOrgVo.getDeptType();
+    public ApiResponse<PageResult<EcmpOrgDto>> selectCompanyList(@RequestBody PageRequest pageRequest){
+        Long deptId=pageRequest.getDeptId();
+        String deptType=pageRequest.getDeptType();
         if(deptId==null){
             return ApiResponse.error("组织id不能为空！");
         }
-        List<EcmpOrgDto> companyList = orgService.selectCompanyList(deptId,deptType);
+       // List<EcmpOrgDto> companyList = orgService.selectCompanyList(deptId,deptType,pageRequest.getPageSize(),pageRequest.getPageNum());
+        PageResult<EcmpOrgDto> pageResult = orgService.selectCompanyList(deptId,deptType,pageRequest.getPageSize(),pageRequest.getPageNum());
         //总条数
-        Integer count = orgService.queryCompanyListCount(ecmpOrgVo);
-        PageResult<EcmpOrgDto> pageResult = new PageResult<EcmpOrgDto>(Long.valueOf(count), companyList);
+       // Integer count = orgService.queryCompanyListCount(ecmpOrgVo);
+       // PageResult<EcmpOrgDto> pageResult = new PageResult<EcmpOrgDto>(Long.valueOf(count), companyList);
         return ApiResponse.success(pageResult);
     }
 

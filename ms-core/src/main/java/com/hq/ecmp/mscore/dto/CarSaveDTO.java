@@ -75,7 +75,7 @@ public class CarSaveDTO {
     private Double tax; // TODO 新增
 
     //7.牌号费
-    private Double license_price; //TODO 新增
+    private Double licensePrice; //TODO 新增
 
     //8.车辆实照
     private String carImgaeUrl;  //车辆图片上传 多张用 ， 隔开
