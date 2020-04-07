@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DriverDutyPlanVO {
+public class DriverDutyWorkVO {
 
     /**
      * 司机排班日期
@@ -27,10 +27,10 @@ public class DriverDutyPlanVO {
     /**
      * 排班的状态 eg 1正常 2请假
      */
-   // private String status;
+    private String status;
 
-    @ApiModelProperty(value = "上班时间")
-    private List<String> dutyDate;
+   // @ApiModelProperty(value = "上班时间")
+   // private List<Date> dutyDate;
     @ApiModelProperty(value = "休假时间")
     private List<String> holidays;
 }

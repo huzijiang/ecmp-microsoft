@@ -116,4 +116,7 @@ public interface ICarInfoService
     
     
     public CarGroupCarInfo queryCarGroupCarList(Long carGroupId);
+
+    /*车辆信息回显*/
+    CarSaveDTO selectCarInfoFeedBack(Long carId);
 }

@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
+import com.hq.ecmp.mscore.vo.InvitationUrlVO;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import org.springframework.stereotype.Service;
@@ -130,7 +131,7 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
         driverInvitationDTO.setCreateTime(DateUtils.getNowDate());
         driverInvitationDTO.setState("Y000");
         driverInvitationDTO.setType("T002");
-        driverInvitationDTO.setUrl("http:Driver.cn");
+       // driverInvitationDTO.setUrl("http:Driver.cn");
         return ecmpEnterpriseInvitationInfoMapper.insertDriverInvitation(driverInvitationDTO);
     }
     /**
@@ -142,10 +143,25 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
         uerInvitationDTO.setCreateTime(DateUtils.getNowDate());
         uerInvitationDTO.setState("Y000");
         uerInvitationDTO.setType("T001");
-        uerInvitationDTO.setUrl("http:User.cn");
+       // uerInvitationDTO.setUrl("http:User.cn");
         return ecmpEnterpriseInvitationInfoMapper.insertUserInvitation(uerInvitationDTO);
     }
 
+    /**
+     * 邀请员工链接
+     */
+    public InvitationUrlVO queryInvitationUserUrl(Long invitationId){
+        return ecmpEnterpriseInvitationInfoMapper.queryInvitationUserUrl(invitationId);
+    }
+    /**
+     * 邀请链接
+     */
+    public int invitationDel(Long invitationId) {
+        return ecmpEnterpriseInvitationInfoMapper.invitationDel(invitationId);
 
+    }
+    public int  updateInvitationUrl(UserInvitationUrlDTO userInvitationUrlDTO ){
+        return ecmpEnterpriseInvitationInfoMapper.updateInvitationUrl(userInvitationUrlDTO.getInvitationId(),userInvitationUrlDTO.getUrl());
+    }
 
 }

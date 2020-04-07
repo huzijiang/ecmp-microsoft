@@ -2,8 +2,10 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.InvitationDriverVO;
+import com.hq.ecmp.mscore.vo.InvitationUrlVO;
 import com.hq.ecmp.mscore.vo.InvitationUserVO;
 import com.hq.ecmp.mscore.vo.PageResult;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -90,7 +92,15 @@ public interface EcmpEnterpriseInvitationInfoService {
      * @return
      */
     public int insertUserInvitation(UserInvitationDTO uerInvitationDTO);
+    /**
+     * 邀请员工链接
+     */
+    public InvitationUrlVO queryInvitationUserUrl(Long invitationId);/**
+     /* 邀请链接删除
+     */
+    public int invitationDel(Long invitationId);
 
+    public int  updateInvitationUrl(UserInvitationUrlDTO userInvitationUrlDTO);
 
 
 }

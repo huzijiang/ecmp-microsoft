@@ -405,12 +405,8 @@ WHERE
         </trim>
         where driver_id = #{driverId}
     </update>
-    <update id="updateDriverDimTime" parameterType="java.lang.Long">
-        update driver_info
-        <trim prefix="SET" suffixOverrides=",">
-            <if test="dimissionTime != null  and dimissionTime != ''">dimission_time = #{dimissionTime},</if>
-        </trim>
-        where driver_id = #{driverId}
+    <update id="updateDriverDimTime">
+        update driver_info SET dimission_time = #{dimTime} where driver_id = #{driverId}
     </update>
 
 
