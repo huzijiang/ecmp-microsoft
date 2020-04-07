@@ -184,6 +184,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
            <if test="licenseNumber != null ">license_number,</if>
             <if test="licensePhoto != null ">license_photo,</if>
             <if test="licenseInitIssueDate != null ">license_init_issue_date,</if>
+             <if test="licenseIssueDate != null ">license_issue_date,</if>
             <if test="licenseExpireDate != null ">license_expire_date,</if>
             <if test="userId != null ">user_id,</if>
             <if test="optUserId != null ">create_by,</if>
@@ -198,6 +199,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="licenseNumber != null ">#{licenseNumber},</if>
              <if test="licensePhoto != null ">#{licensePhoto},</if>
               <if test="licenseInitIssueDate != null ">#{licenseInitIssueDate},</if>
+              <if test="licenseIssueDate != null ">#{licenseIssueDate},</if>
               <if test="licenseExpireDate != null ">#{licenseExpireDate},</if>
               <if test="userId != null ">#{userId},</if>
               <if test="optUserId != null ">#{optUserId},</if>
