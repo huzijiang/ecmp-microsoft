@@ -336,6 +336,58 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="userId != null  and userId != ''">and user_id=#{userId}</if>
     </select>
 
+    <select id="getEcmpUserPage" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+        select
+        nick_name as nickName,phonenumber,
+        if(isnull(job_number),'',job_number) as jobNumber,
+        user_name as userName,
+        user_id as userId,
+        dept_id as deptId,
+        (select dept_name from ecmp_org where dept_id=a.dept_id and dept_type='2') as subDept,
+        (select dept_name from ecmp_org where dept_id= (select parent_id from ecmp_org where dept_id=a.dept_id and dept_type='2')) as subCompany,
+        <if test="status==1">
+            DATE_FORMAT(dimission_time,'%Y-%m-%d') dimissionTimeStr,
+        </if>
+        <if test="status==0">
+            (select group_concat(b.name) from regime_info b where b.regimen_id in (select DISTINCT c.regimen_id from  user_regime_relation_info c where c.user_id=a.user_id)) regimeName,
+        </if>
+        status
+        from  ecmp_user a
+        where del_flag='0'
+        <if test="deptId!=null">
+            and dept_id=#{deptId}
+        </if>
+        <if test="search!=null and search!=''">
+            and (a.nick_name like CONCAT('%',#{search},'%')
+            OR a.phonenumber like
+            CONCAT('%',#{search},'%')
+            OR a.job_number like CONCAT('%',#{search},'%'))
+        </if>
+        <if test="status==1">
+            and status='1'
+        </if>
+
+    </select>
+
+    <select id="getEcmpUserPageCount" resultType="Long">
+        select
+            count(*)
+        from  ecmp_user a
+        where del_flag='0' and status=#{status}
+        <if test="deptId!=null">
+            and dept_id=#{deptId}
+        </if>
+        <if test="search!=null and search!=''">
+            and (a.nick_name like CONCAT('%',#{search},'%')
+            OR a.phonenumber like
+            CONCAT('%',#{search},'%')
+            OR a.job_number like CONCAT('%',#{search},'%'))
+        </if>
+        <if test="status==1">
+            and status='1'
+        </if>
+    </select>
+
     <!-- 显示查询总条数 -->
     <select id="queryUserListCount" resultType="java.lang.Integer">
         select
@@ -389,7 +441,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <!--已离职数量-->
-    <select id="selectDimissionCount" resultType="java.lang.Integer">
+    <select id="selectDimissionCount" parameterType="Object" resultType="java.lang.Integer">
       SELECT
       count(1)
       from ecmp_user

@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.mscore.vo.UserTreeVo;
 import com.hq.ecmp.mscore.vo.UserVO;
@@ -213,7 +214,7 @@ public interface EcmpUserMapper
     @param
      * @return
     * */
-    public int selectDimissionCount(Long deptId);
+    public int selectDimissionCount(@Param("deptId") Long deptId);
 
     /*已离职员工编号
     @param  dimissionTime
@@ -225,7 +226,7 @@ public interface EcmpUserMapper
     @param  userId
      * @return
     * */
-    public List<EcmpUserDto> selectDimissionList(@Param("deptId") Long deptId);
+    public List<EcmpUserDto> selectDimissionList(@Param("deptId") PageRequest deptId);
 
     /*查询当天离职的员工id
     @param  userId
@@ -305,5 +306,8 @@ public interface EcmpUserMapper
     List<UserTreeVo> selectListByDeptId(Long deptId);
 
     List<UserTreeVo> selectUserListByDeptIdAndProjectId(@Param("projectId")Long projectId);
+
+    List<EcmpUserDto> getEcmpUserPage(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
+    Long getEcmpUserPageCount(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
 }
 

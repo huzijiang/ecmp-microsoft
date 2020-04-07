@@ -234,12 +234,9 @@
     <!--待审核数量员工/驾驶员-->
     <select id="waitAmountCount" parameterType="com.hq.ecmp.mscore.dto.RegisterDTO" resultType="java.lang.Integer">
        select COUNT(*) from ecmp_enterprise_register_info a
-       <if test="deptId!=null and deptId >0">
-           left join ecmp_enterprise_invitation_info b on a.invitation_id=a.invitation_id
-       </if>
        where a.state='S000' and a.type=#{type}
-       <if test="deptId!=null and deptId >0">
-           and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
+       <if test="deptId!=null and deptId gt 0">
+           AND a.invitation_id in ( SELECT invitation_id from ecmp_enterprise_invitation_info where department_id =#{deptId} OR enterprise_id =#{deptId} )
     </if>
     </select>
     <!--待审核列表员工-->
@@ -250,7 +247,7 @@
         left join ecmp_org c on c.dept_id = b.enterprise_id
         left join ecmp_org e on e.dept_id = b.department_id
         where a.type=#{type} and a.state='S000'
-        <if test="deptId!=null and deptId >0">
+        <if test="deptId!=null and deptId gt 0">
             and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
         </if>
     </select>
@@ -259,7 +256,7 @@
         select count(*) from ecmp_enterprise_register_info  a
         left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
         where a.type=#{type} and a.state='S000'
-        <if test="deptId!=null and deptId >0">
+        <if test="deptId!=null and deptId gt 0">
             and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
         </if>
     </select>

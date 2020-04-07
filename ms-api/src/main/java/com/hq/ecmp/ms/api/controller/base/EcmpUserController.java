@@ -2,10 +2,7 @@ package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.dto.EcmpOrgDto;
-import com.hq.ecmp.mscore.dto.EcmpUserDto;
-import com.hq.ecmp.mscore.dto.InvoiceInsertDTO;
-import com.hq.ecmp.mscore.dto.UserReqimensDTO;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
@@ -94,19 +91,12 @@ public class EcmpUserController {
 
     /**
      * 员工列表（按组织id）
-     * @param  ecmpUser
      * @return*/
     @ApiOperation(value = "查询员工列表",notes = "查询员工列表",httpMethod ="POST")
     @PostMapping("/getEcmpUserList")
-    public ApiResponse<PageResult<EcmpUserDto>> getEcmpUserList(@RequestBody EcmpUserVo ecmpUser){
-        Long deptId=ecmpUser.getDeptId();
-        if(deptId==null){
-            return ApiResponse.error(1,"部门id不能为空！",null);
-        }
-        List<EcmpUserDto> ecmpUserList = ecmpUserService.getEcmpUserList(deptId);
-        Integer count = ecmpUserService.queryUserListCount(ecmpUser);
-        PageResult<EcmpUserDto> pageResult = new PageResult<EcmpUserDto>(Long.valueOf(count), ecmpUserList);
-        return ApiResponse.success(pageResult);
+    public ApiResponse<PageResult<EcmpUserDto>> getEcmpUserList(@RequestBody PageRequest pageRequest){
+        PageResult<EcmpUserDto> ecmpUserList = ecmpUserService.getEcmpUserPage(pageRequest);
+        return ApiResponse.success(ecmpUserList);
     }
 
     /*
@@ -210,12 +200,8 @@ public class EcmpUserController {
      * */
     @ApiOperation(value = "已离职列表",notes = "已离职列表",httpMethod ="POST")
     @PostMapping("/selectDimissionList")
-    public ApiResponse<List<EcmpUserDto>> selectDimissionList(@RequestBody EcmpUserVo ecmpUser){
-        Long deptId=ecmpUser.getDeptId();
-        if(deptId==null){
-            return ApiResponse.error(1,"部门id不能为空！",null);
-        }
-        List<EcmpUserDto>  dimissionList= ecmpUserService.selectDimissionList(deptId);
+    public ApiResponse<PageResult<EcmpUserDto>> selectDimissionList(@RequestBody PageRequest pageRequest){
+        PageResult<EcmpUserDto>  dimissionList= ecmpUserService.selectDimissionList(pageRequest);
         return ApiResponse.success(dimissionList);
     }
 
@@ -260,7 +246,6 @@ public class EcmpUserController {
     
     /**
      * 查询所有有效员工
-     * @param  ecmpUser
      * @return*/
     @ApiOperation(value = "查询所有有效员工",notes = "查询所有有效员工",httpMethod ="POST")
     @PostMapping("/queryAllValidUserList")

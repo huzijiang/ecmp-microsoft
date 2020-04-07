@@ -1,17 +1,17 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.EcmpUserRole;
 import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
-import com.hq.ecmp.mscore.dto.EcmpOrgDto;
-import com.hq.ecmp.mscore.dto.EcmpRoleDto;
-import com.hq.ecmp.mscore.dto.EcmpUserDto;
-import com.hq.ecmp.mscore.dto.UserRegisterDTO;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.util.DateFormatUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -398,9 +398,11 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 
     /*已离职列表*/
     @Override
-    public List<EcmpUserDto> selectDimissionList(Long deptId){
-        List<EcmpUserDto> ecmpUserList = ecmpUserMapper.selectDimissionList(deptId);
-        return ecmpUserList;
+    public PageResult<EcmpUserDto> selectDimissionList(PageRequest pageRequest){
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+        List<EcmpUserDto> list=ecmpUserMapper.getEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(),CommonConstant.ONE);
+        Long ecmpUserPageCount = ecmpUserMapper.getEcmpUserPageCount(pageRequest.getSearch(), pageRequest.getDeptId(),CommonConstant.ONE);
+        return new PageResult<>(ecmpUserPageCount,list);
     }
 
     /**
@@ -497,6 +499,15 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
             }
         }
         return ecmpUserList;
+    }
+
+    //员工分页
+    @Override
+    public PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest) {
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+        List<EcmpUserDto> list=ecmpUserMapper.getEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO);
+        Long ecmpUserPageCount = ecmpUserMapper.getEcmpUserPageCount(pageRequest.getSearch(), pageRequest.getDeptId(),CommonConstant.ZERO);
+        return new PageResult<>(ecmpUserPageCount,list);
     }
 
     /**
