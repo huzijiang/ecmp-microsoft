@@ -223,7 +223,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             //添加里程数和总时长
             OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
             orderSettlingInfo.setOrderId(orderId);
-            orderSettlingInfo.setTotalMileage(new BigDecimal(mileage).stripTrailingZeros());
+            orderSettlingInfo.setTotalMileage(new BigDecimal(mileage).divide(new BigDecimal("1000"),2,BigDecimal.ROUND_HALF_UP).stripTrailingZeros());
             orderSettlingInfo.setTotalTime(new BigDecimal(travelTime).stripTrailingZeros());
             orderSettlingInfo.setCreateBy(String.valueOf(userId));
             iOrderSettlingInfoService.insertOrderSettlingInfo(orderSettlingInfo);
