@@ -196,11 +196,11 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     }
     /**
      *
-     * @param phoneNumber
+     * @param driverRegisterDTO
      * @return
      */
-    public int driverItisExist(String phoneNumber){
-        return driverInfoMapper.driverItisExist(phoneNumber);
+    public int driverItisExist(DriverRegisterDTO driverRegisterDTO){
+        return driverInfoMapper.driverItisExist(driverRegisterDTO.getMobile());
     }
     /**
      *驾驶员可用车辆列表

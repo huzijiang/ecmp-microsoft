@@ -146,7 +146,7 @@
 
     <!--邀请员工列表-->
     <select id="queryInvitationUser" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationUserVO">
-         select a.invitation_id as invitationId ,a.name as yqName,c.dept_name as companyName,e.dept_name as deptName,group_concat(b.name) as regimeUser ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait,
+         select a.invitation_id as invitationId ,a.name as yqName,a.url as url,c.dept_name as companyName,e.dept_name as deptName,group_concat(b.name) as regimeUser ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait,
 a.state as state,a.rose_id as roseId,f.role_name as roseName,
       CASE a.state
                       WHEN 'Y000' THEN '有效'
@@ -162,6 +162,7 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
         left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
         where a.type='T001'
         group by a.name,a.enterprise_id,a.department_id
+        order by a.create_time desc
     </select>
 
     <select id="queryInvitationUserCount" resultType="Long">
@@ -225,14 +226,14 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
         group by a.name,a.enterprise_id,a.car_group_id
 
     </select>
-    <insert id="insertDriverInvitation" keyProperty="invitationId" useGeneratedKeys="true">
+   <!-- <insert id="insertDriverInvitation"  parameterType="com.hq.ecmp.mscore.dto.DriverInvitationDTO">
         insert into ecmp_enterprise_invitation_info(name, enterprise_id, car_group_id, type, rose_id, regime_ids, url, state, create_time)
-        values (#{name}, #{enterpriseId}, #{departmentId}, #{carGroupId}, #{type}, #{roseId}, #{regimeIds}, #{url}, #{state},  #{createTime})
-    </insert>
-    <insert id="insertUserInvitation" keyProperty="invitationId" useGeneratedKeys="true">
+        values (#{name}, #{enterpriseId}, #{carGroupId}, #{type}, #{roseId}, #{regimeIds}, #{url}, #{state},  #{createTime})
+    </insert>-->
+  <!--  <insert id="insertUserInvitation"  parameterType="com.hq.ecmp.mscore.dto.UserInvitationDTO">
         insert into ecmp_enterprise_invitation_info(name, enterprise_id, department_id, type, rose_id, regime_ids, url, state, create_time)
         values (#{name}, #{enterpriseId}, #{departmentId}, #{type}, #{roseId}, #{regimeIds}, #{url}, #{state}, #{createTime})
-    </insert>
+    </insert>-->
     <!--通过主键修改数据-->
     <update id="updateInvitationState" parameterType="com.hq.ecmp.mscore.dto.InvitationDto">
         update ecmp_enterprise_invitation_info
@@ -247,4 +248,74 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
         where invitation_id = #{invitationId}
     </update>
 
+    <select id="queryInvitationUserUrl" parameterType="Long" resultType="com.hq.ecmp.mscore.vo.InvitationUrlVO">
+        select  url from ecmp_enterprise_invitation_info
+        where invitation_id = #{invitationId}
+    </select>
+
+    <delete id="invitationDel">
+        delete from ecmp_enterprise_invitation_info where invitation_id = #{invitationId}
+    </delete>
+
+    <insert id="insertUserInvitation" parameterType="com.hq.ecmp.mscore.dto.UserInvitationDTO" useGeneratedKeys="true" keyProperty="invitationId">
+        insert into ecmp_enterprise_invitation_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null ">name,</if>
+            <if test="enterpriseId != null  and enterpriseId != ''">enterprise_id,</if>
+            <if test="departmentId != null  and departmentId != ''">department_id,</if>
+            <if test="type != null  and type != ''">type,</if>
+            <if test="roseId != null  and roseId != ''">rose_id,</if>
+            <if test="regimeIds != null  and regimeIds != ''">regime_ids,</if>
+            <if test="state != null  and state != ''">state,</if>
+            <if test="url != null  and url != ''">url,</if>
+            <if test="createTime != null ">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null ">#{name},</if>
+            <if test="enterpriseId != null  and enterpriseId != ''">#{enterpriseId},</if>
+            <if test="departmentId != null  and departmentId != ''">#{departmentId},</if>
+            <if test="type != null  and type != ''">#{type},</if>
+            <if test="roseId != null  and roseId != ''">#{roseId},</if>
+            <if test="regimeIds != null  and regimeIds != ''">#{regimeIds},</if>
+            <if test="state != null  and state != ''">#{state},</if>
+            <if test="url != null  and url != ''">#{url},</if>
+            <if test="createTime != null ">#{createTime},</if>
+        </trim>
+
+    </insert>
+    <insert id="insertDriverInvitation" parameterType="com.hq.ecmp.mscore.dto.DriverInvitationDTO" useGeneratedKeys="true" keyProperty="invitationId">
+        insert into ecmp_enterprise_invitation_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null ">name,</if>
+            <if test="enterpriseId != null  and enterpriseId != ''">enterprise_id,</if>
+            <if test="carGroupId != null  and carGroupId != ''">car_group_id,</if>
+            <if test="type != null  and type != ''">type,</if>
+            <if test="roseId != null  and roseId != ''">rose_id,</if>
+            <if test="regimeIds != null  and regimeIds != ''">regime_ids,</if>
+            <if test="state != null  and state != ''">state,</if>
+            <if test="url != null  and url != ''">url,</if>
+            <if test="createTime != null ">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null ">#{name},</if>
+            <if test="enterpriseId != null  and enterpriseId != ''">#{enterpriseId},</if>
+            <if test="carGroupId != null  and carGroupId != ''">#{carGroupId},</if>
+            <if test="type != null  and type != ''">#{type},</if>
+            <if test="roseId != null  and roseId != ''">#{roseId},</if>
+            <if test="regimeIds != null  and regimeIds != ''">#{regimeIds},</if>
+            <if test="state != null  and state != ''">#{state},</if>
+            <if test="url != null  and url != ''">#{url},</if>
+            <if test="createTime != null ">#{createTime},</if>
+        </trim>
+
+    </insert>
+    <update id="updateInvitationUrl" parameterType="com.hq.ecmp.mscore.dto.UserInvitationUrlDTO">
+        update ecmp_enterprise_invitation_info
+        <set>
+            <if test="url != null and url != ''">
+                url = #{url},
+            </if>
+        </set>
+        where invitation_id = #{invitationId}
+    </update>
 </mapper>

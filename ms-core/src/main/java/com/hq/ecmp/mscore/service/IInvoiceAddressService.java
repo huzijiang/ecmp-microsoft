@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.dto.InvoiceAddUpdateDTO;
+import com.hq.ecmp.mscore.vo.CarGroupListVO;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.InvoiceAddVO;
 import com.hq.ecmp.mscore.domain.InvoiceAddress;

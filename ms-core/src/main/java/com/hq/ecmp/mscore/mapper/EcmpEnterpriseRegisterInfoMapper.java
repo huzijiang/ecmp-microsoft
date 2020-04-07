@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 
+import com.hq.ecmp.mscore.dto.DriverRegisterDTO;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
 import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
@@ -98,8 +99,14 @@ public interface EcmpEnterpriseRegisterInfoMapper {
      * @param userRegisterDTO
      * @return
      */
-    UserRegisterDTO insertUserRegister(UserRegisterDTO userRegisterDTO);
+    int insertUserRegister(UserRegisterDTO userRegisterDTO);
 
 
     Long queryRegisterUserWaitCount(@Param("deptId") Long deptId,@Param("type") String type);
+    /**
+     * 驾驶员注册
+     * @param driverRegisterDTO
+     * @return
+     */
+    int insertDriverRegister(DriverRegisterDTO driverRegisterDTO);
 }

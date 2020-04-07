@@ -313,4 +313,22 @@ public class CarGroupController {
         }
     }
 
+    /**
+     * 车队信息回显
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getCarGroupInfoFeedBack",notes = "车队信息回显",httpMethod ="POST")
+    @PostMapping("/getCarGroupInfoFeedBack")
+    public ApiResponse<CarGroupDTO> getCarGroupInfoFeedBack(
+            @RequestBody CarGroupDTO carGroupDTO){
+        try {
+            CarGroupDTO carGroupDTO1 = carGroupInfoService.getCarGroupInfoFeedBack(carGroupDTO.getCarGroupId());
+            return ApiResponse.success(carGroupDTO1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("回显失败");
+        }
+    }
+
 }

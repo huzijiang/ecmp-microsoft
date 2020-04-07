@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
+import com.hq.ecmp.mscore.dto.DriverRegisterDTO;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
 import com.hq.ecmp.mscore.dto.UserRegisterDTO;
@@ -89,8 +90,13 @@ public interface EcmpEnterpriseRegisterInfoService {
      * @param userRegisterDTO
      * @return
      */
-    UserRegisterDTO insertUserRegister(UserRegisterDTO userRegisterDTO);
-
+    int insertUserRegister(UserRegisterDTO userRegisterDTO);
+    /**
+     * 驾驶员注册
+     * @param driverRegisterDTO
+     * @return
+     */
+    int insertDriverRegister(DriverRegisterDTO driverRegisterDTO);
 
     int updateRegisterApprove(Long registerId,Long userId,String reason,String state) throws Exception;
 

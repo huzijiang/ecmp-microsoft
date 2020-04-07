@@ -1,7 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.EcmpUserRole;
 import com.hq.ecmp.mscore.domain.RegimeVo;
@@ -12,7 +11,6 @@ import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
-import com.hq.ecmp.mscore.vo.EcmpOrgVo;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.util.DateFormatUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -91,6 +89,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     @Transactional
     public int updateEcmpUser(EcmpUserVo ecmpUser) {
+       /* String phonenumber=ecmpUser.getPhonenumber();
+        ecmpUser.setUserName(phonenumber);*/
         //更新用户信息
         int updateEcmpUserNum = ecmpUserMapper.updateEcmpUser(ecmpUser);
         //更新用户角色关联信息  查询该用户对应的所有角色 删除 再全部插入

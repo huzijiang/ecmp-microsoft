@@ -85,7 +85,7 @@ public interface DriverWorkInfoMapper
      * @param
      * @return
      */
-    List<Date> selectDutyDateByMonth(@Param("scheduleDate") String scheduleDate, @Param("driverId") Long driverId);
+    List<String> selectDutyDateByMonth(@Param("scheduleDate") String scheduleDate, @Param("driverId") Long driverId);
 
     /**
      * 查询司机休假时间
