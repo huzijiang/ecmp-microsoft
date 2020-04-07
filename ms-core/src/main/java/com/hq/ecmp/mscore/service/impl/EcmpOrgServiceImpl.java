@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
@@ -276,8 +278,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @return ecmpOrg
      */
     @Override
-    public List<EcmpOrgDto> selectCompanyList(Long deptId,String deptType){
+    public PageResult<EcmpOrgDto> selectCompanyList(Long deptId,String deptType,int pageSize,int pageNum){
         /*列表：（分/子公司名称、编号、分/子公司主管、分/子公司人数、上级公司、下属公司数、状态*/
+        PageHelper.startPage(pageNum,pageSize);
         List<EcmpOrgDto> companyList = new ArrayList<>();
         List<Long> deptIdList = new ArrayList<>();
         if(deptId!=null){
@@ -292,7 +295,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                 }
             }
         }
-        return companyList;
+        PageInfo<Long> info = new PageInfo<>(deptIdList);
+        return new PageResult<>(info.getTotal(),info.getPages(),companyList);
     }
 
     /**
@@ -311,8 +315,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @return ecmpOrg
      */
     @Override
-    public List<EcmpOrgDto> selectDeptList(Long deptId,String deptType){
+    public PageResult<EcmpOrgDto> selectDeptList(Long deptId,String deptType,int pageNum,int pageSize){
         /*列表：部门名称、编号、部门主管、部门人数、所属组织、下属部门数、状态*/
+        PageHelper.startPage(pageNum,pageSize);
         List<EcmpOrgDto> companyList = new ArrayList<>();
         List<Long> deptIdList = new ArrayList<>();
         if(deptId!=null){
@@ -327,7 +332,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                 }
             }
         }
-        return companyList;
+        PageInfo<Long> info = new PageInfo<>(deptIdList);
+        return new PageResult<>(info.getTotal(),info.getPages(),companyList);
     }
 
     /**

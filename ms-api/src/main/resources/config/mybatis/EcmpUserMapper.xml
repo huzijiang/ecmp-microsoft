@@ -105,7 +105,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update ecmp_user
         <trim prefix="SET" suffixOverrides=",">
             <if test="deptId != null ">dept_id = #{deptId},</if>
-            <if test="jobNumber != null  and jobNumber != ''">job_number = #{jobNumber},</if>
+            <if test="jobNumber != null">job_number = #{jobNumber},</if>
             <if test="userName != null  and userName != ''">user_name = #{userName},</if>
             <if test="nickName != null  and nickName != ''">nick_name = #{nickName},</if>
             <if test="userType != null  and userType != ''">user_type = #{userType},</if>
@@ -560,7 +560,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 
     <!--查询工号是否已存在-->
-    <select id="selectJobNumberExist" >
+    <select id="selectJobNumberExist" resultType="java.lang.Integer">
         select count(1) from ecmp_user
         where del_flag = 0
          and job_number = #{jobNumber}
