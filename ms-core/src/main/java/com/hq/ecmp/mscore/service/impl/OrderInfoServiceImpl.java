@@ -1996,6 +1996,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderSettlingInfo.setTotalTime(new BigDecimal(duration).stripTrailingZeros());
                 orderSettlingInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
                 orderSettlingInfo.setAmountDetail(feeInfoBean.toString());
+                orderSettlingInfo.setCreateBy(CommonConstant.START);
+                orderSettlingInfo.setCreateTime(new Date());
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
             }
 

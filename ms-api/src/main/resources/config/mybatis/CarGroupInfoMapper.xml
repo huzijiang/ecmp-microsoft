@@ -27,7 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCarGroupInfoVo">
-        select car_group_id,car_group_name,car_group_code, city,full_address,short_address,owner_company,
+        select car_group_id,parent_car_group_id,car_group_name,car_group_code, city,full_address,short_address,owner_company,
          owner_org, leader,telephone,create_by,province,latitude,longitude,state, create_time, update_by, update_time from car_group_info
     </sql>
 
@@ -186,8 +186,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectFirstLevelCarGroupList" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
-         select car_group_id as carGroupId,
-               car_group_name as carGroupName
+         select car_group_id as deptId,
+               car_group_name as deptName
         from   car_group_info
         where  owner_company = #{deptId} and parent_car_group_id = 0
     </select>

@@ -2,7 +2,10 @@ package com.hq.ecmp.mscore.dto;
 
 import com.hq.ecmp.mscore.vo.DriverVO;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
@@ -12,6 +15,9 @@ import java.util.List;
  * @Date: 2020/3/14 23:17
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CarSaveDTO {
 
     //1.车辆ID
@@ -26,8 +32,9 @@ public class CarSaveDTO {
     //3.车型 商务 公务 等
     private Long enterpriseCarTypeId;
 
-    //4.所属公司
+    //4.所属组织
     private Long ownerOrgId;
+
 
     //5.所属车队
     private Long carGroupId;
@@ -82,6 +89,11 @@ public class CarSaveDTO {
 
     //11.行驶证实照
     private String carDrivingLicenseImagesUrl;
+
+    private String carGroupName; //车队名字（回显展示）
+    private String carTypeName; // 车型名字（回显展示）
+    //private String powerTypeName; // 燃料类型名字 回显展示）暂不使用
+    private String ownerCompanyName; //所属公司名字
 
 
 }

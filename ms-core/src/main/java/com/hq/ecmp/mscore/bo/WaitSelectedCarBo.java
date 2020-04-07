@@ -1,11 +1,14 @@
 package com.hq.ecmp.mscore.bo;
 
+import com.hq.ecmp.constant.CarPowerEnum;
 import com.hq.ecmp.constant.enumerate.CarLockStateEnum;
+import com.hq.ecmp.constant.enumerate.CarSourceEnum;
 import com.hq.ecmp.constant.enumerate.CarStateEnum;
 import com.hq.ecmp.constant.enumerate.TaskConflictEnum;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Timestamp;
 
@@ -48,7 +51,7 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
      * 000 无任务冲突
      *
      */
-    private String  taskConflict;
+    private TaskConflictEnum  taskConflict;
 
     /**
      * 任务流情况
@@ -111,6 +114,11 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
      */
     private String carGroupName;
 
+    /**
+     * 所属部门名称
+     */
+    private String deptName;
+
 
 
     /**
@@ -154,18 +162,48 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
             this.status=CarLockStateEnum.UNLOCK.getDesc()+","+this.status;
         }
 
-        if(TaskConflictEnum.BEFORE_TASK_CLASH.getCode().equals(this.getTaskConflict())){
+        if(TaskConflictEnum.BEFORE_TASK_CLASH.equals(this.getTaskConflict())){
             this.status=TaskConflictEnum.BEFORE_TASK_CLASH.getDesc()+","+this.status;
         }
-        if(TaskConflictEnum.AFTER_TASK_CLASH.getCode().equals(this.getTaskConflict())){
+        if(TaskConflictEnum.AFTER_TASK_CLASH.equals(this.getTaskConflict())){
             this.status=TaskConflictEnum.AFTER_TASK_CLASH.getDesc()+","+this.status;
         }
-        if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getCode().equals(this.getTaskConflict())){
+        if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.equals(this.getTaskConflict())){
             this.status=TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc()+","+this.status;
         }
-        if(TaskConflictEnum.CONFLICT_FREE.getCode().equals(this.getTaskConflict())){
+        if(TaskConflictEnum.CONFLICT_FREE.equals(this.getTaskConflict())){
             this.status=TaskConflictEnum.CONFLICT_FREE.getDesc()+","+this.status;
         }
+
+        //能源类型转换-枚举问题
+        if(StringUtils.isNotEmpty(this.getPowerType())){
+            if(CarPowerEnum.gasoline.getKey().equals(this.getPowerType())){
+                this.setPowerType(CarPowerEnum.gasoline.getDesc());
+            }
+            if(CarPowerEnum.Diesel.getKey().equals(this.getPowerType())){
+                this.setPowerType(CarPowerEnum.Diesel.getDesc());
+            }
+            if(CarPowerEnum.ELECTRIC.getKey().equals(this.getPowerType())){
+                this.setPowerType(CarPowerEnum.ELECTRIC.getDesc());
+            }
+            if(CarPowerEnum.Hybrid.getKey().equals(this.getPowerType())){
+                this.setPowerType(CarPowerEnum.Hybrid.getDesc());
+            }
+        }
+
+        //车辆性质转换
+        if(StringUtils.isNotEmpty(this.getSource())){
+            if(CarSourceEnum.OWN.getCode().equals(this.getSource())){
+                this.setSource(CarSourceEnum.OWN.getDesc());
+            }
+            if(CarSourceEnum.RENT.getCode().equals(this.getSource())){
+                this.setSource(CarSourceEnum.RENT.getDesc());
+            }
+            if(CarSourceEnum.BORROWED.getCode().equals(this.getSource())){
+                this.setSource(CarSourceEnum.BORROWED.getDesc());
+            }
+        }
+
 
     }
 

@@ -81,4 +81,7 @@ public class CarDetailVO {
     @ApiModelProperty(name = "carId", value = "车辆id")
     private Long carId;
 
+
+
+
 }

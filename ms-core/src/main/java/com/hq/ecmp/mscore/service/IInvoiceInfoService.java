@@ -5,10 +5,7 @@ import com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO;
 import com.hq.ecmp.mscore.dto.InvoiceHeaderDTO;
 import com.hq.ecmp.mscore.dto.InvoiceInsertDTO;
 import com.hq.ecmp.mscore.dto.InvoicePeriodDTO;
-import com.hq.ecmp.mscore.vo.InvoiceDetailVO;
-import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
-import com.hq.ecmp.mscore.vo.InvoiceRecordVO;
-import com.hq.ecmp.mscore.vo.PeriodsVO;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -74,7 +71,7 @@ public interface IInvoiceInfoService
      */
    // public List<InvoiceInfo> selectInvoiceInfoByTimeAndState(String startTime, String endTime, String state);
 
-    public List<InvoiceRecordVO> queryAllByTimeState(InvoiceByTimeStateDTO invoiceByTimeStateDTO);
+    public PageResult<InvoiceRecordVO> queryAllByTimeState(InvoiceByTimeStateDTO invoiceByTimeStateDTO);
     /**
      * 新增发票抬头
      */

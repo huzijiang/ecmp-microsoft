@@ -3,7 +3,10 @@ package com.hq.ecmp.mscore.dto;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.ecmp.mscore.vo.UserVO;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -12,12 +15,17 @@ import java.util.List;
  * @Date: 2020/3/12 10:30
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class CarGroupDTO {
 
 
     @ApiModelProperty(name = "carGroupId", value = "车队id",required = false)
     private Long carGroupId;
 
+    @ApiModelProperty(name = "userIdS", value = "主管id数组",required = false)
+    private Long[]  userIds;
 
     @ApiModelProperty(name = "parentCarGroupId", value = "父车队id",required = false)
     private Long parentCarGroupId; //TODO 新增
@@ -28,8 +36,10 @@ public class CarGroupDTO {
     @ApiModelProperty(name = "carGroupCode", value = "车队编号")
     private String carGroupCode;   //TODO 新增
 
-    @ApiModelProperty(name = "ownerOrg", value = "所属组织",example = "北京分公司")
+    @ApiModelProperty(name = "ownerOrg", value = "所属组织 分子公司id/或部门id/或父车队id")
     private Long ownerOrg;
+
+
 
     @ApiModelProperty(name = "city", value = "归属城市编码")
     private String city;
@@ -66,5 +76,11 @@ public class CarGroupDTO {
 
     @ApiModelProperty(name = "owneCompany", value = "所属公司id")
     private Long owneCompany;   //TODO 新增
+
+    @ApiModelProperty(name = "ownerOrgName", value = "所属组织 名称",required = false)
+    private String ownerOrgName;  //回显使用
+
+    @ApiModelProperty(name = "cityName", value = "归属城市名称")
+    private String cityName;
 
 }

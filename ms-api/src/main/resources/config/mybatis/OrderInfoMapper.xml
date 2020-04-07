@@ -587,7 +587,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         GROUP_CONCAT(jpi1.name) peerName,
         s.use_car_mode useCarMode,
         s.driver_name driverName,
-        s.driver_mobile driverMobile,
+        s.driver_mobile driverPhone,
         ci.car_type carType,
         ci.car_color carColor,
         ci.car_license carLicense,

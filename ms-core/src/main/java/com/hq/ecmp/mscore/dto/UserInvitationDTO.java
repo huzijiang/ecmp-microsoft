@@ -13,6 +13,8 @@ import java.util.Date;
  */
 @Data
 public class UserInvitationDTO {
+    @ApiModelProperty(value = "邀请ID")
+    private Long invitationId;
     @ApiParam(name = "name", value = "邀请名", required = true )
     private String name;
     @ApiParam(name = "enterpriseId", value = "所属公司", required = true )
@@ -31,5 +33,7 @@ public class UserInvitationDTO {
     private String state;
     @ApiParam(name = "type", value = "类型", required = true )
     private String type;
+    @ApiParam(name = "apiUrl", value = "域名")
+    private String apiUrl;
 
 }

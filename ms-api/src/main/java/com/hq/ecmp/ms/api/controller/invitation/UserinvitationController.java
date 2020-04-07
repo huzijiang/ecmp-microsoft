@@ -7,6 +7,7 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.InvitionStateEnum;
+import com.hq.ecmp.constant.InvitionTypeEnum;
 import com.hq.ecmp.ms.api.dto.base.InviteDto;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
@@ -19,6 +20,7 @@ import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,16 +52,25 @@ public class UserinvitationController {
      */
     @ApiOperation(value = "interInvitationUserCommit",notes = "生成邀请",httpMethod = "POST")
     @PostMapping("/interInvitationUserCommit")
-    public ApiResponse interInvitationUserCommit(@RequestBody UserInvitationDTO userInvitationDTO){
+    public ApiResponse<InvitationUrlVO> interInvitationUserCommit(@RequestBody UserInvitationDTO userInvitationDTO){
         try {
-
+            String urlApi=userInvitationDTO.getApiUrl();
+            //String urlApi="http://10.241.9.4:28080";
             ecmpEnterpriseInvitationInfoService.insertUserInvitation(userInvitationDTO);
+            Long invitationId = userInvitationDTO.getInvitationId();
+            System.out.println("新增邀请链接返回ID："+ invitationId);
+            InvitationUrlVO invitationUrlVO = new InvitationUrlVO();
+            String url=urlApi+"/invitePage/"+invitationId;
+            invitationUrlVO.setUrl(urlApi+"/invitePage/"+invitationId);
+            UserInvitationUrlDTO userUrl= new UserInvitationUrlDTO();
+            userUrl.setUrl(url);
+            userUrl.setInvitationId(invitationId);
+            ecmpEnterpriseInvitationInfoService.updateInvitationUrl(userUrl);
+            return ApiResponse.success(invitationUrlVO);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("新增员工邀请失败");
         }
-        return ApiResponse.success("新增员工邀请成功");
-
     }
 
       /**
@@ -173,8 +184,10 @@ public class UserinvitationController {
         RegisterVO registerVO =new RegisterVO();
         int waitCount =ecmpEnterpriseRegisterInfoServicee.waitAmount(inviteDto.getDeptId(),inviteDto.getType());
         registerVO.setRegisterCount(waitCount);
-        int resignationCount = iEcmpUserService.selectDimissionCount();
-        registerVO.setResignationCount(resignationCount);
+        if (InvitionTypeEnum.USER.getKey().equals(inviteDto.getType())){
+            int resignationCount = iEcmpUserService.selectDimissionCount(inviteDto.getDeptId());
+            registerVO.setResignationCount(resignationCount);
+        }
         return ApiResponse.success(registerVO);
     }
     /**
@@ -208,6 +221,34 @@ public class UserinvitationController {
         return ApiResponse.success(InvitationUser);
 
     }
+    /**
+     * 获取邀请URL-员工
+     */
+    @ApiOperation(value = "getInvitationUserUrl",notes = "获取邀请URL",httpMethod = "POST")
+    @PostMapping("/getInvitationUserUrl")
+    public ApiResponse<InvitationUrlVO> getInvitationUserUrl(@RequestBody InvitationDto invitationDto){
+
+        InvitationUrlVO invitationUrlVO=ecmpEnterpriseInvitationInfoService.queryInvitationUserUrl(invitationDto.getInvitationId());
+        return ApiResponse.success(invitationUrlVO);
+
+    }
+    /**
+     * 删除邀请
+     */
+    @ApiOperation(value = "getInvitationUserDel",notes = "删除邀请",httpMethod = "POST")
+    @PostMapping("/getInvitationUserDel")
+    public ApiResponse  getInvitationUserDel(@RequestBody InvitationDto invitationDto){
+
+        try {
+            ecmpEnterpriseInvitationInfoService.invitationDel(invitationDto.getInvitationId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("删除失败");
+        }
+        return ApiResponse.success("删除邮箱成功"+invitationDto.getInvitationId());
+
+    }
+
 
 
 }

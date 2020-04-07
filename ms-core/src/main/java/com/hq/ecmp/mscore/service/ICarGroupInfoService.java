@@ -134,4 +134,7 @@ public interface ICarGroupInfoService
 
     /*判断车队编号是否存在*/
     boolean judgeCarGroupCode(String carGroupCode);
+
+    /*回显车队信息*/
+    CarGroupDTO getCarGroupInfoFeedBack(Long carGroupId);
 }

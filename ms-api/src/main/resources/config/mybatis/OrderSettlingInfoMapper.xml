@@ -44,8 +44,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="orderId != null ">order_id,</if>
             <if test="amount != null ">amount,</if>
             <if test="amountDetail != null  and amountDetail != ''">amount_detail,</if>
-            <if test="totalMileage != null  and totalMileage != ''">total_mileage,</if>
-            <if test="totalTime != null and totalTime != '' ">total_time,</if>
+            <if test="totalMileage != null  ">total_mileage,</if>
+            <if test="totalTime != null  ">total_time,</if>
             <if test="outPrice != null ">out_price,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
@@ -57,8 +57,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="orderId != null ">#{orderId},</if>
             <if test="amount != null ">#{amount},</if>
             <if test="amountDetail != null  and amountDetail != ''">#{amountDetail},</if>
-            <if test="totalMileage != null  and totalMileage != ''">#{totalMileage},</if>
-            <if test="totalTime != null and totalTime != '' ">#{totalTime},</if>
+            <if test="totalMileage != null ">#{totalMileage},</if>
+            <if test="totalTime != null ">#{totalTime},</if>
             <if test="outPrice != null ">#{outPrice},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
