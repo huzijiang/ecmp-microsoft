@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.DriverWorkInfo;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -86,4 +87,7 @@ public interface IDriverWorkInfoService
     DriverDutyPlanVO selectDriverScheduleByMonth(String scheduleDate, Long userId);
 
     public DriverDutyWorkVO selectDriverSchedule(String scheduleDate, Long driverId);
+
+    public DriverDutyWorkVO selectSchedule(String scheduleDate);
+
 }

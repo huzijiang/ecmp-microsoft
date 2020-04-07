@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Author:
  * @Date: 2020-03-04 15:26
@@ -12,7 +14,7 @@ import lombok.Data;
 @ApiModel("驾驶员排班")
 public class DriverWorkDTO {
 
-    @ApiModelProperty(value = "驾驶员ID")
+    /*@ApiModelProperty(value = "驾驶员ID")
     private  String  driverId;
 
     @ApiModelProperty(value = "休假状态")
@@ -22,8 +24,11 @@ public class DriverWorkDTO {
     private  String  leaveConfirmStaus;
 
     @ApiModelProperty(value = "日历中的哪一天")
-    private  String  caledarDate;
-
+    private  String  caledarDate;*/
+    @ApiModelProperty(value = "上班时间")
+    private List<String> dutyDate;
+    @ApiModelProperty(value = "休假时间")
+    private List<String> holidays;
 
 
 }

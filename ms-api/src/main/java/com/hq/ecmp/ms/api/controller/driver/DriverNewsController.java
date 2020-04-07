@@ -37,6 +37,8 @@ public class DriverNewsController {
     private TokenService tokenService;
     @Autowired
     private IDriverWorkInfoService driverWorkInfoService;
+    @Autowired
+    IDriverInfoService driverInfoService;
 
     /**
      *驾驶员可用车辆列表
@@ -105,13 +107,23 @@ public class DriverNewsController {
      */
     @ApiOperation(value="getDriverUpdate" ,notes="修改驾驶员", httpMethod = "POST")
     @PostMapping("/getDriverUpdate")
-    public ApiResponse  getDriverUpdate(DriverCreateInfo driverCreateInfo){
-        int updateDriver = iDriverInfoService.updateDriver(driverCreateInfo);
-        if(updateDriver !=0){
-            return ApiResponse.success("修改驾驶员成功");
+    public ApiResponse  getDriverUpdate(@RequestBody DriverCreateInfo driverCreateInfo){
+        Long driverId = driverCreateInfo.getDriverId();
+        int i = iDriverInfoService.deleteDriverInfoById(driverId);
+        if(i==1){
+            HttpServletRequest request = ServletUtils.getRequest();
+      	      LoginUser loginUser = tokenService.getLoginUser(request);
+      	      driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
+      		boolean createDriver = driverInfoService.createDriver(driverCreateInfo);
+      		if(createDriver){
+      			return ApiResponse.success();
+             }else{
+      			return ApiResponse.error();
+             }
         }
-        return ApiResponse.error("修改驾驶员失败");
+        return ApiResponse.error("修改驾驶员成功");
     }
+
     /**
      *修改驾驶员手机号
      * @param driverNewDTO
@@ -183,16 +195,12 @@ public class DriverNewsController {
      * @param
      * @return
      */
-    @ApiOperation(value = "getDriverScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
-    @PostMapping("/getDriverScheduleInfo")
-    public ApiResponse<DriverDutyWorkVO> getDriverScheduleInfo(@RequestBody(required = false) String scheduleDate,
-                                                          @RequestParam("driverId") Long driverId){
-      //  HttpServletRequest request = ServletUtils.getRequest();
-      //  LoginUser loginUser = tokenService.getLoginUser(request);
-      //  Long userId = loginUser.getUser().getUserId();
+    @ApiOperation(value = "getScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
+    @PostMapping("/getScheduleInfo")
+    public ApiResponse<DriverDutyWorkVO> getScheduleInfo(@RequestBody(required = false) String scheduleDate){
         try {
             //查询司机当月排班日期对应的出勤情况列表
-            DriverDutyWorkVO result = driverWorkInfoService.selectDriverSchedule(scheduleDate,driverId);
+            DriverDutyWorkVO result = driverWorkInfoService.selectSchedule(scheduleDate);
             return ApiResponse.success(result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,23 +208,29 @@ public class DriverNewsController {
         }
     }
     /**
-     * 驾驶员班次设置
+     * 班次设置
      * @param
      * @return
      */
     @ApiOperation(value = "updateDriverWork",notes = "驾驶员班次设置",httpMethod ="POST")
     @PostMapping("/updateDriverWork")
-    public ApiResponse updateDriverWork(@RequestBody List<DriverWorkDTO> DriverWorkList){
+    public ApiResponse updateDriverWork(@RequestBody DriverWorkDTO driverWorkDTO){
         //获取登录用户
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
         try {
-         //   iDriverInfoService.bindDriverCars(DriverWorkDTO,userId);
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            List<String> listDutyDate= driverWorkDTO.getDutyDate();
+            List<String> listHoliday= driverWorkDTO.getHolidays();
+            /**
+             * 将上班list和休假list日期批量修改
+             */
+
+            // iDriverInfoService.bindDriverCars(DriverWorkDTO,userId);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
         }
-        return ApiResponse.success("新增车辆成功");
+        return ApiResponse.success("排班设置成功！");
     }
 }

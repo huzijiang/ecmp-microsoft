@@ -12,6 +12,7 @@ import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -181,5 +182,24 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
       //  driverDutyWorkVO.setDutyDate(dutyDate);
         return driverDutyWorkVO;
     }
+
+    /**
+     * 按月查询上班时间安排
+     * @param scheduleDate
+     * @param
+     * @return
+     */
+    @Override
+    public DriverDutyWorkVO selectSchedule(String scheduleDate){
+        DriverDutyWorkVO driverDutyWorkVO = new DriverDutyWorkVO();
+        //查询司机上班时间
+         List<String> dutyDate = driverWorkInfoMapper.selectDutyDateByMonthAll(scheduleDate);
+        //查询司机休假时间
+        List<String> holidays = driverWorkInfoMapper.selectHolidaysByMonthAll(scheduleDate);
+        driverDutyWorkVO.setHolidays(holidays);
+        driverDutyWorkVO.setDutyDate(dutyDate);
+        return driverDutyWorkVO;
+    }
+
 
 }

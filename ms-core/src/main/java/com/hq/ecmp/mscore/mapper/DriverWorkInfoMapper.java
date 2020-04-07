@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface DriverWorkInfoMapper
 {
     /**
@@ -102,4 +104,20 @@ public interface DriverWorkInfoMapper
      * @return
      */
     int selectDriverAlreadyDutyDays(@Param("scheduleDate") String scheduleDate,@Param("driverId") Long driverId);
+    /**
+     * 按月查询上班时间安排
+     * @param scheduleDate
+     * @param
+     * @return
+     */
+    List<String> selectDutyDateByMonthAll(@Param("scheduleDate") String scheduleDate);
+
+    /**
+     * 查询司休假时间
+     * @param scheduleDate
+     * @param scheduleDate
+     * @return
+     */
+    List<String> selectHolidaysByMonthAll(@Param("scheduleDate")String scheduleDate);
+
 }
