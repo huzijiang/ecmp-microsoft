@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -185,7 +186,19 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 
 	@Override
 	public DriverQueryResult queryDriverDetail(Long driverId) {
-		return driverInfoMapper.queryDriverDetail(driverId);
+		DriverQueryResult queryDriverDetail = driverInfoMapper.queryDriverDetail(driverId);
+		//查询该驾驶员可使用的车辆
+		List<Long> carId=new ArrayList<>();
+		DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+		driverCarRelationInfo.setDriverId(driverId);
+		List<DriverCarRelationInfo> selectDriverCarRelationInfoList = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo);
+		if(null !=selectDriverCarRelationInfoList && selectDriverCarRelationInfoList.size()>0){
+			for (DriverCarRelationInfo d : selectDriverCarRelationInfoList) {
+				carId.add(d.getCarId());
+			}
+		}
+		queryDriverDetail.setCarId(carId);
+		return queryDriverDetail;
 	}
     /**
      *驾驶员总数
