@@ -65,8 +65,10 @@ public class EcmpUserDto {
     @ApiModelProperty(value= "驻地代码")
     private String stationCode;
 
-    @ApiModelProperty(value= "")
+    @ApiModelProperty(value= "离职日期")
     private Date dimissionTime;
+    @ApiModelProperty(value= "离职日期")
+    private String dimissionTimeStr;
 
     @ApiModelProperty(value= "企业支付")
     private String payMode;

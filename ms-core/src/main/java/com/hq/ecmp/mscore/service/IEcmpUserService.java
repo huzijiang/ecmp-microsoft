@@ -4,8 +4,10 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.Date;
 import java.util.List;
@@ -168,7 +170,7 @@ public interface IEcmpUserService {
     @param  userId
      * @return
     * */
-    public List<EcmpUserDto> selectDimissionList(Long deptId);
+    public PageResult<EcmpUserDto> selectDimissionList(PageRequest pageRequest);
 
     /**
      * 给员工设置用车制度
@@ -208,4 +210,6 @@ public interface IEcmpUserService {
      * @return 结果
      */
     public List<EcmpUserDto> selectUserByNickNameOrJobNumber(String nameOrJobNumberOrPhone);
+
+    PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest);
 }
