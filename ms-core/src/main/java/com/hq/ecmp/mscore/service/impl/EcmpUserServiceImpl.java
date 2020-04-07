@@ -89,8 +89,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     @Transactional
     public int updateEcmpUser(EcmpUserVo ecmpUser) {
-       /* String phonenumber=ecmpUser.getPhonenumber();
-        ecmpUser.setUserName(phonenumber);*/
+        String phonenumber=ecmpUser.getPhonenumber();
+        ecmpUser.setUserName(phonenumber);
         //更新用户信息
         int updateEcmpUserNum = ecmpUserMapper.updateEcmpUser(ecmpUser);
         //更新用户角色关联信息  查询该用户对应的所有角色 删除 再全部插入
@@ -392,8 +392,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 
     /*已离职数量*/
     @Override
-    public int selectDimissionCount(){
-        return ecmpUserMapper.selectDimissionCount();
+    public int selectDimissionCount(Long deptId){
+        return ecmpUserMapper.selectDimissionCount(deptId);
     }
 
     /*已离职列表*/

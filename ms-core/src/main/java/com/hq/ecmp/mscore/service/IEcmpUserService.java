@@ -162,7 +162,7 @@ public interface IEcmpUserService {
     @param  dimissionTime
      * @return
     * */
-    public int selectDimissionCount();
+    public int selectDimissionCount(Long deptId);
 
     /*已离职列表
     @param  userId

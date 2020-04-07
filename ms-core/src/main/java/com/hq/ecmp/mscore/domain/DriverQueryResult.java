@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.domain;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -18,6 +19,8 @@ public class DriverQueryResult {
 	String company;// 所属公司
 
 	String carGroupName;
+	
+	Long carGroupId;//车队ID
 
 	Integer ownCarCount;// 可用车辆
 
@@ -37,6 +40,10 @@ public class DriverQueryResult {
 	
 	Date licenseInitIssueDate;//初次领证日期
 	
+	Date licenseIssueDate;//证照有效期 开始时间
+	
 	Date licenseExpireDate;//驾驶证到期时间
+	
+	List<Long> carId;//可使用车辆
 	  
 }
