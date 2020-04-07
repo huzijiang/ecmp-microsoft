@@ -213,7 +213,7 @@ public interface EcmpUserMapper
     @param
      * @return
     * */
-    public int selectDimissionCount();
+    public int selectDimissionCount(Long deptId);
 
     /*已离职员工编号
     @param  dimissionTime
