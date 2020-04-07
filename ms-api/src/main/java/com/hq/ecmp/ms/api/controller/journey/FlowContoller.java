@@ -5,6 +5,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.mscore.domain.ApproveTemplateInfo;
 import com.hq.ecmp.mscore.dto.AddFolwDTO;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.config.ApproveTemplateIDTO;
@@ -142,6 +143,11 @@ public class FlowContoller {
         return ApiResponse.success("删除模板成功:"+templateIDTO.getApproveTemplateId());
     }
 
-
+    
+    @ApiOperation(value = "getAllTemplateList",notes = "获取所有审批流 ",httpMethod ="POST")
+    @PostMapping("/getAllTemplateList")
+    public ApiResponse<List<ApproveTemplateInfo>> getAllTemplateList(){
+        return ApiResponse.success(templateInfoService.selectApproveTemplateInfoList(new ApproveTemplateInfo()));
+    }
 
 }
