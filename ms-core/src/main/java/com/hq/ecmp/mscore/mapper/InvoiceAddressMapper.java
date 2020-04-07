@@ -64,4 +64,6 @@ public interface InvoiceAddressMapper
      * @return 结果
      */
     public int deleteInvoiceAddressByIds(Long[] addressIds);
+
+    Long selectInvoiceAddressListCount();
 }
