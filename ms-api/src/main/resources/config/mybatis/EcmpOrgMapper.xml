@@ -398,7 +398,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <!--查询分/子公司下的部门名称和deptId
-   select
+    -->
+    <select id="selectDeptByCompany" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+         select
         dept_id as deptId,
         dept_name as deptName
         from ecmp_org
@@ -408,14 +410,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from ecmp_org
         where del_flag = 0
         and parent_id=#{deptId})
-    -->
-    <select id="selectDeptByCompany" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
-         select
-        dept_id as deptId,
-        dept_name as deptName
-        from ecmp_org
-        where del_flag = 0
-        and parent_id=#{deptId}
     </select>
 
     <!-- 按照分子公司名称或编号模糊查询匹配的组织id -->
