@@ -13,4 +13,10 @@ public class WeatherAndCity {
 	private String week;//周几
 	
 	private String monthAndDay;//日期
+	
+	
+	
+	private String weatherDescription;
+	
+	private String city;
 }
