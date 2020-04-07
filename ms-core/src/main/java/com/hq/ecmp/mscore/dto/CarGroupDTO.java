@@ -18,6 +18,9 @@ public class CarGroupDTO {
     @ApiModelProperty(name = "carGroupId", value = "车队id",required = false)
     private Long carGroupId;
 
+    @ApiModelProperty(name = "userIdS", value = "主管id字符串，逗号隔开",required = false)
+    private String  userIds;
+
 
     @ApiModelProperty(name = "parentCarGroupId", value = "父车队id",required = false)
     private Long parentCarGroupId; //TODO 新增
@@ -28,7 +31,7 @@ public class CarGroupDTO {
     @ApiModelProperty(name = "carGroupCode", value = "车队编号")
     private String carGroupCode;   //TODO 新增
 
-    @ApiModelProperty(name = "ownerOrg", value = "所属组织",example = "北京分公司")
+    @ApiModelProperty(name = "ownerOrg", value = "所属组织 分子公司id/或部门id/或父车队id")
     private Long ownerOrg;
 
     @ApiModelProperty(name = "city", value = "归属城市编码")

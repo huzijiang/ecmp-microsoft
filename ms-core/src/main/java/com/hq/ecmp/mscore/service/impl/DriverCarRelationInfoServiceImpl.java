@@ -144,9 +144,12 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
         DriverCarRelationInfo driverCarRelationInfo = null;
         for (DriverVO driver : drivers) {
             driverCarRelationInfo = new DriverCarRelationInfo();
-            driverCarRelationInfo.setUserId(driver.getUserId());
             driverCarRelationInfo.setDriverId(driver.getDriverId());
             driverCarRelationInfo.setCarId(carId);
+            DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(driver.getDriverId());
+            if(driverInfo != null){
+                driverCarRelationInfo.setUserId(driverInfo.getUserId());
+            }
            // driverCarRelationInfo.setCreateBy(String.valueOf(userId));
            // driverCarRelationInfo.setCreateTime(new Date());
             int i = driverCarRelationInfoMapper.insertDriverCarRelationInfo(driverCarRelationInfo);

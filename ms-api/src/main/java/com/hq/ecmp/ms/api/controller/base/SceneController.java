@@ -47,7 +47,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
-	@ApiOperation(value = "getAll", notes = "获取用车场景", httpMethod ="GET")
+	@ApiOperation(value = "getAll", notes = "获取用户的所有可用用车场景", httpMethod ="GET")
 	@GetMapping("/getAll")
 	public ApiResponse<List<SceneInfo>> getAllScene() {
 		//获取登录用户

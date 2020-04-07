@@ -188,6 +188,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         if(a>0){
             return "此手机号已存在请重新输入";
         }
+        ecmpUser.setUserName(phonenumber);
         int b = selectEmailExist(email);
         if(b>0){
             return "此邮箱已存在请重新输入";

@@ -45,4 +45,9 @@ public class SelectCarConditionBo {
      */
     private String  carLicense;
 
+    /**
+     * 车型车系信息
+     */
+    private String  carTypeInfo;
+
 }

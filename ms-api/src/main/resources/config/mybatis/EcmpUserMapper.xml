@@ -203,7 +203,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="addEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo" useGeneratedKeys="true" keyProperty="userId">
         insert into ecmp_user
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="phonenumber != null  and phonenumber != ''">user_name,</if>
+            <if test="userName != null  and userName != ''">user_name,</if>
             <if test="jobNumber != null  and jobNumber != ''">job_number,</if>
             <if test="nickName != null  and nickName != ''">nick_name,</if>
             <if test="userType != null  and userType != ''">user_type,</if>
@@ -225,7 +225,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="remark != null  and remark != ''">remark</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="phonenumber != null  and phonenumber != ''">#{phonenumber},</if>
+            <if test="userName != null  and userName != ''">#{userName},</if>
             <if test="jobNumber != null  and jobNumber != ''">#{jobNumber},</if>
             <if test="nickName != null  and nickName != ''">#{nickName},</if>
             <if test="userType != null  and userType != ''">#{userType},</if>
@@ -323,6 +323,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select
         nick_name as nickName,phonenumber,
         if(isnull(job_number),'',job_number) as jobNumber,
+        user_name as userName,
         user_id as userId,
         dept_id as deptId,
         (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='2') as subDept,
@@ -411,19 +412,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <!--已离职列表-->
-    <!--nick_name as nickName,phonenumber,user_id as userId,
+    <!--姓名、手机号、工号、所属公司、所属部门、离职日期
+    nick_name as nickName,phonenumber,user_id as userId,
         (select dept_name from ecmp_org where  dept_type='1' and dept_id= (select parent_id from ecmp_org where dept_id=#{deptId})) as subCompany,
         (select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept,
         dimission_time as dimissionTime-->
     <select id="selectDimissionList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
         select
+        nick_name as nickName,phonenumber,
+        if(isnull(job_number),'',job_number) as jobNumber,
+        user_name as userName,
         user_id as userId,
         dept_id as deptId,
-        user_name as userName,
-        nick_name as nickName,
-        user_type as userType,
-        station_code as stationCode,
-        job_number as jobNumber,
+        (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='2') as subDept,
+        (select dept_name from ecmp_org where dept_id= (select parent_id from ecmp_org where dept_id=#{deptId} and dept_type='2')) as subCompany,
         pay_mode as payMode,
         remark as remark,
         it_is_driver as  itIsDriver,
@@ -504,10 +506,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 
     <!--查询工号是否已存在-->
-    <select id="selectJobNumberExist" resultType="int">
+    <select id="selectJobNumberExist" >
         select count(1) from ecmp_user
         where del_flag = 0
-        <if test="jobNumber != null "> and job_number = #{jobNumber}</if>
+        <if test="jobNumber != null jobNumber != ''"> and job_number = #{jobNumber}</if>
     </select>
 
     <!--测试查询新增用户-->

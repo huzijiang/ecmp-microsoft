@@ -38,4 +38,10 @@ public class DispatchSelectCarDto {
      */
     private String driverId;
 
+    /**
+     * 车型信息
+     *   包含品牌、车系
+     */
+    private String carTypeInfo;
+
 }
