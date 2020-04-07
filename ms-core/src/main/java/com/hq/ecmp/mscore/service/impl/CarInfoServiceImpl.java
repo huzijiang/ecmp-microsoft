@@ -208,7 +208,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setSeatNum(carSaveDTO.getSeatNum());
         carInfo.setPrice(carSaveDTO.getPrice()); //TODO 新增
         carInfo.setTax(carSaveDTO.getTax()); //TODO 新增
-        carInfo.setLicensePrice(carSaveDTO.getLicense_price()); //TODO 新增
+        carInfo.setLicensePrice(carSaveDTO.getLicensePrice()); //TODO 新增
         carInfo.setCarImgaeUrl(carSaveDTO.getCarImgaeUrl());
         carInfo.setDrivingLicense(carSaveDTO.getDrivingLicense());  //TODO 新增
         carInfo.setDrivingLicenseStartDate(carSaveDTO.getDrivingLicenseStartDate());  //TODO 新增
@@ -507,7 +507,7 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .drivingLicenseStartDate(carInfo.getDrivingLicenseStartDate())
                 .enterpriseCarTypeId(carInfo.getCarTypeId())
                 .carTypeName(carTypeName) //查的名字
-                .license_price(carInfo.getLicensePrice())
+                .licensePrice(carInfo.getLicensePrice())
                 .ownerOrgId(carInfo.getDeptId())
                 .ownerCompanyName(deptName) //查的名字
                 .powerType(carInfo.getPowerType())
