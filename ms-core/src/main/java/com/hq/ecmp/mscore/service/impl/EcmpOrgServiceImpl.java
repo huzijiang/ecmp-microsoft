@@ -11,8 +11,7 @@ import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.*;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.BeanUtils;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -635,13 +634,18 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         return ecmpOrgDtoList;
     }
 
+    @Override
+    public List<EcmpOrgDto> selectDeptByCompany(Long deptId) {
+        return null;
+    }
+
     /**
      *查询分/子公司下的部门名称和deptId
      * @return
      */
-    @Override
-    public List<EcmpOrgDto> selectDeptByCompany(Long deptId) {
+   // @Override
+    /*public List<EcmpOrgDto> selectDeptByCompany(Long deptId) {
         return ecmpOrgMapper.selectDeptByCompany(deptId);
-    }
+    }*/
 
 }

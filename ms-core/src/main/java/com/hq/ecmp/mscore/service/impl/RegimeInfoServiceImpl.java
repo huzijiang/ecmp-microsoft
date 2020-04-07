@@ -455,7 +455,9 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		if (CollectionUtils.isNotEmpty(regimenIds)){
 			for (Long regimeId : regimenIds) {
 				RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(regimeId);
-				regimeVOs.add(regimenVO);
+				if(regimenVO!=null){
+					regimeVOs.add(regimenVO);
+				}
 			}
 		}
 		return regimeVOs;

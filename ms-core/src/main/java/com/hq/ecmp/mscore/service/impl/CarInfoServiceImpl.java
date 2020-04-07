@@ -154,7 +154,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         CarInfo carInfo = setCarInfo(carSaveDTO);
         carInfo.setCreateBy(String.valueOf(userId));
         carInfo.setCreateTime(new Date());
-        carInfo.setState(CarConstant.DISABLE_CAR);   //初始化禁用车辆
+        carInfo.setState(CarConstant.START_CAR);   //初始化启用车辆
         //新增车辆表
         int i = carInfoMapper.insertCarInfo(carInfo);
         if(i!= 1){
@@ -167,14 +167,17 @@ public class CarInfoServiceImpl implements ICarInfoService
         for (DriverVO driver : drivers) {
             driverCarRelationInfo = new DriverCarRelationInfo();
             driverCarRelationInfo.setCarId(carId);
-            driverCarRelationInfo.setDriverId(driver.getDriverId());
-            driverCarRelationInfo.setUserId(driver.getUserId());
+            Long driverId = driver.getDriverId();
+            driverCarRelationInfo.setDriverId(driverId);
+            DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(driverId);
+            if (driverInfo != null){
+                driverCarRelationInfo.setUserId(driverInfo.getUserId());
+            }
             int j = driverCarRelationInfoMapper.insertDriverCarRelationInfo(driverCarRelationInfo);
             if(j != 1){
                 throw new Exception("新增车辆失败");
             }
         }
-
         return carId;
     }
 
@@ -403,6 +406,7 @@ public class CarInfoServiceImpl implements ICarInfoService
                 driverVO = new DriverVO();
                 driverVO.setUserId(driverInfo.getUserId());
                 driverVO.setDriverName(driverInfo.getDriverName());
+                driverVO.setDriverId(driverInfo.getDriverId());
                 driverInfo.setDriverId(driverId);
                 list.add(driverVO);
             }
@@ -458,4 +462,64 @@ public class CarInfoServiceImpl implements ICarInfoService
 		}
 		return carGroupCarInfo;
 	}
+
+	/*车辆信息回显*/
+    @Override
+    public CarSaveDTO selectCarInfoFeedBack(Long carId) {
+        CarInfo carInfo = carInfoMapper.selectCarInfoById(carId);
+        //根据车辆id 查询可用驾驶员
+        List<DriverVO> drivers = selectCarEffectiveDrivers(carId);
+        //查询车队名字
+        Long carGroupId = carInfo.getCarGroupId();
+        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+        String carGroupName = null;
+        if(carGroupInfo != null){
+            carGroupName = carGroupInfo.getCarGroupName();
+        }
+        //查车型名字
+        EnterpriseCarTypeInfo enterpriseCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
+        String carTypeName = null;
+        if(enterpriseCarTypeInfo != null){
+            carTypeName = enterpriseCarTypeInfo.getName();
+        }
+        //燃料类型
+       // carRefuelInfoMapper.selectCarRefuelInfoById(carInfo.getPowerType())
+        //查询所属公司
+        Long deptId = carInfo.getDeptId();
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
+        String deptName = ecmpOrg.getDeptName();
+        CarSaveDTO carSaveDTO = CarSaveDTO.builder()
+                .assetTag(carInfo.getAssetTag())
+                .borrowEndDate(carInfo.getBorrowEndDate())
+                .borrowStartDate(carInfo.getBorrowStartDate())
+                .buyDate(carInfo.getBuyDate())
+                .carColor(carInfo.getCarColor())
+                .carDrivingLicenseImagesUrl(carInfo.getCarDrivingLicenseImagesUrl())
+                .carGroupId(carInfo.getCarGroupId())  //车队名字
+                .carGroupName(carGroupName)
+                .carId(carId)
+                .carImgaeUrl(carInfo.getCarImgaeUrl())
+                .carLicense(carInfo.getCarLicense())
+                .carType(carInfo.getCarType())
+                .drivers(drivers) //查的
+                .drivingLicense(carInfo.getDrivingLicense())
+                .drivingLicenseEndDate(carInfo.getDrivingLicenseEndDate())
+                .drivingLicenseStartDate(carInfo.getDrivingLicenseStartDate())
+                .enterpriseCarTypeId(carInfo.getCarTypeId())
+                .carTypeName(carTypeName) //查的名字
+                .license_price(carInfo.getLicensePrice())
+                .ownerOrgId(carInfo.getDeptId())
+                .ownerCompanyName(deptName) //查的名字
+                .powerType(carInfo.getPowerType())
+                //.powerTypeName(null) //查的名字 暂不使用
+                .price(carInfo.getPrice())
+                .rentEndDate(carInfo.getRentEndDate())
+                .rentStartDate(carInfo.getRentStartDate())
+                .seatNum(carInfo.getSeatNum())
+                .source(carInfo.getSource())
+                .tax(carInfo.getTax())
+                .build();
+        return carSaveDTO;
+
+    }
 }

@@ -188,21 +188,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     if(dispatcher == null){
                         continue;
                     }
-                    carGroupDispatcherInfo = new CarGroupDispatcherInfo();
-                    //车队id
-                    carGroupDispatcherInfo.setCarGroupId(carGroupId);
-                    //调度员id
-                    carGroupDispatcherInfo.setUserId(dispatcher.getUserId());
-                    //调度员名字
-                    carGroupDispatcherInfo.setName(dispatcher.getUserName());
-                    //创建人
-                    carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
-                    //创建时间
-                    carGroupDispatcherInfo.setCreateTime(new Date());
-                    int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
-                    if (j != 1) {
-                        throw new Exception();
-                    }
+
                 }
             }
         }

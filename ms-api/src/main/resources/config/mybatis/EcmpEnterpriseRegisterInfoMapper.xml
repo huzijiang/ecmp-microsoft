@@ -314,4 +314,30 @@
 
         </trim>
     </insert>
+    <insert id="insertDriverRegister" parameterType="com.hq.ecmp.mscore.dto.DriverRegisterDTO">
+        insert into ecmp_enterprise_register_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="invitationId != null ">invitation_id,</if>
+            <if test="name != null ">name,</if>
+            <if test="gender != null ">gender,</if>
+            <if test="jobNumber != null ">job_number,</if>
+            <if test="email != null ">email,</if>
+            <if test="mobile != null ">mobile,</if>
+            <if test="smsAuthCode != null  and smsAuthCode != ''">sms_auth_code,</if>
+            <if test="reason != null  and reason != ''">reason,</if>
+            <if test="createTime != null ">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="invitationId != null ">#{invitationId},</if>
+            <if test="name != null ">#{name},</if>
+            <if test="gender != null ">#{gender},</if>
+            <if test="jobNumber != null ">#{jobNumber},</if>
+            <if test="email != null ">#{email},</if>
+            <if test="mobile != null ">#{mobile},</if>
+            <if test="smsAuthCode != null  and smsAuthCode != ''">#{smsAuthCode},</if>
+            <if test="reason != null  and reason != ''">#{reason},</if>
+            <if test="createTime != null ">#{createTime},</if>
+
+        </trim>
+    </insert>
 </mapper>

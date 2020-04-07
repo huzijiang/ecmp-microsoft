@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiParam;
 import lombok.Data;
 import org.aspectj.apache.bcel.generic.LineNumberGen;
 
@@ -54,4 +55,6 @@ public class InvitationUserVO {
 
     @ApiModelProperty(name = "roseName", value = "角色Name")
     private String roseName;
+    @ApiModelProperty(name = "url", value = "url链接")
+    private String url;
 }

@@ -1,10 +1,12 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.util.StringUtil;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.OkHttpUtil;
+import com.hq.ecmp.mscore.bo.WeatherAndCity;
 import com.hq.ecmp.mscore.dto.DirectionDto;
 import com.hq.ecmp.mscore.service.ThirdService;
 import com.hq.ecmp.mscore.vo.CarCostVO;
@@ -171,4 +173,32 @@ public class ThirdServiceImpl implements ThirdService {
         }
         return null;
     }
+
+	@Override
+	public WeatherAndCity queryWeatherAndCity(String longitude, String latitude) throws Exception {
+		if(StringUtil.isEmpty(longitude) || StringUtil.isEmpty(latitude)){
+			  throw new Exception("经纬度不能为空");
+		}
+		 try {
+			String macAddress = MacTools.getMacList().get(0);
+			Map<String,Object>  map=new HashMap<String,Object>();
+			  map.put("mac", macAddress);
+			  map.put("enterpriseId", enterpriseId);
+			  map.put("licenseContent", licenseContent);
+			  map.put("latitude", latitude);
+			  map.put("longitude", longitude);
+			  log.info("天气城市查询接口入参；{}",map);
+			  String postJson = OkHttpUtil.postForm(apiUrl + "/basic/getWeatherInfoByLatitudeAndLongitude", map);
+			  log.info("天气城市查询接口返回;{}",postJson);
+			  ApiResponse<WeatherAndCity> result = GsonUtils.jsonToBean(postJson, new com.google.gson.reflect.TypeToken<ApiResponse<WeatherAndCity>>() {
+			  }.getType());
+			  if(ApiResponse.SUCCESS_CODE == result.getCode()){
+				  return result.getData();
+			  }
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("天气城市查询失败");
+		}
+		return null;
+	}
 }

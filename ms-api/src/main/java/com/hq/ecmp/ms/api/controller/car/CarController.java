@@ -359,4 +359,12 @@ public class CarController {
 	public ApiResponse<CarGroupCarInfo> queryCarGroupCarList(@RequestBody Long carGroupId) {
 		return ApiResponse.success(carInfoService.queryCarGroupCarList(carGroupId));
 	}
+
+
+    @ApiOperation(value = "getCarInfoFeedBack", notes = "车辆信息回显", httpMethod = "POST")
+    @PostMapping("/getCarInfoFeedBack")
+    public ApiResponse<CarSaveDTO> getCarInfoFeedBack(@RequestBody CarDto carDto) {
+       CarSaveDTO carSaveDTO = carInfoService.selectCarInfoFeedBack(carDto.getCarId());
+       return ApiResponse.success(carSaveDTO);
+    }
 }
