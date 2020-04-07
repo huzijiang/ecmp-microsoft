@@ -3,6 +3,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
@@ -10,11 +11,10 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
-import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
-import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
-import com.hq.ecmp.mscore.vo.DriverLoseCountVO;
+import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -218,5 +218,47 @@ public class DriverNewsController {
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("新增车辆成功");
+    }
+
+    /**
+     * 按月获取司机的排班详情
+     * @return
+     */
+    @Log("按月获取司机的排班详情")
+    @PostMapping("/getDriverMonthWorkDetail")
+    public ApiResponse<List<DriverWorkInfoMonthVo>> getDriverMonthWorkDetail(@RequestParam("driverId")Long driverId,
+                                                                       @RequestParam("month") String month){
+        List<DriverWorkInfoMonthVo> driverWorkInfoMonthList = null;
+        try {
+            if(driverId == null || StringUtils.isBlank(month)){
+                throw new Exception("参数异常");
+            }
+            driverWorkInfoMonthList = driverWorkInfoService.getDriverWorkInfoMonthList(driverId, month);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success(driverWorkInfoMonthList);
+    }
+
+    /**
+     * 按月变更司机的排班
+     * @param driverWorkInfoDetailVo
+     * @return
+     */
+    @Log("按月变更司机的排班")
+    @PostMapping("/updateDriverWorkDetailMonth")
+    public ApiResponse updateDriverWorkDetailMonth(@RequestBody DriverWorkInfoDetailVo driverWorkInfoDetailVo){
+        try {
+            //获取登录用户
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            driverWorkInfoService.updateDriverWorkDetailMonth(driverWorkInfoDetailVo,userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("司机排班变更失败");
+        }
+        return ApiResponse.success("司机排班变更成功");
     }
 }

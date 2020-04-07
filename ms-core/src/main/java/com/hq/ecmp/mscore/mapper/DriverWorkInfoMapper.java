@@ -2,6 +2,8 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
+import com.hq.ecmp.mscore.vo.DriverWorkInfoDetailVo;
+import com.hq.ecmp.mscore.vo.DriverWorkInfoMonthVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -102,4 +104,18 @@ public interface DriverWorkInfoMapper
      * @return
      */
     int selectDriverAlreadyDutyDays(@Param("scheduleDate") String scheduleDate,@Param("driverId") Long driverId);
+
+    /**
+     * 按月获取司机的排班详情
+     * @param driverId
+     * @param month
+     * @return
+     */
+    List<DriverWorkInfoMonthVo> getDriverWorkInfoMonthList(@Param("driverId") Long driverId,@Param("month") String month);
+
+    /**
+     * 按月更新司机的排班信息
+     * @param driverWorkInfoMonthVos
+     */
+    void updateDriverWorkDetailMonth(@Param("list") List<DriverWorkInfoMonthVo> driverWorkInfoMonthVos,@Param("userId") Long userId,@Param("updateTime") Date updateTime);
 }
