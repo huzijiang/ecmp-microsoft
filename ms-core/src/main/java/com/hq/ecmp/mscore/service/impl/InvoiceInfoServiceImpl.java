@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
+
+import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
 import com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO;
@@ -9,10 +11,7 @@ import com.hq.ecmp.mscore.dto.InvoiceInsertDTO;
 import com.hq.ecmp.mscore.dto.InvoicePeriodDTO;
 import com.hq.ecmp.mscore.mapper.InvoiceInfoMapper;
 import com.hq.ecmp.mscore.service.IInvoiceInfoService;
-import com.hq.ecmp.mscore.vo.InvoiceDetailVO;
-import com.hq.ecmp.mscore.vo.InvoiceHeaderVO;
-import com.hq.ecmp.mscore.vo.InvoiceRecordVO;
-import com.hq.ecmp.mscore.vo.PeriodsVO;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -108,8 +107,11 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
      * 根据时间区间、开票状态查询发票信息
      */
 
-    public List<InvoiceRecordVO> queryAllByTimeState(InvoiceByTimeStateDTO invoiceByTimeStateDTO){
-        return invoiceInfoMapper.queryAllByTimeState(invoiceByTimeStateDTO);
+    public PageResult<InvoiceRecordVO> queryAllByTimeState(InvoiceByTimeStateDTO invoiceByTimeStateDTO){
+        PageHelper.startPage(invoiceByTimeStateDTO.getPageNum(),invoiceByTimeStateDTO.getPageSize());
+        List<InvoiceRecordVO> invoiceRecordVOS = invoiceInfoMapper.queryAllByTimeState(invoiceByTimeStateDTO);
+        Long count=invoiceInfoMapper.queryCountByTimeState(invoiceByTimeStateDTO);
+        return new PageResult<>(count,invoiceRecordVOS);
     }
     /**
      * 新增发票抬头

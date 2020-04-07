@@ -61,7 +61,7 @@ public class ApplyDispatchVo {
 	
 	public void parseApplyDispatchStatus(){
 		if(StringUtil.isNotEmpty(this.state)){
-			if(OrderState.WAITINGLIST.equals(this.state)){
+			if(OrderState.WAITINGLIST.getState().equals(this.state)){
 				if(null !=startDate && DateFormatUtils.beforeCurrentDate(this.startDate)){
 					//状态处于待派车  但是当前时间已经过了用车开始时间  则状态为已失效
 					this.dispatchStatus="T002";
@@ -78,11 +78,11 @@ public class ApplyDispatchVo {
 	
 	public void parseReassignmentDispatchStatus(String newOrderTraceState){
 		if(StringUtil.isNotEmpty(newOrderTraceState)){
-			if(OrderStateTrace.APPLYREASSIGNMENT.equals(newOrderTraceState)){
+			if(OrderStateTrace.APPLYREASSIGNMENT.getState().equals(newOrderTraceState)){
 					this.dispatchStatus="T001";
 				return;
 			}
-			if(OrderStateTrace.TURNREASSIGNMENT.equals(newOrderTraceState)){
+			if(OrderStateTrace.TURNREASSIGNMENT.getState().equals(newOrderTraceState)){
 				this.dispatchStatus="T004";
 				return;
 			}

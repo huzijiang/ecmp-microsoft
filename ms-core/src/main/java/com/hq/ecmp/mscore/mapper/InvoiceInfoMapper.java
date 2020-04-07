@@ -107,4 +107,5 @@ public interface InvoiceInfoMapper
    */
     List<PeriodsVO> getPeriodListByInvoiceId(Long invoiceId);
 
+    Long queryCountByTimeState(InvoiceByTimeStateDTO invoiceByTimeStateDTO);
 }

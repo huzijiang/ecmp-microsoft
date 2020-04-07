@@ -180,7 +180,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
         Long carGroupId = carGroupInfo.getCarGroupId();
         //新增 车队主管  车队主管就是调度员
-        if(!ObjectUtils.isEmpty(carGroupId)){
+        Long[] userIds = carGroupDTO.getUserIds();
+        saveCarGroupDispatchers(userIds, userId, carGroupId);
+        /*if(!ObjectUtils.isEmpty(carGroupId)){
             CarGroupDispatcherInfo carGroupDispatcherInfo = null;
             List<UserVO> dispatchers = carGroupDTO.getDispatchers();
             if(!CollectionUtils.isEmpty(dispatchers)) {
@@ -191,20 +193,43 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
 
                 }
             }
-        }
-       /* //车队 作为部门形式保存
-        EcmpOrgVo ecmpOrgVo = new EcmpOrgVo();
-        ecmpOrgVo.setDeptName(carGroupDTO.getCarGroupName());
-        ecmpOrgVo.setParentId(carGroupDTO.getOwnerOrg());
-        ecmpOrgVo.setDeptType("1"); //组织类别（1 公司 2 部门 3 车队）
-        ecmpOrgVo.setPhone(carGroupDTO.getTelephone());
-        ecmpOrgVo.setStatus("1");  //部门状态（0正常 1停用）
-        ecmpOrgVo.setCreateTime(new Date());
-        ecmpOrgVo.setCreateBy(String.valueOf(userId));
-        int j = ecmpOrgMapper.addDept(ecmpOrgVo);
-        if(j!=1){
-            throw new RuntimeException();
         }*/
+    }
+
+    /*新增车队主管*/
+
+    /**
+     *
+     * @param userIds  调度员用户id数组
+     * @param userId    登录用户id
+     * @param carGroupId 车队id
+     * @throws Exception
+     */
+    private void saveCarGroupDispatchers(Long[] userIds, Long userId, Long carGroupId) throws Exception {
+        if(userIds != null && userIds.length >0){
+            CarGroupDispatcherInfo carGroupDispatcherInfo = null;
+            for (Long id : userIds) {
+                carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+                //车队id
+                carGroupDispatcherInfo.setCarGroupId(carGroupId);
+                //调度员id
+                carGroupDispatcherInfo.setUserId(id);
+                //调度员名字
+                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(id);
+                if(ecmpUser != null){
+                    String userName = ecmpUser.getUserName();
+                    carGroupDispatcherInfo.setName(userName);
+                }
+                //创建人
+                carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
+                //创建时间
+                carGroupDispatcherInfo.setCreateTime(new Date());
+                int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
+                if (j != 1) {
+                    throw new Exception("新增车队主管失败");
+                }
+            }
+        }
     }
 
     /**
@@ -269,6 +294,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 userVO = new UserVO();
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(userId);
                 if(!ObjectUtils.isEmpty(ecmpUser)){
+                    userVO.setUserId(userId);
                     userVO.setUserPhone(ecmpUser.getPhonenumber());
                     userVO.setUserName(ecmpUser.getUserName());
                     dispatchers.add(userVO);
@@ -322,21 +348,30 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         Long carGroupId = carGroupDTO.getCarGroupId();
         //2.1 解绑车队所有调度员
         int n = carGroupDispatcherInfoMapper.deleteCarGroupDispatcherInfoByGroupId(carGroupId);
-        List<UserVO> dispatchers = carGroupDTO.getDispatchers();
-        CarGroupDispatcherInfo carGroupDispatcherInfo = null;
-        for (UserVO dispatcher : dispatchers) {
-            carGroupDispatcherInfo = new CarGroupDispatcherInfo();
-            Long dispatcherId = dispatcher.getUserId();
-            carGroupDispatcherInfo.setCarGroupId(carGroupId);
-            carGroupDispatcherInfo.setDispatcherId(dispatcherId);
-            carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
-            carGroupDispatcherInfo.setCreateTime(new Date());
-            //2.2新增调度员
-            int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
-            if(j != 1){
-                throw new Exception("修改车队信息失败");
-            }
+        Long[] userIds = carGroupDTO.getUserIds();
+        //绑定车队调度员
+        saveCarGroupDispatchers(userIds,userId,carGroupId);
+        /*List<UserVO> dispatchers = carGroupDTO.getDispatchers();
+        int size = 0;
+        if(!CollectionUtils.isEmpty(dispatchers)){
+            size = dispatchers.size();
         }
+        if(size>0){
+            CarGroupDispatcherInfo carGroupDispatcherInfo = null;
+            for (UserVO dispatcher : dispatchers) {
+                carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+                Long dispatcherId = dispatcher.getUserId();
+                carGroupDispatcherInfo.setCarGroupId(carGroupId);
+                carGroupDispatcherInfo.setDispatcherId(dispatcherId);
+                carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
+                carGroupDispatcherInfo.setCreateTime(new Date());
+                //2.2新增调度员
+                int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
+                if(j != 1){
+                    throw new Exception("修改车队信息失败");
+                }
+            }
+        }*/
     }
 
     /**
@@ -738,6 +773,66 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         return false;
     }
 
+    /*回显车队信息*/
+    @Override
+    public CarGroupDTO getCarGroupInfoFeedBack(Long carGroupId) {
+        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+        Long parentCarGroupId = carGroupInfo.getParentCarGroupId();
+        //如果是一级车队  所属组织为部门或公司
+        String ownerOrgName = null;
+        long ownerOrg = carGroupInfo.getOwnerOrg();
+        if(parentCarGroupId == 0L){
+            EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
+            if(ecmpOrg != null){
+                ownerOrgName = ecmpOrg.getDeptName();
+            }
+        }else {
+            //如果是下级车队  所属组织为上车队名字
+            CarGroupInfo carGroupInfo1 = carGroupInfoMapper.selectCarGroupInfoById(parentCarGroupId);
+            if(carGroupInfo1 != null){
+                ownerOrgName = carGroupInfo1.getCarGroupName();
+            }
+        }
+        //查询城市名字
+        String cityName = null;
+        String city = carGroupInfo.getCity();
+        if(city != null){
+            CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(city);
+            if(cityInfo != null){
+                cityName = cityInfo.getCityName();
+            }
+        }
+        //查询调度员
+        List<UserVO> dispatchers = getCarGroupDispatchers(carGroupId);
+        if(carGroupInfo != null){
+            //判断车队是否是一级车队
+            CarGroupDTO vo = CarGroupDTO.builder()
+                    .carGroupName(carGroupInfo.getCarGroupName())
+                    .carGroupCode(carGroupInfo.getCarGroupCode())
+                    .latitude(carGroupInfo.getLatitude())
+                    .longitude(carGroupInfo.getLongitude())
+                    .ownerOrg(ownerOrg)
+                    .ownerOrgName(ownerOrgName)
+                    .city(carGroupInfo.getCity())
+                    .cityName(cityName)
+                    .dispatchers(dispatchers)
+                    .shortAddress(carGroupInfo.getShortAddress())
+                    .fullAddress(carGroupInfo.getFullAddress())
+                    .build();
+            return vo;
+        }
+        return null;
+    }
+
+   /* *//**
+     * 判断是否是一级车队
+     * @param carGroupId
+     * @return
+     *//*
+    public boolean judgeFirstLevelCarGroup(Long carGroupId){
+        carGroupInfoMapper.selectCarGroupInfoById()
+    }
+*/
     /*根据车队id查询车队树*/
     public List<CarGroupTreeVO> getCarGroupTree(Long carGroupId){
         List<CarGroupTreeVO> list = carGroupInfoMapper.getCarGroupTree(carGroupId);

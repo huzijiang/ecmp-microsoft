@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.ecmp.mscore.bo.WeatherAndCity;
 import com.hq.ecmp.mscore.dto.DirectionDto;
 import com.hq.ecmp.mscore.vo.CarCostVO;
 import com.hq.ecmp.mscore.vo.EstimatePriceVo;
@@ -47,6 +48,15 @@ public interface ThirdService {
      * @return
      */
     DirectionDto drivingRoute(String startPoint, String endPoint);
+    
+    
+    /**
+     * 通过经纬度查询天气，城市
+     * @param longitude 经度
+     * @param latitude  纬度
+     * @return
+     */
+    WeatherAndCity queryWeatherAndCity(String longitude,String latitude) throws Exception ;
 
 
 }

@@ -101,6 +101,10 @@
           id as Id, email as email
         from user_accept_order_account_email_info where user_id = #{userId}
     </select>
+
+    <select id="queryEmailByUserIdCount" resultType="Long">
+        select count(*) from user_accept_order_account_email_info where user_id = #{userId}
+    </select>
     <!--用户邮箱新增-->
     <insert id="insertEmail"  parameterType="com.hq.ecmp.mscore.dto.EmailDTO">
         insert into user_accept_order_account_email_info

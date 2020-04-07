@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.dto.InvoiceAddUpdateDTO;
 import com.hq.ecmp.mscore.vo.CarGroupListVO;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.InvoiceAddVO;
 import com.hq.ecmp.mscore.domain.InvoiceAddress;
 import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
@@ -31,8 +32,8 @@ public interface IInvoiceAddressService
      * @param  【请填写功能名称】
      * @return 【请填写功能名称】集合
      */
-    public List<InvoiceAddVO> selectInvoiceAddressList();
-   // PageResult<CarGroupListVO> selectInvoiceAddressList(Integer pageNum, Integer pageSize, String search);
+    public PageResult<InvoiceAddVO> selectInvoiceAddressList(PageRequest pageRequest);
+
     /**
      * 新增【请填写功能名称】
      *

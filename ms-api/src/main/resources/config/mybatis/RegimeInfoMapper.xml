@@ -365,7 +365,10 @@ WHERE
 	where b.journey_id=#{journeyId}
 </select>
 <select id="selectByUserId" resultType="com.hq.ecmp.mscore.domain.RegimeVo">
-    select  ri.* from user_regime_relation_info as urri
+    select
+    ri.regimen_id as regimeId,
+    ri.name as regimeName
+     from user_regime_relation_info as urri
      left  join  regime_info as ri on urri.regimen_id = ri.regimen_id
      where urri.user_id = #{userId}
 </select>
