@@ -1,13 +1,17 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
+
+import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.InvoiceAddress;
 import com.hq.ecmp.mscore.dto.InvoiceAddUpdateDTO;
 import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.mapper.InvoiceAddressMapper;
 import com.hq.ecmp.mscore.service.IInvoiceAddressService;
 import com.hq.ecmp.mscore.vo.InvoiceAddVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,9 +46,11 @@ public class InvoiceAddressServiceImpl implements IInvoiceAddressService
      * @return 【请填写功能名称】
      */
     @Override
-    public List<InvoiceAddVO> selectInvoiceAddressList()
-    {
-        return invoiceAddressMapper.selectInvoiceAddressList();
+    public PageResult<InvoiceAddVO> selectInvoiceAddressList(PageRequest pageRequest){
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+        List<InvoiceAddVO> invoiceAddVOS = invoiceAddressMapper.selectInvoiceAddressList();
+        Long count=invoiceAddressMapper.selectInvoiceAddressListCount();
+        return new PageResult<>(count,invoiceAddVOS);
     }
 
     /**
