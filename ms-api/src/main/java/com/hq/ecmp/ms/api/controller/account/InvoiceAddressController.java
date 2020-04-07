@@ -5,8 +5,10 @@ import com.hq.common.core.api.ApiResponse;
 
 import com.hq.ecmp.mscore.dto.InvoiceAddUpdateDTO;
 import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.IInvoiceAddressService;
 import com.hq.ecmp.mscore.vo.InvoiceAddVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,8 +37,8 @@ public class InvoiceAddressController {
      */
     @ApiOperation(value = "getInvoiceAddressList",notes = "查询所有的发票地址信息",httpMethod = "POST")
     @PostMapping("/getInvoiceAddressList")
-    public ApiResponse<List<InvoiceAddVO>> getInvoiceAddressList(){
-        List<InvoiceAddVO> invoiceAddressList = invoiceAddressService.selectInvoiceAddressList();
+    public ApiResponse<PageResult<InvoiceAddVO>> getInvoiceAddressList(@RequestBody PageRequest pageRequest){
+        PageResult<InvoiceAddVO> invoiceAddressList = invoiceAddressService.selectInvoiceAddressList(pageRequest);
         return ApiResponse.success(invoiceAddressList);
     }
     /**

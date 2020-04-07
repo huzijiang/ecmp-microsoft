@@ -388,17 +388,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--查询当前机构信息-->
     <select id="selectCurrentDeptInformation" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
         select
-        dept_id as deptId,
-        dept_name as deptName,
-        if(isnull(dept_code),'',dept_code) as deptCode,leader,
+        eo.dept_id as deptId,
+        eo.dept_name as deptName,
+        if(isnull(eo.dept_code),'',eo.dept_code) as deptCode,eu.nick_name leader,
         (select count(1) from ecmp_user where dept_id in (select dept_id from  ecmp_org where ancestors like concat('%', #{ancestors}, '%' ) or dept_id=#{deptId} )) as numOfSub
-        from ecmp_org
+        from ecmp_org  eo LEFT JOIN ecmp_user eu  ON eo.leader=eu.user_id
         where
-        dept_id = #{deptId}
+        eo.dept_id = #{deptId}
     </select>
 
     <!--查询分/子公司下的部门名称和deptId
-   select
+    -->
+    <select id="selectDeptByCompany" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+         select
         dept_id as deptId,
         dept_name as deptName
         from ecmp_org
@@ -408,14 +410,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from ecmp_org
         where del_flag = 0
         and parent_id=#{deptId})
-    -->
-    <select id="selectDeptByCompany" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
-         select
-        dept_id as deptId,
-        dept_name as deptName
-        from ecmp_org
-        where del_flag = 0
-        and parent_id=#{deptId}
     </select>
 
     <!-- 按照分子公司名称或编号模糊查询匹配的组织id -->

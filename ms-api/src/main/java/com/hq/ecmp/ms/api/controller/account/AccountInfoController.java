@@ -4,12 +4,14 @@ package com.hq.ecmp.ms.api.controller.account;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
 import com.hq.ecmp.mscore.domain.OrderAccountInfo;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IInvoiceInfoService;
 import com.hq.ecmp.mscore.service.IOrderAccountInfoService;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
 import com.hq.ecmp.mscore.vo.OrderAccountVO;
 import com.hq.ecmp.mscore.vo.OrderAccountViewVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,14 +39,14 @@ public class AccountInfoController {
     private IOrderSettlingInfoService OrderSettlingInfoService;
 
     /**
-     * 网约车账务订单总览查询
+     * 网约车账务订单分页
      * @param
      * @return list
      */
     @ApiOperation(value = "getAccountViewList",notes = "查询账务订单信息",httpMethod = "POST")
     @PostMapping("/getAccountViewList")
-    public ApiResponse<List<OrderAccountViewVO>> getAccountViewList(){
-        List<OrderAccountViewVO> invoiceViewList = iOrderAccountInfoService.getAccountViewList();
+    public ApiResponse<PageResult<OrderAccountViewVO>> getAccountViewList(@RequestBody PageRequest pageRequest){
+        PageResult<OrderAccountViewVO> invoiceViewList = iOrderAccountInfoService.getAccountViewList(pageRequest);
         return ApiResponse.success(invoiceViewList);
     }
     /**

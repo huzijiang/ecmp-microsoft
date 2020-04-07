@@ -463,7 +463,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setScore(driverServiceAppraiseeInfos.getScore()+"");
         }else{
             vo.setScore(null);
-            vo.setDuration(null);
+            vo.setDescription(null);
         }
         if(CarModeEnum.ORDER_MODE_HAVE.getKey().equals(orderInfo.getUseCarMode())){//自有车
             vo.setDriverId(orderInfo.getDriverId());
@@ -1991,11 +1991,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 String duration = feeInfoBean.getString("min");//时长
                 OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
                 orderSettlingInfo.setOrderId(orderNo);
-                orderSettlingInfo.setTotalMileage(new BigDecimal(distance).multiply(new BigDecimal("1000")).stripTrailingZeros());
-//                BigDecimal bigDecimal = new BigDecimal(duration).multiply(new BigDecimal("60")).stripTrailingZeros();
+                orderSettlingInfo.setTotalMileage(new BigDecimal(distance).stripTrailingZeros());
                 orderSettlingInfo.setTotalTime(new BigDecimal(duration).stripTrailingZeros());
                 orderSettlingInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
                 orderSettlingInfo.setAmountDetail(feeInfoBean.toString());
+                orderSettlingInfo.setCreateBy(CommonConstant.START);
+                orderSettlingInfo.setCreateTime(new Date());
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
             }
 

@@ -9,14 +9,12 @@ import com.hq.ecmp.constant.InvitionTypeEnum;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.dto.InvitationDto;
-import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.dto.RegisterDTO;
-import com.hq.ecmp.mscore.dto.UserRegisterDTO;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseRegisterInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
+import com.hq.ecmp.mscore.vo.InvitationUrlVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterUserVO;
@@ -146,7 +144,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
      * @param userRegisterDTO
      * @return
      */
-    public UserRegisterDTO insertUserRegister(UserRegisterDTO userRegisterDTO){
+    public int insertUserRegister(UserRegisterDTO userRegisterDTO){
         userRegisterDTO.setCreateTime(DateUtils.getNowDate());
         return ecmpEnterpriseRegisterInfoMapper.insertUserRegister(userRegisterDTO);
     }
@@ -210,6 +208,15 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         if (ecmpEnterpriseInvitationInfo==null){
             throw new Exception("该注册员工来源不明");
         }
+    }
+    /**
+     * 驾驶员注册
+     * @param driverRegisterDTO
+     * @return
+     */
+    public int insertDriverRegister(DriverRegisterDTO driverRegisterDTO){
+        driverRegisterDTO.setCreateTime(DateUtils.getNowDate());
+        return ecmpEnterpriseRegisterInfoMapper.insertDriverRegister(driverRegisterDTO);
     }
 
 

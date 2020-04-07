@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.domain.DriverQueryResult;
 import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
 import com.hq.ecmp.mscore.dto.DriverCarDTO;
 import com.hq.ecmp.mscore.dto.DriverLoseDTO;
+import com.hq.ecmp.mscore.dto.DriverRegisterDTO;
 
 /**
  * 【请填写功能名称】Service接口
@@ -81,10 +82,10 @@ public interface IDriverInfoService
     public int queryCompanyDriverCount();
     /**
      *
-     * @param phoneNumber
+     * @param driverRegisterDTO
      * @return
      */
-    public int driverItisExist(String phoneNumber);
+    public int driverItisExist(DriverRegisterDTO driverRegisterDTO);
 
     public int updateDriverStatus(Long driverId,String state);
     /**

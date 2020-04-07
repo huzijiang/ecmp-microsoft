@@ -55,7 +55,7 @@ public class WaitSelectedDriverBo extends DriverInfo implements Comparable<WaitS
      * '101' 前后任务都冲突
      * '000' 无任务冲突
      */
-    private String  taskConflict;
+    private TaskConflictEnum  taskConflict;
 
     /**
      * 任务流情况
@@ -130,6 +130,17 @@ public class WaitSelectedDriverBo extends DriverInfo implements Comparable<WaitS
      */
     private String fleetPhone;
 
+    /**
+     * 工号
+     */
+    private String jobNumber;
+
+    /**
+     * 部门名称
+     */
+    private String deptName;
+
+
     @Override
     public int compareTo(WaitSelectedDriverBo o) {
 
@@ -148,16 +159,16 @@ public class WaitSelectedDriverBo extends DriverInfo implements Comparable<WaitS
             this.status=DriverStateEnum.DIMISSION.getDesc();
         }
 
-        if(TaskConflictEnum.BEFORE_TASK_CLASH.getCode().equals(this.getTaskConflict())){
+        if(TaskConflictEnum.BEFORE_TASK_CLASH.equals(this.getTaskConflict())){
             this.status=TaskConflictEnum.BEFORE_TASK_CLASH.getDesc()+","+this.status;
         }
-        if(TaskConflictEnum.AFTER_TASK_CLASH.getCode().equals(this.getTaskConflict())){
+        if(TaskConflictEnum.AFTER_TASK_CLASH.equals(this.getTaskConflict())){
             this.status=TaskConflictEnum.AFTER_TASK_CLASH.getDesc()+","+this.status;
         }
-        if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getCode().equals(this.getTaskConflict())){
+        if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.equals(this.getTaskConflict())){
             this.status=TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc()+","+this.status;
         }
-        if(TaskConflictEnum.CONFLICT_FREE.getCode().equals(this.getTaskConflict())){
+        if(TaskConflictEnum.CONFLICT_FREE.equals(this.getTaskConflict())){
             this.status=TaskConflictEnum.CONFLICT_FREE.getDesc()+","+this.status;
         }
     }

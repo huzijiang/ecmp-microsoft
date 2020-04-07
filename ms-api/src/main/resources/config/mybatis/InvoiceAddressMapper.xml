@@ -70,6 +70,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          address_id  as addressId, accepter, mobile, address
          from invoice_address order by create_time,update_time
     </select>
-
+    <select id="selectInvoiceAddressListCount" resultType="Long">
+         select count(*) from invoice_address
+    </select>
 
 </mapper>

@@ -1,12 +1,16 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
+
+import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.OrderAccountInfo;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.mapper.OrderAccountInfoMapper;
 import com.hq.ecmp.mscore.service.IOrderAccountInfoService;
 import com.hq.ecmp.mscore.vo.OrderAccountVO;
 import com.hq.ecmp.mscore.vo.OrderAccountViewVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.util.DateFormatUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,7 +118,8 @@ public class OrderAccountInfoServiceImpl implements IOrderAccountInfoService
         return accountList;
     }
     @Override
-    public List<OrderAccountViewVO> getAccountViewList(){
+    public PageResult<OrderAccountViewVO> getAccountViewList( PageRequest pageRequest){
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         List<OrderAccountViewVO> accountViewList = orderAccountInfoMapper.getAccountViewList();
         if(CollectionUtils.isNotEmpty(accountViewList)){
             for (OrderAccountViewVO vo:accountViewList){
@@ -122,9 +127,9 @@ public class OrderAccountInfoServiceImpl implements IOrderAccountInfoService
                 String endMonth= DateFormatUtils.getLastDayOfMonth(DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT,beginMonth));
                 String desc=beginMonth+"至"+endMonth;
                 vo.setDesc(desc);
-
             }
         }
-        return accountViewList;
+        Long count=orderAccountInfoMapper.getAccountViewListCount();
+        return new PageResult<>(count,accountViewList);
     }
 }

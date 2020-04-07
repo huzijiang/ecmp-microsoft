@@ -24,6 +24,8 @@ public class DriverCreateInfo {
 		
 		Date licenseInitIssueDate;//初次领证日期
 		
+		Date licenseIssueDate;//驾驶证开始时间
+		
 		Date licenseExpireDate;//驾驶证到期时间
 		
 		List<Long> carId;//可用车辆
