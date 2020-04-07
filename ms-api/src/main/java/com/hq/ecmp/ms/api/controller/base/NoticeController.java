@@ -188,18 +188,26 @@ public class NoticeController {
         //操作人的用户名
         notice.setCreateBy(loginUser.getUsername());
         long noticeId = iEcmpNoticeService.insertEcmpNotice(notice);
-        EcmpNoticeMapping mapping = new EcmpNoticeMapping();
-        //类型：1.全部用户，2.角色，3.部门
-        mapping.setConfigType(ecmpNoticeDTO.getConfigType());
-        //对应id
-        mapping.setBucId(ecmpNoticeDTO.getBucId());
-        //status
-        mapping.setStatus("0");
-        //公告id
-        mapping.setNoticeId(notice.getNoticeId().longValue());
-        //创建时间
-        mapping.setCreateTime(DateUtils.getNowDate());
-        ecmpNoticeMappingService.insert(mapping);
+        List<Long> bucIds = ecmpNoticeDTO.getBucIds();
+        EcmpNoticeMapping mapping = null;
+        // 选择全部用户 默认BucId = 1
+        Long defaultId = 1L;
+        for (Long bucId : bucIds) {
+            //类型：1.全部用户，2.角色，3.部门
+            mapping.setConfigType(ecmpNoticeDTO.getConfigType());
+            if(ecmpNoticeDTO.getConfigType()!="1"){
+            //对应id
+            mapping.setBucId(bucId);
+            }
+            mapping.setBucId(defaultId);
+            //status
+            mapping.setStatus("0");
+            //公告id
+            mapping.setNoticeId(notice.getNoticeId().longValue());
+            //创建时间
+            mapping.setCreateTime(DateUtils.getNowDate());
+            ecmpNoticeMappingService.insert(mapping);
+        }
         return ApiResponse.success();
     }
 

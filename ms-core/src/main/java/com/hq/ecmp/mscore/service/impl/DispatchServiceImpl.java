@@ -115,6 +115,7 @@ public class DispatchServiceImpl implements IDispatchService {
                                 selectCarConditionBo.setDriverId(dispatchSelectCarDto.getDriverId());
                                 selectCarConditionBo.setDispatcherId(loginUser.getUser().getUserId().toString());
                                 selectCarConditionBo.setCarLicense(dispatchSelectCarDto.getPlateLicence());
+                                selectCarConditionBo.setCarTypeInfo(dispatchSelectCarDto.getCarTypeInfo());
 
         List<WaitSelectedCarBo> cars=selectCars(selectCarConditionBo,orderInfo).getData();
 

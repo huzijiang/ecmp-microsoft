@@ -397,9 +397,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         dept_id = #{deptId}
     </select>
 
-    <!--查询分/子公司下的部门名称和deptId-->
+    <!--查询分/子公司下的部门名称和deptId
+   select
+        dept_id as deptId,
+        dept_name as deptName
+        from ecmp_org
+        where del_flag = 0
+        and parent_id in (select
+        dept_id as deptId
+        from ecmp_org
+        where del_flag = 0
+        and parent_id=#{deptId})
+    -->
     <select id="selectDeptByCompany" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
-      select
+         select
         dept_id as deptId,
         dept_name as deptName
         from ecmp_org

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.List;
+
 /**
  * 通知公告对象 ecmp_notice
  *
@@ -48,5 +50,9 @@ public class EcmpNoticeDTO
      * 对应id
      */
     private Long bucId;
+    /**
+     * 多条对应id
+     */
+    private List<Long> bucIds;
 
 }
