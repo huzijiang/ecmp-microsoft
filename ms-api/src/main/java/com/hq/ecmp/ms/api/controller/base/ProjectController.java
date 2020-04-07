@@ -66,7 +66,7 @@ public class ProjectController {
     @ApiOperation(value = "selectProjectsList",notes = "项目下拉选 ",httpMethod ="POST")
     @PostMapping("/selectProjectsList")
     public ApiResponse<List<ProjectInfo>> selectProjectsList(){
-        List<ProjectInfo> projectInfoList = iProjectInfoService.selectProjectInfoList(new ProjectInfo(CommonConstant.ONE));
+        List<ProjectInfo> projectInfoList = iProjectInfoService.selectProjectInfoList(new ProjectInfo(CommonConstant.ZERO));
         if (CollectionUtils.isNotEmpty(projectInfoList)){
             return ApiResponse.success(projectInfoList);
         }else {
@@ -153,7 +153,7 @@ public class ProjectController {
         projectInfo.setCreateTime(new Date());
         int i = iProjectInfoService.insertProjectInfo(projectInfo);
         if (i>0){
-            if (projectInfoDto.getIsAllUserUse()==1){//全部员工
+            if (projectInfoDto.getIsAllUserUse()==ZERO){//全部员工
                 this.saveUserProject(projectInfo.getProjectId());
             }
         }
@@ -200,7 +200,7 @@ public class ProjectController {
         if (i>0){
             if (isAlluser!=projectInfoDto.getIsAllUserUse()){
                 if (projectInfoDto.getIsAllUserUse()==ZERO){//全部员工
-                    saveUserProject(projectInfoDto.getProjectId());
+                    this.saveUserProject(projectInfoDto.getProjectId());
                 }
 //                else{
 //                    iProjectUserRelationInfoService.deleteProjectUserRelationInfoById(projectInfoDto.getProjectId());
