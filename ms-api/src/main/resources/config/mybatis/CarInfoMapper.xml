@@ -113,14 +113,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="borrowStartDate != null ">borrow_start_date,</if>
             <if test="borrowEndDate != null ">borrow_end_date,</if>
             <if test="drivingLicenseEndDate != null ">driving_license_end_date,</if>
-            <if test="drivingLicenseStartDate != null ">driving_license_end_date,</if>
+            <if test="drivingLicenseStartDate != null ">driving_license_start_date,</if>
             <if test="drivingLicense != null ">driving_license,</if>
             <if test="tax != null ">tax,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
             <if test="updateTime != null ">update_time,</if>
-         </trim>
+            <if test="source != null ">source,</if>
+            <if test="assetTag != null ">asset_tag,</if>
+            <if test="licensePrice != null ">license_price,</if>
+            <if test="price != null ">price,</if>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="carId != null ">#{carId},</if>
             <if test="carGroupId != null ">#{carGroupId},</if>
@@ -155,7 +159,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
-         </trim>
+            <if test="source != null ">#{source},</if>
+            <if test="assetTag != null ">#{assetTag},</if>
+            <if test="licensePrice != null ">#{licensePrice},</if>
+            <if test="price != null ">#{price},</if>
+        </trim>
     </insert>
 
     <update id="updateCarInfo" parameterType="com.hq.ecmp.mscore.domain.CarInfo">
@@ -185,6 +193,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="source != null ">source = #{source},</if>
+            <if test="assetTag != null ">asset_tag = #{assetTag},</if>
+            <if test="licensePrice != null ">license_price = #{licensePrice},</if>
+            <if test="price != null ">price = #{price},</if>
         </trim>
         where car_id = #{carId}
     </update>
