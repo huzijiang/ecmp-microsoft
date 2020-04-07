@@ -125,3 +125,6 @@ dispatch:
   notBackCarGroup: 60
   #回车队驻地缓冲时间: 90分钟
   backCarGroup: 90
+# 域名配置：
+realmName:
+  apiUrl: http://10.241.9.4:28080
