@@ -7,6 +7,7 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.InvitionStateEnum;
+import com.hq.ecmp.constant.InvitionTypeEnum;
 import com.hq.ecmp.ms.api.dto.base.InviteDto;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
@@ -183,8 +184,10 @@ public class UserinvitationController {
         RegisterVO registerVO =new RegisterVO();
         int waitCount =ecmpEnterpriseRegisterInfoServicee.waitAmount(inviteDto.getDeptId(),inviteDto.getType());
         registerVO.setRegisterCount(waitCount);
-        int resignationCount = iEcmpUserService.selectDimissionCount();
-        registerVO.setResignationCount(resignationCount);
+        if (InvitionTypeEnum.USER.getKey().equals(inviteDto.getType())){
+            int resignationCount = iEcmpUserService.selectDimissionCount(inviteDto.getDeptId());
+            registerVO.setResignationCount(resignationCount);
+        }
         return ApiResponse.success(registerVO);
     }
     /**

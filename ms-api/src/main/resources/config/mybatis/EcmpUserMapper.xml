@@ -393,7 +393,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       SELECT
       count(1)
       from ecmp_user
-      where status='1'
+      where status='1' and DATE_FORMAT(dimission_time,'%Y-%m-%d')=DATE_FORMAT(now(),'%Y-%m-%d')
+      <if test="deptId!=null">
+         and dept_id=#{deptId}
+      </if>
     </select>
 
     <!--设置离职日期-->

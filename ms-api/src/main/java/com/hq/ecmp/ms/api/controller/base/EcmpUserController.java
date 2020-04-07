@@ -200,7 +200,7 @@ public class EcmpUserController {
     @ApiOperation(value = "已离职数量",notes = "已离职数量",httpMethod ="POST")
     @PostMapping("/selectDimissionCount")
     public ApiResponse selectDimissionCount(){
-        int i = ecmpUserService.selectDimissionCount();
+        int i = ecmpUserService.selectDimissionCount(null);
         return ApiResponse.success(i);
     }
 
