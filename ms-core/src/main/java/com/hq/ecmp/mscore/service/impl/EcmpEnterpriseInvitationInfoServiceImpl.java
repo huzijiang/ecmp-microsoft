@@ -100,6 +100,7 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
     public PageResult<InvitationUserVO> queryInvitationUser(PageRequest PageRequest){
         PageHelper.startPage(PageRequest.getPageNum(),PageRequest.getPageSize());
         List<InvitationUserVO> invitationUserVOS = ecmpEnterpriseInvitationInfoMapper.queryInvitationUser(PageRequest.getType());
+        System.out.println("返回邀请链接实体VO："+invitationUserVOS);
         Long count=ecmpEnterpriseInvitationInfoMapper.queryInvitationUserCount(PageRequest.getType());
         return new PageResult<>(count,invitationUserVOS);
     }
