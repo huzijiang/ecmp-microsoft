@@ -212,6 +212,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setCarImgaeUrl(carSaveDTO.getCarImgaeUrl());
         carInfo.setDrivingLicense(carSaveDTO.getDrivingLicense());  //TODO 新增
         carInfo.setDrivingLicenseStartDate(carSaveDTO.getDrivingLicenseStartDate());  //TODO 新增
+        carInfo.setDrivingLicenseEndDate(carSaveDTO.getDrivingLicenseEndDate());
         carInfo.setCarDrivingLicenseImagesUrl(carSaveDTO.getCarDrivingLicenseImagesUrl());
         return carInfo;
     }
@@ -289,7 +290,6 @@ public class CarInfoServiceImpl implements ICarInfoService
      */
     @Override
     public PageResult<CarListVO> selectCarListByGroup(PageRequest pageRequest) {
-        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         CarInfo carInfo1 = new CarInfo();
         Long carGroupId = pageRequest.getCarGroupId();
         String state = pageRequest.getState();
@@ -297,6 +297,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         //查询车辆所属车队
         CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(pageRequest.getCarGroupId());
         String carGroupName = carGroupInfo.getCarGroupName();
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         List<CarInfo> carInfos = carInfoMapper.selectCarInfoListByGroupId(carGroupId,pageRequest.getCarTypeId(),state,search);
         CarListVO carListVO = null;
         List<CarListVO> list = new ArrayList<>();
