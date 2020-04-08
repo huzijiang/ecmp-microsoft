@@ -146,6 +146,11 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	ecmpUser.setPhonenumber(driverCreateInfo.getMobile());
     	ecmpUser.setCreateBy(driverCreateInfo.getOptUserId().toString());
     	ecmpUser.setCreateTime(new Date());;
+    	//查询归属车队所在的部门
+    	CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(driverCreateInfo.getCarGroupId());
+    	if(null !=carGroupInfo){
+    		ecmpUser.setDeptId(carGroupInfo.getOwnerOrg());
+    	}
     	ecmpUserService.insertEcmpUser(ecmpUser);
     	driverCreateInfo.setUserId(ecmpUser.getUserId());
     	//生成驾驶员记录
