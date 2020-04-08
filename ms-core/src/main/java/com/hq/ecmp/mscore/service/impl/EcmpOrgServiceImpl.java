@@ -2,7 +2,9 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
@@ -14,7 +16,9 @@ import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +33,7 @@ import java.util.List;
  * @date 2020-01-02
  */
 @Service
+@Slf4j
 public class EcmpOrgServiceImpl implements IEcmpOrgService {
     @Autowired
     private EcmpOrgMapper ecmpOrgMapper;
@@ -366,14 +371,69 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * */
     @Override
     @Transactional
-    public int addDept(EcmpOrgVo ecmpOrg){
-        ecmpOrg.setCreateTime(DateUtils.getNowDate());
-        int iz = ecmpOrgMapper.addDept(ecmpOrg);
-        //不可重复选择员工，通过手机号码校验
-        if(iz==1){
-            return 1;
+    public int addDept(EcmpOrgVo ecmpOrgVo ,Long userId) throws Exception{
+        boolean flag=false;
+        if (StringUtils.isBlank(ecmpOrgVo.getDeptName())){
+            throw new Exception("部门/公司名称不可为空");
         }
-        return 0;
+        if (StringUtils.isBlank(ecmpOrgVo.getDeptCode())){
+            throw new Exception("部门/公司编号不可为空");
+        }
+        int j = ecmpOrgMapper.selectDeptCodeExist(ecmpOrgVo.getDeptCode().trim());
+        if(j>0){
+            throw  new Exception("该编号已存在，不可重复录入！");
+        }
+        if(ecmpOrgVo.getParentId()==null||ecmpOrgVo.getParentId()==0){
+            throw new Exception("上级部门/公司不可为空");
+        }
+        if (CommonConstant.START.equals(ecmpOrgVo.getDeptType())){//公司
+            if (StringUtils.isBlank(ecmpOrgVo.getEmail())){
+                throw new Exception("主管邮箱为空!");
+            }
+            if (StringUtils.isBlank(ecmpOrgVo.getLeader())){
+                throw new Exception("主管为空!");
+            }
+            if (StringUtils.isBlank(ecmpOrgVo.getPhone())){
+                throw new Exception("主管手机号为空!");
+            }
+            int count = ecmpUserMapper.selectEmailExist(ecmpOrgVo.getEmail().trim());
+            if(count>0){
+                throw  new Exception("该邮箱已存在，不可重复录入！");
+            }
+            EcmpUser userByPhone = ecmpUserMapper.getUserByPhone(ecmpOrgVo.getPhone());
+            log.info("新增公司:公司主管手机号:"+ecmpOrgVo.getPhone()+"信息"+userByPhone.getUserId()+userByPhone.getUserName());
+            if (userByPhone!=null){
+                ecmpOrgVo.setLeader(String.valueOf(userByPhone));
+                flag=true;
+            }
+        }
+        ecmpOrgVo.setCreateTime(DateUtils.getNowDate());
+        EcmpOrg parentOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpOrgVo.getParentId());
+        String ancestors=parentOrg.getAncestors()+","+ecmpOrgVo.getParentId();
+        ecmpOrgVo.setAncestors(ancestors);
+        int iz = ecmpOrgMapper.addDept(ecmpOrgVo);
+        if (CommonConstant.START.equals(ecmpOrgVo.getDeptType())){//公司
+            if (!flag){//公司主管不存在
+                //新建公司主管
+                EcmpUser companyUser=new EcmpUser();
+                companyUser.setUserName(ecmpOrgVo.getPhone());
+                companyUser.setItIsDriver(CommonConstant.SWITCH_ON);
+                companyUser.setItIsDispatcher(CommonConstant.SWITCH_ON);
+                companyUser.setRemark("新建公司操作添加的主管");
+                companyUser.setDelFlag(CommonConstant.SWITCH_ON);
+                companyUser.setEmail(ecmpOrgVo.getEmail());
+                companyUser.setNickName(ecmpOrgVo.getLeader());
+                companyUser.setPhonenumber(ecmpOrgVo.getPhone());
+                companyUser.setStatus(CommonConstant.SWITCH_ON);
+                companyUser.setDeptId(ecmpOrgVo.getDeptId());
+                int i = ecmpUserMapper.insertEcmpUser(companyUser);
+                if (ecmpOrgVo.getDeptId()!=null &&companyUser.getUserId()!=null){
+                    ecmpOrgMapper.updateEcmpOrg(new EcmpOrgVo(ecmpOrgVo.getDeptId(),String.valueOf(companyUser.getUserId())));
+                }
+                log.info("新建公司对应手机号"+ecmpOrgVo.getPhone()+"的主管新增成功");
+            }
+        }
+        return iz;
     }
 
     /*

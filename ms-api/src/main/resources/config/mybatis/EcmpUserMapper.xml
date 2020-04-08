@@ -316,7 +316,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select dept_name from ecmp_org where  dept_type='2'
         <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
     </select>-->
-
+    <select id="getUserByPhone" resultMap="EcmpUserResult" parameterType="Object">
+        <include refid="selectEcmpUserVo"/>
+        where del_flag='0' and status='0' and phonenumber=#{phonenumber}
+    </select>
     <!--查询员工列表-->
     <!--select `name` from regime_info where regime_id in (select regime_id from  user_regime_relation_info where user_id=#{userId}) as regimeName-->
     <!--if(isnull((select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept),'',subDept) as subDept,-->
@@ -520,8 +523,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="findDeptLeader" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.UserVO">
-        SELECT user_id userId,nick_name userName,phonenumber userPhone from ecmp_user
-        where user_id =(select leader from ecmp_org where dept_id=#{deptId})
+        select leader from ecmp_org where dept_id=#{deptId}
     </select>
 
     <select id="selectUserListByUserIds" parameterType="Object" resultMap="EcmpUserResult">

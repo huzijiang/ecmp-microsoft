@@ -35,5 +35,6 @@ public class DriverCreateInfo {
 		Long optUserId;//操作人员
 		
 		Long driverId;
+		Date updateTime;
 		
 }

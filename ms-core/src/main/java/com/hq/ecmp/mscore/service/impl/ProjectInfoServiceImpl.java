@@ -218,11 +218,11 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
 
     @Override
     public OrgTreeVo selectProjectUserTree(Long projectId) {
-        String str =(String) redisUtil.get(String.format(PROJECT_USER_TREE, projectId));
-        if (StringUtils.isNotEmpty(str)){
-            OrgTreeVo orgTreeVo = JSONObject.parseObject(str, OrgTreeVo.class);
-            return orgTreeVo;
-        }
+//        String str =(String) redisUtil.get(String.format(PROJECT_USER_TREE, projectId));
+//        if (StringUtils.isNotEmpty(str)){
+//            OrgTreeVo orgTreeVo = JSONObject.parseObject(str, OrgTreeVo.class);
+//            return orgTreeVo;
+//        }
         OrgTreeVo orgTreeVo = ecmpOrgMapper.selectDeptTree(null,null);
         List<UserTreeVo> userList =ecmpUserMapper.selectUserListByDeptIdAndProjectId(projectId);
         OrgTreeVo childNode = getChildNode(orgTreeVo, userList);

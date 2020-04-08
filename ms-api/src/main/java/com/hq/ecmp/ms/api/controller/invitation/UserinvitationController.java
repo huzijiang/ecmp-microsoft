@@ -80,7 +80,7 @@ public class UserinvitationController {
      */
     @ApiOperation(value = "interInvitationUserZcCommit",notes = "生成邀请",httpMethod = "POST")
     @PostMapping("/interRegisterInfoCommit")
-    public ApiResponse interRegisterInfoCommit(@RequestBody UserRegisterDTO userRegisterDTO){
+    public ApiResponse interRegisterInfoCommit(UserRegisterDTO userRegisterDTO){
         try {
 
             //校验手机号的用户是否已经是企业用户
@@ -215,7 +215,7 @@ public class UserinvitationController {
     */
     @ApiOperation(value = "getInvitationUserDetail",notes = "获取员工邀请详情",httpMethod = "POST")
     @PostMapping("/getInvitationUserDetail")
-    public ApiResponse<InvitationUserVO> getInvitationUserDetail(@RequestBody InvitationDto invitationDto){
+    public ApiResponse<InvitationUserVO> getInvitationUserDetail(InvitationDto invitationDto){
 
         InvitationUserVO InvitationUser=ecmpEnterpriseInvitationInfoService.queryInvitationUserDetial(invitationDto.getInvitationId());
         return ApiResponse.success(InvitationUser);

@@ -73,6 +73,9 @@ public class CarDetailVO {
     //6.行驶证号码
 
     //7.行驶证有效期 xxx -- xxx
+    private String drivingLicenseStartDate;
+
+    private String drivingLicenseEndDate;
 
     //8.行驶证实照
     private String carDrivingLicenseImagesUrl;
