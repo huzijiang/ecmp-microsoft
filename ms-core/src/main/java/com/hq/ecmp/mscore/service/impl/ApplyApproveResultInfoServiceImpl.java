@@ -178,7 +178,7 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                     resultInfo.setState(state);
                     switch (ApproveTypeEnum.format(info.getApproverType())) {
                         case  APPROVE_T001://部门负责人
-                            UserVO deptUser=ecmpUserMapper.findDeptLeader(Long.parseLong(applyInfo.getCreateBy()));
+                            String deptUser=ecmpUserMapper.findDeptLeader(Long.parseLong(applyInfo.getCreateBy()));
                             if (deptUser==null){
                                 EcmpUser user = ecmpUserMapper.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
                                 deptUser= this.getOrgByDeptId(user.getDeptId());
@@ -187,7 +187,7 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                                 log.error("用车制度:"+regimenId+"对应审批模板项目主管审批未设置主管");
                                 throw new Exception("该公司未设置领导层");
                             }
-                            resultInfo.setApproveUserId(String.valueOf(deptUser.getUserId()));
+                            resultInfo.setApproveUserId(deptUser);
                             break;
                         case  APPROVE_T002://指定角色
                             resultInfo.setApproveRoleId(info.getRoleId());
@@ -198,9 +198,9 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                             resultInfo.setApproveUserId(info.getUserId());
                             break;
                         case  APPROVE_T004://项目负责人
-                            UserVO projectLeader = getProjectLeader(applyInfo.getProjectId(),userId);
-                            log.info("项目负责人审批:"+projectLeader.toString());
-                            resultInfo.setApproveUserId(String.valueOf(projectLeader.getUserId()));
+                            String projectLeader = getProjectLeader(applyInfo.getProjectId(),userId);
+                            log.info("项目负责人审批:"+projectLeader);
+                            resultInfo.setApproveUserId(projectLeader);
                             break;
                         }
                     applyApproveResultInfoMapper.insertApplyApproveResultInfo(resultInfo);
@@ -209,28 +209,28 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
         }
     }
 
-    public UserVO getProjectLeader(Long projectId,Long userId) throws Exception{
+    public String getProjectLeader(Long projectId,Long userId) throws Exception{
         //项目id不存在则查询当前申请人公司主管
-        UserVO vo=null;
+        String leader=null;
         EcmpUser user = ecmpUserMapper.selectEcmpUserById(userId);
         if (projectId==null||projectId==Long.valueOf(CommonConstant.SWITCH_ON)){
-            vo=this.getOrgByDeptId(user.getDeptId());
+            leader=this.getOrgByDeptId(user.getDeptId());
         }else{
-            vo=projectInfoMapper.findLeader(projectId);
-            if (vo==null){
-                vo= this.getOrgByDeptId(user.getDeptId());
+            leader=projectInfoMapper.findLeader(projectId);
+            if (StringUtils.isEmpty(leader)){
+                leader= this.getOrgByDeptId(user.getDeptId());
             }
         }
-        if (vo==null){
+        if (StringUtils.isEmpty(leader)){
             throw new Exception("该公司未设置领导层");
         }
-        return vo;
+        return leader;
     }
 
-    private UserVO getOrgByDeptId(Long deptId){
+    private String getOrgByDeptId(Long deptId){
         EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
         if (DEPT_TYPE_ORG.equals(ecmpOrg.getDeptType())){//是公司
-            return ecmpUserMapper.findDeptLeader(deptId);
+            return ecmpOrg.getLeader();
         }else{
             String ancestors = ecmpOrg.getAncestors();
             if (StringUtils.isNotEmpty(ancestors)){
@@ -238,7 +238,7 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                 for (int i=split.length-2;i>=0;i--){
                     EcmpOrg org= ecmpOrgMapper.selectEcmpOrgById(Long.parseLong(split[i]));
                     if (DEPT_TYPE_ORG.equals(org.getDeptType())){//是公司
-                        return ecmpUserMapper.findDeptLeader(org.getDeptId());
+                        return org.getLeader();
                     }
                 }
             }

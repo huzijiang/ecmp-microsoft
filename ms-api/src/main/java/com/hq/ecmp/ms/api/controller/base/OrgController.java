@@ -4,6 +4,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.RegimeVo;
@@ -193,44 +194,15 @@ public class OrgController {
     @ApiOperation(value = "insertCompany",notes = "添加分/子公司",httpMethod ="POST")
     @PostMapping("/insertCompany")
     public ApiResponse insertCompany(@RequestBody EcmpOrgVo ecmpOrg){
-        String deptCode=ecmpOrg.getDeptCode();
-        /*if(deptCode!=null&&!("").equals(deptCode.trim())){
-            int j = orgService.selectDeptCodeExist(deptCode);
-            if(j>0){
-                return ApiResponse.error("该编号已存在，不可重复录入！");
-            }
-        }
-        String deptName=ecmpOrg.getDeptName();
-        if(deptName==null&&("").equals(deptName.trim())){
-                return ApiResponse.error("名称不可为空！");
-        }
-        String leader=ecmpOrg.getLeader();
-        if(leader==null&&("").equals(leader.trim())){
-                return ApiResponse.error("主管姓名不可为空！");
-        }
-        String phone=ecmpOrg.getPhone();
-        if(phone==null&&("").equals(phone.trim())){
-            return ApiResponse.error("主管手机号不可为空！");
-        }else{
-            int j = ecmpUserService.selectPhoneNumberExist(phone);
-            if(j>0){
-                return ApiResponse.error("该手机号已存在，不可重复录入！");
-            }
-        }
-        String email=ecmpOrg.getEmail();
-        if(email==null&&("").equals(email.trim())){
-            return ApiResponse.error("主管邮箱不可为空！");
-        }else{
-            int j = ecmpUserService.selectEmailExist(email);
-            if(j>0){
-                return ApiResponse.error("该邮箱已存在，不可重复录入！");
-            }
-        }*/
-        int i = orgService.addDept(ecmpOrg);
-        if (i == 1){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            ecmpOrg.setDeptType(CommonConstant.SWITCH_OFF);
+            int i = orgService.addDept(ecmpOrg,loginUser.getUser().getUserId());
             return ApiResponse.success("添加分/子公司成功");
-        }else {
-            return ApiResponse.error("添加分/子公司失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
         }
     }
 

@@ -189,8 +189,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="findLeader" resultType="com.hq.ecmp.mscore.vo.UserVO">
-        select user_id userId,nick_name userName,phonenumber userPhone from ecmp_user
-        where user_id =(select leader from project_info where project_id=#{projectId})
+        select leader from project_info where project_id=#{projectId}
     </select>
 
     <select id="getProjectListCount" resultType="Long">
