@@ -101,9 +101,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update car_group_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="city != null ">city = #{city},</if>
-            <if test="cityName != null  and cityName != ''">city_name = #{cityName},</if>
+            <if test="carGroupName != null  and carGroupName != ''">car_group_name = #{carGroupName},</if>
+            <if test="carGroupCode != null  and carGroupCode != ''">car_group_code = #{carGroupCode},</if>
             <if test="ownerOrg != null ">owner_org = #{ownerOrg},</if>
+            <if test="parentCarGroupId != null ">parent_car_group_id = #{parentCarGroupId},</if>
             <if test="leader != null ">leader = #{leader},</if>
+            <if test="longitude != null ">longitude = #{longitude},</if>
+            <if test="latitude != null ">latitude = #{latitude},</if>
+            <if test="shortAddress != null and shortAddress != ''">short_address = #{shortAddress},</if>
+            <if test="fullAddress != null and fullAddress != ''">full_address = #{fullAddress},</if>
+            <if test="telephone != null and telephone != ''">telephone = #{telephone},</if>
             <if test="state != null ">state = #{state},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
