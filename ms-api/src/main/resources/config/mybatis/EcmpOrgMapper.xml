@@ -460,7 +460,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectDeptTree" parameterType="Object" resultMap="orgTreeVO">
-        select dept_id id, parent_id parentId,dept_name showname,0 type from ecmp_org
+        select dept_id id, parent_id parentId,dept_name showname,'0' type from ecmp_org
         where status=0 and del_flag=0 and dept_type!=3
         <if test="deptId!=null">
             and dept_id=#{deptId}
