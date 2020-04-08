@@ -306,8 +306,15 @@ public interface EcmpUserMapper
     List<UserTreeVo> selectListByDeptId(Long deptId);
 
     List<UserTreeVo> selectUserListByDeptIdAndProjectId(@Param("projectId")Long projectId);
+    /**
+     * 查询所有有效员工
+     * @param  //ecmpUser
+     * @return*/
+    EcmpUserDto selectEcmpUser(EcmpUserVo ecmpUser);
 
     List<EcmpUserDto> getEcmpUserPage(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
     Long getEcmpUserPageCount(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
+    
+    List<EcmpUserDto> queryUserListByDeptIdsAndName(@Param("deptIds")List<Long> deptIds, @Param("name")String name);
 }
 

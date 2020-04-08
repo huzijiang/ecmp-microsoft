@@ -145,6 +145,16 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         if(parentCarGroupId == null){
             parentCarGroupId = 0L;
         }
+        //查询省份代码
+        String city = carGroupDTO.getCity();
+        if(!ObjectUtils.isEmpty(city)){
+            CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(city);
+            if(!ObjectUtils.isEmpty(cityInfo)){
+                String provinceCode = cityInfo.getProvinceCode();
+                //省份代码
+                carGroupInfo.setProvince(provinceCode);
+            }
+        }
         carGroupInfo.setParentCarGroupId(parentCarGroupId);
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
@@ -162,12 +172,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setLeader(carGroupDTO.getLeader());
         //创建人
         carGroupInfo.setCreateBy(String.valueOf(userId));
-        //省份代码
-        carGroupInfo.setProvince(carGroupDTO.getProvince());
         //驻地经度
-        carGroupInfo.setLongitude(carGroupDTO.getLongitude());
+        carGroupInfo.setLongitude(ObjectUtils.isEmpty(carGroupDTO.getLongitude()) ? null : Float.valueOf(carGroupDTO.getLongitude()));
         //驻地纬度
-        carGroupInfo.setLatitude(carGroupDTO.getLatitude());
+        carGroupInfo.setLatitude(ObjectUtils.isEmpty(carGroupDTO.getLatitude()) ? null : Float.valueOf(carGroupDTO.getLatitude()));
         //车队座机
         carGroupInfo.setTelephone(carGroupDTO.getTelephone());
         //所属公司
@@ -317,6 +325,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setCarGroupCode(carGroupDTO.getCarGroupCode());
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
+        //父id
+        carGroupInfo.setParentCarGroupId(carGroupDTO.getParentCarGroupId());
         //所属城市名字
        // carGroupInfo.setCityName(carGroupDTO.getCityName());
         //车队名称
@@ -334,9 +344,15 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //省份代码
         carGroupInfo.setProvince(carGroupDTO.getProvince());
         //驻地经度
-        carGroupInfo.setLongitude(carGroupDTO.getLongitude());
+        String longitude = carGroupDTO.getLongitude();
+        if(!ObjectUtils.isEmpty(longitude) ){
+            carGroupInfo.setLongitude(Float.valueOf(longitude));
+        }
         //驻地纬度
-        carGroupInfo.setLatitude(carGroupDTO.getLatitude());
+        String latitude = carGroupDTO.getLatitude();
+        if(!ObjectUtils.isEmpty(latitude)){
+            carGroupInfo.setLatitude(Float.valueOf(latitude));
+        }
         //车队座机
         carGroupInfo.setTelephone(carGroupDTO.getTelephone());
         //1.修改车队
@@ -809,8 +825,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             CarGroupDTO vo = CarGroupDTO.builder()
                     .carGroupName(carGroupInfo.getCarGroupName())
                     .carGroupCode(carGroupInfo.getCarGroupCode())
-                    .latitude(carGroupInfo.getLatitude())
-                    .longitude(carGroupInfo.getLongitude())
+                    .latitude(String.valueOf(carGroupInfo.getLatitude()) )
+                    .longitude(String.valueOf(carGroupInfo.getLongitude()))
                     .ownerOrg(ownerOrg)
                     .ownerOrgName(ownerOrgName)
                     .city(carGroupInfo.getCity())

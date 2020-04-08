@@ -645,6 +645,27 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         return null;
     }
 
+	@Override
+	public List<Long> queryDeptIdOfCompany(Long deptId) {
+		List<Long> result=new ArrayList<Long>();
+		List<EcmpOrgDto> selectCombinationOfCompany = selectCombinationOfCompany(deptId, "1");
+		recursion(selectCombinationOfCompany, result);
+		return result;
+	}
+	
+	private void recursion(List<EcmpOrgDto> selectCombinationOfCompany, List<Long> result) {
+		if (null != selectCombinationOfCompany && selectCombinationOfCompany.size() > 0) {
+			for (EcmpOrgDto ecmpOrgDto : selectCombinationOfCompany) {
+				Long deptId = ecmpOrgDto.getDeptId();
+				result.add(deptId);
+				List<EcmpOrgDto> nextDeptList = ecmpOrgDto.getDeptList();
+				if (null != nextDeptList && nextDeptList.size() > 0) {
+					recursion(nextDeptList, result);
+				}
+			}
+		}
+	}
+
     /**
      *查询分/子公司下的部门名称和deptId
      * @return
