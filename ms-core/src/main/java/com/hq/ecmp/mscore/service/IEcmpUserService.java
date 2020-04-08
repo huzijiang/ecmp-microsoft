@@ -210,6 +210,19 @@ public interface IEcmpUserService {
      * @return 结果
      */
     public List<EcmpUserDto> selectUserByNickNameOrJobNumber(String nameOrJobNumberOrPhone);
+    /**
+     * 查询所有有效员工
+     * @param  //ecmpUser
+     * @return*/
+    EcmpUserDto selectEcmpUser(EcmpUserVo ecmpUser);
 
     PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest);
+    
+    /**
+     * 根据分子公司+员工姓名查询所有员工
+     * @param companyId
+     * @param name
+     * @return
+     */
+    public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId,String name);
 }

@@ -86,4 +86,12 @@ public class EcmpNoticeMappingServiceImpl implements EcmpNoticeMappingService {
     public void updateEcmpNoticeMapping(EcmpNoticeMapping mapping) {
         ecmpNoticeMappingDao.updateEcmpNoticeMapping(mapping);
     }
+    /**
+     * 通过公告id删除
+     * @param noticeId
+     */
+    @Override
+    public void deleteByNoticeId(Integer noticeId) {
+        ecmpNoticeMappingDao.deleteByNoticeId(noticeId);
+    }
 }

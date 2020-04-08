@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpNoticeMapping;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -67,4 +68,10 @@ public interface EcmpNoticeMappingMapper {
      * @param mapping
      */
     void updateEcmpNoticeMapping(EcmpNoticeMapping mapping);
+
+    /**
+     * 通过公告id删除
+     * @param noticeId
+     */
+    void deleteByNoticeId(@Param("noticeId") Integer noticeId);
 }

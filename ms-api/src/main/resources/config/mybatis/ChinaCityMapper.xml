@@ -24,7 +24,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 
 	<select id="queryCityByCityCode" resultType="com.hq.ecmp.mscore.bo.CityInfo">
-		select CITY_ID as cityId, CITY_CODE as cityCode,SHORT_NAME as cityName
+		select CITY_ID as cityId, CITY_CODE as cityCode,SHORT_NAME as cityName,PROVINCE_CODE as provinceCode
 	from
 	china_city where CITY_CODE=#{cityCode}
 	</select>
