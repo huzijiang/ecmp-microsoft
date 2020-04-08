@@ -69,6 +69,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           (#{userId},#{driverId},#{item})
           </foreach>
     </insert>
+
+    <update id="updateBatchDriverCarList">
+        <foreach collection="carIdList" item="item" index="index" open="" close="" separator=";">
+            update driver_car_relation_info
+            set user_id=#{userId},
+            car_id=#{carId}
+            where
+            driver_id=#{driverId}
+
+        </foreach>
+    </update>
     
     <select id="queryDriverUseCarCount" parameterType="java.lang.Long" resultType="java.lang.Integer">
     select count(1) from driver_car_relation_info where driver_id=#{driverId}

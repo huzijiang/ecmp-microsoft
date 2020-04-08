@@ -170,7 +170,7 @@ public interface DriverInfoMapper
      * @param driverCreateInfo
      * @return
      */
-    public int updateDriver(DriverCreateInfo driverCreateInfo);
+    public Integer updateDriver(DriverCreateInfo driverCreateInfo);
 
     /**
      * 修改驾驶员手机号

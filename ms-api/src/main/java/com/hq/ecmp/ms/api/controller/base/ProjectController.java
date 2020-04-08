@@ -249,7 +249,7 @@ public class ProjectController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         int count=iProjectInfoService.removeProjectUser(projectUserDTO,loginUser.getUser().getUserId());
         if (count>0){
-            redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDTO.getProjectId()));
+//            redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDTO.getProjectId()));
             return ApiResponse.success();
         }else {
             return ApiResponse.error("移除失败");
@@ -271,7 +271,7 @@ public class ProjectController {
         }
         list.removeAll(projectUserRelationInfos);
         int count=iProjectUserRelationInfoService.insertProjectList(list);
-        redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDtos.get(0).getProjectId()));
+//        redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDtos.get(0).getProjectId()));
         return ApiResponse.success();
     }
 
@@ -282,7 +282,7 @@ public class ProjectController {
         //TODO 暂时不考虑当前用户是否有未完成的项目报销
         try {
             int count=iProjectInfoService.deleteProject(projectUserDTO);
-            redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDTO.getProjectId()));
+//            redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDTO.getProjectId()));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("删除项目失败");

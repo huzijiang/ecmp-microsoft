@@ -73,7 +73,7 @@ public interface IEcmpOrgService
     *  @param  ecmpOrg
     * @return int
     * */
-    public int addDept(EcmpOrgVo ecmpOrg);
+    public int addDept(EcmpOrgVo ecmpOrg,Long userId) throws Exception;
 
     /*
      * 修改部门

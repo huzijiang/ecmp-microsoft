@@ -184,19 +184,19 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
             SortListUtil.sort(nodeInfos,"approveNodeId",SortListUtil.ASC);
             ApproveTemplateNodeInfo info=nodeInfos.get(0);
                 if (ApproveTypeEnum.APPROVE_T001.getKey().equals(info.getApproverType())){//部门主管
-                    UserVO deptLeader =ecmpUserMapper.findDeptLeader(user.getDeptId());
-                    if (deptLeader==null){
+                    String deptLeader =ecmpUserMapper.findDeptLeader(user.getDeptId());
+                    if (StringUtils.isEmpty(deptLeader)){
                         deptLeader=this.getOrgByDeptId(user.getDeptId());
                     }
                     log.info("制度id:"+regimeId+"的部门主管审批对象为:"+deptLeader.toString());
-                    userIds=String.valueOf(deptLeader.getUserId());
+                    userIds=deptLeader;
                 }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(info.getApproverType())){//项目负责人
                     if (StringUtils.isEmpty(projectId)){
                         return null;
                     }
-                    UserVO projectLeader = getProjectLeader(Long.parseLong(projectId),user.getDeptId());
+                    String projectLeader = getProjectLeader(Long.parseLong(projectId),user.getDeptId());
                     if (projectLeader!=null){
-                        userIds=String.valueOf(projectLeader.getUserId());
+                        userIds=projectLeader;
                     }
                 }else{
                     userIds=info.getUserId();
@@ -205,9 +205,9 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
         return approveTemplateNodeInfoMapper.getApproveUsers(userIds);
     }
 
-    public UserVO getDeptLeader(Long deptId)throws Exception{
-        UserVO deptUser=ecmpUserMapper.findDeptLeader(deptId);
-        if (deptUser!=null){
+    public String getDeptLeader(Long deptId)throws Exception{
+        String deptUser=ecmpUserMapper.findDeptLeader(deptId);
+        if (StringUtils.isNotEmpty(deptUser)){
             return deptUser;
         }
         EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
@@ -231,9 +231,9 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
 
     }
 
-    public UserVO getProjectLeader(Long projectId,Long deptId) throws Exception{
-        UserVO userVO=projectInfoMapper.findLeader(projectId);
-        if (userVO!=null){
+    public String getProjectLeader(Long projectId,Long deptId) throws Exception{
+        String userVO=projectInfoMapper.findLeader(projectId);
+        if (StringUtils.isNotEmpty(userVO)){
             return userVO;
         }
         userVO=this.getOrgByDeptId(deptId);
@@ -283,10 +283,10 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
     }
 
 
-    private UserVO getOrgByDeptId(Long deptId){
+    private String getOrgByDeptId(Long deptId){
         EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
         if (DEPT_TYPE_ORG.equals(ecmpOrg.getDeptType())){//是公司
-            return ecmpUserMapper.findDeptLeader(deptId);
+            return ecmpOrg.getLeader();
         }else{
             String ancestors = ecmpOrg.getAncestors();
             if (StringUtils.isNotEmpty(ancestors)){
@@ -294,7 +294,7 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
                 for (int i=split.length-1;i>=0;i--){
                     EcmpOrg org= ecmpOrgMapper.selectEcmpOrgById(Long.parseLong(split[i]));
                     if (DEPT_TYPE_ORG.equals(org.getDeptType())){//是公司
-                        return ecmpUserMapper.findDeptLeader(org.getDeptId());
+                        return org.getLeader();
                     }
                 }
             }

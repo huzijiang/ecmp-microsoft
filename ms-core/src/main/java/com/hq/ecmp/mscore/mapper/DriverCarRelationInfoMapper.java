@@ -70,6 +70,12 @@ public interface DriverCarRelationInfoMapper
      * @return
      */
     public Integer batchDriverCarList(DriverCarRelationInfo driverCarRelationInfo);
+    /**
+     * 批量修改多个车辆
+     * @param driverCarRelationInfo
+     * @return
+     */
+    public Integer updateBatchDriverCarList(DriverCarRelationInfo driverCarRelationInfo);
     
     public Integer queryDriverUseCarCount(Long driverId);
 
