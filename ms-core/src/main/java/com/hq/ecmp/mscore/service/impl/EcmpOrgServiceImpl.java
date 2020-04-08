@@ -426,7 +426,10 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                 companyUser.setPhonenumber(ecmpOrgVo.getPhone());
                 companyUser.setStatus(CommonConstant.SWITCH_ON);
                 companyUser.setDeptId(ecmpOrgVo.getDeptId());
-                ecmpUserMapper.insertEcmpUser(companyUser);
+                int i = ecmpUserMapper.insertEcmpUser(companyUser);
+                if (ecmpOrgVo.getDeptId()!=null &&companyUser.getUserId()!=null){
+                    ecmpOrgMapper.updateEcmpOrg(new EcmpOrgVo(ecmpOrgVo.getDeptId(),String.valueOf(companyUser.getUserId())));
+                }
                 log.info("新建公司对应手机号"+ecmpOrgVo.getPhone()+"的主管新增成功");
             }
         }

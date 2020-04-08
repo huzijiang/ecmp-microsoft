@@ -219,4 +219,15 @@ public class DateFormatUtils {
     	}
     	return true;
     }
+
+     public  static void main(String[] args){
+         Date date = parseDate(DATE_TIME_FORMAT, "2020-04-30 22:22:22");
+         if (date.getTime()>new Date().getTime()){
+             System.out.println("大于当前时间");
+         }
+
+         System.out.println(date.toString());
+         System.out.println(new Date().toString());
+         System.out.println("小于当前时间");
+     }
 }
