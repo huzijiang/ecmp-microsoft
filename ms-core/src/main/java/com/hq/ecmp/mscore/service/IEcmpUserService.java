@@ -212,4 +212,12 @@ public interface IEcmpUserService {
     public List<EcmpUserDto> selectUserByNickNameOrJobNumber(String nameOrJobNumberOrPhone);
 
     PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest);
+    
+    /**
+     * 根据分子公司+员工姓名查询所有员工
+     * @param companyId
+     * @param name
+     * @return
+     */
+    public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId,String name);
 }

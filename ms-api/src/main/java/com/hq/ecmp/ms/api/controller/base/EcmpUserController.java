@@ -256,6 +256,17 @@ public class EcmpUserController {
     	List<EcmpUser> selectEcmpUserList = ecmpUserService.selectEcmpUserList(ecmpUser);
     	return ApiResponse.success(selectEcmpUserList);
     }
+    
+    
+    /**
+     * 据分子公司+员工姓名查询所有员工
+     * @return*/
+    @ApiOperation(value = "据分子公司+员工姓名查询所有员工",notes = "据分子公司+员工姓名查询所有员工",httpMethod ="POST")
+    @PostMapping("/queryUserListByCompanyIdAndName")
+    public ApiResponse<List<EcmpUserDto>> queryUserListByCompanyIdAndName(@RequestBody EcmpUserVo ecmpUser){
+    	List<EcmpUserDto> result=ecmpUserService.queryUserListByCompanyIdAndName(ecmpUser.getDeptId(),ecmpUser.getNickName());
+    	return ApiResponse.success(result);
+    }
     	
 
 }

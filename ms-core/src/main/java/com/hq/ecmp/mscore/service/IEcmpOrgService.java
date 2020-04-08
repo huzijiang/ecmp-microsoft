@@ -237,4 +237,11 @@ public interface IEcmpOrgService
 
     /*查询公司车队总人数*/
     CarGroupCountVO selectCarGroupCount(Long deptId);
+    
+    /**
+     * 查询公司下面所有的组织(包含公司和部门)ID
+     * @param deptId  公司ID
+     * @return
+     */
+    List<Long> queryDeptIdOfCompany(Long deptId);
 }

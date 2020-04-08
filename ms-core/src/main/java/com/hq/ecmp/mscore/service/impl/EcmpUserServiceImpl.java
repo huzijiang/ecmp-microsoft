@@ -1,5 +1,15 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CommonConstant;
@@ -7,21 +17,22 @@ import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.EcmpUserRole;
 import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
-import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.mapper.*;
+import com.hq.ecmp.mscore.dto.EcmpOrgDto;
+import com.hq.ecmp.mscore.dto.EcmpRoleDto;
+import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.dto.UserRegisterDTO;
+import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
+import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
+import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
+import com.hq.ecmp.mscore.mapper.EcmpUserRoleMapper;
+import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
+import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
+import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.util.DateFormatUtils;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 用户信息Service业务层处理
@@ -45,6 +56,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     private DriverInfoMapper driverInfoMapper;
     @Autowired
     private EcmpOrgMapper ecmpOrgMapper;
+    
+    @Autowired
+    private IEcmpOrgService ecmpOrgService;
 
     /**
      * 根据用户id查询用户信息
@@ -519,4 +533,14 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         return ecmpUserMapper.userItisExist(userRegisterDTO.getMobile());
 
     }
+
+	@Override
+	public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId, String name) {
+		List<Long> deptIds = ecmpOrgService.queryDeptIdOfCompany(companyId);
+		if(null !=ecmpUserMapper && deptIds.size()>0){
+			List<EcmpUserDto> queryUserListByDeptIdsAndName = ecmpUserMapper.queryUserListByDeptIdsAndName(deptIds, name);
+			return queryUserListByDeptIdsAndName;
+		}
+		return null;
+	}
 }

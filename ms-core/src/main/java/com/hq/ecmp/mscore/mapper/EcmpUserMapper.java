@@ -309,5 +309,7 @@ public interface EcmpUserMapper
 
     List<EcmpUserDto> getEcmpUserPage(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
     Long getEcmpUserPageCount(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
+    
+    List<EcmpUserDto> queryUserListByDeptIdsAndName(@Param("deptIds")List<Long> deptIds, @Param("name")String name);
 }
 
