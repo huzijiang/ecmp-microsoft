@@ -137,12 +137,9 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     @Transactional(propagation=Propagation.REQUIRED)
 	@Override
 	public boolean createDriver(DriverCreateInfo driverCreateInfo) {
-    	//生成驾驶员记录
-    	Integer createDriver = driverInfoMapper.createDriver(driverCreateInfo);
-    	Long driverId = driverCreateInfo.getDriverId();
-    	//生成用户记录
+    	
+       	//生成用户记录
     	EcmpUser ecmpUser = new EcmpUser();
-    	ecmpUser.setUserId(driverCreateInfo.getUserId());
     	ecmpUser.setUserName(driverCreateInfo.getMobile());
     	ecmpUser.setNickName(driverCreateInfo.getDriverName());
     	ecmpUser.setItIsDriver("0");
@@ -150,6 +147,11 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	ecmpUser.setCreateBy(driverCreateInfo.getOptUserId().toString());
     	ecmpUser.setCreateTime(new Date());;
     	ecmpUserService.insertEcmpUser(ecmpUser);
+    	driverCreateInfo.setUserId(ecmpUser.getUserId());
+    	//生成驾驶员记录
+    	Integer createDriver = driverInfoMapper.createDriver(driverCreateInfo);
+    	Long driverId = driverCreateInfo.getDriverId();
+ 
     	//生成驾驶员-车队关系记录
     	CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
     	carGroupDriverRelation.setCarGroupId(driverCreateInfo.getCarGroupId());

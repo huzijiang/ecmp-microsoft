@@ -29,8 +29,8 @@ public class DriverDutyWorkVO {
      */
     private String status;
 
-   // @ApiModelProperty(value = "上班时间")
-   // private List<Date> dutyDate;
+    @ApiModelProperty(value = "上班时间")
+    private List<String> dutyDate;
     @ApiModelProperty(value = "休假时间")
     private List<String> holidays;
 }

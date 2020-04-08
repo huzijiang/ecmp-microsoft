@@ -143,7 +143,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             where work_id=#{item.workId}
             and driver_id=#{item.driverId}
         </foreach>
+    </update>
 
+    <select id="getWorkInfoMonthList"  resultType="com.hq.ecmp.mscore.vo.WorkInfoMonthVo">
+        select
+        DISTINCT DATE_FORMAT(caledar_date,'%Y-%m-%d') calendarDate,
+        today_it_is_on_duty as workState
+        from driver_work_info
+        <where>
+            <if test="month != null and month !='' "> and date_format(caledar_date,'%Y-%m') = #{month}</if>
+        </where>
+        order by caledar_date
+    </select>
+    <update id="updateWorkDetailMonth">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update driver_work_info
+            set today_it_is_on_duty=#{item.workState},
+            update_by=#{userId},
+            update_time=#{updateTime}
+            where
+            caledar_date=#{item.calendarDate}
+
+        </foreach>
     </update>
 
 </mapper>
