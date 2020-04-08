@@ -340,7 +340,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 					if(null !=leader){
 						EcmpUser deptLeader = ecmpUserService.selectEcmpUserById(Long.valueOf(leader));
 						if(null !=deptLeader){
-							carGroupDriverInfo.setDeptName(deptLeader.getNickName());
+							carGroupDriverInfo.setDeptLeader(deptLeader.getNickName());
 						}
 					}
 					//查询所属该部门的员工人数
