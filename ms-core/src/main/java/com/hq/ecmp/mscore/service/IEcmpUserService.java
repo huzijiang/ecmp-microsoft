@@ -210,6 +210,11 @@ public interface IEcmpUserService {
      * @return 结果
      */
     public List<EcmpUserDto> selectUserByNickNameOrJobNumber(String nameOrJobNumberOrPhone);
+    /**
+     * 查询所有有效员工
+     * @param  //ecmpUser
+     * @return*/
+    EcmpUserDto selectEcmpUser(EcmpUserVo ecmpUser);
 
     PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest);
 }

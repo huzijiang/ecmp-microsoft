@@ -590,4 +590,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where status=0 and del_flag=0
         and user_id not in (SELECT user_id from project_user_relation_info where project_id=#{projectId} )
     </select>
+
+    <select id="selectEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo" resultType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+        <include refid="selectEcmpUserVo"/>
+        <where>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="jobNumber != null  and jobNumber != ''"> and job_number = #{jobNumber}</if>
+        </where>
+    </select>
 </mapper>
