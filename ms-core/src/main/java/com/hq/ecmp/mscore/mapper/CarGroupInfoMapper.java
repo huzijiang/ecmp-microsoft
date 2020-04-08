@@ -67,7 +67,7 @@ public interface CarGroupInfoMapper
      */
     public int deleteCarGroupInfoByIds(Long[] carGroupIds);
 
-    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId);
+    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId);
 
 
     /**

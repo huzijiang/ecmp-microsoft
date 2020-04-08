@@ -157,7 +157,8 @@ public class CarGroupController {
     public ApiResponse<PageResult<CarGroupListVO>> getCarGroupList(@RequestBody PageRequest pageRequest){
         try {
             PageResult<CarGroupListVO> list = carGroupInfoService.selectCarGroupInfoByPage(pageRequest.getPageNum(),
-                    pageRequest.getPageSize(),pageRequest.getSearch(),pageRequest.getState(),pageRequest.getDeptId());
+                    pageRequest.getPageSize(),pageRequest.getSearch(),
+                    pageRequest.getState(),pageRequest.getDeptId(),pageRequest.getCarGroupId());
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();

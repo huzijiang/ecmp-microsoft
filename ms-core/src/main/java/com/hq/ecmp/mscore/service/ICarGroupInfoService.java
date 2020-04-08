@@ -101,7 +101,7 @@ public interface ICarGroupInfoService
      * @param pageSize
      * @return
      */
-    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId);
+    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId);
 
     /**
      * 删除车队

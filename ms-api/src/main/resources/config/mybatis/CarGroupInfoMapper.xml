@@ -79,7 +79,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="city != null ">#{city},</if>
             <if test="cityName != null  and cityName != ''">#{cityName},</if>
             <if test="ownerOrg != null ">#{ownerOrg},</if>
-            <if test="ownerCompany != null ">#{ownerOrg},</if>
+            <if test="ownerCompany != null ">#{ownerCompany},</if>
             <if test="leader != null ">#{leader},</if>
             <if test="province != null ">#{province},</if>
             <if test="longitude != null ">#{longitude},</if>
@@ -152,7 +152,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 and state = #{state}
             </if>
             <if test="deptId != null">
-                and owner_company = #{deptId}
+                and owner_company = #{deptId} and parent_car_group_id = 0
+            </if>
+            <if test="carGroupId != null">
+                and parent_car_group_id = #{carGroupId}
             </if>
         </where>
              order by car_group_name
@@ -199,8 +202,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where  owner_company = #{deptId} and parent_car_group_id = 0
     </select>
     <select id="getCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
-        select car_group_id as carGroupId,
-               car_group_name as carGroupName
+        select car_group_id as deptId,
+               car_group_name as deptName
         from   car_group_info
         where  parent_car_group_id = #{carGroupId}
     </select>
