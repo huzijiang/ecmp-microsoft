@@ -1,7 +1,5 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
@@ -12,9 +10,7 @@ import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
-import org.apache.ibatis.annotations.Param;
 import com.hq.ecmp.mscore.vo.*;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -200,17 +196,17 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
      * 按月更新司机的排班信息
      * @param driverWorkInfoDetailVo
      */
+
     @Override
     public void updateDriverWorkDetailMonth(DriverWorkInfoDetailVo driverWorkInfoDetailVo,Long userId) {
         driverWorkInfoMapper.updateDriverWorkDetailMonth(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos(),userId,DateUtils.getNowDate());
-    }
-    /**
+    } /**
      * 按月查询上班时间安排
      * @param scheduleDate
      * @param
      * @return
      */
-    @Override
+   /* @Override
     public DriverDutyWorkVO selectSchedule(String scheduleDate){
         DriverDutyWorkVO driverDutyWorkVO = new DriverDutyWorkVO();
         //查询司机上班时间
@@ -220,7 +216,29 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
         driverDutyWorkVO.setHolidays(holidays);
         driverDutyWorkVO.setDutyDate(dutyDate);
         return driverDutyWorkVO;
+    }*/
+
+
+    /**
+     * 按月获取的排班详情-全部司机
+     * @param month
+     * @return
+     */
+    @Override
+    public List<WorkInfoMonthVo> getWorkInfoMonthList(String month){
+        return driverWorkInfoMapper.getWorkInfoMonthList(month);
     }
+
+    /**
+     * 按月更新的排班信息-全部司机
+     * @param workInfoDetailVo
+     * @param userId  更新人
+     */
+    @Override
+    public void updateWorkDetailMonth(WorkInfoDetailVo workInfoDetailVo,Long userId) {
+        driverWorkInfoMapper.updateWorkDetailMonth(workInfoDetailVo.getWorkInfoMonthVos(),userId,DateUtils.getNowDate());
+    }
+
 
 
 }

@@ -1,11 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
-import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
-import org.apache.ibatis.annotations.Param;
 import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
@@ -105,6 +103,19 @@ public interface IDriverWorkInfoService
      */
     void updateDriverWorkDetailMonth(DriverWorkInfoDetailVo driverWorkInfoDetailVo,Long userId);
 
-    public DriverDutyWorkVO selectSchedule(String scheduleDate);
+    //public DriverDutyWorkVO selectSchedule(String scheduleDate);
+    /**
+     * 按月获取全部司机的排班详情
+     * @param month
+     * @return
+     */
+    List<WorkInfoMonthVo> getWorkInfoMonthList(String month);
+
+    /**
+     * 按月更新全部司机的排班信息
+     * @param workInfoDetailVo
+     * @param userId  更新人
+     */
+    void updateWorkDetailMonth(WorkInfoDetailVo workInfoDetailVo,Long userId);
 
 }

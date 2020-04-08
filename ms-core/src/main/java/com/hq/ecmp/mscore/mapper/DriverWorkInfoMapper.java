@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.DriverWorkInfo;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverWorkInfoDetailVo;
 import com.hq.ecmp.mscore.vo.DriverWorkInfoMonthVo;
+import com.hq.ecmp.mscore.vo.WorkInfoMonthVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -126,7 +127,7 @@ public interface DriverWorkInfoMapper
      * @param
      * @return
      */
-    List<String> selectDutyDateByMonthAll(@Param("scheduleDate") String scheduleDate);
+   // List<String> selectDutyDateByMonthAll(@Param("scheduleDate") String scheduleDate);
 
     /**
      * 查询司休假时间
@@ -134,6 +135,22 @@ public interface DriverWorkInfoMapper
      * @param scheduleDate
      * @return
      */
-    List<String> selectHolidaysByMonthAll(@Param("scheduleDate")String scheduleDate);
+   // List<String> selectHolidaysByMonthAll(@Param("scheduleDate")String scheduleDate);
+
+
+
+    /**
+     * 按月获取司机的排班详情
+     * @param month
+     * @param month
+     * @return
+     */
+    List<WorkInfoMonthVo> getWorkInfoMonthList(@Param("month") String month);
+
+    /**
+     * 按月更新司机的排班信息
+     * @param workInfoMonthVos
+     */
+    void updateWorkDetailMonth(@Param("list") List<WorkInfoMonthVo> workInfoMonthVos, @Param("userId") Long userId, @Param("updateTime") Date updateTime);
 
 }

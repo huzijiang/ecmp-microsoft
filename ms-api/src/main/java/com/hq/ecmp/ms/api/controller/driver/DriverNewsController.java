@@ -195,7 +195,7 @@ public class DriverNewsController {
      * @param
      * @return
      */
-    @ApiOperation(value = "getScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
+  /*  @ApiOperation(value = "getScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
     @PostMapping("/getScheduleInfo")
     public ApiResponse<DriverDutyWorkVO> getScheduleInfo(@RequestBody(required = false) String scheduleDate){
         try {
@@ -206,12 +206,12 @@ public class DriverNewsController {
             e.printStackTrace();
             return ApiResponse.error("加载司机当月排班日期对应的出勤情况列表失败");
         }
-    }
-    /**
+    }*/
+/*    *//**
      * 班次设置
      * @param
      * @return
-     */
+     *//*
     @ApiOperation(value = "updateDriverWork",notes = "驾驶员班次设置",httpMethod ="POST")
     @PostMapping("/updateDriverWork")
     public ApiResponse updateDriverWork(@RequestBody DriverWorkDTO driverWorkDTO){
@@ -222,9 +222,9 @@ public class DriverNewsController {
             Long userId = loginUser.getUser().getUserId();
             List<String> listDutyDate= driverWorkDTO.getDutyDate();
             List<String> listHoliday= driverWorkDTO.getHolidays();
-            /**
+            *//**
              * 将上班list和休假list日期批量修改
-             */
+             *//*
 
             // iDriverInfoService.bindDriverCars(DriverWorkDTO,userId);
         } catch (Exception e) {
@@ -232,7 +232,7 @@ public class DriverNewsController {
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("排班设置成功！");
-    }
+    }*/
 
     /**
      * 按月获取司机的排班详情
@@ -273,6 +273,47 @@ public class DriverNewsController {
             e.printStackTrace();
             return ApiResponse.error("司机排班变更失败");
         }
-        return ApiResponse.success("司机排班变更成功");
+            return ApiResponse.success("司机排班变更成功");
+    }
+    /**
+     * 按月获取排班详情_全部司机
+     * @return
+     */
+    @Log("按月获取排班详情_全部司机")
+    @PostMapping("/getMonthWorkDetail")
+    public ApiResponse<List<WorkInfoMonthVo>> getMonthWorkDetail(@RequestParam("month") String month){
+        List<WorkInfoMonthVo> workInfoMonthList = null;
+        workInfoMonthList = driverWorkInfoService.getWorkInfoMonthList(month);
+        try {
+            if( StringUtils.isBlank(month)){
+                throw new Exception("参数异常");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success(workInfoMonthList);
+    }
+
+    /**
+     * 按月变更排班_全部司机
+     * @param workInfoDetailVo
+     * @return
+     */
+    @Log("按月变更排班_全部司机")
+    @PostMapping("/updateWorkDetailMonth")
+    public ApiResponse updateWorkDetailMonth(@RequestBody WorkInfoDetailVo workInfoDetailVo){
+        try {
+            //获取登录用户
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            driverWorkInfoService.updateWorkDetailMonth(workInfoDetailVo,userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("排班变更失败");
+        }
+        return ApiResponse.success("排班变更成功");
     }
 }
