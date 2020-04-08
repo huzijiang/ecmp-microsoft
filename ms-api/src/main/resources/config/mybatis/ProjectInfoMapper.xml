@@ -47,7 +47,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where project_id = #{projectId}
     </select>
 
-    <insert id="insertProjectInfo" parameterType="com.hq.ecmp.mscore.domain.ProjectInfo" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
+    <insert id="insertProjectInfo" parameterType="com.hq.ecmp.mscore.domain.ProjectInfo" useGeneratedKeys="true" keyProperty="projectId"  keyColumn="idproject_id">
         insert into project_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="projectId != null ">project_id,</if>

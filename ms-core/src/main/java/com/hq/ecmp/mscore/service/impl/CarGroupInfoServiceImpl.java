@@ -145,6 +145,16 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         if(parentCarGroupId == null){
             parentCarGroupId = 0L;
         }
+        //查询省份代码
+        String city = carGroupDTO.getCity();
+        if(!ObjectUtils.isEmpty(city)){
+            CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(city);
+            if(!ObjectUtils.isEmpty(cityInfo)){
+                String provinceCode = cityInfo.getProvinceCode();
+                //省份代码
+                carGroupInfo.setProvince(provinceCode);
+            }
+        }
         carGroupInfo.setParentCarGroupId(parentCarGroupId);
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
@@ -162,8 +172,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setLeader(carGroupDTO.getLeader());
         //创建人
         carGroupInfo.setCreateBy(String.valueOf(userId));
-        //省份代码
-        carGroupInfo.setProvince(carGroupDTO.getProvince());
         //驻地经度
         carGroupInfo.setLongitude(ObjectUtils.isEmpty(carGroupDTO.getLongitude()) ? null : Float.valueOf(carGroupDTO.getLongitude()));
         //驻地纬度

@@ -169,6 +169,9 @@ public class ProjectController {
     }
 
     private void saveUserProject(Long projectId){
+        if(projectId==null){
+            return;
+        }
         List<EcmpUser> ecmpUsers = ecmpUserService.selectEcmpUserList(new EcmpUser(CommonConstant.SWITCH_ON,CommonConstant.SWITCH_ON));
         List<ProjectUserRelationInfo> list=new ArrayList<>();
         for(EcmpUser user:ecmpUsers){

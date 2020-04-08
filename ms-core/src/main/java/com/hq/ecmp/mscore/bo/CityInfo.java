@@ -16,6 +16,8 @@ public class CityInfo {
 
 	private String cityCode;//城市编码
 
+	private String provinceCode;//所属省份编码
+
 	public Integer getCityId() {
 		return cityId;
 	}
@@ -39,6 +41,12 @@ public class CityInfo {
 	public void setCityCode(String cityCode) {
 		this.cityCode = cityCode;
 	}
-	
-	
+
+	public String getProvinceCode() {
+		return provinceCode;
+	}
+
+	public void setProvinceCode(String provinceCode) {
+		this.provinceCode = provinceCode;
+	}
 }
