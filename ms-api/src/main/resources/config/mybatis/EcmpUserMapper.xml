@@ -366,7 +366,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="status==1">
             and status='1' and dimission_time is not null
         </if>
-
+        order by create_time desc
     </select>
 
     <select id="getEcmpUserPageCount" resultType="Long">
