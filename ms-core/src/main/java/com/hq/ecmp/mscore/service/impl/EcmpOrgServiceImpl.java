@@ -215,7 +215,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         if( leader != null) {
             EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.valueOf(leader));
             //公司负责人
-            carGroupCountVO.setLeaderName(ecmpUser.getUserName());
+            if(ecmpUser != null){
+                carGroupCountVO.setLeaderName(ecmpUser.getUserName());
+            }
         }
         CarGroupInfo carGroupInfo = new CarGroupInfo();
         carGroupInfo.setOwnerCompany(deptId);
