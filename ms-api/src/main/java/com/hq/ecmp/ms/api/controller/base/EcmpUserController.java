@@ -46,7 +46,7 @@ public class EcmpUserController {
         /*用户可自由选择该员工所属部门*/
         String s = ecmpUserService.addEcmpUser(ecmpUser);
         /*保存用车制度 （多个）*/
-            return ApiResponse.success(s);
+        return ApiResponse.success(s);
     }
 
     /**
@@ -108,13 +108,13 @@ public class EcmpUserController {
     @ApiOperation(value = "修改员工",notes = "修改员工",httpMethod ="POST")
     @PostMapping("/updateEcmpUser")
     public ApiResponse updateEcmpUser(@RequestBody EcmpUserVo ecmpUser ){
-        String jobNumber=ecmpUser.getJobNumber();
+        /*String jobNumber=ecmpUser.getJobNumber();
         if(jobNumber!=null&&!("").equals(jobNumber)){
             int j = ecmpUserService.selectJobNumberExist(jobNumber);
             if(j>0){
                 return ApiResponse.error(1,"该工号已存在，不可重复录入！",null);
             }
-        }
+        }*/
         int i = ecmpUserService.updateEcmpUser(ecmpUser);
         if (i == 1){
             return ApiResponse.success("修改员工成功!");
@@ -143,13 +143,13 @@ public class EcmpUserController {
             return ApiResponse.error(1,"手机号码不一致！",null);
         }
         String s= ecmpUserService.updatePhoneNum(newPhoneNum,reWritePhone,userName);
-            return ApiResponse.success(s);
+        return ApiResponse.success(s);
     }
 
-     /*员工详情
-    @param  ecmpUserVo
-     * @return
-    * */
+    /*员工详情
+   @param  ecmpUserVo
+    * @return
+   * */
     @ApiOperation(value = "员工详情",notes = "员工详情",httpMethod ="POST")
     @PostMapping("/selectEcmpUserDetail")
     public ApiResponse<EcmpUserDto> selectEcmpUserDetail(@RequestBody EcmpUserVo ecmpUser){
@@ -158,35 +158,35 @@ public class EcmpUserController {
             return ApiResponse.error(1,"员工id不能为空！",null);
         }
         EcmpUserDto EcmpUserDto = ecmpUserService.selectEcmpUserDetail(userId);
-            return ApiResponse.success(EcmpUserDto);
+        return ApiResponse.success(EcmpUserDto);
     }
 
-     /*设置离职日期
-    @param  ecmpUser
-     * @return
-    * */
-     @ApiOperation(value = "设置离职日期",notes = "设置离职日期",httpMethod ="POST")
-     @PostMapping("/updateDimissionTime")
-     public ApiResponse updateDimissionTime(@RequestBody EcmpUserVo ecmpUser){
-         Date dimissionTime=ecmpUser.getDimissionTime();
-         Long userId=ecmpUser.getUserId();
-         if(userId==null){
-             return ApiResponse.error(1,"员工id不能为空！",null);
-         }
-         if(dimissionTime==null){
-             return ApiResponse.error(1,"离职日期不能为空！",null);
-         }
-         int i = ecmpUserService.updateDimissionTime(dimissionTime,userId);
-         if (i == 1){
-             return ApiResponse.success(1,"设置离职日期成功!",null);
-         }else {
-             return ApiResponse.error(1,"设置离职日期失败!",null);
-         }
-     }
-    /*已离职数量
-    * @param  userId
+    /*设置离职日期
+   @param  ecmpUser
     * @return
-    * */
+   * */
+    @ApiOperation(value = "设置离职日期",notes = "设置离职日期",httpMethod ="POST")
+    @PostMapping("/updateDimissionTime")
+    public ApiResponse updateDimissionTime(@RequestBody EcmpUserVo ecmpUser){
+        Date dimissionTime=ecmpUser.getDimissionTime();
+        Long userId=ecmpUser.getUserId();
+        if(userId==null){
+            return ApiResponse.error(1,"员工id不能为空！",null);
+        }
+        if(dimissionTime==null){
+            return ApiResponse.error(1,"离职日期不能为空！",null);
+        }
+        int i = ecmpUserService.updateDimissionTime(dimissionTime,userId);
+        if (i == 1){
+            return ApiResponse.success(1,"设置离职日期成功!",null);
+        }else {
+            return ApiResponse.error(1,"设置离职日期失败!",null);
+        }
+    }
+    /*已离职数量
+     * @param  userId
+     * @return
+     * */
     @ApiOperation(value = "已离职数量",notes = "已离职数量",httpMethod ="POST")
     @PostMapping("/selectDimissionCount")
     public ApiResponse selectDimissionCount(){
@@ -241,22 +241,23 @@ public class EcmpUserController {
             return ApiResponse.error(1,"无匹配数据！",null);
         }
     }
-    
-    
-    
+
+
+
     /**
      * 查询所有有效员工
+     * @param  //ecmpUser
      * @return*/
     @ApiOperation(value = "查询所有有效员工",notes = "查询所有有效员工",httpMethod ="POST")
     @PostMapping("/queryAllValidUserList")
     public ApiResponse<List<EcmpUser>> queryAllValidUserList(){
-    	EcmpUser ecmpUser = new EcmpUser();
-    	ecmpUser.setStatus("0");
-    	ecmpUser.setDelFlag("0");
-    	List<EcmpUser> selectEcmpUserList = ecmpUserService.selectEcmpUserList(ecmpUser);
-    	return ApiResponse.success(selectEcmpUserList);
+        EcmpUser ecmpUser = new EcmpUser();
+        ecmpUser.setStatus("0");
+        ecmpUser.setDelFlag("0");
+        List<EcmpUser> selectEcmpUserList = ecmpUserService.selectEcmpUserList(ecmpUser);
+        return ApiResponse.success(selectEcmpUserList);
     }
-    
+ 
     
     /**
      * 据分子公司+员工姓名查询所有员工
@@ -269,4 +270,47 @@ public class EcmpUserController {
     }
     	
 
+    /**
+     * 查询所有有效员工
+     * @param  //ecmpUser
+     * @return*/
+    @ApiOperation(value = "查询所有有效员工",notes = "查询所有有效员工",httpMethod ="POST")
+    @PostMapping("/seeStaffCalibration")
+    public ApiResponse seeStaffCalibration(@RequestBody EcmpUserVo ecmpUser){
+        EcmpUserVo vo = null;
+        //验证邮箱是否重复
+        if(StringUtils.isNotBlank(ecmpUser.getEmail())){
+            vo.setEmail(ecmpUser.getEmail());
+            EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
+            if(user.getUserId().equals(ecmpUser.getUserId()) && user.getEmail().equals(ecmpUser.getEmail())){
+                return ApiResponse.success();
+            }else if(user.getUserId().equals(ecmpUser.getUserId()) &&  !user.getEmail().equals(ecmpUser.getEmail())){
+                return ApiResponse.success();
+            }else if(!user.getUserId().equals(ecmpUser.getUserId())){
+                return ApiResponse.error(1,"所填邮箱已存在",null);
+            }
+        }else if(StringUtils.isNotBlank(ecmpUser.getPhonenumber())){//验证手机号是否重复
+            vo.setJobNumber(ecmpUser.getJobNumber());
+            EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
+            if(user.getUserId().equals(ecmpUser.getUserId()) && user.getPhonenumber().equals(ecmpUser.getPhonenumber())){
+                return ApiResponse.success();
+            }else if(user.getUserId().equals(ecmpUser.getUserId()) &&  !user.getPhonenumber().equals(ecmpUser.getPhonenumber())){
+                return ApiResponse.success();
+            }else if(!user.getUserId().equals(ecmpUser.getUserId())){
+                return ApiResponse.error(1,"所填手机号已存在",null);
+            }
+        }else if(StringUtils.isNotBlank(ecmpUser.getJobNumber())){//验证工号是否重复
+            vo.setPhonenumber(ecmpUser.getPhonenumber());
+            EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
+            if(user.getUserId().equals(ecmpUser.getUserId()) && user.getJobNumber().equals(ecmpUser.getJobNumber())){
+                return ApiResponse.success();
+            }else if(user.getUserId().equals(ecmpUser.getUserId()) &&  !user.getJobNumber().equals(ecmpUser.getJobNumber())){
+                return ApiResponse.success();
+            }else if(!user.getUserId().equals(ecmpUser.getUserId())){
+                return ApiResponse.error(1,"所填员工工号已存在",null);
+            }
+
+        }
+        return ApiResponse.success();
+    }
 }

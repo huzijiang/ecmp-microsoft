@@ -113,4 +113,7 @@
         </set>
         where notice_id = #{noticeId}
     </update>
+    <delete id="deleteByNoticeId">
+         delete from ecmp_notice_mapping where  notice_id =#{noticeId}
+    </delete>
 </mapper>

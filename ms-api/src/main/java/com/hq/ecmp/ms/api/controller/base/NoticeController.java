@@ -188,25 +188,34 @@ public class NoticeController {
         //操作人的用户名
         notice.setCreateBy(loginUser.getUsername());
         long noticeId = iEcmpNoticeService.insertEcmpNotice(notice);
-        List<Long> bucIds = ecmpNoticeDTO.getBucIds();
-        EcmpNoticeMapping mapping = null;
+        EcmpNoticeMapping mapping = new EcmpNoticeMapping();
         // 选择全部用户 默认BucId = 1
         Long defaultId = 1L;
-        for (Long bucId : bucIds) {
-            //类型：1.全部用户，2.角色，3.部门
-            mapping.setConfigType(ecmpNoticeDTO.getConfigType());
-            if(ecmpNoticeDTO.getConfigType()!="1"){
-            //对应id
-            mapping.setBucId(bucId);
-            }
-            mapping.setBucId(defaultId);
-            //status
-            mapping.setStatus("0");
-            //公告id
-            mapping.setNoticeId(notice.getNoticeId().longValue());
-            //创建时间
-            mapping.setCreateTime(DateUtils.getNowDate());
-            ecmpNoticeMappingService.insert(mapping);
+        if(!"1".equals(ecmpNoticeDTO.getConfigType())){
+            List<Long> bucIds = ecmpNoticeDTO.getBucIds();
+                for (Long bucId : bucIds) {
+                //类型：1.全部用户，2.角色，3.部门
+                mapping.setConfigType(ecmpNoticeDTO.getConfigType());
+                mapping.setBucId(bucId);
+                //status
+                mapping.setStatus("0");
+                //公告id
+                mapping.setNoticeId(notice.getNoticeId().longValue());
+                //创建时间
+                mapping.setCreateTime(DateUtils.getNowDate());
+                ecmpNoticeMappingService.insert(mapping);
+                }
+        }else{
+        mapping.setBucId(defaultId);
+        //类型：1.全部用户，2.角色，3.部门
+        mapping.setConfigType(ecmpNoticeDTO.getConfigType());
+        //status
+        mapping.setStatus("0");
+        //公告id
+        mapping.setNoticeId(notice.getNoticeId().longValue());
+        //创建时间
+        mapping.setCreateTime(DateUtils.getNowDate());
+        ecmpNoticeMappingService.insert(mapping);
         }
         return ApiResponse.success();
     }
@@ -216,10 +225,11 @@ public class NoticeController {
      * @param
      * @return
      */
-    @ApiOperation(value = "deleteNotice",notes = "新增公告信息",httpMethod ="POST")
+    @ApiOperation(value = "deleteNotice",notes = "删除公告信息",httpMethod ="POST")
     @PostMapping("/deleteNotice")
     public ApiResponse deleteNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
         iEcmpNoticeService.deleteEcmpNoticeById(ecmpNoticeDTO.getNoticeId());
+        ecmpNoticeMappingService.deleteByNoticeId(ecmpNoticeDTO.getNoticeId());
         return ApiResponse.success("删除成功");
     }
 
@@ -228,7 +238,7 @@ public class NoticeController {
      * @param
      * @return
      */
-    @ApiOperation(value = "updateNotice",notes = "新增公告信息",httpMethod ="POST")
+    @ApiOperation(value = "updateNotice",notes = "修改公告信息",httpMethod ="POST")
     @PostMapping("/updateNotice")
     public ApiResponse updateNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
         HttpServletRequest request = ServletUtils.getRequest();
@@ -245,16 +255,39 @@ public class NoticeController {
         notice.setUpdateTime(DateUtils.getNowDate());
         notice.setRemark(loginUser.getUsername());
         iEcmpNoticeService.updateEcmpNotice(notice);
-        EcmpNoticeMapping mapping = new EcmpNoticeMapping();
-        //类型：1.全部用户，2.角色，3.部门
-        mapping.setConfigType(ecmpNoticeDTO.getConfigType());
-        //对应id
-        mapping.setBucId(ecmpNoticeDTO.getBucId());
-        //公告id
-        mapping.setNoticeId(ecmpNoticeDTO.getNoticeId().longValue());
-        //创建时间
-        mapping.setUpdateTime(DateUtils.getNowDate());
-        ecmpNoticeMappingService.updateEcmpNoticeMapping(mapping);
+        if(!"1".equals(ecmpNoticeDTO.getConfigType())){
+            //先删除之前的数据 新增新的数据
+            ecmpNoticeMappingService.deleteByNoticeId(ecmpNoticeDTO.getNoticeId());
+            List<Long> bucIds = ecmpNoticeDTO.getBucIds();
+            for (Long bucId : bucIds) {
+                EcmpNoticeMapping mapping = new EcmpNoticeMapping();
+                //类型：1.全部用户，2.角色，3.部门
+                mapping.setConfigType(ecmpNoticeDTO.getConfigType());
+                mapping.setBucId(bucId);
+                //status
+                mapping.setStatus("0");
+                //公告id
+                mapping.setNoticeId(notice.getNoticeId().longValue());
+                //创建时间
+                mapping.setCreateTime(DateUtils.getNowDate());
+                ecmpNoticeMappingService.insert(mapping);
+            }
+        }else {
+            // 选择全部用户 默认BucId = 1
+            Long defaultId = 1L;
+            //先删除之前的数据 新增新的数据
+            //ecmpNoticeMappingService.deleteByNoticeId(ecmpNoticeDTO.getNoticeId());
+            EcmpNoticeMapping mapping = new EcmpNoticeMapping();
+            //类型：1.全部用户，2.角色，3.部门
+            mapping.setConfigType(ecmpNoticeDTO.getConfigType());
+            //对应id
+            mapping.setBucId(defaultId);
+            //公告id
+            mapping.setNoticeId(ecmpNoticeDTO.getNoticeId().longValue());
+            //创建时间
+            mapping.setUpdateTime(DateUtils.getNowDate());
+            ecmpNoticeMappingService.updateEcmpNoticeMapping(mapping);
+        }
         return ApiResponse.success("修改成功");
     }
 

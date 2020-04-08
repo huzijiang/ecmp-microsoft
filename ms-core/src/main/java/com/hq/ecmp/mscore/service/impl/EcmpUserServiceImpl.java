@@ -514,6 +514,14 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         }
         return ecmpUserList;
     }
+    /**
+     * 查询所有有效员工
+     * @param  //ecmpUser
+     * @return*/
+    @Override
+    public EcmpUserDto selectEcmpUser(EcmpUserVo ecmpUser) {
+        return ecmpUserMapper.selectEcmpUser(ecmpUser);
+    }
 
     //员工分页
     @Override

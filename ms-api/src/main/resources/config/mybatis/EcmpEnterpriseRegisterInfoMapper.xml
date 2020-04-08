@@ -236,7 +236,7 @@
        select COUNT(*) from ecmp_enterprise_register_info a
        where a.state='S000' and a.type=#{type}
        <if test="deptId!=null and deptId gt 0">
-           AND a.invitation_id in ( SELECT invitation_id from ecmp_enterprise_invitation_info where department_id =#{deptId} OR enterprise_id =#{deptId} )
+           AND a.invitation_id in ( SELECT invitation_id from ecmp_enterprise_invitation_info where type=#{type} AND (department_id =#{deptId} OR enterprise_id =#{deptId}) )
     </if>
     </select>
     <!--待审核列表员工-->
@@ -248,7 +248,7 @@
         left join ecmp_org e on e.dept_id = b.department_id
         where a.type=#{type} and a.state='S000'
         <if test="deptId!=null and deptId gt 0">
-            and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
+            and a.invitation_id in(select invitation_id from ecmp_enterprise_invitation_info where department_id=#{deptId} or enterprise_id=#{deptId})
         </if>
     </select>
     <!--待审核列表员工数量-->
@@ -257,7 +257,7 @@
         left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
         where a.type=#{type} and a.state='S000'
         <if test="deptId!=null and deptId gt 0">
-            and (b.department_id=#{deptId} or b.enterprise_id=#{deptId})
+            and a.invitation_id in(select invitation_id from ecmp_enterprise_invitation_info where department_id=#{deptId} or enterprise_id=#{deptId})
         </if>
     </select>
     <!--待审核列表驾驶员-->

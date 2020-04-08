@@ -57,4 +57,10 @@ public interface EcmpNoticeMappingService {
      * @param mapping
      */
     void updateEcmpNoticeMapping(EcmpNoticeMapping mapping);
+
+    /**
+     * 通过公告id删除
+     * @param noticeId
+     */
+    void deleteByNoticeId(Integer noticeId);
 }
