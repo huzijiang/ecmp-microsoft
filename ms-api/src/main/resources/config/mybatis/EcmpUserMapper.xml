@@ -122,6 +122,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="loginDate != null ">login_date = #{loginDate},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime}</if>
+            <if test="stationCode != null ">station_code = #{stationCode}</if>
         </trim>
         where user_id = #{userId}
     </update>
@@ -369,7 +370,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="status==1">
             and status='1' and dimission_time is not null
         </if>
-        order by create_time desc
+
     </select>
 
     <select id="getEcmpUserPageCount" resultType="Long">
@@ -604,8 +605,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		</foreach>
 	</select>
 
-    <select id="selectEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo" resultType="com.hq.ecmp.mscore.vo.EcmpUserVo">
-        <include refid="selectEcmpUserVo"/>
+    <select id="selectEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+        select  user_id AS  userId,email,phonenumber,job_number AS  jobNumber FROM ecmp_user
         <where>
             <if test="email != null  and email != ''"> and email = #{email}</if>
             <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
@@ -613,4 +614,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="jobNumber != null  and jobNumber != ''"> and job_number = #{jobNumber}</if>
         </where>
     </select>
+
+    <update id="updatePhoneByUserId">
+      update ecmp_user  SET phonenumber=#{newPhoneNum} where user_id = #{userId}
+    </update>
 </mapper>

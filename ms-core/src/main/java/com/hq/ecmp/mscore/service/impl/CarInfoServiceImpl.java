@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -212,6 +213,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setCarImgaeUrl(carSaveDTO.getCarImgaeUrl());
         carInfo.setDrivingLicense(carSaveDTO.getDrivingLicense());  //TODO 新增
         carInfo.setDrivingLicenseStartDate(carSaveDTO.getDrivingLicenseStartDate());  //TODO 新增
+        carInfo.setDrivingLicenseEndDate(carSaveDTO.getDrivingLicenseEndDate());
         carInfo.setCarDrivingLicenseImagesUrl(carSaveDTO.getCarDrivingLicenseImagesUrl());
         return carInfo;
     }
@@ -289,7 +291,6 @@ public class CarInfoServiceImpl implements ICarInfoService
      */
     @Override
     public PageResult<CarListVO> selectCarListByGroup(PageRequest pageRequest) {
-        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         CarInfo carInfo1 = new CarInfo();
         Long carGroupId = pageRequest.getCarGroupId();
         String state = pageRequest.getState();
@@ -297,6 +298,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         //查询车辆所属车队
         CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(pageRequest.getCarGroupId());
         String carGroupName = carGroupInfo.getCarGroupName();
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         List<CarInfo> carInfos = carInfoMapper.selectCarInfoListByGroupId(carGroupId,pageRequest.getCarTypeId(),state,search);
         CarListVO carListVO = null;
         List<CarListVO> list = new ArrayList<>();
@@ -350,6 +352,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         String deptName = ecmpOrg.getDeptName();
         //根据车辆id 查询可用驾驶员
         List<DriverVO> drivers = selectCarEffectiveDrivers(carId);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         CarDetailVO carDetailVO = CarDetailVO.builder().carType(carInfo.getCarType())
                 .carLicense(carInfo.getCarLicense())
                 .carColor(carInfo.getCarColor())
@@ -368,6 +371,8 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .carImgaeUrl(carInfo.getCarImgaeUrl())
                 .carDrivingLicenseImagesUrl(carInfo.getCarDrivingLicenseImagesUrl())
                 .carId(carId)
+                .drivingLicenseStartDate(simpleDateFormat.format(carInfo.getDrivingLicenseStartDate()))
+                .drivingLicenseEndDate(simpleDateFormat.format(carInfo.getDrivingLicenseEndDate()))
                 .build();
         return carDetailVO;
     }

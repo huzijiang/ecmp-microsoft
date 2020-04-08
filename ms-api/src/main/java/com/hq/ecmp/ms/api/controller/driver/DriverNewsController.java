@@ -108,20 +108,16 @@ public class DriverNewsController {
     @ApiOperation(value="getDriverUpdate" ,notes="修改驾驶员", httpMethod = "POST")
     @PostMapping("/getDriverUpdate")
     public ApiResponse  getDriverUpdate(@RequestBody DriverCreateInfo driverCreateInfo){
-        Long driverId = driverCreateInfo.getDriverId();
-        int i = iDriverInfoService.deleteDriverInfoById(driverId);
-        if(i==1){
+
             HttpServletRequest request = ServletUtils.getRequest();
-      	      LoginUser loginUser = tokenService.getLoginUser(request);
-      	      driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
-      		boolean createDriver = driverInfoService.createDriver(driverCreateInfo);
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
+      		boolean createDriver = driverInfoService.updateDriver(driverCreateInfo);
       		if(createDriver){
       			return ApiResponse.success();
              }else{
       			return ApiResponse.error();
              }
-        }
-        return ApiResponse.error("修改驾驶员成功");
     }
 
     /**
