@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -351,6 +352,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         String deptName = ecmpOrg.getDeptName();
         //根据车辆id 查询可用驾驶员
         List<DriverVO> drivers = selectCarEffectiveDrivers(carId);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         CarDetailVO carDetailVO = CarDetailVO.builder().carType(carInfo.getCarType())
                 .carLicense(carInfo.getCarLicense())
                 .carColor(carInfo.getCarColor())
@@ -369,6 +371,8 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .carImgaeUrl(carInfo.getCarImgaeUrl())
                 .carDrivingLicenseImagesUrl(carInfo.getCarDrivingLicenseImagesUrl())
                 .carId(carId)
+                .drivingLicenseStartDate(simpleDateFormat.format(carInfo.getDrivingLicenseStartDate()))
+                .drivingLicenseEndDate(simpleDateFormat.format(carInfo.getDrivingLicenseEndDate()))
                 .build();
         return carDetailVO;
     }
