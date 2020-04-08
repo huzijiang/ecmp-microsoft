@@ -133,6 +133,7 @@ public class EcmpUserController {
         String newPhoneNum=ecmpUserVo.getNewPhoneNum();
         String reWritePhone=ecmpUserVo.getReWritePhone();
         String userName=ecmpUserVo.getUserName();
+        Long userId=ecmpUserVo.getUserId();
         if(newPhoneNum==null||newPhoneNum.trim()==""){
             return ApiResponse.error(1,"手机号不能为空！",null);
         }
@@ -142,7 +143,7 @@ public class EcmpUserController {
         if(!reWritePhone.equals(newPhoneNum)){
             return ApiResponse.error(1,"手机号码不一致！",null);
         }
-        String s= ecmpUserService.updatePhoneNum(newPhoneNum,reWritePhone,userName);
+        String s= ecmpUserService.updatePhoneNum(newPhoneNum,reWritePhone,userName,userId);
         return ApiResponse.success(s);
     }
 
@@ -277,39 +278,81 @@ public class EcmpUserController {
     @ApiOperation(value = "查询所有有效员工",notes = "查询所有有效员工",httpMethod ="POST")
     @PostMapping("/seeStaffCalibration")
     public ApiResponse seeStaffCalibration(@RequestBody EcmpUserVo ecmpUser){
-        EcmpUserVo vo = null;
-        //验证邮箱是否重复
-        if(StringUtils.isNotBlank(ecmpUser.getEmail())){
-            vo.setEmail(ecmpUser.getEmail());
-            EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
-            if(user.getUserId().equals(ecmpUser.getUserId()) && user.getEmail().equals(ecmpUser.getEmail())){
-                return ApiResponse.success();
-            }else if(user.getUserId().equals(ecmpUser.getUserId()) &&  !user.getEmail().equals(ecmpUser.getEmail())){
-                return ApiResponse.success();
-            }else if(!user.getUserId().equals(ecmpUser.getUserId())){
-                return ApiResponse.error(1,"所填邮箱已存在",null);
+        EcmpUserVo vo = new EcmpUserVo();
+        //增加的时候验证
+        if(ecmpUser.getUserId()!=null){
+            //验证邮箱是否重复
+            if(StringUtils.isNotBlank(ecmpUser.getEmail())){
+                vo.setEmail(ecmpUser.getEmail());
+                EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
+                if(user!=null){
+                    if(user.getUserId().equals(ecmpUser.getUserId()) && user.getEmail().equals(ecmpUser.getEmail())){
+                        return ApiResponse.success();
+                    }else if(user.getUserId().equals(ecmpUser.getUserId()) &&  !user.getEmail().equals(ecmpUser.getEmail())){
+                        return ApiResponse.success();
+                    }else if(!user.getUserId().equals(ecmpUser.getUserId())){
+                        return ApiResponse.error(1,"所填邮箱已存在",null);
+                    }
+                }else{
+                    return ApiResponse.success();
+                }
+            }else if(StringUtils.isNotBlank(ecmpUser.getPhonenumber())){//验证手机号是否重复
+                 vo.setPhonenumber(ecmpUser.getPhonenumber());
+                EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
+                if(user!=null){
+                    if(user.getUserId().equals(ecmpUser.getUserId()) && user.getPhonenumber().equals(ecmpUser.getPhonenumber())){
+                        return ApiResponse.success();
+                    }else if(user.getUserId().equals(ecmpUser.getUserId()) &&  !user.getPhonenumber().equals(ecmpUser.getPhonenumber())){
+                        return ApiResponse.success();
+                    }else if(!user.getUserId().equals(ecmpUser.getUserId())){
+                        return ApiResponse.error(1,"所填手机号已存在",null);
+                    }
+                }else{
+                    return ApiResponse.success();
+                }
+            }else if(StringUtils.isNotBlank(ecmpUser.getJobNumber())){//验证工号是否重复
+                vo.setJobNumber(ecmpUser.getJobNumber());
+                EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
+                if(user!=null){
+                if(user.getUserId().equals(ecmpUser.getUserId()) && user.getJobNumber().equals(ecmpUser.getJobNumber())){
+                    return ApiResponse.success();
+                }else if(user.getUserId().equals(ecmpUser.getUserId()) &&  !user.getJobNumber().equals(ecmpUser.getJobNumber())){
+                    return ApiResponse.success();
+                }else if(!user.getUserId().equals(ecmpUser.getUserId())){
+                    return ApiResponse.error(1,"所填员工工号已存在",null);
+                }
+                }else{
+                    return ApiResponse.success();
+                }
             }
-        }else if(StringUtils.isNotBlank(ecmpUser.getPhonenumber())){//验证手机号是否重复
-            vo.setJobNumber(ecmpUser.getJobNumber());
-            EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
-            if(user.getUserId().equals(ecmpUser.getUserId()) && user.getPhonenumber().equals(ecmpUser.getPhonenumber())){
-                return ApiResponse.success();
-            }else if(user.getUserId().equals(ecmpUser.getUserId()) &&  !user.getPhonenumber().equals(ecmpUser.getPhonenumber())){
-                return ApiResponse.success();
-            }else if(!user.getUserId().equals(ecmpUser.getUserId())){
-                return ApiResponse.error(1,"所填手机号已存在",null);
+        }else{
+            if(StringUtils.isNotBlank(ecmpUser.getEmail())){
+                vo.setEmail(ecmpUser.getEmail());
+                EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
+                if(user!=null && user.getEmail().equals(ecmpUser.getEmail())  ){
+                    return ApiResponse.error(1,"所填邮箱已存在",null);
+                }else{
+                    return ApiResponse.success();
+                }
             }
-        }else if(StringUtils.isNotBlank(ecmpUser.getJobNumber())){//验证工号是否重复
-            vo.setPhonenumber(ecmpUser.getPhonenumber());
-            EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
-            if(user.getUserId().equals(ecmpUser.getUserId()) && user.getJobNumber().equals(ecmpUser.getJobNumber())){
-                return ApiResponse.success();
-            }else if(user.getUserId().equals(ecmpUser.getUserId()) &&  !user.getJobNumber().equals(ecmpUser.getJobNumber())){
-                return ApiResponse.success();
-            }else if(!user.getUserId().equals(ecmpUser.getUserId())){
-                return ApiResponse.error(1,"所填员工工号已存在",null);
+            if(StringUtils.isNotBlank(ecmpUser.getPhonenumber())){
+                vo.setPhonenumber(ecmpUser.getPhonenumber());
+                EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
+                if(user!=null && user.getPhonenumber().equals(ecmpUser.getPhonenumber())){
+                    return ApiResponse.error(1,"所填手机号已存在",null);
+                }else{
+                    return ApiResponse.success();
+                }
             }
-
+            if(StringUtils.isNotBlank(ecmpUser.getJobNumber())){
+                vo.setJobNumber(ecmpUser.getJobNumber());
+                EcmpUserDto user= ecmpUserService.selectEcmpUser(vo);
+                if(user!=null && user.getJobNumber().equals(ecmpUser.getJobNumber())){
+                    return ApiResponse.error(1,"所填员工工号已存在",null);
+                }else{
+                    return ApiResponse.success();
+                }
+            }
         }
         return ApiResponse.success();
     }

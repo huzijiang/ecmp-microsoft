@@ -314,7 +314,15 @@ public interface EcmpUserMapper
 
     List<EcmpUserDto> getEcmpUserPage(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
     Long getEcmpUserPageCount(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
-    
+
+    /**
+     * 修改手机号
+     * @param newPhoneNum
+     * @param userId
+     * @return
+     */
+    int updatePhoneByUserId(@Param("newPhoneNum") String newPhoneNum,@Param("userId") Long userId);
+
     List<EcmpUserDto> queryUserListByDeptIdsAndName(@Param("deptIds")List<Long> deptIds, @Param("name")String name);
 }
 

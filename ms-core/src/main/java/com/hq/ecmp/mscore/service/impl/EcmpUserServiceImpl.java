@@ -337,13 +337,13 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     * */
     @Override
     @Transactional
-    public String updatePhoneNum(String newPhoneNum,String reWritePhone,String userName){
+    public String updatePhoneNum(String newPhoneNum,String reWritePhone,String userName,Long userId){
         String msg="";
         int i = ecmpUserMapper.selectPhoneNumberExist(newPhoneNum);
         if(i>0){
             msg="该手机号已存在，不可重复录入！";
         }else{
-            int i1 = ecmpUserMapper.updatePhoneNum(newPhoneNum,userName);
+            int i1 = ecmpUserMapper.updatePhoneByUserId(newPhoneNum,userId);
             if(i1==1){
                 msg="手机号码修改成功！";
             }else {

@@ -146,23 +146,30 @@
 
     <!--邀请员工列表-->
     <select id="queryInvitationUser" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationUserVO">
-         select a.invitation_id as invitationId ,a.name as yqName,a.url as url,c.dept_name as companyName,e.dept_name as deptName,group_concat(b.name) as regimeUser ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait,
-a.state as state,a.rose_id as roseId,f.role_name as roseName,
-      CASE a.state
-                      WHEN 'Y000' THEN '有效'
-                      WHEN 'N000' THEN '失效'
-                      else '无状态' END as stateValue
-        from ecmp_enterprise_invitation_info  a
-        left join regime_info b
-        on find_in_set(b.regimen_id,a.regime_ids)
-        left join ecmp_org c on c.dept_id = a.enterprise_id
-        left join ecmp_role f on f.role_id = a.rose_id
-        left join ecmp_org e on e.dept_id = a.department_id
-        left join (select d.invitation_id, count(*) as amountPass from ecmp_enterprise_register_info d where d.state='S001' group by d.invitation_id) d_amountPass on d_amountPass.invitation_id = a.invitation_id
-        left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
-        where a.type='T001'
-        group by a.name,a.enterprise_id,a.department_id
-        order by a.create_time desc
+      SELECT
+      a.invitation_id AS invitationId,
+      a.NAME AS yqName,
+      a.url AS url,
+      (SELECT dept_name from ecmp_org where dept_id=a.enterprise_id) AS companyName,
+      (SELECT dept_name from ecmp_org where dept_id=a.department_id)  AS deptName,
+      (SELECT GROUP_CONCAT(name) from  regime_info where find_in_set(regimen_id,a.regime_ids)) AS regimeUser,
+      (select count(*) as amountPass from ecmp_enterprise_register_info d where invitation_id=a.invitation_id and d.state='S001') AS amountPass,
+      (select count(*) as amountPass from ecmp_enterprise_register_info d where invitation_id=a.invitation_id and d.state='S000') AS amountWait,
+       a.state AS state,
+       a.rose_id AS roseId,
+       f.role_name AS roseName,
+          CASE
+        a.state
+        WHEN 'Y000' THEN
+        '有效'
+        WHEN 'N000' THEN
+        '失效' ELSE '无状态'
+        END AS stateValue
+         FROM
+        ecmp_enterprise_invitation_info a
+     left join ecmp_role f on f.role_id = a.rose_id
+    where a.type='T001'
+    order by a.create_time desc
     </select>
 
     <select id="queryInvitationUserCount" resultType="Long">
