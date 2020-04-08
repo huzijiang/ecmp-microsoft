@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,6 +31,7 @@ import java.util.List;
 public class OrderCallBackController {
 
     @Resource
+    @Lazy
     private IOrderInfoService iOrderInfoService;
 
     @ApiOperation(value = "网约车订单状态回调接口")
