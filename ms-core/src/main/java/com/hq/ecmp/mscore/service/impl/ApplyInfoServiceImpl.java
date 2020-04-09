@@ -1548,4 +1548,16 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         return result;
     }
 
+    @Override
+    @Transactional
+    public int cancelJourneyApply(ApplyInfo applyInfo) {
+        int i = applyInfoMapper.updateApplyInfo(applyInfo);
+        if (i>1){
+            ApplyApproveResultInfo resultInfo = new ApplyApproveResultInfo(applyInfo.getApplyId(), ApproveStateEnum.CANCEL_APPROVE_STATE.getKey());
+            resultInfo.setUpdateTime(new Date());
+            resultInfoMapper.updateApplyApproveResultInfo(resultInfo);
+        }
+        return i;
+    }
+
 }

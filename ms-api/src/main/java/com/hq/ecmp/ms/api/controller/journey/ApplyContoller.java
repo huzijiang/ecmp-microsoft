@@ -397,13 +397,17 @@ public class ApplyContoller {
         }
         if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo1.getApplyType())){
             if (journeyInfo.getUseCarTime().getTime()<new Date().getTime()){//申请单已过期
-                resultInfoService.updateApplyApproveResultInfo(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(),ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey()));
-                throw new Exception("申请单:"+applyInfo1.getApplyId()+"行程单:"+journeyInfo.getJourneyId()+"已过期");
+                ApplyApproveResultInfo resultInfo = new ApplyApproveResultInfo(journeyApplyDto.getApplyId(), ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey());
+                resultInfo.setUpdateTime(new Date());
+                resultInfoService.updateApplyApproveResultInfo(resultInfo);
+                throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
             }
         }else{
             if (journeyInfo.getStartDate().getTime()<new Date().getTime()){//申请单已过期
-                resultInfoService.updateApplyApproveResultInfo(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(),ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey()));
-                throw new Exception("申请单:"+applyInfo1.getApplyId()+"行程单:"+journeyInfo.getJourneyId()+"已过期");
+                ApplyApproveResultInfo resultInfo = new ApplyApproveResultInfo(journeyApplyDto.getApplyId(), ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey());
+                resultInfo.setUpdateTime(new Date());
+                resultInfoService.updateApplyApproveResultInfo(resultInfo);
+                throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
             }
         }
         RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(applyInfo1.getRegimenId());
@@ -420,6 +424,9 @@ public class ApplyContoller {
                     throw new Exception("此申请单还未到达您审批!");
                 }
             }
+        }else{
+            String state=ApproveStateEnum.format(resultInfoList.get(0).getState());
+            throw new Exception("该申请单:"+resultInfoList.get(0).getApplyId()+ state);
         }
         return resultInfoList;
     }

@@ -4,13 +4,16 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.ApproveStateEnum;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyNodeDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
+import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.dto.config.PowerDTO;
+import com.hq.ecmp.mscore.service.IApplyApproveResultInfoService;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
@@ -41,6 +44,8 @@ public class JourneyController {
     private IApplyInfoService applyInfoService;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private IApplyApproveResultInfoService resultInfoService;
     /**
      * 创建行程
      * @param  journeyApplyDto  行程申请信息
@@ -63,7 +68,7 @@ public class JourneyController {
     public ApiResponse cancelJourneyApply(@RequestBody JourneyApplyDto journeyApplyDto){
         //撤销行程申请
        ApplyInfo applyInfo = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state("S004").build();
-        int i = applyInfoService.updateApplyInfo(applyInfo);
+        int i = applyInfoService.cancelJourneyApply(applyInfo);
         if(i == 1){
             return ApiResponse.success("撤销成功");
         }else {
