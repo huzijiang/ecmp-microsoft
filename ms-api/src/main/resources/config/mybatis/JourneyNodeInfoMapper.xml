@@ -201,4 +201,17 @@ ORDER BY
 	number
     </select>
 
+	<select id="queryJourneyNodeInfoByPowerId" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.JourneyNodeInfo">
+		SELECT
+		a.plan_begin_address AS planBeginAddress,
+		a.plan_end_address AS planEndAddress
+		FROM
+		journey_node_info a
+		LEFT JOIN journey_user_car_power b ON a.node_id = b.node_id
+		WHERE
+		b.power_id = #{powerId}
+		LIMIT 1
+	</select>
+
 </mapper>

@@ -27,7 +27,9 @@ public class CarAuthorityInfo {
        
        String applyName;//公务出差理由
        Date useDate;//公务用车时间
-       String carType;//用车方式  自有车or网约车
+       String carType;//用车方式  自有车or网约车   单个    用做前端判断跳转自有车还是网约车页面用
+       String canUseCarMode;//制度里面配置的可用车方式   多个  用做前端显示用
+       
         /* 状态       一下为前端状态
          * 约车中 -S200（网约车）
          * 派车中 -S100(包含了待派单  包含了自有车的)
@@ -51,6 +53,8 @@ public class CarAuthorityInfo {
        String setoutEqualArrive;// Y000-不允许跨域     N111-允许跨域
        
        String returnIsType;// 公务  T001-去程    T009-返程
+       
+       String endAddress;//公务  目的地
        
        String serviceType;//1000-即时用车    2000-预约用车   3000-接机   4000-送机   5000-包车
        
