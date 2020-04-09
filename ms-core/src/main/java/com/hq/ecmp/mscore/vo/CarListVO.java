@@ -25,6 +25,8 @@ public class CarListVO {
 
     //3.能源类型
     private String fuelType;  //能源表
+    //3.能源类型
+    private String powerType;  //能源表
 
     //4.车型 行政级(代码)
     private String level;  //车型表
