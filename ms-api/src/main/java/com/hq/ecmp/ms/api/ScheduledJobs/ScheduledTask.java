@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.ScheduledJobs;
 
+import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.util.DateFormatUtils;
@@ -17,6 +18,8 @@ public class ScheduledTask {
 
     @Autowired
     private IEcmpUserService ecmpUserService;
+    @Autowired
+    private IApplyInfoService applyInfoService;
 
     @Scheduled(cron = "5 * * * * ?")
     public void testJob(){
@@ -33,8 +36,14 @@ public class ScheduledTask {
     //每天0点0分校验员工是否已离职
     @Scheduled(cron = "0 0 0 * * ?")
     public void checkDimissionEcmpUser(){
-        System.out.println("定时任务:checkProject:校验项目是否过期"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+        System.out.println("定时任务:checkDimissionEcmpUser:校验员工是否离职"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
         ecmpUserService.checkDimissionEcmpUser();
+    }
+    //每天0点0分校验申请单是否过期
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void checkApplyExpired(){
+        System.out.println("定时任务:checkApplyExpired:校验申请单是否过期"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+        applyInfoService.checkApplyExpired();
     }
 
 }
