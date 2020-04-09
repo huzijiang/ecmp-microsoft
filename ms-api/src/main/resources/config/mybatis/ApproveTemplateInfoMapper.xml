@@ -84,13 +84,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getTemplateList" resultMap="TemplateInfoList">
          select approve_template_id,name,(select count(*) from regime_info where approve_template_id=a.approve_template_id ) isBingRegime from approve_template_info a
          <if test="search!=null and search!=''">
-             where name=#{search}
+             where name like CONCAT('%',#{search},'%')
          </if>
     </select>
     <select id="getTemplateListCount" resultType="Long">
         select count(*) from approve_template_info
         <if test="search!=null and search!=''">
-            where name=#{search}
+            where name like CONCAT('%',#{search},'%')
         </if>
     </select>
 

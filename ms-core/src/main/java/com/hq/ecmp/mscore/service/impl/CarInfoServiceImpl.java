@@ -331,6 +331,7 @@ public class CarInfoServiceImpl implements ICarInfoService
                     .source(carInfo.getSource())
                     .state(carInfo.getState())
                     .carId(carId)
+                    .powerType(carInfo.getPowerType())
                     .build();
             list.add(carListVO);
         }
