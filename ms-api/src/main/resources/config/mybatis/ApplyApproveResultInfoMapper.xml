@@ -147,7 +147,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where find_in_set(#{userId},A.approve_user_id)
         <if test="state!=null and state!=''">and A.state!=#{state}</if>
         order by A.state = 'ST01' DESC,
-        case when A.state='ST01' then A.create_time end asc,A.update_time desc
+        case when A.state='ST01' then A.create_time end desc,A.update_time desc
     </select>
 
     <select id="getApprovePageCount" resultType="int">

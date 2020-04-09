@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.hq.ecmp.constant.CommonConstant.ONE;
 import static com.hq.ecmp.constant.CommonConstant.ZERO;
@@ -1509,7 +1510,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         List<ApprovalInfoVO> list=new ArrayList<>();
         //TODO 后期优化
         list.add(new ApprovalInfoVO(0l,applyUser,applyMobile,"发起申请","申请成功"));
-        result.add(new ApprovalListVO(applyId,"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
+        result.add(new ApprovalListVO(applyInfo.getApplyNumber(),"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(applyApproveResultInfos)){
             for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){
                 String approveTime=null;
@@ -1530,7 +1531,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                         }
                     }
                 }
-                result.add(new ApprovalListVO(applyId,"审批人",list, approveTime));
+                result.add(new ApprovalListVO(applyInfo.getApplyNumber(),"审批人",list, approveTime));
             }
         }
         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(result)&&result.size()>1){
@@ -1547,5 +1548,34 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         }
         return result;
     }
+
+    @Override
+    @Transactional
+    public int updateApplyState(Long applyId,String applyState,String approveState,Long userId)throws Exception {
+        ApplyInfo applyInfo = new ApplyInfo(applyId,applyState);
+        applyInfo.setUpdateBy(String.valueOf(userId));
+        applyInfo.setUpdateTime(new Date());
+        int i=0;
+        if (StringUtils.isNotBlank(applyState)){
+           i = applyInfoMapper.updateApplyInfo(applyInfo);
+        }
+        this.updateApproveResult(applyId,approveState,userId);
+        return i;
+    }
+
+    @Override
+    public void updateApproveResult(Long applyId,String state,Long userId) throws Exception{
+        List<ApplyApproveResultInfo> resultInfos = resultInfoMapper.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(applyId));
+        List<ApplyApproveResultInfo> collect = resultInfos.stream().filter(p -> ApproveStateEnum.NOT_ARRIVED_STATE.getKey().equals(p.getState()) || ApproveStateEnum.WAIT_APPROVE_STATE.getKey().equals(p.getState())).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(collect)){
+           for (ApplyApproveResultInfo approveResultInfo:collect){
+               approveResultInfo.setUpdateTime(new Date());
+               approveResultInfo.setUpdateBy(String.valueOf(userId));
+               approveResultInfo.setState(state);
+               resultInfoMapper.updateApplyApproveResultInfo(approveResultInfo);
+           }
+        }
+    }
+
 
 }

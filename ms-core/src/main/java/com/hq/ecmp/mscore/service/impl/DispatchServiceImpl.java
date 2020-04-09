@@ -6,6 +6,7 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.config.dispatch.DispatchContent;
 import com.hq.ecmp.constant.OrderConstant;
+import com.hq.ecmp.constant.enumerate.DispatchExceptionEnum;
 import com.hq.ecmp.constant.enumerate.NoValueCommonEnum;
 import com.hq.ecmp.constant.enumerate.TaskConflictEnum;
 import com.hq.ecmp.mscore.bo.*;
@@ -22,12 +23,12 @@ import lombok.Synchronized;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.sql.Timestamp;
 import java.util.*;
 
 /**
+ * 调度业务实现
  * @Author: zj.hu
  * @Date: 2020-03-17 23:36
  */
@@ -79,6 +80,9 @@ public class DispatchServiceImpl implements IDispatchService {
     @Autowired
     EcmpUserMapper ecmpUserMapper;
 
+    @Autowired
+    RegimeInfoMapper regimeInfoMapper;
+
     /**
      *
      * 调度-获取可选择的车辆
@@ -95,25 +99,20 @@ public class DispatchServiceImpl implements IDispatchService {
 
         //创建一个可选车辆 集合：key= 'D'+调度员编号+订单编号
         String carKey="D"+loginUser.getUser().getUserId().toString()+dispatchSelectCarDto.getOrderNo();
-
-
         OrderInfo orderInfo=orderInfoMapper.selectOrderInfoById(orderId);
         if(orderInfo==null){
-            return ApiResponse.error("订单未找到");
+            return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_EXIST.getDesc());
         }
-        //查找出发地
         OrderAddressInfo orderAddressInfoParam=new OrderAddressInfo();
                          orderAddressInfoParam.setOrderId(orderId);
                          orderAddressInfoParam.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
         OrderAddressInfo orderAddressInfo=orderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfoParam);
         if(orderAddressInfo==null){
-            return ApiResponse.error("订单没有出发地信息");
+            return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_FIND_SET_OUT_ADDRESS.getDesc());
         }
-        //订单-用车城市代码
         String userCarCity=orderAddressInfo.getCityPostalCode();
-        //调度指派-车辆级别
         String carModelLevelType=dispatchSelectCarDto.getCarModelLevelType();
-        //订单需求-乘客人数
+
         int passengers=journeyPassengerInfoMapper.queryPeerCount(orderId)+1;
 
         SelectCarConditionBo    selectCarConditionBo=new SelectCarConditionBo();
@@ -143,15 +142,14 @@ public class DispatchServiceImpl implements IDispatchService {
      * @return
      */
     @Override
-    @Synchronized
-    public ApiResponse lockSelectedCar(DispatchLockCarDto dispatchInfoDto) {
+    public synchronized ApiResponse lockSelectedCar(DispatchLockCarDto dispatchInfoDto) {
         if(StringUtils.isEmpty(dispatchInfoDto.getCarId())){
-            return  ApiResponse.error("没有锁定的车辆编号");
+            return  ApiResponse.error(DispatchExceptionEnum.LOCK_CAR_NOT_EXIST.getDesc());
         }
 
         int i=carInfoMapper.lockCar(Long.parseLong(dispatchInfoDto.getCarId()));
         if(i<=0){
-            return ApiResponse.error("锁定失败,该车已被其他调度员选中锁定");
+            return ApiResponse.error(DispatchExceptionEnum.LOCK_CAR_HAS_LOCKED.getDesc());
         }
 
         return ApiResponse.success();
@@ -160,18 +158,15 @@ public class DispatchServiceImpl implements IDispatchService {
     /**
      * 调度-解除锁定选择的车辆
      *
-     * @param dispatchLockCarDto
-     * @return
+     * @param dispatchLockCarDto dispatchLockCarDto
+     * @return ApiResponse
      */
     @Override
     public ApiResponse unlockSelectedCar(DispatchLockCarDto dispatchLockCarDto) {
         if(StringUtils.isEmpty(dispatchLockCarDto.getCarId())){
-            return  ApiResponse.error("没有需要解除锁定的车辆编号");
+            return  ApiResponse.error(DispatchExceptionEnum.UNLOCK_CAR_NOT_EXIST.getDesc());
         }
-        int i=carInfoMapper.unlockCar(Long.parseLong(dispatchLockCarDto.getCarId()));
-        if(i<=0){
-            return ApiResponse.error("解除锁定失败,该车已被其他调度员选中锁定");
-        }
+        carInfoMapper.unlockCar(Long.parseLong(dispatchLockCarDto.getCarId()));
         return ApiResponse.success();
     }
 
@@ -184,35 +179,28 @@ public class DispatchServiceImpl implements IDispatchService {
     @Override
     public ApiResponse<DispatchResultVo> getWaitSelectedDrivers(DispatchSelectDriverDto dispatchSelectDriverDto) {
         Long orderId=Long.parseLong(dispatchSelectDriverDto.getOrderNo());
-
         LoginUser loginUser=tokenService.getLoginUser(dispatchSelectDriverDto.getDispatcherId());
-
-        //创建一个可选司机 集合：key= 'D'+ 调度员编号 + 订单编号
-        //                 value= 司机信息对象集合
         String carKey="D"+loginUser.getUser().getUserId().toString()+dispatchSelectDriverDto.getOrderNo();
-
         SelectDriverConditionBo selectDriverConditionBo=new SelectDriverConditionBo();
-        //已选车辆
+
         if(StringUtils.isNotEmpty(dispatchSelectDriverDto.getCarId())){
             selectDriverConditionBo.setCarId(dispatchSelectDriverDto.getCarId());
         }
 
         OrderInfo orderInfo=orderInfoMapper.selectOrderInfoById(orderId);
-
         if(orderInfo==null){
-            return ApiResponse.error("订单不存在");
+            return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_EXIST.getDesc());
         }
-        //查找出发地
+
         OrderAddressInfo orderAddressInfoParam=new OrderAddressInfo();
                          orderAddressInfoParam.setOrderId(orderId);
                          orderAddressInfoParam.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
         OrderAddressInfo orderAddressInfo=orderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfoParam);
 
         if(orderAddressInfo==null){
-            return ApiResponse.error("订单没有出发地信息");
+            return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_FIND_SET_OUT_ADDRESS.getDesc());
         }
 
-        //指定司机 暂不考虑
         selectDriverConditionBo.setCityCode(orderAddressInfo.getCityPostalCode());
 //        selectDriverConditionBo.setDriverId(dispatchSelectDriverDto.getDriverId());
         selectDriverConditionBo.setDispatcherId(loginUser.getUser().getUserId());
@@ -234,14 +222,14 @@ public class DispatchServiceImpl implements IDispatchService {
      * @return ApiResponse
      */
     @Override
-    public ApiResponse lockSelectedDriver(DispatchLockDriverDto dispatchLockDriverDto) {
+    public synchronized ApiResponse lockSelectedDriver(DispatchLockDriverDto dispatchLockDriverDto) {
         if(StringUtils.isEmpty(dispatchLockDriverDto.getDriverId())){
-            return  ApiResponse.error("没有需要解除锁定的车辆编号");
+            return  ApiResponse.error(DispatchExceptionEnum.LOCK_DRIVER_NOT_EXIST.getDesc());
         }
         int i=driverInfoMapper.lockDriver(Long.parseLong(dispatchLockDriverDto.getDriverId()));
 
         if(i<=0){
-            return ApiResponse.error("解除锁定失败,该车已被其他调度员选中锁定");
+            return ApiResponse.error(DispatchExceptionEnum.LOCK_DRIVER_HAS_LOCKED.getDesc());
         }
         return ApiResponse.success();
     }
@@ -255,12 +243,9 @@ public class DispatchServiceImpl implements IDispatchService {
     @Override
     public ApiResponse unlockSelectedDriver(DispatchLockDriverDto dispatchLockDriverDto) {
         if(StringUtils.isEmpty(dispatchLockDriverDto.getDriverId())){
-            return  ApiResponse.error("没有需要解除锁定的车辆编号");
+            return  ApiResponse.error(DispatchExceptionEnum.UNLOCK_DRIVER_NOT_EXIST.getDesc());
         }
-        int i=driverInfoMapper.unlockDriver(Long.parseLong(dispatchLockDriverDto.getDriverId()));
-        if(i<=0){
-            return ApiResponse.error("解除锁定失败,该车已被其他调度员选中锁定");
-        }
+        driverInfoMapper.unlockDriver(Long.parseLong(dispatchLockDriverDto.getDriverId()));
         return ApiResponse.success();
     }
 
@@ -272,7 +257,6 @@ public class DispatchServiceImpl implements IDispatchService {
      */
     private ApiResponse<List<WaitSelectedCarBo>>    selectCars(SelectCarConditionBo selectCarConditionBo,OrderInfo orderInfo){
 
-        //调度员归属车队  服务范围查询
         ApiResponse<List<CarGroupServeScopeInfo>>  carGroupServiceScopes=selectCarGroupServiceScope(selectCarConditionBo.getCityCode(),Long.parseLong(selectCarConditionBo.getDispatcherId()));
         if(!carGroupServiceScopes.isSuccess()){
             return ApiResponse.error(carGroupServiceScopes.getMsg());
@@ -289,6 +273,20 @@ public class DispatchServiceImpl implements IDispatchService {
                 acars=carInfoMapper.dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense(selectCarConditionBo);
             }
             cars.addAll(acars);
+        }
+
+        Iterator<CarInfo> carInfoIterator=cars.iterator();
+        JourneyInfo journeyInfo=journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+        RegimeInfo regimeInfo=regimeInfoMapper.selectRegimeInfoById(journeyInfo.getRegimenId());
+        String allowCarModelLevel=regimeInfo.getUseCarModeOwnerLevel();
+        if(!StringUtils.isEmpty(allowCarModelLevel)){
+            while (carInfoIterator.hasNext()){
+                CarInfo carInfo=carInfoIterator.next();
+                EnterpriseCarTypeInfo enterpriseCarTypeInfo=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
+                if(!allowCarModelLevel.contains(enterpriseCarTypeInfo.getLevel())){
+                    carInfoIterator.remove();
+                }
+            }
         }
 
         ApiResponse<OrderTaskClashBo>  apiResponseSelectOrderSetOutAndArrivalTime=selectOrderSetOutAndArrivalTime(orderInfo);
@@ -405,9 +403,6 @@ public class DispatchServiceImpl implements IDispatchService {
             drivers.addAll(adrivers);
         }
 
-
-
-
         ApiResponse<OrderTaskClashBo>  apiResponseSelectOrderSetOutAndArrivalTime=selectOrderSetOutAndArrivalTime(orderInfo);
         if(!apiResponseSelectOrderSetOutAndArrivalTime.isSuccess()){
             return  ApiResponse.error(apiResponseSelectOrderSetOutAndArrivalTime.getMsg());
@@ -436,8 +431,6 @@ public class DispatchServiceImpl implements IDispatchService {
                 waitSelectedDriverBo.setDeptName(NoValueCommonEnum.NO_STRING.getCode());
             }
 
-
-            //查询车队电话,任意一个车队应该都可以
             List<CarGroupInfo> carGroupInfo;
             carGroupInfo=carGroupInfoMapper.selectCarGroupsByDriverId(driver.getDriverId());
             waitSelectedDriverBo.setFleetPhone(carGroupInfo.get(0).getTelephone());
@@ -502,7 +495,7 @@ public class DispatchServiceImpl implements IDispatchService {
 
         List<JourneyPlanPriceInfo>  journeyPlanPriceInfos=journeyPlanPriceInfoMapper.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
         if(journeyPlanPriceInfos.isEmpty()){
-            return ApiResponse.error("未找到订单对应的行程预算(价格和时间)信息");
+            return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_FIND_PLAN_PRICE.getDesc());
         }
         journeyPlanPriceInfo=journeyPlanPriceInfos.get(0);
 
@@ -526,12 +519,11 @@ public class DispatchServiceImpl implements IDispatchService {
      * @return ApiResponse<List<CarGroupServeScopeInfo>>
      */
     private ApiResponse<List<CarGroupServeScopeInfo>> selectCarGroupServiceScope(String cityCode,Long dispatcherUserId){
-        //找到调度员管理的车队
         CarGroupDispatcherInfo carGroupDispatcher=new CarGroupDispatcherInfo();
                                carGroupDispatcher.setUserId(dispatcherUserId);
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos=carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcher);
         if(carGroupDispatcherInfos.isEmpty()){
-            return ApiResponse.error("当前调度员不存在");
+            return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_NOT_ExIST.getDesc());
         }
 
         List<CarGroupServeScopeInfo> carGroupServeScopeInfoListResult = new LinkedList<>();
@@ -540,10 +532,9 @@ public class DispatchServiceImpl implements IDispatchService {
             Long carGroupId=carGroupDispatcherInfo.getCarGroupId();
             CarGroupInfo carGroupInfo=carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
             if(carGroupInfo==null){
-                return ApiResponse.error("没有找到调度员的归属车队");
+                return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_NOT_FIND_OWN_CAR_GROUP.getDesc());
             }
 
-            //查看车队是否满足城市要求
             CarGroupServeScopeInfo  carGroupServeScopeInfo=new CarGroupServeScopeInfo();
                                     carGroupServeScopeInfo.setCarGroupId(carGroupInfo.getCarGroupId());
             List<CarGroupServeScopeInfo> carGroupServeScopeInfoList=carGroupServeScopeInfoMapper.queryAll(carGroupServeScopeInfo);
@@ -569,7 +560,7 @@ public class DispatchServiceImpl implements IDispatchService {
         }
 
         if(carGroupServeScopeInfoListResult.isEmpty()){
-            return ApiResponse.error("您的车队服务范围不满足订单要求");
+            return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_OWN_CAR_GROUP_SCOPE_IS_TOO_SMALL.getDesc());
         }
 
         return ApiResponse.success(carGroupServeScopeInfoListResult);

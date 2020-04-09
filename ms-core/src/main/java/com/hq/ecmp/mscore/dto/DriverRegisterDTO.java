@@ -28,9 +28,9 @@ public class DriverRegisterDTO {
     private String licenseNumber;
     @ApiParam(name = "licenseInitIssueDate", value = "初次领证日期", required = false)
     private String licenseInitIssueDate;
-    @ApiParam(name = "licenseIssueDate", value = "证照有效期启期", required = true )
+    @ApiParam(name = "licenseIssueDate", value = "证照有效期启期", required = false )
     private String licenseIssueDate;
-    @ApiParam(name = "licenseExpireDate", value = "证照有效期止期", required = true )
+    @ApiParam(name = "licenseExpireDate", value = "证照有效期止期", required = false )
     private String licenseExpireDate;
     @ApiParam(name = "licenseImages", value = "证照图片地址", required = false )
     private String licenseImages;
@@ -38,10 +38,14 @@ public class DriverRegisterDTO {
     private String mobile;
     @ApiParam(name = "smsAuthCode", value = "短信验证码", required = true )
     private String smsAuthCode;
-    @ApiParam(name = "reason", value = "申请原因", required = true )
+    @ApiParam(name = "reason", value = "申请原因", required = false )
     private String reason;
+    @ApiParam(name = "type", value = "类型", required = false )
+    private String type;
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
+    @ApiParam(name = "state", value = "状态", required = false )
+    private String state;
 
 
 }

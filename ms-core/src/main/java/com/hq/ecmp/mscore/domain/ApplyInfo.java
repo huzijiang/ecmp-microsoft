@@ -64,7 +64,8 @@ public class ApplyInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String applyNumber;
 
-
-
-
+    public ApplyInfo(Long applyId, String state) {
+        this.applyId = applyId;
+        this.state = state;
+    }
 }

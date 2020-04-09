@@ -59,4 +59,7 @@ public class InvitationDriverVO {
     @ApiModelProperty(name = "roseName", value = "角色Name")
     private String roseName;
 
+    @ApiModelProperty(name = "carGroupId", value = "车队ID")
+    private Long carGroupId;
+
 }
