@@ -1002,92 +1002,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
         journeyPassergerOfficialCommit(officialCommitApply, journeyId, journeyPassengerInfo);
 
-        //公务申请成功后 ---------------1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信 4.保存预估价格表
+
         Long userId = getLoginUserId();
         Integer regimenId = officialCommitApply.getRegimenId();
-
-        //-------------------- 如果不经审批 则初始化权限和初始化订单 ------------------------
-        if(regimenId != null){
-            RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(Long.valueOf(regimenId));
-            String needApprovalProcess = regimenVO.getNeedApprovalProcess();
-            if(NeedApproveEnum.NEED_NOT_APPROVE.getKey().equals(needApprovalProcess)){
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                        try {
-                            //初始化用车权限
-                            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
-                            if(!optFlag){
-                               log.error("生成用车权限失败");
-                            }
-                            //初始化订单
-                            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
-                            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
-                                int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
-                                ecmpMessageService.applyUserPassMessage(applyId,Long.valueOf(userId),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
-                                for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
-                                    int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:ZERO;
-                                    OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
-                                    Long orderId=null;
-                                    if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
-                                        orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
-                                    }
-                                    ecmpMessageService.saveApplyMessagePass(applyId,Long.valueOf(userId),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-        });
-            }else {
-                //----------------- 如果需要审批  则1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            //1.初始化审批流
-                            applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                List<ApprovalVO> approvers = officialCommitApply.getApprovers();
-                //2.给审批人和自己发通知
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            //申请人名字
-                            String userName = officialCommitApply.getApplyUser().getUserName();
-                            //申请用车时间
-                            Date applyDate = officialCommitApply.getApplyDate();
-                            if(applyDate == null){
-                                // 航班到达时间
-                                long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
-                                applyDate = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
-                            }
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日HH:mm");
-                            String useCarTime = simpleDateFormat.format(applyDate);
-                            //短信 员工安宁已提交“2019年08月14日13:00”的公务用车申请，请登录红旗公务APP及时处理。（公务申请）
-                            //(1) 员工姓名 （2）日期 时间
-                            for (ApprovalVO approver : approvers) {
-                                //给审批人发通知
-                                sendNoticeToApprover(applyId, userId, approver);
-                                //给审批人发短信
-                                sendMsgToApprover(SmsTemplateConstant.OFFICIAL_APPLY_APPROVER,userName,useCarTime,approver);
-                            }
-                            //给自己发通知
-                            sendApplyNoticeToSelf(userId, applyId);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-        }
 
         //-------------------  保存预估价格表 -------------------
         String isGoBack = officialCommitApply.getIsGoBack();
@@ -1179,10 +1096,96 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                     journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
                 }
             }
-
-
-
         }
+
+
+        //公务申请成功后 ---------------1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信 4.保存预估价格表
+
+
+        //-------------------- 如果不经审批 则初始化权限和初始化订单 ------------------------
+        if(regimenId != null){
+            RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(Long.valueOf(regimenId));
+            String needApprovalProcess = regimenVO.getNeedApprovalProcess();
+            if(NeedApproveEnum.NEED_NOT_APPROVE.getKey().equals(needApprovalProcess)){
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                        try {
+                            //初始化用车权限
+                            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
+                            if(!optFlag){
+                               log.error("生成用车权限失败");
+                            }
+                            //初始化订单
+                            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
+                            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
+                                int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
+                                ecmpMessageService.applyUserPassMessage(applyId,Long.valueOf(userId),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
+                                for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
+                                    int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:ZERO;
+                                    OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
+                                    Long orderId=null;
+                                    if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
+                                        orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
+                                    }
+                                    ecmpMessageService.saveApplyMessagePass(applyId,Long.valueOf(userId),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+        });
+            }else {
+                //----------------- 如果需要审批  则1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信
+                executor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            //1.初始化审批流
+                            applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                List<ApprovalVO> approvers = officialCommitApply.getApprovers();
+                //2.给审批人和自己发通知
+                executor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            //申请人名字
+                            String userName = officialCommitApply.getApplyUser().getUserName();
+                            //申请用车时间
+                            Date applyDate = officialCommitApply.getApplyDate();
+                            if(applyDate == null){
+                                // 航班到达时间
+                                long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+                                applyDate = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+                            }
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日HH:mm");
+                            String useCarTime = simpleDateFormat.format(applyDate);
+                            //短信 员工安宁已提交“2019年08月14日13:00”的公务用车申请，请登录红旗公务APP及时处理。（公务申请）
+                            //(1) 员工姓名 （2）日期 时间
+                            for (ApprovalVO approver : approvers) {
+                                //给审批人发通知
+                                sendNoticeToApprover(applyId, userId, approver);
+                                //给审批人发短信
+                                sendMsgToApprover(SmsTemplateConstant.OFFICIAL_APPLY_APPROVER,userName,useCarTime,approver);
+                            }
+                            //给自己发通知
+                            sendApplyNoticeToSelf(userId, applyId);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        }
+
+
         return applyVO;
     }
 

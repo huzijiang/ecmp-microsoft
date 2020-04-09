@@ -138,4 +138,7 @@ public interface ICarGroupInfoService
 
     /*回显车队信息*/
     CarGroupDTO getCarGroupInfoFeedBack(Long carGroupId);
+
+    /*查询司机所属车队座机及调度员电话*/
+    CarGroupPhoneVO getOwnerCarGroupPhone();
 }

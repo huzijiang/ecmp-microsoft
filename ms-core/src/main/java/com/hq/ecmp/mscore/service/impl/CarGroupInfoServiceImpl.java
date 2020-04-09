@@ -847,7 +847,37 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         return null;
     }
 
-   /* *//**
+    /*查询司机所属车队座机及车队调度员电话*/
+    @Override
+    public CarGroupPhoneVO getOwnerCarGroupPhone() {
+        Long loginUserId = getLoginUserId();
+        //查询司机所属车队
+        Long driverId = driverInfoMapper.selectDriverIdByUserId(loginUserId);
+        if(driverId == null){
+            throw new RuntimeException("该用户不是司机");
+        }
+        CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
+        carGroupDriverRelation.setDriverId(driverId);
+        List<CarGroupDriverRelation> carGroupDriverRelations = carGroupDriverRelationMapper.selectCarGroupDriverRelationList(carGroupDriverRelation);
+        if(!CollectionUtils.isEmpty(carGroupDriverRelations)){
+            Long carGroupId = carGroupDriverRelations.get(0).getCarGroupId();
+            CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+            if(ObjectUtils.isEmpty(carGroupInfo)){
+                throw new RuntimeException("所属车队不存在");
+            }
+            CarGroupPhoneVO carGroupPhoneVO = new CarGroupPhoneVO();
+            carGroupPhoneVO.setCarGroupName(carGroupInfo.getCarGroupName());
+            carGroupPhoneVO.setPhone(carGroupInfo.getTelephone());
+            //查询车队调度员信息
+            List<UserVO> carGroupDispatchers = getCarGroupDispatchers(carGroupId);
+            carGroupPhoneVO.setDispatchers(carGroupDispatchers);
+            return carGroupPhoneVO;
+        }else {
+            return null;
+        }
+    }
+
+    /* *//**
      * 判断是否是一级车队
      * @param carGroupId
      * @return

@@ -204,6 +204,24 @@ public class CarGroupController {
     }
 
     /**
+     * 查询司机所属 车队调度员及车队座机
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getOwnerCarGroupPhone",notes = "查询车队联系电话",httpMethod ="POST")
+    @PostMapping("/getOwnerCarGroupPhone")
+    public ApiResponse<CarGroupPhoneVO> getOwnerCarGroupPhone(){
+        CarGroupPhoneVO  carGroupPhoneVO = null;
+        try {
+            carGroupPhoneVO = carGroupInfoService.getOwnerCarGroupPhone();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询失败");
+        }
+        return ApiResponse.success(carGroupPhoneVO);
+    }
+
+    /**
      * 查询调度员电话机和调度员所在车队座机
      * @param
      * @return
@@ -220,6 +238,8 @@ public class CarGroupController {
         }
         return ApiResponse.success(vo);
     }
+
+
 
    /**
      * 查询公司车队树
