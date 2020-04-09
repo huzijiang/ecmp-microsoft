@@ -98,8 +98,11 @@ public class CarGroupController {
     @ApiOperation(value = "deleteCarGroup",notes = "删除车队",httpMethod ="POST")
     @PostMapping("/deleteCarGroup")
     public ApiResponse deleteCarGroup(@RequestBody CarGroupDTO carGroupDTO){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
         try {
-            String rtnMsg = carGroupInfoService.deleteCarGroup(carGroupDTO.getCarGroupId());
+            String rtnMsg = carGroupInfoService.deleteCarGroup(carGroupDTO.getCarGroupId(),userId);
             return ApiResponse.success(rtnMsg);
         } catch (Exception e) {
             e.printStackTrace();

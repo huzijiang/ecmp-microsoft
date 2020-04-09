@@ -112,20 +112,28 @@ public class CarInfoServiceImpl implements ICarInfoService
     /**
      * 删除车辆信息
      *
-     * @param carId 【请填写功能名称】ID
+     * @param carId 车辆ID
+     * @param userId 用户ID
      * @return 结果
      */
     @Override
-    public int deleteCarInfoById(Long carId) throws Exception {
+    public int deleteCarInfoById(Long carId, Long userId) throws Exception {
         //判断车辆下是否绑定驾驶员
         if(judgeCarBindDriver(carId)){
             throw new Exception("请先删除该车辆下的所有驾驶员，再尝试删除");
         }
-        int i = carInfoMapper.deleteCarInfoById(carId);
-        if(i != 1){
+        CarInfo carInfo = new CarInfo();
+        carInfo.setCarId(carId);
+        carInfo.setState(CarConstant.DELETE_CAR);
+        carInfo.setUpdateBy(String.valueOf(userId));
+        carInfo.setUpdateTime(new Date());
+        //更新车辆状态为启用
+        int row = carInfoMapper.updateCarInfo(carInfo);
+//        int i = carInfoMapper.deleteCarInfoById(carId);
+        if(row != 1){
             throw new Exception("删除失败");
         }
-        return i;
+        return row;
     }
 
     /**
@@ -331,6 +339,7 @@ public class CarInfoServiceImpl implements ICarInfoService
                     .source(carInfo.getSource())
                     .state(carInfo.getState())
                     .carId(carId)
+                    .powerType(carInfo.getPowerType())
                     .build();
             list.add(carListVO);
         }

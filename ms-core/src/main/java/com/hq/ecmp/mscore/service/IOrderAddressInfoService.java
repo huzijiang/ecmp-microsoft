@@ -66,4 +66,11 @@ public interface IOrderAddressInfoService
      * @return
      */
     public OrderAddressInfo  queryOrderStartAndEndInfo(OrderAddressInfo orderAddressInfo);
+    
+    /**
+     * 校验订单是否超时
+     * @param orderId
+     * @return  true-超时    false-未超时
+     */
+    public boolean checkOrderOverTime(Long orderId);
 }

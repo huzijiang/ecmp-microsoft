@@ -20,7 +20,7 @@ public class ApprovalListVO {
      * 审批人Id(审批编号)
      */
 
-    private Long applyId;
+    private String applyId;
     private String type;//申请人/审批人
     private String time;//申请时间/审批通过/驳回时间
     private List<ApprovalInfoVO> list;
@@ -28,7 +28,7 @@ public class ApprovalListVO {
     public ApprovalListVO() {
     }
 
-    public ApprovalListVO(Long applyId, String type, List<ApprovalInfoVO> list, String time) {
+    public ApprovalListVO(String applyId, String type, List<ApprovalInfoVO> list, String time) {
         this.applyId = applyId;
         this.type = type;
         this.list = list;

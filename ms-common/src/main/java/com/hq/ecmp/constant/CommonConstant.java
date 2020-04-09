@@ -56,8 +56,18 @@ public final class CommonConstant {
      */
     public static final String SWITCH_OFF = "1";
     /**
-     * 开关状态开：自定义
+     * 驾驶员状态：待审核
      */
+    public static final String STATE_WAIT = "W001";
+    /**DRIVER
+     * 驾驶员状态：生效中
+     */
+    public static final String STATE_ON= "V000";
+    /**
+     * 驾驶员状态：失效/离职
+     */
+    public static final String STATE_OFF = "NV00";
+
     public static final String SWITCH_ON_CUSTOM = "2";
     //后台基本配置前缀
     public static final String SYS_CONFIG_PREFIX = "sys.";

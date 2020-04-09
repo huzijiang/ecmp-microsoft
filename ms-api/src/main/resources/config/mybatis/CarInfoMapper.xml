@@ -53,6 +53,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectCarInfoList" parameterType="com.hq.ecmp.mscore.domain.CarInfo" resultMap="CarInfoResult">
         <include refid="selectCarInfoVo"/>
         <where>
+            state != 'S444'
             <if test="carGroupId != null "> and car_group_id = #{carGroupId}</if>
             <if test="deptId != null "> and dept_id = #{deptId}</if>
             <if test="carTypeId != null "> and car_type_id = #{carTypeId}</if>

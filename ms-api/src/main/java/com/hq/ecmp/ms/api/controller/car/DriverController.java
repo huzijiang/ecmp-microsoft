@@ -181,6 +181,12 @@ public class DriverController {
     public ApiResponse recordDriverLocation(@RequestBody DriverLocationDTO driverLocationDTO){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
+        if (loginUser==null){
+            return ApiResponse.error("用户未登陆");
+        }
+        if(loginUser.getDriver()==null){
+            return ApiResponse.success("当前用户不是司机");
+        }
         Long dreiverId=loginUser.getDriver().getDriverId();
         try {
             //TODO 暂时直接插入数据库 二期可能还得记录乘客的心跳

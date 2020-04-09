@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.domain.ApplyInfo" id="ApplyInfoResult">
         <result property="applyId"    column="apply_id"    />
         <result property="journeyId"    column="journey_id"    />
+        <result property="applyNumber"    column="apply_number"    />
         <result property="projectId"    column="project_id"    />
         <result property="regimenId"    column="regimen_id"    />
         <result property="approverName"    column="approver_name"    />
@@ -21,7 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectApplyInfoVo">
-        select apply_id, journey_id, project_id, regimen_id,apply_type, approver_name, cost_center, state, reason, create_by, create_time, update_by, update_time from apply_info
+        select apply_id, journey_id,apply_number, project_id, regimen_id,apply_type, approver_name, cost_center, state, reason, create_by, create_time, update_by, update_time from apply_info
     </sql>
 
     <select id="selectApplyInfoList" parameterType="com.hq.ecmp.mscore.domain.ApplyInfo" resultMap="ApplyInfoResult">
@@ -154,5 +155,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where create_by=#{userId}
         union all(
         select approve_result_id from apply_approve_result_info where state=#{state} and find_in_set(#{userId},approve_user_id) ) ) a
+    </select>
+
+    <select id="checkApplyExpiredList" parameterType="Object" resultMap="ApplyInfoResult" >
+        <include refid="selectApplyInfoVo"/>
+        where state=#{state} and
+        journey_id in
+        (select journey_id from journey_info where
+            <![CDATA[ DATE_FORMAT(DATE_ADD(use_car_time ,INTERVAL 1 DAY), '%Y-%m-%d') = DATE_FORMAT(now() , '%Y-%m-%d') ]]>  or
+            <![CDATA[ DATE_FORMAT(DATE_ADD(start_date ,INTERVAL 1 DAY), '%Y-%m-%d') = DATE_FORMAT(now() , '%Y-%m-%d') ]]>
+        )
     </select>
 </mapper>

@@ -48,5 +48,9 @@ public enum OrderStateTrace {
     public static List<String> getNetCarHave() {
         return Arrays.asList(APPLYREASSIGNMENT.getState(), TURNREASSIGNMENT.getState());
     }
+    
+    public static List<String> getCancelAndOverTime(){
+    	return Arrays.asList(CANCEL.getState(),ORDEROVERTIME.getState());
+    }
 
 }

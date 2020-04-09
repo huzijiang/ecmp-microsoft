@@ -403,9 +403,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                 throw  new Exception("该邮箱已存在，不可重复录入！");
             }
             EcmpUser userByPhone = ecmpUserMapper.getUserByPhone(ecmpOrgVo.getPhone());
-            log.info("新增公司:公司主管手机号:"+ecmpOrgVo.getPhone()+"信息"+userByPhone.getUserId()+userByPhone.getUserName());
             if (userByPhone!=null){
-                ecmpOrgVo.setLeader(String.valueOf(userByPhone));
+                log.info("新增公司:公司主管手机号:"+ecmpOrgVo.getPhone()+"信息"+userByPhone.getUserId()+userByPhone.getUserName());
+                ecmpOrgVo.setLeader(String.valueOf(userByPhone.getUserId()));
                 flag=true;
             }
         }
