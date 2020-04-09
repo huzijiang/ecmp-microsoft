@@ -111,5 +111,6 @@ public interface IApplyInfoService
     //获取审批流信息
     List<ApprovalListVO> getApproveList(String applyUser, String applyMobile, Long applyId, Date time);
 
-    int cancelJourneyApply(ApplyInfo applyInfo);
+    int updateApplyState(Long applyId,String applyState,String approveState,Long userId) throws Exception;
+   void updateApproveResult(Long applyId,String state,Long userId) throws Exception;
 }

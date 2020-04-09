@@ -397,16 +397,12 @@ public class ApplyContoller {
         }
         if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo1.getApplyType())){
             if (journeyInfo.getUseCarTime().getTime()<new Date().getTime()){//申请单已过期
-                ApplyApproveResultInfo resultInfo = new ApplyApproveResultInfo(journeyApplyDto.getApplyId(), ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey());
-                resultInfo.setUpdateTime(new Date());
-                resultInfoService.updateApplyApproveResultInfo(resultInfo);
+                applyInfoService.updateApplyState(journeyApplyDto.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),userId);
                 throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
             }
         }else{
             if (journeyInfo.getStartDate().getTime()<new Date().getTime()){//申请单已过期
-                ApplyApproveResultInfo resultInfo = new ApplyApproveResultInfo(journeyApplyDto.getApplyId(), ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey());
-                resultInfo.setUpdateTime(new Date());
-                resultInfoService.updateApplyApproveResultInfo(resultInfo);
+                applyInfoService.updateApplyState(journeyApplyDto.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),userId);
                 throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
             }
         }

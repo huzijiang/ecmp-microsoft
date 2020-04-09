@@ -4,6 +4,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.ApplyStateConstant;
 import com.hq.ecmp.constant.ApproveStateEnum;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
@@ -67,11 +68,18 @@ public class JourneyController {
     @PostMapping("/cancelJourney")
     public ApiResponse cancelJourneyApply(@RequestBody JourneyApplyDto journeyApplyDto){
         //撤销行程申请
-       ApplyInfo applyInfo = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state("S004").build();
-        int i = applyInfoService.cancelJourneyApply(applyInfo);
-        if(i == 1){
-            return ApiResponse.success("撤销成功");
-        }else {
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            int i = applyInfoService.updateApplyState(journeyApplyDto.getApplyId(), ApplyStateConstant.CANCEL_APPLY,ApproveStateEnum.CANCEL_APPROVE_STATE.getKey(),userId);
+            if(i == 1){
+                return ApiResponse.success("撤销成功");
+            }else {
+                return ApiResponse.error("撤销申请失败，请重试");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             return ApiResponse.error("撤销申请失败，请重试");
         }
     }
