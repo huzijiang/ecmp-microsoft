@@ -36,5 +36,9 @@ public class DriverCreateInfo {
 		
 		Long driverId;
 		Date updateTime;
+	    String state;
+	    Date createTime;
+	    Long createBy;
+
 		
 }

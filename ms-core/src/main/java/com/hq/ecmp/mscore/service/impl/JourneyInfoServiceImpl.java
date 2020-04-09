@@ -184,6 +184,18 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 						List<CarAuthorityInfo> journeyUserCarPowerList = journeyUserCarPowerService.queryJourneyAllUserAuthority(journeyInfo.getJourneyId());
 						if(null !=journeyUserCarPowerList && journeyUserCarPowerList.size()>0){
 							for (CarAuthorityInfo carAuthorityInfo : journeyUserCarPowerList) {
+								//根据权限Id查询对应行程节点中的起止目的地
+								JourneyNodeInfo queryJourneyNodeInfoByPowerId = journeyNodeInfoService.queryJourneyNodeInfoByPowerId(carAuthorityInfo.getTicketId());
+								String returnIsType = carAuthorityInfo.getReturnIsType();
+								if(null !=queryJourneyNodeInfoByPowerId){
+									if(CarConstant.OUTWARD_VOYAGE.equals(returnIsType)){
+										carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanEndAddress());
+									
+									}else if(CarConstant.BACK_TRACKING.equals(returnIsType)){
+										carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanBeginAddress());
+									}
+								}
+								
 								//查询该权限对应的用车城市
 								String cityCode = journeyUserCarPowerService.queryOfficialPowerUseCity(carAuthorityInfo.getTicketId());
 								carAuthorityInfo.setCityCode(cityCode);
@@ -191,6 +203,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
 								carAuthorityInfo.setType(regimeInfo.getRegimenType());
 								carAuthorityInfo.setServiceType(journeyInfo.getServiceType());
+								carAuthorityInfo.setCanUseCarMode(regimeInfo.getCanUseCarMode());
 								//公务用车时间
 								carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());
 								//公务类型
@@ -202,7 +215,6 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 									carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
 								}
 								//公务用车用车方式(取制度里面的)
-								List<String> queryUseCarMode = orderInfoMapper.queryUseCarMode(carAuthorityInfo.getTicketId());
 								carAuthorityInfo.setCarType(journeyInfo.getUseCarMode());
 								//查询改权限是否需要走调度   true-不走调度  走网约    false-走调度 
 								boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(journeyInfo.getRegimenId(), cityCode);

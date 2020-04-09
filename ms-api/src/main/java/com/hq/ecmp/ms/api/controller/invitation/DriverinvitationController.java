@@ -5,6 +5,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.InvitionStateEnum;
 import com.hq.ecmp.ms.api.dto.base.InviteDto;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
@@ -19,10 +20,7 @@ import com.hq.ecmp.mscore.vo.RegisterVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -61,8 +59,8 @@ public class DriverinvitationController {
             Long invitationId = driverInvitationDTO.getInvitationId();
             System.out.println("新增邀请链接返回ID："+ invitationId);
             InvitationUrlVO invitationUrlVO = new InvitationUrlVO();
-            String url=urlApi+"/invitePage/"+invitationId;
-            invitationUrlVO.setUrl(urlApi+"/invitePage/"+invitationId);
+            String url=urlApi+"/inviteDriver/"+invitationId;
+            invitationUrlVO.setUrl(urlApi+"/inviteDriver/"+invitationId);
             UserInvitationUrlDTO userUrl= new UserInvitationUrlDTO();
             userUrl.setUrl(url);
             userUrl.setInvitationId(invitationId);
@@ -83,7 +81,7 @@ public class DriverinvitationController {
      */
     @ApiOperation(value = "interInvitationDriverZCCommit",notes = "生成邀请",httpMethod = "POST")
     @PostMapping("/interInvitationDriverZCCommit")
-    public ApiResponse interInvitationDriverZCCommit(@RequestBody DriverRegisterDTO driverRegisterDTO){
+    public ApiResponse interInvitationDriverZCCommit(DriverRegisterDTO driverRegisterDTO){
         try {
 
             //校验手机号的用户是否已经是企业用户
@@ -191,7 +189,7 @@ public class DriverinvitationController {
     */
     @ApiOperation(value = "getInvitationDriverDetail",notes = "获取驾驶员邀请详情",httpMethod = "POST")
     @PostMapping("/getInvitationDriverDetail")
-    public ApiResponse<InvitationDriverVO> getInvitationDriverDetail(@RequestBody InvitationDto invitationDto){
+    public ApiResponse<InvitationDriverVO> getInvitationDriverDetail(InvitationDto invitationDto){
 
         InvitationDriverVO InvitationDriver=ecmpEnterpriseInvitationInfoService.queryInvitationDriverDetial(invitationDto.getInvitationId());
         return ApiResponse.success(InvitationDriver);
@@ -225,7 +223,42 @@ public class DriverinvitationController {
         return ApiResponse.success("删除邮箱成功"+invitationDto.getInvitationId());
 
     }
-
+    /**
+     * 邀请注册通过
+     * @param
+     */
+    @ApiOperation(value = "邀请注册通过",notes = "邀请注册通过",httpMethod = "POST")
+    @PostMapping("/updateRegisterDriverPast")
+    public ApiResponse updateRegisterDriverPast(@RequestParam("registerId") Long registerId){
+        try {
+            //S000 申请中,S001 申请通过,S002 申请拒绝
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            int i=ecmpEnterpriseRegisterInfoServicee.updateRegisterDriverApprove(registerId,loginUser.getUser().getUserId(),null, InvitionStateEnum.APPROVEPASS.getKey());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success("审核通过");
+    }
+    /**
+     * 邀请注册拒绝
+     * @param
+     */
+    @ApiOperation(value = "申请拒绝",notes = "申请拒绝",httpMethod = "POST")
+    @PostMapping("/updateRegisterDriverRefuse")
+    public ApiResponse updateRegisterDriverRefuse(@RequestParam("reason") String reason,@RequestParam("registerId") Long registerId){
+        try {
+            //registerDTO.setState("S002");//S000 申请中,S001 申请通过,S002 申请拒绝
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            int i=ecmpEnterpriseRegisterInfoServicee.updateRegisterDriverApprove(registerId,loginUser.getUser().getUserId(),reason, InvitionStateEnum.APPROVEREJECT.getKey());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("申请拒绝失败");
+        }
+        return ApiResponse.success("申请拒绝成功");
+    }
 
 
 }
