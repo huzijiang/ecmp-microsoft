@@ -189,8 +189,12 @@ public class CarController {
     @ApiOperation(value = "deleteCar",notes = "删除车辆")
     @RequestMapping("/deleteCar")
     public ApiResponse deleteCar(@RequestBody CarDto carDto){
+        //获取登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
         try {
-            carInfoService.deleteCarInfoById(carDto.getCarId());
+            carInfoService.deleteCarInfoById(carDto.getCarId(),userId);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());

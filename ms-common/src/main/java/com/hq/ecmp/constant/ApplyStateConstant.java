@@ -11,6 +11,7 @@ public final class ApplyStateConstant {
     //S002  通过
     //S003  驳回
     //S004  已撤销
+    //S005  已过期
     public static final String ON_APPLYING = "S001";
     public static final String APPLY_PASS = "S002";
     public static final String REJECT_APPLY = "S003";

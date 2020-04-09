@@ -106,8 +106,9 @@ public interface ICarGroupInfoService
     /**
      * 删除车队
      * @param carGroupId
+     * @param userId
      */
-    String deleteCarGroup(Long carGroupId) throws Exception;
+    String deleteCarGroup(Long carGroupId,Long userId) throws Exception;
 
     //查询下级车队列表
     List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);

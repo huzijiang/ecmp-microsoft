@@ -246,6 +246,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				if(iOrderStateTraceInfoService.isReassignment(dispatchOrderInfo.getOrderId())){
 					continue;
 				}
+				//去除超时的订单
+				if(iOrderAddressInfoService.checkOrderOverTime(dispatchOrderInfo.getOrderId())){
+					continue;
+				}
 				//正常申请的调度单取对应的用车申请单的通过时间来排序
 				dispatchOrderInfo.setUpdateDate(dispatchOrderInfo.getApplyPassDate());
 				dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
@@ -259,8 +263,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		if(null !=reassignmentOrder && reassignmentOrder.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : reassignmentOrder) {
 				dispatchOrderInfo.setState(OrderState.APPLYREASSIGN.getState());
+				//去除超时的订单
+				if(iOrderAddressInfoService.checkOrderOverTime(dispatchOrderInfo.getOrderId())){
+					continue;
+				}
+				result.add(dispatchOrderInfo);
 			}
-			result.addAll(reassignmentOrder);
 		}
 		/*对用户进行订单可见校验
 		自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的调度员能看到该订单
@@ -532,8 +540,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (j != 1) {
             throw new Exception("约车失败");
         }
-        //添加约车中轨迹状态
-        insertOrderStateTrace(String.valueOf(orderId), OrderState.SENDINGCARS.getState(), userId, null);
+        boolean reassignment = iOrderStateTraceInfoService.isReassignment(orderId);
+        //改派的订单需要操作改派同意
+        if(reassignment){
+            insertOrderStateTrace(String.valueOf(orderId), ResignOrderTraceState.AGREE.getState(), userId, null);
+            //改派订单消息通知
+            ismsBusiness.sendMessageReassignSucc(orderId,Long.parseLong(userId));
+        }else{
+            //添加约车中轨迹状态
+            insertOrderStateTrace(String.valueOf(orderId), OrderState.SENDINGCARS.getState(), userId, null);
+        }
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         String serviceType = orderInfo.getServiceType();
         if(serviceType == null || !OrderServiceType.getNetServiceType().contains(serviceType)){
@@ -643,21 +659,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderId(orderId);
         try {
-            boolean reassignment = iOrderStateTraceInfoService.isReassignment(orderId);
-            //改派的订单需要操作改派同意
-            if(reassignment){
-                OrderInfo orderInfoRe = new OrderInfo();
-                orderInfoRe.setState(OrderState.WAITINGLIST.getState());
-                orderInfoRe.setUpdateBy(String.valueOf(userId));
-                orderInfoRe.setOrderId(orderId);
-                orderInfoRe.setUpdateTime(DateUtils.getNowDate());
-                orderInfoMapper.updateOrderInfo(orderInfoRe);
-                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
-                orderStateTraceInfo.setCreateBy(String.valueOf(userId));
-                orderStateTraceInfo.setState(ResignOrderTraceState.AGREE.getState());
-                orderStateTraceInfo.setOrderId(orderId);
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-            }
+
 
             //MAC地址
             List<String> macList = MacTools.getMacList();
@@ -2073,4 +2075,25 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		return true;
 	}
 
+    /**
+     * 查询过期的订单,改为关闭，轨迹表插入过期轨迹记录
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+	public  void checkOrderIsExpired(){
+        List<OrderInfo> expiredOrders = orderInfoMapper.getExpiredOrder();
+        if(!CollectionUtils.isEmpty(expiredOrders)){
+            for (OrderInfo orderInfo:
+            expiredOrders) {
+                OrderInfo orderInfoUp = new OrderInfo();
+                orderInfoUp.setState(OrderState.ORDERCLOSE.getState());
+                orderInfoUp.setOrderId(orderInfo.getOrderId());
+                orderInfoUp.setUpdateTime(DateUtils.getNowDate());
+                orderInfoUp.setUpdateBy("1");
+                orderInfoMapper.updateOrderInfo(orderInfoUp);
+                //添加约车中轨迹状态
+                insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.ORDEROVERTIME.getState(), "1", null);
+            }
+        }
+    }
 }

@@ -113,4 +113,6 @@ public interface IApplyInfoService
 
     int updateApplyState(Long applyId,String applyState,String approveState,Long userId) throws Exception;
    void updateApproveResult(Long applyId,String state,Long userId) throws Exception;
+
+    void checkApplyExpired();
 }
