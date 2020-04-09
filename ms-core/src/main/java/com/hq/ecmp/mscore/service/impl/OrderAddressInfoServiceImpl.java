@@ -4,9 +4,12 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.OrderAddressInfo;
 import com.hq.ecmp.mscore.mapper.OrderAddressInfoMapper;
 import com.hq.ecmp.mscore.service.IOrderAddressInfoService;
+import com.hq.ecmp.util.DateFormatUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -98,5 +101,21 @@ public class OrderAddressInfoServiceImpl implements IOrderAddressInfoService
 	@Override
 	public OrderAddressInfo queryOrderStartAndEndInfo(OrderAddressInfo orderAddressInfo) {
 		return orderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfo);
+	}
+
+	@Override
+	public boolean checkOrderOverTime(Long orderId) {
+		OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+		orderAddressInfo.setOrderId(orderId);
+		orderAddressInfo.setType("A000");
+		List<OrderAddressInfo> selectOrderAddressInfoList = orderAddressInfoMapper.selectOrderAddressInfoList(orderAddressInfo);
+		if(null !=selectOrderAddressInfoList && selectOrderAddressInfoList.size()>0){
+			OrderAddressInfo result = selectOrderAddressInfoList.get(0);
+			Date actionTime = result.getActionTime();
+			if(null !=actionTime && DateFormatUtils.beforeCurrentDate(actionTime)){
+				return true;
+			}
+		}
+		return false;
 	}
 }

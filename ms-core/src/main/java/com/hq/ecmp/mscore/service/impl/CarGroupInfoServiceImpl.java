@@ -536,9 +536,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     /**
      * 删除车队
      * @param carGroupId
+     * @param userId
      */
     @Override
-    public String deleteCarGroup(Long carGroupId) throws Exception {
+    public String deleteCarGroup(Long carGroupId, Long userId) throws Exception {
         //判断车队及下属车队下是否有车辆和驾驶员
         carGroupDelFlag = false;
         if(existCarOrDriver(carGroupId, null)){
@@ -546,7 +547,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             return "请先删除该车队下的所有车辆及人员信息";
         }
         //执行删除
-        executeDeleteCarGroup(carGroupId, null);
+        executeDeleteCarGroup(carGroupId, null, userId);
         return "删除成功";
     }
 
@@ -555,7 +556,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param carGroupId
      * @param ownerOrg
      */
-    private void executeDeleteCarGroup(Long carGroupId, Long ownerOrg) throws Exception {
+    private void executeDeleteCarGroup(Long carGroupId, Long ownerOrg, Long userId) throws Exception {
         CarGroupInfo carGroupBean = new CarGroupInfo();
         List<CarGroupInfo> carGroupList = new ArrayList<>();
         //判断是不是首次进入，如果首次根据车队ID查询，否则根据归属直接组织
@@ -571,14 +572,20 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 carGroupList = carGroupInfoMapper.selectCarGroupInfoList(carGroupBean);
             }
         }
-        int delRow = 0;
+        int row = 0;
         if (carGroupList != null && carGroupList.size() > 0) {
             for (CarGroupInfo carGroupInfo : carGroupList) {
-                delRow = carGroupInfoMapper.deleteCarGroupInfoById(carGroupInfo.getCarGroupId());
-                if( delRow != 1){
+//                delRow = carGroupInfoMapper.deleteCarGroupInfoById(carGroupInfo.getCarGroupId());
+                CarGroupInfo updateBean = new CarGroupInfo();
+                updateBean.setCarGroupId(carGroupInfo.getCarGroupId());
+                updateBean.setState(CarConstant.DELETE_CAR_GROUP);
+                updateBean.setUpdateBy(String.valueOf(userId));
+                updateBean.setUpdateTime(new Date());
+                row = carGroupInfoMapper.updateCarGroupInfo(updateBean);
+                if( row != 1){
                     throw new Exception("删除下属车队失败");
                 }
-                executeDeleteCarGroup(null, carGroupInfo.getCarGroupId());
+                executeDeleteCarGroup(null, carGroupInfo.getCarGroupId(), userId);
             }
         }
     }

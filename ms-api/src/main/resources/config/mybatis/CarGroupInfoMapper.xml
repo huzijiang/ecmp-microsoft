@@ -34,6 +34,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectCarGroupInfoList" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo" resultMap="CarGroupInfoResult">
         <include refid="selectCarGroupInfoVo"/>
         <where>
+            state != 'S444'
             <if test="city != null "> and city = #{city}</if>
             <if test="ownerOrg != null "> and owner_org = #{ownerOrg}</if>
             <if test="leader != null "> and leader = #{leader}</if>
@@ -43,7 +44,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectCarGroupInfoById" parameterType="Long" resultMap="CarGroupInfoResult">
         <include refid="selectCarGroupInfoVo"/>
-        where car_group_id = #{carGroupId}
+        where car_group_id = #{carGroupId} and state != 'S444'
     </select>
 
     <insert id="insertCarGroupInfo" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo">
