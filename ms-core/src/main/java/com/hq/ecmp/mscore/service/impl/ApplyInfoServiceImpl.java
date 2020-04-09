@@ -1577,5 +1577,23 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         }
     }
 
+    @Override
+    public void checkApplyExpired() {
+        try {
+            List<ApplyInfo> applyInfos=applyInfoMapper.checkApplyExpiredList(ApplyStateConstant.ON_APPLYING);
+            StringBuilder applyIds=new StringBuilder();
+            if (!CollectionUtils.isEmpty(applyInfos)){
+                for (ApplyInfo applyInfo:applyInfos){
+                    this.updateApplyState(applyInfo.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),1L);
+                    applyIds.append(applyInfo.getJourneyId());
+                }
+            }
+            log.info(DateUtils.getMonthAndToday()+"申请单已过期的单号:"+applyIds);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("定时任务:checkApplyExpired 异常");
+        }
+    }
+
 
 }

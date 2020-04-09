@@ -28,7 +28,11 @@ public class UserRegisterDTO {
     private String smsAuthCode;
     @ApiParam(name = "reason", value = "申请原因", required = true )
     private String reason;
+    @ApiParam(name = "type", value = "类型", required = false )
+    private String type;
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
+    @ApiParam(name = "state", value = "状态", required = false )
+    private String state;
 
 }

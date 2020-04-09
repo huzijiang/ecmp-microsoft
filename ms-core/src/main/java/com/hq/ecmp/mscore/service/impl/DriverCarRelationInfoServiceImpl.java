@@ -134,6 +134,10 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
 	public Integer queryDriverUseCarCount(Long driverId) {
 		return driverCarRelationInfoMapper.queryDriverUseCarCount(driverId);
 	}
+    @Override
+    public int deleteCarByDriverId(Long driverId){
+        return driverCarRelationInfoMapper.deleteCarByDriverId(driverId);
+    }
 
     /**
      * 车辆新增驾驶员
@@ -227,4 +231,5 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
         return new PageResult<DriverVO>(pageInfo.getTotal(),pageInfo.getPages(),list);
 
     }
+
 }

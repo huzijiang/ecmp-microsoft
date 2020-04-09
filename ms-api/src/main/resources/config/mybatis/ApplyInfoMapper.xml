@@ -156,4 +156,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         union all(
         select approve_result_id from apply_approve_result_info where state=#{state} and find_in_set(#{userId},approve_user_id) ) ) a
     </select>
+
+    <select id="checkApplyExpiredList" parameterType="Object" resultMap="ApplyInfoResult" >
+        <include refid="selectApplyInfoVo"/>
+        where state=#{state} and
+        journey_id in
+        (select journey_id from journey_info where
+            <![CDATA[ DATE_FORMAT(DATE_ADD(use_car_time ,INTERVAL 1 DAY), '%Y-%m-%d') = DATE_FORMAT(now() , '%Y-%m-%d') ]]>  or
+            <![CDATA[ DATE_FORMAT(DATE_ADD(start_date ,INTERVAL 1 DAY), '%Y-%m-%d') = DATE_FORMAT(now() , '%Y-%m-%d') ]]>
+        )
+    </select>
 </mapper>

@@ -230,6 +230,11 @@ public interface OrderInfoMapper {
      */
     public List<OrderInfo> getArrivalAfterTaskForCarOrDriver(OrderTaskClashBo carTaskClashBo);
 
+    /**
+     * 获取过期的订单
+     */
+    public List<OrderInfo> getExpiredOrder();
+
 
 
 }
