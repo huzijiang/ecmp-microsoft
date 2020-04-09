@@ -15,4 +15,5 @@ public final class ApplyStateConstant {
     public static final String APPLY_PASS = "S002";
     public static final String REJECT_APPLY = "S003";
     public static final String CANCEL_APPLY = "S004";
+    public static final String EXPIRED_APPLY = "S005";
 }

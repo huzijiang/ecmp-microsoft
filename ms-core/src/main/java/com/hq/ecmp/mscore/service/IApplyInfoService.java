@@ -110,4 +110,7 @@ public interface IApplyInfoService
     Integer getApprovePageCount(Long userId);
     //获取审批流信息
     List<ApprovalListVO> getApproveList(String applyUser, String applyMobile, Long applyId, Date time);
+
+    int updateApplyState(Long applyId,String applyState,String approveState,Long userId) throws Exception;
+   void updateApproveResult(Long applyId,String state,Long userId) throws Exception;
 }

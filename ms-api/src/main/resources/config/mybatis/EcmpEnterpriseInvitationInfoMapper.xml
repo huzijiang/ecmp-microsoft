@@ -198,7 +198,7 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
     <!--驾驶员工列表-->
     <select id="queryInvitationDriver" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationDriverVO">
        select a.invitation_id as invitationId, a.name as yqName,c.dept_name as companyName,e.car_group_name as carGroupName,b_amountCar.carNum as carNum ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait,
-       a.state as state,a.rose_id as roseId,f.role_name as roseName,
+       a.state as state,a.rose_id as roseId,f.role_name as roseName
        CASE a.state
                       WHEN 'Y000' THEN '有效'
                       WHEN 'N000' THEN '失效'
@@ -217,7 +217,7 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
     <select id="queryInvitationDriverDetial" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationDriverVO">
 
         select a.invitation_id as invitationId, a.name as yqName,c.dept_name as companyName,e.car_group_name as carGroupName,b_amountCar.carNum as carNum ,d_amountPass.amountPass as amountPass ,d_amountWait.amountWait as amountWait,
-       a.state as state,a.rose_id as roseId,f.role_name as roseName,
+       a.state as state,a.rose_id as roseId,f.role_name as roseName,a.car_group_id as carGroupId,
        CASE a.state
                       WHEN 'Y000' THEN '有效'
                       WHEN 'N000' THEN '失效'
