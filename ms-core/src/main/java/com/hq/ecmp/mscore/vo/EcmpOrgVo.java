@@ -75,5 +75,13 @@ public class EcmpOrgVo {
 
     @ApiModelProperty(value = "公司名称或编号")
     private String deptNameOrCode;
+
+    public EcmpOrgVo() {
+    }
+
+    public EcmpOrgVo(Long deptId, String leader) {
+        this.deptId = deptId;
+        this.leader = leader;
+    }
 }
 

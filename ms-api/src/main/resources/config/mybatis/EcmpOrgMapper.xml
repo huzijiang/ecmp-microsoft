@@ -59,11 +59,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <resultMap type="com.hq.ecmp.mscore.vo.OrgTreeVo" id="orgTreeVO">
-        <id column="dept_id" property="id"/>
-        <result property="parentId"    column="parent_id"    />
-        <result property="showname"    column="dept_name"    />
+        <id column="id" property="id"/>
+        <result property="parentId"    column="parentId"    />
+        <result property="showname"    column="showname"    />
         <result property="type"    column="type"    />
-        <collection property="children" ofType="OrgTreeVo" javaType="java.util.ArrayList" select="getOrgNodeList" column="dept_id">
+        <collection property="children" ofType="OrgTreeVo" javaType="java.util.ArrayList" select="getOrgNodeList" column="id">
         </collection>
     </resultMap>
 
@@ -103,7 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         dept_name as deptName,
         (SELECT dept_name from  ecmp_org where dept_id =
         (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
-        leader,`phone`
+        (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leader,`phone`
         from
         ecmp_org
         where
@@ -310,7 +310,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
        if(isnull(dept_code),'',dept_code) as deptCode,
       (SELECT dept_name from  ecmp_org where dept_id =
       (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
-      leader ,  `phone`,  `email`,
+      (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leader ,  `phone`,  `email`,
       (SELECT count(*) from  ecmp_user where dept_id=#{deptId} and del_flag=0) as numOfSub
       from  ecmp_org where dept_id=#{deptId}
     </select>
@@ -340,10 +340,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         dept_id as deptId,
         dept_name as deptName,
         if(isnull(dept_code),'',dept_code) as deptCode,
-        leader,
+        (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,a.leader)) leader,
         (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
         (select count(1) from ecmp_org where parent_id=#{deptId} and dept_type='1') as numOfSonCom,status
-        from ecmp_org where
+        from ecmp_org a where
         del_flag = 0 and
          dept_id=#{deptId} and dept_type = #{deptType}
     </select>
@@ -366,7 +366,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         dept_id as deptId,
         dept_name as deptName,
         if(isnull(dept_code),'',dept_code) as deptCode,
-        leader,
+         (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leader,
         (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
         (select count(1) from ecmp_org where parent_id=#{deptId} and dept_type='2') as numOfSonDept,status
         from ecmp_org where
@@ -460,7 +460,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectDeptTree" parameterType="Object" resultMap="orgTreeVO">
-        select dept_id, parent_id,dept_name,0 type from ecmp_org
+        select dept_id id, parent_id parentId,dept_name showname,'0' type from ecmp_org
         where status=0 and del_flag=0 and dept_type!=3
         <if test="deptId!=null">
             and dept_id=#{deptId}
@@ -474,8 +474,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     </select>
     <select id="getOrgNodeList" parameterType="Object" resultMap="orgTreeVO">
-         select dept_id, parent_id,dept_name,'0' type from ecmp_org
-        where status=0 and del_flag=0 and parent_id=#{dept_id} and dept_type!=3
+         select dept_id id, parent_id parentId,dept_name showname,'0' type from ecmp_org
+        where status=0 and del_flag=0 and parent_id=#{id} and dept_type!=3
     </select>
     <select id="selectCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
         select  dept_id as deptGroupId,

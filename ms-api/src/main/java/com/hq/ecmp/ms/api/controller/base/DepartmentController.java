@@ -5,6 +5,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
@@ -105,11 +106,15 @@ public class DepartmentController {
     @ApiOperation(value = "添加部门",notes = "添加部门",httpMethod ="POST")
     @PostMapping("/addDept")
     public ApiResponse addDept(@RequestBody EcmpOrgVo ecmpOrg){
-        int i = orgService.addDept(ecmpOrg);
-        if (i == 1){
-            return ApiResponse.success("添加部门成功!");
-        }else {
-            return ApiResponse.success("添加部门失败!");
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            ecmpOrg.setDeptType(CommonConstant.FINISH);
+            int i = orgService.addDept(ecmpOrg,loginUser.getUser().getUserId());
+            return ApiResponse.success("添加部门成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
         }
     }
     /*

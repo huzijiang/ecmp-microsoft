@@ -70,6 +70,7 @@ public interface IDriverInfoService
     public int deleteDriverInfoById(Long driverId);
 
     public boolean createDriver(DriverCreateInfo driverCreateInfo);
+    public boolean updateDriver(DriverCreateInfo driverCreateInfo);
 
     public List<DriverQueryResult> queryDriverList(DriverQuery query);
 
@@ -106,12 +107,7 @@ public interface IDriverInfoService
      * 已失效驾驶员进行删除
      */
     public int deleteDriver(Long driverId);
-    /**
-     * 修改驾驶员
-     * @param driverCreateInfo
-     * @return
-     */
-    public int updateDriver(DriverCreateInfo driverCreateInfo);
+
 
     /**
      * 修改驾驶员手机号

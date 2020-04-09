@@ -134,6 +134,7 @@ public interface EcmpUserMapper
      *查询手机号是否已经存在
      * */
     public int selectPhoneNumberExist(@Param("phonenumber")String phonenumber);
+    public EcmpUser getUserByPhone(@Param("phonenumber")String phonenumber);
 
     /*
      *查询邮箱是否已经存在
@@ -258,7 +259,7 @@ public interface EcmpUserMapper
     public int userItisExist( @Param("phoneNumber")String phoneNumber);
 
     //查询该员工部门领导
-    UserVO findDeptLeader(Long deptId);
+    String findDeptLeader(Long deptId);
 
     List<EcmpUser> selectUserListByUserIds(String userIds);
 

@@ -146,6 +146,11 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	ecmpUser.setPhonenumber(driverCreateInfo.getMobile());
     	ecmpUser.setCreateBy(driverCreateInfo.getOptUserId().toString());
     	ecmpUser.setCreateTime(new Date());;
+    	//查询归属车队所在的部门
+    	CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(driverCreateInfo.getCarGroupId());
+    	if(null !=carGroupInfo){
+    		ecmpUser.setDeptId(carGroupInfo.getOwnerOrg());
+    	}
     	ecmpUserService.insertEcmpUser(ecmpUser);
     	driverCreateInfo.setUserId(ecmpUser.getUserId());
     	//生成驾驶员记录
@@ -167,7 +172,32 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
 		return true;
 	}
-
+    /**
+     * 修改驾驶员
+     * @param driverCreateInfo
+     * @return
+     */
+    @Override
+    public boolean updateDriver(DriverCreateInfo driverCreateInfo){
+        //修改驾驶员
+        driverCreateInfo.setUpdateTime(DateUtils.getNowDate());
+        Integer createDriver = driverInfoMapper.updateDriver(driverCreateInfo);
+        Long driverId = driverCreateInfo.getDriverId();
+        //修改驾驶员-车队关系记录
+        CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
+        carGroupDriverRelation.setCarGroupId(driverCreateInfo.getCarGroupId());
+        carGroupDriverRelation.setDriverId(driverCreateInfo.getDriverId());
+        carGroupDriverRelation.setCreateBy(driverCreateInfo.getOptUserId().toString());
+        carGroupDriverRelation.setCreateTime(new Date());
+        carGroupDriverRelationService.updateCarGroupDriverRelation(carGroupDriverRelation);
+        //修改驾驶员-车辆记录
+        DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+        driverCarRelationInfo.setUserId(driverCreateInfo.getUserId());
+        driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
+        driverCarRelationInfo.setCarIdList(driverCreateInfo.getCarId());
+        driverCarRelationInfoService.updateBatchDriverCarList(driverCarRelationInfo);
+        return true;
+    }
 	@Override
 	public List<DriverQueryResult> queryDriverList(DriverQuery query) {
 		List<DriverQueryResult> list = driverInfoMapper.queryDriverList(query);
@@ -244,14 +274,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     public int deleteDriver(Long driverId){
         return driverInfoMapper.deleteDriver(driverId);
     }
-    /**
-     * 修改驾驶员
-     * @param driverCreateInfo
-     * @return
-     */
-    public int updateDriver(DriverCreateInfo driverCreateInfo){
-        return driverInfoMapper.updateDriver(driverCreateInfo);
-    }
+
 
     /**
      * 修改驾驶员手机号
