@@ -1055,6 +1055,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         }
         if(canUseCarMode.contains(CarConstant.USR_CARD_MODE_NET)){//包含网约车
             List<CarLevelAndPriceVO> carLevelAndPriceVOs = officialCommitApply.getCarLevelAndPriceVOs();
+            if(!CollectionUtils.isEmpty(carLevelAndPriceVOs)){
             for (CarLevelAndPriceVO carLevelAndPriceVO : carLevelAndPriceVOs) {
                 Integer duration = carLevelAndPriceVO.getDuration();
                 Date applyDate = officialCommitApply.getApplyDate();
@@ -1096,6 +1097,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                     journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
                 }
             }
+            }
         }
 
 
@@ -1111,7 +1113,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             @Override
             public void run() {
                         try {
-                            //初始化用车权限
+                            //初始化用车权限   TODO 包车不用初始化权限？
                             boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
                             if(!optFlag){
                                log.error("生成用车权限失败");
