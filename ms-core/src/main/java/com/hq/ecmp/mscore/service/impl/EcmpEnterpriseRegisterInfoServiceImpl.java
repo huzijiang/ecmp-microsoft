@@ -6,10 +6,12 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.InvitionStateEnum;
 import com.hq.ecmp.constant.InvitionTypeEnum;
+import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseRegisterInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
@@ -19,6 +21,7 @@ import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterUserVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -40,6 +43,8 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
     private EcmpEnterpriseInvitationInfoMapper invitationInfoMapper;
     @Resource
     private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private DriverInfoMapper driverInfoMapper;
 
     /**
      * 通过ID查询单条数据
@@ -146,6 +151,8 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
      */
     public int insertUserRegister(UserRegisterDTO userRegisterDTO){
         userRegisterDTO.setCreateTime(DateUtils.getNowDate());
+        userRegisterDTO.setType("T001");
+        userRegisterDTO.setState("S000");
         return ecmpEnterpriseRegisterInfoMapper.insertUserRegister(userRegisterDTO);
     }
 
@@ -214,9 +221,61 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
      * @param driverRegisterDTO
      * @return
      */
+    @Override
     public int insertDriverRegister(DriverRegisterDTO driverRegisterDTO){
         driverRegisterDTO.setCreateTime(DateUtils.getNowDate());
+        driverRegisterDTO.setType("T002");
+        driverRegisterDTO.setState("S000");
         return ecmpEnterpriseRegisterInfoMapper.insertDriverRegister(driverRegisterDTO);
+    }
+    @Override
+    public int updateRegisterDriverApprove(Long registerId,Long userId,String reason,String state) throws Exception {
+        EcmpEnterpriseRegisterInfo registerInfo = ecmpEnterpriseRegisterInfoMapper.queryById(registerId);
+        if (registerInfo==null){
+            throw new Exception("该注册驾驶员id:"+registerId+"不存在");
+        }
+        EcmpEnterpriseInvitationInfo ecmpEnterpriseInvitationInfo = invitationInfoMapper.queryById(registerInfo.getInvitationId());
+        if (ecmpEnterpriseInvitationInfo==null){
+            throw new Exception("该注册驾驶员来源不明");
+        }
+        if (!InvitionTypeEnum.DRIVER.getKey().equals(registerInfo.getType())){//不是驾驶员
+            throw new Exception("不可审核员工");
+        }
+        registerInfo.setAuditTime(new Date());
+        registerInfo.setAuditor(userId);
+        registerInfo.setUpdateBy(String.valueOf(userId));
+        registerInfo.setUpdateTime(new Date());
+        registerInfo.setState(state);
+        if (InvitionStateEnum.APPROVEREJECT.getKey().equals(state)){
+            registerInfo.setRejectReason(reason);
+        }
+        int count = ecmpEnterpriseRegisterInfoMapper.update(registerInfo);
+        log.info(registerId+"邀请注册被员工"+userId+"审核通过");
+        if (InvitionStateEnum.APPROVEREJECT.getKey().equals(state)){
+            return count;
+        }
+        if (count>0){
+            DriverCreateInfo driverCreate = new DriverCreateInfo();
+            driverCreate.setMobile(registerInfo.getMobile());
+            driverCreate.setDriverName(registerInfo.getName());
+            driverCreate.setCarGroupId(ecmpEnterpriseInvitationInfo.getCarGroupId());
+            driverCreate.setIdCard(registerInfo.getIdCard());
+            driverCreate.setState(CommonConstant.STATE_ON);
+            driverCreate.setLicenseType(registerInfo.getLicenseType());
+            driverCreate.setLicenseNumber(registerInfo.getLicenseNumber());
+            driverCreate.setLicensePhoto(registerInfo.getLicenseImages());
+            driverCreate.setLicenseInitIssueDate(registerInfo.getLicenseInitIssueDate());
+            driverCreate.setLicenseIssueDate(registerInfo.getLicenseIssueDate());
+            driverCreate.setLicenseExpireDate(registerInfo.getLicenseExpireDate());
+           // long job = Long.parseLong(registerInfo.getJobNumber());
+
+           // driverCreate.setUserId(job);
+            driverCreate.setGender(registerInfo.getGender());
+            driverCreate.setCreateTime(new Date());
+            driverInfoMapper.createDriver(driverCreate);
+            log.info("驾驶员"+registerInfo.getMobile()+"审核添加成功");
+        }
+        return count;
     }
 
 

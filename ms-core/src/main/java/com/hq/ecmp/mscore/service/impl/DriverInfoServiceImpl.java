@@ -191,11 +191,20 @@ public class DriverInfoServiceImpl implements IDriverInfoService
         carGroupDriverRelation.setCreateTime(new Date());
         carGroupDriverRelationService.updateCarGroupDriverRelation(carGroupDriverRelation);
         //修改驾驶员-车辆记录
+       /* DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+        driverCarRelationInfo.setUserId(driverCreateInfo.getUserId());
+        driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
+        driverCarRelationInfo.setCarIdList(driverCreateInfo.getCarId());
+        driverCarRelationInfoService.updateBatchDriverCarList(driverCarRelationInfo);*/
+
+        driverCarRelationInfoService.deleteCarByDriverId(driverId);
+        //生成驾驶员-车辆记录
         DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
         driverCarRelationInfo.setUserId(driverCreateInfo.getUserId());
         driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
         driverCarRelationInfo.setCarIdList(driverCreateInfo.getCarId());
-        driverCarRelationInfoService.updateBatchDriverCarList(driverCarRelationInfo);
+        driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
+
         return true;
     }
 	@Override

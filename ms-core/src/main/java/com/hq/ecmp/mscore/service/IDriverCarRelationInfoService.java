@@ -66,6 +66,7 @@ public interface IDriverCarRelationInfoService
     
     public Integer batchDriverCarList(DriverCarRelationInfo driverCarRelationInfo);
     public Integer updateBatchDriverCarList(DriverCarRelationInfo driverCarRelationInfo);
+    public int deleteCarByDriverId(Long driverId);
     
     /**
      * 查询驾驶员可以使用的车辆数
