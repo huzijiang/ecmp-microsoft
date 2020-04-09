@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApproveTemplateInfo;
 import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -63,7 +64,7 @@ public interface ApproveTemplateInfoMapper
      */
     public int deleteApproveTemplateInfoByIds(Long[] approveTemplateIds);
 
-    List<ApprovaTemplateVO> getTemplateList(String search);
+    List<ApprovaTemplateVO> getTemplateList(@Param("search") String search);
 
-    Long getTemplateListCount(String search);
+    Long getTemplateListCount(@Param("search") String search);
 }
