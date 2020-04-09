@@ -273,5 +273,11 @@ public interface IOrderInfoService {
     void callBackOrderState(String jsonResult)throws Exception;
     
     public boolean sendCarBeforeCreatePlanPrice(Long orderId,Long userId) throws Exception ;
+
+    /**
+     * 查询过期的订单,修改状态和添加轨迹表记录
+     * @return
+     */
+    public  void checkOrderIsExpired();
 }
 
