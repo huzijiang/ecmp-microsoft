@@ -126,4 +126,9 @@ public class JourneyNodeInfoServiceImpl implements IJourneyNodeInfoService
 	public List<JourneyNodeInfo> queryJourneyNodeInfoOrderByNumber(Long journeyId) {
 		return journeyNodeInfoMapper.queryJourneyNodeInfoOrderByNumber(journeyId);
 	}
+
+	@Override
+	public JourneyNodeInfo queryJourneyNodeInfoByPowerId(Long powerId) {
+		return journeyNodeInfoMapper.queryJourneyNodeInfoByPowerId(powerId);
+	}
 }

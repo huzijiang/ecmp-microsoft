@@ -69,4 +69,6 @@ public interface JourneyNodeInfoMapper
     
     
     public List<JourneyNodeInfo> queryJourneyNodeInfoOrderByNumber(Long journeyId);
+    
+    public JourneyNodeInfo queryJourneyNodeInfoByPowerId(Long powerId);
 }
