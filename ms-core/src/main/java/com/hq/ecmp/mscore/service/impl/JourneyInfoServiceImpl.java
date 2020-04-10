@@ -283,15 +283,48 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 					}
 					if (flag) {
 						//当前节点的目的地是下一节点的出发地或者当前城市的出发地是上一节点的目的地  北京-上海-广州
-						UserAuthorityGroupCity userAuthorityGroupCity = new UserAuthorityGroupCity();
-						userAuthorityGroupCity.setCityName(currentNote.getPlanBeginAddress());
-						userAuthorityGroupCity.setVehicle(currentNote.getVehicle());
-						userAuthorityGroupCity.setCityId(currentNote.getPlanBeginCityCode());// 用车城市编号
-						// 获取行程节点下的所有用户用车权限
-						userAuthorityGroupCity.setUserCarAuthorityList(
-								journeyUserCarPowerService.queryNoteAllUserAuthority(currentNote.getNodeId(),
-										currentNote.getPlanBeginCityCode()));
-						userAuthorityGroupCityList.add(userAuthorityGroupCity);
+						if(i==journeyNodeInfoList.size()-1){
+							//对最后一个节点的  上海-广州 特殊处理   广州有次接机
+							UserAuthorityGroupCity beginUserAuthorityGroupCity = new UserAuthorityGroupCity();
+							UserAuthorityGroupCity endUserAuthorityGroupCity = new UserAuthorityGroupCity();
+							List<UserCarAuthority> beginUserCarAuthorityList=new ArrayList<UserCarAuthority>();
+							List<UserCarAuthority> endUserCarAuthorityList=new ArrayList<UserCarAuthority>();
+							
+							List<UserCarAuthority> queryNoteAllUserAuthority = journeyUserCarPowerService.queryNoteAllUserAuthority(currentNote.getNodeId(),
+									currentNote.getPlanBeginCityCode());
+							//取第一个type 为C001 的作为目的城市的接机权限
+							for (UserCarAuthority userCarAuthority : queryNoteAllUserAuthority) {
+								if(CarConstant.USE_CAR_AIRPORT_PICKUP.equals(userCarAuthority.getType()) && endUserCarAuthorityList.size()==0){
+									endUserCarAuthorityList.add(userCarAuthority);
+									continue;
+								}
+								beginUserCarAuthorityList.add(userCarAuthority);
+							}
+							beginUserAuthorityGroupCity.setCityName(currentNote.getPlanBeginAddress());
+							beginUserAuthorityGroupCity.setVehicle(currentNote.getVehicle());
+							beginUserAuthorityGroupCity.setCityId(currentNote.getPlanBeginCityCode());// 开始用车城市编号
+							beginUserAuthorityGroupCity.setUserCarAuthorityList(beginUserCarAuthorityList);
+							userAuthorityGroupCityList.add(beginUserAuthorityGroupCity);
+							
+							endUserAuthorityGroupCity.setCityName(currentNote.getPlanEndAddress());
+							endUserAuthorityGroupCity.setVehicle(currentNote.getVehicle());
+							endUserAuthorityGroupCity.setCityId(currentNote.getPlanEndAddress());// 结束用车城市编号
+							endUserAuthorityGroupCity.setUserCarAuthorityList(endUserCarAuthorityList);
+							userAuthorityGroupCityList.add(endUserAuthorityGroupCity);
+						}else{
+							UserAuthorityGroupCity userAuthorityGroupCity = new UserAuthorityGroupCity();
+							userAuthorityGroupCity.setCityName(currentNote.getPlanBeginAddress());
+							userAuthorityGroupCity.setVehicle(currentNote.getVehicle());
+							userAuthorityGroupCity.setCityId(currentNote.getPlanBeginCityCode());// 用车城市编号
+							// 获取行程节点下的所有用户用车权限
+							userAuthorityGroupCity.setUserCarAuthorityList(
+									journeyUserCarPowerService.queryNoteAllUserAuthority(currentNote.getNodeId(),
+											currentNote.getPlanBeginCityCode()));
+							userAuthorityGroupCityList.add(userAuthorityGroupCity);
+						}
+						
+				
+						
 					} else {
 						// 当前节点的目的地不是下一节点的出发地 北京-上海 广州-深圳
 						buildAloneNoteAuthority(currentNote, userAuthorityGroupCityList);
