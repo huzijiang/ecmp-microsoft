@@ -268,12 +268,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                     s.action_time useCarTime,
                     s.address startAddr,
                     t.address endAddr,
-                     otc.state labelState
+                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
                 inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
                 inner join order_address_info t on  t.order_id=o.order_id and t.type='A999'
-                left join (select order_id,state from order_state_trace_info where order_id in(select order_id from order_info where driver_id=#{driverId}) order by create_time desc limit 1) otc on  otc.order_id=o.order_id
 				where o.driver_id=#{driverId}
 				<if test="flag==1">
                    and  (o.state="S299"  or  o.state='S500' or o.state="S600" or o.state="S616" )
@@ -307,6 +306,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              c.car_color carColor,
              c.car_type carType,
              jn.user_id userId,
+             (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState,
              (select group_concat(short_address) from order_via_info f where f.order_id=o.order_id) halfway,
              (select count(*) from journey_passenger_info where journey_id=o.journey_id) peopleCount
             from order_info o
@@ -329,12 +329,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 					 s.action_time useCarTime,
 					 s.address startAddr,
                      t.address endAddr,
-                     otc.state labelState
+                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
                 inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
                 inner join order_address_info t on  t.order_id=o.order_id and t.type='A999'
-                left join (select order_id,state from order_state_trace_info where order_id in(select order_id from order_info where driver_id=#{driverId}) order by create_time desc limit 1) otc on  otc.order_id=o.order_id
 				where o.driver_id=#{driverId} and  (o.state="S299" or o.state="S600" or o.state="S616" )
                 <if test="day!=-1">
                     <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') = DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
@@ -350,6 +349,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             d.apply_type AS applyType,
             b.type AS serverType,
             c.plan_begin_address AS useCarCity,
+            c.plan_begin_city_code as useCarCityCode,
             e.nick_name AS applyUserName,
             e.nick_name AS useCarUserName,
             a.use_car_mode AS useCarMode,
@@ -368,7 +368,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN car_info f  ON a.car_id=f.car_id
         LEFT JOIN journey_info h on a.journey_id=h.journey_id
         LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
-        where a.state in ('S299','S600','S616','S699','S900')  and m.state in ('S299','S279')
+        where a.state in ('S200','S299','S600','S616','S699','S900')  and m.state in ('S299','S279','S200')
+        GROUP BY a.order_id
 	</select>
 
 	<select id="getOrderState" resultType="com.hq.ecmp.mscore.vo.OrderStateVO">
@@ -657,7 +658,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN china_city f  ON c.city_postal_code =f.CITY_CODE
 		WHERE
 		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S100','S199','S299','S500','S600','S616','S699','S900')
-		and (a.use_car_mode is null or a.use_car_mode='W100')
+		and (a.use_car_mode is null or a.use_car_mode='W100' or a.use_car_mode='')
 		<if test="null !=applyMobile and applyMobile !=''">
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>
@@ -693,7 +694,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN order_address_info c ON a.order_id = c.order_id
 		WHERE
 		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S100','S199','S299','S500','S600','S616','S699','S900')
-		and (a.use_car_mode is null or a.use_car_mode='W100')
+		and (a.use_car_mode is null or a.use_car_mode='W100' or a.use_car_mode='')
 		<if test="null !=applyMobile and applyMobile  !=''">
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>

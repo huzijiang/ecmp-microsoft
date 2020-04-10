@@ -1,18 +1,14 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.common.core.api.ApiResponse;
-import com.hq.ecmp.mscore.dto.DispatchInfoDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectCarDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectDriverDto;
-import com.hq.ecmp.mscore.vo.CarInfoVO;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
-import com.hq.ecmp.mscore.vo.DriverInfoVO;
-
-import java.util.LinkedList;
 
 /**
+ *
  * @Author: zj.hu
  * @Date: 2020-03-17 22:53
  */
@@ -20,45 +16,45 @@ public interface IDispatchService {
 
     /**
      * 调度-获取可选择的车辆
-     * @param dispatchSelectCarDto
-     * @return
+     * @param dispatchSelectCarDto dispatchSelectCarDto
+     * @return ApiResponse<DispatchResultVo>
      */
     ApiResponse<DispatchResultVo> getWaitSelectedCars(DispatchSelectCarDto dispatchSelectCarDto);
 
     /**
      * 调度-锁定选择的车辆
-     * @param dispatchLockCarDto
-     * @return
+     * @param dispatchLockCarDto  dispatchLockCarDto
+     * @return ApiResponse
      */
     ApiResponse lockSelectedCar(DispatchLockCarDto dispatchLockCarDto);
 
     /**
      * 调度-解除锁定选择的车辆
-     * @param dispatchLockCarDto
-     * @return
+     * @param dispatchLockCarDto  dispatchLockCarDto
+     * @return ApiResponse
      */
     ApiResponse unlockSelectedCar(DispatchLockCarDto dispatchLockCarDto);
 
 
     /**
      * 调度-获取可选择的司机
-     * @param dispatchSelectDriverDto
-     * @return
+     * @param dispatchSelectDriverDto  dispatchSelectDriverDto
+     * @return ApiResponse<DispatchResultVo>
      */
 
     ApiResponse<DispatchResultVo> getWaitSelectedDrivers(DispatchSelectDriverDto dispatchSelectDriverDto);
 
     /**
      *  调度-锁定选择的司机
-     * @param dispatchLockDriverDto
-     * @return
+     * @param dispatchLockDriverDto dispatchLockDriverDto
+     * @return ApiResponse
      */
     ApiResponse lockSelectedDriver(DispatchLockDriverDto dispatchLockDriverDto);
 
     /**
      *  调度-解除锁定选择的司机
-     * @param dispatchLockDriverDto
-     * @return
+     * @param dispatchLockDriverDto dispatchLockDriverDto
+     * @return ApiResponse
      */
     ApiResponse unlockSelectedDriver(DispatchLockDriverDto dispatchLockDriverDto);
 

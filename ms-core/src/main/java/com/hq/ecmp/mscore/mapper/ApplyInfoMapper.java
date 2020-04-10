@@ -79,4 +79,6 @@ public interface ApplyInfoMapper
     MessageDto getApplyMessage(@Param("userId") Long userId,@Param("stateList") String[] stateList);
 
     int getApplyApproveCount(@Param("userId")Long userId,@Param("state")String state,@Param("roleIds")List<Long> roleIds);
+
+    List<ApplyInfo> checkApplyExpiredList(@Param("state") String state);
 }

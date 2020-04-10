@@ -1,7 +1,5 @@
 package com.hq.ecmp.ms.api.controller.invitation;
-
 import com.hq.common.core.api.ApiResponse;
-
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
@@ -9,22 +7,16 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.InvitionStateEnum;
 import com.hq.ecmp.constant.InvitionTypeEnum;
 import com.hq.ecmp.ms.api.dto.base.InviteDto;
-import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
-import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.dto.*;
-
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+
 
 /**
  *

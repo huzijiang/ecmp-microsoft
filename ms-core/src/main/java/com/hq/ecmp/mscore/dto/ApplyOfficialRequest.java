@@ -93,7 +93,7 @@ public class ApplyOfficialRequest {
      * 预估价格
      */
     @ApiModelProperty(name = "estimatePrice", value = "预估价格", required = false, position = 12)
-    private Long estimatePrice;
+    private String estimatePrice;
 
     /**
      * 成本中心,部门ID

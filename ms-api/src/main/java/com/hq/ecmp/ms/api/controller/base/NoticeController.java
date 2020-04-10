@@ -5,21 +5,19 @@ import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.domain.EcmpNoticeMapping;
-import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpNoticeDTO;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
 import com.hq.ecmp.mscore.service.EcmpNoticeMappingService;
 import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import com.hq.ecmp.mscore.service.IEcmpNoticeService;
-import com.hq.ecmp.mscore.service.IEcmpUserService;
-import com.hq.ecmp.mscore.vo.CarGroupDetailVO;
-import com.hq.ecmp.mscore.vo.CarGroupListVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 公告
@@ -61,6 +58,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "getNoticeSearchList",notes = "分页查询公告列表",httpMethod ="POST")
+    @Log(title = "公告管理:公告列表", businessType = BusinessType.OTHER)
     @PostMapping("/getNoticeSearchList")
     public ApiResponse<PageResult<EcmpNotice>> getNoticeSearchList(@RequestBody PageRequest pageRequest){
         try {
@@ -79,6 +77,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "getNoticeDetails",notes = "查询公告列表详情",httpMethod ="POST")
+    @Log(title = "公告管理:公告详情", businessType = BusinessType.OTHER)
     @PostMapping("/getNoticeDetails")
     public ApiResponse<EcmpNotice> getNoticeDetails(@RequestBody Integer noticeId){
         try {
@@ -167,6 +166,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "addNotice",notes = "新增公告信息",httpMethod ="POST")
+    @Log(title = "公告管理:新增公告", businessType = BusinessType.INSERT)
     @PostMapping("/addNotice")
     public ApiResponse addNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
         HttpServletRequest request = ServletUtils.getRequest();
@@ -226,6 +226,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "deleteNotice",notes = "删除公告信息",httpMethod ="POST")
+    @Log(title = "公告管理:删除公告", businessType = BusinessType.DELETE)
     @PostMapping("/deleteNotice")
     public ApiResponse deleteNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
         iEcmpNoticeService.deleteEcmpNoticeById(ecmpNoticeDTO.getNoticeId());
@@ -239,6 +240,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "updateNotice",notes = "修改公告信息",httpMethod ="POST")
+    @Log(title = "公告管理:修改公告", businessType = BusinessType.UPDATE)
     @PostMapping("/updateNotice")
     public ApiResponse updateNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
         HttpServletRequest request = ServletUtils.getRequest();

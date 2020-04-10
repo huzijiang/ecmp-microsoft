@@ -98,8 +98,11 @@ public class CarGroupController {
     @ApiOperation(value = "deleteCarGroup",notes = "删除车队",httpMethod ="POST")
     @PostMapping("/deleteCarGroup")
     public ApiResponse deleteCarGroup(@RequestBody CarGroupDTO carGroupDTO){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
         try {
-            String rtnMsg = carGroupInfoService.deleteCarGroup(carGroupDTO.getCarGroupId());
+            String rtnMsg = carGroupInfoService.deleteCarGroup(carGroupDTO.getCarGroupId(),userId);
             return ApiResponse.success(rtnMsg);
         } catch (Exception e) {
             e.printStackTrace();
@@ -157,7 +160,8 @@ public class CarGroupController {
     public ApiResponse<PageResult<CarGroupListVO>> getCarGroupList(@RequestBody PageRequest pageRequest){
         try {
             PageResult<CarGroupListVO> list = carGroupInfoService.selectCarGroupInfoByPage(pageRequest.getPageNum(),
-                    pageRequest.getPageSize(),pageRequest.getSearch(),pageRequest.getState(),pageRequest.getDeptId());
+                    pageRequest.getPageSize(),pageRequest.getSearch(),
+                    pageRequest.getState(),pageRequest.getDeptId(),pageRequest.getCarGroupId());
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,6 +204,24 @@ public class CarGroupController {
     }
 
     /**
+     * 查询司机所属 车队调度员及车队座机
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getOwnerCarGroupPhone",notes = "查询车队联系电话",httpMethod ="POST")
+    @PostMapping("/getOwnerCarGroupPhone")
+    public ApiResponse<CarGroupPhoneVO> getOwnerCarGroupPhone(){
+        CarGroupPhoneVO  carGroupPhoneVO = null;
+        try {
+            carGroupPhoneVO = carGroupInfoService.getOwnerCarGroupPhone();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询失败");
+        }
+        return ApiResponse.success(carGroupPhoneVO);
+    }
+
+    /**
      * 查询调度员电话机和调度员所在车队座机
      * @param
      * @return
@@ -216,6 +238,8 @@ public class CarGroupController {
         }
         return ApiResponse.success(vo);
     }
+
+
 
    /**
      * 查询公司车队树

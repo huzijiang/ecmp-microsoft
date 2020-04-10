@@ -17,6 +17,8 @@ public class DispatchOrderInfo {
        	
        	String useCarCity;//用车城市
        	
+       	String useCarCityCode;//用车城市编号
+       	
        	String applyUserName;//申请人
        	
        	String applyUserTel;//申请人手机号

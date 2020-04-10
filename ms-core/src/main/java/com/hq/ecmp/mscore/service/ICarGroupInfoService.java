@@ -101,13 +101,14 @@ public interface ICarGroupInfoService
      * @param pageSize
      * @return
      */
-    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId);
+    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId);
 
     /**
      * 删除车队
      * @param carGroupId
+     * @param userId
      */
-    String deleteCarGroup(Long carGroupId) throws Exception;
+    String deleteCarGroup(Long carGroupId,Long userId) throws Exception;
 
     //查询下级车队列表
     List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);
@@ -137,4 +138,7 @@ public interface ICarGroupInfoService
 
     /*回显车队信息*/
     CarGroupDTO getCarGroupInfoFeedBack(Long carGroupId);
+
+    /*查询司机所属车队座机及调度员电话*/
+    CarGroupPhoneVO getOwnerCarGroupPhone();
 }

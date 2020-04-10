@@ -248,6 +248,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				if(iOrderStateTraceInfoService.isReassignment(dispatchOrderInfo.getOrderId())){
 					continue;
 				}
+				//去除超时的订单
+				if(iOrderAddressInfoService.checkOrderOverTime(dispatchOrderInfo.getOrderId())){
+					continue;
+				}
 				//正常申请的调度单取对应的用车申请单的通过时间来排序
 				dispatchOrderInfo.setUpdateDate(dispatchOrderInfo.getApplyPassDate());
 				dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
@@ -261,8 +265,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		if(null !=reassignmentOrder && reassignmentOrder.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : reassignmentOrder) {
 				dispatchOrderInfo.setState(OrderState.APPLYREASSIGN.getState());
+				//去除超时的订单
+				if(iOrderAddressInfoService.checkOrderOverTime(dispatchOrderInfo.getOrderId())){
+					continue;
+				}
+				result.add(dispatchOrderInfo);
 			}
-			result.addAll(reassignmentOrder);
 		}
 		/*对用户进行订单可见校验
 		自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的调度员能看到该订单
@@ -321,6 +329,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
 	@Override
 	public List<DispatchOrderInfo> queryCompleteDispatchOrder() {
+		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//获取系统里已经完成调度的订单
 		List<DispatchOrderInfo> list = orderInfoMapper.queryCompleteDispatchOrder();
 		if(null !=list && list.size()>0){
@@ -329,9 +338,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
 				//查询订单对应的上车地点时间,下车地点时间
 				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+				//过滤掉未走调度自动约车的
+				boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(dispatchOrderInfo.getRegimenId(), dispatchOrderInfo.getUseCarCityCode());
+				if(judgeNotDispatch){
+					continue;
+				}
+				result.add(dispatchOrderInfo);
+				
 			}
 		}
-		return list;
+		return result;
 	}
 
     /**
@@ -1146,6 +1162,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         queryOrderStateMap.put("status","S200");
          String resultQuery = OkHttpUtil.postForm(apiUrl + "/service/getOrderState", queryOrderStateMap);
         JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
+        log.info("订单号"+orderId+"调用三方订单详情:"+jsonObjectQuery);
         JSONObject data = jsonObjectQuery.getJSONObject("data");
         if(!"0".equals(jsonObjectQuery.getString("code"))){
             throw new Exception("获取网约车信息失败");
@@ -1667,6 +1684,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     @Override
     public OrderStateVO getTaxiState(OrderStateVO orderVO,Long orderNo)throws Exception{
+        log.info("订单号:"+orderNo+"状态详情:"+orderVO.toString());
         if (OrderState.STOPSERVICE.getState().equals(orderVO.getState())||OrderState.ORDERCLOSE.getState().equals(orderVO.getState())){
             return orderVO;
         }
