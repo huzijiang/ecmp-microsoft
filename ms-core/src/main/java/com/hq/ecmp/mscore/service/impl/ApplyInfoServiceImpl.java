@@ -1055,6 +1055,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         }
         if(canUseCarMode.contains(CarConstant.USR_CARD_MODE_NET)){//包含网约车
             List<CarLevelAndPriceVO> carLevelAndPriceVOs = officialCommitApply.getCarLevelAndPriceVOs();
+            //包车情况没有预估价
             if(!CollectionUtils.isEmpty(carLevelAndPriceVOs)){
             for (CarLevelAndPriceVO carLevelAndPriceVO : carLevelAndPriceVOs) {
                 Integer duration = carLevelAndPriceVO.getDuration();
@@ -1438,7 +1439,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyInfo.setUseCarTime(useCarTime);
         }
         //1.6 it_is_return 是否往返 Y000 N444
-        journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());    //TODO  有往返的话，创建两个行程
+        String isGoBack = officialCommitApply.getIsGoBack();
+        journeyInfo.setItIsReturn(isGoBack == null ? JourneyConstant.IT_IS_NOT_RETURN : isGoBack);    //TODO  有往返的话，创建两个行程
         //1.7 estimate_price 预估价格     非空
         journeyInfo.setEstimatePrice(String.valueOf(officialCommitApply.getEstimatePrice()));
         //1.8 project_id  项目id
