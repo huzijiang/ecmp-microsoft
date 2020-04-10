@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.*;
@@ -96,10 +97,9 @@ public interface IOrderInfoService {
 
     /**
      *  通过用户id查询司机的任务列表
-     * @param userId
      * @return
      */
-    public  List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize)throws Exception;
+    public  List<OrderDriverListInfo> getDriverOrderList(LoginUser loginUser,int pageNum, int pageSize)throws Exception;
 
     /**
      * 查询待调单的订单详情(包含待改派的)
@@ -170,9 +170,9 @@ public interface IOrderInfoService {
 
     MessageDto getCancelOrderMessage(Long userId, String states);
 
-    List<OrderDriverListInfo> driverOrderUndoneList(Long userId, Integer pageNum, Integer pageSize, int day)throws Exception;
+    List<OrderDriverListInfo> driverOrderUndoneList(LoginUser loginUser, Integer pageNum, Integer pageSize, int day)throws Exception;
 
-    int driverOrderCount(Long userId)throws Exception;
+    int driverOrderCount(LoginUser loginUser)throws Exception;
 
     DriverOrderInfoVO driverOrderDetail(Long orderId);
 
@@ -248,7 +248,7 @@ public interface IOrderInfoService {
      */
     public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception;
 
-    Integer getDriverOrderListCount(Long userId) throws Exception;
+    Integer getDriverOrderListCount(LoginUser loginUser) throws Exception;
 
     /**
      * 网约车参数校验+调用

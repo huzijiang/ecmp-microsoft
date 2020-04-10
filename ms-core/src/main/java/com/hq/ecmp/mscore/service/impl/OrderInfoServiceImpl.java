@@ -5,10 +5,12 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
+import com.hq.api.system.domain.SysDriver;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.bo.CityInfo;
 import com.hq.ecmp.mscore.domain.*;
@@ -342,16 +344,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     /**
      * 获取司机的任务列表
-     * @param userId
      * @return
      */
     @Override
-    public List<OrderDriverListInfo> getDriverOrderList(Long userId,int pageNum, int pageSize) throws Exception{
-        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
-        if (CollectionUtils.isEmpty(driverInfos)){
+    public List<OrderDriverListInfo> getDriverOrderList(LoginUser loginUser,int pageNum, int pageSize) throws Exception{
+        SysDriver driverInfo = loginUser.getDriver();
+        if (driverInfo==null){
             throw new Exception("当前登录人不是司机");
         }
-        DriverInfo driverInfo = driverInfos.get(0);
         Long driverId = driverInfo.getDriverId();
         int flag=0;
         if (pageNum==1){//首次刷新
@@ -367,12 +367,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    public Integer getDriverOrderListCount(Long userId) throws Exception{
-        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
-        if (CollectionUtils.isEmpty(driverInfos)){
+    public Integer getDriverOrderListCount(LoginUser loginUser) throws Exception{
+        SysDriver driverInfo = loginUser.getDriver();
+        if (driverInfo==null){
             throw new Exception("当前登录人不是司机");
         }
-        DriverInfo driverInfo = driverInfos.get(0);
         Long driverId = driverInfo.getDriverId();
         String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState()+","+OrderState.ORDERCLOSE.getState();
         return orderInfoMapper.getDriverOrderListCount(driverId,states);
@@ -484,7 +483,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
             DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
             vo.setDriverScore(driverInfo.getStar()+"");
-            if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
+            if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.ORDERCLOSE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
                 //服务结束后获取里程用车时长
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
@@ -1049,25 +1048,26 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    public List<OrderDriverListInfo> driverOrderUndoneList(Long userId, Integer pageNum, Integer pageSize, int day) throws Exception {
-        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
-        if (CollectionUtils.isEmpty(driverInfos)){
+    public List<OrderDriverListInfo> driverOrderUndoneList(LoginUser loginUser, Integer pageNum, Integer pageSize, int day) throws Exception {
+        SysDriver driver = loginUser.getDriver();
+        if (driver==null){
             throw new Exception("当前登录人不是司机");
         }
-        DriverInfo driverInfo = driverInfos.get(0);
-        Long driverId = driverInfo.getDriverId();
+//        DriverInfo driverInfo = driverInfos.get(0);
+        Long driverId = driver.getDriverId();
         List<OrderDriverListInfo> lsit=orderInfoMapper.driverOrderUndoneList(driverId,day);
         return lsit;
     }
 
     @Override
-    public int driverOrderCount(Long userId) throws Exception{
-        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(new DriverInfo(userId));
-        if (CollectionUtils.isEmpty(driverInfos)){
+    public int driverOrderCount( LoginUser loginUser) throws Exception{
+        SysDriver driver = loginUser.getDriver();
+        if (driver==null){
             throw new Exception("当前登录人不是司机");
         }
+        Long driverId = driver.getDriverId();
         String states=OrderState.ALREADYSENDING.getState()+","+OrderState.READYSERVICE.getState();
-        return orderInfoMapper.getDriverOrderCount(driverInfos.get(0).getDriverId(),states);
+        return orderInfoMapper.getDriverOrderCount(driverId,states);
     }
 
     //获取司机任务详情
@@ -1671,7 +1671,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public OrderStateVO getTaxiState(OrderStateVO orderVO,Long orderNo)throws Exception{
         log.info("订单号:"+orderNo+"状态详情:"+orderVO.toString());
-        if (OrderState.STOPSERVICE.getState().equals(orderVO.getState())||OrderState.ORDERCLOSE.getState().equals(orderVO.getState())){
+        List<String> states=Arrays.asList(OrderState.INITIALIZING.getState(),OrderState.WAITINGLIST.getState(),OrderState.GETARIDE.getState(),
+                            OrderState.SENDINGCARS.getState(),OrderState.ORDERCLOSE.getState(),OrderState.STOPSERVICE.getState());
+        if (states.contains(orderVO.getState())){
             return orderVO;
         }
         JSONObject thirdPartyOrderState = this.getThirdPartyOrderState(orderNo);
@@ -1681,9 +1683,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String status = thirdPartyOrderState.getString("status");
         String lableState=thirdPartyOrderState.getString("status");
         String json = thirdPartyOrderState.getString("driverInfo");
-        if (OrderState.STOPSERVICE.getState().equals(orderVO.getState())){
-            return orderVO;
-        }
         DriverCloudDto driverCloudDto=new DriverCloudDto();
         if (StringUtils.isNotEmpty(json)){
             driverCloudDto = JSONObject.parseObject(json, DriverCloudDto.class);
@@ -1694,11 +1693,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 latitude = Double.parseDouble(split[1]);
             }
         }
-        int newState = Integer.parseInt(status.substring(1));
-        int startState = Integer.parseInt(OrderState.REASSIGNPASS.getState().substring(1));
-        int endState= Integer.parseInt(OrderState.STOPSERVICE.getState().substring(1));
-        OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
         if (!status.equals(orderVO.getState())) {
+            int newState = Integer.parseInt(status.substring(1));
+            int startState = Integer.parseInt(OrderState.REASSIGNPASS.getState().substring(1));
+            int endState= Integer.parseInt(OrderState.STOPSERVICE.getState().substring(1));
+            OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
             if (newState >= startState && newState <= endState) {//服务中的状态
                 newOrderInfo.setDriverName(driverCloudDto.getDriverName());
                 newOrderInfo.setDriverMobile(driverCloudDto.getPhone());

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -375,33 +376,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     @Transactional
     public int addDept(EcmpOrgVo ecmpOrgVo ,Long userId) throws Exception{
         boolean flag=false;
-        if (StringUtils.isBlank(ecmpOrgVo.getDeptName())){
-            throw new Exception("部门/公司名称不可为空");
-        }
-        if (StringUtils.isBlank(ecmpOrgVo.getDeptCode())){
-            throw new Exception("部门/公司编号不可为空");
-        }
-        int j = ecmpOrgMapper.selectDeptCodeExist(ecmpOrgVo.getDeptCode().trim());
-        if(j>0){
-            throw  new Exception("该编号已存在，不可重复录入！");
-        }
-        if(ecmpOrgVo.getParentId()==null||ecmpOrgVo.getParentId()==0){
-            throw new Exception("上级部门/公司不可为空");
-        }
+
+        this.checkOrgVo(ecmpOrgVo,1);//1新增,0编辑校验
         if (CommonConstant.START.equals(ecmpOrgVo.getDeptType())){//公司
-            if (StringUtils.isBlank(ecmpOrgVo.getEmail())){
-                throw new Exception("主管邮箱为空!");
-            }
-            if (StringUtils.isBlank(ecmpOrgVo.getLeader())){
-                throw new Exception("主管为空!");
-            }
-            if (StringUtils.isBlank(ecmpOrgVo.getPhone())){
-                throw new Exception("主管手机号为空!");
-            }
-            int count = ecmpUserMapper.selectEmailExist(ecmpOrgVo.getEmail().trim());
-            if(count>0){
-                throw  new Exception("该邮箱已存在，不可重复录入！");
-            }
             EcmpUser userByPhone = ecmpUserMapper.getUserByPhone(ecmpOrgVo.getPhone());
             if (userByPhone!=null){
                 log.info("新增公司:公司主管手机号:"+ecmpOrgVo.getPhone()+"信息"+userByPhone.getUserId()+userByPhone.getUserName());
@@ -438,6 +415,45 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         return iz;
     }
 
+    /**
+     * 部门公司校验
+     * @param ecmpOrgVo
+     * @param flag 1新增,0编辑
+     * @throws Exception
+     */
+    private void checkOrgVo(EcmpOrgVo ecmpOrgVo,int flag)throws Exception{
+        if (StringUtils.isBlank(ecmpOrgVo.getDeptName())){
+            throw new Exception("部门/公司名称不可为空");
+        }
+        if (StringUtils.isNotBlank(ecmpOrgVo.getDeptCode())){
+            int j = ecmpOrgMapper.selectDeptCodeExist(ecmpOrgVo.getDeptCode().trim());
+            if(j>0){
+                throw  new Exception("该编号已存在，不可重复录入！");
+            }
+        }
+        if (flag==1){
+            if(ecmpOrgVo.getParentId()==null||ecmpOrgVo.getParentId().intValue()==0){
+                throw new Exception("上级部门/公司不可为空");
+            }
+            if (CommonConstant.START.equals(ecmpOrgVo.getDeptType())) {//公司
+                if (StringUtils.isBlank(ecmpOrgVo.getEmail())) {
+                    throw new Exception("主管邮箱为空!");
+                }
+                if (StringUtils.isBlank(ecmpOrgVo.getLeader())) {
+                    throw new Exception("主管为空!");
+                }
+                if (StringUtils.isBlank(ecmpOrgVo.getPhone())) {
+                    throw new Exception("主管手机号为空!");
+                }
+                int count = ecmpUserMapper.selectEmailExist(ecmpOrgVo.getEmail().trim());
+                if (count > 0) {
+                    throw new Exception("该邮箱已存在，不可重复录入！");
+                }
+            }
+        }
+
+    }
+
     /*
      * 查询上级部门下的所有员工
      *  @param  ecmpOrg
@@ -458,9 +474,10 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * */
     @Transactional
     @Override
-    public int updateDept(EcmpOrgVo ecmpOrg){
+    public int updateDept(EcmpOrgVo ecmpOrg,Long userId)throws Exception{
+        this.checkOrgVo(ecmpOrg,0);
         ecmpOrg.setUpdateTime(DateUtils.getNowDate());
-        //添加部门
+        ecmpOrg.setUpdateBy(String.valueOf(userId));
         int ix = ecmpOrgMapper.updateDept(ecmpOrg);
         //添加部门角色关联信息
         //添加角色用户关联信息

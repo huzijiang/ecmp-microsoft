@@ -549,9 +549,8 @@ public class OrderController {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            Long userId = loginUser.getUser().getUserId();
-            driverOrderList = iOrderInfoService.getDriverOrderList(userId, driverListRequest.getPageNum(), driverListRequest.getPageSize());
-            Integer count=iOrderInfoService.getDriverOrderListCount(userId);
+            driverOrderList = iOrderInfoService.getDriverOrderList(loginUser, driverListRequest.getPageNum(), driverListRequest.getPageSize());
+            Integer count=iOrderInfoService.getDriverOrderListCount(loginUser);
             return ApiResponse.success(new PageResult<OrderDriverListInfo>(Long.valueOf(count),driverOrderList));
         } catch (Exception e) {
             e.printStackTrace();
@@ -573,9 +572,7 @@ public class OrderController {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-//            Long userId = loginUser.getDriver().getDriverId();
-            Long userId=loginUser.getUser().getUserId();
-            driverOrderList = iOrderInfoService.driverOrderUndoneList(userId, driverListRequest.getPageNum(), driverListRequest.getPageSize(),driverListRequest.getDay());
+            driverOrderList = iOrderInfoService.driverOrderUndoneList(loginUser, driverListRequest.getPageNum(), driverListRequest.getPageSize(),driverListRequest.getDay());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -589,8 +586,7 @@ public class OrderController {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            Long userId = loginUser.getUser().getUserId();
-            int count = iOrderInfoService.driverOrderCount(userId);
+            int count = iOrderInfoService.driverOrderCount(loginUser);
             return ApiResponse.success(count);
         } catch (Exception e) {
             e.printStackTrace();

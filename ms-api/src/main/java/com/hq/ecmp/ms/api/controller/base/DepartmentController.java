@@ -126,10 +126,14 @@ public class DepartmentController {
     @ApiOperation(value = "修改部门",notes = "修改部门",httpMethod ="POST")
     @PostMapping("/updateDept")
     public ApiResponse updateDept(@RequestBody EcmpOrgVo ecmpOrg){
-        int i = orgService.updateDept(ecmpOrg);
-        if (i == 1){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            int i = orgService.updateDept(ecmpOrg, loginUser.getUser().getUserId());
             return ApiResponse.success("修改部门成功!");
-        }else {
+
+        } catch (Exception e) {
+            e.printStackTrace();
             return ApiResponse.error("修改部门失败!");
         }
     }
