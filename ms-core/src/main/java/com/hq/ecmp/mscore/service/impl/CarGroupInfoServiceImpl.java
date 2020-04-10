@@ -158,8 +158,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setParentCarGroupId(parentCarGroupId);
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
-        //所属城市名字
-       // carGroupInfo.setCityName(carGroupDTO.getCityName());
         //车队名称
         carGroupInfo.setCarGroupName(carGroupDTO.getCarGroupName());
         //车队详细地址
@@ -327,8 +325,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setCity(carGroupDTO.getCity());
         //父id
         carGroupInfo.setParentCarGroupId(carGroupDTO.getParentCarGroupId());
-        //所属城市名字
-       // carGroupInfo.setCityName(carGroupDTO.getCityName());
         //车队名称
         carGroupInfo.setCarGroupName(carGroupDTO.getCarGroupName());
         //车队详细地址
@@ -396,7 +392,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param userId
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void disableCarGroup(Long carGroupId, Long userId) throws Exception {
         //递归禁用车队及下属车队的驾驶员和车辆
         changeState(carGroupId, null, String.valueOf(userId), CarConstant.DISABLE_CAR_GROUP,
@@ -471,8 +467,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //获得车队下的驾驶员集合
                 List<CarGroupDriverRelation> driverList = carGroupDriverRelationMapper.selectCarGroupDriverRelationList(carGroupDriverRelation);
                 //启用驾驶员
-                if(driverList != null && driverList.size() != 0)
+                if(driverList != null && driverList.size() != 0) {
                     driverInfoMapper.updateDriverState(driverList, String.valueOf(userId), driverState);
+                }
                 //递归调用，当前车队的下属车队处理逻辑，根据车队归属的组织查询
                 changeState(null, id, userId, carGroupState, carState, driverState);
             }
@@ -488,9 +485,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @return
      */
     @Override
-    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId) {
+    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId) {
         PageHelper.startPage(pageNum,pageSize);
-        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search,state,deptId);
+        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search,state,deptId,carGroupId);
         getCarGroupExtraInfo(list);
         PageInfo<CarGroupListVO> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);
@@ -575,7 +572,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         int row = 0;
         if (carGroupList != null && carGroupList.size() > 0) {
             for (CarGroupInfo carGroupInfo : carGroupList) {
-//                delRow = carGroupInfoMapper.deleteCarGroupInfoById(carGroupInfo.getCarGroupId());
                 CarGroupInfo updateBean = new CarGroupInfo();
                 updateBean.setCarGroupId(carGroupInfo.getCarGroupId());
                 updateBean.setState(CarConstant.DELETE_CAR_GROUP);
@@ -847,7 +843,37 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         return null;
     }
 
-   /* *//**
+    /*查询司机所属车队座机及车队调度员电话*/
+    @Override
+    public CarGroupPhoneVO getOwnerCarGroupPhone() {
+        Long loginUserId = getLoginUserId();
+        //查询司机所属车队
+        Long driverId = driverInfoMapper.selectDriverIdByUserId(loginUserId);
+        if(driverId == null){
+            throw new RuntimeException("该用户不是司机");
+        }
+        CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
+        carGroupDriverRelation.setDriverId(driverId);
+        List<CarGroupDriverRelation> carGroupDriverRelations = carGroupDriverRelationMapper.selectCarGroupDriverRelationList(carGroupDriverRelation);
+        if(!CollectionUtils.isEmpty(carGroupDriverRelations)){
+            Long carGroupId = carGroupDriverRelations.get(0).getCarGroupId();
+            CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+            if(ObjectUtils.isEmpty(carGroupInfo)){
+                throw new RuntimeException("所属车队不存在");
+            }
+            CarGroupPhoneVO carGroupPhoneVO = new CarGroupPhoneVO();
+            carGroupPhoneVO.setCarGroupName(carGroupInfo.getCarGroupName());
+            carGroupPhoneVO.setPhone(carGroupInfo.getTelephone());
+            //查询车队调度员信息
+            List<UserVO> carGroupDispatchers = getCarGroupDispatchers(carGroupId);
+            carGroupPhoneVO.setDispatchers(carGroupDispatchers);
+            return carGroupPhoneVO;
+        }else {
+            return null;
+        }
+    }
+
+    /* *//**
      * 判断是否是一级车队
      * @param carGroupId
      * @return

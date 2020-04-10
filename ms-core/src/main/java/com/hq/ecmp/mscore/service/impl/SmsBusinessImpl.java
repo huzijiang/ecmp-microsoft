@@ -688,7 +688,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
                     for (CarGroupDispatcherInfo carGroupDispatcherInfo1:
                     carGroupDispatcherInfos) {
                         sendMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(),carGroupDispatcherInfo1.getUserId(),
-                                MsgConstant.MESSAGE_T009.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                                MsgConstant.MESSAGE_T003.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
                                 orderId,createId,"您有一条调度任务待处理,请注意查看！");
                     }
                     break;

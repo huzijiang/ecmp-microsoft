@@ -67,8 +67,15 @@ public interface CarGroupInfoMapper
      */
     public int deleteCarGroupInfoByIds(Long[] carGroupIds);
 
-    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId);
-
+    /**
+     * 查找车队的集合
+     * @param search
+     * @param state
+     * @param deptId
+     * @param carGroupId
+     * @return
+     */
+    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId);
 
     /**
      * 查询该组织下的车队信息
@@ -108,12 +115,18 @@ public interface CarGroupInfoMapper
      */
     List<CarGroupInfo> selectCarGroupsByDriverId(Long driverId);
 
-
-
-    /*根据分子公司id查询一级车队*/
+    /**
+     * 根据分子公司id查询一级车队
+     * @param deptId
+     * @return
+     */
     List<CarGroupTreeVO> selectFirstLevelCarGroupList(Long deptId);
 
-    /*根据车队id查询车队树*/
+    /**
+     * 根据车队id查询车队树
+     * @param carGroupId
+     * @return
+     */
     List<CarGroupTreeVO> getCarGroupTree(Long carGroupId);
 
     /**
@@ -123,7 +136,10 @@ public interface CarGroupInfoMapper
      */
     int selectCountByParentId(Long parentId);
 
-    /*查询所有车队编号*/
+    /**
+     * 查询所有车队编号
+     * @return
+     */
     List<String> selectAllCarGroupCode();
 
 }
