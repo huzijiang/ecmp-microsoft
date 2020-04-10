@@ -400,8 +400,9 @@ public class ApplyContoller {
                 applyInfoService.updateApplyState(journeyApplyDto.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),userId);
                 throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
             }
-        }else{
-            if (journeyInfo.getStartDate().getTime()<new Date().getTime()){//申请单已过期
+        }else{//差旅
+            int i = DateFormatUtils.compareDay(journeyInfo.getStartDate(), new Date());
+            if (i==ONE){//申请单已过期
                 applyInfoService.updateApplyState(journeyApplyDto.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),userId);
                 throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
             }

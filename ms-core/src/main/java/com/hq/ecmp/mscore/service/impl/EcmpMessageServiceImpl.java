@@ -283,7 +283,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
             ecmpMessageDao.insertList(dispatcherMessage);//保存消息通知
         }
         //给调度员发短信
-        this.sendMessageForDispatch(dispatcherMessage,journeyInfo,journeyNodeInfos);
+        this.sendMessageForDispatch(dispatcherMessage,journeyInfo,journeyNodeInfos,applyInfo.getCreateBy());
     }
 
     @Async
@@ -355,14 +355,20 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
      * 给调度员发短信
      * @throws Exception
      */
-    private void sendMessageForDispatch(List<EcmpMessage> dispatcherMessage,JourneyInfo journeyInfo,List<JourneyNodeInfo> journeyNodeInfos) throws Exception{
+    private void sendMessageForDispatch(List<EcmpMessage> dispatcherMessage,JourneyInfo journeyInfo,List<JourneyNodeInfo> journeyNodeInfos,String applyUserId) throws Exception{
         if (CollectionUtils.isNotEmpty(dispatcherMessage)){
             List<Long> userIds = dispatcherMessage.stream().map(EcmpMessage::getEcmpId).collect(Collectors.toList());
             CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(journeyNodeInfos.get(0).getPlanBeginCityCode());
             List<EcmpUser> list = ecmpUserMapper.getListByUserIds(userIds);
+            String applyUserName="";
+            EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(applyUserId));
+            if (ecmpUser!=null){
+                applyUserName=ecmpUser.getNickName();
+            }
             if (CollectionUtils.isNotEmpty(list)){
                 Map<String,String> map=Maps.newHashMap();
                 map.put("city",cityInfo.getCityName());
+                map.put("userName",applyUserName);
                 String useCarTime= DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,journeyInfo.getUseCarTime());
                 map.put("useCarTime",useCarTime);
                 for (EcmpUser user:list){
