@@ -1149,6 +1149,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         queryOrderStateMap.put("status","S200");
          String resultQuery = OkHttpUtil.postForm(apiUrl + "/service/getOrderState", queryOrderStateMap);
         JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
+        log.info("订单号"+orderId+"调用三方订单详情:"+jsonObjectQuery);
         JSONObject data = jsonObjectQuery.getJSONObject("data");
         if(!"0".equals(jsonObjectQuery.getString("code"))){
             throw new Exception("获取网约车信息失败");
@@ -1669,6 +1670,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     @Override
     public OrderStateVO getTaxiState(OrderStateVO orderVO,Long orderNo)throws Exception{
+        log.info("订单号:"+orderNo+"状态详情:"+orderVO.toString());
         if (OrderState.STOPSERVICE.getState().equals(orderVO.getState())||OrderState.ORDERCLOSE.getState().equals(orderVO.getState())){
             return orderVO;
         }

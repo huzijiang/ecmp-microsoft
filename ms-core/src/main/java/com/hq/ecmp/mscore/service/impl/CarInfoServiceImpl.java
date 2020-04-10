@@ -129,7 +129,6 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setUpdateTime(new Date());
         //更新车辆状态为启用
         int row = carInfoMapper.updateCarInfo(carInfo);
-//        int i = carInfoMapper.deleteCarInfoById(carId);
         if(row != 1){
             throw new Exception("删除失败");
         }

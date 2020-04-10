@@ -158,8 +158,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setParentCarGroupId(parentCarGroupId);
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
-        //所属城市名字
-       // carGroupInfo.setCityName(carGroupDTO.getCityName());
         //车队名称
         carGroupInfo.setCarGroupName(carGroupDTO.getCarGroupName());
         //车队详细地址
@@ -327,8 +325,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setCity(carGroupDTO.getCity());
         //父id
         carGroupInfo.setParentCarGroupId(carGroupDTO.getParentCarGroupId());
-        //所属城市名字
-       // carGroupInfo.setCityName(carGroupDTO.getCityName());
         //车队名称
         carGroupInfo.setCarGroupName(carGroupDTO.getCarGroupName());
         //车队详细地址
@@ -396,7 +392,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param userId
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void disableCarGroup(Long carGroupId, Long userId) throws Exception {
         //递归禁用车队及下属车队的驾驶员和车辆
         changeState(carGroupId, null, String.valueOf(userId), CarConstant.DISABLE_CAR_GROUP,
@@ -471,8 +467,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //获得车队下的驾驶员集合
                 List<CarGroupDriverRelation> driverList = carGroupDriverRelationMapper.selectCarGroupDriverRelationList(carGroupDriverRelation);
                 //启用驾驶员
-                if(driverList != null && driverList.size() != 0)
+                if(driverList != null && driverList.size() != 0) {
                     driverInfoMapper.updateDriverState(driverList, String.valueOf(userId), driverState);
+                }
                 //递归调用，当前车队的下属车队处理逻辑，根据车队归属的组织查询
                 changeState(null, id, userId, carGroupState, carState, driverState);
             }
@@ -575,7 +572,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         int row = 0;
         if (carGroupList != null && carGroupList.size() > 0) {
             for (CarGroupInfo carGroupInfo : carGroupList) {
-//                delRow = carGroupInfoMapper.deleteCarGroupInfoById(carGroupInfo.getCarGroupId());
                 CarGroupInfo updateBean = new CarGroupInfo();
                 updateBean.setCarGroupId(carGroupInfo.getCarGroupId());
                 updateBean.setState(CarConstant.DELETE_CAR_GROUP);
