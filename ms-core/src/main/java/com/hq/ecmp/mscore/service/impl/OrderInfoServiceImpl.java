@@ -246,6 +246,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				if(iOrderStateTraceInfoService.isReassignment(dispatchOrderInfo.getOrderId())){
 					continue;
 				}
+				//去除超时的订单
+				if(iOrderAddressInfoService.checkOrderOverTime(dispatchOrderInfo.getOrderId())){
+					continue;
+				}
 				//正常申请的调度单取对应的用车申请单的通过时间来排序
 				dispatchOrderInfo.setUpdateDate(dispatchOrderInfo.getApplyPassDate());
 				dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
@@ -259,8 +263,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		if(null !=reassignmentOrder && reassignmentOrder.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : reassignmentOrder) {
 				dispatchOrderInfo.setState(OrderState.APPLYREASSIGN.getState());
+				//去除超时的订单
+				if(iOrderAddressInfoService.checkOrderOverTime(dispatchOrderInfo.getOrderId())){
+					continue;
+				}
+				result.add(dispatchOrderInfo);
 			}
-			result.addAll(reassignmentOrder);
 		}
 		/*对用户进行订单可见校验
 		自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的调度员能看到该订单

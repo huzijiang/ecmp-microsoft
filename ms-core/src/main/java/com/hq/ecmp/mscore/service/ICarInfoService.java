@@ -63,10 +63,11 @@ public interface ICarInfoService
     /**
      * 删除【请填写功能名称】信息
      *
-     * @param carId 【请填写功能名称】ID
+     * @param carId 车辆ID
+     * @param userId 用户ID
      * @return 结果
      */
-    public int deleteCarInfoById(Long carId) throws Exception;
+    public int deleteCarInfoById(Long carId, Long userId) throws Exception;
 
     /**
      * 新增车辆

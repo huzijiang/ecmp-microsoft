@@ -1002,9 +1002,108 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
         journeyPassergerOfficialCommit(officialCommitApply, journeyId, journeyPassengerInfo);
 
-        //公务申请成功后 ---------------1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信 4.保存预估价格表
+
         Long userId = getLoginUserId();
         Integer regimenId = officialCommitApply.getRegimenId();
+
+        //-------------------  保存预估价格表 -------------------
+        String isGoBack = officialCommitApply.getIsGoBack();
+        //包含自有车
+        if(canUseCarMode.contains(CarConstant.USR_CARD_MODE_HAVE)){
+            JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+            journeyPlanPriceInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
+            journeyPlanPriceInfo.setSource("高德");
+            journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
+            journeyPlanPriceInfo.setCreateBy(String.valueOf(userId));
+            journeyPlanPriceInfo.setNodeId(nodeIdNoReturn);
+            journeyPlanPriceInfo.setJourneyId(journeyId);
+            journeyPlanPriceInfo.setPrice(new BigDecimal(0));
+            Date applyDate = officialCommitApply.getApplyDate();
+            //如果是接机，时间单独判断
+            if (applyDate != null){
+                journeyPlanPriceInfo.setPlannedDepartureTime(applyDate);
+                journeyPlanPriceInfo.setPlannedArrivalTime(new Date(totalTime*1000+applyDate.getTime()));
+            }else {
+                Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+                Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+                journeyPlanPriceInfo.setPlannedDepartureTime(useCarTime);
+                journeyPlanPriceInfo.setPlannedArrivalTime(new Date(useCarTime.getTime() + totalTime*1000));
+            }
+            journeyPlanPriceInfo.setDuration((int) TimeUnit.MINUTES.convert(totalTime, TimeUnit.SECONDS));
+            journeyPlanPriceInfo.setPowerId(null);
+            journeyPlanPriceInfo.setOrderId(null);
+            String[] splits = useCarModeOwnerLevel.split(",");
+            for (String split:
+                    splits) {
+                EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
+                enterpriseCarTypeInfo.setLevel(split);
+                List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
+                if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
+                    EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
+                    journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
+                }
+                journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+                //如果有往返 并且需要追则追加存一条
+                if(CommonConstant.IS_RETURN.equals(isGoBack)){
+                    Long returnWaitTime = Long.valueOf(officialCommitApply.getReturnWaitTime());
+                    journeyPlanPriceInfo.setNodeId(nodeIdIsReturn);
+                    journeyPlanPriceInfo.setPlannedDepartureTime(new Date(totalTime*1000+applyDate.getTime()+returnWaitTime));
+                    journeyPlanPriceInfo.setPlannedArrivalTime(new Date(2*totalTime*1000+applyDate.getTime()+returnWaitTime));
+                    journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+                }
+            }
+        }
+        if(canUseCarMode.contains(CarConstant.USR_CARD_MODE_NET)){//包含网约车
+            List<CarLevelAndPriceVO> carLevelAndPriceVOs = officialCommitApply.getCarLevelAndPriceVOs();
+            //包车情况没有预估价
+            if(!CollectionUtils.isEmpty(carLevelAndPriceVOs)){
+            for (CarLevelAndPriceVO carLevelAndPriceVO : carLevelAndPriceVOs) {
+                Integer duration = carLevelAndPriceVO.getDuration();
+                Date applyDate = officialCommitApply.getApplyDate();
+                JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+                journeyPlanPriceInfo.setUseCarMode(CarConstant.USR_CARD_MODE_NET);
+                //如果是接机，时间单独判断
+                if (applyDate != null){
+                    journeyPlanPriceInfo.setPlannedDepartureTime(applyDate);
+                    journeyPlanPriceInfo.setPlannedArrivalTime(new Date(duration*60*1000+applyDate.getTime()));
+                }else {
+                    Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+                    Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+                    journeyPlanPriceInfo.setPlannedDepartureTime(useCarTime);
+                    journeyPlanPriceInfo.setPlannedArrivalTime(new Date(useCarTime.getTime() + duration*60*1000));
+                }
+                //根據车型查询车型id
+                String onlineCarLevel = carLevelAndPriceVO.getOnlineCarLevel();
+                Long carTypeId = enterpriseCarTypeInfoMapper.selectCarTypeId(onlineCarLevel);
+                journeyPlanPriceInfo.setJourneyId(journeyId);
+                journeyPlanPriceInfo.setNodeId(nodeIdNoReturn);
+                journeyPlanPriceInfo.setCarTypeId(carTypeId);
+                journeyPlanPriceInfo.setPowerId(null);
+                journeyPlanPriceInfo.setOrderId(null);
+                journeyPlanPriceInfo.setPrice(BigDecimal.valueOf(carLevelAndPriceVO.getEstimatePrice()));
+
+                journeyPlanPriceInfo.setDuration(duration);
+                journeyPlanPriceInfo.setSource(carLevelAndPriceVO.getSource());
+                journeyPlanPriceInfo.setCreateBy(String.valueOf(getLoginUserId()));
+                journeyPlanPriceInfo.setCreateTime(new Date());
+                journeyPlanPriceInfo.setUpdateBy(null);
+                journeyPassengerInfo.setUpdateTime(null);
+                journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+                //如果有往返 并且需要追则追加存一条
+                if(CommonConstant.IS_RETURN.equals(isGoBack)){
+                    Long returnWaitTime = Long.valueOf(officialCommitApply.getReturnWaitTime());
+                    journeyPlanPriceInfo.setNodeId(nodeIdIsReturn);
+                    journeyPlanPriceInfo.setPlannedDepartureTime(new Date(duration*60*1000+applyDate.getTime()+returnWaitTime));
+                    journeyPlanPriceInfo.setPlannedArrivalTime(new Date(2*duration*60*1000+applyDate.getTime()+returnWaitTime));
+                    journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+                }
+            }
+            }
+        }
+
+
+        //公务申请成功后 ---------------1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信 4.保存预估价格表
+
 
         //-------------------- 如果不经审批 则初始化权限和初始化订单 ------------------------
         if(regimenId != null){
@@ -1015,7 +1114,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             @Override
             public void run() {
                         try {
-                            //初始化用车权限
+                            //初始化用车权限   TODO 包车不用初始化权限？
                             boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
                             if(!optFlag){
                                log.error("生成用车权限失败");
@@ -1089,100 +1188,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             }
         }
 
-        //-------------------  保存预估价格表 -------------------
-        String isGoBack = officialCommitApply.getIsGoBack();
-        //包含自有车
-        if(canUseCarMode.contains(CarConstant.USR_CARD_MODE_HAVE)){
-            JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
-            journeyPlanPriceInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
-            journeyPlanPriceInfo.setSource("高德");
-            journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
-            journeyPlanPriceInfo.setCreateBy(String.valueOf(userId));
-            journeyPlanPriceInfo.setNodeId(nodeIdNoReturn);
-            journeyPlanPriceInfo.setJourneyId(journeyId);
-            journeyPlanPriceInfo.setPrice(new BigDecimal(0));
-            Date applyDate = officialCommitApply.getApplyDate();
-            //如果是接机，时间单独判断
-            if (applyDate != null){
-                journeyPlanPriceInfo.setPlannedDepartureTime(applyDate);
-                journeyPlanPriceInfo.setPlannedArrivalTime(new Date(totalTime*1000+applyDate.getTime()));
-            }else {
-                Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
-                Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
-                journeyPlanPriceInfo.setPlannedDepartureTime(useCarTime);
-                journeyPlanPriceInfo.setPlannedArrivalTime(new Date(useCarTime.getTime() + totalTime*1000));
-            }
-            journeyPlanPriceInfo.setDuration((int) TimeUnit.MINUTES.convert(totalTime, TimeUnit.SECONDS));
-            journeyPlanPriceInfo.setPowerId(null);
-            journeyPlanPriceInfo.setOrderId(null);
-            String[] splits = useCarModeOwnerLevel.split(",");
-            for (String split:
-                    splits) {
-                EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
-                enterpriseCarTypeInfo.setLevel(split);
-                List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
-                if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
-                    EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
-                    journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
-                }
-                journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
-                //如果有往返 并且需要追则追加存一条
-                if(CommonConstant.IS_RETURN.equals(isGoBack)){
-                    Long returnWaitTime = Long.valueOf(officialCommitApply.getReturnWaitTime());
-                    journeyPlanPriceInfo.setNodeId(nodeIdIsReturn);
-                    journeyPlanPriceInfo.setPlannedDepartureTime(new Date(totalTime*1000+applyDate.getTime()+returnWaitTime));
-                    journeyPlanPriceInfo.setPlannedArrivalTime(new Date(2*totalTime*1000+applyDate.getTime()+returnWaitTime));
-                    journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
-                }
-            }
-        }
-        if(canUseCarMode.contains(CarConstant.USR_CARD_MODE_NET)){//包含网约车
-            List<CarLevelAndPriceVO> carLevelAndPriceVOs = officialCommitApply.getCarLevelAndPriceVOs();
-            for (CarLevelAndPriceVO carLevelAndPriceVO : carLevelAndPriceVOs) {
-                Integer duration = carLevelAndPriceVO.getDuration();
-                Date applyDate = officialCommitApply.getApplyDate();
-                JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
-                journeyPlanPriceInfo.setUseCarMode(CarConstant.USR_CARD_MODE_NET);
-                //如果是接机，时间单独判断
-                if (applyDate != null){
-                    journeyPlanPriceInfo.setPlannedDepartureTime(applyDate);
-                    journeyPlanPriceInfo.setPlannedArrivalTime(new Date(duration*60*1000+applyDate.getTime()));
-                }else {
-                    Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
-                    Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
-                    journeyPlanPriceInfo.setPlannedDepartureTime(useCarTime);
-                    journeyPlanPriceInfo.setPlannedArrivalTime(new Date(useCarTime.getTime() + duration*60*1000));
-                }
-                //根據车型查询车型id
-                String onlineCarLevel = carLevelAndPriceVO.getOnlineCarLevel();
-                Long carTypeId = enterpriseCarTypeInfoMapper.selectCarTypeId(onlineCarLevel);
-                journeyPlanPriceInfo.setJourneyId(journeyId);
-                journeyPlanPriceInfo.setNodeId(nodeIdNoReturn);
-                journeyPlanPriceInfo.setCarTypeId(carTypeId);
-                journeyPlanPriceInfo.setPowerId(null);
-                journeyPlanPriceInfo.setOrderId(null);
-                journeyPlanPriceInfo.setPrice(BigDecimal.valueOf(carLevelAndPriceVO.getEstimatePrice()));
 
-                journeyPlanPriceInfo.setDuration(duration);
-                journeyPlanPriceInfo.setSource(carLevelAndPriceVO.getSource());
-                journeyPlanPriceInfo.setCreateBy(String.valueOf(getLoginUserId()));
-                journeyPlanPriceInfo.setCreateTime(new Date());
-                journeyPlanPriceInfo.setUpdateBy(null);
-                journeyPassengerInfo.setUpdateTime(null);
-                journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
-                //如果有往返 并且需要追则追加存一条
-                if(CommonConstant.IS_RETURN.equals(isGoBack)){
-                    Long returnWaitTime = Long.valueOf(officialCommitApply.getReturnWaitTime());
-                    journeyPlanPriceInfo.setNodeId(nodeIdIsReturn);
-                    journeyPlanPriceInfo.setPlannedDepartureTime(new Date(duration*60*1000+applyDate.getTime()+returnWaitTime));
-                    journeyPlanPriceInfo.setPlannedArrivalTime(new Date(2*duration*60*1000+applyDate.getTime()+returnWaitTime));
-                    journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
-                }
-            }
-
-
-
-        }
         return applyVO;
     }
 
@@ -1433,7 +1439,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyInfo.setUseCarTime(useCarTime);
         }
         //1.6 it_is_return 是否往返 Y000 N444
-        journeyInfo.setItIsReturn(officialCommitApply.getIsGoBack());    //TODO  有往返的话，创建两个行程
+        String isGoBack = officialCommitApply.getIsGoBack();
+        journeyInfo.setItIsReturn(isGoBack == null ? JourneyConstant.IT_IS_NOT_RETURN : isGoBack);    //TODO  有往返的话，创建两个行程
         //1.7 estimate_price 预估价格     非空
         journeyInfo.setEstimatePrice(String.valueOf(officialCommitApply.getEstimatePrice()));
         //1.8 project_id  项目id
