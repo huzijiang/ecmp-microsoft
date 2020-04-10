@@ -48,8 +48,14 @@ public class CityController {
 		try {
 			WeatherAndCity queryWeatherAndCity = thirdService.queryWeatherAndCity(longitude, latitude);
 			if(null !=queryWeatherAndCity){
-				weatherAndCity.setCityName(queryWeatherAndCity.getCity());
+				String cityName = queryWeatherAndCity.getCity();
+				weatherAndCity.setCityName(cityName);
 				weatherAndCity.setWeather(queryWeatherAndCity.getWeatherDescription());
+				if(StringUtil.isNotEmpty(cityName)){
+					//通过城市简称查询城市编码
+					String cityCode = cityService.queryCityCodeByCityName(cityName);
+					weatherAndCity.setCityCode(cityCode);
+				}
 			}
 			return ApiResponse.success(weatherAndCity);
 		} catch (Exception e) {

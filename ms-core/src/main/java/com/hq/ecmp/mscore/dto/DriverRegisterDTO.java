@@ -12,6 +12,8 @@ import java.util.Date;
  */
 @Data
 public class DriverRegisterDTO {
+    @ApiParam(name = "invitationId", value = "邀请ID", required = true )
+    private String invitationId;
     @ApiParam(name = "name", value = "姓名", required = true )
     private String name;
     @ApiParam(name = "gender", value = "性别", required = true )

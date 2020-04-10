@@ -40,6 +40,7 @@ import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
+import com.hq.ecmp.util.DateFormatUtils;
 
 import javax.annotation.Resource;
 
@@ -281,6 +282,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 						}else{
 							//  不是  则当前节点为新的起点地   例如  北京-上海  广州-深圳  当前广州
 							startTo.add(currentNote.getNodeId());
+							//上一节点还会生成一次接机权限
+							endTo.add(lastNote.getNodeId());
 						}
 						
 					}
@@ -293,13 +296,6 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 					journeyUserCarPowerList.add(journeyUserCarPower);
 				}
 			}
-			if(endTo.size()>0){
-				//目的地生成一次接机权限
-				for (Long s : endTo) {
-					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_PICKUP,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
-				}
-			}
 			
 			if(throughTo.size()>0){
 				//途径地会生成市内用车   接送机权限各一次
@@ -309,6 +305,14 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_PICKUP,s);
 					journeyUserCarPowerList.add(journeyUserCarPower);
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.CITY_USE_CAR,s);
+					journeyUserCarPowerList.add(journeyUserCarPower);
+				}
+			}
+			
+			if(endTo.size()>0){
+				//目的地生成一次接机权限
+				for (Long s : endTo) {
+					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_PICKUP,s);
 					journeyUserCarPowerList.add(journeyUserCarPower);
 				}
 			}
@@ -355,6 +359,10 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		String vaildOrdetrState = orderInfoMapper.queryVaildOrderStatusByPowerId(powerId);
 		if(StringUtil.isEmpty(vaildOrdetrState) ||OrderState.INITIALIZING.getState().equals(vaildOrdetrState)){
 			//还未生成订单  则表示权限未使用过
+			if(checkPowerOverTime(powerId)){
+				//已过期
+				return OrderState.TIMELIMIT.getState();
+			}
 			if(flag){
 				//对应前端状态   去约车
 				return OrderState.GETARIDE.getState();
@@ -400,8 +408,12 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		if(OrderState.ORDERCLOSE.getState().equals(vaildOrdetrState)){
 			//订单关闭了  判断是否是取消了
 			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(powerId);
-			if(null !=orderStateTraceInfo && OrderStateTrace.getCancelAndOverTime().contains(orderStateTraceInfo.getState())){
+			if(null !=orderStateTraceInfo && OrderStateTrace.CANCEL.getState().equals(orderStateTraceInfo.getState())){
 				//订单是取消的订单
+				if(checkPowerOverTime(powerId)){
+					//已过期
+					return OrderState.TIMELIMIT.getState();
+				}
 				if(flag || queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){
 					 //只有网约车  或者 调度的时候选择的是网约车   则状态改为去约车
 					 return OrderState.GETARIDE.getState();
@@ -409,6 +421,9 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 					 //否则就还原权限状态为去申请
 					 return OrderState.INITIALIZING.getState();
 				 }
+			} else if(null !=orderStateTraceInfo && OrderStateTrace.ORDEROVERTIME.getState().equals(orderStateTraceInfo.getState())){
+				//订单是因为超时关闭了  则权限状态为已过期
+				return OrderState.TIMELIMIT.getState();
 			}else {
 				//订单未取消 已完成
 				return OrderState.STOPSERVICE.getState();
@@ -477,6 +492,20 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		}
 		journeyUserCarPower.setUpdateTime(new Date());
 		return 	journeyUserCarPowerMapper.updateJourneyUserCarPower(journeyUserCarPower)>0;
+	}
+
+	@Override
+	public boolean checkPowerOverTime(Long powerId) {
+		//是否过期   当前时间是否超过了用车时间/用车时间段
+		JourneyNodeInfo journeyNodeInfo = journeyNodeInfoService.queryJourneyNodeInfoByPowerId(powerId);
+		Date planSetoutTime = journeyNodeInfo.getPlanSetoutTime();
+		if(null ==planSetoutTime){
+			return false;
+		}
+		if(DateFormatUtils.beforeCurrentDate(planSetoutTime)){
+			return true;
+		}
+		return false;
 	}
 	
 	

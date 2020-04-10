@@ -1,6 +1,8 @@
 package com.hq.ecmp.ms.api.controller.driver;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.interceptor.log.Log;
@@ -234,6 +236,7 @@ public class DriverNewsController {
      * 按月获取司机的排班详情
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "按月获取司机的排班详情",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
     @Log("按月获取司机的排班详情")
     @PostMapping("/getDriverMonthWorkDetail")
     public ApiResponse<List<DriverWorkInfoMonthVo>> getDriverMonthWorkDetail(@RequestParam("driverId")Long driverId,
@@ -256,6 +259,7 @@ public class DriverNewsController {
      * @param driverWorkInfoDetailVo
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "按月变更司机的排班",businessType = BusinessType.UPDATE,operatorType = OperatorType.MANAGE)
     @Log("按月变更司机的排班")
     @PostMapping("/updateDriverWorkDetailMonth")
     public ApiResponse updateDriverWorkDetailMonth(@RequestBody DriverWorkInfoDetailVo driverWorkInfoDetailVo){

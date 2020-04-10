@@ -211,7 +211,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             }
             int orderConfirmStatus = iEcmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderInfoOld.getUseCarMode());
             //订单轨迹状态 和订单状态
-            if(orderConfirmStatus == 1){//确认行程展示
+            //确认行程展示
+            if(orderConfirmStatus == 1){
                 orderInfo.setState(OrderState.STOPSERVICE.getState());
                 orderStateTraceInfo.setState(OrderStateTrace.SERVICEOVER.getState());
             }else{//确认行程不展示
