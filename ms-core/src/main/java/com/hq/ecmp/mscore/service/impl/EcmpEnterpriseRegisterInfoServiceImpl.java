@@ -153,7 +153,8 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         userRegisterDTO.setCreateTime(DateUtils.getNowDate());
         userRegisterDTO.setType("T001");
         userRegisterDTO.setState("S000");
-        return ecmpEnterpriseRegisterInfoMapper.insertUserRegister(userRegisterDTO);
+        int m = ecmpEnterpriseRegisterInfoMapper.insertUserRegister(userRegisterDTO);
+        return m;
     }
 
     @Override
@@ -226,7 +227,8 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         driverRegisterDTO.setCreateTime(DateUtils.getNowDate());
         driverRegisterDTO.setType("T002");
         driverRegisterDTO.setState("S000");
-        return ecmpEnterpriseRegisterInfoMapper.insertDriverRegister(driverRegisterDTO);
+        int i = ecmpEnterpriseRegisterInfoMapper.insertDriverRegister(driverRegisterDTO);
+        return i;
     }
     @Override
     public int updateRegisterDriverApprove(Long registerId,Long userId,String reason,String state) throws Exception {
@@ -267,9 +269,9 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
             driverCreate.setLicenseInitIssueDate(registerInfo.getLicenseInitIssueDate());
             driverCreate.setLicenseIssueDate(registerInfo.getLicenseIssueDate());
             driverCreate.setLicenseExpireDate(registerInfo.getLicenseExpireDate());
-           // long job = Long.parseLong(registerInfo.getJobNumber());
+            // long job = Long.parseLong(registerInfo.getJobNumber());
 
-           // driverCreate.setUserId(job);
+            //driverCreate.setUserId(job);
             driverCreate.setGender(registerInfo.getGender());
             driverCreate.setCreateTime(new Date());
             driverInfoMapper.createDriver(driverCreate);

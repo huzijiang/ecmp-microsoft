@@ -96,7 +96,7 @@ public interface EcmpEnterpriseRegisterInfoService {
      * @param driverRegisterDTO
      * @return
      */
-    int insertDriverRegister(DriverRegisterDTO driverRegisterDTO);
+    int insertDriverRegister(DriverRegisterDTO driverRegisterDTO)throws Exception;
 
     int updateRegisterApprove(Long registerId,Long userId,String reason,String state) throws Exception;
 

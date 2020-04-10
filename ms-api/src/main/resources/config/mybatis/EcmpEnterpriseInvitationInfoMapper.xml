@@ -205,8 +205,7 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
                       else '无状态' END as stateValue
         from ecmp_enterprise_invitation_info  a
         left join (select b.car_group_id,count(*) as carNum from car_info b where b.state='S000' group by b.car_group_id ) b_amountCar on b_amountCar.car_group_id=a.car_group_id
-        left join ecmp_org c on c.dept_id = a.enterprise_id
-        left join ecmp_role f on f.role_id = a.rose_id
+         left join ecmp_role f on f.role_id = a.rose_id
         left join car_group_info e on e.car_group_id= a.car_group_id
         left join (select d.invitation_id, count(*) as amountPass from ecmp_enterprise_register_info d where d.state='S001' group by d.invitation_id) d_amountPass on d_amountPass.invitation_id = a.invitation_id
         left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
