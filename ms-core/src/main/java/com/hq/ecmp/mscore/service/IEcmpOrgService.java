@@ -80,7 +80,7 @@ public interface IEcmpOrgService
      *  @param  ecmpOrg
      * @return int
      * */
-    public int updateDept(EcmpOrgVo ecmpOrg);
+    public int updateDept(EcmpOrgVo ecmpOrg,Long userId)throws Exception;
 
     /**
      * 查询部门

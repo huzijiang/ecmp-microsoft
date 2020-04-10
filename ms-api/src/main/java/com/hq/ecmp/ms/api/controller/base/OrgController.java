@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
@@ -178,13 +179,13 @@ public class OrgController {
     @PostMapping("/selectDeptCodeExist")
     public ApiResponse selectDeptCodeExist(@RequestBody EcmpOrgVo ecmpOrg){
         String deptCode=ecmpOrg.getDeptCode();
-        if(deptCode!=null&&!("").equals(deptCode)){
+        if(StringUtils.isNotEmpty(deptCode)){
             int j = orgService.selectDeptCodeExist(deptCode);
             if(j>0){
-                return ApiResponse.error("该编号已存在，不可重复录入！");
+                return ApiResponse.success("该编号已存在，不可重复录入！");
             }
         }
-            return ApiResponse.success();
+        return ApiResponse.success();
     }
     /**
      * 添加单个分/子公司
