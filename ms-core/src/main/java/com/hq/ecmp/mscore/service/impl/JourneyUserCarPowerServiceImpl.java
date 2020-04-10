@@ -281,6 +281,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 						}else{
 							//  不是  则当前节点为新的起点地   例如  北京-上海  广州-深圳  当前广州
 							startTo.add(currentNote.getNodeId());
+							//上一节点还会生成一次接机权限
+							endTo.add(lastNote.getNodeId());
 						}
 						
 					}
@@ -293,13 +295,6 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 					journeyUserCarPowerList.add(journeyUserCarPower);
 				}
 			}
-			if(endTo.size()>0){
-				//目的地生成一次接机权限
-				for (Long s : endTo) {
-					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_PICKUP,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
-				}
-			}
 			
 			if(throughTo.size()>0){
 				//途径地会生成市内用车   接送机权限各一次
@@ -309,6 +304,14 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_PICKUP,s);
 					journeyUserCarPowerList.add(journeyUserCarPower);
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.CITY_USE_CAR,s);
+					journeyUserCarPowerList.add(journeyUserCarPower);
+				}
+			}
+			
+			if(endTo.size()>0){
+				//目的地生成一次接机权限
+				for (Long s : endTo) {
+					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_PICKUP,s);
 					journeyUserCarPowerList.add(journeyUserCarPower);
 				}
 			}
