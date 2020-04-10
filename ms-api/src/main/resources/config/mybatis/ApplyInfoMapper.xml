@@ -163,7 +163,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         journey_id in
         (select journey_id from journey_info where
             <![CDATA[ DATE_FORMAT(DATE_ADD(use_car_time ,INTERVAL 1 DAY), '%Y-%m-%d') = DATE_FORMAT(now() , '%Y-%m-%d') ]]>  or
-            <![CDATA[ DATE_FORMAT(DATE_ADD(start_date ,INTERVAL 1 DAY), '%Y-%m-%d') = DATE_FORMAT(now() , '%Y-%m-%d') ]]>
+            ( start_date is not null  and <![CDATA[ DATE_FORMAT(DATE_ADD(start_date ,INTERVAL 1 DAY), '%Y-%m-%d') = DATE_FORMAT(now() , '%Y-%m-%d') ]]>)
         )
     </select>
 </mapper>

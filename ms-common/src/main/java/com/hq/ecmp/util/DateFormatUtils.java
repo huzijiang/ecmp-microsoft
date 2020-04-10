@@ -80,6 +80,33 @@ public class DateFormatUtils {
     }
 
     /**
+     * 比较两个日期大小
+     * @param start
+     * @param end
+     * @return -1:start>end,0:end=start,1:start<end
+     */
+    public static int compareDay(Date start, Date end) {
+        if (start==null||end==null){
+            return 0;
+        }
+        Long startDay=Long.parseLong(formatDate(DATE_FORMAT_2,start));
+        Long endDay=Long.parseLong(formatDate(DATE_FORMAT_2,end));
+        try {
+            if (startDay.longValue()>endDay.longValue()){
+                return -1;
+            }else if(startDay.longValue()<endDay.longValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return 0;
+        }
+    }
+
+    /**
      * 格式化日期, 仅用于pattern不固定的情况.
      * <p>
      * 否则直接使用本类中封装好的FastDateFormat.
@@ -221,13 +248,17 @@ public class DateFormatUtils {
     }
 
      public  static void main(String[] args){
-         Date date = parseDate(DATE_TIME_FORMAT, "2020-04-30 22:22:22");
-         if (date.getTime()>new Date().getTime()){
+         Date date = parseDate(DATE_TIME_FORMAT, "2020-04-10 22:22:22");
+         int i=compareDay(date,new Date());
+         if (i==-1){
              System.out.println("大于当前时间");
+         }else if (i==0){
+             System.out.println("相等");
+         }else{
+             System.out.println("小于当前时候");
          }
 
          System.out.println(date.toString());
          System.out.println(new Date().toString());
-         System.out.println("小于当前时间");
      }
 }

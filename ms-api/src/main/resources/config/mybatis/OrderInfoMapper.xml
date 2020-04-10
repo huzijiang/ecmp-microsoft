@@ -328,12 +328,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 					 s.action_time useCarTime,
 					 s.address startAddr,
                      t.address endAddr,
-                     otc.state labelState
+                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
                 inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
                 inner join order_address_info t on  t.order_id=o.order_id and t.type='A999'
-                left join (select order_id,state from order_state_trace_info where order_id in(select order_id from order_info where driver_id=#{driverId}) order by create_time desc limit 1) otc on  otc.order_id=o.order_id
 				where o.driver_id=#{driverId} and  (o.state="S299" or o.state="S600" or o.state="S616" )
                 <if test="day!=-1">
                     <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') = DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
