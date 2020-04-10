@@ -129,4 +129,11 @@ public interface IJourneyUserCarPowerService
      */
     public boolean updatePowerSurplus(Long powerId,Integer optType);
     
+    /**
+     * 校验用车权限是否过期
+     * @param powerId
+     * @return true-已过期   false-未过期
+     */
+    public boolean checkPowerOverTime(Long powerId);
+    
 }

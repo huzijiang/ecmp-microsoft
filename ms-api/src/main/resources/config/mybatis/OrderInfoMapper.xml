@@ -348,6 +348,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             d.apply_type AS applyType,
             b.type AS serverType,
             c.plan_begin_address AS useCarCity,
+            c.plan_begin_city_code as useCarCityCode,
             e.nick_name AS applyUserName,
             e.nick_name AS useCarUserName,
             a.use_car_mode AS useCarMode,
@@ -366,7 +367,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN car_info f  ON a.car_id=f.car_id
         LEFT JOIN journey_info h on a.journey_id=h.journey_id
         LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
-        where a.state in ('S299','S600','S616','S699','S900')  and m.state in ('S299','S279')
+        where a.state in ('S200','S299','S600','S616','S699','S900')  and m.state in ('S299','S279','S200')
+        GROUP BY a.order_id
 	</select>
 
 	<select id="getOrderState" resultType="com.hq.ecmp.mscore.vo.OrderStateVO">

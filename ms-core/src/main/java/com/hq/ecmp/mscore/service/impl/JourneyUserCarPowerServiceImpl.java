@@ -40,6 +40,7 @@ import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
+import com.hq.ecmp.util.DateFormatUtils;
 
 import javax.annotation.Resource;
 
@@ -358,6 +359,10 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		String vaildOrdetrState = orderInfoMapper.queryVaildOrderStatusByPowerId(powerId);
 		if(StringUtil.isEmpty(vaildOrdetrState) ||OrderState.INITIALIZING.getState().equals(vaildOrdetrState)){
 			//还未生成订单  则表示权限未使用过
+			if(checkPowerOverTime(powerId)){
+				//已过期
+				return OrderState.TIMELIMIT.getState();
+			}
 			if(flag){
 				//对应前端状态   去约车
 				return OrderState.GETARIDE.getState();
@@ -403,8 +408,12 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		if(OrderState.ORDERCLOSE.getState().equals(vaildOrdetrState)){
 			//订单关闭了  判断是否是取消了
 			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(powerId);
-			if(null !=orderStateTraceInfo && OrderStateTrace.getCancelAndOverTime().contains(orderStateTraceInfo.getState())){
+			if(null !=orderStateTraceInfo && OrderStateTrace.CANCEL.getState().equals(orderStateTraceInfo.getState())){
 				//订单是取消的订单
+				if(checkPowerOverTime(powerId)){
+					//已过期
+					return OrderState.TIMELIMIT.getState();
+				}
 				if(flag || queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){
 					 //只有网约车  或者 调度的时候选择的是网约车   则状态改为去约车
 					 return OrderState.GETARIDE.getState();
@@ -412,6 +421,9 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 					 //否则就还原权限状态为去申请
 					 return OrderState.INITIALIZING.getState();
 				 }
+			} else if(null !=orderStateTraceInfo && OrderStateTrace.ORDEROVERTIME.getState().equals(orderStateTraceInfo.getState())){
+				//订单是因为超时关闭了  则权限状态为已过期
+				return OrderState.TIMELIMIT.getState();
 			}else {
 				//订单未取消 已完成
 				return OrderState.STOPSERVICE.getState();
@@ -480,6 +492,20 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		}
 		journeyUserCarPower.setUpdateTime(new Date());
 		return 	journeyUserCarPowerMapper.updateJourneyUserCarPower(journeyUserCarPower)>0;
+	}
+
+	@Override
+	public boolean checkPowerOverTime(Long powerId) {
+		//是否过期   当前时间是否超过了用车时间/用车时间段
+		JourneyNodeInfo journeyNodeInfo = journeyNodeInfoService.queryJourneyNodeInfoByPowerId(powerId);
+		Date planSetoutTime = journeyNodeInfo.getPlanSetoutTime();
+		if(null ==planSetoutTime){
+			return false;
+		}
+		if(DateFormatUtils.beforeCurrentDate(planSetoutTime)){
+			return true;
+		}
+		return false;
 	}
 	
 	

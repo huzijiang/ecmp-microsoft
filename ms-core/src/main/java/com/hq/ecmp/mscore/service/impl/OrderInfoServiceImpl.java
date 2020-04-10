@@ -327,6 +327,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
 	@Override
 	public List<DispatchOrderInfo> queryCompleteDispatchOrder() {
+		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//获取系统里已经完成调度的订单
 		List<DispatchOrderInfo> list = orderInfoMapper.queryCompleteDispatchOrder();
 		if(null !=list && list.size()>0){
@@ -335,9 +336,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
 				//查询订单对应的上车地点时间,下车地点时间
 				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+				//过滤掉未走调度自动约车的
+				boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(dispatchOrderInfo.getRegimenId(), dispatchOrderInfo.getUseCarCityCode());
+				if(judgeNotDispatch){
+					continue;
+				}
+				result.add(dispatchOrderInfo);
+				
 			}
 		}
-		return list;
+		return result;
 	}
 
     /**
