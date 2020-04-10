@@ -182,7 +182,7 @@ public class OrgController {
         if(StringUtils.isNotEmpty(deptCode)){
             int j = orgService.selectDeptCodeExist(deptCode);
             if(j>0){
-                return ApiResponse.error("该编号已存在，不可重复录入！");
+                return ApiResponse.success("该编号已存在，不可重复录入！");
             }
         }
         return ApiResponse.success();
