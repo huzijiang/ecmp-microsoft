@@ -109,8 +109,6 @@ public interface CarInfoMapper
      */
     int disableCarByCarId(Long carId);
 
-
-
     /**
      * 调度员  根据条件查询车队的所有车辆
      * @param selectCarConditionBo
@@ -126,7 +124,7 @@ public interface CarInfoMapper
     public List<CarInfo> dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense(SelectCarConditionBo selectCarConditionBo);
 
     /**
-     * 车辆锁定,
+     * 车辆锁定
      * @param carId
      * @return
      */
@@ -139,8 +137,21 @@ public interface CarInfoMapper
      */
     public int unlockCar(@Param("carId")long carId);
 
+    /**
+     * 根据车队ID查询车辆的集合
+     * @param carGroupId
+     * @return
+     */
     public List<CarListVO> queryCarGroupCarList(Long carGroupId);
-    /*根据车队id 条件查询车辆列表*/
+
+    /**
+     * 根据车队id 条件查询车辆列表
+     * @param carGroupId
+     * @param carTypeId
+     * @param state
+     * @param search
+     * @return
+     */
     List<CarInfo> selectCarInfoListByGroupId(@Param("carGroupId") Long carGroupId,@Param("carTypeId") Long carTypeId,@Param("state") String state,@Param("search") String search);
 
     /**

@@ -22,6 +22,7 @@ import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -40,6 +41,7 @@ import java.util.List;
  * @Date: 2019-12-31 13:16
  */
 @RestController
+@Slf4j
 @RequestMapping("/order")
 public class OrderController {
 
@@ -675,6 +677,7 @@ public class OrderController {
     @ApiOperation(value = "获取订单状态",httpMethod = "POST")
     @RequestMapping("/getOrderState")
     public ApiResponse<OrderStateVO> getOrderState(String flag,String orderId){
+        log.info("获取订单状态:订单号:"+orderId);
         Long orderNo=Long.parseLong(orderId);
         try {
             OrderStateVO  orderVO = iOrderInfoService.getOrderState(orderNo);

@@ -35,6 +35,8 @@ public class DriverOrderInfoVO {
     private String hint;
     @ApiModelProperty(name = "state",value = "订单状态")
     private String state;
+    @ApiModelProperty(name = "state",value = "订单状态")
+    private String labelState;
     @ApiModelProperty(name = "carGroupPhone",value = "车队电话")
     private String carGroupPhone;
     @ApiModelProperty(name = "customerServicePhone",value = "客服电话")
