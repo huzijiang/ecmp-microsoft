@@ -148,7 +148,7 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         //创建时间
         sceneInfo.setCreateTime(new Date());
         //生效状态 0 立即生效  1 不生效 初始化为不生效
-        sceneInfo.setEffectStatus("1");
+        sceneInfo.setEffectStatus("0");
         //1.新增用车场景表
         int i = sceneInfoMapper.insertSceneInfo(sceneInfo);
         if(i!=1){
