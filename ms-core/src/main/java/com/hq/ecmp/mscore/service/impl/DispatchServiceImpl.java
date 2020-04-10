@@ -19,11 +19,10 @@ import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
 import com.hq.ecmp.util.RedisUtil;
-import lombok.Synchronized;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -35,52 +34,52 @@ import java.util.*;
 @Service
 public class DispatchServiceImpl implements IDispatchService {
 
-    @Autowired
+    @Resource
     TokenService tokenService;
 
-    @Autowired
+    @Resource
     RedisUtil redisUtil;
 
-    @Autowired
+    @Resource
     OrderInfoMapper   orderInfoMapper;
 
-    @Autowired
+    @Resource
     OrderAddressInfoMapper orderAddressInfoMapper;
 
-    @Autowired
+    @Resource
     JourneyInfoMapper journeyInfoMapper;
 
-    @Autowired
+    @Resource
     JourneyPassengerInfoMapper journeyPassengerInfoMapper;
 
-    @Autowired
+    @Resource
     CarInfoMapper carInfoMapper;
 
-    @Autowired
+    @Resource
     CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
 
-    @Autowired
+    @Resource
     CarGroupInfoMapper carGroupInfoMapper;
 
-    @Autowired
+    @Resource
     CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
 
-    @Autowired
+    @Resource
     DriverInfoMapper driverInfoMapper;
 
-    @Autowired
+    @Resource
     JourneyPlanPriceInfoMapper journeyPlanPriceInfoMapper;
 
-    @Autowired
+    @Resource
     EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
 
-    @Autowired
+    @Resource
     EcmpOrgMapper ecmpOrgMapper;
 
-    @Autowired
+    @Resource
     EcmpUserMapper ecmpUserMapper;
 
-    @Autowired
+    @Resource
     RegimeInfoMapper regimeInfoMapper;
 
     /**
@@ -89,16 +88,13 @@ public class DispatchServiceImpl implements IDispatchService {
      *
      * 注意 模糊查询 需要 取交集
      *
-     * @param dispatchSelectCarDto
-     * @return
+     * @param dispatchSelectCarDto dispatchSelectCarDto
+     * @return ApiResponse<DispatchResultVo>
      */
     @Override
     public ApiResponse<DispatchResultVo> getWaitSelectedCars(DispatchSelectCarDto dispatchSelectCarDto) {
         Long orderId=Long.parseLong(dispatchSelectCarDto.getOrderNo());
         LoginUser loginUser=tokenService.getLoginUser(dispatchSelectCarDto.getDispatcherId());
-
-        //创建一个可选车辆 集合：key= 'D'+调度员编号+订单编号
-        String carKey="D"+loginUser.getUser().getUserId().toString()+dispatchSelectCarDto.getOrderNo();
         OrderInfo orderInfo=orderInfoMapper.selectOrderInfoById(orderId);
         if(orderInfo==null){
             return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_EXIST.getDesc());
@@ -138,8 +134,8 @@ public class DispatchServiceImpl implements IDispatchService {
     /**
      * 调度-锁定选择的车辆
      *
-     * @param dispatchInfoDto
-     * @return
+     * @param dispatchInfoDto  dispatchInfoDto
+     * @return ApiResponse
      */
     @Override
     public synchronized ApiResponse lockSelectedCar(DispatchLockCarDto dispatchInfoDto) {
@@ -173,14 +169,13 @@ public class DispatchServiceImpl implements IDispatchService {
     /**
      * 调度-获取可选择的司机
      *
-     * @param dispatchSelectDriverDto
-     * @return
+     * @param dispatchSelectDriverDto dispatchSelectDriverDto
+     * @return ApiResponse<DispatchResultVo>
      */
     @Override
     public ApiResponse<DispatchResultVo> getWaitSelectedDrivers(DispatchSelectDriverDto dispatchSelectDriverDto) {
         Long orderId=Long.parseLong(dispatchSelectDriverDto.getOrderNo());
         LoginUser loginUser=tokenService.getLoginUser(dispatchSelectDriverDto.getDispatcherId());
-        String carKey="D"+loginUser.getUser().getUserId().toString()+dispatchSelectDriverDto.getOrderNo();
         SelectDriverConditionBo selectDriverConditionBo=new SelectDriverConditionBo();
 
         if(StringUtils.isNotEmpty(dispatchSelectDriverDto.getCarId())){
@@ -202,7 +197,6 @@ public class DispatchServiceImpl implements IDispatchService {
         }
 
         selectDriverConditionBo.setCityCode(orderAddressInfo.getCityPostalCode());
-//        selectDriverConditionBo.setDriverId(dispatchSelectDriverDto.getDriverId());
         selectDriverConditionBo.setDispatcherId(loginUser.getUser().getUserId());
         selectDriverConditionBo.setDriverNameOrPhone(dispatchSelectDriverDto.getDriverNameOrPhone());
 
@@ -516,6 +510,8 @@ public class DispatchServiceImpl implements IDispatchService {
 
     /**
      * 根据 调度员信息 查询 调度员归属的车队是否符合服务范围要求
+     * @param cityCode cityCode
+     * @param dispatcherUserId  dispatcherUserId
      * @return ApiResponse<List<CarGroupServeScopeInfo>>
      */
     private ApiResponse<List<CarGroupServeScopeInfo>> selectCarGroupServiceScope(String cityCode,Long dispatcherUserId){
@@ -543,7 +539,7 @@ public class DispatchServiceImpl implements IDispatchService {
             }
 
             Iterator<CarGroupServeScopeInfo> iterator=carGroupServeScopeInfoList.iterator();
-            Boolean serviceCitySatisfy=false;
+            boolean serviceCitySatisfy=false;
             while (iterator.hasNext()){
                 CarGroupServeScopeInfo cgss=iterator.next();
                 if(cityCode.equals(cgss.getCity())){
@@ -552,11 +548,9 @@ public class DispatchServiceImpl implements IDispatchService {
                     iterator.remove();
                 }
             }
-
             if(serviceCitySatisfy){
                 carGroupServeScopeInfoListResult.addAll(carGroupServeScopeInfoList);
             }
-
         }
 
         if(carGroupServeScopeInfoListResult.isEmpty()){
