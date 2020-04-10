@@ -210,6 +210,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @param userId
      * @return
      */
+    @Override
     public List<OrderListInfo>  getOrderList(Long userId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum,pageSize);
         List<OrderListInfo> orderList = orderInfoMapper.getOrderList(userId);
@@ -222,6 +223,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @param updateState
      * @return
      */
+    @Override
     @Transactional
     public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason){
         OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
@@ -329,6 +331,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
 	@Override
 	public List<DispatchOrderInfo> queryCompleteDispatchOrder() {
+		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//获取系统里已经完成调度的订单
 		List<DispatchOrderInfo> list = orderInfoMapper.queryCompleteDispatchOrder();
 		if(null !=list && list.size()>0){
@@ -337,9 +340,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
 				//查询订单对应的上车地点时间,下车地点时间
 				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+				//过滤掉未走调度自动约车的
+				boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(dispatchOrderInfo.getRegimenId(), dispatchOrderInfo.getUseCarCityCode());
+				if(judgeNotDispatch){
+					continue;
+				}
+				result.add(dispatchOrderInfo);
+				
 			}
 		}
-		return list;
+		return result;
 	}
 
     /**
@@ -528,6 +538,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderInfoMapper.getOrderMessage(userId,states,driveId);
     }
 
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void platCallTaxiParamValid(Long  orderId,String userId,String carLevel) throws Exception {
         //使用汽车的方式，改为网约
@@ -894,7 +905,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		return updateFlag > 0;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+	@Override
+    @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public Long officialOrder(OfficialOrderReVo officialOrderReVo,Long userId) throws Exception {
         JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(officialOrderReVo.getPowerId());
         if(journeyUserCarPower == null){
@@ -1043,6 +1055,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public OrderDriverListInfo getNextTaskWithCar(Long carId) {
         return orderInfoMapper.getNextTaskWithCar(carId);
     }
+    @Override
     public MessageDto getCancelOrderMessage(Long userId, String states) {
         return orderInfoMapper.getCancelOrderMessage(userId,states);
     }
@@ -1641,6 +1654,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @param userId
      * @throws Exception
      */
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception {
         if ("1".equals(status)) {
@@ -2080,6 +2094,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * 查询过期的订单,改为关闭，轨迹表插入过期轨迹记录
      * @return
      */
+    @Override
     @Transactional(rollbackFor = Exception.class)
 	public  void checkOrderIsExpired(){
         List<OrderInfo> expiredOrders = orderInfoMapper.getExpiredOrder();

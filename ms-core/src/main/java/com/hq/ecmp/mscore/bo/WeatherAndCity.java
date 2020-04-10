@@ -10,6 +10,8 @@ public class WeatherAndCity {
 	
 	private String cityName;//城市
 	
+	private String cityCode;//城市编号
+	
 	private String week;//周几
 	
 	private String monthAndDay;//日期

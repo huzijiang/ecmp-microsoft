@@ -3,9 +3,12 @@ package com.hq.ecmp.ms.api.controller.order;
 import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
+import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
 import com.hq.ecmp.mscore.dto.ContactorDto;
 import com.hq.ecmp.mscore.dto.IsContinueReDto;
@@ -42,6 +45,8 @@ public class DriverOrderController {
     @Resource
     TokenService tokenService;
 
+    @com.hq.core.aspectj.lang.annotation.Log(title = "司机状态变更接口",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
+    @Log("司机状态变更接口")
     @ApiOperation(value = "司机状态变更接口", notes = "司机状态变更接口 eg 司机出发、司机到达、开始服务,服务完成")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query", dataType = "String"),
@@ -70,6 +75,8 @@ public class DriverOrderController {
         return ApiResponse.success();
     }
 
+    @com.hq.core.aspectj.lang.annotation.Log(title = "司机完成订单接口",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
+    @Log("司机完成订单接口")
     @ApiOperation(value = "司机完成订单接口", notes = "司机完成订单接口,返回还车还是继续用车的相关信息")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "orderNo", value = "订单号", required = true, paramType = "query", dataType = "String")
@@ -92,6 +99,8 @@ public class DriverOrderController {
         return ApiResponse.success(aContinue);
     }
 
+    @com.hq.core.aspectj.lang.annotation.Log(title = "司机开始或者结束等待接口",businessType = BusinessType.INSERT,operatorType = OperatorType.MOBILE)
+    @Log("司机开始或者结束等待接口")
     @ApiOperation(value = "司机开始或者结束等待接口", notes = "司机开始或者结束等待接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "isFinish", value = "开始或者结束等的状态 eg 1开始 2结束", required = true, paramType = "query", dataType = "String"),
@@ -128,6 +137,8 @@ public class DriverOrderController {
     *   @Param  [token, orderNo]
     *   @return ApiResponse
     **/
+    @com.hq.core.aspectj.lang.annotation.Log(title = "司机联系乘客",businessType = BusinessType.OTHER,operatorType = OperatorType.MOBILE)
+    @Log("司机联系乘客")
     @ApiOperation(value = "联系乘客")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = true, paramType = "query", dataType = "String")
@@ -151,6 +162,8 @@ public class DriverOrderController {
         return ApiResponse.success(contactorDto);
     }
 
+    @com.hq.core.aspectj.lang.annotation.Log(title = "司机联系车队",businessType = BusinessType.OTHER,operatorType = OperatorType.MOBILE)
+    @Log("联系车队")
     @ApiOperation(value = "联系车队")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query", dataType = "String"),
@@ -168,6 +181,8 @@ public class DriverOrderController {
         return ApiResponse.success(infoWithCarGroup);
     }
 
+    @com.hq.core.aspectj.lang.annotation.Log(title = "获取订单途径地信息(非包车)",businessType = BusinessType.OTHER,operatorType = OperatorType.MOBILE)
+    @Log("获取订单途径地信息，非包车的公务自有车")
     @ApiOperation(value = "获取订单途径地信息，非包车的公务自有车")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = true, paramType = "query", dataType = "String")

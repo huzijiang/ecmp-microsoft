@@ -119,6 +119,7 @@ public interface IOrderInfoService {
      * 获取订单详情
      * @param orderId
      * @return
+     * @throws Exception
      */
     OrderVO orderBeServiceDetail(Long orderId)throws Exception;
 
@@ -133,6 +134,12 @@ public interface IOrderInfoService {
 
     /**
      * 网约车异步约车方法
+     * @param orderId
+     * @param enterpriseId
+     * @param licenseContent
+     * @param apiUrl
+     * @param userId
+     * @param carLevel
      */
     void platCallTaxi(Long orderId, String enterpriseId, String licenseContent, String apiUrl,String userId,String carLevel);
 

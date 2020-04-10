@@ -4,25 +4,26 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
+ * 任务冲突状况 枚举
  * @Author: zj.hu
  * @Date: 2020-03-30 11:40
  */
 public enum TaskConflictEnum {
     /**
-     * 可用
+     * 前序任务冲突
      */
     BEFORE_TASK_CLASH("100","前序任务冲突"),
     /**
-     * 等待审核
+     * 后序任务冲突
      */
     AFTER_TASK_CLASH("001","后序任务冲突"),
     /**
-     * 司机已经离职或者失效
+     * 前序后序任务皆冲突
      */
     BEFORE_AND_AFTER_TASK_CLASH("101","前序后序任务皆冲突"),
 
     /**
-     * 司机已经离职或者失效
+     * 无任务冲突
      */
     CONFLICT_FREE("000","无任务冲突");
 
