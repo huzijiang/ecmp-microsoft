@@ -13,23 +13,45 @@ import lombok.Data;
 @Data
 public class OrderListInfo {
 
-    //订单编号
+    /**
+     * 订单id
+     */
     private Long orderId;
-    //车型级别名称  公务级//行政级
+    /**
+     * 车型级别名称  公务级//行政级
+     */
     private String level;
-    //用车方式  自由车 /网约车
+    /**
+     *  用车方式  自由车 /网约车
+     */
     private String useCarMode;
-    //订单状态
+    /**
+     *   订单状态
+     */
     private String state;
-    //服务类型// 1000预约//2001接机//2002送机//3000包车
+    /**
+     *    服务类型// 1000预约//2001接机//2002送机//3000包车
+     */
     private String serviceType;
-    //出发日期
+    /**
+     *     出发日期
+     */
     private String setOutTime;
-    //出发地址
+    /**
+     *      出发地址
+     */
     private String setOutAddress;
-    //到达地
+    /**
+     *    到达地
+     */
     private String arriveAddress;
-    //订单编号
+    /**
+     *    订单编号
+     */
     private String orderNumber;
+    /**
+     *    轨迹表状态
+     */
+    private String labelState;
 
 }

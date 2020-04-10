@@ -2,9 +2,13 @@ package com.hq.ecmp.ms.api.controller.order;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.*;
+import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.OrderServiceType;
+import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
@@ -13,25 +17,19 @@ import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
-import com.hq.ecmp.mscore.dto.DriverCloudDto;
 import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -62,14 +60,24 @@ public class OrderController {
     @Resource
     private IsmsBusiness ismsBusiness;
 
+    /**
+     *  企业编号
+     */
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
-
+    /**
+     *  企业证书信息
+     */
     @Value("${thirdService.licenseContent}") //企业证书信息
     private String licenseContent;
-
+    /**
+     *  三方平台的接口前地址
+     */
     @Value("${thirdService.apiUrl}")//三方平台的接口前地址
     private String apiUrl;
+    /**
+     *  行程分享的详情路径
+     */
     @Value("${order.shareUrl}")//行程分享的详情路径
     private String shareUrl;
 
@@ -81,6 +89,7 @@ public class OrderController {
      * @param officialOrderReVo
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "公务创建订单",businessType = BusinessType.INSERT,operatorType = OperatorType.MOBILE)
     @Log(value = "公务创建订单")
     @ApiOperation(value = "公务创建订单", notes = "公务创建订单", httpMethod = "POST")
     @PostMapping("/officialOrder")
@@ -99,77 +108,9 @@ public class OrderController {
         return ApiResponse.success("公务下单成功",orderId);
     }
 
-//    @ApiOperation(value = "parallelCreateOrder", notes = "手动创建订单，目前只存在市内用车的情况", httpMethod = "POST")
-//    @PostMapping("/parallelCreateOrder")
-//    public ApiResponse parallelCreateOrder(@RequestBody ParallelOrderDto parallelOrderDto) {
-//        Long orderId = null;
-//        try {
-//
-//            //获取调用接口的用户信息
-//            HttpServletRequest request = ServletUtils.getRequest();
-//            LoginUser loginUser = tokenService.getLoginUser(request);
-//            Long userId = loginUser.getUser().getUserId();
-//            OrderInfo orderInfo = new OrderInfo();
-//            orderInfo.setPowerId(parallelOrderDto.getTicketId());
-//            //通过用车权限获取行程id和行程节点id
-//            JourneyUserCarPower journeyUserCarPower = iJourneyUserCarPowerService.selectJourneyUserCarPowerById(parallelOrderDto.getTicketId());
-//            Long journeyId = journeyUserCarPower.getJourneyId();
-//            Long nodeId = journeyUserCarPower.getNodeId();
-//            orderInfo.setNodeId(nodeId);
-//            orderInfo.setJourneyId(journeyId);
-//            //手动下单，订单状态变为待派单
-//            orderInfo.setState(OrderState.WAITINGLIST.getState());
-//            String startPoint = parallelOrderDto.getStartPoint();
-//            String endPoint = parallelOrderDto.getEndPoint();
-//            String[] start = startPoint.split("\\,");
-//            String[] end = endPoint.split("\\,");
-//            iOrderInfoService.insertOrderInfo(orderInfo);
-//            orderId = orderInfo.getOrderId();
-//            //订单地址表
-//            JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyId);
-//            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
-//            orderAddressInfo.setOrderId(orderId);
-//            orderAddressInfo.setJourneyId(journeyId);
-//            orderAddressInfo.setNodeId(nodeId);
-//            orderAddressInfo.setPowerId(parallelOrderDto.getTicketId());
-//            orderAddressInfo.setUserId(journeyInfo.getUserId()+"");
-//            orderAddressInfo.setCreateBy(userId+"");
-//            //起点
-//            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            Date date = sdf.parse(parallelOrderDto.getBookingDate());
-//            orderAddressInfo.setActionTime(date);
-//            orderAddressInfo.setLongitude(Double.parseDouble(start[0]));
-//            orderAddressInfo.setLatitude(Double.parseDouble(start[1]));
-//            orderAddressInfo.setAddress(parallelOrderDto.getStartAddr());
-//            orderAddressInfo.setAddressLong(parallelOrderDto.getStarAddrLong());
-//            iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
-//            //终点
-//            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
-//            orderAddressInfo.setActionTime(null);
-//            orderAddressInfo.setLongitude(Double.parseDouble(end[0]));
-//            orderAddressInfo.setLatitude(Double.parseDouble(end[1]));
-//            orderAddressInfo.setAddress(parallelOrderDto.getEndAddr());
-//            orderAddressInfo.setAddressLong(parallelOrderDto.getEndAddrLong());
-//            iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
-//            //订单轨迹
-//            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null);
-//            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ApiResponse.error("手动下单失败");
-//        }
-//        JSONObject json = new JSONObject();
-//        json.put("orderId",orderId);
-//        return ApiResponse.success(json);
-//    }
-
-
     /**
      * 用户请求调派订单
      * 改变订单的状态为  待派单
-     *
      * @param orderDto 行程申请信息
      * @return
      */
@@ -192,37 +133,6 @@ public class OrderController {
     }
 
 
-//    /**
-//     * 手动约车-让用户自己召唤网约车
-//     * 改变订单的状态为  去约车
-//     *
-//     * @param
-//     * @return
-//     */
-//    @ApiOperation(value = "letUserCallTaxi", notes = " 手动约车-让用户自己召唤网约车 改变订单的状态为  去约车", httpMethod = "POST")
-//    @PostMapping("/letUserCallTaxi")
-//    public ApiResponse letUserCallTaxi(@RequestParam("orderNo") String orderNo,@RequestParam("carLevel") String carLevel) {
-//        try {
-//            //获取调用接口的用户信息
-//            HttpServletRequest request = ServletUtils.getRequest();
-//            LoginUser loginUser = tokenService.getLoginUser(request);
-//            Long userId = loginUser.getUser().getUserId();
-//            OrderInfo orderInfo = new OrderInfo();
-//            Long orderId = Long.parseLong(orderNo);
-//            orderInfo.setOrderId(orderId);
-//            orderInfo.setState(OrderState.SENDINGCARS.getState());
-//            int i = iOrderInfoService.updateOrderInfo(orderInfo);
-//            if (i != 1) {
-//                return ApiResponse.error("'订单状态改为【去约车失败】");
-//            }
-//            iOrderInfoService.platCallTaxi(orderId,enterpriseId,licenseContent,apiUrl,String.valueOf(userId),carLevel);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ApiResponse.error("'订单状态改为【去约车失败】");
-//        }
-//        return ApiResponse.success("订单状态修改成功");
-//    }
-
 
     /**
      * 自动约车-向网约车平台发起约车请求，直到网约车平台回应 约到车为止，期间一直为约车中，约到后改变订单状态为 已派单
@@ -232,6 +142,7 @@ public class OrderController {
      * @param
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "自动约车",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "自动约车")
     @ApiOperation(value = "letPlatCallTaxi", notes = "自动约车-向网约车平台发起约车请求 改变订单的状态为  约车中-->已派单", httpMethod = "POST")
     @PostMapping("/letPlatCallTaxi")
@@ -258,61 +169,13 @@ public class OrderController {
 
 
     /**
-     * 调派订单  受到到订单的变化规则限制。此处为非网约车
-     * 改变订单的状态为 已派单。
-     * 如果是网约车  向网约车平台发起订单，等待返回后绑定
-     * 如果是差旅，乘客需要自己向网约车发起订单，则该改变订单状态
-     * 如果自有直接改变订单信息
-     *
-     * @param orderDto  行程申请信息
-     * @param carDto    行程申请信息
-     * @param driverDto 行程申请信息
-     * @return
-     */
-    @ApiOperation(value = "dispatchOrder", notes = "请求订单 调派车辆 ", httpMethod = "POST")
-    @PostMapping("/dispatchOrder")
-    public ApiResponse dispatchOrder(OrderDto orderDto, CarDto carDto, DriverDto driverDto) {
-
-        return null;
-    }
-
-
-    /**
-     * 司机到达出发地，准备开始服务
-     * 改变订单的状态为 准备服务
-     *
-     * @param orderDto 行程申请信息
-     * @param userDto  司机信息
-     * @return
-     */
-    @ApiOperation(value = "readyServiceable", notes = "司机到达出发地，准备开始服务 ", httpMethod = "POST")
-    @PostMapping("/readyServiceable")
-    public ApiResponse readyServiceable(OrderDto orderDto, UserDto userDto) {
-        return null;
-    }
-
-
-    /**
-     * 司机完成订单
-     * 改变订单的状态为 服务结束
-     *
-     * @param orderDto 行程申请信息
-     * @return
-     */
-    @ApiOperation(value = "finishOrder", notes = "司机完成订单 ", httpMethod = "POST")
-    @PostMapping("/finishOrder")
-    public ApiResponse finishOrder(OrderDto orderDto, UserDto userDto) {
-        return null;
-    }
-
-
-    /**
      * 用户确认订单
      * 改变订单的状态为 订单关闭
      *
      * @param orderDto 行程申请信息
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "用户确认订单",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "确认订单")
     @ApiOperation(value = "affirmOrder", notes = "用户确认订单 ", httpMethod = "POST")
     @PostMapping("/affirmOrder")
@@ -351,6 +214,7 @@ public class OrderController {
      * @param orderDto 行程申请信息
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "取消订单",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "取消订单")
     @ApiOperation(value = "cancelOrder", notes = "用户取消订单 ", httpMethod = "POST")
     @PostMapping("/cancelOrder")
@@ -476,20 +340,6 @@ public class OrderController {
 		}
 
 	}
-	
-
-    /**
-     * 评价 订单
-     *
-     * @param orderAppraiseDto 评价信息
-     * @return
-     */
-    @ApiOperation(value = "appraiseOrder", notes = "评价 订单 ", httpMethod = "POST")
-    @PostMapping("/appraiseOrder")
-    public ApiResponse appraiseOrder(OrderAppraiseDto orderAppraiseDto) {
-
-        return null;
-    }
 
     /**
      * @return com.hq.common.core.api.ApiResponse
@@ -498,6 +348,7 @@ public class OrderController {
      * @Date 10:11 2020/3/4
      * @Param []
      **/
+    @com.hq.core.aspectj.lang.annotation.Log(title = "我的行程列表",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "我的行程列表")
     @ApiOperation(value = "我的行程订单列表", httpMethod = "POST")
     @RequestMapping("/getOrderList")
@@ -515,6 +366,7 @@ public class OrderController {
         return ApiResponse.success(orderList);
     }
 
+    @com.hq.core.aspectj.lang.annotation.Log(title = "改派订单",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "改派订单")
     @ApiOperation(value = "改派订单", httpMethod = "POST")
     @RequestMapping("/reassign")
@@ -603,6 +455,7 @@ public class OrderController {
     *   @Param  [applyUseWithTravelDto]
     *   @return com.hq.common.core.api.ApiResponse
     **/
+    @com.hq.core.aspectj.lang.annotation.Log(title = "差旅下单",businessType = BusinessType.INSERT,operatorType = OperatorType.MOBILE)
     @Log(value = "差旅下单")
     @ApiOperation(value = "差旅下单接口",notes = "")
     @RequestMapping("/travelOrder")
@@ -621,6 +474,7 @@ public class OrderController {
         return ApiResponse.success("申请派车成功",orderId);
     }
 
+    @com.hq.core.aspectj.lang.annotation.Log(title = "驾驶员评价",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "驾驶员评价")
     @ApiOperation(value = "驾驶员评价接口")
     @PostMapping("/orderDriverAppraise")
@@ -756,27 +610,5 @@ public class OrderController {
             e.printStackTrace();
             return  ApiResponse.error("获取提示语异常!");
         }
-    }
-
-    @ApiOperation(value = "自有车手动约车接口", notes = "自有车手动约车接口")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "orderNo", value = "订单id", required = true, paramType = "query", dataType = "String")
-    })
-    @RequestMapping(value = "/letUserCallTaxiPrivate", method = RequestMethod.POST)
-    public ApiResponse letUserCallTaxiPrivate( @RequestParam("orderNo") String orderNo){
-        try {
-            Long orderId = Long.parseLong(orderNo);
-            OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setOrderId(orderId);
-            orderInfo.setState(OrderState.WAITINGLIST.getState());
-            int i = iOrderInfoService.updateOrderInfo(orderInfo);
-            if (i != 1) {
-                throw new Exception("约车失败");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ApiResponse.error();
-        }
-        return ApiResponse.success();
     }
 }
