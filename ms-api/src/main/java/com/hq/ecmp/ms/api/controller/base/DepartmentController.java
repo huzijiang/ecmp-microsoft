@@ -134,7 +134,7 @@ public class DepartmentController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("修改部门失败!");
+            return ApiResponse.error(e.getMessage());
         }
     }
 

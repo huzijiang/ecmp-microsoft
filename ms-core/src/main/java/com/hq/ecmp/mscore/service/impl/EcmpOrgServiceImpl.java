@@ -425,12 +425,12 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         if (StringUtils.isBlank(ecmpOrgVo.getDeptName())){
             throw new Exception("部门/公司名称不可为空");
         }
-        if (StringUtils.isNotBlank(ecmpOrgVo.getDeptCode())){
-            int j = ecmpOrgMapper.selectDeptCodeExist(ecmpOrgVo.getDeptCode().trim());
-            if(j>0){
-                throw  new Exception("该编号已存在，不可重复录入！");
-            }
-        }
+//        if (StringUtils.isNotBlank(ecmpOrgVo.getDeptCode())){
+//            int j = ecmpOrgMapper.selectDeptCodeExist(ecmpOrgVo.getDeptCode().trim());
+//            if(j>0){
+//                throw  new Exception("该编号已存在，不可重复录入！");
+//            }
+//        }
         if (flag==1){
             if(ecmpOrgVo.getParentId()==null||ecmpOrgVo.getParentId().intValue()==0){
                 throw new Exception("上级部门/公司不可为空");
