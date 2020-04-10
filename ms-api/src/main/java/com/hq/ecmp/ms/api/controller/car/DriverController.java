@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.ecmp.mscore.domain.DriverHeartbeatInfo;
 import com.hq.ecmp.mscore.dto.DriverLocationDTO;
 import com.hq.ecmp.mscore.dto.DriverScheduleDTO;
@@ -134,6 +136,7 @@ public class DriverController {
      * @param
      * @return
      */
+    @Log(title = "司机排班管理:司机排班情况", businessType = BusinessType.OTHER)
     @ApiOperation(value = "loadScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
     @PostMapping("/loadScheduleInfo")
     public ApiResponse<DriverDutyPlanVO> loadScheduleInfo(@RequestBody(required = false) String scheduleDate){
@@ -155,6 +158,7 @@ public class DriverController {
      * @param
      * @return
      */
+    @Log(title = "司机排班管理:司机出勤统计", businessType = BusinessType.OTHER)
     @ApiOperation(value = "loadDutySummary",notes = "加载司机应该出勤/已出勤天数",httpMethod ="POST")
     @PostMapping("/loadDutySummary")
     public ApiResponse<DriverDutySummaryVO> loadDutySummary(@RequestBody(required = false) DriverScheduleDTO driverScheduleDTO){

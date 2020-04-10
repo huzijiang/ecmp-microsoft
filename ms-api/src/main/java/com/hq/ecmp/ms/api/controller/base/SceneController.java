@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.SceneDTO;
 import com.hq.ecmp.mscore.dto.SceneSortDTO;
@@ -47,6 +49,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
+	@Log(title = "场景模块:查询用户所有场景", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "getAll", notes = "获取用户的所有可用用车场景", httpMethod ="GET")
 	@GetMapping("/getAll")
 	public ApiResponse<List<SceneInfo>> getAllScene() {
@@ -62,6 +65,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
+	@Log(title = "场景模块:创建场景", businessType = BusinessType.INSERT)
 	@ApiOperation(value = "saveScene", notes = "创建用车场景", httpMethod ="POST")
 	@RequestMapping("/saveScene")
 	public ApiResponse saveScene(@RequestBody SceneDTO sceneDTO) {
@@ -83,6 +87,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
+	@Log(title = "场景模块:删除场景", businessType = BusinessType.DELETE)
 	@ApiOperation(value = "deleteScene", notes = "删除用车场景", httpMethod ="POST")
 	@RequestMapping("/deleteScene")
 	public ApiResponse deleteScene(@RequestBody Long sceneId) {
@@ -106,6 +111,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
+	@Log(title = "场景模块:修改场景", businessType = BusinessType.UPDATE)
 	@ApiOperation(value = "updateScene", notes = "修改用车场景", httpMethod ="POST")
 	@PostMapping("/updateScene")
 	public ApiResponse updateScene(@RequestBody SceneDTO sceneDTO) {
@@ -127,6 +133,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
+	@Log(title = "场景模块:场景详情", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "getSceneDetail", notes = "查询用车场景详情", httpMethod ="POST")
 	@PostMapping("/getSceneDetail")
 	public ApiResponse<SceneDetailVO> getSceneDetail(@RequestBody Long sceneId) {
@@ -151,6 +158,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
+	@Log(title = "场景模块:场景列表分页", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "getSceneList", notes = "查询用车场景列表信息", httpMethod ="POST")
 	@PostMapping("/getSceneList")
 	public ApiResponse<PageResult<SceneListVO>> getSceneList(@RequestBody PageRequest pageRequest) {
@@ -168,6 +176,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
+	@Log(title = "场景模块:场景排序", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "sortScene", notes = "场景排序 上移/下移", httpMethod ="POST")
 	@PostMapping("/sortScene")
 	public ApiResponse sortScene(@RequestBody SceneSortDTO sceneSortDTO) {
@@ -189,6 +198,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
+	@Log(title = "场景模块:查询所有场景", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "getAllUseScene", notes = "获取所有可用的用车场景", httpMethod ="POST")
 	@PostMapping("/getAllUseScene")
 	public ApiResponse<List<SceneInfo>> getAllUseScene() {

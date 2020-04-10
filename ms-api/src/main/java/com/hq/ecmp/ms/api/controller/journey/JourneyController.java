@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.controller.journey;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.ApplyStateConstant;
@@ -64,6 +65,7 @@ public class JourneyController {
      * @param  journeyApplyDto  行程申请信息
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "行程模块:撤销申请", businessType = BusinessType.OTHER)
     @ApiOperation(value = "cancelJourney",notes = "撤消行程",httpMethod ="POST")
     @PostMapping("/cancelJourney")
     public ApiResponse cancelJourneyApply(@RequestBody JourneyApplyDto journeyApplyDto){
