@@ -1224,7 +1224,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 .type(MsgTypeConstant.MESSAGE_TYPE_T001.getType())  //消息类型 T001-业务消息 T002- T003  T004
                 .status(MsgStatusConstant.MESSAGE_STATUS_T002.getType())   //消息状态 0000-已读  1111-未读
                 .category(MsgConstant.MESSAGE_T001.getType())   //消息类别，随业务自行添加 M001  申请通知 M002  审批通知 M003  调度通知 M004  订单改派 M005  订单取消 M999  其他
-                .content("你有一条申请通知")
+                .content("你有一条待审批通知")
                 .url("") //事项处理跳转链接地址， 需要密切联系业务调整规则 大部分应该是跳转到  事项处理的列表页 单个具体事项出题 请带上 业务的主键ID，
                 .createBy(userId)
                 .createTime(new Date())
