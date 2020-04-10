@@ -1,6 +1,8 @@
 package com.hq.ecmp.ms.api.controller.order;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
@@ -32,6 +34,7 @@ public class OrderBackController {
 
     @ApiOperation(value = "订单列表查询")
     @PostMapping(value = "/getOrderList")
+    @Log(title = "订单管理:订单列表", businessType = BusinessType.OTHER)
     public ApiResponse<PageResult<OrderListBackDto>> getOrderList(@RequestBody  OrderListBackDto orderListBackDto){
         try {
             //根据与前台协商   首次进去订单管理 默认 10  - 1
@@ -52,6 +55,7 @@ public class OrderBackController {
     @ApiImplicitParams(value = {
             @ApiImplicitParam(name = "orderNo", value = "orderNo", required = true, paramType = "query", dataType = "String")
     })
+    @Log(title = "订单管理:订单详情", businessType = BusinessType.OTHER)
     @PostMapping("/getOrderListDetail")
     public ApiResponse<OrderDetailBackDto> getOrderListDetail(@RequestParam("orderNo") String orderNo) {
         OrderDetailBackDto orderListDetail = null;
@@ -68,6 +72,7 @@ public class OrderBackController {
     @ApiImplicitParams(
             @ApiImplicitParam(name = "orderNo",value = "orderNo",required = true,paramType = "query",dataType = "String")
     )
+    @Log(title = "订单管理:订单历史轨迹", businessType = BusinessType.OTHER)
     @PostMapping("/getOrderHistoryTrace")
     public ApiResponse<List<OrderHistoryTraceDto>> getOrderHistoryTrace(@RequestParam("orderNo") String orderId){
         List<OrderHistoryTraceDto> orderHistoryTraceDtos = null;
