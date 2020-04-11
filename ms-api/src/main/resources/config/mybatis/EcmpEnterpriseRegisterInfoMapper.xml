@@ -346,7 +346,7 @@
             <if test="idCard != null ">#{idCard},</if>
             <if test="licenseType != null ">#{licenseType},</if>
             <if test="licenseNumber != null ">#{licenseNumber},</if>
-            <if test="licenseInitIssueDate != null ">#{licenseInitIssueDate},</if>
+            <if test="licenseInitIssueDate != null and licenseInitIssueDate != ''">#{licenseInitIssueDate},</if>
             <if test="licenseIssueDate != null ">#{licenseIssueDate},</if>
             <if test="licenseExpireDate != null ">#{licenseExpireDate},</if>
             <if test="licenseImages != null ">#{licenseImages},</if>

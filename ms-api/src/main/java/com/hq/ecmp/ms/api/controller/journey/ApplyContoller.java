@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.*;
@@ -87,6 +88,7 @@ public class ApplyContoller {
      * @return
      */
     @Log("员工提交公务申请")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "申请模块:提交公务申请", businessType = BusinessType.INSERT)
     @ApiOperation(value = "applyOfficialCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
     @PostMapping("/applyOfficialCommit")
     public ApiResponse<ApplyVO>   applyOfficialCommit(@RequestBody ApplyOfficialRequest officialCommitApply){
@@ -107,6 +109,7 @@ public class ApplyContoller {
      * @param
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "申请模块:提交差旅申请", businessType = BusinessType.INSERT)
     @ApiOperation(value = "applyTravelCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
     @PostMapping("/applyTravelCommit")
     public ApiResponse<ApplyVO>  applyTravelCommit(@RequestBody ApplyTravelRequest travelCommitApply){
@@ -202,6 +205,7 @@ public class ApplyContoller {
      * @param
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "申请模块:申请列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getPassengerOwnerApplies",notes = "获取乘客自身 行程申请列表 ",httpMethod ="POST")
     @PostMapping("/getPassengerOwnerApplies")
     public ApiResponse<PageResult<ApplyInfoDTO>>   getPassengerOwnerApplies(@RequestBody PageRequest applyPage){
@@ -218,6 +222,7 @@ public class ApplyContoller {
      * @param journeyApplyDto  审批员信息
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "申请模块:申请详情", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getPassengerOwnerAppliesDetailInfo",notes = "获取乘客自身的行程申请详细信息 ",httpMethod ="POST")
     @PostMapping("/getPassengerOwnerAppliesDetailInfo")
     public ApiResponse<ApplyDetailVO>   getPassengerOwnerAppliesDetailInfo(@RequestBody JourneyApplyDto journeyApplyDto){
@@ -340,6 +345,7 @@ public class ApplyContoller {
      * @param journeyApplyDto  行程申请信息
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "申请模块:申请/审批详情", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getTravelApproval",notes = "获取审批详情",httpMethod ="POST")
     @PostMapping("/getTravelApproval")
     public ApiResponse<TravelApprovalVO> getApplyApproveDetailInfo(@RequestBody ApplyDTO journeyApplyDto){
