@@ -535,4 +535,13 @@ public class CarInfoServiceImpl implements ICarInfoService
         return carSaveDTO;
 
     }
+
+    /**
+     * 车辆品牌列表
+     * @return
+     */
+    @Override
+    public List<String> selectCarTypeList() {
+        return carInfoMapper.selectCarTypeList();
+    }
 }

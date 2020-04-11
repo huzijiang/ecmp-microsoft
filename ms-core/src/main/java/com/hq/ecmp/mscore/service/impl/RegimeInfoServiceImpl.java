@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.OrderConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.mapper.*;
@@ -317,8 +318,24 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	 * @return
 	 */
 	@Override
-	public String getUserOnlineCarLevels(Long regimenId) {
-		return regimeInfoMapper.getUserOnlineCarLevels(regimenId);
+	public String getUserOnlineCarLevels(Long regimenId,String type) {
+		RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(regimenId);
+		if(ObjectUtils.isNotEmpty(regimenVO)){
+			String regimenType = regimenVO.getRegimenType();
+			if(ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(regimenType)){
+				return regimenVO.getUseCarModeOnlineLevel();
+			}else if(ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(regimenType)){
+				//网约车 需判断   C001  接机   C009  送机    C222  市内用车
+				if(CarConstant.CITY_USE_CAR.equals(type)){
+					//如果是差旅市内用车（预约）
+					return regimenVO.getTravelUseCarModeOnlineLevel();
+				}else {
+					//如果是接送机
+					return regimenVO.getAsUseCarModeOwnerLevel();
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override

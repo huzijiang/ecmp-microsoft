@@ -160,4 +160,10 @@ public interface CarInfoMapper
      * @return
      */
     public int updateCarInfoByCarGroupId(CarInfo carInfo);
+
+    /**
+     * 车辆品牌列表
+     * @return
+     */
+    List<String> selectCarTypeList();
 }

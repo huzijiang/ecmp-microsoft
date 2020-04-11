@@ -120,4 +120,11 @@ public interface ICarInfoService
 
     /*车辆信息回显*/
     CarSaveDTO selectCarInfoFeedBack(Long carId);
+
+    /**
+     * 查询车辆品牌列表
+     * @return
+     */
+    List<String> selectCarTypeList();
+
 }

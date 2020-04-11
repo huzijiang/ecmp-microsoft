@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
@@ -106,7 +107,7 @@ public interface IOrderInfoService {
      * @param orderId
      * @return
      */
-    public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId);
+    public ApiResponse<DispatchOrderInfo> getWaitDispatchOrderDetailInfo(Long orderId, Long userId);
 
     /**
      * 查询已完成的订单详情(包含待改派的)
