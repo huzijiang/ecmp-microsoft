@@ -25,6 +25,7 @@ import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.OrderUtils;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -388,7 +389,31 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
 	@Override
-	public DispatchOrderInfo getWaitDispatchOrderDetailInfo(Long orderId) {
+	public ApiResponse<DispatchOrderInfo> getWaitDispatchOrderDetailInfo(Long orderId,Long userId) {
+        //查询是否存在调度员已经在进行操作
+        Object o = redisUtil.get("dispatch_" + orderId);
+        if (o == null) {
+            //如果没有就放进去一个过期时间  默认10分钟
+            long nm = 60 * 10;
+            redisUtil.set("dispatch_"+orderId, userId.toString(), nm);
+            ApiResponse<DispatchOrderInfo> dispatchOrderInfo=this.doWaitDispatchOrderDetailInfo(orderId);
+            return dispatchOrderInfo;
+        } else {
+            //如果存在查看是否是该调度员 如果不是则返回已经在操作
+            Long redisKey = Long.parseLong(o.toString());
+            if(redisKey.equals(userId)){
+                ApiResponse<DispatchOrderInfo> dispatchOrderInfo=this.doWaitDispatchOrderDetailInfo(orderId);
+                return dispatchOrderInfo;
+            } else {
+                long a =redisUtil.getTime("dispatch_557");
+                System.out.println(a);
+                return ApiResponse.error("已有调度员操作");
+            }
+        }
+    }
+
+    public ApiResponse<DispatchOrderInfo> doWaitDispatchOrderDetailInfo(Long orderId) {
+        ApiResponse apiResponse = new ApiResponse();
 		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
 		dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
 		//查询订单对应的上车地点时间,下车地点时间
@@ -400,8 +425,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			dispatchOrderInfo.setDispatchDriverInfo(dispatchDriverInfo);
 			//改派过的订单对应前端状态 待改派-S270
 			dispatchOrderInfo.setState(OrderState.APPLYREASSIGN.getState());
-		}
-		return dispatchOrderInfo;
+            apiResponse.setData(dispatchOrderInfo);
+		}else{
+            apiResponse.setData(dispatchOrderInfo);
+        }
+		return apiResponse;
 	}
 
 	@Override

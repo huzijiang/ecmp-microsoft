@@ -421,7 +421,13 @@ public class OrderController {
     @ApiOperation(value = "getWaitDispatchOrderDetailInfo", notes = "获取等待调度的订单详细信息", httpMethod = "POST")
     @PostMapping("/getWaitDispatchOrderDetailInfo")
     public ApiResponse<DispatchOrderInfo> getWaitDispatchOrderDetailInfo(Long orderId) {
-        return ApiResponse.success(iOrderInfoService.getWaitDispatchOrderDetailInfo(orderId));
+        //获取当前登陆用户的信息
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        //获取当前登陆用户的信息Id
+        Long userId = loginUser.getUser().getUserId();
+        ApiResponse<DispatchOrderInfo>  dispatchOrderInfo =iOrderInfoService.getWaitDispatchOrderDetailInfo(orderId,userId);
+        return dispatchOrderInfo;
     }
 
 
