@@ -2,6 +2,8 @@ package com.hq.ecmp.ms.api.controller.car;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
@@ -119,6 +121,7 @@ public class CarController {
      * 查询查询用户企业有效车型 豪华型 公务型
      * @return
      */
+    @Log(title = "车型管理:企业车型列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getAllEffectiveCarTypes",notes = "查询用户公司有效自有公车车型 公务型，豪华型",httpMethod ="POST")
     @PostMapping("/getAllEffectiveCarTypes")
     public ApiResponse<List<EnterpriseCarTypeInfo>> getEffectiveCarTypes(){
@@ -143,6 +146,7 @@ public class CarController {
      * @param
      * @return
      */
+    @Log(title = "车辆管理:新增车辆", businessType = BusinessType.INSERT)
     @ApiOperation(value = "saveCar",notes = "新增车辆",httpMethod ="POST")
     @PostMapping("/saveCar")
     public ApiResponse<Long> saveCar(@RequestBody CarSaveDTO carSaveDTO){
@@ -165,6 +169,7 @@ public class CarController {
      * @param
      * @return
      */
+    @Log(title = "车辆管理:修改车辆", businessType = BusinessType.UPDATE)
     @ApiOperation(value = "updateCar",notes = "修改车辆信息",httpMethod ="POST")
     @PostMapping("/updateCar")
     public ApiResponse updateCar(@RequestBody CarSaveDTO carSaveDTO){
@@ -186,6 +191,7 @@ public class CarController {
      * @param
      * @return
      */
+    @Log(title = "车辆管理:删除车辆", businessType = BusinessType.DELETE)
     @ApiOperation(value = "deleteCar",notes = "删除车辆")
     @RequestMapping("/deleteCar")
     public ApiResponse deleteCar(@RequestBody CarDto carDto){
@@ -207,6 +213,7 @@ public class CarController {
      * @param
      * @return
      */
+    @Log(title = "车辆管理:车辆详情", businessType = BusinessType.OTHER)
     @ApiOperation(value = "carDetail",notes = "车辆详情",httpMethod ="POST")
     @PostMapping("/carDetail")
     public ApiResponse<CarDetailVO> carDetail(@RequestBody CarDto carDto){
@@ -226,6 +233,7 @@ public class CarController {
      * @param  carDto  车辆信息
      * @return
      */
+    @Log(title = "车辆管理:启用车辆", businessType = BusinessType.OTHER)
     @ApiOperation(value = "startCar",notes = "启用车辆",httpMethod ="POST")
     @PostMapping("/startCar")
     public ApiResponse startCar(@RequestBody CarDto carDto){
@@ -247,6 +255,7 @@ public class CarController {
      * @param  carDto  车辆信息
      * @return
      */
+    @Log(title = "车辆管理:禁用车辆", businessType = BusinessType.OTHER)
     @ApiOperation(value = "disableCar",notes = "禁用车辆",httpMethod ="POST")
     @PostMapping("/disableCar")
     public ApiResponse disableCar(@RequestBody CarDto carDto){
@@ -268,6 +277,7 @@ public class CarController {
      * @param  carDto  车辆信息
      * @return
      */
+    @Log(title = "车辆管理:维保车辆", businessType = BusinessType.OTHER)
     @ApiOperation(value = "maintainCar",notes = "维保车辆",httpMethod ="POST")
     @PostMapping("/maintainCar")
     public ApiResponse maintainCar(@RequestBody CarDto carDto){
@@ -289,6 +299,7 @@ public class CarController {
      * @param
      * @return
      */
+    @Log(title = "车辆管理:绑定驾驶员", businessType = BusinessType.OTHER)
     @ApiOperation(value = "bindCarDrivers",notes = "车辆新增驾驶员",httpMethod ="POST")
     @PostMapping("/bindCarDriver")
     public ApiResponse bindCarDrivers(@RequestBody CarDriverDTO carDriverDTO){
@@ -310,6 +321,7 @@ public class CarController {
      * @param  carDto  车辆信息
      * @return
      */
+    @Log(title = "车辆管理:解绑驾驶员", businessType = BusinessType.OTHER)
     @ApiOperation(value = "removeCarDriver",notes = "解绑车辆驾驶员",httpMethod ="POST")
     @PostMapping("/removeCarDriver")
     public ApiResponse removeCarDriver(@RequestBody CarDto carDto){
@@ -327,6 +339,7 @@ public class CarController {
      * @param
      * @return
      */
+    @Log(title = "车辆管理:车辆驾驶员列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarDriverList",notes = "查看车辆已绑定驾驶员列表")
     @RequestMapping("/getCarDriverList")
     public ApiResponse<PageResult<DriverVO>> getCarDriverList(@RequestBody PageRequest pageRequest){
@@ -346,6 +359,7 @@ public class CarController {
      * @param
      * @return
      */
+    @Log(title = "车辆管理:车队的车辆列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarListByGroup",notes = "按车队id查询车辆列表",httpMethod ="POST")
     @PostMapping("/getCarListByGroup")
     public ApiResponse<PageResult<CarListVO>> getCarListByGroup(@RequestBody PageRequest pageRequest){
@@ -357,14 +371,14 @@ public class CarController {
             return ApiResponse.error("查询失败");
         }
     }
-    
+    @Log(title = "车辆管理:车队下的可用车辆", businessType = BusinessType.OTHER)
     @ApiOperation(value = "carGroup", notes = "指定车队下的可用车辆", httpMethod = "POST")
 	@PostMapping("/carGroup")
 	public ApiResponse<CarGroupCarInfo> queryCarGroupCarList(@RequestBody Long carGroupId) {
 		return ApiResponse.success(carInfoService.queryCarGroupCarList(carGroupId));
 	}
 
-
+    @Log(title = "车辆管理:车辆信息回显", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarInfoFeedBack", notes = "车辆信息回显", httpMethod = "POST")
     @PostMapping("/getCarInfoFeedBack")
     public ApiResponse<CarSaveDTO> getCarInfoFeedBack(@RequestBody CarDto carDto) {
