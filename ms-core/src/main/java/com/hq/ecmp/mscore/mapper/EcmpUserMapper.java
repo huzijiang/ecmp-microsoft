@@ -325,5 +325,7 @@ public interface EcmpUserMapper
     int updatePhoneByUserId(@Param("newPhoneNum") String newPhoneNum,@Param("userId") Long userId);
 
     List<EcmpUserDto> queryUserListByDeptIdsAndName(@Param("deptIds")List<Long> deptIds, @Param("name")String name);
+    
+    public int updateEcmpUserjobNumber(EcmpUser ecmpUser);
 }
 
