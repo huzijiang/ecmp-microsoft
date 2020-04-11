@@ -385,4 +385,12 @@ public class CarController {
        CarSaveDTO carSaveDTO = carInfoService.selectCarInfoFeedBack(carDto.getCarId());
        return ApiResponse.success(carSaveDTO);
     }
+
+    @Log(title = "车辆管理:车辆所有品牌", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getCarTypeList", notes = "车辆品牌列表", httpMethod = "POST")
+    @PostMapping("/getCarTypeList")
+    public ApiResponse<List<String>> getCarTypeList() {
+       List<String> carTypeList = carInfoService.selectCarTypeList();
+        return ApiResponse.success(carTypeList);
+    }
 }

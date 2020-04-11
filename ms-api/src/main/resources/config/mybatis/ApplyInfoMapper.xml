@@ -152,7 +152,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getApplyApproveCount"  parameterType="Object" resultType="int" >
         SELECT count(*) from (
         select apply_id  from apply_info
-        where create_by=#{userId}
+        where create_by=#{userId} and state='S001'
         union all(
         select approve_result_id from apply_approve_result_info where state=#{state} and find_in_set(#{userId},approve_user_id) ) ) a
     </select>
