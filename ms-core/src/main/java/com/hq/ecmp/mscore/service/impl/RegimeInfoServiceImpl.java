@@ -318,11 +318,22 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	 * @return
 	 */
 	@Override
-	public String getUserOnlineCarLevels(Long regimenId) {
+	public String getUserOnlineCarLevels(Long regimenId,String type) {
 		RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(regimenId);
 		if(ObjectUtils.isNotEmpty(regimenVO)){
 			String regimenType = regimenVO.getRegimenType();
-			return ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(regimenType) ? regimenVO.getUseCarModeOnlineLevel() : regimenVO.getTravelUseCarModeOnlineLevel();
+			if(ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(regimenType)){
+				return regimenVO.getUseCarModeOnlineLevel();
+			}else if(ApplyTypeEnum.APPLY_TRAVEL_TYPE.getKey().equals(regimenType)){
+				//网约车 需判断   C001  接机   C009  送机    C222  市内用车
+				if(CarConstant.CITY_USE_CAR.equals(type)){
+					//如果是差旅市内用车（预约）
+					return regimenVO.getTravelUseCarModeOnlineLevel();
+				}else {
+					//如果是接送机
+					return regimenVO.getAsUseCarModeOwnerLevel();
+				}
+			}
 		}
 		return null;
 	}

@@ -368,5 +368,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         where car_group_id = #{carGroupId}
     </update>
+    <select id="selectCarTypeList" resultType="java.lang.String">
+        SELECT DISTINCT car_type FROM car_info
+    </select>
 
 </mapper>
