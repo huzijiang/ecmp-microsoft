@@ -81,4 +81,24 @@ public class DriverInfoController {
 	}
 	
 	
+	@ApiOperation(value = "checkMobile", notes = "校验驾驶员手机号是否已经存在", httpMethod = "POST")
+	@PostMapping("/checkMobile")
+	public ApiResponse checkMobile(@RequestBody String mobile) {
+		boolean checkMobile = driverInfoService.checkMobile(mobile);
+		if(checkMobile){
+			return ApiResponse.error("该手机号已存在,不可重复录入!");
+		}
+		return ApiResponse.success();
+	}
+	
+	
+	@ApiOperation(value = "checkUserId", notes = "校验驾驶员工号是否已经存在", httpMethod = "POST")
+	@PostMapping("/checkUserId")
+	public ApiResponse checkUserId(@RequestBody String userId) {
+		boolean checkMobile = driverInfoService.checkMobile(userId);
+		if(checkMobile){
+			return ApiResponse.error("该手机号已存在,不可重复录入!");
+		}
+		return ApiResponse.success();
+	}
 }

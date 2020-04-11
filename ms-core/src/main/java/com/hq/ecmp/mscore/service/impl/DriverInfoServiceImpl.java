@@ -138,7 +138,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	@Override
 	public boolean createDriver(DriverCreateInfo driverCreateInfo) {
     	
-       	//生成用户记录
+/*       	//生成用户记录
     	EcmpUser ecmpUser = new EcmpUser();
     	ecmpUser.setUserName(driverCreateInfo.getMobile());
     	ecmpUser.setNickName(driverCreateInfo.getDriverName());
@@ -152,7 +152,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     		ecmpUser.setDeptId(carGroupInfo.getOwnerOrg());
     	}
     	ecmpUserService.insertEcmpUser(ecmpUser);
-    	driverCreateInfo.setUserId(ecmpUser.getUserId());
+    	driverCreateInfo.setUserId(ecmpUser.getUserId());*/
     	//生成驾驶员记录
     	Integer createDriver = driverInfoMapper.createDriver(driverCreateInfo);
     	Long driverId = driverCreateInfo.getDriverId();
@@ -166,7 +166,6 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	carGroupDriverRelationService.insertCarGroupDriverRelation(carGroupDriverRelation);
     	//生成驾驶员-车辆记录
     	DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
-    	driverCarRelationInfo.setUserId(ecmpUser.getUserId());
     	driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
     	driverCarRelationInfo.setCarIdList(driverCreateInfo.getCarId());
     	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
@@ -381,5 +380,17 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		return carGroupDriverInfo;
 	}
 
+	@Override
+	public boolean checkMobile(String mobile) {
+		DriverInfo driverInfo = new DriverInfo();
+		driverInfo.setMobile(mobile);
+		List<DriverInfo> selectDriverInfoList = driverInfoMapper.selectDriverInfoList(driverInfo);
+		if(null !=selectDriverInfoList && selectDriverInfoList.size()>0){
+			return true;
+		}
+		return false;
+	}
+
+	
 
 }

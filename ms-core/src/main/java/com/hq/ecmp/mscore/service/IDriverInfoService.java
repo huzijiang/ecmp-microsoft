@@ -135,6 +135,15 @@ public interface IDriverInfoService
      * @return
      */
     public  CarGroupDriverInfo queryCarGroupDriverList(Long carGroupId);
+    
+    /**
+     * 校验驾驶员手机号是否已经存在
+     * @param mobile
+     * @return  true - 已经存在    
+     */
+    public boolean checkMobile(String mobile);
+    
+
 
 
 }
