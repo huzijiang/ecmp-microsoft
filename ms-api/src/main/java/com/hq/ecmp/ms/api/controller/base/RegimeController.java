@@ -103,7 +103,7 @@ public class RegimeController {
     @ApiOperation(value = "getUserOnlineCarLevels",notes = "查询用户可用网约车型等级",httpMethod ="POST")
     @PostMapping("/getUserOnlineCarLevels")
     public ApiResponse<String> getUserOnlineCarLevels(@RequestBody RegimenDTO regimenDTO){
-        String result = regimeInfoService.getUserOnlineCarLevels(regimenDTO.getRegimenId());
+        String result = regimeInfoService.getUserOnlineCarLevels(regimenDTO.getRegimenId(),regimenDTO.getType());
         if(ObjectUtils.isEmpty(result)){
             return ApiResponse.error("查无数据");
         }
