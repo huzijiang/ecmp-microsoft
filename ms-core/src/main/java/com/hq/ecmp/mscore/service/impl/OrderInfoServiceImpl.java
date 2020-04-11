@@ -1590,7 +1590,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //消息发送使用
         Long driverId = orderInfoOld.getDriverId();
         //状态为约到车未服务的状态，用车方式为网约车，调用三方取消订单接口
-        if (useCarMode.equals(CarConstant.USR_CARD_MODE_NET)) {
+        if (useCarMode != null && useCarMode.equals(CarConstant.USR_CARD_MODE_NET )) {
             //TODO 调用网约车的取消订单接口
             List<String> macList = MacTools.getMacList();
             String macAdd = macList.get(0);
@@ -1618,7 +1618,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setUpdateTime(DateUtils.getNowDate());
         int suc = orderInfoMapper.updateOrderInfo(orderInfo);
         //自有车，且状态变更成功
-        if (suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)) {
+        if (suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE) && !state.equals(OrderState.WAITINGLIST.getState())) {
             //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
             ismsBusiness.sendMessageCancelOrder(orderId,userId);
         }
