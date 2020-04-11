@@ -365,8 +365,8 @@ public class CarGroupController {
     public ApiResponse<CarGroupDTO> getCarGroupInfoFeedBack(
             @RequestBody CarGroupDTO carGroupDTO){
         try {
-            CarGroupDTO carGroupDTO1 = carGroupInfoService.getCarGroupInfoFeedBack(carGroupDTO.getCarGroupId());
-            return ApiResponse.success(carGroupDTO1);
+            CarGroupDTO result = carGroupInfoService.getCarGroupInfoFeedBack(carGroupDTO.getCarGroupId());
+            return ApiResponse.success(result);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("回显失败");

@@ -147,7 +147,7 @@ public class ProjectController {
         }
         projectInfo.setOwnerOrg(loginUser.getUser().getDeptId());
         if (projectInfoDto.getFatherProjectId()==null){
-            projectInfo.setFatherProjectId(0l);
+            projectInfo.setFatherProjectId(0L);
         }
         projectInfo.setCreateBy(String.valueOf(loginUser.getUser().getUserId()));
         projectInfo.setCreateTime(new Date());

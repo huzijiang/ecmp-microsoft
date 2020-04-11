@@ -253,6 +253,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * @param driverRegisterDTO
      * @return
      */
+    @Override
     public int driverItisExist(DriverRegisterDTO driverRegisterDTO){
         return driverInfoMapper.driverItisExist(driverRegisterDTO.getMobile());
     }
@@ -260,6 +261,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      *驾驶员可用车辆列表
      * @param
      */
+    @Override
     public List<DriverCanUseCarsDTO> getDriverCanCar(Long driverId){
         return driverInfoMapper.getDriverCanCar(driverId);
     }
@@ -267,12 +269,14 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      *驾驶员失效列表,离职列表
      * @param
      */
+    @Override
     public List<DriverLoseDTO> getDriverLoseList(Long deptId){
         return driverInfoMapper.getDriverLoseList(deptId);
     }
     /**
      * 驾驶员已离职数量
      */
+    @Override
     public int getDriverLoseCount(Long deptId){
         return driverInfoMapper.getDriverLoseCount(deptId);
 
@@ -280,6 +284,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     /**
      * 已失效驾驶员进行删除
      */
+    @Override
     public int deleteDriver(Long driverId){
         return driverInfoMapper.deleteDriver(driverId);
     }
@@ -290,7 +295,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * @param mobile
      * @return
      */
-    public int updateDriverMobile(String mobile,Long driverId){
+    @Override
+    public int updateDriverMobile(String mobile, Long driverId){
         return driverInfoMapper.updateDriverMobile(mobile,driverId);
     }
 
@@ -299,7 +305,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * @param dimTime
      * @return
      */
-    public int updateDriverDimTime(Date dimTime,Long driverId){
+    @Override
+    public int updateDriverDimTime(Date dimTime, Long driverId){
         return driverInfoMapper.updateDriverDimTime(dimTime,driverId);
     }
     /**

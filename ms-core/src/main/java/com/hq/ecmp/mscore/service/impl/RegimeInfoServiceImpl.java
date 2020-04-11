@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.OrderConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.mapper.*;
@@ -318,7 +319,12 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	 */
 	@Override
 	public String getUserOnlineCarLevels(Long regimenId) {
-		return regimeInfoMapper.getUserOnlineCarLevels(regimenId);
+		RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(regimenId);
+		if(ObjectUtils.isNotEmpty(regimenVO)){
+			String regimenType = regimenVO.getRegimenType();
+			return ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(regimenType) ? regimenVO.getUseCarModeOnlineLevel() : regimenVO.getTravelUseCarModeOnlineLevel();
+		}
+		return null;
 	}
 
 	@Override
