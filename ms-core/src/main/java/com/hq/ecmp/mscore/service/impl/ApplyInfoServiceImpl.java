@@ -465,6 +465,14 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         if (ecmpOrg!=null){
             costCenter=ecmpOrg.getDeptName();
         }
+        String rejectReason="";
+        if (ApplyStateConstant.REJECT_APPLY.equals(applyInfo.getState())){
+            //查询驳回原因
+            List<ApplyApproveResultInfo> applyApproveResultInfos = applyApproveResultInfoMapper.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(applyId, ApproveStateEnum.APPROVE_FAIL.getKey(), ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey()));
+            if (!CollectionUtils.isEmpty(applyApproveResultInfos)){
+                rejectReason=applyApproveResultInfos.get(0).getContent();
+            }
+        }
         ApplyDetailVO applyDetailVO = ApplyDetailVO.builder()
                 //申请原因
                 .reason(applyInfo.getReason()).applyId(applyInfo.getApplyId())
@@ -477,6 +485,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 //申请状态
                 .status(applyInfo.getState())
                 .time(applyInfo.getCreateTime())
+                .rejectReason(rejectReason)
                 //申请类型
                 .type(applyInfo.getApplyType())
                 .build();
