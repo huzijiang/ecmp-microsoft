@@ -245,7 +245,7 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
             throw new Exception("审批节点为空");
         }
         SortListUtil.sort(flowList, "number", SortListUtil.ASC);
-        Long approveNodeId = 0l;
+        Long approveNodeId = 0L;
         for (int i = 0; i < flowList.size(); i++) {
             ApproveTemplateNodeInfo nodeInfo = new ApproveTemplateNodeInfo();
             nodeInfo.setApproverType(flowList.get(i).getType());

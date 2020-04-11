@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -224,10 +226,28 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
      */
     @Override
     public int insertDriverRegister(DriverRegisterDTO driverRegisterDTO){
-        driverRegisterDTO.setCreateTime(DateUtils.getNowDate());
-        driverRegisterDTO.setType("T002");
-        driverRegisterDTO.setState("S000");
-        int i = ecmpEnterpriseRegisterInfoMapper.insertDriverRegister(driverRegisterDTO);
+        DriverRegisterInsertDTO driver = new DriverRegisterInsertDTO();
+        driver.setCarGroupId(driverRegisterDTO.getCarGroupId());
+        driver.setGender(driverRegisterDTO.getGender());
+        driver.setIdCard(driverRegisterDTO.getIdCard());
+        driver.setJobNumber(driverRegisterDTO.getJobNumber());
+        String expire = driverRegisterDTO.getLicenseExpireDate();
+        String issue = driverRegisterDTO.getLicenseIssueDate();
+        String initIssue = driverRegisterDTO.getLicenseInitIssueDate();
+        driver.setLicenseExpireDate(DateUtils.parseDate(expire));
+        driver.setLicenseInitIssueDate(DateUtils.parseDate(issue));
+        driver.setLicenseIssueDate(DateUtils.parseDate(initIssue));
+        driver.setInvitationId(driverRegisterDTO.getInvitationId());
+        driver.setLicenseImages(driverRegisterDTO.getLicenseImages());
+        driver.setName(driverRegisterDTO.getName());
+        driver.setMobile(driverRegisterDTO.getMobile());
+        driver.setType("T002");
+        driver.setState("S000");
+        driver.setReason(driverRegisterDTO.getReason());
+        driver.setCreateTime(DateUtils.getNowDate());
+        driver.setLicenseNumber(driverRegisterDTO.getLicenseNumber());
+        driver.setLicenseType(driverRegisterDTO.getLicenseType());
+        int i = ecmpEnterpriseRegisterInfoMapper.insertDriverRegister(driver);
         return i;
     }
     @Override
