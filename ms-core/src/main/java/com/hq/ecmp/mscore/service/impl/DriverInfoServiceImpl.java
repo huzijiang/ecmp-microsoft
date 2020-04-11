@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.CarGroupDriverRelation;
@@ -23,6 +24,7 @@ import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.DriverQueryResult;
+import com.hq.ecmp.mscore.domain.DriverUserJobNumber;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
@@ -398,6 +400,43 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		return false;
 	}
 
-	
-
+	@Override
+	public void checkjobNumber(DriverUserJobNumber driverUserJobNumber) throws Exception {
+		String driverName = driverUserJobNumber.getDriverName();
+		String jobNumber = driverUserJobNumber.getJobNumber();
+		String mobile = driverUserJobNumber.getMobile();
+		if(StringUtil.isEmpty(driverName)){
+			throw new Exception("请输入驾驶员姓名");
+		}
+		if(StringUtil.isEmpty(jobNumber)){
+			throw new Exception("请输入驾驶员工号");
+		}
+		if(StringUtil.isEmpty(mobile)){
+			throw new Exception("请输入驾驶员手机号");
+		}
+		EcmpUser query = new EcmpUser();
+		query.setNickName(driverName);
+		query.setPhonenumber(mobile);
+		List<EcmpUser> selectEcmpUserList = ecmpUserService.selectEcmpUserList(query);
+		if(null==selectEcmpUserList || selectEcmpUserList.size()==0){
+			return;
+		}
+		EcmpUser ecmpUser = selectEcmpUserList.get(0);
+		String userJobNumber = ecmpUser.getJobNumber();
+		if(StringUtil.isEmpty(userJobNumber)){
+			//查询user表中是否已经存在了输入的工号 jobNumber
+			EcmpUser queryJobNumber = new EcmpUser();
+			queryJobNumber.setJobNumber(jobNumber);
+			List<EcmpUser> queryJobNumberUserList = ecmpUserService.selectEcmpUserList(queryJobNumber);
+			if(null !=queryJobNumberUserList && queryJobNumberUserList.size()>0){
+				throw new Exception("工号已被占用，请重新录入!");
+			}
+			return;
+		}
+		if(jobNumber.equals(userJobNumber)){
+			return;
+		}else{
+			throw new Exception("员工"+driverName+"："+mobile+"对应的工号是"+userJobNumber+"，请核实后重新输入!");
+		}
+	}
 }

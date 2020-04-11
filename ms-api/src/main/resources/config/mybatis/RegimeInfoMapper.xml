@@ -346,7 +346,7 @@ WHERE
 
 <select id="queryUseCarModelByNoteId" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeInfo">
 	SELECT
-	a.can_use_car_mode as canUseCarMode,a.regimen_id as regimenId
+	a.can_use_car_mode as canUseCarMode,a.regimen_id as regimenId,a.regimen_type as regimenType
 FROM
 	regime_info a
 LEFT JOIN journey_info b ON a.regimen_id = b.regimen_id

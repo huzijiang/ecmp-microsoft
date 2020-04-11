@@ -18,6 +18,7 @@ import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.DriverQueryResult;
+import com.hq.ecmp.mscore.domain.DriverUserJobNumber;
 import com.hq.ecmp.mscore.domain.RegimeOpt;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.vo.PageResult;
@@ -92,13 +93,15 @@ public class DriverInfoController {
 	}
 	
 	
-	@ApiOperation(value = "checkUserId", notes = "校验驾驶员工号是否已经存在", httpMethod = "POST")
-	@PostMapping("/checkUserId")
-	public ApiResponse checkUserId(@RequestBody String userId) {
-		boolean checkMobile = driverInfoService.checkMobile(userId);
-		if(checkMobile){
-			return ApiResponse.error("该手机号已存在,不可重复录入!");
+	@ApiOperation(value = "checkjobNumber", notes = "校验驾驶员用户的工号", httpMethod = "POST")
+	@PostMapping("/checkjobNumber")
+	public ApiResponse checkjobNumber(@RequestBody DriverUserJobNumber driverUserJobNumber) {
+		try {
+			driverInfoService.checkjobNumber(driverUserJobNumber);
+			return ApiResponse.success();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error(e.getMessage());
 		}
-		return ApiResponse.success();
 	}
 }

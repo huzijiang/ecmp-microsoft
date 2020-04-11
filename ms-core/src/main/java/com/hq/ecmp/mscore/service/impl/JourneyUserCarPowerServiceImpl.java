@@ -496,9 +496,21 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 
 	@Override
 	public boolean checkPowerOverTime(Long powerId) {
-		//是否过期   当前时间是否超过了用车时间/用车时间段
+		//是否过期   当前时间是否超过了用车时间/用车时间段    公务的取开始时间   差旅的取用车时间段的结束时间
 		JourneyNodeInfo journeyNodeInfo = journeyNodeInfoService.queryJourneyNodeInfoByPowerId(powerId);
-		Date planSetoutTime = journeyNodeInfo.getPlanSetoutTime();
+		 RegimeInfo regimeInfo = regimeInfoService.queryUseCarModelByNoteId(journeyNodeInfo.getNodeId());
+		 if(null ==regimeInfo){
+			 return false;
+		 }
+		 Date planSetoutTime=null;
+		 String regimenType = regimeInfo.getRegimenType();
+		 if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimenType)){
+			 //公务
+			 planSetoutTime=journeyNodeInfo.getPlanSetoutTime();
+		 }else if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimenType)){
+			 //差旅
+			 planSetoutTime=journeyNodeInfo.getPlanArriveTime();
+		 }
 		if(null ==planSetoutTime){
 			return false;
 		}
