@@ -364,24 +364,35 @@ WHERE
         left join car_group_info c on c.car_group_id = a.car_group_id
 
     </select>
-    <select id="getDriverLoseList" parameterType="long" resultType="com.hq.ecmp.mscore.dto.DriverLoseDTO">
-        select a.driver_name as driverName,a.mobile as mobile,e.dept_name as deptName,c.car_group_name as carGroupName,
+    <select id="getDriverLoseList" resultType="com.hq.ecmp.mscore.dto.DriverLoseDTO">
+        select a.driver_id as driverId,a.user_id as userId,a.driver_name as driverName,a.mobile as mobile,e.dept_name as deptName,c.car_group_name as carGroupName,
         a.dimission_time as dimissionTime,a.state_description as stateDescription
         from driver_info a
         left join car_group_driver_relation b on b.driver_id = a.driver_id
         left join car_group_info c on c.car_group_id = b.car_group_id
         left join ecmp_user d on d.user_id = a.user_id
         left join ecmp_org e on e.dept_id = d.dept_id
-        where d.dept_id = #{deptId}
+        where a.state='NV00'
+            <if test="carGroupId!=null and carGroupId gt 0" >
+                and b.car_group_id = #{carGroupId}
+            </if>
+           <if test="search != null and search != '' ">
+               and (a.driver_name like concat('%', #{search}, '%')
+            or a.user_id like concat('%', #{search}, '%')
+            or a.mobile like concat('%', #{search}, '%'))
+           </if>
     </select>
-    <select id="getDriverLoseCount" parameterType="Long" resultType="java.lang.Integer">
+    <select id="getDriverLoseCount" resultType="java.lang.Long">
         select count(*) from ( select a.driver_name,a.mobile,e.dept_name,c.car_group_name,a.dimission_time,a.state_description
         from driver_info a
         left join car_group_driver_relation b on b.driver_id = a.driver_id
         left join car_group_info c on c.car_group_id = b.car_group_id
         left join ecmp_user d on d.user_id = a.user_id
-        left join ecmp_org e on e.dept_id = d.dept_id) as amount
-        where d.dept_id = #{deptId}
+        left join ecmp_org e on e.dept_id = d.dept_id
+        where a.state='NV00'
+        <if test="carGroupId!=null and carGroupId gt 0" >
+            and b.car_group_id = #{carGroupId}
+        </if>) as amount
     </select>
 
     <delete id="deleteDriver" parameterType="Long">

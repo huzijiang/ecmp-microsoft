@@ -12,7 +12,10 @@ import java.util.Date;
 @Data
 @ApiModel("驾驶员失效列表")
 public class DriverLoseDTO {
-
+    @ApiModelProperty(value = "驾驶员id")
+    private Long driverId;
+    @ApiModelProperty(value = "工号")
+    private Long userId;
     @ApiModelProperty(value = "驾驶员姓名")
     private String driverName;
 

@@ -8,10 +8,8 @@ import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.DriverQueryResult;
 import com.hq.ecmp.mscore.domain.DriverUserJobNumber;
-import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
-import com.hq.ecmp.mscore.dto.DriverCarDTO;
-import com.hq.ecmp.mscore.dto.DriverLoseDTO;
-import com.hq.ecmp.mscore.dto.DriverRegisterDTO;
+import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.vo.PageResult;
 
 /**
  * 【请填写功能名称】Service接口
@@ -99,11 +97,11 @@ public interface IDriverInfoService
      *驾驶员失效列表,离职列表
      * @param
      */
-    public List<DriverLoseDTO> getDriverLoseList(Long deptId);
+    public PageResult<DriverLoseDTO> getDriverLoseList(Integer pageNum, Integer pageSize,Long carGroupId,String search);
     /**
      * 驾驶员已离职数量
      */
-    public int getDriverLoseCount(Long deptId);
+    public Long getDriverLoseCount(Long carGroupId);
     /**
      * 已失效驾驶员进行删除
      */

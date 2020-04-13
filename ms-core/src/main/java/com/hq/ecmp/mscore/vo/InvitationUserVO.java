@@ -41,6 +41,7 @@ public class InvitationUserVO {
     private String amountWait;
 
 
+
     @ApiModelProperty(name = "state", value = "状态")
     private String state;
 

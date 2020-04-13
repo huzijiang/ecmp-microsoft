@@ -136,9 +136,15 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
      * @param
      */
     @Override
-    public List<RegisterDriverVO> queryRegisterDriverWait(RegisterDTO registerDTO){
-        return ecmpEnterpriseRegisterInfoMapper.queryRegisterDriverWait(registerDTO.getType());
+    public PageResult<RegisterDriverVO> queryRegisterDriverWait(Integer pageNum, Integer pageSize,Long carGroupId,String type,String search){
+
+        PageHelper.startPage(pageNum,pageSize);
+        List<RegisterDriverVO> registerDriverVOS= ecmpEnterpriseRegisterInfoMapper.queryRegisterDriverWait(carGroupId,type,search);
+        PageInfo<RegisterDriverVO> info = new PageInfo<>(registerDriverVOS);
+        return new PageResult<>(info.getTotal(),info.getPages(),registerDriverVOS);
+
     }
+
     /**
      * 注册申请：拒绝/通过
      */
@@ -299,6 +305,8 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         }
         return count;
     }
-
+    public RegisterDriverVO queryDriverRegDetail(Long registerId){
+        return ecmpEnterpriseRegisterInfoMapper.queryDriverRegDetail(registerId);
+    }
 
 }
