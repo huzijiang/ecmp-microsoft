@@ -111,7 +111,7 @@ public interface IEcmpOrgService
      * @param ecmpOrg 部门
      * @return 结果
      */
-    public int updateEcmpOrg(EcmpOrgVo ecmpOrg);
+    public int updateEcmpOrg(EcmpOrgVo ecmpOrg,Long userId)throws Exception;
 
     /**
      * 批量删除部门

@@ -4,6 +4,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
@@ -54,6 +57,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     private CarGroupDriverRelationMapper carGroupDriverRelationMapper;
     @Autowired
     private ICarGroupInfoService carGroupInfoService;
+    @Autowired
+    private TokenService tokenService;
     /**
      * 显示公司组织结构
      *
@@ -298,6 +303,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             if(deptIdList.size()>0){
                 for (Long deptId1:deptIdList) {
                     EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectCompanyList(deptId1,OrgConstant.DEPT_TYPE_1);
+                    String leader=ecmpOrgDto.getLeader();
+                    leader = changeUserIdToNickNames(leader);
+                    ecmpOrgDto.setLeader(leader);
                     ecmpOrgDto.setSupComName(supComName);
                     companyList.add(ecmpOrgDto);
                 }
@@ -335,6 +343,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             if(deptIdList.size()>0){
                 for (Long deptId1:deptIdList) {
                     EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectDeptList(deptId1,OrgConstant.DEPT_TYPE_2);
+                    String leader=ecmpOrgDto.getLeader();
+                    leader = changeUserIdToNickNames(leader);
+                    ecmpOrgDto.setLeader(leader);
                     ecmpOrgDto.setSupComName(supComName);
                     companyList.add(ecmpOrgDto);
                 }
@@ -539,7 +550,16 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      */
     @Override
     @Transactional
-    public int updateEcmpOrg(EcmpOrgVo ecmpOrg) {
+    public int updateEcmpOrg(EcmpOrgVo ecmpOrg,Long userId)throws Exception {
+        this.checkOrgVo(ecmpOrg,0);
+        List<EcmpUserDto> ecmpUserDtoList = ecmpUserMapper.selectUserIdsByNickNameOrJobNumber(ecmpOrg.getLeader(), null,null);
+        if(ecmpUserDtoList.size()>0){
+            for (EcmpUserDto ecmpUserDto:ecmpUserDtoList){
+                Long userId1=ecmpUserDto.getUserId();
+                ecmpOrg.setLeader(userId1.toString());
+            }
+        }
+        ecmpOrg.setUpdateBy(String.valueOf(userId));
         ecmpOrg.setUpdateTime(DateUtils.getNowDate());
 
         return ecmpOrgMapper.updateEcmpOrg(ecmpOrg);
@@ -695,6 +715,10 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         if(deptIds.size()>0){
             for (int i = 0; i < deptIds.size(); i++) {
                 EcmpOrgDto ecmpOrgDto = ecmpOrgMapper.selectCompanyByDeptNameOrCode(deptNameOrCode, deptNameOrCode, deptIds.get(i));
+                LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+                String leader=ecmpOrgDto.getLeader();
+                leader = changeUserIdToNickNames(leader);
+                ecmpOrgDto.setLeader(leader);
                 ecmpOrgDtoList.add(ecmpOrgDto);
             }
         }
@@ -713,6 +737,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         if(deptIds.size()>0){
             for (int i = 0; i < deptIds.size(); i++) {
                 EcmpOrgDto ecmpOrgDto = ecmpOrgMapper.selectDeptByDeptNameOrCode(deptNameOrCode, deptNameOrCode, deptIds.get(i));
+                String leader=ecmpOrgDto.getLeader();
+                leader = changeUserIdToNickNames(leader);
+                ecmpOrgDto.setLeader(leader);
                 ecmpOrgDtoList.add(ecmpOrgDto);
             }
         }
@@ -744,6 +771,19 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 			}
 		}
 	}
+
+    private String changeUserIdToNickNames(String leader) {
+        int[] userIds=null;
+        if(leader.contains(",")){
+            String[] split = leader.split(",");
+            userIds = Arrays.asList(split).stream().mapToInt(Integer::parseInt).toArray();
+        }
+        List<String> nickNames = ecmpUserMapper.selectNickNamesByUserId(userIds);
+        if(!nickNames.isEmpty()){
+            leader = StringUtils.join(nickNames.toArray(), ",");
+        }
+        return leader;
+    }
 
     /**
      *查询分/子公司下的部门名称和deptId
