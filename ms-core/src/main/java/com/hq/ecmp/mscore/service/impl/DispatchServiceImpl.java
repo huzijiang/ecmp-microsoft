@@ -95,7 +95,12 @@ public class DispatchServiceImpl implements IDispatchService {
     @Override
     public ApiResponse<DispatchResultVo> getWaitSelectedCars(DispatchSelectCarDto dispatchSelectCarDto) {
         Long orderId=Long.parseLong(dispatchSelectCarDto.getOrderNo());
-        LoginUser loginUser=tokenService.getLoginUser(dispatchSelectCarDto.getDispatcherId());
+
+        LoginUser loginUser=new LoginUser();
+        if(StringUtils.isNotEmpty(dispatchSelectCarDto.getDispatcherId())){
+             loginUser=tokenService.getLoginUser(dispatchSelectCarDto.getDispatcherId());
+        }
+
         OrderInfo orderInfo=orderInfoMapper.selectOrderInfoById(orderId);
         if(orderInfo==null){
             return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_EXIST.getDesc());
@@ -176,7 +181,10 @@ public class DispatchServiceImpl implements IDispatchService {
     @Override
     public ApiResponse<DispatchResultVo> getWaitSelectedDrivers(DispatchSelectDriverDto dispatchSelectDriverDto) {
         Long orderId=Long.parseLong(dispatchSelectDriverDto.getOrderNo());
-        LoginUser loginUser=tokenService.getLoginUser(dispatchSelectDriverDto.getDispatcherId());
+        LoginUser loginUser=new LoginUser();
+        if(StringUtils.isNotEmpty(dispatchSelectDriverDto.getDispatcherId())){
+            loginUser=tokenService.getLoginUser(dispatchSelectDriverDto.getDispatcherId());
+        }
         SelectDriverConditionBo selectDriverConditionBo=new SelectDriverConditionBo();
 
         if(StringUtils.isNotEmpty(dispatchSelectDriverDto.getCarId())){
