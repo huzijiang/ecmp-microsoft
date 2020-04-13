@@ -119,58 +119,35 @@ public class ScheduledTask {
 						try {
 							String[] split = useCarMode.split(",");
 							List<String> asList = Arrays.asList(split);
-							if (asList.contains(CarConstant.USR_CARD_MODE_HAVE) && asList.size() == 1) {
-								// 只有自有车
+							if (asList.contains(CarConstant.USR_CARD_MODE_HAVE)) {
+								// 如果自有车 网约车都有 则先走自有车调度 自有车调度失败再走网约车调度
 								DispatchCountCarAndDriverDto dispatchCountCarAndDriverDto = new DispatchCountCarAndDriverDto();
 								dispatchCountCarAndDriverDto.setOrderNo(orderId.toString());
 								ApiResponse<DispatchResultVo> autoDispatch = dispatchService
 										.autoDispatch(dispatchCountCarAndDriverDto);
-								log.info("自动派单-自有车 返回可用车辆和可用驾驶员:" + autoDispatch.toString());
-								if (!autoDispatch.isSuccess()) {
-									// 释放自动调度锁
-									redisUtil.delKey(redisLockKey);
-									continue;
-								}
-								DispatchResultVo data = autoDispatch.getData();
-								// 自有车调度
-								log.info("自动派单-自有车派车 选择的驾驶员编号:" + data.getDriverList().get(0).getDriverId()
-										+ "  选择的车辆编号:" + data.getCarList().get(0).getCarId());
-								boolean ownCarSendCar = orderInfoService.ownCarSendCar(orderId,
-										data.getDriverList().get(0).getDriverId(), data.getCarList().get(0).getCarId(),
-										autoDispatchUserId);
-								if (ownCarSendCar) {
-									// 调度成功 释放自动调度锁
-									redisUtil.delKey(redisLockKey);
-									continue;
-								}
-							}
-
-							if (asList.contains(CarConstant.USR_CARD_MODE_NET) && asList.size() == 1) {
-								// 只有网约车
-								log.info("自动派单-网约车派车:订单编号:" + orderId);
-								orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
-										null);
-								continue;
-							}
-
-							if (asList.size() == 2) {
-								// 自有车 网约车都有 则先走自有车调度 自有车调度失败再走网约车调度
-								DispatchCountCarAndDriverDto dispatchCountCarAndDriverDto = new DispatchCountCarAndDriverDto();
-								dispatchCountCarAndDriverDto.setOrderNo(orderId.toString());
-								ApiResponse<DispatchResultVo> autoDispatch = dispatchService
-										.autoDispatch(dispatchCountCarAndDriverDto);
-								log.info("自动派单-自有车 返回可用车辆和可用驾驶员:" + autoDispatch.toString());
-								if (!autoDispatch.isSuccess()) {
+								log.info("订单["+orderId+"]自动派单-自有车 返回可用车辆和可用驾驶员:" + autoDispatch.toString());
+								if (!autoDispatch.isSuccess() && asList.contains(CarConstant.USR_CARD_MODE_NET)) {
 									// 网约车派车
-									log.info("自动派单-网约车派车:订单编号:" + orderId);
+									log.info("订单["+orderId+"]自动派单-网约车派车:订单编号:" + orderId);
 									orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
 											null);
 									continue;
 								}
 								DispatchResultVo data = autoDispatch.getData();
 								// 自有车调度
-								log.info("自动派单-自有车派车 选择的驾驶员编号:" + data.getDriverList().get(0).getDriverId()
+								log.info("订单["+orderId+"]自动派单-自有车派车 选择的驾驶员编号:" + data.getDriverList().get(0).getDriverId()
 										+ "  选择的车辆编号:" + data.getCarList().get(0).getCarId());
+								if(null ==data.getDriverList() || null ==data.getDriverList().get(0) || null ==data.getCarList() || null==data.getCarList().get(0)){
+									//没有可用车辆和可用驾驶员
+									log.info("订单["+orderId+"]自动派单-自有车派车 没有可用车辆或驾驶员 ");
+									if(asList.contains(CarConstant.USR_CARD_MODE_NET)){
+										orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
+												null);
+									}else{
+										redisUtil.delKey(redisLockKey);	
+									}
+									continue;
+								}
 								boolean ownCarSendCar = orderInfoService.ownCarSendCar(orderId,
 										data.getDriverList().get(0).getDriverId(), data.getCarList().get(0).getCarId(),
 										autoDispatchUserId);
@@ -179,6 +156,14 @@ public class ScheduledTask {
 									redisUtil.delKey(redisLockKey);
 									continue;
 								}
+							}
+
+							if (asList.size() == 1 && CarConstant.USR_CARD_MODE_NET.equals(asList.get(0))) {
+								// 只有网约车
+								log.info("订单["+orderId+"]自动派单-网约车派车:订单编号:" + orderId);
+								orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
+										null);
+								continue;
 							}
 
 						} catch (Exception e) {
