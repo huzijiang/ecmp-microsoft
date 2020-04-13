@@ -110,14 +110,6 @@ file:
   url:
     feedback: http://10.117.1.231
 
-
-app:
-  zimg:
-    server: http://10.117.1.232:4869/upload
-    access:
-      url: http://10.117.1.232:4869/
-  welcome: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
-  background: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
 dispatch:
   #不回车队驻地缓冲时间: 60分钟
   notBackCarGroup: 60
