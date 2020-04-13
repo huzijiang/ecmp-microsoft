@@ -1,14 +1,19 @@
 package com.hq.ecmp.ms.api.controller.order;
 
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectCarDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectDriverDto;
+import com.hq.ecmp.constant.enumerate.DispatchExceptionEnum;
+import com.hq.ecmp.mscore.bo.WaitSelectedCarBo;
+import com.hq.ecmp.mscore.bo.WaitSelectedDriverBo;
+import com.hq.ecmp.mscore.dto.dispatch.*;
+import com.hq.ecmp.mscore.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,9 +32,6 @@ import com.hq.ecmp.mscore.domain.DispatchSendCarPageInfo;
 import com.hq.ecmp.mscore.dto.DispatchInfoDto;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
-import com.hq.ecmp.mscore.vo.DispatchResultVo;
-import com.hq.ecmp.mscore.vo.PageResult;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -40,6 +42,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @RestController
 @RequestMapping("/dispatch")
+@Slf4j
 public class DispatchController {
 
 
@@ -174,5 +177,87 @@ public class DispatchController {
     public ApiResponse unlockSelectedDriver(@RequestBody DispatchLockDriverDto dispatchLockDriverDto) {
         return  dispatchService.unlockSelectedDriver(dispatchLockDriverDto);
     }
+
+    /**
+     * 自动调度
+     *
+     * @param dispatchCountCarAndDriverDto dispatchCountCarAndDriverDto
+     * @return ApiResponse<DispatchCountDriverAndOrderVo>
+     */
+    @ApiOperation(value = "autoDispatch", notes = "自动调度", httpMethod = "POST")
+    @PostMapping("/autoDispatch")
+    public ApiResponse<DispatchResultVo> autoDispatch(@RequestBody DispatchCountCarAndDriverDto dispatchCountCarAndDriverDto) {
+        DispatchResultVo dispatchResultVo = new DispatchResultVo();
+
+        DispatchSelectCarDto dispatchSelectCarDto = new DispatchSelectCarDto();
+        dispatchSelectCarDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
+
+        List<WaitSelectedCarBo> cars=dispatchService.getWaitSelectedCars(dispatchSelectCarDto).getData().getCarList();
+
+        DispatchSelectDriverDto dispatchSelectDriverDto = new DispatchSelectDriverDto();
+        dispatchSelectDriverDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
+        dispatchSelectDriverDto.setCarId("");
+        List<WaitSelectedDriverBo> drivers = dispatchService.getWaitSelectedDrivers(dispatchSelectDriverDto).getData().getDriverList();
+
+        if(cars.isEmpty() || drivers.isEmpty()){
+            log.info(dispatchCountCarAndDriverDto.toString() + "-" + DispatchExceptionEnum.DRIVER_OR_CAR_NOT_FIND.getDesc());
+            return ApiResponse.success(dispatchResultVo);
+        }
+
+        Iterator<WaitSelectedCarBo> carInfoVOIterator = cars.iterator();
+        Iterator<WaitSelectedDriverBo> driverInfoVOIterator = drivers.iterator();
+
+        DispatchLockCarDto dispatchLockCarDto = new DispatchLockCarDto();
+        DispatchLockDriverDto dispatchLockDriverDto = new DispatchLockDriverDto();
+
+        AtomicReference<Boolean> carFlag = new AtomicReference<>(false);
+        AtomicReference<Boolean> driverFlag = new AtomicReference<>(false);
+
+        while (carInfoVOIterator.hasNext()) {
+            dispatchResultVo.setLockCar(1);
+
+            WaitSelectedCarBo car = carInfoVOIterator.next();
+            dispatchLockCarDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
+            dispatchLockCarDto.setCarId(car.getCarId().toString());
+
+            ApiResponse lockCarResult = dispatchService.lockSelectedCar(dispatchLockCarDto);
+            if (lockCarResult.isSuccess()) {
+                dispatchResultVo.setLockCar(0);
+                dispatchResultVo.setLockDriver(1);
+                carFlag.set(true);
+                while (driverInfoVOIterator.hasNext()) {
+                    WaitSelectedDriverBo driver = driverInfoVOIterator.next();
+                    dispatchLockDriverDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
+                    dispatchLockDriverDto.setCarId(car.getCarId().toString());
+                    dispatchLockDriverDto.setDriverId(driver.getDriverId().toString());
+
+                    ApiResponse lockDriverResult = dispatchService.lockSelectedDriver(dispatchLockDriverDto);
+
+                    if (lockDriverResult.isSuccess()) {
+                        dispatchResultVo.setLockDriver(0);
+                        driverFlag.set(true);
+                        break;
+                    }
+                }
+            }
+
+            if (! driverFlag.get()) {
+                dispatchService.unlockSelectedCar(dispatchLockCarDto);
+            }
+            if (carFlag.get() && driverFlag.get()) {
+                cars.clear();
+                cars.add(car);
+                break;
+            }
+        }
+
+        dispatchResultVo.setCarList(cars);
+        dispatchResultVo.setDriverList(drivers);
+        dispatchResultVo.setHasCar(cars.isEmpty()?0:1);
+        dispatchResultVo.setHasDriver(drivers.isEmpty()?0:1);
+
+        return ApiResponse.success(dispatchResultVo);
+    }
+
 
 }

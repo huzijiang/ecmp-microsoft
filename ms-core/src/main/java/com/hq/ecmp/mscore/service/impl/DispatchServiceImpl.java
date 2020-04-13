@@ -371,8 +371,8 @@ public class DispatchServiceImpl implements IDispatchService {
      */
     private ApiResponse<List<WaitSelectedDriverBo>> selectDrivers(SelectDriverConditionBo selectDriverConditionBo,
                                                                  OrderInfo orderInfo){
-        ApiResponse<List<CarGroupServeScopeInfo>>  carGroupServiceScopesApiResponse=selectCarGroupServiceScope(selectDriverConditionBo.getCityCode(),
-                selectDriverConditionBo.getDispatcherId());
+        ApiResponse<List<CarGroupServeScopeInfo>>  carGroupServiceScopesApiResponse=selectCarGroupServiceScope(selectDriverConditionBo.getCityCode(), selectDriverConditionBo.getDispatcherId());
+
         if(!carGroupServiceScopesApiResponse.isSuccess()){
             return ApiResponse.error(carGroupServiceScopesApiResponse.getMsg());
         }
@@ -518,9 +518,11 @@ public class DispatchServiceImpl implements IDispatchService {
         CarGroupDispatcherInfo carGroupDispatcher=new CarGroupDispatcherInfo();
                                carGroupDispatcher.setUserId(dispatcherUserId);
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos=carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcher);
-        if(carGroupDispatcherInfos.isEmpty()){
-            return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_NOT_ExIST.getDesc());
-        }
+
+        //自动调度  根据具体范围确定
+//        if(carGroupDispatcherInfos.isEmpty()){
+//            return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_NOT_ExIST.getDesc());
+//        }
 
         List<CarGroupServeScopeInfo> carGroupServeScopeInfoListResult = new LinkedList<>();
 
