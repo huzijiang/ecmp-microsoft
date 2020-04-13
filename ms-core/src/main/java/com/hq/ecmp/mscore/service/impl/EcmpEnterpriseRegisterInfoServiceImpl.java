@@ -16,10 +16,7 @@ import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseRegisterInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
-import com.hq.ecmp.mscore.vo.InvitationUrlVO;
-import com.hq.ecmp.mscore.vo.PageResult;
-import com.hq.ecmp.mscore.vo.RegisterDriverVO;
-import com.hq.ecmp.mscore.vo.RegisterUserVO;
+import com.hq.ecmp.mscore.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -305,7 +302,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         }
         return count;
     }
-    public RegisterDriverVO queryDriverRegDetail(Long registerId){
+    public RegisterDriverDetailVO queryDriverRegDetail(Long registerId){
         return ecmpEnterpriseRegisterInfoMapper.queryDriverRegDetail(registerId);
     }
 

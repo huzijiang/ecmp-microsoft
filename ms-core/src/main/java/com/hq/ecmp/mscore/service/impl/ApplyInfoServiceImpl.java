@@ -284,17 +284,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                     }
                 });
             }else {
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            //1.初始化审批流
-                            applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                initOfficialApproveFlow(applyId, userId, regimenId);
 
                 executor.submit(new Runnable() {
                     @Override
@@ -1034,15 +1024,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyPlanPriceInfo.setPrice(new BigDecimal(0));
             Date applyDate = officialCommitApply.getApplyDate();
             //如果是接机，时间单独判断
-            if (applyDate != null){
-                journeyPlanPriceInfo.setPlannedDepartureTime(applyDate);
-                journeyPlanPriceInfo.setPlannedArrivalTime(new Date(totalTime*1000+applyDate.getTime()));
-            }else {
-                Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
-                Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
-                journeyPlanPriceInfo.setPlannedDepartureTime(useCarTime);
-                journeyPlanPriceInfo.setPlannedArrivalTime(new Date(useCarTime.getTime() + totalTime*1000));
-            }
+            setPlanTime(officialCommitApply, totalTime, journeyPlanPriceInfo, applyDate);
             journeyPlanPriceInfo.setDuration((int) TimeUnit.MINUTES.convert(totalTime, TimeUnit.SECONDS));
             journeyPlanPriceInfo.setPowerId(null);
             journeyPlanPriceInfo.setOrderId(null);
@@ -1118,12 +1100,112 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
 
         //公务申请成功后 ---------------1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信 4.保存预估价格表
 
-
         //-------------------- 如果不经审批 则初始化权限和初始化订单 ------------------------
         if(regimenId != null){
             RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(Long.valueOf(regimenId));
             String needApprovalProcess = regimenVO.getNeedApprovalProcess();
             if(NeedApproveEnum.NEED_NOT_APPROVE.getKey().equals(needApprovalProcess)){
+                //初始化权限和初始化订单
+                initPowerAndOrder(journeyId, applyInfo, applyId, userId);
+            }else {
+                //----------------- 如果需要审批  则1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信
+                //1.初始化审批流
+                initOfficialApproveFlow(applyId, userId, regimenId);
+                //2.给审批人和自己发通知 并给审批人发短信
+                sendNoticeAndMessage(officialCommitApply, applyId, userId);
+            }
+        }
+        return applyVO;
+    }
+
+    /**
+     * 公务申请 预估价格表设置计划出发时间到计划到达时间
+     * @param officialCommitApply
+     * @param totalTime
+     * @param journeyPlanPriceInfo
+     * @param applyDate
+     */
+    private void setPlanTime(ApplyOfficialRequest officialCommitApply, int totalTime, JourneyPlanPriceInfo journeyPlanPriceInfo, Date applyDate) {
+        if (applyDate != null){
+            journeyPlanPriceInfo.setPlannedDepartureTime(applyDate);
+            journeyPlanPriceInfo.setPlannedArrivalTime(new Date(totalTime*1000+applyDate.getTime()));
+        }else {
+            Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+            Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+            journeyPlanPriceInfo.setPlannedDepartureTime(useCarTime);
+            journeyPlanPriceInfo.setPlannedArrivalTime(new Date(useCarTime.getTime() + totalTime*1000));
+        }
+    }
+
+    /**
+     * 公务和差旅 初始化审批流
+     * @param applyId
+     * @param userId
+     * @param regimenId
+     */
+    private void initOfficialApproveFlow(Long applyId, Long userId, Integer regimenId) {
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //1.初始化审批流
+                    applyApproveResultInfoService.initApproveResultInfo(applyId, Long.valueOf(regimenId), userId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * 公务申请 给审批人发短信和通知 给申请人自己发通知
+     * @param officialCommitApply
+     * @param applyId
+     * @param userId
+     *
+     */
+    private void sendNoticeAndMessage(ApplyOfficialRequest officialCommitApply, Long applyId, Long userId) {
+        List<ApprovalVO> approvers = officialCommitApply.getApprovers();
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //申请人名字
+                    String userName = officialCommitApply.getApplyUser().getUserName();
+                    //申请用车时间
+                    Date applyDate = officialCommitApply.getApplyDate();
+                    if(applyDate == null){
+                        // 航班到达时间
+                        long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+                        applyDate = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+                    }
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日HH:mm");
+                    String useCarTime = simpleDateFormat.format(applyDate);
+                    //短信 员工安宁已提交“2019年08月14日13:00”的公务用车申请，请登录红旗公务APP及时处理。（公务申请）
+                    //(1) 员工姓名 （2）日期 时间
+                    for (ApprovalVO approver : approvers) {
+                        //给审批人发通知
+                        sendNoticeToApprover(applyId, userId, approver);
+                        //给审批人发短信
+                        sendMsgToApprover(SmsTemplateConstant.OFFICIAL_APPLY_APPROVER,userName,useCarTime,approver);
+                    }
+                    //给自己发通知
+                    sendApplyNoticeToSelf(userId, applyId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * 公务申请 不需要审批情况下初始化权限和初始化订单
+     * @param journeyId
+     * @param applyInfo
+     * @param applyId
+     * @param userId
+     */
+    private void initPowerAndOrder(Long journeyId, ApplyInfo applyInfo, Long applyId, Long userId) {
         executor.submit(new Runnable() {
             @Override
             public void run() {
@@ -1153,57 +1235,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                         }
                     }
         });
-            }else {
-                //----------------- 如果需要审批  则1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            //1.初始化审批流
-                            applyApproveResultInfoService.initApproveResultInfo(applyId,Long.valueOf(regimenId),userId);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                List<ApprovalVO> approvers = officialCommitApply.getApprovers();
-                //2.给审批人和自己发通知
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            //申请人名字
-                            String userName = officialCommitApply.getApplyUser().getUserName();
-                            //申请用车时间
-                            Date applyDate = officialCommitApply.getApplyDate();
-                            if(applyDate == null){
-                                // 航班到达时间
-                                long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
-                                applyDate = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
-                            }
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日HH:mm");
-                            String useCarTime = simpleDateFormat.format(applyDate);
-                            //短信 员工安宁已提交“2019年08月14日13:00”的公务用车申请，请登录红旗公务APP及时处理。（公务申请）
-                            //(1) 员工姓名 （2）日期 时间
-                            for (ApprovalVO approver : approvers) {
-                                //给审批人发通知
-                                sendNoticeToApprover(applyId, userId, approver);
-                                //给审批人发短信
-                                sendMsgToApprover(SmsTemplateConstant.OFFICIAL_APPLY_APPROVER,userName,useCarTime,approver);
-                            }
-                            //给自己发通知
-                            sendApplyNoticeToSelf(userId, applyId);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-        }
-
-
-        return applyVO;
     }
 
     private Long getLoginUserId() {
