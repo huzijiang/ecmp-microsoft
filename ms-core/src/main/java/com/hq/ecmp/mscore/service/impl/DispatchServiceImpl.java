@@ -122,9 +122,12 @@ public class DispatchServiceImpl implements IDispatchService {
                                 selectCarConditionBo.setPassengers(passengers);
                                 selectCarConditionBo.setCityCode(userCarCity);
                                 selectCarConditionBo.setDriverId(dispatchSelectCarDto.getDriverId());
-                                selectCarConditionBo.setDispatcherId(loginUser.getUser().getUserId().toString());
                                 selectCarConditionBo.setCarLicense(dispatchSelectCarDto.getPlateLicence());
                                 selectCarConditionBo.setCarTypeInfo(dispatchSelectCarDto.getCarTypeInfo());
+                                selectCarConditionBo.setDispatcherId(0L);
+        if(StringUtils.isNotEmpty(dispatchSelectCarDto.getDispatcherId())){
+            selectCarConditionBo.setDispatcherId(Long.parseLong(loginUser.getUser().getUserId().toString()));
+        }
 
         List<WaitSelectedCarBo> cars=selectCars(selectCarConditionBo,orderInfo).getData();
 
@@ -206,8 +209,11 @@ public class DispatchServiceImpl implements IDispatchService {
         }
 
         selectDriverConditionBo.setCityCode(orderAddressInfo.getCityPostalCode());
-        selectDriverConditionBo.setDispatcherId(loginUser.getUser().getUserId());
+        selectDriverConditionBo.setDispatcherId(0L);
         selectDriverConditionBo.setDriverNameOrPhone(dispatchSelectDriverDto.getDriverNameOrPhone());
+        if(StringUtils.isNotEmpty(dispatchSelectDriverDto.getDispatcherId())){
+            selectDriverConditionBo.setDispatcherId(loginUser.getUser().getUserId());
+        }
 
         List<WaitSelectedDriverBo>   waitSelectedDriverBos=selectDrivers(selectDriverConditionBo,orderInfo).getData();
 
@@ -341,7 +347,7 @@ public class DispatchServiceImpl implements IDispatchService {
      */
     private ApiResponse<List<WaitSelectedCarBo>>    selectCars(SelectCarConditionBo selectCarConditionBo,OrderInfo orderInfo){
 
-        ApiResponse<List<CarGroupServeScopeInfo>>  carGroupServiceScopes=selectCarGroupServiceScope(selectCarConditionBo.getCityCode(),Long.parseLong(selectCarConditionBo.getDispatcherId()));
+        ApiResponse<List<CarGroupServeScopeInfo>>  carGroupServiceScopes=selectCarGroupServiceScope(selectCarConditionBo.getCityCode(),selectCarConditionBo.getDispatcherId());
         if(!carGroupServiceScopes.isSuccess()){
             return ApiResponse.error(carGroupServiceScopes.getMsg());
         }
@@ -606,6 +612,9 @@ public class DispatchServiceImpl implements IDispatchService {
      */
     private ApiResponse<List<CarGroupServeScopeInfo>> selectCarGroupServiceScope(String cityCode,Long dispatcherUserId){
         CarGroupDispatcherInfo carGroupDispatcher=new CarGroupDispatcherInfo();
+        if(dispatcherUserId.equals(0L)){
+            carGroupDispatcher.setDispatcherId(null);
+        }
                                carGroupDispatcher.setUserId(dispatcherUserId);
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos=carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcher);
 

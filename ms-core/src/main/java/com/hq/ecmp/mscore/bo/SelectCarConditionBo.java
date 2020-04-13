@@ -12,7 +12,7 @@ public class SelectCarConditionBo {
     /**
      * 调度员编号
      */
-    private String dispatcherId;
+    private Long dispatcherId;
 
     /**
      * 车队编号
