@@ -1,5 +1,7 @@
 package com.hq.ecmp.ms.api.controller.base;
-import	java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
@@ -27,9 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * 公告
@@ -168,7 +167,8 @@ public class NoticeController {
     @ApiOperation(value = "addNotice",notes = "新增公告信息",httpMethod ="POST")
     @Log(title = "公告管理:新增公告", businessType = BusinessType.INSERT)
     @PostMapping("/addNotice")
-    public ApiResponse addNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
+    public ApiResponse addNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         HttpServletRequest request = ServletUtils.getRequest();
         //获取登陆用户的信息
         LoginUser loginUser = tokenService.getLoginUser(request);
@@ -184,7 +184,20 @@ public class NoticeController {
         //结束时间
         notice.setEndTime(ecmpNoticeDTO.getEndTime());
         //默认是开启状态
-        notice.setStatus("0");
+        Date publishTime = format.parse(ecmpNoticeDTO.getPublishTime());
+        Date endTime = format.parse(ecmpNoticeDTO.getEndTime());
+        //当前时间
+        Date time = DateUtils.getNowDate();
+        //当前时间小于开始时间并且结束时间大于当前时间 就是待发布
+        if(time.before(publishTime) && endTime.after(time)){
+            notice.setStatus("0");
+        //当前时间大于开始时间并且当前时间小于结束时间就是发布中
+        }else if(time.after(publishTime) && time.before(endTime)){
+            notice.setStatus("1");
+        //开始时间大于当前时间并且结束时间大于当前时间就是已结束
+        }else  if(time.after(publishTime) && time.after(endTime)){
+            notice.setStatus("2");
+        }
         //操作人的用户名
         notice.setCreateBy(loginUser.getUsername());
         long noticeId = iEcmpNoticeService.insertEcmpNotice(notice);
@@ -242,7 +255,8 @@ public class NoticeController {
     @ApiOperation(value = "updateNotice",notes = "修改公告信息",httpMethod ="POST")
     @Log(title = "公告管理:修改公告", businessType = BusinessType.UPDATE)
     @PostMapping("/updateNotice")
-    public ApiResponse updateNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
+    public ApiResponse updateNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         HttpServletRequest request = ServletUtils.getRequest();
         //获取登陆用户的信息
         LoginUser loginUser = tokenService.getLoginUser(request);
@@ -252,7 +266,22 @@ public class NoticeController {
         notice.setPublishTime(ecmpNoticeDTO.getPublishTime());
         notice.setEndTime(ecmpNoticeDTO.getEndTime());
         notice.setNoticeId(ecmpNoticeDTO.getNoticeId());
-        notice.setStatus(ecmpNoticeDTO.getStatus());
+        //默认是开启状态
+        Date publishTime = format.parse(ecmpNoticeDTO.getPublishTime());
+        Date endTime = format.parse(ecmpNoticeDTO.getEndTime());
+        //当前时间
+        Date time = DateUtils.getNowDate();
+        //当前时间小于开始时间并且结束时间大于当前时间 就是待发布
+        if(time.before(publishTime) && endTime.after(time)){
+            notice.setStatus("0");
+            //当前时间大于开始时间并且当前时间小于结束时间就是发布中
+        }else if(time.after(publishTime) && time.before(endTime)){
+            notice.setStatus("1");
+            //开始时间大于当前时间并且结束时间大于当前时间就是已结束
+        }else  if(time.after(publishTime) && time.after(endTime)){
+            notice.setStatus("2");
+        }
+        //notice.setStatus(ecmpNoticeDTO.getStatus());
         notice.setUpdateBy(loginUser.getUsername());
         notice.setUpdateTime(DateUtils.getNowDate());
         notice.setRemark(loginUser.getUsername());
