@@ -601,10 +601,9 @@ public class DispatchServiceImpl implements IDispatchService {
                                carGroupDispatcher.setUserId(dispatcherUserId);
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos=carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcher);
 
-        //自动调度  根据具体范围确定
-//        if(carGroupDispatcherInfos.isEmpty()){
-//            return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_NOT_ExIST.getDesc());
-//        }
+        if(carGroupDispatcherInfos.isEmpty()){
+            return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_NOT_ExIST.getDesc());
+        }
 
         List<CarGroupServeScopeInfo> carGroupServeScopeInfoListResult = new LinkedList<>();
 
