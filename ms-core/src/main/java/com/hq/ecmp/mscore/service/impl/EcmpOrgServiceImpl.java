@@ -303,9 +303,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             if(deptIdList.size()>0){
                 for (Long deptId1:deptIdList) {
                     EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectCompanyList(deptId1,OrgConstant.DEPT_TYPE_1);
-                    String leader=ecmpOrgDto.getLeader();
+                   /* String leader=ecmpOrgDto.getLeader();
                     leader = changeUserIdToNickNames(leader);
-                    ecmpOrgDto.setLeader(leader);
+                    ecmpOrgDto.setLeader(leader);*/
                     ecmpOrgDto.setSupComName(supComName);
                     companyList.add(ecmpOrgDto);
                 }
@@ -343,9 +343,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             if(deptIdList.size()>0){
                 for (Long deptId1:deptIdList) {
                     EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectDeptList(deptId1,OrgConstant.DEPT_TYPE_2);
-                    String leader=ecmpOrgDto.getLeader();
+                    /*String leader=ecmpOrgDto.getLeader();
                     leader = changeUserIdToNickNames(leader);
-                    ecmpOrgDto.setLeader(leader);
+                    ecmpOrgDto.setLeader(leader);*/
                     ecmpOrgDto.setSupComName(supComName);
                     companyList.add(ecmpOrgDto);
                 }
@@ -716,9 +716,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             for (int i = 0; i < deptIds.size(); i++) {
                 EcmpOrgDto ecmpOrgDto = ecmpOrgMapper.selectCompanyByDeptNameOrCode(deptNameOrCode, deptNameOrCode, deptIds.get(i));
                 LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
-                String leader=ecmpOrgDto.getLeader();
+                /*String leader=ecmpOrgDto.getLeader();
                 leader = changeUserIdToNickNames(leader);
-                ecmpOrgDto.setLeader(leader);
+                ecmpOrgDto.setLeader(leader)*/;
                 ecmpOrgDtoList.add(ecmpOrgDto);
             }
         }
@@ -737,9 +737,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         if(deptIds.size()>0){
             for (int i = 0; i < deptIds.size(); i++) {
                 EcmpOrgDto ecmpOrgDto = ecmpOrgMapper.selectDeptByDeptNameOrCode(deptNameOrCode, deptNameOrCode, deptIds.get(i));
-                String leader=ecmpOrgDto.getLeader();
+                /*String leader=ecmpOrgDto.getLeader();
                 leader = changeUserIdToNickNames(leader);
-                ecmpOrgDto.setLeader(leader);
+                ecmpOrgDto.setLeader(leader);*/
                 ecmpOrgDtoList.add(ecmpOrgDto);
             }
         }

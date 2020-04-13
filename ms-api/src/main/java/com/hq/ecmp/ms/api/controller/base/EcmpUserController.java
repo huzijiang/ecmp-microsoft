@@ -243,26 +243,6 @@ public class EcmpUserController {
         }
     }
 
-    /**
-     * 按照员工userId查询员工姓名集合
-     * @param  ecmpUser
-     * @return*/
-    @ApiOperation(value = "按照姓名/工号/手机号模糊查询匹配的列表",notes = "按照姓名/工号/手机号模糊查询匹配的列表",httpMethod ="POST")
-    @PostMapping("/selectNickNamesByUserId")
-    public ApiResponse<List<EcmpUserDto>> selectNickNameByUserId(@RequestBody EcmpUserVo ecmpUser){
-        String nameOrJobNumberOrPhone=ecmpUser.getNameOrJobNumberOrPhone();
-        if("".equals(nameOrJobNumberOrPhone.trim())){
-            return ApiResponse.error(1,"请输入有效的员工名称或编号！",null);
-        }
-        List<EcmpUserDto> companyList = ecmpUserService.selectUserByNickNameOrJobNumber(nameOrJobNumberOrPhone);
-        if(companyList.size()>0){
-            return ApiResponse.success(companyList);
-        }else{
-            return ApiResponse.error(1,"无匹配数据！",null);
-        }
-    }
-
-
 
     /**
      * 查询所有有效员工
