@@ -101,11 +101,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         WHERE t1.`leave_status` =  "X999" AND DATE_FORMAT(t1.caledar_date,'%Y-%m') = #{scheduleDate}
         AND t1.`driver_id` = #{driverId}
     </select>
-    <select id="selectDutyDateByMonth" resultType="java.util.Date">
-        select caledar_date
+    <select id="selectDutyDateByMonth" resultType="java.lang.String">
+        select DATE_FORMAT(caledar_date,'%Y-%m-%d')
         from driver_work_info
         where leave_status = 'X999' and driver_id = #{driverId}
-        <if test="scheduleDate != null ">and DATE_FORMAT(caledar_date,'%Y-%m') = #{updateTime}</if>
+        <if test="scheduleDate != null ">and DATE_FORMAT(caledar_date,'%Y-%m') = #{scheduleDate}</if>
     </select>
     <select id="selectHolidaysByMonth" resultType="String">
         select DATE_FORMAT(caledar_date,'%Y-%m-%d')

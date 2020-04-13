@@ -11,20 +11,20 @@ import com.hq.ecmp.constant.enumerate.NoValueCommonEnum;
 import com.hq.ecmp.constant.enumerate.TaskConflictEnum;
 import com.hq.ecmp.mscore.bo.*;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectCarDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectDriverDto;
+import com.hq.ecmp.mscore.dto.dispatch.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
 import com.hq.ecmp.util.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 调度业务实现
@@ -32,6 +32,7 @@ import java.util.*;
  * @Date: 2020-03-17 23:36
  */
 @Service
+@Slf4j
 public class DispatchServiceImpl implements IDispatchService {
 
     @Resource
@@ -244,6 +245,87 @@ public class DispatchServiceImpl implements IDispatchService {
     }
 
     /**
+     * 自动调度
+     * @param dispatchCountCarAndDriverDto dispatchCountCarAndDriverDto
+     * @return ApiResponse<DispatchResultVo>
+     */
+    @Override
+    public ApiResponse<DispatchResultVo> autoDispatch(@RequestBody DispatchCountCarAndDriverDto dispatchCountCarAndDriverDto) {
+        DispatchResultVo dispatchResultVo = new DispatchResultVo();
+
+        DispatchSelectCarDto dispatchSelectCarDto = new DispatchSelectCarDto();
+        dispatchSelectCarDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
+
+        List<WaitSelectedCarBo> cars=getWaitSelectedCars(dispatchSelectCarDto).getData().getCarList();
+
+        DispatchSelectDriverDto dispatchSelectDriverDto = new DispatchSelectDriverDto();
+        dispatchSelectDriverDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
+        dispatchSelectDriverDto.setCarId("");
+        List<WaitSelectedDriverBo> drivers = getWaitSelectedDrivers(dispatchSelectDriverDto).getData().getDriverList();
+
+        if(cars.isEmpty() || drivers.isEmpty()){
+            log.info(dispatchCountCarAndDriverDto.toString() + "-" + DispatchExceptionEnum.DRIVER_OR_CAR_NOT_FIND.getDesc());
+            return ApiResponse.success(dispatchResultVo);
+        }
+
+        Iterator<WaitSelectedCarBo> carInfoVOIterator = cars.iterator();
+        Iterator<WaitSelectedDriverBo> driverInfoVOIterator = drivers.iterator();
+
+        DispatchLockCarDto dispatchLockCarDto = new DispatchLockCarDto();
+        DispatchLockDriverDto dispatchLockDriverDto = new DispatchLockDriverDto();
+
+        AtomicReference<Boolean> carFlag = new AtomicReference<>(false);
+        AtomicReference<Boolean> driverFlag = new AtomicReference<>(false);
+
+        while (carInfoVOIterator.hasNext()) {
+            dispatchResultVo.setLockCar(1);
+
+            WaitSelectedCarBo car = carInfoVOIterator.next();
+            dispatchLockCarDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
+            dispatchLockCarDto.setCarId(car.getCarId().toString());
+
+            ApiResponse lockCarResult = lockSelectedCar(dispatchLockCarDto);
+            if (lockCarResult.isSuccess()) {
+                dispatchResultVo.setLockCar(0);
+                dispatchResultVo.setLockDriver(1);
+                carFlag.set(true);
+                while (driverInfoVOIterator.hasNext()) {
+                    WaitSelectedDriverBo driver = driverInfoVOIterator.next();
+                    dispatchLockDriverDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
+                    dispatchLockDriverDto.setCarId(car.getCarId().toString());
+                    dispatchLockDriverDto.setDriverId(driver.getDriverId().toString());
+
+                    ApiResponse lockDriverResult = lockSelectedDriver(dispatchLockDriverDto);
+
+                    if (lockDriverResult.isSuccess()) {
+                        dispatchResultVo.setLockDriver(0);
+                        driverFlag.set(true);
+                        break;
+                    }
+                }
+            }
+
+            if (! driverFlag.get()) {
+                unlockSelectedCar(dispatchLockCarDto);
+            }
+            if (carFlag.get() && driverFlag.get()) {
+                cars.clear();
+                cars.add(car);
+                break;
+            }
+        }
+
+        dispatchResultVo.setCarList(cars);
+        dispatchResultVo.setDriverList(drivers);
+        dispatchResultVo.setHasCar(cars.isEmpty()?0:1);
+        dispatchResultVo.setHasDriver(drivers.isEmpty()?0:1);
+
+        return ApiResponse.success(dispatchResultVo);
+    }
+
+
+
+    /**
      * 找到符合条件的车辆
      * @param selectCarConditionBo selectCarConditionBo
      * @param orderInfo  orderInfo
@@ -371,8 +453,8 @@ public class DispatchServiceImpl implements IDispatchService {
      */
     private ApiResponse<List<WaitSelectedDriverBo>> selectDrivers(SelectDriverConditionBo selectDriverConditionBo,
                                                                  OrderInfo orderInfo){
-        ApiResponse<List<CarGroupServeScopeInfo>>  carGroupServiceScopesApiResponse=selectCarGroupServiceScope(selectDriverConditionBo.getCityCode(),
-                selectDriverConditionBo.getDispatcherId());
+        ApiResponse<List<CarGroupServeScopeInfo>>  carGroupServiceScopesApiResponse=selectCarGroupServiceScope(selectDriverConditionBo.getCityCode(), selectDriverConditionBo.getDispatcherId());
+
         if(!carGroupServiceScopesApiResponse.isSuccess()){
             return ApiResponse.error(carGroupServiceScopesApiResponse.getMsg());
         }
@@ -518,6 +600,7 @@ public class DispatchServiceImpl implements IDispatchService {
         CarGroupDispatcherInfo carGroupDispatcher=new CarGroupDispatcherInfo();
                                carGroupDispatcher.setUserId(dispatcherUserId);
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos=carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcher);
+
         if(carGroupDispatcherInfos.isEmpty()){
             return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_NOT_ExIST.getDesc());
         }

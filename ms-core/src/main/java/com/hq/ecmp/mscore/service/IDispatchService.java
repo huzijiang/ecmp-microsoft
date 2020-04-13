@@ -1,11 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.common.core.api.ApiResponse;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectCarDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectDriverDto;
+import com.hq.ecmp.mscore.dto.dispatch.*;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  *
@@ -58,5 +56,10 @@ public interface IDispatchService {
      */
     ApiResponse unlockSelectedDriver(DispatchLockDriverDto dispatchLockDriverDto);
 
-
+    /**
+     * 自动调度
+     * @param dispatchCountCarAndDriverDto dispatchCountCarAndDriverDto
+     * @return ApiResponse<DispatchResultVo>
+     */
+    ApiResponse<DispatchResultVo> autoDispatch(@RequestBody DispatchCountCarAndDriverDto dispatchCountCarAndDriverDto);
 }
