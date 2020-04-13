@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
-import com.hq.ecmp.mscore.vo.CarVO;
-import com.hq.ecmp.mscore.vo.DriverVO;
+import com.hq.ecmp.mscore.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -300,15 +301,19 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * @param
      */
     @Override
-    public List<DriverLoseDTO> getDriverLoseList(Long deptId){
-        return driverInfoMapper.getDriverLoseList(deptId);
+    public PageResult<DriverLoseDTO> getDriverLoseList(Integer pageNum, Integer pageSize,Long carGroupId,String search){
+		PageHelper.startPage(pageNum,pageSize);
+		List<DriverLoseDTO> loseDriverVOS= driverInfoMapper.getDriverLoseList(carGroupId,search);
+		PageInfo<DriverLoseDTO> info = new PageInfo<>(loseDriverVOS);
+		return new PageResult<>(info.getTotal(),info.getPages(),loseDriverVOS);
+
     }
     /**
      * 驾驶员已离职数量
      */
     @Override
-    public int getDriverLoseCount(Long deptId){
-        return driverInfoMapper.getDriverLoseCount(deptId);
+    public Long getDriverLoseCount(Long carGroupId){
+        return driverInfoMapper.getDriverLoseCount(carGroupId);
 
     }
     /**

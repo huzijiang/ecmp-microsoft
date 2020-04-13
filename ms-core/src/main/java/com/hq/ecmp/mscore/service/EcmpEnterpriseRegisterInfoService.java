@@ -79,7 +79,8 @@ public interface EcmpEnterpriseRegisterInfoService {
      * 待审批列表-驾驶员
      * @param
      */
-    List<RegisterDriverVO> queryRegisterDriverWait(RegisterDTO registerDTO);
+
+    PageResult<RegisterDriverVO> queryRegisterDriverWait(Integer pageNum, Integer pageSize,Long carGroupId,String type,String search);
     /**
      * 注册申请：拒绝/通过
      */
@@ -103,4 +104,5 @@ public interface EcmpEnterpriseRegisterInfoService {
     int updateRegisterDriverApprove(Long registerId,Long userId,String reason,String state) throws Exception;
 
     void updateRegisterRefuse(Long registerId, String reason)throws Exception;;
+    RegisterDriverVO queryDriverRegDetail(Long registerId);
 }

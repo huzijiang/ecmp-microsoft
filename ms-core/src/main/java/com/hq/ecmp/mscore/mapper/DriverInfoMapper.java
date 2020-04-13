@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.dto.DriverDTO;
 import com.hq.ecmp.mscore.dto.DriverLoseDTO;
 
 import com.hq.ecmp.mscore.vo.DriverVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -155,11 +156,11 @@ public interface DriverInfoMapper
      *驾驶员失效列表,离职列表
      * @param
      */
-    public List<DriverLoseDTO> getDriverLoseList(Long deptId);
+    public List<DriverLoseDTO> getDriverLoseList(@Param("carGroupId") Long carGroupId,@Param("search") String search);
     /**
      * 驾驶员已离职数量
      */
-    public int getDriverLoseCount(Long deptId);
+    public Long getDriverLoseCount(@Param("carGroupId") Long carGroupId);
     /**
      * 已失效驾驶员进行删除
      */

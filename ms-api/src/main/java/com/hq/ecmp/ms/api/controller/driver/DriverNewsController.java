@@ -59,18 +59,15 @@ public class DriverNewsController {
     }
     /**
      *驾驶员失效列表
-     * @param driverDTO
+     * @param pageRequest
      * @return
      */
     @ApiOperation(value="getDriverLoseList" ,notes="查询驾驶员失效列表", httpMethod = "POST")
     @PostMapping("/getDriverLoseList")
-    public ApiResponse<List<DriverLoseDTO>> getDriverLoseList(@RequestBody DriverNewDTO driverDTO){
-        List<DriverLoseDTO>  driverLoseList = iDriverInfoService.getDriverLoseList(driverDTO.getDeptId());
-        if(CollectionUtils.isNotEmpty(driverLoseList)){
-            return ApiResponse.success(driverLoseList);
-        }else {
-            return ApiResponse.error("未查询到失效驾驶员");
-        }
+    public ApiResponse<PageResult<DriverLoseDTO>> getDriverLoseList(@RequestBody PageRequest pageRequest){
+        PageResult<DriverLoseDTO>  driverLoseList = iDriverInfoService.getDriverLoseList(pageRequest.getPageNum(),
+                pageRequest.getPageSize(),pageRequest.getCarGroupId(),pageRequest.getSearch());
+        return ApiResponse.success(driverLoseList);
     }
     /**
      *驾驶员失效数量
@@ -80,7 +77,7 @@ public class DriverNewsController {
     @ApiOperation(value="getDriverLoseCount" ,notes="查询驾驶员失效数量", httpMethod = "POST")
     @PostMapping("/getDriverLoseCount")
     public ApiResponse  getDriverLoseCount(@RequestBody DriverNewDTO driverDTO){
-        int driverCount = iDriverInfoService.getDriverLoseCount(driverDTO.getDeptId());
+        Long driverCount = iDriverInfoService.getDriverLoseCount(driverDTO.getDeptId());
         if(driverCount >0){
             return ApiResponse.success(driverCount);
         }

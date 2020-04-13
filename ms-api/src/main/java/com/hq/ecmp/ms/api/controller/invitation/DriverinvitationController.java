@@ -7,16 +7,14 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.InvitionStateEnum;
 import com.hq.ecmp.ms.api.dto.base.InviteDto;
+import com.hq.ecmp.mscore.domain.DriverQueryResult;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
-import com.hq.ecmp.mscore.vo.InvitationDriverVO;
-import com.hq.ecmp.mscore.vo.InvitationUrlVO;
-import com.hq.ecmp.mscore.vo.RegisterDriverVO;
-import com.hq.ecmp.mscore.vo.RegisterVO;
+import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +35,7 @@ public class DriverinvitationController {
     @Autowired
     private EcmpEnterpriseInvitationInfoService ecmpEnterpriseInvitationInfoService;
     @Autowired
-    private EcmpEnterpriseRegisterInfoService ecmpEnterpriseRegisterInfoServicee;
+    private EcmpEnterpriseRegisterInfoService ecmpEnterpriseRegisterInfoService;
     @Autowired
     private IDriverInfoService iDriverInfoService;
     @Autowired
@@ -92,11 +90,11 @@ public class DriverinvitationController {
             }
             //校验手机号是否已经申请注册，正在等待审批过程中
             String state="S000";
-            int itIsReg = ecmpEnterpriseRegisterInfoServicee.itIsRegistration(driverRegisterDTO.getMobile(),state);
+            int itIsReg = ecmpEnterpriseRegisterInfoService.itIsRegistration(driverRegisterDTO.getMobile(),state);
             if(itIsReg > 0){
                 return ApiResponse.error("该手机号已申请完成，请等待审批");
             }
-            ecmpEnterpriseRegisterInfoServicee.insertDriverRegister(driverRegisterDTO);
+            ecmpEnterpriseRegisterInfoService.insertDriverRegister(driverRegisterDTO);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("驾驶员邀请注册失败");
@@ -147,27 +145,34 @@ public class DriverinvitationController {
     public ApiResponse<RegisterVO>  getregDriverWaitCount(@RequestBody InviteDto inviteDto){
         RegisterVO registerVO =new RegisterVO();
         inviteDto.setType("T002");
-        int waitCount =ecmpEnterpriseRegisterInfoServicee.waitAmount(inviteDto.getDeptId(),inviteDto.getType());
+        int waitCount =ecmpEnterpriseRegisterInfoService.waitAmount(inviteDto.getDeptId(),inviteDto.getType());
         registerVO.setRegisterCount(waitCount);
         return ApiResponse.success(registerVO);
 
     }
 
     /**
-     * 待审批列表
+     * 待审批列表-驾驶员
      * @param
      */
     @ApiOperation(value = "getRegisterDriverList",notes = "驾驶员待审批列表",httpMethod = "POST")
     @PostMapping("/getRegisterDriverList")
-    public ApiResponse <List<RegisterDriverVO>>getRegisterDriverList(@RequestBody RegisterDTO registerDTO){
+    public ApiResponse <PageResult<RegisterDriverVO>>getRegisterDriverList(@RequestBody  PageRequest pageRequest){
 
-        List<RegisterDriverVO> registerDriverVOlist = ecmpEnterpriseRegisterInfoServicee.queryRegisterDriverWait(registerDTO);
-        if(CollectionUtils.isNotEmpty(registerDriverVOlist)){
-            return ApiResponse.success(registerDriverVOlist);
-        }else {
-            return ApiResponse.error("未查询到待审批驾驶员列表");
-        }
+        PageResult<RegisterDriverVO>  registerDriverVOlist = ecmpEnterpriseRegisterInfoService.queryRegisterDriverWait(pageRequest.getPageNum(),
+                pageRequest.getPageSize(),pageRequest.getCarGroupId(),pageRequest.getType(),pageRequest.getSearch());
+        return ApiResponse.success(registerDriverVOlist);
     }
+    /**
+     * 驾驶员注册详情
+     * @param
+     */
+    @ApiOperation(value = "driverRegDetail", notes = "驾驶员注册详情", httpMethod = "POST")
+    @PostMapping("/driverRegDetail")
+    public ApiResponse<RegisterDriverVO> driverRegDetail(@RequestBody Long registerId) {
+        return ApiResponse.success(ecmpEnterpriseRegisterInfoService.queryDriverRegDetail(registerId));
+    }
+
 
     /**
      * 获取邀请列表-驾驶员
@@ -234,7 +239,7 @@ public class DriverinvitationController {
             //S000 申请中,S001 申请通过,S002 申请拒绝
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            int i=ecmpEnterpriseRegisterInfoServicee.updateRegisterDriverApprove(registerId,loginUser.getUser().getUserId(),null, InvitionStateEnum.APPROVEPASS.getKey());
+            int i=ecmpEnterpriseRegisterInfoService.updateRegisterDriverApprove(registerId,loginUser.getUser().getUserId(),null, InvitionStateEnum.APPROVEPASS.getKey());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -252,7 +257,7 @@ public class DriverinvitationController {
             //registerDTO.setState("S002");//S000 申请中,S001 申请通过,S002 申请拒绝
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            int i=ecmpEnterpriseRegisterInfoServicee.updateRegisterDriverApprove(registerId,loginUser.getUser().getUserId(),reason, InvitionStateEnum.APPROVEREJECT.getKey());
+            int i=ecmpEnterpriseRegisterInfoService.updateRegisterDriverApprove(registerId,loginUser.getUser().getUserId(),reason, InvitionStateEnum.APPROVEREJECT.getKey());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("申请拒绝失败");
