@@ -30,7 +30,9 @@ public class DriverCreateInfo {
 		
 		List<Long> carId;//可用车辆
 		
-		Long userId;//工号
+		String jobNumber;//工号
+		
+		Long userId;
 		
 		Long optUserId;//操作人员
 		

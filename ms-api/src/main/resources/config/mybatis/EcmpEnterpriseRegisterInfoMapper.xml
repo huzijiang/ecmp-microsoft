@@ -261,13 +261,42 @@
         </if>
     </select>
     <!--待审核列表驾驶员-->
-    <select id="queryRegisterDriverWait" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.RegisterDriverVO">
-         select a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.car_group_name as carGroupName,a.reason as reason
+    <select id="queryRegisterDriverWait" resultType="com.hq.ecmp.mscore.vo.RegisterDriverVO">
+         select a.register_id registerId,a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.car_group_name as carGroupName,a.reason as reason
         from ecmp_enterprise_register_info  a
         left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
         left join ecmp_org c on c.dept_id = b.enterprise_id
         left join car_group_info e on e.car_group_id = a.car_group_id
         where a.type='T002' and a.state='S000'
+        <if test="carGroupId!=null and carGroupId gt 0" >
+            and e.car_group_id = #{carGroupId}
+        </if>
+        <if test="search != null and search != '' ">
+            and (a.name like concat('%', #{search}, '%')
+            or a.job_number like concat('%', #{search}, '%')
+            or a.mobile like concat('%', #{search}, '%'))
+        </if>
+
+    </select>
+
+    <!--驾驶员注册详情-->
+    <select id="queryDriverRegDetail" resultType="com.hq.ecmp.mscore.vo.RegisterDriverDetailVO">
+      select a.register_id registerId,a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.car_group_name as carGroupName,a.reason as reason,a.id_card  as idCard,a.license_type as licenseType,a.license_number as licenseNumber,
+       a.license_init_issue_date as licenseInitIssueDate,a.license_issue_date as licenseIssueDate,
+       a.license_expire_date as licenseExpireDate,a.license_images as licenseImages,a.reason as reason
+      from ecmp_enterprise_register_info  a
+        left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
+        left join ecmp_org c on c.dept_id = b.enterprise_id
+        left join car_group_info e on e.car_group_id = a.car_group_id
+        where a.register_id = #{registerId}
+    </select>
+    <select id="queryRegisterDriverWaitCount" resultType="Long">
+        select count(*) from ecmp_enterprise_register_info  a
+        left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
+        where a.type=#{type} and a.state='S000'
+        <if test="carGroupId!=null and carGroupId gt 0" >
+            and a.invitation_id in(select invitation_id from ecmp_enterprise_invitation_info where car_group_id=#{carGroupId}or enterprise_id=#{carGroupId})
+        </if>
     </select>
     <!--通过主键修改数据-->
     <update id="updateRegisterState" parameterType="com.hq.ecmp.mscore.dto.RegisterDTO">

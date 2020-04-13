@@ -57,15 +57,13 @@ spring:
             multi-statement-allow: true
   redis:
     cluster:
-      nodes: 10.117.1.223:6379,10.117.1.223:6380,10.117.1.224:6379,10.117.1.224:6380,10.117.1.225:6379,10.117.1.225:6380
-      max-redirects: 5
-      timeout: 6000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-wait: -1ms
-        max-idle: 8
-        min-idle: 0
+      nodes:
+        - 10.117.1.223:6379
+        - 10.117.1.223:6380
+        - 10.117.1.224:6379
+        - 10.117.1.224:6380
+        - 10.117.1.225:6379
+        - 10.117.1.225:6380
     jedis:
       pool:
         max-active: 1000
@@ -125,6 +123,15 @@ dispatch:
   notBackCarGroup: 60
   #回车队驻地缓冲时间: 90分钟
   backCarGroup: 90
+
+#/upload
+app:
+  zimg:
+    server: http://10.117.1.232:4869
+    access:
+      url: http://123.127.89.218:4869/
+  welcome: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
+  background: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
 # 域名配置：
 realmName:
   apiUrl: http://10.241.9.4:28080

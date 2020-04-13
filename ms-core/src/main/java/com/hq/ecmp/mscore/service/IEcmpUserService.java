@@ -225,4 +225,7 @@ public interface IEcmpUserService {
      * @return
      */
     public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId,String name);
+    
+    
+    public int updateEcmpUserjobNumber(EcmpUser ecmpUser);
 }

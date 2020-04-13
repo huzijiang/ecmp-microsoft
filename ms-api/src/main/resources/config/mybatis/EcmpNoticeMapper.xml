@@ -124,16 +124,58 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
-    <select id="selectNoticeSearchList" resultMap="EcmpNoticeResult">
-        <include refid="selectEcmpNoticeVo"/>
+    <select id="selectNoticeSearchList" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultType="com.hq.ecmp.mscore.domain.EcmpNotice">
+            SELECT DISTINCT
+                (en.notice_id)noticeId,
+                enm.config_type configType,
+                en.notice_title noticeTitle,
+                en.notice_type noticeType,
+                en.notice_content noticeContent,
+                en. STATUS STATUS,
+                en.publish_time publishTime,
+                en.end_time endTime,
+                en.create_by createBy,
+                en.create_time createTime,
+                en.update_by updateBy,
+                en.update_time updateTime,
+                en.remark remark
+            FROM
+                ecmp_notice en
+            LEFT JOIN ecmp_notice_mapping enm ON en.notice_id = enm.notice_id
     </select>
 
-    <select id="getNoticeDetails" parameterType="java.lang.Integer" resultMap="EcmpNoticeResult">
-        <include refid="selectEcmpNoticeVo"/>
+    <select id="getNoticeDetails" parameterType="java.lang.Integer" resultType="com.hq.ecmp.mscore.domain.EcmpNotice">
+        SELECT DISTINCT
+                (en.notice_id)noticeId,
+                enm.config_type configType,
+                en.notice_title noticeTitle,
+                en.notice_type noticeType,
+                en.notice_content noticeContent,
+                en. STATUS STATUS,
+                en.publish_time publishTime,
+                en.end_time endTime,
+                en.create_by createBy,
+                en.create_time createTime,
+                en.update_by updateBy,
+                en.update_time updateTime,
+                en.remark remark
+                FROM
+                ecmp_notice en
+        LEFT JOIN ecmp_notice_mapping enm ON en.notice_id = enm.notice_id
          <where>
              <if test="noticeId != null  ">
-                 notice_id = #{noticeId}
+                 en.notice_id = #{noticeId}
              </if>
          </where>
+    </select>
+
+    <select id="selectNoticeByStatus" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice"  resultType="com.hq.ecmp.mscore.domain.EcmpNotice">
+      -- 只修改待发布 发布中的数据
+          SELECT  notice_id noticeId,
+                STATUS STATUS,
+                publish_time publishTime,
+                end_time endTime
+                FROM
+                ecmp_notice  where STATUS in (0,1)
     </select>
 </mapper>

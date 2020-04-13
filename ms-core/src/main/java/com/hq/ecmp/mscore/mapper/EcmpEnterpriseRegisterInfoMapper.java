@@ -1,11 +1,13 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.DriverQueryResult;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 
 import com.hq.ecmp.mscore.dto.DriverRegisterDTO;
 import com.hq.ecmp.mscore.dto.DriverRegisterInsertDTO;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
 import com.hq.ecmp.mscore.dto.UserRegisterDTO;
+import com.hq.ecmp.mscore.vo.RegisterDriverDetailVO;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterUserVO;
 import org.apache.ibatis.annotations.Param;
@@ -85,7 +87,7 @@ public interface EcmpEnterpriseRegisterInfoMapper {
      * 待审批列表-驾驶员
      * @param
      */
-    List<RegisterDriverVO> queryRegisterDriverWait(String type);
+    List<RegisterDriverVO> queryRegisterDriverWait(@Param("carGroupId") Long carGroupId,@Param("type") String type,@Param("search") String search);
     /**
      * 待审批数量
      * @param
@@ -104,10 +106,12 @@ public interface EcmpEnterpriseRegisterInfoMapper {
 
 
     Long queryRegisterUserWaitCount(@Param("deptId") Long deptId,@Param("type") String type);
+    Long queryRegisterDriverWaitCount(@Param("carGroupId") Long carGroupId,@Param("type") String type);
     /**
      * 驾驶员注册
      * @param driverRegisterInsertDTO
      * @return
      */
     int insertDriverRegister(DriverRegisterInsertDTO  driverRegisterInsertDTO);
+    RegisterDriverDetailVO queryDriverRegDetail(Long registerId);
 }

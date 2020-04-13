@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
-import com.hq.ecmp.mscore.vo.CarVO;
-import com.hq.ecmp.mscore.vo.DriverVO;
+import com.hq.ecmp.mscore.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -155,10 +156,28 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	}
     	ecmpUserService.insertEcmpUser(ecmpUser);
     	driverCreateInfo.setUserId(ecmpUser.getUserId());*/
+    	//通过手机号和姓名去user表中查询
+    	EcmpUser query = new EcmpUser();
+		query.setNickName(driverCreateInfo.getDriverName());
+		query.setPhonenumber(driverCreateInfo.getMobile());
+		List<EcmpUser> selectEcmpUserList = ecmpUserService.selectEcmpUserList(query);
+		Long userId=null;
+		if(null !=selectEcmpUserList && selectEcmpUserList.size()>0){
+			userId=selectEcmpUserList.get(0).getUserId();
+			driverCreateInfo.setUserId(userId);
+			String jobNumber = driverCreateInfo.getJobNumber();
+			if(StringUtil.isNotEmpty(jobNumber)){
+				//传入了工号  则更新驾驶员对应的公司员工的工号
+				EcmpUser updateEcmpUser = new EcmpUser();
+				updateEcmpUser.setUserId(userId);
+				updateEcmpUser.setJobNumber(jobNumber);
+				ecmpUserService.updateEcmpUserjobNumber(updateEcmpUser);
+			}
+		}
     	//生成驾驶员记录
     	Integer createDriver = driverInfoMapper.createDriver(driverCreateInfo);
     	Long driverId = driverCreateInfo.getDriverId();
- 
+    	
     	//生成驾驶员-车队关系记录
     	CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
     	carGroupDriverRelation.setCarGroupId(driverCreateInfo.getCarGroupId());
@@ -168,6 +187,9 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	carGroupDriverRelationService.insertCarGroupDriverRelation(carGroupDriverRelation);
     	//生成驾驶员-车辆记录
     	DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+    	if(null !=userId){
+    		driverCarRelationInfo.setUserId(userId);
+    	}
     	driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
     	driverCarRelationInfo.setCarIdList(driverCreateInfo.getCarId());
     	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
@@ -216,6 +238,14 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 				//查询该驾驶员可以使用的车辆数量
 				Integer count = driverCarRelationInfoService.queryDriverUseCarCount(driverQueryResult.getDriverId());
 				driverQueryResult.setOwnCarCount(count);
+				Long userId = driverQueryResult.getUserId();
+				if(null !=userId){
+					//该驾驶员也是公司的员工 则查询工号
+					EcmpUser ecmpUser = ecmpUserService.selectEcmpUserById(userId);
+					if(null !=ecmpUser){
+						driverQueryResult.setJobNumber(ecmpUser.getJobNumber());
+					}
+				}
 			}
 		}
 		return list;
@@ -271,15 +301,19 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * @param
      */
     @Override
-    public List<DriverLoseDTO> getDriverLoseList(Long deptId){
-        return driverInfoMapper.getDriverLoseList(deptId);
+    public PageResult<DriverLoseDTO> getDriverLoseList(Integer pageNum, Integer pageSize,Long carGroupId,String search){
+		PageHelper.startPage(pageNum,pageSize);
+		List<DriverLoseDTO> loseDriverVOS= driverInfoMapper.getDriverLoseList(carGroupId,search);
+		PageInfo<DriverLoseDTO> info = new PageInfo<>(loseDriverVOS);
+		return new PageResult<>(info.getTotal(),info.getPages(),loseDriverVOS);
+
     }
     /**
      * 驾驶员已离职数量
      */
     @Override
-    public int getDriverLoseCount(Long deptId){
-        return driverInfoMapper.getDriverLoseCount(deptId);
+    public Long getDriverLoseCount(Long carGroupId){
+        return driverInfoMapper.getDriverLoseCount(carGroupId);
 
     }
     /**

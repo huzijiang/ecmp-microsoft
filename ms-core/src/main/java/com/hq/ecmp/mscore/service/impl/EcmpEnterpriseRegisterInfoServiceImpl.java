@@ -16,10 +16,7 @@ import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseRegisterInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
-import com.hq.ecmp.mscore.vo.InvitationUrlVO;
-import com.hq.ecmp.mscore.vo.PageResult;
-import com.hq.ecmp.mscore.vo.RegisterDriverVO;
-import com.hq.ecmp.mscore.vo.RegisterUserVO;
+import com.hq.ecmp.mscore.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -136,9 +133,15 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
      * @param
      */
     @Override
-    public List<RegisterDriverVO> queryRegisterDriverWait(RegisterDTO registerDTO){
-        return ecmpEnterpriseRegisterInfoMapper.queryRegisterDriverWait(registerDTO.getType());
+    public PageResult<RegisterDriverVO> queryRegisterDriverWait(Integer pageNum, Integer pageSize,Long carGroupId,String type,String search){
+
+        PageHelper.startPage(pageNum,pageSize);
+        List<RegisterDriverVO> registerDriverVOS= ecmpEnterpriseRegisterInfoMapper.queryRegisterDriverWait(carGroupId,type,search);
+        PageInfo<RegisterDriverVO> info = new PageInfo<>(registerDriverVOS);
+        return new PageResult<>(info.getTotal(),info.getPages(),registerDriverVOS);
+
     }
+
     /**
      * 注册申请：拒绝/通过
      */
@@ -299,6 +302,8 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         }
         return count;
     }
-
+    public RegisterDriverDetailVO queryDriverRegDetail(Long registerId){
+        return ecmpEnterpriseRegisterInfoMapper.queryDriverRegDetail(registerId);
+    }
 
 }

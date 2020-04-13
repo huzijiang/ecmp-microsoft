@@ -620,4 +620,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updatePhoneByUserId">
       update ecmp_user  SET phonenumber=#{newPhoneNum} where user_id = #{userId}
     </update>
+    
+    <update id="updateEcmpUserjobNumber" parameterType="com.hq.ecmp.mscore.domain.EcmpUser">
+    update ecmp_user set job_number=#{jobNumber} where user_id=#{userId}
+    </update>
 </mapper>

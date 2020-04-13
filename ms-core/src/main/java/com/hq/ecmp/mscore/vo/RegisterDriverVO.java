@@ -13,7 +13,7 @@ import lombok.Data;
 @ApiModel(description = "待审核申请驾驶员")
 public class RegisterDriverVO {
 
-
+    private String registerId;
     @ApiModelProperty(name = "userName",value = "姓名")
     private String userName;
     @ApiModelProperty(name = "mobilePhone",value = "手机号")

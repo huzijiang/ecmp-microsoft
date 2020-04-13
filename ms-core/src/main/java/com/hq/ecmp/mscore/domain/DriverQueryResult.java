@@ -11,6 +11,8 @@ public class DriverQueryResult {
 	Long driverId;
 
 	String driverName;
+	
+	String jobNumber;
 
 	String mobile;
 
