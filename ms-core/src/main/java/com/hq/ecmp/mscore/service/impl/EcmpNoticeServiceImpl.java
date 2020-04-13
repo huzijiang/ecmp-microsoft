@@ -1,5 +1,8 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -155,4 +158,32 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
         return EcmpNotice;
     }
 
+    /**
+     * 定时任务：修改公告管理公告状态
+     */
+    @Override
+    public void announcementTask() throws ParseException {
+        int i = 0;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //查询公告管理状态为 待发布与发布中的数据
+        List<EcmpNotice> list =  ecmpNoticeMapper.selectNoticeByStatus();
+        for (EcmpNotice ecmpNotice :list){
+                Date publishTime = format.parse(ecmpNotice.getPublishTime());
+                Date endTime = format.parse(ecmpNotice.getEndTime());
+                //当前时间
+                Date time = DateUtils.getNowDate();
+                //当前时间小于开始时间并且结束时间大于当前时间 就是待发布
+                if(time.before(publishTime) && endTime.after(time)){
+                    ecmpNotice.setStatus("0");
+                    //当前时间大于开始时间并且当前时间小于结束时间就是发布中
+                }else if(time.after(publishTime) && time.before(endTime)){
+                    ecmpNotice.setStatus("1");
+                    //开始时间大于当前时间并且结束时间大于当前时间就是已结束
+                }else  if(time.after(publishTime) && time.after(endTime)){
+                    ecmpNotice.setStatus("2");
+                }
+                //根据id修改公告的状态
+                 ecmpNoticeMapper.updateEcmpNotice(ecmpNotice);
+            }
+        }
 }

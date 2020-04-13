@@ -1,10 +1,13 @@
 package com.hq.ecmp.ms.api.ScheduledJobs;
 
 import com.hq.ecmp.mscore.service.IApplyInfoService;
+import com.hq.ecmp.mscore.service.IEcmpNoticeService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.service.impl.OrderInfoServiceImpl;
 import com.hq.ecmp.util.DateFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,6 +16,8 @@ import java.util.Date;
 
 @Component
 public class ScheduledTask {
+
+    private static final Logger log = LoggerFactory.getLogger(ScheduledTask.class);
 
     @Autowired
     private IProjectInfoService iProjectInfoService;
@@ -23,6 +28,9 @@ public class ScheduledTask {
     private IApplyInfoService applyInfoService;
 
     private OrderInfoServiceImpl orderInfoService;
+
+    @Autowired
+    private IEcmpNoticeService iEcmpNoticeService;
 
     @Scheduled(cron = "5 * * * * ?")
     public void testJob(){
@@ -54,6 +62,20 @@ public class ScheduledTask {
     public void checkOrderIsExpired(){
         System.out.println("定时任务:checkOrderIsExpired:校验订单是否过期"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
         orderInfoService.checkOrderIsExpired();
+    }
+
+    //后台公告管理通过发布时间与结束时间做状态修改
+    //@Scheduled(cron = "0 0 1 * * ? ")
+    public void  announcementManagementTimingTask (){
+        log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+        //System.out.println("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改Start:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+        try {
+            iEcmpNoticeService.announcementTask();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改EndTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+        //System.out.println("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改End:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
     }
 
 }
