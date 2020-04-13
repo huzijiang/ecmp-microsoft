@@ -1,14 +1,19 @@
 package com.hq.ecmp.ms.api.controller.order;
 
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectCarDto;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectDriverDto;
+import com.hq.ecmp.constant.enumerate.DispatchExceptionEnum;
+import com.hq.ecmp.mscore.bo.WaitSelectedCarBo;
+import com.hq.ecmp.mscore.bo.WaitSelectedDriverBo;
+import com.hq.ecmp.mscore.dto.dispatch.*;
+import com.hq.ecmp.mscore.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,9 +32,6 @@ import com.hq.ecmp.mscore.domain.DispatchSendCarPageInfo;
 import com.hq.ecmp.mscore.dto.DispatchInfoDto;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
-import com.hq.ecmp.mscore.vo.DispatchResultVo;
-import com.hq.ecmp.mscore.vo.PageResult;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -40,6 +42,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @RestController
 @RequestMapping("/dispatch")
+@Slf4j
 public class DispatchController {
 
 
@@ -174,5 +177,18 @@ public class DispatchController {
     public ApiResponse unlockSelectedDriver(@RequestBody DispatchLockDriverDto dispatchLockDriverDto) {
         return  dispatchService.unlockSelectedDriver(dispatchLockDriverDto);
     }
+
+    /**
+     * 自动调度
+     *
+     * @param dispatchCountCarAndDriverDto dispatchCountCarAndDriverDto
+     * @return ApiResponse<DispatchCountDriverAndOrderVo>
+     */
+    @ApiOperation(value = "autoDispatch", notes = "自动调度", httpMethod = "POST")
+    @PostMapping("/autoDispatch")
+    public ApiResponse<DispatchResultVo> autoDispatch(@RequestBody DispatchCountCarAndDriverDto dispatchCountCarAndDriverDto) {
+        return  dispatchService.autoDispatch(dispatchCountCarAndDriverDto);
+    }
+
 
 }

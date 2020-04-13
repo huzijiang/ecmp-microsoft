@@ -121,45 +121,45 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             ismsBusiness.sendSmsDriverArrivePrivate(orderId);
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
-            String longAddr = "";
-            String shortAddr ="";
-            if(!"".equals(currentPoint)){
-                Map<String, String> stringStringMap = thirdService.locationByLongitudeAndLatitude(String.valueOf(longitude), String.valueOf(latitude));
-                longAddr = stringStringMap.get("longAddr");
-                shortAddr = stringStringMap.get("shortAddr");
-            }
-
-            //订单地址表
-            Long setOutOrderAddressId = null;
-            OrderAddressInfo orderAddressInfoOld = new OrderAddressInfo();
-            orderAddressInfoOld.setOrderId(orderId);
-            orderAddressInfoOld.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
-            List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfoOld);
-            OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
-            setOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
-
-            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
-            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
-            orderAddressInfo.setOrderId(orderId);
-            orderAddressInfo.setJourneyId(orderInfoOld.getJourneyId());
-            orderAddressInfo.setNodeId(orderInfoOld.getNodeId());
-            orderAddressInfo.setPowerId(orderInfoOld.getPowerId());
-            orderAddressInfo.setDriverId(orderInfoOld.getDriverId());
-            orderAddressInfo.setCarId(orderInfoOld.getCarId());
-            orderAddressInfo.setUserId(orderInfoOld.getUserId()+"");
-            orderAddressInfo.setCityPostalCode(null);
-            orderAddressInfo.setActionTime(DateUtils.getNowDate());
-            orderAddressInfo.setLongitude(longitude);
-            orderAddressInfo.setLatitude(latitude);
-            orderAddressInfo.setAddress(shortAddr);
-            orderAddressInfo.setAddressLong(longAddr);
-            orderAddressInfo.setCreateBy(userId+"");
-            if(setOutOrderAddressId != null){
-                orderAddressInfo.setOrderAddressId(setOutOrderAddressId);
-                iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
-            }else{
-                iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
-            }
+//            String longAddr = "";
+//            String shortAddr ="";
+//            if(!"".equals(currentPoint)){
+//                Map<String, String> stringStringMap = thirdService.locationByLongitudeAndLatitude(String.valueOf(longitude), String.valueOf(latitude));
+//                longAddr = stringStringMap.get("longAddr");
+//                shortAddr = stringStringMap.get("shortAddr");
+//            }
+//
+//            //订单地址表
+//            Long setOutOrderAddressId = null;
+//            OrderAddressInfo orderAddressInfoOld = new OrderAddressInfo();
+//            orderAddressInfoOld.setOrderId(orderId);
+//            orderAddressInfoOld.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+//            List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfoOld);
+//            OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
+//            setOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
+//
+//            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+//            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+//            orderAddressInfo.setOrderId(orderId);
+//            orderAddressInfo.setJourneyId(orderInfoOld.getJourneyId());
+//            orderAddressInfo.setNodeId(orderInfoOld.getNodeId());
+//            orderAddressInfo.setPowerId(orderInfoOld.getPowerId());
+//            orderAddressInfo.setDriverId(orderInfoOld.getDriverId());
+//            orderAddressInfo.setCarId(orderInfoOld.getCarId());
+//            orderAddressInfo.setUserId(orderInfoOld.getUserId()+"");
+//            orderAddressInfo.setCityPostalCode(null);
+//            orderAddressInfo.setActionTime(DateUtils.getNowDate());
+//            orderAddressInfo.setLongitude(longitude);
+//            orderAddressInfo.setLatitude(latitude);
+//            orderAddressInfo.setAddress(shortAddr);
+//            orderAddressInfo.setAddressLong(longAddr);
+//            orderAddressInfo.setCreateBy(userId+"");
+//            if(setOutOrderAddressId != null){
+//                orderAddressInfo.setOrderAddressId(setOutOrderAddressId);
+//                iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
+//            }else{
+//                iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+//            }
             //订单状态
             orderInfo.setState(OrderState.INSERVICE.getState());
             iOrderInfoService.updateOrderInfo(orderInfo);
@@ -172,43 +172,43 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             ismsBusiness.sendMessageServiceStart(orderId, userId);
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
-            String longAddr = "";
-            String shortAddr ="";
-            if(!"".equals(currentPoint)){
-                Map<String, String> stringStringMap = thirdService.locationByLongitudeAndLatitude(String.valueOf(longitude), String.valueOf(latitude));
-                longAddr = stringStringMap.get("longAddr");
-                shortAddr = stringStringMap.get("shortAddr");
-            }
-            //订单地址表
-            Long arriveOutOrderAddressId = null;
-            OrderAddressInfo orderAddressInfoOld = new OrderAddressInfo();
-            orderAddressInfoOld.setOrderId(orderId);
-            orderAddressInfoOld.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
-            List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfoOld);
-            OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
-            arriveOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
-            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
-            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
-            orderAddressInfo.setOrderId(orderId);
-            orderAddressInfo.setJourneyId(orderInfoOld.getJourneyId());
-            orderAddressInfo.setNodeId(orderInfoOld.getNodeId());
-            orderAddressInfo.setPowerId(orderInfoOld.getPowerId());
-            orderAddressInfo.setDriverId(orderInfoOld.getDriverId());
-            orderAddressInfo.setCarId(orderInfoOld.getCarId());
-            orderAddressInfo.setUserId(orderInfoOld.getUserId()+"");
-            orderAddressInfo.setCityPostalCode(null);
-            orderAddressInfo.setActionTime(DateUtils.getNowDate());
-            orderAddressInfo.setLongitude(longitude);
-            orderAddressInfo.setLatitude(latitude);
-            orderAddressInfo.setAddress(shortAddr);
-            orderAddressInfo.setAddressLong(longAddr);
-            orderAddressInfo.setCreateBy(userId+"");
-            if(arriveOutOrderAddressId != null){
-                orderAddressInfo.setOrderAddressId(arriveOutOrderAddressId);
-                iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
-            }else{
-                iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
-            }
+//            String longAddr = "";
+//            String shortAddr ="";
+//            if(!"".equals(currentPoint)){
+//                Map<String, String> stringStringMap = thirdService.locationByLongitudeAndLatitude(String.valueOf(longitude), String.valueOf(latitude));
+//                longAddr = stringStringMap.get("longAddr");
+//                shortAddr = stringStringMap.get("shortAddr");
+//            }
+//            //订单地址表
+//            Long arriveOutOrderAddressId = null;
+//            OrderAddressInfo orderAddressInfoOld = new OrderAddressInfo();
+//            orderAddressInfoOld.setOrderId(orderId);
+//            orderAddressInfoOld.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+//            List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfoOld);
+//            OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
+//            arriveOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
+//            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+//            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+//            orderAddressInfo.setOrderId(orderId);
+//            orderAddressInfo.setJourneyId(orderInfoOld.getJourneyId());
+//            orderAddressInfo.setNodeId(orderInfoOld.getNodeId());
+//            orderAddressInfo.setPowerId(orderInfoOld.getPowerId());
+//            orderAddressInfo.setDriverId(orderInfoOld.getDriverId());
+//            orderAddressInfo.setCarId(orderInfoOld.getCarId());
+//            orderAddressInfo.setUserId(orderInfoOld.getUserId()+"");
+//            orderAddressInfo.setCityPostalCode(null);
+//            orderAddressInfo.setActionTime(DateUtils.getNowDate());
+//            orderAddressInfo.setLongitude(longitude);
+//            orderAddressInfo.setLatitude(latitude);
+//            orderAddressInfo.setAddress(shortAddr);
+//            orderAddressInfo.setAddressLong(longAddr);
+//            orderAddressInfo.setCreateBy(userId+"");
+//            if(arriveOutOrderAddressId != null){
+//                orderAddressInfo.setOrderAddressId(arriveOutOrderAddressId);
+//                iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
+//            }else{
+//                iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
+//            }
             int orderConfirmStatus = iEcmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderInfoOld.getUseCarMode());
             //订单轨迹状态 和订单状态
             //确认行程展示

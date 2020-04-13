@@ -183,7 +183,7 @@ public class MessageController {
                     .url(ecmpMessage.getUrl())
                     .status(ecmpMessage.getStatus())
                     .content(ecmpMessage.getContent())
-                    .time(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,ecmpMessage.getUpdateTime()))
+                    .time(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS,ecmpMessage.getCreateTime()))
                     .build());
         }
         return ApiResponse.success(msgList);
