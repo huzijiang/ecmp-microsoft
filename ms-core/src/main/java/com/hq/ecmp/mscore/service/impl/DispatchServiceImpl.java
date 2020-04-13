@@ -129,13 +129,16 @@ public class DispatchServiceImpl implements IDispatchService {
             selectCarConditionBo.setDispatcherId(Long.parseLong(loginUser.getUser().getUserId().toString()));
         }
 
-        List<WaitSelectedCarBo> cars=selectCars(selectCarConditionBo,orderInfo).getData();
+        ApiResponse<List<WaitSelectedCarBo>> cars=selectCars(selectCarConditionBo,orderInfo);
+        if(!cars.isSuccess()){
+            return  ApiResponse.error(cars.getMsg());
+        }
 
         //优先级操作 识别 和 查询司机
 
 
         DispatchResultVo dispatchResultVo=new DispatchResultVo();
-        dispatchResultVo.setCarList(cars);
+        dispatchResultVo.setCarList(cars.getData());
 
         return ApiResponse.success(dispatchResultVo);
     }
@@ -270,26 +273,28 @@ public class DispatchServiceImpl implements IDispatchService {
         DispatchSelectCarDto dispatchSelectCarDto = new DispatchSelectCarDto();
         dispatchSelectCarDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
 
-        List<WaitSelectedCarBo> cars=getWaitSelectedCars(dispatchSelectCarDto).getData().getCarList();
+        ApiResponse<DispatchResultVo> carsResult=getWaitSelectedCars(dispatchSelectCarDto);
+        if(!carsResult.isSuccess()){
+            return ApiResponse.error(carsResult.getMsg());
+        }
 
-        DispatchSelectDriverDto dispatchSelectDriverDto = new DispatchSelectDriverDto();
-        dispatchSelectDriverDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
-        dispatchSelectDriverDto.setCarId("");
-        List<WaitSelectedDriverBo> drivers = getWaitSelectedDrivers(dispatchSelectDriverDto).getData().getDriverList();
+        List<WaitSelectedCarBo> cars=carsResult.getData().getCarList();
 
-        if(cars.isEmpty() || drivers.isEmpty()){
+        if(cars.isEmpty()){
             log.info(dispatchCountCarAndDriverDto.toString() + "-" + DispatchExceptionEnum.DRIVER_OR_CAR_NOT_FIND.getDesc());
-            return ApiResponse.success(dispatchResultVo);
+            return ApiResponse.error(DispatchExceptionEnum.DRIVER_OR_CAR_NOT_FIND.getDesc());
         }
 
         Iterator<WaitSelectedCarBo> carInfoVOIterator = cars.iterator();
-        Iterator<WaitSelectedDriverBo> driverInfoVOIterator = drivers.iterator();
+
 
         DispatchLockCarDto dispatchLockCarDto = new DispatchLockCarDto();
         DispatchLockDriverDto dispatchLockDriverDto = new DispatchLockDriverDto();
 
         AtomicReference<Boolean> carFlag = new AtomicReference<>(false);
         AtomicReference<Boolean> driverFlag = new AtomicReference<>(false);
+
+        List<WaitSelectedDriverBo> drivers=new ArrayList<>();
 
         while (carInfoVOIterator.hasNext()) {
             dispatchResultVo.setLockCar(1);
@@ -299,10 +304,30 @@ public class DispatchServiceImpl implements IDispatchService {
             dispatchLockCarDto.setCarId(car.getCarId().toString());
 
             ApiResponse lockCarResult = lockSelectedCar(dispatchLockCarDto);
+            if(!lockCarResult.isSuccess()){
+                continue;
+            }
+
+            DispatchSelectDriverDto dispatchSelectDriverDto = new DispatchSelectDriverDto();
+            dispatchSelectDriverDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
+            dispatchSelectDriverDto.setCarId(car.getCarId().toString());
+            ApiResponse<DispatchResultVo> driversResult=getWaitSelectedDrivers(dispatchSelectDriverDto);
+            if(!driversResult.isSuccess()){
+                continue;
+            }
+
+            drivers = driversResult.getData().getDriverList();
+
+            if(drivers.isEmpty()){
+                continue;
+            }
+
+            Iterator<WaitSelectedDriverBo> driverInfoVOIterator = drivers.iterator();
             if (lockCarResult.isSuccess()) {
                 dispatchResultVo.setLockCar(0);
                 dispatchResultVo.setLockDriver(1);
                 carFlag.set(true);
+
                 while (driverInfoVOIterator.hasNext()) {
                     WaitSelectedDriverBo driver = driverInfoVOIterator.next();
                     dispatchLockDriverDto.setOrderNo(dispatchCountCarAndDriverDto.getOrderNo());
@@ -310,12 +335,12 @@ public class DispatchServiceImpl implements IDispatchService {
                     dispatchLockDriverDto.setDriverId(driver.getDriverId().toString());
 
                     ApiResponse lockDriverResult = lockSelectedDriver(dispatchLockDriverDto);
-
-                    if (lockDriverResult.isSuccess()) {
-                        dispatchResultVo.setLockDriver(0);
-                        driverFlag.set(true);
-                        break;
+                    if(!lockDriverResult.isSuccess()){
+                        continue;
                     }
+                    dispatchResultVo.setLockDriver(0);
+                    driverFlag.set(true);
+                    break;
                 }
             }
 
@@ -619,7 +644,7 @@ public class DispatchServiceImpl implements IDispatchService {
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos=carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcher);
 
         if(carGroupDispatcherInfos.isEmpty()){
-            return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_NOT_ExIST.getDesc());
+            return ApiResponse.error(DispatchExceptionEnum.NOT_FIND_SUITABLE_CAR_SERVICE_SCOPE.getDesc());
         }
 
         List<CarGroupServeScopeInfo> carGroupServeScopeInfoListResult = new LinkedList<>();

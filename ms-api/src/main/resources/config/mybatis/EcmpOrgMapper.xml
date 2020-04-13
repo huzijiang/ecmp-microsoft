@@ -103,7 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         dept_name as deptName,
         (SELECT dept_name from  ecmp_org where dept_id =
         (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
-        (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leader,`phone`
+        (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName,leader,`phone`
         from
         ecmp_org
         where
@@ -310,7 +310,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
        if(isnull(dept_code),'',dept_code) as deptCode,
       (SELECT dept_name from  ecmp_org where dept_id =
       (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
-      (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leader ,  `phone`,  `email`,
+      (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName , leader, `phone`,  `email`,
       (SELECT count(*) from  ecmp_user where dept_id=#{deptId} and del_flag=0) as numOfSub
       from  ecmp_org where dept_id=#{deptId}
     </select>

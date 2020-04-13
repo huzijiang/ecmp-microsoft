@@ -3,6 +3,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.hq.api.system.domain.SysRole;
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
@@ -125,15 +126,21 @@ public class NoticeController {
         SysUser sysUser= loginUser.getUser();
         long userId = sysUser.getUserId();
         long deptId = sysUser.getDeptId();
+        List<SysRole> roles =sysUser.getRoles();
+        String  role = "";
+        for (SysRole sysRole :roles){
+            role += sysRole.getRoleId().toString()+",";
+        }
+        role =role.substring(0,role.length()-1);
         List<Map < String, Object>> list = new ArrayList();
         Map allNoticeMap = new HashMap<>();
         allNoticeMap.put("configType","1");
-        //如果为所有人可见公告，默认为0
-        allNoticeMap.put("bucId","0");
+        //如果为所有人可见公告，默认为1
+        allNoticeMap.put("bucId","1");
         list.add(allNoticeMap);
         Map userMap = new HashMap<>();
         userMap.put("configType","2");
-        userMap.put("bucId",userId);
+        userMap.put("bucId",role);
         list.add(userMap);
         Map deptMap = new HashMap();
         deptMap.put("configType","3");
