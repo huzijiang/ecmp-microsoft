@@ -42,6 +42,10 @@ public class EcmpNotice extends BaseEntity
     @Excel(name = "结束时间")
     private String endTime;
 
+    /** 发布对象*/
+    @Excel(name = "结束时间")
+    private String configType;
+
 
     public void setNoticeId(Integer noticeId)
     {
@@ -102,6 +106,7 @@ public class EcmpNotice extends BaseEntity
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
             .append("remark", getRemark())
+            .append("configType", getConfigType())
             .toString();
     }
 
@@ -121,5 +126,13 @@ public class EcmpNotice extends BaseEntity
     @Override
     public void setEndTime(String endTime) {
         this.endTime = endTime;
+    }
+
+    public String getConfigType() {
+        return configType;
+    }
+
+    public void setConfigType(String configType) {
+        this.configType = configType;
     }
 }

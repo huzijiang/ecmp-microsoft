@@ -551,4 +551,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 		}
 		return null;
 	}
+
+	@Override
+	public int updateEcmpUserjobNumber(EcmpUser ecmpUser) {
+		return ecmpUserMapper.updateEcmpUserjobNumber(ecmpUser);
+	}
 }

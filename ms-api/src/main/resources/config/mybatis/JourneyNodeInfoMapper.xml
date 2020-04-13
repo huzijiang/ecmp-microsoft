@@ -206,7 +206,8 @@ ORDER BY
 		SELECT
 		a.plan_begin_address AS planBeginAddress,
 		a.plan_end_address AS planEndAddress,
-		a.plan_setout_time AS planSetoutTime
+		a.plan_setout_time AS planSetoutTime,
+		a.node_id as nodeId
 		FROM
 		journey_node_info a
 		LEFT JOIN journey_user_car_power b ON a.node_id = b.node_id
