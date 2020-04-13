@@ -94,7 +94,7 @@ public class ScheduledTask {
 	 * 
 	 * @throws Exception
 	 */
-	//@Scheduled(cron = "0 */1 * * * ?")
+	@Scheduled(cron = "0 */10 * * * ?")
 	public void autoDispatch() {
 		log.info("定时任务:autoDispatch:自动调度" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
 		// 查询企业设置是否开启了自动调度
@@ -106,6 +106,7 @@ public class ScheduledTask {
 			if (null != queryAllWaitDispatchList && queryAllWaitDispatchList.size() > 0) {
 				for (DispatchOrderInfo dispatchOrderInfo : queryAllWaitDispatchList) {
 					Long orderId = dispatchOrderInfo.getOrderId();
+					log.info("订单【"+orderId+"】开始自动派单");
 					String redisLockKey = "dispatch_" + orderId;
 					// 查询是否存在调度员已经在进行操作
 					Object o = redisUtil.get(redisLockKey);
@@ -167,7 +168,7 @@ public class ScheduledTask {
 							}
 
 						} catch (Exception e) {
-							log.info("订单【"+orderId+"】自动派单异常:"+e.toString());
+							log.error("订单【"+orderId+"】自动派单异常:"+e.getMessage());
 							//释放自动派单锁
 							redisUtil.delKey(redisLockKey);
 							e.printStackTrace();
