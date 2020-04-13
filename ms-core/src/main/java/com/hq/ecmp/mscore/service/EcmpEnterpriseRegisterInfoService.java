@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
 import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.RegisterDriverDetailVO;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterUserVO;
 
@@ -104,5 +105,5 @@ public interface EcmpEnterpriseRegisterInfoService {
     int updateRegisterDriverApprove(Long registerId,Long userId,String reason,String state) throws Exception;
 
     void updateRegisterRefuse(Long registerId, String reason)throws Exception;;
-    RegisterDriverVO queryDriverRegDetail(Long registerId);
+    RegisterDriverDetailVO queryDriverRegDetail(Long registerId);
 }
