@@ -1470,7 +1470,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //  有往返的话，创建两个行程
         journeyInfo.setItIsReturn(isGoBack == null ? JourneyConstant.IT_IS_NOT_RETURN : isGoBack);
         //1.7 estimate_price 预估价格     非空
-        journeyInfo.setEstimatePrice(String.valueOf(officialCommitApply.getEstimatePrice()));
+        journeyInfo.setEstimatePrice(officialCommitApply.getEstimatePrice());
         //1.8 project_id  项目id
         Long projectId=StringUtils.isBlank(officialCommitApply.getProjectNumber())?null:Long.valueOf(officialCommitApply.getProjectNumber());
         journeyInfo.setProjectId(projectId);
