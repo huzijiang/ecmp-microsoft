@@ -441,6 +441,19 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
         return ZERO;
     }
 
+	@Override
+	public boolean checkAutoDispatch() {
+		EcmpConfig ecmpConfig = ecmpConfigMapper.selectConfigByKey(new EcmpConfig(ConfigTypeEnum.DISPATCH_INFO.getConfigKey()));
+		if(null !=ecmpConfig && StringUtils.isNotEmpty(ecmpConfig.getConfigValue())){
+		    JSONObject jsonObject = JSONObject.parseObject(ecmpConfig.getConfigValue());
+            String status = jsonObject.getString("status");
+            if(SWITCH_ON.equals(status)){
+            	return true;
+            }
+		}
+		return false;
+	}
+
     /**
      * 获取启动页开屏图（无token）
      * @return

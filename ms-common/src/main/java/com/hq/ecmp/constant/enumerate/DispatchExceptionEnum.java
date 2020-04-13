@@ -20,10 +20,11 @@ public enum DispatchExceptionEnum {
     LOCK_DRIVER_HAS_LOCKED("MDIS000007","锁定司机时司机已被锁定"),
     UNLOCK_DRIVER_NOT_EXIST("MDIS000008","解除锁定司机时司机未被发现"),
     ORDER_NOT_FIND_PLAN_PRICE("MDIS000009","订单未找到预算价信息"),
-    DISPATCHER_NOT_ExIST("MDIS000010","当前调度员不存在"),
+    DISPATCHER_NOT_EXIST("MDIS000010","当前调度员不存在"),
     DISPATCHER_NOT_FIND_OWN_CAR_GROUP("MDIS000011","调度员没有找到对应的归属车队信息"),
     DISPATCHER_OWN_CAR_GROUP_SCOPE_IS_TOO_SMALL("MDIS000012","调度员归属的车队服务范围不足"),
-    DRIVER_OR_CAR_NOT_FIND("MDIS000011","调度员没有找到对应的归属车队信息");
+    DRIVER_OR_CAR_NOT_FIND("MDIS000013","调度员没有找到对应的归属车队信息"),
+    NOT_FIND_SUITABLE_CAR_SERVICE_SCOPE("MDIS000014","未找到匹配服务范围的车队");
 
 
     @Setter

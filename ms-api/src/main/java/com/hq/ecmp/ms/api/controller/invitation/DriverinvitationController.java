@@ -169,7 +169,7 @@ public class DriverinvitationController {
      */
     @ApiOperation(value = "driverRegDetail", notes = "驾驶员注册详情", httpMethod = "POST")
     @PostMapping("/driverRegDetail")
-    public ApiResponse<RegisterDriverVO> driverRegDetail(@RequestBody Long registerId) {
+    public ApiResponse<RegisterDriverDetailVO> driverRegDetail(@RequestBody Long registerId) {
         return ApiResponse.success(ecmpEnterpriseRegisterInfoService.queryDriverRegDetail(registerId));
     }
 
