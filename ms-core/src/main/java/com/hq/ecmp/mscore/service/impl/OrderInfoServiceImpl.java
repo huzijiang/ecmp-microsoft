@@ -235,11 +235,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         int i = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         return  i;
     }
-
-
-	@Override
-	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
-		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
+    
+    
+    @Override
+	public List<DispatchOrderInfo> queryAllWaitDispatchList() {
+    	List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//查询所有处于待派单(未改派)的订单及关联的信息
 		OrderInfo query = new OrderInfo();
 		query.setState(OrderState.WAITINGLIST.getState());
@@ -275,6 +275,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				result.add(dispatchOrderInfo);
 			}
 		}
+		return result;
+	}
+    
+	@Override
+	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
+		List<DispatchOrderInfo> result = queryAllWaitDispatchList();
 		/*对用户进行订单可见校验
 		自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的调度员能看到该订单
 	      只有自有车时，且上车地点不在车队的用车城市范围内，则所有车车队的所有调度员都能看到该订单*/
@@ -2140,4 +2146,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
     }
+
+	
 }
