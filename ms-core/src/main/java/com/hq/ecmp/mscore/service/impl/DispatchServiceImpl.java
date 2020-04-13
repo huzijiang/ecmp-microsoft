@@ -644,7 +644,7 @@ public class DispatchServiceImpl implements IDispatchService {
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos=carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcher);
 
         if(carGroupDispatcherInfos.isEmpty()){
-            return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_NOT_ExIST.getDesc());
+            return ApiResponse.error(DispatchExceptionEnum.NOT_FIND_SUITABLE_CAR_SERVICE_SCOPE.getDesc());
         }
 
         List<CarGroupServeScopeInfo> carGroupServeScopeInfoListResult = new LinkedList<>();
