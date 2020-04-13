@@ -8,7 +8,10 @@ package com.hq.ecmp.constant;
  * @Version 1.0
  */
 public final class CommonConstant {
-
+	
+	
+	//redis中调度锁的前缀
+	public static final String DISPATCH_LOCK_PREFIX="dispatch_";
     //redis中约车次数的前缀
     public  static final String APPOINTMENT_NUMBER_PREFIX = "APPOINTMENT_NUMBER_";
     public  static final String PROJECT_USER_TREE = "PROJECT_USER_TREE:%s";
