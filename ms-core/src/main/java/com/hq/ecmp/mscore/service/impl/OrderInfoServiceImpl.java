@@ -25,7 +25,6 @@ import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.OrderUtils;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -527,7 +526,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
                     vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
                     vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime().intValue()));
-                    vo.setAmount(orderSettlingInfos.get(0).getAmount().toPlainString());
+//                    vo.setAmount(orderSettlingInfos.get(0).getAmount().toPlainString());
                 }
             }
         }else{
@@ -1999,6 +1998,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderNo);
         if (orderInfo==null){
             throw new Exception("订单:"+orderNo+"不存在");
+        }
+        if(OrderState.ORDEROVERTIME.getState().equals(status)||OrderState.REASSIGNPASS.getState().equals(status)||OrderState.ALREADYSENDING.getState().equals(status)){
+            redisUtil.delKey(CommonConstant.DISPATCH_LOCK_PREFIX+orderNo);
         }
         OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
         DriverCloudDto driverCloudDto=null;
