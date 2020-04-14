@@ -61,7 +61,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:车辆详情", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理:车队详情", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupDetail",notes = "车队详情",httpMethod ="POST")
     @PostMapping("/getCarGroupDetail")
     public ApiResponse<CarGroupDetailVO> getCarGroupDetail(@RequestBody CarGroupDTO carGroupDTO){

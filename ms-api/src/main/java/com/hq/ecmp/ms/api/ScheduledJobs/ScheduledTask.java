@@ -94,7 +94,7 @@ public class ScheduledTask {
 	 * 
 	 * @throws Exception
 	 */
-	@Scheduled(cron = "0 */10 * * * ?")
+	@Scheduled(cron = "0 */1 * * * ?")
 	public void autoDispatch() {
 		log.info("定时任务:autoDispatch:自动调度" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
 		// 查询企业设置是否开启了自动调度
