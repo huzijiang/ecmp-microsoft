@@ -379,8 +379,8 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .carImgaeUrl(carInfo.getCarImgaeUrl())
                 .carDrivingLicenseImagesUrl(carInfo.getCarDrivingLicenseImagesUrl())
                 .carId(carId)
-                .drivingLicenseStartDate(simpleDateFormat.format(carInfo.getDrivingLicenseStartDate()))
-                .drivingLicenseEndDate(simpleDateFormat.format(carInfo.getDrivingLicenseEndDate()))
+                .drivingLicenseStartDate(carInfo.getDrivingLicenseStartDate()==null?"":simpleDateFormat.format(carInfo.getDrivingLicenseStartDate()))
+                .drivingLicenseEndDate(carInfo.getDrivingLicenseStartDate()==null?"":simpleDateFormat.format(carInfo.getDrivingLicenseEndDate()))
                 .build();
         return carDetailVO;
     }
