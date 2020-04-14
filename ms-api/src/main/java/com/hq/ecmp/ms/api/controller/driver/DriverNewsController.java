@@ -5,9 +5,8 @@ import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.interceptor.log.Log;
+import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
-import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
@@ -19,7 +18,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -47,6 +45,7 @@ public class DriverNewsController {
      * @param driverDTO
      * @return
      */
+    @Log(title = "驾驶员管理模块:查询驾驶员可用车辆列表", businessType = BusinessType.OTHER)
     @ApiOperation(value="getDriverCanUseCarsList" ,notes="查询驾驶员可用车辆列表", httpMethod = "POST")
     @PostMapping("/getDriverCanUseCarsList")
     public ApiResponse<List<DriverCanUseCarsDTO>> getDriverCanUseCarsList(@RequestBody DriverNewDTO driverDTO){
@@ -62,6 +61,7 @@ public class DriverNewsController {
      * @param pageRequest
      * @return
      */
+    @Log(title = "驾驶员管理模块:查询驾驶员失效列表", businessType = BusinessType.OTHER)
     @ApiOperation(value="getDriverLoseList" ,notes="查询驾驶员失效列表", httpMethod = "POST")
     @PostMapping("/getDriverLoseList")
     public ApiResponse<PageResult<DriverLoseDTO>> getDriverLoseList(@RequestBody PageRequest pageRequest){
@@ -74,6 +74,7 @@ public class DriverNewsController {
      * @param driverDTO
      * @return
      */
+    @Log(title = "驾驶员管理模块:查询驾驶员失效数量", businessType = BusinessType.OTHER)
     @ApiOperation(value="getDriverLoseCount" ,notes="查询驾驶员失效数量", httpMethod = "POST")
     @PostMapping("/getDriverLoseCount")
     public ApiResponse  getDriverLoseCount(@RequestBody DriverNewDTO driverDTO){
@@ -89,7 +90,8 @@ public class DriverNewsController {
      * @param driverDTO
      * @return
      */
-    @ApiOperation(value="getDriverDelete" ,notes="删除已失效驾驶员", httpMethod = "POST")
+    @Log(title = "驾驶员管理模块:删除驾驶员", businessType = BusinessType.DELETE)
+    @ApiOperation(value="getDriverDelete" ,notes="删除驾驶员", httpMethod = "POST")
     @PostMapping("/getDriverDelete")
     public ApiResponse  getDriverDelete(@RequestBody DriverNewDTO driverDTO){
         int deleteDriver = iDriverInfoService.deleteDriver(driverDTO.getDriverId());
@@ -104,6 +106,7 @@ public class DriverNewsController {
      * @param driverCreateInfo
      * @return
      */
+    @Log(title = "驾驶员管理模块:修改驾驶员", businessType = BusinessType.UPDATE)
     @ApiOperation(value="getDriverUpdate" ,notes="修改驾驶员", httpMethod = "POST")
     @PostMapping("/getDriverUpdate")
     public ApiResponse  getDriverUpdate(@RequestBody DriverCreateInfo driverCreateInfo){
@@ -124,6 +127,7 @@ public class DriverNewsController {
      * @param driverNewDTO
      * @return
      */
+    @Log(title = "驾驶员管理模块:修改驾驶员手机号", businessType = BusinessType.UPDATE)
     @ApiOperation(value="getDriverUpdateMobile" ,notes="修改驾驶员手机号", httpMethod = "POST")
     @PostMapping("/getDriverUpdateMobile")
     public ApiResponse  getDriverUpdateMobile(@RequestBody DriverNewDTO driverNewDTO){
@@ -138,6 +142,7 @@ public class DriverNewsController {
      * @param driverNewDTO
      * @return
      */
+    @Log(title = "驾驶员管理模块:设置驾驶员离职日期", businessType = BusinessType.UPDATE)
     @ApiOperation(value="getDriverUpdateDimTime" ,notes="设置驾驶员离职日期", httpMethod = "POST")
     @PostMapping("/getDriverUpdateDimTime")
     public ApiResponse  getDriverUpdateDimTime(@RequestBody DriverNewDTO driverNewDTO){
@@ -153,6 +158,7 @@ public class DriverNewsController {
      * @param  carDto  车辆信息
      * @return
      */
+    @Log(title = "驾驶员管理模块:解绑驾驶员车辆", businessType = BusinessType.DELETE)
     @ApiOperation(value = "removeDriversCar",notes = "解绑驾驶员车辆",httpMethod ="POST")
     @PostMapping("/removeDriversCar")
     public ApiResponse removeDriversCar(@RequestBody CarDto carDto){
@@ -169,7 +175,8 @@ public class DriverNewsController {
      * @param
      * @return
      */
-    @ApiOperation(value = "bindDriverCars",notes = "驾驶员新增车辆",httpMethod ="POST")
+    @Log(title = "驾驶员管理模块:驾驶员绑定车辆", businessType = BusinessType.INSERT)
+    @ApiOperation(value = "bindDriverCars",notes = "驾驶员绑定车辆",httpMethod ="POST")
     @PostMapping("/bindDriverCars")
     public ApiResponse bindDriverCars(@RequestBody DriverCarDTO driverCarDTO){
         //获取登录用户
@@ -185,56 +192,13 @@ public class DriverNewsController {
         return ApiResponse.success("新增车辆成功");
     }
 
-    /**
-     * 查询司机当月排班日期对应的出勤情况列表
-     * @param
-     * @return
-     */
-  /*  @ApiOperation(value = "getScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
-    @PostMapping("/getScheduleInfo")
-    public ApiResponse<DriverDutyWorkVO> getScheduleInfo(@RequestBody(required = false) String scheduleDate){
-        try {
-            //查询司机当月排班日期对应的出勤情况列表
-            DriverDutyWorkVO result = driverWorkInfoService.selectSchedule(scheduleDate);
-            return ApiResponse.success(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ApiResponse.error("加载司机当月排班日期对应的出勤情况列表失败");
-        }
-    }*/
-/*    *//**
-     * 班次设置
-     * @param
-     * @return
-     *//*
-    @ApiOperation(value = "updateDriverWork",notes = "驾驶员班次设置",httpMethod ="POST")
-    @PostMapping("/updateDriverWork")
-    public ApiResponse updateDriverWork(@RequestBody DriverWorkDTO driverWorkDTO){
-        //获取登录用户
-        try {
-            HttpServletRequest request = ServletUtils.getRequest();
-            LoginUser loginUser = tokenService.getLoginUser(request);
-            Long userId = loginUser.getUser().getUserId();
-            List<String> listDutyDate= driverWorkDTO.getDutyDate();
-            List<String> listHoliday= driverWorkDTO.getHolidays();
-            *//**
-             * 将上班list和休假list日期批量修改
-             *//*
 
-            // iDriverInfoService.bindDriverCars(DriverWorkDTO,userId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ApiResponse.error(e.getMessage());
-        }
-        return ApiResponse.success("排班设置成功！");
-    }*/
 
     /**
      * 按月获取司机的排班详情
      * @return
      */
-    @com.hq.core.aspectj.lang.annotation.Log(title = "按月获取司机的排班详情",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
-    @Log("按月获取司机的排班详情")
+    @Log(title = "按月获取司机的排班详情",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
     @PostMapping("/getDriverMonthWorkDetail")
     public ApiResponse<List<DriverWorkInfoMonthVo>> getDriverMonthWorkDetail(@RequestParam("driverId")Long driverId,
                                                                        @RequestParam("month") String month){
@@ -256,8 +220,7 @@ public class DriverNewsController {
      * @param driverWorkInfoDetailVo
      * @return
      */
-    @com.hq.core.aspectj.lang.annotation.Log(title = "按月变更司机的排班",businessType = BusinessType.UPDATE,operatorType = OperatorType.MANAGE)
-    @Log("按月变更司机的排班")
+    @Log(title = "按月变更司机的排班",businessType = BusinessType.UPDATE,operatorType = OperatorType.MANAGE)
     @PostMapping("/updateDriverWorkDetailMonth")
     public ApiResponse updateDriverWorkDetailMonth(@RequestBody DriverWorkInfoDetailVo driverWorkInfoDetailVo){
         try {
@@ -276,7 +239,7 @@ public class DriverNewsController {
      * 按月获取排班详情_全部司机
      * @return
      */
-    @Log("按月获取排班详情_全部司机")
+    @Log(title = "驾驶员管理模块:按月获取全部司机排班详情", businessType = BusinessType.OTHER)
     @PostMapping("/getMonthWorkDetail")
     public ApiResponse<List<WorkInfoMonthVo>> getMonthWorkDetail(@RequestParam("month") String month){
         List<WorkInfoMonthVo> workInfoMonthList = null;
@@ -298,7 +261,7 @@ public class DriverNewsController {
      * @param workInfoDetailVo
      * @return
      */
-    @Log("按月变更排班_全部司机")
+    @Log(title = "驾驶员管理模块:按月变更全部司机排班", businessType = BusinessType.UPDATE)
     @PostMapping("/updateWorkDetailMonth")
     public ApiResponse updateWorkDetailMonth(@RequestBody WorkInfoDetailVo workInfoDetailVo){
         try {
