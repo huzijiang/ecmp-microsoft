@@ -519,6 +519,12 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		}
 		return false;
 	}
+
+	@Override
+	public void checkCreateReturnAuthority(Long orderId) {
+		
+		
+	}
 	
 	
 	

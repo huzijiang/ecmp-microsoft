@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
+import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
 
 import java.util.List;
 
@@ -59,4 +60,6 @@ public interface IEcmpUserFeedbackInfoService
      * @return 结果
      */
     public int deleteEcmpUserFeedbackInfoById(Long feedbackId);
+
+    Long saveOrderEvaluation(OrderEvaluationDto evaluationDto, Long userId) throws Exception;
 }

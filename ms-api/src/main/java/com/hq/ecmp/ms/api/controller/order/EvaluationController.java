@@ -6,11 +6,11 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
-import com.hq.ecmp.ms.api.dto.order.OrderEvaluationDto;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackImage;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
 import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -68,35 +68,8 @@ public class EvaluationController {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            EcmpUserFeedbackInfo ecmpUserFeedbackInfo = new EcmpUserFeedbackInfo();
-            BeanUtils.copyProperties(evaluationDto,ecmpUserFeedbackInfo);
-            ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
-            int count = feedbackInfoService.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
-            if (count>0){
-                if (StringUtils.isNotBlank(evaluationDto.getImgUrls())){
-                    EcmpUserFeedbackImage feedbackImage = new EcmpUserFeedbackImage();
-                    feedbackImage.setFeedbackId(ecmpUserFeedbackInfo.getFeedbackId());
-                    feedbackImage.setUserId(loginUser.getUser().getUserId());
-                    String[] split = evaluationDto.getImgUrls().split(",");
-                    for (String url:split) {
-                        feedbackImage.setImageUrl(url);
-                        feedbackImageService.insertEcmpUserFeedbackImage(feedbackImage);
-                    }
-                }
-            }
-            OrderStateTraceInfo stateTraceInfo=new OrderStateTraceInfo();
-            stateTraceInfo.setOrderId(evaluationDto.getOrderId());
-            stateTraceInfo.setContent(evaluationDto.getContent());
-            stateTraceInfo.setCreateBy(String.valueOf(loginUser.getUser().getUserId()));
-            stateTraceInfo.setCreateTime(new Date());
-            stateTraceInfo.setState(OrderStateTrace.OBJECTION.getState());
-            orderStateTraceInfoService.insertOrderStateTraceInfo(stateTraceInfo);
-            OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setOrderId(evaluationDto.getOrderId());
-            orderInfo.setState(OrderState.ORDERCLOSE.getState());
-            orderInfo.setUpdateTime(new Date());
-            orderInfoService.updateOrderInfo(orderInfo);
-            return ApiResponse.success(ecmpUserFeedbackInfo.getFeedbackId());
+            Long feedId=feedbackInfoService.saveOrderEvaluation(evaluationDto,loginUser.getUser().getUserId());
+            return ApiResponse.success(feedId);
         }catch (Exception e){
             e.printStackTrace();
             return  ApiResponse.error("保存行程异议异常!");
