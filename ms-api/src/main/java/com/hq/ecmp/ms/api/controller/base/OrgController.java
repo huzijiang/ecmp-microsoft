@@ -1,5 +1,7 @@
 package com.hq.ecmp.ms.api.controller.base;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.StringUtils;
@@ -10,6 +12,7 @@ import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
+import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
@@ -222,7 +225,8 @@ public class OrgController {
             int i = orgService.updateEcmpOrg(ecmpOrg,loginUser.getUser().getUserId());
             return ApiResponse.success("修改分/子公司成功");
         } catch (Exception e) {
-            return ApiResponse.error("修改分/子公司失败");
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
         }
     }
     /**
@@ -272,17 +276,18 @@ public class OrgController {
 
     /**
      * 按照分子公司名称或编号模糊查询匹配的列表
-     * @param  ecmpOrgVo
+     * @param  pageRequest
      * @return*/
     @ApiOperation(value = "按照分子公司名称或编号模糊",notes = "按照分子公司名称或编号模糊",httpMethod ="POST")
     @PostMapping("/selectCompanyByDeptNameOrCode")
-    public ApiResponse<List<EcmpOrgDto>> selectCompanyByDeptNameOrCode(@RequestBody EcmpOrgVo ecmpOrgVo){
-        String deptNameOrCode=ecmpOrgVo.getDeptNameOrCode();
+    public ApiResponse<PageResult<EcmpOrgDto>> selectCompanyByDeptNameOrCode(@RequestBody PageRequest pageRequest){
+        String deptNameOrCode=pageRequest.getSearch();
         if("".equals(deptNameOrCode.trim())){
             return ApiResponse.error("请输入有效的公司名称或编号！");
         }
-        List<EcmpOrgDto> companyList = orgService.selectCompanyByDeptNameOrCode(deptNameOrCode);
-        if(companyList.size()>0){
+
+        PageResult<EcmpOrgDto> companyList = orgService.selectCompanyByDeptNameOrCode(pageRequest,deptNameOrCode);
+        if(companyList.getItems().size()>0){
             return ApiResponse.success(companyList);
         }else{
             return ApiResponse.error("无匹配数据！");

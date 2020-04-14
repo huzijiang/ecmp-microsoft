@@ -41,6 +41,7 @@ import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
+import com.hq.ecmp.mscore.vo.OfficialOrderReVo;
 import com.hq.ecmp.util.DateFormatUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +74,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Autowired
     private IEcmpConfigService ecmpConfigService;
+    @Autowired
+    private IOrderInfoService iOrderInfoService;
     
 
     /**
@@ -326,10 +329,22 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		if(ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
 			//判断是否是往返
 			if("Y000".equals(journeyInfo.getItIsReturn())){
-				//有往返   则最后一个节点必然是返程权限
-				JourneyNodeInfo backJourneyNodeInfo = journeyNodeInfoList.get(journeyNodeInfoList.size()-1);
-				journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.BACK_TRACKING,backJourneyNodeInfo.getNodeId());
-				journeyUserCarPowerList.add(journeyUserCarPower);
+				//判断是否走调度  如果不走调度 则直接生成返回的用车权限 走调度则在调度选择了网约车时才生成返回的用车权限
+				boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(journeyInfo.getRegimenId(), journeyNodeInfoList.get(0).getPlanBeginCityCode());
+				if(judgeNotDispatch){
+					String waitTimeStr = journeyInfo.getWaitTimeLong();
+					if(StringUtil.isNotEmpty(waitTimeStr)){
+						Long waitTimeLong=Long.valueOf(waitTimeStr);
+						String minStr= (waitTimeLong/(1000*60))+"";
+						if(ecmpConfigService.checkUpWaitMaxMinute(Long.valueOf(minStr))){
+							//预估等待时长大于企业设置中的等待时长   生成返回的用车权限
+							//有往返   则最后一个节点必然是返程权限
+							JourneyNodeInfo backJourneyNodeInfo = journeyNodeInfoList.get(journeyNodeInfoList.size()-1);
+							journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.BACK_TRACKING,backJourneyNodeInfo.getNodeId());
+							journeyUserCarPowerList.add(journeyUserCarPower);
+						}
+					}	
+				}
 				//查找去程的用车权限对应的行程节点  
 				for (int i = 0; i < journeyNodeInfoList.size(); i++) {
 					//按照行程节点顺序 中   第一个出现的不是途径点的行程节点即为去程权限
@@ -498,6 +513,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		return 	journeyUserCarPowerMapper.updateJourneyUserCarPower(journeyUserCarPower)>0;
 	}
 
+	
 	@Override
 	public boolean checkPowerOverTime(Long powerId) {
 		//是否过期   当前时间是否超过了用车时间/用车时间段    公务的取开始时间   差旅的取用车时间段的结束时间
@@ -524,47 +540,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		return false;
 	}
 
-	@Override
-	public void checkCreateReturnAuthority(Long orderId,Long optUserId) {
-		DispatchOrderInfo waitDispatchOrderDetailInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
-		//判断是公务还是差旅
-		Long regimenId = waitDispatchOrderDetailInfo.getRegimenId();
-		if(null ==regimenId){
-			return;
-		}
-		RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(regimenId);
-		if(null==regimeInfo){
-			return;
-		}
-		String regimenType = regimeInfo.getRegimenType();
-		if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimenType)){
-			return;
-		}
-		String itIsReturn = waitDispatchOrderDetailInfo.getItIsReturn();
-		if("N444".equals(itIsReturn)){
-			//没有往返
-			return;
-		}
-		String waitTimeStr = waitDispatchOrderDetailInfo.getWaitTimeLong();
-		if(StringUtil.isEmpty(waitTimeStr)){
-			//往返没有设置预估等待时长
-			log.info("订单【"+orderId+"对应的行程往返时没有设置预估等待时长】");
-			return;
-		}
-		Long waitTimeLong=Long.valueOf(waitTimeStr);
-		String minStr= (waitTimeLong/(1000*60))+"";
-		if(!ecmpConfigService.checkUpWaitMaxMinute(Long.valueOf(minStr))){
-			//企业设置中没开启等待时长或者大于预估等待时长
-			return;
-		}
-		//生成一条新返回的的公务用车权限 
-		List<JourneyUserCarPower> arrayList = new ArrayList<>();
-		JourneyUserCarPower journeyUserCarPower=new JourneyUserCarPower(waitDispatchOrderDetailInfo.getApplyId(), waitDispatchOrderDetailInfo.getJourneyId(), new Date(), optUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.BACK_TRACKING,waitDispatchOrderDetailInfo.getNodeId());
-		arrayList.add(journeyUserCarPower);
-		journeyUserCarPowerMapper.batchInsert(arrayList);
-		
-		
-	}
+	
 	
 	
 	
