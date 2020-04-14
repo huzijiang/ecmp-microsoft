@@ -337,6 +337,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectCompanyList" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
         select
         dept_type as deptType,
+        parent_id parentId,
         dept_id as deptId,
         dept_name as deptName,
         if(isnull(dept_code),'',dept_code) as deptCode,
@@ -364,6 +365,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select
         dept_type as deptType,
         dept_id as deptId,
+        parent_id parentId,
         dept_name as deptName,
         if(isnull(dept_code),'',dept_code) as deptCode,
          (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName,leader,
