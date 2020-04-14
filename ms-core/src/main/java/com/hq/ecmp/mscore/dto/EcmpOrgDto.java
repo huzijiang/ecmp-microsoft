@@ -39,6 +39,8 @@ public class EcmpOrgDto {
 
     @ApiModelProperty(value = "负责人")
     private String leader;
+    @ApiModelProperty(value = "负责人姓名")
+    private String leaderName;
 
     @ApiModelProperty(value = "联系电话")
     private String phone;

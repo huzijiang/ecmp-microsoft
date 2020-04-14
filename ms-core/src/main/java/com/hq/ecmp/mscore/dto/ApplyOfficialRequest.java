@@ -30,13 +30,12 @@ public class ApplyOfficialRequest {
      * 申请类型 eg 公务、差旅
      */
     @ApiModelProperty(name = "applyType", value = "申请类型", required = true, position = 1, example = "公务")
-    private String applyType;     // TODO Integer 改 String
-
+    private String applyType;
     /**
      * 服务类型 eg 预约、接机、送机、包车
      */
     @ApiModelProperty(name = "serviceType", value = "服务类型", required = true, position = 2, example = "预约")
-    private String serviceType;   // TODO Integer 改 String
+    private String serviceType;
     /**
      * 用车类型 eg 自有/网约车
      */

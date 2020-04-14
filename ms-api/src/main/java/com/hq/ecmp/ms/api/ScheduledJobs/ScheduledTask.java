@@ -182,7 +182,7 @@ public class ScheduledTask {
     
 
     //后台公告管理通过发布时间与结束时间做状态修改
-    //@Scheduled(cron = "0 0 1 * * ? ")
+    @Scheduled(cron = "0 0 0 * * ? ")
     public void  announcementManagementTimingTask (){
         log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
         //System.out.println("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改Start:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));

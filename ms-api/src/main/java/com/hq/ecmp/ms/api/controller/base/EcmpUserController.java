@@ -244,7 +244,6 @@ public class EcmpUserController {
     }
 
 
-
     /**
      * 查询所有有效员工
      * @param  //ecmpUser
