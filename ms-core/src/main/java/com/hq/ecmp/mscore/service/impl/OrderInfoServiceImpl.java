@@ -44,6 +44,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.hq.ecmp.constant.CommonConstant.ONE;
+
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -529,7 +531,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             String star="";
             if (!CollectionUtils.isEmpty(driverServiceAppraiseeInfos1)){
                 Double sumAge = driverServiceAppraiseeInfos1.stream().collect(Collectors.averagingDouble(DriverServiceAppraiseeInfo::getScore));
-                star=BigDecimal.valueOf(sumAge).stripTrailingZeros().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
+                star=BigDecimal.valueOf(sumAge).stripTrailingZeros().setScale(ONE, BigDecimal.ROUND_HALF_UP).toPlainString();
             }
             vo.setDriverScore(star);
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.ORDERCLOSE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){

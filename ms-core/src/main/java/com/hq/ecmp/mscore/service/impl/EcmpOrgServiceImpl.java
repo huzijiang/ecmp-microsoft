@@ -344,6 +344,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                 for (Long deptId1:deptIdList) {
                     EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectDeptList(deptId1,OrgConstant.DEPT_TYPE_2);
                     ecmpOrgDto.setSupComName(supComName);
+                    List<UserVO> leaders=ecmpOrgMapper.selectUserByLeader(ecmpOrgDto.getLeader());
+                    ecmpOrgDto.setLeaderUsers(leaders);
                     companyList.add(ecmpOrgDto);
                 }
             }

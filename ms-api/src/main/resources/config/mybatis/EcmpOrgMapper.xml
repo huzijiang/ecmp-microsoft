@@ -500,4 +500,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where parent_id = #{parentId} and  dept_type = '1'
     </select>
 
+    <select id="selectUserByLeader" resultType="com.hq.ecmp.mscore.vo.UserVO">
+        select user_id userId,nick_name userName,phonenumber userPhone from ecmp_user
+        where find_in_set(user_id,#{leader})
+    </select>
 </mapper>
