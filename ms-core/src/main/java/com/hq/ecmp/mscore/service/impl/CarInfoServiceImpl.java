@@ -238,9 +238,9 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setUpdateBy(String.valueOf(userId));
         carInfo.setUpdateTime(new Date());
         carInfo.setCarId(carId);
-        int row = carInfoMapper.updateCarInfo(carInfo);
+        int row = carInfoMapper.updateStartCar(carInfo);
         if(row != 1){
-            throw new Exception("启用失败");
+            throw new Exception("启用车辆失败，借调到期，租赁到期，或行驶证到期，或已删除");
         }
         return row;
     }

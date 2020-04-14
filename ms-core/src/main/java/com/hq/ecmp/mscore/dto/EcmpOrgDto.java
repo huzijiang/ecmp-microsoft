@@ -1,15 +1,16 @@
 package com.hq.ecmp.mscore.dto;
 
-        import com.fasterxml.jackson.annotation.JsonFormat;
-        import com.hq.core.aspectj.lang.annotation.Excel;
-        import com.hq.ecmp.mscore.domain.EcmpOrg;
-        import com.hq.ecmp.mscore.vo.EcmpOrgVo;
-        import io.swagger.annotations.ApiModel;
-        import io.swagger.annotations.ApiModelProperty;
-        import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.hq.core.aspectj.lang.annotation.Excel;
+import com.hq.ecmp.mscore.domain.EcmpOrg;
+import com.hq.ecmp.mscore.vo.EcmpOrgVo;
+import com.hq.ecmp.mscore.vo.UserVO;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-        import java.util.Date;
-        import java.util.List;
+import java.util.Date;
+import java.util.List;
 
 @Data
 @ApiModel("部门管理dto(返回前端)")
@@ -39,6 +40,10 @@ public class EcmpOrgDto {
 
     @ApiModelProperty(value = "负责人")
     private String leader;
+    @ApiModelProperty(value = "负责人姓名")
+    private String leaderName;
+    @ApiModelProperty(value = "部门主管")
+    private List<UserVO> leaderUsers;
 
     @ApiModelProperty(value = "联系电话")
     private String phone;

@@ -44,6 +44,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.hq.ecmp.constant.CommonConstant.ONE;
+
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -524,8 +526,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 BeanUtils.copyProperties(carInfo,vo);
                 vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
             }
-            DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
-            vo.setDriverScore(driverInfo.getStar()+"");
+//            DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
+            List<DriverServiceAppraiseeInfo> driverServiceAppraiseeInfos1 = driverServiceAppraiseeInfoMapper.queryAll(new DriverServiceAppraiseeInfo(orderInfo.getDriverId()));
+            String star="";
+            if (!CollectionUtils.isEmpty(driverServiceAppraiseeInfos1)){
+                Double sumAge = driverServiceAppraiseeInfos1.stream().collect(Collectors.averagingDouble(DriverServiceAppraiseeInfo::getScore));
+                star=BigDecimal.valueOf(sumAge).stripTrailingZeros().setScale(ONE, BigDecimal.ROUND_HALF_UP).toPlainString();
+            }
+            vo.setDriverScore(star);
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.ORDERCLOSE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
                 //服务结束后获取里程用车时长
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
@@ -894,6 +902,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			orderInfo.setCarLicense(carInfo.getCarLicense());
 			orderInfo.setCarModel(carInfo.getCarType());
 			orderInfo.setCarColor(carInfo.getCarColor());
+			//查询车辆的车型名称
+			String carTypeName = enterpriseCarTypeInfoMapper.queryCarTypeNameByCarId(carId);
+			orderInfo.setDemandCarLevel(carTypeName);
 		}
 		orderInfo.setCarId(carId);
 		orderInfo.setUpdateBy(String.valueOf(userId));
@@ -1051,7 +1062,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
                 //终点
-                if(j==journeyNodeInfoList.size()-1){
+                if(j==journeyNodeInfoList.size()-1 && !ServiceTypeConstant.CHARTERED.equals(serviceType)){
                     orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanArriveTime());
                     orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));

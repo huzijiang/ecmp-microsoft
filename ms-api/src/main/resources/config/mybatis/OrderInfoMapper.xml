@@ -346,6 +346,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		 SELECT
             a.order_id AS orderId,
             a.state,
+            a.demand_car_level as demandCarLevel,
             d.apply_type AS applyType,
             b.type AS serverType,
             c.plan_begin_address AS useCarCity,
@@ -414,7 +415,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             a.actual_arrive_time AS endDate, -->
             h.use_car_mode AS useCarMode,
             h.regimen_id as regimenId,
-            h.it_is_return as itIsReturn
+            h.it_is_return as itIsReturn,
+            h.wait_time_long as waitTimeLong
         FROM
             order_info a
         LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
@@ -664,7 +666,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>
 		<if test="null !=applyName and applyName !=''">
-			and AND b.nick_name LIKE concat('%',#{applyName},'%')
+		 AND b.nick_name LIKE concat('%',#{applyName},'%')
 		</if>
 		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}
@@ -700,7 +702,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>
 		<if test="null !=applyName and applyName !=''">
-			and AND b.nick_name LIKE concat('%',#{applyName},'%')
+			 AND b.nick_name LIKE concat('%',#{applyName},'%')
 		</if>
 		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}
@@ -744,7 +746,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			and b.mobile LIKE concat('%',#{driverMobile},'%')
 		</if>
 		<if test="null !=driverName and driverName !=''">
-			and AND b.driver_name LIKE concat('%',#{driverName},'%')
+			 AND b.driver_name LIKE concat('%',#{driverName},'%')
 		</if>
 		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}
@@ -781,7 +783,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			and b.mobile LIKE concat('%',#{driverMobile},'%')
 		</if>
 		<if test="null !=driverName and driverName !=''">
-			and AND b.driver_name LIKE concat('%',#{driverName},'%')
+			 AND b.driver_name LIKE concat('%',#{driverName},'%')
 		</if>
 		<if test="null !=cityCode and cityCode !=''">
 			AND c.city_postal_code = #{cityCode}

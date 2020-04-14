@@ -75,4 +75,11 @@ public interface EnterpriseCarTypeInfoMapper
      * @return
      */
     String getCarTypeDTOById();
+    
+    /**
+     * 查询车辆的车型名称
+     * @param carId
+     * @return
+     */
+    String queryCarTypeNameByCarId(Long carId);
 }

@@ -100,10 +100,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
      */-->
     <select id="selectByDeptId"   resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
         select
-        dept_name as deptName,
+        dept_name as deptName,dept_id deptId,
         (SELECT dept_name from  ecmp_org where dept_id =
         (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
-        (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leader,`phone`
+        (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName,leader,`phone`
         from
         ecmp_org
         where
@@ -306,11 +306,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!--查询分/子公司详情-->
     <select id="getSubDetail" parameterType="Long" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
-        SELECT dept_name as deptName,
+        SELECT dept_name as deptName,dept_id deptId,
        if(isnull(dept_code),'',dept_code) as deptCode,
       (SELECT dept_name from  ecmp_org where dept_id =
       (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
-      (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leader ,  `phone`,  `email`,
+      (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName , leader, `phone`,  `email`,
       (SELECT count(*) from  ecmp_user where dept_id=#{deptId} and del_flag=0) as numOfSub
       from  ecmp_org where dept_id=#{deptId}
     </select>
@@ -337,6 +337,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectCompanyList" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
         select
         dept_type as deptType,
+        parent_id parentId,
         dept_id as deptId,
         dept_name as deptName,
         if(isnull(dept_code),'',dept_code) as deptCode,
@@ -364,9 +365,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select
         dept_type as deptType,
         dept_id as deptId,
+        parent_id parentId,
         dept_name as deptName,
         if(isnull(dept_code),'',dept_code) as deptCode,
-         (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leader,
+         (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName,leader,
         (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
         (select count(1) from ecmp_org where parent_id=#{deptId} and dept_type='2') as numOfSonDept,status
         from ecmp_org where
@@ -498,4 +500,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where parent_id = #{parentId} and  dept_type = '1'
     </select>
 
+    <select id="selectUserByLeader" resultType="com.hq.ecmp.mscore.vo.UserVO">
+        select user_id userId,nick_name userName,phonenumber userPhone from ecmp_user
+        where find_in_set(user_id,#{leader})
+    </select>
 </mapper>

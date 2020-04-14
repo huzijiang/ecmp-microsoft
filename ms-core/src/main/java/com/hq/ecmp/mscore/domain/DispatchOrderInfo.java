@@ -62,11 +62,15 @@ public class DispatchOrderInfo {
        	String driverName;//驾驶员名字
     	
     	String driverTel;//驾驶员电话号码
+    	
+    	String demandCarLevel;//调度完成后的用车车型
        	
        	
        	DispatchDriverInfo DispatchDriverInfo;//申请改派的驾驶员信息  及改派状态
        	
        	List<SendCarInfo> sendCarInfoList;//派车信息
+       	
+       	String waitTimeLong;//等待时长  毫秒
        	
        	
 }
