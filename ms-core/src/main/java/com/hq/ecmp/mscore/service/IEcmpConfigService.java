@@ -141,6 +141,13 @@ public interface IEcmpConfigService
     
     
     public boolean checkAutoDispatch();
+    
+    /**
+     * 判断设置的等待时长是否超过预计等待时长
+     * @param waitMin   等待时长 分钟
+     * @return
+     */
+    public boolean checkUpWaitMaxMinute(Long waitMin);
 
     /**
      * 获取启动页开屏图（无token）

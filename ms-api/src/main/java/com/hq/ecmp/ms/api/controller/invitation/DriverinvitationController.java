@@ -3,6 +3,8 @@ package com.hq.ecmp.ms.api.controller.invitation;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.InvitionStateEnum;
@@ -48,6 +50,7 @@ public class DriverinvitationController {
      * @param driverInvitationDTO
      * @return
      */
+    @Log(title = "邀请驾驶员模块:生成邀请链接", businessType = BusinessType.OTHER)
     @ApiOperation(value = "interInvitationDriverCommit",notes = "生成邀请",httpMethod = "POST")
     @PostMapping("/interInvitationDriverCommit")
     public ApiResponse interInvitationDriverCommit(@RequestBody DriverInvitationDTO driverInvitationDTO){
@@ -77,7 +80,8 @@ public class DriverinvitationController {
      * @param driverRegisterDTO
      * @return
      */
-    @ApiOperation(value = "interInvitationDriverZCCommit",notes = "生成邀请",httpMethod = "POST")
+      @Log(title = "邀请驾驶员模块:邀请注册", businessType = BusinessType.INSERT)
+    @ApiOperation(value = "interInvitationDriverZCCommit",notes = "邀请注册",httpMethod = "POST")
     @PostMapping("/interInvitationDriverZCCommit")
     public ApiResponse interInvitationDriverZCCommit(DriverRegisterDTO driverRegisterDTO){
         try {
@@ -106,6 +110,7 @@ public class DriverinvitationController {
      * 邀请停用
      * @param
      */
+    @Log(title = "邀请驾驶员模块:邀请停用", businessType = BusinessType.UPDATE)
     @ApiOperation(value = "updateInDriverStop",notes = "邀请停用",httpMethod = "POST")
     @PostMapping("/updateInDriverStop")
      public ApiResponse updateInDriverStop(@RequestBody InvitationDto invitationDto){
@@ -124,6 +129,7 @@ public class DriverinvitationController {
      * 邀请启用
      * @param
      */
+    @Log(title = "邀请驾驶员模块:邀请启用", businessType = BusinessType.UPDATE)
     @ApiOperation(value = "updateInDriverStart",notes = "邀请启用",httpMethod = "POST")
     @PostMapping("/updateInDriverStart")
     public ApiResponse updateInDriverStart(@RequestBody InvitationDto invitationDto){
@@ -140,6 +146,7 @@ public class DriverinvitationController {
      * 待审批数量
      * @param
      */
+    @Log(title = "邀请驾驶员模块:驾驶员待审批数量", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getregDriverWaitCount",notes = "驾驶员待审批数量",httpMethod = "POST")
     @PostMapping("/getregDriverWaitCount")
     public ApiResponse<RegisterVO>  getregDriverWaitCount(@RequestBody InviteDto inviteDto){
@@ -155,6 +162,7 @@ public class DriverinvitationController {
      * 待审批列表-驾驶员
      * @param
      */
+    @Log(title = "邀请驾驶员模块:驾驶员待审批列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getRegisterDriverList",notes = "驾驶员待审批列表",httpMethod = "POST")
     @PostMapping("/getRegisterDriverList")
     public ApiResponse <PageResult<RegisterDriverVO>>getRegisterDriverList(@RequestBody  PageRequest pageRequest){
@@ -167,6 +175,7 @@ public class DriverinvitationController {
      * 驾驶员注册详情
      * @param
      */
+    @Log(title = "邀请驾驶员模块:驾驶员注册详情", businessType = BusinessType.OTHER)
     @ApiOperation(value = "driverRegDetail", notes = "驾驶员注册详情", httpMethod = "POST")
     @PostMapping("/driverRegDetail")
     public ApiResponse<RegisterDriverDetailVO> driverRegDetail(@RequestBody Long registerId) {
@@ -177,6 +186,7 @@ public class DriverinvitationController {
     /**
      * 获取邀请列表-驾驶员
      */
+    @Log(title = "邀请驾驶员模块:驾驶员邀请列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getInvitationDriverList",notes = "驾驶员邀请列表",httpMethod = "POST")
     @PostMapping("/getInvitationDriverList")
     public ApiResponse<List<InvitationDriverVO>> getInvitationDriverList(@RequestBody InvitationInfoDTO invitationInfoDTO){
@@ -192,6 +202,7 @@ public class DriverinvitationController {
     /**
     * 获取邀请详情-驾驶员
     */
+    @Log(title = "邀请驾驶员模块:获取驾驶员邀请详情", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getInvitationDriverDetail",notes = "获取驾驶员邀请详情",httpMethod = "POST")
     @PostMapping("/getInvitationDriverDetail")
     public ApiResponse<InvitationDriverVO> getInvitationDriverDetail(InvitationDto invitationDto){
@@ -204,6 +215,7 @@ public class DriverinvitationController {
     /**
      * 获取邀请URL-驾驶员
      */
+    @Log(title = "邀请驾驶员模块:获取邀请URL", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getInvitationDriverUrl",notes = "获取邀请URL",httpMethod = "POST")
     @PostMapping("/getInvitationDriverUrl")
     public ApiResponse<InvitationUrlVO> getInvitationDriverUrl(@RequestBody InvitationDto invitationDto){
@@ -215,6 +227,7 @@ public class DriverinvitationController {
     /**
      * 删除邀请
      */
+    @Log(title = "邀请驾驶员模块:删除邀请", businessType = BusinessType.DELETE)
     @ApiOperation(value = "getInvitationDriverDel",notes = "删除邀请",httpMethod = "POST")
     @PostMapping("/getInvitationDriverDel")
     public ApiResponse  getInvitationDriverDel(@RequestBody InvitationDto invitationDto){
@@ -232,7 +245,8 @@ public class DriverinvitationController {
      * 邀请注册通过
      * @param
      */
-    @ApiOperation(value = "邀请注册通过",notes = "邀请注册通过",httpMethod = "POST")
+    @Log(title = "邀请驾驶员模块:邀请注册通过", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "updateRegisterDriverPast",notes = "邀请注册通过",httpMethod = "POST")
     @PostMapping("/updateRegisterDriverPast")
     public ApiResponse updateRegisterDriverPast(@RequestParam("registerId") Long registerId){
         try {
@@ -250,7 +264,8 @@ public class DriverinvitationController {
      * 邀请注册拒绝
      * @param
      */
-    @ApiOperation(value = "申请拒绝",notes = "申请拒绝",httpMethod = "POST")
+    @Log(title = "邀请驾驶员模块:申请拒绝", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "updateRegisterDriverRefuse",notes = "申请拒绝",httpMethod = "POST")
     @PostMapping("/updateRegisterDriverRefuse")
     public ApiResponse updateRegisterDriverRefuse(@RequestParam("reason") String reason,@RequestParam("registerId") Long registerId){
         try {

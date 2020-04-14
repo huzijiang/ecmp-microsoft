@@ -373,4 +373,24 @@ public class CarGroupController {
         }
     }
 
+    /**
+     * 车队名字校验 同一公司下，车队名不能重复
+     * @param
+     * @return
+     */
+    @Log(title = "车队管理:车队名字校验", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "judgeCarGroupName",notes = "车队名字校验",httpMethod ="POST")
+    @PostMapping("/judgeCarGroupName")
+    public ApiResponse<Boolean> judgeCarGroupName(
+            @RequestBody CarGroupDTO carGroupDTO){
+        try {
+            //如果已经存在 返回true 不存在则返回false
+            Boolean exist = carGroupInfoService.judgeCarGroupName(carGroupDTO.getCarGroupName(),carGroupDTO.getOwneCompany());
+            return ApiResponse.success(exist);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("车队名校验失败");
+        }
+    }
+
 }
