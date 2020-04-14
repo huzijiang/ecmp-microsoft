@@ -226,7 +226,7 @@ public class CarInfoServiceImpl implements ICarInfoService
     }
 
     /**
-     * 启用车辆  TODO 缺少车辆有效日期字段
+     * 启用车辆
      * @param carId
      * @param userId
      * @return
@@ -238,9 +238,9 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setUpdateBy(String.valueOf(userId));
         carInfo.setUpdateTime(new Date());
         carInfo.setCarId(carId);
-        int row = carInfoMapper.updateCarInfo(carInfo);
+        int row = carInfoMapper.updateStartCar(carInfo);
         if(row != 1){
-            throw new Exception("启用失败");
+            throw new Exception("启用车辆失败，借调到期，租赁到期，或行驶证到期，或已删除");
         }
         return row;
     }
@@ -379,8 +379,8 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .carImgaeUrl(carInfo.getCarImgaeUrl())
                 .carDrivingLicenseImagesUrl(carInfo.getCarDrivingLicenseImagesUrl())
                 .carId(carId)
-                .drivingLicenseStartDate(simpleDateFormat.format(carInfo.getDrivingLicenseStartDate()))
-                .drivingLicenseEndDate(simpleDateFormat.format(carInfo.getDrivingLicenseEndDate()))
+                .drivingLicenseStartDate(carInfo.getDrivingLicenseStartDate()==null?"":simpleDateFormat.format(carInfo.getDrivingLicenseStartDate()))
+                .drivingLicenseEndDate(carInfo.getDrivingLicenseStartDate()==null?"":simpleDateFormat.format(carInfo.getDrivingLicenseEndDate()))
                 .build();
         return carDetailVO;
     }
@@ -519,10 +519,10 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .drivingLicenseEndDate(carInfo.getDrivingLicenseEndDate())
                 .drivingLicenseStartDate(carInfo.getDrivingLicenseStartDate())
                 .enterpriseCarTypeId(carInfo.getCarTypeId())
-                .carTypeName(carTypeName) //查的名字
+                .carTypeName(carTypeName)
                 .licensePrice(carInfo.getLicensePrice())
                 .ownerOrgId(carInfo.getDeptId())
-                .ownerCompanyName(deptName) //查的名字
+                .ownerCompanyName(deptName)
                 .powerType(carInfo.getPowerType())
                 //.powerTypeName(null) //查的名字 暂不使用
                 .price(carInfo.getPrice())

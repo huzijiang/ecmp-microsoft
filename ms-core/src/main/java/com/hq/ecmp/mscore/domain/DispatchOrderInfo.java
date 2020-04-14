@@ -70,5 +70,7 @@ public class DispatchOrderInfo {
        	
        	List<SendCarInfo> sendCarInfoList;//派车信息
        	
+       	String waitTimeLong;//等待时长  毫秒
+       	
        	
 }

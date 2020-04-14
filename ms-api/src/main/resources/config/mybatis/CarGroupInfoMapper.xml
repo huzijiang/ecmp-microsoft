@@ -145,6 +145,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              from car_group_info
              left join ecmp_org eo on eo.dept_id=owner_org
         <where>
+            state != 'S444'
             <if test="search != null and search != '' ">
                 (car_group_name like concat('%', #{search}, '%')
                 or car_group_code like concat('%', #{search}, '%'))
@@ -214,6 +215,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectCountByParentId" resultType="int">
         select count(1) from car_group_info where parent_car_group_id = #{parentId}
+    </select>
+    <select id="selectAllCarGroupNameByCompany" resultType="java.lang.String">
+        select distinct car_group_name from car_group_info where owner_company = #{owneCompany}
     </select>
 
 </mapper>

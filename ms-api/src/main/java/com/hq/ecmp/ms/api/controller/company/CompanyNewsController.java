@@ -1,6 +1,8 @@
 package com.hq.ecmp.ms.api.controller.company;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.service.ICarInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
@@ -38,6 +40,7 @@ public class CompanyNewsController {
     * 企业动态查询：人员数量、驾驶员数量、车辆数量
     * @return  map
     */
+   @Log(title = "企业动态模块:查询企业动态信息", businessType = BusinessType.OTHER)
    @ApiOperation(value = "getCompanyNewsController",notes = "查询企业动态信息",httpMethod = "POST")
    @PostMapping("/getCompanyNewsController")
    public ApiResponse<NewsVO> getCompanyNewsController() {
