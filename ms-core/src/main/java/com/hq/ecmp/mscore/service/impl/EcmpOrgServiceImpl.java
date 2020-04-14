@@ -642,11 +642,27 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     @Transactional
     @Override
     public String updateDelFlagById(String deptType,Long deptId) {
+
         //根据deptId查询组织下级是否有数据信息 ecmpOrgNum>0不可删除
         int ecmpOrgNum = ecmpOrgMapper.selectByAncestorsLikeDeptId(deptId);
 
         //查询该组织下的员工信息 如果ecmpUserNum>0不可删除
         int ecmpUserNum = ecmpUserMapper.selectEcmpUserByDeptId(deptId);
+
+        //排查当前分/子公司关联数据是否只有分/子公司主管
+        if(OrgConstant.DEPT_TYPE_1.equals(deptType)){
+            int count=ecmpOrgMapper.selectCountByParentId(deptId.intValue());
+            if(ecmpUserNum==1||count==1){
+                int delFlag = ecmpOrgMapper.updateDelFlagById(deptId,deptType);
+                List<Long> UserIds = ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
+                ecmpUserMapper.updateDelFlagById(UserIds.get(0));
+                if(delFlag==1){
+                    return "删除分/子公司数据成功！";
+                }else {
+                    return "删除分/子公司数据失败！";
+                }
+            }
+        }
 
         //查询该组织下的驾驶员信息 如果该公司没有员工，就没有驾驶员
         int driverNum =driverInfoMapper.selectDriverCountByDeptId(deptId);
