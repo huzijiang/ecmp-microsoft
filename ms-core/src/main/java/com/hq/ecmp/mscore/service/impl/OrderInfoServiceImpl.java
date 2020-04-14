@@ -1998,6 +1998,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	}
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void callBackOrderState(String jsonResult)throws Exception {
         Long orderNo;
         JSONObject thirdPartyOrderState = JSONObject.parseObject(jsonResult);
@@ -2077,7 +2078,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (!OrderState.ORDERCANCEL.getState().equals(status)){//订单取消
             orderInfoMapper.updateOrderInfo(newOrderInfo);
             OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderNo, lableState, longitude, latitude);
-            orderStateTraceInfo.setCreateBy(String.valueOf(orderInfo.getUserId()));
+            orderStateTraceInfo.setCreateBy(CommonConstant.START);
             orderStateTraceInfo.setCreateTime(new Date());
             orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
         }
