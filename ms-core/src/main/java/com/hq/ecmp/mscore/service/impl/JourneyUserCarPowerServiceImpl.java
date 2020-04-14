@@ -513,6 +513,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		return 	journeyUserCarPowerMapper.updateJourneyUserCarPower(journeyUserCarPower)>0;
 	}
 
+	
 	@Override
 	public boolean checkPowerOverTime(Long powerId) {
 		//是否过期   当前时间是否超过了用车时间/用车时间段    公务的取开始时间   差旅的取用车时间段的结束时间
