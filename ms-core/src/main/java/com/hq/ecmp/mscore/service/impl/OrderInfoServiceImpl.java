@@ -2001,7 +2001,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public void callBackOrderState(String jsonResult)throws Exception {
         Long orderNo;
         JSONObject thirdPartyOrderState = JSONObject.parseObject(jsonResult);
-        log.info("获取网约车"+thirdPartyOrderState.getString("partnerOrderNo")+"订单详情:"+thirdPartyOrderState);
+        log.info("回调返回参数:网约车"+thirdPartyOrderState.getString("partnerOrderNo")+"订单详情:"+thirdPartyOrderState);
         String partnerOrderNo=thirdPartyOrderState.getString("partnerOrderNo");//订单id
         if(StringUtils.isEmpty(thirdPartyOrderState.getString("partnerOrderNo"))){
             throw new Exception("订单id为空");
