@@ -1068,7 +1068,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         journeyUserCarCountOp(powerId,1);
         //如果是网约车，发起异步约车请求
         if(officialOrderReVo.getIsDispatch() == 2){
-            ((OrderInfoServiceImpl)AopContext.currentProxy()).insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
             ((OrderInfoServiceImpl)AopContext.currentProxy()).platCallTaxiParamValid(orderInfo.getOrderId(),String.valueOf(userId),officialOrderReVo.getCarLevel());
         }
         return orderInfo.getOrderId();
@@ -1384,7 +1383,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         //如果调网约车进行参数校验和成功则下单
         if(applyUseWithTravelDto.getIsDispatch() == 2){
-            ((OrderInfoServiceImpl)AopContext.currentProxy()).insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.SENDINGCARS.getState(), String.valueOf(userId),null);
             ((OrderInfoServiceImpl)AopContext.currentProxy()).platCallTaxiParamValid(orderInfo.getOrderId(),String.valueOf(userId),applyUseWithTravelDto.getGroupId());
         }
         return orderInfo.getOrderId();
