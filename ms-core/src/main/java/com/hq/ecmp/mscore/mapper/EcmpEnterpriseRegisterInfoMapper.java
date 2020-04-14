@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.dto.DriverRegisterDTO;
 import com.hq.ecmp.mscore.dto.DriverRegisterInsertDTO;
 import com.hq.ecmp.mscore.dto.RegisterDTO;
 import com.hq.ecmp.mscore.dto.UserRegisterDTO;
+import com.hq.ecmp.mscore.vo.RegisterDriverDetailVO;
 import com.hq.ecmp.mscore.vo.RegisterDriverVO;
 import com.hq.ecmp.mscore.vo.RegisterUserVO;
 import org.apache.ibatis.annotations.Param;
@@ -112,5 +113,5 @@ public interface EcmpEnterpriseRegisterInfoMapper {
      * @return
      */
     int insertDriverRegister(DriverRegisterInsertDTO  driverRegisterInsertDTO);
-    RegisterDriverVO queryDriverRegDetail(Long registerId);
+    RegisterDriverDetailVO queryDriverRegDetail(Long registerId);
 }

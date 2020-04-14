@@ -104,3 +104,12 @@ dispatch:
   notBackCarGroup: 60
   #回车队驻地缓冲时间: 90分钟
   backCarGroup: 90
+
+#/upload
+app:
+  zimg:
+    server: http://10.117.1.232:4869
+    access:
+      url: http://123.127.89.218:4869/
+  welcome: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
+  background: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de

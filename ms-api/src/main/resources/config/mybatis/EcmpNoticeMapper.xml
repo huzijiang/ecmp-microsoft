@@ -45,10 +45,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join ecmp_notice_mapping enm on nc.notice_id = enm.notice_id
         <where>
             now( ) between publish_time and end_time
-            and nc.notice_type = #{noticeType}
+            and nc.notice_type = #{noticeType} AND nc.status=1
             and (
             <foreach collection="busIdList" open="" close="" index="index" item="item" separator="or">
-                (enm.buc_id = #{item.bucId} and enm.config_type = #{item.configType})
+                (enm.buc_id in (#{item.bucId}) and enm.config_type = #{item.configType})
             </foreach>
             )
         </where>
@@ -167,5 +167,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                  en.notice_id = #{noticeId}
              </if>
          </where>
+    </select>
+
+    <select id="selectNoticeByStatus" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice"  resultType="com.hq.ecmp.mscore.domain.EcmpNotice">
+      -- 只修改待发布 发布中的数据
+          SELECT  notice_id noticeId,
+                STATUS STATUS,
+                publish_time publishTime,
+                end_time endTime
+                FROM
+                ecmp_notice  where STATUS in (0,1)
     </select>
 </mapper>

@@ -90,6 +90,9 @@ public interface IOrderInfoService {
      */
     public List<DispatchOrderInfo> queryWaitDispatchList(Long userId);
     
+    
+    public List<DispatchOrderInfo>  queryAllWaitDispatchList();
+    
     /**
      * 查询所有已完成调度的订单
      * @return

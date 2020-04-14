@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.vo.PageResult;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -99,4 +100,9 @@ public interface IEcmpNoticeService
      * @return
      */
     EcmpNotice getNoticeDetails(Integer noticeId);
+
+    /**
+     * 定时任务修改公告状态
+     */
+    void announcementTask() throws ParseException;
 }

@@ -25,7 +25,6 @@ import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.OrderUtils;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +43,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.hq.ecmp.constant.CommonConstant.ONE;
 
 
 /**
@@ -235,11 +236,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         int i = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         return  i;
     }
-
-
-	@Override
-	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
-		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
+    
+    
+    @Override
+	public List<DispatchOrderInfo> queryAllWaitDispatchList() {
+    	List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//查询所有处于待派单(未改派)的订单及关联的信息
 		OrderInfo query = new OrderInfo();
 		query.setState(OrderState.WAITINGLIST.getState());
@@ -275,6 +276,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				result.add(dispatchOrderInfo);
 			}
 		}
+		return result;
+	}
+    
+	@Override
+	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
+		List<DispatchOrderInfo> result = queryAllWaitDispatchList();
 		/*对用户进行订单可见校验
 		自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的调度员能看到该订单
 	      只有自有车时，且上车地点不在车队的用车城市范围内，则所有车车队的所有调度员都能看到该订单*/
@@ -391,11 +398,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public ApiResponse<DispatchOrderInfo> getWaitDispatchOrderDetailInfo(Long orderId,Long userId) {
         //查询是否存在调度员已经在进行操作
-        Object o = redisUtil.get("dispatch_" + orderId);
+        Object o = redisUtil.get(CommonConstant.DISPATCH_LOCK_PREFIX + orderId);
         if (o == null) {
             //如果没有就放进去一个过期时间  默认10分钟
             long nm = 60 * 10;
-            redisUtil.set("dispatch_"+orderId, userId.toString(), nm);
+            redisUtil.set(CommonConstant.DISPATCH_LOCK_PREFIX+orderId, userId.toString(), nm);
             ApiResponse<DispatchOrderInfo> dispatchOrderInfo=this.doWaitDispatchOrderDetailInfo(orderId);
             return dispatchOrderInfo;
         } else {
@@ -519,15 +526,21 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 BeanUtils.copyProperties(carInfo,vo);
                 vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
             }
-            DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
-            vo.setDriverScore(driverInfo.getStar()+"");
+//            DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
+            List<DriverServiceAppraiseeInfo> driverServiceAppraiseeInfos1 = driverServiceAppraiseeInfoMapper.queryAll(new DriverServiceAppraiseeInfo(orderInfo.getDriverId()));
+            String star="";
+            if (!CollectionUtils.isEmpty(driverServiceAppraiseeInfos1)){
+                Double sumAge = driverServiceAppraiseeInfos1.stream().collect(Collectors.averagingDouble(DriverServiceAppraiseeInfo::getScore));
+                star=BigDecimal.valueOf(sumAge).stripTrailingZeros().setScale(ONE, BigDecimal.ROUND_HALF_UP).toPlainString();
+            }
+            vo.setDriverScore(star);
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.ORDERCLOSE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
                 //服务结束后获取里程用车时长
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
                     vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
                     vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime().intValue()));
-                    vo.setAmount(orderSettlingInfos.get(0).getAmount().toPlainString());
+//                    vo.setAmount(orderSettlingInfos.get(0).getAmount().toPlainString());
                 }
             }
         }else{
@@ -889,6 +902,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			orderInfo.setCarLicense(carInfo.getCarLicense());
 			orderInfo.setCarModel(carInfo.getCarType());
 			orderInfo.setCarColor(carInfo.getCarColor());
+			//查询车辆的车型名称
+			String carTypeName = enterpriseCarTypeInfoMapper.queryCarTypeNameByCarId(carId);
+			orderInfo.setDemandCarLevel(carTypeName);
 		}
 		orderInfo.setCarId(carId);
 		orderInfo.setUpdateBy(String.valueOf(userId));
@@ -1046,7 +1062,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
                 //终点
-                if(j==journeyNodeInfoList.size()-1){
+                if(j==journeyNodeInfoList.size()-1 && !ServiceTypeConstant.CHARTERED.equals(serviceType)){
                     orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanArriveTime());
                     orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
@@ -1998,6 +2014,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (orderInfo==null){
             throw new Exception("订单:"+orderNo+"不存在");
         }
+        if(OrderState.ORDEROVERTIME.getState().equals(status)||OrderState.REASSIGNPASS.getState().equals(status)||OrderState.ALREADYSENDING.getState().equals(status)){
+            redisUtil.delKey(CommonConstant.DISPATCH_LOCK_PREFIX+orderNo);
+        }
         OrderInfo newOrderInfo = new OrderInfo(orderNo,status);
         DriverCloudDto driverCloudDto=null;
         if(StringUtils.isNotEmpty(json)){
@@ -2138,4 +2157,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
     }
+
+	
 }

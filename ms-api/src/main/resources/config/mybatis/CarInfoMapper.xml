@@ -339,6 +339,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectCarInfoListByGroupId" resultMap="CarInfoResult">
         <include refid="selectCarInfoVo"/>
         <where>
+        state != 'S444'
         <if test="carGroupId != null "> and car_group_id = #{carGroupId}</if>
         <if test="carTypeId != null and carTypeId!='' "> and car_type_id = #{carTypeId}</if>
         <if test="state != null and state!=''"> and state = #{state}</if>
@@ -371,5 +372,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectCarTypeList" resultType="java.lang.String">
         SELECT DISTINCT car_type FROM car_info
     </select>
+
+    <update id="updateStartCar" parameterType="com.hq.ecmp.mscore.domain.CarInfo">
+        update car_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where car_id = #{carId}
+        <![CDATA[ AND SYSDATE() <= IFNULL(rent_end_date,SYSDATE())
+                  AND SYSDATE() <= IFNULL(borrow_end_date,SYSDATE()
+                  AND SYSDATE() <= IFNULL(driving_license_end_date,SYSDATE())
+                  AND state != 'S444') ]]>
+    </update>
 
 </mapper>

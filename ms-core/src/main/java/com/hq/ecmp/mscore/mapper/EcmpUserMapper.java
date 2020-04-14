@@ -287,6 +287,20 @@ public interface EcmpUserMapper
      */
     public List<EcmpUserDto> selectUserIdsByNickNameOrJobNumber(@Param("nickName")String nickName,@Param("phonenumber")String phonenumber,@Param("jobNumber")String jobNumber);
 
+    /**
+     * 按照员工userId查询员工姓名集合
+     * @param  userIds
+     * @return 结果
+     */
+    public List<String> selectNickNamesByUserIds(Long[] userIds);
+
+    /**
+     * 按照员工userId查询员工姓名集合
+     * @param  userId
+     * @return 结果
+     */
+    public String selectNickNamesByUserId(@Param("userId")Long userId);
+
 
     /**
      * 按照姓名/工号/手机号模糊查询匹配员工列表

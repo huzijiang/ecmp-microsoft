@@ -90,4 +90,9 @@ public interface EcmpNoticeMapper
      * @return
      */
     EcmpNotice getNoticeDetails(@Param("noticeId") Integer noticeId);
+
+    /**
+     * 定时任务：修改公告管理公告状态
+     */
+    List<EcmpNotice> selectNoticeByStatus();
 }
