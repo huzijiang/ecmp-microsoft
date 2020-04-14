@@ -203,7 +203,6 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
 								carAuthorityInfo.setType(regimeInfo.getRegimenType());
 								carAuthorityInfo.setServiceType(journeyInfo.getServiceType());
-								carAuthorityInfo.setCanUseCarMode(regimeInfo.getCanUseCarMode());
 								//公务用车时间
 								carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());
 								//公务类型
@@ -223,6 +222,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								Long orderId = carAuthorityInfo.getOrderId();
 								if (null != orderId) {
 									OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+									carAuthorityInfo.setCanUseCarMode(orderInfo.getUseCarMode());
 									String useCarMode = orderInfo.getUseCarMode();
 									if (StringUtil.isNotEmpty(useCarMode)) {
 										carType = useCarMode;
