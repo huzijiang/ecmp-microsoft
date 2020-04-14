@@ -262,4 +262,6 @@ public interface EcmpOrgMapper {
     List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long  parentId);
 
     List<UserVO> selectUserByLeader(@Param("leader") String leader);
+
+    public int isRepart(@Param("name")String name,@Param("type")int type,@Param("id")Long id);
 }
