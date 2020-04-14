@@ -2,6 +2,8 @@ package com.hq.ecmp.ms.api.controller.account;
 
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.ecmp.mscore.service.ChinaProvinceService;
 import com.hq.ecmp.mscore.vo.ProvinceCityVO;
 import com.hq.ecmp.mscore.vo.ProvinceVO;
@@ -30,6 +32,7 @@ public class ProvinceCityController {
      * @param
      * @return list
      */
+    @Log(title = "财务模块:查询省份", businessType = BusinessType.OTHER)
     @ApiOperation(value = "queryProvince",notes = "查询省份",httpMethod = "POST")
     @PostMapping("/queryProvince")
     public ApiResponse<List<ProvinceVO>> queryProvince(){
@@ -42,7 +45,8 @@ public class ProvinceCityController {
      * @param
      * @return list
      */
-    @ApiOperation(value = "getProvinceCity",notes = "查询省份",httpMethod = "POST")
+    @Log(title = "财务模块:查询省份下的城市", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getProvinceCity",notes = "查询省份下的城市",httpMethod = "POST")
     @PostMapping("/getProvinceCity")
     public  ApiResponse<List<ProvinceCityVO>> getProvinceCity(String provinceCode){
         List<ProvinceCityVO>  cityList = chinaProvinceService.queryCityByProvince(provinceCode);

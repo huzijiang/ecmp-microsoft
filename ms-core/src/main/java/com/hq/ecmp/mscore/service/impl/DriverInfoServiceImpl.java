@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
 import com.hq.ecmp.mscore.vo.*;
+import org.apache.http.impl.execchain.TunnelRefusedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -325,7 +326,14 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      */
     @Override
     public int deleteDriver(Long driverId){
-        return driverInfoMapper.deleteDriver(driverId);
+
+		int i=driverInfoMapper.deleteDriver(driverId);
+		if(i!=0){
+			driverCarRelationInfoService.deleteCarByDriverId(driverId);
+			carGroupDriverRelationService.deleteCarGroupDriverRelationById(driverId);
+		}
+
+    	return i;
     }
 
 
