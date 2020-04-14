@@ -1054,7 +1054,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
                 //终点
-                if(j==journeyNodeInfoList.size()-1){
+                if(j==journeyNodeInfoList.size()-1 && !ServiceTypeConstant.CHARTERED.equals(serviceType)){
                     orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanArriveTime());
                     orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));

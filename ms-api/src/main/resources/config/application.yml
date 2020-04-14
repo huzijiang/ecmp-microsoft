@@ -38,6 +38,8 @@ spring:
     restart:
       # 热部署开关
       enabled: true
+  jackson:
+    time-zone: GMT+8
 # 日志配置
 logging:
   level:
