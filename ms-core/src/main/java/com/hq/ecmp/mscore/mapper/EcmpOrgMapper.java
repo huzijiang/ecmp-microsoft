@@ -260,4 +260,6 @@ public interface EcmpOrgMapper {
 
     //公司车队树
     List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long  parentId);
+
+    List<UserVO> selectUserByLeader(@Param("leader") String leader);
 }

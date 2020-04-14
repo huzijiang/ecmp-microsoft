@@ -19,6 +19,7 @@ import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
@@ -518,6 +519,13 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void checkCreateReturnAuthority(Long orderId) {
+		DispatchOrderInfo waitDispatchOrderDetailInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
+		//判断
+		
 	}
 	
 	

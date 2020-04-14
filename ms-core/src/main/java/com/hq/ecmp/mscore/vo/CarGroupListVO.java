@@ -48,8 +48,8 @@ public class CarGroupListVO {
     private Long carGroupId;
 
     //3
-    @ApiModelProperty(name = "carGroupCode", value = "车队编号")
-    private List<String> leaderNames;  // TODO 车队主管名字集合
+    @ApiModelProperty(name = "leaderNames", value = "车队主管（调度员）名字")
+    private List<String> leaderNames;
 
     //4
     @ApiModelProperty(name = "countDriver", value = "车队人数（驾驶员 加 调度员） ")
@@ -59,13 +59,13 @@ public class CarGroupListVO {
     private String ownerOrgName;
 
     @ApiModelProperty(value = "当前车队的车辆数")
-    private  int carNum;
+    private  Integer carNum;
 
-    //新增
+
     @ApiModelProperty(name = "ownerCompanyName", value = "所属公司名字")
     private String ownerCompanyName;
 
-    //新增
+
     @ApiModelProperty(name = "ownerCompany", value = "所属公司id")
     private Long ownerCompany;
 }

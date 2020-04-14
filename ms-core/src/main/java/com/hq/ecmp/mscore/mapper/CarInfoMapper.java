@@ -166,4 +166,11 @@ public interface CarInfoMapper
      * @return
      */
     List<String> selectCarTypeList();
+
+    /**
+     * 启用车辆
+     * @param carInfo
+     * @return
+     */
+    int updateStartCar(CarInfo carInfo);
 }
