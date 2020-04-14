@@ -404,8 +404,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             a.order_id AS orderId,
             a.state,
             d.apply_type AS applyType,
+            d.apply_id as applyId,
             b.type AS serverType,
             c.plan_begin_address AS useCarCity,
+            c.node_id as nodeId,
             e.nick_name AS applyUserName,
             e.nick_name AS useCarUserName,
             e.phonenumber AS applyUserTel,
@@ -416,7 +418,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             h.use_car_mode AS useCarMode,
             h.regimen_id as regimenId,
             h.it_is_return as itIsReturn,
-            h.wait_time_long as waitTimeLong
+            h.wait_time_long as waitTimeLong,
+            h.journey_id as journeyId
         FROM
             order_info a
         LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id

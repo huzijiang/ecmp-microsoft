@@ -176,7 +176,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="createDriver" parameterType="com.hq.ecmp.mscore.domain.DriverCreateInfo" useGeneratedKeys="true" keyProperty="driverId">
       insert into driver_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-         <if test="userId != null ">user_id,</if>
           <if test="driverName != null ">driver_name,</if>
            <if test="mobile != null ">mobile,</if>
            <if test="gender != null ">gender,</if>
@@ -192,7 +191,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             create_time
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-         <if test="userId != null ">#{userId},</if>
             <if test="driverName != null ">#{driverName},</if>
             <if test="mobile != null ">#{mobile},</if>
             <if test="gender != null ">#{gender},</if>

@@ -454,6 +454,29 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
 		return false;
 	}
 
+	@Override
+	public boolean checkUpWaitMaxMinute(Long waitMin) {
+		EcmpConfig waitInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WAIT_MAX_MINUTE.getConfigKey()).build());
+		if(null==waitInfo){
+			return false;
+		}
+		String configValue = waitInfo.getConfigValue();
+		if(StringUtils.isEmpty(configValue)){
+			return false;
+		}
+		JSONObject jsonObject = JSONObject.parseObject(configValue);
+		 String status = jsonObject.getString("status");
+		  if (SWITCH_ON.equals(status)){//开
+			  String value = jsonObject.getString("value");
+			  if(StringUtils.isEmpty(value)){
+				  return false;
+			  }
+              return waitMin.compareTo(Long.valueOf(value))>0;
+          }else {
+        	  return false;
+          }
+	}
+
     /**
      * 获取启动页开屏图（无token）
      * @return
