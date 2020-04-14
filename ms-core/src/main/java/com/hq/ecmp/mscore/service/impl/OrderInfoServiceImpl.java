@@ -524,8 +524,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 BeanUtils.copyProperties(carInfo,vo);
                 vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
             }
-            DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
-            vo.setDriverScore(driverInfo.getStar()+"");
+//            DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
+            List<DriverServiceAppraiseeInfo> driverServiceAppraiseeInfos1 = driverServiceAppraiseeInfoMapper.queryAll(new DriverServiceAppraiseeInfo(orderInfo.getDriverId()));
+            String star="";
+            if (!CollectionUtils.isEmpty(driverServiceAppraiseeInfos1)){
+                Double sumAge = driverServiceAppraiseeInfos1.stream().collect(Collectors.averagingDouble(DriverServiceAppraiseeInfo::getScore));
+                star=BigDecimal.valueOf(sumAge).stripTrailingZeros().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
+            }
+            vo.setDriverScore(star);
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.ORDERCLOSE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderInfo.getState())){
                 //服务结束后获取里程用车时长
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
