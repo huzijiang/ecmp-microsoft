@@ -69,7 +69,7 @@ public class EcmpOrgDto {
     @ApiModelProperty(value = "更新时间")
     private Date updateTime;
 
-    @ApiModelProperty(value = "新增临时字段  分/子公司人数")
+    @ApiModelProperty(value = "新增临时字段  分/子公司人数 部门人数")
     private String numOfSub;
 
     @ApiModelProperty(value = "新增临时字段  下级公司数")

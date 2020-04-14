@@ -94,7 +94,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <!-- /**
      * 查询部门详情
-     *
+     *1、当前部门名称
+    2、当前部门编号，如果没有维护则为空
+    3、所属组织
+    4、主管姓名
+    5、部门人数
      * @param deptId 部门ID
      * @return ecmpOrg
      */-->
@@ -103,7 +107,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         dept_name as deptName,
         (SELECT dept_name from  ecmp_org where dept_id =
         (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
-        (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName,leader,`phone`
+        (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName,leader,`phone`,
+        dept_code as deptCode,
+        (SELECT count(*) from  ecmp_user where dept_id=#{deptId} and del_flag=0) as numOfSub
         from
         ecmp_org
         where
