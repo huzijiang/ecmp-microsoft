@@ -247,6 +247,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     public CarGroupDetailVO getCarGroupDetail(Long carGroupId) {
         //1.查询车队信息
         CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+        if(carGroupInfo == null){
+            return null;
+        }
         //根据cityCode查询城市名字
         CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(carGroupInfo.getCity());
         //查询所属组织名字
@@ -872,6 +875,25 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             return null;
         }
     }
+
+    /**
+     * 车队名字校验 同一公司下，车队名不能重复
+     * @param carGroupName
+     * @param owneCompany
+     * @return
+     */
+    @Override
+    public Boolean judgeCarGroupName(String carGroupName, Long owneCompany) {
+        List<String> groupNames = carGroupInfoMapper.selectAllCarGroupNameByCompany(owneCompany);
+        for (String groupName : groupNames) {
+            if(carGroupName.equals(groupName)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     /* *//**
      * 判断是否是一级车队

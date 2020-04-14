@@ -142,4 +142,10 @@ public interface CarGroupInfoMapper
      */
     List<String> selectAllCarGroupCode();
 
+    /**
+     * 查询公司所有车队名字
+     * @param owneCompany
+     * @return
+     */
+    List<String> selectAllCarGroupNameByCompany(Long owneCompany);
 }
