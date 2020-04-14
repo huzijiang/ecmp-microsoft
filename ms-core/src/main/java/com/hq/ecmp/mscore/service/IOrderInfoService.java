@@ -290,5 +290,12 @@ public interface IOrderInfoService {
      * @return
      */
     public  void checkOrderIsExpired();
+    
+    
+    /**
+     * 公务调度后选择网约车 生成返程的权限 和订单 
+     * @param orderId
+     */
+    public void checkCreateReturnAuthority(Long orderId,Long optUserId)throws Exception;
 }
 

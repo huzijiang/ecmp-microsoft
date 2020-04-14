@@ -192,7 +192,8 @@ WHERE
 	plan_end_city_code AS planEndCityCode,
 	number,
 	node_id AS nodeId,
-	it_is_via_point as itIsViaPoint
+	it_is_via_point as itIsViaPoint,
+	plan_begin_city_code as planBeginCityCode
 FROM
 	journey_node_info
 WHERE

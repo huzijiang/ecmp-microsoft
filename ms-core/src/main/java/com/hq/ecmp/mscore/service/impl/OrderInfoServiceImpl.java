@@ -2159,6 +2159,49 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
     }
+    
+    @Override
+	public void checkCreateReturnAuthority(Long orderId,Long optUserId) throws Exception {
+		DispatchOrderInfo waitDispatchOrderDetailInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
+		//判断是公务还是差旅
+		Long regimenId = waitDispatchOrderDetailInfo.getRegimenId();
+		if(null ==regimenId){
+			return;
+		}
+		RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(regimenId);
+		if(null==regimeInfo){
+			return;
+		}
+		String regimenType = regimeInfo.getRegimenType();
+		if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimenType)){
+			return;
+		}
+		String itIsReturn = waitDispatchOrderDetailInfo.getItIsReturn();
+		if("N444".equals(itIsReturn)){
+			//没有往返
+			return;
+		}
+		String waitTimeStr = waitDispatchOrderDetailInfo.getWaitTimeLong();
+		if(StringUtil.isEmpty(waitTimeStr)){
+			//往返没有设置预估等待时长
+			log.info("订单【"+orderId+"对应的行程往返时没有设置预估等待时长】");
+			return;
+		}
+		Long waitTimeLong=Long.valueOf(waitTimeStr);
+		String minStr= (waitTimeLong/(1000*60))+"";
+		if(!ecmpConfigService.checkUpWaitMaxMinute(Long.valueOf(minStr))){
+			//企业设置中没开启等待时长或者大于预估等待时长
+			return;
+		}
+		//生成一条新返回的的公务用车权限 
+		JourneyUserCarPower journeyUserCarPower=new JourneyUserCarPower(waitDispatchOrderDetailInfo.getApplyId(), waitDispatchOrderDetailInfo.getJourneyId(), new Date(), optUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.BACK_TRACKING,waitDispatchOrderDetailInfo.getNodeId());
+		journeyUserCarPowerMapper.insertJourneyUserCarPower(journeyUserCarPower);
+		//生成订单
+		OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo();
+		officialOrderReVo.setPowerId(journeyUserCarPower.getPowerId());
+		officialOrderReVo.setIsDispatch(2);
+		officialOrder(officialOrderReVo, optUserId);
+	}
 
 	
 }
