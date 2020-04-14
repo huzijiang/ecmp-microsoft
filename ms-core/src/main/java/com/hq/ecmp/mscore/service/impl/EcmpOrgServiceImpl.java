@@ -20,6 +20,7 @@ import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.*;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -304,9 +305,6 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             if(deptIdList.size()>0){
                 for (Long deptId1:deptIdList) {
                     EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectCompanyList(deptId1,OrgConstant.DEPT_TYPE_1);
-                   /* String leader=ecmpOrgDto.getLeader();
-                    leader = changeUserIdToNickNames(leader);
-                    ecmpOrgDto.setLeader(leader);*/
                     ecmpOrgDto.setSupComName(supComName);
                     companyList.add(ecmpOrgDto);
                 }
@@ -345,9 +343,6 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             if(deptIdList.size()>0){
                 for (Long deptId1:deptIdList) {
                     EcmpOrgDto ecmpOrgDto=ecmpOrgMapper.selectDeptList(deptId1,OrgConstant.DEPT_TYPE_2);
-                    /*String leader=ecmpOrgDto.getLeader();
-                    leader = changeUserIdToNickNames(leader);
-                    ecmpOrgDto.setLeader(leader);*/
                     ecmpOrgDto.setSupComName(supComName);
                     companyList.add(ecmpOrgDto);
                 }
@@ -726,9 +721,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             for (int i = 0; i < deptIds.size(); i++) {
                 EcmpOrgDto ecmpOrgDto = ecmpOrgMapper.selectCompanyByDeptNameOrCode(deptNameOrCode, deptNameOrCode, deptIds.get(i));
                 LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
-                /*String leader=ecmpOrgDto.getLeader();
+                String leader=ecmpOrgDto.getLeader();
                 leader = changeUserIdToNickNames(leader);
-                ecmpOrgDto.setLeader(leader)*/;
+                ecmpOrgDto.setLeader(leader);
                 ecmpOrgDtoList.add(ecmpOrgDto);
             }
         }
@@ -747,9 +742,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         if(deptIds.size()>0){
             for (int i = 0; i < deptIds.size(); i++) {
                 EcmpOrgDto ecmpOrgDto = ecmpOrgMapper.selectDeptByDeptNameOrCode(deptNameOrCode, deptNameOrCode, deptIds.get(i));
-                /*String leader=ecmpOrgDto.getLeader();
+                String leader=ecmpOrgDto.getLeader();
                 leader = changeUserIdToNickNames(leader);
-                ecmpOrgDto.setLeader(leader);*/
+                ecmpOrgDto.setLeader(leader);
                 ecmpOrgDtoList.add(ecmpOrgDto);
             }
         }
@@ -783,15 +778,23 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 	}
 
     private String changeUserIdToNickNames(String leader) {
-        int[] userIds=null;
+        if(leader==null||"".equals(leader)||"0".equals(leader)){
+            leader="无";
+            return leader;
+        }
         if(leader.contains(",")){
             String[] split = leader.split(",");
-            userIds = Arrays.asList(split).stream().mapToInt(Integer::parseInt).toArray();
+            /*userIds = Arrays.asList(split).stream().mapToInt(Integer::parseInt).toArray();*/
+            Long[]  userIds = (Long[]) ConvertUtils.convert(split,Long.class);
+            List<String> nickNames = ecmpUserMapper.selectNickNamesByUserIds(userIds);
+            if(!nickNames.isEmpty()){
+                leader = StringUtils.join(nickNames.toArray(), ",");
+            }
+        }else{
+           String nickNames = ecmpUserMapper.selectNickNamesByUserId(Long.parseLong(leader));
+           leader=nickNames;
         }
-        List<String> nickNames = ecmpUserMapper.selectNickNamesByUserId(userIds);
-        if(!nickNames.isEmpty()){
-            leader = StringUtils.join(nickNames.toArray(), ",");
-        }
+
         return leader;
     }
 
