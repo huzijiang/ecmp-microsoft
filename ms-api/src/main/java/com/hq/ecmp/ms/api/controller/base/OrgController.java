@@ -215,17 +215,13 @@ public class OrgController {
     @ApiOperation(value = "updateCompany",notes = "修改分/子公司信息",httpMethod ="POST")
     @PostMapping("/updateCompany")
     public ApiResponse updateCompany(@RequestBody EcmpOrgVo ecmpOrg){
-        /*String deptCode=ecmpOrg.getDeptCode();
-        if(deptCode!=null&&!("").equals(deptCode)){
-            int j = orgService.selectDeptCodeExist(deptCode);
-            if(j>0){
-                return ApiResponse.error("该编号已存在，不可重复录入！");
-            }
-        }*/
-        int i = orgService.updateEcmpOrg(ecmpOrg);
-        if (i > 0){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            ecmpOrg.setDeptType(CommonConstant.SWITCH_OFF);
+            int i = orgService.updateEcmpOrg(ecmpOrg,loginUser.getUser().getUserId());
             return ApiResponse.success("修改分/子公司成功");
-        }else {
+        } catch (Exception e) {
             return ApiResponse.error("修改分/子公司失败");
         }
     }

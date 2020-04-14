@@ -346,6 +346,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		 SELECT
             a.order_id AS orderId,
             a.state,
+            a.demand_car_level as demandCarLevel,
             d.apply_type AS applyType,
             b.type AS serverType,
             c.plan_begin_address AS useCarCity,

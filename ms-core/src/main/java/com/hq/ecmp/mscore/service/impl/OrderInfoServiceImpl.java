@@ -894,6 +894,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			orderInfo.setCarLicense(carInfo.getCarLicense());
 			orderInfo.setCarModel(carInfo.getCarType());
 			orderInfo.setCarColor(carInfo.getCarColor());
+			//查询车辆的车型名称
+			String carTypeName = enterpriseCarTypeInfoMapper.queryCarTypeNameByCarId(carId);
+			orderInfo.setDemandCarLevel(carTypeName);
 		}
 		orderInfo.setCarId(carId);
 		orderInfo.setUpdateBy(String.valueOf(userId));

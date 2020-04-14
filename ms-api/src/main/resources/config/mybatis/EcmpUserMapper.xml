@@ -184,6 +184,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       and  (nick_name like concat('%', #{nickName}, '%') or   job_number like concat('%', #{jobNumber}, '%') or   phonenumber like concat('%', #{phonenumber}, '%'))
     </select>
 
+    <!--按照员工userId查询员工姓名集合-->
+    <select id="selectNickNamesByUserId" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+      SELECT
+      nick_name as nickName
+      from ecmp_user
+      where   del_flag = 0
+        <if test="userIds != null">
+            and user_id in
+            <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+                #{userId}
+            </foreach>
+        </if>
+    </select>
+
     <!--按照姓名/工号/手机号模糊查询匹配员工列表
     列表：姓名、手机号、工号、所属公司、所属部门、状态、用车制度、操作
     -->

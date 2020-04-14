@@ -163,7 +163,6 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
      */
     @Override
     public void announcementTask() throws ParseException {
-        int i = 0;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         //查询公告管理状态为 待发布与发布中的数据
         List<EcmpNotice> list =  ecmpNoticeMapper.selectNoticeByStatus();
