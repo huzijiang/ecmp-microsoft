@@ -2160,6 +2160,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
     
     @Override
+    @Transactional(propagation=Propagation.REQUIRED)
 	public void checkCreateReturnAuthority(Long orderId,Long optUserId) throws Exception {
 		DispatchOrderInfo waitDispatchOrderDetailInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
 		//判断是公务还是差旅
