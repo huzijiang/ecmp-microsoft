@@ -158,6 +158,10 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 				RegimeInfo regimeInfo = regimeInfoService.queryRegimeType(journeyInfo.getRegimenId());
 				if(null !=regimeInfo){
 					if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getRegimenType())){
+						if(journeyUserCarPowerService.checkJourneyNoteAllComplete(journeyInfo.getJourneyId())){
+							//表示该行程下面所有订单都已完成了  则首页不显示这条行程
+							continue;
+						}
 						CarAuthorityInfo carAuthorityInfo = new CarAuthorityInfo();
 						carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
 						carAuthorityInfo.setType(regimeInfo.getRegimenType());

@@ -566,6 +566,21 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		return false;
 	}
 
+	@Override
+	public boolean checkJourneyNoteAllComplete(Long journeyId) {
+		List<String> AllState = orderInfoMapper.queryAllOrderStatusByJourneyId(journeyId);
+		//如果行程下的所有订单都是已完成了 则该行程已完成
+		if(null !=AllState && AllState.size()>0){
+			for (String str : AllState) {
+				if(!OrderState.ORDERCLOSE.getState().equals(str)){
+					return false;
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
 	
 	
 	
