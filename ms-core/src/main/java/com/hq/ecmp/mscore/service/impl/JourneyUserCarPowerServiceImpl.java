@@ -245,6 +245,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				serviceTypeCarAuthority.setOrderId(orderInfoMapper.queryVaildOrderIdByPowerId(serviceTypeCarAuthority.getTicketId()));
 			}
 		}
+		
 		return list;
 	}
 
@@ -426,10 +427,10 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		}
 		
 		if(OrderState.ORDERCLOSE.getState().equals(vaildOrdetrState)){
-			//订单关闭了  判断是否是取消了
+			//订单关闭了  判断是否是取消或超时了
 			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(powerId);
-			if(null !=orderStateTraceInfo && OrderStateTrace.CANCEL.getState().equals(orderStateTraceInfo.getState())){
-				//订单是取消的订单
+			if(null !=orderStateTraceInfo && OrderStateTrace.getCancelAndOverTime().contains(orderStateTraceInfo.getState())){
+				//订单是取消或超时的订单
 				if(checkPowerOverTime(powerId)){
 					//已过期
 					return OrderState.TIMELIMIT.getState();
@@ -441,10 +442,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 					 //否则就还原权限状态为去申请
 					 return OrderState.INITIALIZING.getState();
 				 }
-			} else if(null !=orderStateTraceInfo && OrderStateTrace.ORDEROVERTIME.getState().equals(orderStateTraceInfo.getState())){
-				//订单是因为超时关闭了  则权限状态为已过期
-				return OrderState.TIMELIMIT.getState();
-			}else {
+			} else {
 				//订单未取消 已完成
 				return OrderState.STOPSERVICE.getState();
 			}
