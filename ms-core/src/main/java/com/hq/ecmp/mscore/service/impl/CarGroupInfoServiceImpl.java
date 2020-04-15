@@ -305,7 +305,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 if(!ObjectUtils.isEmpty(ecmpUser)){
                     userVO.setUserId(userId);
                     userVO.setUserPhone(ecmpUser.getPhonenumber());
-                    userVO.setUserName(ecmpUser.getUserName());
+                    userVO.setUserName(ecmpUser.getNickName());
                     dispatchers.add(userVO);
                 }
             }
