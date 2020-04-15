@@ -195,14 +195,12 @@ public class ScheduledTask {
     @Scheduled(cron = "0 0 0 * * ? ")
     public void  announcementManagementTimingTask (){
         log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-        //System.out.println("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改Start:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
         try {
             iEcmpNoticeService.announcementTask();
         }catch (Exception e) {
             e.printStackTrace();
         }
         log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改EndTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-        //System.out.println("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改End:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
     }
 
 }
