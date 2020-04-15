@@ -24,6 +24,7 @@ import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IApproveTemplateInfoService;
 import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
+import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.vo.ApplyDetailVO;
 import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
@@ -31,8 +32,6 @@ import com.hq.ecmp.mscore.vo.ApprovalListVO;
 import com.hq.ecmp.mscore.vo.ApprovalUserVO;
 import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import com.hq.ecmp.util.RedisUtil;
-
-import QrCodeService.QrCodeService;
 
 /**
  * @Author: chao.zhang
@@ -60,6 +59,8 @@ class OrgControllerTest {
     private IApplyInfoService applyInfoService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private IJourneyUserCarPowerService journeyUserCarPowerService;
  
 
     @Test

@@ -11,6 +11,7 @@ import com.hq.ecmp.mscore.bo.CityInfo;
 import com.hq.ecmp.mscore.vo.AirportVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 
 import com.alibaba.fastjson.JSONObject;
@@ -40,9 +41,10 @@ public class LocationController {
 	private String licenseContent;
 	@Value("${thirdService.apiUrl}") // 三方平台的接口前地址
 	private String apiUrl;
-	@Resource
+	@Autowired
+    @Lazy
 	private IOrderInfoService orderInfoService;
-	@Resource
+	@Autowired
 	private IJourneyNodeInfoService journeyNodeInfoService;
 	@Autowired
 	private IDriverHeartbeatInfoService driverHeartbeatInfoService;

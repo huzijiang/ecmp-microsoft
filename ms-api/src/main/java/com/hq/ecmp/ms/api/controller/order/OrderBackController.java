@@ -12,6 +12,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -29,7 +31,8 @@ import java.util.List;
 @Api(value = "后台管理-订单模块")
 public class OrderBackController {
 
-    @Resource
+    @Autowired
+    @Lazy
     private IOrderInfoService iOrderInfoService;
 
     @ApiOperation(value = "订单列表查询")

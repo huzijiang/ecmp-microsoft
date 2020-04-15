@@ -97,73 +97,6 @@ public class OrderController {
         return ApiResponse.success("公务下单成功",orderId);
     }
 
-//    @ApiOperation(value = "parallelCreateOrder", notes = "手动创建订单，目前只存在市内用车的情况", httpMethod = "POST")
-//    @PostMapping("/parallelCreateOrder")
-//    public ApiResponse parallelCreateOrder(@RequestBody ParallelOrderDto parallelOrderDto) {
-//        Long orderId = null;
-//        try {
-//
-//            //获取调用接口的用户信息
-//            HttpServletRequest request = ServletUtils.getRequest();
-//            LoginUser loginUser = tokenService.getLoginUser(request);
-//            Long userId = loginUser.getUser().getUserId();
-//            OrderInfo orderInfo = new OrderInfo();
-//            orderInfo.setPowerId(parallelOrderDto.getTicketId());
-//            //通过用车权限获取行程id和行程节点id
-//            JourneyUserCarPower journeyUserCarPower = iJourneyUserCarPowerService.selectJourneyUserCarPowerById(parallelOrderDto.getTicketId());
-//            Long journeyId = journeyUserCarPower.getJourneyId();
-//            Long nodeId = journeyUserCarPower.getNodeId();
-//            orderInfo.setNodeId(nodeId);
-//            orderInfo.setJourneyId(journeyId);
-//            //手动下单，订单状态变为待派单
-//            orderInfo.setState(OrderState.WAITINGLIST.getState());
-//            String startPoint = parallelOrderDto.getStartPoint();
-//            String endPoint = parallelOrderDto.getEndPoint();
-//            String[] start = startPoint.split("\\,");
-//            String[] end = endPoint.split("\\,");
-//            iOrderInfoService.insertOrderInfo(orderInfo);
-//            orderId = orderInfo.getOrderId();
-//            //订单地址表
-//            JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyId);
-//            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
-//            orderAddressInfo.setOrderId(orderId);
-//            orderAddressInfo.setJourneyId(journeyId);
-//            orderAddressInfo.setNodeId(nodeId);
-//            orderAddressInfo.setPowerId(parallelOrderDto.getTicketId());
-//            orderAddressInfo.setUserId(journeyInfo.getUserId()+"");
-//            orderAddressInfo.setCreateBy(userId+"");
-//            //起点
-//            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            Date date = sdf.parse(parallelOrderDto.getBookingDate());
-//            orderAddressInfo.setActionTime(date);
-//            orderAddressInfo.setLongitude(Double.parseDouble(start[0]));
-//            orderAddressInfo.setLatitude(Double.parseDouble(start[1]));
-//            orderAddressInfo.setAddress(parallelOrderDto.getStartAddr());
-//            orderAddressInfo.setAddressLong(parallelOrderDto.getStarAddrLong());
-//            iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
-//            //终点
-//            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
-//            orderAddressInfo.setActionTime(null);
-//            orderAddressInfo.setLongitude(Double.parseDouble(end[0]));
-//            orderAddressInfo.setLatitude(Double.parseDouble(end[1]));
-//            orderAddressInfo.setAddress(parallelOrderDto.getEndAddr());
-//            orderAddressInfo.setAddressLong(parallelOrderDto.getEndAddrLong());
-//            iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
-//            //订单轨迹
-//            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null);
-//            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ApiResponse.error("手动下单失败");
-//        }
-//        JSONObject json = new JSONObject();
-//        json.put("orderId",orderId);
-//        return ApiResponse.success(json);
-//    }
-
-
     /**
      * 用户请求调派订单
      * 改变订单的状态为  待派单
@@ -188,39 +121,6 @@ public class OrderController {
         }
         return ApiResponse.success("订单状态修改成功");
     }
-
-
-//    /**
-//     * 手动约车-让用户自己召唤网约车
-//     * 改变订单的状态为  去约车
-//     *
-//     * @param
-//     * @return
-//     */
-//    @ApiOperation(value = "letUserCallTaxi", notes = " 手动约车-让用户自己召唤网约车 改变订单的状态为  去约车", httpMethod = "POST")
-//    @PostMapping("/letUserCallTaxi")
-//    public ApiResponse letUserCallTaxi(@RequestParam("orderNo") String orderNo,@RequestParam("carLevel") String carLevel) {
-//        try {
-//            //获取调用接口的用户信息
-//            HttpServletRequest request = ServletUtils.getRequest();
-//            LoginUser loginUser = tokenService.getLoginUser(request);
-//            Long userId = loginUser.getUser().getUserId();
-//            OrderInfo orderInfo = new OrderInfo();
-//            Long orderId = Long.parseLong(orderNo);
-//            orderInfo.setOrderId(orderId);
-//            orderInfo.setState(OrderState.SENDINGCARS.getState());
-//            int i = iOrderInfoService.updateOrderInfo(orderInfo);
-//            if (i != 1) {
-//                return ApiResponse.error("'订单状态改为【去约车失败】");
-//            }
-//            iOrderInfoService.platCallTaxi(orderId,enterpriseId,licenseContent,apiUrl,String.valueOf(userId),carLevel);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ApiResponse.error("'订单状态改为【去约车失败】");
-//        }
-//        return ApiResponse.success("订单状态修改成功");
-//    }
-
 
     /**
      * 自动约车-向网约车平台发起约车请求，直到网约车平台回应 约到车为止，期间一直为约车中，约到后改变订单状态为 已派单
@@ -247,6 +147,8 @@ public class OrderController {
                 throw new Exception("网约车不支持包车");
             }
             iOrderInfoService.platCallTaxiParamValid(orderId,String.valueOf(userId),carLevel);
+            //判断是否是网约车且是往返，如果是，超过约定时间则下一单返程的网约车订单
+            iOrderInfoService.checkCreateReturnAuthority(orderId,userId);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());

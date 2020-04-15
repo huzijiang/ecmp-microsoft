@@ -2,6 +2,8 @@ package com.hq.ecmp.ms.api.controller.account;
 
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
 import com.hq.ecmp.mscore.domain.OrderAccountInfo;
 import com.hq.ecmp.mscore.dto.PageRequest;
@@ -43,6 +45,7 @@ public class AccountInfoController {
      * @param
      * @return list
      */
+    @Log(title = "财务模块:查询账务订单信息", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getAccountViewList",notes = "查询账务订单信息",httpMethod = "POST")
     @PostMapping("/getAccountViewList")
     public ApiResponse<PageResult<OrderAccountViewVO>> getAccountViewList(@RequestBody PageRequest pageRequest){
@@ -54,6 +57,7 @@ public class AccountInfoController {
      * @param
      * @return list
      */
+    @Log(title = "财务模块:获取为开发票的订单统计列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getAccountList",notes = "获取为开发票的订单统计列表",httpMethod = "POST")
     @PostMapping("/getAccountList")
     public ApiResponse<List<OrderAccountVO>> getAccountList(){

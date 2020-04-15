@@ -292,7 +292,7 @@ public interface EcmpUserMapper
      * @param  userIds
      * @return 结果
      */
-    public List<String> selectNickNamesByUserIds(Long[] userIds);
+    public List<String> selectNickNamesByUserIds(@Param("userIds")Long[] userIds);
 
     /**
      * 按照员工userId查询员工姓名集合

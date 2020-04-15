@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
 import com.hq.ecmp.mscore.vo.*;
+import org.apache.http.impl.execchain.TunnelRefusedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -186,13 +187,17 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	carGroupDriverRelation.setCreateTime(new Date());
     	carGroupDriverRelationService.insertCarGroupDriverRelation(carGroupDriverRelation);
     	//生成驾驶员-车辆记录
-    	DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
-    	if(null !=userId){
-    		driverCarRelationInfo.setUserId(userId);
+    	List<Long> carIdList = driverCreateInfo.getCarId();
+    	if(null !=carIdList && carIdList.size()>0){
+    		DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+        	if(null !=userId){
+        		driverCarRelationInfo.setUserId(userId);
+        	}
+        	driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
+        	driverCarRelationInfo.setCarIdList(carIdList);
+        	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
     	}
-    	driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
-    	driverCarRelationInfo.setCarIdList(driverCreateInfo.getCarId());
-    	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
+    	
 		return true;
 	}
     /**
@@ -321,7 +326,14 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      */
     @Override
     public int deleteDriver(Long driverId){
-        return driverInfoMapper.deleteDriver(driverId);
+
+		int i=driverInfoMapper.deleteDriver(driverId);
+		if(i!=0){
+			driverCarRelationInfoService.deleteCarByDriverId(driverId);
+			carGroupDriverRelationService.deleteCarGroupDriverRelationById(driverId);
+		}
+
+    	return i;
     }
 
 

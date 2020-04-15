@@ -3,6 +3,8 @@ package com.hq.ecmp.ms.api.controller.account;
 
 import com.hq.common.core.api.ApiResponse;
 
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.ecmp.mscore.dto.InvoiceAddUpdateDTO;
 import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
 import com.hq.ecmp.mscore.dto.PageRequest;
@@ -35,6 +37,7 @@ public class InvoiceAddressController {
      * @param
      * @return list
      */
+    @Log(title = "财务模块:删除邮箱信息", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getInvoiceAddressList",notes = "查询所有的发票地址信息",httpMethod = "POST")
     @PostMapping("/getInvoiceAddressList")
     public ApiResponse<PageResult<InvoiceAddVO>> getInvoiceAddressList(@RequestBody PageRequest pageRequest){
@@ -46,6 +49,7 @@ public class InvoiceAddressController {
      * @param invoiceAddressDTO
      * @return
      */
+    @Log(title = "财务模块:新增发票地址信息", businessType = BusinessType.INSERT)
     @ApiOperation(value = "invoiceAddCommit",notes = "新增发票地址信息",httpMethod = "POST")
     @PostMapping("/invoiceAddCommit")
      public ApiResponse invoiceAddCommit(@RequestBody InvoiceAddressDTO invoiceAddressDTO){
@@ -63,6 +67,7 @@ public class InvoiceAddressController {
      * @param invoiceAddUpdateDTO
      * @return
      */
+    @Log(title = "财务模块:修改发票地址信息", businessType = BusinessType.UPDATE)
      @ApiOperation(value = "invoiceAddUpdate",notes = "修改发票地址信息",httpMethod = "POST")
      @PostMapping("/invoiceAddUpdate")
      public ApiResponse invoiceAddUpdate(@RequestBody InvoiceAddUpdateDTO invoiceAddUpdateDTO){
@@ -80,6 +85,7 @@ public class InvoiceAddressController {
      * @param invoiceAddUpdateDTO
      * @return
      */
+    @Log(title = "财务模块:删除发票地址信息", businessType = BusinessType.DELETE)
      @ApiOperation(value = "invoiceAddDelete",notes = "删除发票地址信息",httpMethod = "POST")
      @PostMapping("/invoiceAddDelete")
      public ApiResponse invoiceAddDelete(@RequestBody InvoiceAddUpdateDTO invoiceAddUpdateDTO){

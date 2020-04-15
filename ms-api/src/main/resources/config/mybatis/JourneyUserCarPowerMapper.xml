@@ -39,7 +39,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where power_id = #{powerId}
     </select>
 
-    <insert id="insertJourneyUserCarPower" parameterType="com.hq.ecmp.mscore.domain.JourneyUserCarPower">
+    <insert id="insertJourneyUserCarPower" parameterType="com.hq.ecmp.mscore.domain.JourneyUserCarPower" useGeneratedKeys="true" keyProperty="powerId">
         insert into journey_user_car_power
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="powerId != null ">power_id,</if>

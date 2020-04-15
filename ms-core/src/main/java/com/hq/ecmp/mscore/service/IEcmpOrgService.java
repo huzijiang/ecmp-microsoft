@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
@@ -186,7 +187,7 @@ public interface IEcmpOrgService
      * @param deptNameOrCode
      * @return 结果
      */
-    public List<EcmpOrgDto> selectCompanyByDeptNameOrCode(String deptNameOrCode);
+    public PageResult<EcmpOrgDto> selectCompanyByDeptNameOrCode(PageRequest pageRequest,String deptNameOrCode);
 
     /**
      * 当前登录机构的名称；分/子公司编号；分/子公司主管；分/子公司人数
@@ -202,7 +203,7 @@ public interface IEcmpOrgService
      * @param deptNameOrCode
      * @return 结果
      */
-    public List<EcmpOrgDto> selectDeptByDeptNameOrCode(String deptNameOrCode);
+    public PageResult<EcmpOrgDto> selectDeptByDeptNameOrCode(PageRequest pageRequest,String deptNameOrCode);
 
     /**
      *查询分/子公司下的部门名称和deptId

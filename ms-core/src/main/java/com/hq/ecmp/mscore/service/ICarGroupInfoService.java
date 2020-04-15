@@ -141,4 +141,12 @@ public interface ICarGroupInfoService
 
     /*查询司机所属车队座机及调度员电话*/
     CarGroupPhoneVO getOwnerCarGroupPhone();
+
+    /**
+     * 车队名字校验 同一公司下，车队名不能重复
+     * @param carGroupName
+     * @param owneCompany
+     * @return
+     */
+    Boolean judgeCarGroupName(String carGroupName, Long owneCompany);
 }
