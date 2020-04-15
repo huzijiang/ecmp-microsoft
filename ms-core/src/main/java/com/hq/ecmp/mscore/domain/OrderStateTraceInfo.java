@@ -102,6 +102,10 @@ public class OrderStateTraceInfo extends BaseEntity
     public OrderStateTraceInfo() {
     }
 
+    public OrderStateTraceInfo(Long orderId, String state) {
+        this.orderId = orderId;
+        this.state = state;
+    }
 
     public OrderStateTraceInfo(Long orderId, String state, Double driverLongitude, Double driverLatitude) {
         this.orderId = orderId;
