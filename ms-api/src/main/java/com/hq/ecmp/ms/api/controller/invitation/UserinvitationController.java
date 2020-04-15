@@ -2,6 +2,8 @@ package com.hq.ecmp.ms.api.controller.invitation;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.InvitionStateEnum;
@@ -42,6 +44,7 @@ public class UserinvitationController {
      * @param userInvitationDTO
      * @return
      */
+    @Log(title = "邀请员工模块:生成邀请链接", businessType = BusinessType.OTHER)
     @ApiOperation(value = "interInvitationUserCommit",notes = "生成邀请",httpMethod = "POST")
     @PostMapping("/interInvitationUserCommit")
     public ApiResponse<InvitationUrlVO> interInvitationUserCommit(@RequestBody UserInvitationDTO userInvitationDTO){
@@ -70,7 +73,8 @@ public class UserinvitationController {
      * @param userRegisterDTO
      * @return
      */
-    @ApiOperation(value = "interInvitationUserZcCommit",notes = "生成邀请",httpMethod = "POST")
+      @Log(title = "邀请员工模块:邀请注册", businessType = BusinessType.INSERT)
+    @ApiOperation(value = "interInvitationUserZcCommit",notes = "邀请注册",httpMethod = "POST")
     @PostMapping("/interRegisterInfoCommit")
     public ApiResponse interRegisterInfoCommit(UserRegisterDTO userRegisterDTO){
         try {
@@ -98,6 +102,7 @@ public class UserinvitationController {
      * 邀请停用
      * @param
      */
+    @Log(title = "邀请员工模块:邀请停用", businessType = BusinessType.OTHER)
     @ApiOperation(value = "updateInvatationStop",notes = "邀请停用",httpMethod = "POST")
     @PostMapping("/updateInvatationStop")
      public ApiResponse updateInvatationStop(@RequestBody InvitationDto invitationDto){
@@ -116,6 +121,7 @@ public class UserinvitationController {
      * 邀请启用
      * @param
      */
+    @Log(title = "邀请员工模块:邀请启用", businessType = BusinessType.OTHER)
     @ApiOperation(value = "updateInvatationStart",notes = "邀请启用",httpMethod = "POST")
     @PostMapping("/updateInvatationStart")
     public ApiResponse updateInvatationStart(@RequestBody InvitationDto invitationDto){
@@ -134,7 +140,8 @@ public class UserinvitationController {
      * 邀请注册通过
      * @param
      */
-    @ApiOperation(value = "邀请注册通过",notes = "邀请注册通过",httpMethod = "POST")
+    @Log(title = "邀请员工模块:邀请注册通过", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "updateRegisterPast",notes = "邀请注册通过",httpMethod = "POST")
     @PostMapping("/updateRegisterPast")
     public ApiResponse updateRegisterPast(@RequestParam("registerId") Long registerId){
         try {
@@ -152,6 +159,7 @@ public class UserinvitationController {
      * 邀请注册拒绝
      * @param
      */
+    @Log(title = "邀请员工模块:邀请注册拒绝", businessType = BusinessType.OTHER)
     @ApiOperation(value = "申请拒绝",notes = "申请拒绝",httpMethod = "POST")
     @PostMapping("/updateRegisterRefuse")
     public ApiResponse updateRegisterRefuse(@RequestParam("reason") String reason,@RequestParam("registerId") Long registerId){
@@ -170,6 +178,7 @@ public class UserinvitationController {
      * 待审批数量
      * @param
      */
+    @Log(title = "邀请员工模块:员工待审批数量", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getregisterUserWaitCount",notes = "员工待审批数量",httpMethod = "POST")
     @PostMapping("/getregisterUserWaitCount")
     public ApiResponse<RegisterVO> getregisterUserWaitCount(@RequestBody InviteDto inviteDto){
@@ -186,6 +195,7 @@ public class UserinvitationController {
      * 待审批列表
      * @param
      */
+    @Log(title = "邀请员工模块:员工待审批列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getRegisterUserWaitList",notes = "员工待审批列表",httpMethod = "POST")
     @PostMapping("/getRegisterUserWaitList")
     public ApiResponse <PageResult<RegisterUserVO>>getRegisterUserWaitList(@RequestBody PageRequest pageRequest){
@@ -196,6 +206,7 @@ public class UserinvitationController {
     /**
      * 获取邀请列表-员工
      */
+    @Log(title = "邀请员工模块:获取员工邀请列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getInvitationUserList",notes = "获取员工邀请列表",httpMethod = "POST")
     @PostMapping("/getInvitationUserList")
     public ApiResponse<PageResult<InvitationUserVO>> getInvitationUserList(@RequestBody PageRequest PageRequest){
@@ -205,6 +216,7 @@ public class UserinvitationController {
     /**
     * 获取邀请详情-员工
     */
+    @Log(title = "邀请员工模块:获取员工邀请详情", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getInvitationUserDetail",notes = "获取员工邀请详情",httpMethod = "POST")
     @PostMapping("/getInvitationUserDetail")
     public ApiResponse<InvitationUserVO> getInvitationUserDetail(InvitationDto invitationDto){
@@ -216,6 +228,7 @@ public class UserinvitationController {
     /**
      * 获取邀请URL-员工
      */
+    @Log(title = "邀请员工模块:获取邀请URL", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getInvitationUserUrl",notes = "获取邀请URL",httpMethod = "POST")
     @PostMapping("/getInvitationUserUrl")
     public ApiResponse<InvitationUrlVO> getInvitationUserUrl(@RequestBody InvitationDto invitationDto){
@@ -227,6 +240,7 @@ public class UserinvitationController {
     /**
      * 删除邀请
      */
+    @Log(title = "邀请员工模块:删除邀请", businessType = BusinessType.DELETE)
     @ApiOperation(value = "getInvitationUserDel",notes = "删除邀请",httpMethod = "POST")
     @PostMapping("/getInvitationUserDel")
     public ApiResponse  getInvitationUserDel(@RequestBody InvitationDto invitationDto){

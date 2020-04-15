@@ -72,5 +72,11 @@ public class DispatchOrderInfo {
        	
        	String waitTimeLong;//等待时长  毫秒
        	
+       	Long journeyId;//行程编号
+       	
+       	Long nodeId;//行程节点编号
+       	
+       	Long applyId;//申请单编号
+       	
        	
 }

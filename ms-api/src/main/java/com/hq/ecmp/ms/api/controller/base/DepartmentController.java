@@ -1,11 +1,14 @@
 package com.hq.ecmp.ms.api.controller.base;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
+import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
@@ -181,17 +184,17 @@ public class DepartmentController {
 
     /**
      * 按照部门名称或编号模糊查询匹配的列表
-     * @param  ecmpOrgVo
+     * @param  pageRequest
      * @return*/
     @ApiOperation(value = "按照部门名称或编号模糊查询匹配的列表",notes = "按照部门名称或编号模糊查询匹配的列表",httpMethod ="POST")
     @PostMapping("/selectDeptByDeptNameOrCode")
-    public ApiResponse<List<EcmpOrgDto>> selectDeptByDeptNameOrCode(@RequestBody EcmpOrgVo ecmpOrgVo){
-        String deptNameOrCode=ecmpOrgVo.getDeptNameOrCode();
+    public ApiResponse<PageResult<EcmpOrgDto>> selectDeptByDeptNameOrCode(@RequestBody PageRequest pageRequest){
+        String deptNameOrCode=pageRequest.getSearch();
         if("".equals(deptNameOrCode.trim())){
             return ApiResponse.error("请输入有效的公司名称或编号！");
         }
-        List<EcmpOrgDto> companyList = orgService.selectDeptByDeptNameOrCode(deptNameOrCode);
-        if(companyList.size()>0){
+        PageResult<EcmpOrgDto> companyList = orgService.selectDeptByDeptNameOrCode(pageRequest,deptNameOrCode);
+        if(companyList.getItems().size()>0){
             return ApiResponse.success(companyList);
         }else{
             return ApiResponse.error("无匹配数据！");
