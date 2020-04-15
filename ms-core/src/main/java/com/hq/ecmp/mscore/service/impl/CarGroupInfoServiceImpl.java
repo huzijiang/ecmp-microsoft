@@ -223,7 +223,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //调度员名字
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(id);
                 if(ecmpUser != null){
-                    String userName = ecmpUser.getUserName();
+                    String userName = ecmpUser.getNickName();
                     carGroupDispatcherInfo.setName(userName);
                 }
                 //创建人
@@ -336,7 +336,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setShortAddress(carGroupDTO.getShortAddress());
         //所属组织
         carGroupInfo.setOwnerOrg(carGroupDTO.getOwnerOrg());
-        //车队负责人  TODO 冗余字段 暂无数据
+        //车队负责人 冗余字段 暂无数据
         carGroupInfo.setLeader(carGroupDTO.getLeader());
         //修改人
         carGroupInfo.setUpdateBy(String.valueOf(userId));
