@@ -226,8 +226,18 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         OrgTreeVo orgTreeVo = ecmpOrgMapper.selectDeptTree(null,null);
         List<UserTreeVo> userList =ecmpUserMapper.selectUserListByDeptIdAndProjectId(projectId);
         OrgTreeVo childNode = getChildNode(orgTreeVo, userList);
-        redisUtil.set(String.format(PROJECT_USER_TREE, projectId), JSON.toJSONString(childNode));
+//        redisUtil.set(String.format(PROJECT_USER_TREE, projectId), JSON.toJSONString(childNode));
         return childNode;
+    }
+
+    @Override
+    public List<ProjectInfo> checkProjectCode(String projectCode, Long projectId,Long orgCompany) {
+        return projectInfoMapper.checkProjectCode(projectCode,projectId,orgCompany);
+    }
+
+    @Override
+    public List<ProjectInfo> checkProjectName(String name, Long orgComcany, Long projectId) {
+        return projectInfoMapper.checkProjectName(name,orgComcany,projectId);
     }
 
 

@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.hq.ecmp.constant.OrgConstant;
+import com.hq.ecmp.constant.RoleConstant;
+import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.mapper.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,21 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CommonConstant;
-import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.domain.EcmpUserRole;
-import com.hq.ecmp.mscore.domain.RegimeVo;
-import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.UserRegisterDTO;
-import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
-import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
-import com.hq.ecmp.mscore.mapper.EcmpUserRoleMapper;
-import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
-import com.hq.ecmp.mscore.mapper.UserRegimeRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
@@ -53,12 +47,22 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     private EcmpUserRoleMapper ecmpUserRoleMapper;
 
     @Autowired
+    private EcmpRoleMapper ecmpRoleMapper;
+
+    @Autowired
     private DriverInfoMapper driverInfoMapper;
     @Autowired
     private EcmpOrgMapper ecmpOrgMapper;
-    
+
+    @Autowired
+    private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
+
+    @Autowired
+    private CarGroupInfoMapper carGroupInfoMapper;
+
     @Autowired
     private IEcmpOrgService ecmpOrgService;
+
 
     /**
      * 根据用户id查询用户信息
@@ -280,11 +284,29 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      */
     @Transactional
     @Override
-    public int updateDelFlagById(Long userId) {
-        /*若该员工在业务表中有数据，如是某个审批流的审批人等，则弹出提示不可删除操作
+    public String  updateDelFlagById(Long userId) {
+        /*
+        管理员、部门主管、项目主管、车队主管、
+        员工拥有审批权限和查看自己单据权限的
         无法【删除】该员工！；*/
-
-        return ecmpUserMapper.updateDelFlagById(userId);
+        //根据roleId查询dataScope
+        EcmpUserRole ecmpUserRole = ecmpUserRoleMapper.selectEcmpUserRoleById(userId);
+        EcmpRole ecmpRole = ecmpRoleMapper.selectEcmpRoleById(ecmpUserRole.getRoleId());
+        String dataScope = ecmpRole.getDataScope();
+        if(RoleConstant.DATA_SCOPE_1.equals(dataScope)||dataScope.equals(RoleConstant.DATA_SCOPE_3)||dataScope.equals(RoleConstant.DATA_SCOPE_4)){
+            return "不可删除！";
+        }
+        CarGroupDispatcherInfo carGroupDispatcherInfo=new CarGroupDispatcherInfo();
+        carGroupDispatcherInfo.setUserId(userId);
+        List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
+        Long carGroupId = carGroupDispatcherInfos.get(0).getCarGroupId();
+        carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+        int delFlag=ecmpUserMapper.updateDelFlagById(userId);
+        if(delFlag==1){
+            return "删除员工成功！";
+        }else {
+            return "删除员工数据失败！";
+        }
     }
 
     /**
@@ -296,9 +318,17 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public List<EcmpUserDto> getEcmpUserList(Long deptId){
         List<EcmpUserDto> ecmpUserList = new ArrayList<>();
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
+        String deptType = ecmpOrg.getDeptType();
         List<Long> userIds=ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
+        EcmpUserDto ecmpUserDto=new EcmpUserDto();
         for (int i = 0; i < userIds.size(); i++) {
-            EcmpUserDto ecmpUserDto = ecmpUserMapper.getEcmpUserList(deptId, userIds.get(i));
+            if(OrgConstant.DEPT_TYPE_1.equals(deptType)){
+                ecmpUserDto= ecmpUserMapper.getCompanyEcmpUserList(deptId, userIds.get(i));
+                ecmpUserDto.setSubDept("无");
+            }else{
+                ecmpUserDto = ecmpUserMapper.getEcmpUserList(deptId, userIds.get(i));
+            }
             String regimeName = "";
             List<RegimeVo> regimeVoList =  regimeInfoMapper.selectByUserId(userIds.get(i));
             if(regimeVoList.size()>0){
@@ -357,8 +387,18 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     * @return
     * */
     @Override
-    public EcmpUserDto selectEcmpUserDetail(Long userId){
-        EcmpUserDto ecmpUserDto = ecmpUserMapper.selectEcmpUserDetail(userId);
+    public EcmpUserDto selectEcmpUserDetail(Long userId,Long deptId){
+        EcmpUser ecmpUser=ecmpUserMapper.selectEcmpUserById(userId);
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
+        String deptType = ecmpOrg.getDeptType();
+        EcmpUserDto ecmpUserDto=new EcmpUserDto();
+        if(OrgConstant.DEPT_TYPE_1.equals(deptType)){
+            ecmpUserDto = ecmpUserMapper.selectCompanyEcmpUserDetail(userId,deptId);
+            ecmpUserDto.setSubDept("无");
+        }
+        if(OrgConstant.DEPT_TYPE_2.equals(deptType)){
+            ecmpUserDto = ecmpUserMapper.selectEcmpUserDetail(userId,deptId);
+        }
         List<EcmpRoleDto> roleList = ecmpUserMapper.selectRoleNameByEcmpUserId(userId);
         List<String> roleNameList= new ArrayList<>();
         if(roleList.size()>0){
@@ -388,10 +428,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         ecmpUserDto.setRegimeName(regimeName);
         ecmpUserDto.setRegimeVoList(regimeVoList);
         //查询所属公司名称
-        Long deptId=ecmpUserDto.getDeptId();
-        EcmpOrgDto subDetail = ecmpOrgMapper.getSubDetail(deptId);
+        /*EcmpOrgDto subDetail = ecmpOrgMapper.getSubDetail(deptId);
         ecmpUserDto.setSubCompany(subDetail.getSupComName());
-        ecmpUserDto.setSubDept(subDetail.getDeptName());
+        ecmpUserDto.setSubDept(subDetail.getDeptName());*/
         return ecmpUserDto;
     }
 
@@ -526,8 +565,19 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     //员工分页
     @Override
     public PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest) {
+        List<EcmpUserDto> list=new ArrayList<>();
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
-        List<EcmpUserDto> list=ecmpUserMapper.getEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO);
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(pageRequest.getDeptId());
+        String deptType = ecmpOrg.getDeptType();
+        if(OrgConstant.DEPT_TYPE_1.equals(deptType)){
+            list=ecmpUserMapper.getCompanyEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO);
+            for (EcmpUserDto ecmpUserDto:list){
+                ecmpUserDto.setSubDept("无");
+            }
+        }
+        if(OrgConstant.DEPT_TYPE_2.equals(deptType)){
+            list=ecmpUserMapper.getEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO);
+        }
         Long ecmpUserPageCount = ecmpUserMapper.getEcmpUserPageCount(pageRequest.getSearch(), pageRequest.getDeptId(),CommonConstant.ZERO);
         return new PageResult<>(ecmpUserPageCount,list);
     }

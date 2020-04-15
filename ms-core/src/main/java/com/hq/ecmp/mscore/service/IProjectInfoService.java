@@ -82,4 +82,8 @@ public interface IProjectInfoService
     List<ProjectUserVO> getProjectUserInfo(Long projectId);
 
     OrgTreeVo selectProjectUserTree( Long projectId);
+
+    List<ProjectInfo> checkProjectCode(String projectCode, Long projectId,Long orgCompany);
+
+    List<ProjectInfo> checkProjectName(String trim, Long orgComcany, Long projectId);
 }

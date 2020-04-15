@@ -6,16 +6,14 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.InvitionStateEnum;
 import com.hq.ecmp.constant.InvitionTypeEnum;
-import com.hq.ecmp.mscore.domain.DriverCreateInfo;
-import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
-import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
-import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpEnterpriseRegisterInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
+import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
 import com.hq.ecmp.mscore.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +38,8 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
     private EcmpEnterpriseRegisterInfoMapper ecmpEnterpriseRegisterInfoMapper;
     @Resource
     private EcmpEnterpriseInvitationInfoMapper invitationInfoMapper;
+    @Autowired
+    private ICarGroupDriverRelationService carGroupDriverRelationService;
     @Resource
     private EcmpUserMapper ecmpUserMapper;
     @Autowired
@@ -283,7 +283,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
             DriverCreateInfo driverCreate = new DriverCreateInfo();
             driverCreate.setMobile(registerInfo.getMobile());
             driverCreate.setDriverName(registerInfo.getName());
-            driverCreate.setCarGroupId(ecmpEnterpriseInvitationInfo.getCarGroupId());
+           // driverCreate.setCarGroupId(registerInfo.getCarGroupId());
             driverCreate.setIdCard(registerInfo.getIdCard());
             driverCreate.setState(CommonConstant.STATE_ON);
             driverCreate.setLicenseType(registerInfo.getLicenseType());
@@ -292,13 +292,28 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
             driverCreate.setLicenseInitIssueDate(registerInfo.getLicenseInitIssueDate());
             driverCreate.setLicenseIssueDate(registerInfo.getLicenseIssueDate());
             driverCreate.setLicenseExpireDate(registerInfo.getLicenseExpireDate());
-            // long job = Long.parseLong(registerInfo.getJobNumber());
-
-            //driverCreate.setUserId(job);
+            long jobNum = Long.valueOf(registerInfo.getJobNumber()).longValue();
+            driverCreate.setUserId(jobNum);
             driverCreate.setGender(registerInfo.getGender());
             driverCreate.setCreateTime(new Date());
-            driverInfoMapper.createDriver(driverCreate);
-            log.info("驾驶员"+registerInfo.getMobile()+"审核添加成功");
+            driverCreate.setCreateBy(userId);
+            int i= driverInfoMapper.createDriver(driverCreate);
+            if(i!=0){
+                Long driverId = driverCreate.getDriverId();
+                System.out.println("新增驾驶员ID："+ driverId);
+                //生成驾驶员-车队关系记录
+                CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
+                carGroupDriverRelation.setCarGroupId(registerInfo.getCarGroupId());
+                carGroupDriverRelation.setDriverId(driverId);
+                carGroupDriverRelation.setCreateBy(userId.toString());
+                carGroupDriverRelation.setCreateTime(new Date());
+                int j = carGroupDriverRelationService.insertCarGroupDriverRelation(carGroupDriverRelation);
+                if(j!=0){
+                    log.info("驾驶员"+registerInfo.getMobile()+"审核添加成功");
+                }
+
+            }
+
         }
         return count;
     }
