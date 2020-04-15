@@ -232,6 +232,7 @@ public class SceneInfoServiceImpl implements ISceneInfoService
             regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimenId);
             String name = regimeInfo.getName();
             String approvalProcess = regimeInfo.getNeedApprovalProcess();
+            map.put("regimenId",regimeInfo.getRegimenId().toString());
             map.put("name",name);
             map.put("approvalProcess",approvalProcess);
             //map.put(name,approvalProcess);
