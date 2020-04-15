@@ -141,9 +141,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 car_group_code as carGroupCode,owner_org as ownerOrg,
                 eo.dept_name ownerOrgName,
                 owner_company as ownerCompany,
+                e1.dept_name as ownerCompanyName,
                 state,city
              from car_group_info
              left join ecmp_org eo on eo.dept_id=owner_org
+            left join ecmp_org e1 on e1.dept_id=owner_company
         <where>
             state != 'S444'
             <if test="search != null and search != '' ">

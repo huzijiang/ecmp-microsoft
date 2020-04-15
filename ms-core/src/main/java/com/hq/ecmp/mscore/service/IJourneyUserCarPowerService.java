@@ -137,5 +137,10 @@ public interface IJourneyUserCarPowerService
     public boolean checkPowerOverTime(Long powerId);
     
     
+    public boolean  checkOrderOverTime(Long powerId);
+    
+    
+    
+    
     
 }

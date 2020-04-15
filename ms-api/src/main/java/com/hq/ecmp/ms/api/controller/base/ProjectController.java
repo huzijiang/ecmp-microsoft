@@ -101,9 +101,49 @@ public class ProjectController {
         if (StringUtils.isEmpty(projectInfoDto.getProjectCode())){
             return ApiResponse.success();
         }
-        List<ProjectInfo> projectInfos = iProjectInfoService.selectProjectInfoList(new ProjectInfo(projectInfoDto.getProjectCode()));
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long orgComcany=null;
+        if (projectInfoDto.getProjectId()==null){
+            EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+            if (ecmpOrg!=null){
+                orgComcany=ecmpOrg.getDeptId();
+            }
+        }else{
+            ProjectInfo projectInfo = iProjectInfoService.selectProjectInfoById(projectInfoDto.getProjectId());
+            orgComcany=projectInfo.getOwnerCompany();
+        }
+        List<ProjectInfo> projectInfos = iProjectInfoService.checkProjectCode(projectInfoDto.getProjectCode(),projectInfoDto.getProjectId(),orgComcany);
         if (CollectionUtils.isNotEmpty(projectInfos)){
-            return ApiResponse.success(SUCCESS.getMsg(),"该编号已存在,不可重复录入!");
+            return ApiResponse.success(SUCCESS.getMsg(),"该项目编号已存在,不可重复录入!");
+        }
+        return ApiResponse.success();
+    }
+    /**
+     * 校验项目名称
+     * @return
+     */
+    @ApiOperation(value = "checkProjectName",notes = "校验项目名称",httpMethod ="POST")
+    @PostMapping("/checkProjectName")
+    public ApiResponse checkProjectName(@RequestBody ProjectInfoDTO projectInfoDto){
+        if (StringUtils.isEmpty(projectInfoDto.getName())){
+            return ApiResponse.success();
+        }
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long orgComcany=null;
+        if (projectInfoDto.getProjectId()==null){
+            EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+            if (ecmpOrg!=null){
+                orgComcany=ecmpOrg.getDeptId();
+            }
+        }else{
+            ProjectInfo projectInfo = iProjectInfoService.selectProjectInfoById(projectInfoDto.getProjectId());
+            orgComcany=projectInfo.getOwnerCompany();
+        }
+        List<ProjectInfo> projectInfos = iProjectInfoService.checkProjectName(projectInfoDto.getName().trim(),orgComcany,projectInfoDto.getProjectId());
+        if (CollectionUtils.isNotEmpty(projectInfos)){
+            return ApiResponse.success(SUCCESS.getMsg(),"该项目名称已存在,不可重复录入!");
         }
         return ApiResponse.success();
     }

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
@@ -33,7 +35,7 @@ public class DriverInfoController {
 		@Autowired
 		TokenService tokenService;
 
-	
+	@Log(title = "驾驶员管理:新增驾驶员", businessType = BusinessType.INSERT)
 	@ApiOperation(value = "create", notes = "新增驾驶员", httpMethod = "POST")
 	@PostMapping("/create")
 	public ApiResponse create(@RequestBody DriverCreateInfo driverCreateInfo) {
@@ -48,6 +50,7 @@ public class DriverInfoController {
 		}
 	}
 	
+	@Log(title = "驾驶员管理:驾驶员列表", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "driverList", notes = "驾驶员列表", httpMethod = "POST")
 	@PostMapping("/driverList")
 	public ApiResponse<PageResult<DriverQueryResult>> driverList(@RequestBody DriverQuery driverQuery) {
@@ -57,12 +60,14 @@ public class DriverInfoController {
 		return ApiResponse.success(pageResult);
 	}
 	
+	@Log(title = "驾驶员管理:驾驶员详情", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "detail", notes = "驾驶员详情", httpMethod = "POST")
 	@PostMapping("/detail")
 	public ApiResponse<DriverQueryResult> detail(@RequestBody Long driverId) {
 		return ApiResponse.success(driverInfoService.queryDriverDetail(driverId));
 	}
 	
+	@Log(title = "驾驶员管理:驾驶员启用/禁用", businessType = BusinessType.UPDATE)
 	@ApiOperation(value = "optDriver", notes = "驾驶员启用/禁用", httpMethod = "POST")
 	@PostMapping("/optDriver")
 	public ApiResponse optRegime(String driverId,String state) {
@@ -74,14 +79,14 @@ public class DriverInfoController {
 	}
 	
 	
-	
+	@Log(title = "驾驶员管理:指定车队下的可用驾驶员", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "carGroup", notes = "指定车队下的可用驾驶员", httpMethod = "POST")
 	@PostMapping("/carGroup")
 	public ApiResponse<CarGroupDriverInfo> queryCarGroupDriverList(@RequestBody Long carGroupId) {
 		return ApiResponse.success(driverInfoService.queryCarGroupDriverList(carGroupId));
 	}
 	
-	
+	@Log(title = "驾驶员管理:校验驾驶员手机号是否已经存在", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "checkMobile", notes = "校验驾驶员手机号是否已经存在", httpMethod = "POST")
 	@PostMapping("/checkMobile")
 	public ApiResponse checkMobile(@RequestBody String mobile) {
@@ -92,7 +97,7 @@ public class DriverInfoController {
 		return ApiResponse.success();
 	}
 	
-	
+	@Log(title = "驾驶员管理:校验驾驶员用户的工号", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "checkjobNumber", notes = "校验驾驶员用户的工号", httpMethod = "POST")
 	@PostMapping("/checkjobNumber")
 	public ApiResponse checkjobNumber(@RequestBody DriverUserJobNumber driverUserJobNumber) {
