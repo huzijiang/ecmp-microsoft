@@ -2226,8 +2226,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			//企业设置中没开启等待时长或者大于预估等待时长
 			return;
 		}
-		//生成一条新返回的的公务用车权限 
-		JourneyUserCarPower journeyUserCarPower=new JourneyUserCarPower(waitDispatchOrderDetailInfo.getApplyId(), waitDispatchOrderDetailInfo.getJourneyId(), new Date(), optUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.BACK_TRACKING,waitDispatchOrderDetailInfo.getNodeId());
+		//生成一条新返回的的公务用车权限
+		List<JourneyNodeInfo> journeyNodeInfoList = iJourneyNodeInfoService.queryJourneyNodeInfoOrderByNumber(waitDispatchOrderDetailInfo.getJourneyId());
+		//取返程的行程节点
+		Long nodeId = journeyNodeInfoList.get(journeyNodeInfoList.size()-1).getNodeId();
+		JourneyUserCarPower journeyUserCarPower=new JourneyUserCarPower(waitDispatchOrderDetailInfo.getApplyId(), waitDispatchOrderDetailInfo.getJourneyId(), new Date(), optUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.BACK_TRACKING,nodeId);
 		journeyUserCarPowerMapper.insertJourneyUserCarPower(journeyUserCarPower);
 		//生成订单
 		OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo();

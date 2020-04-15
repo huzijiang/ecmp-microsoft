@@ -227,6 +227,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
     SELECT
 	a.order_id AS orderId,
 	a.state,
+	a.create_time as createTime,
 	d.apply_type AS applyType,
 	d.update_time as applyPassDate,
 	b.type AS serverType,
