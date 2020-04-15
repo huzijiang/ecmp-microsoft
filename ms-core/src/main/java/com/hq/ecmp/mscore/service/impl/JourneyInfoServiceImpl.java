@@ -27,6 +27,7 @@ import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
 import com.hq.ecmp.mscore.dto.MessageDto;
@@ -187,15 +188,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								//根据权限Id查询对应行程节点中的起止目的地
 								JourneyNodeInfo queryJourneyNodeInfoByPowerId = journeyNodeInfoService.queryJourneyNodeInfoByPowerId(carAuthorityInfo.getTicketId());
 								String returnIsType = carAuthorityInfo.getReturnIsType();
-								if(null !=queryJourneyNodeInfoByPowerId){
-									if(CarConstant.OUTWARD_VOYAGE.equals(returnIsType)){
-										carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanEndAddress());
-									
-									}else if(CarConstant.BACK_TRACKING.equals(returnIsType)){
-										carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanBeginAddress());
-									}
-								}
-								
+							carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanEndAddress());
 								//查询该权限对应的用车城市
 								String cityCode = journeyUserCarPowerService.queryOfficialPowerUseCity(carAuthorityInfo.getTicketId());
 								carAuthorityInfo.setCityCode(cityCode);
@@ -333,6 +326,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 			}
 
 		}
+		
 		return userAuthorityGroupCityList;
 	}
 	

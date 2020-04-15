@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class DriverCreateInfo {
-	
+
 	    String driverName;//司机名字
 		String mobile;//电话号码
 		String gender;//性别   1111-男 0000-女
