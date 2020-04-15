@@ -182,6 +182,14 @@ public interface EcmpUserMapper
     public EcmpUserDto getEcmpUserList(@Param("deptId") Long deptId,@Param("userId")Long userId);
 
     /**
+     * 获取员工列表
+     *
+     * @param deptId 部门编号
+     * @return 结果
+     */
+    public EcmpUserDto getCompanyEcmpUserList(@Param("deptId") Long deptId,@Param("userId")Long userId);
+
+    /**
      * 显示查询总条数
      * @param
      * @return
@@ -200,7 +208,13 @@ public interface EcmpUserMapper
     @param  userId员工编号
     * @return
     * */
-    public EcmpUserDto selectEcmpUserDetail(@Param("userId")Long userId);
+    public EcmpUserDto selectEcmpUserDetail(@Param("userId")Long userId,@Param("deptId")Long deptId);
+
+    /*员工详情
+    @param  userId员工编号
+    * @return
+    * */
+    public EcmpUserDto selectCompanyEcmpUserDetail(@Param("userId")Long userId,@Param("deptId")Long deptId);
 
     public int  queryCompanyEmp();
 
@@ -328,6 +342,9 @@ public interface EcmpUserMapper
     EcmpUserDto selectEcmpUser(EcmpUserVo ecmpUser);
 
     List<EcmpUserDto> getEcmpUserPage(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
+
+    List<EcmpUserDto> getCompanyEcmpUserPage(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
+
     Long getEcmpUserPageCount(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
 
     /**

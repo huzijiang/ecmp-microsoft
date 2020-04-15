@@ -366,6 +366,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="userId != null  and userId != ''">and user_id=#{userId}</if>
     </select>
 
+    <!--查询直属公司的员工列表-->
+    <select id="getCompanyEcmpUserList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+        select
+        nick_name as nickName,phonenumber,
+        if(isnull(job_number),'',job_number) as jobNumber,
+        user_name as userName,
+        user_id as userId,
+        dept_id as deptId,
+        (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='1') as subCompany,
+        `status`
+        from  ecmp_user
+        where
+        del_flag='0'
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
+        <if test="userId != null  and userId != ''">and user_id=#{userId}</if>
+    </select>
+
     <select id="getEcmpUserPage" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
         select
         nick_name as nickName,phonenumber,
@@ -375,6 +392,38 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         dept_id as deptId,
         (select dept_name from ecmp_org where dept_id=a.dept_id and dept_type='2') as subDept,
         (select dept_name from ecmp_org where dept_id= (select parent_id from ecmp_org where dept_id=a.dept_id and dept_type='2')) as subCompany,
+        <if test="status==1">
+            DATE_FORMAT(dimission_time,'%Y-%m-%d') dimissionTimeStr,
+        </if>
+        <if test="status==0">
+            (select group_concat(b.name) from regime_info b where b.regimen_id in (select DISTINCT c.regimen_id from  user_regime_relation_info c where c.user_id=a.user_id)) regimeName,
+        </if>
+        status
+        from  ecmp_user a
+        where del_flag='0'
+        <if test="deptId!=null">
+            and dept_id=#{deptId}
+        </if>
+        <if test="search!=null and search!=''">
+            and (a.nick_name like CONCAT('%',#{search},'%')
+            OR a.phonenumber like
+            CONCAT('%',#{search},'%')
+            OR a.job_number like CONCAT('%',#{search},'%'))
+        </if>
+        <if test="status==1">
+            and status='1' and dimission_time is not null
+        </if>
+
+    </select>
+
+    <select id="getCompanyEcmpUserPage" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+        select
+        nick_name as nickName,phonenumber,
+        if(isnull(job_number),'',job_number) as jobNumber,
+        user_name as userName,
+        user_id as userId,
+        dept_id as deptId,
+        (select dept_name from ecmp_org where dept_id= a.dept_id and dept_type='1') as subCompany,
         <if test="status==1">
             DATE_FORMAT(dimission_time,'%Y-%m-%d') dimissionTimeStr,
         </if>
@@ -435,25 +484,49 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--获取员工详情-->
     <select id="selectEcmpUserDetail" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" >
       SELECT
-      eu.user_id as userId,
-      eu.dept_id as deptId,
-      eu.user_name as userName,
-      eu.nick_name as nickName,
-      eu.user_type as userType,
-      eu.station_code as stationCode,
-      eu.job_number as jobNumber,
-      eu.pay_mode as payMode,
-      eu.remark as remark,
-      eu.it_is_driver as  itIsDriver,
-      eu.it_is_dispatcher as itIsDispatcher,
-      eu.sex  as sex,
-      eu.phonenumber as phonenumber,
-      eu.email as email,
-      eo.dept_name as subDept
-      from ecmp_user as eu
-      left join ecmp_org as eo on eu.dept_id=eo.dept_id
+      user_id as userId,
+      dept_id as deptId,
+      user_name as userName,
+      nick_name as nickName,
+      user_type as userType,
+      if(isnull(station_code),'',station_code) as stationCode,
+      if(isnull(job_number),'',job_number) as jobNumber,
+      if(isnull(pay_mode),'',pay_mode) as payMode,
+      remark as remark,
+      it_is_driver as  itIsDriver,
+      it_is_dispatcher as itIsDispatcher,
+      sex  as sex,
+      phonenumber as phonenumber,
+      email as email,
+      (select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept,
+      (select dept_name from ecmp_org where dept_id= (select parent_id from ecmp_org where dept_id=#{deptId} and dept_type='2')) as subCompany
+      from ecmp_user
       where
-      eu.user_id = #{userId} and eu.del_flag='0' and eo.del_flag='0'
+      user_id = #{userId} and del_flag='0'
+    </select>
+
+
+    <!--获取员工详情-->
+    <select id="selectCompanyEcmpUserDetail" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" >
+      SELECT
+      user_id as userId,
+      dept_id as deptId,
+      user_name as userName,
+      nick_name as nickName,
+      user_type as userType,
+      if(isnull(station_code),'',station_code) as stationCode,
+      if(isnull(job_number),'',job_number) as jobNumber,
+      if(isnull(pay_mode),'',pay_mode) as payMode,
+      remark as remark,
+      it_is_driver as  itIsDriver,
+      it_is_dispatcher as itIsDispatcher,
+      sex  as sex,
+      phonenumber as phonenumber,
+      email as email,
+      (select dept_name from ecmp_org where dept_id=#{deptId}) as subCompany
+      from ecmp_user
+      where
+      user_id = #{userId} and del_flag='0'
     </select>
 
     <!--根据员工编号获取拥有的角色-->
