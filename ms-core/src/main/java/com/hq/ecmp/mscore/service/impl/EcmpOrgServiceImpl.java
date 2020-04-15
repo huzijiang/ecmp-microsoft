@@ -790,7 +790,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 		recursion(selectCombinationOfCompany, result);
 		return result;
 	}
-	
+
 	private void recursion(List<EcmpOrgDto> selectCombinationOfCompany, List<Long> result) {
 		if (null != selectCombinationOfCompany && selectCombinationOfCompany.size() > 0) {
 			for (EcmpOrgDto ecmpOrgDto : selectCombinationOfCompany) {
