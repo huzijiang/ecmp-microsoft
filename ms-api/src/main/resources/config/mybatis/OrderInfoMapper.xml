@@ -903,7 +903,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     <select id="getExpiredOrder" resultMap="OrderInfoResult">
         select oi.* from  order_info oi
         left join order_address_info oai on oi.order_id=oai.order_id and oai.type='A000'
-        where DATE_FORMAT(oai.action_time,'%Y-%m-%d') =DATE_SUB(curdate(),INTERVAL 1 DAY)
+        where oai.action_time &lt; now()
         and oi.state in('S000','S100','S101','S200');
     </select>
 

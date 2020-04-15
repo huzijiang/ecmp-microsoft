@@ -5,7 +5,7 @@ import com.hq.ecmp.constant.CarConstant;
 import lombok.Data;
 
 @Data
-public class UserCarAuthority {
+public class UserCarAuthority implements Comparable<UserCarAuthority>{
 	
 	
      String type;//C001  接机    C009  送机     C222  市内用车
@@ -50,4 +50,18 @@ public class UserCarAuthority {
     	 }
     	
      }
+
+    @Override
+    public int compareTo(UserCarAuthority o) {
+        return orderNum(this.getType())-orderNum(o.getType());
+    }
+    private int  orderNum(String type){
+         if(type.equals(CarConstant.USE_CAR_AIRPORT_PICKUP)){
+             return 1;
+         }else if(type.equals(CarConstant.CITY_USE_CAR)){
+             return 2;
+         }else{
+             return 3;
+         }
+    }
 }
