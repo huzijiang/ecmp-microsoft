@@ -107,6 +107,26 @@ public class ProjectController {
         }
         return ApiResponse.success();
     }
+    /**
+     * 校验项目名称
+     * @return
+     */
+    @ApiOperation(value = "checkProjectName",notes = "校验项目名称",httpMethod ="POST")
+    @PostMapping("/checkProjectName")
+    public ApiResponse checkProjectName(@RequestBody ProjectInfoDTO projectInfoDto){
+        if (StringUtils.isEmpty(projectInfoDto.getName())){
+            return ApiResponse.success();
+        }
+        ProjectInfo projectInfo =  new ProjectInfo();
+        projectInfo.setName(projectInfoDto.getName());
+        List<ProjectInfo> projectInfos = iProjectInfoService.selectProjectInfoList(projectInfo);
+        for (ProjectInfo projectInfo1: projectInfos) {
+            if(projectInfo1.getName().equals(projectInfoDto.getName())){
+                return ApiResponse.success(SUCCESS.getMsg(),"该名称已存在,不可重复录入!");
+            }
+        }
+        return ApiResponse.success();
+    }
 
 //    /**
 //     * 获取项目主管列表
