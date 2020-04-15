@@ -6,9 +6,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.ecmp.mscore.domain.RegimeQueryPo;
+import com.hq.ecmp.mscore.domain.RegimeVo;
+import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.SceneDTO;
 import com.hq.ecmp.mscore.dto.SceneSortDTO;
+import com.hq.ecmp.mscore.service.IRegimeInfoService;
+import com.hq.ecmp.mscore.service.ISceneRegimeRelationService;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.SceneDetailVO;
 import com.hq.ecmp.mscore.vo.SceneListVO;
@@ -43,6 +48,10 @@ public class SceneController {
 	private ISceneInfoService sceneInfoService;
 	@Autowired
     private TokenService tokenService;
+	@Autowired
+	private IRegimeInfoService regimeInfoService;
+	@Autowired
+	private ISceneRegimeRelationService sceneRegimeRelationService;
 	
 	/**
 	 * 获取用户的用车场景
@@ -211,5 +220,31 @@ public class SceneController {
 			e.printStackTrace();
 			return ApiResponse.error("查询所有可用用车场景失败");
 		}
+	}
+
+	/**
+	 * 场景可选制度
+	 * @param regimeQueryPo
+	 * @return
+	 */
+	@Log(title = "场景模块:场景可选制度", businessType = BusinessType.OTHER)
+	@ApiOperation(value = "scenarioSelectionSystem", notes = "场景可选制度", httpMethod = "POST")
+	@PostMapping("/scenarioSelectionSystem")
+	public ApiResponse<List<RegimeVo>> queryRegimeList(@RequestBody RegimeQueryPo regimeQueryPo) {
+		//所有用车制度
+		List<RegimeVo> regimeVoList = regimeInfoService.queryRegimeList(regimeQueryPo);
+		//场景制度中已经用过的制度
+		List<SceneRegimeRelation>  sceneRegimeRelation= sceneRegimeRelationService.selectSceneRegimeRelationList(new SceneRegimeRelation());
+		//选出可以使用的制度
+		for(int i= 0; i<regimeVoList.size(); i++){
+			for(int s =0; s<sceneRegimeRelation.size() ; s++){
+				if(regimeVoList.get(i).getRegimeId().equals(sceneRegimeRelation.get(s).getRegimenId())){
+					regimeVoList.remove(i);
+					i --;
+					break;
+				}
+			}
+		}
+		return ApiResponse.success(regimeVoList);
 	}
 }
