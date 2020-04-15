@@ -83,4 +83,8 @@ public interface ProjectInfoMapper
     Long getProjectListCount(String search, Long fatherProjectId);
 
     int selectChildProject(Long projectId);
+
+    List<ProjectInfo> checkProjectCode(@Param("projectCode")String projectCode,@Param("projectId") Long projectId,@Param("orgCompany")Long orgCompany);
+
+    List<ProjectInfo> checkProjectName(@Param("name")String name,@Param("orgCompany") Long orgComcany,@Param("projectId") Long projectId);
 }

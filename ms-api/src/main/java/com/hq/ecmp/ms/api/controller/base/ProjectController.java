@@ -101,9 +101,21 @@ public class ProjectController {
         if (StringUtils.isEmpty(projectInfoDto.getProjectCode())){
             return ApiResponse.success();
         }
-        List<ProjectInfo> projectInfos = iProjectInfoService.selectProjectInfoList(new ProjectInfo(projectInfoDto.getProjectCode()));
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long orgComcany=null;
+        if (projectInfoDto.getProjectId()==null){
+            EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+            if (ecmpOrg!=null){
+                orgComcany=ecmpOrg.getDeptId();
+            }
+        }else{
+            ProjectInfo projectInfo = iProjectInfoService.selectProjectInfoById(projectInfoDto.getProjectId());
+            orgComcany=projectInfo.getOwnerCompany();
+        }
+        List<ProjectInfo> projectInfos = iProjectInfoService.checkProjectCode(projectInfoDto.getProjectCode(),projectInfoDto.getProjectId(),orgComcany);
         if (CollectionUtils.isNotEmpty(projectInfos)){
-            return ApiResponse.success(SUCCESS.getMsg(),"该编号已存在,不可重复录入!");
+            return ApiResponse.success(SUCCESS.getMsg(),"该项目编号已存在,不可重复录入!");
         }
         return ApiResponse.success();
     }
@@ -117,13 +129,21 @@ public class ProjectController {
         if (StringUtils.isEmpty(projectInfoDto.getName())){
             return ApiResponse.success();
         }
-        ProjectInfo projectInfo =  new ProjectInfo();
-        projectInfo.setName(projectInfoDto.getName());
-        List<ProjectInfo> projectInfos = iProjectInfoService.selectProjectInfoList(projectInfo);
-        for (ProjectInfo projectInfo1: projectInfos) {
-            if(projectInfo1.getName().equals(projectInfoDto.getName())){
-                return ApiResponse.success(SUCCESS.getMsg(),"该名称已存在,不可重复录入!");
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long orgComcany=null;
+        if (projectInfoDto.getProjectId()==null){
+            EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+            if (ecmpOrg!=null){
+                orgComcany=ecmpOrg.getDeptId();
             }
+        }else{
+            ProjectInfo projectInfo = iProjectInfoService.selectProjectInfoById(projectInfoDto.getProjectId());
+            orgComcany=projectInfo.getOwnerCompany();
+        }
+        List<ProjectInfo> projectInfos = iProjectInfoService.checkProjectName(projectInfoDto.getName().trim(),orgComcany,projectInfoDto.getProjectId());
+        if (CollectionUtils.isNotEmpty(projectInfos)){
+            return ApiResponse.success(SUCCESS.getMsg(),"该项目名称已存在,不可重复录入!");
         }
         return ApiResponse.success();
     }

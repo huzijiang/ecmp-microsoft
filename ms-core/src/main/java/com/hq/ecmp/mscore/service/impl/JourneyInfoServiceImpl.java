@@ -24,6 +24,7 @@ import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
 import com.hq.ecmp.mscore.dto.MessageDto;
@@ -154,6 +155,10 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 				RegimeInfo regimeInfo = regimeInfoService.queryRegimeType(journeyInfo.getRegimenId());
 				if(null !=regimeInfo){
 					if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getRegimenType())){
+						if(journeyUserCarPowerService.checkJourneyNoteAllComplete(journeyInfo.getJourneyId())){
+							//表示该行程下面所有订单都已完成了  则首页不显示这条行程
+							continue;
+						}
 						CarAuthorityInfo carAuthorityInfo = new CarAuthorityInfo();
 						carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
 						carAuthorityInfo.setType(regimeInfo.getRegimenType());
@@ -184,15 +189,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								//根据权限Id查询对应行程节点中的起止目的地
 								JourneyNodeInfo queryJourneyNodeInfoByPowerId = journeyNodeInfoService.queryJourneyNodeInfoByPowerId(carAuthorityInfo.getTicketId());
 								String returnIsType = carAuthorityInfo.getReturnIsType();
-								if(null !=queryJourneyNodeInfoByPowerId){
-									if(CarConstant.OUTWARD_VOYAGE.equals(returnIsType)){
-										carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanEndAddress());
-									
-									}else if(CarConstant.BACK_TRACKING.equals(returnIsType)){
-										carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanBeginAddress());
-									}
-								}
-								
+							carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanEndAddress());
 								//查询该权限对应的用车城市
 								String cityCode = journeyUserCarPowerService.queryOfficialPowerUseCity(carAuthorityInfo.getTicketId());
 								carAuthorityInfo.setCityCode(cityCode);

@@ -212,4 +212,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         union (select user_id from project_user_relation_info where project_id=#{projectId})
         ) a
     </select>
+
+    <select id="checkProjectCode" resultMap="ProjectInfoResult">
+        <include refid="selectProjectInfoVo"/>
+        where project_code = #{projectCode} and is_effective=0
+        <if test="orgCompany!=null">
+            and owner_company=#{orgCompany}
+        </if>
+        <if test="projectId!=null">
+            and project_id!=#{projectId}
+        </if>
+    </select>
+    <select id="checkProjectName" resultMap="ProjectInfoResult">
+        <include refid="selectProjectInfoVo"/>
+        where name = #{name} and is_effective=0
+        <if test="orgCompany!=null">
+            and owner_company=#{orgCompany}
+        </if>
+        <if test="projectId!=null">
+            and project_id!=#{projectId}
+        </if>
+    </select>
 </mapper>

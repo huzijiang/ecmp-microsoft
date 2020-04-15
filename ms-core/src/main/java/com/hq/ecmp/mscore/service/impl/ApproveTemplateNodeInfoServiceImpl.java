@@ -140,9 +140,12 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
         approveTemplateInfo.setName(addFolwDTO.getName());
         approveTemplateInfo.setCreateBy(String.valueOf(userId));
         approveTemplateInfo.setCreateTime(new Date());
+        log.info("新增审批流参数:"+addFolwDTO.getName()+"创建人"+userId+"审批级数"+addFolwDTO.getFlowList().size());
         int count = approveTemplateInfoMapper.insertApproveTemplateInfo(approveTemplateInfo);
-        List<FolwInfoDTO> flowList = addFolwDTO.getFlowList();
-        addTemeplateNode(flowList,approveTemplateInfo.getApproveTemplateId(),userId);
+        if (count>0){
+            List<FolwInfoDTO> flowList = addFolwDTO.getFlowList();
+            addTemeplateNode(flowList,approveTemplateInfo.getApproveTemplateId(),userId);
+        }
     }
 
     @Override
@@ -258,11 +261,11 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
             if (ApproveTypeEnum.APPROVE_T002.getKey().equals(flowList.get(i).getType())) {
                 String userIds = userRoleMapper.findUserIds(flowList.get(i).getRoleIds());
                 nodeInfo.setUserId(userIds);
-            } else if(ApproveTypeEnum.APPROVE_T001.getKey().equals(flowList.get(i).getType())){
+//            } else if(ApproveTypeEnum.APPROVE_T001.getKey().equals(flowList.get(i).getType())){
 //                String deptId = flowList.get(i).getDeptProjectId();
 //                UserVO deptLeader = getDeptLeader(Long.parseLong(deptId));
 //                nodeInfo.setUserId(String.valueOf(deptLeader.getUserId()));
-            }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(flowList.get(i).getType())){
+//            }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(flowList.get(i).getType())){
                 //TODO 产品需求不明确以防万一更改
 //                String projectId = flowList.get(i).getDeptProjectId();
 //                ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(Long.parseLong(projectId));
