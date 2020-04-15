@@ -58,5 +58,7 @@ public class UserDto {
 
     String sceneIds;
 
+    Boolean all;
+
 
 }

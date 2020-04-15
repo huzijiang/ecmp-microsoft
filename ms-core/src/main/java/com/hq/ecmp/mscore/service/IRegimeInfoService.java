@@ -158,5 +158,12 @@ public interface IRegimeInfoService
 
     /*根据场景id查询制度集合*/
     List<RegimenVO> selectRegimesBySceneId(Long sceneId);
+
+    /**
+     * 查询所有制度RegimenVO
+     * @return
+     */
+    List<RegimenVO> selectAllRegimenVO();
+
 }
 

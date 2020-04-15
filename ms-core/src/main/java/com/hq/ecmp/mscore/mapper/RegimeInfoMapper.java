@@ -110,4 +110,6 @@ public interface RegimeInfoMapper
     
     
     public RegimeVo queryRegimeInfoByOrderId(Long orderId);
+
+    List<RegimenVO> selectAllRegimenVO();
 }
