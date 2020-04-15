@@ -1693,7 +1693,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setUpdateTime(DateUtils.getNowDate());
         int suc = orderInfoMapper.updateOrderInfo(orderInfo);
         //自有车，且状态变更成功
-        if (suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE) && !state.equals(OrderState.WAITINGLIST.getState())) {
+        if (suc == 1 && useCarMode!=null && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE) && !state.equals(OrderState.WAITINGLIST.getState())) {
             //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
             ismsBusiness.sendMessageCancelOrder(orderId,userId);
         }
