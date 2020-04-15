@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
@@ -56,7 +58,7 @@ public class DispatchController {
     private TokenService tokenService;
 
 
-
+    @Log(title = "车辆调度:获取申请调度列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getApplyDispatchList", notes = "获取申请调度列表 ", httpMethod = "POST")
     @PostMapping("/getApplyDispatchList")
     public ApiResponse<PageResult<ApplyDispatchVo>> getUserDispatchedOrder(@RequestBody ApplyDispatchQuery query){
@@ -67,21 +69,21 @@ public class DispatchController {
     }
 
 
-
+    @Log(title = "车辆调度:获取系统已经完成调派或已过期的订单详细信息(包含申请和改派的)", businessType = BusinessType.OTHER)
     @ApiOperation(value = "detail", notes = "获取系统已经完成调派或已过期的订单详细信息(包含申请和改派的) ", httpMethod = "POST")
     @PostMapping("/detail")
     public ApiResponse<DispatchSendCarPageInfo> detail(@RequestBody String orderId) {
     	return ApiResponse.success(iOrderInfoService.getUserDispatchedOrder(Long.valueOf(orderId)));
     }
 
-
+    @Log(title = "车辆调度:派车详情页(包含申请和改派的)", businessType = BusinessType.OTHER)
     @ApiOperation(value = "sendDetail", notes = "派车详情页(包含申请和改派的)", httpMethod = "POST")
     @PostMapping("/sendDetail")
     public ApiResponse<DispatchSendCarPageInfo> sendDetail(@RequestBody Long orderId) {
     	return ApiResponse.success(iOrderInfoService.getDispatchSendCarPageInfo(orderId));
     }
 
-
+    @Log(title = "车辆调度:获取改派列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getReassignmentDispatchList", notes = "获取改派列表 ", httpMethod = "POST")
     @PostMapping("/getReassignmentDispatchList")
     public ApiResponse<PageResult<ApplyDispatchVo>> getReassignmentDispatchList(@RequestBody ApplyDispatchQuery query){
@@ -91,7 +93,7 @@ public class DispatchController {
         return ApiResponse.success(pageResult);
     }
 
-
+    @Log(title = "车辆调度:改派订单-驳回", businessType = BusinessType.OTHER)
     @ApiOperation(value = "改派订单-驳回", httpMethod = "POST")
     @RequestMapping("/rejectReassign")
     public ApiResponse rejectReassign(@RequestParam String orderId,
@@ -104,7 +106,8 @@ public class DispatchController {
     	}
     	return ApiResponse.error();
     }
-
+    
+    @Log(title = "车辆调度:自有车派车", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "ownCarSendCar", notes = "自有车派车", httpMethod = "POST")
 	@PostMapping("/ownCarSendCar")
 	public ApiResponse ownCarSendCar(String OrderNo, String driverId, String carId) {
