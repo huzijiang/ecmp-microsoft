@@ -1052,7 +1052,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 }
                 //起点
                 if(j == 0){
-                    orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+                    if(type.equals(CarConstant.BACK_TRACKING)){
+                        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+                    }else{
+                        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+                    }
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanSetoutTime());
                     orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLongitude()));
                     orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLatitude()));
@@ -1063,7 +1067,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 }
                 //终点
                 if(j==journeyNodeInfoList.size()-1 && !ServiceTypeConstant.CHARTERED.equals(serviceType)){
-                    orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+                    if(type.equals(CarConstant.BACK_TRACKING)){
+                        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+                    }else{
+                        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+                    }
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanArriveTime());
                     orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
                     orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));

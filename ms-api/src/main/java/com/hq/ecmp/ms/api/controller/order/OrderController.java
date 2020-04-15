@@ -2,9 +2,13 @@ package com.hq.ecmp.ms.api.controller.order;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.*;
+import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.OrderServiceType;
+import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
@@ -13,26 +17,20 @@ import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
-import com.hq.ecmp.mscore.dto.DriverCloudDto;
 import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.MacTools;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -83,6 +81,7 @@ public class OrderController {
      * @param officialOrderReVo
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "公务创建订单",businessType = BusinessType.INSERT,operatorType = OperatorType.MOBILE)
     @Log(value = "公务创建订单")
     @ApiOperation(value = "公务创建订单", notes = "公务创建订单", httpMethod = "POST")
     @PostMapping("/officialOrder")
@@ -134,6 +133,7 @@ public class OrderController {
      * @param
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "自动约车",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "自动约车")
     @ApiOperation(value = "letPlatCallTaxi", notes = "自动约车-向网约车平台发起约车请求 改变订单的状态为  约车中-->已派单", httpMethod = "POST")
     @PostMapping("/letPlatCallTaxi")
@@ -217,6 +217,7 @@ public class OrderController {
      * @param orderDto 行程申请信息
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "用户确认订单",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "确认订单")
     @ApiOperation(value = "affirmOrder", notes = "用户确认订单 ", httpMethod = "POST")
     @PostMapping("/affirmOrder")
@@ -255,6 +256,7 @@ public class OrderController {
      * @param orderDto 行程申请信息
      * @return
      */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "取消订单",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "取消订单")
     @ApiOperation(value = "cancelOrder", notes = "用户取消订单 ", httpMethod = "POST")
     @PostMapping("/cancelOrder")
@@ -408,6 +410,7 @@ public class OrderController {
      * @Date 10:11 2020/3/4
      * @Param []
      **/
+    @com.hq.core.aspectj.lang.annotation.Log(title = "我的行程列表",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "我的行程列表")
     @ApiOperation(value = "我的行程订单列表", httpMethod = "POST")
     @RequestMapping("/getOrderList")
@@ -425,6 +428,7 @@ public class OrderController {
         return ApiResponse.success(orderList);
     }
 
+    @com.hq.core.aspectj.lang.annotation.Log(title = "改派订单",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "改派订单")
     @ApiOperation(value = "改派订单", httpMethod = "POST")
     @RequestMapping("/reassign")
@@ -509,6 +513,7 @@ public class OrderController {
     *   @Param  [applyUseWithTravelDto]
     *   @return com.hq.common.core.api.ApiResponse
     **/
+    @com.hq.core.aspectj.lang.annotation.Log(title = "差旅下单",businessType = BusinessType.INSERT,operatorType = OperatorType.MOBILE)
     @Log(value = "差旅下单")
     @ApiOperation(value = "差旅下单接口",notes = "")
     @RequestMapping("/travelOrder")
@@ -527,6 +532,7 @@ public class OrderController {
         return ApiResponse.success("申请派车成功",orderId);
     }
 
+    @com.hq.core.aspectj.lang.annotation.Log(title = "驾驶员评价",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
     @Log(value = "驾驶员评价")
     @ApiOperation(value = "驾驶员评价接口")
     @PostMapping("/orderDriverAppraise")
@@ -663,27 +669,5 @@ public class OrderController {
             e.printStackTrace();
             return  ApiResponse.error("获取提示语异常!");
         }
-    }
-
-    @ApiOperation(value = "自有车手动约车接口", notes = "自有车手动约车接口")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "orderNo", value = "订单id", required = true, paramType = "query", dataType = "String")
-    })
-    @RequestMapping(value = "/letUserCallTaxiPrivate", method = RequestMethod.POST)
-    public ApiResponse letUserCallTaxiPrivate( @RequestParam("orderNo") String orderNo){
-        try {
-            Long orderId = Long.parseLong(orderNo);
-            OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setOrderId(orderId);
-            orderInfo.setState(OrderState.WAITINGLIST.getState());
-            int i = iOrderInfoService.updateOrderInfo(orderInfo);
-            if (i != 1) {
-                throw new Exception("约车失败");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ApiResponse.error();
-        }
-        return ApiResponse.success();
     }
 }
