@@ -19,7 +19,15 @@ public class EcmpDictDataServiceImpl implements IEcmpDictDataService
 {
     @Autowired
     private EcmpDictDataMapper ecmpDictDataMapper;
-
+    /**
+     * 根据字典类型查询字典数据
+     *
+     * @param dictType 字典类型
+     * @return 字典数据集合
+     */
+    public List<EcmpDictData> selectEcmpDictDataByType(String dictType){
+        return ecmpDictDataMapper.selectEcmpDictDataByType(dictType);
+    }
     /**
      * 查询字典数据
      *
@@ -93,4 +101,21 @@ public class EcmpDictDataServiceImpl implements IEcmpDictDataService
     {
         return ecmpDictDataMapper.deleteEcmpDictDataById(dictCode);
     }
+    /**
+     * 评价标签的好评
+     * @return 字典数据集合
+     */
+   /* @Override
+    public List<EcmpDictData> selectEcmpDictDataByTypeGOOD(){
+        return ecmpDictDataMapper.selectEcmpDictDataByTypeGOOD();
+    }
+
+    *//**
+     * 评价标签的差评
+     * @return 字典数据集合
+     *//*
+    @Override
+    public List<EcmpDictData> selectEcmpDictDataByTypeBAD(){
+        return ecmpDictDataMapper.selectEcmpDictDataByTypeBAD();
+    }*/
 }

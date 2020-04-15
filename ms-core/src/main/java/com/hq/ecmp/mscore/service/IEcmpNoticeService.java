@@ -1,8 +1,11 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EcmpNotice;
+import com.hq.ecmp.mscore.vo.PageResult;
 
+import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 通知公告Service接口
@@ -27,6 +30,8 @@ public interface IEcmpNoticeService
      * @return 通知公告集合
      */
     public List<EcmpNotice> selectEcmpNoticeList(EcmpNotice ecmpNotice);
+
+    List<EcmpNotice> selectEcmpNoticeListByOtherId(Map map);
 
     /**
      * 新增通知公告
@@ -59,4 +64,45 @@ public interface IEcmpNoticeService
      * @return 结果
      */
     public int deleteEcmpNoticeById(Integer noticeId);
+
+    /**
+     * 查询所有的公公告信息
+     * @return
+     */
+    List<EcmpNotice> selectAll();
+
+    /**
+     * 根据用户Id查询公告详细信息
+     * @param userId
+     * @return
+     */
+    EcmpNotice selectNoticeDetailByUserId(Long userId);
+
+    /**
+     * 根据用户Id获取有效期内的最新公告
+     * @param userId
+     * @return
+     */
+    EcmpNotice selectExpirationDateNewNotice(Long userId);
+
+    /**
+     * 分页全部查询公告列表（带搜索功能）
+     * @param pageNum
+     * @param pageSize
+     * @param search
+     * @return
+     */
+    PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize);
+
+    /**
+     * 查询公告列表详情（后台管理系统）
+     * @param //carGroupId
+     * @return
+     */
+    EcmpNotice getNoticeDetails(Integer noticeId);
+
+    /**
+     * 定时任务修改公告状态
+     */
+    void announcementTask() throws ParseException;
 }

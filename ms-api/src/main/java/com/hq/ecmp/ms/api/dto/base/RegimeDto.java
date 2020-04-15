@@ -16,7 +16,7 @@ public class RegimeDto {
      */
     @NotEmpty
     @ApiParam(required = true)
-    Long regimeId;
+    Long regimenId;
 
 
 }

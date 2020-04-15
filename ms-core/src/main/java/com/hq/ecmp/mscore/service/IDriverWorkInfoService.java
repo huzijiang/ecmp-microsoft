@@ -1,6 +1,10 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
+import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
+import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
+import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
+import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
 
@@ -59,4 +63,59 @@ public interface IDriverWorkInfoService
      * @return 结果
      */
     public int deleteDriverWorkInfoById(Long workId);
+
+    /**
+     * 查询司机当月排班/出勤信息
+     * @param scheduleDate
+     * @return
+     */
+    List<DriverDutyPlanVO> selectDriverWorkInfoByMonth(String scheduleDate, Long userId);
+
+    /**
+     * 加载司机应该出勤/已出勤天数
+     * @param scheduleDate
+     * @return
+     */
+    DriverDutySummaryVO selectDriverDutySummary(String scheduleDate, Long userId);
+
+    /**
+     * 按月查询司机排班信息
+     * @param scheduleDate
+     * @param userId
+     * @return
+     */
+    DriverDutyPlanVO selectDriverScheduleByMonth(String scheduleDate, Long userId);
+
+    public DriverDutyWorkVO selectDriverSchedule(String scheduleDate, Long driverId);
+
+    /**
+     * 按月获取司机的排班详情
+     * @param driverId
+     * @param month
+     * @return
+     */
+    List<DriverWorkInfoMonthVo> getDriverWorkInfoMonthList(Long driverId,String month);
+
+    /**
+     * 按月更新司机的排班信息
+     * @param driverWorkInfoDetailVo
+     * @param userId  更新人
+     */
+    void updateDriverWorkDetailMonth(DriverWorkInfoDetailVo driverWorkInfoDetailVo,Long userId);
+
+    //public DriverDutyWorkVO selectSchedule(String scheduleDate);
+    /**
+     * 按月获取全部司机的排班详情
+     * @param month
+     * @return
+     */
+    List<WorkInfoMonthVo> getWorkInfoMonthList(String month);
+
+    /**
+     * 按月更新全部司机的排班信息
+     * @param workInfoDetailVo
+     * @param userId  更新人
+     */
+    void updateWorkDetailMonth(WorkInfoDetailVo workInfoDetailVo,Long userId);
+
 }

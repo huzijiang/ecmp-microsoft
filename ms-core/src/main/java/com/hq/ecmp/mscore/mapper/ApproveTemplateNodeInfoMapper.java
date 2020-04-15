@@ -1,6 +1,9 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo;
+import com.hq.ecmp.mscore.vo.ApprovalUserVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +13,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface ApproveTemplateNodeInfoMapper
 {
     /**
@@ -59,4 +63,22 @@ public interface ApproveTemplateNodeInfoMapper
      * @return 结果
      */
     public int deleteApproveTemplateNodeInfoByIds(Long[] approveNodeIds);
+
+    /**根据节点id查询所有审批节点用户id*/
+    String getListByNodeIds(@Param("nodeIds") List<Long> nodeIds);
+    /**根据模板id查询所有审批节点id*/
+    String getApproveNodesByTemplateId(Long approveTemplateId);
+
+    int deleteByTemplateId(Long approveTemplateId);
+
+    List<ApprovalUserVO> getApproveUsers(String userIds);
+    String getAllApproveUserId(Long approveTemplateId);
+
+    /**
+     * 查询第一个审批节点
+     * @param regimeId
+     * @return
+     */
+    ApproveTemplateNodeInfo selectFirstOpproveNode(Long regimeId);
+
 }

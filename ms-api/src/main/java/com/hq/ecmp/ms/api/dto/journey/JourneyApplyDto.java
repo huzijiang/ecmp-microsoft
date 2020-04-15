@@ -29,5 +29,4 @@ public class JourneyApplyDto {
     private Long jouneyId;
 
 
-
 }

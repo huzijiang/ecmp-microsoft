@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
+import com.hq.ecmp.mscore.dto.CarGroupDTO;
+import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
 
@@ -59,4 +61,84 @@ public interface ICarGroupInfoService
      * @return 结果
      */
     public int deleteCarGroupInfoById(Long carGroupId);
+
+    /**
+     * 新增车队和调度员信息
+     * @param carGroupDTO
+     */
+    void saveCarGroupAndDispatcher(CarGroupDTO carGroupDTO,Long userId) throws Exception;
+
+    /**
+     * 车队详情
+     * @param carGroupId
+     * @return
+     */
+    CarGroupDetailVO getCarGroupDetail(Long carGroupId);
+
+    /**
+     * 修改车队
+     * @param carGroupDTO
+     */
+    void updateCarGroup(CarGroupDTO carGroupDTO,Long userId) throws Exception;
+
+    /**
+     * 禁用车队
+     * @param carGroupId
+     * @param userId
+     */
+    void disableCarGroup(Long carGroupId, Long userId) throws Exception;
+
+    /**
+     * 启用车队
+     * @param carGroupId
+     * @param userId
+     */
+    void startUpCarGroup(Long carGroupId, Long userId) throws Exception;
+
+    /**
+     * 分页查询车队信息
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId);
+
+    /**
+     * 删除车队
+     * @param carGroupId
+     * @param userId
+     */
+    String deleteCarGroup(Long carGroupId,Long userId) throws Exception;
+
+    //查询下级车队列表
+    List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);
+
+    /**
+     * 查询指定城市所有车队调度员及车队座机
+     * @param
+     * @return
+     */
+    List<CarGroupPhoneVO> getCarGroupPhone(String cityCode);
+
+    /**
+     * 查询调度员电话及调度员所在车队座机
+     * @param
+     * @return
+     */
+    DispatcherAndFixedLineVO getDispatcherAndFixedLine(Long orderId);
+
+    /*根据分子公司id查询车队树*/
+    List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
+
+    /*查询所有车队编号*/
+    List<String> selectAllCarGroupCode();
+
+    /*判断车队编号是否存在*/
+    boolean judgeCarGroupCode(String carGroupCode);
+
+    /*回显车队信息*/
+    CarGroupDTO getCarGroupInfoFeedBack(Long carGroupId);
+
+    /*查询司机所属车队座机及调度员电话*/
+    CarGroupPhoneVO getOwnerCarGroupPhone();
 }

@@ -4,6 +4,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
+
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -94,6 +96,16 @@ public class DriverInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Date licenseExpireDate;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private BigDecimal star;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String state;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String stateDescription;
 
     public void setDriverId(Long driverId)
     {
@@ -274,6 +286,37 @@ public class DriverInfo extends BaseEntity
     public Date getLicenseExpireDate()
     {
         return licenseExpireDate;
+    }
+
+    public BigDecimal getStar() {
+        return star;
+    }
+
+    public void setStar(BigDecimal star) {
+        this.star = star;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getStateDescription() {
+        return stateDescription;
+    }
+
+    public void setStateDescription(String stateDescription) {
+        this.stateDescription = stateDescription;
+    }
+
+    public DriverInfo() {
+    }
+
+    public DriverInfo(Long userId) {
+        this.userId = userId;
     }
 
     @Override

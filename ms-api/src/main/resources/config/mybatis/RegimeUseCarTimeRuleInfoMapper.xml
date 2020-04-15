@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.RegimeUseCarTimeRuleInfoMapper">
+		
+    
+    <insert id="batchInsert">
+     insert into regime_use_car_time_rule_info  (regimen_id,rule_action,rule_key,start_time,end_time,create_by,create_time)
+      values
+      <foreach collection="list" separator="," item="item">
+      (#{item.regimenId},#{item.ruleAction},#{item.ruleKey},#{item.startTime},#{item.endTime},#{item.createBy},#{item.createTime})
+      </foreach>
+    </insert>
+    
+    <select id="queryRegimeUseCarTimeRuleInfoList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeUseCarTimeRuleInfo">
+    select rule_key as ruleKey,start_time as startTime,end_time as endTime from regime_use_car_time_rule_info where regimen_id=#{regimenId}
+    </select>
+  
+</mapper>

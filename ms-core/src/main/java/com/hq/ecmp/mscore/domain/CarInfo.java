@@ -1,5 +1,9 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -12,6 +16,10 @@ import java.util.Date;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CarInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -45,7 +53,7 @@ public class CarInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long seatNum;
+    private Integer seatNum;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -101,7 +109,59 @@ public class CarInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String ownerOrgId;
+    private Long ownerOrgId;  //TODO String 改动
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long enterpriseCarTypeId;  //TODO er模型数据   车型 商务 公务 等
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date rentStartDate;  //TODO 新增 租赁开始时间
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date borrowStartDate; // TODO 新增 借调开始时间
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date borrowEndDate; // TODO 新增 借调结束时间
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String  assetTag; // TODO 新增 资产标签
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String  source; // TODO 新增 车辆来源
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Double  price; // TODO 新增 购车价格
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Double  tax; // TODO 新增 购车价格
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Double  licensePrice; // TODO 新增 牌号费
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String  drivingLicense; // TODO 新增 牌号费
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date  drivingLicenseStartDate; // TODO 新增 牌号费
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date  drivingLicenseEndDate; // TODO 新增 牌号费
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String  lockState; // TODO 新增 牌号费
 
     public void setCarId(Long carId)
     {
@@ -166,12 +226,12 @@ public class CarInfo extends BaseEntity
     {
         return carType;
     }
-    public void setSeatNum(Long seatNum)
+    public void setSeatNum(Integer seatNum)
     {
         this.seatNum = seatNum;
     }
 
-    public Long getSeatNum()
+    public Integer getSeatNum()
     {
         return seatNum;
     }
@@ -292,12 +352,12 @@ public class CarInfo extends BaseEntity
     {
         return rentEndDate;
     }
-    public void setOwnerOrgId(String ownerOrgId)
+    public void setOwnerOrgId(Long ownerOrgId)
     {
         this.ownerOrgId = ownerOrgId;
     }
 
-    public String getOwnerOrgId()
+    public Long getOwnerOrgId()
     {
         return ownerOrgId;
     }

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -59,4 +60,14 @@ public interface SceneRegimeRelationMapper
      * @return 结果
      */
     public int deleteSceneRegimeRelationByIds(Long[] sceneIds);
+
+    /**
+     * 根据场景id查询制度id集合
+     * @param sceneId
+     * @return
+     */
+    List<Long> selectRegimenIdsBySceneId(@Param("sceneId") Long sceneId );
+    
+    public Integer deleteSceneRegimeRelationByRegimeId(Long regimeId);
+
 }

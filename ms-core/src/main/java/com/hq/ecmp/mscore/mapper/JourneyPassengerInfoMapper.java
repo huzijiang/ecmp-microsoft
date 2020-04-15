@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface JourneyPassengerInfoMapper
 {
     /**
@@ -29,9 +31,9 @@ public interface JourneyPassengerInfoMapper
     public List<JourneyPassengerInfo> selectJourneyPassengerInfoList(JourneyPassengerInfo journeyPassengerInfo);
 
     /**
-     * 新增【请填写功能名称】
+     * 新增行程乘客信息
      *
-     * @param journeyPassengerInfo 【请填写功能名称】
+     * @param journeyPassengerInfo 行程乘客信息
      * @return 结果
      */
     public int insertJourneyPassengerInfo(JourneyPassengerInfo journeyPassengerInfo);
@@ -59,4 +61,10 @@ public interface JourneyPassengerInfoMapper
      * @return 结果
      */
     public int deleteJourneyPassengerInfoByIds(Long[] journeyPassengerIds);
+
+    String getPeerPeople(Long journeyId);
+
+    public Integer queryPeerCount(Long journeyId);
+    
+    public List<String> queryPeerUserNameList(Long journeyId);
 }

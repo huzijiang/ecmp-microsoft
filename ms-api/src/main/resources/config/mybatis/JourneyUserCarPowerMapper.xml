@@ -96,5 +96,113 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{powerId}
         </foreach>
     </delete>
+    
+    <select id="queryNoteAllUserAuthority" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.UserCarAuthority">
+SELECT
+	a.power_id AS ticketId,
+	b.order_id as orderId,
+	a.state AS authorityUse,
+	a.type AS type
+FROM
+	journey_user_car_power a
+LEFT JOIN (
+	SELECT
+		MAX(order_id) AS order_id,
+		power_id
+	FROM
+		order_info
+	GROUP BY
+		power_id
+) b ON a.power_id = b.power_id
+WHERE
+	a.node_id = #{nodeId} ORDER BY a.power_id 
+    </select>
+    
+    <select id="queryUserAuthorityFromService"
+	resultType="com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority">
+	SELECT
+	a.node_id AS noteId,
+	vehicle AS vehicle,
+	b.power_id AS ticketId,
+	b.state as useStatus,
+	a.plan_begin_address AS cityName,
+	a.plan_begin_city_code AS cityCode,
+	c.regimen_id AS regimenId
+	FROM
+	journey_node_info a
+	LEFT JOIN journey_user_car_power b ON a.node_id = b.node_id
+	LEFT JOIN journey_info c ON a.journey_id = c.journey_id
+	WHERE
+	b.type = #{type}
+	AND a.journey_id = #{journeyId}
+</select>
+    
+    <select id="querySurplusNum" parameterType="com.hq.ecmp.mscore.domain.JourneyUserCarPower" resultType="java.lang.Integer">
+    SELECT
+	count(1)
+FROM
+	journey_user_car_power a
+LEFT JOIN journey_node_info b ON a.node_id = b.node_id
+WHERE
+	b.journey_id = #{journeyId}
+AND b.plan_begin_address = #{cityName}
+AND a.state = 'U000'
+AND a.type = #{type}
+    </select>
+    
+    <insert id="batchInsert">
+    insert into journey_user_car_power (apply_id,node_id,journey_id,state,type,create_by,create_time) values
+    <foreach collection="list"  item="item" separator=",">
+    (#{item.applyId},#{item.nodeId},#{item.journeyId},#{item.state},#{item.type},#{item.createUser},#{item.createDate})
+    </foreach>
+    </insert>
+    
+    <select id="queryJourneyAllUserAuthority" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.CarAuthorityInfo">
+    SELECT
+	a.power_id AS ticketId,
+	b.order_id as orderId,
+	a.state AS status,
+	a.type AS returnIsType
+FROM
+	journey_user_car_power a
+LEFT JOIN (
+	SELECT
+		MAX(order_id) AS order_id,
+		power_id
+	FROM
+		order_info
+	GROUP BY
+		power_id
+) b ON a.power_id = b.power_id
+WHERE
+	a.journey_id= #{journeyId}
+    
+    </select>
+    
+    <select id="queryOfficialPowerUseCity" parameterType="java.lang.Long"
+	resultType="com.hq.ecmp.mscore.domain.CarAuthorityInfo">
+	SELECT
+	a.plan_begin_city_code AS planBeginCityCode,
+	plan_end_city_code AS
+	planEndCityCode,
+	b.type AS type
+	FROM
+	journey_node_info a
+	LEFT JOIN journey_user_car_power b ON a.node_id = b.node_id
+	WHERE
+	b.power_id =#{powerId}
+</select>
+
+<select id="queryOfficialOrderNeedPower" resultType="com.hq.ecmp.mscore.domain.CarAuthorityInfo"
+	parameterType="java.lang.Long">
+	SELECT
+	power_id AS ticketId,
+	regimen_id AS regimenId
+	FROM
+	journey_user_car_power a
+	LEFT JOIN journey_info b ON a.journey_id = b.journey_id
+	WHERE
+	a.journey_id = #{journeyId}
+</select>
 
 </mapper>

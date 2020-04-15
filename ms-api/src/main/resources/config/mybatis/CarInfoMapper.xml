@@ -16,17 +16,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carColor"    column="car_color"    />
         <result property="carLicenseColor"    column="car_license_color"    />
         <result property="powerType"    column="power_type"    />
-        <result property="carType01"    column="car_type_01"    />
+        <result property="carType"    column="car_type"    />
         <result property="engineNumber"    column="engine_number"    />
         <result property="engineCc"    column="engine_cc"    />
         <result property="enginePower"    column="engine_power"    />
         <result property="carNumber"    column="car_number"    />
         <result property="carImgaeUrl"    column="car_imgae_url"    />
+        <result property="source"    column="source"    />
+        <result property="price"    column="price"    />
+        <result property="licensePrice"    column="license_price"    />
+        <result property="lockState"    column="lock_state"    />
         <result property="carDrivingLicenseImagesUrl"    column="car_driving_license_images_url"    />
         <result property="carLicenseImageUrl"    column="car_license_image_url"    />
+        <result property="assetTag"    column="asset_tag"    />
         <result property="buyDate"    column="buy_date"    />
+        <result property="borrowStartDate"    column="borrow_start_date"    />
+        <result property="borrowEndDate"    column="borrow_end_date"    />
         <result property="rentEndDate"    column="rent_end_date"    />
-        <result property="ownerOrgId"    column="owner_org_id"    />
+        <result property="rentStartDate"    column="rent_start_date"    />
+        <result property="drivingLicenseEndDate"    column="driving_license_end_date"    />
+        <result property="drivingLicenseStartDate"    column="driving_license_start_date"    />
+        <result property="drivingLicense"    column="driving_license"    />
+        <result property="tax"    column="tax"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -34,12 +45,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCarInfoVo">
-        select car_id, car_group_id, dept_id, car_type_id, car_license, state, car_type, seat_num, car_color, car_license_color, power_type, car_type_01, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date, owner_org_id, create_by, create_time, update_by, update_time from car_info
+
+        select car_id,asset_tag,borrow_end_date,borrow_start_date,tax,driving_license, car_group_id,driving_license_start_date,driving_license_end_date, dept_id,power_type, car_type_id, car_license,lock_state, state,license_price, car_type, seat_num,price, car_color, car_license_color,source, power_type, car_type, engine_number, engine_cc, engine_power, car_number, car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date,rent_start_date, create_by, create_time, update_by, update_time from car_info
+
     </sql>
 
     <select id="selectCarInfoList" parameterType="com.hq.ecmp.mscore.domain.CarInfo" resultMap="CarInfoResult">
         <include refid="selectCarInfoVo"/>
         <where>
+            state != 'S444'
             <if test="carGroupId != null "> and car_group_id = #{carGroupId}</if>
             <if test="deptId != null "> and dept_id = #{deptId}</if>
             <if test="carTypeId != null "> and car_type_id = #{carTypeId}</if>
@@ -50,7 +64,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''"> and car_color = #{carColor}</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''"> and car_license_color = #{carLicenseColor}</if>
             <if test="powerType != null  and powerType != ''"> and power_type = #{powerType}</if>
-            <if test="carType01 != null  and carType01 != ''"> and car_type_01 = #{carType01}</if>
+            <if test="carType != null  and carType != ''"> and car_type = #{carType}</if>
             <if test="engineNumber != null  and engineNumber != ''"> and engine_number = #{engineNumber}</if>
             <if test="engineCc != null  and engineCc != ''"> and engine_cc = #{engineCc}</if>
             <if test="enginePower != null  and enginePower != ''"> and engine_power = #{enginePower}</if>
@@ -70,6 +84,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertCarInfo" parameterType="com.hq.ecmp.mscore.domain.CarInfo">
+        <selectKey keyColumn="car_id" keyProperty="carId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into car_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="carId != null ">car_id,</if>
@@ -78,12 +95,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carTypeId != null ">car_type_id,</if>
             <if test="carLicense != null  and carLicense != ''">car_license,</if>
             <if test="state != null  and state != ''">state,</if>
-            <if test="carType != null  and carType != ''">car_type,</if>
             <if test="seatNum != null ">seat_num,</if>
             <if test="carColor != null  and carColor != ''">car_color,</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">car_license_color,</if>
             <if test="powerType != null  and powerType != ''">power_type,</if>
-            <if test="carType01 != null  and carType01 != ''">car_type_01,</if>
+            <if test="carType != null  and carType != ''">car_type,</if>
             <if test="engineNumber != null  and engineNumber != ''">engine_number,</if>
             <if test="engineCc != null  and engineCc != ''">engine_cc,</if>
             <if test="enginePower != null  and enginePower != ''">engine_power,</if>
@@ -93,12 +109,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carLicenseImageUrl != null  and carLicenseImageUrl != ''">car_license_image_url,</if>
             <if test="buyDate != null ">buy_date,</if>
             <if test="rentEndDate != null ">rent_end_date,</if>
-            <if test="ownerOrgId != null  and ownerOrgId != ''">owner_org_id,</if>
+            <if test="ownerOrgId != null ">owner_org_id,</if>
+            <if test="enterpriseCarTypeId != null ">enterprise_car_type_id,</if>
+            <if test="rentStartDate != null ">rent_start_date,</if>
+            <if test="borrowStartDate != null ">borrow_start_date,</if>
+            <if test="borrowEndDate != null ">borrow_end_date,</if>
+            <if test="drivingLicenseEndDate != null ">driving_license_end_date,</if>
+            <if test="drivingLicenseStartDate != null ">driving_license_start_date,</if>
+            <if test="drivingLicense != null ">driving_license,</if>
+            <if test="tax != null ">tax,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
             <if test="updateTime != null ">update_time,</if>
-         </trim>
+            <if test="source != null ">source,</if>
+            <if test="assetTag != null ">asset_tag,</if>
+            <if test="licensePrice != null ">license_price,</if>
+            <if test="price != null ">price,</if>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="carId != null ">#{carId},</if>
             <if test="carGroupId != null ">#{carGroupId},</if>
@@ -106,12 +134,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carTypeId != null ">#{carTypeId},</if>
             <if test="carLicense != null  and carLicense != ''">#{carLicense},</if>
             <if test="state != null  and state != ''">#{state},</if>
-            <if test="carType != null  and carType != ''">#{carType},</if>
             <if test="seatNum != null ">#{seatNum},</if>
             <if test="carColor != null  and carColor != ''">#{carColor},</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">#{carLicenseColor},</if>
             <if test="powerType != null  and powerType != ''">#{powerType},</if>
-            <if test="carType01 != null  and carType01 != ''">#{carType01},</if>
+            <if test="carType != null  and carType != ''">#{carType},</if>
             <if test="engineNumber != null  and engineNumber != ''">#{engineNumber},</if>
             <if test="engineCc != null  and engineCc != ''">#{engineCc},</if>
             <if test="enginePower != null  and enginePower != ''">#{enginePower},</if>
@@ -121,12 +148,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carLicenseImageUrl != null  and carLicenseImageUrl != ''">#{carLicenseImageUrl},</if>
             <if test="buyDate != null ">#{buyDate},</if>
             <if test="rentEndDate != null ">#{rentEndDate},</if>
-            <if test="ownerOrgId != null  and ownerOrgId != ''">#{ownerOrgId},</if>
+            <if test="ownerOrgId != null ">#{ownerOrgId},</if>
+            <if test="enterpriseCarTypeId != null ">#{enterpriseCarTypeId},</if>
+            <if test="rentStartDate != null ">#{rentStartDate},</if>
+            <if test="borrowStartDate != null ">#{borrowStartDate},</if>
+            <if test="borrowEndDate != null ">#{borrowEndDate},</if>
+            <if test="drivingLicenseEndDate != null ">#{drivingLicenseEndDate},</if>
+            <if test="drivingLicenseStartDate != null ">#{drivingLicenseStartDate},</if>
+            <if test="drivingLicense != null ">#{drivingLicense},</if>
+            <if test="tax != null ">#{tax},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
-         </trim>
+            <if test="source != null ">#{source},</if>
+            <if test="assetTag != null ">#{assetTag},</if>
+            <if test="licensePrice != null ">#{licensePrice},</if>
+            <if test="price != null ">#{price},</if>
+        </trim>
     </insert>
 
     <update id="updateCarInfo" parameterType="com.hq.ecmp.mscore.domain.CarInfo">
@@ -142,7 +181,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carColor != null  and carColor != ''">car_color = #{carColor},</if>
             <if test="carLicenseColor != null  and carLicenseColor != ''">car_license_color = #{carLicenseColor},</if>
             <if test="powerType != null  and powerType != ''">power_type = #{powerType},</if>
-            <if test="carType01 != null  and carType01 != ''">car_type_01 = #{carType01},</if>
             <if test="engineNumber != null  and engineNumber != ''">engine_number = #{engineNumber},</if>
             <if test="engineCc != null  and engineCc != ''">engine_cc = #{engineCc},</if>
             <if test="enginePower != null  and enginePower != ''">engine_power = #{enginePower},</if>
@@ -157,9 +195,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="source != null ">source = #{source},</if>
+            <if test="assetTag != null ">asset_tag = #{assetTag},</if>
+            <if test="licensePrice != null ">license_price = #{licensePrice},</if>
+            <if test="price != null ">price = #{price},</if>
+            <if test="drivingLicenseStartDate != null ">driving_license_start_date = #{drivingLicenseStartDate},</if>
+            <if test="drivingLicenseEndDate != null ">driving_license_end_date = #{drivingLicenseEndDate},</if>
+            <if test="tax != null ">tax = #{tax},</if>
+            <if test="drivingLicense != null ">driving_license = #{drivingLicense},</if>
+            <if test="borrowEndDate != null ">borrow_end_date = #{borrowEndDate},</if>
+            <if test="borrowStartDate != null ">borrow_start_date = #{borrowStartDate},</if>
+            <if test="rentStartDate != null ">rent_start_date = #{rentStartDate},</if>
+            <if test="enterpriseCarTypeId != null ">enterprise_car_type_id = #{enterpriseCarTypeId},</if>
         </trim>
         where car_id = #{carId}
     </update>
+
 
     <delete id="deleteCarInfoById" parameterType="Long">
         delete from car_info where car_id = #{carId}
@@ -171,5 +222,169 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{carId}
         </foreach>
     </delete>
+    <select id="selectCountGroupCarByGroupId" resultType="int" parameterType="long">
+        select count(1) from car_info where car_group_id = #{carGroupId} and state != 'S444'
+    </select>
+
+    <select id="queryCompanyCar"  resultType="java.lang.Integer">
+          select count(*) from car_info
+    </select>
+
+    <!--根据组织id查询归属车辆信息-->
+    <select id="selectCarCountByDeptId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(1)from  car_info where dept_id = #{deptId}
+    </select>
+
+    <select id="locationCars" parameterType="com.hq.ecmp.mscore.dto.CarLocationDto" resultType="com.hq.ecmp.mscore.vo.CarLocationVo">
+
+                select dhi.longitude ,
+                        dhi.latitude,
+                        ecti.`level`,
+                        c.car_type,
+                        c.car_color,
+                        c.car_license,
+                        o.state,
+                        o.order_id,
+                        o.driver_name,
+                        o.driver_mobile
+                from car_info c
+                left  join order_info o on o.car_id=c.car_id
+                left  join
+                (	select d1.* from driver_heartbeat_info d1,
+                (select dd.driver_id,dd.order_id,max(dd.create_time) mtime from driver_heartbeat_info dd
+                group by dd.driver_id,dd.order_id) d2
+                where d1.driver_id=d2.driver_id and d1.order_id=d2.order_id and d1.create_time=d2.mtime ) dhi
+                on dhi.driver_id=o.driver_id and dhi.order_id=o.order_id
+                left join enterprise_car_type_info ecti on ecti.car_type_id=c.car_type_id
+                left join car_group_info cgi on cgi.car_group_id=c.car_group_id
+                <where>
+                    o.state in(
+                    'S299','S500','S600','S616'
+                    )
+                    <if test="carLevel != null and carLevel != ''">   and ecti.`level`= #{carLevel}</if>
+                    <if test="carLicense != null and carLicense != ''">   and c.car_license like CONCAT('%',#{carLicense},'%')</if>
+                    <if test="powerType != null and powerType != ''">    and c.power_type=#{powerType}</if>
+                    <if test="assetTag != null and assetTag != ''">     and c.asset_tag like CONCAT('%',#{assetTag},'%')</if>
+                    <if test="carSource != null and carSource != '' ">    and c.source=#{carSource}</if>
+                    <if test="carState != null and carState != '' ">    and c.state=#{carState}</if>
+                    <if test="cityId != null  and cityId != ''">    and cgi.city=#{cityId}</if>
+                </where>
+    </select>
+
+    <select id="selectGroupEffectiveCarIds" resultType="java.lang.Long" parameterType="long">
+        select car_id  from car_info where car_group_id = #{carGropuId} and state = 'S001'
+    </select>
+
+    <!-- 查询车队的所有车辆信息，自动剔除不能用的-->
+    <select id="dispatcherSelectCarGroupOwnedCarInfoList" resultMap="CarInfoResult" parameterType="com.hq.ecmp.mscore.bo.SelectCarConditionBo">
+        select
+           car.*
+        from car_group_info cg
+        LEFT JOIN car_info  car on  car.car_group_id=cg.car_group_id
+        LEFT JOIN enterprise_car_type_info ect  on  ect.car_type_id=car.car_type_id
+        <where>
+            1=1
+            and  cg.state='Y000'
+            and  car.state='S000'
+            and  car.lock_state='0000'
+            <if test="carTypeInfo != null  and carTypeInfo != '' ">     AND  car.car_type LIKE CONCAT('%',#{carTypeInfo},'%') </if>
+            <if test="passengers != null  and passengers != ''">    AND car.seat_num>#{passengers}</if>
+            <if test="carGroupId != null  and carGroupId != '' ">    AND cg.car_group_id=#{carGroupId}</if>
+            <if test="carLevel != null  and carLevel != '' ">    AND ect.car_group_id=#{carLevel}</if>
+        </where>
+    </select>
+
+    <!-- 查询可用的车辆信息,使用车牌号，-->
+    <select id="dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense" resultMap="CarInfoResult" parameterType="com.hq.ecmp.mscore.bo.SelectCarConditionBo">
+        select
+            car.*
+        from car_group_info cg
+        LEFT JOIN car_info  car on  car.car_group_id=cg.car_group_id
+        LEFT JOIN enterprise_car_type_info ect  on  ect.car_type_id=car.car_type_id
+        <where>
+            1=1
+            and  cg.state='Y000'
+            <if test="carTypeInfo != null  and carTypeInfo != '' ">     AND  car.car_type LIKE CONCAT('%',#{carTypeInfo},'%') </if>
+            <if test="carLicense != null  and carLicense != '' ">     AND  car.car_license LIKE CONCAT('%',#{carLicense},'%') </if>
+            <if test="carGroupId != null  and carGroupId != '' ">    AND cg.car_group_id=#{carGroupId}</if>
+            <if test="passengers != null  and passengers != ''">    AND car.seat_num>#{passengers}</if>
+            <if test="carLevel != null  and carLevel != '' ">    AND  ect.`level`=#{carLevel}</if>
+        </where>
+    </select>
+
+    <update id="disableCarByCarId" parameterType="long" >
+        update car_info set state = 'S001' where car_id = #{carId}
+    </update>
+
+
+    <update id="lockCar"  parameterType="long">
+        update car_info
+        set lock_state = '1111'
+        <where>
+            1=1
+            and  lock_state='0000'
+            <if test="carId != null  and carId != '' ">    and car_id=#{carId}</if>
+        </where>
+    </update>
+
+    <update id="unlockCar" parameterType="long">
+        update car_info
+        set lock_state = '0000'
+        <where>
+            1=1
+            and lock_state='1111'
+            <if test="carId != null  and carId != '' ">    and car_id=#{carId}</if>
+        </where>
+    </update>
+    <select id="selectCarInfoListByGroupId" resultMap="CarInfoResult">
+        <include refid="selectCarInfoVo"/>
+        <where>
+        state != 'S444'
+        <if test="carGroupId != null "> and car_group_id = #{carGroupId}</if>
+        <if test="carTypeId != null and carTypeId!='' "> and car_type_id = #{carTypeId}</if>
+        <if test="state != null and state!=''"> and state = #{state}</if>
+        <if test="search != null and search!='' "> and car_license like CONCAT('%',#{search},'%')</if>
+        </where>
+    </select>
+
+	<select id="queryCarGroupCarList" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.vo.CarListVO">
+		SELECT
+		car_license AS carLicense,
+		car_type AS carType,
+		a.car_id as carId
+		FROM
+		car_info a
+		WHERE
+		car_group_id = #{carGroupId}
+		AND state = 'S000'
+	</select>
+
+    <update id="updateCarInfoByCarGroupId" parameterType="com.hq.ecmp.mscore.domain.CarInfo">
+        update car_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where car_group_id = #{carGroupId}
+    </update>
+    <select id="selectCarTypeList" resultType="java.lang.String">
+        SELECT DISTINCT car_type FROM car_info
+    </select>
+
+    <update id="updateStartCar" parameterType="com.hq.ecmp.mscore.domain.CarInfo">
+        update car_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where car_id = #{carId}
+        <![CDATA[ AND SYSDATE() <= IFNULL(rent_end_date,SYSDATE())
+                  AND SYSDATE() <= IFNULL(borrow_end_date,SYSDATE()
+                  AND SYSDATE() <= IFNULL(driving_license_end_date,SYSDATE())
+                  AND state != 'S444') ]]>
+    </update>
 
 </mapper>

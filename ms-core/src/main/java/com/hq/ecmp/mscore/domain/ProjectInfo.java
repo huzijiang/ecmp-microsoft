@@ -24,11 +24,18 @@ public class ProjectInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long leader;
+    private String leader;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String projectCode;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long fatherProjectId;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Integer isAllUserUse;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Integer isEffective;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -37,6 +44,10 @@ public class ProjectInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String closeDate;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long ownerCompany;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long ownerOrg;
 
     public void setProjectId(Long projectId)
     {
@@ -56,12 +67,12 @@ public class ProjectInfo extends BaseEntity
     {
         return name;
     }
-    public void setLeader(Long leader)
+    public void setLeader(String leader)
     {
         this.leader = leader;
     }
 
-    public Long getLeader()
+    public String getLeader()
     {
         return leader;
     }
@@ -91,6 +102,62 @@ public class ProjectInfo extends BaseEntity
     public String getCloseDate()
     {
         return closeDate;
+    }
+
+    public Long getFatherProjectId() {
+        return fatherProjectId;
+    }
+
+    public void setFatherProjectId(Long fatherProjectId) {
+        this.fatherProjectId = fatherProjectId;
+    }
+
+    public Integer getIsAllUserUse() {
+        return isAllUserUse;
+    }
+
+    public void setIsAllUserUse(Integer isAllUserUse) {
+        this.isAllUserUse = isAllUserUse;
+    }
+
+    public ProjectInfo() {
+    }
+
+    public Integer getIsEffective() {
+        return isEffective;
+    }
+
+    public void setIsEffective(Integer isEffective) {
+        this.isEffective = isEffective;
+    }
+
+    public ProjectInfo(String projectCode) {
+        this.projectCode = projectCode;
+    }
+
+    public Long getOwnerCompany() {
+        return ownerCompany;
+    }
+
+    public void setOwnerCompany(Long ownerCompany) {
+        this.ownerCompany = ownerCompany;
+    }
+
+    public Long getOwnerOrg() {
+        return ownerOrg;
+    }
+
+    public void setOwnerOrg(Long ownerOrg) {
+        this.ownerOrg = ownerOrg;
+    }
+
+    public ProjectInfo(Long projectId, Integer isEffective) {
+        this.projectId = projectId;
+        this.isEffective = isEffective;
+    }
+
+    public ProjectInfo(Integer isEffective) {
+        this.isEffective = isEffective;
     }
 
     @Override

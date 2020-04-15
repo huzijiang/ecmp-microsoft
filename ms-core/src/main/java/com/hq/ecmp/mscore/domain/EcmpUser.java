@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -69,6 +70,44 @@ public class EcmpUser extends BaseEntity
     /** 最后登陆时间 */
     @Excel(name = "最后登陆时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date loginDate;
+
+    /** 是否司机（0否 1是） */
+    @Excel(name = "是否司机", readConverterExp = "0否 1是")
+    private String itIsDriver;
+
+    /** 是否车队调度（0否 1是） */
+    @Excel(name = "是否车队调度", readConverterExp = "0否 1是")
+    private String itIsDispatcher;
+
+    /** 驻地代码 */
+    @Excel(name = "驻地代码")
+    private String stationCode;
+
+    /** 离职日期 */
+    @Excel(name = "预设离职日期", width = 30, dateFormat = "yyyy-MM-dd")
+    private Date dimissionTime;
+
+    @Excel(name =  "企业支付")
+    private String payMode;
+
+    @Excel(name =  "工号")
+    private String jobNumber;
+
+    public String getStationCode() {
+        return stationCode;
+    }
+
+    public void setStationCode(String stationCode) {
+        this.stationCode = stationCode;
+    }
+
+    public Date getDimissionTime() {
+        return dimissionTime;
+    }
+
+    public void setDimissionTime(Date dimissionTime) {
+        this.dimissionTime = dimissionTime;
+    }
 
     public void setUserId(Long userId)
     {
@@ -195,6 +234,46 @@ public class EcmpUser extends BaseEntity
     public Date getLoginDate()
     {
         return loginDate;
+    }
+
+    public String getItIsDriver() {
+        return itIsDriver;
+    }
+
+    public void setItIsDriver(String itIsDriver) {
+        this.itIsDriver = itIsDriver;
+    }
+
+    public String getItIsDispatcher() {
+        return itIsDispatcher;
+    }
+
+    public void setItIsDispatcher(String itIsDispatcher) {
+        this.itIsDispatcher = itIsDispatcher;
+    }
+
+    public String getPayMode() {
+        return payMode;
+    }
+
+    public void setPayMode(String payMode) {
+        this.payMode = payMode;
+    }
+
+    public String getJobNumber() {
+        return jobNumber;
+    }
+
+    public void setJobNumber(String jobNumber) {
+        this.jobNumber = jobNumber;
+    }
+
+    public EcmpUser() {
+    }
+
+    public EcmpUser(String status, String delFlag) {
+        this.status = status;
+        this.delFlag = delFlag;
     }
 
     @Override

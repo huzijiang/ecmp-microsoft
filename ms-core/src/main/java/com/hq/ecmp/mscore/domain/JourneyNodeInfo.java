@@ -1,5 +1,8 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -12,6 +15,8 @@ import java.util.Date;
  * @author hqer
  * @date 2020-01-02
  */
+@Builder
+@AllArgsConstructor
 public class JourneyNodeInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -45,7 +50,7 @@ public class JourneyNodeInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long planBeginLongitude;
+    private String planBeginLongitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -53,7 +58,7 @@ public class JourneyNodeInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long planEndLongitude;
+    private String planEndLongitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -85,7 +90,57 @@ public class JourneyNodeInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long number;
+    private Integer number;
+    
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String planBeginLongAddress;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String planEndLongAddress;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String planBeginCityCode;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String planEndCityCode;
+    
+
+    public String getPlanBeginCityCode() {
+        return planBeginCityCode;
+    }
+
+    public void setPlanBeginCityCode(String planBeginCityCode) {
+        this.planBeginCityCode = planBeginCityCode;
+    }
+
+    public String getPlanEndCityCode() {
+        return planEndCityCode;
+    }
+
+    public void setPlanEndCityCode(String planEndCityCode) {
+        this.planEndCityCode = planEndCityCode;
+    }
+
+    public String getPlanEndLongAddress() {
+        return planEndLongAddress;
+    }
+
+    public void setPlanEndLongAddress(String planEndLongAddress) {
+        this.planEndLongAddress = planEndLongAddress;
+    }
+
+    public String getPlanBeginLongAddress() {
+        return planBeginLongAddress;
+    }
+
+    public void setPlanBeginLongAddress(String planBeginLongAddress) {
+        this.planBeginLongAddress = planBeginLongAddress;
+    }
 
     public void setNodeId(Long nodeId)
     {
@@ -150,12 +205,12 @@ public class JourneyNodeInfo extends BaseEntity
     {
         return planArriveTime;
     }
-    public void setPlanBeginLongitude(Long planBeginLongitude)
+    public void setPlanBeginLongitude(String planBeginLongitude)
     {
         this.planBeginLongitude = planBeginLongitude;
     }
 
-    public Long getPlanBeginLongitude()
+    public String getPlanBeginLongitude()
     {
         return planBeginLongitude;
     }
@@ -168,12 +223,12 @@ public class JourneyNodeInfo extends BaseEntity
     {
         return planBeginLatitude;
     }
-    public void setPlanEndLongitude(Long planEndLongitude)
+    public void setPlanEndLongitude(String planEndLongitude)
     {
         this.planEndLongitude = planEndLongitude;
     }
 
-    public Long getPlanEndLongitude()
+    public String getPlanEndLongitude()
     {
         return planEndLongitude;
     }
@@ -240,14 +295,31 @@ public class JourneyNodeInfo extends BaseEntity
     {
         return nodeState;
     }
-    public void setNumber(Long number)
+    public void setNumber(Integer number)
     {
         this.number = number;
     }
 
-    public Long getNumber()
+    public Integer getNumber()
     {
         return number;
+    }
+
+    public JourneyNodeInfo() {
+    }
+
+    public JourneyNodeInfo(Long journeyId) {
+        this.journeyId = journeyId;
+    }
+
+    public JourneyNodeInfo(Long journeyId, Long userId) {
+        this.journeyId = journeyId;
+        this.userId = userId;
+    }
+
+    public JourneyNodeInfo(Long journeyId, String itIsViaPoint) {
+        this.journeyId = journeyId;
+        this.itIsViaPoint = itIsViaPoint;
     }
 
     @Override

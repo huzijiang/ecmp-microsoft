@@ -72,5 +72,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{driverId}
         </foreach>
     </delete>
+    <select id="selectCountDriver" resultType="int" parameterType="long">
+        select count(1) from car_group_driver_relation where car_group_id = #{carGroupId}
+    </select>
+    <select id="selectGroupEffectiveDrives" resultType="com.hq.ecmp.mscore.vo.DriverVO">
+        select t2.driver_id as driverId, t2.user_id as userId, t2.driver_name as driverName
+        from driver_info t2
+        inner join car_group_driver_relation t1 on t1.driver_id = t2.driver_id
+        where t1.car_group_id = #{carGroupId} and t2.lock_state = '0000'
+    </select>
+
 
 </mapper>

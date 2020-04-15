@@ -11,6 +11,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="leaderLevel"    column="leader_level"    />
         <result property="roleId"    column="role_id"    />
         <result property="userId"    column="user_id"    />
+        <result property="deptProjectId"    column="dept_project_id"    />
+        <result property="nextNodeId"    column="next_node_id"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -18,7 +20,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectApproveTemplateNodeInfoVo">
-        select approve_node_id, approve_template_id, approver_type, leader_level, role_id, user_id, create_by, create_time, update_by, update_time from approve_template_node_info
+        select approve_node_id, approve_template_id, approver_type, leader_level, role_id, user_id,next_node_id, create_by, create_time, update_by, update_time,dept_project_id from approve_template_node_info
     </sql>
 
     <select id="selectApproveTemplateNodeInfoList" parameterType="com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo" resultMap="ApproveTemplateNodeInfoResult">
@@ -29,6 +31,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="leaderLevel != null  and leaderLevel != ''"> and leader_level = #{leaderLevel}</if>
             <if test="roleId != null  and roleId != ''"> and role_id = #{roleId}</if>
             <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="nextNodeId != null "> and next_node_id = #{nextNodeId}</if>
         </where>
     </select>
 
@@ -37,7 +40,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where approve_node_id = #{approveNodeId}
     </select>
 
-    <insert id="insertApproveTemplateNodeInfo" parameterType="com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo">
+    <insert id="insertApproveTemplateNodeInfo" parameterType="com.hq.ecmp.mscore.domain.ApproveTemplateNodeInfo" useGeneratedKeys="true" keyProperty="approveNodeId">
         insert into approve_template_node_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="approveNodeId != null ">approve_node_id,</if>
@@ -46,6 +49,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="leaderLevel != null  and leaderLevel != ''">leader_level,</if>
             <if test="roleId != null  and roleId != ''">role_id,</if>
             <if test="userId != null ">user_id,</if>
+            <if test="deptProjectId != null ">dept_project_id,</if>
+            <if test="nextNodeId != null ">next_node_id,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -58,6 +63,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="leaderLevel != null  and leaderLevel != ''">#{leaderLevel},</if>
             <if test="roleId != null  and roleId != ''">#{roleId},</if>
             <if test="userId != null ">#{userId},</if>
+            <if test="deptProjectId != null ">#{deptProjectId},</if>
+            <if test="nextNodeId != null ">#{nextNodeId},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -73,6 +80,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="leaderLevel != null  and leaderLevel != ''">leader_level = #{leaderLevel},</if>
             <if test="roleId != null  and roleId != ''">role_id = #{roleId},</if>
             <if test="userId != null ">user_id = #{userId},</if>
+            <if test="deptProjectId != null ">dept_project_id = #{deptProjectId},</if>
+            <if test="nextNodeId != null ">next_node_id = #{nextNodeId},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -92,4 +101,38 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+
+    <!--手动编写sql start-->
+    <select id="getListByNodeIds" parameterType="Object" resultType="String">
+        select group_concat(distinct user_id) from approve_template_node_info
+        <if test="nodeIds!=null">
+            where approve_node_id in
+            <foreach item="approveNodeId" collection="nodeIds" open="(" separator="," close=")">
+                #{approveNodeId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getApproveNodesByTemplateId" parameterType="Object" resultType="String">
+        select group_concat(user_id) from approve_template_node_info where approve_template_id=#{approveTemplateId}
+    </select>
+    <delete id="deleteByTemplateId">
+        delete from approve_template_node_info where approve_template_id=#{approveTemplateId}
+    </delete>
+
+    <select id="getApproveUsers" resultType="com.hq.ecmp.mscore.vo.ApprovalUserVO">
+        select user_id userId,nick_name approvalName,phonenumber approvalPhone from ecmp_user
+        where find_in_set(user_id,#{userIds})
+    </select>
+
+    <select id="getAllApproveUserId" resultType="String">
+        select group_concat(distinct user_id) userId from approve_template_node_info where approve_template_id=#{approveTemplateId}
+    </select>
+    <select id="selectFirstOpproveNode" resultMap="ApproveTemplateNodeInfoResult">
+         SELECT t1.approve_node_id, t1.approve_template_id, t1.approver_type, t1.leader_level, t1.role_id, t1.user_id,t1.next_node_id
+         FROM approve_template_node_info t1
+        WHERE t1.approve_template_id = (SELECT t2.approve_template_id FROM regime_info t2 WHERE regimen_id = #{regimeId})
+        ORDER BY t1.approve_node_id ASC
+        LIMIT 0,1
+    </select>
 </mapper>

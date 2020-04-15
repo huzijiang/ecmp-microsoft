@@ -5,6 +5,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
+import java.math.BigDecimal;
+
 /**
  * 【请填写功能名称】对象 driver_heartbeat_info
  *
@@ -28,11 +30,11 @@ public class DriverHeartbeatInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long longitude;
+    private BigDecimal longitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long latitude;
+    private BigDecimal latitude;
 
     public void setHeartId(Long heartId)
     {
@@ -56,28 +58,35 @@ public class DriverHeartbeatInfo extends BaseEntity
     {
         this.orderId = orderId;
     }
-
-    public Long getOrderId()
-    {
+    public Long getOrderId() {
         return orderId;
     }
-    public void setLongitude(Long longitude)
-    {
-        this.longitude = longitude;
-    }
-
-    public Long getLongitude()
-    {
+    public BigDecimal getLongitude() {
         return longitude;
     }
-    public void setLatitude(Long latitude)
-    {
+    public void setLongitude(BigDecimal longitude) {
+        this.longitude = longitude;
+    }
+    public BigDecimal getLatitude() {
+        return latitude;
+    }
+    public void setLatitude(BigDecimal latitude) {
         this.latitude = latitude;
     }
 
-    public Long getLatitude()
-    {
-        return latitude;
+    public DriverHeartbeatInfo() {
+    }
+
+    public DriverHeartbeatInfo(Long driverId, Long orderId) {
+        this.driverId = driverId;
+        this.orderId = orderId;
+    }
+
+    public DriverHeartbeatInfo(Long driverId, Long orderId, BigDecimal longitude, BigDecimal latitude) {
+        this.driverId = driverId;
+        this.orderId = orderId;
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
     @Override

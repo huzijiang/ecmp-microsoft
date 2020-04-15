@@ -93,4 +93,20 @@ public class JourneyPassengerInfoServiceImpl implements IJourneyPassengerInfoSer
     {
         return journeyPassengerInfoMapper.deleteJourneyPassengerInfoById(journeyPassengerId);
     }
+
+    @Override
+    public String getPeerPeople(Long journeyId) {
+        return journeyPassengerInfoMapper.getPeerPeople(journeyId);
+    }
+
+	@Override
+	public Integer queryPeerCount(Long journeyId) {
+		// TODO Auto-generated method stub
+		return journeyPassengerInfoMapper.queryPeerCount(journeyId);
+	}
+
+	@Override
+	public List<String> queryPeerUserNameList(Long journeyId) {
+		return journeyPassengerInfoMapper.queryPeerUserNameList(journeyId);
+	}
 }

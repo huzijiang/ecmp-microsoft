@@ -1,6 +1,9 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarGroupDriverRelation;
+import com.hq.ecmp.mscore.vo.DriverVO;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -10,6 +13,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface CarGroupDriverRelationMapper
 {
     /**
@@ -59,4 +63,13 @@ public interface CarGroupDriverRelationMapper
      * @return 结果
      */
     public int deleteCarGroupDriverRelationByIds(Long[] driverIds);
+
+    /**
+     * 查询车队人数
+     * @return
+     */
+    int selectCountDriver(Long carGroupId);
+
+
+    List<DriverVO> selectGroupEffectiveDrives(Long carGroupId);
 }

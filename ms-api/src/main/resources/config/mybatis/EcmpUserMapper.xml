@@ -24,10 +24,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
         <result property="remark"    column="remark"    />
+        <result property="itIsDriver"    column="it_is_driver"    />
+        <result property="itIsDispatcher"    column="it_is_dispatcher"    />
+         <result property="jobNumber"    column="job_number"    />
     </resultMap>
 
     <sql id="selectEcmpUserVo">
-        select user_id, dept_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, del_flag, login_ip, login_date, create_by, create_time, update_by, update_time, remark from ecmp_user
+        select user_id, dept_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, del_flag, login_ip, login_date, create_by, create_time, update_by, update_time, remark,it_is_dispatcher,it_is_driver,job_number from ecmp_user
     </sql>
 
     <select id="selectEcmpUserList" parameterType="com.hq.ecmp.mscore.domain.EcmpUser" resultMap="EcmpUserResult">
@@ -45,6 +48,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="status != null  and status != ''"> and status = #{status}</if>
             <if test="loginIp != null  and loginIp != ''"> and login_ip = #{loginIp}</if>
             <if test="loginDate != null "> and login_date = #{loginDate}</if>
+             <if test="jobNumber != null "> and job_number = #{jobNumber}</if>
         </where>
     </select>
 
@@ -60,6 +64,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userName != null  and userName != ''">user_name,</if>
             <if test="nickName != null  and nickName != ''">nick_name,</if>
             <if test="userType != null  and userType != ''">user_type,</if>
+            <if test="dimissionTime != null  and dimissionTime != ''">dimission_time,</if>
+            <if test="payMode != null  and payMode != ''">pay_mode,</if>
             <if test="email != null  and email != ''">email,</if>
             <if test="phonenumber != null  and phonenumber != ''">phonenumber,</if>
             <if test="sex != null  and sex != ''">sex,</if>
@@ -67,19 +73,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="password != null  and password != ''">password,</if>
             <if test="status != null  and status != ''">status,</if>
             <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+            <if test="stationCode != null  and stationCode != ''">station_code,</if>
             <if test="loginIp != null  and loginIp != ''">login_ip,</if>
             <if test="loginDate != null ">login_date,</if>
             <if test="createBy != null  and createBy != ''">create_by,</if>
             <if test="createTime != null ">create_time,</if>
-            <if test="updateBy != null  and updateBy != ''">update_by,</if>
-            <if test="updateTime != null ">update_time,</if>
-            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="remark != null  and remark != ''">remark</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="deptId != null ">#{deptId},</if>
             <if test="userName != null  and userName != ''">#{userName},</if>
             <if test="nickName != null  and nickName != ''">#{nickName},</if>
             <if test="userType != null  and userType != ''">#{userType},</if>
+            <if test="dimissionTime != null  and dimissionTime != ''">#{dimissionTime},</if>
+            <if test="payMode != null  and payMode != ''">#{payMode},</if>
             <if test="email != null  and email != ''">#{email},</if>
             <if test="phonenumber != null  and phonenumber != ''">#{phonenumber},</if>
             <if test="sex != null  and sex != ''">#{sex},</if>
@@ -87,23 +94,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="password != null  and password != ''">#{password},</if>
             <if test="status != null  and status != ''">#{status},</if>
             <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
+            <if test="stationCode != null  and stationCode != ''">#{stationCode},</if>
             <if test="loginIp != null  and loginIp != ''">#{loginIp},</if>
             <if test="loginDate != null ">#{loginDate},</if>
             <if test="createBy != null  and createBy != ''">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
-            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
-            <if test="updateTime != null ">#{updateTime},</if>
-            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="remark != null  and remark != ''">#{remark}</if>
          </trim>
     </insert>
 
-    <update id="updateEcmpUser" parameterType="com.hq.ecmp.mscore.domain.EcmpUser">
+    <update id="updateEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
         update ecmp_user
         <trim prefix="SET" suffixOverrides=",">
             <if test="deptId != null ">dept_id = #{deptId},</if>
+            <if test="jobNumber != null">job_number = #{jobNumber},</if>
             <if test="userName != null  and userName != ''">user_name = #{userName},</if>
             <if test="nickName != null  and nickName != ''">nick_name = #{nickName},</if>
             <if test="userType != null  and userType != ''">user_type = #{userType},</if>
+            <if test="payMode != null  and payMode != ''">pay_mode = #{payMode},</if>
+            <if test="dimissionTime != null  and dimissionTime != ''">dimission_time = #{dimissionTime},</if>
             <if test="email != null  and email != ''">email = #{email},</if>
             <if test="phonenumber != null  and phonenumber != ''">phonenumber = #{phonenumber},</if>
             <if test="sex != null  and sex != ''">sex = #{sex},</if>
@@ -113,11 +122,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
             <if test="loginIp != null  and loginIp != ''">login_ip = #{loginIp},</if>
             <if test="loginDate != null ">login_date = #{loginDate},</if>
-            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
-            <if test="createTime != null ">create_time = #{createTime},</if>
-            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
-            <if test="updateTime != null ">update_time = #{updateTime},</if>
-            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime}</if>
+            <if test="stationCode != null ">station_code = #{stationCode}</if>
         </trim>
         where user_id = #{userId}
     </update>
@@ -133,4 +140,512 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <select id="queryDispatcher" parameterType="java.lang.Long" resultType="java.lang.Integer">
+          select count(1) from ecmp_user  where user_id=#{userId} and it_is_dispatcher='1'
+    </select>
+
+    <select id="queryCompanyEmp"  resultType="java.lang.Integer">
+          select count(*) from ecmp_user
+    </select>
+    <select id="selectEcmpUserByDeptId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select count(1) from ecmp_user  where dept_id=#{deptId}
+    </select>
+    <!--关联公司/部门  禁用/启用  员工-->
+    <update id="updateRelationUseStatus" >
+      update   ecmp_user set `status`=#{status}  where  dept_id =#{deptId}
+    </update>
+
+    <!--禁用/启用  员工-->
+    <update id="updateUseStatus" >
+      update   ecmp_user set `status`=#{status}  where del_flag='0'
+      and  user_id =#{userId}
+    </update>
+
+
+
+    <!--获取上级组织id中的员工姓名和电话、邮箱
+    and  (nick_name like concat('%', #{nickNameOrPhone}, '%') or   phonenumber like concat('%', #{nickNameOrPhone}, '%'))
+    -->
+    <select id="getEcmpUserNameAndPhone" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+      SELECT
+      user_id as userId,
+      dept_id as deptId,
+      nick_name as nickName,phonenumber from ecmp_user
+      where  status = 0 and del_flag = 0 and dept_id=#{deptId}
+    </select>
+
+    <!--按照姓名/工号/手机号模糊查询匹配userId-->
+    <select id="selectUserIdsByNickNameOrJobNumber" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+      SELECT
+      user_id as userId,
+      dept_id as deptId
+      from ecmp_user
+      where   del_flag = 0
+      and  (nick_name like concat('%', #{nickName}, '%') or   job_number like concat('%', #{jobNumber}, '%') or   phonenumber like concat('%', #{phonenumber}, '%'))
+    </select>
+
+    <!--按照员工userId查询员工姓名集合-->
+    <select id="selectNickNamesByUserIds" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="Long">
+      SELECT
+      nick_name as nickName
+      from ecmp_user
+      where   del_flag = 0
+        <if test="userIds != null">
+            and user_id in
+            <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+                #{userId}
+            </foreach>
+        </if>
+    </select>
+
+    <!--按照员工userId查询员工姓名集合-->
+    <select id="selectNickNamesByUserId" resultType="String" >
+      SELECT
+      nick_name as nickName
+      from ecmp_user
+      where   del_flag = 0
+      and
+      user_id=#{userId}
+    </select>
+
+    <!--按照姓名/工号/手机号模糊查询匹配员工列表
+    列表：姓名、手机号、工号、所属公司、所属部门、状态、用车制度、操作
+    -->
+    <select id="selectUserByNickNameOrJobNumber" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+      SELECT
+      nick_name as nickName,phonenumber,
+      if(isnull(job_number),'',job_number) as jobNumber,
+      user_id as userId,
+      dept_id as deptId,
+      (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='2') as subDept,
+      (select dept_name from ecmp_org where dept_id= (select parent_id from ecmp_org where dept_id=#{deptId} and dept_type='2')) as subCompany,
+      `status`
+      from ecmp_user
+      where   del_flag = 0
+      and user_id = #{userId}
+      and  (nick_name like concat('%', #{nickName}, '%') or   job_number like concat('%', #{jobNumber}, '%') or   phonenumber like concat('%', #{phonenumber}, '%'))
+    </select>
+
+    <!--新增员工信息-->
+    <insert id="addEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo" useGeneratedKeys="true" keyProperty="userId">
+        insert into ecmp_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userName != null  and userName != ''">user_name,</if>
+            <if test="jobNumber != null  and jobNumber != ''">job_number,</if>
+            <if test="nickName != null  and nickName != ''">nick_name,</if>
+            <if test="userType != null  and userType != ''">user_type,</if>
+            <if test="dimissionTime != null  and dimissionTime != ''">dimission_time,</if>
+            <if test="payMode != null  and payMode != ''">pay_mode,</if>
+            <if test="deptId != null  and deptId != ''">dept_id,</if>
+            <if test="stationCode != null  and stationCode != ''">station_code,</if>
+            <if test="email != null  and email != ''">email,</if>
+            <if test="phonenumber != null  and phonenumber != ''">phonenumber,</if>
+            <if test="sex != null  and sex != ''">sex,</if>
+            <if test="avatar != null  and avatar != ''">avatar,</if>
+            <if test="password != null  and password != ''">password,</if>
+            <if test="status != null  and status != ''">status,</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+            <if test="loginIp != null  and loginIp != ''">login_ip,</if>
+            <if test="loginDate != null ">login_date,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="remark != null  and remark != ''">remark</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userName != null  and userName != ''">#{userName},</if>
+            <if test="jobNumber != null  and jobNumber != ''">#{jobNumber},</if>
+            <if test="nickName != null  and nickName != ''">#{nickName},</if>
+            <if test="userType != null  and userType != ''">#{userType},</if>
+            <if test="dimissionTime != null  and dimissionTime != ''">#{dimissionTime},</if>
+            <if test="payMode != null  and payMode != ''">#{payMode},</if>
+            <if test="deptId != null  and deptId != ''">#{deptId},</if>
+            <if test="stationCode != null  and stationCode != ''">#{stationCode},</if>
+            <if test="email != null  and email != ''">#{email},</if>
+            <if test="phonenumber != null  and phonenumber != ''">#{phonenumber},</if>
+            <if test="sex != null  and sex != ''">#{sex},</if>
+            <if test="avatar != null  and avatar != ''">#{avatar},</if>
+            <if test="password != null  and password != ''">#{password},</if>
+            <if test="status != null  and status != ''">#{status},</if>
+            <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
+            <if test="loginIp != null  and loginIp != ''">#{loginIp},</if>
+            <if test="loginDate != null ">#{loginDate},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="remark != null  and remark != ''">#{remark}</if>
+        </trim>
+    </insert>
+
+    <!--新增员工&用车制度中间表信息-->
+    <update id="addUserRegimeRelation">
+        update  user_regime_relation_info
+        set
+        regimen_id = #{regimenId}
+        where
+        user_id =#{userId}
+    </update>
+
+    <!--修改员工&用车制度中间表信息-->
+    <insert id="updateUserRegimeRelation">
+        insert into user_regime_relation_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="userId != null  and userId != ''">user_id,</if>
+        <if test="regimenId != null  and regimenId != ''">regimen_id</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="userId != null  and userId != ''">#{userId},</if>
+        <if test="regimenId != null  and regimenId != ''">#{regimenId}</if>
+        </trim>
+    </insert>
+
+    <!--查询手机号是否已经存在-->
+    <select id="selectPhoneNumberExist" resultType="Integer">
+      select count(1)
+      from  ecmp_user
+      where
+      del_flag='0'
+      <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
+    </select>
+
+    <!--查询手机号是否已经存在-->
+    <select id="selectEmailExist" resultType="Integer">
+      select count(1)
+      from  ecmp_user
+      where
+      del_flag='0'
+      <if test="email != null  and email != ''"> and email = #{email}</if>
+    </select>
+
+    <!--根据deptId和deptType删除信息-->
+    <update id="updateDelFlagById" >
+      update ecmp_user  SET del_flag='2' where user_id = #{userId}
+    </update>
+
+
+    <!--查询该部门下的所有员工id-->
+    <select id="getEcmpUserIdsByDeptId" resultType="java.lang.Long" >
+        select
+        user_id
+        from  ecmp_user
+        where
+        del_flag='0'
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
+    </select>
+
+    <!--查询员工是否有归属部门-->
+    <!--<select id="selectEcmpUserSubDeptCount" resultType="java.lang.Integer" >
+        select count from ecmp_org where  dept_type='2'
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
+    </select>-->
+
+    <!--查询员工归属部门名称-->
+    <!--<select id="selectEcmpUserSubDept" resultType="java.lang.String" >
+        select dept_name from ecmp_org where  dept_type='2'
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
+    </select>-->
+    <select id="getUserByPhone" resultMap="EcmpUserResult" parameterType="Object">
+        <include refid="selectEcmpUserVo"/>
+        where del_flag='0' and status='0' and phonenumber=#{phonenumber}
+    </select>
+    <!--查询员工列表-->
+    <!--select `name` from regime_info where regime_id in (select regime_id from  user_regime_relation_info where user_id=#{userId}) as regimeName-->
+    <!--if(isnull((select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept),'',subDept) as subDept,-->
+    <select id="getEcmpUserList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+        select
+        nick_name as nickName,phonenumber,
+        if(isnull(job_number),'',job_number) as jobNumber,
+        user_name as userName,
+        user_id as userId,
+        dept_id as deptId,
+        (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='2') as subDept,
+        (select dept_name from ecmp_org where dept_id= (select parent_id from ecmp_org where dept_id=#{deptId} and dept_type='2')) as subCompany,
+        `status`
+        from  ecmp_user
+        where
+        del_flag='0'
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
+        <if test="userId != null  and userId != ''">and user_id=#{userId}</if>
+    </select>
+
+    <select id="getEcmpUserPage" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+        select
+        nick_name as nickName,phonenumber,
+        if(isnull(job_number),'',job_number) as jobNumber,
+        user_name as userName,
+        user_id as userId,
+        dept_id as deptId,
+        (select dept_name from ecmp_org where dept_id=a.dept_id and dept_type='2') as subDept,
+        (select dept_name from ecmp_org where dept_id= (select parent_id from ecmp_org where dept_id=a.dept_id and dept_type='2')) as subCompany,
+        <if test="status==1">
+            DATE_FORMAT(dimission_time,'%Y-%m-%d') dimissionTimeStr,
+        </if>
+        <if test="status==0">
+            (select group_concat(b.name) from regime_info b where b.regimen_id in (select DISTINCT c.regimen_id from  user_regime_relation_info c where c.user_id=a.user_id)) regimeName,
+        </if>
+        status
+        from  ecmp_user a
+        where del_flag='0'
+        <if test="deptId!=null">
+            and dept_id=#{deptId}
+        </if>
+        <if test="search!=null and search!=''">
+            and (a.nick_name like CONCAT('%',#{search},'%')
+            OR a.phonenumber like
+            CONCAT('%',#{search},'%')
+            OR a.job_number like CONCAT('%',#{search},'%'))
+        </if>
+        <if test="status==1">
+            and status='1' and dimission_time is not null
+        </if>
+
+    </select>
+
+    <select id="getEcmpUserPageCount" resultType="Long">
+        select
+            count(*)
+        from  ecmp_user a
+        where del_flag='0'
+        <if test="deptId!=null">
+            and dept_id=#{deptId}
+        </if>
+        <if test="search!=null and search!=''">
+            and (a.nick_name like CONCAT('%',#{search},'%')
+            OR a.phonenumber like
+            CONCAT('%',#{search},'%')
+            OR a.job_number like CONCAT('%',#{search},'%'))
+        </if>
+        <if test="status==1">
+            and status='1' and dimission_time is not null
+        </if>
+    </select>
+
+    <!-- 显示查询总条数 -->
+    <select id="queryUserListCount" resultType="java.lang.Integer">
+        select
+        count(1)
+        from ecmp_user where
+        del_flag = 0 and
+        dept_id = #{deptId}
+    </select>
+
+    <!--修改手机号-->
+    <update id="updatePhoneNum" >
+      update ecmp_user  SET phonenumber=#{phonenumber},user_name=#{userName} where user_name = #{userName}
+    </update>
+
+    <!--获取员工详情-->
+    <select id="selectEcmpUserDetail" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" >
+      SELECT
+      eu.user_id as userId,
+      eu.dept_id as deptId,
+      eu.user_name as userName,
+      eu.nick_name as nickName,
+      eu.user_type as userType,
+      eu.station_code as stationCode,
+      eu.job_number as jobNumber,
+      eu.pay_mode as payMode,
+      eu.remark as remark,
+      eu.it_is_driver as  itIsDriver,
+      eu.it_is_dispatcher as itIsDispatcher,
+      eu.sex  as sex,
+      eu.phonenumber as phonenumber,
+      eu.email as email,
+      eo.dept_name as subDept
+      from ecmp_user as eu
+      left join ecmp_org as eo on eu.dept_id=eo.dept_id
+      where
+      eu.user_id = #{userId} and eu.del_flag='0' and eo.del_flag='0'
+    </select>
+
+    <!--根据员工编号获取拥有的角色-->
+    <select id="selectRoleNameByEcmpUserId" resultType="com.hq.ecmp.mscore.dto.EcmpRoleDto" parameterType="Long">
+      select
+        role_id as roleId,
+       role_name as roleName,
+        role_key as roleKey,
+        role_sort as roleSort,
+        data_scope as dataScope,
+        status as status,
+        del_flag as delFlag
+       from ecmp_role where role_id in
+      (select role_id from ecmp_user_role where user_id=#{userId}) and del_flag= '0'
+    </select>
+
+    <!--已离职数量-->
+    <select id="selectDimissionCount" parameterType="Object" resultType="java.lang.Integer">
+      SELECT
+      count(1)
+      from ecmp_user
+      where del_flag='0' AND status='1' and DATE_FORMAT(dimission_time,'%Y-%m-%d')=DATE_FORMAT(now(),'%Y-%m-%d')
+      <if test="deptId!=null">
+         and dept_id=#{deptId}
+      </if>
+    </select>
+
+    <!--设置离职日期-->
+    <update id="updateDimissionTime" >
+      update ecmp_user  SET dimission_time=#{dimissionTime} where user_id = #{userId}
+    </update>
+
+    <!--已离职员工编号-->
+    <select id="selectDimissionEcmpUserIds" resultType="Long">
+     SELECT
+        user_id
+        from ecmp_user
+        where
+        dimission_time is not null
+    </select>
+
+    <!--已离职列表-->
+    <!--姓名、手机号、工号、所属公司、所属部门、离职日期
+    nick_name as nickName,phonenumber,user_id as userId,
+        (select dept_name from ecmp_org where  dept_type='1' and dept_id= (select parent_id from ecmp_org where dept_id=#{deptId})) as subCompany,
+        (select dept_name from ecmp_org where dept_id=#{deptId} and dept_type='2') as subDept,
+        dimission_time as dimissionTime-->
+    <select id="selectDimissionList" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+        select
+        nick_name as nickName,phonenumber,
+        if(isnull(job_number),'',job_number) as jobNumber,
+        user_name as userName,
+        user_id as userId,
+        dept_id as deptId,
+        (select dept_name from ecmp_org where dept_id= #{deptId} and dept_type='2') as subDept,
+        (select dept_name from ecmp_org where dept_id= (select parent_id from ecmp_org where dept_id=#{deptId} and dept_type='2')) as subCompany,
+        pay_mode as payMode,
+        remark as remark,
+        it_is_driver as  itIsDriver,
+        it_is_dispatcher as itIsDispatcher,
+        sex  as sex,
+        phonenumber as phonenumber,
+        email as email,
+        dimission_time as dimissionTime
+        from  ecmp_user
+        where
+        del_flag='0'
+        <if test="deptId != null  and deptId != ''"> and dept_id = #{deptId}</if>
+        and dimission_time <![CDATA[<=]]> now()
+    </select>
+
+    <!--查询当天离职的员工编号-->
+    <select id="checkDimissionEcmpUserIds" resultType="Long">
+     SELECT
+        user_id
+        from ecmp_user
+        where
+        dimission_time  like   concat('%', #{dateOfTheDay}, '%')
+    </select>
+
+    <!--修改当天离职的员工为禁用-->
+    <update id="updateDimissionEcmpUser" >
+      update ecmp_user  SET status='1' where user_id = #{userId}
+    </update>
+
+    <!--判断员工是否为驾驶员-->
+    <select id="selectEcmpUserIsDirver" resultType="String">
+      select it_is_driver from ecmp_user where user_id = #{userId}
+    </select>
+
+    <select id="userItisExist" parameterType="String" resultType="java.lang.Integer">
+          select count(*) from ecmp_user  where phonenumber=#{phoneNumber}
+    </select>
+
+    <select id="findDeptLeader" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.UserVO">
+        select leader from ecmp_org where dept_id=#{deptId}
+    </select>
+
+    <select id="selectUserListByUserIds" parameterType="Object" resultMap="EcmpUserResult">
+        <include refid="selectEcmpUserVo"/>
+        where find_in_set(user_id,#{userIds})
+    </select>
+
+    <select id="getListByUserIds" parameterType="List" resultMap="EcmpUserResult">
+        <include refid="selectEcmpUserVo"/>
+        where user_id in
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </select>
+    <select id="selectUserVoById" resultType="com.hq.ecmp.mscore.vo.UserVO">
+        select user_name as userName,phonenumber as userPhone,user_id as userId
+        from ecmp_user
+       where user_id = #{userId}
+    </select>
+
+
+    <!--查询上级部门下的所有员工-->
+    <select id="selectUserByDeptId" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+        select nick_name as nickName,user_id as  userId from ecmp_user where dept_id =
+         #{deptId}
+    </select>
+    <!--根据部门id查询正常使用用户-->
+    <select id="selectListByDeptId" resultType="com.hq.ecmp.mscore.vo.UserTreeVo">
+        select nick_name as nickName,user_id as  userId,dept_id deptId,user_name userName,
+        phonenumber,sex,job_number jobNumber,it_is_driver itIsDriver,it_is_dispatcher itIsDispatcher
+         from ecmp_user
+        where  status=0 and del_flag=0
+        <if test="deptId!=null">
+           and dept_id = #{deptId}
+        </if>
+    </select>
+
+
+    <!--查询工号是否已存在-->
+    <select id="selectJobNumberExist" resultType="java.lang.Integer">
+        select count(1) from ecmp_user
+        where del_flag = 0
+         and job_number = #{jobNumber}
+    </select>
+
+    <!--测试查询新增用户-->
+    <select id="findUserIds" resultType="String">
+        select * from ecmp_user
+        where 1=1
+        <if test="startUserId!=null">
+           and <![CDATA[ user_id>=#{startUserId} ]]>
+        </if>
+        <if test="endUserId!=null">
+            and <![CDATA[ user_id<=#{endUserId} ]]>
+        </if>
+    </select>
+
+    <!--根据用户id查询用户名-->
+    <select id="findNameByUserIds" resultType="String">
+        select group_concat(distinct nick_name) from  ecmp_user where find_in_set(user_id,#{userIds})
+    </select>
+
+    <select id="selectUserListByDeptIdAndProjectId" resultType="com.hq.ecmp.mscore.vo.UserTreeVo">
+         select nick_name as nickName,user_id as  userId,dept_id deptId,user_name userName,
+        phonenumber,sex,job_number jobNumber,it_is_driver itIsDriver,it_is_dispatcher itIsDispatcher
+         from ecmp_user
+        where status=0 and del_flag=0
+        and user_id not in (SELECT user_id from project_user_relation_info where project_id=#{projectId} )
+    </select>
+
+
+	<select id="queryUserListByDeptIdsAndName" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+		select user_id as userId,nick_name as nickName,phonenumber as
+		phonenumber from ecmp_user
+		where (nick_name like concat('%', #{name}, '%') or phonenumber like concat('%', #{name}, '%')) and dept_id in
+		<foreach collection="deptIds" open="(" close=")" separator=","
+			item="deptId">
+			#{deptId}
+		</foreach>
+	</select>
+
+    <select id="selectEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+        select  user_id AS  userId,email,phonenumber,job_number AS  jobNumber FROM ecmp_user
+        <where>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="jobNumber != null  and jobNumber != ''"> and job_number = #{jobNumber}</if>
+        </where>
+    </select>
+
+    <update id="updatePhoneByUserId">
+      update ecmp_user  SET phonenumber=#{newPhoneNum} where user_id = #{userId}
+    </update>
+    
+    <update id="updateEcmpUserjobNumber" parameterType="com.hq.ecmp.mscore.domain.EcmpUser">
+    update ecmp_user set job_number=#{jobNumber} where user_id=#{userId}
+    </update>
 </mapper>

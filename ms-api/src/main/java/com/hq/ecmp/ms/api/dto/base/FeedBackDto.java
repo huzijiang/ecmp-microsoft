@@ -28,6 +28,8 @@ public class FeedBackDto {
      */
     private String Content;
 
+    private String orderId;
+
 
 
 }

@@ -18,14 +18,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="useTime"    column="use_time"    />
         <result property="waitTimeLong"    column="wait_time_long"    />
         <result property="charterCarType"    column="charter_car_type"    />
+        <result property="startDate"    column="start_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="travelPickupCity"    column="travel_pickup_city"    />
+        <result property="travelCitiesStr"    column="travel_cities_str"    />
+        <result property="pickupTimes"    column="pickup_times"    />
+        <result property="title"    column="title"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+        <result property="flightPlanTakeOffTime"    column="flight_plan_take_off_time"    />
     </resultMap>
 
     <sql id="selectJourneyInfoVo">
-        select journey_id, user_id, regimen_id, service_type, use_car_mode, use_car_time, it_is_return, estimate_price, project_id, flight_number, use_time, wait_time_long, charter_car_type, create_by, create_time, update_by, update_time from journey_info
+        select flight_plan_take_off_time,journey_id, user_id, regimen_id, service_type, use_car_mode, use_car_time, it_is_return, estimate_price, project_id, flight_number, use_time, wait_time_long, charter_car_type, create_by, create_time, update_by, update_time,title,start_date,end_date,travel_pickup_city,travel_cities_str,pickup_times,title from journey_info
     </sql>
 
     <select id="selectJourneyInfoList" parameterType="com.hq.ecmp.mscore.domain.JourneyInfo" resultMap="JourneyInfoResult">
@@ -35,7 +42,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="regimenId != null "> and regimen_id = #{regimenId}</if>
             <if test="serviceType != null  and serviceType != ''"> and service_type = #{serviceType}</if>
             <if test="useCarMode != null  and useCarMode != ''"> and use_car_mode = #{useCarMode}</if>
-            <if test="useCarTime != null  and useCarTime != ''"> and use_car_time = #{useCarTime}</if>
+            <if test="useCarTime != null "> and use_car_time = #{useCarTime}</if>
             <if test="itIsReturn != null  and itIsReturn != ''"> and it_is_return = #{itIsReturn}</if>
             <if test="estimatePrice != null  and estimatePrice != ''"> and estimate_price = #{estimatePrice}</if>
             <if test="projectId != null "> and project_id = #{projectId}</if>
@@ -51,7 +58,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where journey_id = #{journeyId}
     </select>
 
-    <insert id="insertJourneyInfo" parameterType="com.hq.ecmp.mscore.domain.JourneyInfo">
+    <insert id="insertJourneyInfo" parameterType="com.hq.ecmp.mscore.domain.JourneyInfo" >
+        <selectKey keyColumn="journey_id" keyProperty="journeyId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into journey_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">journey_id,</if>
@@ -59,14 +69,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="regimenId != null ">regimen_id,</if>
             <if test="serviceType != null  and serviceType != ''">service_type,</if>
             <if test="useCarMode != null  and useCarMode != ''">use_car_mode,</if>
-            <if test="useCarTime != null  and useCarTime != ''">use_car_time,</if>
+            <if test="useCarTime != null  ">use_car_time,</if>
             <if test="itIsReturn != null  and itIsReturn != ''">it_is_return,</if>
             <if test="estimatePrice != null  and estimatePrice != ''">estimate_price,</if>
             <if test="projectId != null ">project_id,</if>
             <if test="flightNumber != null  and flightNumber != ''">flight_number,</if>
+            <if test="flightPlanTakeOffTime != null ">flight_plan_take_off_time,</if>
             <if test="useTime != null  and useTime != ''">use_time,</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">wait_time_long,</if>
             <if test="charterCarType != null  and charterCarType != ''">charter_car_type,</if>
+            <if test="startDate != null">start_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="travelPickupCity != null  and travelPickupCity != ''">travel_pickup_city,</if>
+            <if test="pickupTimes != null  and pickupTimes != ''">pickup_times,</if>
+            <if test="travelCitiesStr != null  and travelCitiesStr != ''">travel_cities_str,</if>
+            <if test="title != null  and title != ''">title,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -78,14 +95,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="regimenId != null ">#{regimenId},</if>
             <if test="serviceType != null  and serviceType != ''">#{serviceType},</if>
             <if test="useCarMode != null  and useCarMode != ''">#{useCarMode},</if>
-            <if test="useCarTime != null  and useCarTime != ''">#{useCarTime},</if>
+            <if test="useCarTime != null ">#{useCarTime},</if>
             <if test="itIsReturn != null  and itIsReturn != ''">#{itIsReturn},</if>
             <if test="estimatePrice != null  and estimatePrice != ''">#{estimatePrice},</if>
             <if test="projectId != null ">#{projectId},</if>
             <if test="flightNumber != null  and flightNumber != ''">#{flightNumber},</if>
+            <if test="flightPlanTakeOffTime != null ">#{flightPlanTakeOffTime},</if>
             <if test="useTime != null  and useTime != ''">#{useTime},</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">#{waitTimeLong},</if>
             <if test="charterCarType != null  and charterCarType != ''">#{charterCarType},</if>
+            <if test="startDate != null">#{startDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="travelPickupCity != null  and travelPickupCity != ''">#{travelPickupCity},</if>
+            <if test="pickupTimes != null  and pickupTimes != ''">#{pickupTimes},</if>
+            <if test="travelCitiesStr != null  and travelCitiesStr != ''">#{travelCitiesStr},</if>
+            <if test="title != null  and title != ''">#{title},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -108,6 +132,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="useTime != null  and useTime != ''">use_time = #{useTime},</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">wait_time_long = #{waitTimeLong},</if>
             <if test="charterCarType != null  and charterCarType != ''">charter_car_type = #{charterCarType},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="travelPickupCity != null  and travelPickupCity != ''">travel_pickup_city = #{travelPickupCity},</if>
+            <if test="pickupTimes != null  and pickupTimes != ''">pickup_times = #{pickupTimes},</if>
+            <if test="travelCitiesStr != null  and travelCitiesStr != ''">travel_cities_str = #{travelCitiesStr},</if>
+            <if test="title != null  and title != ''">title = #{title},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -127,4 +157,83 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <!--手动编写sql start-->
+    <select id="getJourneyMessage" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+        SELECT  messageId,messageType,messageTypeStr,count(*) messageCount from (
+        select journey_id messageId,3 as messageType,'行程'as messageTypeStr from order_info
+        where journey_id in (select journey_id from journey_info where user_id = #{userId}) and (state='S616' or state='S600')
+         ) a  group by a.messageType
+    </select>
+
+    <!--正在进行中行程列表-->
+    <select id="getJourneyList" parameterType="Long" resultType="com.hq.ecmp.mscore.vo.JourneyVO" >
+         SELECT
+                 CASE a.use_car_mode
+                      WHEN 'W100' THEN '自有车'
+                      WHEN 'W200' THEN '网约车'
+                      else '无用车方式' END as carMode,
+                e.address as address,
+                e.action_time as actionTime,
+                 CASE b.service_type
+                      WHEN '1000' THEN '即时用车'
+                      WHEN '2000' THEN '预约用车'
+                      WHEN '3000' THEN '接机'
+                      WHEN '4000' THEN '送机'
+                      WHEN '5000' THEN '包车'
+                      else '无服务类型' END as serviceType,
+                 CASE c.apply_type
+                      WHEN 'A001' THEN '公务用车'
+                      WHEN 'A002' THEN '差旅用车'
+                      else '无用车申请类型' END as applyType,
+                 CASE d.type
+                      WHEN 'T001' THEN '去程'
+                      WHEN 'T009' THEN '返程'
+                      WHEN 'C001' THEN '接机'
+                      WHEN 'C009' THEN '送机'
+                      WHEN 'C222' THEN '市内用车'
+                      else '' END as type
+                FROM order_info as a
+                LEFT JOIN journey_info as b ON a.journey_id = b.journey_id
+                LEFT JOIN apply_info as  c ON a.journey_id = c.journey_id
+                LEFT JOIN journey_user_car_power d ON a.journey_id = d.journey_id
+                LEFT JOIN order_address_info e ON e.order_id = a.order_id
+                WHERE a.state ='S616' and a.user_id=#{userId}
+                ORDER BY  e.action_time DESC
+    </select>
+    <!--正在进行中行程个数-->
+    <select id="getJourneyListCount"  parameterType="Long" resultType="java.lang.Integer" >
+         SELECT count(*) from (SELECT a.user_id,e.address,e.action_time,b.service_type,c.apply_type,d.type
+                FROM order_info as a
+                LEFT JOIN journey_info as b ON a.journey_id = b.journey_id
+                LEFT JOIN apply_info as  c ON a.journey_id = c.journey_id
+                LEFT JOIN journey_user_car_power d ON a.journey_id = d.journey_id
+                LEFT JOIN order_address_info e ON e.order_id = a.order_id
+                WHERE a.state ='S616')w where w.user_id= #{userId}
+    </select>
+
+	<!-- 查询用户的审核通过后的行程 -->
+	<select id="queryPassJourneyList" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.JourneyInfo">
+		SELECT
+		a.regimen_id AS regimenId,
+		a.journey_id AS journeyId,
+		a.use_car_time AS useCarTime,
+		a.service_type AS serviceType,
+		a.use_car_mode AS useCarMode
+		FROM
+		journey_info a
+		LEFT JOIN apply_info b ON a.journey_id = b.journey_id
+		WHERE
+		b.state = 'S002'
+		AND b.create_by = #{userId} ORDER BY b.update_time desc
+	</select>
+    <select id="selectTitleById" resultType="java.lang.String">
+        select title from journey_info where journey_id = #{journeyId}
+    </select>
+    <!--判断是否有正在进行中行程-->
+    <select id="getWhetherJourney"  parameterType="Long" resultType="java.lang.Integer" >
+      SELECT count(*) from (select a.order_id from order_info as a
+      left join journey_info as b on b.journey_id = a.journey_id
+      where  a.state ='S699' and b.user_id=#{userId}) c
+    </select>
 </mapper>

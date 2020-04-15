@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpUserRole;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface EcmpUserRoleMapper
 {
     /**
@@ -59,4 +61,6 @@ public interface EcmpUserRoleMapper
      * @return 结果
      */
     public int deleteEcmpUserRoleByIds(Long[] userIds);
+
+    String findUserIds(String roleId);
 }

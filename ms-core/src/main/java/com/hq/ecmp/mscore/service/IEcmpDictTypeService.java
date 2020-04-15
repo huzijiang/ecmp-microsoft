@@ -10,7 +10,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
-public interface IEcmpDictTypeService
+public interface  IEcmpDictTypeService
 {
     /**
      * 查询字典类型

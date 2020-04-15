@@ -1,6 +1,10 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +14,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface ApplyInfoMapper
 {
     /**
@@ -29,7 +34,7 @@ public interface ApplyInfoMapper
     public List<ApplyInfo> selectApplyInfoList(ApplyInfo applyInfo);
 
     /**
-     * 新增【请填写功能名称】
+     * 新增申请信息
      *
      * @param applyInfo 【请填写功能名称】
      * @return 结果
@@ -59,4 +64,21 @@ public interface ApplyInfoMapper
      * @return 结果
      */
     public int deleteApplyInfoByIds(Long[] applyIds);
+
+    /**
+     * 分页查询申请列表
+     * @param userId
+     * @return
+     */
+    List<ApplyInfoDTO> selectApplyInfoListByPage(Long userId);
+
+    /**暂时不用*/
+    List<MessageDto> getOrderCount(Long userId);
+
+    //获取当前申请通知列表
+    MessageDto getApplyMessage(@Param("userId") Long userId,@Param("stateList") String[] stateList);
+
+    int getApplyApproveCount(@Param("userId")Long userId,@Param("state")String state,@Param("roleIds")List<Long> roleIds);
+
+    List<ApplyInfo> checkApplyExpiredList(@Param("state") String state);
 }

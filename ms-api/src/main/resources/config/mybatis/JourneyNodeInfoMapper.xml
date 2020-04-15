@@ -9,7 +9,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="journeyId"    column="journey_id"    />
         <result property="userId"    column="user_id"    />
         <result property="planBeginAddress"    column="plan_begin_address"    />
+        <result property="planBeginLongAddress"    column="plan_begin_long_address"    />
         <result property="planEndAddress"    column="plan_end_address"    />
+        <result property="planEndLongAddress"    column="plan_end_long_address"    />
         <result property="planSetoutTime"    column="plan_setout_time"    />
         <result property="planArriveTime"    column="plan_arrive_time"    />
         <result property="planBeginLongitude"    column="plan_begin_longitude"    />
@@ -27,10 +29,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+         <result property="planBeginCityCode"    column="plan_begin_city_code"    />
+         <result property="planEndCityCode"    column="plan_end_city_code"    />
+
     </resultMap>
 
     <sql id="selectJourneyNodeInfoVo">
-        select node_id, journey_id, user_id, plan_begin_address, plan_end_address, plan_setout_time, plan_arrive_time, plan_begin_longitude, plan_begin_latitude, plan_end_longitude, plan_end_latitude, it_is_via_point, vehicle, duration, distance, wait_duration, node_state, number, create_by, create_time, update_by, update_time from journey_node_info
+        select node_id, journey_id, user_id, plan_begin_address,plan_begin_long_address,plan_end_address,plan_end_long_address, plan_setout_time, plan_arrive_time, plan_begin_longitude, plan_begin_latitude, plan_end_longitude, plan_end_latitude, it_is_via_point, vehicle, duration, distance, wait_duration, node_state, number, create_by, create_time, update_by, update_time,plan_begin_city_code,plan_end_city_code from journey_node_info
     </sql>
 
     <select id="selectJourneyNodeInfoList" parameterType="com.hq.ecmp.mscore.domain.JourneyNodeInfo" resultMap="JourneyNodeInfoResult">
@@ -54,6 +59,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="nodeState != null  and nodeState != ''"> and node_state = #{nodeState}</if>
             <if test="number != null "> and number = #{number}</if>
         </where>
+            order by number asc
     </select>
 
     <select id="selectJourneyNodeInfoById" parameterType="Long" resultMap="JourneyNodeInfoResult">
@@ -62,13 +68,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertJourneyNodeInfo" parameterType="com.hq.ecmp.mscore.domain.JourneyNodeInfo">
+        <selectKey keyColumn="node_id" keyProperty="nodeId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into journey_node_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="nodeId != null ">node_id,</if>
             <if test="journeyId != null ">journey_id,</if>
             <if test="userId != null ">user_id,</if>
+            <if test="planBeginLongAddress != null  and planBeginLongAddress != ''">plan_begin_long_address,</if>
             <if test="planBeginAddress != null  and planBeginAddress != ''">plan_begin_address,</if>
+            <if test="planBeginCityCode != null  and planBeginCityCode != ''">plan_begin_city_code,</if>
+            <if test="planEndLongAddress != null  and planEndLongAddress != ''">plan_end_long_address,</if>
             <if test="planEndAddress != null  and planEndAddress != ''">plan_end_address,</if>
+            <if test="planEndCityCode != null  and planEndCityCode != ''">plan_end_city_code,</if>
             <if test="planSetoutTime != null ">plan_setout_time,</if>
             <if test="planArriveTime != null ">plan_arrive_time,</if>
             <if test="planBeginLongitude != null ">plan_begin_longitude,</if>
@@ -91,8 +104,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="nodeId != null ">#{nodeId},</if>
             <if test="journeyId != null ">#{journeyId},</if>
             <if test="userId != null ">#{userId},</if>
+            <if test="planBeginLongAddress != null  and planBeginLongAddress != ''">#{planBeginLongAddress},</if>
             <if test="planBeginAddress != null  and planBeginAddress != ''">#{planBeginAddress},</if>
+            <if test="planBeginCityCode != null  and planBeginCityCode != ''">#{planBeginCityCode},</if>
+            <if test="planEndLongAddress != null  and planEndLongAddress != ''">#{planEndLongAddress},</if>
             <if test="planEndAddress != null  and planEndAddress != ''">#{planEndAddress},</if>
+            <if test="planEndCityCode != null  and planEndCityCode != ''">#{planEndCityCode},</if>
             <if test="planSetoutTime != null ">#{planSetoutTime},</if>
             <if test="planArriveTime != null ">#{planArriveTime},</if>
             <if test="planBeginLongitude != null ">#{planBeginLongitude},</if>
@@ -151,5 +168,52 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{nodeId}
         </foreach>
     </delete>
+    
+    
+    <select id="selectMaxAndMinDate" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.JourneyNodeInfo">
+    SELECT
+	MAX(plan_arrive_time) AS planArriveTime,
+	MIN(plan_setout_time) AS planSetoutTime
+FROM
+	journey_node_info
+WHERE
+	journey_id = #{journeyId}
+    </select>
+    
+    <select id="queryGroupCity" parameterType="java.lang.Long" resultType="string">
+    select plan_begin_address from journey_node_info where journey_id=#{journeyId} GROUP BY plan_begin_address
+    </select>
+    
+    <select id="queryJourneyNodeInfoOrderByNumber" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.JourneyNodeInfo">
+    SELECT
+	plan_begin_address AS planBeginAddress,
+	plan_begin_city_code AS planBeginCityCode,
+	plan_end_address AS planEndAddress,
+	plan_end_city_code AS planEndCityCode,
+	number,
+	node_id AS nodeId,
+	it_is_via_point as itIsViaPoint
+FROM
+	journey_node_info
+WHERE
+	journey_id = #{journeyId}
+ORDER BY
+	number
+    </select>
+
+	<select id="queryJourneyNodeInfoByPowerId" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.JourneyNodeInfo">
+		SELECT
+		a.plan_begin_address AS planBeginAddress,
+		a.plan_end_address AS planEndAddress,
+		a.plan_setout_time AS planSetoutTime,
+		a.node_id as nodeId
+		FROM
+		journey_node_info a
+		LEFT JOIN journey_user_car_power b ON a.node_id = b.node_id
+		WHERE
+		b.power_id = #{powerId}
+		LIMIT 1
+	</select>
 
 </mapper>

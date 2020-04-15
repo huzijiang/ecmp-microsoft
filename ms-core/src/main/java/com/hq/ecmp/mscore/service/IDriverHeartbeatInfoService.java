@@ -59,4 +59,7 @@ public interface IDriverHeartbeatInfoService
      * @return 结果
      */
     public int deleteDriverHeartbeatInfoById(Long heartId);
+
+    DriverHeartbeatInfo findNowLocation(Long driverId,Long orderId);
+
 }

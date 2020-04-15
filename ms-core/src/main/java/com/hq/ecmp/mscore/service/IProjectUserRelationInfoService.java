@@ -59,4 +59,7 @@ public interface IProjectUserRelationInfoService
      * @return 结果
      */
     public int deleteProjectUserRelationInfoById(Long projectId);
+
+    int insertProjectList(List<ProjectUserRelationInfo> list);
+
 }

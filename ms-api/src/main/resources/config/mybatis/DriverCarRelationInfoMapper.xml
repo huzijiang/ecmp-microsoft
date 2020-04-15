@@ -61,5 +61,48 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{userId}
         </foreach>
     </delete>
+    
+    <insert id="batchDriverCarList" parameterType="com.hq.ecmp.mscore.domain.DriverCarRelationInfo">
+          insert into driver_car_relation_info  (user_id,driver_id,car_id)
+          values
+          <foreach collection="carIdList" item="item" separator=",">
+          (#{userId},#{driverId},#{item})
+          </foreach>
+    </insert>
+    <delete id="deleteCarByDriverId" parameterType="Long">
+        delete from driver_car_relation_info where driver_id = #{driverId}
+    </delete>
+    <update id="updateBatchDriverCarList">
+        <foreach collection="carIdList" item="item" index="index" open="" close="" separator=";">
+            update driver_car_relation_info
+            set user_id=#{userId},
+            car_id=#{carId}
+            where
+            driver_id=#{driverId}
+
+        </foreach>
+    </update>
+    
+    <select id="queryDriverUseCarCount" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select count(1) from driver_car_relation_info where driver_id=#{driverId}
+    </select>
+
+    <delete id="deleteCarDriver">
+        delete from driver_car_relation_info where user_id = #{userId}
+        and driver_id = #{driverId} and car_id = #{carId}
+    </delete>
+
+    <select id="queryCountCarByDriverId" resultType="java.lang.Integer">
+        select count(1)  from driver_car_relation_info where car_id=#{driverId}
+    </select>
+
+    <select id="selectDriverInfo" parameterType="com.hq.ecmp.mscore.domain.DriverCarRelationInfo" resultMap="DriverCarRelationInfoResult">
+        <include refid="selectDriverCarRelationInfoVo"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="driverId != null "> and driver_id = #{driverId}</if>
+            <if test="carId != null "> and car_id = #{carId}</if>
+        </where>
+    </select>
 
 </mapper>

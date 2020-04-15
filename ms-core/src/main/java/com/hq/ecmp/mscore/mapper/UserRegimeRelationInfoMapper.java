@@ -1,8 +1,12 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.RegimeQueryPo;
+import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.domain.UserRegimeRelationInfo;
 
 import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -10,8 +14,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
-public interface UserRegimeRelationInfoMapper
-{
+public interface UserRegimeRelationInfoMapper {
     /**
      * 查询【请填写功能名称】
      *
@@ -19,6 +22,14 @@ public interface UserRegimeRelationInfoMapper
      * @return 【请填写功能名称】
      */
     public UserRegimeRelationInfo selectUserRegimeRelationInfoById(Long userId);
+
+    /**
+     * 根据用户id查询制度id集合
+     *
+     * @param userId
+     * @return
+     */
+    List<Long> selectIdsByUserId(Long userId);
 
     /**
      * 查询【请填写功能名称】列表
@@ -59,4 +70,18 @@ public interface UserRegimeRelationInfoMapper
      * @return 结果
      */
     public int deleteUserRegimeRelationInfoByIds(Long[] userIds);
+    
+    
+    public Integer batchInsertUser(@Param("regimenId")Long regimenId, @Param("list")List<Long> userIdList);
+    
+    
+    public Integer queryRegimeUserCount(Long regimenId);
+    
+    
+    public List<Long> queryRegimeUser(Long regimenId);
+    
+    public Integer deleteUserRegimeRelationInfoByRegimeId(Long regimeId);
+
+
 }
+

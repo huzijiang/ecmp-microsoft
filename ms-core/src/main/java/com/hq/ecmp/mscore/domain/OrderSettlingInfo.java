@@ -1,9 +1,11 @@
 package com.hq.ecmp.mscore.domain;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import java.math.BigDecimal;
 
 /**
  * 【请填写功能名称】对象 order_settling_info
@@ -24,7 +26,7 @@ public class OrderSettlingInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long amount;
+    private BigDecimal amount;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -32,13 +34,37 @@ public class OrderSettlingInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long outPrice;
+    private BigDecimal outPrice;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private BigDecimal totalMileage;// TODO 新增。实际里程
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private BigDecimal totalTime;// TODO 新增。实际时长
+    public void setTotalMileage(BigDecimal totalMileage)
+    {
+        this.totalMileage = totalMileage;
+    }
+    public BigDecimal getTotalMileage()
+    {
+        return totalMileage;
+    }
+
+    public void setTotalTime(BigDecimal totalTime)
+    {
+        this.totalTime = totalTime;
+    }
+    public BigDecimal getTotalTime()
+    {
+        return totalTime;
+    }
+
 
     public void setBillId(Long billId)
     {
         this.billId = billId;
     }
-
     public Long getBillId()
     {
         return billId;
@@ -52,12 +78,12 @@ public class OrderSettlingInfo extends BaseEntity
     {
         return orderId;
     }
-    public void setAmount(Long amount)
+    public void setAmount(BigDecimal amount)
     {
         this.amount = amount;
     }
 
-    public Long getAmount()
+    public BigDecimal getAmount()
     {
         return amount;
     }
@@ -70,15 +96,31 @@ public class OrderSettlingInfo extends BaseEntity
     {
         return amountDetail;
     }
-    public void setOutPrice(Long outPrice)
+    public void setOutPrice(BigDecimal outPrice)
     {
         this.outPrice = outPrice;
     }
 
-    public Long getOutPrice()
+    public BigDecimal getOutPrice()
     {
         return outPrice;
     }
+
+    public OrderSettlingInfo() {
+    }
+
+    public OrderSettlingInfo(Long orderId, BigDecimal amount, String amountDetail, BigDecimal totalMileage, BigDecimal totalTime) {
+        this.orderId = orderId;
+        this.amount = amount;
+        this.amountDetail = amountDetail;
+        this.totalMileage = totalMileage;
+        this.totalTime = totalTime;
+    }
+
+    public OrderSettlingInfo(Long orderId) {
+        this.orderId = orderId;
+    }
+
 
     @Override
     public String toString() {
@@ -92,6 +134,8 @@ public class OrderSettlingInfo extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
+            .append("totalMileage", getTotalMileage())
+            .append("totalTime", getTotalTime())
             .toString();
     }
 }

@@ -1,8 +1,16 @@
 package com.hq.ecmp.mscore.mapper;
 
-import com.hq.ecmp.mscore.domain.RegimeInfo;
-
 import java.util.List;
+
+import com.hq.ecmp.mscore.vo.RegimenVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.RegimeOpt;
+import com.hq.ecmp.mscore.domain.RegimePo;
+import com.hq.ecmp.mscore.domain.RegimeQueryPo;
+import com.hq.ecmp.mscore.domain.RegimeVo;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -10,15 +18,22 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface RegimeInfoMapper
 {
     /**
-     * 查询【请填写功能名称】
+     * 根据用车制度id查询用车制度详细信息
      *
      * @param regimenId 【请填写功能名称】ID
      * @return 【请填写功能名称】
      */
     public RegimeInfo selectRegimeInfoById(Long regimenId);
+
+    /**
+     * 查询所有用车制度信息
+     * @return
+     */
+    public List<RegimeInfo> selectAll();
 
     /**
      * 查询【请填写功能名称】列表
@@ -59,4 +74,40 @@ public interface RegimeInfoMapper
      * @return 结果
      */
     public int deleteRegimeInfoByIds(Long[] regimenIds);
+    
+    public List<RegimeVo> queryRegimeList(RegimeQueryPo regimeQueryPo);
+    
+    public Integer queryRegimeListCount(RegimeQueryPo regimeQueryPo);
+    
+    public Integer updateStatus(RegimeOpt regimeOpt);
+    
+    public RegimeInfo queryRegimeType(Long regimeId);
+
+    public Integer insertRegime(RegimePo po);
+
+    public RegimeVo queryRegimeDetail(Long regimeId);
+
+
+
+    public RegimenVO selectRegimenVOById(@Param("regimeId") Long regimeId );
+
+
+    public RegimeInfo queryUseCarModelByNoteId(Long noteId);
+
+
+    public String queryUseCarModelByJourneyId(Long journeyId);
+    /*
+    * 根据userid 查询用车制度名称
+    * */
+    public  List<RegimeVo> selectByUserId(Long userId);
+
+    /**
+     * 查询用户可用网约车车型等级
+     * @param regimenId
+     * @return
+     */
+    String getUserOnlineCarLevels(Long regimenId);
+    
+    
+    public RegimeVo queryRegimeInfoByOrderId(Long orderId);
 }

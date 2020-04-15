@@ -1,6 +1,12 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
+import com.hq.ecmp.mscore.vo.CarGroupFixedPhoneVO;
+import com.hq.ecmp.mscore.vo.CarGroupListVO;
+import com.hq.ecmp.mscore.vo.CarGroupPhoneVO;
+import com.hq.ecmp.mscore.vo.CarGroupTreeVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +16,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface CarGroupInfoMapper
 {
     /**
@@ -59,4 +66,80 @@ public interface CarGroupInfoMapper
      * @return 结果
      */
     public int deleteCarGroupInfoByIds(Long[] carGroupIds);
+
+    /**
+     * 查找车队的集合
+     * @param search
+     * @param state
+     * @param deptId
+     * @param carGroupId
+     * @return
+     */
+    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId);
+
+    /**
+     * 查询该组织下的车队信息
+     *
+     * @param deptId 组织ID
+     * @return 结果
+     */
+    public int selectCountByOrgdeptId(Long deptId);
+
+    /**
+     * 查询下级车队列表
+     * @param deptId
+     * @return
+     */
+    List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);
+
+    /**
+     * 查询城市内所有车队
+     * @param cityCode
+     * @return
+     */
+    List<CarGroupInfo> selectValidCarGroupListByCity(String cityCode);
+
+    /**
+     * 查询车队电话及车队名字
+     * @param groupIds
+     * @return
+     */
+    List<CarGroupFixedPhoneVO> selectCarGroupPhones(List<Long> groupIds);
+
+
+    /**
+     * 查询指定司机的
+     *车队信息
+     * @param driverId
+     * @return List<CarGroupInfo>
+     */
+    List<CarGroupInfo> selectCarGroupsByDriverId(Long driverId);
+
+    /**
+     * 根据分子公司id查询一级车队
+     * @param deptId
+     * @return
+     */
+    List<CarGroupTreeVO> selectFirstLevelCarGroupList(Long deptId);
+
+    /**
+     * 根据车队id查询车队树
+     * @param carGroupId
+     * @return
+     */
+    List<CarGroupTreeVO> getCarGroupTree(Long carGroupId);
+
+    /**
+     * 查询下级车队数量
+     * @param
+     * @return
+     */
+    int selectCountByParentId(Long parentId);
+
+    /**
+     * 查询所有车队编号
+     * @return
+     */
+    List<String> selectAllCarGroupCode();
+
 }

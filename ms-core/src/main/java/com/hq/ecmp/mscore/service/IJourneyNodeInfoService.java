@@ -1,8 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
-import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
-
 import java.util.List;
+
+import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 
 /**
  * 【请填写功能名称】Service接口
@@ -59,4 +59,35 @@ public interface IJourneyNodeInfoService
      * @return 结果
      */
     public int deleteJourneyNodeInfoById(Long nodeId);
+    
+    /**
+     * 获取差旅所有的城市名称
+     * @param journeyId
+     * @return
+     */
+    public List<String> selectAllCity(Long journeyId);
+    
+    
+    /**
+     * 获取指定行程下的所有行程节点中的最早开始时间   和最晚结束时间
+     * @param journeyId
+     * @return
+     */
+    public JourneyNodeInfo selectMaxAndMinDate(Long journeyId);
+    
+    
+    public List<String> queryGroupCity(Long journeyId);
+    
+    /**
+     * 按行程流程顺序查询执行行程下的行程节点
+     * @return
+     */
+    public List<JourneyNodeInfo>  queryJourneyNodeInfoOrderByNumber(Long journeyId);
+    
+    public JourneyNodeInfo queryJourneyNodeInfoByPowerId(Long powerId);
+    
+    
+    
+    
+  
 }

@@ -1,6 +1,9 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
+import com.hq.ecmp.mscore.vo.ProjectUserVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +13,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface ProjectUserRelationInfoMapper
 {
     /**
@@ -59,4 +63,12 @@ public interface ProjectUserRelationInfoMapper
      * @return 结果
      */
     public int deleteProjectUserRelationInfoByIds(Long[] projectIds);
+
+    int insertProjectList(List<ProjectUserRelationInfo> list);
+
+    List<ProjectUserVO> getProjectUserList(@Param("projectId")Long projectId,@Param("search") String search);
+
+    int removeProjectUser(@Param("projectId")Long projectId, @Param("userId")Long userId);
+
+    Long getProjectUserListCount(@Param("projectId")Long projectId,@Param("search") String search);
 }

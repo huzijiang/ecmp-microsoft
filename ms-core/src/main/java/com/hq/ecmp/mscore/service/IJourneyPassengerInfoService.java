@@ -59,4 +59,16 @@ public interface IJourneyPassengerInfoService
      * @return 结果
      */
     public int deleteJourneyPassengerInfoById(Long journeyPassengerId);
+
+    String getPeerPeople(Long journeyId);
+    
+    /**
+     * 查询指定行程中同行人就多少
+     * @param journeyId
+     * @return
+     */
+    public Integer queryPeerCount(Long journeyId);
+    
+    //查询指定行程中所有同行人
+    public List<String> queryPeerUserNameList(Long journeyId);
 }

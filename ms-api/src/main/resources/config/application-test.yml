@@ -6,14 +6,14 @@ spring:
     druid:
       # 主库数据源
       master:
-        url: jdbc:mysql://10.117.1.221:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+        url: jdbc:mysql://10.117.1.221:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
         username: root
         password: hqzc@2019
       # 从库数据源
       slave:
         # 从数据源开关/默认关闭
         enabled: false
-        url: jdbc:mysql://10.117.1.222:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+        url: jdbc:mysql://10.117.1.222:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
         username: root
         password: hqzc@2019
       # 初始连接数
@@ -93,3 +93,23 @@ token:
   secret: abcdefghijklmnopqrstuvwxyz
   # 令牌有效期（默认30分钟）
   expireTime: 30
+
+thirdService:
+  enterpriseId: 100000
+  licenseContent: AAAAAAAA
+  apiUrl: http://10.117.1.231:51002
+
+dispatch:
+  #不回车队驻地缓冲时间: 60分钟
+  notBackCarGroup: 60
+  #回车队驻地缓冲时间: 90分钟
+  backCarGroup: 90
+
+#/upload
+app:
+  zimg:
+    server: http://10.117.1.232:4869
+    access:
+      url: http://123.127.89.218:4869/
+  welcome: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
+  background: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de

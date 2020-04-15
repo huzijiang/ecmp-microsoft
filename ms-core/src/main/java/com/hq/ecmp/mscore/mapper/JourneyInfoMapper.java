@@ -1,6 +1,10 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.JourneyVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +14,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface JourneyInfoMapper
 {
     /**
@@ -29,7 +34,7 @@ public interface JourneyInfoMapper
     public List<JourneyInfo> selectJourneyInfoList(JourneyInfo journeyInfo);
 
     /**
-     * 新增【请填写功能名称】
+     * 新增行程信息
      *
      * @param journeyInfo 【请填写功能名称】
      * @return 结果
@@ -59,4 +64,36 @@ public interface JourneyInfoMapper
      * @return 结果
      */
     public int deleteJourneyInfoByIds(Long[] journeyIds);
+
+    MessageDto getJourneyMessage(Long userId);
+
+    /**
+     * 获取正在进行中的行程
+     * @param userId
+     * @return list
+     */
+    public List<JourneyVO> getJourneyList(Long userId);
+
+    /**
+     * 获取正在进行中的行程个数
+     * @param userId
+     * @return 个数
+     */
+    int getJourneyListCount(Long userId);
+
+    /**
+     * 查询用户审核通过的用车行程
+     * @param userId
+     * @return
+     */
+    List<JourneyInfo> queryPassJourneyList(Long userId);
+
+    String selectTitleById(Long journeyId);
+    /**
+     * 判断是否有正在进行中的行程
+     *
+     * @param userId
+     * @return 个数
+     */
+    public int getWhetherJourney(Long userId);
 }

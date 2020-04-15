@@ -1,7 +1,12 @@
 package com.hq.ecmp.mscore.service;
 
+import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
+import com.hq.ecmp.mscore.vo.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,7 +42,7 @@ public interface IApplyInfoService
     public int insertApplyInfo(ApplyInfo applyInfo);
 
     /**
-     * 修改【请填写功能名称】
+     * 修改申请表信息（撤销行程申请）
      *
      * @param applyInfo 【请填写功能名称】
      * @return 结果
@@ -59,4 +64,55 @@ public interface IApplyInfoService
      * @return 结果
      */
     public int deleteApplyInfoById(Long applyId);
+
+    /**
+     * 提交行程申请
+     * @param journeyCommitApplyDto
+     */
+    public void applyCommit(JourneyCommitApplyDto journeyCommitApplyDto);
+
+    /**
+     * 提交公务行程申请
+     * @param officialCommitApply
+     */
+    ApplyVO applyOfficialCommit(ApplyOfficialRequest officialCommitApply) throws Exception;
+
+    /**
+     * 提交差旅行程申请
+     * @param travelCommitApply
+     */
+    ApplyVO applytravliCommit(ApplyTravelRequest travelCommitApply);
+
+    /**
+     *
+     * 分页查询用户申请列表
+     * @param userId
+     * @param pageNum
+     * @return
+     */
+    PageResult<ApplyInfoDTO> selectApplyInfoListByPage(Long userId, Integer pageNum, Integer pageSize);
+
+    /**
+     * 查询申请单详情
+     * @param applyId
+     * @return
+     */
+    ApplyDetailVO selectApplyDetail(Long applyId);
+
+    List<MessageDto> getOrderCount(Long userId);
+
+    MessageDto getApplyMessage(Long userId);
+
+    int getApplyApproveCount(Long userId);
+
+    List<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId);
+
+    Integer getApprovePageCount(Long userId);
+    //获取审批流信息
+    List<ApprovalListVO> getApproveList(String applyUser, String applyMobile, Long applyId, Date time);
+
+    int updateApplyState(Long applyId,String applyState,String approveState,Long userId) throws Exception;
+   void updateApproveResult(Long applyId,String state,Long userId) throws Exception;
+
+    void checkApplyExpired();
 }

@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
+import com.hq.ecmp.mscore.dto.CarTypeDTO;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +12,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface EnterpriseCarTypeInfoMapper
 {
     /**
@@ -59,4 +62,24 @@ public interface EnterpriseCarTypeInfoMapper
      * @return 结果
      */
     public int deleteEnterpriseCarTypeInfoByIds(Long[] carTypeIds);
+
+    /**
+     * 根据车型查询id
+     * @param onlineCarLevel
+     * @return
+     */
+    Long selectCarTypeId(String onlineCarLevel);
+
+    /**
+     * 查詢最大的車型級別
+     * @return
+     */
+    String getCarTypeDTOById();
+    
+    /**
+     * 查询车辆的车型名称
+     * @param carId
+     * @return
+     */
+    String queryCarTypeNameByCarId(Long carId);
 }

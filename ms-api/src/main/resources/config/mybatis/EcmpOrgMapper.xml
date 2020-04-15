@@ -7,7 +7,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.domain.EcmpOrg" id="EcmpOrgResult">
         <result property="deptId"    column="dept_id"    />
         <result property="parentId"    column="parent_id"    />
-        <result property="companyId"    column="company_id"    />
+        <result property="ancestors"    column="ancestors"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="deptType"    column="dept_type"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="deptCode"    column="dept_code"    />
+        <result property="leader"    column="leader"    />
+        <result property="phone"    column="phone"    />
+        <result property="email"    column="email"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <resultMap type="com.hq.ecmp.mscore.vo.EcmpOrgVo" id="EcmpOrgVoResult">
+        <result property="deptId"    column="dept_id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="ancestors"    column="ancestors"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="deptType"    column="dept_type"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="leader"    column="leader"    />
+        <result property="phone"    column="phone"    />
+        <result property="email"    column="email"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+    <resultMap type="com.hq.ecmp.mscore.dto.EcmpOrgDto" id="EcmpOrgDtoResult">
+        <result property="deptId"    column="dept_id"    />
+        <result property="parentId"    column="parent_id"    />
         <result property="ancestors"    column="ancestors"    />
         <result property="deptName"    column="dept_name"    />
         <result property="deptType"    column="dept_type"    />
@@ -23,15 +58,129 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateTime"    column="update_time"    />
     </resultMap>
 
+    <resultMap type="com.hq.ecmp.mscore.vo.OrgTreeVo" id="orgTreeVO">
+        <id column="id" property="id"/>
+        <result property="parentId"    column="parentId"    />
+        <result property="showname"    column="showname"    />
+        <result property="type"    column="type"    />
+        <collection property="children" ofType="OrgTreeVo" javaType="java.util.ArrayList" select="getOrgNodeList" column="id">
+        </collection>
+    </resultMap>
+
     <sql id="selectEcmpOrgVo">
-        select dept_id, parent_id, company_id, ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
+        select dept_id, parent_id,dept_code,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
     </sql>
+    <sql id="selectEcmpOrg">
+        select dept_id, parent_id,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
+    </sql>
+    <!-- /**
+     * 查询部门列表
+     * @param  deptId
+     * @return*/
+     -->
+    <select id="selectByEcmpOrgParentId"  resultMap="EcmpOrgDtoResult">
+      select
+            dept_id, parent_id,ancestors, dept_name,
+            dept_type, order_num, leader, phone, email,
+            status, del_flag, create_by, create_time,
+            update_by, update_time
+      from
+            ecmp_org
+       where
+            del_flag = 0
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="parentId != null "> and parent_id = #{parentId}</if>
+            <if test="deptType != null  and deptType != ''"> and dept_type = #{deptType}</if>
+    </select>
+    <!-- /**
+     * 查询部门详情
+     *
+     * @param deptId 部门ID
+     * @return ecmpOrg
+     */-->
+    <select id="selectByDeptId"   resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+        select
+        dept_name as deptName,dept_id deptId,
+        (SELECT dept_name from  ecmp_org where dept_id =
+        (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
+        (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName,leader,`phone`
+        from
+        ecmp_org
+        where
+        del_flag = '0' and `status`='0'
+        and dept_type='2'
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+    </select>
+    <!--/*
+     * 添加部门
+     *  @param  ecmpOrg
+     * @return int
+     * */-->
+    <insert id="addDept" parameterType="com.hq.ecmp.mscore.vo.EcmpOrgVo" useGeneratedKeys="true" keyProperty="deptId">
+        insert into ecmp_org
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="parentId != null ">parent_id,</if>
+            <if test="deptCode != null ">dept_code,</if>
+            <if test="ancestors != null  and ancestors != ''">ancestors,</if>
+            <if test="deptName != null  and deptName != ''">dept_name,</if>
+            <if test="deptType != null  and deptType != ''">dept_type,</if>
+            <if test="orderNum != null ">order_num,</if>
+            <if test="leader != null  and leader != ''">leader,</if>
+            <if test="phone != null  and phone != ''">phone,</if>
+            <if test="email != null  and email != ''">email,</if>
+            <if test="status != null  and status != ''">status,</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and createBy != ''">update_by,</if>
+            <if test="updateTime != null  ">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="parentId != null ">#{parentId},</if>
+            <if test="deptCode != null ">#{deptCode},</if>
+            <if test="ancestors != null  and ancestors != ''">#{ancestors},</if>
+            <if test="deptName != null  and deptName != ''">#{deptName},</if>
+            <if test="deptType != null  and deptType != ''">#{deptType},</if>
+            <if test="orderNum != null ">#{orderNum},</if>
+            <if test="leader != null  and leader != ''">#{leader},</if>
+            <if test="phone != null  and phone != ''">#{phone},</if>
+            <if test="email != null  and email != ''">#{email},</if>
+            <if test="status != null  and status != ''">#{status},</if>
+            <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and createBy != ''">#{updateBy}</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+        </trim>
+    </insert>
+    <!--/*
+     * 修改部门
+     *  @param  ecmpOrg
+     * @return int
+     * */-->
+    <update id="updateDept" parameterType="com.hq.ecmp.mscore.vo.EcmpOrgVo" >
+        update ecmp_org
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="ancestors != null  and ancestors != ''">ancestors = #{ancestors},</if>
+            <if test="deptCode != null  and deptCode != ''">dept_code = #{deptCode},</if>
+            <if test="deptName != null  and deptName != ''">dept_name = #{deptName},</if>
+            <if test="orderNum != null ">order_num = #{orderNum},</if>
+            <if test="leader != null  and leader != ''">leader = #{leader},</if>
+            <if test="phone != null  and phone != ''">phone = #{phone},</if>
+            <if test="email != null  and email != ''">email = #{email},</if>
+            <if test="status != null  and status != ''">status = #{status},</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where dept_id = #{deptId}
+    </update>
+
 
     <select id="selectEcmpOrgList" parameterType="com.hq.ecmp.mscore.domain.EcmpOrg" resultMap="EcmpOrgResult">
         <include refid="selectEcmpOrgVo"/>
         <where>
             <if test="parentId != null "> and parent_id = #{parentId}</if>
-            <if test="companyId != null "> and company_id = #{companyId}</if>
             <if test="ancestors != null  and ancestors != ''"> and ancestors = #{ancestors}</if>
             <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
             <if test="deptType != null  and deptType != ''"> and dept_type = #{deptType}</if>
@@ -48,11 +197,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where dept_id = #{deptId}
     </select>
 
-    <insert id="insertEcmpOrg" parameterType="com.hq.ecmp.mscore.domain.EcmpOrg" useGeneratedKeys="true" keyProperty="deptId">
+
+    <insert id="insertEcmpOrg" parameterType="com.hq.ecmp.mscore.vo.EcmpOrgVo" useGeneratedKeys="true" keyProperty="deptId">
         insert into ecmp_org
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="parentId != null ">parent_id,</if>
-            <if test="companyId != null ">company_id,</if>
             <if test="ancestors != null  and ancestors != ''">ancestors,</if>
             <if test="deptName != null  and deptName != ''">dept_name,</if>
             <if test="deptType != null  and deptType != ''">dept_type,</if>
@@ -63,13 +212,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="status != null  and status != ''">status,</if>
             <if test="delFlag != null  and delFlag != ''">del_flag,</if>
             <if test="createBy != null  and createBy != ''">create_by,</if>
-            <if test="createTime != null ">create_time,</if>
-            <if test="updateBy != null  and updateBy != ''">update_by,</if>
-            <if test="updateTime != null ">update_time,</if>
+            <if test="createTime != null  ">create_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="parentId != null ">#{parentId},</if>
-            <if test="companyId != null ">#{companyId},</if>
             <if test="ancestors != null  and ancestors != ''">#{ancestors},</if>
             <if test="deptName != null  and deptName != ''">#{deptName},</if>
             <if test="deptType != null  and deptType != ''">#{deptType},</if>
@@ -81,27 +227,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
             <if test="createBy != null  and createBy != ''">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
-            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
-            <if test="updateTime != null ">#{updateTime},</if>
          </trim>
     </insert>
 
-    <update id="updateEcmpOrg" parameterType="com.hq.ecmp.mscore.domain.EcmpOrg">
+    <update id="updateEcmpOrg"  parameterType="com.hq.ecmp.mscore.vo.EcmpOrgVo" >
         update ecmp_org
         <trim prefix="SET" suffixOverrides=",">
-            <if test="parentId != null ">parent_id = #{parentId},</if>
-            <if test="companyId != null ">company_id = #{companyId},</if>
+            <if test="deptCode != null ">dept_code = #{deptCode},</if>
             <if test="ancestors != null  and ancestors != ''">ancestors = #{ancestors},</if>
             <if test="deptName != null  and deptName != ''">dept_name = #{deptName},</if>
-            <if test="deptType != null  and deptType != ''">dept_type = #{deptType},</if>
-            <if test="orderNum != null ">order_num = #{orderNum},</if>
             <if test="leader != null  and leader != ''">leader = #{leader},</if>
             <if test="phone != null  and phone != ''">phone = #{phone},</if>
             <if test="email != null  and email != ''">email = #{email},</if>
-            <if test="status != null  and status != ''">status = #{status},</if>
-            <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
-            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
-            <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
         </trim>
@@ -118,5 +255,249 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{deptId}
         </foreach>
     </delete>
+    <!--根据deptId和deptType删除信息-->
+    <update id="updateDelFlagById" >
+      update ecmp_org  SET del_flag='2' where dept_id = #{deptId}
+    </update>
+    <!--根据deptId查询组织下级是否有数据信息-->
+    <select id="selectByAncestorsLikeDeptId" resultType="Integer">
+      select count(*) from  ecmp_org where  ancestors like concat('%', #{deptId}, '%') and del_flag = 0
+    </select>
+
+    <update id="updateDelFlagByIds" parameterType="Long">
+        update ecmp_org
+        SET del_flag='2'
+        where dept_id in
+        <foreach item="deptId" collection="array" open="(" separator="," close=")">
+            #{deptId}
+        </foreach>
+    </update>
+
+    <!--根据公司id查询部门对象列表-->
+    <select id="selectEcmpOrgsByDeptId" parameterType="long" resultMap="EcmpOrgResult">
+        <include refid="selectEcmpOrgVo"/>
+        where dept_id = #{deptId}
+    </select>
+
+    <!--查询所有的分子公司-->
+    <select id="selectSubCompany" resultType="java.lang.String">
+      SELECT dept_name FROM ecmp_org
+        where del_flag='0' and dept_type = 1
+        AND parent_id = #{deptId}
+    </select>
+
+    <!--查询分子公司及归属部门-->
+    <!--<select id="selectSubCompany" resultType="java.lang.String">
+      select * from ecmp_org  where dept_id in
+      ((select dept_id from  ecmp_org where ancestors like concat('%', #{deptId}, '%' )),#{deptId})
+    </select>-->
+
+
+    <update id="updateUseStatus" >
+      update ecmp_org set status=#{status} where
+      del_flag='0' and
+      dept_id in
+      (( SELECT a.dept_id from (select dept_id from  ecmp_org where ancestors like concat('%', #{ancestors}, '%' ) or dept_id=#{deptId} ) as a))
+    </update>
+
+    <update id="updateUnUseStatus" parameterType="Long">
+      update ecmp_org  SET status='1' where del_flag='0' and dept_id = #{deptId}
+    </update>
+
+    <!--查询分/子公司详情-->
+    <select id="getSubDetail" parameterType="Long" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+        SELECT dept_name as deptName,dept_id deptId,
+       if(isnull(dept_code),'',dept_code) as deptCode,
+      (SELECT dept_name from  ecmp_org where dept_id =
+      (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
+      (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName , leader, `phone`,  `email`,
+      (SELECT count(*) from  ecmp_user where dept_id=#{deptId} and del_flag=0) as numOfSub
+      from  ecmp_org where dept_id=#{deptId}
+    </select>
+
+    <!--根据部门id查询部门所属公司-->
+    <select id="getSubComDept" parameterType="Long" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+       SELECT dept_id from  ecmp_org where dept_id =
+      (SELECT parent_id from  ecmp_org where dept_id=#{deptId})
+    </select>
+
+    <!-- 根据parentId查询组织下级分/子公司的组织id -->
+    <select id="selectCompanyByParentId" resultType="Long">
+         select
+            dept_id
+      from
+            ecmp_org
+       where
+            del_flag = 0
+        <if test="parentId != null ">and parent_id = #{parentId}</if>
+        <if test="deptType != null  and deptType != ''">and dept_type = #{deptType}</if>
+    </select>
+
+    <!-- 根据组织Id和组织类别查询公司列表 -->
+    <select id="selectCompanyList" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+        select
+        dept_type as deptType,
+        parent_id parentId,
+        dept_id as deptId,
+        dept_name as deptName,
+        if(isnull(dept_code),'',dept_code) as deptCode,
+        (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,a.leader)) leader,
+        (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
+        (select count(1) from ecmp_org where parent_id=#{deptId} and dept_type='1') as numOfSonCom,status
+        from ecmp_org a where
+        del_flag = 0 and
+         dept_id=#{deptId} and dept_type = #{deptType}
+    </select>
+
+    <!-- 显示查询总条数 -->
+    <select id="queryCompanyListCount" resultType="java.lang.Integer">
+        select
+        count(1)
+        from ecmp_org where
+        del_flag = 0 and
+        parent_id=#{parentId} and dept_type = #{deptType}
+    </select>
+
+    <!-- 根据组织Id和组织类别查询部门列表
+    列表：部门名称、编号、部门主管、部门人数、所属组织、下属部门数、状态
+    -->
+    <select id="selectDeptList" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+        select
+        dept_type as deptType,
+        dept_id as deptId,
+        parent_id parentId,
+        dept_name as deptName,
+        if(isnull(dept_code),'',dept_code) as deptCode,
+         (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName,leader,
+        (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
+        (select count(1) from ecmp_org where parent_id=#{deptId} and dept_type='2') as numOfSonDept,status
+        from ecmp_org where
+         del_flag = 0  and
+         dept_id=#{deptId} and dept_type = #{deptType}
+    </select>
+
+    <select id="selectCountByParentId" resultType="int">
+        select count(1) from ecmp_org where parent_id = #{parentId}
+    </select>
+
+    <!--查询分/子公司、部门编号是否已存在-->
+    <select id="selectDeptCodeExist" resultType="int">
+        select count(1) from ecmp_org
+        where del_flag = 0
+        <if test="deptCode != null "> and dept_Code = #{deptCode}</if>
+    </select>
+
+    <!--查询当前机构信息-->
+    <select id="selectCurrentDeptInformation" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+        select
+        eo.dept_id as deptId,
+        eo.dept_name as deptName,
+        if(isnull(eo.dept_code),'',eo.dept_code) as deptCode,eu.nick_name leader,
+        (select count(1) from ecmp_user where dept_id in (select dept_id from  ecmp_org where ancestors like concat('%', #{ancestors}, '%' ) or dept_id=#{deptId} )) as numOfSub
+        from ecmp_org  eo LEFT JOIN ecmp_user eu  ON eo.leader=eu.user_id
+        where
+        eo.dept_id = #{deptId}
+    </select>
+
+    <!--查询分/子公司下的部门名称和deptId
+    -->
+    <select id="selectDeptByCompany" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+         select
+        dept_id as deptId,
+        dept_name as deptName
+        from ecmp_org
+        where del_flag = 0
+        and parent_id=#{deptId})
+    </select>
+
+    <!-- 按照分子公司名称或编号模糊查询匹配的组织id -->
+    <select id="selectDeptIdsByDeptNameOrCode" resultType="Long">
+        select
+        dept_id as deptId
+        from
+        ecmp_org
+        where
+        del_flag = 0
+        and  (dept_name like concat('%', #{deptName}, '%') or   dept_code like concat('%', #{deptCode}, '%'))
+        and dept_type = #{deptType}
+    </select>
+
+
+    <!--按照分子公司名称或编号模糊查询匹配的列表-->
+    <select id="selectCompanyByDeptNameOrCode" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+      select
+        dept_id as deptId,
+        dept_name as deptName,
+        if(isnull(dept_code),'',dept_code) as deptCode,
+        leader,
+        (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
+        (select count(1) from ecmp_org where parent_id=#{deptId}) as numOfSonCom,status
+        from ecmp_org
+        where del_flag = 0
+        and  (dept_name like concat('%', #{deptName}, '%') or   dept_code like concat('%', #{deptCode}, '%'))
+        and dept_id = #{deptId}
+        and dept_type = "1"
+    </select>
+
+    <!--按照部门名称或编号模糊查询匹配的列表-->
+    <select id="selectDeptByDeptNameOrCode" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
+      select
+        dept_id as deptId,
+        dept_name as deptName,
+        if(isnull(dept_code),'',dept_code) as deptCode,
+        leader,
+        (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
+        (SELECT dept_name from  ecmp_org where dept_id =
+        (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
+        (select count(1) from ecmp_org where parent_id=#{deptId}) as numOfSonDept,status
+        from ecmp_org
+        where del_flag = 0
+        and  (dept_name like concat('%', #{deptName}, '%') or   dept_code like concat('%', #{deptCode}, '%'))
+        and dept_id = #{deptId}
+        and dept_type = "2"
+    </select>
+
+    <select id="selectDeptTree" parameterType="Object" resultMap="orgTreeVO">
+        select dept_id id, parent_id parentId,dept_name showname,'0' type from ecmp_org
+        where status=0 and del_flag=0 and dept_type!=3
+        <if test="deptId!=null">
+            and dept_id=#{deptId}
+        </if>
+        <if test="deptName!=null and deptName!=''">
+            and dept_name like concat('%', #{deptName}, '%')
+        </if>
+        <if test="deptId == null and deptName==null">
+            and parent_id=0
+        </if>
+
+    </select>
+    <select id="getOrgNodeList" parameterType="Object" resultMap="orgTreeVO">
+         select dept_id id, parent_id parentId,dept_name showname,'0' type from ecmp_org
+        where status=0 and del_flag=0 and parent_id=#{id} and dept_type!=3
+    </select>
+    <select id="selectCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
+        select  dept_id as deptGroupId,
+                dept_name as deptGroupName,
+                dept_type as deptType,
+        from ecmp_org
+        where parent_id = #{deptId} and dept_type = '3'
+    </select>
+    <select id="selectCompanyTree" resultType="com.hq.ecmp.mscore.vo.CompanyTreeVO">
+        select dept_id as deptCompanyId,
+                dept_name as deptCompanyName,
+                dept_type as deptType,
+        from ecmp_org
+        where parent_id = #{deptId} and dept_type = '1'
+    </select>
+    <select id="selectCompanyCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CompanyCarGroupTreeVO" parameterType="long">
+        select  dept_id as deptId,
+                dept_name as deptName,
+                dept_type as deptType,
+                dept_code as deptCode,
+                parent_id as parentId,
+                leader
+        from ecmp_org
+        where parent_id = #{parentId} and  dept_type = '1'
+    </select>
 
 </mapper>

@@ -6,43 +6,69 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="com.hq.ecmp.mscore.domain.CarGroupInfo" id="CarGroupInfoResult">
         <result property="carGroupId"    column="car_group_id"    />
+        <result property="carGroupName"    column="car_group_name"    />
+        <result property="carGroupCode"    column="car_group_code"    />
         <result property="city"    column="city"    />
-        <result property="cityName"    column="city_name"    />
+        <result property="fullAddress"    column="full_address"    />
+        <result property="shortAddress"    column="short_address"    />
+        <result property="ownerCompany"    column="owner_company"    />
         <result property="ownerOrg"    column="owner_org"    />
         <result property="leader"    column="leader"    />
+        <result property="telephone"    column="telephone"    />
+        <result property="province"    column="province"    />
+        <result property="latitude"    column="latitude"    />
+        <result property="longitude"    column="longitude"    />
+        <result property="state"    column="state"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+        <result property="parentCarGroupId"    column="parent_car_group_id"    />
     </resultMap>
 
     <sql id="selectCarGroupInfoVo">
-        select car_group_id, city, city_name, owner_org, leader, create_by, create_time, update_by, update_time from car_group_info
+        select car_group_id,parent_car_group_id,car_group_name,car_group_code, city,full_address,short_address,owner_company,
+         owner_org, leader,telephone,create_by,province,latitude,longitude,state, create_time, update_by, update_time from car_group_info
     </sql>
 
     <select id="selectCarGroupInfoList" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo" resultMap="CarGroupInfoResult">
         <include refid="selectCarGroupInfoVo"/>
         <where>
+            state != 'S444'
             <if test="city != null "> and city = #{city}</if>
-            <if test="cityName != null  and cityName != ''"> and city_name like concat('%', #{cityName}, '%')</if>
             <if test="ownerOrg != null "> and owner_org = #{ownerOrg}</if>
             <if test="leader != null "> and leader = #{leader}</if>
+            <if test="ownerCompany != null "> and owner_company = #{ownerCompany}</if>
         </where>
     </select>
 
     <select id="selectCarGroupInfoById" parameterType="Long" resultMap="CarGroupInfoResult">
         <include refid="selectCarGroupInfoVo"/>
-        where car_group_id = #{carGroupId}
+        where car_group_id = #{carGroupId} and state != 'S444'
     </select>
 
     <insert id="insertCarGroupInfo" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+        <selectKey  keyColumn="car_group_id" keyProperty="carGroupId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into car_group_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="carGroupId != null ">car_group_id,</if>
+            <if test="parentCarGroupId != null ">parent_car_group_id,</if>
             <if test="city != null ">city,</if>
             <if test="cityName != null  and cityName != ''">city_name,</if>
             <if test="ownerOrg != null ">owner_org,</if>
+            <if test="ownerCompany != null ">owner_company,</if>
             <if test="leader != null ">leader,</if>
+            <if test="province != null ">province,</if>
+            <if test="longitude != null ">longitude,</if>
+            <if test="latitude != null ">latitude,</if>
+            <if test="telephone != null ">telephone,</if>
+            <if test="carGroupName != null ">car_group_name,</if>
+            <if test="carGroupCode != null ">car_group_code,</if>
+            <if test="shortAddress != null ">short_address,</if>
+            <if test="fullAddress != null ">full_address,</if>
+            <if test="state != null ">state,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -50,10 +76,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="carGroupId != null ">#{carGroupId},</if>
+            <if test="parentCarGroupId != null ">#{parentCarGroupId},</if>
             <if test="city != null ">#{city},</if>
             <if test="cityName != null  and cityName != ''">#{cityName},</if>
             <if test="ownerOrg != null ">#{ownerOrg},</if>
+            <if test="ownerCompany != null ">#{ownerCompany},</if>
             <if test="leader != null ">#{leader},</if>
+            <if test="province != null ">#{province},</if>
+            <if test="longitude != null ">#{longitude},</if>
+            <if test="latitude != null ">#{latitude},</if>
+            <if test="telephone != null ">#{telephone},</if>
+            <if test="carGroupName != null ">#{carGroupName},</if>
+            <if test="carGroupCode != null ">#{carGroupCode},</if>
+            <if test="shortAddress != null ">#{shortAddress},</if>
+            <if test="fullAddress != null ">#{fullAddress},</if>
+            <if test="state != null ">#{state},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -65,9 +102,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update car_group_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="city != null ">city = #{city},</if>
-            <if test="cityName != null  and cityName != ''">city_name = #{cityName},</if>
+            <if test="carGroupName != null  and carGroupName != ''">car_group_name = #{carGroupName},</if>
+            <if test="carGroupCode != null  and carGroupCode != ''">car_group_code = #{carGroupCode},</if>
             <if test="ownerOrg != null ">owner_org = #{ownerOrg},</if>
+            <if test="parentCarGroupId != null ">parent_car_group_id = #{parentCarGroupId},</if>
             <if test="leader != null ">leader = #{leader},</if>
+            <if test="longitude != null ">longitude = #{longitude},</if>
+            <if test="latitude != null ">latitude = #{latitude},</if>
+            <if test="shortAddress != null and shortAddress != ''">short_address = #{shortAddress},</if>
+            <if test="fullAddress != null and fullAddress != ''">full_address = #{fullAddress},</if>
+            <if test="telephone != null and telephone != ''">telephone = #{telephone},</if>
+            <if test="state != null ">state = #{state},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -86,5 +131,89 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{carGroupId}
         </foreach>
     </delete>
+    <!--查询该组织下的车队信息-->
+    <select id="selectCountByOrgdeptId"  resultType="Integer">
+        select count(1) from  car_group_info where car_group_id in (select car_group_id from  car_info where dept_id=#{deptId})
+    </select>
+
+    <select id="selectAllByPage" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO">
+            select car_group_id as carGroupId, car_group_name as carGroupName,
+                car_group_code as carGroupCode,owner_org as ownerOrg,
+                eo.dept_name ownerOrgName,
+                owner_company as ownerCompany,
+                state,city
+             from car_group_info
+             left join ecmp_org eo on eo.dept_id=owner_org
+        <where>
+            <if test="search != null and search != '' ">
+                (car_group_name like concat('%', #{search}, '%')
+                or car_group_code like concat('%', #{search}, '%'))
+            </if>
+            <if test="state != null and state != ''">
+                and state = #{state}
+            </if>
+            <if test="deptId != null">
+                and owner_company = #{deptId} and parent_car_group_id = 0
+            </if>
+            <if test="carGroupId != null">
+                and parent_car_group_id = #{carGroupId}
+            </if>
+        </where>
+             order by car_group_name
+    </select>
+
+    <select id="selectSubCarGroupInfoList" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO" parameterType="long">
+        select car_group_id as carGroupId, car_group_name as carGroupName,
+                car_group_code as carGroupCode,owner_org as ownerOrg,
+                state,city
+             from car_group_info
+             inner join ecmp_org on car_group_info.owner_org = ecmp_org.dept_id
+             where ecmp_org.dept_id = #{deptId}
+    </select>
+    <select id="selectValidCarGroupListByCity" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+        select car_group_id as carGroupId,car_group_name as carGroupName, telephone
+         from car_group_info
+         where city = #{cityCode}
+    </select>
+    <select id="selectCarGroupPhones" resultType="com.hq.ecmp.mscore.vo.CarGroupFixedPhoneVO" parameterType="long">
+            select car_group_name as carGroupName, telephone as phone
+            from car_group_info
+            where car_group_id in
+        <foreach collection="list" item="groupId" index="index" open="(" close=")" separator=",">
+            #{groupId}
+        </foreach>
+    </select>
+
+    <select id="selectCarGroupsByDriverId" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo" parameterType="long">
+        SELECT
+            DISTINCTROW
+                cgi.*
+        FROM  driver_info  dri
+        LEFT JOIN  car_group_driver_relation cgd  ON cgd.driver_id=dri.driver_id
+        LEFT JOIN  car_group_info cgi ON cgi.car_group_id=cgd.car_group_id
+        WHERE 1=1
+        AND cgi.car_group_id IS NOT NULL
+        AND dri.driver_id=#{driverId}
+    </select>
+
+    <select id="selectFirstLevelCarGroupList" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
+         select car_group_id as deptId,
+               car_group_name as deptName
+        from   car_group_info
+        where  owner_company = #{deptId} and parent_car_group_id = 0
+    </select>
+    <select id="getCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
+        select car_group_id as deptId,
+               car_group_name as deptName
+        from   car_group_info
+        where  parent_car_group_id = #{carGroupId}
+    </select>
+    <select id="selectAllCarGroupCode" resultType="java.lang.String">
+        SELECT car_group_code FROM car_group_info
+    </select>
+
+    <select id="selectCountByParentId" resultType="int">
+        select count(1) from car_group_info where parent_car_group_id = #{parentId}
+    </select>
 
 </mapper>

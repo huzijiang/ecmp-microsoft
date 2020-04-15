@@ -26,6 +26,11 @@ public class UserDto {
     String userName;
 
     /**
+     * 用户用车场景id
+     */
+    Long sceneId;
+
+    /**
      * 手机编号
      */
     String phoneNumber;
@@ -44,6 +49,11 @@ public class UserDto {
      * 用户当前所在纬度
      */
     String latitude;
+
+    /**
+     * 用户所在部门
+     */
+    String deptName;
 
 
 }

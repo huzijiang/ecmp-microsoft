@@ -41,6 +41,13 @@ public class ApproveTemplateInfo extends BaseEntity
         return name;
     }
 
+    public ApproveTemplateInfo(String name) {
+        this.name = name;
+    }
+
+    public ApproveTemplateInfo() {
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

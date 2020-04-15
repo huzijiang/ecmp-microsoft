@@ -6,14 +6,14 @@ spring:
         druid:
             # 主库数据源
             master:
-                url: jdbc:mysql://10.117.1.221:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                url: jdbc:mysql://10.117.1.221:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
                 username: root
                 password: hqzc@2019
             # 从库数据源
             slave:
                 # 从数据源开关/默认关闭
                 enabled: true
-                url: jdbc:mysql://10.117.1.222:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                url: jdbc:mysql://10.117.1.222:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
                 username: root
                 password: hqzc@2019
             # 初始连接数
@@ -57,24 +57,22 @@ spring:
                         multi-statement-allow: true
     redis:
         cluster:
-            nodes:
-                - 10.117.1.223:6379
-                - 10.117.1.223:6380
-                - 10.117.1.224:6379
-                - 10.117.1.224:6380
-                - 10.117.1.225:6379
-                - 10.117.1.225:6380
-        jedis:
+            nodes: 10.117.1.223:6379,10.117.1.223:6380,10.117.1.224:6379,10.117.1.224:6380,10.117.1.225:6379,10.117.1.225:6380
+            max-redirects: 5
+            timeout: 6000ms
+        lettuce:
             pool:
-                max-active: 1000
-                max-idle: 50
-                min-idle: 5
+                max-active: 8
                 max-wait: -1ms
+                max-idle: 8
+                min-idle: 0
+#        database: 0
+#        password: qBa39fA&?@-o
 
 # 开发环境配置
 server:
     # 服务器的HTTP端口，默认为8080
-    port: 8080
+    port: 33000
     servlet:
         # 应用的访问路径
         context-path: /
@@ -94,4 +92,35 @@ token:
     secret: abcdefghijklmnopqrstuvwxyz
     # 令牌有效期（默认30分钟）
     expireTime: 30
+thirdService:
+    enterpriseId: 100000
+    licenseContent: AAAAAAAA
+    apiUrl: http://10.117.1.231:51002
+
+#行程分享路径
+order:
+   shareUrl: https://www.baidu.com?
+
+file:
+  config:
+    savepath: d://
+  path:
+    feedback: /feedback
+  url:
+    feedback: http://10.117.1.231
+#/upload
+app:
+  zimg:
+    server: http://10.117.1.232:4869
+    access:
+      url: http://123.127.89.218:4869/
+  welcome: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
+  background: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
+
+
+dispatch:
+    #不回车队驻地缓冲时间: 60分钟
+    notBackCarGroup: 60
+    #回车队驻地缓冲时间: 90分钟
+    backCarGroup: 90
 

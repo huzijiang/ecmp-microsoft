@@ -36,6 +36,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where config_id = #{configId}
     </select>
 
+    <select id="selectConfigByKey" parameterType="com.hq.ecmp.mscore.domain.EcmpConfig" resultMap="EcmpConfigResult">
+        <include refid="selectEcmpConfigVo"/>
+        where config_key = #{configKey}
+    </select>
+
     <insert id="insertEcmpConfig" parameterType="com.hq.ecmp.mscore.domain.EcmpConfig" useGeneratedKeys="true" keyProperty="configId">
         insert into ecmp_config
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -76,6 +81,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="remark != null  and remark != ''">remark = #{remark},</if>
         </trim>
         where config_id = #{configId}
+    </update>
+
+    <update id="updateConfigByKey" parameterType="com.hq.ecmp.mscore.domain.EcmpConfig">
+        update ecmp_config
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="configName != null  and configName != ''">config_name = #{configName},</if>
+            <if test="configValue != null  and configValue != ''">config_value = #{configValue},</if>
+            <if test="configType != null  and configType != ''">config_type = #{configType},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+        </trim>
+        where config_key = #{configKey}
     </update>
 
     <delete id="deleteEcmpConfigById" parameterType="Integer">

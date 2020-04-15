@@ -10,6 +10,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="amount"    column="amount"    />
         <result property="amountDetail"    column="amount_detail"    />
         <result property="outPrice"    column="out_price"    />
+        <result property="totalMileage"    column="total_mileage"    />
+        <result property="totalTime"    column="total_time"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -17,7 +19,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectOrderSettlingInfoVo">
-        select bill_id, order_id, amount, amount_detail, out_price, create_by, create_time, update_by, update_time from order_settling_info
+        select bill_id, order_id, amount, amount_detail, out_price, create_by, create_time, update_by, update_time,total_mileage,total_time from order_settling_info
     </sql>
 
     <select id="selectOrderSettlingInfoList" parameterType="com.hq.ecmp.mscore.domain.OrderSettlingInfo" resultMap="OrderSettlingInfoResult">
@@ -42,6 +44,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="orderId != null ">order_id,</if>
             <if test="amount != null ">amount,</if>
             <if test="amountDetail != null  and amountDetail != ''">amount_detail,</if>
+            <if test="totalMileage != null  ">total_mileage,</if>
+            <if test="totalTime != null  ">total_time,</if>
             <if test="outPrice != null ">out_price,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
@@ -53,6 +57,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="orderId != null ">#{orderId},</if>
             <if test="amount != null ">#{amount},</if>
             <if test="amountDetail != null  and amountDetail != ''">#{amountDetail},</if>
+            <if test="totalMileage != null ">#{totalMileage},</if>
+            <if test="totalTime != null ">#{totalTime},</if>
             <if test="outPrice != null ">#{outPrice},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>

@@ -34,6 +34,19 @@ public class EcmpNotice extends BaseEntity
     @Excel(name = "公告状态", readConverterExp = "0=正常,1=关闭")
     private String status;
 
+    /** 公告推送时间 */
+    @Excel(name = "公告推送时间")
+    private String publishTime;
+
+    /** 结束时间 */
+    @Excel(name = "结束时间")
+    private String endTime;
+
+    /** 发布对象*/
+    @Excel(name = "结束时间")
+    private String configType;
+
+
     public void setNoticeId(Integer noticeId)
     {
         this.noticeId = noticeId;
@@ -93,6 +106,33 @@ public class EcmpNotice extends BaseEntity
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
             .append("remark", getRemark())
+            .append("configType", getConfigType())
             .toString();
+    }
+
+    public String getPublishTime() {
+        return publishTime;
+    }
+
+    public void setPublishTime(String publishTime) {
+        this.publishTime = publishTime;
+    }
+
+    @Override
+    public String getEndTime() {
+        return endTime;
+    }
+
+    @Override
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getConfigType() {
+        return configType;
+    }
+
+    public void setConfigType(String configType) {
+        this.configType = configType;
     }
 }

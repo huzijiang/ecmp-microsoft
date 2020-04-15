@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.OrderWaitTraceInfoMapper">
+    
+    <resultMap type="OrderWaitTraceInfo" id="OrderWaitTraceInfoResult">
+        <result property="traceId"    column="trace_id"    />
+        <result property="orderId"    column="order_id"    />
+        <result property="journeyId"    column="journey_id"    />
+        <result property="dirverId"    column="dirver_id"    />
+        <result property="carLicense"    column="car_license"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="duration"    column="duration"    />
+        <result property="longitude"    column="longitude"    />
+        <result property="latitude"    column="latitude"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectOrderWaitTraceInfoVo">
+        select trace_id, order_id, journey_id, dirver_id, car_license, start_time, end_time, duration, longitude, latitude, create_by, create_time, update_by, update_time from order_wait_trace_info
+    </sql>
+
+    <select id="selectOrderWaitTraceInfoList" parameterType="OrderWaitTraceInfo" resultMap="OrderWaitTraceInfoResult">
+        <include refid="selectOrderWaitTraceInfoVo"/>
+        <where>  
+            <if test="traceId != null "> and trace_id = #{traceId}</if>
+            <if test="orderId != null "> and order_id = #{orderId}</if>
+            <if test="journeyId != null "> and journey_id = #{journeyId}</if>
+            <if test="dirverId != null "> and dirver_id = #{dirverId}</if>
+            <if test="carLicense != null  and carLicense != ''"> and car_license = #{carLicense}</if>
+            <if test="startTime != null "> and start_time = #{startTime}</if>
+            <if test="endTime != null "> and end_time = #{endTime}</if>
+            <if test="duration != null "> and duration = #{duration}</if>
+            <if test="longitude != null "> and longitude = #{longitude}</if>
+            <if test="latitude != null "> and latitude = #{latitude}</if>
+        </where>
+    </select>
+    
+    <select id="selectOrderWaitTraceInfoById" parameterType="Long" resultMap="OrderWaitTraceInfoResult">
+        <include refid="selectOrderWaitTraceInfoVo"/>
+        where trace_id = #{traceId}
+    </select>
+        
+    <insert id="insertOrderWaitTraceInfo" parameterType="OrderWaitTraceInfo">
+        <selectKey keyColumn="trace_id" keyProperty="traceId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
+        insert into order_wait_trace_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="traceId != null ">trace_id,</if>
+            <if test="orderId != null ">order_id,</if>
+            <if test="journeyId != null ">journey_id,</if>
+            <if test="dirverId != null ">dirver_id,</if>
+            <if test="carLicense != null  and carLicense != ''">car_license,</if>
+            <if test="startTime != null ">start_time,</if>
+            <if test="endTime != null ">end_time,</if>
+            <if test="duration != null ">duration,</if>
+            <if test="longitude != null ">longitude,</if>
+            <if test="latitude != null ">latitude,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="traceId != null ">#{traceId},</if>
+            <if test="orderId != null ">#{orderId},</if>
+            <if test="journeyId != null ">#{journeyId},</if>
+            <if test="dirverId != null ">#{dirverId},</if>
+            <if test="carLicense != null  and carLicense != ''">#{carLicense},</if>
+            <if test="startTime != null ">#{startTime},</if>
+            <if test="endTime != null ">#{endTime},</if>
+            <if test="duration != null ">#{duration},</if>
+            <if test="longitude != null ">#{longitude},</if>
+            <if test="latitude != null ">#{latitude},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateOrderWaitTraceInfo" parameterType="OrderWaitTraceInfo">
+        update order_wait_trace_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderId != null ">order_id = #{orderId},</if>
+            <if test="journeyId != null ">journey_id = #{journeyId},</if>
+            <if test="dirverId != null ">dirver_id = #{dirverId},</if>
+            <if test="carLicense != null  and carLicense != ''">car_license = #{carLicense},</if>
+            <if test="startTime != null ">start_time = #{startTime},</if>
+            <if test="endTime != null ">end_time = #{endTime},</if>
+            <if test="duration != null ">duration = #{duration},</if>
+            <if test="longitude != null ">longitude = #{longitude},</if>
+            <if test="latitude != null ">latitude = #{latitude},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where trace_id = #{traceId}
+    </update>
+
+    <delete id="deleteOrderWaitTraceInfoById" parameterType="Long">
+        delete from order_wait_trace_info where trace_id = #{traceId}
+    </delete>
+
+    <delete id="deleteOrderWaitTraceInfoByIds" parameterType="String">
+        delete from order_wait_trace_info where trace_id in 
+        <foreach item="traceId" collection="array" open="(" separator="," close=")">
+            #{traceId}
+        </foreach>
+    </delete>
+    
+</mapper>

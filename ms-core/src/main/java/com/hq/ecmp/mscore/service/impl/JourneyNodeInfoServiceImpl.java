@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
@@ -93,4 +94,41 @@ public class JourneyNodeInfoServiceImpl implements IJourneyNodeInfoService
     {
         return journeyNodeInfoMapper.deleteJourneyNodeInfoById(nodeId);
     }
+
+	@Override
+	public List<String> selectAllCity(Long journeyId) {
+		List<String> cityList=new ArrayList<String>();
+		JourneyNodeInfo query = new JourneyNodeInfo();
+		query.setJourneyId(journeyId);
+		List<JourneyNodeInfo> list = selectJourneyNodeInfoList(query);
+		if(null !=list && list.size()>0){
+			for (JourneyNodeInfo journeyNodeInfo : list) {
+				cityList.add(journeyNodeInfo.getPlanBeginAddress());
+			}
+			//获取行程的目的城市
+			cityList.add(list.get(list.size()-1).getPlanEndAddress());
+		}
+		return cityList;
+	}
+
+	@Override
+	public JourneyNodeInfo selectMaxAndMinDate(Long journeyId) {
+		return journeyNodeInfoMapper.selectMaxAndMinDate(journeyId);
+	}
+
+	@Override
+	public List<String> queryGroupCity(Long journeyId) {
+		
+		return journeyNodeInfoMapper.queryGroupCity(journeyId);
+	}
+
+	@Override
+	public List<JourneyNodeInfo> queryJourneyNodeInfoOrderByNumber(Long journeyId) {
+		return journeyNodeInfoMapper.queryJourneyNodeInfoOrderByNumber(journeyId);
+	}
+
+	@Override
+	public JourneyNodeInfo queryJourneyNodeInfoByPowerId(Long powerId) {
+		return journeyNodeInfoMapper.queryJourneyNodeInfoByPowerId(powerId);
+	}
 }

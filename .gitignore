@@ -1,0 +1,11 @@
+/bin/
+*.project
+.gitignore/
+*.settings/
+target/
+proxy-api/log/
+*.classpath
+.idea/
+.settings
+*.iml
+

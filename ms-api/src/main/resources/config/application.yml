@@ -22,7 +22,7 @@ spring:
     # 国际化资源文件路径
     basename: config/i18n/messages
   profiles:
-    active: dev
+    active: prod
   # 文件上传
   servlet:
     multipart:
@@ -30,11 +30,16 @@ spring:
       max-file-size:  10MB
       # 设置总上传的文件大小
       max-request-size:  20MB
+      file-size-threshold: 0
+      resolve-lazily: false
+
   # 服务模块
   devtools:
     restart:
       # 热部署开关
       enabled: true
+  jackson:
+    time-zone: GMT+8
 # 日志配置
 logging:
   level:
@@ -76,3 +81,6 @@ gen:
   autoRemovePre: false
   # 表前缀（生成类名不会包含表前缀，多个用逗号分隔）
   tablePrefix: ecmp_
+
+company:
+  serviceMobile: 010-88888888

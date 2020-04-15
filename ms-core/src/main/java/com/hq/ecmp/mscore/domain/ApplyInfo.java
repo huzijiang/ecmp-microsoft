@@ -1,10 +1,15 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
+
+import java.util.Date;
 
 /**
  * 【请填写功能名称】对象 apply_info
@@ -13,6 +18,9 @@ import com.hq.core.web.domain.BaseEntity;
  * @date 2020-01-02
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ApplyInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -52,5 +60,12 @@ public class ApplyInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String reason;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String applyNumber;
 
+    public ApplyInfo(Long applyId, String state) {
+        this.applyId = applyId;
+        this.state = state;
+    }
 }

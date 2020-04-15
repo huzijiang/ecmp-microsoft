@@ -1,12 +1,27 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.domain.ApproveTemplateInfo;
-import com.hq.ecmp.mscore.mapper.ApproveTemplateInfoMapper;
+import com.hq.ecmp.constant.ApproveTypeEnum;
+import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IApproveTemplateInfoService;
+import com.hq.ecmp.mscore.vo.ApprovaTemplateNodeVO;
+import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
+import com.hq.ecmp.util.SortListUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import sun.rmi.log.LogInputStream;
 
 
 /**
@@ -16,10 +31,23 @@ import org.springframework.stereotype.Service;
  * @date 2020-01-02
  */
 @Service
+@Slf4j
 public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoService
 {
     @Autowired
     private ApproveTemplateInfoMapper approveTemplateInfoMapper;
+    @Autowired
+    private ApproveTemplateNodeInfoMapper approveTemplateNodeInfoMapper;
+    @Autowired
+    private RegimeInfoMapper regimeInfoMapper;
+    @Autowired
+    private EcmpOrgMapper ecmpOrgMapper;
+    @Autowired
+    private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private EcmpRoleMapper roleMapper;
+    @Autowired
+    private ProjectInfoMapper projectInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -93,5 +121,96 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
     public int deleteApproveTemplateInfoById(Long approveTemplateId)
     {
         return approveTemplateInfoMapper.deleteApproveTemplateInfoById(approveTemplateId);
+    }
+
+    @Override
+    public List<ApprovaTemplateVO> getTemplateList(PageRequest pageRequest) {
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+        List<ApprovaTemplateVO> templateList = approveTemplateInfoMapper.getTemplateList(pageRequest.getSearch());
+        if (CollectionUtils.isNotEmpty(templateList)){
+            for (ApprovaTemplateVO vo:templateList){
+                List<ApprovaTemplateNodeVO> nodeIds = vo.getNodeIds();
+                if (CollectionUtils.isNotEmpty(nodeIds)){
+                    List<ApprovaTemplateNodeVO> vos=new ArrayList<>();
+                    SortListUtil.sort(nodeIds,"approveNodeId",SortListUtil.ASC);
+                    for (int i=0;i<nodeIds.size();i++){
+                        ApprovaTemplateNodeVO nodeVO = nodeIds.get(i);
+                        if (ApproveTypeEnum.APPROVE_T001.getKey().equals(nodeVO.getType())){
+                            if (StringUtils.isNotBlank(nodeVO.getDeptProjectId())){
+                                EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(Long.parseLong(nodeVO.getDeptProjectId()));
+                                nodeVO.setName(ecmpOrg.getDeptName()+"主管审批");
+                            }else {
+                                nodeVO.setName("部门主管审批");
+                            }
+                        }else if (ApproveTypeEnum.APPROVE_T002.getKey().equals(nodeVO.getType())){
+                            EcmpRole ecmpRole = roleMapper.selectEcmpRoleById(Long.parseLong(nodeVO.getRoleId()));
+                            nodeVO.setName(ecmpRole.getRoleName()+"审批");
+                        }else if (ApproveTypeEnum.APPROVE_T003.getKey().equals(nodeVO.getType())){
+//                            String userName= ecmpUserMapper.findNameByUserIds(nodeVO.getUserId());
+                            nodeVO.setName("指定员工审批");
+                        }else{
+                            if (StringUtils.isNotBlank(nodeVO.getDeptProjectId())){
+                                ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(Long.parseLong(nodeVO.getDeptProjectId()));
+                                nodeVO.setName(projectInfo.getName()+"主管审批");
+                            }else {
+                                nodeVO.setName("项目主管审批");
+                            }
+                        }
+                        nodeVO.setNumber(i);
+                        vos.add(nodeVO);
+                    }
+                    vo.setNodeIds(vos);
+                }
+            }
+        }
+        return templateList;
+    }
+
+    @Override
+    public ApprovaTemplateVO flowTemplateDetail(Long templateId) {
+        ApprovaTemplateVO vo=new ApprovaTemplateVO();
+        ApproveTemplateInfo approveTemplateInfo = approveTemplateInfoMapper.selectApproveTemplateInfoById(templateId);
+        vo.setApproveTemplateId(templateId);
+        vo.setName(approveTemplateInfo.getName());
+        List<RegimeInfo> regimeInfos = regimeInfoMapper.selectRegimeInfoList(new RegimeInfo(templateId));
+        vo.setIsBingRegime(regimeInfos.size());
+        List<ApproveTemplateNodeInfo> approveTemplateInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(templateId));
+        SortListUtil.sort(approveTemplateInfos,"approveNodeId",SortListUtil.DESC);
+        List<ApprovaTemplateNodeVO> list=new ArrayList();
+        if(CollectionUtils.isNotEmpty(approveTemplateInfos)){
+            for (int i=0;i<approveTemplateInfos.size();i++){
+                ApprovaTemplateNodeVO nodeVO=new ApprovaTemplateNodeVO();
+                BeanUtils.copyProperties(approveTemplateInfos.get(0),nodeVO);
+                nodeVO.setType(approveTemplateInfos.get(0).getApproverType());
+                nodeVO.setNumber(i);
+                nodeVO.setName(ApproveTypeEnum.format(approveTemplateInfos.get(0).getApproverType()).getDesc());
+                list.add(nodeVO);
+            }
+        }
+        vo.setNodeIds(list);
+        return vo;
+    }
+
+    @Override
+    @Transactional
+    public void deleteFlow(Long approveTemplateId) throws Exception {
+        //判端用车制度是否有关联
+        List<RegimeInfo> regimeInfos = regimeInfoMapper.selectRegimeInfoList(new RegimeInfo(approveTemplateId));
+        List<Long> joinName = regimeInfos.stream().map(RegimeInfo::getRegimenId).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(regimeInfos)){
+            throw new Exception("此审批流与用车制度:"+ StringUtils.join(joinName, ",")+"有关联");
+        }
+        int i = approveTemplateInfoMapper.deleteApproveTemplateInfoById(approveTemplateId);
+        if (i>0){
+            int count = approveTemplateNodeInfoMapper.deleteByTemplateId(approveTemplateId);
+            if (count>0){
+                log.info(approveTemplateId+"审批模板及节点删除成功!");
+            }
+        }
+    }
+
+    @Override
+    public Long getTemplateListCount(String search) {
+        return approveTemplateInfoMapper.getTemplateListCount(search);
     }
 }

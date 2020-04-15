@@ -1,6 +1,10 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ProjectInfo;
+import com.hq.ecmp.mscore.vo.ProjectInfoVO;
+import com.hq.ecmp.mscore.vo.UserVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +14,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface ProjectInfoMapper
 {
     /**
@@ -59,4 +64,23 @@ public interface ProjectInfoMapper
      * @return 结果
      */
     public int deleteProjectInfoByIds(Long[] projectIds);
+
+    /**
+     * 根据用户ID查询用户所包含的所有项目
+     * @param userId
+     * @return
+     */
+    List<ProjectInfo> getListByUserId(@Param("userId") Long userId,@Param("projectName") String projectName);
+
+    List<ProjectInfoVO> getProjectList(@Param("search")String search,@Param("fatherProjectId")Long fatherProjectId);
+
+    ProjectInfoVO getProjectInfo(Long projectId);
+
+    List<ProjectInfo> checkProject(String date);
+
+    String findLeader(Long projectId);
+
+    Long getProjectListCount(String search, Long fatherProjectId);
+
+    int selectChildProject(Long projectId);
 }

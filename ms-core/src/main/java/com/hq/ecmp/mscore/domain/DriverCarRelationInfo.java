@@ -1,7 +1,10 @@
 package com.hq.ecmp.mscore.domain;
 
+import java.util.List;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
@@ -26,6 +29,8 @@ public class DriverCarRelationInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carId;
+    
+    private List<Long> carIdList;
 
     public void setUserId(Long userId)
     {
@@ -54,8 +59,18 @@ public class DriverCarRelationInfo extends BaseEntity
     {
         return carId;
     }
+    
+    
 
-    @Override
+    public List<Long> getCarIdList() {
+		return carIdList;
+	}
+
+	public void setCarIdList(List<Long> carIdList) {
+		this.carIdList = carIdList;
+	}
+
+	@Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("userId", getUserId())

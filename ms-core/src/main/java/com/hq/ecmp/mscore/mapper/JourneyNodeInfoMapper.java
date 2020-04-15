@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface JourneyNodeInfoMapper
 {
     /**
@@ -29,9 +31,9 @@ public interface JourneyNodeInfoMapper
     public List<JourneyNodeInfo> selectJourneyNodeInfoList(JourneyNodeInfo journeyNodeInfo);
 
     /**
-     * 新增【请填写功能名称】
+     * 新增行程节点信息
      *
-     * @param journeyNodeInfo 【请填写功能名称】
+     * @param journeyNodeInfo 行程节点信息
      * @return 结果
      */
     public int insertJourneyNodeInfo(JourneyNodeInfo journeyNodeInfo);
@@ -59,4 +61,14 @@ public interface JourneyNodeInfoMapper
      * @return 结果
      */
     public int deleteJourneyNodeInfoByIds(Long[] nodeIds);
+    
+    public JourneyNodeInfo selectMaxAndMinDate(Long journeyId);
+    
+    
+    public List<String> queryGroupCity(Long journeyId);
+    
+    
+    public List<JourneyNodeInfo> queryJourneyNodeInfoOrderByNumber(Long journeyId);
+    
+    public JourneyNodeInfo queryJourneyNodeInfoByPowerId(Long powerId);
 }

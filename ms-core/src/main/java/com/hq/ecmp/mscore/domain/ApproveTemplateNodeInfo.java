@@ -36,7 +36,12 @@ public class ApproveTemplateNodeInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long userId;
+    private String userId;
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String deptProjectId;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String nextNodeId;
 
     public void setApproveNodeId(Long approveNodeId)
     {
@@ -83,14 +88,46 @@ public class ApproveTemplateNodeInfo extends BaseEntity
     {
         return roleId;
     }
-    public void setUserId(Long userId)
+    public void setUserId(String userId)
     {
         this.userId = userId;
     }
 
-    public Long getUserId()
+    public String getUserId()
     {
         return userId;
+    }
+
+    public String getNextNodeId() {
+        return nextNodeId;
+    }
+
+    public void setNextNodeId(String nextNodeId) {
+        this.nextNodeId = nextNodeId;
+    }
+
+    public String getDeptProjectId() {
+        return deptProjectId;
+    }
+
+    public void setDeptProjectId(String deptProjectId) {
+        this.deptProjectId = deptProjectId;
+    }
+
+    public ApproveTemplateNodeInfo() {
+    }
+    public ApproveTemplateNodeInfo(Long approveTemplateId) {
+        this.approveTemplateId = approveTemplateId;
+    }
+    public ApproveTemplateNodeInfo( String userId,boolean flag) {
+        if (flag){
+            this.userId = userId;
+        }
+    }
+
+    public ApproveTemplateNodeInfo(Long approveNodeId, String nextNodeId) {
+        this.approveNodeId = approveNodeId;
+        this.nextNodeId = nextNodeId;
     }
 
     @Override

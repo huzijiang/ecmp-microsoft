@@ -1,6 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
+import com.hq.ecmp.mscore.dto.CarTypeDTO;
+import com.hq.ecmp.mscore.vo.CarTypeVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
 
@@ -58,5 +61,41 @@ public interface IEnterpriseCarTypeInfoService
      * @param carTypeId 【请填写功能名称】ID
      * @return 结果
      */
-    public int deleteEnterpriseCarTypeInfoById(Long carTypeId);
+    public int deleteEnterpriseCarTypeInfoById(Long carTypeId) throws Exception;
+
+
+    /**
+     * 查询用户企业有效车型 豪华型 公务型
+     * @param userId
+     * @return
+     */
+    List<EnterpriseCarTypeInfo> selectEffectiveCarTypes(Long userId);
+
+    /**
+     * 新增车型
+     * @param carDto
+     * @param userId
+     */
+    void saveCarType(CarTypeDTO carDto, Long userId) throws Exception;
+
+    /**
+     * 修改车型
+     * @param carDto
+     * @param userId
+     */
+    void updateCarType(CarTypeDTO carDto, Long userId) throws Exception;
+
+    /**
+     * 查询企业车型列表
+     * @param enterpriseId
+     * @return
+     */
+    List<CarTypeVO> getCarTypeList(Long enterpriseId);
+
+    /**
+     * 车型排序（交换位置）
+     * @param mainCarTypeId
+     * @param targetCarTypeId
+     */
+    void sortCarType(Long mainCarTypeId, Long targetCarTypeId,Long userId) throws Exception;
 }

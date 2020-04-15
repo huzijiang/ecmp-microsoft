@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.EcmpEnterpriseRegisterInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo" id="EcmpEnterpriseRegisterInfoMap">
+        <result property="registerId" column="register_id" jdbcType="INTEGER"/>
+        <result property="invitationId" column="invitation_id" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="VARCHAR"/>
+        <result property="jobNumber" column="job_number" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="mobile" column="mobile" jdbcType="VARCHAR"/>
+        <result property="smsAuthCode" column="sms_auth_code" jdbcType="VARCHAR"/>
+        <result property="reason" column="reason" jdbcType="VARCHAR"/>
+        <result property="idCard" column="id_card" jdbcType="VARCHAR"/>
+        <result property="carGroupId" column="car_group_id" jdbcType="INTEGER"/>
+        <result property="licenseType" column="license_type" jdbcType="VARCHAR"/>
+        <result property="licenseInitIssueDate" column="license_init_issue_date" jdbcType="TIMESTAMP"/>
+        <result property="licenseIssueDate" column="license_issue_date" jdbcType="TIMESTAMP"/>
+        <result property="licenseExpireDate" column="license_expire_date" jdbcType="TIMESTAMP"/>
+        <result property="licenseNumber" column="license_number" jdbcType="VARCHAR"/>
+        <result property="licenseArchivesNumber" column="license_archives_number" jdbcType="VARCHAR"/>
+        <result property="licenseImages" column="license_images" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+        <result property="auditor" column="auditor" jdbcType="INTEGER"/>
+        <result property="auditTime" column="audit_time" jdbcType="TIMESTAMP"/>
+        <result property="rejectReason" column="reject_reason" jdbcType="VARCHAR"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="EcmpEnterpriseRegisterInfoMap">
+        select
+          register_id, invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time,reject_reason
+        from ecmp.ecmp_enterprise_register_info
+        where register_id = #{registerId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="EcmpEnterpriseRegisterInfoMap">
+        select
+          register_id, invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time,reject_reason
+        from ecmp.ecmp_enterprise_register_info
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="EcmpEnterpriseRegisterInfoMap">
+        select
+          register_id, invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time,reject_reason
+        from ecmp.ecmp_enterprise_register_info
+        <where>
+            <if test="registerId != null">
+                and register_id = #{registerId}
+            </if>
+            <if test="invitationId != null">
+                and invitation_id = #{invitationId}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="gender != null and gender != ''">
+                and gender = #{gender}
+            </if>
+            <if test="jobNumber != null and jobNumber != ''">
+                and job_number = #{jobNumber}
+            </if>
+            <if test="email != null and email != ''">
+                and email = #{email}
+            </if>
+            <if test="mobile != null and mobile != ''">
+                and mobile = #{mobile}
+            </if>
+            <if test="smsAuthCode != null and smsAuthCode != ''">
+                and sms_auth_code = #{smsAuthCode}
+            </if>
+            <if test="reason != null and reason != ''">
+                and reason = #{reason}
+            </if>
+            <if test="idCard != null and idCard != ''">
+                and id_card = #{idCard}
+            </if>
+            <if test="carGroupId != null">
+                and car_group_id = #{carGroupId}
+            </if>
+            <if test="licenseType != null and licenseType != ''">
+                and license_type = #{licenseType}
+            </if>
+            <if test="licenseInitIssueDate != null">
+                and license_init_issue_date = #{licenseInitIssueDate}
+            </if>
+            <if test="licenseIssueDate != null">
+                and license_issue_date = #{licenseIssueDate}
+            </if>
+            <if test="licenseExpireDate != null">
+                and license_expire_date = #{licenseExpireDate}
+            </if>
+            <if test="licenseNumber != null and licenseNumber != ''">
+                and license_number = #{licenseNumber}
+            </if>
+            <if test="licenseArchivesNumber != null and licenseArchivesNumber != ''">
+                and license_archives_number = #{licenseArchivesNumber}
+            </if>
+            <if test="licenseImages != null and licenseImages != ''">
+                and license_images = #{licenseImages}
+            </if>
+            <if test="state != null and state != ''">
+                and state = #{state}
+            </if>
+            <if test="auditor != null">
+                and auditor = #{auditor}
+            </if>
+            <if test="auditTime != null">
+                and audit_time = #{auditTime}
+            </if>
+            <if test="createBy != null">
+                and create_by = #{createBy}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateBy != null">
+                and update_by = #{updateBy}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="registerId" useGeneratedKeys="true">
+        insert into ecmp.ecmp_enterprise_register_info(invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time,reject_reason)
+        values (#{invitationId}, #{type}, #{name}, #{gender}, #{jobNumber}, #{email}, #{mobile}, #{smsAuthCode}, #{reason}, #{idCard}, #{carGroupId}, #{licenseType}, #{licenseInitIssueDate}, #{licenseIssueDate}, #{licenseExpireDate}, #{licenseNumber}, #{licenseArchivesNumber}, #{licenseImages}, #{state}, #{auditor}, #{auditTime}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime},#{rejectReason})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update ecmp.ecmp_enterprise_register_info
+        <set>
+            <if test="invitationId != null">
+                invitation_id = #{invitationId},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="gender != null and gender != ''">
+                gender = #{gender},
+            </if>
+            <if test="jobNumber != null and jobNumber != ''">
+                job_number = #{jobNumber},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="mobile != null and mobile != ''">
+                mobile = #{mobile},
+            </if>
+            <if test="smsAuthCode != null and smsAuthCode != ''">
+                sms_auth_code = #{smsAuthCode},
+            </if>
+            <if test="reason != null and reason != ''">
+                reason = #{reason},
+            </if>
+            <if test="idCard != null and idCard != ''">
+                id_card = #{idCard},
+            </if>
+            <if test="carGroupId != null">
+                car_group_id = #{carGroupId},
+            </if>
+            <if test="licenseType != null and licenseType != ''">
+                license_type = #{licenseType},
+            </if>
+            <if test="licenseInitIssueDate != null">
+                license_init_issue_date = #{licenseInitIssueDate},
+            </if>
+            <if test="licenseIssueDate != null">
+                license_issue_date = #{licenseIssueDate},
+            </if>
+            <if test="licenseExpireDate != null">
+                license_expire_date = #{licenseExpireDate},
+            </if>
+            <if test="licenseNumber != null and licenseNumber != ''">
+                license_number = #{licenseNumber},
+            </if>
+            <if test="licenseArchivesNumber != null and licenseArchivesNumber != ''">
+                license_archives_number = #{licenseArchivesNumber},
+            </if>
+            <if test="licenseImages != null and licenseImages != ''">
+                license_images = #{licenseImages},
+            </if>
+            <if test="state != null and state != ''">
+                state = #{state},
+            </if>
+            <if test="rejectReason != null and rejectReason != ''">
+                reject_reason = #{rejectReason},
+            </if>
+            <if test="auditor != null">
+                auditor = #{auditor},
+            </if>
+            <if test="auditTime != null">
+                audit_time = #{auditTime},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where register_id = #{registerId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from ecmp.ecmp_enterprise_register_info where register_id = #{registerId}
+    </delete>
+    <!--待审核数量员工/驾驶员-->
+    <select id="waitAmountCount" parameterType="com.hq.ecmp.mscore.dto.RegisterDTO" resultType="java.lang.Integer">
+       select COUNT(*) from ecmp_enterprise_register_info a
+       where a.state='S000' and a.type=#{type}
+       <if test="deptId!=null and deptId gt 0">
+           AND a.invitation_id in ( SELECT invitation_id from ecmp_enterprise_invitation_info where type=#{type} AND (department_id =#{deptId} OR enterprise_id =#{deptId}) )
+    </if>
+    </select>
+    <!--待审核列表员工-->
+    <select id="queryRegisterUserWait" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.RegisterUserVO">
+        select a.register_id registerId,a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.dept_name as deptName,a.reason as reason
+        from ecmp_enterprise_register_info  a
+        left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
+        left join ecmp_org c on c.dept_id = b.enterprise_id
+        left join ecmp_org e on e.dept_id = b.department_id
+        where a.type=#{type} and a.state='S000'
+        <if test="deptId!=null and deptId gt 0">
+            and a.invitation_id in(select invitation_id from ecmp_enterprise_invitation_info where department_id=#{deptId} or enterprise_id=#{deptId})
+        </if>
+    </select>
+    <!--待审核列表员工数量-->
+    <select id="queryRegisterUserWaitCount" resultType="Long">
+        select count(*) from ecmp_enterprise_register_info  a
+        left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
+        where a.type=#{type} and a.state='S000'
+        <if test="deptId!=null and deptId gt 0">
+            and a.invitation_id in(select invitation_id from ecmp_enterprise_invitation_info where department_id=#{deptId} or enterprise_id=#{deptId})
+        </if>
+    </select>
+    <!--待审核列表驾驶员-->
+    <select id="queryRegisterDriverWait" resultType="com.hq.ecmp.mscore.vo.RegisterDriverVO">
+         select a.register_id registerId,a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.car_group_name as carGroupName,a.reason as reason
+        from ecmp_enterprise_register_info  a
+        left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
+        left join ecmp_org c on c.dept_id = b.enterprise_id
+        left join car_group_info e on e.car_group_id = a.car_group_id
+        where a.type='T002' and a.state='S000'
+        <if test="carGroupId!=null and carGroupId gt 0" >
+            and e.car_group_id = #{carGroupId}
+        </if>
+        <if test="search != null and search != '' ">
+            and (a.name like concat('%', #{search}, '%')
+            or a.job_number like concat('%', #{search}, '%')
+            or a.mobile like concat('%', #{search}, '%'))
+        </if>
+
+    </select>
+
+    <!--驾驶员注册详情-->
+    <select id="queryDriverRegDetail" resultType="com.hq.ecmp.mscore.vo.RegisterDriverDetailVO">
+      select a.register_id registerId,a.name as userName,a.mobile as mobilePhone,a.job_number as jobNumber,c.dept_name as companyName,e.car_group_name as carGroupName,a.reason as reason,a.id_card  as idCard,a.license_type as licenseType,a.license_number as licenseNumber,
+       a.license_init_issue_date as licenseInitIssueDate,a.license_issue_date as licenseIssueDate,
+       a.license_expire_date as licenseExpireDate,a.license_images as licenseImages,a.reason as reason
+      from ecmp_enterprise_register_info  a
+        left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
+        left join ecmp_org c on c.dept_id = b.enterprise_id
+        left join car_group_info e on e.car_group_id = a.car_group_id
+        where a.register_id = #{registerId}
+    </select>
+    <select id="queryRegisterDriverWaitCount" resultType="Long">
+        select count(*) from ecmp_enterprise_register_info  a
+        left join ecmp_enterprise_invitation_info b on b.invitation_id=a.invitation_id
+        where a.type=#{type} and a.state='S000'
+        <if test="carGroupId!=null and carGroupId gt 0" >
+            and a.invitation_id in(select invitation_id from ecmp_enterprise_invitation_info where car_group_id=#{carGroupId}or enterprise_id=#{carGroupId})
+        </if>
+    </select>
+    <!--通过主键修改数据-->
+    <update id="updateRegisterState" parameterType="com.hq.ecmp.mscore.dto.RegisterDTO">
+        update ecmp_enterprise_register_info
+        <set>
+            <if test="state != null and state != ''">
+                state = #{state},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where register_id = #{registerId}
+    </update>
+    <select id="itIsRegistration"  resultType="java.lang.Integer">
+          select count(*) from ecmp_enterprise_register_info  where mobile=#{phoneNum} and state = #{state}
+    </select>
+    <insert id="insertUserRegister" parameterType="com.hq.ecmp.mscore.dto.UserRegisterDTO">
+        insert into ecmp_enterprise_register_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="invitationId != null ">invitation_id,</if>
+            <if test="name != null ">name,</if>
+            <if test="gender != null ">gender,</if>
+            <if test="jobNumber != null ">job_number,</if>
+            <if test="email != null ">email,</if>
+            <if test="mobile != null ">mobile,</if>
+            <if test="smsAuthCode != null  and smsAuthCode != ''">sms_auth_code,</if>
+            <if test="reason != null  and reason != ''">reason,</if>
+            <if test="type != null  and type != ''">type,</if>
+            <if test="state != null  and state != ''">state,</if>
+            <if test="createTime != null ">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="invitationId != null ">#{invitationId},</if>
+            <if test="name != null ">#{name},</if>
+            <if test="gender != null ">#{gender},</if>
+            <if test="jobNumber != null ">#{jobNumber},</if>
+            <if test="email != null ">#{email},</if>
+            <if test="mobile != null ">#{mobile},</if>
+            <if test="smsAuthCode != null  and smsAuthCode != ''">#{smsAuthCode},</if>
+            <if test="reason != null  and reason != ''">#{reason},</if>
+            <if test="type != null  and type != ''">#{type},</if>
+            <if test="state != null  and state != ''">#{state},</if>
+            <if test="createTime != null ">#{createTime},</if>
+
+        </trim>
+    </insert>
+    <insert id="insertDriverRegister" parameterType="com.hq.ecmp.mscore.dto.DriverRegisterDTO">
+        insert into ecmp_enterprise_register_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="invitationId != null ">invitation_id,</if>
+            <if test="name != null ">name,</if>
+            <if test="gender != null ">gender,</if>
+            <if test="jobNumber != null ">job_number,</if>
+            <if test="carGroupId != null ">car_group_id,</if>
+            <if test="idCard != null ">id_card,</if>
+            <if test="licenseType != null ">license_type,</if>
+            <if test="licenseNumber != null ">license_number,</if>
+            <if test="licenseInitIssueDate != null ">license_init_issue_date,</if>
+            <if test="licenseIssueDate != null ">license_issue_date,</if>
+            <if test="licenseExpireDate != null ">license_expire_date,</if>
+            <if test="licenseImages != null ">license_images,</if>
+            <if test="mobile != null ">mobile,</if>
+            <if test="smsAuthCode != null  and smsAuthCode != ''">sms_auth_code,</if>
+            <if test="reason != null  and reason != ''">reason,</if>
+            <if test="type != null  and type != ''">type,</if>
+            <if test="state != null  and state != ''">state,</if>
+            <if test="createTime != null ">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="invitationId != null ">#{invitationId},</if>
+            <if test="name != null ">#{name},</if>
+            <if test="gender != null ">#{gender},</if>
+            <if test="jobNumber != null ">#{jobNumber},</if>
+            <if test="carGroupId != null ">#{carGroupId},</if>
+            <if test="idCard != null ">#{idCard},</if>
+            <if test="licenseType != null ">#{licenseType},</if>
+            <if test="licenseNumber != null ">#{licenseNumber},</if>
+            <if test="licenseInitIssueDate != null and licenseInitIssueDate != ''">#{licenseInitIssueDate},</if>
+            <if test="licenseIssueDate != null ">#{licenseIssueDate},</if>
+            <if test="licenseExpireDate != null ">#{licenseExpireDate},</if>
+            <if test="licenseImages != null ">#{licenseImages},</if>
+            <if test="mobile != null ">#{mobile},</if>
+            <if test="smsAuthCode != null  and smsAuthCode != ''">#{smsAuthCode},</if>
+            <if test="reason != null  and reason != ''">#{reason},</if>
+            <if test="type != null  and type != ''">#{type},</if>
+            <if test="state != null  and state != ''">#{state},</if>
+            <if test="createTime != null ">#{createTime},</if>
+        </trim>
+    </insert>
+</mapper>

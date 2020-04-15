@@ -28,6 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="longitude != null "> and longitude = #{longitude}</if>
             <if test="latitude != null "> and latitude = #{latitude}</if>
         </where>
+        order by create_time
     </select>
 
     <select id="selectDriverHeartbeatInfoById" parameterType="Long" resultMap="DriverHeartbeatInfoResult">
@@ -87,4 +88,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+
+    <!--手动编写sql start-->
+    <select id="findNowLocation" parameterType="Object" resultMap="DriverHeartbeatInfoResult">
+        <include refid="selectDriverHeartbeatInfoVo"/>
+        <where>
+            driver_id = #{driverId}
+            <if test="orderId!=null">
+                and order_id = #{orderId}
+            </if>
+            order by create_time desc limit 1
+        </where>
+    </select>
 </mapper>

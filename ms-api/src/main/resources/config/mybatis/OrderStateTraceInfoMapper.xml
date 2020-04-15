@@ -38,6 +38,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <insert id="insertOrderStateTraceInfo" parameterType="com.hq.ecmp.mscore.domain.OrderStateTraceInfo">
+        <selectKey keyColumn="trace_id" keyProperty="traceId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
         insert into order_state_trace_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="traceId != null ">trace_id,</if>
@@ -91,5 +94,170 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{traceId}
         </foreach>
     </delete>
+    
+    <select id="queryOrderAllState" parameterType="java.lang.Long" resultType="string">
+    select state from order_state_trace_info where order_id=#{orderId}
+    </select>
+    
+   <select id="queryApplyReassignmentOrderInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchDriverInfo">
+   SELECT
+	b.nick_name AS driverName,
+	b.phonenumber AS driverTel,
+	a.content AS reassignmentApplyReason,
+	a.state as state,
+	d.car_license AS carLicense,
+	d.car_type AS carType
+FROM
+	order_state_trace_info a
+LEFT JOIN ecmp_user b ON a.create_by = b.user_id
+LEFT JOIN order_info c ON c.order_id = a.order_id
+LEFT JOIN car_info d ON d.car_id = c.car_id
+WHERE
+	a.order_id = #{orderId}
+AND a.state ='S270' order by a.create_time desc limit 1
+   </select>
 
+	<select id="queryReassignmentOrderStatus" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.DispatchDriverInfo">
+		SELECT
+		state AS state,
+		content AS content
+		FROM
+		order_state_trace_info
+		WHERE
+		order_id = #{orderId}
+		ORDER BY
+		create_time DESC
+		LIMIT 1
+	</select>
+
+	<select id="queryStateInfo" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.SendCarInfo">
+		SELECT
+		CASE state
+		WHEN 'S100' THEN
+		'已提交用车申请'
+		WHEN 'S200' THEN
+		'已提交用车申请'
+		WHEN 'S299' THEN
+		'派车成功'
+		WHEN 'S279' THEN
+		'派车成功'
+		WHEN 'S270' THEN
+		'已提交改派申请'
+		WHEN 'S277' THEN
+		'改派驳回'
+		ELSE
+		'其他'
+		END AS optType,
+		b.nick_name AS optUserName,
+		a.create_time AS optDate
+		FROM
+		order_state_trace_info a
+		LEFT JOIN ecmp_user b ON a.create_by = b.user_id
+		WHERE
+		a.state IN (
+		'S100',
+		'S200',
+		'S299',
+		'S270',
+		'S277',
+		'S279'
+		)
+		AND order_id = #{orderId}
+		ORDER BY
+		a.create_time
+	</select>
+
+
+    <!--手动编写sql start-->
+    <select id="getTraceMessageForPassenger" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+       SELECT  messageId,messageType,'改派' messageTypeStr,count(*) messageCount from (
+        select trace_id as messageId,5 as messageType from order_state_trace_info
+        where order_id in (select order_id from order_info where journey_id in (select journey_id from journey_info where user_id = #{userId}) ) and state=#{state}
+         ) a  group by a.messageType
+    </select>
+
+    <select id="getTraceMessageForDriver" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+       SELECT  messageId,messageType,'改派' messageTypeStr,count(*) messageCount from (
+        select order_id as messageId,3 as messageType from order_info
+        where order_id in (select order_id from order_state_trace_info where state=#{state}) and driver_id=#{driverId} and state='S900'
+         ) a  group by a.messageType
+    </select>
+
+    <select id="getOrderDispatcher" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.UserVO">
+        select user_id userId,nick_name userName ,phonenumber userPhone
+        from ecmp_user
+        where user_id =(SELECT create_by  from order_state_trace_info
+        where order_id=#{orderId} and find_in_set(state,#{states}) order by create_time desc limit 1)
+    </select>
+
+	<select id="queryJouneyCloseOrderIsCanle" parameterType="java.lang.Long"
+		resultType="com.hq.ecmp.mscore.domain.OrderStateTraceInfo">
+		SELECT
+		a.state as state,a.order_id as orderId
+		FROM
+		order_state_trace_info a
+		LEFT JOIN order_info b ON a.order_id = b.order_id
+		WHERE
+		b.journey_id = #{jouneyId}
+		AND a.state IN (
+		'S900',
+		'S901',
+		'S911',
+		'S921'
+		)
+		ORDER BY
+		a.create_time
+		LIMIT 1
+	</select>
+	
+	<select id="queryPowerCloseOrderIsCanle" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderStateTraceInfo">
+	SELECT
+		a.state as state,a.order_id as orderId
+		FROM
+		order_state_trace_info a
+		LEFT JOIN order_info b ON a.order_id = b.order_id
+		WHERE
+		b.power_id = #{powerId}
+		AND a.state IN (
+		'S900',
+		'S901',
+		'S911',
+		'S921'
+		)
+		ORDER BY
+		a.create_time desc
+		LIMIT 1
+	</select>
+    
+    <select id="getLatestInfoByOrderId" resultMap="OrderStateTraceInfoResult">
+        <include refid="selectOrderStateTraceInfoVo"/>
+        where order_id=#{orderId}
+        order by create_time desc limit 1
+    </select>
+    <select id="selectDispatcherUserId" resultType="java.lang.String">
+        SELECT create_by as userId
+        FROM order_state_trace_info
+        WHERE order_id = #{orderId}
+        AND (state = 'S279' OR state = 'S299')
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+    
+    <select id="queryFirstDispatchIndo" parameterType="java.lang.Long"
+	resultType="com.hq.ecmp.mscore.domain.OrderStateTraceInfo">
+	select state as state,content as content,create_by as createBy,create_time as
+	createTime from order_state_trace_info
+	where state in ('S279','S299') and order_id=#{orderId} order by create_time
+	limit 1
+</select>
+   
+    <select id="queryRecentlyDispatchInfo" parameterType="java.lang.Long"
+	resultType="com.hq.ecmp.mscore.domain.OrderStateTraceInfo">
+	select state as state,content as content,create_by as createBy,create_time as
+	createTime from order_state_trace_info
+	where state in ('S277','S279','S299') and order_id=#{orderId} order by
+	create_time desc limit 1
+</select>
 </mapper>

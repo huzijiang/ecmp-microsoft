@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.ApprovalInfoVO;
 
 import java.util.List;
 
@@ -59,4 +61,24 @@ public interface IApplyApproveResultInfoService
      * @return 结果
      */
     public int deleteApplyApproveResultInfoById(Long approveResultId);
+
+    /**
+     * 获取审批通知
+     * @param userId
+     * @return
+     */
+    MessageDto getApproveMessage(Long userId);
+
+    /**
+     * 初始化审批流
+     * @param applyId 申请id
+     * @param regimenId 用车制度id
+     */
+    void initApproveResultInfo(Long applyId,Long regimenId,Long userId)throws Exception;
+
+    List<ApprovalInfoVO> getApproveResultList(ApplyApproveResultInfo applyApproveResultInfo);
+
+    List<ApplyApproveResultInfo> selectApproveResultByNodeids(String nextNodeId,String state);
+
+    List<ApplyApproveResultInfo> selectByUserId(Long applyId, Long userId,String state);
 }

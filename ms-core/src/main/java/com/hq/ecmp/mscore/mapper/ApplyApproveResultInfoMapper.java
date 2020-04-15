@@ -1,6 +1,11 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.ApprovaReesultVO;
+import com.hq.ecmp.mscore.vo.ApprovalInfoVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,6 +15,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Repository
 public interface ApplyApproveResultInfoMapper
 {
     /**
@@ -59,4 +65,18 @@ public interface ApplyApproveResultInfoMapper
      * @return 结果
      */
     public int deleteApplyApproveResultInfoByIds(Long[] approveResultIds);
+
+    MessageDto getApproveMessage(Long userId);
+
+    List<ApprovaReesultVO> selectResultList(@Param("userId") Long userId, @Param("state") String state);
+
+    List<ApprovalInfoVO> getApproveResultList(@Param("applyId") Long applyId,@Param("approveTemplateId")  Long approveTemplateId);
+
+    List<ApplyApproveResultInfo> selectApproveResultByNodeids(@Param("nextNodeIds") String nextNodeIds,@Param("state") String state);
+
+    void insertList(List<ApplyApproveResultInfo> list);
+
+    List<ApplyApproveResultInfo> selectByUserId(@Param("applyId") Long applyId,@Param("userId")  Long userId,@Param("state") String state);
+
+    Integer getApprovePageCount(@Param("userId") Long userId, @Param("state") String state);
 }

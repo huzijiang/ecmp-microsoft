@@ -9,8 +9,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="name"    column="name"    />
         <result property="leader"    column="leader"    />
         <result property="projectCode"    column="project_code"    />
+        <result property="fatherProjectId"    column="father_project_id"    />
         <result property="startDate"    column="start_date"    />
         <result property="closeDate"    column="close_date"    />
+        <result property="isAllUserUse"    column="is_all_user_use"    />
+        <result property="isEffective"    column="is_effective"    />
+        <result property="ownerCompany"    column="owner_company"    />
+        <result property="ownerOrg"    column="owner_org"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -18,7 +23,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectProjectInfoVo">
-        select project_id, name, leader, project_code, start_date, close_date, create_by, create_time, update_by, update_time from project_info
+        select project_id, name, leader, project_code,father_project_id, start_date, close_date, create_by, create_time, update_by, update_time,is_all_user_use,is_effective,owner_company,owner_org from project_info
     </sql>
 
     <select id="selectProjectInfoList" parameterType="com.hq.ecmp.mscore.domain.ProjectInfo" resultMap="ProjectInfoResult">
@@ -27,6 +32,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="leader != null "> and leader = #{leader}</if>
             <if test="projectCode != null  and projectCode != ''"> and project_code = #{projectCode}</if>
+            <if test="fatherProjectId != null  and fatherProjectId != ''"> and father_project_id = #{fatherProjectId}</if>
+            <if test="isAllUserUse != null  "> and is_all_user_use = #{isAllUserUse}</if>
+            <if test="isEffective != null  "> and is_effective = #{isEffective}</if>
+            <if test="ownerCompany != null "> and owner_company = #{ownerCompany}</if>
+            <if test="ownerOrg != null "> and owner_org = #{ownerOrg}</if>
             <if test="startDate != null  and startDate != ''"> and start_date = #{startDate}</if>
             <if test="closeDate != null  and closeDate != ''"> and close_date = #{closeDate}</if>
         </where>
@@ -37,15 +47,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where project_id = #{projectId}
     </select>
 
-    <insert id="insertProjectInfo" parameterType="com.hq.ecmp.mscore.domain.ProjectInfo">
+    <insert id="insertProjectInfo" parameterType="com.hq.ecmp.mscore.domain.ProjectInfo" useGeneratedKeys="true" keyProperty="projectId"  keyColumn="idproject_id">
         insert into project_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="projectId != null ">project_id,</if>
             <if test="name != null  and name != ''">name,</if>
             <if test="leader != null ">leader,</if>
             <if test="projectCode != null  and projectCode != ''">project_code,</if>
+            <if test="fatherProjectId != null ">father_project_id,</if>
             <if test="startDate != null  and startDate != ''">start_date,</if>
             <if test="closeDate != null  and closeDate != ''">close_date,</if>
+            <if test="isAllUserUse != null ">is_all_user_use,</if>
+            <if test="isEffective != null ">is_effective,</if>
+            <if test="ownerCompany != null ">owner_company,</if>
+            <if test="ownerOrg != null  "> owner_org,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -56,8 +71,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null  and name != ''">#{name},</if>
             <if test="leader != null ">#{leader},</if>
             <if test="projectCode != null  and projectCode != ''">#{projectCode},</if>
+            <if test="fatherProjectId != null">#{fatherProjectId},</if>
             <if test="startDate != null  and startDate != ''">#{startDate},</if>
             <if test="closeDate != null  and closeDate != ''">#{closeDate},</if>
+            <if test="isAllUserUse != null ">#{isAllUserUse},</if>
+            <if test="isEffective != null ">#{isEffective},</if>
+            <if test="ownerCompany != null ">#{ownerCompany},</if>
+            <if test="ownerOrg != null  ">#{ownerOrg},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -71,8 +91,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null  and name != ''">name = #{name},</if>
             <if test="leader != null ">leader = #{leader},</if>
             <if test="projectCode != null  and projectCode != ''">project_code = #{projectCode},</if>
-            <if test="startDate != null  and startDate != ''">start_date = #{startDate},</if>
-            <if test="closeDate != null  and closeDate != ''">close_date = #{closeDate},</if>
+            <if test="fatherProjectId != null  and fatherProjectId != ''">father_project_id = #{fatherProjectId},</if>
+            start_date = #{startDate},
+            close_date = #{closeDate},
+            <if test="isAllUserUse != null">is_all_user_use = #{isAllUserUse},</if>
+            <if test="isEffective != null">is_effective = #{isEffective},</if>
+            <if test="ownerCompany != null">owner_company = #{ownerCompany},</if>
+            <if test="ownerOrg != null">owner_org = #{ownerOrg},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -92,4 +117,99 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <!--手动编写sql start-->
+    <select id="getListByUserId" parameterType="Object" resultMap="ProjectInfoResult">
+        <include refid="selectProjectInfoVo"/>
+        <where> is_effective=0 and (project_id in(select project_id from project_user_relation_info where user_id=#{userId}) or is_all_user_use=0)
+        <if test="projectName !=null and projectName!=''">
+            and (name like CONCAT('%',#{projectName},'%') or project_code = #{projectName})
+        </if>
+        </where>
+    </select>
+
+    <select id="getProjectList" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ProjectInfoVO">
+        SELECT
+        a.project_id projectId,
+        a.name,
+        a.owner_company ownerCompany,
+        a.owner_org ownerOrg,
+        a.leader,
+        b.nick_name leaderName,
+        b.phonenumber leaderPhone,
+        a.project_code projectCode,
+        a.father_project_id fatherProjectId,
+        (select name from project_info where project_id=a.father_project_id) fatherProjectName,
+        a.start_date startDate,
+        a.close_date closeDate,
+        if(a.start_date is null and a.close_date is null,'0','1') isFinite,
+        a.is_effective isEffective,
+        a.is_all_user_use isAllUserUse,
+        IF
+        (
+        is_all_user_use = 0,
+        ( SELECT count( * ) FROM ecmp_user WHERE STATUS = 0 AND del_flag = 0 ),
+        ( SELECT count(*) FROM project_user_relation_info WHERE project_id = a.project_id )
+        ) userCount
+        FROM
+        project_info a
+        LEFT JOIN ecmp_user b ON b.user_id = a.leader
+        where a.is_effective!=4
+            <if test="search!=null and search!=''">
+              and (a.name like CONCAT('%',#{search},'%') or a.project_code = #{search})
+            </if>
+            <if test="fatherProjectId!=null">
+                and  a.father_project_id=#{fatherProjectId}
+            </if>
+            <if test="fatherProjectId==null or fatherProjectId==0">
+                and  (a.father_project_id is null or   a.father_project_id=0)
+            </if>
+    </select>
+
+    <select id="getProjectInfo" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.ProjectInfoVO">
+        select a.project_id projectId, a.name,a.project_code projectCode,b.nick_name leaderName,b.phonenumber leaderPhone,
+        if(a.is_all_user_use=1,'仅本项目员工','全部员工') isAllUserUse,a.start_date startDate,a.close_date closeDate, a.is_effective isEffective,
+        if(a.start_date is null and a.close_date is null,'0','1') isFinite,if(c.name is null,'',c.name) fatherProjectName,a.father_project_id fatherProjectId,
+        a.owner_company ownerCompany,
+        a.owner_org ownerOrg,
+        IF
+        (
+        a.is_all_user_use = 0,
+        ( SELECT count( * ) FROM ecmp_user WHERE STATUS = 0 AND del_flag = 0 ),
+        ( SELECT count(*) FROM project_user_relation_info WHERE project_id = a.project_id )
+        ) userCount
+            from project_info a
+            left join ecmp_user b on b.user_id=a.leader
+            left join project_info c on c.project_id=a.father_project_id
+            where a.project_id=#{projectId}
+    </select>
+
+    <select id="checkProject" parameterType="Object" resultMap="ProjectInfoResult">
+        <include refid="selectProjectInfoVo"/>
+        where close_date = #{date}
+    </select>
+
+    <select id="findLeader" resultType="com.hq.ecmp.mscore.vo.UserVO">
+        select leader from project_info where project_id=#{projectId}
+    </select>
+
+    <select id="getProjectListCount" resultType="Long">
+        select count(*) from  project_info a
+         where is_effective!=4
+            <if test="search!=null and search!=''">
+                and (a.name like CONCAT('%',#{search},'%') or a.project_code = #{search})
+            </if>
+            <if test="fatherProjectId!=null">
+                and  father_project_id=#{fatherProjectId}
+            </if>
+            <if test="fatherProjectId==null or fatherProjectId==0">
+                and  (a.father_project_id is null or  a.father_project_id=0)
+            </if>
+    </select>
+
+    <select id="selectChildProject" resultType="int">
+        select count(*) from (
+        select project_id from project_info where father_project_id=#{projectId} and is_effective!=4
+        union (select user_id from project_user_relation_info where project_id=#{projectId})
+        ) a
+    </select>
 </mapper>

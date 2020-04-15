@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.EcmpMessageMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.EcmpMessage" id="EcmpMessageMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="configType" column="config_type" jdbcType="INTEGER"/>
+        <result property="ecmpId" column="ecmp_id" jdbcType="INTEGER"/>
+        <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="category" column="category" jdbcType="VARCHAR"/>
+        <result property="url" column="url" jdbcType="VARCHAR"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="EcmpMessageMap">
+        select
+          id, config_type, ecmp_id,category_id, type, status,content, category, url, create_by, create_time, update_by, update_time
+        from ecmp.ecmp_message
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="EcmpMessageMap">
+        select
+          id, config_type, ecmp_id, category_id,type, status, category, url, create_by, create_time, update_by, update_time,content
+        from ecmp.ecmp_message
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="EcmpMessageMap">
+        select
+          id, config_type, ecmp_id,category_id, type, status, category, url, create_by, create_time, update_by, update_time,content
+        from ecmp.ecmp_message
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="configType != null">
+                and config_type = #{configType}
+            </if>
+            <if test="ecmpId != null">
+                and ecmp_id = #{ecmpId}
+            </if>
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="category != null and category != ''">
+                and category = #{category}
+            </if>
+            <if test="content != null and content != ''">
+                and content = #{content}
+            </if>
+            <if test="url != null and url != ''">
+                and url = #{url}
+            </if>
+            <if test="createBy != null">
+                and create_by = #{createBy}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateBy != null">
+                and update_by = #{updateBy}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into ecmp_message(config_type, ecmp_id, category_id,type, status, category, url, create_by, create_time, update_by, update_time,content)
+        values (#{configType}, #{ecmpId}, #{categoryId},#{type}, #{status}, #{category}, #{url}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime},#{content})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update ecmp.ecmp_message
+        <set>
+            <if test="configType != null">
+                config_type = #{configType},
+            </if>
+            <if test="ecmpId != null">
+                ecmp_id = #{ecmpId},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="category != null and category != ''">
+                category = #{category},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="url != null and url != ''">
+                url = #{url},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from ecmp.ecmp_message where id = #{id}
+    </delete>
+
+    <select id="queryMessageList" parameterType="Object" resultMap="EcmpMessageMap">
+        select
+          id, config_type, ecmp_id,category_id, type, status,content, category, url, create_by, create_time, update_by, update_time
+        from ecmp.ecmp_message
+        where ecmp_id = #{ecmpId}
+        <if test="configTypeList!=null">
+            and
+            config_type in
+            <foreach collection="configTypeList" separator="," item="item" index="index" open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        order by update_time desc
+    </select>
+
+    <select id="queryMessageCount" parameterType="map" resultType="integer">
+        select
+        count(*)
+        from ecmp_message
+        where ecmp_id = #{ecmp_id}
+        and
+        config_type in
+        <foreach collection="configTypeList" separator="," item="item" index="index" open="(" close=")">
+            #{item}
+        </foreach>
+        and status = '0000'
+    </select>
+
+    <select id="getMessagesForPassenger" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+        select id,category_id messageId,category messageType,count(*) messageCount,config_type configType from ecmp_message
+        where ecmp_id=#{userId} and type='T001' and status='0000'and config_type !=2
+        and find_in_set(category,#{categorys}) and (category_id is not null or category_id!=0)
+        group by category
+    </select>
+
+    <select id="getRunMessageForDrive" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+        select id,category_id messageId,category messageType ,count(*) messageCount,config_type configType from ecmp_message
+        where type='T001' and status='0000' and config_type =2 and  ecmp_id=#{driverId}
+        and find_in_set(category,#{categorys}) and (category_id is not null or category_id!=0)
+        group by category
+    </select>
+
+    <select id="getRunMessageForDispatcher" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
+        select id,category_id messageId,category messageType ,count(*) messageCount,config_type configType from ecmp_message
+        where type='T001' and status='0000' and config_type =3 and  ecmp_id=#{ecmpId}
+        and category=#{category} and (category_id is not null or category_id!=0)
+        group by category
+    </select>
+
+    <insert id="insertList" parameterType="List">
+        insert into ecmp_message(config_type, ecmp_id, category_id,type, status, category, url, create_by, create_time, update_by,content )
+        values
+        <foreach collection="msgList" item="item" index="index" separator=",">
+            ( #{item.configType}, #{item.ecmpId}, #{item.categoryId},#{item.type}, #{item.status}, #{item.category}, #{item.url}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.content})
+        </foreach>
+    </insert>
+
+
+</mapper>
