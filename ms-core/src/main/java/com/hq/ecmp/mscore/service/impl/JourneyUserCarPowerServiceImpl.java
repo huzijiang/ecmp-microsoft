@@ -338,15 +338,13 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 						}
 					}	
 				}
-				//查找去程的用车权限对应的行程节点  
-				for (int i = 0; i < journeyNodeInfoList.size(); i++) {
+				 //查找去程的用车权限对应的行程节点  
 					//按照行程节点顺序 中   第一个出现的不是途径点的行程节点即为去程权限
-					JourneyNodeInfo journeyNodeInfo = journeyNodeInfoList.get(i);
+					JourneyNodeInfo journeyNodeInfo = journeyNodeInfoList.get(0);
 					if(null !=journeyNodeInfo.getItIsViaPoint() && "N111".equals(journeyNodeInfo.getItIsViaPoint())){
 						journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.OUTWARD_VOYAGE,journeyNodeInfo.getNodeId());
 						journeyUserCarPowerList.add(journeyUserCarPower);
 					}
-				}
 			}else if("N444".equals(journeyInfo.getItIsReturn())){
 				//没有往返
                 for (int i = 0; i < journeyNodeInfoList.size(); i++) {

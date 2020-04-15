@@ -965,6 +965,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //获取行程主表信息
         JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyId);
         String serviceType = journeyInfo.getServiceType();
+        //是否往返 是Y000  否N444
+        String itIsReturn = journeyInfo.getItIsReturn();
+
         //获取申请表信息
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
         //插入订单初始信息
@@ -1003,8 +1006,20 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         journeyNodeInfo.setJourneyId(journeyId);
         List<JourneyNodeInfo> journeyNodeInfoList = iJourneyNodeInfoService.selectJourneyNodeInfoList(journeyNodeInfo);
         if(journeyNodeInfoList !=null && journeyNodeInfoList.size()>0){
+            int realSize = journeyNodeInfoList.size();
+            int cycleBegin = 0;
             List<OrderViaInfo> orderViaInfos = new ArrayList<>();
-            for (int j=0;j<journeyNodeInfoList.size();j++) {
+            //是否往返 ,不是则为 0 到 n，否则按下面逻辑
+            if(itIsReturn.equals(JourneyConstant.IT_IS_RETURN)){
+                //去程 0 到n-1
+                if(type.equals(CarConstant.OUTWARD_VOYAGE)){
+                    cycleBegin = 0;
+                    realSize = realSize-1;
+                }else{//返程 n-1 到 n
+                    cycleBegin = realSize -1;
+                }
+            }
+            for (int j=cycleBegin;j<realSize;j++) {
                 JourneyNodeInfo journeyNodeInfoCh = journeyNodeInfoList.get(j);
                 Integer number = journeyNodeInfoCh.getNumber();
                 OrderViaInfo orderViaInfo = new OrderViaInfo();
@@ -1017,12 +1032,30 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderViaInfo.setCreateTime(DateUtils.getNowDate());
                 orderViaInfo.setUpdateTime(null);
                 orderViaInfo.setUpdateBy(null);
-                if(number == 1){
+                if(number == (cycleBegin+1)){
                     orderViaInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLongitude()));
                     orderViaInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLatitude()));
                     orderViaInfo.setFullAddress(journeyNodeInfoCh.getPlanBeginLongAddress());
                     orderViaInfo.setShortAddress(journeyNodeInfoCh.getPlanBeginAddress());
                     orderViaInfo.setSortNumber(1);
+                   if(realSize == number && !ServiceTypeConstant.CHARTERED.equals(serviceType)){//只有一条数据时候，插入终点
+                       OrderViaInfo orderViaInfoEnd = new OrderViaInfo();
+                       orderViaInfoEnd.setOrderId(orderInfo.getOrderId());
+                       orderViaInfoEnd.setItIsPassed(CommonConstant.NO_PASS);
+                       orderViaInfoEnd.setArrivedTime(null);
+                       orderViaInfoEnd.setDuration(null);
+                       orderViaInfoEnd.setLeaveTime(null);
+                       orderViaInfoEnd.setCreateBy(String.valueOf(userId));
+                       orderViaInfoEnd.setCreateTime(DateUtils.getNowDate());
+                       orderViaInfoEnd.setUpdateTime(null);
+                       orderViaInfoEnd.setUpdateBy(null);
+                       orderViaInfoEnd.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
+                       orderViaInfoEnd.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
+                       orderViaInfoEnd.setFullAddress(journeyNodeInfoCh.getPlanEndLongAddress());
+                       orderViaInfoEnd.setShortAddress(journeyNodeInfoCh.getPlanEndAddress());
+                       orderViaInfoEnd.setSortNumber(2);
+                       orderViaInfos.add(orderViaInfoEnd);
+                   }
                 }else{
                     orderViaInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
                     orderViaInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
@@ -1051,12 +1084,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     }
                 }
                 //起点
-                if(j == 0){
-                    if(type.equals(CarConstant.BACK_TRACKING)){
-                        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
-                    }else{
-                        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
-                    }
+                if(j == cycleBegin){
+                    orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanSetoutTime());
                     orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLongitude()));
                     orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanBeginLatitude()));
@@ -1066,12 +1095,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
                 //终点
-                if(j==journeyNodeInfoList.size()-1 && !ServiceTypeConstant.CHARTERED.equals(serviceType)){
-                    if(type.equals(CarConstant.BACK_TRACKING)){
-                        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
-                    }else{
-                        orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
-                    }
+                if(j==realSize-1 && !ServiceTypeConstant.CHARTERED.equals(serviceType)){
+                    orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanArriveTime());
                     orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
                     orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
@@ -1668,7 +1693,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setUpdateTime(DateUtils.getNowDate());
         int suc = orderInfoMapper.updateOrderInfo(orderInfo);
         //自有车，且状态变更成功
-        if (suc == 1 && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE) && !state.equals(OrderState.WAITINGLIST.getState())) {
+        if (suc == 1 && useCarMode!=null && useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE) && !state.equals(OrderState.WAITINGLIST.getState())) {
             //TODO 调用消息通知接口，给司机发送乘客取消订单的消息
             ismsBusiness.sendMessageCancelOrder(orderId,userId);
         }
@@ -2201,8 +2226,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			//企业设置中没开启等待时长或者大于预估等待时长
 			return;
 		}
-		//生成一条新返回的的公务用车权限 
-		JourneyUserCarPower journeyUserCarPower=new JourneyUserCarPower(waitDispatchOrderDetailInfo.getApplyId(), waitDispatchOrderDetailInfo.getJourneyId(), new Date(), optUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.BACK_TRACKING,waitDispatchOrderDetailInfo.getNodeId());
+		//生成一条新返回的的公务用车权限
+		List<JourneyNodeInfo> journeyNodeInfoList = iJourneyNodeInfoService.queryJourneyNodeInfoOrderByNumber(waitDispatchOrderDetailInfo.getJourneyId());
+		//取返程的行程节点
+		Long nodeId = journeyNodeInfoList.get(journeyNodeInfoList.size()-1).getNodeId();
+		JourneyUserCarPower journeyUserCarPower=new JourneyUserCarPower(waitDispatchOrderDetailInfo.getApplyId(), waitDispatchOrderDetailInfo.getJourneyId(), new Date(), optUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.BACK_TRACKING,nodeId);
 		journeyUserCarPowerMapper.insertJourneyUserCarPower(journeyUserCarPower);
 		//生成订单
 		OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo();

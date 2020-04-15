@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.controller.base;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +9,7 @@ import com.hq.ecmp.mscore.dto.RegimenDTO;
 import com.hq.ecmp.mscore.vo.RegimenVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,6 +80,29 @@ public class RegimeController {
     @PostMapping("/getRegimesBySceneId")
     public ApiResponse<List<RegimenVO>> getRegimesBySceneId(@RequestBody UserDto userDto){
         List<RegimenVO> all = regimeInfoService.selectRegimesBySceneId(userDto.getSceneId());
+        return ApiResponse.success(all);
+    }
+
+
+    /**
+     *
+     * 根据场景id查询用车制度集合
+     * @param
+     * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
+     */
+    @ApiOperation(value = "getRegimesBySceneIds",notes = "根据用车场景集合用车制度集合",httpMethod ="POST")
+    @PostMapping("/getRegimesBySceneIds")
+    public ApiResponse<List<RegimenVO>> getRegimesBySceneIds(@RequestBody UserDto userDto){
+        String sceneIds = userDto.getSceneIds();
+        String[] sceneIdStrs = sceneIds.split(",");
+        List all = new ArrayList<>();
+        for (String sceneIdStr : sceneIdStrs) {
+            if(StringUtils.isNotEmpty(sceneIdStr)){
+                List<RegimenVO> regimenVOS = regimeInfoService.selectRegimesBySceneId(Long.valueOf(sceneIdStr));
+                all.addAll(regimenVOS);
+            }
+        }
+
         return ApiResponse.success(all);
     }
 
