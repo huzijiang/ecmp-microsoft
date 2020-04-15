@@ -72,4 +72,6 @@ public class OrderListBackDto extends PageRequest {
     private String orderNumber;
     @ApiModelProperty(value = "用车制度")
     private String regimenName;
+    //后台管理列表所用 1 订单  2 行程
+    private String state;
 }
