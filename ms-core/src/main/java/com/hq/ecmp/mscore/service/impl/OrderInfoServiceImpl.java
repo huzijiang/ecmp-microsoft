@@ -1819,8 +1819,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 //            }
 //        }
         orderVO.setDriverLongitude(String.valueOf(longitude));
-        orderVO.setState(status);
-        orderVO.setLabelState(lableState);
+//        orderVO.setState(status);
+//        orderVO.setLabelState(lableState);
         orderVO.setDriverLatitude(String.valueOf(latitude));
 
         return orderVO;
@@ -2086,7 +2086,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderNo, lableState, longitude, latitude);
             orderStateTraceInfo.setCreateBy(CommonConstant.START);
             orderStateTraceInfo.setCreateTime(new Date());
-            orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+            List<OrderStateTraceInfo> orderStateTraceInfos = orderStateTraceInfoMapper.selectOrderStateTraceInfoList(new OrderStateTraceInfo(orderNo, lableState));
+            if (!CollectionUtils.isEmpty(orderStateTraceInfos)){
+                orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+            }
         }
         if (OrderState.ALREADYSENDING.getState().equals(lableState)){//约车成功 发短信，发通知
             ismsBusiness.sendSmsCallTaxiNet(orderNo);
