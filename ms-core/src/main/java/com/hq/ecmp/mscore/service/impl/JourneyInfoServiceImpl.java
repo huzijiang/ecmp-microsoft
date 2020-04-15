@@ -1,10 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.io.Console;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.hq.ecmp.constant.*;
@@ -158,6 +155,10 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 				RegimeInfo regimeInfo = regimeInfoService.queryRegimeType(journeyInfo.getRegimenId());
 				if(null !=regimeInfo){
 					if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getRegimenType())){
+						if(journeyUserCarPowerService.checkJourneyNoteAllComplete(journeyInfo.getJourneyId())){
+							//表示该行程下面所有订单都已完成了  则首页不显示这条行程
+							continue;
+						}
 						CarAuthorityInfo carAuthorityInfo = new CarAuthorityInfo();
 						carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
 						carAuthorityInfo.setType(regimeInfo.getRegimenType());
@@ -326,7 +327,47 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 			}
 
 		}
-		
+		//排序
+		for (UserAuthorityGroupCity userAuthorityGroupCity:
+		userAuthorityGroupCityList) {
+			Collections.sort(userAuthorityGroupCity.getUserCarAuthorityList());
+		}
+		//状态检查
+		int innerIndex = -1;
+		int outerIndex = -1;
+		labelOut:
+		for (int i=0; i<userAuthorityGroupCityList.size();i++) {
+			UserAuthorityGroupCity userAuthorityGroupCity = userAuthorityGroupCityList.get(i);
+			List<UserCarAuthority> userCarAuthorityList = userAuthorityGroupCity.getUserCarAuthorityList();
+			for (int j = 0; j < userCarAuthorityList.size(); j++) {
+				UserCarAuthority userCarAuthority = userCarAuthorityList.get(j);
+				if(userCarAuthority.getState().equals(OrderState.WAITINGLIST.getState()) ||
+						userCarAuthority.getState().equals(OrderState.SENDINGCARS.getState())){
+					innerIndex = j;
+					outerIndex = i;
+					break labelOut;
+				}
+			}
+		}
+		if(outerIndex != -1 && innerIndex !=-1){
+			for (int i = 0; i <= outerIndex ; i++) {
+				UserAuthorityGroupCity userAuthorityGroupCity = userAuthorityGroupCityList.get(i);
+				List<UserCarAuthority> userCarAuthorityList = userAuthorityGroupCity.getUserCarAuthorityList();
+				int index;
+				if(i == outerIndex) {
+					index = innerIndex-1;
+				}else{
+					index = userCarAuthorityList.size()-1;
+				}
+				for (int j = 0; j <= index; j++) {
+					UserCarAuthority userCarAuthority = userCarAuthorityList.get(j);
+					if(userCarAuthority.getState().equals(OrderState.INITIALIZING.getState()) ||
+							userCarAuthority.getState().equals(OrderState.GETARIDE.getState())){
+						userCarAuthority.setState(OrderState.TIMELIMIT.getState());
+					}
+				}
+			}
+		}
 		return userAuthorityGroupCityList;
 	}
 	

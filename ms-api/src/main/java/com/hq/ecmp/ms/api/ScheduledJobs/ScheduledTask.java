@@ -82,12 +82,15 @@ public class ScheduledTask {
         applyInfoService.checkApplyExpired();
     }
 
-    //每天凌晨一点判断订单是否过期
-    @Scheduled(cron = "0 0 1 * * ? ")
+	/**
+	 * 每五分钟判断订单是否过期s
+	 */
+	@Scheduled(cron = "0 0/5 * * * ? ")
     public void checkOrderIsExpired(){
-        System.out.println("定时任务:checkOrderIsExpired:校验订单是否过期"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+        System.out.println("定时任务:checkOrderIsExpired:校验订单是否过期开始"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
         orderInfoService.checkOrderIsExpired();
-    }
+		System.out.println("定时任务:checkOrderIsExpired:校验订单是否过期结束"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
     
     
 	/**
