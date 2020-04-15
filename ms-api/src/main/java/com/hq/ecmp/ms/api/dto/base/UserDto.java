@@ -7,6 +7,7 @@ import lombok.NonNull;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @Author: zj.hu
@@ -54,6 +55,8 @@ public class UserDto {
      * 用户所在部门
      */
     String deptName;
+
+    String sceneIds;
 
 
 }

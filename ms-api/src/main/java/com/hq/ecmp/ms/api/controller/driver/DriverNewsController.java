@@ -1,4 +1,6 @@
 package com.hq.ecmp.ms.api.controller.driver;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
@@ -48,10 +50,12 @@ public class DriverNewsController {
     @Log(title = "驾驶员管理模块:查询驾驶员可用车辆列表", businessType = BusinessType.OTHER)
     @ApiOperation(value="getDriverCanUseCarsList" ,notes="查询驾驶员可用车辆列表", httpMethod = "POST")
     @PostMapping("/getDriverCanUseCarsList")
-    public ApiResponse<List<DriverCanUseCarsDTO>> getDriverCanUseCarsList(@RequestBody DriverNewDTO driverDTO){
-        List<DriverCanUseCarsDTO>  driverCanUseCarsList = iDriverInfoService.getDriverCanCar(driverDTO.getDriverId());
+    public ApiResponse<PageResult<DriverCanUseCarsDTO>> getDriverCanUseCarsList(@RequestBody PageRequest pageRequest){
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+        List<DriverCanUseCarsDTO>  driverCanUseCarsList = iDriverInfoService.getDriverCanCar(Long.valueOf(pageRequest.getSearch()));
+        PageInfo info = new PageInfo<>(driverCanUseCarsList);
         if(CollectionUtils.isNotEmpty(driverCanUseCarsList)){
-            return ApiResponse.success(driverCanUseCarsList);
+            return ApiResponse.success(new PageResult<>(info.getTotal(),info.getPages(),driverCanUseCarsList));
         }else {
             return ApiResponse.error("未查询到驾驶员可用车辆");
         }

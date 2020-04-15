@@ -95,7 +95,7 @@ public class ScheduledTask {
 	 * 
 	 * @throws Exception
 	 */
-	@Scheduled(cron = "0 */1 * * * ?")
+	@Scheduled(cron = "0 */10 * * * ?")
 	public void autoDispatch() {
 		log.info("定时任务:autoDispatch:自动调度" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
 		// 查询企业设置是否开启了自动调度
@@ -107,6 +107,11 @@ public class ScheduledTask {
 			if (null != queryAllWaitDispatchList && queryAllWaitDispatchList.size() > 0) {
 				for (DispatchOrderInfo dispatchOrderInfo : queryAllWaitDispatchList) {
 					Long orderId = dispatchOrderInfo.getOrderId();
+					//订单用车提交时间时间是否大于五分钟
+					Date createTime = dispatchOrderInfo.getCreateTime();
+					if(DateFormatUtils.compareDateInterval(createTime, 5)){
+						continue;
+					}
 					log.info("订单【"+orderId+"】开始自动派单");
 					String redisLockKey = "dispatch_" + orderId;
 					// 查询是否存在调度员已经在进行操作
@@ -190,14 +195,12 @@ public class ScheduledTask {
     @Scheduled(cron = "0 0 0 * * ? ")
     public void  announcementManagementTimingTask (){
         log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-        //System.out.println("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改Start:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
         try {
             iEcmpNoticeService.announcementTask();
         }catch (Exception e) {
             e.printStackTrace();
         }
         log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改EndTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-        //System.out.println("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改End:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
     }
 
 }

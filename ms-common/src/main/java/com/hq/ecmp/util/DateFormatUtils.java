@@ -246,6 +246,13 @@ public class DateFormatUtils {
     	}
     	return true;
     }
+    
+	public static boolean compareDateInterval(Date date, int minute) {
+		Date currentDate = new Date();
+		long diff = currentDate.getTime() - date.getTime();
+		long interval = diff / 60 / 1000;
+		return interval < minute;
+	}
 
      public  static void main(String[] args){
          Date date = parseDate(DATE_TIME_FORMAT, "2020-04-10 22:22:22");

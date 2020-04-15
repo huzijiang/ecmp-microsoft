@@ -422,7 +422,8 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	 * @param orderId
 	 * @param useCarMode,不传默认为网约车 W100-自有车 	W200-网约车
 	 */
-	public List<CarLevelAndPriceReVo> getCarlevelAndPriceByOrderId(Long orderId,String useCarMode) throws Exception {
+	@Override
+	public List<CarLevelAndPriceReVo> getCarlevelAndPriceByOrderId(Long orderId, String useCarMode) throws Exception {
 		Date bookingStartTime = null;
 		String groupIds = queryCarModeLevel(orderId, useCarMode);
 		OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);

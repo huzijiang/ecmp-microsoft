@@ -78,5 +78,7 @@ public class DispatchOrderInfo {
        	
        	Long applyId;//申请单编号
        	
+       	Date createTime;//订单生成时间
+       	
        	
 }
