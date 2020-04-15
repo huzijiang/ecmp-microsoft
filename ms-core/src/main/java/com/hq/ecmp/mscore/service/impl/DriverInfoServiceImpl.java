@@ -273,6 +273,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			for (DriverCarRelationInfo d : selectDriverCarRelationInfoList) {
 				carId.add(d.getCarId());
 			}
+			queryDriverDetail.setOwnCarCount(selectDriverCarRelationInfoList.size());
 		}
 		queryDriverDetail.setCarId(carId);
 		return queryDriverDetail;
