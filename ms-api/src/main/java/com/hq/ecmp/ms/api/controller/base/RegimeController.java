@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.annotation.Log;
+import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
@@ -128,7 +130,7 @@ public class RegimeController {
 
     }
     
-    
+    @Log(title = "用车制度:创建用车制度", businessType = BusinessType.INSERT)
 	@ApiOperation(value = "createRegime", notes = "创建用车制度", httpMethod = "POST")
 	@PostMapping("/createRegime")
 	public ApiResponse createRegime(@RequestBody RegimePo regimePo) {
@@ -142,7 +144,7 @@ public class RegimeController {
 		return ApiResponse.error();
 	}
 	
-	
+    @Log(title = "用车制度:修改用车制度", businessType = BusinessType.UPDATE)
 	@ApiOperation(value = "updateRegime", notes = "修改用车制度", httpMethod = "POST")
 	@PostMapping("/updateRegime")
 	public ApiResponse updateRegime(@RequestBody RegimePo regimePo) {
@@ -157,7 +159,7 @@ public class RegimeController {
 	}
 	
 	
-	
+    @Log(title = "用车制度:查询制度列表", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "queryRegimeList", notes = "查询制度列表", httpMethod = "POST")
 	@PostMapping("/queryRegimeList")
 	public ApiResponse<PageResult<RegimeVo>> queryRegimeList(@RequestBody RegimeQueryPo regimeQueryPo) {
@@ -168,6 +170,7 @@ public class RegimeController {
 		return ApiResponse.success(pageResult);
 	}
     
+    @Log(title = "用车制度:制度删除 or启用or停用", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "optRegime", notes = "制度删除 or启用or停用", httpMethod = "POST")
 	@PostMapping("/optRegime")
 	public ApiResponse optRegime(@RequestBody RegimeOpt regimeOpt) {
@@ -182,7 +185,7 @@ public class RegimeController {
 		return ApiResponse.error();
 	}
 	
-	
+    @Log(title = "用车制度:制度详情查询", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "detail", notes = "后管制度详情查询", httpMethod = "POST")
 	@PostMapping("/detail")
 	public ApiResponse<RegimeVo> queryRegimeDetail(@RequestBody Long regimeId) {

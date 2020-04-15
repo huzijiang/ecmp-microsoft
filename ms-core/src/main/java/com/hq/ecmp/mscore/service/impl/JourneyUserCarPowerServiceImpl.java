@@ -1,7 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -19,18 +18,17 @@ import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.OrderAddressInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
 import com.hq.ecmp.mscore.domain.UserCarAuthority;
-import com.hq.ecmp.mscore.mapper.CarGroupServeScopeInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
+import com.hq.ecmp.mscore.mapper.OrderAddressInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
@@ -38,15 +36,10 @@ import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
 import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
-import com.hq.ecmp.mscore.vo.OfficialOrderReVo;
 import com.hq.ecmp.util.DateFormatUtils;
 
 import lombok.extern.slf4j.Slf4j;
-
-import javax.annotation.Resource;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -75,7 +68,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
     @Autowired
     private IEcmpConfigService ecmpConfigService;
     @Autowired
-    private IOrderInfoService iOrderInfoService;
+    private OrderAddressInfoMapper orderAddressInfoMapper;
     
 
     /**
@@ -392,12 +385,22 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			
 		}
 		if(OrderState.WAITINGLIST.getState().equals(vaildOrdetrState)){
-			//订单状态为待派单,则对应前端状态为派车中
+			//订单状态为待派单
+			if(checkOrderOverTime(powerId)){
+				//订单超时 前端状态变为去申请
+				return OrderState.INITIALIZING.getState();
+			}
+			//未超时  对应前端状态为派车中
 			return OrderState.WAITINGLIST.getState();
 		}
 		
 		if(OrderState.SENDINGCARS.getState().equals(vaildOrdetrState)){
-			//订单状态为约车中  则对用前端状态为约车车中
+			//订单状态为约车中
+			if(checkOrderOverTime(powerId)){
+				//订单超时 前端状态变为去约车
+				return OrderState.GETARIDE.getState();
+			}
+			  //未超时  对应前端状态为约车车中
 			return OrderState.SENDINGCARS.getState();
 		}
 		
@@ -536,6 +539,33 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		}
 		if(DateFormatUtils.beforeCurrentDate(planSetoutTime)){
 			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean checkOrderOverTime(Long powerId) {
+		Long orderId = orderInfoMapper.queryVaildOrderIdByPowerId(powerId);
+		if(null==orderId){
+			return false;
+		}
+		OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+		String state = orderInfo.getState();
+		if(OrderState.getWaitSendCar().contains(state)){
+			//订单状态处于约车中或者待派单  则判断当前时间是否超过了用车时间
+			OrderAddressInfo query = new OrderAddressInfo();
+			query.setOrderId(orderId);
+			query.setType("A000");
+			OrderAddressInfo orderAddressInfo = orderAddressInfoMapper.queryOrderStartAndEndInfo(query);
+			if(null==orderAddressInfo){
+				return false;
+			}
+			//用车的开始时间
+			Date startTime=orderAddressInfo.getActionTime();
+			if(DateFormatUtils.beforeCurrentDate(startTime)){
+				//订单已超时
+				return true;
+			}
 		}
 		return false;
 	}

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.constant.CarConstant;
@@ -126,18 +127,20 @@ public class ScheduledTask {
 								dispatchCountCarAndDriverDto.setOrderNo(orderId.toString());
 								ApiResponse<DispatchResultVo> autoDispatch = dispatchService
 										.autoDispatch(dispatchCountCarAndDriverDto);
-								log.info("订单["+orderId+"]自动派单-自有车 返回可用车辆和可用驾驶员:" + autoDispatch.toString());
-								if (!autoDispatch.isSuccess() && asList.contains(CarConstant.USR_CARD_MODE_NET)) {
-									// 网约车派车
-									log.info("订单["+orderId+"]自动派单-网约车派车:订单编号:" + orderId);
-									orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
-											null);
+								log.info("订单["+orderId+"]自动派单-自有车 返回可用车辆和可用驾驶员:" + JSONObject.toJSONString(autoDispatch));
+								if (!autoDispatch.isSuccess()) {
+									if(asList.contains(CarConstant.USR_CARD_MODE_NET)){
+										// 网约车派车
+										log.info("订单["+orderId+"]自动派单-网约车派车:订单编号:" + orderId);
+										orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
+												null);
+									}else{
+										redisUtil.delKey(redisLockKey);	
+									}
 									continue;
 								}
 								DispatchResultVo data = autoDispatch.getData();
 								// 自有车调度
-								log.info("订单["+orderId+"]自动派单-自有车派车 选择的驾驶员编号:" + data.getDriverList().get(0).getDriverId()
-										+ "  选择的车辆编号:" + data.getCarList().get(0).getCarId());
 								if(null ==data.getDriverList() || null ==data.getDriverList().get(0) || null ==data.getCarList() || null==data.getCarList().get(0)){
 									//没有可用车辆和可用驾驶员
 									log.info("订单["+orderId+"]自动派单-自有车派车 没有可用车辆或驾驶员 ");
@@ -149,6 +152,8 @@ public class ScheduledTask {
 									}
 									continue;
 								}
+								log.info("订单["+orderId+"]自动派单-自有车派车 选择的驾驶员编号:" + data.getDriverList().get(0).getDriverId()
+										+ "  选择的车辆编号:" + data.getCarList().get(0).getCarId());
 								boolean ownCarSendCar = orderInfoService.ownCarSendCar(orderId,
 										data.getDriverList().get(0).getDriverId(), data.getCarList().get(0).getCarId(),
 										autoDispatchUserId);
@@ -168,7 +173,7 @@ public class ScheduledTask {
 							}
 
 						} catch (Exception e) {
-							log.error("订单【"+orderId+"】自动派单异常:"+e.getMessage());
+							log.error("订单【"+orderId+"】自动派单异常:"+JSONObject.toJSONString(e));
 							//释放自动派单锁
 							redisUtil.delKey(redisLockKey);
 							e.printStackTrace();
