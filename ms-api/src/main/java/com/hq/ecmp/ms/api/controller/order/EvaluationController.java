@@ -4,14 +4,11 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackImage;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
-import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.service.IEcmpUserFeedbackImageService;
+import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -24,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,12 +38,7 @@ public class EvaluationController {
     private IEcmpUserFeedbackInfoService feedbackInfoService;
     @Autowired
     private IEcmpUserFeedbackImageService feedbackImageService;
-    @Autowired
-    private IOrderStateTraceInfoService orderStateTraceInfoService;
-    @Autowired
-    private IOrderInfoService orderInfoService;
-    @Autowired
-    private ZimgService zimgService;
+
     @Value("file.path.feedback")
     String feedbackPath;
     @Value("file.url.feedback")
