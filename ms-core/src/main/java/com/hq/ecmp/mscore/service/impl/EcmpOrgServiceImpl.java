@@ -228,11 +228,12 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.valueOf(leader));
             //公司负责人
             if(ecmpUser != null){
-                carGroupCountVO.setLeaderName(ecmpUser.getUserName());
+                carGroupCountVO.setLeaderName(ecmpUser.getNickName());
             }
         }
         CarGroupInfo carGroupInfo = new CarGroupInfo();
         carGroupInfo.setOwnerCompany(deptId);
+        //查询所属公司下的车队
         List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectCarGroupInfoList(carGroupInfo);
         int size = carGroupInfos.size();
         int num = 0;

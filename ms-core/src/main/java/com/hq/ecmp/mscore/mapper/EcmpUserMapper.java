@@ -107,7 +107,14 @@ public interface EcmpUserMapper
      *  @param  deptid--上级组织id
      * @return List<EcmpUserDto>
      * */
-    public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo);
+    public List<EcmpUserDto> getEcmpUserNameAndPhone(@Param("deptId") Long deptId);
+
+    /*
+     * 获取上级组织id中的员工姓名和电话、邮箱
+     *  @param  deptid--上级组织id
+     * @return List<EcmpUserDto>
+     * */
+    public List<EcmpUserDto> getCompanyEcmpUserNameAndPhone(@Param("deptId") Long deptId);
 
     /*
      * 新增员工信息
