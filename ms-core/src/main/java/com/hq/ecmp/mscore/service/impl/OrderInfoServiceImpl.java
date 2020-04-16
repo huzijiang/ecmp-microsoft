@@ -2064,7 +2064,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         if(OrderState.ALREADYSENDING.getState().equals(status)||OrderState.REASSIGNPASS.getState().equals(status)){
             if(driverCloudDto!=null){
-                newOrderInfo.setDriverName(driverCloudDto.getDriverName());
+                newOrderInfo.setDriverName(driverCloudDto.getName());
                 newOrderInfo.setDriverMobile(driverCloudDto.getPhone());
                 newOrderInfo.setDriverGrade(driverCloudDto.getDriverRate());
                 newOrderInfo.setCarLicense(driverCloudDto.getLicensePlates());
@@ -2108,12 +2108,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         if (!OrderState.ORDERCANCEL.getState().equals(status)){//订单取消
             orderInfoMapper.updateOrderInfo(newOrderInfo);
+            log.info("网约车订单"+newOrderInfo.getOrderId()+"状态更新为"+newOrderInfo.getState());
             OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderNo, lableState, longitude, latitude);
             orderStateTraceInfo.setCreateBy(CommonConstant.START);
             orderStateTraceInfo.setCreateTime(new Date());
             List<OrderStateTraceInfo> orderStateTraceInfos = orderStateTraceInfoMapper.selectOrderStateTraceInfoList(new OrderStateTraceInfo(orderNo, lableState));
-            if (!CollectionUtils.isEmpty(orderStateTraceInfos)){
+            if (CollectionUtils.isEmpty(orderStateTraceInfos)){
                 orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+                log.info("网约车订单"+newOrderInfo.getOrderId()+"轨迹表中状态插入"+newOrderInfo.getState()+"成功");
             }
         }
         if (OrderState.ALREADYSENDING.getState().equals(lableState)){//约车成功 发短信，发通知

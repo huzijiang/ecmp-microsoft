@@ -266,7 +266,7 @@ public class CarGroupController {
         //根据公司id查询车队列表
         List<CompanyCarGroupTreeVO>  list = null;
         try {
-            list = ecmpOrgService.selectCompanyCarGroupTree(ecmpOrgDto.getDeptId());
+            list = ecmpOrgService.selectCompanyCarGroupTree(ecmpOrgDto.getDeptId(),null);
         } catch (Exception e) {
             e.printStackTrace();
         }

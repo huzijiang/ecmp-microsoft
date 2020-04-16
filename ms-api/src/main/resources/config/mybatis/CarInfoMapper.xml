@@ -227,7 +227,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="queryCompanyCar"  resultType="java.lang.Integer">
-          select count(*) from car_info
+          select count(*) from car_info where state = 'S000'
     </select>
 
     <!--根据组织id查询归属车辆信息-->
@@ -382,9 +382,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         where car_id = #{carId}
         <![CDATA[ AND SYSDATE() <= IFNULL(rent_end_date,SYSDATE())
-                  AND SYSDATE() <= IFNULL(borrow_end_date,SYSDATE()
+                  AND SYSDATE() <= IFNULL(borrow_end_date,SYSDATE())
                   AND SYSDATE() <= IFNULL(driving_license_end_date,SYSDATE())
-                  AND state != 'S444') ]]>
+                  AND state != 'S444' ]]>
     </update>
 
 </mapper>

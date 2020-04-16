@@ -6,9 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
-import com.hq.ecmp.mscore.domain.RegimeQueryPo;
-import com.hq.ecmp.mscore.domain.RegimeVo;
-import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.SceneDTO;
 import com.hq.ecmp.mscore.dto.SceneSortDTO;
@@ -17,7 +15,6 @@ import com.hq.ecmp.mscore.service.ISceneRegimeRelationService;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.SceneDetailVO;
 import com.hq.ecmp.mscore.vo.SceneListVO;
-import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +27,6 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.ms.api.dto.base.UserDto;
-import com.hq.ecmp.mscore.domain.SceneInfo;
 import com.hq.ecmp.mscore.service.ISceneInfoService;
 
 import io.swagger.annotations.ApiOperation;
@@ -231,8 +226,10 @@ public class SceneController {
 	@ApiOperation(value = "scenarioSelectionSystem", notes = "场景可选制度", httpMethod = "POST")
 	@PostMapping("/scenarioSelectionSystem")
 	public ApiResponse<List<RegimeVo>> queryRegimeList(@RequestBody RegimeQueryPo regimeQueryPo) {
+		RegimeQueryPo regimeQuery= new RegimeQueryPo();
+		regimeQuery.setSceneId(regimeQueryPo.getSceneId());
 		//所有用车制度
-		List<RegimeVo> regimeVoList = regimeInfoService.queryRegimeList(regimeQueryPo);
+		List<RegimeVo> regimeVoList = regimeInfoService.queryRegimeList(new RegimeQueryPo());
 		//场景制度中已经用过的制度
 		List<SceneRegimeRelation>  sceneRegimeRelation= sceneRegimeRelationService.selectSceneRegimeRelationList(new SceneRegimeRelation());
 		//选出可以使用的制度
@@ -242,6 +239,17 @@ public class SceneController {
 					regimeVoList.remove(i);
 					i --;
 					break;
+				}
+			}
+		}
+		//如果传了sceneId  则是返回增加时候的放进来的制度数据
+		if(regimeQueryPo.getSceneId()!=null){
+			//根据sceneId查询对应的制度id集合
+			List<RegimeVo> regimeVo= regimeInfoService.queryRegimeList(regimeQuery);
+			//把增加的制度数据放进去regimeVoList中
+			if(!regimeVo.isEmpty()){
+				for(RegimeVo regime:regimeVo){
+					regimeVoList.add(regime);
 				}
 			}
 		}

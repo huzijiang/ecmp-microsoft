@@ -273,6 +273,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			for (DriverCarRelationInfo d : selectDriverCarRelationInfoList) {
 				carId.add(d.getCarId());
 			}
+			queryDriverDetail.setOwnCarCount(selectDriverCarRelationInfoList.size());
 		}
 		queryDriverDetail.setCarId(carId);
 		return queryDriverDetail;
@@ -298,8 +299,11 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * @param
      */
     @Override
-    public List<DriverCanUseCarsDTO> getDriverCanCar(Long driverId){
-        return driverInfoMapper.getDriverCanCar(driverId);
+	public PageResult<DriverCanUseCarsDTO> getDriverCanCar(Integer pageNum, Integer pageSize,Long driverId,String state,String search){
+		PageHelper.startPage(pageNum,pageSize);
+		List<DriverCanUseCarsDTO> driverCanUseCarsVo= driverInfoMapper.getDriverCanCar(driverId,state,search);
+		PageInfo<DriverCanUseCarsDTO> info = new PageInfo<>(driverCanUseCarsVo);
+        return new PageResult<>(info.getTotal(),info.getPages(),driverCanUseCarsVo);
     }
     /**
      *驾驶员失效列表,离职列表
@@ -325,14 +329,19 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * 已失效驾驶员进行删除
      */
     @Override
-    public int deleteDriver(Long driverId){
-
+    public int deleteDriver(Long driverId)throws Exception {
+		DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+		driverCarRelationInfo.setDriverId(driverId);
+		List<DriverCarRelationInfo> driverCarRelationInfos = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo);
+		int size = driverCarRelationInfos.size();
+		if(size != 0){
+			throw new Exception("请先删除该驾驶员下的所有车辆，再尝试删除");
+		}
 		int i=driverInfoMapper.deleteDriver(driverId);
 		if(i!=0){
 			driverCarRelationInfoService.deleteCarByDriverId(driverId);
 			carGroupDriverRelationService.deleteCarGroupDriverRelationById(driverId);
 		}
-
     	return i;
     }
 
@@ -390,6 +399,15 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		carGroupDriverInfo.setDriverList(list);
 		//查询车队对应的部门和公司
 		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+		List<String> carGroupName = new ArrayList<>();
+		if(carGroupInfo.getParentCarGroupId()==0L){
+			carGroupName.add(carGroupInfo.getCarGroupName());
+		}else{
+			CarGroupInfo pCarGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupInfo.getParentCarGroupId());
+			carGroupName.add(pCarGroupInfo.getCarGroupName());
+			carGroupName.add(carGroupInfo.getCarGroupName());
+		}
+		carGroupDriverInfo.setCarGroupName(carGroupName);
 		if(null !=carGroupInfo){
 			Long ownerCompany = carGroupInfo.getOwnerCompany();
 			if(null !=ownerCompany){

@@ -312,7 +312,7 @@ WHERE
     </select>
 
     <select id="queryCompanyDriver"  resultType="java.lang.Integer">
-          select count(*) from driver_info
+          select count(*) from driver_info where state='V000'or state='W001'
     </select>
 
     <!--根据deptId查询归属驾驶员数量-->
@@ -338,8 +338,8 @@ WHERE
         update driver_info  set lock_state = '1111' where driver_id = #{driverId}
     </update>
 
-    <select id="getDriverCanCar" parameterType="long" resultType="com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO">
-        select a.car_type as carType,a.car_license as carLicense,
+    <select id="getDriverCanCar" resultType="com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO">
+        select  a.car_id as carId,a.car_type as carType,a.car_license as carLicense,
         case a.power_type
         when 'P001' then '汽油'
         when 'P002' then '柴油'
@@ -362,7 +362,13 @@ WHERE
         from car_info a
         left join ecmp_org b on b.dept_id = a.dept_id
         left join car_group_info c on c.car_group_id = a.car_group_id
-
+        where a.car_id in (select d.car_id from driver_car_relation_info d where d.driver_id=#{driverId})
+        <if test="state != null and state != ''" >
+            and a.state = #{state}
+        </if>
+        <if test="search != null and search != '' ">
+            and a.car_license like concat('%', #{search}, '%')
+        </if>
     </select>
     <select id="getDriverLoseList" resultType="com.hq.ecmp.mscore.dto.DriverLoseDTO">
         select a.driver_id as driverId,a.user_id as userId,a.driver_name as driverName,a.mobile as mobile,e.dept_name as deptName,c.car_group_name as carGroupName,

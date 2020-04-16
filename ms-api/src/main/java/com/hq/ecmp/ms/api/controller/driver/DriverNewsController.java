@@ -44,21 +44,16 @@ public class DriverNewsController {
 
     /**
      *驾驶员可用车辆列表
-     * @param driverDTO
+     * @param pageRequest
      * @return
      */
     @Log(title = "驾驶员管理模块:查询驾驶员可用车辆列表", businessType = BusinessType.OTHER)
     @ApiOperation(value="getDriverCanUseCarsList" ,notes="查询驾驶员可用车辆列表", httpMethod = "POST")
     @PostMapping("/getDriverCanUseCarsList")
     public ApiResponse<PageResult<DriverCanUseCarsDTO>> getDriverCanUseCarsList(@RequestBody PageRequest pageRequest){
-        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
-        List<DriverCanUseCarsDTO>  driverCanUseCarsList = iDriverInfoService.getDriverCanCar(Long.valueOf(pageRequest.getSearch()));
-        PageInfo info = new PageInfo<>(driverCanUseCarsList);
-        if(CollectionUtils.isNotEmpty(driverCanUseCarsList)){
-            return ApiResponse.success(new PageResult<>(info.getTotal(),info.getPages(),driverCanUseCarsList));
-        }else {
-            return ApiResponse.error("未查询到驾驶员可用车辆");
-        }
+        PageResult<DriverCanUseCarsDTO>  driverCanUseCarsList = iDriverInfoService.getDriverCanCar(pageRequest.getPageNum(),
+                pageRequest.getPageSize(),pageRequest.getDriverId(),pageRequest.getState(),pageRequest.getSearch());
+        return ApiResponse.success(driverCanUseCarsList);
     }
     /**
      *驾驶员失效列表
@@ -97,7 +92,7 @@ public class DriverNewsController {
     @Log(title = "驾驶员管理模块:删除驾驶员", businessType = BusinessType.DELETE)
     @ApiOperation(value="getDriverDelete" ,notes="删除驾驶员", httpMethod = "POST")
     @PostMapping("/getDriverDelete")
-    public ApiResponse  getDriverDelete(@RequestBody DriverNewDTO driverDTO){
+    public ApiResponse  getDriverDelete(@RequestBody DriverNewDTO driverDTO) throws Exception {
         int deleteDriver = iDriverInfoService.deleteDriver(driverDTO.getDriverId());
         if(deleteDriver !=0){
             return ApiResponse.success("删除已失效驾驶员成功");

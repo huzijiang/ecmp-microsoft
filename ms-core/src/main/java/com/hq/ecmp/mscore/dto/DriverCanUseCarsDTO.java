@@ -12,6 +12,9 @@ import lombok.Data;
 @ApiModel("驾驶员可用车辆模型")
 public class DriverCanUseCarsDTO {
 
+    @ApiModelProperty(value = "车辆Id")
+    private  Long  carId;
+
     @ApiModelProperty(value = "品牌")
     private  String  carType;
 
