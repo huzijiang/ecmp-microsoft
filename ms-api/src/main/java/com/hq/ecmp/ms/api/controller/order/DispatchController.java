@@ -60,7 +60,7 @@ public class DispatchController {
     private TokenService tokenService;
 
 
-    @Log(title = "车辆调度:获取申请调度列表", businessType = BusinessType.OTHER)
+    
     @ApiOperation(value = "getApplyDispatchList", notes = "获取申请调度列表 ", httpMethod = "POST")
     @PostMapping("/getApplyDispatchList")
     public ApiResponse<PageResult<ApplyDispatchVo>> getUserDispatchedOrder(@RequestBody ApplyDispatchQuery query){
@@ -85,7 +85,7 @@ public class DispatchController {
     	return ApiResponse.success(iOrderInfoService.getDispatchSendCarPageInfo(orderId));
     }
 
-    @Log(title = "车辆调度:获取改派列表", businessType = BusinessType.OTHER)
+    
     @ApiOperation(value = "getReassignmentDispatchList", notes = "获取改派列表 ", httpMethod = "POST")
     @PostMapping("/getReassignmentDispatchList")
     public ApiResponse<PageResult<ApplyDispatchVo>> getReassignmentDispatchList(@RequestBody ApplyDispatchQuery query){

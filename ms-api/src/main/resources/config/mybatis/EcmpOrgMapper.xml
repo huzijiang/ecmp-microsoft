@@ -528,4 +528,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             where dept_name = #{name} and dept_id!=#{id}
         </if>
     </select>
+    <select id="selectNewCompanyCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
+        select  dept_id as deptId,
+        dept_name as deptName,
+        dept_type as deptType
+        from ecmp_org
+        where
+        <if test="deptId != null ">
+            dept_id= #{deptId}
+        </if>
+        <if test="parentId != null ">
+            parent_id = #{parentId}
+        </if>
+        and  dept_type = '1'
+    </select>
 </mapper>

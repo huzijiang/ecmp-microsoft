@@ -55,9 +55,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         order by nc.publish_time desc
     </select>
 
-    <select id="selectNewEcmpNotice" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" resultMap="EcmpNoticeResult">
-        <include refid="selectEcmpNoticeVo"/>
-        limit 1
+    <select id="selectNewEcmpNotice" parameterType="map" resultMap="EcmpNoticeResult">
+        select nc.notice_id, notice_title, notice_type, notice_content, nc.status,
+        nc.publish_time,nc.end_time,
+        nc.create_by, nc.create_time, nc.update_by, nc.update_time, nc.remark
+        from ecmp_notice nc
+        left join ecmp_notice_mapping enm on nc.notice_id = enm.notice_id
+        <where>
+            now( ) between publish_time and end_time
+            and nc.notice_type = #{noticeType} AND nc.status=1
+            and (
+            <foreach collection="busIdList" open="" close="" index="index" item="item" separator="or">
+                (enm.buc_id in (#{item.bucId}) and enm.config_type = #{item.configType})
+            </foreach>
+            )
+        </where>
+        order by nc.publish_time desc  limit 1
     </select>
 
     <select id="selectEcmpNoticeById" parameterType="Integer" resultMap="EcmpNoticeResult">
