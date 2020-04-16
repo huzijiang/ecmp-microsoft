@@ -403,7 +403,7 @@ public class ApplyContoller {
             throw new Exception("行程申请单不存在!");
         }
         if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo1.getApplyType())){
-            if (journeyInfo.getUseCarTime().getTime()<new Date().getTime()){//申请单已过期
+            if (journeyInfo.getUseCarTime().getTime()<System.currentTimeMillis()){//申请单已过期
                 applyInfoService.updateApplyState(journeyApplyDto.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),userId);
                 throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
             }

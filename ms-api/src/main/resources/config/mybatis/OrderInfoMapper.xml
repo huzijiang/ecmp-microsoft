@@ -209,7 +209,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             IFNULL(oai.address,jni.plan_begin_address) setOutAddress,
             IFNULL(oai2.address,jni.plan_end_address) arriveAddress,
             o.order_number orderNumber,
-            (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState
+            (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
             from order_info o
             left join journey_info jn on o.journey_id=jn.journey_id
             left join journey_node_info jni on  jni.node_id=o.node_id
@@ -269,7 +269,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                     s.action_time useCarTime,
                     s.address startAddr,
                     t.address endAddr,
-                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState
+                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
                 inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
@@ -307,7 +307,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              c.car_color carColor,
              c.car_type carType,
              jn.user_id userId,
-             (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState,
+             (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState,
              (select group_concat(short_address) from order_via_info f where f.order_id=o.order_id) halfway,
              (select count(*) from journey_passenger_info where journey_id=o.journey_id) peopleCount
             from order_info o
@@ -330,7 +330,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 					 s.action_time useCarTime,
 					 s.address startAddr,
                      t.address endAddr,
-                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState
+                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
                 inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'

@@ -110,7 +110,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectHolidaysByMonth" resultType="String">
         select DATE_FORMAT(caledar_date,'%Y-%m-%d')
         from driver_work_info
-        where leave_status = 'X000' or leave_status = 'X002' or leave_status = 'X003' and driver_id = #{driverId}
+        where leave_status != 'X999' and driver_id = #{driverId}
         <if test="scheduleDate != null and scheduleDate != ''">and DATE_FORMAT(caledar_date,'%Y-%m') = #{scheduleDate}</if>
     </select>
     <select id="selectDriverAlreadyDutyDays" resultType="int">

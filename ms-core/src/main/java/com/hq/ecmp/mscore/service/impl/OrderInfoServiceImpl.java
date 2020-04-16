@@ -2064,7 +2064,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         if(OrderState.ALREADYSENDING.getState().equals(status)||OrderState.REASSIGNPASS.getState().equals(status)){
             if(driverCloudDto!=null){
-                newOrderInfo.setDriverName(driverCloudDto.getDriverName());
+                newOrderInfo.setDriverName(driverCloudDto.getName());
                 newOrderInfo.setDriverMobile(driverCloudDto.getPhone());
                 newOrderInfo.setDriverGrade(driverCloudDto.getDriverRate());
                 newOrderInfo.setCarLicense(driverCloudDto.getLicensePlates());

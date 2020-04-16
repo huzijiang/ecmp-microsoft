@@ -495,7 +495,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from ecmp_org
         where parent_id = #{deptId} and dept_type = '1'
     </select>
-    <select id="selectCompanyCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CompanyCarGroupTreeVO" parameterType="long">
+    <select id="selectCompanyCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CompanyCarGroupTreeVO" >
         select  dept_id as deptId,
                 dept_name as deptName,
                 dept_type as deptType,
@@ -503,7 +503,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 parent_id as parentId,
                 leader
         from ecmp_org
-        where parent_id = #{parentId} and  dept_type = '1'
+        where
+        <if test="deptId != null ">
+             dept_id= #{deptId}
+        </if>
+        <if test="parentId != null ">
+            parent_id = #{parentId}
+        </if>
+         and  dept_type = '1'
     </select>
 
     <select id="selectUserByLeader" resultType="com.hq.ecmp.mscore.vo.UserVO">
