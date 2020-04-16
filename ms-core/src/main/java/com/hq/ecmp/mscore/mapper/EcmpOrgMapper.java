@@ -258,10 +258,24 @@ public interface EcmpOrgMapper {
     //查询公司树
     List<CompanyTreeVO> selectCompanyTree(Long deptId);
 
-    //公司车队树
+
+    /**
+     * 公司车队树
+     * @param deptId
+     * @param parentId
+     * @return
+     */
     List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(@Param("deptId")Long deptId,@Param("parentId") Long parentId);
 
     List<UserVO> selectUserByLeader(@Param("leader") String leader);
 
     public int isRepart(@Param("name")String name,@Param("type")int type,@Param("id")Long id);
+
+    /**
+     * 公司车队树升级版 查询
+     * @param deptId
+     * @param parentId
+     * @return
+     */
+    List<CarGroupTreeVO> selectNewCompanyCarGroupTree(@Param("deptId")Long deptId,@Param("parentId") Long parentId);
 }
