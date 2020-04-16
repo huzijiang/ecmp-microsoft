@@ -62,4 +62,7 @@ public class InvitationDriverVO {
     @ApiModelProperty(name = "carGroupId", value = "车队ID")
     private Long carGroupId;
 
+    @ApiModelProperty(name = "url", value = "url链接")
+    private String url;
+
 }

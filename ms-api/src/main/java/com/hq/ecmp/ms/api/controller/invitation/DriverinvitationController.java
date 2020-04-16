@@ -189,15 +189,9 @@ public class DriverinvitationController {
     @Log(title = "邀请驾驶员模块:驾驶员邀请列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getInvitationDriverList",notes = "驾驶员邀请列表",httpMethod = "POST")
     @PostMapping("/getInvitationDriverList")
-    public ApiResponse<List<InvitationDriverVO>> getInvitationDriverList(@RequestBody InvitationInfoDTO invitationInfoDTO){
-
-        List<InvitationDriverVO> invitationDriverVOList = ecmpEnterpriseInvitationInfoService.queryInvitationDriver(invitationInfoDTO);
-
-        if(CollectionUtils.isNotEmpty(invitationDriverVOList)){
-            return ApiResponse.success(invitationDriverVOList);
-        }else {
-            return ApiResponse.error("未查询到驾驶员邀请列表");
-        }
+    public ApiResponse<PageResult<InvitationDriverVO>> getInvitationDriverList(@RequestBody PageRequest PageRequest){
+        PageResult<InvitationDriverVO> invitationDriverVOList = ecmpEnterpriseInvitationInfoService.queryInvitationDriver(PageRequest);
+        return ApiResponse.success(invitationDriverVOList);
     }
     /**
     * 获取邀请详情-驾驶员
