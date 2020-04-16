@@ -1757,6 +1757,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                         for (EcmpUser user:userList){
                             ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO(resultInfo.getApproveNodeId(), user.getNickName(), user.getPhonenumber(), ApproveStateEnum.format(appresult), ApproveStateEnum.format(state));
                             approvalInfoVO.setContent(resultInfo.getContent());
+                            approvalInfoVO.setUserId(user.getUserId());
                             list.add(approvalInfoVO);
                         }
                     }

@@ -179,15 +179,15 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
         List<RegimeInfo> regimeInfos = regimeInfoMapper.selectRegimeInfoList(new RegimeInfo(templateId));
         vo.setIsBingRegime(regimeInfos.size());
         List<ApproveTemplateNodeInfo> approveTemplateInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(templateId));
-        SortListUtil.sort(approveTemplateInfos,"approveNodeId",SortListUtil.DESC);
+        SortListUtil.sort(approveTemplateInfos,"approveNodeId",SortListUtil.ASC);
         List<ApprovaTemplateNodeVO> list=new ArrayList();
         if(CollectionUtils.isNotEmpty(approveTemplateInfos)){
             for (int i=0;i<approveTemplateInfos.size();i++){
                 ApprovaTemplateNodeVO nodeVO=new ApprovaTemplateNodeVO();
-                BeanUtils.copyProperties(approveTemplateInfos.get(0),nodeVO);
-                nodeVO.setType(approveTemplateInfos.get(0).getApproverType());
+                BeanUtils.copyProperties(approveTemplateInfos.get(i),nodeVO);
+                nodeVO.setType(approveTemplateInfos.get(i).getApproverType());
                 nodeVO.setNumber(i);
-                nodeVO.setName(ApproveTypeEnum.format(approveTemplateInfos.get(0).getApproverType()).getDesc());
+                nodeVO.setName(ApproveTypeEnum.format(approveTemplateInfos.get(i).getApproverType()).getDesc());
                 list.add(nodeVO);
             }
         }
