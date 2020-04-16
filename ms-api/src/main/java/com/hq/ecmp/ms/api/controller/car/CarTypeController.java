@@ -128,7 +128,7 @@ public class CarTypeController {
      * @return
      */
     @Log(title = "车型管理:车型排序", businessType = BusinessType.OTHER)
-    @ApiOperation(value = "sortCarType",notes = "查询车型列表")
+    @ApiOperation(value = "sortCarType",notes = "车型排序")
     @PostMapping("/sortCarType")
     public ApiResponse sortCarType(@RequestBody CarTypeSortDTO carTypeSortDTO){
         try {
