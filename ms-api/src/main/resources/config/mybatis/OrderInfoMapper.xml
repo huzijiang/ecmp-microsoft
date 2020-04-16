@@ -690,9 +690,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
-		<!--  <if test="offset != null and pageSize != null">
-			LIMIT #{offset},#{pageSize}
-		</if>  -->
 	</select>
 
    <select id="queryApplyDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="java.lang.Integer">
@@ -770,9 +767,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
-		<!--  <if test="offset != null and pageSize != null">
-			LIMIT #{offset},#{pageSize}
-		</if>  -->
 	</select>
 
 	<select id="queryReassignmentDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
@@ -910,6 +904,13 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join order_address_info oai on oi.order_id=oai.order_id and oai.type='A000'
         where oai.action_time &lt; now()
         and oi.state in('S000','S100','S101','S200');
+    </select>
+
+    <select id="queryLatestOrderByPowerId" parameterType="java.lang.Long" resultType="string">
+       select
+      (select os.state from order_state_trace_info os where os.order_id=s.order_id order by os.trace_id desc limit 1)	state
+      from order_info s
+      where s.power_id=#{powerId} order by s.order_id desc limit 0,1
     </select>
 
 

@@ -113,8 +113,12 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
     /**
      * 邀请列表-驾驶员
      */
-    public List<InvitationDriverVO> queryInvitationDriver(InvitationInfoDTO invitationInfoDTO){
-        return ecmpEnterpriseInvitationInfoMapper.queryInvitationDriver(invitationInfoDTO.getType());
+    public PageResult<InvitationDriverVO> queryInvitationDriver(PageRequest PageRequest){
+        PageHelper.startPage(PageRequest.getPageNum(),PageRequest.getPageSize());
+        List<InvitationDriverVO> invitationDriverVOS = ecmpEnterpriseInvitationInfoMapper.queryInvitationDriver(PageRequest.getType());
+        System.out.println("返回邀请链接实体VO："+invitationDriverVOS);
+        Long count=ecmpEnterpriseInvitationInfoMapper.queryInvitationUserCount(PageRequest.getType());
+        return new PageResult<>(count,invitationDriverVOS);
     }
 
     /**

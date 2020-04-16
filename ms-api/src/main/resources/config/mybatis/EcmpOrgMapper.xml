@@ -414,6 +414,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from ecmp_org
         where del_flag = 0
         and parent_id=#{deptId})
+        and dept_type ='2'
     </select>
 
     <!-- 按照分子公司名称或编号模糊查询匹配的组织id -->
@@ -526,5 +527,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="type==0">
             where dept_name = #{name} and dept_id!=#{id}
         </if>
+    </select>
+    <select id="selectNewCompanyCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
+        select  dept_id as deptId,
+        dept_name as deptName,
+        dept_type as deptType
+        from ecmp_org
+        where
+        <if test="deptId != null ">
+            dept_id= #{deptId}
+        </if>
+        <if test="parentId != null ">
+            parent_id = #{parentId}
+        </if>
+        and  dept_type = '1'
     </select>
 </mapper>
