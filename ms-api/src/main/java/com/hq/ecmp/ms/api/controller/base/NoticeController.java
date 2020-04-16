@@ -161,8 +161,34 @@ public class NoticeController {
     @ApiOperation(value = "getExpirationDateNewNotice",notes = "获取有效期内的最新公告",httpMethod ="POST")
     @PostMapping("/getExpirationDateNewNotice")
     public ApiResponse getExpirationDateNewNotice(){
-        Long userId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId();
-        EcmpNotice ecmpNotice = iEcmpNoticeService.selectExpirationDateNewNotice(userId);
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        SysUser sysUser= loginUser.getUser();
+        long userId = sysUser.getUserId();
+        long deptId = sysUser.getDeptId();
+        List<SysRole> roles =sysUser.getRoles();
+        String  role = "";
+        for (SysRole sysRole :roles){
+            role += sysRole.getRoleId().toString()+",";
+        }
+        role =role.substring(0,role.length()-1);
+        List<Map < String, Object>> list = new ArrayList();
+        Map allNoticeMap = new HashMap<>();
+        allNoticeMap.put("configType","1");
+        //如果为所有人可见公告，默认为1
+        allNoticeMap.put("bucId","1");
+        list.add(allNoticeMap);
+        Map userMap = new HashMap<>();
+        userMap.put("configType","2");
+        userMap.put("bucId",role);
+        list.add(userMap);
+        Map deptMap = new HashMap();
+        deptMap.put("configType","3");
+        deptMap.put("bucId",deptId);
+        list.add(deptMap);
+        Map parm  = new HashMap();
+        parm.put("noticeType",2);
+        parm.put("busIdList",list);
+        EcmpNotice ecmpNotice = iEcmpNoticeService.selectExpirationDateNewNotice(parm);
         return ApiResponse.success(ecmpNotice);
     }
 

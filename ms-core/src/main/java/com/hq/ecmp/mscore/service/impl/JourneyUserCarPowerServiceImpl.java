@@ -444,6 +444,15 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				 }
 			} else {
 				//订单未取消 已完成
+				//如果是市内用车，变为去申请或者去约车，否则变为已完成
+				JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(powerId);
+				if(journeyUserCarPower.getType().equals(CarConstant.CITY_USE_CAR)){
+					if(flag){
+						return OrderState.GETARIDE.getState();
+					}else{
+						return OrderState.INITIALIZING.getState();
+					}
+				}
 				return OrderState.STOPSERVICE.getState();
 			}
 		}
@@ -566,18 +575,49 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		return false;
 	}
 
+	/**
+	 * 判断行程是否展示 1.行程对应的每个权限都是使用或者过期则不展示
+	 * 					2.或者是最后一个行程节点已经被使用则行程不展示
+	 * @param journeyId
+	 * @return
+	 */
 	@Override
 	public boolean checkJourneyNoteAllComplete(Long journeyId) {
-		List<String> AllState = orderInfoMapper.queryAllOrderStatusByJourneyId(journeyId);
-		//如果行程下的所有订单都是已完成了 则该行程已完成
-		if(null !=AllState && AllState.size()>0){
-			for (String str : AllState) {
-				if(!OrderState.ORDERCLOSE.getState().equals(str)){
-					return false;
+		//所有权限挨个做判断，都符合则首页行程不展示
+    	JourneyUserCarPower journeyUserCarPower = new JourneyUserCarPower();
+    	journeyUserCarPower.setJourneyId(journeyId);
+		List<JourneyUserCarPower> journeyUserCarPowers = journeyUserCarPowerMapper.selectJourneyUserCarPowerList(journeyUserCarPower);
+		if(journeyUserCarPowers.size() > 0){
+			int flag = 0;
+			for (JourneyUserCarPower journeyUserCarPowerCh:
+			journeyUserCarPowers) {
+				if(checkPowerOverTime(journeyUserCarPowerCh.getPowerId())){
+						flag = flag+1;
+				}else{
+					String state = orderInfoMapper.queryLatestOrderByPowerId(journeyUserCarPowerCh.getPowerId());
+					if(state != null){
+						//判断订单是否已经完结(订单超时或者订单完成)
+						if(state.equals(OrderState.ORDERCLOSE.getState()) || state.equals(OrderState.ORDEROVERTIME.getState())
+								|| state.equals(OrderState.DISSENT.getState())){
+							flag = flag +1;
+						}
+					}
 				}
+			}
+			if(flag == journeyUserCarPowers.size()){
 				return true;
 			}
 		}
+		//最后一个用车权限被使用则直接取消首页此行程的展示
+		JourneyUserCarPower lastPowerByJourneyId = journeyUserCarPowerMapper.getLastPowerByJourneyId(journeyId);
+		String state = orderInfoMapper.queryLatestOrderByPowerId(lastPowerByJourneyId.getPowerId());
+		if(state != null){
+			if(state.equals(OrderState.ORDERCLOSE.getState()) || state.equals(OrderState.ORDEROVERTIME.getState())
+					|| state.equals(OrderState.DISSENT.getState())){
+				return true;
+			}
+		}
+
 		return false;
 	}
 

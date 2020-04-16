@@ -299,8 +299,11 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * @param
      */
     @Override
-    public List<DriverCanUseCarsDTO> getDriverCanCar(Long driverId){
-        return driverInfoMapper.getDriverCanCar(driverId);
+	public PageResult<DriverCanUseCarsDTO> getDriverCanCar(Integer pageNum, Integer pageSize,Long driverId,String state,String search){
+		PageHelper.startPage(pageNum,pageSize);
+		List<DriverCanUseCarsDTO> driverCanUseCarsVo= driverInfoMapper.getDriverCanCar(driverId,state,search);
+		PageInfo<DriverCanUseCarsDTO> info = new PageInfo<>(driverCanUseCarsVo);
+        return new PageResult<>(info.getTotal(),info.getPages(),driverCanUseCarsVo);
     }
     /**
      *驾驶员失效列表,离职列表
@@ -326,14 +329,19 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * 已失效驾驶员进行删除
      */
     @Override
-    public int deleteDriver(Long driverId){
-
+    public int deleteDriver(Long driverId)throws Exception {
+		DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+		driverCarRelationInfo.setDriverId(driverId);
+		List<DriverCarRelationInfo> driverCarRelationInfos = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo);
+		int size = driverCarRelationInfos.size();
+		if(size != 0){
+			throw new Exception("请先删除该驾驶员下的所有车辆，再尝试删除");
+		}
 		int i=driverInfoMapper.deleteDriver(driverId);
 		if(i!=0){
 			driverCarRelationInfoService.deleteCarByDriverId(driverId);
 			carGroupDriverRelationService.deleteCarGroupDriverRelationById(driverId);
 		}
-
     	return i;
     }
 

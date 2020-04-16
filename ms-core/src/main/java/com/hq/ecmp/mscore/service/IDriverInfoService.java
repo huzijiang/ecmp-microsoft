@@ -92,7 +92,7 @@ public interface IDriverInfoService
      *驾驶员可用车辆列表
      * @param
      */
-    public List<DriverCanUseCarsDTO> getDriverCanCar(Long driverId);
+    public PageResult<DriverCanUseCarsDTO> getDriverCanCar(Integer pageNum, Integer pageSize,Long driverId,String state,String search);
     /**
      *驾驶员失效列表,离职列表
      * @param
@@ -105,7 +105,7 @@ public interface IDriverInfoService
     /**
      * 已失效驾驶员进行删除
      */
-    public int deleteDriver(Long driverId);
+    public int deleteDriver(Long driverId) throws Exception;
 
 
     /**
