@@ -83,7 +83,7 @@ public interface IEcmpNoticeService
      * @param userId
      * @return
      */
-    EcmpNotice selectExpirationDateNewNotice(Long userId);
+    EcmpNotice selectExpirationDateNewNotice(Map map);
 
     /**
      * 分页全部查询公告列表（带搜索功能）
