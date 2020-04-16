@@ -125,7 +125,7 @@ public interface IEcmpUserService {
      * @param userId 员工编号
      * @return 结果
      */
-    public int updateDelFlagById(Long userId);
+    public String updateDelFlagById(Long userId);
 
     /**
      * 查询员工列表
@@ -152,7 +152,7 @@ public interface IEcmpUserService {
    @param  userId员工编号
     * @return
    * */
-    public EcmpUserDto selectEcmpUserDetail(Long userId);
+    public EcmpUserDto selectEcmpUserDetail(Long userId,Long deptId);
 
     /*设置离职日期
     @param  dimissionTime

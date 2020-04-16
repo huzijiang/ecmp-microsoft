@@ -81,12 +81,8 @@ public class EcmpUserController {
         if(userId==null){
             return ApiResponse.error("员工id不能为空！");
         }
-        int  i= ecmpUserService.updateDelFlagById(userId);
-        if(i==1){
-            return ApiResponse.success("删除员工成功");
-        }else {
-            return ApiResponse.error(1,"删除员工失败",null);
-        }
+        String msg= ecmpUserService.updateDelFlagById(userId);
+        return ApiResponse.error(msg);
     }
 
     /**
@@ -158,7 +154,11 @@ public class EcmpUserController {
         if(userId==null){
             return ApiResponse.error(1,"员工id不能为空！",null);
         }
-        EcmpUserDto EcmpUserDto = ecmpUserService.selectEcmpUserDetail(userId);
+        Long deptId=ecmpUser.getDeptId();
+        if(deptId==null){
+            return ApiResponse.error(1,"员工组织id不能为空！",null);
+        }
+        EcmpUserDto EcmpUserDto = ecmpUserService.selectEcmpUserDetail(userId,deptId);
         return ApiResponse.success(EcmpUserDto);
     }
 
