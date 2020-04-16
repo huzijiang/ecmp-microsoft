@@ -77,7 +77,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where
         t.project_id=#{projectId}
         <if test="search!=null">
-            and (a.nick_name like concat('%', #{search}, '%') or a.phonenumber=#{search} or a.job_number=#{search} )
+            and (a.nick_name like concat('%', #{search}, '%') or a.phonenumber like concat('%', #{search}, '%') or a.job_number like concat('%', #{search}, '%') )
         </if>
     </select>
     <select id="getProjectUserListCount" parameterType="Object" resultType="Long">
@@ -85,7 +85,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         LEFT join ecmp_user a on a.user_id=t.user_id
         where t.project_id=#{projectId}
         <if test="search!=null">
-            and (a.nick_name like concat('%', #{search}, '%') or a.phonenumber=#{search} or a.job_number=#{search} )
+            and (a.nick_name like concat('%', #{search}, '%') or a.phonenumber like concat('%', #{search}, '%') or a.job_number like concat('%', #{search}, '%') )
         </if>
     </select>
 
