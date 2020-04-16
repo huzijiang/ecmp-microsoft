@@ -8,6 +8,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
+import java.util.List;
+
 /**
  * 通知公告对象 ecmp_notice
  *
@@ -51,6 +53,10 @@ public class EcmpNotice extends BaseEntity
     /** 发布对象*/
     @Excel(name = "结束时间")
     private String configType;
+
+    /**多条对应的公告id*/
+    @Excel(name = "多条对应的公告id")
+    private List<Long> bucIds;
 
 
     public void setNoticeId(Integer noticeId)
@@ -113,6 +119,7 @@ public class EcmpNotice extends BaseEntity
             .append("updateTime", getUpdateTime())
             .append("remark", getRemark())
             .append("configType", getConfigType())
+            .append("bucIds", getBucIds())
             .toString();
     }
 
@@ -140,5 +147,13 @@ public class EcmpNotice extends BaseEntity
 
     public void setConfigType(String configType) {
         this.configType = configType;
+    }
+
+    public List<Long> getBucIds() {
+        return bucIds;
+    }
+
+    public void setBucIds(List<Long> bucIds) {
+        this.bucIds = bucIds;
     }
 }

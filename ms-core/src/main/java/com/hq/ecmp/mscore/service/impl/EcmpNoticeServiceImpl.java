@@ -11,8 +11,8 @@ import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.mapper.EcmpNoticeMapper;
+import com.hq.ecmp.mscore.mapper.EcmpNoticeMappingMapper;
 import com.hq.ecmp.mscore.service.IEcmpNoticeService;
-import com.hq.ecmp.mscore.vo.CarGroupListVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +29,9 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
 {
     @Autowired
     private EcmpNoticeMapper ecmpNoticeMapper;
+
+    @Autowired
+    private EcmpNoticeMappingMapper ecmpNoticeMappingMapper;
 
     /**
      * 查询通知公告
@@ -143,6 +146,10 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
     public PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize) {
             PageHelper.startPage(pageNum,pageSize);
             List<EcmpNotice> list =  ecmpNoticeMapper.selectNoticeSearchList();
+            for(EcmpNotice ecmpNotice: list){
+                List<Long> bucIds = ecmpNoticeMappingMapper.selectNoticeId(ecmpNotice.getNoticeId());
+                ecmpNotice.setBucIds(bucIds);
+            }
             PageInfo<EcmpNotice> info = new PageInfo<>(list);
             return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
