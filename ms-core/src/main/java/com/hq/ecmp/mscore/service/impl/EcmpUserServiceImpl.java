@@ -621,10 +621,10 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     }
 
 	@Override
-	public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId, String name) {
+	public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId, String name,String itIsDispatcher) {
 		List<Long> deptIds = ecmpOrgService.queryDeptIdOfCompany(companyId);
 		if(null !=ecmpUserMapper && deptIds.size()>0){
-			List<EcmpUserDto> queryUserListByDeptIdsAndName = ecmpUserMapper.queryUserListByDeptIdsAndName(deptIds, name);
+			List<EcmpUserDto> queryUserListByDeptIdsAndName = ecmpUserMapper.queryUserListByDeptIdsAndName(deptIds, name,itIsDispatcher);
 			return queryUserListByDeptIdsAndName;
 		}
 		return null;

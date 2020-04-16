@@ -362,7 +362,7 @@ public interface EcmpUserMapper
      */
     int updatePhoneByUserId(@Param("newPhoneNum") String newPhoneNum,@Param("userId") Long userId);
 
-    List<EcmpUserDto> queryUserListByDeptIdsAndName(@Param("deptIds")List<Long> deptIds, @Param("name")String name);
+    List<EcmpUserDto> queryUserListByDeptIdsAndName(@Param("deptIds")List<Long> deptIds, @Param("name")String name,@Param("itIsDispatcher")String itIsDispatcher);
     
     public int updateEcmpUserjobNumber(EcmpUser ecmpUser);
 }
