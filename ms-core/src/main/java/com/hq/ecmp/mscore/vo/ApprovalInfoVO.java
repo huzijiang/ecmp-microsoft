@@ -27,6 +27,7 @@ public class ApprovalInfoVO {
      * 审批人姓名
      */
     private String approval;
+    private Long userId;
     /**
      * 审批人电话
      */
