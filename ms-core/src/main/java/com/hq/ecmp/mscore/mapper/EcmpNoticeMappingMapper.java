@@ -74,4 +74,11 @@ public interface EcmpNoticeMappingMapper {
      * @param noticeId
      */
     void deleteByNoticeId(@Param("noticeId") Integer noticeId);
+
+    /**
+     * 通过公告id查询所对应的角色部门
+     * @param noticeId
+     * @return
+     */
+    List<Long> selectNoticeId(@Param("noticeId")Integer noticeId);
 }

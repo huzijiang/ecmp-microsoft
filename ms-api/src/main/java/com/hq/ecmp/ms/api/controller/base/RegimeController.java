@@ -51,6 +51,7 @@ public class RegimeController {
      * @param userDto userDto
      * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
      */
+    @Log(title = "用车制度:查询登录用户的用车制度", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getUserRegimes",notes = "根据用户信息查询用户的用车制度信息",httpMethod ="POST")
     @PostMapping("/getUserRegimes")
     public ApiResponse<List<RegimenVO>> getUserRegimes(@RequestBody(required = false)UserDto userDto){
@@ -76,6 +77,7 @@ public class RegimeController {
      * @param
      * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
      */
+    @Log(title = "用车制度:根据场景id查询制度集合", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getRegimesBySceneId",notes = "根据用车场景查询用车制度",httpMethod ="POST")
     @PostMapping("/getRegimesBySceneId")
     public ApiResponse<List<RegimenVO>> getRegimesBySceneId(@RequestBody UserDto userDto){
@@ -86,23 +88,30 @@ public class RegimeController {
 
     /**
      *
-     * 根据场景id查询用车制度集合
+     * 根据场景id集合查询用车制度集合
      * @param
      * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
      */
+    @Log(title = "用车制度:根据场景id集合查询制度集合", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getRegimesBySceneIds",notes = "根据用车场景集合用车制度集合",httpMethod ="POST")
     @PostMapping("/getRegimesBySceneIds")
     public ApiResponse<List<RegimenVO>> getRegimesBySceneIds(@RequestBody UserDto userDto){
+        if(userDto.getAll()){
+            //如果为真， 查询全部用车制度
+            List<RegimenVO> allRegimen = regimeInfoService.selectAllRegimenVO();
+            return ApiResponse.success(allRegimen);
+        }
         String sceneIds = userDto.getSceneIds();
         String[] sceneIdStrs = sceneIds.split(",");
         List all = new ArrayList<>();
         for (String sceneIdStr : sceneIdStrs) {
             if(StringUtils.isNotEmpty(sceneIdStr)){
                 List<RegimenVO> regimenVOS = regimeInfoService.selectRegimesBySceneId(Long.valueOf(sceneIdStr));
-                all.addAll(regimenVOS);
+                if(CollectionUtils.isNotEmpty(regimenVOS)){
+                    all.addAll(regimenVOS);
+                }
             }
         }
-
         return ApiResponse.success(all);
     }
 
@@ -112,6 +121,7 @@ public class RegimeController {
      * @param
      * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
      */
+    @Log(title = "用车制度:查询所有用车制度，不带分页", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getAllRegimes",notes = "查询所有的用车制度信息",httpMethod ="POST")
     @PostMapping("/getAllRegimes")
     public ApiResponse<List<RegimeInfo>> getAllRegimes(){
@@ -127,6 +137,7 @@ public class RegimeController {
      * @param
      * @return
      */
+    @Log(title = "用车制度:可用网约车型", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getUserOnlineCarLevels",notes = "查询用户可用网约车型等级",httpMethod ="POST")
     @PostMapping("/getUserOnlineCarLevels")
     public ApiResponse<String> getUserOnlineCarLevels(@RequestBody RegimenDTO regimenDTO){
@@ -142,6 +153,7 @@ public class RegimeController {
      * @param regimeDto regimeDto
      * @return
      */
+    @Log(title = "用车制度:用车制度详情", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getRegimeInfo",notes = "通过用车制度编号,查询用车制度的详细信息",httpMethod ="POST")
     @PostMapping("/getRegimeInfo")
     public ApiResponse<RegimeVo> getRegimeInfo(@RequestBody RegimeDto regimeDto){

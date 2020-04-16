@@ -149,8 +149,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>
             state != 'S444'
             <if test="search != null and search != '' ">
-                (car_group_name like concat('%', #{search}, '%')
-                or car_group_code like concat('%', #{search}, '%'))
+                and (car_group_name like concat('%',#{search},'%')
+                or car_group_code like concat('%',#{search},'%'))
             </if>
             <if test="state != null and state != ''">
                 and state = #{state}

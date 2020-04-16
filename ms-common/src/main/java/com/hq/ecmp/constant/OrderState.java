@@ -66,4 +66,8 @@ public enum OrderState {
     public static List<String> getWaitSendCar() {
         return Arrays.asList(WAITINGLIST.getState(), SENDINGCARS.getState());
     }
+    //去申请/去约车
+    public static List<String> getApplyState() {
+        return Arrays.asList(INITIALIZING.getState(), GETARIDE.getState());
+    }
 }

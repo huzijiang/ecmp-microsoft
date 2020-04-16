@@ -139,6 +139,13 @@ public interface IJourneyUserCarPowerService
     
     public boolean  checkOrderOverTime(Long powerId);
     
+    /**
+     * 校验差旅行程下用车是否已经全部完成
+     * @param journeyId
+     * @return
+     */
+    public boolean  checkJourneyNoteAllComplete(Long journeyId);
+    
     
     
     
