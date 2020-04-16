@@ -712,6 +712,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			item="deptId">
 			#{deptId}
 		</foreach>
+		<if test="itIsDispatcher != null and itIsDispatcher!='' "> and it_is_dispatcher = #{itIsDispatcher}</if>
 	</select>
 
     <select id="selectEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">

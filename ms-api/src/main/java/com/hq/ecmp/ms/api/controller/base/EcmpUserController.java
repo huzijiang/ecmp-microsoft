@@ -265,7 +265,7 @@ public class EcmpUserController {
     @ApiOperation(value = "据分子公司+员工姓名查询所有员工",notes = "据分子公司+员工姓名查询所有员工",httpMethod ="POST")
     @PostMapping("/queryUserListByCompanyIdAndName")
     public ApiResponse<List<EcmpUserDto>> queryUserListByCompanyIdAndName(@RequestBody EcmpUserVo ecmpUser){
-    	List<EcmpUserDto> result=ecmpUserService.queryUserListByCompanyIdAndName(ecmpUser.getDeptId(),ecmpUser.getNickName());
+    	List<EcmpUserDto> result=ecmpUserService.queryUserListByCompanyIdAndName(ecmpUser.getDeptId(),ecmpUser.getNickName(),ecmpUser.getItIsDispatcher());
     	return ApiResponse.success(result);
     }
     	
