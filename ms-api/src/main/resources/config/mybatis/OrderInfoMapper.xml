@@ -912,5 +912,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         and oi.state in('S000','S100','S101','S200');
     </select>
 
+    <select id="queryLatestOrderByPowerId" parameterType="java.lang.Long" resultType="string">
+       select
+      (select os.state from order_state_trace_info os where os.order_id=s.order_id order by os.trace_id desc limit 1)	state
+      from order_info s
+      where s.power_id=#{powerId} order by s.order_id desc limit 0,1
+    </select>
+
 
 </mapper>
