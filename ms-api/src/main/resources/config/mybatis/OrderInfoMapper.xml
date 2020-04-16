@@ -209,7 +209,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             IFNULL(oai.address,jni.plan_begin_address) setOutAddress,
             IFNULL(oai2.address,jni.plan_end_address) arriveAddress,
             o.order_number orderNumber,
-            (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState
+            (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
             from order_info o
             left join journey_info jn on o.journey_id=jn.journey_id
             left join journey_node_info jni on  jni.node_id=o.node_id
