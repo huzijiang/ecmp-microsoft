@@ -1,20 +1,20 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
-import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
-import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.*;
+import com.hq.ecmp.constant.ApplyStateConstant;
+import com.hq.ecmp.constant.ApplyTypeEnum;
+import com.hq.ecmp.constant.ApproveStateEnum;
+import com.hq.ecmp.constant.CarLeaveEnum;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
@@ -23,18 +23,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.hq.ecmp.constant.CommonConstant.ONE;
-import static com.hq.ecmp.constant.CommonConstant.ZERO;
-import static java.awt.SystemColor.info;
+import static com.hq.ecmp.constant.CommonConstant.*;
 
 /**
  * @Author: zj.hu
@@ -277,7 +278,7 @@ public class ApplyContoller {
                     int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
                     ecmpMessageService.applyUserPassMessage(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
                     for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
-                        int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:ZERO;
+                        int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
                         OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
                         Long orderId=null;
                         if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
@@ -402,7 +403,7 @@ public class ApplyContoller {
             throw new Exception("行程申请单不存在!");
         }
         if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo1.getApplyType())){
-            if (journeyInfo.getUseCarTime().getTime()<new Date().getTime()){//申请单已过期
+            if (journeyInfo.getUseCarTime().getTime()<System.currentTimeMillis()){//申请单已过期
                 applyInfoService.updateApplyState(journeyApplyDto.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),userId);
                 throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
             }

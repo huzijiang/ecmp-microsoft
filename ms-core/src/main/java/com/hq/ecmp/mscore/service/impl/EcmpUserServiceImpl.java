@@ -540,6 +540,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @param nameOrJobNumberOrPhone
      * @return 结果
      */
+    @Override
     public List<EcmpUserDto> selectUserByNickNameOrJobNumber(String nameOrJobNumberOrPhone){
         List<EcmpUserDto> ecmpUserList=new ArrayList<>();
         List<EcmpUserDto> ecmpUserDtoList = ecmpUserMapper.selectUserIdsByNickNameOrJobNumber(nameOrJobNumberOrPhone, nameOrJobNumberOrPhone,nameOrJobNumberOrPhone);

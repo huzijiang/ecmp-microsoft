@@ -481,6 +481,16 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		return regimeVOs;
 	}
 
+	/**
+	 * 查询所有制度RegimenVO
+	 * @return
+	 */
+	@Override
+	public List<RegimenVO> selectAllRegimenVO() {
+		List<RegimenVO>  all = regimeInfoMapper.selectAllRegimenVO();
+		return all;
+	}
+
 	@Override
 	public boolean updateRegime(RegimePo regimePo) {
 		// 将旧的制度标记为停用

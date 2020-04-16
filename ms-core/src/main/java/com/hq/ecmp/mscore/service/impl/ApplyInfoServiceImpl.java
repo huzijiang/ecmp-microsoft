@@ -393,7 +393,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyNodeInfo.setPlanSetoutTime(travelRequest.getStartDate());
         //3.6 plan_arrive_time 计划到达时间  出差某一节点结束日期
         Date endDate = travelRequest.getEndDate();
-        journeyNodeInfo.setPlanArriveTime(new Date(endDate.getTime() + 24*60*60*1000-1));
+        journeyNodeInfo.setPlanArriveTime(new Date(endDate.getTime() + 24*60*60*1000-1000));
         //3.7 plan_begin_longitude 出发坐标   差旅是城市代码、城市id
         journeyNodeInfo.setPlanBeginLongitude(null);
         //3.8 plan_begin_latitude
@@ -762,7 +762,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             applyInfo.setCostCenter(Long.valueOf(costCenter));
         }
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
-        applyInfo.setState(ApplyStateConstant.ON_APPLYING); //TODO 枚举
+        applyInfo.setState(ApplyStateConstant.ON_APPLYING);
         //2.8 reason 行程原因
         applyInfo.setReason(travelCommitApply.getReason());
         //2.9 create_by 创建者
@@ -826,7 +826,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUpdateTime(null);
         journeyInfo.setStartDate(travelCommitApply.getStartDate());
         Date endDate = travelCommitApply.getEndDate();
-        journeyInfo.setEndDate(new Date(endDate.getTime() + 24*60*60*1000-1));
+        journeyInfo.setEndDate(new Date(endDate.getTime() + 24*60*60*1000-1000));
         List<TravelPickupCity> travelPickupCityList = travelCommitApply.getTravelPickupCity();
         String travelPickupCityStr  = JSONArray.toJSON(travelPickupCityList).toString();
         journeyInfo.setTravelPickupCity(travelPickupCityStr);
@@ -1588,7 +1588,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setJourneyId(journeyId);
         //2.2 project_id
         Long projectId=StringUtils.isBlank(officialCommitApply.getProjectNumber())?null:Long.valueOf(officialCommitApply.getProjectNumber());
-        applyInfo.setProjectId(projectId); //TODO 要判空
+        applyInfo.setProjectId(projectId);
         //2.3 regimen_id 非空
         applyInfo.setRegimenId(Long.valueOf(officialCommitApply.getRegimenId()));
         //2.4 apply_type 用车申请类型；A001:  公务用车 A002:  差旅用车

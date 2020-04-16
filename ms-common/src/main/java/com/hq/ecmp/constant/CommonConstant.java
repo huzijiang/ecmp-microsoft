@@ -81,6 +81,7 @@ public final class CommonConstant {
      */
     public static final int ZERO = 0;
     public static final int ONE = 1;
+    public static final int TWO = 2;
 
     public static final String DEPT_TYPE_ORG = "1";
     //后台基本配置前缀
