@@ -690,9 +690,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
-		<!--  <if test="offset != null and pageSize != null">
-			LIMIT #{offset},#{pageSize}
-		</if>  -->
 	</select>
 
    <select id="queryApplyDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="java.lang.Integer">
@@ -770,9 +767,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
-		<!--  <if test="offset != null and pageSize != null">
-			LIMIT #{offset},#{pageSize}
-		</if>  -->
 	</select>
 
 	<select id="queryReassignmentDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
