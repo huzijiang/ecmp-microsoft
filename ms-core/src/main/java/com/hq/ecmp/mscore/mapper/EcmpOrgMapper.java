@@ -259,7 +259,7 @@ public interface EcmpOrgMapper {
     List<CompanyTreeVO> selectCompanyTree(Long deptId);
 
     //公司车队树
-    List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long  parentId);
+    List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(@Param("deptId")Long deptId,@Param("parentId") Long parentId);
 
     List<UserVO> selectUserByLeader(@Param("leader") String leader);
 

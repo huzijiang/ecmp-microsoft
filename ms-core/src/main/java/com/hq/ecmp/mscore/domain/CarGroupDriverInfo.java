@@ -6,6 +6,8 @@ import lombok.Data;
 
 @Data
 public class CarGroupDriverInfo {
+
+	List carGroupName;//层级车队名称
 		
 	String companyName;//公司名称
 	

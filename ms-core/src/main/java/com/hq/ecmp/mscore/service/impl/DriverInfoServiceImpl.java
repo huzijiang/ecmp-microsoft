@@ -273,6 +273,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			for (DriverCarRelationInfo d : selectDriverCarRelationInfoList) {
 				carId.add(d.getCarId());
 			}
+			queryDriverDetail.setOwnCarCount(selectDriverCarRelationInfoList.size());
 		}
 		queryDriverDetail.setCarId(carId);
 		return queryDriverDetail;
@@ -398,6 +399,15 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		carGroupDriverInfo.setDriverList(list);
 		//查询车队对应的部门和公司
 		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+		List<String> carGroupName = new ArrayList<>();
+		if(carGroupInfo.getParentCarGroupId()==0L){
+			carGroupName.add(carGroupInfo.getCarGroupName());
+		}else{
+			CarGroupInfo pCarGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupInfo.getParentCarGroupId());
+			carGroupName.add(pCarGroupInfo.getCarGroupName());
+			carGroupName.add(carGroupInfo.getCarGroupName());
+		}
+		carGroupDriverInfo.setCarGroupName(carGroupName);
 		if(null !=carGroupInfo){
 			Long ownerCompany = carGroupInfo.getOwnerCompany();
 			if(null !=ownerCompany){

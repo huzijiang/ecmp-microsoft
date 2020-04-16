@@ -24,7 +24,7 @@ public class DriverCloudDto {
     //车辆类型
     private String modelName;
     //司机名字
-    private String driverName;
+    private String name;
     //司机电话
     private String  phone;
     //

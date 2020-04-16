@@ -697,7 +697,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="queryUserListByDeptIdsAndName" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
 		select user_id as userId,nick_name as nickName,phonenumber as
 		phonenumber from ecmp_user
-		where (nick_name like concat('%', #{name}, '%') or phonenumber like concat('%', #{name}, '%')) and dept_id in
+		where 
+		 <if test="name != null  and name != ''"> (nick_name like concat('%', #{name}, '%') or phonenumber like concat('%', #{name}, '%')) and</if>
+		 dept_id in
 		<foreach collection="deptIds" open="(" close=")" separator=","
 			item="deptId">
 			#{deptId}
