@@ -259,6 +259,9 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
             nodeInfo.setCreateBy(String.valueOf(userId));
             nodeInfo.setCreateTime(new Date());
             if (ApproveTypeEnum.APPROVE_T002.getKey().equals(flowList.get(i).getType())) {
+                if (StringUtils.isEmpty(flowList.get(i).getRoleIds())){
+                    throw new Exception("角色审批未指定对应角色!");
+                }
                 String userIds = userRoleMapper.findUserIds(flowList.get(i).getRoleIds());
                 nodeInfo.setUserId(userIds);
 //            } else if(ApproveTypeEnum.APPROVE_T001.getKey().equals(flowList.get(i).getType())){
@@ -272,6 +275,11 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
 //                UserVO projectLeader = getProjectLeader(Long.parseLong(projectId));
 //                nodeInfo.setUserId(String.valueOf(projectLeader.getUserId()));
             }else{
+                if (ApproveTypeEnum.APPROVE_T003.getKey().equals(flowList.get(i).getType())){
+                    if (StringUtils.isEmpty(flowList.get(i).getUserIds())){
+                        throw new Exception("角色审批未指定对应角色!");
+                    }
+                }
                 nodeInfo.setUserId(flowList.get(i).getUserIds());
             }
             approveTemplateNodeInfoMapper.insertApproveTemplateNodeInfo(nodeInfo);

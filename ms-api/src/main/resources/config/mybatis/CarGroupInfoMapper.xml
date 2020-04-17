@@ -171,7 +171,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 state,city
              from car_group_info
              inner join ecmp_org on car_group_info.owner_org = ecmp_org.dept_id
-             where ecmp_org.dept_id = #{deptId}
+             where ecmp_org.dept_id = #{deptId} and state != 'S444'
     </select>
     <select id="selectValidCarGroupListByCity" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
         select car_group_id as carGroupId,car_group_name as carGroupName, telephone
@@ -185,6 +185,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <foreach collection="list" item="groupId" index="index" open="(" close=")" separator=",">
             #{groupId}
         </foreach>
+         and state != 'S444'
     </select>
 
     <select id="selectCarGroupsByDriverId" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo" parameterType="long">
@@ -203,23 +204,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          select car_group_id as deptId,
                car_group_name as deptName
         from   car_group_info
-        where  owner_company = #{deptId} and parent_car_group_id = 0
+        where  owner_company = #{deptId} and parent_car_group_id = 0 and  state != 'S444'
     </select>
     <select id="getCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
         select car_group_id as deptId,
                car_group_name as deptName
         from   car_group_info
-        where  parent_car_group_id = #{carGroupId}
+        where  parent_car_group_id = #{carGroupId} and state != 'S444'
     </select>
     <select id="selectAllCarGroupCode" resultType="java.lang.String">
-        SELECT car_group_code FROM car_group_info
+        SELECT car_group_code FROM car_group_info where state != 'S444'
     </select>
 
     <select id="selectCountByParentId" resultType="int">
-        select count(1) from car_group_info where parent_car_group_id = #{parentId}
+        select count(1) from car_group_info where parent_car_group_id = #{parentId} and state != 'S444'
     </select>
     <select id="selectAllCarGroupNameByCompany" resultType="java.lang.String">
-        select distinct car_group_name from car_group_info where owner_company = #{owneCompany}
+        select distinct car_group_name from car_group_info where owner_company = #{owneCompany} and state != 'S444'
     </select>
 
 </mapper>
