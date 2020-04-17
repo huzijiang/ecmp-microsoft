@@ -678,8 +678,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             int count=ecmpOrgMapper.selectCountByParentId(deptId.intValue());
             if(ecmpUserNum==1||count==1){
                 int delFlag = ecmpOrgMapper.updateDelFlagById(deptId,deptType);
-                List<Long> UserIds = ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
-                ecmpUserMapper.updateDelFlagById(UserIds.get(0));
+                //上面已判断，部门下存在人员不可删除
+                /*List<Long> UserIds = ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
+                ecmpUserMapper.updateDelFlagById(UserIds.get(0));*/
                 if(delFlag==1){
                     return "删除分/子公司数据成功！";
                 }else {
