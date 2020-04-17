@@ -27,11 +27,13 @@ public class RegimeVo {
 
 	Integer approveTemplateId;// 审批模板
 
-	String state;// N111  已失效    Y000   生效中
+	String state;// E000 停用中    Y000   生效中
 
 	String canUseCarMode;// 用车方式 W100 自有车 W200 网约车
 
 	String needApprovalProcess;// N111 不需要审批 不限制 Y000 需要审批
+	
+	Integer applyUseNum;//该制度用于多少个申请单
 
 	/**
 	 * 公务制度
