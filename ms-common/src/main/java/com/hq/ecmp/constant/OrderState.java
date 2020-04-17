@@ -70,4 +70,20 @@ public enum OrderState {
     public static List<String> getApplyState() {
         return Arrays.asList(INITIALIZING.getState(), GETARIDE.getState());
     }
+
+
+    /**
+     * 用车权限用来判断订单是否完成 --S699,S900,S901
+     * @return
+     */
+    public static List<String> carAuthorityJundgeOrderComplete() {
+        return Arrays.asList(STOPSERVICE.getState(),ORDERCLOSE.getState(),DISSENT.getState());
+    }
+    /**
+     * 用车权限标识订单完成的前端状态
+     * 待确认和订单关闭（订单异议对应前端的订单关闭）
+     */
+    public static List<String> carAuthorityJundgeOrderCompleteFront() {
+        return Arrays.asList(STOPSERVICE.getState(),WAITCONFIRMED.getState());
+    }
 }

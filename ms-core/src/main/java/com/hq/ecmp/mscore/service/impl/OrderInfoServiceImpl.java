@@ -952,6 +952,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public Long officialOrder(OfficialOrderReVo officialOrderReVo,Long userId) throws Exception {
+        log.info("公务下单-------------》接口参数:{}",officialOrderReVo);
         JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(officialOrderReVo.getPowerId());
         if(journeyUserCarPower == null){
             throw new Exception("用车权限不存在");
@@ -1119,6 +1120,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(officialOrderReVo.getIsDispatch() == 2){
             ((OrderInfoServiceImpl)AopContext.currentProxy()).platCallTaxiParamValid(orderInfo.getOrderId(),String.valueOf(userId),officialOrderReVo.getCarLevel());
         }
+        log.info("公务下单-------------》返回结果:{}",orderInfo.getOrderId());
         return orderInfo.getOrderId();
     }
 
