@@ -243,11 +243,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             //设置返程目的地为最初出发地
             travelRequest2.setEndCity(startCity);
             //设置返程开始日期为去程结束日期
-            travelRequest2.setStartDate(travelRequestSetout.getEndDate());
-            //设置返程结束日期为空
-            travelRequest2.setEndDate(null);
+            Date endDate = travelRequestSetout.getEndDate();
+            travelRequest2.setStartDate(endDate);
+            //设置返程结束日期  暂定3天宽限期
+            travelRequest2.setEndDate(new Date(endDate.getTime()+3*24*60*60*1000));
             //设置返程节点时长为空
-            travelRequest2.setCountDate(null);
+            travelRequest2.setCountDate(3);
             // 返程交通工具暂不做修改
             journeyNodeInfo = new JourneyNodeInfo();
             setTravelJourneyNode(applyTravelRequestCopy, journeyId, journeyNodeInfo, i + 1, travelRequest2);
@@ -272,6 +273,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //如果不需要审批 则初始化用车权限
         if(regimenId != null){
             RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(Long.valueOf(regimenId));
+            if(regimenVO == null){
+                throw new RuntimeException("用车制度不存在");
+            }
             String needApprovalProcess = regimenVO.getNeedApprovalProcess();
             //初始化审批流
             initOfficialApproveFlow(applyId, userId, regimenId);

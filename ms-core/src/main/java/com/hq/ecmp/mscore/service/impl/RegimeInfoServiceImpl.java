@@ -337,7 +337,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 					return regimenVO.getTravelUseCarModeOnlineLevel();
 				}else {
 					//如果是接送机
-					return regimenVO.getAsUseCarModeOwnerLevel();
+					return regimenVO.getAsUseCarModeOnlineLevel();
 				}
 			}
 		}
@@ -503,6 +503,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		RegimeOpt regimeOpt = new RegimeOpt();
 		regimeOpt.setOptType("N111");
 		regimeOpt.setRegimeId(regimePo.getRegimenId());
+		regimeOpt.setOptUserId(regimePo.getOptId());
 		regimeInfoMapper.updateStatus(regimeOpt);
 		// 创建新的制度
 		createRegime(regimePo);
