@@ -141,7 +141,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
      */
     @Override
     public List<RegimenVO> findRegimeInfoListByUserId(Long userId, Long sceneId) {
-        //根据userId查询regimeId集合
+        //根据userId查询有效的regimeId集合
         List<Long> regimeIds = userRegimeRelationInfoMapper.selectIdsByUserId(userId);
         //如果有制度条件限制,则进行条件筛选
         if(sceneId != null){

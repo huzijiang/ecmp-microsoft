@@ -212,6 +212,25 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         return tree;
     }
 
+    @Override
+    public List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId) {
+        if(deptId == null && parentId == null){
+            parentId = 0L;
+        }
+        List<CarGroupTreeVO> tree = ecmpOrgMapper.selectNewCompanyCarGroupTree(deptId,parentId);
+        int size = tree.size();
+        if ( size > 0){
+            for (int i = 0; i < size; i++) {
+                if (tree.get(i) != null) {
+                    //查询公司下的车队树
+                    tree.get(i).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(tree.get(i).getDeptId())) ;
+                    List<CarGroupTreeVO> carGroupTreeVO = tree.get(i).getCarGroupTreeVO();
+                    carGroupTreeVO.addAll(this.selectNewCompanyCarGroupTree(null, tree.get(i).getDeptId()));
+                }
+            }
+        }
+        return tree;
+    }
 
 
     /*根据公司id查询公司车队总人数*/
@@ -659,8 +678,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             int count=ecmpOrgMapper.selectCountByParentId(deptId.intValue());
             if(ecmpUserNum==1||count==1){
                 int delFlag = ecmpOrgMapper.updateDelFlagById(deptId,deptType);
-                List<Long> UserIds = ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
-                ecmpUserMapper.updateDelFlagById(UserIds.get(0));
+                //上面已判断，部门下存在人员不可删除
+                /*List<Long> UserIds = ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
+                ecmpUserMapper.updateDelFlagById(UserIds.get(0));*/
                 if(delFlag==1){
                     return "删除分/子公司数据成功！";
                 }else {
@@ -791,7 +811,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 		return result;
 	}
 
-	private void recursion(List<EcmpOrgDto> selectCombinationOfCompany, List<Long> result) {
+
+
+    private void recursion(List<EcmpOrgDto> selectCombinationOfCompany, List<Long> result) {
 		if (null != selectCombinationOfCompany && selectCombinationOfCompany.size() > 0) {
 			for (EcmpOrgDto ecmpOrgDto : selectCombinationOfCompany) {
 				Long deptId = ecmpOrgDto.getDeptId();

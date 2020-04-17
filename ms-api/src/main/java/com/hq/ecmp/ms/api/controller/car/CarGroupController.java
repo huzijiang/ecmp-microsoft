@@ -258,8 +258,8 @@ public class CarGroupController {
      * @param
      * @return
      */
-   @Log(title = "车队管理:查询公司车队树", businessType = BusinessType.OTHER)
-   @ApiOperation(value = "getCompanyCarGroupTree",notes = "公司车队树",httpMethod ="POST")
+    @Log(title = "车队管理:查询公司车队树", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getCompanyCarGroupTree",notes = "公司车队树",httpMethod ="POST")
     @PostMapping("/getCompanyCarGroupTree")
     public ApiResponse<List<CompanyCarGroupTreeVO>> getCompanyCarGroupTree(
             @RequestBody EcmpOrgDto ecmpOrgDto){
@@ -267,6 +267,27 @@ public class CarGroupController {
         List<CompanyCarGroupTreeVO>  list = null;
         try {
             list = ecmpOrgService.selectCompanyCarGroupTree(ecmpOrgDto.getDeptId(),null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success(list);
+    }
+
+
+    /**
+     * 查询公司车队树升级版  满足前端
+     * @param
+     * @return
+     */
+    @Log(title = "车队管理:查询升级版公司车队树", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getNewCompanyCarGroupTree",notes = "查询公司车队树升级版  满足前端",httpMethod ="POST")
+    @PostMapping("/getNewCompanyCarGroupTree")
+    public ApiResponse<List<CarGroupTreeVO>> getNewCompanyCarGroupTree(
+            @RequestBody EcmpOrgDto ecmpOrgDto){
+        //根据公司id查询车队列表
+        List<CarGroupTreeVO>  list = null;
+        try {
+            list = ecmpOrgService.selectNewCompanyCarGroupTree(ecmpOrgDto.getDeptId(),null);
         } catch (Exception e) {
             e.printStackTrace();
         }

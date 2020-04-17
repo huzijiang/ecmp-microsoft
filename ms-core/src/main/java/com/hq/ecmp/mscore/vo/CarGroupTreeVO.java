@@ -20,6 +20,9 @@ public class CarGroupTreeVO {
     @ApiModelProperty(value = "组织名称")
     private String deptName;
 
+    @ApiModelProperty(value = "组织类别（1 公司 2 部门 3 车队）  满足前端")
+    private String deptType;
+
 
     //子部门列表
     private List<CarGroupTreeVO> carGroupTreeVO;

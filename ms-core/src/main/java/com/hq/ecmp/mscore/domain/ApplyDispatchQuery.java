@@ -7,7 +7,7 @@ import com.hq.ecmp.mscore.dto.Page;
 import lombok.Data;
 
 @Data
-public class ApplyDispatchQuery extends Page {
+public class ApplyDispatchQuery  {
         String applyName;//申请人姓名
         
         String applyMobile;//申请人手机号

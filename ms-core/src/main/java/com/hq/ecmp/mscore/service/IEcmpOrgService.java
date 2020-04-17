@@ -245,4 +245,12 @@ public interface IEcmpOrgService
      * @return
      */
     List<Long> queryDeptIdOfCompany(Long deptId);
+
+    /**
+     * 公司车队树升级版
+     * @param deptId
+     * @param parentId
+     * @return
+     */
+    List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId);
 }

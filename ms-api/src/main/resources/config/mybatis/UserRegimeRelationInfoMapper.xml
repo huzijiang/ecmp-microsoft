@@ -56,9 +56,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{userId}
         </foreach>
     </delete>
-   <!--根据用户id查询制度id集合-->
+   <!--根据用户id查询生效的制度id集合-->
     <select id="selectIdsByUserId" parameterType="long" resultType="Long">
-        select regimen_id from user_regime_relation_info where user_id = #{userId}
+        select regimen_id from user_regime_relation_info where user_id = #{userId} and state = 'Y000'
     </select>
 
 	<insert id="batchInsertUser">

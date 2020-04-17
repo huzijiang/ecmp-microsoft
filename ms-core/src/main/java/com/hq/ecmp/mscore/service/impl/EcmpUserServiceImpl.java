@@ -183,10 +183,37 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 
     public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo) {
         List<EcmpUserDto> ecmpUserList = null;
-        ecmpUserList = ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo);
-       /* for (EcmpUserDto ecmpUserDto:ecmpUserList){
 
-        }*/
+        //查询分/子公司下是否有部门
+        int i = ecmpOrgMapper.selectCountByParentId(ecmpUserVo.getDeptId().intValue());
+        if(i>0){
+            ecmpUserList = ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo.getDeptId());
+            //公司下有员工的数据
+            int i1 = ecmpUserMapper.selectEcmpUserByDeptId(ecmpUserVo.getDeptId());
+            if(i1>0){
+              List<EcmpUserDto>  ecmpUserList1 = ecmpUserMapper.getCompanyEcmpUserNameAndPhone(ecmpUserVo.getDeptId());
+              if(ecmpUserList.size()==0&&ecmpUserList1.size()==0){
+                  return null;
+              }else{
+                  if(ecmpUserList.size()>0){
+                      if(ecmpUserList1.size()>0){
+                          for (EcmpUserDto ecmpUserDto:ecmpUserList1){
+                              ecmpUserList.add(ecmpUserDto);
+                          }
+                          return ecmpUserList;
+                      }
+                      return ecmpUserList;
+                  }else{
+                      return ecmpUserList1;
+                  }
+              }
+            }
+        }else{
+            int i1 = ecmpUserMapper.selectEcmpUserByDeptId(ecmpUserVo.getDeptId());
+            if(i1>0){
+                ecmpUserList = ecmpUserMapper.getCompanyEcmpUserNameAndPhone(ecmpUserVo.getDeptId());
+            }
+        }
         return ecmpUserList;
     }
 
@@ -594,10 +621,10 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     }
 
 	@Override
-	public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId, String name) {
+	public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId, String name,String itIsDispatcher) {
 		List<Long> deptIds = ecmpOrgService.queryDeptIdOfCompany(companyId);
 		if(null !=ecmpUserMapper && deptIds.size()>0){
-			List<EcmpUserDto> queryUserListByDeptIdsAndName = ecmpUserMapper.queryUserListByDeptIdsAndName(deptIds, name);
+			List<EcmpUserDto> queryUserListByDeptIdsAndName = ecmpUserMapper.queryUserListByDeptIdsAndName(deptIds, name,itIsDispatcher);
 			return queryUserListByDeptIdsAndName;
 		}
 		return null;
