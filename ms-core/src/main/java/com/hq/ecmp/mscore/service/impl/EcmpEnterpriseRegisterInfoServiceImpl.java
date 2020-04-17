@@ -345,8 +345,8 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
                 DriverWorkInfoVo driverWorkInfoVo = new DriverWorkInfoVo();
                 driverWorkInfoVo.setDriverId(driverId);
                 driverWorkInfoVo.setCalendarDate(workDateList.get(i).getCalendarDate());
-                driverWorkInfoVo.setOnDutyRegisteTime(DateUtils.parseDate(workDateList.get(i).getWorkStart()));
-                driverWorkInfoVo.setOffDutyRegisteTime(DateUtils.parseDate(workDateList.get(i).getWorkEnd()));
+                driverWorkInfoVo.setOnDutyRegisteTime(workDateList.get(i).getWorkStart());
+                driverWorkInfoVo.setOffDutyRegisteTime(workDateList.get(i).getWorkEnd());
                 driverWorkInfoVo.setTodayItIsOnDuty(workDateList.get(i).getItIsWork());
                 list.add(driverWorkInfoVo);
             }

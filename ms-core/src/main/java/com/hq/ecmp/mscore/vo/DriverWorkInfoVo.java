@@ -26,8 +26,10 @@ public class DriverWorkInfoVo {
     private Long driverId;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date calendarDate;
-    private Date onDutyRegisteTime;
-    private Date offDutyRegisteTime;
+    @DateTimeFormat(pattern = "HH:mm:ss")
+    private String  onDutyRegisteTime;
+    @DateTimeFormat(pattern = "HH:mm:ss")
+    private String offDutyRegisteTime;
     private String todayItIsOnDuty;
 
 
