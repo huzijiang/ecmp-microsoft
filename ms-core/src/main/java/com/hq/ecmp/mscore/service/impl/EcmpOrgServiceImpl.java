@@ -804,9 +804,26 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 
 	@Override
 	public List<Long> queryDeptIdOfCompany(Long deptId) {
-		List<Long> result=new ArrayList<Long>();
-		List<EcmpOrgDto> selectCombinationOfCompany = selectCombinationOfCompany(deptId, "1");
-		recursion(selectCombinationOfCompany, result);
+		List<Long> result =new ArrayList<Long>();
+		result.add(deptId);
+		//查询所有部门
+		EcmpOrg ecmpOrg = new EcmpOrg();
+		List<EcmpOrg> selectEcmpOrgList = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
+		if(null !=selectEcmpOrgList && selectEcmpOrgList.size()>0){
+			for (EcmpOrg e : selectEcmpOrgList) {
+				//上级所有部门ID  0,100,101
+				String ancestors = e.getAncestors();
+				if(StringUtils.isNotEmpty(ancestors)){
+					String[] split = ancestors.split(",");
+					List<String> parentIdList = Arrays.asList(split);
+					//上级部门中包含了 deptId 这个部门   则 当前部门是deptId的下级部门
+					if(parentIdList.contains(deptId.toString())){
+						result.add(e.getDeptId());
+					}
+				}
+			}
+		}
+		
 		return result;
 	}
 
