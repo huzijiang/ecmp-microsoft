@@ -1657,6 +1657,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(Long orderId,Long userId,String cancelReason) throws Exception {
+        log.info("取消订单入参-----》orderId:{},userId:{},cancelReason:{}",orderId,userId,cancelReason);
         OrderInfo orderInfoOld = orderInfoMapper.selectOrderInfoById(orderId);
         Double cancelFee = 0d;
         if (orderInfoOld == null) {
@@ -2193,8 +2194,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderInfoUp.setUpdateTime(DateUtils.getNowDate());
                 orderInfoUp.setUpdateBy("1");
                 orderInfoMapper.updateOrderInfo(orderInfoUp);
-                //添加约车中轨迹状态
+                //添加超时轨迹状态
                 insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.ORDEROVERTIME.getState(), "1", null);
+                //用车权限次数做变化
+                journeyUserCarCountOp(orderInfo.getPowerId(),2);
             }
         }
     }
