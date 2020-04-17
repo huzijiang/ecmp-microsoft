@@ -8,10 +8,7 @@ import com.hq.ecmp.constant.InvitionStateEnum;
 import com.hq.ecmp.constant.InvitionTypeEnum;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInvitationInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpEnterpriseRegisterInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
 import com.hq.ecmp.mscore.vo.*;
@@ -22,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -44,6 +42,8 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
     private EcmpUserMapper ecmpUserMapper;
     @Autowired
     private DriverInfoMapper driverInfoMapper;
+    @Autowired
+    private DriverWorkInfoMapper driverWorkInfoMapper;
 
     /**
      * 通过ID查询单条数据
@@ -300,7 +300,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
             int i= driverInfoMapper.createDriver(driverCreate);
             if(i!=0){
                 Long driverId = driverCreate.getDriverId();
-                System.out.println("新增驾驶员ID："+ driverId);
+                log.info("新增驾驶员ID:"+driverId);
                 //生成驾驶员-车队关系记录
                 CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
                 carGroupDriverRelation.setCarGroupId(registerInfo.getCarGroupId());
@@ -309,7 +309,16 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
                 carGroupDriverRelation.setCreateTime(new Date());
                 int j = carGroupDriverRelationService.insertCarGroupDriverRelation(carGroupDriverRelation);
                 if(j!=0){
-                    log.info("驾驶员"+registerInfo.getMobile()+"审核添加成功");
+                    log.info("驾驶员"+registerInfo.getMobile()+"车队驾驶员关联表新增成功");
+                    String date=DateUtils.getDate();
+                    log.info("获取当前工作日期:"+date+"驾驶员ID:"+driverId);
+                    if(setDriverWorkInfo(driverId,date)) {
+                        log.info("驾驶员"+registerInfo.getMobile()+"排班初始化成功");
+                    }
+
+
+
+
                 }
 
             }
@@ -321,4 +330,31 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         return ecmpEnterpriseRegisterInfoMapper.queryDriverRegDetail(registerId);
     }
 
+    /**
+     * 排班初始化
+     * @param driverId
+     * @return
+     */
+    public boolean setDriverWorkInfo(Long driverId,String date) {
+
+        List<CloudWorkIDateVo> workDateList = driverWorkInfoMapper.getCloudWorkDateList(date);
+
+        List<DriverWorkInfoVo> list = new ArrayList<>();
+        if (workDateList != null && workDateList.size() > 0) {
+            for (int i = 0; i < workDateList.size(); i++) {
+                DriverWorkInfoVo driverWorkInfoVo = new DriverWorkInfoVo();
+                driverWorkInfoVo.setDriverId(driverId);
+                driverWorkInfoVo.setCalendarDate(workDateList.get(i).getCalendarDate());
+                driverWorkInfoVo.setOnDutyRegisteTime(DateUtils.parseDate(workDateList.get(i).getWorkStart()));
+                driverWorkInfoVo.setOffDutyRegisteTime(DateUtils.parseDate(workDateList.get(i).getWorkEnd()));
+                driverWorkInfoVo.setTodayItIsOnDuty(workDateList.get(i).getItIsWork());
+                list.add(driverWorkInfoVo);
+            }
+            int m = driverWorkInfoMapper.insertDriverWorkInfo(list);
+            if (m > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

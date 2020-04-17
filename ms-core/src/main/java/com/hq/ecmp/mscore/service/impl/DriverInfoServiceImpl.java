@@ -7,8 +7,7 @@ import java.util.List;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
-import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.http.impl.execchain.TunnelRefusedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,6 @@ import com.hq.ecmp.mscore.domain.DriverQueryResult;
 import com.hq.ecmp.mscore.domain.DriverUserJobNumber;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
 import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
@@ -61,6 +58,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     private CarGroupInfoMapper carGroupInfoMapper;
     @Autowired
     private EcmpOrgMapper ecmpOrgMapper;
+	@Autowired
+	private DriverWorkInfoMapper driverWorkInfoMapper;
     
 
     /**
@@ -197,7 +196,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
         	driverCarRelationInfo.setCarIdList(carIdList);
         	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
     	}
-    	
+		String date=DateUtils.getDate();
+		setDriverWorkInfo(driverId,date);
 		return true;
 	}
     /**
@@ -502,5 +502,33 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		}else{
 			throw new Exception("员工"+driverName+"："+mobile+"对应的工号是"+userJobNumber+"，请核实后重新输入!");
 		}
+	}
+
+	/**
+	 * 排班初始化
+	 * @param driverId
+	 * @return
+	 */
+	public boolean setDriverWorkInfo(Long driverId,String date) {
+
+		List<CloudWorkIDateVo> workDateList = driverWorkInfoMapper.getCloudWorkDateList(date);
+
+		List<DriverWorkInfoVo> list = new ArrayList<>();
+		if (workDateList != null && workDateList.size() > 0) {
+			for (int i = 0; i < workDateList.size(); i++) {
+				DriverWorkInfoVo driverWorkInfoVo = new DriverWorkInfoVo();
+				driverWorkInfoVo.setDriverId(driverId);
+				driverWorkInfoVo.setCalendarDate(workDateList.get(i).getCalendarDate());
+				driverWorkInfoVo.setOnDutyRegisteTime(DateUtils.parseDate(workDateList.get(i).getWorkStart()));
+				driverWorkInfoVo.setOffDutyRegisteTime(DateUtils.parseDate(workDateList.get(i).getWorkEnd()));
+				driverWorkInfoVo.setTodayItIsOnDuty(workDateList.get(i).getItIsWork());
+				list.add(driverWorkInfoVo);
+			}
+			int m = driverWorkInfoMapper.insertDriverWorkInfo(list);
+			if (m > 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
