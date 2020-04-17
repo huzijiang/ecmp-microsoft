@@ -225,6 +225,17 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 if(ecmpUser != null){
                     String userName = ecmpUser.getNickName();
                     carGroupDispatcherInfo.setName(userName);
+                    String itIsDispatcher = ecmpUser.getItIsDispatcher();
+                    if(!"1".equals(itIsDispatcher)){
+                        //如果不是调度员 则赋予调度员角色
+                        EcmpUserVo ecmpUserVo = new EcmpUserVo();
+                        ecmpUserVo.setUserId(userId);
+                        ecmpUserVo.setItIsDispatcher("1");
+                        int i = ecmpUserMapper.updateEcmpUser(ecmpUserVo);
+                        if(i != 1){
+                            throw new RuntimeException("调度员角色赋予失败");
+                        }
+                    }
                 }
                 //创建人
                 carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
