@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.hq.ecmp.constant.*;
+import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.SortListUtil;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.util.StringUtil;
@@ -30,12 +32,6 @@ import com.hq.ecmp.mscore.domain.UserCarAuthority;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
-import com.hq.ecmp.mscore.service.ChinaCityService;
-import com.hq.ecmp.mscore.service.IApplyInfoService;
-import com.hq.ecmp.mscore.service.IJourneyInfoService;
-import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
-import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
-import com.hq.ecmp.mscore.service.IRegimeInfoService;
 import com.hq.ecmp.mscore.vo.JourneyVO;
 
 /**
@@ -68,6 +64,11 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
     
     @Autowired
     private ChinaCityService chinaCityService;
+
+    @Lazy
+    @Autowired
+	private IOrderInfoService orderInfoService;
+
     
 
     /**
@@ -332,20 +333,17 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		userAuthorityGroupCityList) {
 			Collections.sort(userAuthorityGroupCity.getUserCarAuthorityList());
 		}
-		//状态检查
+		//状态检查，找到返给前端的状态第一个是待确认或者已完成的
 		int innerIndex = -1;
 		int outerIndex = -1;
-		labelOut:
 		for (int i=0; i<userAuthorityGroupCityList.size();i++) {
 			UserAuthorityGroupCity userAuthorityGroupCity = userAuthorityGroupCityList.get(i);
 			List<UserCarAuthority> userCarAuthorityList = userAuthorityGroupCity.getUserCarAuthorityList();
 			for (int j = 0; j < userCarAuthorityList.size(); j++) {
 				UserCarAuthority userCarAuthority = userCarAuthorityList.get(j);
-				if(userCarAuthority.getState().equals(OrderState.WAITINGLIST.getState()) ||
-						userCarAuthority.getState().equals(OrderState.SENDINGCARS.getState())){
+				if(OrderState.carAuthorityJundgeOrderCompleteFront().contains(userCarAuthority.getState())){
 					innerIndex = j;
 					outerIndex = i;
-					break labelOut;
 				}
 			}
 		}
@@ -365,10 +363,34 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 							userCarAuthority.getState().equals(OrderState.GETARIDE.getState())){
 						userCarAuthority.setState(OrderState.TIMELIMIT.getState());
 					}
+					//前端状态为待服务（已派单，准备服务，前往出发地）,则取消订单,返回前端状态变为已过期
+					if(userCarAuthority.getState().equals(OrderState.ALREADYSENDING.getState())){
+						cancelOrderAndExpiredCarAuth(userCarAuthority);
+					}
+					//前端状态为派车中或者约车中，调用取消订单，返回前端状态为已过期
+					if(OrderState.getWaitSendCar().contains(userCarAuthority.getState())){
+						cancelOrderAndExpiredCarAuth(userCarAuthority);
+					}
 				}
 			}
 		}
 		return userAuthorityGroupCityList;
+	}
+
+	/**
+	 * 调用取消订单接口,并改变返给前端的状态为已过期
+	 * @param userCarAuthority
+	 */
+	private void  cancelOrderAndExpiredCarAuth(UserCarAuthority userCarAuthority){
+		OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(userCarAuthority.getOrderId());
+		if(orderInfo!=null && orderInfo.getOrderId()!=null){
+			try {
+				orderInfoService.cancelOrder(orderInfo.getOrderId(), 1L, "用车权限过期自动取消订单");
+				userCarAuthority.setState(OrderState.TIMELIMIT.getState());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	/**

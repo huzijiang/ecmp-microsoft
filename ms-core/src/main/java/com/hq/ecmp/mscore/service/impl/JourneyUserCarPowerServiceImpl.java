@@ -596,9 +596,8 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				}else{
 					String state = orderInfoMapper.queryLatestOrderByPowerId(journeyUserCarPowerCh.getPowerId());
 					if(state != null){
-						//判断订单是否已经完结(订单超时或者订单完成)
-						if(state.equals(OrderState.ORDERCLOSE.getState()) || state.equals(OrderState.ORDEROVERTIME.getState())
-								|| state.equals(OrderState.DISSENT.getState())){
+						//判断订单是否已经完结(订单轨迹表状态为订单异议或者订单关闭或者服务完成)
+						if(OrderState.carAuthorityJundgeOrderComplete().contains(state)){
 							flag = flag +1;
 						}
 					}
@@ -612,8 +611,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		JourneyUserCarPower lastPowerByJourneyId = journeyUserCarPowerMapper.getLastPowerByJourneyId(journeyId);
 		String state = orderInfoMapper.queryLatestOrderByPowerId(lastPowerByJourneyId.getPowerId());
 		if(state != null){
-			if(state.equals(OrderState.ORDERCLOSE.getState()) || state.equals(OrderState.ORDEROVERTIME.getState())
-					|| state.equals(OrderState.DISSENT.getState())){
+			if(OrderState.carAuthorityJundgeOrderComplete().contains(state)){
 				return true;
 			}
 		}
