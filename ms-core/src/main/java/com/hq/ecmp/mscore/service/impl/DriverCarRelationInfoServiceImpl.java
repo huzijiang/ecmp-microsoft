@@ -212,7 +212,9 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
             driverVO.setDriverMobile(carRelationInfo.getDriverMobile());
             int carCount = driverCarRelationInfoMapper.queryCountCarByDriverId(driverId);
             driverVO.setCarCount(carCount);
-            EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carRelationInfo.getUserId());
+            EcmpOrg ecmpOrgDto1 = ecmpOrgMapper.selectEcmpOrgById(carGroupInfo.getOwnerCompany());
+            driverVO.setCompany(ecmpOrgDto1.getDeptName());
+            /*EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carRelationInfo.getUserId());
             EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
             String ancestors = ecmpOrg.getAncestors();
             String[] split = ancestors.split(",");
@@ -222,7 +224,7 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
                     driverVO.setCompany(ecmpOrgDto1.getDeptName());
                     break;
                 }
-            }
+            }*/
             driverVO.setWorkState(carRelationInfo.getWorkState());
             list.add(driverVO);
         }

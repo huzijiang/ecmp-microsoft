@@ -952,6 +952,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public Long officialOrder(OfficialOrderReVo officialOrderReVo,Long userId) throws Exception {
+        log.info("公务下单-------------》接口参数:{}",officialOrderReVo);
         JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(officialOrderReVo.getPowerId());
         if(journeyUserCarPower == null){
             throw new Exception("用车权限不存在");
@@ -1119,6 +1120,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(officialOrderReVo.getIsDispatch() == 2){
             ((OrderInfoServiceImpl)AopContext.currentProxy()).platCallTaxiParamValid(orderInfo.getOrderId(),String.valueOf(userId),officialOrderReVo.getCarLevel());
         }
+        log.info("公务下单-------------》返回结果:{}",orderInfo.getOrderId());
         return orderInfo.getOrderId();
     }
 
@@ -1655,6 +1657,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(Long orderId,Long userId,String cancelReason) throws Exception {
+        log.info("取消订单入参-----》orderId:{},userId:{},cancelReason:{}",orderId,userId,cancelReason);
         OrderInfo orderInfoOld = orderInfoMapper.selectOrderInfoById(orderId);
         Double cancelFee = 0d;
         if (orderInfoOld == null) {
@@ -2201,8 +2204,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderInfoUp.setUpdateTime(DateUtils.getNowDate());
                 orderInfoUp.setUpdateBy("1");
                 orderInfoMapper.updateOrderInfo(orderInfoUp);
-                //添加约车中轨迹状态
+                //添加超时轨迹状态
                 insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.ORDEROVERTIME.getState(), "1", null);
+                //用车权限次数做变化
+                journeyUserCarCountOp(orderInfo.getPowerId(),2);
             }
         }
     }

@@ -125,6 +125,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null ">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime}</if>
             <if test="stationCode != null ">station_code = #{stationCode}</if>
+            <if test="itIsDispatcher != null ">it_is_dispatcher = #{itIsDispatcher}</if>
         </trim>
         where user_id = #{userId}
     </update>
@@ -712,6 +713,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			item="deptId">
 			#{deptId}
 		</foreach>
+		<if test="itIsDispatcher != null and itIsDispatcher!='' "> and it_is_dispatcher = #{itIsDispatcher}</if>
 	</select>
 
     <select id="selectEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
