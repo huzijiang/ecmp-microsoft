@@ -15,5 +15,7 @@ public class ProjectDto {
      * 项目编号/名
      */
     String projectName;
+    Long projectId;
+    String search;
 
 }
