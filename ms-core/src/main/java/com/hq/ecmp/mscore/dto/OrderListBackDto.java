@@ -27,16 +27,16 @@ public class OrderListBackDto extends PageRequest {
     @ApiModelProperty(value = "同行人")
     private String peerName;
 
-    @ApiModelProperty(value = "开始时间",notes = "实际用车时间")
+    @ApiModelProperty(value = "开始时间,实际用车时间",notes = "实际用车时间")
     private String beginTime;
 
-    @ApiModelProperty(value = "结束时间",notes = "实际下车时间")
+    @ApiModelProperty(value = "结束时间,实际下车时间",notes = "实际下车时间")
     private String endTime;
 
-    @ApiModelProperty(value = "上车地址",notes = "实际上车地址")
+    @ApiModelProperty(value = "上车地址,实际上车地址",notes = "实际上车地址")
     private String beginAddress;
 
-    @ApiModelProperty(value = "下车地址",notes = "实际下车地址")
+    @ApiModelProperty(value = "下车地址,实际下车地址",notes = "实际下车地址")
     private String endAddress;
 
     @ApiModelProperty(value = "服务类型 ",notes = "\\n\" +\n" +
