@@ -35,7 +35,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where work_id = #{workId}
     </select>
 
-    <insert id="insertDriverWorkInfo" parameterType="com.hq.ecmp.mscore.domain.DriverWorkInfo">
+    <!--<insert id="insertDriverWorkInfo" parameterType="com.hq.ecmp.mscore.domain.DriverWorkInfo">
         insert into driver_work_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="workId != null ">work_id,</if>
@@ -59,7 +59,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null ">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
          </trim>
-    </insert>
+    </insert>-->
 
     <update id="updateDriverWorkInfo" parameterType="com.hq.ecmp.mscore.domain.DriverWorkInfo">
         update driver_work_info
@@ -166,5 +166,40 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
         </foreach>
     </update>
+    <select id="getCloudWorkDateList" parameterType="String" resultType="com.hq.ecmp.mscore.vo.CloudWorkIDateVo">
+      select calendar_date as calendarDate,it_is_work as itIsWork,work_start as workStart,work_end as workEnd from cloud_work_date_info
+        <!-- <where>
+        <if test="date != null and date != '' ">
+            DATE_FORMAT(calendar_date, '%Y-%m-%d')<![CDATA[>]]> DATE_FORMAT (#{date}, '%Y-%m-%d')
+        </if>
+        </where>-->
+
+       <!-- <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') = DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>-->
+    </select>
+    <!--<insert id="insertDriverWorkInfo" parameterType="com.hq.ecmp.mscore.vo.DriverWorkInfoVo">
+        insert into driver_work_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="driverId != null ">driver_id,</if>
+            <if test="calendarDate != null ">caledar_date,</if>
+            <if test="onDutyRegisteTime != null ">on_duty_registe_time,</if>
+            <if test="offDutyRegisteTime != null ">off_duty_registe_time,</if>
+            <if test="todayItIsOnDuty != null ">today_it_is_on_duty,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="driverId != null ">#{driverId},</if>
+            <if test="calendarDate != null ">#{calendarDate},</if>
+            <if test="onDutyRegisteTime != null ">#{onDutyRegisteTime},</if>
+            <if test="offDutyRegisteTime != null ">#{offDutyRegisteTime},</if>
+            <if test="todayItIsOnDuty != null ">#{todayItIsOnDuty},</if>
+        </trim>
+    </insert>-->
+
+    <insert id="insertDriverWorkInfo" parameterType="com.hq.ecmp.mscore.vo.DriverWorkInfoVo">
+        insert into driver_work_info (driver_id,caledar_date,on_duty_registe_time,off_duty_registe_time,today_it_is_on_duty)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.driverId},#{item.calendarDate},#{item.onDutyRegisteTime},#{item.offDutyRegisteTime},#{item.todayItIsOnDuty})
+        </foreach>
+    </insert>
 
 </mapper>

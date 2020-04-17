@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.mscore.domain.DriverCarRelationInfo;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
 import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverServiceStateInfoMapper;
@@ -53,19 +54,6 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
     public List<DriverWorkInfo> selectDriverWorkInfoList(DriverWorkInfo driverWorkInfo)
     {
         return driverWorkInfoMapper.selectDriverWorkInfoList(driverWorkInfo);
-    }
-
-    /**
-     * 新增【请填写功能名称】
-     *
-     * @param driverWorkInfo 【请填写功能名称】
-     * @return 结果
-     */
-    @Override
-    public int insertDriverWorkInfo(DriverWorkInfo driverWorkInfo)
-    {
-        driverWorkInfo.setCreateTime(DateUtils.getNowDate());
-        return driverWorkInfoMapper.insertDriverWorkInfo(driverWorkInfo);
     }
 
     /**
@@ -239,6 +227,38 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
         driverWorkInfoMapper.updateWorkDetailMonth(workInfoDetailVo.getWorkInfoMonthVos(),userId,DateUtils.getNowDate());
     }
 
+
+    /**
+     * 获取初始化排班日期数据
+     */
+    @Override
+    public List<CloudWorkIDateVo> getCloudWorkDateList(String date){
+        return driverWorkInfoMapper.getCloudWorkDateList(date);
+    }
+
+    /**
+     * 排班初始化
+     * @param driverId
+     * @return
+     */
+/*    public boolean setDriverWorkInfo(Long driverId){
+
+        String date=DateUtils.getNowDate().toString();
+        List<CloudWorkIDateVo> workDateVos = driverWorkInfoMapper.getCloudWorkDateList(date);
+        DriverWorkInfoVo driverWorkInfoVo=null;
+        driverWorkInfoVo.setDriverId(driverId);
+        for(CloudWorkIDateVo work : workDateVos){
+            driverWorkInfoVo.setCalendarDate(work.getCalendarDate());
+            driverWorkInfoVo.setOnDutyRegisteTime(work.getWorkStart());
+            driverWorkInfoVo.setOffDutyRegisteTime(work.getWorkEnd());
+            driverWorkInfoVo.setTodayItIsOnDuty(work.getItIsWork());
+            int i = driverWorkInfoMapper.insertDriverWorkInfo(driverWorkInfoVo);
+            if(i > 0){
+                return true;
+            }
+        }
+        return false;
+    }*/
 
 
 }
