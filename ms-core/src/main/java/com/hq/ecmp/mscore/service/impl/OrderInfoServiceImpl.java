@@ -492,7 +492,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setCarGroupName(str.getUserName());
         }
         vo.setOrderNumber(orderInfo.getOrderNumber());
-        vo.setCustomerServicePhone(serviceMobile);
+        vo.setCustomerServicePhone(thirdService.getCustomerPhone());
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         //服务结束时间
@@ -2072,7 +2072,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 newOrderInfo.setCarModel(driverCloudDto.getModelName());
                 newOrderInfo.setDemandCarLevel(driverCloudDto.getGroupName());
                 newOrderInfo.setTripartiteOrderId(thirdPartyOrderState.getString("orderNo"));
-                if (OrderState.REASSIGNPASS.getState().equals(status)){//改派通过订单状态为299,轨迹为279
+                if (OrderState.REASSIGNPASS.getState().equals(status)){
+                    //改派通过订单状态为299,轨迹为279
                     status=OrderState.ALREADYSENDING.getState();
                     newOrderInfo.setState(OrderState.ALREADYSENDING.getState());
                 }
@@ -2102,11 +2103,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 lableState = OrderState.ORDERCLOSE.getState();
                 newOrderInfo.setState(status);
             }
-        }else if (OrderState.ORDEROVERTIME.getState().equals(status)){//订单超时
+        }else if (OrderState.ORDEROVERTIME.getState().equals(status)){
+            //订单超时
             status = OrderState.ORDERCLOSE.getState();
             newOrderInfo.setState(status);
+            //还原权限
+            this.journeyUserCarCountOp(orderInfo.getPowerId(),2);
         }
-        if (!OrderState.ORDERCANCEL.getState().equals(status)){//订单取消
+        if (!OrderState.ORDERCANCEL.getState().equals(status)){
+            //订单取消
             orderInfoMapper.updateOrderInfo(newOrderInfo);
             log.info("网约车订单"+newOrderInfo.getOrderId()+"状态更新为"+newOrderInfo.getState());
             OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderNo, lableState, longitude, latitude);
@@ -2118,22 +2123,27 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 log.info("网约车订单"+newOrderInfo.getOrderId()+"轨迹表中状态插入"+newOrderInfo.getState()+"成功");
             }
         }
-        if (OrderState.ALREADYSENDING.getState().equals(lableState)){//约车成功 发短信，发通知
+        if (OrderState.ALREADYSENDING.getState().equals(lableState)){
+            //约车成功 发短信，发通知
             ismsBusiness.sendSmsCallTaxiNet(orderNo);
         }else
-        if (OrderState.READYSERVICE.getState().equals(lableState)){//驾驶员已到达
+        if (OrderState.READYSERVICE.getState().equals(lableState)){
+            //驾驶员已到达
             ismsBusiness.driverArriveMessage(orderNo);
         }else
-        if (OrderState.INSERVICE.getState().equals(lableState)){//开始服务 发送通知
+        if (OrderState.INSERVICE.getState().equals(lableState)){
+            //开始服务 发送通知
             ismsBusiness.sendSmsDriverBeginService(orderNo);
             //司机开始服务发送消息给乘车人和申请人（行程通知）
             ismsBusiness.sendMessageServiceStart(orderNo, orderInfo.getUserId());
         }else
-        if (OrderState.STOPSERVICE.getState().equals(lableState)){//任务结束
+        if (OrderState.STOPSERVICE.getState().equals(lableState)){
+            //任务结束
             ismsBusiness.endServiceNotConfirm(orderNo);
         }
         else
-        if (OrderState.ORDEROVERTIME.getState().equals(lableState)){//订单超时
+        if (OrderState.ORDEROVERTIME.getState().equals(lableState)){
+            //订单超时
             ismsBusiness.sendSmsCallTaxiNetFail(orderNo);
         }
     }

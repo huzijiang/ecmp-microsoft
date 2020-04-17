@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import com.hq.ecmp.mscore.vo.ProjectUserVO;
 import com.hq.ecmp.mscore.vo.UserTreeVo;
 import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
@@ -365,5 +366,13 @@ public interface EcmpUserMapper
     List<EcmpUserDto> queryUserListByDeptIdsAndName(@Param("deptIds")List<Long> deptIds, @Param("name")String name);
     
     public int updateEcmpUserjobNumber(EcmpUser ecmpUser);
+
+    /**
+     * 获取当前公司下的所有员工
+     * @param search
+     * @param orgComcany
+     * @return
+     */
+    List<ProjectUserVO> getUsersByCompany(@Param("search")String search,@Param("orgComcany") Long orgComcany);
 }
 
