@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.constant.RoleConstant;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,11 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CommonConstant;
-import com.hq.ecmp.mscore.dto.EcmpOrgDto;
-import com.hq.ecmp.mscore.dto.EcmpRoleDto;
-import com.hq.ecmp.mscore.dto.EcmpUserDto;
-import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
@@ -594,9 +591,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest) {
         List<EcmpUserDto> list=new ArrayList<>();
-        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(pageRequest.getDeptId());
         String deptType = ecmpOrg.getDeptType();
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         if(OrgConstant.DEPT_TYPE_1.equals(deptType)){
             list=ecmpUserMapper.getCompanyEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO);
             for (EcmpUserDto ecmpUserDto:list){
@@ -606,8 +603,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         if(OrgConstant.DEPT_TYPE_2.equals(deptType)){
             list=ecmpUserMapper.getEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO);
         }
-        Long ecmpUserPageCount = ecmpUserMapper.getEcmpUserPageCount(pageRequest.getSearch(), pageRequest.getDeptId(),CommonConstant.ZERO);
-        return new PageResult<>(ecmpUserPageCount,list);
+        PageInfo<EcmpUserDto> info = new PageInfo<>(list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
 
     /**
