@@ -81,4 +81,6 @@ public interface ApplyInfoMapper
     int getApplyApproveCount(@Param("userId")Long userId,@Param("state")String state,@Param("roleIds")List<Long> roleIds);
 
     List<ApplyInfo> checkApplyExpiredList(@Param("state") String state);
+    
+    Integer queryApplyNumByRegimeId(Long regimeId);
 }
