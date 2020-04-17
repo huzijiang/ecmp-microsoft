@@ -155,12 +155,14 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		for (Long regimeId : regimeIds) {
 			RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(regimeId);
 			//查询制度对应的审批第一个节点类型
-			ApproveTemplateNodeInfo approveTemplateNodeInfo = approveTemplateNodeInfoMapper.selectFirstOpproveNode(regimeId);
-			if(ObjectUtils.isNotEmpty(approveTemplateNodeInfo)){
-				String approverType = approveTemplateNodeInfo.getApproverType();
-				regimenVO.setFirstOpproveNodeTypeIsProjectLeader(approverType == "T004" ? true : false);
+			if(regimenVO != null) {
+				ApproveTemplateNodeInfo approveTemplateNodeInfo = approveTemplateNodeInfoMapper.selectFirstOpproveNode(regimeId);
+				if (ObjectUtils.isNotEmpty(approveTemplateNodeInfo)) {
+					String approverType = approveTemplateNodeInfo.getApproverType();
+					regimenVO.setFirstOpproveNodeTypeIsProjectLeader(approverType == "T004" ? true : false);
+				}
+				regimeInfoList.add(regimenVO);
 			}
-			regimeInfoList.add(regimenVO);
 		}
         return regimeInfoList;
     }

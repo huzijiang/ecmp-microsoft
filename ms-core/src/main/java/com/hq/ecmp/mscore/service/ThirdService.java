@@ -58,5 +58,11 @@ public interface ThirdService {
      */
     WeatherAndCity queryWeatherAndCity(String longitude,String latitude) throws Exception ;
 
+    /**
+     * 获取客服电话
+     * @return
+     * @throws Exception
+     */
+    String getCustomerPhone() throws Exception;
 
 }
