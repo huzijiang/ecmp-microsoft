@@ -121,13 +121,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="getWorkInfoMonthList"  resultType="com.hq.ecmp.mscore.vo.WorkInfoMonthVo">
         select
-        DATE_FORMAT(caledar_date,'%Y-%m-%d') calendarDate,
+        DATE_FORMAT(calendar_date,'%Y-%m-%d') calendarDate,
         it_is_work as workState
         from cloud_work_date_info
         <where>
-            <if test="month != null and month !='' "> and date_format(caledar_date,'%Y-%m') = #{month}</if>
+            <if test="month != null and month !='' "> and date_format(calendar_date,'%Y-%m') = #{month}</if>
         </where>
-        order by caledar_date
+        order by calendar_date
     </select>
     <update id="updateWorkDetailMonth">
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
