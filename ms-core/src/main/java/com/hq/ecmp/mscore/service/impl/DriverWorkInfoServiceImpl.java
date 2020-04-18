@@ -28,6 +28,8 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
     @Autowired
     private DriverWorkInfoMapper driverWorkInfoMapper;
     @Autowired
+    private DriverServiceStateInfoMapper driverServiceStateInfoMapper;
+    @Autowired
     private DriverInfoMapper driverInfoMapper;
 
     /**
@@ -185,8 +187,27 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
 
     @Override
     public void updateDriverWorkDetailMonth(DriverWorkInfoDetailVo driverWorkInfoDetailVo,Long userId) {
-        driverWorkInfoMapper.updateDriverWorkDetailMonth(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos(),userId,DateUtils.getNowDate());
-    }
+        if(CollectionUtils.isNotEmpty(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos())){
+            driverWorkInfoMapper.updateDriverWorkDetailMonth(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos(),userId,DateUtils.getNowDate());
+        }
+    } /**
+     * 按月查询上班时间安排
+     * @param scheduleDate
+     * @param
+     * @return
+     */
+   /* @Override
+    public DriverDutyWorkVO selectSchedule(String scheduleDate){
+        DriverDutyWorkVO driverDutyWorkVO = new DriverDutyWorkVO();
+        //查询司机上班时间
+         List<String> dutyDate = driverWorkInfoMapper.selectDutyDateByMonthAll(scheduleDate);
+        //查询司机休假时间
+        List<String> holidays = driverWorkInfoMapper.selectHolidaysByMonthAll(scheduleDate);
+        driverDutyWorkVO.setHolidays(holidays);
+        driverDutyWorkVO.setDutyDate(dutyDate);
+        return driverDutyWorkVO;
+    }*/
+
 
     /**
      * 按月获取的排班详情-全部司机
