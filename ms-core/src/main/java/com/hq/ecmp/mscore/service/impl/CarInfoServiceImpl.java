@@ -392,13 +392,34 @@ public class CarInfoServiceImpl implements ICarInfoService
      * @param userId
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateCar(CarSaveDTO carSaveDTO, Long userId) throws Exception {
         CarInfo carInfo = setCarInfo(carSaveDTO);
         carInfo.setUpdateBy(String.valueOf(userId));
         carInfo.setUpdateTime(new Date());
         int i = carInfoMapper.updateCarInfo(carInfo);
-        if( i!= 1){
-            throw new Exception();
+        if(i!= 1){
+            throw new Exception("修改车辆失败");
+        }
+        Long carId = carInfo.getCarId();
+        //绑定驾驶员
+        List<DriverVO> drivers = carSaveDTO.getDrivers();
+        DriverCarRelationInfo driverCarRelationInfo = null;
+        //删除原有驾驶员信息
+        driverCarRelationInfoMapper.deleteCarByCarId(carId);
+        for (DriverVO driver : drivers) {
+            driverCarRelationInfo = new DriverCarRelationInfo();
+            driverCarRelationInfo.setCarId(carId);
+            Long driverId = driver.getDriverId();
+            driverCarRelationInfo.setDriverId(driverId);
+            DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(driverId);
+            if (driverInfo != null){
+                driverCarRelationInfo.setUserId(driverInfo.getUserId());
+            }
+            int j = driverCarRelationInfoMapper.insertDriverCarRelationInfo(driverCarRelationInfo);
+            if(j != 1){
+                throw new Exception("新增车辆失败");
+            }
         }
     }
 
