@@ -201,6 +201,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			}
 		}
     	//生成驾驶员记录
+		driverCreateInfo.setLockState("0000");
     	Integer createDriver = driverInfoMapper.createDriver(driverCreateInfo);
     	Long driverId = driverCreateInfo.getDriverId();
     	
@@ -298,8 +299,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			for (DriverCarRelationInfo d : selectDriverCarRelationInfoList) {
 				carId.add(d.getCarId());
 			}
-			queryDriverDetail.setOwnCarCount(selectDriverCarRelationInfoList.size());
 		}
+		queryDriverDetail.setOwnCarCount(driverCarRelationInfoService.queryDriverUseCarCount(driverId));
 		queryDriverDetail.setCarId(carId);
 		return queryDriverDetail;
 	}

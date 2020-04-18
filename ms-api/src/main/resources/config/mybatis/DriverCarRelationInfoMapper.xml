@@ -88,7 +88,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
     
     <select id="queryDriverUseCarCount" parameterType="java.lang.Long" resultType="java.lang.Integer">
-    select count(1) from driver_car_relation_info where driver_id=#{driverId}
+   select count(1) from (select DISTINCT(car_id) from driver_car_relation_info where driver_id=#{driverId}) a
     </select>
 
     <delete id="deleteCarDriver">
