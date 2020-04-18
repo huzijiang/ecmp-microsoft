@@ -86,10 +86,9 @@ public interface IDriverCarRelationInfoService
     /**
      * 车辆解绑驾驶员
      * @param carId
-     * @param userId
      * @param driverId
      */
-    void removeCarDriver(Long carId, Long userId, Long driverId) throws Exception;
+    void removeCarDriver(Long carId,Long driverId) throws Exception;
 
     /**
      * 查询车辆绑定驾驶员列表

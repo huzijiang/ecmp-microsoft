@@ -108,7 +108,7 @@ public interface IDriverWorkInfoService
     /**
      * 按月更新全部司机的排班信息
      * @param workInfoDetailVo
-     * @param userId  更新人
+     *
      */
     void updateWorkDetailMonth(WorkInfoDetailVo workInfoDetailVo,Long userId);
 
