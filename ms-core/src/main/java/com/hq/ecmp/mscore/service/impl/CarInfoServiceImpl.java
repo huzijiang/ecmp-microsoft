@@ -163,6 +163,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setCreateBy(String.valueOf(userId));
         carInfo.setCreateTime(new Date());
         carInfo.setState(CarConstant.START_CAR);   //初始化启用车辆
+        carInfo.setLockState("0000");//初始化锁定状态
         //新增车辆表
         int i = carInfoMapper.insertCarInfo(carInfo);
         if(i!= 1){
