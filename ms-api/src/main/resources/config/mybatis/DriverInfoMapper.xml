@@ -187,6 +187,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              <if test="licenseIssueDate != null ">license_issue_date,</if>
             <if test="licenseExpireDate != null ">license_expire_date,</if>
             <if test="state != null ">state,</if>
+            <if test="lockState != null ">lock_state,</if>
             <if test="userId != null ">user_id,</if>
             <if test="optUserId != null ">create_by,</if>
             create_time
@@ -203,6 +204,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
               <if test="licenseIssueDate != null ">#{licenseIssueDate},</if>
               <if test="licenseExpireDate != null ">#{licenseExpireDate},</if>
               <if test="state != null ">#{state},</if>
+              <if test="lockState != null ">#{lockState},</if>
               <if test="userId != null ">#{userId},</if>
               <if test="optUserId != null ">#{optUserId},</if>
           	NOW()

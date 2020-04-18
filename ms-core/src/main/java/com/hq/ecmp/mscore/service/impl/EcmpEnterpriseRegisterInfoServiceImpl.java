@@ -300,6 +300,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
             driverCreate.setLicenseExpireDate(registerInfo.getLicenseExpireDate());
             long jobNum = Long.valueOf(registerInfo.getJobNumber()).longValue();
             driverCreate.setUserId(jobNum);
+            driverCreate.setLockState("0000");
             driverCreate.setGender(registerInfo.getGender());
             driverCreate.setCreateTime(new Date());
             driverCreate.setCreateBy(userId);
