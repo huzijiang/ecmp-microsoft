@@ -12,6 +12,7 @@ import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
 import com.hq.ecmp.mscore.vo.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -187,7 +188,9 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
 
     @Override
     public void updateDriverWorkDetailMonth(DriverWorkInfoDetailVo driverWorkInfoDetailVo,Long userId) {
-        driverWorkInfoMapper.updateDriverWorkDetailMonth(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos(),userId,DateUtils.getNowDate());
+        if(CollectionUtils.isNotEmpty(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos())){
+            driverWorkInfoMapper.updateDriverWorkDetailMonth(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos(),userId,DateUtils.getNowDate());
+        }
     } /**
      * 按月查询上班时间安排
      * @param scheduleDate
