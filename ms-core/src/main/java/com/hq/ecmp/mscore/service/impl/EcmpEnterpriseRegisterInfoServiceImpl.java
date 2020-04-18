@@ -3,6 +3,9 @@ package com.hq.ecmp.mscore.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.InvitionStateEnum;
 import com.hq.ecmp.constant.InvitionTypeEnum;
@@ -17,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -44,6 +48,8 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
     private DriverInfoMapper driverInfoMapper;
     @Autowired
     private DriverWorkInfoMapper driverWorkInfoMapper;
+    @Autowired
+    private TokenService tokenService;
 
     /**
      * 通过ID查询单条数据
@@ -312,7 +318,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
                     log.info("驾驶员"+registerInfo.getMobile()+"车队驾驶员关联表新增成功");
                     String date=DateUtils.getDate();
                     log.info("获取当前工作日期:"+date+"驾驶员ID:"+driverId);
-                    if(setDriverWorkInfo(driverId,date)) {
+                    if(setDriverWorkInfo(driverId)) {
                         log.info("驾驶员"+registerInfo.getMobile()+"排班初始化成功");
                     }
 
@@ -331,30 +337,46 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
     }
 
     /**
-     * 排班初始化
-     * @param driverId
-     * @return
-     */
-    public boolean setDriverWorkInfo(Long driverId,String date) {
+         * 排班初始化
+         * @param driverId
+         * @return
+         */
+        public boolean setDriverWorkInfo(Long driverId) {
 
-        List<CloudWorkIDateVo> workDateList = driverWorkInfoMapper.getCloudWorkDateList(date);
+            List<CloudWorkIDateVo> workDateList = driverWorkInfoMapper.getCloudWorkDateList();
 
-        List<DriverWorkInfoVo> list = new ArrayList<>();
-        if (workDateList != null && workDateList.size() > 0) {
-            for (int i = 0; i < workDateList.size(); i++) {
-                DriverWorkInfoVo driverWorkInfoVo = new DriverWorkInfoVo();
-                driverWorkInfoVo.setDriverId(driverId);
-                driverWorkInfoVo.setCalendarDate(workDateList.get(i).getCalendarDate());
-                driverWorkInfoVo.setOnDutyRegisteTime(workDateList.get(i).getWorkStart());
-                driverWorkInfoVo.setOffDutyRegisteTime(workDateList.get(i).getWorkEnd());
-                driverWorkInfoVo.setTodayItIsOnDuty(workDateList.get(i).getItIsWork());
-                list.add(driverWorkInfoVo);
+            //获取调用接口的用户信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            List<DriverWorkInfoVo> list = new ArrayList<>();
+            if (workDateList != null && workDateList.size() > 0) {
+                for (int i = 0; i < workDateList.size(); i++) {
+                    DriverWorkInfoVo driverWorkInfoVo = new DriverWorkInfoVo();
+                    driverWorkInfoVo.setDriverId(driverId);
+                    driverWorkInfoVo.setCalendarDate(workDateList.get(i).getCalendarDate());
+                    driverWorkInfoVo.setOnDutyRegisteTime(workDateList.get(i).getWorkStart());
+                    driverWorkInfoVo.setOffDutyRegisteTime(workDateList.get(i).getWorkEnd());
+                    driverWorkInfoVo.setTodayItIsOnDuty(workDateList.get(i).getItIsWork());
+                    String itIsDuty=workDateList.get(i).getItIsWork();
+                    if("0000".equals(itIsDuty)){
+                        driverWorkInfoVo.setLeaveStatus("X999");
+                    }else if("1111".equals(itIsDuty)){
+                        driverWorkInfoVo.setLeaveStatus("X003");
+                    }
+                    driverWorkInfoVo.setCreatBy(userId);
+                    driverWorkInfoVo.setCreatTime(DateUtils.getNowDate());
+                    list.add(driverWorkInfoVo);
+                }
+                int m = driverWorkInfoMapper.insertDriverWorkInfo(list);
+                if (m > 0) {
+                    int n = driverWorkInfoMapper.updateDriverWork(driverId);
+                    return true;
+                }
             }
-            int m = driverWorkInfoMapper.insertDriverWorkInfo(list);
-            if (m > 0) {
-                return true;
-            }
-        }
         return false;
     }
+
+
+
 }
