@@ -72,6 +72,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <delete id="deleteCarByDriverId" parameterType="Long">
         delete from driver_car_relation_info where driver_id = #{driverId}
     </delete>
+    <delete id="deleteCarByCarId" parameterType="Long">
+        delete from driver_car_relation_info where car_id = #{carId}
+    </delete>
+
     <update id="updateBatchDriverCarList">
         <foreach collection="carIdList" item="item" index="index" open="" close="" separator=";">
             update driver_car_relation_info
