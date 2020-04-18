@@ -145,7 +145,7 @@ public interface IOrderInfoService {
      * @param userId
      * @param carLevel
      */
-    void platCallTaxi(Long orderId, String enterpriseId, String licenseContent, String apiUrl,String userId,String carLevel);
+    void platCallTaxi(Long orderId, String enterpriseId, String licenseContent, String apiUrl,String userId,String carLevel) throws Exception;
 
    /**
     * 自有车派车

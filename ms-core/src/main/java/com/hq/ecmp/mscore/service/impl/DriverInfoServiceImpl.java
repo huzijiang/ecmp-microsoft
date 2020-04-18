@@ -4,20 +4,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
-import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
-import com.hq.ecmp.mscore.vo.*;
-import org.apache.http.impl.execchain.TunnelRefusedException;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.RoleConstant;
 import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.CarGroupDriverRelation;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
@@ -29,12 +30,25 @@ import com.hq.ecmp.mscore.domain.DriverQueryResult;
 import com.hq.ecmp.mscore.domain.DriverUserJobNumber;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.EcmpUserRole;
+import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
+import com.hq.ecmp.mscore.dto.DriverCarDTO;
+import com.hq.ecmp.mscore.dto.DriverLoseDTO;
+import com.hq.ecmp.mscore.dto.DriverRegisterDTO;
+import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
+import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
+import com.hq.ecmp.mscore.mapper.DriverWorkInfoMapper;
 import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
+import com.hq.ecmp.mscore.mapper.EcmpUserRoleMapper;
 import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
+import com.hq.ecmp.mscore.vo.CarVO;
+import com.hq.ecmp.mscore.vo.CloudWorkIDateVo;
+import com.hq.ecmp.mscore.vo.DriverWorkInfoVo;
+import com.hq.ecmp.mscore.vo.PageResult;
 
 
 /**
@@ -61,6 +75,12 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     private CarGroupInfoMapper carGroupInfoMapper;
     @Autowired
     private EcmpOrgMapper ecmpOrgMapper;
+	@Autowired
+	private DriverWorkInfoMapper driverWorkInfoMapper;
+	@Autowired
+	private EcmpUserRoleMapper ecmpUserRoleMapper;
+	@Autowired
+	private TokenService tokenService;
     
 
     /**
@@ -165,6 +185,11 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		Long userId=null;
 		if(null !=selectEcmpUserList && selectEcmpUserList.size()>0){
 			userId=selectEcmpUserList.get(0).getUserId();
+			//新增的驾驶员是公司员工  则赋予该员工驾驶员角色
+			EcmpUserRole ecmpUserRole = new EcmpUserRole();
+			ecmpUserRole.setUserId(userId);
+			ecmpUserRole.setRoleId(Long.valueOf(RoleConstant.DATA_SCOPE_6));
+			ecmpUserRoleMapper.insertEcmpUserRole(ecmpUserRole);
 			driverCreateInfo.setUserId(userId);
 			String jobNumber = driverCreateInfo.getJobNumber();
 			if(StringUtil.isNotEmpty(jobNumber)){
@@ -197,7 +222,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
         	driverCarRelationInfo.setCarIdList(carIdList);
         	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
     	}
-    	
+		setDriverWorkInfo(driverId);
 		return true;
 	}
     /**
@@ -503,4 +528,41 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			throw new Exception("员工"+driverName+"："+mobile+"对应的工号是"+userJobNumber+"，请核实后重新输入!");
 		}
 	}
+
+	public boolean setDriverWorkInfo(Long driverId) {
+
+		List<CloudWorkIDateVo> workDateList = driverWorkInfoMapper.getCloudWorkDateList();
+
+		//获取调用接口的用户信息
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		Long userId = loginUser.getUser().getUserId();
+		List<DriverWorkInfoVo> list = new ArrayList<>();
+		if (workDateList != null && workDateList.size() > 0) {
+			for (int i = 0; i < workDateList.size(); i++) {
+				DriverWorkInfoVo driverWorkInfoVo = new DriverWorkInfoVo();
+				driverWorkInfoVo.setDriverId(driverId);
+				driverWorkInfoVo.setCalendarDate(workDateList.get(i).getCalendarDate());
+				driverWorkInfoVo.setOnDutyRegisteTime(workDateList.get(i).getWorkStart());
+				driverWorkInfoVo.setOffDutyRegisteTime(workDateList.get(i).getWorkEnd());
+				driverWorkInfoVo.setTodayItIsOnDuty(workDateList.get(i).getItIsWork());
+				String itIsDuty=workDateList.get(i).getItIsWork();
+				if("0000".equals(itIsDuty)){
+					driverWorkInfoVo.setLeaveStatus("X999");
+				}else if("1111".equals(itIsDuty)){
+					driverWorkInfoVo.setLeaveStatus("X003");
+				}
+				driverWorkInfoVo.setCreatBy(userId);
+				driverWorkInfoVo.setCreatTime(DateUtils.getNowDate());
+				list.add(driverWorkInfoVo);
+			}
+			int m = driverWorkInfoMapper.insertDriverWorkInfo(list);
+			if (m > 0) {
+				int n = driverWorkInfoMapper.updateDriverWork(driverId);
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

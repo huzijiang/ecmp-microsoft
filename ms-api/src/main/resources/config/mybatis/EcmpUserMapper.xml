@@ -735,7 +735,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
 
-    <select id="getUsersByOrg" resultType="com.hq.ecmp.mscore.vo.ProjectUserVO">
+    <select id="getUsersByCompany" resultType="com.hq.ecmp.mscore.vo.ProjectUserVO">
         select user_id userId,nick_name name,phonenumber,job_number jobNumber from ecmp_user
         where
         status=0 and del_flag=0

@@ -276,23 +276,23 @@ public class ProjectController {
 
     @ApiOperation(value = "getProjectUserInfo",notes = "根据项目id获取已绑定所有成员列表",httpMethod ="POST")
     @RequestMapping("/getProjectUserInfo")
-    public ApiResponse<List<ProjectUserVO>> getProjectUserInfo(@RequestParam("projectId") Long projectId,@RequestParam("search") String search ){
+    public ApiResponse<List<ProjectUserVO>> getProjectUserInfo(@RequestBody ProjectDto projectDto){
 //        List<ProjectUserVO> users=iProjectInfoService.getProjectUserInfo(projectId);
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long orgComcany=null;
-        if (projectId==null){
+        if (projectDto.getProjectId()==null){
             EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
             if (ecmpOrg!=null){
                 orgComcany=ecmpOrg.getDeptId();
             }
         }else{
-            ProjectInfo projectInfo = iProjectInfoService.selectProjectInfoById(projectId);
+            ProjectInfo projectInfo = iProjectInfoService.selectProjectInfoById(projectDto.getProjectId());
             if (projectInfo!=null){
                 orgComcany=projectInfo.getOwnerCompany();
             }
         }
-        List<ProjectUserVO> projectUserInfo = iProjectInfoService.getUsersByOrg(projectId,search,orgComcany);
+        List<ProjectUserVO> projectUserInfo = iProjectInfoService.getUsersByOrg(projectDto.getProjectId(),projectDto.getSearch(),orgComcany);
         return ApiResponse.success(projectUserInfo);
     }
 

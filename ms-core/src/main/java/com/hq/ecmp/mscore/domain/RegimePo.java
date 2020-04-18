@@ -70,7 +70,7 @@ public class RegimePo {
 
 	String travelUseCarModeOnlineLevel;// 出差城市用车 网约车配置
 
-	Integer travelAllowDateRound;// 出差城市用车 使用期限VVV0 不限制 N 天数
+	String travelAllowDateRound;// 出差城市用车 使用期限VVV0 不限制 N 天数
 
 	String travelSetoutEqualArrive;// 出差城市用车 同城限制 Y000 ：相等---不允许跨域 N111
 									// ：不相等--允许跨域

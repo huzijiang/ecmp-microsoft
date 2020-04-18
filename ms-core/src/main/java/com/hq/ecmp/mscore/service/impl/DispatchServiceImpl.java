@@ -623,8 +623,8 @@ public class DispatchServiceImpl implements IDispatchService {
         arrivalCalendar.add(Calendar.MINUTE,DispatchContent.notBackCarGroup);
 
         OrderTaskClashBo orderTaskClashBo=new OrderTaskClashBo();
-        orderTaskClashBo.setSetOutTime(new Timestamp(setOutCalendar.getTimeInMillis()));
-        orderTaskClashBo.setArrivalTime(new Timestamp(arrivalCalendar.getTimeInMillis()));
+        orderTaskClashBo.setSetOutTime(new Date(setOutCalendar.getTimeInMillis()));
+        orderTaskClashBo.setArrivalTime(new Date(arrivalCalendar.getTimeInMillis()));
 
         return ApiResponse.success(orderTaskClashBo);
     }
@@ -653,7 +653,7 @@ public class DispatchServiceImpl implements IDispatchService {
             Long carGroupId=carGroupDispatcherInfo.getCarGroupId();
             CarGroupInfo carGroupInfo=carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
             if(carGroupInfo==null){
-                return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_NOT_FIND_OWN_CAR_GROUP.getDesc());
+                continue;
             }
 
             CarGroupServeScopeInfo  carGroupServeScopeInfo=new CarGroupServeScopeInfo();

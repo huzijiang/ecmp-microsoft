@@ -5,7 +5,9 @@ import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
 import com.hq.ecmp.mscore.vo.*;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,14 +33,6 @@ public interface IDriverWorkInfoService
      * @return 【请填写功能名称】集合
      */
     public List<DriverWorkInfo> selectDriverWorkInfoList(DriverWorkInfo driverWorkInfo);
-
-    /**
-     * 新增【请填写功能名称】
-     *
-     * @param driverWorkInfo 【请填写功能名称】
-     * @return 结果
-     */
-    public int insertDriverWorkInfo(DriverWorkInfo driverWorkInfo);
 
     /**
      * 修改【请填写功能名称】
@@ -117,5 +111,6 @@ public interface IDriverWorkInfoService
      * @param userId  更新人
      */
     void updateWorkDetailMonth(WorkInfoDetailVo workInfoDetailVo,Long userId);
+
 
 }
