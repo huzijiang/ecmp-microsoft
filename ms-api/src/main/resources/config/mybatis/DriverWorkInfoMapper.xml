@@ -138,6 +138,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             where DATE_FORMAT(calendar_date,'%Y-%m-%d') = DATE_FORMAT(#{item.calendarDate},'%Y-%m-%d')
         </foreach>
     </update>
+
+    <update id="updateWorkDetailMonthByDriverInfo" >
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update driver_work_info
+            set today_it_is_on_duty=#{item.workState},
+            update_by=#{userId},
+            update_time=#{updateTime}
+            where DATE_FORMAT(caledar_date,'%Y-%m-%d') = DATE_FORMAT(#{item.calendarDate})
+        </foreach>
+    </update>
     <select id="getCloudWorkDateList" resultType="com.hq.ecmp.mscore.vo.CloudWorkIDateVo">
       select  DATE_FORMAT(calendar_date,'%Y-%m-%d') calendarDate ,it_is_work as itIsWork,work_start as workStart,work_end as workEnd from cloud_work_date_info
     </select>

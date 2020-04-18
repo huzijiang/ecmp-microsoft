@@ -60,4 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select group_concat(distinct user_id) from  ecmp_user_role
         where find_in_set(role_id,#{roleId})
     </select>
+    <delete id="deleteUserRole" parameterType="com.hq.ecmp.mscore.domain.EcmpUserRole">
+        delete from ecmp_user_role where user_id = #{userId} and role_id = #{roleId}
+    </delete>
 </mapper>

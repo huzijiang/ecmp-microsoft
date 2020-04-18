@@ -213,6 +213,7 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
         if(CollectionUtils.isNotEmpty(workInfoDetailVo.getWorkInfoMonthVos())){
             workInfoDetailVo.getWorkInfoMonthVos();
             driverWorkInfoMapper.updateWorkDetailMonth(workInfoDetailVo.getWorkInfoMonthVos(),userId,DateUtils.getNowDate());
+            driverWorkInfoMapper.updateWorkDetailMonthByDriverInfo(workInfoDetailVo.getWorkInfoMonthVos(),userId,DateUtils.getNowDate());
         }
 
     }

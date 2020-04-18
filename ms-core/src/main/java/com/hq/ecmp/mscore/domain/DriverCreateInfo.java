@@ -44,5 +44,5 @@ public class DriverCreateInfo {
 	    Date createTime;
 	    Long createBy;
 
-
+		
 }

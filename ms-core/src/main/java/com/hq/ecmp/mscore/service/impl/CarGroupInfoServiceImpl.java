@@ -240,6 +240,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     //2.如果不是调度员角色 则 A.员工表赋予调度员角色
                     EcmpUserVo ecmpUserVo = new EcmpUserVo();
                     ecmpUserVo.setUserId(id);
+                    ecmpUserVo.setUpdateBy(String.valueOf(userId));
+                    ecmpUserVo.setUpdateTime(new Date());
                     // 是调度员为 0 ；不是调度员为 1
                     ecmpUserVo.setItIsDispatcher("0");
                     int i = ecmpUserMapper.updateEcmpUser(ecmpUserVo);
@@ -251,27 +253,26 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     if(j != 1){
                         throw new RuntimeException("调度员角色赋予失败");
                     }
-                }else {
-                    //3.如果已经是调度员 则只增加调度员跟车队关系表
-                    carGroupDispatcherInfo = new CarGroupDispatcherInfo();
-                    //车队id
-                    carGroupDispatcherInfo.setCarGroupId(carGroupId);
-                    //调度员id
-                    carGroupDispatcherInfo.setUserId(id);
-                    //调度员名字
-                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(id);
-                    if(ecmpUser != null){
-                        String userName = ecmpUser.getNickName();
-                        carGroupDispatcherInfo.setName(userName);
-                    }
-                    //创建人
-                    carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
-                    //创建时间
-                    carGroupDispatcherInfo.setCreateTime(new Date());
-                    int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
-                    if (j != 1) {
-                        throw new Exception("新增车队绑定调度员失败");
-                    }
+                }
+                //3.是不是調度員 最后都得增加调度员跟车队关系表
+                carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+                //车队id
+                carGroupDispatcherInfo.setCarGroupId(carGroupId);
+                //调度员id
+                carGroupDispatcherInfo.setUserId(id);
+                //调度员名字
+                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(id);
+                if(ecmpUser != null){
+                    String userName = ecmpUser.getNickName();
+                    carGroupDispatcherInfo.setName(userName);
+                }
+                //创建人
+                carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
+                //创建时间
+                carGroupDispatcherInfo.setCreateTime(new Date());
+                int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
+                if (j != 1) {
+                    throw new Exception("新增车队绑定调度员失败");
                 }
             }
         }
@@ -363,8 +364,19 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setCarGroupId(carGroupDTO.getCarGroupId());
         //车队编码
         carGroupInfo.setCarGroupCode(carGroupDTO.getCarGroupCode());
+        //查询省份代码
+        String city = carGroupDTO.getCity();
+        String provinceCode = null;
+        if(!ObjectUtils.isEmpty(city)){
+            CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(city);
+            if(!ObjectUtils.isEmpty(cityInfo)){
+                provinceCode = cityInfo.getProvinceCode();
+                //省份代码
+                carGroupInfo.setProvince(provinceCode);
+            }
+        }
         //所属城市编码
-        carGroupInfo.setCity(carGroupDTO.getCity());
+        carGroupInfo.setCity(city);
         //父id
         carGroupInfo.setParentCarGroupId(carGroupDTO.getParentCarGroupId());
         //车队名称
@@ -398,12 +410,39 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         if(i != 1){
             throw new Exception("修改车队信息失败");
         }
+       //1.2 修改车队服务城市
+        CarGroupServeScopeInfo carGroupServeScopeInfo = CarGroupServeScopeInfo.builder()
+                .carGroupId(carGroupDTO.getCarGroupId())
+                .city(city).province(provinceCode).build();
+        carGroupServeScopeInfo.setUpdateBy(String.valueOf(userId));
+        carGroupServeScopeInfo.setUpdateTime(new Date());
+        int k = carGroupServeScopeInfoMapper.updateInfo(carGroupServeScopeInfo);
         //2.修改调度员信息 先删除 再新增
         Long carGroupId = carGroupDTO.getCarGroupId();
         //2.1 解绑车队所有调度员
         int n = carGroupDispatcherInfoMapper.deleteCarGroupDispatcherInfoByGroupId(carGroupId);
+        //2.2 判断调度员是否是其他车队的调度员 如果不是其他车队的调度员 则   A员工表 员工角色修改为不是调度员 B员工角色表删除调度员角色
         Long[] userIds = carGroupDTO.getUserIds();
-        //绑定车队调度员
+        for (Long id : userIds) {
+            CarGroupDispatcherInfo build = CarGroupDispatcherInfo.builder().userId(id).build();
+            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(build);
+            //如果不是其他车队调度员
+            if(CollectionUtils.isEmpty(carGroupDispatcherInfos)){
+                //A 员工表修改用户角色为 不是调度员
+                EcmpUserVo ecmpUserVo = new EcmpUserVo();
+                ecmpUserVo.setUserId(id);
+                // 是调度员为 0 ；不是调度员为 1
+                ecmpUserVo.setItIsDispatcher("1");
+                int m = ecmpUserMapper.updateEcmpUser(ecmpUserVo);
+                if(m != 1){
+                    throw new RuntimeException("调度员用户表角色修改失败");
+                }
+                //B 员工角色表 删除员工角色表数据
+                EcmpUserRole ecmpUserRole = EcmpUserRole.builder().roleId(4L).userId(id).build();
+                int a = ecmpUserRoleMapper.deleteUserRole(ecmpUserRole);
+            }
+        }
+        //2.3 绑定车队调度员
         saveCarGroupDispatchers(userIds,userId,carGroupId);
         /*List<UserVO> dispatchers = carGroupDTO.getDispatchers();
         int size = 0;
@@ -675,7 +714,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectCarGroupInfoList(carGroupInfo);
             //查询车队
             getCarGroupsPhones(carGroupInfos,carGroupPhoneVOS);
-
             return carGroupPhoneVOS;
         }
         getCarGroupsPhones(list, carGroupPhoneVOS);
