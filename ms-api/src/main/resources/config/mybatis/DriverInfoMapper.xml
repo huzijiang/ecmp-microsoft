@@ -539,6 +539,9 @@ WHERE
 		LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
 		WHERE
 		b.car_group_id = #{carGroupId}
+		and a.driver_id not in (
+			select driver_id from driver_car_relation_info where car_id=#{carId}
+		)
 		AND a.state = 'V000'
 	</select>
 	

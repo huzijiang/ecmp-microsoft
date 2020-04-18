@@ -2,6 +2,8 @@ package com.hq.ecmp.mscore.service;
 
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
+
 import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
@@ -130,10 +132,10 @@ public interface IDriverInfoService
     
     /**
      * 查询指定车队下的可用驾驶员
-     * @param carGroupId
+     * @param map
      * @return
      */
-    public  CarGroupDriverInfo queryCarGroupDriverList(Long carGroupId);
+    public  CarGroupDriverInfo queryCarGroupDriverList(Map map);
     
     /**
      * 校验驾驶员手机号是否已经存在
