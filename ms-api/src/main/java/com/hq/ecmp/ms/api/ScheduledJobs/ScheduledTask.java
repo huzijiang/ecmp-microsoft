@@ -75,8 +75,8 @@ public class ScheduledTask {
         System.out.println("定时任务:checkDimissionEcmpUser:校验员工是否离职"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
         ecmpUserService.checkDimissionEcmpUser();
     }
-    //每天0点0分校验申请单是否过期
-    @Scheduled(cron = "0 0 0 * * ?")
+    //每10分钟校验申请单是否过期
+    @Scheduled(cron = "0 */10 * * * ?")
     public void checkApplyExpired(){
         System.out.println("定时任务:checkApplyExpired:校验申请单是否过期"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
         applyInfoService.checkApplyExpired();
