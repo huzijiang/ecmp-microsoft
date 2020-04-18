@@ -125,23 +125,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         it_is_work as workState
         from cloud_work_date_info
         <where>
-            <if test="month != null and month !='' "> and date_format(calendar_date,'%Y-%m') = #{month}</if>
+            <if test="month != null and month !='' ">date_format(calendar_date,'%Y-%m') = #{month}</if>
         </where>
         order by calendar_date
     </select>
-    <update id="updateWorkDetailMonth">
+    <update id="updateWorkDetailMonth" >
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
-            update driver_work_info
-            set today_it_is_on_duty=#{item.workState},
-            update_by=#{userId},
-            update_time=#{updateTime}
-            where
-            caledar_date=#{item.calendarDate}
-
+            update cloud_work_date_info
+            set it_is_work=#{item.workState},
+                update_by=#{userId},
+                update_time=#{updateTime}
+            where DATE_FORMAT(calendar_date,'%Y-%m-%d') = DATE_FORMAT(#{item.calendarDate},'%Y-%m-%d')
         </foreach>
     </update>
-    <select id="getCloudWorkDateList" parameterType="String" resultType="com.hq.ecmp.mscore.vo.CloudWorkIDateVo">
-      select calendar_date as calendarDate,it_is_work as itIsWork,work_start as workStart,work_end as workEnd from cloud_work_date_info
+    <select id="getCloudWorkDateList" resultType="com.hq.ecmp.mscore.vo.CloudWorkIDateVo">
+      select  DATE_FORMAT(calendar_date,'%Y-%m-%d') calendarDate ,it_is_work as itIsWork,work_start as workStart,work_end as workEnd from cloud_work_date_info
     </select>
     <insert id="insertDriverWorkInfo" parameterType="com.hq.ecmp.mscore.vo.DriverWorkInfoVo">
         insert into driver_work_info (driver_id,caledar_date,on_duty_registe_time,off_duty_registe_time,today_it_is_on_duty,leave_status,create_by,create_time)
@@ -159,7 +157,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
     <update id="updateDriverWork" parameterType="Long">
             update driver_work_info
-            set leave_status='X003',today_it_is_on_duty='1111'
+            set leave_status='',today_it_is_on_duty='1111'
             where  driver_id=#{driverId} and caledar_date <![CDATA[<=]]>NOW()
 
     </update>

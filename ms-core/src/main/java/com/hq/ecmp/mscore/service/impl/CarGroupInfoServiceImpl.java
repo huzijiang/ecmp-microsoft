@@ -59,6 +59,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     private ChinaCityMapper chinaCityMapper;
     //是否执行车队删除的标志
     private Boolean carGroupDelFlag = false;
+    @Autowired
+    private EcmpUserRoleMapper ecmpUserRoleMapper;
+    @Autowired
+    private  CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -147,10 +151,11 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
         //查询省份代码
         String city = carGroupDTO.getCity();
+        String provinceCode = null;
         if(!ObjectUtils.isEmpty(city)){
             CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(city);
             if(!ObjectUtils.isEmpty(cityInfo)){
-                String provinceCode = cityInfo.getProvinceCode();
+                provinceCode = cityInfo.getProvinceCode();
                 //省份代码
                 carGroupInfo.setProvince(provinceCode);
             }
@@ -166,7 +171,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setShortAddress(carGroupDTO.getShortAddress());
         //所属组织
         carGroupInfo.setOwnerOrg(carGroupDTO.getOwnerOrg());
-        //车队负责人  TODO 冗余字段 暂无数据
+        //车队负责人  冗余字段 暂无数据
         carGroupInfo.setLeader(carGroupDTO.getLeader());
         //创建人
         carGroupInfo.setCreateBy(String.valueOf(userId));
@@ -180,14 +185,26 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setOwnerCompany(carGroupDTO.getOwneCompany());
         //初始化可用
         carGroupInfo.setState("Y000");
+        //1.保存车队
         int i = insertCarGroupInfo(carGroupInfo);
         if(i != 1){
-            throw new Exception();
+            throw new RuntimeException("新增车队失败");
         }
         Long carGroupId = carGroupInfo.getCarGroupId();
-        //新增 车队主管  车队主管就是调度员
+        //2.车队绑定 调度员（不是调度员角色，则需要赋予角色，涉及两张表）
         Long[] userIds = carGroupDTO.getUserIds();
         saveCarGroupDispatchers(userIds, userId, carGroupId);
+        //3.保存车队服务城市表
+        CarGroupServeScopeInfo carGroupServeScopeInfo = CarGroupServeScopeInfo.builder().carGroupId(carGroupInfo.getCarGroupId())
+                .city(city).province(provinceCode).build();
+        carGroupServeScopeInfo.setCreateBy(String.valueOf(userId));
+        carGroupServeScopeInfo.setCreateTime(new Date());
+        carGroupServeScopeInfo.setUpdateBy(null);
+        carGroupServeScopeInfo.setUpdateTime(null);
+        int k = carGroupServeScopeInfoMapper.insert(carGroupServeScopeInfo);
+        if(k != 1){
+            throw new RuntimeException("车队服务范围新增失败");
+        }
         /*if(!ObjectUtils.isEmpty(carGroupId)){
             CarGroupDispatcherInfo carGroupDispatcherInfo = null;
             List<UserVO> dispatchers = carGroupDTO.getDispatchers();
@@ -215,35 +232,46 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         if(userIds != null && userIds.length >0){
             CarGroupDispatcherInfo carGroupDispatcherInfo = null;
             for (Long id : userIds) {
-                carGroupDispatcherInfo = new CarGroupDispatcherInfo();
-                //车队id
-                carGroupDispatcherInfo.setCarGroupId(carGroupId);
-                //调度员id
-                carGroupDispatcherInfo.setUserId(id);
-                //调度员名字
-                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(id);
-                if(ecmpUser != null){
-                    String userName = ecmpUser.getNickName();
-                    carGroupDispatcherInfo.setName(userName);
-                    String itIsDispatcher = ecmpUser.getItIsDispatcher();
-                    if(!"1".equals(itIsDispatcher)){
-                        //如果不是调度员 则赋予调度员角色
-                        EcmpUserVo ecmpUserVo = new EcmpUserVo();
-                        ecmpUserVo.setUserId(id);
-                        ecmpUserVo.setItIsDispatcher("1");
-                        int i = ecmpUserMapper.updateEcmpUser(ecmpUserVo);
-                        if(i != 1){
-                            throw new RuntimeException("调度员角色赋予失败");
-                        }
+                //1. 判断是否是调度员角色
+                EcmpUserRole build = EcmpUserRole.builder().userId(id).roleId(4L).build();
+                List<EcmpUserRole> ecmpUserRoles = ecmpUserRoleMapper.
+                        selectEcmpUserRoleList(build);
+                if (CollectionUtils.isEmpty(ecmpUserRoles)) {
+                    //2.如果不是调度员角色 则 A.员工表赋予调度员角色
+                    EcmpUserVo ecmpUserVo = new EcmpUserVo();
+                    ecmpUserVo.setUserId(id);
+                    // 是调度员为 0 ；不是调度员为 1
+                    ecmpUserVo.setItIsDispatcher("0");
+                    int i = ecmpUserMapper.updateEcmpUser(ecmpUserVo);
+                    if(i != 1){
+                        throw new RuntimeException("调度员角色赋予失败");
                     }
-                }
-                //创建人
-                carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
-                //创建时间
-                carGroupDispatcherInfo.setCreateTime(new Date());
-                int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
-                if (j != 1) {
-                    throw new Exception("新增车队主管失败");
+                    //B.员工该角色表赋予调度员角色
+                    int j = ecmpUserRoleMapper.insertEcmpUserRole(EcmpUserRole.builder().roleId(4L).userId(id).build());
+                    if(j != 1){
+                        throw new RuntimeException("调度员角色赋予失败");
+                    }
+                }else {
+                    //3.如果已经是调度员 则只增加调度员跟车队关系表
+                    carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+                    //车队id
+                    carGroupDispatcherInfo.setCarGroupId(carGroupId);
+                    //调度员id
+                    carGroupDispatcherInfo.setUserId(id);
+                    //调度员名字
+                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(id);
+                    if(ecmpUser != null){
+                        String userName = ecmpUser.getNickName();
+                        carGroupDispatcherInfo.setName(userName);
+                    }
+                    //创建人
+                    carGroupDispatcherInfo.setCreateBy(String.valueOf(userId));
+                    //创建时间
+                    carGroupDispatcherInfo.setCreateTime(new Date());
+                    int j = carGroupDispatcherInfoMapper.insertCarGroupDispatcherInfo(carGroupDispatcherInfo);
+                    if (j != 1) {
+                        throw new Exception("新增车队绑定调度员失败");
+                    }
                 }
             }
         }

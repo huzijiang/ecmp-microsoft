@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
@@ -116,7 +117,7 @@ public interface ICarInfoService
     public List<CarLocationVo> locationCars(CarLocationDto carLocationDto);
     
     
-    public CarGroupCarInfo queryCarGroupCarList(Long carGroupId);
+    public CarGroupCarInfo queryCarGroupCarList(Map map);
 
     /*车辆信息回显*/
     CarSaveDTO selectCarInfoFeedBack(Long carId);

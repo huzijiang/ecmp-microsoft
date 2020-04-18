@@ -120,9 +120,9 @@ public interface DriverWorkInfoMapper
 
     /**
      * 按月更新司机的排班信息
-     * @param workInfoMonthVos
+     * @param list
      */
-    void updateWorkDetailMonth(@Param("list") List<WorkInfoMonthVo> workInfoMonthVos, @Param("userId") Long userId, @Param("updateTime") Date updateTime);
+    void updateWorkDetailMonth(@Param("list") List<WorkInfoMonthVo> list,@Param("userId") Long userId,@Param("updateTime") Date updateTime);
     /**
      * 按月更新司机的排班信息
      * @param list

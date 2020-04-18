@@ -169,13 +169,12 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
     /**
      * 解绑车辆驾驶员
      * @param carId
-     * @param userId
      * @param driverId
      */
     @Override
-    public void removeCarDriver(Long carId, Long userId, Long driverId) throws Exception {
+    public void removeCarDriver(Long carId,  Long driverId) throws Exception {
         DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
-        int i = driverCarRelationInfoMapper.deleteCarDriver(carId,userId,driverId);
+        int i = driverCarRelationInfoMapper.deleteCarDriver(carId,driverId);
         if(i != 1){
             throw new Exception("解绑车辆驾驶员失败");
         }
