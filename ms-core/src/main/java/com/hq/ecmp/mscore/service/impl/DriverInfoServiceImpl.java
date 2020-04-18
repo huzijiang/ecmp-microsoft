@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -419,9 +420,11 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	}
 
 	@Override
-	public CarGroupDriverInfo queryCarGroupDriverList(Long carGroupId) {
+	public CarGroupDriverInfo queryCarGroupDriverList(Map map) {
+		Long carGroupId = Long.valueOf(map.get("carGroupId").toString());
+		Long carId = Long.valueOf(map.get("carId").toString());
 		CarGroupDriverInfo carGroupDriverInfo = new CarGroupDriverInfo();
-		List<DriverQueryResult> list = driverInfoMapper.queryDriverInfoList(carGroupId);
+		List<DriverQueryResult> list = driverInfoMapper.queryDriverInfoList(carGroupId,carId);
 		carGroupDriverInfo.setDriverList(list);
 		//查询车队对应的部门和公司
 		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
