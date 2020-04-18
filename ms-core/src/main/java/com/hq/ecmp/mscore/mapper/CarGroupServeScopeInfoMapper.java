@@ -71,4 +71,11 @@ public interface CarGroupServeScopeInfoMapper
 	 * @return 影响行数
 	 */
 	int deleteById(Long id);
+
+	/**
+	 * 修改车队服务地址信息
+	 * @param carGroupServeScopeInfo
+	 * @return
+	 */
+	int updateInfo(CarGroupServeScopeInfo carGroupServeScopeInfo);
 }
