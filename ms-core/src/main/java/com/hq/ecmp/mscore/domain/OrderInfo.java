@@ -109,6 +109,8 @@ public class OrderInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String driverGrade;
 
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String labelState;
 
     public OrderInfo(Long orderId, String state) {
         this.orderId = orderId;
@@ -140,6 +142,7 @@ public class OrderInfo extends BaseEntity
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
             .append("orderNumber",getOrderNumber())
+            .append("labelState",getLabelState())
             .toString();
     }
 }

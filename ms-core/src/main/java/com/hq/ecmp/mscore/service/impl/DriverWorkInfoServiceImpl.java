@@ -206,12 +206,14 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
     /**
      * 按月更新的排班信息-全部司机
      * @param workInfoDetailVo
-     * @param userId  更新人
+     *
      */
     @Override
     public void updateWorkDetailMonth(WorkInfoDetailVo workInfoDetailVo,Long userId) {
         if(CollectionUtils.isNotEmpty(workInfoDetailVo.getWorkInfoMonthVos())){
+            workInfoDetailVo.getWorkInfoMonthVos();
             driverWorkInfoMapper.updateWorkDetailMonth(workInfoDetailVo.getWorkInfoMonthVos(),userId,DateUtils.getNowDate());
+            driverWorkInfoMapper.updateWorkDetailMonthByDriverInfo(workInfoDetailVo.getWorkInfoMonthVos(),userId,DateUtils.getNowDate());
         }
 
     }

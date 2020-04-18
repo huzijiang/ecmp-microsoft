@@ -16,6 +16,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectEcmpUserRoleList" parameterType="com.hq.ecmp.mscore.domain.EcmpUserRole" resultMap="EcmpUserRoleResult">
         <include refid="selectEcmpUserRoleVo"/>
         <where>
+            user_id = #{userId} and role_id = #{roleId}
         </where>
     </select>
 

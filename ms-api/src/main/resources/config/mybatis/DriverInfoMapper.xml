@@ -187,6 +187,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              <if test="licenseIssueDate != null ">license_issue_date,</if>
             <if test="licenseExpireDate != null ">license_expire_date,</if>
             <if test="state != null ">state,</if>
+            <if test="lockState != null ">lock_state,</if>
             <if test="userId != null ">user_id,</if>
             <if test="optUserId != null ">create_by,</if>
              <if test="lockState != null ">lock_state,</if>
@@ -204,6 +205,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
               <if test="licenseIssueDate != null ">#{licenseIssueDate},</if>
               <if test="licenseExpireDate != null ">#{licenseExpireDate},</if>
               <if test="state != null ">#{state},</if>
+              <if test="lockState != null ">#{lockState},</if>
               <if test="userId != null ">#{userId},</if>
               <if test="optUserId != null ">#{optUserId},</if>
             <if test="lockState != null ">#{lockState},</if>
@@ -537,6 +539,9 @@ WHERE
 		LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
 		WHERE
 		b.car_group_id = #{carGroupId}
+		and a.driver_id not in (
+			select driver_id from driver_car_relation_info where car_id=#{carId}
+		)
 		AND a.state = 'V000'
 	</select>
 	

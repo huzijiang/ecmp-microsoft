@@ -913,5 +913,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
       where s.power_id=#{powerId} order by s.order_id desc limit 0,1
     </select>
 
+    <select id="selectOrderStateById" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
+
+         select order_id orderId,state,use_car_mode useCarMode,
+         (select state from order_state_trace_info sti where sti.order_id=#{orderId} order by trace_id desc limit 1) labelState
+         from  order_info where order_id = #{orderId}
+    </select>
 
 </mapper>

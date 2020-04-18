@@ -456,12 +456,11 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}
 		List<CarCostVO> carCostVOS = thirdService.enterpriseOrderGetCalculatePrice(estimatePriceVo);
 		List<CarLevelAndPriceReVo> result = new ArrayList<>();
-		String[] split = groupIds.split(",|，");
 		for (int i = 0; i < carCostVOS.size() ; i++) {
 			CarCostVO carCostVO = carCostVOS.get(i);
 			CarLevelAndPriceReVo carLevelAndPriceReVo = new CarLevelAndPriceReVo();
 			carLevelAndPriceReVo.setDuration(Integer.parseInt(carCostVO.getDuration()));
-			carLevelAndPriceReVo.setOnlineCarLevel(split[i]);
+			carLevelAndPriceReVo.setOnlineCarLevel(carCostVO.getGroupId());
 			carLevelAndPriceReVo.setEstimatePrice(carCostVO.getDisMoney());
 			carLevelAndPriceReVo.setSource(carCostVO.getSource());
 			carLevelAndPriceReVo.setBookingStartTime(bookingStartTime);

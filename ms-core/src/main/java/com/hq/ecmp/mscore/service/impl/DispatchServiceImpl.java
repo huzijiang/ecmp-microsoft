@@ -4,7 +4,6 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.config.dispatch.DispatchContent;
 import com.hq.ecmp.constant.OrderConstant;
 import com.hq.ecmp.constant.enumerate.DispatchExceptionEnum;
 import com.hq.ecmp.constant.enumerate.NoValueCommonEnum;
@@ -18,6 +17,7 @@ import com.hq.ecmp.mscore.vo.DispatchResultVo;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -34,6 +34,10 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 @Slf4j
 public class DispatchServiceImpl implements IDispatchService {
+    @Value("${dispatch.notBackCarGroup}")
+    public  int notBackCarGroup;
+    @Value("${dispatch.backCarGroup}")
+    public  int backCarGroup;
 
     @Resource
     TokenService tokenService;
@@ -616,11 +620,11 @@ public class DispatchServiceImpl implements IDispatchService {
 
         Calendar setOutCalendar=Calendar.getInstance();
         setOutCalendar.setTime(journeyPlanPriceInfo.getPlannedDepartureTime());
-        setOutCalendar.add(Calendar.MINUTE,DispatchContent.notBackCarGroup);
+        setOutCalendar.add(Calendar.MINUTE,notBackCarGroup);
 
         Calendar arrivalCalendar=Calendar.getInstance();
         arrivalCalendar.setTime(journeyPlanPriceInfo.getPlannedArrivalTime());
-        arrivalCalendar.add(Calendar.MINUTE,DispatchContent.notBackCarGroup);
+        arrivalCalendar.add(Calendar.MINUTE,notBackCarGroup);
 
         OrderTaskClashBo orderTaskClashBo=new OrderTaskClashBo();
         orderTaskClashBo.setSetOutTime(new Date(setOutCalendar.getTimeInMillis()));
