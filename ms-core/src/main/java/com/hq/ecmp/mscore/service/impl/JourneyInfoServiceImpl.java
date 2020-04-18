@@ -303,7 +303,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 							
 							endUserAuthorityGroupCity.setCityName(currentNote.getPlanEndAddress());
 							endUserAuthorityGroupCity.setVehicle(currentNote.getVehicle());
-							endUserAuthorityGroupCity.setCityId(currentNote.getPlanEndAddress());// 结束用车城市编号
+							endUserAuthorityGroupCity.setCityId(currentNote.getPlanEndCityCode());// 结束用车城市编号
 							endUserAuthorityGroupCity.setUserCarAuthorityList(endUserCarAuthorityList);
 							userAuthorityGroupCityList.add(endUserAuthorityGroupCity);
 						}else{
