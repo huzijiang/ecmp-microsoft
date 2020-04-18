@@ -43,7 +43,6 @@ public class DriverCreateInfo {
 	    String state;
 	    Date createTime;
 	    Long createBy;
-	    String lockState;
 
 		
 }
