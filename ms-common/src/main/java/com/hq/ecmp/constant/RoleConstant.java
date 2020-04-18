@@ -8,4 +8,5 @@ public class RoleConstant {
     public static final String DATA_SCOPE_2 = "2";
     public static final String DATA_SCOPE_3 = "3";
     public static final String DATA_SCOPE_4 = "4";
+    public static final String DATA_SCOPE_6 = "6";//驾驶员角色
 }
