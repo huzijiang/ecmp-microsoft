@@ -201,6 +201,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			}
 		}
     	//生成驾驶员记录
+		driverCreateInfo.setLockState("0000");
     	Integer createDriver = driverInfoMapper.createDriver(driverCreateInfo);
     	Long driverId = driverCreateInfo.getDriverId();
     	
