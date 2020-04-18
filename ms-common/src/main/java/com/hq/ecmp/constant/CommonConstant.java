@@ -8,8 +8,9 @@ package com.hq.ecmp.constant;
  * @Version 1.0
  */
 public final class CommonConstant {
-	
-	
+
+    //客服电话
+    public static final String CUSTOMER_PHONE="customer_phone";
 	//redis中调度锁的前缀
 	public static final String DISPATCH_LOCK_PREFIX="dispatch_";
     //redis中约车次数的前缀

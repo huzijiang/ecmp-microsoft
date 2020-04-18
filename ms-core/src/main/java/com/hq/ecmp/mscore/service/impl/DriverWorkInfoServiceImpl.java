@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.mscore.domain.DriverCarRelationInfo;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
 import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverServiceStateInfoMapper;
@@ -11,6 +12,7 @@ import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
 import com.hq.ecmp.mscore.vo.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,19 +55,6 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
     public List<DriverWorkInfo> selectDriverWorkInfoList(DriverWorkInfo driverWorkInfo)
     {
         return driverWorkInfoMapper.selectDriverWorkInfoList(driverWorkInfo);
-    }
-
-    /**
-     * 新增【请填写功能名称】
-     *
-     * @param driverWorkInfo 【请填写功能名称】
-     * @return 结果
-     */
-    @Override
-    public int insertDriverWorkInfo(DriverWorkInfo driverWorkInfo)
-    {
-        driverWorkInfo.setCreateTime(DateUtils.getNowDate());
-        return driverWorkInfoMapper.insertDriverWorkInfo(driverWorkInfo);
     }
 
     /**
@@ -199,25 +188,10 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
 
     @Override
     public void updateDriverWorkDetailMonth(DriverWorkInfoDetailVo driverWorkInfoDetailVo,Long userId) {
-        driverWorkInfoMapper.updateDriverWorkDetailMonth(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos(),userId,DateUtils.getNowDate());
-    } /**
-     * 按月查询上班时间安排
-     * @param scheduleDate
-     * @param
-     * @return
-     */
-   /* @Override
-    public DriverDutyWorkVO selectSchedule(String scheduleDate){
-        DriverDutyWorkVO driverDutyWorkVO = new DriverDutyWorkVO();
-        //查询司机上班时间
-         List<String> dutyDate = driverWorkInfoMapper.selectDutyDateByMonthAll(scheduleDate);
-        //查询司机休假时间
-        List<String> holidays = driverWorkInfoMapper.selectHolidaysByMonthAll(scheduleDate);
-        driverDutyWorkVO.setHolidays(holidays);
-        driverDutyWorkVO.setDutyDate(dutyDate);
-        return driverDutyWorkVO;
-    }*/
-
+        if(CollectionUtils.isNotEmpty(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos())){
+            driverWorkInfoMapper.updateDriverWorkDetailMonth(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos(),userId,DateUtils.getNowDate());
+        }
+    }
 
     /**
      * 按月获取的排班详情-全部司机
@@ -236,7 +210,10 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
      */
     @Override
     public void updateWorkDetailMonth(WorkInfoDetailVo workInfoDetailVo,Long userId) {
-        driverWorkInfoMapper.updateWorkDetailMonth(workInfoDetailVo.getWorkInfoMonthVos(),userId,DateUtils.getNowDate());
+        if(CollectionUtils.isNotEmpty(workInfoDetailVo.getWorkInfoMonthVos())){
+            driverWorkInfoMapper.updateWorkDetailMonth(workInfoDetailVo.getWorkInfoMonthVos(),userId,DateUtils.getNowDate());
+        }
+
     }
 
 

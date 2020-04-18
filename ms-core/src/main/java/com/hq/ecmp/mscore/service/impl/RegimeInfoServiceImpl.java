@@ -54,6 +54,8 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	private OrderAddressInfoMapper orderAddressInfoMapper;
     @Resource
 	private OrderInfoMapper orderInfoMapper;
+    @Autowired
+    private ApplyInfoMapper applyInfoMapper;
 
 
     /**
@@ -155,12 +157,14 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		for (Long regimeId : regimeIds) {
 			RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(regimeId);
 			//查询制度对应的审批第一个节点类型
-			ApproveTemplateNodeInfo approveTemplateNodeInfo = approveTemplateNodeInfoMapper.selectFirstOpproveNode(regimeId);
-			if(ObjectUtils.isNotEmpty(approveTemplateNodeInfo)){
-				String approverType = approveTemplateNodeInfo.getApproverType();
-				regimenVO.setFirstOpproveNodeTypeIsProjectLeader(approverType == "T004" ? true : false);
+			if(regimenVO != null) {
+				ApproveTemplateNodeInfo approveTemplateNodeInfo = approveTemplateNodeInfoMapper.selectFirstOpproveNode(regimeId);
+				if (ObjectUtils.isNotEmpty(approveTemplateNodeInfo)) {
+					String approverType = approveTemplateNodeInfo.getApproverType();
+					regimenVO.setFirstOpproveNodeTypeIsProjectLeader(approverType == "T004" ? true : false);
+				}
+				regimeInfoList.add(regimenVO);
 			}
-			regimeInfoList.add(regimenVO);
 		}
         return regimeInfoList;
     }
@@ -240,6 +244,8 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 				//查询该制度的使用人数
 				Integer userCount = userRegimeRelationInfoMapper.queryRegimeUserCount(regimeVo.getRegimeId());
 				regimeVo.setUseNum(userCount);
+				//查询是用来改制度的申请单数量
+				regimeVo.setApplyUseNum(applyInfoMapper.queryApplyNumByRegimeId(regimeVo.getRegimeId()));
 			}
 		}
 		return regimeList;
@@ -254,7 +260,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	@Override
 	public boolean optRegime(RegimeOpt regimeOpt) {
 		String optType = regimeOpt.getOptType();
-		if("Y000".equals(optType) || "N111".equals(optType)){
+		if("Y000".equals(optType) || "E000".equals(optType)){
 			regimeInfoMapper.updateStatus(regimeOpt);
 		}else{
 			//物理删除
@@ -331,7 +337,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 					return regimenVO.getTravelUseCarModeOnlineLevel();
 				}else {
 					//如果是接送机
-					return regimenVO.getAsUseCarModeOwnerLevel();
+					return regimenVO.getAsUseCarModeOnlineLevel();
 				}
 			}
 		}
@@ -493,11 +499,12 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 
 	@Override
 	public boolean updateRegime(RegimePo regimePo) {
-		// 将旧的制度标记为停用
+		// 将旧的制度标记为已失效 
 		RegimeOpt regimeOpt = new RegimeOpt();
 		regimeOpt.setOptType("N111");
 		regimeOpt.setRegimeId(regimePo.getRegimenId());
-		optRegime(regimeOpt);
+		regimeOpt.setOptUserId(regimePo.getOptId());
+		regimeInfoMapper.updateStatus(regimeOpt);
 		// 创建新的制度
 		createRegime(regimePo);
 		return true;

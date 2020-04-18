@@ -733,4 +733,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateEcmpUserjobNumber" parameterType="com.hq.ecmp.mscore.domain.EcmpUser">
     update ecmp_user set job_number=#{jobNumber} where user_id=#{userId}
     </update>
+
+
+    <select id="getUsersByCompany" resultType="com.hq.ecmp.mscore.vo.ProjectUserVO">
+        select user_id userId,nick_name name,phonenumber,job_number jobNumber from ecmp_user
+        where
+        status=0 and del_flag=0
+        <if test="orgComcany!=null">
+            and  dept_id in ( select  dept_id from ecmp_org where find_in_set(#{orgComcany},ancestors) or dept_id=#{orgComcany})
+        </if>
+        <if test="search!=null and search!=''">
+            and (nick_name like CONCAT('%',#{search},'%') or job_number like concat('%', #{search}, '%') or   phonenumber like concat('%', #{search}, '%'))
+        </if>
+    </select>
 </mapper>

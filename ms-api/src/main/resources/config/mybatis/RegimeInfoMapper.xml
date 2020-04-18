@@ -172,7 +172,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	LEFT JOIN scene_regime_relation b ON a.regimen_id = b.regimen_id
 	LEFT JOIN scene_info c ON b.scene_id = c.scene_id
 	WHERE
-	1=1
+    a.state !='N111'
 	<if test="null !=sceneId and sceneId !=''">
 		and c.scene_id = #{sceneId}
 	</if>
@@ -201,7 +201,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	LEFT JOIN scene_info c ON b.scene_id =
 	c.scene_id
 	WHERE
-	1=1
+	a.state !='N111'
 		<if test="null !=sceneId and sceneId !=''">
 		and c.scene_id = #{sceneId}
 	</if>
@@ -248,7 +248,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
 	    as_setout_equal_arrive AS asSetoutEqualArrive
         from regime_info
         where regimen_id = #{regimeId}
-
+        and state = 'Y000'
     </select>
 
 <insert id="insertRegime" parameterType="com.hq.ecmp.mscore.domain.RegimePo" useGeneratedKeys="true" keyProperty="regimenId">
