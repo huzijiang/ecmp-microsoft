@@ -88,4 +88,5 @@ public interface DriverCarRelationInfoMapper
      */
     int queryCountCarByDriverId(@Param("driverId") Long driverId);
     int deleteCarByDriverId(@Param("driverId") Long driverId);
+    int deleteCarByCarId(@Param("carId") Long carId);
 }

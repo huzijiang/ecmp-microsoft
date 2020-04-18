@@ -36,6 +36,8 @@ public class DriverCreateInfo {
 		
 		Long optUserId;//操作人员
 		
+		String lockState;
+		
 		Long driverId;
 		Date updateTime;
 	    String state;

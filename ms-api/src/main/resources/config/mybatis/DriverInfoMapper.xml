@@ -190,6 +190,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="lockState != null ">lock_state,</if>
             <if test="userId != null ">user_id,</if>
             <if test="optUserId != null ">create_by,</if>
+             <if test="lockState != null ">lock_state,</if>
             create_time
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -207,6 +208,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
               <if test="lockState != null ">#{lockState},</if>
               <if test="userId != null ">#{userId},</if>
               <if test="optUserId != null ">#{optUserId},</if>
+            <if test="lockState != null ">#{lockState},</if>
           	NOW()
          </trim>
     </insert>
