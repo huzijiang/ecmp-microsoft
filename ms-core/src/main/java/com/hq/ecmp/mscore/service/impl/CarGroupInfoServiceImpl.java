@@ -229,7 +229,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     if(!"1".equals(itIsDispatcher)){
                         //如果不是调度员 则赋予调度员角色
                         EcmpUserVo ecmpUserVo = new EcmpUserVo();
-                        ecmpUserVo.setUserId(userId);
+                        ecmpUserVo.setUserId(id);
                         ecmpUserVo.setItIsDispatcher("1");
                         int i = ecmpUserMapper.updateEcmpUser(ecmpUserVo);
                         if(i != 1){

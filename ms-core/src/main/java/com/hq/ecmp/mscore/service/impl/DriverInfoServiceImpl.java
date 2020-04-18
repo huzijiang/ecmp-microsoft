@@ -6,9 +6,11 @@ import java.util.List;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
-import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.http.impl.execchain.TunnelRefusedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +31,12 @@ import com.hq.ecmp.mscore.domain.DriverQueryResult;
 import com.hq.ecmp.mscore.domain.DriverUserJobNumber;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
 import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -61,6 +63,10 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     private CarGroupInfoMapper carGroupInfoMapper;
     @Autowired
     private EcmpOrgMapper ecmpOrgMapper;
+	@Autowired
+	private DriverWorkInfoMapper driverWorkInfoMapper;
+	@Autowired
+	private TokenService tokenService;
     
 
     /**
@@ -197,7 +203,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
         	driverCarRelationInfo.setCarIdList(carIdList);
         	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
     	}
-    	
+		setDriverWorkInfo(driverId);
 		return true;
 	}
     /**
@@ -503,4 +509,41 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			throw new Exception("员工"+driverName+"："+mobile+"对应的工号是"+userJobNumber+"，请核实后重新输入!");
 		}
 	}
+
+	public boolean setDriverWorkInfo(Long driverId) {
+
+		List<CloudWorkIDateVo> workDateList = driverWorkInfoMapper.getCloudWorkDateList();
+
+		//获取调用接口的用户信息
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		Long userId = loginUser.getUser().getUserId();
+		List<DriverWorkInfoVo> list = new ArrayList<>();
+		if (workDateList != null && workDateList.size() > 0) {
+			for (int i = 0; i < workDateList.size(); i++) {
+				DriverWorkInfoVo driverWorkInfoVo = new DriverWorkInfoVo();
+				driverWorkInfoVo.setDriverId(driverId);
+				driverWorkInfoVo.setCalendarDate(workDateList.get(i).getCalendarDate());
+				driverWorkInfoVo.setOnDutyRegisteTime(workDateList.get(i).getWorkStart());
+				driverWorkInfoVo.setOffDutyRegisteTime(workDateList.get(i).getWorkEnd());
+				driverWorkInfoVo.setTodayItIsOnDuty(workDateList.get(i).getItIsWork());
+				String itIsDuty=workDateList.get(i).getItIsWork();
+				if("0000".equals(itIsDuty)){
+					driverWorkInfoVo.setLeaveStatus("X999");
+				}else if("1111".equals(itIsDuty)){
+					driverWorkInfoVo.setLeaveStatus("X003");
+				}
+				driverWorkInfoVo.setCreatBy(userId);
+				driverWorkInfoVo.setCreatTime(DateUtils.getNowDate());
+				list.add(driverWorkInfoVo);
+			}
+			int m = driverWorkInfoMapper.insertDriverWorkInfo(list);
+			if (m > 0) {
+				int n = driverWorkInfoMapper.updateDriverWork(driverId);
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

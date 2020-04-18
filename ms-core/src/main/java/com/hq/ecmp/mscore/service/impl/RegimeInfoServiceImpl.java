@@ -337,7 +337,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 					return regimenVO.getTravelUseCarModeOnlineLevel();
 				}else {
 					//如果是接送机
-					return regimenVO.getAsUseCarModeOwnerLevel();
+					return regimenVO.getAsUseCarModeOnlineLevel();
 				}
 			}
 		}
