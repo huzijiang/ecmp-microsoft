@@ -19,18 +19,18 @@ import java.util.Date;
 @Data
 public class DriverWorkInfoVo {
 
-
-   // @ApiModelProperty(value = "排班id")
-   // private Long workId;
-
     private Long driverId;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date calendarDate;
-    @DateTimeFormat(pattern = "HH:mm:ss")
+    @DateTimeFormat(pattern = "HH:mm")
     private String  onDutyRegisteTime;
-    @DateTimeFormat(pattern = "HH:mm:ss")
+    @DateTimeFormat(pattern = "HH:mm")
     private String offDutyRegisteTime;
     private String todayItIsOnDuty;
+    private String leaveStatus;
+    private Long creatBy;
+    private Date creatTime;
+
 
 
 

@@ -191,24 +191,7 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
         if(CollectionUtils.isNotEmpty(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos())){
             driverWorkInfoMapper.updateDriverWorkDetailMonth(driverWorkInfoDetailVo.getDriverWorkInfoMonthVos(),userId,DateUtils.getNowDate());
         }
-    } /**
-     * 按月查询上班时间安排
-     * @param scheduleDate
-     * @param
-     * @return
-     */
-   /* @Override
-    public DriverDutyWorkVO selectSchedule(String scheduleDate){
-        DriverDutyWorkVO driverDutyWorkVO = new DriverDutyWorkVO();
-        //查询司机上班时间
-         List<String> dutyDate = driverWorkInfoMapper.selectDutyDateByMonthAll(scheduleDate);
-        //查询司机休假时间
-        List<String> holidays = driverWorkInfoMapper.selectHolidaysByMonthAll(scheduleDate);
-        driverDutyWorkVO.setHolidays(holidays);
-        driverDutyWorkVO.setDutyDate(dutyDate);
-        return driverDutyWorkVO;
-    }*/
-
+    }
 
     /**
      * 按月获取的排班详情-全部司机
@@ -227,41 +210,12 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
      */
     @Override
     public void updateWorkDetailMonth(WorkInfoDetailVo workInfoDetailVo,Long userId) {
-        driverWorkInfoMapper.updateWorkDetailMonth(workInfoDetailVo.getWorkInfoMonthVos(),userId,DateUtils.getNowDate());
-    }
-
-
-    /**
-     * 获取初始化排班日期数据
-     */
-    @Override
-    public List<CloudWorkIDateVo> getCloudWorkDateList(String date){
-        return driverWorkInfoMapper.getCloudWorkDateList(date);
-    }
-
-    /**
-     * 排班初始化
-     * @param driverId
-     * @return
-     */
-/*    public boolean setDriverWorkInfo(Long driverId){
-
-        String date=DateUtils.getNowDate().toString();
-        List<CloudWorkIDateVo> workDateVos = driverWorkInfoMapper.getCloudWorkDateList(date);
-        DriverWorkInfoVo driverWorkInfoVo=null;
-        driverWorkInfoVo.setDriverId(driverId);
-        for(CloudWorkIDateVo work : workDateVos){
-            driverWorkInfoVo.setCalendarDate(work.getCalendarDate());
-            driverWorkInfoVo.setOnDutyRegisteTime(work.getWorkStart());
-            driverWorkInfoVo.setOffDutyRegisteTime(work.getWorkEnd());
-            driverWorkInfoVo.setTodayItIsOnDuty(work.getItIsWork());
-            int i = driverWorkInfoMapper.insertDriverWorkInfo(driverWorkInfoVo);
-            if(i > 0){
-                return true;
-            }
+        if(CollectionUtils.isNotEmpty(workInfoDetailVo.getWorkInfoMonthVos())){
+            driverWorkInfoMapper.updateWorkDetailMonth(workInfoDetailVo.getWorkInfoMonthVos(),userId,DateUtils.getNowDate());
         }
-        return false;
-    }*/
+
+    }
+
 
 
 }

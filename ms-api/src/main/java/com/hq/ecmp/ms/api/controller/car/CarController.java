@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: zj.hu
@@ -374,8 +375,8 @@ public class CarController {
     @Log(title = "车辆管理:车队下的可用车辆", businessType = BusinessType.OTHER)
     @ApiOperation(value = "carGroup", notes = "指定车队下的可用车辆", httpMethod = "POST")
 	@PostMapping("/carGroup")
-	public ApiResponse<CarGroupCarInfo> queryCarGroupCarList(@RequestBody Long carGroupId) {
-		return ApiResponse.success(carInfoService.queryCarGroupCarList(carGroupId));
+	public ApiResponse<CarGroupCarInfo> queryCarGroupCarList(@RequestBody Map map) {
+		return ApiResponse.success(carInfoService.queryCarGroupCarList(map));
 	}
 
     @Log(title = "车辆管理:车辆信息回显", businessType = BusinessType.OTHER)
