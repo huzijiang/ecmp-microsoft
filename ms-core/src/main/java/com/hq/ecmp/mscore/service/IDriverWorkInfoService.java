@@ -113,10 +113,4 @@ public interface IDriverWorkInfoService
     void updateWorkDetailMonth(WorkInfoDetailVo workInfoDetailVo,Long userId);
 
 
-
-    /**
-     * 获取初始化排班日期数据
-     */
-    List<CloudWorkIDateVo> getCloudWorkDateList(String date);
-
 }

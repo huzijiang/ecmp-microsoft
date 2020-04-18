@@ -129,9 +129,10 @@ public interface DriverWorkInfoMapper
      * @return
      */
     int insertDriverWorkInfo(List<DriverWorkInfoVo> list);
+    int updateDriverWork(@Param("driverId") Long driverId);
     /**
      * 获取初始化排班数据
      */
-    List<CloudWorkIDateVo> getCloudWorkDateList(@Param("date") String date);
+    List<CloudWorkIDateVo> getCloudWorkDateList();
 
 }
