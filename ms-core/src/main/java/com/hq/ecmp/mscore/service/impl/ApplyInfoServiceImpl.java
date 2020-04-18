@@ -1751,8 +1751,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 String approveUserId = resultInfo.getApproveUserId();
                 String appresult = resultInfo.getApproveResult();
                 String state = resultInfo.getState();
-                if (ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(resultInfo.getState())&&resultInfo.getUpdateTime()!=null){
-                    approveTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,resultInfo.getUpdateTime());
+                if (ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(resultInfo.getState())){
+                    if (resultInfo.getUpdateTime()!=null){
+                        approveTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,resultInfo.getUpdateTime());
+                    }
+                    if (StringUtils.isNotBlank(resultInfo.getUpdateBy())){
+                         approveUserId=resultInfo.getUpdateBy();
+                    }
                 }
                 list=new ArrayList<>();
                 if (StringUtils.isNotBlank(approveUserId)){
