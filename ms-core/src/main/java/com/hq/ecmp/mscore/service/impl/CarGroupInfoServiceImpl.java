@@ -383,7 +383,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //2 修改调度员信息 先删除 再新增
         Long carGroupId = carGroupDTO.getCarGroupId();
         //2.1 删除调度员 需要判断调度员角色是否能继续保留
-        delectCarGroupDispatcher(carGroupId,userId);
+        deleteCarGroupDispatcher(carGroupId,userId);
         //2.2 绑定车队调度员
         Long[] userIds = carGroupDTO.getUserIds();
         saveCarGroupDispatchers(userIds,userId,carGroupId);
@@ -394,7 +394,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * A员工表 员工角色修改为不是调度员 B员工角色表删除调度员角色
      * @param carGroupId
      */
-    private void delectCarGroupDispatcher(Long carGroupId,Long userId) {
+    private void deleteCarGroupDispatcher(Long carGroupId,Long userId) {
         //1.查询调度员
         CarGroupDispatcherInfo carGroupDispatcherInfo = CarGroupDispatcherInfo.builder().carGroupId(carGroupId).build();
         List<CarGroupDispatcherInfo> list = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
@@ -678,7 +678,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //删除车队服务城市
                 carGroupServeScopeInfoMapper.deleteByCarGroupId(itemCarGroupId);
                 //删除车队调度员、修改员工的调度员角色、删除用户角色关系
-                delectCarGroupDispatcher(itemCarGroupId, userId);
+                deleteCarGroupDispatcher(itemCarGroupId, userId);
                 executeDeleteCarGroup(null, itemCarGroupId, userId);
             }
         }
