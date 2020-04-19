@@ -476,7 +476,7 @@ public class CarInfoServiceImpl implements ICarInfoService
 	@Override
 	public CarGroupCarInfo queryCarGroupCarList(Map map) {
         Long carGroupId = Long.valueOf(map.get("carGroupId").toString());
-        Long driverId = Long.valueOf(map.get("driverId").toString());
+        Long driverId = map.get("driverId")==null?null:Long.valueOf(map.get("driverId").toString());
 		CarGroupCarInfo carGroupCarInfo = new CarGroupCarInfo();
 		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId,driverId);
 		carGroupCarInfo.setList(queryCarGroupCarList);

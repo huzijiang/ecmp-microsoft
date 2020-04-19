@@ -357,9 +357,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		car_info a
 		WHERE
 		car_group_id = #{carGroupId}
+		<if test="driverId!=null">
 		and car_id not in (
 			select car_id from driver_car_relation_info where driver_id=#{driverId}
 		)
+        </if>
 		AND state = 'S000'
 	</select>
 
