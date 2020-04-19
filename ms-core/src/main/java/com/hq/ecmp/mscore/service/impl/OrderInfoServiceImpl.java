@@ -1445,7 +1445,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public List<OrderHistoryTraceDto> getOrderHistoryTrace(Long orderId) throws Exception {
         List<OrderHistoryTraceDto> orderHistoryTraceDtos = new ArrayList<>();
-        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        OrderInfo orderInfo = orderInfoMapper.selectOrderStateById(orderId);
+        if(orderInfo.getLabelState() != null){
+            if(OrderState.carAuthorityJundgeOrderComplete().contains(orderInfo.getLabelState())){
+                return orderHistoryTraceDtos;
+            }
+        }
         String useCarMode = orderInfo.getUseCarMode();
         if(useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
             DriverHeartbeatInfo driverHeartbeatInfo = new DriverHeartbeatInfo();

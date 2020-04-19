@@ -161,7 +161,7 @@ public class DriverNewsController {
     @PostMapping("/removeDriversCar")
     public ApiResponse removeDriversCar(@RequestBody CarDto carDto){
         try {
-            driverCarRelationInfoService.removeCarDriver(carDto.getCarId(),carDto.getUserId(),carDto.getDriverId());
+            driverCarRelationInfoService.removeCarDriver(carDto.getCarId(),carDto.getDriverId());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());

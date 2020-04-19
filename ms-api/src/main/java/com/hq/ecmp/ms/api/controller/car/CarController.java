@@ -327,7 +327,7 @@ public class CarController {
     @PostMapping("/removeCarDriver")
     public ApiResponse removeCarDriver(@RequestBody CarDto carDto){
         try {
-            driverCarRelationInfoService.removeCarDriver(carDto.getCarId(),carDto.getUserId(),carDto.getDriverId());
+            driverCarRelationInfoService.removeCarDriver(carDto.getCarId(),carDto.getDriverId());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
