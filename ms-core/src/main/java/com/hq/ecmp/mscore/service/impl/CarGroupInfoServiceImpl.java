@@ -664,8 +664,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         int row = 0;
         if (carGroupList != null && carGroupList.size() > 0) {
             for (CarGroupInfo carGroupInfo : carGroupList) {
+                Long itemCarGroupId = carGroupInfo.getCarGroupId();
                 CarGroupInfo updateBean = new CarGroupInfo();
-                updateBean.setCarGroupId(carGroupInfo.getCarGroupId());
+                updateBean.setCarGroupId(itemCarGroupId);
                 updateBean.setState(CarConstant.DELETE_CAR_GROUP);
                 updateBean.setUpdateBy(String.valueOf(userId));
                 updateBean.setUpdateTime(new Date());
@@ -673,7 +674,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 if( row != 1){
                     throw new Exception("删除下属车队失败");
                 }
-                executeDeleteCarGroup(null, carGroupInfo.getCarGroupId(), userId);
+                //新增删除车队调度员信息、车队服务范围信息、用户角色关系，修改用户表用户角色不是调度员的逻辑
+                //删除车队服务城市
+                carGroupServeScopeInfoMapper.deleteByCarGroupId(itemCarGroupId);
+                //删除车队调度员、修改员工的调度员角色、删除用户角色关系
+                delectCarGroupDispatcher(itemCarGroupId, userId);
+                executeDeleteCarGroup(null, itemCarGroupId, userId);
             }
         }
     }
@@ -981,8 +987,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         return false;
     }
 
-
-
     /* *//**
      * 判断是否是一级车队
      * @param carGroupId
@@ -1007,7 +1011,4 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
         return list;
     }
-
-
-
 }
