@@ -253,14 +253,17 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
     @Override
     public void initApproveResultInfo(Long applyId,Long regimenId,Long userId) throws Exception {
         //查询审批模板
+        log.info("初始化审批流开始:applyId="+applyId+",regimenId="+regimenId+"userId"+userId);
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
         RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimenId);
         if (regimeVo!=null){
             if (CommonConstant.NO_PASS.equals(regimeVo.getNeedApprovalProcess())){
+                log.info("申请单"+applyId+"无需审批");
                 applyInfo.setState(ApplyStateConstant.APPLY_PASS);
                 applyInfo.setUpdateTime(new Date());
                 applyInfo.setUpdateBy(String.valueOf(userId));
                 applyInfoMapper.updateApplyInfo(applyInfo);
+                log.info("申请单"+applyId+"状态为"+applyInfo.getState());
                 return;
             }
             List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(Long.valueOf(regimeVo.getApproveTemplateId())));
@@ -306,6 +309,7 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                     applyApproveResultInfoMapper.insertApplyApproveResultInfo(resultInfo);
                 }
             }
+            log.info("申请单"+applyId+"初始化审批流成功");
         }
     }
 
