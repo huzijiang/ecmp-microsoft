@@ -71,14 +71,14 @@ public class DispatchController {
     }
 
 
-    @Log(title = "车辆调度:获取系统已经完成调派或已过期的订单详细信息(包含申请和改派的)", businessType = BusinessType.OTHER)
+    @Log(title = "车辆调度",content = "获取系统已经完成调派或已过期的订单详细信息(包含申请和改派的)", businessType = BusinessType.OTHER)
     @ApiOperation(value = "detail", notes = "获取系统已经完成调派或已过期的订单详细信息(包含申请和改派的) ", httpMethod = "POST")
     @PostMapping("/detail")
     public ApiResponse<DispatchSendCarPageInfo> detail(@RequestBody String orderId) {
     	return ApiResponse.success(iOrderInfoService.getUserDispatchedOrder(Long.valueOf(orderId)));
     }
 
-    @Log(title = "车辆调度:派车详情页(包含申请和改派的)", businessType = BusinessType.OTHER)
+    @Log(title = "车辆调度",content = "派车详情页(包含申请和改派的)",businessType = BusinessType.OTHER)
     @ApiOperation(value = "sendDetail", notes = "派车详情页(包含申请和改派的)", httpMethod = "POST")
     @PostMapping("/sendDetail")
     public ApiResponse<DispatchSendCarPageInfo> sendDetail(@RequestBody Long orderId) {

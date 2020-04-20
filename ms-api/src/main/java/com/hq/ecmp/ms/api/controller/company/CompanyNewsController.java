@@ -40,7 +40,7 @@ public class CompanyNewsController {
     * 企业动态查询：人员数量、驾驶员数量、车辆数量
     * @return  map
     */
-   @Log(title = "企业动态模块:查询企业动态信息", businessType = BusinessType.OTHER)
+   @Log(title = "企业动态模块",content = "查询企业动态信息",businessType = BusinessType.OTHER)
    @ApiOperation(value = "getCompanyNewsController",notes = "查询企业动态信息",httpMethod = "POST")
    @PostMapping("/getCompanyNewsController")
    public ApiResponse<NewsVO> getCompanyNewsController() {

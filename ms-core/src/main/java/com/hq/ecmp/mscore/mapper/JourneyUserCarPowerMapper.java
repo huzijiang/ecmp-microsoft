@@ -88,4 +88,6 @@ public interface JourneyUserCarPowerMapper
 
 	 public JourneyUserCarPower getLastPowerByJourneyId(Long journeyId);
 
+	 public JourneyUserCarPower getLastPowerCityByJourneyId(Long journeyId);
+
 }
