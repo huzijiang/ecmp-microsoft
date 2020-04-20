@@ -114,5 +114,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where dict_type = #{dictType}
    </select>
 
+    <select id="selectEcmpDictByType" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.SceneListVO">
 
+        select  dict_value AS icon from ecmp_dict_data where dict_type = #{dictType}
+
+    </select>
 </mapper>

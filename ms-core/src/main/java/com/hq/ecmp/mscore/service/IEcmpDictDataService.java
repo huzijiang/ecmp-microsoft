@@ -3,7 +3,10 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.DictQuery;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.EcmpDictData;
+import com.hq.ecmp.mscore.vo.SceneListVO;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -68,6 +71,13 @@ public interface IEcmpDictDataService
      * @return 结果
      */
     public int deleteEcmpDictDataById(Long dictCode);
+
+    /**
+     * 查询字典里面的图标
+     * @param dictType
+     * @return
+     */
+    List<SceneListVO> selectEcmpDictByType(String dictType);
     /**
      * 评价标签的好评
      * @return 字典数据集合

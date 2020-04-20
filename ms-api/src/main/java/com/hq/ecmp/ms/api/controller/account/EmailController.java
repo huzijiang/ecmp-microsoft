@@ -39,7 +39,7 @@ public class EmailController {
      * @param
      * @return list
      */
-    @Log(title = "财务模块:查询邮箱信息", businessType = BusinessType.OTHER)
+    @Log(title = "财务模块",content = "查询邮箱信息", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getEmailList",notes = "查询邮箱信息",httpMethod = "POST")
     @PostMapping("/getEmailList")
     public ApiResponse<List<EmailVO>> getEmailList(){
@@ -57,7 +57,7 @@ public class EmailController {
      * @param emailDTO
      * @return
      */
-    @Log(title = "财务模块:新增邮箱信息", businessType = BusinessType.INSERT)
+    @Log(title = "财务模块",content = "新增邮箱信息", businessType = BusinessType.INSERT)
     @ApiOperation(value = "emailAddCommit",notes = "新增邮箱信息",httpMethod = "POST")
     @PostMapping("/emailAddCommit")
      public ApiResponse emailAddCommit(@RequestBody EmailDTO emailDTO){
@@ -82,7 +82,7 @@ public class EmailController {
      * @param emailUpdateDTO
      * @return
      */
-     @Log(title = "财务模块:修改邮箱信息", businessType = BusinessType.UPDATE)
+     @Log(title = "财务模块",content = "修改邮箱信息", businessType = BusinessType.UPDATE)
      @ApiOperation(value = "emailInfoUpdate",notes = "修改邮箱信息",httpMethod = "POST")
      @PostMapping("/emailInfoUpdate")
      public ApiResponse emailInfoUpdate(@RequestBody EmailUpdateDTO emailUpdateDTO){
@@ -106,7 +106,7 @@ public class EmailController {
      * @param emailDeleteDTO
      * @return
      */
-     @Log(title = "财务模块:删除邮箱信息", businessType = BusinessType.DELETE)
+     @Log(title = "财务模块",content = "删除邮箱信息", businessType = BusinessType.DELETE)
      @ApiOperation(value = "emailInfoDelete",notes = "删除邮箱信息",httpMethod = "POST")
      @PostMapping("/emailInfoDelete")
      public ApiResponse emailInfoDelete(@RequestBody EmailDeleteDTO emailDeleteDTO){

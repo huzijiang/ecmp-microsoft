@@ -1940,10 +1940,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
             int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
             if (orderConfirmStatus == CommonConstant.ZERO) {
+                //自动确认
                 status = OrderState.ORDERCLOSE.getState();
                 lableState = OrderState.ORDERCLOSE.getState();
                 newOrderInfo.setState(status);
             }
+            log.info("网约车订单:"+orderNo+"确认方式为"+orderConfirmStatus);
             content="网约车服务结束";
             //更新网约车真实地址
             this.refreshRealAddr(longitude,latitude,OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE,orderInfo);
