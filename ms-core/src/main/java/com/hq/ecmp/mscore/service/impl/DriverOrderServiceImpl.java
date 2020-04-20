@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -227,8 +228,16 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             //添加里程数和总时长
             OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
             orderSettlingInfo.setOrderId(orderId);
-            orderSettlingInfo.setTotalMileage(new BigDecimal(mileage).divide(new BigDecimal("1000"),2,BigDecimal.ROUND_HALF_UP).stripTrailingZeros());
-            orderSettlingInfo.setTotalTime(new BigDecimal(travelTime).stripTrailingZeros());
+            if(StringUtils.isNotBlank(mileage)){
+                orderSettlingInfo.setTotalMileage(new BigDecimal(mileage).divide(new BigDecimal("1000"),2,BigDecimal.ROUND_HALF_UP).stripTrailingZeros());
+            }else {
+                orderSettlingInfo.setTotalMileage(new BigDecimal("0"));
+            }
+            if(StringUtils.isNotBlank(travelTime)){
+                orderSettlingInfo.setTotalTime(new BigDecimal(travelTime).stripTrailingZeros());
+            }else{
+                orderSettlingInfo.setTotalTime(new BigDecimal("0"));
+            }
             orderSettlingInfo.setCreateBy(String.valueOf(userId));
             iOrderSettlingInfoService.insertOrderSettlingInfo(orderSettlingInfo);
             //司机服务结束发送短信
