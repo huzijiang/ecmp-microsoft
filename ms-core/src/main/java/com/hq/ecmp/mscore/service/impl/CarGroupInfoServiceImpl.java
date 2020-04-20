@@ -241,8 +241,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     ecmpUserVo.setUserId(id);
                     ecmpUserVo.setUpdateBy(String.valueOf(userId));
                     ecmpUserVo.setUpdateTime(new Date());
-                    // 是调度员为 0 ；不是调度员为 1
-                    ecmpUserVo.setItIsDispatcher("0");
+                    // 是调度员为 1 ；不是调度员为 0
+                    ecmpUserVo.setItIsDispatcher("1");
                     int i = ecmpUserMapper.updateEcmpUser(ecmpUserVo);
                     if(i != 1){
                         throw new RuntimeException("调度员角色赋予失败");
@@ -415,8 +415,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     ecmpUserVo.setUserId(id);
                     ecmpUserVo.setUpdateTime(new Date());
                     ecmpUserVo.setUpdateBy(String.valueOf(userId));
-                    // 是调度员为 0 ；不是调度员为 1
-                    ecmpUserVo.setItIsDispatcher("1");
+                    // 是调度员为 1 ；不是调度员为 0
+                    ecmpUserVo.setItIsDispatcher("0");
                     int m = ecmpUserMapper.updateEcmpUser(ecmpUserVo);
                     if(m != 1){
                         throw new RuntimeException("调度员用户表角色修改失败");

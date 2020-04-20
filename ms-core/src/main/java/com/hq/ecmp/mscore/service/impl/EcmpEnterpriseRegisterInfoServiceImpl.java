@@ -1,5 +1,5 @@
 package com.hq.ecmp.mscore.service.impl;
-
+import com.hq.core.aspectj.lang.annotation.Log;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;

@@ -314,7 +314,7 @@ WHERE
     </select>
 
     <select id="queryCompanyDriver"  resultType="java.lang.Integer">
-          select count(*) from driver_info where state='V000'or state='W001'
+          select count(*) from driver_info
     </select>
 
     <!--根据deptId查询归属驾驶员数量-->

@@ -455,7 +455,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         if (StringUtils.isBlank(ecmpOrgVo.getDeptName())) {
             throw new Exception("部门/公司名称不可为空");
         }
-        int isRepart = ecmpOrgMapper.isRepart(ecmpOrgVo.getDeptName(),flag,ecmpOrgVo.getDeptId());
+        int isRepart = ecmpOrgMapper.isRepart(ecmpOrgVo.getDeptName(),flag,ecmpOrgVo.getDeptId(),ecmpOrgVo.getParentId());
         if(isRepart>0){
             throw new Exception("部门名称，不可重复录入！");
         }

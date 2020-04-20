@@ -113,6 +113,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             update driver_work_info
             set leave_status=#{item.workState},
             update_by=#{userId},
+            <if test="item.workState == 'X000' or item.workState == 'X002' or item.workState == 'X003'">
+            today_it_is_on_duty='1111',
+            </if>
+            <if test="item.workState == 'X999'">
+              today_it_is_on_duty='0000',
+            </if>
             update_time=#{updateTime}
             where work_id=#{item.workId}
             and driver_id=#{item.driverId}
@@ -143,7 +149,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
             update driver_work_info
             set today_it_is_on_duty=#{item.workState},
+            leave_status=#{item.leaveStatus},
             update_by=#{userId},
+            <if test="item.workState == '1111'">
+                leave_status='X003',
+            </if>
+            <if test="item.workState == '0000'">
+                leave_status='X999',
+            </if>
             update_time=#{updateTime}
             where DATE_FORMAT(caledar_date,'%Y-%m-%d') = DATE_FORMAT(#{item.calendarDate},'%Y-%m-%d')
         </foreach>
