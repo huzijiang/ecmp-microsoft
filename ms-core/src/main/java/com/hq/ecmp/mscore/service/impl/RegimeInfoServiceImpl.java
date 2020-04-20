@@ -508,4 +508,26 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		createRegime(regimePo);
 		return true;
 	}
+
+	@Override
+	public RegimeLimitUseCarCityInfo queryRegimeCityLimit(Long regimeId) {
+		RegimeLimitUseCarCityInfo regimeLimitUseCarCityInfo = new RegimeLimitUseCarCityInfo();
+		RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimeId);
+		if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimeVo.getRegimenType())){
+			String ruleCity = regimeVo.getRuleCity();
+			if(StringUtil.isNotEmpty(ruleCity)){
+				List<String> queryLimitCityCodeList = regimeUseCarCityRuleInfoService.queryLimitCityCodeList(regimeId);
+				if("C002".equals(ruleCity)){
+					//限制可用城市
+					regimeLimitUseCarCityInfo.setCanUseCityList(queryLimitCityCodeList);
+				}
+				if("C003".equals(ruleCity)){
+					//限制不可用城市
+					regimeLimitUseCarCityInfo.setNotCanUseCityList(queryLimitCityCodeList);
+					
+				}
+			}		
+		}
+		return regimeLimitUseCarCityInfo;
+	}
 }
