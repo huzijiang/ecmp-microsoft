@@ -253,6 +253,18 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	public boolean createUseCarAuthority(Long applyId,Long auditUserId) {
 		//查询行程信息
 		ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(applyId);
+		boolean travelAllowUseCar=false;//差旅 是否允许使用城市用车
+		boolean asAllowUseCar=false;//差旅  是否允许使用接送服务
+		//查询行程对应的制度信息
+		RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(applyInfo.getRegimenId());
+		if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getRegimenType())){
+			if(CarConstant.ALLOW_USE.equals(regimeInfo.getTravelAllowInTravelCityUseCar())){
+				travelAllowUseCar=true;
+			}
+			if(CarConstant.ALLOW_USE.equals(regimeInfo.getAsAllowAirportShuttle())){
+				asAllowUseCar=true;
+			}
+		}
 		Long journeyId = applyInfo.getJourneyId();
 		//查询行程信息
 		JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyId);
@@ -294,7 +306,10 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				//起点地生成一次送机权限
 				for (Long s : startTo) {
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_DROP_OFF,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
+					if(asAllowUseCar){
+						journeyUserCarPowerList.add(journeyUserCarPower);
+					}
+					
 				}
 			}
 			
@@ -302,11 +317,18 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				//途径地会生成市内用车   接送机权限各一次
 				for (Long s : throughTo) {
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_DROP_OFF,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
+					if(asAllowUseCar){
+						journeyUserCarPowerList.add(journeyUserCarPower);
+					}
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_PICKUP,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
+					if(asAllowUseCar){
+						journeyUserCarPowerList.add(journeyUserCarPower);
+					}
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.CITY_USE_CAR,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
+					if(travelAllowUseCar){
+						journeyUserCarPowerList.add(journeyUserCarPower);
+					}
+					
 				}
 			}
 			
@@ -314,7 +336,10 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				//目的地生成一次接机权限
 				for (Long s : endTo) {
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_PICKUP,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
+					if(asAllowUseCar){
+						journeyUserCarPowerList.add(journeyUserCarPower);
+					}
+					
 				}
 			}
 		}
