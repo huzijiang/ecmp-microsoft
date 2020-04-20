@@ -131,4 +131,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </set>
         where car_group_id = #{carGroupId}
     </update>
+
+    <!--通过车队ID删除-->
+    <delete id="deleteByCarGroupId">
+        delete from ecmp.car_group_serve_scope_info where car_group_id = #{carGroupId}
+    </delete>
 </mapper>
