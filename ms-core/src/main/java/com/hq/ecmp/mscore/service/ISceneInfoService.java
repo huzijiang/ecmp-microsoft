@@ -116,4 +116,11 @@ public interface ISceneInfoService
      * @return
      */
     SceneInfo querySceneByRegimeId(Long regimeId);
+
+    /**
+     * 场景图标中已经用过的图标
+     * @param
+     * @return
+     */
+    List<SceneListVO> seleSceneByIcon(SceneListVO sceneList);
 }

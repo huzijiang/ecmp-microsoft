@@ -5,6 +5,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpDictData;
 import com.hq.ecmp.mscore.mapper.EcmpDictDataMapper;
 import com.hq.ecmp.mscore.service.IEcmpDictDataService;
+import com.hq.ecmp.mscore.vo.SceneListVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -100,6 +101,16 @@ public class EcmpDictDataServiceImpl implements IEcmpDictDataService
     public int deleteEcmpDictDataById(Long dictCode)
     {
         return ecmpDictDataMapper.deleteEcmpDictDataById(dictCode);
+    }
+
+    /**
+     * 查询字典里面的图标
+     * @param dictType
+     * @return
+     */
+    @Override
+    public List<SceneListVO> selectEcmpDictByType(String dictType) {
+        return ecmpDictDataMapper.selectEcmpDictByType(dictType);
     }
     /**
      * 评价标签的好评

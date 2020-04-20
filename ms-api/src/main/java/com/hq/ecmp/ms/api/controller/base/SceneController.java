@@ -6,10 +6,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.ecmp.ms.api.dto.base.DictDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.SceneDTO;
 import com.hq.ecmp.mscore.dto.SceneSortDTO;
+import com.hq.ecmp.mscore.service.IEcmpDictDataService;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
 import com.hq.ecmp.mscore.service.ISceneRegimeRelationService;
 import com.hq.ecmp.mscore.vo.PageResult;
@@ -47,6 +49,8 @@ public class SceneController {
 	private IRegimeInfoService regimeInfoService;
 	@Autowired
 	private ISceneRegimeRelationService sceneRegimeRelationService;
+	@Autowired
+	private IEcmpDictDataService iEcmpDictDataService;
 	
 	/**
 	 * 获取用户的用车场景
@@ -254,5 +258,44 @@ public class SceneController {
 			}
 		}
 		return ApiResponse.success(regimeVoList);
+	}
+
+	/**
+	 * 场景可选图标
+	 * @param
+	 * @return
+	 */
+	@Log(title = "场景模块:场景可选图标", businessType = BusinessType.OTHER)
+	@ApiOperation(value = "getSceneIcon", notes = "场景可选图标", httpMethod = "POST")
+	@PostMapping("/getSceneIcon")
+	public ApiResponse<List<SceneListVO>> queryRegimeList(@RequestBody SceneListVO sceneListVO) {
+		SceneListVO sceneLists = new SceneListVO();
+		sceneListVO.setDictType("icon");
+		//所有场景图标
+		List<SceneListVO> ecmpDictDataList = iEcmpDictDataService.selectEcmpDictByType(sceneListVO.getDictType());
+		//场景图标中已经用过的图标
+		List<SceneListVO> sceneList = sceneInfoService.seleSceneByIcon(sceneLists);
+		//选出可以使用的制度
+		for(int i= 0; i<ecmpDictDataList.size(); i++){
+			for(int s =0; s<sceneList.size() ; s++){
+				if(ecmpDictDataList.get(i).getIcon().equals(sceneList.get(s).getIcon())){
+					ecmpDictDataList.remove(i);
+					i --;
+					break;
+				}
+			}
+		}
+		//如果传了sceneId  则是返回增加时候的放进来的制度数据
+		if(sceneListVO.getSceneId()!=null){
+			//根据sceneId查询对应的制度id集合
+			List<SceneListVO> scene = sceneInfoService.seleSceneByIcon(sceneListVO);
+			//把增加的制度数据放进去regimeVoList中
+			if(!scene.isEmpty()){
+				for(SceneListVO sceneId:scene){
+					ecmpDictDataList.add(sceneId);
+				}
+			}
+		}
+		return ApiResponse.success(ecmpDictDataList);
 	}
 }

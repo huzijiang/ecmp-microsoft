@@ -117,15 +117,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="querySceneByRegimeId" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.SceneInfo">
-SELECT
-	a. NAME AS NAME,
-	a.scene_id as sceneId
-FROM
-	scene_info a
-LEFT JOIN scene_regime_relation b ON a.scene_id = b.scene_id
-WHERE
-	b.regimen_id = #{regimeId}
-LIMIT 1
+            SELECT
+                a. NAME AS NAME,
+                a.scene_id as sceneId
+            FROM
+                scene_info a
+            LEFT JOIN scene_regime_relation b ON a.scene_id = b.scene_id
+            WHERE
+                b.regimen_id = #{regimeId}
+            LIMIT 1
     </select>
-
+    
+    <select id="seleSceneByIcon" parameterType="com.hq.ecmp.mscore.vo.SceneListVO" resultType="com.hq.ecmp.mscore.vo.SceneListVO">
+        <include refid="selectSceneInfoVo"/>
+        <where>
+            <if test="sceneId != null  and sceneId != ''"> and scene_id = #{sceneId}</if>
+        </where>
+    </select>
 </mapper>
