@@ -61,4 +61,8 @@ public enum OrderServiceType {
     public static List<String> getNetServiceType(){
         return Arrays.asList(ORDER_SERVICE_TYPE_NOW.getBcState(),ORDER_SERVICE_TYPE_APPOINTMENT.getBcState(),ORDER_SERVICE_TYPE_PICK_UP.getBcState(),ORDER_SERVICE_TYPE_SEND.getBcState());
     }
+    
+    public static List<String> getSendAndPick(){
+        return Arrays.asList(ORDER_SERVICE_TYPE_PICK_UP.getBcState(),ORDER_SERVICE_TYPE_SEND.getBcState());
+    }
 }
