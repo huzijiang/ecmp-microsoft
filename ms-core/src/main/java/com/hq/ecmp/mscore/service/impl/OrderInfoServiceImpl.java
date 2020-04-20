@@ -1447,7 +1447,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         List<OrderHistoryTraceDto> orderHistoryTraceDtos = new ArrayList<>();
         OrderInfo orderInfo = orderInfoMapper.selectOrderStateById(orderId);
         if(orderInfo.getLabelState() != null){
-            if(OrderState.carAuthorityJundgeOrderComplete().contains(orderInfo.getLabelState())){
+            if(!OrderState.carAuthorityJundgeOrderComplete().contains(orderInfo.getLabelState())){
                 return orderHistoryTraceDtos;
             }
         }
