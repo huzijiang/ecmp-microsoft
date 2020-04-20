@@ -58,7 +58,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "getNoticeSearchList",notes = "分页查询公告列表",httpMethod ="POST")
-    @Log(title = "公告管理:公告列表", businessType = BusinessType.OTHER)
+    @Log(title = "公告管理:公告列表", content = "公告列表",businessType = BusinessType.OTHER)
     @PostMapping("/getNoticeSearchList")
     public ApiResponse<PageResult<EcmpNotice>> getNoticeSearchList(@RequestBody PageRequest pageRequest){
         try {
@@ -77,7 +77,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "getNoticeDetails",notes = "查询公告列表详情",httpMethod ="POST")
-    @Log(title = "公告管理:公告详情", businessType = BusinessType.OTHER)
+    @Log(title = "公告管理",content = "公告详情", businessType = BusinessType.OTHER)
     @PostMapping("/getNoticeDetails")
     public ApiResponse<EcmpNotice> getNoticeDetails(@RequestBody Integer noticeId){
         try {
@@ -198,7 +198,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "addNotice",notes = "新增公告信息",httpMethod ="POST")
-    @Log(title = "公告管理:新增公告", businessType = BusinessType.INSERT)
+    @Log(title = "公告管理",content = "新增公告", businessType = BusinessType.INSERT)
     @PostMapping("/addNotice")
     public ApiResponse addNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -272,7 +272,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "deleteNotice",notes = "删除公告信息",httpMethod ="POST")
-    @Log(title = "公告管理:删除公告", businessType = BusinessType.DELETE)
+    @Log(title = "公告管理",content = "删除公告", businessType = BusinessType.DELETE)
     @PostMapping("/deleteNotice")
     public ApiResponse deleteNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
         iEcmpNoticeService.deleteEcmpNoticeById(ecmpNoticeDTO.getNoticeId());
@@ -286,7 +286,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "updateNotice",notes = "修改公告信息",httpMethod ="POST")
-    @Log(title = "公告管理:修改公告", businessType = BusinessType.UPDATE)
+    @Log(title = "公告管理",content = "修改公告", businessType = BusinessType.UPDATE)
     @PostMapping("/updateNotice")
     public ApiResponse updateNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

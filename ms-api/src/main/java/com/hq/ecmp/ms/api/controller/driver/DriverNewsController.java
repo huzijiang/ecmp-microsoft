@@ -46,7 +46,7 @@ public class DriverNewsController {
      * @param pageRequest
      * @return
      */
-    @Log(title = "驾驶员管理模块:查询驾驶员可用车辆列表", businessType = BusinessType.OTHER)
+    @Log(title = "驾驶员管理模块",content = "查询驾驶员可用车辆列表", businessType = BusinessType.OTHER)
     @ApiOperation(value="getDriverCanUseCarsList" ,notes="查询驾驶员可用车辆列表", httpMethod = "POST")
     @PostMapping("/getDriverCanUseCarsList")
     public ApiResponse<PageResult<DriverCanUseCarsDTO>> getDriverCanUseCarsList(@RequestBody PageRequest pageRequest){
@@ -59,7 +59,7 @@ public class DriverNewsController {
      * @param pageRequest
      * @return
      */
-    @Log(title = "驾驶员管理模块:查询驾驶员失效列表", businessType = BusinessType.OTHER)
+    @Log(title = "驾驶员管理模块",content = "查询驾驶员失效列表", businessType = BusinessType.OTHER)
     @ApiOperation(value="getDriverLoseList" ,notes="查询驾驶员失效列表", httpMethod = "POST")
     @PostMapping("/getDriverLoseList")
     public ApiResponse<PageResult<DriverLoseDTO>> getDriverLoseList(@RequestBody PageRequest pageRequest){
@@ -72,7 +72,7 @@ public class DriverNewsController {
      * @param driverDTO
      * @return
      */
-    @Log(title = "驾驶员管理模块:查询驾驶员失效数量", businessType = BusinessType.OTHER)
+    @Log(title = "驾驶员管理模块",content = "查询驾驶员失效数量", businessType = BusinessType.OTHER)
     @ApiOperation(value="getDriverLoseCount" ,notes="查询驾驶员失效数量", httpMethod = "POST")
     @PostMapping("/getDriverLoseCount")
     public ApiResponse  getDriverLoseCount(@RequestBody DriverNewDTO driverDTO){
@@ -88,7 +88,7 @@ public class DriverNewsController {
      * @param driverDTO
      * @return
      */
-    @Log(title = "驾驶员管理模块:删除驾驶员", businessType = BusinessType.DELETE)
+    @Log(title = "驾驶员管理模块",content = "删除驾驶员", businessType = BusinessType.DELETE)
     @ApiOperation(value="getDriverDelete" ,notes="删除驾驶员", httpMethod = "POST")
     @PostMapping("/getDriverDelete")
     public ApiResponse  getDriverDelete(@RequestBody DriverNewDTO driverDTO) throws Exception {
@@ -104,7 +104,7 @@ public class DriverNewsController {
      * @param driverCreateInfo
      * @return
      */
-    @Log(title = "驾驶员管理模块:修改驾驶员", businessType = BusinessType.UPDATE)
+    @Log(title = "驾驶员管理模块:修改驾驶员",content = "修改驾驶员", businessType = BusinessType.UPDATE)
     @ApiOperation(value="getDriverUpdate" ,notes="修改驾驶员", httpMethod = "POST")
     @PostMapping("/getDriverUpdate")
     public ApiResponse  getDriverUpdate(@RequestBody DriverCreateInfo driverCreateInfo){
@@ -125,7 +125,7 @@ public class DriverNewsController {
      * @param driverNewDTO
      * @return
      */
-    @Log(title = "驾驶员管理模块:修改驾驶员手机号", businessType = BusinessType.UPDATE)
+    @Log(title = "驾驶员管理模块",content = "修改驾驶员手机号", businessType = BusinessType.UPDATE)
     @ApiOperation(value="getDriverUpdateMobile" ,notes="修改驾驶员手机号", httpMethod = "POST")
     @PostMapping("/getDriverUpdateMobile")
     public ApiResponse  getDriverUpdateMobile(@RequestBody DriverNewDTO driverNewDTO){
@@ -140,7 +140,7 @@ public class DriverNewsController {
      * @param driverNewDTO
      * @return
      */
-    @Log(title = "驾驶员管理模块:设置驾驶员离职日期", businessType = BusinessType.UPDATE)
+    @Log(title = "驾驶员管理模块", content = "设置驾驶员离职日期",businessType = BusinessType.UPDATE)
     @ApiOperation(value="getDriverUpdateDimTime" ,notes="设置驾驶员离职日期", httpMethod = "POST")
     @PostMapping("/getDriverUpdateDimTime")
     public ApiResponse  getDriverUpdateDimTime(@RequestBody DriverNewDTO driverNewDTO){

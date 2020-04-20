@@ -40,7 +40,7 @@ public class InvoiceInfoController {
      * @param invoiceByTimeStateDTO
      * @return
      */
-    @Log(title = "财务模块:发票记录列表查询", businessType = BusinessType.OTHER)
+    @Log(title = "财务模块", content = "发票记录列表查询",businessType = BusinessType.OTHER)
     @ApiOperation(value = "getInvoiceInfoList",notes = "发票记录列表查询",httpMethod = "POST")
     @PostMapping("/getInvoiceInfoList")
     public ApiResponse<PageResult<InvoiceRecordVO>> getInvoiceInfoList(@RequestBody InvoiceByTimeStateDTO invoiceByTimeStateDTO){
@@ -52,7 +52,7 @@ public class InvoiceInfoController {
      * @param invoiceDTO
      * @return
      */
-    @Log(title = "财务模块:新增发票信息", businessType = BusinessType.INSERT)
+    @Log(title = "财务模块",content = "新增发票信息", businessType = BusinessType.INSERT)
     @ApiOperation(value = "invoiceInfoCommit",notes = "新增发票信息",httpMethod = "POST")
     @PostMapping("/invoiceInfoCommit")
      public ApiResponse invoiceInfoCommit(@RequestBody InvoiceDTO invoiceDTO){
@@ -96,7 +96,7 @@ public class InvoiceInfoController {
      * @param insertDTO
      * @return
      */
-    @Log(title = "财务模块:发票信息详情", businessType = BusinessType.OTHER)
+    @Log(title = "财务模块",content = "发票信息详情", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getInvoiceInfoDetail",notes = "发票信息详情",httpMethod ="POST")
     @PostMapping("/getInvoiceInfoDetail")
     public ApiResponse<InvoiceDetailVO> getInvoiceInfoDetail(@RequestBody InvoiceInsertDTO insertDTO){
@@ -111,7 +111,7 @@ public class InvoiceInfoController {
      * @param invoiceHeaderDTO
      * @return
      */
-    @Log(title = "财务模块:新增发票抬头", businessType = BusinessType.INSERT)
+    @Log(title = "财务模块",content = "新增发票抬头", businessType = BusinessType.INSERT)
     @ApiOperation(value = "invoiceHeaderCommit",notes = "新增发票抬头",httpMethod = "POST")
     @PostMapping("/invoiceHeaderCommit")
     public ApiResponse invoiceHeaderCommit(@RequestBody InvoiceHeaderDTO invoiceHeaderDTO){
@@ -133,7 +133,7 @@ public class InvoiceInfoController {
      * @param
      * @return
      */
-    @Log(title = "财务模块:发票抬头查询", businessType = BusinessType.OTHER)
+    @Log(title = "财务模块",content = "发票抬头查询", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getInvoiceHeaderList",notes = "发票抬头查询",httpMethod = "POST")
     @PostMapping("/getInvoiceHeaderList")
     public ApiResponse<List<InvoiceHeaderVO>> getInvoiceHeaderList(){
