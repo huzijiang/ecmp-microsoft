@@ -81,8 +81,22 @@ class OrgControllerTest {
     private IOrderInfoService orderInfoService;
     @Autowired
     private IDriverHeartbeatInfoService driverHeartbeatInfoService;
+    @Autowired
+    private EcmpMessageService ecmpMessageService;
 
 
+
+    @Test
+    void getMessagesForPassenger() {
+        try {
+            SysUser sysUser = new SysUser();
+            sysUser.setUserId(200347l);
+            List<MessageDto> messagesForPassenger = ecmpMessageService.getMessagesForPassenger(sysUser);
+            System.out.println(messagesForPassenger.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     @Test
     void getOrgByDeptId() {
         //加载部门（成本中心）

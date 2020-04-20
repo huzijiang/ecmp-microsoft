@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.hq.ecmp.mscore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -14,13 +15,6 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchCountCarAndDriverDto;
-import com.hq.ecmp.mscore.service.IApplyInfoService;
-import com.hq.ecmp.mscore.service.IDispatchService;
-import com.hq.ecmp.mscore.service.IEcmpConfigService;
-import com.hq.ecmp.mscore.service.IEcmpNoticeService;
-import com.hq.ecmp.mscore.service.IEcmpUserService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.RedisUtil;
@@ -56,6 +50,9 @@ public class ScheduledTask {
 
     @Autowired
     private IEcmpNoticeService iEcmpNoticeService;
+
+	//@Autowired
+	//private IDriverWorkInfoService driverWorkInfoService;
 
     @Scheduled(cron = "5 * * * * ?")
     public void testJob(){
@@ -195,7 +192,7 @@ public class ScheduledTask {
     
 
     //后台公告管理通过发布时间与结束时间做状态修改
-    @Scheduled(cron = "0 0 0 * * ? ")
+	@Scheduled(cron = "0 0/1 * * * ? ")
     public void  announcementManagementTimingTask (){
         log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
         try {
@@ -206,4 +203,15 @@ public class ScheduledTask {
         log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改EndTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
     }
 
+    //从云端获取一年的节假日修改本地数据的cloud_work_date_info表
+	/*@Scheduled(cron = "0 0/3 * * * ? ")
+	public void  SchedulingTimingTask (){
+		log.info("定时任务:SchedulingTimingTask:通过云端获取的时间修改本地cloud_work_date_info假期StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			driverWorkInfoService.SchedulingTimingTask();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		log.info("定时任务:SchedulingTimingTask:通过云端获取的时间修改本地cloud_work_date_info假期EndTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}*/
 }

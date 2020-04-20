@@ -552,6 +552,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         osi.amount  amount,
         -- 订单编号
         s.order_number orderNumber,
+        -- 轨迹状态
+        (select state from order_state_trace_info sti where sti.order_id=s.order_id order by trace_id desc limit 1) labelState,
         -- 用车制度
         ri.name regimenName
         from order_info s
@@ -622,7 +624,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         osi.amount_detail amountDetail,
         osi.amount,
         dhi.longitude  currentLongitude,
-        dhi.latitude currentLatitude
+        dhi.latitude currentLatitude,
+        (select state from order_state_trace_info sti where sti.order_id=s.order_id order by trace_id desc limit 1) labelState
         from order_info s
         left join journey_user_car_power jucp on jucp.power_id=s.power_id
         left join apply_info a on a.apply_id=jucp.apply_id
