@@ -248,7 +248,10 @@ public class ApplyContoller {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try{
-            resultInfoService.applyPass(journeyApplyDto,userId);
+            List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.beforeInspect(journeyApplyDto, userId);
+            if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
+                resultInfoService.applyPass(journeyApplyDto,userId,applyApproveResultInfos);
+            }
         }catch (Exception e){
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -268,7 +271,10 @@ public class ApplyContoller {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try{
-            resultInfoService.applyReject(journeyApplyDto,userId);
+            List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.beforeInspect(journeyApplyDto, userId);
+            if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
+                resultInfoService.applyReject(journeyApplyDto,userId,applyApproveResultInfos);
+            }
         }catch (Exception e){
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());

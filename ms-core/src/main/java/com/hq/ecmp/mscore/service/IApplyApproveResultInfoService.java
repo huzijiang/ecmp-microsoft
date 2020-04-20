@@ -83,7 +83,8 @@ public interface IApplyApproveResultInfoService
 
     List<ApplyApproveResultInfo> selectByUserId(Long applyId, Long userId,String state);
 
-    void applyReject(ApplyDTO journeyApplyDto, Long userId)throws Exception;
+    List<ApplyApproveResultInfo> beforeInspect(ApplyDTO journeyApplyDto,Long userId) throws Exception;
+    void applyReject(ApplyDTO journeyApplyDto, Long userId,List<ApplyApproveResultInfo> allcollect)throws Exception;
 
-    void applyPass(ApplyDTO journeyApplyDto, Long userId)throws Exception;
+    void applyPass(ApplyDTO journeyApplyDto, Long userId,List<ApplyApproveResultInfo> allcollect)throws Exception;
 }
