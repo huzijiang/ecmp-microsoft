@@ -22,8 +22,7 @@ public class CloudWorkIDateVo {
 
    // @ApiModelProperty(value = "排班id")
    // private Long workId;
-    @ApiModelProperty(value = "日期（格式：yyyy-MM-dd）")
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date calendarDate;
     private String calendarYear;

@@ -92,8 +92,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <delete id="deleteCarDriver">
-        delete from driver_car_relation_info where user_id = #{userId}
-        and driver_id = #{driverId} and car_id = #{carId}
+        delete from driver_car_relation_info where
+        driver_id = #{driverId} and car_id = #{carId}
     </delete>
 
     <select id="queryCountCarByDriverId" resultType="java.lang.Integer">

@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -473,9 +474,11 @@ public class CarInfoServiceImpl implements ICarInfoService
     }
 
 	@Override
-	public CarGroupCarInfo queryCarGroupCarList(Long carGroupId) {
+	public CarGroupCarInfo queryCarGroupCarList(Map map) {
+        Long carGroupId = Long.valueOf(map.get("carGroupId").toString());
+        Long driverId = map.get("driverId")==null?null:Long.valueOf(map.get("driverId").toString());
 		CarGroupCarInfo carGroupCarInfo = new CarGroupCarInfo();
-		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId);
+		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId,driverId);
 		carGroupCarInfo.setList(queryCarGroupCarList);
 		// 查询车队对应的部门和公司
 		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);

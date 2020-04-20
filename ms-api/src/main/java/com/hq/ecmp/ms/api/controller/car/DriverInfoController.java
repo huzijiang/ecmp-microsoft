@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.car;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -82,8 +83,8 @@ public class DriverInfoController {
 	@Log(title = "驾驶员管理:指定车队下的可用驾驶员", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "carGroup", notes = "指定车队下的可用驾驶员", httpMethod = "POST")
 	@PostMapping("/carGroup")
-	public ApiResponse<CarGroupDriverInfo> queryCarGroupDriverList(@RequestBody Long carGroupId) {
-		return ApiResponse.success(driverInfoService.queryCarGroupDriverList(carGroupId));
+	public ApiResponse<CarGroupDriverInfo> queryCarGroupDriverList(@RequestBody Map map) {
+		return ApiResponse.success(driverInfoService.queryCarGroupDriverList(map));
 	}
 	
 	@Log(title = "驾驶员管理:校验驾驶员手机号是否已经存在", businessType = BusinessType.OTHER)
