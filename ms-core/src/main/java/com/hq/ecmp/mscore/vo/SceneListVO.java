@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.vo;
 
+import com.hq.core.aspectj.lang.annotation.Excel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,4 +42,7 @@ public class SceneListVO {
      */
     @ApiModelProperty(name = "effectStatus", value = "生效状态 0 立即生效 1 不生效")
     private String effectStatus;
+
+    //字典查图标字段
+    private String dictType;
 }

@@ -70,15 +70,15 @@ public interface IDriverWorkInfoService
      * @param scheduleDate
      * @return
      */
-    DriverDutySummaryVO selectDriverDutySummary(String scheduleDate, Long userId);
+    DriverDutySummaryVO selectDriverDutySummary(String scheduleDate, Long driverId);
 
     /**
      * 按月查询司机排班信息
      * @param scheduleDate
-     * @param userId
+     * @param
      * @return
      */
-    DriverDutyPlanVO selectDriverScheduleByMonth(String scheduleDate, Long userId);
+    DriverDutyPlanVO selectDriverScheduleByMonth(String scheduleDate, Long driverId);
 
     public DriverDutyWorkVO selectDriverSchedule(String scheduleDate, Long driverId);
 

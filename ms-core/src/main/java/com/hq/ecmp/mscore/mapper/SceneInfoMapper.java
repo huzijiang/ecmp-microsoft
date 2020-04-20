@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.SceneInfo;
+import com.hq.ecmp.mscore.vo.SceneListVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -69,6 +70,16 @@ public interface SceneInfoMapper
      * @return
      */
     List<SceneInfo> selectAll(@Param("name") String name);
-    
+    /**
+     * 存在的制度
+     * @param regimeId
+     * @return
+     */
     public SceneInfo querySceneByRegimeId(Long regimeId);
+    /**
+     * 存在的图标
+     * @param sceneList
+     * @return
+     */
+    List<SceneListVO> seleSceneByIcon(SceneListVO sceneList);
 }
