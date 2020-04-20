@@ -18,6 +18,10 @@ public interface CarConstant {
 	String OUTWARD_VOYAGE="T001";//去程
 	
 	String BACK_TRACKING="T009";//返程
+	
+	String ALLOW_USE="Y000";//允许
+	
+	String NOT_ALLOW_USE="N111";//不允许
 
 	/*********************************用车方式*********************************************************/
 	static  final String USR_CARD_MODE_NET = "W200"; //网约车

@@ -278,7 +278,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
                    <if test="asAllowDateRound != null and asAllowDateRound !=''">as_allow_date_round,</if>
                    <if test="asSetoutEqualArrive != null and asSetoutEqualArrive !=''">as_setout_equal_arrive,</if>
             <if test="optId != null ">create_by,</if>
-            <if test="createTime != null ">create_time,</if>
+            create_time
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="templateId != null and templateId !=''">#{templateId},</if>
@@ -305,7 +305,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
               <if test="asAllowDateRound != null and asAllowDateRound !=''">#{asAllowDateRound},</if>
               <if test="asSetoutEqualArrive != null and asSetoutEqualArrive !=''">#{asSetoutEqualArrive},</if>
             <if test="optId != null ">#{optId},</if>
-            <if test="createTime != null ">now(),</if>
+            now()
          </trim>
 </insert>
 
