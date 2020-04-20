@@ -3,6 +3,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Maps;
+import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.ServletUtils;
@@ -20,6 +21,7 @@ import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.SortListUtil;
 import com.sun.org.apache.regexp.internal.RE;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -39,6 +41,7 @@ import static com.hq.ecmp.constant.CommonConstant.ZERO;
  * @since 2020-03-13 15:25:47
  */
 @Service("ecmpMessageService")
+@Slf4j
 public class EcmpMessageServiceImpl implements EcmpMessageService {
     @Resource
     private EcmpMessageMapper ecmpMessageDao;
@@ -236,15 +239,17 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
     }
 
     @Override
-    public List<MessageDto> getRunMessageForDrive(SysUser user) throws Exception {
-        if ("0".equals(user.getItIsDriver())){
+    public List<MessageDto> getRunMessageForDrive(LoginUser loginUser) throws Exception {
+        SysDriver driverInfo = loginUser.getDriver();
+        if (driverInfo==null){
             throw new Exception("该用户不是司机");
         }
-        DriverInfo driverInfo = driverInfoMapper.selectDriverInfoByUserId(user.getUserId());
+//        DriverInfo driverInfo = driverInfoMapper.selectDriverInfoByUserId(user.getUserId());
+        SysUser user = loginUser.getUser();
         String categorys="M005,M004,M007";//申请人
         List<MessageDto> runMessageForDrive = ecmpMessageDao.getRunMessageForDrive(driverInfo.getDriverId(), categorys);
         //判断当前司机是不是调度员
-        if ("1".equals(user.getItIsDispatcher())){
+        if (user!=null&&"1".equals(user.getItIsDispatcher())){
             List<MessageDto> runMessageForDispatcher = ecmpMessageDao.getRunMessageForDispatcher(user.getUserId(), "M003");
             runMessageForDrive.addAll(runMessageForDispatcher);
         }
@@ -341,8 +346,16 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
     }
 
     @Override
-    public void readMessage(MessageDto messageDto, SysUser user) {
-        List<EcmpMessage> ecmpMessages = ecmpMessageDao.queryAll(new EcmpMessage(messageDto.getConfigType(), MsgStatusConstant.MESSAGE_STATUS_T002.getType(), user.getUserId(), messageDto.getMessageId(),messageDto.getMessageType()));
+    public void readMessage(MessageDto messageDto, LoginUser user) {
+        log.info("阅读消息请求参数:configType="+messageDto.getConfigType()+",categoryId="+messageDto.getMessageId()
+                +",category="+messageDto.getMessageType()+",ecmpId=user.getUserId()");
+        Long ecmpId=null;
+        if (MsgUserConstant.MESSAGE_USER_DRIVER.getType()== messageDto.getConfigType()){
+            ecmpId=user.getDriver().getDriverId();
+        }else{
+            ecmpId=user.getUser().getUserId();
+        }
+        List<EcmpMessage> ecmpMessages = ecmpMessageDao.queryAll(new EcmpMessage(messageDto.getConfigType(), MsgStatusConstant.MESSAGE_STATUS_T002.getType(), ecmpId, messageDto.getMessageId(),messageDto.getMessageType()));
         if (ecmpMessages!=null){
             for (EcmpMessage ecmpMessage:ecmpMessages){
                 ecmpMessage.setStatus(MsgStatusConstant.MESSAGE_STATUS_T001.getType());

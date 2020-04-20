@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.api.system.domain.SysUser;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.MsgConstant;
 import com.hq.ecmp.constant.MsgTypeConstant;
 import com.hq.ecmp.constant.MsgUserConstant;
@@ -76,7 +77,7 @@ public interface EcmpMessageService {
 
     List<MessageDto> getMessagesForPassenger(SysUser user)throws Exception ;
 
-    List<MessageDto> getRunMessageForDrive(SysUser user)throws Exception ;
+    List<MessageDto> getRunMessageForDrive(LoginUser user)throws Exception ;
 
     void saveApplyMessagePass(Long applyId,Long ecmpId,Long userId,Long orderId,Long powerId,int isDispatch) throws Exception;
     void applyUserPassMessage(Long applyId,Long ecmpId,Long userId,Long orderId,Long powerId,int isDispatch) throws Exception;
@@ -84,5 +85,5 @@ public interface EcmpMessageService {
 
     void sendNextApproveUsers(String approveUserId,Long applyId,Long userId);
 
-    void readMessage(MessageDto messageDto, SysUser user);
+    void readMessage(MessageDto messageDto, LoginUser user);
 }

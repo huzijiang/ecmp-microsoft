@@ -27,6 +27,8 @@ public class WorkInfoMonthVo {
     Date calendarDate;
     @ApiModelProperty(value = "当前排班状态（0000:上班,1111:没上班）")
     private String workState;
+    @ApiModelProperty(value = "休假状态（X000:病假,X002:年假,X003:公休,X999:正常排班工作）")
+    private String leaveStatus;
 
 
 

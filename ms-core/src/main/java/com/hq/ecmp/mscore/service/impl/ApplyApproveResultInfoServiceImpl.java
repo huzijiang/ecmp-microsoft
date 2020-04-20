@@ -165,10 +165,17 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
         return applyApproveResultInfoMapper.selectByUserId(applyId,userId,state);
     }
 
+    /**
+     * 审批驳回
+     * @param journeyApplyDto
+     * @param userId
+     * @param allcollect
+     * @throws Exception
+     */
     @Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
-    public void applyReject(ApplyDTO journeyApplyDto, Long userId) throws Exception{
-        List<ApplyApproveResultInfo> allcollect = this.beforeInspect(journeyApplyDto, userId);
+    public void applyReject(ApplyDTO journeyApplyDto, Long userId,List<ApplyApproveResultInfo> allcollect) throws Exception{
+//        List<ApplyApproveResultInfo> allcollect = this.beforeInspect(journeyApplyDto, userId);
         List<ApplyApproveResultInfo> collect = allcollect.stream().filter(p -> ApproveStateEnum.WAIT_APPROVE_STATE.getKey().equals(p.getState()) && org.apache.commons.lang3.StringUtils.isBlank(p.getApproveResult())).collect(Collectors.toList());
         this.updateApproveResult(collect, userId,ApproveStateEnum.APPROVE_FAIL.getKey(),journeyApplyDto.getRejectReason());
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyApplyDto.getApplyId());
@@ -180,11 +187,18 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
         ecmpMessageService.saveApplyMessageReject(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,journeyApplyDto.getRejectReason());
     }
 
+    /**
+     * 审批通过
+     * @param journeyApplyDto
+     * @param userId
+     * @param resultInfoList
+     * @throws Exception
+     */
     @Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
-    public void applyPass(ApplyDTO journeyApplyDto, Long userId) throws Exception {
+    public void applyPass(ApplyDTO journeyApplyDto, Long userId,List<ApplyApproveResultInfo> resultInfoList) throws Exception {
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyApplyDto.getApplyId());
-        List<ApplyApproveResultInfo> resultInfoList = this.beforeInspect(journeyApplyDto, userId);
+//        List<ApplyApproveResultInfo> resultInfoList = this.beforeInspect(journeyApplyDto, userId);
         //判断当前审批人是不是最后审批人
         Map<String, List<ApplyApproveResultInfo>> resultMap = resultInfoList.stream().collect(Collectors.groupingBy(ApplyApproveResultInfo::getState));
         List<ApplyApproveResultInfo> waitcollect = resultMap.get(ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
@@ -340,7 +354,8 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
      * @return
      * @throws Exception
      */
-    private List<ApplyApproveResultInfo> beforeInspect(ApplyDTO journeyApplyDto,Long userId) throws Exception{
+    @Override
+    public List<ApplyApproveResultInfo> beforeInspect(ApplyDTO journeyApplyDto,Long userId) throws Exception{
         ApplyInfo applyInfo1 = applyInfoMapper.selectApplyInfoById(journeyApplyDto.getApplyId());
         if (ObjectUtils.isEmpty(applyInfo1)){
             throw new Exception("行程申请单不存在!");
