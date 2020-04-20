@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ContactorDto;
 import com.hq.ecmp.mscore.dto.IsContinueReDto;
 import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
+import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,6 +67,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     IEcmpConfigService iEcmpConfigService;
     @Resource
     IsmsBusiness ismsBusiness;
+    @Resource
+    EcmpUserMapper ecmpUserMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -345,14 +348,10 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
         List<OrderStateTraceInfo> orderStateTraceInfos = iOrderStateTraceInfoService.selectOrderStateTraceInfoList(orderStateTraceInfo);
         OrderStateTraceInfo orderStateTraceInfoSc = orderStateTraceInfos.get(0);
-
         String createBy = orderStateTraceInfoSc.getCreateBy();
-        DriverInfo driverInfo = new DriverInfo();
-        driverInfo.setUserId(Long.parseLong(createBy));
-        List<DriverInfo> driverInfos = iDriverInfoService.selectDriverInfoList(driverInfo);
-        DriverInfo driverInfoChild = driverInfos.get(0);
-        String mobile = driverInfoChild.getMobile();
-        String driverName = driverInfoChild.getDriverName();
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(createBy));
+        String mobile = ecmpUser.getPhonenumber();
+        String driverName = ecmpUser.getNickName();
         ContactorDto contactorDto = new ContactorDto();
         contactorDto.setRoleName(CommonConstant.DISPATCHER_ROLE);
         contactorDto.setPhone(mobile);
