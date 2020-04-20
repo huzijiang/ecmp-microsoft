@@ -527,6 +527,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="type==0">
             where dept_name = #{name} and dept_id!=#{id}
         </if>
+        and parent_id = #{pId}
     </select>
     <select id="selectNewCompanyCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
         select  dept_id as deptId,
