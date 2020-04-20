@@ -301,8 +301,24 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         sceneInfoMapper.updateSceneInfo(targetSceneInfo);
     }
 
+    /**
+     * 存在的制度
+     * @param regimeId
+     * @return
+     */
 	@Override
 	public SceneInfo querySceneByRegimeId(Long regimeId) {
 		return sceneInfoMapper.querySceneByRegimeId(regimeId);
 	}
+
+    /**
+     * 存在的图标
+     * @param sceneList
+     * @return
+     */
+    @Override
+    public List<SceneListVO> seleSceneByIcon(SceneListVO sceneList) {
+        List<SceneListVO> sceneInfos = sceneInfoMapper.seleSceneByIcon(sceneList);
+        return  sceneInfos;
+    }
 }

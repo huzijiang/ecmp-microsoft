@@ -118,9 +118,9 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
      * @return
      */
     @Override
-    public DriverDutySummaryVO selectDriverDutySummary(String scheduleDate, Long userId) {
+    public DriverDutySummaryVO selectDriverDutySummary(String scheduleDate, Long driverId) {
         //查询司机driverId
-        Long driverId = driverInfoMapper.selectDriverIdByUserId(userId);
+       // Long driverId = driverInfoMapper.selectDriverIdByUserId(userId);
         //查询司机应出勤天数
         int shouldDutyDays = driverWorkInfoMapper.selectDriverShouldDutyDays(scheduleDate,driverId);
         //查询司机已出勤天数
@@ -133,14 +133,14 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
     /**
      * 按月查询司机排班信息
      * @param scheduleDate
-     * @param userId
+     * @param
      * @return
      */
     @Override
-    public DriverDutyPlanVO selectDriverScheduleByMonth(String scheduleDate, Long userId) {
+    public DriverDutyPlanVO selectDriverScheduleByMonth(String scheduleDate, Long driverId) {
         DriverDutyPlanVO driverDutyPlanVO = new DriverDutyPlanVO();
         //查询司机driverId
-        Long driverId = driverInfoMapper.selectDriverIdByUserId(userId);
+       // Long driverId = driverInfoMapper.selectDriverIdByUserId(userId);
         //查询司机上班时间
         List<String> dutyDate = driverWorkInfoMapper.selectDutyDateByMonth(scheduleDate,driverId);
         //查询司机休假时间

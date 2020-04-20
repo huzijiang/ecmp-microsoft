@@ -135,7 +135,7 @@ public interface IEcmpConfigService
     void setUpWaitMaxMinute(String status, String value);
 
     /**
-     * 获取行程确认/异议 开关状态(0:关,1开)
+     * 获取行程确认/异议 开关状态(0:自动,1手动)
      */
     int getOrderConfirmStatus(String key,String useCarMode);
     
