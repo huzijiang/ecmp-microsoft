@@ -410,7 +410,7 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     /**
      * 获取是否配置自动行程确认/异议
      * @param key
-     * @return
+     * @return 1手动确认(需展示),0自动确认(无需展示)
      */
     @Override
     public int getOrderConfirmStatus(String key,String useCarMode) {
@@ -421,17 +421,17 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
         if (ecmpConfig!=null&& StringUtils.isNotEmpty(ecmpConfig.getConfigValue())){
             JSONObject jsonObject = JSONObject.parseObject(ecmpConfig.getConfigValue());
             String status = jsonObject.getString("status");
-            if (SWITCH_ON.equals(status)){//开
+            if (SWITCH_OFF.equals(status)){//开
                 return ONE;
             }else if(SWITCH_ON_CUSTOM.equals(status)){//自定义
                 String valueJson = jsonObject.getString("value");
                 JSONObject value = JSONObject.parseObject(valueJson);
                 if (CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){//自有车
-                    if (SWITCH_ON.equals(value.getString("owenType"))){
+                    if (SWITCH_OFF.equals(value.getString("owenType"))){
                         return ONE;
                     }
                 }else{//网约车
-                    if (SWITCH_ON.equals(value.getString("rideHailing"))){
+                    if (SWITCH_OFF.equals(value.getString("rideHailing"))){
                         return ONE;
                     }
                 }
