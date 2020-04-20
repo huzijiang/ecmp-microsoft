@@ -27,7 +27,7 @@ public class CarLevelAndPriceVO {
     @ApiModelProperty(name = "source",value = "平台来源")
     private String source;
 
-    @ApiModelProperty(name = "groupId",value = "云端车型id")
-    private Integer groupId;
+    @ApiModelProperty(name = "groupId",value = "云端车型级别")
+    private String groupId;
 
 }
