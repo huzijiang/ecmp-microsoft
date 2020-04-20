@@ -100,7 +100,7 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
     private String level;
 
     /**
-     * 车辆级别
+     * 车辆颜色
      */
     private String color;
 

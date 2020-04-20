@@ -652,7 +652,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				}
 			}
 		}
-		return true;
+		return false;
 	}
 
 }
