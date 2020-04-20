@@ -145,7 +145,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             set today_it_is_on_duty=#{item.workState},
             update_by=#{userId},
             update_time=#{updateTime}
-            where DATE_FORMAT(caledar_date,'%Y-%m-%d') = DATE_FORMAT(#{item.calendarDate})
+            where DATE_FORMAT(caledar_date,'%Y-%m-%d') = DATE_FORMAT(#{item.calendarDate},'%Y-%m-%d')
         </foreach>
     </update>
     <select id="getCloudWorkDateList" resultType="com.hq.ecmp.mscore.vo.CloudWorkIDateVo">
@@ -168,7 +168,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateDriverWork" parameterType="Long">
             update driver_work_info
             set leave_status='',today_it_is_on_duty='1111'
-            where  driver_id=#{driverId} and caledar_date <![CDATA[<=]]>NOW()
+            where  driver_id=#{driverId} and caledar_date <![CDATA[<]]>NOW()
 
     </update>
 </mapper>

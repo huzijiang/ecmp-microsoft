@@ -190,7 +190,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="lockState != null ">lock_state,</if>
             <if test="userId != null ">user_id,</if>
             <if test="optUserId != null ">create_by,</if>
-             <if test="lockState != null ">lock_state,</if>
             create_time
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -208,7 +207,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
               <if test="lockState != null ">#{lockState},</if>
               <if test="userId != null ">#{userId},</if>
               <if test="optUserId != null ">#{optUserId},</if>
-            <if test="lockState != null ">#{lockState},</if>
           	NOW()
          </trim>
     </insert>
@@ -539,9 +537,11 @@ WHERE
 		LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
 		WHERE
 		b.car_group_id = #{carGroupId}
+		<if test="carId!=null">
 		and a.driver_id not in (
 			select driver_id from driver_car_relation_info where car_id=#{carId}
 		)
+        </if>
 		AND a.state = 'V000'
 	</select>
 	

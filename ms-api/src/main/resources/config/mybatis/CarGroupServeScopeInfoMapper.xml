@@ -107,4 +107,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryCarGroupByCity" parameterType="string" resultType="java.lang.Long">
   	  select car_group_id from car_group_serve_scope_info where city=#{city}
     </select>
+    <update id="updateInfo" parameterType="com.hq.ecmp.mscore.domain.CarGroupServeScopeInfo">
+        update ecmp.car_group_serve_scope_info
+        <set>
+            <if test="province != null and province != ''">
+                province = #{province},
+            </if>
+            <if test="city != null and city != ''">
+                city = #{city},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where car_group_id = #{carGroupId}
+    </update>
+
+    <!--通过车队ID删除-->
+    <delete id="deleteByCarGroupId">
+        delete from ecmp.car_group_serve_scope_info where car_group_id = #{carGroupId}
+    </delete>
 </mapper>

@@ -422,7 +422,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	@Override
 	public CarGroupDriverInfo queryCarGroupDriverList(Map map) {
 		Long carGroupId = Long.valueOf(map.get("carGroupId").toString());
-		Long carId = Long.valueOf(map.get("carId").toString());
+		Long carId = map.get("carId")==null?null:Long.valueOf(map.get("carId").toString());
 		CarGroupDriverInfo carGroupDriverInfo = new CarGroupDriverInfo();
 		List<DriverQueryResult> list = driverInfoMapper.queryDriverInfoList(carGroupId,carId);
 		carGroupDriverInfo.setDriverList(list);
