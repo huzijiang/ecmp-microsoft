@@ -87,7 +87,7 @@ public class MessageController {
 		HttpServletRequest request = ServletUtils.getRequest();
 		LoginUser loginUser = tokenService.getLoginUser(request);
 		try{
-			ecmpMessageService.readMessage(messageDto,loginUser.getUser());
+			ecmpMessageService.readMessage(messageDto,loginUser);
 //			EcmpMessage message = ecmpMessageService.queryById(messageDto.getId());
 //			if (message!=null&&!MsgStatusConstant.MESSAGE_STATUS_T001.getType().equals(message.getStatus())){
 //				message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T001.getType());
@@ -115,7 +115,7 @@ public class MessageController {
 		List<MessageDto> list=new ArrayList<>();
 		//TODO 以后可能会改变获取司机信息
 		try{
-			list=ecmpMessageService.getRunMessageForDrive(loginUser.getUser());
+			list=ecmpMessageService.getRunMessageForDrive(loginUser);
 			//当前是司机(新任务/派车/改派通知)
 			return ApiResponse.success(list);
 		}catch (Exception e){

@@ -74,4 +74,6 @@ public class OrderListBackDto extends PageRequest {
     private String regimenName;
     //后台管理列表所用 1 订单  2 行程
     private String state;
+    @ApiModelProperty(value = "轨迹状态")
+    private String labelState;
 }
