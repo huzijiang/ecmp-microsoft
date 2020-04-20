@@ -142,10 +142,11 @@ public class DriverController {
     public ApiResponse<DriverDutyPlanVO> loadScheduleInfo(@RequestBody(required = false) String scheduleDate){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
+        Long driverId = loginUser.getDriver().getDriverId();
+        //Long userId = loginUser.getUser().getUserId();
         try {
             //查询司机当月排班日期对应的出勤情况列表
-            DriverDutyPlanVO result = driverWorkInfoService.selectDriverScheduleByMonth(scheduleDate,userId);
+            DriverDutyPlanVO result = driverWorkInfoService.selectDriverScheduleByMonth(scheduleDate,driverId);
             return ApiResponse.success(result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -164,10 +165,11 @@ public class DriverController {
     public ApiResponse<DriverDutySummaryVO> loadDutySummary(@RequestBody(required = false) DriverScheduleDTO driverScheduleDTO){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
+        Long driverId = loginUser.getDriver().getDriverId();
+        //Long userId = loginUser.getUser().getUserId();
         try {
             //查询司机当月排班/出勤天数
-            DriverDutySummaryVO dutySummary = driverWorkInfoService.selectDriverDutySummary(driverScheduleDTO.getScheduleDate(),userId);
+            DriverDutySummaryVO dutySummary = driverWorkInfoService.selectDriverDutySummary(driverScheduleDTO.getScheduleDate(),driverId);
             return ApiResponse.success(dutySummary);
         } catch (Exception e) {
             e.printStackTrace();

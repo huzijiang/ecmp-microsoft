@@ -40,8 +40,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import static com.hq.ecmp.constant.CommonConstant.ONE;
-import static com.hq.ecmp.constant.CommonConstant.ZERO;
+import static com.hq.ecmp.constant.CommonConstant.*;
 
 
 /**
@@ -1378,20 +1377,21 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                                log.error("生成用车权限失败");
                             }
                             //初始化订单
-                            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
+                            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(applyInfo.getJourneyId());
                             if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
                                 int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
-//                                ecmpMessageService.applyUserPassMessage(applyId,Long.valueOf(userId),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
+                                ecmpMessageService.applyUserPassMessage(applyId,Long.parseLong(applyInfo.getCreateBy()),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
                                 for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
-                                    int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:ZERO;
+                                    int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
                                     OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
                                     Long orderId=null;
                                     if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
                                         orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
                                     }
-                                    ecmpMessageService.saveApplyMessagePass(applyId,Long.valueOf(userId),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
+                                    ecmpMessageService.saveApplyMessagePass(applyId,Long.parseLong(applyInfo.getCreateBy()),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
                                 }
                             }
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
