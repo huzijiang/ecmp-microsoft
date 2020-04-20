@@ -20,6 +20,6 @@ public class CarDto {
 
     private Long driverId;  //驾驶员id
 
-    private Long userId;  //驾驶员员工编号
+   // private Long userId;  //驾驶员员工编号
 
 }
