@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import java.util.List;
 
 import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.RegimeLimitUseCarCityInfo;
 import com.hq.ecmp.mscore.domain.RegimeOpt;
 import com.hq.ecmp.mscore.domain.RegimePo;
 import com.hq.ecmp.mscore.domain.RegimeQueryPo;
@@ -164,6 +165,13 @@ public interface IRegimeInfoService
      * @return
      */
     List<RegimenVO> selectAllRegimenVO();
+    
+    /**
+     * 查询公务用车限制城市
+     * @param regimeId
+     * @return
+     */
+    RegimeLimitUseCarCityInfo queryRegimeCityLimit(Long regimeId);
 
 }
 

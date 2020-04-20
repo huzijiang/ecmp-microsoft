@@ -22,6 +22,7 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.RegimeLimitUseCarCityInfo;
 import com.hq.ecmp.mscore.domain.RegimeOpt;
 import com.hq.ecmp.mscore.domain.RegimePo;
 import com.hq.ecmp.mscore.domain.RegimeQueryPo;
@@ -166,6 +167,20 @@ public class RegimeController {
         }
 
     }
+    
+    @Log(title = "用车制度:可用城市or不可用城市", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "queryRegimeCityLimit",notes = "通过用车制度编号,查询用车制度的可用or不可用车城市",httpMethod ="POST")
+    @PostMapping("/queryRegimeCityLimit")
+    public ApiResponse<RegimeLimitUseCarCityInfo> queryRegimeCityLimit(@RequestBody Long regimeId){
+        try {
+            return ApiResponse.success(regimeInfoService.queryRegimeCityLimit(regimeId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询公务制度可用城市or不可用城市失败");
+        }
+
+    }
+    
     
     @Log(title = "用车制度:创建用车制度", businessType = BusinessType.INSERT)
 	@ApiOperation(value = "createRegime", notes = "创建用车制度", httpMethod = "POST")
