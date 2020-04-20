@@ -66,7 +66,7 @@ public class DriverOrderController {
             //获取调用接口的用户信息
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            Long userId = loginUser.getUser().getUserId();
+            Long userId = loginUser.getDriver().getDriverId();
             iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId,mileage,travelTime);
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,7 +90,7 @@ public class DriverOrderController {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            Long userId = loginUser.getUser().getUserId();
+            Long userId = loginUser.getDriver().getDriverId();
             aContinue = iDriverOrderService.isContinue(orderNo,String.valueOf(userId));
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,7 +119,7 @@ public class DriverOrderController {
             //获取调用接口的用户信息
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            Long userId = loginUser.getUser().getUserId();
+            Long userId = loginUser.getDriver().getDriverId();
             traceId = iDriverOrderService.waitingOrder(orderNo,isFinish,currentPoint, String.valueOf(userId), waitingId);
         } catch (Exception e) {
             e.printStackTrace();
