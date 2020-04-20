@@ -854,7 +854,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
             <if test="setOutTime != null "> and jpp.planned_arrival_time > #{setOutTime}  </if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}  </if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}  </if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>
@@ -867,7 +867,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id = #{carId} </if>
             <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time</if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}</if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>
@@ -882,7 +882,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
             <if test="setOutTime != null "> and jpp.planned_arrival_time >#{setOutTime}  </if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}</if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>
@@ -897,7 +897,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId} </if>
             <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time </if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId} </if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId} </if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>
