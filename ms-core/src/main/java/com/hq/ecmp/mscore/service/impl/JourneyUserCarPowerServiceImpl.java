@@ -633,14 +633,14 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			}
 			//最后一个用车权限被使用则直接取消首页此行程的展示
 			//查询行程对应的制度信息
-			boolean travelAllowUseCar =false;
+			boolean asAllowUseCar =false;
 			JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyId);
 			RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
-			if(CarConstant.ALLOW_USE.equals(regimeInfo.getTravelAllowInTravelCityUseCar())){
-				travelAllowUseCar=true;
+			if(CarConstant.ALLOW_USE.equals(regimeInfo.getAsAllowAirportShuttle())){
+				asAllowUseCar=true;
 			}
 			JourneyUserCarPower lastPowerByJourneyId = null;
-			if(travelAllowUseCar){
+			if(asAllowUseCar){
 				lastPowerByJourneyId = journeyUserCarPowerMapper.getLastPowerByJourneyId(journeyId);
 			}else{
 				lastPowerByJourneyId = journeyUserCarPowerMapper.getLastPowerCityByJourneyId(journeyId);
