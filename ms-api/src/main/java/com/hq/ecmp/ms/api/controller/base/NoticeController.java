@@ -58,7 +58,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "getNoticeSearchList",notes = "分页查询公告列表",httpMethod ="POST")
-    @Log(title = "公告管理:公告列表", content = "公告列表",businessType = BusinessType.OTHER)
+    @Log(title = "公告管理", content = "公告列表",businessType = BusinessType.OTHER)
     @PostMapping("/getNoticeSearchList")
     public ApiResponse<PageResult<EcmpNotice>> getNoticeSearchList(@RequestBody PageRequest pageRequest){
         try {

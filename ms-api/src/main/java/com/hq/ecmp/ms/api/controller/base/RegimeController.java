@@ -138,7 +138,7 @@ public class RegimeController {
      * @param
      * @return
      */
-    @Log(title = "用车制度:可用网约车型",content = "可用网约车型", businessType = BusinessType.OTHER)
+    @Log(title = "用车制度",content = "可用网约车型", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getUserOnlineCarLevels",notes = "查询用户可用网约车型等级",httpMethod ="POST")
     @PostMapping("/getUserOnlineCarLevels")
     public ApiResponse<String> getUserOnlineCarLevels(@RequestBody RegimenDTO regimenDTO){
