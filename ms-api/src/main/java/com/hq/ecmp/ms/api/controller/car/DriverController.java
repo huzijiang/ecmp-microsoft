@@ -114,7 +114,7 @@ public class DriverController {
     public ApiResponse applyReassignment(Long orderNo,String reason){
     	 HttpServletRequest request = ServletUtils.getRequest();
          LoginUser loginUser = tokenService.getLoginUser(request);
-         Long userId = loginUser.getUser().getUserId();
+         Long userId = loginUser.getDriver().getDriverId();
          boolean applyReassignment = orderStateTraceInfoService.applyReassignment(userId, orderNo, reason);
         if(applyReassignment){
         	return ApiResponse.success();

@@ -2,6 +2,8 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DictQuery;
 import com.hq.ecmp.mscore.domain.EcmpDictData;
+import com.hq.ecmp.mscore.vo.SceneListVO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -69,6 +71,10 @@ public interface EcmpDictDataMapper
      * @return 结果
      */
     public int deleteEcmpDictDataByIds(Long[] dictCodes);
+    /**
+     *查询字典里面的图标
+     */
+    List<SceneListVO> selectEcmpDictByType(@Param("dictType") String dictType);
 
     /**
      * 评价标签的好评

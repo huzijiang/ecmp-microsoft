@@ -19,6 +19,7 @@ public class DriverQueryResult {
 	Long userId;
 
 	String company;// 所属公司
+	Long companyId;// 所属公司Id
 
 	String carGroupName;
 	
