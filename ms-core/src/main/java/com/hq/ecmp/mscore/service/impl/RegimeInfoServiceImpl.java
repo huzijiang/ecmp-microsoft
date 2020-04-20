@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -12,6 +14,7 @@ import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.formula.functions.Now;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -146,7 +149,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
      * @return
      */
     @Override
-    public List<RegimenVO> findRegimeInfoListByUserId(Long userId, Long sceneId) {
+    public List<RegimenVO> findRegimeInfoListByUserId(Long userId, Long sceneId) throws Exception{
         //根据userId查询有效的regimeId集合
         List<Long> regimeIds = userRegimeRelationInfoMapper.selectIdsByUserId(userId);
         //如果有制度条件限制,则进行条件筛选
@@ -162,6 +165,17 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(regimeId);
 			//查询制度对应的审批第一个节点类型
 			if(regimenVO != null) {
+				//过滤掉已经过期制度
+				String allowDate = regimenVO.getAllowDate();
+				if(allowDate != null && !"0-0".equals(allowDate)){
+					String allowEndDate = allowDate.split("-")[1];
+					DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
+					Date parse = dateFormat.parse(allowEndDate);
+					Date date = new Date();
+					if( date.getTime() > parse.getTime()){
+						continue;
+					}
+				}
 				ApproveTemplateNodeInfo approveTemplateNodeInfo = approveTemplateNodeInfoMapper.selectFirstOpproveNode(regimeId);
 				if (ObjectUtils.isNotEmpty(approveTemplateNodeInfo)) {
 					String approverType = approveTemplateNodeInfo.getApproverType();

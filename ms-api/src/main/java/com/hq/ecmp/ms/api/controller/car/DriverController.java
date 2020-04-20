@@ -163,13 +163,17 @@ public class DriverController {
     @ApiOperation(value = "loadDutySummary",notes = "加载司机应该出勤/已出勤天数",httpMethod ="POST")
     @PostMapping("/loadDutySummary")
     public ApiResponse<DriverDutySummaryVO> loadDutySummary(@RequestBody(required = false) DriverScheduleDTO driverScheduleDTO){
+        try {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long driverId = loginUser.getDriver().getDriverId();
+        String scheduleDate = null;
+        if(driverScheduleDTO != null){
+            scheduleDate = driverScheduleDTO.getScheduleDate();
+        }
         //Long userId = loginUser.getUser().getUserId();
-        try {
             //查询司机当月排班/出勤天数
-            DriverDutySummaryVO dutySummary = driverWorkInfoService.selectDriverDutySummary(driverScheduleDTO.getScheduleDate(),driverId);
+            DriverDutySummaryVO dutySummary = driverWorkInfoService.selectDriverDutySummary(scheduleDate,driverId);
             return ApiResponse.success(dutySummary);
         } catch (Exception e) {
             e.printStackTrace();
