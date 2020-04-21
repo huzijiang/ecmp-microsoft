@@ -1502,17 +1502,19 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 throw new Exception("获取轨迹失败");
             }
             String data = jsonObject.getString("data");
-            List<OrderTraceDto> resultList = JSONObject.parseArray(data, OrderTraceDto.class);
-            if(resultList.size()>0){
-                for (OrderTraceDto orderTraceDto:
-                resultList) {
-                    OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();
-                    orderHistoryTraceDto.setOrderId(orderId+"");
-                    orderHistoryTraceDto.setLongitude(orderTraceDto.getX());
-                    orderHistoryTraceDto.setLatitude(orderTraceDto.getY());
-                    Date date = new Date(Long.parseLong(orderTraceDto.getPt()));
-                    orderHistoryTraceDto.setCreateTime(date);
-                    orderHistoryTraceDtos.add(orderHistoryTraceDto);
+            if(data!=null){
+                List<OrderTraceDto> resultList = JSONObject.parseArray(data, OrderTraceDto.class);
+                if(resultList.size()>0){
+                    for (OrderTraceDto orderTraceDto:
+                            resultList) {
+                        OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();
+                        orderHistoryTraceDto.setOrderId(orderId+"");
+                        orderHistoryTraceDto.setLongitude(orderTraceDto.getX());
+                        orderHistoryTraceDto.setLatitude(orderTraceDto.getY());
+                        Date date = new Date(Long.parseLong(orderTraceDto.getPt()));
+                        orderHistoryTraceDto.setCreateTime(date);
+                        orderHistoryTraceDtos.add(orderHistoryTraceDto);
+                    }
                 }
             }
         }else{
