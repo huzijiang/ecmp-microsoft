@@ -549,7 +549,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 				driverWorkInfoVo.setCalendarDate(workDateList.get(i).getCalendarDate());
 				driverWorkInfoVo.setOnDutyRegisteTime(workDateList.get(i).getWorkStart());
 				driverWorkInfoVo.setOffDutyRegisteTime(workDateList.get(i).getWorkEnd());
-				driverWorkInfoVo.setTodayItIsOnDuty(workDateList.get(i).getItIsWork());
+				driverWorkInfoVo.setTodayItIsOnDuty("1111");
 				String itIsDuty=workDateList.get(i).getItIsWork();
 				if("0000".equals(itIsDuty)){
 					driverWorkInfoVo.setLeaveStatus("X999");
