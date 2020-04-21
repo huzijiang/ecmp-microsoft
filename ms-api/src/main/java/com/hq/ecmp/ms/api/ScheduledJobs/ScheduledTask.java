@@ -47,6 +47,8 @@ public class ScheduledTask {
     private IDispatchService dispatchService;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+	private IRegimeInfoService regimeInfoService;
 
     @Autowired
     private IEcmpNoticeService iEcmpNoticeService;
@@ -87,6 +89,16 @@ public class ScheduledTask {
         System.out.println("定时任务:checkOrderIsExpired:校验订单是否过期开始"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
         orderInfoService.checkOrderIsExpired();
 		System.out.println("定时任务:checkOrderIsExpired:校验订单是否过期结束"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
+
+	/**
+	 * 每天0点10分校验制度是否已过期
+	 */
+	@Scheduled(cron = "0 10 0 * * ? ")
+	public void checkRegimenExpired(){
+		System.out.println("定时任务:checkRegimenExpired:校验制度是否过期开始"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		regimeInfoService.checkRegimenExpired();
+		System.out.println("定时任务:checkRegimenExpired:校验制度是否过期结束"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 	}
     
     
