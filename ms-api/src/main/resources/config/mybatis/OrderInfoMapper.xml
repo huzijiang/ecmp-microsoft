@@ -271,9 +271,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                     t.address endAddr,
                     (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
 				from order_info o
-				inner join journey_info jn on o.journey_id=jn.journey_id
-                inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
-                inner join order_address_info t on  t.order_id=o.order_id and t.type='A999'
+				left join journey_info jn on o.journey_id=jn.journey_id
+                left join order_address_info s on  s.order_id=o.order_id and s.type='A000'
+                left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
 				where o.driver_id=#{driverId}
 				<if test="flag==1">
                    and  (o.state="S299"  or  o.state='S500' or o.state="S600" or o.state="S616" )
@@ -311,10 +311,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              (select group_concat(short_address) from order_via_info f where f.order_id=o.order_id) halfway,
              (select count(*) from journey_passenger_info where journey_id=o.journey_id) peopleCount
             from order_info o
-            inner join journey_info jn on o.journey_id=jn.journey_id
-            inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
-            inner join order_address_info t on  t.order_id=o.order_id and t.type='A999'
-            inner join car_info c on c.car_id=o.car_id
+            left join journey_info jn on o.journey_id=jn.journey_id
+            left join order_address_info s on  s.order_id=o.order_id and s.type='A000'
+            left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
+            left join car_info c on c.car_id=o.car_id
             where o.order_id=#{orderId}
     </select>
 
@@ -332,9 +332,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                      t.address endAddr,
                     (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
 				from order_info o
-				inner join journey_info jn on o.journey_id=jn.journey_id
-                inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
-                inner join order_address_info t on  t.order_id=o.order_id and t.type='A999'
+                left join journey_info jn on o.journey_id=jn.journey_id
+                left join order_address_info s on  s.order_id=o.order_id and s.type='A000'
+                left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
 				where o.driver_id=#{driverId} and  (o.state="S299" or o.state="S600" or o.state="S616" )
                 <if test="day!=-1">
                     <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') = DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
