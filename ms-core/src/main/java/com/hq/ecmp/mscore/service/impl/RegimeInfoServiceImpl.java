@@ -1,16 +1,20 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.hq.ecmp.constant.ApplyTypeEnum;
 import com.hq.ecmp.constant.OrderConstant;
+import com.hq.ecmp.constant.OrderServiceType;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.formula.functions.Now;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -21,6 +25,8 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.vo.RegimenVO;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.annotation.Resource;
 
 /**
@@ -30,6 +36,7 @@ import javax.annotation.Resource;
  * @date 2020-01-02
  */
 @Service
+@Slf4j
 public class RegimeInfoServiceImpl implements IRegimeInfoService {
 
     @Autowired
@@ -142,7 +149,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
      * @return
      */
     @Override
-    public List<RegimenVO> findRegimeInfoListByUserId(Long userId, Long sceneId) {
+    public List<RegimenVO> findRegimeInfoListByUserId(Long userId, Long sceneId) throws Exception{
         //根据userId查询有效的regimeId集合
         List<Long> regimeIds = userRegimeRelationInfoMapper.selectIdsByUserId(userId);
         //如果有制度条件限制,则进行条件筛选
@@ -158,6 +165,17 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(regimeId);
 			//查询制度对应的审批第一个节点类型
 			if(regimenVO != null) {
+				//过滤掉已经过期制度
+				String allowDate = regimenVO.getAllowDate();
+				if(allowDate != null && !"0-0".equals(allowDate)){
+					String allowEndDate = allowDate.split("-")[1];
+					DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
+					Date parse = dateFormat.parse(allowEndDate);
+					Date date = new Date();
+					if( date.getTime() > parse.getTime()){
+						continue;
+					}
+				}
 				ApproveTemplateNodeInfo approveTemplateNodeInfo = approveTemplateNodeInfoMapper.selectFirstOpproveNode(regimeId);
 				if (ObjectUtils.isNotEmpty(approveTemplateNodeInfo)) {
 					String approverType = approveTemplateNodeInfo.getApproverType();
@@ -390,8 +408,10 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 
 	@Override
 	public String queryCarModeLevel(Long orderId, String useCarMode) {
-		String carModeLevel;
+		log.info("查询订单【"+orderId+"】车型接口开始:用车方式:"+useCarMode);
+		String carModeLevel=null;
 		RegimeVo regimeVo = regimeInfoMapper.queryRegimeInfoByOrderId(orderId);
+		String 	serviceType= regimeVo.getServiceType();
 		String regimenType = regimeVo.getRegimenType();
 		if (StringUtil.isNotEmpty(useCarMode)) {
 			// 传入了用车方式
@@ -402,14 +422,33 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 					carModeLevel = regimeVo.getUseCarModeOnlineLevel();
 				} else {
 					// 差旅
-					carModeLevel = regimeVo.getTravelUseCarModeOnlineLevel();
+					if(OrderServiceType.getSendAndPick().contains(serviceType)){
+						//接送机
+						carModeLevel = regimeVo.getAsUseCarModeOnlineLevel();
+					}
+					
+					if(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState().equals(serviceType)){
+						//城市用车
+						carModeLevel=regimeVo.getTravelUseCarModeOnlineLevel();
+					}
+					
 				}
 			} else {
 				// 用车方式-自有车
 				if (CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimenType)) {
 					carModeLevel = regimeVo.getUseCarModeOwnerLevel();
 				} else {
-					carModeLevel = regimeVo.getTravelUseCarModeOwnerLevel();
+					// 差旅
+					if(OrderServiceType.getSendAndPick().contains(serviceType)){
+						//接送机
+						carModeLevel = regimeVo.getAsUseCarModeOwnerLevel();
+					}
+					
+					if(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState().equals(serviceType)){
+						//城市用车
+						carModeLevel=regimeVo.getTravelUseCarModeOwnerLevel();
+					}
+					
 				}
 			}
 		} else {
@@ -417,9 +456,19 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			if (CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimenType)) {
 				carModeLevel = regimeVo.getUseCarModeOnlineLevel();
 			} else {
-				carModeLevel = regimeVo.getTravelUseCarModeOnlineLevel();
+				// 差旅
+				if(OrderServiceType.getSendAndPick().contains(serviceType)){
+					//接送机
+					carModeLevel = regimeVo.getAsUseCarModeOnlineLevel();
+				}
+				
+				if(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState().equals(serviceType)){
+					//城市用车
+					carModeLevel=regimeVo.getTravelUseCarModeOnlineLevel();
+				}
 			}
 		}
+		log.info("查询订单【"+orderId+"】车型结果:"+carModeLevel);
 		return carModeLevel;
 	}
 

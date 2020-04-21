@@ -327,6 +327,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
                 paramsMap.put("riderMobile", riderMobile);
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.DRIVER_COMPLETESERVICE_APPLICANT,paramsMap,applyMobile);
             }
+            ecmpMessageMapper.updateByCategoryId(orderId,MsgStatusConstant.MESSAGE_STATUS_T001.getType(),null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -552,6 +553,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             }else{
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.DRIVER_COMPLETE_NOT_CONFIRM_RIDER,null,applyMobile);
             }
+            ecmpMessageMapper.updateByCategoryId(orderId,MsgStatusConstant.MESSAGE_STATUS_T001.getType(),null);
         } catch (Exception e) {
             e.printStackTrace();
         }

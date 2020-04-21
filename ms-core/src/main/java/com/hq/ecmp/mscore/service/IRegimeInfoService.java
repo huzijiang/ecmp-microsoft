@@ -78,7 +78,7 @@ public interface IRegimeInfoService
      * @param userId
      * @return
      */
-    List<RegimenVO> findRegimeInfoListByUserId(Long userId, Long sceneId);
+    List<RegimenVO> findRegimeInfoListByUserId(Long userId, Long sceneId) throws Exception;
     
     /**
      * 判断制度可用车方式是否含有自有车

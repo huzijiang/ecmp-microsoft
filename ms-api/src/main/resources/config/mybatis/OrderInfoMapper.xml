@@ -404,6 +404,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        SELECT
             a.order_id AS orderId,
             a.state,
+            a.create_time as createTime,
             d.apply_type AS applyType,
             d.apply_id as applyId,
             b.type AS serverType,
@@ -663,6 +664,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		a.state AS state,
 		a.service_type as serviceType,
 		h.it_is_return as itIsReturn,
+		h.wait_time_long as waitTimeLong,
 		f.SHORT_NAME as cityName
 		FROM
 		order_info a
@@ -740,6 +742,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		a.update_time AS optDate,
 		a.state AS state,
 		h.it_is_return as itIsReturn,
+		h.wait_time_long as waitTimeLong,
 		f.SHORT_NAME as cityName
 		FROM
 		order_info a
@@ -854,7 +857,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
             <if test="setOutTime != null "> and jpp.planned_arrival_time > #{setOutTime}  </if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}  </if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}  </if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>
@@ -867,7 +870,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id = #{carId} </if>
             <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time</if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}</if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>
@@ -882,7 +885,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
             <if test="setOutTime != null "> and jpp.planned_arrival_time >#{setOutTime}  </if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}</if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>
@@ -897,7 +900,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId} </if>
             <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time </if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId} </if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId} </if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>

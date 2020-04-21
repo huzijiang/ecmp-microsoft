@@ -56,20 +56,25 @@ public class RegimeController {
     @ApiOperation(value = "getUserRegimes",notes = "根据用户信息查询用户的用车制度信息",httpMethod ="POST")
     @PostMapping("/getUserRegimes")
     public ApiResponse<List<RegimenVO>> getUserRegimes(@RequestBody(required = false)UserDto userDto){
-        //查询登录用户
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        //初始化sceneId
-        Long sceneId = null;
-        if(userDto != null){
-            sceneId = userDto.getSceneId();
+        try {
+            //查询登录用户
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            //初始化sceneId
+            Long sceneId = null;
+            if(userDto != null){
+                sceneId = userDto.getSceneId();
+            }
+            //根据用户id查询用车制度
+            List<RegimenVO> regimeInfoList = regimeInfoService.findRegimeInfoListByUserId(loginUser.getUser().getUserId(),sceneId);
+            if(CollectionUtils.isEmpty(regimeInfoList)){
+                return ApiResponse.error("暂无数据");
+            }
+            return ApiResponse.success(regimeInfoList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
         }
-        //根据用户id查询用车制度
-        List<RegimenVO> regimeInfoList = regimeInfoService.findRegimeInfoListByUserId(loginUser.getUser().getUserId(),sceneId);
-        if(CollectionUtils.isEmpty(regimeInfoList)){
-            return ApiResponse.error("暂无数据");
-        }
-        return ApiResponse.success(regimeInfoList);
     }
 
     /**
@@ -168,7 +173,7 @@ public class RegimeController {
 
     }
     
-    @Log(title = "用车制度", content = "可用城市or不可用城市",businessType = BusinessType.OTHER)
+    @Log(title = "用车制度:可用城市or不可用城市", businessType = BusinessType.OTHER)
     @ApiOperation(value = "queryRegimeCityLimit",notes = "通过用车制度编号,查询用车制度的可用or不可用车城市",httpMethod ="POST")
     @PostMapping("/queryRegimeCityLimit")
     public ApiResponse<RegimeLimitUseCarCityInfo> queryRegimeCityLimit(@RequestBody Long regimeId){
@@ -182,7 +187,7 @@ public class RegimeController {
     }
     
     
-    @Log(title = "用车制度",content = "创建用车制度", businessType = BusinessType.INSERT)
+    @Log(title = "用车制度:创建用车制度", businessType = BusinessType.INSERT)
 	@ApiOperation(value = "createRegime", notes = "创建用车制度", httpMethod = "POST")
 	@PostMapping("/createRegime")
 	public ApiResponse createRegime(@RequestBody RegimePo regimePo) {
@@ -196,7 +201,7 @@ public class RegimeController {
 		return ApiResponse.error();
 	}
 	
-    @Log(title = "用车制度", content = "修改用车制度",businessType = BusinessType.UPDATE)
+    @Log(title = "用车制度:修改用车制度", businessType = BusinessType.UPDATE)
 	@ApiOperation(value = "updateRegime", notes = "修改用车制度", httpMethod = "POST")
 	@PostMapping("/updateRegime")
 	public ApiResponse updateRegime(@RequestBody RegimePo regimePo) {
@@ -211,7 +216,7 @@ public class RegimeController {
 	}
 	
 	
-    @Log(title = "用车制度",content = "查询制度列表", businessType = BusinessType.OTHER)
+    @Log(title = "用车制度:查询制度列表", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "queryRegimeList", notes = "查询制度列表", httpMethod = "POST")
 	@PostMapping("/queryRegimeList")
 	public ApiResponse<PageResult<RegimeVo>> queryRegimeList(@RequestBody RegimeQueryPo regimeQueryPo) {
@@ -222,7 +227,7 @@ public class RegimeController {
 		return ApiResponse.success(pageResult);
 	}
     
-    @Log(title = "用车制度",content = "制度删除 or启用or停用", businessType = BusinessType.OTHER)
+    @Log(title = "用车制度:制度删除 or启用or停用", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "optRegime", notes = "制度删除 or启用or停用", httpMethod = "POST")
 	@PostMapping("/optRegime")
 	public ApiResponse optRegime(@RequestBody RegimeOpt regimeOpt) {
@@ -237,7 +242,7 @@ public class RegimeController {
 		return ApiResponse.error();
 	}
 	
-    @Log(title = "用车制度", content = "制度详情查询",businessType = BusinessType.OTHER)
+    @Log(title = "用车制度:制度详情查询", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "detail", notes = "后管制度详情查询", httpMethod = "POST")
 	@PostMapping("/detail")
 	public ApiResponse<RegimeVo> queryRegimeDetail(@RequestBody Long regimeId) {

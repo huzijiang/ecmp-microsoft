@@ -630,7 +630,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           select count(*) from ecmp_user  where phonenumber=#{phoneNumber}
     </select>
 
-    <select id="findDeptLeader" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.UserVO">
+    <select id="findDeptLeader" parameterType="Object" resultType="String">
         select leader from ecmp_org where dept_id=#{deptId}
     </select>
 
