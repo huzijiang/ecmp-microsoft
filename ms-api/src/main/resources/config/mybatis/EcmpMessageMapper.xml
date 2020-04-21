@@ -232,12 +232,25 @@
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
             update ecmp_message
             <set>
-                state=#{item.state},
+                status=#{item.status},
                 update_by=#{item.updateBy},
                 update_time=now()
             </set>
             where id = ${item.id}
         </foreach>
+    </update>
+
+    <update id="updateByCategoryId" parameterType="Object">
+        update ecmp_message
+        <set>
+            status=#{status},
+            update_by=1,
+            update_time=now()
+        </set>
+        where status='0000' and category_id=#{orderId}
+        <if test="applyId!=null">
+            and apply_id=#{applyId}
+        </if>
     </update>
 
 </mapper>

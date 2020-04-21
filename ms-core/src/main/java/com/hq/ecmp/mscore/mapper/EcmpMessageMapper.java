@@ -80,4 +80,6 @@ public interface EcmpMessageMapper {
     List<MessageDto> getRunMessageForDispatcher(@Param("ecmpId") Long ecmpId,@Param("category") String category);
 
     void insertList(@Param("msgList")List<EcmpMessage> msgList);
+
+    void updateByCategoryId(@Param("orderId") Long orderId,@Param("status")  String status,@Param("applyId") Long applyId);
 }

@@ -138,6 +138,8 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         EcmpUserFeedbackInfo ecmpUserFeedbackInfo = new EcmpUserFeedbackInfo();
         BeanUtils.copyProperties(evaluationDto,ecmpUserFeedbackInfo);
         ecmpUserFeedbackInfo.setUserId(userId);
+        ecmpUserFeedbackInfo.setCreateBy(String.valueOf(userId));
+        ecmpUserFeedbackInfo.setCreateTime(DateUtils.getNowDate());
         log.info("订单:"+evaluationDto.getOrderId()+"异议参数"+evaluationDto.toString());
         int count = ecmpUserFeedbackInfoMapper.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
         if (count>0){
@@ -148,6 +150,8 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
                 String[] split = evaluationDto.getImgUrls().split(",");
                 for (String url:split) {
                     feedbackImage.setImageUrl(url);
+                    feedbackImage.setCreateBy(String.valueOf(userId));
+                    feedbackImage.setCreateTime(DateUtils.getNowDate());
                     ecmpUserFeedbackImageMapper.insertEcmpUserFeedbackImage(feedbackImage);
                 }
             }
