@@ -14,8 +14,11 @@ import com.hq.ecmp.mscore.dto.config.*;
 import com.hq.ecmp.mscore.mapper.EcmpConfigMapper;
 import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import com.hq.ecmp.mscore.service.ZimgService;
+import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.GsonUtils;
+import com.hq.ecmp.util.SortListUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -446,9 +449,33 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
 		EcmpConfig ecmpConfig = ecmpConfigMapper.selectConfigByKey(new EcmpConfig(ConfigTypeEnum.DISPATCH_INFO.getConfigKey()));
 		if(null !=ecmpConfig && StringUtils.isNotEmpty(ecmpConfig.getConfigValue())){
 		    JSONObject jsonObject = JSONObject.parseObject(ecmpConfig.getConfigValue());
+		    log.info("自动派单方式:{}",jsonObject);
+            List<AutoDispatchSetting> autoDispatchSetting = JSONObject.parseArray(jsonObject.getString("value"), AutoDispatchSetting.class);
             String status = jsonObject.getString("status");
             if(SWITCH_ON.equals(status)){
             	return true;
+            }else if(SWITCH_ON_CUSTOM.equals(status)){
+                //自定义派单时间
+                if (CollectionUtils.isNotEmpty(autoDispatchSetting)){
+                    SortListUtil.sort(autoDispatchSetting,"weekType",SortListUtil.ASC);
+                    for (int i=0;i<autoDispatchSetting.size();i++){
+                        AutoDispatchSetting dispatchSetting = autoDispatchSetting.get(i);
+                        String week = DateFormatUtils.getWeek();
+                        String weekType = dispatchSetting.getWeekType();
+                        String nowTime=DateFormatUtils.formatDate(DateFormatUtils.TIME_FORMAT,new Date());
+                        if (weekType.equals(week)){
+                            if (!Boolean.valueOf(dispatchSetting.getNextDay())){
+                                if (DateFormatUtils.compareTime(dispatchSetting.getStartTime(),nowTime)!=-1&&DateFormatUtils.compareTime(nowTime,dispatchSetting.getEndTime())!=-1){
+                                    return true;
+                                }
+                            }else{
+                                if (DateFormatUtils.compareTime(dispatchSetting.getStartTime(),nowTime)!=-1){
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
             }
 		}
 		return false;
