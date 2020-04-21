@@ -289,6 +289,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<DispatchOrderInfo> checkResult=new ArrayList<DispatchOrderInfo>();
 		if(result.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : result) {
+				//计算该订单的等待时长 分钟
+				
 				//查询订单对应的上车地点时间,下车地点时间
 				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 				//查询订单对应制度的可用用车方式

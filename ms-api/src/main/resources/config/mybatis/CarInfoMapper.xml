@@ -230,7 +230,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="queryCompanyCar"  resultType="java.lang.Integer">
-          select count(*) from car_info
+          select count(1) from car_info where  state != 'S444'
     </select>
 
     <!--根据组织id查询归属车辆信息-->
