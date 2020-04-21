@@ -126,7 +126,7 @@ public class SceneInfoServiceImpl implements ISceneInfoService
 
 	@Override
 	public List<SceneInfo> selectAllSceneSort(Long userId) {
-		return sceneInfoMapper.selectAllSceneSort(userId);
+        return sceneInfoMapper.selectAllSceneSort(userId);
 	}
 
     /**
