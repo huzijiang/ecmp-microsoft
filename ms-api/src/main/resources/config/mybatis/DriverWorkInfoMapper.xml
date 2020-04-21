@@ -142,7 +142,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateWorkDetailMonthByDriverInfo" >
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
             update driver_work_info
-            set today_it_is_on_duty=#{item.workState},
+            set
             leave_status=#{item.leaveStatus},
             update_by=#{userId},
             <if test="item.workState == '1111'">
@@ -174,7 +174,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
     <update id="updateDriverWork" parameterType="Long">
             update driver_work_info
-            set leave_status='',today_it_is_on_duty='1111'
+            set leave_status=''
             where  driver_id=#{driverId} and caledar_date <![CDATA[<]]>NOW()
 
     </update>
