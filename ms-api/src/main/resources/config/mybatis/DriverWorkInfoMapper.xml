@@ -113,12 +113,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             update driver_work_info
             set leave_status=#{item.workState},
             update_by=#{userId},
-            <if test="item.workState == 'X000' or item.workState == 'X002' or item.workState == 'X003'">
-            today_it_is_on_duty='1111',
-            </if>
-            <if test="item.workState == 'X999'">
-              today_it_is_on_duty='0000',
-            </if>
             update_time=#{updateTime}
             where work_id=#{item.workId}
             and driver_id=#{item.driverId}
