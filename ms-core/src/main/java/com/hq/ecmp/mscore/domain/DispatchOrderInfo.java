@@ -70,7 +70,7 @@ public class DispatchOrderInfo {
        	
        	List<SendCarInfo> sendCarInfoList;//派车信息
        	
-       	String waitTimeLong;//等待时长  毫秒
+       	String waitTimeLong;//预计等待时长  毫秒
        	
        	Long journeyId;//行程编号
        	

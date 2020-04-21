@@ -79,7 +79,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select DATE_FORMAT(caledar_date,'%Y-%m-%d')
         from driver_work_info
         where leave_status = 'X999' and driver_id = #{driverId}
-        <if test="scheduleDate != null ">and DATE_FORMAT(caledar_date,'%Y-%m') = #{scheduleDate}</if>
+        <if test="scheduleDate != null and scheduleDate != ''"> and DATE_FORMAT(caledar_date,'%Y-%m') = #{scheduleDate}</if>
     </select>
     <select id="selectHolidaysByMonth" resultType="String">
         select DATE_FORMAT(caledar_date,'%Y-%m-%d')
@@ -113,12 +113,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             update driver_work_info
             set leave_status=#{item.workState},
             update_by=#{userId},
-            <if test="item.workState == 'X000' or item.workState == 'X002' or item.workState == 'X003'">
-            today_it_is_on_duty='1111',
-            </if>
-            <if test="item.workState == 'X999'">
-              today_it_is_on_duty='0000',
-            </if>
             update_time=#{updateTime}
             where work_id=#{item.workId}
             and driver_id=#{item.driverId}
@@ -148,7 +142,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateWorkDetailMonthByDriverInfo" >
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
             update driver_work_info
-            set today_it_is_on_duty=#{item.workState},
+            set
             leave_status=#{item.leaveStatus},
             update_by=#{userId},
             <if test="item.workState == '1111'">
@@ -180,7 +174,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
     <update id="updateDriverWork" parameterType="Long">
             update driver_work_info
-            set leave_status='',today_it_is_on_duty='1111'
+            set leave_status=''
             where  driver_id=#{driverId} and caledar_date <![CDATA[<]]>NOW()
 
     </update>

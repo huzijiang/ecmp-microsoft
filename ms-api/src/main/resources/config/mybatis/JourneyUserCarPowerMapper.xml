@@ -212,4 +212,12 @@ WHERE
     limit 1
 </select>
 
+<select id="getLastPowerCityByJourneyId" resultMap="JourneyUserCarPowerResult">
+    <include refid="selectJourneyUserCarPowerVo"/>
+    where journey_id=#{journeyId}
+    and type='C222'
+    order by power_id desc
+    limit 1
+</select>
+
 </mapper>

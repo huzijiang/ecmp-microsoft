@@ -503,6 +503,7 @@ WHERE
             1=1
             AND dcr.car_id IS NOT NULL
             AND cgd.car_group_id IS NOT NULL
+            AND dwi.leave_status='X999'
             <if test="driverNameOrPhone != null  and driverNameOrPhone!= '' "> and dri.driver_name like CONCAT('%',#{driverNameOrPhone},'%')</if>
             <if test="workDay != null  "> and dwi.caledar_date=#{workDay}</if>
             <if test="driverId != null  and driverId!= '' "> and dri.driver_id=#{driverId}</if>
@@ -523,6 +524,7 @@ WHERE
             1=1
             AND dcr.car_id IS NOT NULL
             AND cgd.car_group_id IS NOT NULL
+            AND dwi.leave_status='X999'
             <if test="driverNameOrPhone != null  and driverNameOrPhone!= '' "> and dri.mobile like CONCAT('%',#{driverNameOrPhone},'%')</if>
             <if test="workDay != null "> and dwi.caledar_date=#{workDay}</if>
             <if test="driverId != null  and driverId!= '' "> and dri.driver_id=#{driverId}</if>
@@ -550,7 +552,7 @@ WHERE
         </if>
 		AND a.state = 'V000'
 	</select>
-	
+
 	<select id="queryDriverNumOfStateAndCarGroup" parameterType="com.hq.ecmp.mscore.domain.DriverQuery"
 	resultType="java.lang.Integer">
         SELECT

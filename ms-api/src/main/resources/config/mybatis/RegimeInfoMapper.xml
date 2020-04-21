@@ -382,7 +382,8 @@ SELECT
 	a.travel_use_car_mode_online_level AS travelUseCarModeOnlineLevel,
 	a.as_use_car_mode_owner_level AS asUseCarModeOwnerLevel,
 	a.as_use_car_mode_online_level AS asUseCarModeOnlineLevel,
-	a.regimen_type as regimenType
+	a.regimen_type as regimenType,
+	c.service_type as serviceType
 FROM
 	regime_info a
 LEFT JOIN journey_info b ON a.regimen_id = b.regimen_id
