@@ -58,7 +58,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
     private JourneyNodeInfoMapper journeyNodeInfoMapper;
     @Autowired
     private JourneyInfoMapper journeyInfoMapper;
-    @Autowired
+    @Resource
     private JourneyUserCarPowerMapper userCarPowerMapper;
     @Autowired
     private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
@@ -261,7 +261,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         //获取即将任务开始的通知
         OrderInfo info=orderInfoMapper.selectDriverOrder(driverInfo.getDriverId(), OrderState.ALREADYSENDING.getState());
         if (info!=null){
-            runMessageForDrive.add(new MessageDto(info.getOrderId(),MsgConstant.MESSAGE_T00.getType(),MsgConstant.MESSAGE_T00.getDesp(),1));
+            runMessageForDrive.add(new MessageDto(info.getOrderId(),MsgConstant.MESSAGE_T008.getType(),MsgConstant.MESSAGE_T008.getDesp(),1));
         }
         return runMessageForDrive;
     }

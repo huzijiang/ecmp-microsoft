@@ -31,6 +31,7 @@ public class EcmpMessage implements Serializable {
     */
     private Long ecmpId;
     private Long categoryId;
+    private Long applyId;
     /**
     * 消息类型
 T001-业务消息
@@ -94,6 +95,18 @@ M999  其他
         this.configType = configType;
         this.ecmpId = ecmpId;
         this.categoryId = categoryId;
+        this.type = type;
+        this.status = status;
+        this.content = content;
+        this.category = category;
+        this.createBy = createBy;
+        this.createTime = createTime;
+    }
+    public EcmpMessage(Integer configType, Long ecmpId, Long categoryId,Long applyId, String type, String status, String content, String category, Long createBy, Date createTime) {
+        this.configType = configType;
+        this.ecmpId = ecmpId;
+        this.categoryId = categoryId;
+        this.applyId = applyId;
         this.type = type;
         this.status = status;
         this.content = content;
