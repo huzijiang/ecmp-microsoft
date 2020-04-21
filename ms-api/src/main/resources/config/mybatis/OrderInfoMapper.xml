@@ -522,7 +522,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     <select id="getOrderListBackDto" parameterType="com.hq.ecmp.mscore.dto.OrderListBackDto" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
         select
         -- 申请人姓名
-        eu.user_name applyName,
+        eu.nick_name applyName,
         -- 申请人手机号
         eu.phonenumber applyPhoneNumber,
         -- 乘车人
@@ -569,9 +569,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join order_address_info oai on oai.order_id=s.order_id and oai.type='A000'
         left join order_address_info oai2 on oai2.order_id=s.order_id and oai2.type='A999'
             <where>
-                <if test="applyName != null and  applyName!=''"> and eu.user_name like concat('%',#{applyName},'%') </if>
+                <if test="applyName != null and  applyName!=''"> and eu.nick_name like concat('%',#{applyName},'%') </if>
                 <if test="applyPhoneNumber != null and  applyPhoneNumber!='' "> and eu.phonenumber like concat('%',#{applyPhoneNumber},'%') </if>
                 <if test="passengerName != null and  passengerName!='' "> and  jpi.name = #{passengerName}</if>
+                <if test="orderNumber != null and  orderNumber!='' "> and  s.order_number = #{orderNumber}</if>
                 <if test="serviceType != null and  serviceType!='' "> and ji.service_type = #{serviceType}</if>
                 <if test="useCarMode != null and  useCarMode!=''"> and s.use_car_mode = #{useCarMode}</if>
                 <if test="charterCarType != null and  charterCarType!='' "> and  ji.charter_car_type = #{charterCarType}</if>
@@ -595,7 +596,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         select
         s.order_id orderId,
         s.order_number orderNumber,
-        eu.user_name applyName,
+        eu.nick_name applyName,
         eu.phonenumber phoneNumber,
         eo.dept_name deptName,
         ri.name regimenName,

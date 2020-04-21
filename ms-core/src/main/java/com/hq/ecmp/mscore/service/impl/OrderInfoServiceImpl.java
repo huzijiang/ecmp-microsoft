@@ -1139,8 +1139,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
         //订单管理需要的状态 已取消  S911    已完成 S900  待确认 S699     服务中S616  待上车 S600   接驾中 S500  待服务 S299
-        PageHelper.startPage(orderListBackDto.getPageNum(),orderListBackDto.getPageSize());
         List<OrderListBackDto> list = orderInfoMapper.getOrderListBackDto(orderListBackDto);
+        if(orderListBackDto.getOrderState()!=null && orderListBackDto.getLabelState()!=null) {
+            List<OrderListBackDto> list1 = list.stream().filter(e -> orderListBackDto.getOrderState().contains(e.getOrderState())).collect(Collectors.toList());
+            String labelState = orderListBackDto.getLabelState();
+            List<OrderListBackDto> list2 = list1.stream().filter(e -> !labelState.contains(e.getLabelState())).collect(Collectors.toList());
+            PageInfo<OrderListBackDto> info = new PageInfo<>(list2);
+            return new PageResult<>(info.getTotal(),info.getPages(),list2);
+        }else if(orderListBackDto.getLabelState()!=null){
+            List<OrderListBackDto> list1 = list.stream().filter(e -> orderListBackDto.getLabelState().contains(e.getLabelState())).collect(Collectors.toList());
+            PageInfo<OrderListBackDto> info = new PageInfo<>(list1);
+            return new PageResult<>(info.getTotal(),info.getPages(),list1);
+        }
         PageInfo<OrderListBackDto> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
@@ -1502,17 +1512,19 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 throw new Exception("获取轨迹失败");
             }
             String data = jsonObject.getString("data");
-            List<OrderTraceDto> resultList = JSONObject.parseArray(data, OrderTraceDto.class);
-            if(resultList.size()>0){
-                for (OrderTraceDto orderTraceDto:
-                resultList) {
-                    OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();
-                    orderHistoryTraceDto.setOrderId(orderId+"");
-                    orderHistoryTraceDto.setLongitude(orderTraceDto.getX());
-                    orderHistoryTraceDto.setLatitude(orderTraceDto.getY());
-                    Date date = new Date(Long.parseLong(orderTraceDto.getPt()));
-                    orderHistoryTraceDto.setCreateTime(date);
-                    orderHistoryTraceDtos.add(orderHistoryTraceDto);
+            if(data!=null){
+                List<OrderTraceDto> resultList = JSONObject.parseArray(data, OrderTraceDto.class);
+                if(resultList.size()>0){
+                    for (OrderTraceDto orderTraceDto:
+                            resultList) {
+                        OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();
+                        orderHistoryTraceDto.setOrderId(orderId+"");
+                        orderHistoryTraceDto.setLongitude(orderTraceDto.getX());
+                        orderHistoryTraceDto.setLatitude(orderTraceDto.getY());
+                        Date date = new Date(Long.parseLong(orderTraceDto.getPt()));
+                        orderHistoryTraceDto.setCreateTime(date);
+                        orderHistoryTraceDtos.add(orderHistoryTraceDto);
+                    }
                 }
             }
         }else{

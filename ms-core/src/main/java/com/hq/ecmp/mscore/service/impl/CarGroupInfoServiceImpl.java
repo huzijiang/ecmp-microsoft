@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.hq.api.system.domain.SysDriver;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -943,9 +945,14 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     /*查询司机所属车队座机及车队调度员电话*/
     @Override
     public CarGroupPhoneVO getOwnerCarGroupPhone() {
-        Long loginUserId = getLoginUserId();
         //查询司机所属车队
-        Long driverId = driverInfoMapper.selectDriverIdByUserId(loginUserId);
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        SysDriver driver = loginUser.getDriver();
+        Long driverId = null;
+        if(driver != null){
+            driverId = driver.getDriverId();
+        }
         if(driverId == null){
             throw new RuntimeException("该用户不是司机");
         }

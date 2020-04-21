@@ -348,7 +348,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         dept_name as deptName,
         if(isnull(dept_code),'',dept_code) as deptCode,
         (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,a.leader)) leader,
-        (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
+        (select count(1) from ecmp_user where dept_id=#{deptId} and del_flag = 0) as numOfSub,
         (select count(1) from ecmp_org where parent_id=#{deptId} and dept_type='1') as numOfSonCom,status
         from ecmp_org a where
         del_flag = 0 and
@@ -399,7 +399,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         eo.dept_id as deptId,
         eo.dept_name as deptName,
         if(isnull(eo.dept_code),'',eo.dept_code) as deptCode,eu.nick_name leader,
-        (select count(1) from ecmp_user where dept_id in (select dept_id from  ecmp_org where ancestors like concat('%', #{ancestors}, '%' ) or dept_id=#{deptId} )) as numOfSub
+        (select count(1) from ecmp_user where dept_id in (select dept_id from  ecmp_org where ancestors like concat('%', #{ancestors}, '%' ) or dept_id=#{deptId} )  and del_flag=0) as numOfSub
         from ecmp_org  eo LEFT JOIN ecmp_user eu  ON eo.leader=eu.user_id
         where
         eo.dept_id = #{deptId}
@@ -527,6 +527,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="type==0">
             where dept_name = #{name} and dept_id!=#{id}
         </if>
+        and del_flag = 0
         and parent_id = #{pId}
     </select>
     <select id="selectNewCompanyCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
