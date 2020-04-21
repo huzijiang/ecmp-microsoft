@@ -307,6 +307,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>
             1=1
             and  cg.state='Y000'
+            and  car.state='S000'
+            and  car.lock_state='0000'
             <if test="carTypeInfo != null  and carTypeInfo != '' ">     AND  car.car_type LIKE CONCAT('%',#{carTypeInfo},'%') </if>
             <if test="carLicense != null  and carLicense != '' ">     AND  car.car_license LIKE CONCAT('%',#{carLicense},'%') </if>
             <if test="carGroupId != null  and carGroupId != '' ">    AND cg.car_group_id=#{carGroupId}</if>
