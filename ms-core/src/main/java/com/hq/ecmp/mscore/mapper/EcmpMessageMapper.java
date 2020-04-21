@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpMessage;
+import com.hq.ecmp.mscore.dto.EcmpMessageDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -42,6 +43,7 @@ public interface EcmpMessageMapper {
      * @return 对象列表
      */
     List<EcmpMessage> queryAll(EcmpMessage ecmpMessage);
+    List<EcmpMessage> queryList(EcmpMessageDto ecmpMessage);
 
     /**
      * 新增数据
@@ -58,6 +60,7 @@ public interface EcmpMessageMapper {
      * @return 影响行数
      */
     int update(EcmpMessage ecmpMessage);
+    int updateList(@Param("list") List<EcmpMessage> ecmpMessage);
 
     /**
      * 通过主键删除数据

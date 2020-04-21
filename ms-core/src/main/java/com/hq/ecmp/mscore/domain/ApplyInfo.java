@@ -68,4 +68,8 @@ public class ApplyInfo extends BaseEntity
         this.applyId = applyId;
         this.state = state;
     }
+
+    public ApplyInfo(Long journeyId) {
+        this.journeyId = journeyId;
+    }
 }

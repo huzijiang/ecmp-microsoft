@@ -7,6 +7,7 @@
         <result property="configType" column="config_type" jdbcType="INTEGER"/>
         <result property="ecmpId" column="ecmp_id" jdbcType="INTEGER"/>
         <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
+        <result property="applyId" column="apply_id" jdbcType="INTEGER"/>
         <result property="type" column="type" jdbcType="VARCHAR"/>
         <result property="status" column="status" jdbcType="VARCHAR"/>
         <result property="content" column="content" jdbcType="VARCHAR"/>
@@ -21,7 +22,7 @@
     <!--查询单个-->
     <select id="queryById" resultMap="EcmpMessageMap">
         select
-          id, config_type, ecmp_id,category_id, type, status,content, category, url, create_by, create_time, update_by, update_time
+          id, config_type, ecmp_id,category_id,apply_id, type, status,content, category, url, create_by, create_time, update_by, update_time
         from ecmp.ecmp_message
         where id = #{id}
     </select>
@@ -29,7 +30,7 @@
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="EcmpMessageMap">
         select
-          id, config_type, ecmp_id, category_id,type, status, category, url, create_by, create_time, update_by, update_time,content
+          id, config_type, ecmp_id, category_id,apply_id,type, status, category, url, create_by, create_time, update_by, update_time,content
         from ecmp.ecmp_message
         limit #{offset}, #{limit}
     </select>
@@ -51,6 +52,9 @@
             </if>
             <if test="categoryId != null">
                 and category_id = #{categoryId}
+            </if>
+            <if test="applyId != null">
+                and apply_id = #{applyId}
             </if>
             <if test="type != null and type != ''">
                 and type = #{type}
@@ -82,10 +86,37 @@
         </where>
     </select>
 
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryList" resultMap="EcmpMessageMap" parameterType="com.hq.ecmp.mscore.dto.EcmpMessageDto">
+        select
+        id, config_type, ecmp_id,category_id, type, status, category, url, create_by, create_time, update_by, update_time,content
+        from ecmp_message
+        <where>
+            <if test="configType != null and configType!=''">
+                and find_in_set(config_type,#{configType})
+            </if>
+            <if test="ecmpId != null">
+                and ecmp_id = #{ecmpId}
+            </if>
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+            <if test="applyId != null">
+                and apply_id = #{applyId}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="category != null and category != ''">
+                and find_id_set(category,#{category})
+            </if>
+        </where>
+    </select>
+
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into ecmp_message(config_type, ecmp_id, category_id,type, status, category, url, create_by, create_time, update_by, update_time,content)
-        values (#{configType}, #{ecmpId}, #{categoryId},#{type}, #{status}, #{category}, #{url}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime},#{content})
+        insert into ecmp_message(config_type, ecmp_id, category_id,apply_id,type, status, category, url, create_by, create_time, update_by, update_time,content)
+        values (#{configType}, #{ecmpId}, #{categoryId},#{applyId},#{type}, #{status}, #{category}, #{url}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime},#{content})
     </insert>
 
     <!--通过主键修改数据-->
@@ -100,6 +131,9 @@
             </if>
             <if test="categoryId != null">
                 category_id = #{categoryId},
+            </if>
+            <if test="applyId != null">
+                apply_id = #{applyId},
             </if>
             <if test="type != null and type != ''">
                 type = #{type},
@@ -139,7 +173,7 @@
 
     <select id="queryMessageList" parameterType="Object" resultMap="EcmpMessageMap">
         select
-          id, config_type, ecmp_id,category_id, type, status,content, category, url, create_by, create_time, update_by, update_time
+          id, config_type, ecmp_id,category_id,apply_id, type, status,content, category, url, create_by, create_time, update_by, update_time
         from ecmp.ecmp_message
         where ecmp_id = #{ecmpId}
         <if test="configTypeList!=null">
@@ -187,12 +221,23 @@
     </select>
 
     <insert id="insertList" parameterType="List">
-        insert into ecmp_message(config_type, ecmp_id, category_id,type, status, category, url, create_by, create_time, update_by,content )
+        insert into ecmp_message(config_type, ecmp_id, category_id,apply_id,type, status, category, url, create_by, create_time, update_by,content )
         values
         <foreach collection="msgList" item="item" index="index" separator=",">
-            ( #{item.configType}, #{item.ecmpId}, #{item.categoryId},#{item.type}, #{item.status}, #{item.category}, #{item.url}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.content})
+            ( #{item.configType}, #{item.ecmpId}, #{item.categoryId}, #{item.applyId},#{item.type}, #{item.status}, #{item.category}, #{item.url}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.content})
         </foreach>
     </insert>
 
+    <update id="updateList"  parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update ecmp_message
+            <set>
+                state=#{item.state},
+                update_by=#{item.updateBy},
+                update_time=now()
+            </set>
+            where id = ${item.id}
+        </foreach>
+    </update>
 
 </mapper>
