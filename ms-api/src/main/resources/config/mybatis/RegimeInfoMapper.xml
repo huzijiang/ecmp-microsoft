@@ -270,7 +270,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
                 <if test="travelAllowInTravelCityUseCar != null and travelAllowInTravelCityUseCar !=''">travel_allow_in_travel_city_use_car,</if>
                 <if test="travelUseCarModeOwnerLevel != null and travelUseCarModeOwnerLevel !=''">travel_use_car_mode_owner_level,</if>
                 <if test="travelUseCarModeOnlineLevel != null and travelUseCarModeOnlineLevel !=''">travel_use_car_mode_online_level,</if>
-                <if test="travelAllowDateRound != null and travelAllowDateRound !=''">travel_allow_date_round,</if>
+                <if test="asAllowDateRound != null and asAllowDateRound !=''">travel_allow_date_round,</if>
                  <if test="travelSetoutEqualArrive != null and travelSetoutEqualArrive !=''">travel_setout_equal_arrive,</if>
                  <if test="asAllowAirportShuttle != null and asAllowAirportShuttle !=''">as_allow_airport_shuttle,</if>
                   <if test="asUseCarModeOwnerLevel != null and asUseCarModeOwnerLevel !=''">as_use_car_mode_owner_level,</if>
@@ -297,7 +297,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
             <if test="travelAllowInTravelCityUseCar != null and travelAllowInTravelCityUseCar !=''">#{travelAllowInTravelCityUseCar},</if>
              <if test="travelUseCarModeOwnerLevel != null and travelUseCarModeOwnerLevel !=''">#{travelUseCarModeOwnerLevel},</if>
               <if test="travelUseCarModeOnlineLevel != null and travelUseCarModeOnlineLevel !=''">#{travelUseCarModeOnlineLevel},</if>
-              <if test="travelAllowDateRound != null and travelAllowDateRound !=''">#{travelAllowDateRound},</if>
+              <if test="asAllowDateRound != null and asAllowDateRound !=''">#{asAllowDateRound},</if>
               <if test="travelSetoutEqualArrive != null and travelSetoutEqualArrive !=''">#{travelSetoutEqualArrive},</if>
               <if test="asAllowAirportShuttle != null and asAllowAirportShuttle !=''">#{asAllowAirportShuttle},</if>
               <if test="asUseCarModeOwnerLevel != null and asUseCarModeOwnerLevel !=''">#{asUseCarModeOwnerLevel},</if>

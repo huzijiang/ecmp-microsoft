@@ -67,9 +67,9 @@ N005  着装不整
     public DriverServiceAppraiseeInfo() {
     }
 
-    public DriverServiceAppraiseeInfo(Long orderId) {
+    public DriverServiceAppraiseeInfo(Long driverId) {
+        this.driverId = driverId;
     }
-
 
     public Long getAppraiseId() {
         return appraiseId;
