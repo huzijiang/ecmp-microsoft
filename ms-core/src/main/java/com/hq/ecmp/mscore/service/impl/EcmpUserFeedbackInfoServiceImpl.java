@@ -1,7 +1,10 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
@@ -16,11 +19,14 @@ import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -32,13 +38,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoService
 {
-    @Autowired
+    @Resource
     private EcmpUserFeedbackInfoMapper ecmpUserFeedbackInfoMapper;
-    @Autowired
+    @Resource
     private EcmpUserFeedbackImageMapper ecmpUserFeedbackImageMapper;
-    @Autowired
+    @Resource
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
-    @Autowired
+    @Resource
     private OrderInfoMapper orderInfoMapper;
 
     /**
@@ -118,9 +124,22 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
     @Override
     @Transactional
     public Long saveOrderEvaluation(OrderEvaluationDto evaluationDto, Long userId) throws Exception{
+        List<EcmpUserFeedbackInfo> feedbackInfos = ecmpUserFeedbackInfoMapper.selectEcmpUserFeedbackInfoList(new EcmpUserFeedbackInfo(evaluationDto.getOrderId()));
+        if (CollectionUtils.isNotEmpty(feedbackInfos)){
+            log.info("订单:"+evaluationDto.getOrderId()+"行程异议已存在");
+            ecmpUserFeedbackInfoMapper.deleteEcmpUserFeedbackInfoById(feedbackInfos.get(0).getFeedbackId());
+            List<EcmpUserFeedbackImage> ecmpUserFeedbackImages = ecmpUserFeedbackImageMapper.selectEcmpUserFeedbackImageList(new EcmpUserFeedbackImage(feedbackInfos.get(0).getFeedbackId()));
+            if (CollectionUtils.isNotEmpty(ecmpUserFeedbackImages)){
+                List<Long> collect = ecmpUserFeedbackImages.stream().map(EcmpUserFeedbackImage::getImageId).collect(Collectors.toList());
+                Long[] longs = (Long[]) collect.toArray();
+                ecmpUserFeedbackImageMapper.deleteEcmpUserFeedbackImageByIds(longs);
+            }
+        }
         EcmpUserFeedbackInfo ecmpUserFeedbackInfo = new EcmpUserFeedbackInfo();
         BeanUtils.copyProperties(evaluationDto,ecmpUserFeedbackInfo);
         ecmpUserFeedbackInfo.setUserId(userId);
+        ecmpUserFeedbackInfo.setCreateBy(String.valueOf(userId));
+        ecmpUserFeedbackInfo.setCreateTime(DateUtils.getNowDate());
         log.info("订单:"+evaluationDto.getOrderId()+"异议参数"+evaluationDto.toString());
         int count = ecmpUserFeedbackInfoMapper.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
         if (count>0){
@@ -131,6 +150,8 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
                 String[] split = evaluationDto.getImgUrls().split(",");
                 for (String url:split) {
                     feedbackImage.setImageUrl(url);
+                    feedbackImage.setCreateBy(String.valueOf(userId));
+                    feedbackImage.setCreateTime(DateUtils.getNowDate());
                     ecmpUserFeedbackImageMapper.insertEcmpUserFeedbackImage(feedbackImage);
                 }
             }
