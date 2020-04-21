@@ -400,7 +400,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             throw new Exception("当前登录人不是司机");
         }
         Long driverId = driverInfo.getDriverId();
-        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState()+","+OrderState.ORDERCLOSE.getState();
+        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()
+                +","+OrderState.INSERVICE.getState()+","+OrderState.ORDERCLOSE.getState()+","+OrderState.STOPSERVICE.getState();
         return orderInfoMapper.getDriverOrderListCount(driverId,states);
     }
 
