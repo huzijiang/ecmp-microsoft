@@ -1,11 +1,15 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.hq.ecmp.mscore.bo.JourneyBeingEndDate;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -562,7 +566,9 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			 planSetoutTime=journeyNodeInfo.getPlanSetoutTime();
 		 }else if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimenType)){
 			 //差旅
-			 planSetoutTime=journeyNodeInfo.getPlanArriveTime();
+			 //终止时间是最后一个行程节点的预计到达时间
+			 JourneyBeingEndDate validDateByJourneyNodeId = journeyInfoService.getValidDateByJourneyNodeId(journeyNodeInfo, regimeInfo);
+			 planSetoutTime=validDateByJourneyNodeId.getEndDate();
 		 }
 		if(null ==planSetoutTime){
 			return false;
@@ -654,5 +660,4 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		}
 		return false;
 	}
-
 }
