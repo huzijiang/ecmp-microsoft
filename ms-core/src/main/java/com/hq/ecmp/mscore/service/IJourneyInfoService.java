@@ -2,10 +2,8 @@ package com.hq.ecmp.mscore.service;
 
 import java.util.List;
 
-import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
-import com.hq.ecmp.mscore.domain.UserCarAuthority;
+import com.hq.ecmp.mscore.bo.JourneyBeingEndDate;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
 import com.hq.ecmp.mscore.vo.JourneyVO;
@@ -104,4 +102,11 @@ public interface IJourneyInfoService {
      * @return 个数
      */
     public int getWhetherJourney(Long userId);
+
+    /**
+     * 通过行程节点计算行程的实际可用时间
+     * @param journeyNodeInfo
+     * @return
+     */
+    public JourneyBeingEndDate getValidDateByJourneyNodeId(JourneyNodeInfo journeyNodeInfo, RegimeInfo regimeInfo);
 }

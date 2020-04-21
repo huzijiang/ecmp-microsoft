@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.hq.ecmp.constant.*;
+import com.hq.ecmp.mscore.bo.JourneyBeingEndDate;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
 import com.hq.ecmp.util.DateFormatUtils;
@@ -333,11 +334,16 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		userAuthorityGroupCityList) {
 			Collections.sort(userAuthorityGroupCity.getUserCarAuthorityList());
 		}
+		//查询行程的实际开始时间和结束时间
+		RegimeInfo regimeInfo = regimeInfoService.queryUseCarModelByNoteId(journeyNodeInfoList.get(0).getNodeId());
+		JourneyBeingEndDate validDateByJourneyNodeId = getValidDateByJourneyNodeId(journeyNodeInfoList.get(0),regimeInfo);
 		//状态检查，找到返给前端的状态第一个是待确认或者已完成的
 		int innerIndex = -1;
 		int outerIndex = -1;
 		for (int i=0; i<userAuthorityGroupCityList.size();i++) {
 			UserAuthorityGroupCity userAuthorityGroupCity = userAuthorityGroupCityList.get(i);
+			userAuthorityGroupCity.setBeginDate(validDateByJourneyNodeId.getBeginDate());
+			userAuthorityGroupCity.setEndDate(validDateByJourneyNodeId.getEndDate());
 			List<UserCarAuthority> userCarAuthorityList = userAuthorityGroupCity.getUserCarAuthorityList();
 			for (int j = 0; j < userCarAuthorityList.size(); j++) {
 				UserCarAuthority userCarAuthority = userCarAuthorityList.get(j);
@@ -514,5 +520,30 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	@Override
 	public int getWhetherJourney(Long userId) {
 		return journeyInfoMapper.getWhetherJourney(userId);
+	}
+
+	/**
+	 * 通过行程节点计算行程的实际可用时间
+	 * @param journeyNodeInfo
+	 * @return
+	 */
+	@Override
+	public JourneyBeingEndDate getValidDateByJourneyNodeId(JourneyNodeInfo journeyNodeInfo, RegimeInfo regimeInfo){
+		Long asAllowDateRound = 0L;
+		if(regimeInfo != null){
+			asAllowDateRound = regimeInfo.getAsAllowDateRound();
+		}
+		JourneyBeingEndDate journeyBeingEndDate = new JourneyBeingEndDate();
+		JourneyNodeInfo journeyNodeInfo1 = new JourneyNodeInfo(journeyNodeInfo.getJourneyId());
+		List<JourneyNodeInfo> journeyNodeInfoList = journeyNodeInfoService.selectJourneyNodeInfoList(journeyNodeInfo1);
+		if(CollectionUtils.isNotEmpty(journeyNodeInfoList)){
+			JourneyNodeInfo journeyNodeInfo3 = journeyNodeInfoList.get(0);
+			JourneyNodeInfo journeyNodeInfo2 = journeyNodeInfoList.get(journeyNodeInfoList.size() - 1);
+			Date BeginDate = DateUtils.addDays(journeyNodeInfo3.getPlanSetoutTime(), 0-asAllowDateRound.intValue());
+			Date EndDate = DateUtils.addDays(journeyNodeInfo2.getPlanArriveTime(), asAllowDateRound.intValue());
+			journeyBeingEndDate.setBeginDate(BeginDate);
+			journeyBeingEndDate.setEndDate(EndDate);
+		}
+		return journeyBeingEndDate;
 	}
 }
