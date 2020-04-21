@@ -663,6 +663,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		a.state AS state,
 		a.service_type as serviceType,
 		h.it_is_return as itIsReturn,
+		h.wait_time_long as waitTimeLong,
 		f.SHORT_NAME as cityName
 		FROM
 		order_info a
@@ -740,6 +741,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		a.update_time AS optDate,
 		a.state AS state,
 		h.it_is_return as itIsReturn,
+		h.wait_time_long as waitTimeLong,
 		f.SHORT_NAME as cityName
 		FROM
 		order_info a
