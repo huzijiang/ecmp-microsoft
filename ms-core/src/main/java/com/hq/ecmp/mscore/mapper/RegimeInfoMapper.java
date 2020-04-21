@@ -112,4 +112,11 @@ public interface RegimeInfoMapper
     public RegimeVo queryRegimeInfoByOrderId(Long orderId);
 
     List<RegimenVO> selectAllRegimenVO();
+
+    /**
+     * 修改过期的制度
+     * @param regimeInfo
+     * @return
+     */
+    int updateExpiredRegimeInfo(RegimeInfo regimeInfo);
 }
