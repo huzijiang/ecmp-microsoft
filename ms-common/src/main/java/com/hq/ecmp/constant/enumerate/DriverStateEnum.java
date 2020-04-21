@@ -22,7 +22,23 @@ public enum DriverStateEnum {
     /**
      * 司机已经离职或者失效
      */
-    DIMISSION("NV00","已离职/失效");
+    DIMISSION("NV00","已离职/失效"),
+    /**
+     * 病假
+     */
+    SICK_LEAVE("X000","病假"),
+    /**
+     * 年假
+     */
+    ANNUAL_LEAVE("X002","年假"),
+    /**
+     * 公休
+     */
+    WEEKEND("X003","公休"),
+    /**
+     * 正常值班
+     */
+    DUTY("X999","正常值班");
 
     @Setter
     @Getter

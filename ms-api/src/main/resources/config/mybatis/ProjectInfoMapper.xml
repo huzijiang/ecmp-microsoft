@@ -188,7 +188,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where close_date = #{date}
     </select>
 
-    <select id="findLeader" resultType="com.hq.ecmp.mscore.vo.UserVO">
+    <select id="findLeader" resultType="String">
         select leader from project_info where project_id=#{projectId}
     </select>
 
