@@ -283,7 +283,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			}
 		return result;
 	}
-    
+
 	@Override
 	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
 		List<DispatchOrderInfo> result = queryAllWaitDispatchList();
@@ -363,7 +363,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 					continue;
 				}
 				result.add(dispatchOrderInfo);
-				
+
 			}
 		}
 		return result;
@@ -400,7 +400,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             throw new Exception("当前登录人不是司机");
         }
         Long driverId = driverInfo.getDriverId();
-        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState()+","+OrderState.ORDERCLOSE.getState();
+        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()
+                +","+OrderState.INSERVICE.getState()+","+OrderState.ORDERCLOSE.getState()+","+OrderState.STOPSERVICE.getState();
         return orderInfoMapper.getDriverOrderListCount(driverId,states);
     }
 
@@ -432,7 +433,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         ApiResponse apiResponse = new ApiResponse();
 		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
 		//计算等待时长 分钟
-		if(null !=dispatchOrderInfo.getCreateTime()){ 
+		if(null !=dispatchOrderInfo.getCreateTime()){
 			dispatchOrderInfo.setWaitMinute(DateFormatUtils.getDateToWaitInterval(dispatchOrderInfo.getCreateTime()));
 		}
 		dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
@@ -455,7 +456,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public DispatchOrderInfo getCompleteDispatchOrderDetailInfo(Long orderId) {
 		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.queryCompleteDispatchOrderDetail(orderId);
-		//对应前端状态都为已处理-S299 
+		//对应前端状态都为已处理-S299
 		dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
 		//查询订单对应的上车地点时间,下车地点时间
 		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
@@ -853,7 +854,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		DispatchLockCarDto dispatchLockCarDto = new DispatchLockCarDto();
 		dispatchLockCarDto.setCarId(carId.toString());
 		dispatchService.unlockSelectedCar(dispatchLockCarDto);
-		//释放司机 
+		//释放司机
 		DispatchLockDriverDto dispatchLockDriverDto = new DispatchLockDriverDto();
 		dispatchLockDriverDto.setDriverId(driverId.toString());
 		dispatchService.unlockSelectedDriver(dispatchLockDriverDto);
@@ -1397,7 +1398,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 					Integer waitTime=Integer.valueOf(waitTimeLong);
 					applyDispatchVo.setWaitTime(Long.valueOf(waitTime/(1000*60)));
 				}
-				
+
 				Long orderId = applyDispatchVo.getOrderId();
 				Long journeyId = applyDispatchVo.getJourneyId();
                 //查询乘车人
@@ -1415,8 +1416,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		}
 		return applyDispatchVoList;
 	}
-	
-	
+
+
 
 	@Override
 	public Integer queryApplyDispatchListCount(ApplyDispatchQuery query) {
@@ -1534,7 +1535,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderHistoryTraceDtos;
     }
 
-	
+
     @Override
 	public OrderCostDetailVO getOrderCost(Long orderId){
         OrderCostDetailVO result=new OrderCostDetailVO();
@@ -1844,7 +1845,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 					}
 				}
 			}
-			
+
 		}
 		return dispatchSendCarPageInfo;
 	}
@@ -2103,7 +2104,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
     }
-    
+
     @Override
     @Transactional(propagation=Propagation.REQUIRED)
 	public void checkCreateReturnAuthority(Long orderId,Long optUserId) throws Exception {
@@ -2201,6 +2202,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
         }
     }
-	
-	
+
+
 }

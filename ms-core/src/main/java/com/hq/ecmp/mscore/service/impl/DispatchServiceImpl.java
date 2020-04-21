@@ -558,15 +558,12 @@ public class DispatchServiceImpl implements IDispatchService {
                 }else{
                     waitSelectedDriverBo.setJobNumber(ecmpUser.getJobNumber());
                 }
-
-
                 if(ecmpUser==null){
                     waitSelectedDriverBo.setDeptName(NoValueCommonEnum.NO_STRING.getCode());
                 }else{
                     EcmpOrg  ecmpOrg=ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
                     waitSelectedDriverBo.setDeptName(ecmpOrg.getDeptName());
                 }
-
             }else{
                 waitSelectedDriverBo.setJobNumber(NoValueCommonEnum.NO_STRING.getCode());
                 waitSelectedDriverBo.setDeptName(NoValueCommonEnum.NO_STRING.getCode());
