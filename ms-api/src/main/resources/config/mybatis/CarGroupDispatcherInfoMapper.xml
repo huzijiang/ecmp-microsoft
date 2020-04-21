@@ -23,7 +23,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectCarGroupDispatcherInfoVo"/>
         <where>
             <if test="carGroupId != null "> and car_group_id = #{carGroupId}</if>
-            <if test="userId != null and userId != '0' "> and user_id = #{userId}</if>
+            <if test="userId != null and userId !=0 "> and user_id = #{userId}</if>
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
         </where>
     </select>

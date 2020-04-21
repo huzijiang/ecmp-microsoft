@@ -253,6 +253,13 @@ public class DateFormatUtils {
 		long interval = diff / 60 / 1000;
 		return interval < minute;
 	}
+	
+	public static Long getDateToWaitInterval(Date date){
+		Date currentDate = new Date();
+		long diff = currentDate.getTime() - date.getTime();
+		long interval = diff / 60 / 1000;
+		return Long.valueOf(interval);
+	}
 
      public  static void main(String[] args){
          Date date = parseDate(DATE_TIME_FORMAT, "2020-04-10 22:22:22");

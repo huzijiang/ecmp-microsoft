@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.github.pagehelper.PageInfo;
+import com.hq.api.system.mapper.SysUserMapper;
 import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.constant.RoleConstant;
 import com.hq.ecmp.mscore.domain.*;
@@ -59,6 +60,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 
     @Autowired
     private IEcmpOrgService ecmpOrgService;
+    @Autowired(required = false)
+    private SysUserMapper userMapper;
 
 
     /**
@@ -168,8 +171,11 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      */
     @Override
     public int queryCompanyEmpCunt() {
-        return ecmpUserMapper.queryCompanyEmp();
+      //  return ecmpUserMapper.queryCompanyEmp();
+
+        return userMapper.selectUserByRoleId(5L,null).size();
     }
+
 
     /*
      * 获取上级组织id中的员工姓名和电话、邮箱

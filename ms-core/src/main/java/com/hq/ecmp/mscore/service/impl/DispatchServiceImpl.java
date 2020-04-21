@@ -480,6 +480,17 @@ public class DispatchServiceImpl implements IDispatchService {
             waitSelectedCarBoList.add(waitSelectedCarBo);
         });
 
+        //车牌信息为空时，不展示冲突的车辆
+        if(StringUtils.isEmpty(selectCarConditionBo.getCarLicense())) {
+            Iterator<WaitSelectedCarBo> iterator=waitSelectedCarBoList.iterator();
+            while (iterator.hasNext()){
+                WaitSelectedCarBo waitSelectedCarBo=iterator.next();
+                if(!TaskConflictEnum.CONFLICT_FREE.equals(waitSelectedCarBo.getTaskConflict())){
+                    iterator.remove();
+                }
+            }
+        }
+
         waitSelectedCarBoList.stream().forEach(waitSelectedCarBo->{
             waitSelectedCarBo.embellish();
         });
@@ -542,9 +553,20 @@ public class DispatchServiceImpl implements IDispatchService {
 
             if(driver.getUserId()!=null){
                 EcmpUser ecmpUser=ecmpUserMapper.selectEcmpUserById(driver.getUserId());
-                waitSelectedDriverBo.setJobNumber(ecmpUser.getJobNumber());
-                EcmpOrg  ecmpOrg=ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
-                waitSelectedDriverBo.setDeptName(ecmpOrg.getDeptName());
+                if(ecmpUser==null){
+                    waitSelectedDriverBo.setJobNumber(NoValueCommonEnum.NO_STRING.getCode());
+                }else{
+                    waitSelectedDriverBo.setJobNumber(ecmpUser.getJobNumber());
+                }
+
+
+                if(ecmpUser==null){
+                    waitSelectedDriverBo.setDeptName(NoValueCommonEnum.NO_STRING.getCode());
+                }else{
+                    EcmpOrg  ecmpOrg=ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
+                    waitSelectedDriverBo.setDeptName(ecmpOrg.getDeptName());
+                }
+
             }else{
                 waitSelectedDriverBo.setJobNumber(NoValueCommonEnum.NO_STRING.getCode());
                 waitSelectedDriverBo.setDeptName(NoValueCommonEnum.NO_STRING.getCode());
@@ -594,6 +616,17 @@ public class DispatchServiceImpl implements IDispatchService {
             waitSelectedDriverBoList.add(waitSelectedDriverBo);
         });
 
+        //姓名或手机 信息为空时，不展示 冲突的司机
+        if(StringUtils.isEmpty(selectDriverConditionBo.getDriverNameOrPhone())) {
+            Iterator<WaitSelectedDriverBo> iterator=waitSelectedDriverBoList.iterator();
+            while (iterator.hasNext()){
+                WaitSelectedDriverBo waitSelectedDriverBo=iterator.next();
+                if(!TaskConflictEnum.CONFLICT_FREE.equals(waitSelectedDriverBo.getTaskConflict())){
+                    iterator.remove();
+                }
+            }
+        }
+
         waitSelectedDriverBoList.stream().forEach(driver->{
             driver.embellish();
         });
@@ -620,7 +653,7 @@ public class DispatchServiceImpl implements IDispatchService {
 
         Calendar setOutCalendar=Calendar.getInstance();
         setOutCalendar.setTime(journeyPlanPriceInfo.getPlannedDepartureTime());
-        setOutCalendar.add(Calendar.MINUTE,notBackCarGroup);
+        setOutCalendar.add(Calendar.MINUTE,-notBackCarGroup);
 
         Calendar arrivalCalendar=Calendar.getInstance();
         arrivalCalendar.setTime(journeyPlanPriceInfo.getPlannedArrivalTime());

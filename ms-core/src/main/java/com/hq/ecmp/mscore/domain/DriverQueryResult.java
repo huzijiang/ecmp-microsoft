@@ -20,6 +20,8 @@ public class DriverQueryResult {
 
 	String company;// 所属公司
 	Long companyId;// 所属公司Id
+	String subName;// 分子公司
+	Long subId;// 分子公司Id
 
 	String carGroupName;
 	

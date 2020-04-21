@@ -39,6 +39,10 @@ public class ApplyDispatchVo {
 	String state;
 	
 	String itIsReturn;//是否往返
+	
+	String waitTimeLong;
+	
+	Long waitTime;//预计等待时间  分钟
 
 	/**
 	 * 

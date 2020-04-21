@@ -36,7 +36,7 @@ public class DictDataController {
      * @param  dictDto  数据字典数据
      * @return ecmpDictDataList
      */
-    @Log(title = "数据字典模块:通过数据字典类型获取数据字典值", businessType = BusinessType.OTHER)
+    @Log(title = "数据字典模块",content = "通过数据字典类型获取数据字典值", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getDictDataByType",notes = "通过数据字典类型获取数据字典值 ",httpMethod ="POST")
     @PostMapping("/getDictDataByType")
     public ApiResponse<List<EcmpDictData>> getDictDataByType(@RequestBody DictDto dictDto){

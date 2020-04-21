@@ -41,7 +41,7 @@ public class CarTypeController {
      * @param
      * @return
      */
-    @Log(title = "车型管理:新增车型", businessType = BusinessType.INSERT)
+    @Log(title = "车型管理",content = "新增车型",businessType = BusinessType.INSERT)
     @ApiOperation(value = "saveCarType",notes = "新增车型",httpMethod ="POST")
     @PostMapping("/saveCarType")
     public ApiResponse saveCarType(@RequestBody CarTypeDTO carTypeDto){
