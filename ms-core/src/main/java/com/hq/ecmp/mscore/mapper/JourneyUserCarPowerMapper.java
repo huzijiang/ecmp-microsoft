@@ -86,4 +86,8 @@ public interface JourneyUserCarPowerMapper
 	 */
 	 public List<ServiceTypeCarAuthority>  queryUserAuthorityFromService(@Param("type") String type,@Param("journeyId") Long journeyId);
 
+	 public JourneyUserCarPower getLastPowerByJourneyId(Long journeyId);
+
+	 public JourneyUserCarPower getLastPowerCityByJourneyId(Long journeyId);
+
 }

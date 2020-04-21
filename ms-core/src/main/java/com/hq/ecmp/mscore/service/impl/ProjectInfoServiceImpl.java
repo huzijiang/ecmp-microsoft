@@ -223,7 +223,12 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
 //            OrgTreeVo orgTreeVo = JSONObject.parseObject(str, OrgTreeVo.class);
 //            return orgTreeVo;
 //        }
-        OrgTreeVo orgTreeVo = ecmpOrgMapper.selectDeptTree(null,null);
+        ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectId);
+        Long orgId=null;
+        if (projectInfo!=null&&projectInfo.getIsAllUserUse()!=ZERO){
+            orgId=projectInfo.getOwnerCompany();
+        }
+        OrgTreeVo orgTreeVo = ecmpOrgMapper.selectDeptTree(orgId,null);
         List<UserTreeVo> userList =ecmpUserMapper.selectUserListByDeptIdAndProjectId(projectId);
         OrgTreeVo childNode = getChildNode(orgTreeVo, userList);
 //        redisUtil.set(String.format(PROJECT_USER_TREE, projectId), JSON.toJSONString(childNode));
@@ -240,6 +245,17 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         return projectInfoMapper.checkProjectName(name,orgComcany,projectId);
     }
 
+    /**
+     *获取当前公司下的所有员工
+     * @param projectId
+     * @param search
+     * @param orgComcany
+     * @return
+     */
+    @Override
+    public List<ProjectUserVO> getUsersByOrg(Long projectId, String search, Long orgComcany) {
+        return ecmpUserMapper.getUsersByCompany(search,orgComcany);
+    }
 
     private OrgTreeVo getChildNode(OrgTreeVo orgTreeVos, List<UserTreeVo> userList) {
         if (CollectionUtils.isEmpty(userList)) {
@@ -247,7 +263,7 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         }
         List<OrgTreeVo> children = orgTreeVos.getChildren();
         for (UserTreeVo vo:userList) {
-            if (orgTreeVos.getId() == vo.getDeptId()&&String.valueOf(ZERO).equals(orgTreeVos.getType()) ){
+            if (orgTreeVos.getId().equals(vo.getDeptId())&&String.valueOf(ZERO).equals(orgTreeVos.getType()) ){
                 OrgTreeVo userVo=new OrgTreeVo();
                 userVo.setParentId(vo.getDeptId());
                 userVo.setId(vo.getUserId());

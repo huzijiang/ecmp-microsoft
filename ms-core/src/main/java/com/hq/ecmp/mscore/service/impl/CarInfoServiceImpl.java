@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -163,6 +164,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setCreateBy(String.valueOf(userId));
         carInfo.setCreateTime(new Date());
         carInfo.setState(CarConstant.START_CAR);   //初始化启用车辆
+        carInfo.setLockState("0000");//初始化锁定状态
         //新增车辆表
         int i = carInfoMapper.insertCarInfo(carInfo);
         if(i!= 1){
@@ -391,13 +393,34 @@ public class CarInfoServiceImpl implements ICarInfoService
      * @param userId
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateCar(CarSaveDTO carSaveDTO, Long userId) throws Exception {
         CarInfo carInfo = setCarInfo(carSaveDTO);
         carInfo.setUpdateBy(String.valueOf(userId));
         carInfo.setUpdateTime(new Date());
         int i = carInfoMapper.updateCarInfo(carInfo);
-        if( i!= 1){
-            throw new Exception();
+        if(i!= 1){
+            throw new Exception("修改车辆失败");
+        }
+        Long carId = carInfo.getCarId();
+        //绑定驾驶员
+        List<DriverVO> drivers = carSaveDTO.getDrivers();
+        DriverCarRelationInfo driverCarRelationInfo = null;
+        //删除原有驾驶员信息
+        driverCarRelationInfoMapper.deleteCarByCarId(carId);
+        for (DriverVO driver : drivers) {
+            driverCarRelationInfo = new DriverCarRelationInfo();
+            driverCarRelationInfo.setCarId(carId);
+            Long driverId = driver.getDriverId();
+            driverCarRelationInfo.setDriverId(driverId);
+            DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(driverId);
+            if (driverInfo != null){
+                driverCarRelationInfo.setUserId(driverInfo.getUserId());
+            }
+            int j = driverCarRelationInfoMapper.insertDriverCarRelationInfo(driverCarRelationInfo);
+            if(j != 1){
+                throw new Exception("新增车辆失败");
+            }
         }
     }
 
@@ -451,9 +474,11 @@ public class CarInfoServiceImpl implements ICarInfoService
     }
 
 	@Override
-	public CarGroupCarInfo queryCarGroupCarList(Long carGroupId) {
+	public CarGroupCarInfo queryCarGroupCarList(Map map) {
+        Long carGroupId = Long.valueOf(map.get("carGroupId").toString());
+        Long driverId = map.get("driverId")==null?null:Long.valueOf(map.get("driverId").toString());
 		CarGroupCarInfo carGroupCarInfo = new CarGroupCarInfo();
-		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId);
+		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId,driverId);
 		carGroupCarInfo.setList(queryCarGroupCarList);
 		// 查询车队对应的部门和公司
 		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);

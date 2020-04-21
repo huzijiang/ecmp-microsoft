@@ -209,7 +209,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             IFNULL(oai.address,jni.plan_begin_address) setOutAddress,
             IFNULL(oai2.address,jni.plan_end_address) arriveAddress,
             o.order_number orderNumber,
-            (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState
+            (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
             from order_info o
             left join journey_info jn on o.journey_id=jn.journey_id
             left join journey_node_info jni on  jni.node_id=o.node_id
@@ -269,7 +269,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                     s.action_time useCarTime,
                     s.address startAddr,
                     t.address endAddr,
-                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState
+                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
                 inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
@@ -307,7 +307,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              c.car_color carColor,
              c.car_type carType,
              jn.user_id userId,
-             (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState,
+             (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState,
              (select group_concat(short_address) from order_via_info f where f.order_id=o.order_id) halfway,
              (select count(*) from journey_passenger_info where journey_id=o.journey_id) peopleCount
             from order_info o
@@ -330,7 +330,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 					 s.action_time useCarTime,
 					 s.address startAddr,
                      t.address endAddr,
-                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by SUBSTRING(sti.state,1) desc limit 1) labelState
+                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
 				from order_info o
 				inner join journey_info jn on o.journey_id=jn.journey_id
                 inner join order_address_info s on  s.order_id=o.order_id and s.type='A000'
@@ -552,6 +552,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         osi.amount  amount,
         -- 订单编号
         s.order_number orderNumber,
+        -- 轨迹状态
+        (select state from order_state_trace_info sti where sti.order_id=s.order_id order by trace_id desc limit 1) labelState,
         -- 用车制度
         ri.name regimenName
         from order_info s
@@ -622,7 +624,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         osi.amount_detail amountDetail,
         osi.amount,
         dhi.longitude  currentLongitude,
-        dhi.latitude currentLatitude
+        dhi.latitude currentLatitude,
+        (select state from order_state_trace_info sti where sti.order_id=s.order_id order by trace_id desc limit 1) labelState
         from order_info s
         left join journey_user_car_power jucp on jucp.power_id=s.power_id
         left join apply_info a on a.apply_id=jucp.apply_id
@@ -690,9 +693,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
-		<!--  <if test="offset != null and pageSize != null">
-			LIMIT #{offset},#{pageSize}
-		</if>  -->
 	</select>
 
    <select id="queryApplyDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="java.lang.Integer">
@@ -770,9 +770,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 			AND a.use_car_mode = #{useCarMode}
 		</if>
 		GROUP BY d.order_id
-		<!--  <if test="offset != null and pageSize != null">
-			LIMIT #{offset},#{pageSize}
-		</if>  -->
 	</select>
 
 	<select id="queryReassignmentDispatchListCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery"
@@ -857,7 +854,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
             <if test="setOutTime != null "> and jpp.planned_arrival_time > #{setOutTime}  </if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}  </if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}  </if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>
@@ -870,7 +867,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id = #{carId} </if>
             <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time</if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}</if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>
@@ -885,7 +882,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
             <if test="setOutTime != null "> and jpp.planned_arrival_time >#{setOutTime}  </if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId}</if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}</if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>
@@ -900,7 +897,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId} </if>
             <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time </if>
-            <if test="driverId != null and  driverId!='' "> and ord.driver_id > #{driverId} </if>
+            <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId} </if>
         </where>
         ORDER BY  ord.order_id DESC
     </select>
@@ -912,5 +909,18 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         and oi.state in('S000','S100','S101','S200');
     </select>
 
+    <select id="queryLatestOrderByPowerId" parameterType="java.lang.Long" resultType="string">
+       select
+      (select os.state from order_state_trace_info os where os.order_id=s.order_id order by os.trace_id desc limit 1)	state
+      from order_info s
+      where s.power_id=#{powerId} order by s.order_id desc limit 0,1
+    </select>
+
+    <select id="selectOrderStateById" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
+
+         select order_id orderId,state,use_car_mode useCarMode,
+         (select state from order_state_trace_info sti where sti.order_id=#{orderId} order by trace_id desc limit 1) labelState
+         from  order_info where order_id = #{orderId}
+    </select>
 
 </mapper>

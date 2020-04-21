@@ -6,18 +6,17 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
-import com.hq.ecmp.mscore.domain.RegimeQueryPo;
-import com.hq.ecmp.mscore.domain.RegimeVo;
-import com.hq.ecmp.mscore.domain.SceneRegimeRelation;
+import com.hq.ecmp.ms.api.dto.base.DictDto;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.SceneDTO;
 import com.hq.ecmp.mscore.dto.SceneSortDTO;
+import com.hq.ecmp.mscore.service.IEcmpDictDataService;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
 import com.hq.ecmp.mscore.service.ISceneRegimeRelationService;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.SceneDetailVO;
 import com.hq.ecmp.mscore.vo.SceneListVO;
-import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +29,6 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.ms.api.dto.base.UserDto;
-import com.hq.ecmp.mscore.domain.SceneInfo;
 import com.hq.ecmp.mscore.service.ISceneInfoService;
 
 import io.swagger.annotations.ApiOperation;
@@ -52,13 +49,15 @@ public class SceneController {
 	private IRegimeInfoService regimeInfoService;
 	@Autowired
 	private ISceneRegimeRelationService sceneRegimeRelationService;
+	@Autowired
+	private IEcmpDictDataService iEcmpDictDataService;
 	
 	/**
 	 * 获取用户的用车场景
 	 * @param
 	 * @return
 	 */
-	@Log(title = "场景模块:查询用户所有场景", businessType = BusinessType.OTHER)
+	@Log(title = "场景模块",content = "查询用户所有场景", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "getAll", notes = "获取用户的所有可用用车场景", httpMethod ="GET")
 	@GetMapping("/getAll")
 	public ApiResponse<List<SceneInfo>> getAllScene() {
@@ -74,7 +73,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
-	@Log(title = "场景模块:创建场景", businessType = BusinessType.INSERT)
+	@Log(title = "场景模块",content = "创建用车场景", businessType = BusinessType.INSERT)
 	@ApiOperation(value = "saveScene", notes = "创建用车场景", httpMethod ="POST")
 	@RequestMapping("/saveScene")
 	public ApiResponse saveScene(@RequestBody SceneDTO sceneDTO) {
@@ -96,7 +95,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
-	@Log(title = "场景模块:删除场景", businessType = BusinessType.DELETE)
+	@Log(title = "场景模块",content = "删除场景", businessType = BusinessType.DELETE)
 	@ApiOperation(value = "deleteScene", notes = "删除用车场景", httpMethod ="POST")
 	@RequestMapping("/deleteScene")
 	public ApiResponse deleteScene(@RequestBody Long sceneId) {
@@ -120,7 +119,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
-	@Log(title = "场景模块:修改场景", businessType = BusinessType.UPDATE)
+	@Log(title = "场景模块",content = "修改场景", businessType = BusinessType.UPDATE)
 	@ApiOperation(value = "updateScene", notes = "修改用车场景", httpMethod ="POST")
 	@PostMapping("/updateScene")
 	public ApiResponse updateScene(@RequestBody SceneDTO sceneDTO) {
@@ -142,7 +141,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
-	@Log(title = "场景模块:场景详情", businessType = BusinessType.OTHER)
+	@Log(title = "场景模块",content = "场景详情", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "getSceneDetail", notes = "查询用车场景详情", httpMethod ="POST")
 	@PostMapping("/getSceneDetail")
 	public ApiResponse<SceneDetailVO> getSceneDetail(@RequestBody Long sceneId) {
@@ -167,7 +166,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
-	@Log(title = "场景模块:场景列表分页", businessType = BusinessType.OTHER)
+	@Log(title = "场景模块", content = "场景列表分页",businessType = BusinessType.OTHER)
 	@ApiOperation(value = "getSceneList", notes = "查询用车场景列表信息", httpMethod ="POST")
 	@PostMapping("/getSceneList")
 	public ApiResponse<PageResult<SceneListVO>> getSceneList(@RequestBody PageRequest pageRequest) {
@@ -185,7 +184,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
-	@Log(title = "场景模块:场景排序", businessType = BusinessType.OTHER)
+	@Log(title = "场景模块",content = "场景排序", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "sortScene", notes = "场景排序 上移/下移", httpMethod ="POST")
 	@PostMapping("/sortScene")
 	public ApiResponse sortScene(@RequestBody SceneSortDTO sceneSortDTO) {
@@ -207,7 +206,7 @@ public class SceneController {
 	 * @param
 	 * @return
 	 */
-	@Log(title = "场景模块:查询所有场景", businessType = BusinessType.OTHER)
+	@Log(title = "场景模块",content = "查询所有场景", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "getAllUseScene", notes = "获取所有可用的用车场景", httpMethod ="POST")
 	@PostMapping("/getAllUseScene")
 	public ApiResponse<List<SceneInfo>> getAllUseScene() {
@@ -227,12 +226,14 @@ public class SceneController {
 	 * @param regimeQueryPo
 	 * @return
 	 */
-	@Log(title = "场景模块:场景可选制度", businessType = BusinessType.OTHER)
+	@Log(title = "场景模块",content = "场景可选制度", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "scenarioSelectionSystem", notes = "场景可选制度", httpMethod = "POST")
 	@PostMapping("/scenarioSelectionSystem")
 	public ApiResponse<List<RegimeVo>> queryRegimeList(@RequestBody RegimeQueryPo regimeQueryPo) {
+		RegimeQueryPo regimeQuery= new RegimeQueryPo();
+		regimeQuery.setSceneId(regimeQueryPo.getSceneId());
 		//所有用车制度
-		List<RegimeVo> regimeVoList = regimeInfoService.queryRegimeList(regimeQueryPo);
+		List<RegimeVo> regimeVoList = regimeInfoService.queryRegimeList(new RegimeQueryPo());
 		//场景制度中已经用过的制度
 		List<SceneRegimeRelation>  sceneRegimeRelation= sceneRegimeRelationService.selectSceneRegimeRelationList(new SceneRegimeRelation());
 		//选出可以使用的制度
@@ -245,6 +246,56 @@ public class SceneController {
 				}
 			}
 		}
+		//如果传了sceneId  则是返回增加时候的放进来的制度数据
+		if(regimeQueryPo.getSceneId()!=null){
+			//根据sceneId查询对应的制度id集合
+			List<RegimeVo> regimeVo= regimeInfoService.queryRegimeList(regimeQuery);
+			//把增加的制度数据放进去regimeVoList中
+			if(!regimeVo.isEmpty()){
+				for(RegimeVo regime:regimeVo){
+					regimeVoList.add(regime);
+				}
+			}
+		}
 		return ApiResponse.success(regimeVoList);
+	}
+
+	/**
+	 * 场景可选图标
+	 * @param
+	 * @return
+	 */
+	@Log(title = "场景模块",content = "场景可选图标", businessType = BusinessType.OTHER)
+	@ApiOperation(value = "getSceneIcon", notes = "场景可选图标", httpMethod = "POST")
+	@PostMapping("/getSceneIcon")
+	public ApiResponse<List<SceneListVO>> queryRegimeList(@RequestBody SceneListVO sceneListVO) {
+		SceneListVO sceneLists = new SceneListVO();
+		sceneListVO.setDictType("icon");
+		//所有场景图标
+		List<SceneListVO> ecmpDictDataList = iEcmpDictDataService.selectEcmpDictByType(sceneListVO.getDictType());
+		//场景图标中已经用过的图标
+		List<SceneListVO> sceneList = sceneInfoService.seleSceneByIcon(sceneLists);
+		//选出可以使用的制度
+		for(int i= 0; i<ecmpDictDataList.size(); i++){
+			for(int s =0; s<sceneList.size() ; s++){
+				if(ecmpDictDataList.get(i).getIcon().equals(sceneList.get(s).getIcon())){
+					ecmpDictDataList.remove(i);
+					i --;
+					break;
+				}
+			}
+		}
+		//如果传了sceneId  则是返回增加时候的放进来的制度数据
+		if(sceneListVO.getSceneId()!=null){
+			//根据sceneId查询对应的制度id集合
+			List<SceneListVO> scene = sceneInfoService.seleSceneByIcon(sceneListVO);
+			//把增加的制度数据放进去regimeVoList中
+			if(!scene.isEmpty()){
+				for(SceneListVO sceneId:scene){
+					ecmpDictDataList.add(sceneId);
+				}
+			}
+		}
+		return ApiResponse.success(ecmpDictDataList);
 	}
 }

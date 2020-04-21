@@ -4,7 +4,6 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.config.dispatch.DispatchContent;
 import com.hq.ecmp.constant.OrderConstant;
 import com.hq.ecmp.constant.enumerate.DispatchExceptionEnum;
 import com.hq.ecmp.constant.enumerate.NoValueCommonEnum;
@@ -18,6 +17,7 @@ import com.hq.ecmp.mscore.vo.DispatchResultVo;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -34,6 +34,10 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 @Slf4j
 public class DispatchServiceImpl implements IDispatchService {
+    @Value("${dispatch.notBackCarGroup}")
+    public  int notBackCarGroup;
+    @Value("${dispatch.backCarGroup}")
+    public  int backCarGroup;
 
     @Resource
     TokenService tokenService;
@@ -476,6 +480,17 @@ public class DispatchServiceImpl implements IDispatchService {
             waitSelectedCarBoList.add(waitSelectedCarBo);
         });
 
+        //车牌信息为空时，不展示冲突的车辆
+        if(StringUtils.isEmpty(selectCarConditionBo.getCarLicense())) {
+            Iterator<WaitSelectedCarBo> iterator=waitSelectedCarBoList.iterator();
+            while (iterator.hasNext()){
+                WaitSelectedCarBo waitSelectedCarBo=iterator.next();
+                if(!TaskConflictEnum.CONFLICT_FREE.equals(waitSelectedCarBo.getTaskConflict())){
+                    iterator.remove();
+                }
+            }
+        }
+
         waitSelectedCarBoList.stream().forEach(waitSelectedCarBo->{
             waitSelectedCarBo.embellish();
         });
@@ -536,11 +551,22 @@ public class DispatchServiceImpl implements IDispatchService {
             waitSelectedDriverBo.setMobile(driver.getMobile());
             waitSelectedDriverBo.setDriverPhone(driver.getMobile());
 
-            if(driver.getUserId()!=0 && driver.getUserId()!=null){
+            if(driver.getUserId()!=null){
                 EcmpUser ecmpUser=ecmpUserMapper.selectEcmpUserById(driver.getUserId());
-                waitSelectedDriverBo.setJobNumber(ecmpUser.getJobNumber());
-                EcmpOrg  ecmpOrg=ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
-                waitSelectedDriverBo.setDeptName(ecmpOrg.getDeptName());
+                if(ecmpUser==null){
+                    waitSelectedDriverBo.setJobNumber(NoValueCommonEnum.NO_STRING.getCode());
+                }else{
+                    waitSelectedDriverBo.setJobNumber(ecmpUser.getJobNumber());
+                }
+
+
+                if(ecmpUser==null){
+                    waitSelectedDriverBo.setDeptName(NoValueCommonEnum.NO_STRING.getCode());
+                }else{
+                    EcmpOrg  ecmpOrg=ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
+                    waitSelectedDriverBo.setDeptName(ecmpOrg.getDeptName());
+                }
+
             }else{
                 waitSelectedDriverBo.setJobNumber(NoValueCommonEnum.NO_STRING.getCode());
                 waitSelectedDriverBo.setDeptName(NoValueCommonEnum.NO_STRING.getCode());
@@ -590,6 +616,17 @@ public class DispatchServiceImpl implements IDispatchService {
             waitSelectedDriverBoList.add(waitSelectedDriverBo);
         });
 
+        //姓名或手机 信息为空时，不展示 冲突的司机
+        if(StringUtils.isEmpty(selectDriverConditionBo.getDriverNameOrPhone())) {
+            Iterator<WaitSelectedDriverBo> iterator=waitSelectedDriverBoList.iterator();
+            while (iterator.hasNext()){
+                WaitSelectedDriverBo waitSelectedDriverBo=iterator.next();
+                if(!TaskConflictEnum.CONFLICT_FREE.equals(waitSelectedDriverBo.getTaskConflict())){
+                    iterator.remove();
+                }
+            }
+        }
+
         waitSelectedDriverBoList.stream().forEach(driver->{
             driver.embellish();
         });
@@ -616,15 +653,15 @@ public class DispatchServiceImpl implements IDispatchService {
 
         Calendar setOutCalendar=Calendar.getInstance();
         setOutCalendar.setTime(journeyPlanPriceInfo.getPlannedDepartureTime());
-        setOutCalendar.add(Calendar.MINUTE,DispatchContent.notBackCarGroup);
+        setOutCalendar.add(Calendar.MINUTE,-notBackCarGroup);
 
         Calendar arrivalCalendar=Calendar.getInstance();
         arrivalCalendar.setTime(journeyPlanPriceInfo.getPlannedArrivalTime());
-        arrivalCalendar.add(Calendar.MINUTE,DispatchContent.notBackCarGroup);
+        arrivalCalendar.add(Calendar.MINUTE,notBackCarGroup);
 
         OrderTaskClashBo orderTaskClashBo=new OrderTaskClashBo();
-        orderTaskClashBo.setSetOutTime(new Timestamp(setOutCalendar.getTimeInMillis()));
-        orderTaskClashBo.setArrivalTime(new Timestamp(arrivalCalendar.getTimeInMillis()));
+        orderTaskClashBo.setSetOutTime(new Date(setOutCalendar.getTimeInMillis()));
+        orderTaskClashBo.setArrivalTime(new Date(arrivalCalendar.getTimeInMillis()));
 
         return ApiResponse.success(orderTaskClashBo);
     }
@@ -653,7 +690,7 @@ public class DispatchServiceImpl implements IDispatchService {
             Long carGroupId=carGroupDispatcherInfo.getCarGroupId();
             CarGroupInfo carGroupInfo=carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
             if(carGroupInfo==null){
-                return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_NOT_FIND_OWN_CAR_GROUP.getDesc());
+                continue;
             }
 
             CarGroupServeScopeInfo  carGroupServeScopeInfo=new CarGroupServeScopeInfo();

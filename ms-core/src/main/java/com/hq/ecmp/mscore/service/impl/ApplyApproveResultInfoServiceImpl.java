@@ -1,24 +1,34 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.ApplyDTO;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.*;
-import com.hq.ecmp.mscore.service.IApplyApproveResultInfoService;
+import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.ApprovalInfoVO;
+import com.hq.ecmp.mscore.vo.OfficialOrderReVo;
 import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.SortListUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import static com.hq.ecmp.constant.CommonConstant.DEPT_TYPE_ORG;
-import static com.hq.ecmp.constant.CommonConstant.ZERO;
+import javax.annotation.Resource;
+
+import static com.hq.ecmp.constant.CommonConstant.*;
 
 
 /**
@@ -49,6 +59,17 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
     private EcmpOrgMapper ecmpOrgMapper;
     @Autowired
     private EcmpUserRoleMapper userRoleMapper;
+    @Resource
+    private EcmpMessageService ecmpMessageService;
+    @Resource
+    @Lazy
+    private IApplyInfoService applyInfoService;
+    @Resource
+    private JourneyInfoMapper journeyInfoMapper;
+    @Resource
+    private IOrderInfoService orderInfoService;
+    @Resource
+    private IJourneyUserCarPowerService journeyUserCarPowerService;
 
     /**
      * 查询【请填写功能名称】
@@ -145,6 +166,85 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
     }
 
     /**
+     * 审批驳回
+     * @param journeyApplyDto
+     * @param userId
+     * @param allcollect
+     * @throws Exception
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    public void applyReject(ApplyDTO journeyApplyDto, Long userId,List<ApplyApproveResultInfo> allcollect) throws Exception{
+//        List<ApplyApproveResultInfo> allcollect = this.beforeInspect(journeyApplyDto, userId);
+        List<ApplyApproveResultInfo> collect = allcollect.stream().filter(p -> ApproveStateEnum.WAIT_APPROVE_STATE.getKey().equals(p.getState()) && org.apache.commons.lang3.StringUtils.isBlank(p.getApproveResult())).collect(Collectors.toList());
+        this.updateApproveResult(collect, userId,ApproveStateEnum.APPROVE_FAIL.getKey(),journeyApplyDto.getRejectReason());
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyApplyDto.getApplyId());
+        applyInfo.setState(ApplyStateConstant.REJECT_APPLY);
+        applyInfo.setUpdateBy(String.valueOf(userId));
+        applyInfo.setUpdateTime(new Date());
+        applyInfoMapper.updateApplyInfo(applyInfo);
+        log.info("申请单:"+journeyApplyDto.getApplyId()+"当前被"+userId+"审批驳回");
+        ecmpMessageService.saveApplyMessageReject(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,journeyApplyDto.getRejectReason());
+    }
+
+    /**
+     * 审批通过
+     * @param journeyApplyDto
+     * @param userId
+     * @param resultInfoList
+     * @throws Exception
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    public void applyPass(ApplyDTO journeyApplyDto, Long userId,List<ApplyApproveResultInfo> resultInfoList) throws Exception {
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyApplyDto.getApplyId());
+//        List<ApplyApproveResultInfo> resultInfoList = this.beforeInspect(journeyApplyDto, userId);
+        //判断当前审批人是不是最后审批人
+        Map<String, List<ApplyApproveResultInfo>> resultMap = resultInfoList.stream().collect(Collectors.groupingBy(ApplyApproveResultInfo::getState));
+        List<ApplyApproveResultInfo> waitcollect = resultMap.get(ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
+        String nextNodeId=waitcollect.get(0).getNextNodeId();
+        log.info("申请单:"+journeyApplyDto.getApplyId()+"的当前审批人为"+waitcollect.get(0).getApproveUserId());
+        log.info("申请单:"+journeyApplyDto.getApplyId()+"的下一审批节点为"+nextNodeId);
+        //不是最后审批人
+        if (CollectionUtils.isNotEmpty(waitcollect)&&!String.valueOf(ZERO).equals(nextNodeId)) {
+            //修改当前审批记录状态已审批/审批通过，修改下一审批记录为待审批（）对应消息通知
+            this.updateApproveResult(waitcollect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
+            log.info("申请单:"+journeyApplyDto.getApplyId()+"当前审批节点"+waitcollect.get(0).getApproveNodeId()+"被"+userId+"审批通过");
+            List<ApplyApproveResultInfo> noArrivecollect = resultMap.get(ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
+            //修改下一审批节点为待审批
+            this.updateNextApproveResult(noArrivecollect,Long.parseLong(nextNodeId),journeyApplyDto.getApplyId(),userId);
+            log.info("申请单:"+journeyApplyDto.getApplyId()+"修改下一审批节点"+nextNodeId+"为待审批");
+        } else if (CollectionUtils.isNotEmpty(waitcollect)&&"0".equals(waitcollect.get(0).getNextNodeId())) {
+            //是最后节点审批人
+            //修改审理状态
+            this.updateApproveResult(waitcollect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
+            ApplyInfo info = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state(ApplyStateConstant.APPLY_PASS).build();
+            info.setUpdateTime(new Date());
+            applyInfoMapper.updateApplyInfo(info);
+            log.info("申请单:"+journeyApplyDto.getApplyId()+"被"+userId+"审批通过");
+            //TODO 调取生成用车权限,初始化订单
+            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(journeyApplyDto.getApplyId(), userId);
+            if(!optFlag){
+                throw new Exception("生成用车权限失败");
+            }
+            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(applyInfo.getJourneyId());
+            if (CollectionUtils.isNotEmpty(carAuthorityInfos)){
+                int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
+                ecmpMessageService.applyUserPassMessage(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
+                for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
+                    int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
+                    OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
+                    Long orderId=null;
+                    if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
+                        orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
+                    }
+                    ecmpMessageService.saveApplyMessagePass(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
+                }
+            }
+        }
+    }
+
+    /**
      * 初始化审批流
      * @param applyId 申请id
      * @param regimenId 用车制度id
@@ -153,14 +253,17 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
     @Override
     public void initApproveResultInfo(Long applyId,Long regimenId,Long userId) throws Exception {
         //查询审批模板
+        log.info("初始化审批流开始:applyId="+applyId+",regimenId="+regimenId+"userId"+userId);
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
         RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimenId);
         if (regimeVo!=null){
             if (CommonConstant.NO_PASS.equals(regimeVo.getNeedApprovalProcess())){
+                log.info("申请单"+applyId+"无需审批");
                 applyInfo.setState(ApplyStateConstant.APPLY_PASS);
                 applyInfo.setUpdateTime(new Date());
                 applyInfo.setUpdateBy(String.valueOf(userId));
                 applyInfoMapper.updateApplyInfo(applyInfo);
+                log.info("申请单"+applyId+"状态为"+applyInfo.getState());
                 return;
             }
             List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(Long.valueOf(regimeVo.getApproveTemplateId())));
@@ -206,6 +309,7 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                     applyApproveResultInfoMapper.insertApplyApproveResultInfo(resultInfo);
                 }
             }
+            log.info("申请单"+applyId+"初始化审批流成功");
         }
     }
 
@@ -237,12 +341,112 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                 String[] split = ancestors.split(",");
                 for (int i=split.length-2;i>=0;i--){
                     EcmpOrg org= ecmpOrgMapper.selectEcmpOrgById(Long.parseLong(split[i]));
-                    if (DEPT_TYPE_ORG.equals(org.getDeptType())){//是公司
+                    if (DEPT_TYPE_ORG.equals(org.getDeptType())){
+                        //是公司
                         return org.getLeader();
                     }
                 }
             }
             return null;
+        }
+    }
+
+    /**
+     * 审批前校验当前审批人
+     * @param journeyApplyDto
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<ApplyApproveResultInfo> beforeInspect(ApplyDTO journeyApplyDto,Long userId) throws Exception{
+        ApplyInfo applyInfo1 = applyInfoMapper.selectApplyInfoById(journeyApplyDto.getApplyId());
+        if (ObjectUtils.isEmpty(applyInfo1)){
+            throw new Exception("行程申请单不存在!");
+        }
+        if (!ApplyStateConstant.ON_APPLYING.equals(applyInfo1.getState())){
+            throw new Exception("该申请单已审批或已撤销");
+        }
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(applyInfo1.getJourneyId());
+        if (ObjectUtils.isEmpty(journeyInfo)){
+            throw new Exception("行程申请单不存在!");
+        }
+        if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo1.getApplyType())){
+            if (journeyInfo.getUseCarTime().getTime()<System.currentTimeMillis()){
+                //申请单已过期
+                applyInfoService.updateApplyState(journeyApplyDto.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),userId);
+                throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
+            }
+        }else{//差旅
+            int i = DateFormatUtils.compareDay(journeyInfo.getStartDate(), new Date());
+            if (i==ONE){
+                //申请单已过期
+                applyInfoService.updateApplyState(journeyApplyDto.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),userId);
+                throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
+            }
+        }
+        RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(applyInfo1.getRegimenId());
+        List<ApplyApproveResultInfo> applyApproveResultInfos = this.selectByUserId(journeyApplyDto.getApplyId(), userId,null);
+        if (CollectionUtils.isEmpty(applyApproveResultInfos)){
+            throw new Exception("您未有此申请单的审批权限");
+        }
+        List<ApplyApproveResultInfo> resultInfoList = this.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(),regimeInfo.getApproveTemplateId()));
+        //所有待审批的记录
+        List<ApplyApproveResultInfo> collect = resultInfoList.stream().filter(p -> ApproveStateEnum.WAIT_APPROVE_STATE.getKey().equals(p.getState()) && org.apache.commons.lang3.StringUtils.isBlank(p.getApproveResult())).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(collect)){
+            for (ApplyApproveResultInfo info:collect){
+                if (org.apache.commons.lang3.StringUtils.isBlank(info.getApproveUserId())||!info.getApproveUserId().contains(String.valueOf(userId))){
+                    throw new Exception("此申请单还未到达您审批!");
+                }
+            }
+        }else{
+            String state=ApproveStateEnum.format(resultInfoList.get(0).getState());
+            throw new Exception("该申请单:"+resultInfoList.get(0).getApplyId()+ state);
+        }
+        return resultInfoList;
+    }
+
+    /**
+     * 修改下一审批节点状态为待审批
+     * @param noArrivecollect
+     * @param nextNodeId
+     * @param applyId
+     * @param userId
+     */
+    private void updateNextApproveResult(List<ApplyApproveResultInfo> noArrivecollect,Long nextNodeId,Long applyId,Long userId){
+        //下一审批人修改为待审批
+        if (CollectionUtils.isNotEmpty(noArrivecollect)) {
+            for (ApplyApproveResultInfo resultInfo:noArrivecollect){
+                if(ApproveStateEnum.NOT_ARRIVED_STATE.getKey().equals(resultInfo.getState())&&nextNodeId.equals(resultInfo.getApproveNodeId())){
+                    resultInfo.setState(ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
+                    resultInfo.setUpdateTime(new Date());
+                    resultInfo.setUpdateBy(userId+"");
+                    this.updateApplyApproveResultInfo(resultInfo);
+                    //给下一审批人发送消息
+                    ecmpMessageService.sendNextApproveUsers(resultInfo.getApproveUserId(),applyId,userId);
+                }
+            }
+        }
+    }
+
+    /**
+     * 修改当前审批记录为审批通过
+     * @param collect
+     * @param userId
+     * @param result
+     * @param content
+     */
+    private void updateApproveResult(List<ApplyApproveResultInfo> collect, Long userId,String result,String content) {
+        if (CollectionUtils.isNotEmpty(collect)) {
+            //下一审批人为多个
+            for (ApplyApproveResultInfo info : collect) {
+                info.setApproveResult(result);
+                info.setContent(content);
+                info.setState(ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey());
+                info.setUpdateBy(String.valueOf(userId));
+                info.setUpdateTime(new Date());
+                applyApproveResultInfoMapper.updateApplyApproveResultInfo(info);
+            }
         }
     }
 

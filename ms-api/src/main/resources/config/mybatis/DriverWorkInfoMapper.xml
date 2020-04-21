@@ -35,32 +35,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where work_id = #{workId}
     </select>
 
-    <insert id="insertDriverWorkInfo" parameterType="com.hq.ecmp.mscore.domain.DriverWorkInfo">
-        insert into driver_work_info
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="workId != null ">work_id,</if>
-            <if test="driverId != null ">driver_id,</if>
-            <if test="leaveStatus != null  and leaveStatus != ''">leave_status,</if>
-            <if test="leaveConfirmStatus != null  and leaveConfirmStatus != ''">leave_confirm_status,</if>
-            <if test="caledarDate != null ">caledar_date,</if>
-            <if test="createBy != null ">create_by,</if>
-            <if test="createTime != null ">create_time,</if>
-            <if test="updateBy != null ">update_by,</if>
-            <if test="updateTime != null ">update_time,</if>
-         </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="workId != null ">#{workId},</if>
-            <if test="driverId != null ">#{driverId},</if>
-            <if test="leaveStatus != null  and leaveStatus != ''">#{leaveStatus},</if>
-            <if test="leaveConfirmStatus != null  and leaveConfirmStatus != ''">#{leaveConfirmStatus},</if>
-            <if test="caledarDate != null ">#{caledarDate},</if>
-            <if test="createBy != null ">#{createBy},</if>
-            <if test="createTime != null ">#{createTime},</if>
-            <if test="updateBy != null ">#{updateBy},</if>
-            <if test="updateTime != null ">#{updateTime},</if>
-         </trim>
-    </insert>
-
     <update id="updateDriverWorkInfo" parameterType="com.hq.ecmp.mscore.domain.DriverWorkInfo">
         update driver_work_info
         <trim prefix="SET" suffixOverrides=",">
@@ -105,12 +79,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select DATE_FORMAT(caledar_date,'%Y-%m-%d')
         from driver_work_info
         where leave_status = 'X999' and driver_id = #{driverId}
-        <if test="scheduleDate != null ">and DATE_FORMAT(caledar_date,'%Y-%m') = #{scheduleDate}</if>
+        <if test="scheduleDate != null and scheduleDate != ''"> and DATE_FORMAT(caledar_date,'%Y-%m') = #{scheduleDate}</if>
     </select>
     <select id="selectHolidaysByMonth" resultType="String">
         select DATE_FORMAT(caledar_date,'%Y-%m-%d')
         from driver_work_info
-        where leave_status = 'X000' or leave_status = 'X002' or leave_status = 'X003' and driver_id = #{driverId}
+        where leave_status != 'X999' and driver_id = #{driverId}
         <if test="scheduleDate != null and scheduleDate != ''">and DATE_FORMAT(caledar_date,'%Y-%m') = #{scheduleDate}</if>
     </select>
     <select id="selectDriverAlreadyDutyDays" resultType="int">
@@ -139,6 +113,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             update driver_work_info
             set leave_status=#{item.workState},
             update_by=#{userId},
+            <if test="item.workState == 'X000' or item.workState == 'X002' or item.workState == 'X003'">
+            today_it_is_on_duty='1111',
+            </if>
+            <if test="item.workState == 'X999'">
+              today_it_is_on_duty='0000',
+            </if>
             update_time=#{updateTime}
             where work_id=#{item.workId}
             and driver_id=#{item.driverId}
@@ -147,24 +127,61 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="getWorkInfoMonthList"  resultType="com.hq.ecmp.mscore.vo.WorkInfoMonthVo">
         select
-        DISTINCT DATE_FORMAT(caledar_date,'%Y-%m-%d') calendarDate,
-        today_it_is_on_duty as workState
-        from driver_work_info
+        DATE_FORMAT(calendar_date,'%Y-%m-%d') calendarDate,
+        it_is_work as workState
+        from cloud_work_date_info
         <where>
-            <if test="month != null and month !='' "> and date_format(caledar_date,'%Y-%m') = #{month}</if>
+            <if test="month != null and month !='' ">date_format(calendar_date,'%Y-%m') = #{month}</if>
         </where>
-        order by caledar_date
+        order by calendar_date
     </select>
-    <update id="updateWorkDetailMonth">
+    <update id="updateWorkDetailMonth" >
         <foreach collection="list" item="item" index="index" open="" close="" separator=";">
-            update driver_work_info
-            set today_it_is_on_duty=#{item.workState},
-            update_by=#{userId},
-            update_time=#{updateTime}
-            where
-            caledar_date=#{item.calendarDate}
-
+            update cloud_work_date_info
+            set it_is_work=#{item.workState},
+                update_by=#{userId},
+                update_time=#{updateTime}
+            where DATE_FORMAT(calendar_date,'%Y-%m-%d') = DATE_FORMAT(#{item.calendarDate},'%Y-%m-%d')
         </foreach>
     </update>
 
+    <update id="updateWorkDetailMonthByDriverInfo" >
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update driver_work_info
+            set today_it_is_on_duty=#{item.workState},
+            leave_status=#{item.leaveStatus},
+            update_by=#{userId},
+            <if test="item.workState == '1111'">
+                leave_status='X003',
+            </if>
+            <if test="item.workState == '0000'">
+                leave_status='X999',
+            </if>
+            update_time=#{updateTime}
+            where DATE_FORMAT(caledar_date,'%Y-%m-%d') = DATE_FORMAT(#{item.calendarDate},'%Y-%m-%d')
+        </foreach>
+    </update>
+    <select id="getCloudWorkDateList" resultType="com.hq.ecmp.mscore.vo.CloudWorkIDateVo">
+      select  DATE_FORMAT(calendar_date,'%Y-%m-%d') calendarDate ,it_is_work as itIsWork,work_start as workStart,work_end as workEnd from cloud_work_date_info
+    </select>
+    <insert id="insertDriverWorkInfo" parameterType="com.hq.ecmp.mscore.vo.DriverWorkInfoVo">
+        insert into driver_work_info (driver_id,caledar_date,on_duty_registe_time,off_duty_registe_time,today_it_is_on_duty,leave_status,create_by,create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.driverId},
+            #{item.calendarDate},
+            #{item.onDutyRegisteTime},
+            #{item.offDutyRegisteTime},
+            #{item.todayItIsOnDuty},
+            #{item.leaveStatus},
+            #{item.creatBy},
+            #{item.creatTime})
+        </foreach>
+    </insert>
+    <update id="updateDriverWork" parameterType="Long">
+            update driver_work_info
+            set leave_status='',today_it_is_on_duty='1111'
+            where  driver_id=#{driverId} and caledar_date <![CDATA[<]]>NOW()
+
+    </update>
 </mapper>

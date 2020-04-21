@@ -287,11 +287,12 @@ public class OrgController {
         }
 
         PageResult<EcmpOrgDto> companyList = orgService.selectCompanyByDeptNameOrCode(pageRequest,deptNameOrCode);
-        if(companyList.getItems().size()>0){
+        return ApiResponse.success(companyList);
+        /*if(companyList.getItems().size()>0){
             return ApiResponse.success(companyList);
         }else{
-            return ApiResponse.error("无匹配数据！");
-        }
+            return ApiResponse.success("无匹配数据！");
+        }*/
     }
 
     /**

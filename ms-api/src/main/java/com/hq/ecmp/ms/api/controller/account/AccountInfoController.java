@@ -45,7 +45,7 @@ public class AccountInfoController {
      * @param
      * @return list
      */
-    @Log(title = "财务模块:查询账务订单信息", businessType = BusinessType.OTHER)
+    @Log(title = "财务模块",content = "查询账务订单信息", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getAccountViewList",notes = "查询账务订单信息",httpMethod = "POST")
     @PostMapping("/getAccountViewList")
     public ApiResponse<PageResult<OrderAccountViewVO>> getAccountViewList(@RequestBody PageRequest pageRequest){
@@ -57,7 +57,7 @@ public class AccountInfoController {
      * @param
      * @return list
      */
-    @Log(title = "财务模块:获取为开发票的订单统计列表", businessType = BusinessType.OTHER)
+    @Log(title = "财务模块",content = "获取为开发票的订单统计列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getAccountList",notes = "获取为开发票的订单统计列表",httpMethod = "POST")
     @PostMapping("/getAccountList")
     public ApiResponse<List<OrderAccountVO>> getAccountList(){

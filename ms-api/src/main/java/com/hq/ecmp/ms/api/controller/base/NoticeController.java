@@ -58,7 +58,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "getNoticeSearchList",notes = "分页查询公告列表",httpMethod ="POST")
-    @Log(title = "公告管理:公告列表", businessType = BusinessType.OTHER)
+    @Log(title = "公告管理", content = "公告列表",businessType = BusinessType.OTHER)
     @PostMapping("/getNoticeSearchList")
     public ApiResponse<PageResult<EcmpNotice>> getNoticeSearchList(@RequestBody PageRequest pageRequest){
         try {
@@ -77,7 +77,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "getNoticeDetails",notes = "查询公告列表详情",httpMethod ="POST")
-    @Log(title = "公告管理:公告详情", businessType = BusinessType.OTHER)
+    @Log(title = "公告管理",content = "公告详情", businessType = BusinessType.OTHER)
     @PostMapping("/getNoticeDetails")
     public ApiResponse<EcmpNotice> getNoticeDetails(@RequestBody Integer noticeId){
         try {
@@ -161,8 +161,34 @@ public class NoticeController {
     @ApiOperation(value = "getExpirationDateNewNotice",notes = "获取有效期内的最新公告",httpMethod ="POST")
     @PostMapping("/getExpirationDateNewNotice")
     public ApiResponse getExpirationDateNewNotice(){
-        Long userId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId();
-        EcmpNotice ecmpNotice = iEcmpNoticeService.selectExpirationDateNewNotice(userId);
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        SysUser sysUser= loginUser.getUser();
+        long userId = sysUser.getUserId();
+        long deptId = sysUser.getDeptId();
+        List<SysRole> roles =sysUser.getRoles();
+        String  role = "";
+        for (SysRole sysRole :roles){
+            role += sysRole.getRoleId().toString()+",";
+        }
+        role =role.substring(0,role.length()-1);
+        List<Map < String, Object>> list = new ArrayList();
+        Map allNoticeMap = new HashMap<>();
+        allNoticeMap.put("configType","1");
+        //如果为所有人可见公告，默认为1
+        allNoticeMap.put("bucId","1");
+        list.add(allNoticeMap);
+        Map userMap = new HashMap<>();
+        userMap.put("configType","2");
+        userMap.put("bucId",role);
+        list.add(userMap);
+        Map deptMap = new HashMap();
+        deptMap.put("configType","3");
+        deptMap.put("bucId",deptId);
+        list.add(deptMap);
+        Map parm  = new HashMap();
+        parm.put("noticeType",2);
+        parm.put("busIdList",list);
+        EcmpNotice ecmpNotice = iEcmpNoticeService.selectExpirationDateNewNotice(parm);
         return ApiResponse.success(ecmpNotice);
     }
 
@@ -172,7 +198,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "addNotice",notes = "新增公告信息",httpMethod ="POST")
-    @Log(title = "公告管理:新增公告", businessType = BusinessType.INSERT)
+    @Log(title = "公告管理",content = "新增公告", businessType = BusinessType.INSERT)
     @PostMapping("/addNotice")
     public ApiResponse addNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -246,7 +272,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "deleteNotice",notes = "删除公告信息",httpMethod ="POST")
-    @Log(title = "公告管理:删除公告", businessType = BusinessType.DELETE)
+    @Log(title = "公告管理",content = "删除公告", businessType = BusinessType.DELETE)
     @PostMapping("/deleteNotice")
     public ApiResponse deleteNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO){
         iEcmpNoticeService.deleteEcmpNoticeById(ecmpNoticeDTO.getNoticeId());
@@ -260,7 +286,7 @@ public class NoticeController {
      * @return
      */
     @ApiOperation(value = "updateNotice",notes = "修改公告信息",httpMethod ="POST")
-    @Log(title = "公告管理:修改公告", businessType = BusinessType.UPDATE)
+    @Log(title = "公告管理",content = "修改公告", businessType = BusinessType.UPDATE)
     @PostMapping("/updateNotice")
     public ApiResponse updateNotice(@RequestBody EcmpNoticeDTO ecmpNoticeDTO) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

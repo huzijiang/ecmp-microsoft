@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sun.rmi.log.LogInputStream;
 
+import javax.annotation.Resource;
+
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -44,7 +46,7 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
     private EcmpOrgMapper ecmpOrgMapper;
     @Autowired
     private EcmpUserMapper ecmpUserMapper;
-    @Autowired
+    @Resource
     private EcmpRoleMapper roleMapper;
     @Autowired
     private ProjectInfoMapper projectInfoMapper;
@@ -145,8 +147,12 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
                             }
                             nodeVO.setName(name);
                         }else if (ApproveTypeEnum.APPROVE_T002.getKey().equals(nodeVO.getType())){
-                            EcmpRole ecmpRole = roleMapper.selectEcmpRoleById(Long.parseLong(nodeVO.getRoleId()));
-                            nodeVO.setName(ecmpRole.getRoleName()+"审批");
+                            String roleName="角色审批";
+                            if (StringUtils.isNotBlank(nodeVO.getRoleId())){
+                                EcmpRole ecmpRole = roleMapper.selectEcmpRoleById(Long.parseLong(nodeVO.getRoleId()));
+                                roleName=ecmpRole.getRoleName()+"角色审批";
+                            }
+                            nodeVO.setName(roleName);
                         }else if (ApproveTypeEnum.APPROVE_T003.getKey().equals(nodeVO.getType())){
 //                            String userName= ecmpUserMapper.findNameByUserIds(nodeVO.getUserId());
                             nodeVO.setName("指定员工审批");
@@ -179,15 +185,15 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
         List<RegimeInfo> regimeInfos = regimeInfoMapper.selectRegimeInfoList(new RegimeInfo(templateId));
         vo.setIsBingRegime(regimeInfos.size());
         List<ApproveTemplateNodeInfo> approveTemplateInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(templateId));
-        SortListUtil.sort(approveTemplateInfos,"approveNodeId",SortListUtil.DESC);
+        SortListUtil.sort(approveTemplateInfos,"approveNodeId",SortListUtil.ASC);
         List<ApprovaTemplateNodeVO> list=new ArrayList();
         if(CollectionUtils.isNotEmpty(approveTemplateInfos)){
             for (int i=0;i<approveTemplateInfos.size();i++){
                 ApprovaTemplateNodeVO nodeVO=new ApprovaTemplateNodeVO();
-                BeanUtils.copyProperties(approveTemplateInfos.get(0),nodeVO);
-                nodeVO.setType(approveTemplateInfos.get(0).getApproverType());
+                BeanUtils.copyProperties(approveTemplateInfos.get(i),nodeVO);
+                nodeVO.setType(approveTemplateInfos.get(i).getApproverType());
                 nodeVO.setNumber(i);
-                nodeVO.setName(ApproveTypeEnum.format(approveTemplateInfos.get(0).getApproverType()).getDesc());
+                nodeVO.setName(ApproveTypeEnum.format(approveTemplateInfos.get(i).getApproverType()).getDesc());
                 list.add(nodeVO);
             }
         }

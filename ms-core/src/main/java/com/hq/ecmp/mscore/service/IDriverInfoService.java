@@ -2,6 +2,8 @@ package com.hq.ecmp.mscore.service;
 
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
+
 import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
@@ -92,7 +94,7 @@ public interface IDriverInfoService
      *驾驶员可用车辆列表
      * @param
      */
-    public List<DriverCanUseCarsDTO> getDriverCanCar(Long driverId);
+    public PageResult<DriverCanUseCarsDTO> getDriverCanCar(Integer pageNum, Integer pageSize,Long driverId,String state,String search);
     /**
      *驾驶员失效列表,离职列表
      * @param
@@ -105,7 +107,7 @@ public interface IDriverInfoService
     /**
      * 已失效驾驶员进行删除
      */
-    public int deleteDriver(Long driverId);
+    public int deleteDriver(Long driverId) throws Exception;
 
 
     /**
@@ -130,10 +132,10 @@ public interface IDriverInfoService
     
     /**
      * 查询指定车队下的可用驾驶员
-     * @param carGroupId
+     * @param map
      * @return
      */
-    public  CarGroupDriverInfo queryCarGroupDriverList(Long carGroupId);
+    public  CarGroupDriverInfo queryCarGroupDriverList(Map map);
     
     /**
      * 校验驾驶员手机号是否已经存在

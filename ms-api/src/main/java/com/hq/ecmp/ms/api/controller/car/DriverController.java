@@ -114,7 +114,7 @@ public class DriverController {
     public ApiResponse applyReassignment(Long orderNo,String reason){
     	 HttpServletRequest request = ServletUtils.getRequest();
          LoginUser loginUser = tokenService.getLoginUser(request);
-         Long userId = loginUser.getUser().getUserId();
+         Long userId = loginUser.getDriver().getDriverId();
          boolean applyReassignment = orderStateTraceInfoService.applyReassignment(userId, orderNo, reason);
         if(applyReassignment){
         	return ApiResponse.success();
@@ -136,16 +136,17 @@ public class DriverController {
      * @param
      * @return
      */
-    @Log(title = "司机排班管理:司机排班情况", businessType = BusinessType.OTHER)
+    @Log(title = "司机排班管理",content = "司机排班情况",businessType = BusinessType.OTHER)
     @ApiOperation(value = "loadScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
     @PostMapping("/loadScheduleInfo")
     public ApiResponse<DriverDutyPlanVO> loadScheduleInfo(@RequestBody(required = false) String scheduleDate){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
+        Long driverId = loginUser.getDriver().getDriverId();
+        //Long userId = loginUser.getUser().getUserId();
         try {
             //查询司机当月排班日期对应的出勤情况列表
-            DriverDutyPlanVO result = driverWorkInfoService.selectDriverScheduleByMonth(scheduleDate,userId);
+            DriverDutyPlanVO result = driverWorkInfoService.selectDriverScheduleByMonth(scheduleDate,driverId);
             return ApiResponse.success(result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -158,16 +159,21 @@ public class DriverController {
      * @param
      * @return
      */
-    @Log(title = "司机排班管理:司机出勤统计", businessType = BusinessType.OTHER)
+    @Log(title = "司机排班管理", content = "司机出勤统计",businessType = BusinessType.OTHER)
     @ApiOperation(value = "loadDutySummary",notes = "加载司机应该出勤/已出勤天数",httpMethod ="POST")
     @PostMapping("/loadDutySummary")
     public ApiResponse<DriverDutySummaryVO> loadDutySummary(@RequestBody(required = false) DriverScheduleDTO driverScheduleDTO){
+        try {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
-        try {
+        Long driverId = loginUser.getDriver().getDriverId();
+        String scheduleDate = null;
+        if(driverScheduleDTO != null){
+            scheduleDate = driverScheduleDTO.getScheduleDate();
+        }
+        //Long userId = loginUser.getUser().getUserId();
             //查询司机当月排班/出勤天数
-            DriverDutySummaryVO dutySummary = driverWorkInfoService.selectDriverDutySummary(driverScheduleDTO.getScheduleDate(),userId);
+            DriverDutySummaryVO dutySummary = driverWorkInfoService.selectDriverDutySummary(scheduleDate,driverId);
             return ApiResponse.success(dutySummary);
         } catch (Exception e) {
             e.printStackTrace();

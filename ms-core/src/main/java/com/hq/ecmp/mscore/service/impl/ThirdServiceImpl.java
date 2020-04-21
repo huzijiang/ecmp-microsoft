@@ -6,6 +6,8 @@ import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.OkHttpUtil;
+import com.hq.common.utils.StringUtils;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.bo.WeatherAndCity;
 import com.hq.ecmp.mscore.dto.DirectionDto;
 import com.hq.ecmp.mscore.service.ThirdService;
@@ -15,7 +17,9 @@ import com.hq.ecmp.mscore.vo.FlightInfoVo;
 import com.hq.ecmp.util.GsonUtils;
 import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.ObjectUtils;
+import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -44,6 +48,8 @@ public class ThirdServiceImpl implements ThirdService {
     private String licenseContent;
     @Value("${thirdService.apiUrl}")//三方平台的接口前地址
     private String apiUrl;
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Override
     public FlightInfoVo loadDepartment(String flightCode, String planDate) {
@@ -201,4 +207,31 @@ public class ThirdServiceImpl implements ThirdService {
 		}
 		return null;
 	}
+
+    @Override
+    public String getCustomerPhone() throws Exception{
+        Object phone = redisUtil.get(CommonConstant.CUSTOMER_PHONE);
+        if (phone!=null){
+            return phone.toString();
+        }
+        String macAddress = MacTools.getMacList().get(0);
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("mac", macAddress);
+        param.put("enterpriseId", enterpriseId);
+        param.put("licenseContent", licenseContent);
+        log.info("获取客服电话参数：{}", param);
+        String postJson = OkHttpUtil.postForm(apiUrl + "/basic/400", param);
+        log.info("获取客服电话返回结果：{}", postJson);
+        Type type = new TypeToken<ApiResponse<String>>() {
+        }.getType();
+        ApiResponse<String> result = GsonUtils.jsonToBean(postJson, type);
+        if (ApiResponse.SUCCESS_CODE == result.getCode()) {
+            if (StringUtils.isNotEmpty(result.getData())) {
+                redisUtil.set(CommonConstant.CUSTOMER_PHONE, result.getData(), 60 * 60 * 48);
+            }
+            return result.getData();
+        } else {
+            throw new Exception("获取客服电话异常");
+        }
+    }
 }

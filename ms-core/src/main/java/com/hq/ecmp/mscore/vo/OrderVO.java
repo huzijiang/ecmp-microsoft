@@ -61,7 +61,7 @@ public class OrderVO {
     private String amount;
     @ApiModelProperty(name = "labelState",value = "辅助状态")
     private String labelState;
-    @ApiModelProperty(name = "isDisagree",value = "是否展示异议")
+    @ApiModelProperty(name = "isDisagree",value = "是否展示异议1手动(需展示),0自动(不展示)")
     private int isDisagree;
     @ApiModelProperty(name = "score",value = "订单评分")
     private String score;

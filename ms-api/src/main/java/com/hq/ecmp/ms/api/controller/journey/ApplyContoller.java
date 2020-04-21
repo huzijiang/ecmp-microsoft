@@ -248,45 +248,9 @@ public class ApplyContoller {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try{
-            ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(journeyApplyDto.getApplyId());
-            List<ApplyApproveResultInfo> resultInfoList = beforeInspect(journeyApplyDto, userId);
-            //判断当前审批人是不是最后审批人
-            Map<String, List<ApplyApproveResultInfo>> resultMap = resultInfoList.stream().collect(Collectors.groupingBy(ApplyApproveResultInfo::getState));
-            List<ApplyApproveResultInfo> waitcollect = resultMap.get(ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
-            String nextNodeId=waitcollect.get(0).getNextNodeId();
-            log.info("申请单:"+journeyApplyDto.getApplyId()+"的下一审批人为"+nextNodeId);
-            if (CollectionUtils.isNotEmpty(waitcollect)&&!"0".equals(nextNodeId)) {//不是最后审批人
-                //修改当前审批记录状态已审批/审批通过，修改下一审批记录为待审批（）对应消息通知
-                this.updateApproveResult(waitcollect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
-                log.info("申请单:"+journeyApplyDto.getApplyId()+"当前被"+userId+"审批通过");
-                List<ApplyApproveResultInfo> noArrivecollect = resultMap.get(ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
-                //修改下一审批节点为待审批
-                this.updateNextApproveResult(noArrivecollect,Long.parseLong(nextNodeId),journeyApplyDto.getApplyId(),userId);
-                log.info("申请单:"+journeyApplyDto.getApplyId()+"修改下一审批节点"+nextNodeId+"待审批");
-            } else if (CollectionUtils.isNotEmpty(waitcollect)&&"0".equals(waitcollect.get(0).getNextNodeId())) {//是最后节点审批人
-                //修改审理状态
-                this.updateApproveResult(waitcollect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
-                ApplyInfo info = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state(ApplyStateConstant.APPLY_PASS).build();
-                applyInfoService.updateApplyInfo(info);
-                //TODO 调取生成用车权限,初始化订单
-                boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(journeyApplyDto.getApplyId(), userId);
-                if(!optFlag){
-                    return ApiResponse.error("生成用车权限失败");
-                }
-                List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(applyInfo.getJourneyId());
-                if (CollectionUtils.isNotEmpty(carAuthorityInfos)){
-                    int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
-                    ecmpMessageService.applyUserPassMessage(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
-                    for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
-                        int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
-                        OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
-                        Long orderId=null;
-                        if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
-                            orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
-                        }
-                        ecmpMessageService.saveApplyMessagePass(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
-                    }
-                }
+            List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.beforeInspect(journeyApplyDto, userId);
+            if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
+                resultInfoService.applyPass(journeyApplyDto,userId,applyApproveResultInfos);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -307,16 +271,10 @@ public class ApplyContoller {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try{
-            List<ApplyApproveResultInfo> allcollect = beforeInspect(journeyApplyDto, userId);
-            List<ApplyApproveResultInfo> collect = allcollect.stream().filter(p -> ApproveStateEnum.WAIT_APPROVE_STATE.getKey().equals(p.getState()) && StringUtils.isBlank(p.getApproveResult())).collect(Collectors.toList());
-            this.updateApproveResult(collect, userId,ApproveStateEnum.APPROVE_FAIL.getKey(),journeyApplyDto.getRejectReason());
-            ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(journeyApplyDto.getApplyId());
-            applyInfo.setState(ApplyStateConstant.REJECT_APPLY);
-            applyInfo.setUpdateBy(String.valueOf(userId));
-            applyInfo.setUpdateTime(new Date());
-            applyInfoService.updateApplyInfo(applyInfo);
-            log.info("申请单:"+journeyApplyDto.getApplyId()+"当前被"+userId+"审批驳回");
-            ecmpMessageService.saveApplyMessageReject(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,journeyApplyDto.getRejectReason());
+            List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.beforeInspect(journeyApplyDto, userId);
+            if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
+                resultInfoService.applyReject(journeyApplyDto,userId,applyApproveResultInfos);
+            }
         }catch (Exception e){
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -372,84 +330,6 @@ public class ApplyContoller {
         Long userId = loginUser.getUser().getUserId();
        int count= applyInfoService.getApplyApproveCount(userId);
         return ApiResponse.success("查询成功",count+"");
-    }
-
-
-
-    private void updateApproveResult(List<ApplyApproveResultInfo> collect, Long userId,String result,String content) {
-        if (CollectionUtils.isNotEmpty(collect)) {
-            for (ApplyApproveResultInfo info : collect) {//下一审批人为多个
-                info.setApproveResult(result);
-                info.setContent(content);
-                info.setState(ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey());
-                info.setUpdateBy(String.valueOf(userId));
-                info.setUpdateTime(new Date());
-                resultInfoService.updateApplyApproveResultInfo(info);//审批通过
-            }
-        }
-    }
-
-
-    private List<ApplyApproveResultInfo> beforeInspect(ApplyDTO journeyApplyDto,Long userId) throws Exception{
-        ApplyInfo applyInfo1 = applyInfoService.selectApplyInfoById(journeyApplyDto.getApplyId());
-        if (ObjectUtils.isEmpty(applyInfo1)){
-            throw new Exception("行程申请单不存在!");
-        }
-        if (!ApplyStateConstant.ON_APPLYING.equals(applyInfo1.getState())){
-            throw new Exception("该申请单已审批或已撤销");
-        }
-        JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(applyInfo1.getJourneyId());
-        if (ObjectUtils.isEmpty(journeyInfo)){
-            throw new Exception("行程申请单不存在!");
-        }
-        if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo1.getApplyType())){
-            if (journeyInfo.getUseCarTime().getTime()<new Date().getTime()){//申请单已过期
-                applyInfoService.updateApplyState(journeyApplyDto.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),userId);
-                throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
-            }
-        }else{//差旅
-            int i = DateFormatUtils.compareDay(journeyInfo.getStartDate(), new Date());
-            if (i==ONE){//申请单已过期
-                applyInfoService.updateApplyState(journeyApplyDto.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),userId);
-                throw new Exception("申请单:"+applyInfo1.getApplyId()+"已过期");
-            }
-        }
-        RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(applyInfo1.getRegimenId());
-        List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.selectByUserId(journeyApplyDto.getApplyId(), userId,null);
-        if (CollectionUtils.isEmpty(applyApproveResultInfos)){
-            throw new Exception("您未有此申请单的审批权限");
-        }
-        List<ApplyApproveResultInfo> resultInfoList = resultInfoService.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(journeyApplyDto.getApplyId(),regimeInfo.getApproveTemplateId()));
-        //所有待审批的记录
-        List<ApplyApproveResultInfo> collect = resultInfoList.stream().filter(p -> ApproveStateEnum.WAIT_APPROVE_STATE.getKey().equals(p.getState()) && StringUtils.isBlank(p.getApproveResult())).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(collect)){
-            for (ApplyApproveResultInfo info:collect){
-                if (StringUtils.isBlank(info.getApproveUserId())||!info.getApproveUserId().contains(String.valueOf(userId))){
-                    throw new Exception("此申请单还未到达您审批!");
-                }
-            }
-        }else{
-            String state=ApproveStateEnum.format(resultInfoList.get(0).getState());
-            throw new Exception("该申请单:"+resultInfoList.get(0).getApplyId()+ state);
-        }
-        return resultInfoList;
-    }
-
-    private void updateNextApproveResult(List<ApplyApproveResultInfo> noArrivecollect,Long nextNodeId,Long applyId,Long userId){
-        //下一审批人修改为待审批
-        if (CollectionUtils.isNotEmpty(noArrivecollect)) {
-            for (ApplyApproveResultInfo resultInfo:noArrivecollect){
-                if(ApproveStateEnum.NOT_ARRIVED_STATE.getKey().equals(resultInfo.getState())&&nextNodeId==resultInfo.getApproveNodeId()){
-                    resultInfo.setState(ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
-                    resultInfo.setUpdateTime(new Date());
-                    resultInfo.setUpdateBy(userId+"");
-                    resultInfoService.updateApplyApproveResultInfo(resultInfo);
-                    //给下一审批人发送消息
-                    //TODO 第一期发起申请就会给所有级审批员发消息
-                    ecmpMessageService.sendNextApproveUsers(resultInfo.getApproveUserId(),applyId,userId);
-                }
-            }
-        }
     }
 
 }

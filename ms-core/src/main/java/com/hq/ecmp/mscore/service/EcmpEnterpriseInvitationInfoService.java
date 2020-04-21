@@ -75,7 +75,7 @@ public interface EcmpEnterpriseInvitationInfoService {
     /**
      * 邀请列表-驾驶员
      */
-    List<InvitationDriverVO> queryInvitationDriver(InvitationInfoDTO invitationInfoDTO);
+    PageResult<InvitationDriverVO> queryInvitationDriver(PageRequest PageRequest);
     /**
      * 邀请驾驶员详情
      */

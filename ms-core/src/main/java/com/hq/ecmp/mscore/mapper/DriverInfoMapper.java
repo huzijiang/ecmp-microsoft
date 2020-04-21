@@ -151,7 +151,7 @@ public interface DriverInfoMapper
      *驾驶员可用车辆列表
      * @param
      */
-    public List<DriverCanUseCarsDTO> getDriverCanCar(Long driverId);
+    public List<DriverCanUseCarsDTO> getDriverCanCar(@Param("driverId") Long driverId,@Param("state") String state,@Param("search") String search);
     /**
      *驾驶员失效列表,离职列表
      * @param
@@ -224,7 +224,7 @@ public interface DriverInfoMapper
      * @return
      */
 
-    public List<DriverQueryResult>  queryDriverInfoList(Long carGroupId);
+    public List<DriverQueryResult>  queryDriverInfoList(@Param("carGroupId")Long carGroupId,@Param("carId")Long carId);
 
     public int unlockDriver(@Param("driverId") long driverId);
 

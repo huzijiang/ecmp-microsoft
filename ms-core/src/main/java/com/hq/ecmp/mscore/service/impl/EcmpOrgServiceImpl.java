@@ -179,21 +179,18 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 //    }
 
 
-
-
-
-    //公司车队树
+    /**
+     * 公司车队树
+     * @param deptId
+     * @param parentId
+     * @return
+     */
     @Override
-    public List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId) {
-       /* if(deptId == null){
-            EcmpOrg ecmpOrg = new EcmpOrg();
-            ecmpOrg.setParentId(0L);
-            List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
-            deptId = ecmpOrgs.get(0).getDeptId();
-        }*/
-        /*EcmpOrg ecmpOrg = new EcmpOrg();
-        ecmpOrg.setParentId(deptId);*/
-        List<CompanyCarGroupTreeVO> tree = ecmpOrgMapper.selectCompanyCarGroupTree(deptId);
+    public List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId,Long parentId) {
+        if(deptId == null && parentId == null){
+             parentId = 0L;
+        }
+        List<CompanyCarGroupTreeVO> tree = ecmpOrgMapper.selectCompanyCarGroupTree(deptId,parentId);
         int size = tree.size();
         if ( size > 0){
             for (int i = 0; i < size; i++) {
@@ -205,14 +202,35 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                             tree.get(i).setLeaderName(ecmpUser.getUserName());
                         }
                     }
+                    //查询公司下的车队树
                     tree.get(i).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(tree.get(i).getDeptId()));
-                    tree.get(i).setChildrenList(this.selectCompanyCarGroupTree(tree.get(i).getDeptId()));
+                    //递归查询子公司
+                    tree.get(i).setChildrenList(this.selectCompanyCarGroupTree(null,tree.get(i).getDeptId()));
                 }
             }
         }
         return tree;
     }
 
+    @Override
+    public List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId) {
+        if(deptId == null && parentId == null){
+            parentId = 0L;
+        }
+        List<CarGroupTreeVO> tree = ecmpOrgMapper.selectNewCompanyCarGroupTree(deptId,parentId);
+        int size = tree.size();
+        if ( size > 0){
+            for (int i = 0; i < size; i++) {
+                if (tree.get(i) != null) {
+                    //查询公司下的车队树
+                    tree.get(i).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(tree.get(i).getDeptId())) ;
+                    List<CarGroupTreeVO> carGroupTreeVO = tree.get(i).getCarGroupTreeVO();
+                    carGroupTreeVO.addAll(this.selectNewCompanyCarGroupTree(null, tree.get(i).getDeptId()));
+                }
+            }
+        }
+        return tree;
+    }
 
 
     /*根据公司id查询公司车队总人数*/
@@ -229,11 +247,12 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.valueOf(leader));
             //公司负责人
             if(ecmpUser != null){
-                carGroupCountVO.setLeaderName(ecmpUser.getUserName());
+                carGroupCountVO.setLeaderName(ecmpUser.getNickName());
             }
         }
         CarGroupInfo carGroupInfo = new CarGroupInfo();
         carGroupInfo.setOwnerCompany(deptId);
+        //查询所属公司下的车队
         List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectCarGroupInfoList(carGroupInfo);
         int size = carGroupInfos.size();
         int num = 0;
@@ -436,7 +455,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         if (StringUtils.isBlank(ecmpOrgVo.getDeptName())) {
             throw new Exception("部门/公司名称不可为空");
         }
-        int isRepart = ecmpOrgMapper.isRepart(ecmpOrgVo.getDeptName(),flag,ecmpOrgVo.getDeptId());
+        int isRepart = ecmpOrgMapper.isRepart(ecmpOrgVo.getDeptName(),flag,ecmpOrgVo.getDeptId(),ecmpOrgVo.getParentId());
         if(isRepart>0){
             throw new Exception("部门名称，不可重复录入！");
         }
@@ -659,8 +678,9 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             int count=ecmpOrgMapper.selectCountByParentId(deptId.intValue());
             if(ecmpUserNum==1||count==1){
                 int delFlag = ecmpOrgMapper.updateDelFlagById(deptId,deptType);
-                List<Long> UserIds = ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
-                ecmpUserMapper.updateDelFlagById(UserIds.get(0));
+                //上面已判断，部门下存在人员不可删除
+                /*List<Long> UserIds = ecmpUserMapper.getEcmpUserIdsByDeptId(deptId);
+                ecmpUserMapper.updateDelFlagById(UserIds.get(0));*/
                 if(delFlag==1){
                     return "删除分/子公司数据成功！";
                 }else {
@@ -785,13 +805,32 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 
 	@Override
 	public List<Long> queryDeptIdOfCompany(Long deptId) {
-		List<Long> result=new ArrayList<Long>();
-		List<EcmpOrgDto> selectCombinationOfCompany = selectCombinationOfCompany(deptId, "1");
-		recursion(selectCombinationOfCompany, result);
+		List<Long> result =new ArrayList<Long>();
+		result.add(deptId);
+		//查询所有部门
+		EcmpOrg ecmpOrg = new EcmpOrg();
+		List<EcmpOrg> selectEcmpOrgList = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
+		if(null !=selectEcmpOrgList && selectEcmpOrgList.size()>0){
+			for (EcmpOrg e : selectEcmpOrgList) {
+				//上级所有部门ID  0,100,101
+				String ancestors = e.getAncestors();
+				if(StringUtils.isNotEmpty(ancestors)){
+					String[] split = ancestors.split(",");
+					List<String> parentIdList = Arrays.asList(split);
+					//上级部门中包含了 deptId 这个部门   则 当前部门是deptId的下级部门
+					if(parentIdList.contains(deptId.toString())){
+						result.add(e.getDeptId());
+					}
+				}
+			}
+		}
+		
 		return result;
 	}
 
-	private void recursion(List<EcmpOrgDto> selectCombinationOfCompany, List<Long> result) {
+
+
+    private void recursion(List<EcmpOrgDto> selectCombinationOfCompany, List<Long> result) {
 		if (null != selectCombinationOfCompany && selectCombinationOfCompany.size() > 0) {
 			for (EcmpOrgDto ecmpOrgDto : selectCombinationOfCompany) {
 				Long deptId = ecmpOrgDto.getDeptId();

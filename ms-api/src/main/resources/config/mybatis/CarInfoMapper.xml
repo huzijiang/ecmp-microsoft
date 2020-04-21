@@ -126,6 +126,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="assetTag != null ">asset_tag,</if>
             <if test="licensePrice != null ">license_price,</if>
             <if test="price != null ">price,</if>
+            <if test="lockState != null ">lock_state,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="carId != null ">#{carId},</if>
@@ -165,6 +166,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="assetTag != null ">#{assetTag},</if>
             <if test="licensePrice != null ">#{licensePrice},</if>
             <if test="price != null ">#{price},</if>
+            <if test="lockState != null ">#{lockState},</if>
         </trim>
     </insert>
 
@@ -207,6 +209,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="borrowStartDate != null ">borrow_start_date = #{borrowStartDate},</if>
             <if test="rentStartDate != null ">rent_start_date = #{rentStartDate},</if>
             <if test="enterpriseCarTypeId != null ">enterprise_car_type_id = #{enterpriseCarTypeId},</if>
+            <if test="lockState != null ">lock_state = #{lockState},</if>
         </trim>
         where car_id = #{carId}
     </update>
@@ -227,7 +230,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="queryCompanyCar"  resultType="java.lang.Integer">
-          select count(*) from car_info
+          select count(1) from car_info where  state != 'S444'
     </select>
 
     <!--根据组织id查询归属车辆信息-->
@@ -357,6 +360,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		car_info a
 		WHERE
 		car_group_id = #{carGroupId}
+		<if test="driverId!=null">
+		and car_id not in (
+			select car_id from driver_car_relation_info where driver_id=#{driverId}
+		)
+        </if>
 		AND state = 'S000'
 	</select>
 
@@ -382,9 +390,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         where car_id = #{carId}
         <![CDATA[ AND SYSDATE() <= IFNULL(rent_end_date,SYSDATE())
-                  AND SYSDATE() <= IFNULL(borrow_end_date,SYSDATE()
+                  AND SYSDATE() <= IFNULL(borrow_end_date,SYSDATE())
                   AND SYSDATE() <= IFNULL(driving_license_end_date,SYSDATE())
-                  AND state != 'S444') ]]>
+                  AND state != 'S444' ]]>
     </update>
 
 </mapper>

@@ -235,7 +235,17 @@ public interface OrderInfoMapper {
      */
     public List<OrderInfo> getExpiredOrder();
 
+    /**
+     * 通过用车权限查询最近的订单状态
+     * @param powerId
+     */
+    public String queryLatestOrderByPowerId(Long powerId);
 
-
+    /**
+     *轨迹状态 订单状态
+     * @param orderId
+     * @return
+     */
+    OrderInfo selectOrderStateById(@Param("orderId")Long orderId);
 }
 

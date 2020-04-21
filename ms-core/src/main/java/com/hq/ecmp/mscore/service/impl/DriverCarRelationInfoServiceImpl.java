@@ -169,13 +169,12 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
     /**
      * 解绑车辆驾驶员
      * @param carId
-     * @param userId
      * @param driverId
      */
     @Override
-    public void removeCarDriver(Long carId, Long userId, Long driverId) throws Exception {
+    public void removeCarDriver(Long carId,  Long driverId) throws Exception {
         DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
-        int i = driverCarRelationInfoMapper.deleteCarDriver(carId,userId,driverId);
+        int i = driverCarRelationInfoMapper.deleteCarDriver(carId,driverId);
         if(i != 1){
             throw new Exception("解绑车辆驾驶员失败");
         }
@@ -212,7 +211,9 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
             driverVO.setDriverMobile(carRelationInfo.getDriverMobile());
             int carCount = driverCarRelationInfoMapper.queryCountCarByDriverId(driverId);
             driverVO.setCarCount(carCount);
-            EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carRelationInfo.getUserId());
+            EcmpOrg ecmpOrgDto1 = ecmpOrgMapper.selectEcmpOrgById(carGroupInfo.getOwnerCompany());
+            driverVO.setCompany(ecmpOrgDto1.getDeptName());
+            /*EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carRelationInfo.getUserId());
             EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
             String ancestors = ecmpOrg.getAncestors();
             String[] split = ancestors.split(",");
@@ -222,7 +223,7 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
                     driverVO.setCompany(ecmpOrgDto1.getDeptName());
                     break;
                 }
-            }
+            }*/
             driverVO.setWorkState(carRelationInfo.getWorkState());
             list.add(driverVO);
         }

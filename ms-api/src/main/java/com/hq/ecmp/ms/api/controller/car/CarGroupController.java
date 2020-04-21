@@ -40,7 +40,7 @@ public class CarGroupController {
      * @param  carGroupDTO 车队信息
      * @return
      */
-    @Log(title = "车队管理:新增车队", businessType = BusinessType.INSERT)
+    @Log(title = "车队管理", content = "新增车队",businessType = BusinessType.INSERT)
     @ApiOperation(value = "saveCarGroup",notes = "新增车队",httpMethod ="POST")
     @PostMapping("/saveCarGroup")
     public ApiResponse saveCarGroup(@RequestBody CarGroupDTO carGroupDTO){
@@ -61,7 +61,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:车队详情", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "车队详情", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupDetail",notes = "车队详情",httpMethod ="POST")
     @PostMapping("/getCarGroupDetail")
     public ApiResponse<CarGroupDetailVO> getCarGroupDetail(@RequestBody CarGroupDTO carGroupDTO){
@@ -79,7 +79,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:修改车队", businessType = BusinessType.UPDATE)
+    @Log(title = "车队管理",content = "修改车队", businessType = BusinessType.UPDATE)
     @ApiOperation(value = "updateCarGroup",notes = "修改车队",httpMethod ="POST")
     @PostMapping("/updateCarGroup")
     public ApiResponse updateCarGroup(@RequestBody CarGroupDTO carGroupDTO){
@@ -100,7 +100,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:删除车队", businessType = BusinessType.DELETE)
+    @Log(title = "车队管理",content = "删除车队", businessType = BusinessType.DELETE)
     @ApiOperation(value = "deleteCarGroup",notes = "删除车队",httpMethod ="POST")
     @PostMapping("/deleteCarGroup")
     public ApiResponse deleteCarGroup(@RequestBody CarGroupDTO carGroupDTO){
@@ -121,7 +121,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:修改车队", businessType = BusinessType.UPDATE)
+    @Log(title = "车队管理",content = "禁用车队", businessType = BusinessType.UPDATE)
     @ApiOperation(value = "disableCarGroup",notes = "禁用车队",httpMethod ="POST")
     @PostMapping("/disableCarGroup")
     public ApiResponse disableCarGroup(@RequestBody Long carGroupId){
@@ -142,7 +142,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:启用车队", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "启用车队", businessType = BusinessType.OTHER)
     @ApiOperation(value = "startUpCarGroup",notes = "启用车队",httpMethod ="POST")
     @PostMapping("/startUpCarGroup")
     public ApiResponse startUpCarGroup(@RequestBody Long carGroupId){
@@ -163,7 +163,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:车队列表", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "车队列表", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupList",notes = "分页全部查询车队列表",httpMethod ="POST")
     @PostMapping("/getCarGroupList")
     public ApiResponse<PageResult<CarGroupListVO>> getCarGroupList(@RequestBody PageRequest pageRequest){
@@ -200,7 +200,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:获取城市车队联系电话", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "获取城市车队联系电话", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupPhone",notes = "查询车队联系电话",httpMethod ="POST")
     @PostMapping("/getCarGroupPhone")
     public ApiResponse<List<CarGroupPhoneVO>> getCarGroupPhone(@RequestBody CarGroupPhoneDTO carGroupPhoneDTO){
@@ -218,7 +218,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:查询司机所属车队联系电话", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "查询司机所属车队联系电话", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getOwnerCarGroupPhone",notes = "查询车队联系电话",httpMethod ="POST")
     @PostMapping("/getOwnerCarGroupPhone")
     public ApiResponse<CarGroupPhoneVO> getOwnerCarGroupPhone(){
@@ -237,7 +237,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:查询订单调度员所在车队电话", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "查询订单调度员所在车队电话", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getDispatcherAndFixedLine",notes = "查询调度员电话机和调度员所在车队座机",httpMethod ="POST")
     @PostMapping("/getDispatcherAndFixedLine")
     public ApiResponse<DispatcherAndFixedLineVO> getDispatcherAndFixedLine(@RequestBody DispatcherAndFixedLineDTO
@@ -258,15 +258,36 @@ public class CarGroupController {
      * @param
      * @return
      */
-   @Log(title = "车队管理:查询公司车队树", businessType = BusinessType.OTHER)
-   @ApiOperation(value = "getCompanyCarGroupTree",notes = "公司车队树",httpMethod ="POST")
+    @Log(title = "车队管理", content = "查询公司车队树",businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getCompanyCarGroupTree",notes = "公司车队树",httpMethod ="POST")
     @PostMapping("/getCompanyCarGroupTree")
     public ApiResponse<List<CompanyCarGroupTreeVO>> getCompanyCarGroupTree(
             @RequestBody EcmpOrgDto ecmpOrgDto){
         //根据公司id查询车队列表
         List<CompanyCarGroupTreeVO>  list = null;
         try {
-            list = ecmpOrgService.selectCompanyCarGroupTree(ecmpOrgDto.getDeptId());
+            list = ecmpOrgService.selectCompanyCarGroupTree(ecmpOrgDto.getDeptId(),null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success(list);
+    }
+
+
+    /**
+     * 查询公司车队树升级版  满足前端
+     * @param
+     * @return
+     */
+    @Log(title = "车队管理",content = "查询升级版公司车队树", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getNewCompanyCarGroupTree",notes = "查询公司车队树升级版  满足前端",httpMethod ="POST")
+    @PostMapping("/getNewCompanyCarGroupTree")
+    public ApiResponse<List<CarGroupTreeVO>> getNewCompanyCarGroupTree(
+            @RequestBody EcmpOrgDto ecmpOrgDto){
+        //根据公司id查询车队列表
+        List<CarGroupTreeVO>  list = null;
+        try {
+            list = ecmpOrgService.selectNewCompanyCarGroupTree(ecmpOrgDto.getDeptId(),null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -278,7 +299,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:查询公司树", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "查询公司树", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCompanyTree",notes = "公司树",httpMethod ="POST")
     @PostMapping("/getCompanyTree")
     public ApiResponse<List<CompanyTreeVO>> getCompanyTree(
@@ -298,7 +319,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:查询车队树", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "查询车队树", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupTree",notes = "公司树",httpMethod ="POST")
     @PostMapping("/getCarGroupTree")
     public ApiResponse<List<CarGroupTreeVO>> getCarGroupTree(
@@ -319,7 +340,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:公司车队人数统计", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "公司车队人数统计", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupCount",notes = "车队人数统计",httpMethod ="POST")
     @PostMapping("/getCarGroupCount")
     public ApiResponse<CarGroupCountVO> getCarGroupCount(
@@ -340,7 +361,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:判断车队编号存在与否", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "判断车队编号存在与否", businessType = BusinessType.OTHER)
     @ApiOperation(value = "judgeCarGroupCode",notes = "判断车队编号是否存在",httpMethod ="POST")
     @PostMapping("/judgeCarGroupCode")
     public ApiResponse<Boolean> judgeCarGroupCode(
@@ -359,7 +380,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:车队信息回显", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理", content = "车队信息回显",businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupInfoFeedBack",notes = "车队信息回显",httpMethod ="POST")
     @PostMapping("/getCarGroupInfoFeedBack")
     public ApiResponse<CarGroupDTO> getCarGroupInfoFeedBack(
@@ -378,7 +399,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理:车队名字校验", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "车队名字校验", businessType = BusinessType.OTHER)
     @ApiOperation(value = "judgeCarGroupName",notes = "车队名字校验",httpMethod ="POST")
     @PostMapping("/judgeCarGroupName")
     public ApiResponse<Boolean> judgeCarGroupName(

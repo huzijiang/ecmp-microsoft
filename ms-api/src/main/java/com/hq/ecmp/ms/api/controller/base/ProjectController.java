@@ -267,6 +267,7 @@ public class ProjectController {
     @ApiOperation(value = "显示部门及员工树",notes = "显示部门及员工树",httpMethod ="POST")
     @PostMapping("/selectProjectUserTree")
     public ApiResponse<List<OrgTreeVo>> selectProjectUserTree(@RequestBody ProjectInfoDTO projectInfoDto){
+
         OrgTreeVo deptList = iProjectInfoService.selectProjectUserTree(projectInfoDto.getProjectId());
         List<OrgTreeVo> lsit=new ArrayList<>();
         lsit.add(deptList);
@@ -275,9 +276,24 @@ public class ProjectController {
 
     @ApiOperation(value = "getProjectUserInfo",notes = "根据项目id获取已绑定所有成员列表",httpMethod ="POST")
     @RequestMapping("/getProjectUserInfo")
-    public ApiResponse<List<ProjectUserVO>> getProjectUserInfo(@RequestParam("projectId") Long projectId){
-        List<ProjectUserVO> users=iProjectInfoService.getProjectUserInfo(projectId);
-        return ApiResponse.success(users);
+    public ApiResponse<List<ProjectUserVO>> getProjectUserInfo(@RequestBody ProjectDto projectDto){
+//        List<ProjectUserVO> users=iProjectInfoService.getProjectUserInfo(projectId);
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long orgComcany=null;
+        if (projectDto.getProjectId()==null){
+            EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+            if (ecmpOrg!=null){
+                orgComcany=ecmpOrg.getDeptId();
+            }
+        }else{
+            ProjectInfo projectInfo = iProjectInfoService.selectProjectInfoById(projectDto.getProjectId());
+            if (projectInfo!=null){
+                orgComcany=projectInfo.getOwnerCompany();
+            }
+        }
+        List<ProjectUserVO> projectUserInfo = iProjectInfoService.getUsersByOrg(projectDto.getProjectId(),projectDto.getSearch(),orgComcany);
+        return ApiResponse.success(projectUserInfo);
     }
 
     @ApiOperation(value = "removeProjectUser",notes = "移除成员",httpMethod ="POST")
@@ -339,6 +355,9 @@ public class ProjectController {
             if (StringUtils.isNotEmpty(ancestors)){
                 String[] split = ancestors.split(",");
                 for (int i=split.length-1;i>=0;i--){
+                    if (SWITCH_ON.equals(split[i])){
+                        continue;
+                    }
                     EcmpOrg org= ecmpOrgService.selectEcmpOrgById(Long.parseLong(split[i]));
                     if (DEPT_TYPE_ORG.equals(org.getDeptType())){//是公司
                         return org;

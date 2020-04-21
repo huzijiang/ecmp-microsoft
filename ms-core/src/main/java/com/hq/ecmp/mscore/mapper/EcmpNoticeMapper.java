@@ -43,7 +43,7 @@ public interface EcmpNoticeMapper
      * @param userId 通知公告
      * @return 通知公告集合
      */
-    public EcmpNotice selectNewEcmpNotice();
+    public EcmpNotice selectNewEcmpNotice(Map map);
 
     /**
      * 新增通知公告

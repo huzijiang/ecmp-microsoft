@@ -253,6 +253,18 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	public boolean createUseCarAuthority(Long applyId,Long auditUserId) {
 		//查询行程信息
 		ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(applyId);
+		boolean travelAllowUseCar=false;//差旅 是否允许使用城市用车
+		boolean asAllowUseCar=false;//差旅  是否允许使用接送服务
+		//查询行程对应的制度信息
+		RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(applyInfo.getRegimenId());
+		if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getRegimenType())){
+			if(CarConstant.ALLOW_USE.equals(regimeInfo.getTravelAllowInTravelCityUseCar())){
+				travelAllowUseCar=true;
+			}
+			if(CarConstant.ALLOW_USE.equals(regimeInfo.getAsAllowAirportShuttle())){
+				asAllowUseCar=true;
+			}
+		}
 		Long journeyId = applyInfo.getJourneyId();
 		//查询行程信息
 		JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyId);
@@ -294,7 +306,10 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				//起点地生成一次送机权限
 				for (Long s : startTo) {
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_DROP_OFF,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
+					if(asAllowUseCar){
+						journeyUserCarPowerList.add(journeyUserCarPower);
+					}
+					
 				}
 			}
 			
@@ -302,11 +317,18 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				//途径地会生成市内用车   接送机权限各一次
 				for (Long s : throughTo) {
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_DROP_OFF,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
+					if(asAllowUseCar){
+						journeyUserCarPowerList.add(journeyUserCarPower);
+					}
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_PICKUP,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
+					if(asAllowUseCar){
+						journeyUserCarPowerList.add(journeyUserCarPower);
+					}
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.CITY_USE_CAR,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
+					if(travelAllowUseCar){
+						journeyUserCarPowerList.add(journeyUserCarPower);
+					}
+					
 				}
 			}
 			
@@ -314,7 +336,10 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				//目的地生成一次接机权限
 				for (Long s : endTo) {
 					journeyUserCarPower=new JourneyUserCarPower(applyId, journeyId, new Date(), auditUserId,CarConstant.NOT_USER_USE_CAR,CarConstant.USE_CAR_AIRPORT_PICKUP,s);
-					journeyUserCarPowerList.add(journeyUserCarPower);
+					if(asAllowUseCar){
+						journeyUserCarPowerList.add(journeyUserCarPower);
+					}
+					
 				}
 			}
 		}
@@ -444,6 +469,15 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				 }
 			} else {
 				//订单未取消 已完成
+				//如果是市内用车，变为去申请或者去约车，否则变为已完成
+				JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(powerId);
+				if(journeyUserCarPower.getType().equals(CarConstant.CITY_USE_CAR)){
+					if(flag){
+						return OrderState.GETARIDE.getState();
+					}else{
+						return OrderState.INITIALIZING.getState();
+					}
+				}
 				return OrderState.STOPSERVICE.getState();
 			}
 		}
@@ -566,23 +600,59 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		return false;
 	}
 
+	/**
+	 * 判断行程是否展示 1.行程对应的每个权限都是使用或者过期则不展示
+	 * 					2.或者是最后一个行程节点已经被使用则行程不展示
+	 * @param journeyId
+	 * @return
+	 */
 	@Override
 	public boolean checkJourneyNoteAllComplete(Long journeyId) {
-		List<String> AllState = orderInfoMapper.queryAllOrderStatusByJourneyId(journeyId);
-		//如果行程下的所有订单都是已完成了 则该行程已完成
-		if(null !=AllState && AllState.size()>0){
-			for (String str : AllState) {
-				if(!OrderState.ORDERCLOSE.getState().equals(str)){
-					return false;
+		//所有权限挨个做判断，都符合则首页行程不展示
+    	JourneyUserCarPower journeyUserCarPower = new JourneyUserCarPower();
+    	journeyUserCarPower.setJourneyId(journeyId);
+		List<JourneyUserCarPower> journeyUserCarPowers = journeyUserCarPowerMapper.selectJourneyUserCarPowerList(journeyUserCarPower);
+		if(journeyUserCarPowers.size() > 0){
+			int flag = 0;
+			for (JourneyUserCarPower journeyUserCarPowerCh:
+			journeyUserCarPowers) {
+				if(checkPowerOverTime(journeyUserCarPowerCh.getPowerId())){
+						flag = flag+1;
+				}else{
+					String state = orderInfoMapper.queryLatestOrderByPowerId(journeyUserCarPowerCh.getPowerId());
+					if(state != null){
+						//判断订单是否已经完结(订单轨迹表状态为订单异议或者订单关闭或者服务完成)
+						if(OrderState.carAuthorityJundgeOrderComplete().contains(state)){
+							flag = flag +1;
+						}
+					}
 				}
+			}
+			if(flag == journeyUserCarPowers.size()){
 				return true;
+			}
+			//最后一个用车权限被使用则直接取消首页此行程的展示
+			//查询行程对应的制度信息
+			boolean asAllowUseCar =false;
+			JourneyInfo journeyInfo = journeyInfoService.selectJourneyInfoById(journeyId);
+			RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
+			if(CarConstant.ALLOW_USE.equals(regimeInfo.getAsAllowAirportShuttle())){
+				asAllowUseCar=true;
+			}
+			JourneyUserCarPower lastPowerByJourneyId = null;
+			if(asAllowUseCar){
+				lastPowerByJourneyId = journeyUserCarPowerMapper.getLastPowerByJourneyId(journeyId);
+			}else{
+				lastPowerByJourneyId = journeyUserCarPowerMapper.getLastPowerCityByJourneyId(journeyId);
+			}
+			String state = orderInfoMapper.queryLatestOrderByPowerId(lastPowerByJourneyId.getPowerId());
+			if(state != null){
+				if(OrderState.carAuthorityJundgeOrderComplete().contains(state)){
+					return true;
+				}
 			}
 		}
 		return false;
 	}
 
-	
-	
-	
-	
 }

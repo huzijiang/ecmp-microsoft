@@ -166,4 +166,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             ( start_date is not null  and <![CDATA[ DATE_FORMAT(DATE_ADD(start_date ,INTERVAL 1 DAY), '%Y-%m-%d') = DATE_FORMAT(now() , '%Y-%m-%d') ]]>)
         )
     </select>
+
+	<select id="queryApplyNumByRegimeId" parameterType="java.lang.Long"
+		resultType="java.lang.Integer">
+		select count(1) from apply_info where regimen_id=#{regimeId}
+	</select>
 </mapper>

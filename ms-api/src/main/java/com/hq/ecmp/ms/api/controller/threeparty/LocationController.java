@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import com.hq.ecmp.mscore.bo.CityInfo;
+import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.AirportVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,10 +24,6 @@ import com.hq.ecmp.ms.api.vo.threeparty.LocationInfoVo;
 import com.hq.ecmp.mscore.domain.DriverHeartbeatInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.service.ChinaCityService;
-import com.hq.ecmp.mscore.service.IDriverHeartbeatInfoService;
-import com.hq.ecmp.mscore.service.IJourneyNodeInfoService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.util.MacTools;
 
 import io.swagger.annotations.ApiOperation;
@@ -50,6 +47,9 @@ public class LocationController {
 	private IDriverHeartbeatInfoService driverHeartbeatInfoService;
 	@Autowired
 	private ChinaCityService chinaCityService;
+	@Autowired
+	private ThirdService thirdService;
+
 
 	@ApiOperation(value = "queryByShortAddress", notes = "地址反查查询 ", httpMethod = "POST")
 	@PostMapping("/queryByShortAddress")
@@ -142,5 +142,18 @@ public class LocationController {
 			return ApiResponse.error("获取机场列表异常");
 		}
 	}
+
+	@ApiOperation(value = "getCustomerPhone", notes = "根据城市code获取机场列表 ", httpMethod = "POST")
+	@PostMapping("/getCustomerPhone")
+	public ApiResponse<String> getCustomerPhone() {
+		try {
+			String customerPhone = thirdService.getCustomerPhone();
+			return ApiResponse.success("获取客服成功",customerPhone);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error("获取客服超时");
+		}
+	}
+
 
 }

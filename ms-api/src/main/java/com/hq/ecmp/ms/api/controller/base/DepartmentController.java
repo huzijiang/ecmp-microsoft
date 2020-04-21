@@ -194,11 +194,12 @@ public class DepartmentController {
             return ApiResponse.error("请输入有效的公司名称或编号！");
         }
         PageResult<EcmpOrgDto> companyList = orgService.selectDeptByDeptNameOrCode(pageRequest,deptNameOrCode);
-        if(companyList.getItems().size()>0){
+        return ApiResponse.success(companyList);
+        /*if(companyList.getItems().size()>0){
             return ApiResponse.success(companyList);
         }else{
-            return ApiResponse.error("无匹配数据！");
-        }
+            return ApiResponse.success("无匹配数据！");
+        }*/
     }
 
     /**

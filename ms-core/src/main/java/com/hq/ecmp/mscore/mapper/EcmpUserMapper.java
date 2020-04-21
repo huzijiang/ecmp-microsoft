@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
+import com.hq.ecmp.mscore.vo.ProjectUserVO;
 import com.hq.ecmp.mscore.vo.UserTreeVo;
 import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
@@ -107,7 +108,14 @@ public interface EcmpUserMapper
      *  @param  deptid--上级组织id
      * @return List<EcmpUserDto>
      * */
-    public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo);
+    public List<EcmpUserDto> getEcmpUserNameAndPhone(@Param("deptId") Long deptId);
+
+    /*
+     * 获取上级组织id中的员工姓名和电话、邮箱
+     *  @param  deptid--上级组织id
+     * @return List<EcmpUserDto>
+     * */
+    public List<EcmpUserDto> getCompanyEcmpUserNameAndPhone(@Param("deptId") Long deptId);
 
     /*
      * 新增员工信息
@@ -355,8 +363,16 @@ public interface EcmpUserMapper
      */
     int updatePhoneByUserId(@Param("newPhoneNum") String newPhoneNum,@Param("userId") Long userId);
 
-    List<EcmpUserDto> queryUserListByDeptIdsAndName(@Param("deptIds")List<Long> deptIds, @Param("name")String name);
+    List<EcmpUserDto> queryUserListByDeptIdsAndName(@Param("deptIds")List<Long> deptIds, @Param("name")String name,@Param("itIsDispatcher")String itIsDispatcher);
     
     public int updateEcmpUserjobNumber(EcmpUser ecmpUser);
+
+    /**
+     * 获取当前公司下的所有员工
+     * @param search
+     * @param orgComcany
+     * @return
+     */
+    List<ProjectUserVO> getUsersByCompany(@Param("search")String search,@Param("orgComcany") Long orgComcany);
 }
 

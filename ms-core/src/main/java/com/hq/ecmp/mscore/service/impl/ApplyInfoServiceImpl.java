@@ -39,8 +39,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import static com.hq.ecmp.constant.CommonConstant.ONE;
-import static com.hq.ecmp.constant.CommonConstant.ZERO;
+import static com.hq.ecmp.constant.CommonConstant.*;
 
 
 /**
@@ -243,11 +242,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             //设置返程目的地为最初出发地
             travelRequest2.setEndCity(startCity);
             //设置返程开始日期为去程结束日期
-            travelRequest2.setStartDate(travelRequestSetout.getEndDate());
-            //设置返程结束日期为空
-            travelRequest2.setEndDate(null);
+            Date endDate = travelRequestSetout.getEndDate();
+            travelRequest2.setStartDate(endDate);
+            //设置返程结束日期  暂定3天宽限期
+            travelRequest2.setEndDate(new Date(endDate.getTime()+3*24*60*60*1000));
             //设置返程节点时长为空
-            travelRequest2.setCountDate(null);
+            travelRequest2.setCountDate(3);
             // 返程交通工具暂不做修改
             journeyNodeInfo = new JourneyNodeInfo();
             setTravelJourneyNode(applyTravelRequestCopy, journeyId, journeyNodeInfo, i + 1, travelRequest2);
@@ -272,6 +272,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //如果不需要审批 则初始化用车权限
         if(regimenId != null){
             RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(Long.valueOf(regimenId));
+            if(regimenVO == null){
+                throw new RuntimeException("用车制度不存在");
+            }
             String needApprovalProcess = regimenVO.getNeedApprovalProcess();
             //初始化审批流
             initOfficialApproveFlow(applyId, userId, regimenId);
@@ -1374,20 +1377,21 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                                log.error("生成用车权限失败");
                             }
                             //初始化订单
-                            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
+                            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(applyInfo.getJourneyId());
                             if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
                                 int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
-//                                ecmpMessageService.applyUserPassMessage(applyId,Long.valueOf(userId),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
+                                ecmpMessageService.applyUserPassMessage(applyId,Long.parseLong(applyInfo.getCreateBy()),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
                                 for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
-                                    int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:ZERO;
+                                    int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
                                     OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
                                     Long orderId=null;
                                     if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
                                         orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
                                     }
-                                    ecmpMessageService.saveApplyMessagePass(applyId,Long.valueOf(userId),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
+                                    ecmpMessageService.saveApplyMessagePass(applyId,Long.parseLong(applyInfo.getCreateBy()),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
                                 }
                             }
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -1747,8 +1751,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 String approveUserId = resultInfo.getApproveUserId();
                 String appresult = resultInfo.getApproveResult();
                 String state = resultInfo.getState();
-                if (ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(resultInfo.getState())&&resultInfo.getUpdateTime()!=null){
-                    approveTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,resultInfo.getUpdateTime());
+                if (ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(resultInfo.getState())){
+                    if (resultInfo.getUpdateTime()!=null){
+                        approveTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,resultInfo.getUpdateTime());
+                    }
+                    if (StringUtils.isNotBlank(resultInfo.getUpdateBy())){
+                         approveUserId=resultInfo.getUpdateBy();
+                    }
                 }
                 list=new ArrayList<>();
                 if (StringUtils.isNotBlank(approveUserId)){
@@ -1757,6 +1766,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                         for (EcmpUser user:userList){
                             ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO(resultInfo.getApproveNodeId(), user.getNickName(), user.getPhonenumber(), ApproveStateEnum.format(appresult), ApproveStateEnum.format(state));
                             approvalInfoVO.setContent(resultInfo.getContent());
+                            approvalInfoVO.setUserId(user.getUserId());
                             list.add(approvalInfoVO);
                         }
                     }

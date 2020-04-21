@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.github.pagehelper.PageInfo;
+import com.hq.api.system.mapper.SysUserMapper;
 import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.constant.RoleConstant;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,11 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CommonConstant;
-import com.hq.ecmp.mscore.dto.EcmpOrgDto;
-import com.hq.ecmp.mscore.dto.EcmpRoleDto;
-import com.hq.ecmp.mscore.dto.EcmpUserDto;
-import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.dto.UserRegisterDTO;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
@@ -62,6 +60,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 
     @Autowired
     private IEcmpOrgService ecmpOrgService;
+    @Autowired(required = false)
+    private SysUserMapper userMapper;
 
 
     /**
@@ -171,8 +171,11 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      */
     @Override
     public int queryCompanyEmpCunt() {
-        return ecmpUserMapper.queryCompanyEmp();
+      //  return ecmpUserMapper.queryCompanyEmp();
+
+        return userMapper.selectUserByRoleId(5L,null).size();
     }
+
 
     /*
      * 获取上级组织id中的员工姓名和电话、邮箱
@@ -183,10 +186,37 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 
     public List<EcmpUserDto> getEcmpUserNameAndPhone(EcmpUserVo ecmpUserVo) {
         List<EcmpUserDto> ecmpUserList = null;
-        ecmpUserList = ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo);
-       /* for (EcmpUserDto ecmpUserDto:ecmpUserList){
 
-        }*/
+        //查询分/子公司下是否有部门
+        int i = ecmpOrgMapper.selectCountByParentId(ecmpUserVo.getDeptId().intValue());
+        if(i>0){
+            ecmpUserList = ecmpUserMapper.getEcmpUserNameAndPhone(ecmpUserVo.getDeptId());
+            //公司下有员工的数据
+            int i1 = ecmpUserMapper.selectEcmpUserByDeptId(ecmpUserVo.getDeptId());
+            if(i1>0){
+              List<EcmpUserDto>  ecmpUserList1 = ecmpUserMapper.getCompanyEcmpUserNameAndPhone(ecmpUserVo.getDeptId());
+              if(ecmpUserList.size()==0&&ecmpUserList1.size()==0){
+                  return null;
+              }else{
+                  if(ecmpUserList.size()>0){
+                      if(ecmpUserList1.size()>0){
+                          for (EcmpUserDto ecmpUserDto:ecmpUserList1){
+                              ecmpUserList.add(ecmpUserDto);
+                          }
+                          return ecmpUserList;
+                      }
+                      return ecmpUserList;
+                  }else{
+                      return ecmpUserList1;
+                  }
+              }
+            }
+        }else{
+            int i1 = ecmpUserMapper.selectEcmpUserByDeptId(ecmpUserVo.getDeptId());
+            if(i1>0){
+                ecmpUserList = ecmpUserMapper.getCompanyEcmpUserNameAndPhone(ecmpUserVo.getDeptId());
+            }
+        }
         return ecmpUserList;
     }
 
@@ -567,9 +597,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest) {
         List<EcmpUserDto> list=new ArrayList<>();
-        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(pageRequest.getDeptId());
         String deptType = ecmpOrg.getDeptType();
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         if(OrgConstant.DEPT_TYPE_1.equals(deptType)){
             list=ecmpUserMapper.getCompanyEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO);
             for (EcmpUserDto ecmpUserDto:list){
@@ -579,8 +609,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         if(OrgConstant.DEPT_TYPE_2.equals(deptType)){
             list=ecmpUserMapper.getEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO);
         }
-        Long ecmpUserPageCount = ecmpUserMapper.getEcmpUserPageCount(pageRequest.getSearch(), pageRequest.getDeptId(),CommonConstant.ZERO);
-        return new PageResult<>(ecmpUserPageCount,list);
+        PageInfo<EcmpUserDto> info = new PageInfo<>(list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
 
     /**
@@ -594,10 +624,10 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     }
 
 	@Override
-	public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId, String name) {
+	public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId, String name,String itIsDispatcher) {
 		List<Long> deptIds = ecmpOrgService.queryDeptIdOfCompany(companyId);
 		if(null !=ecmpUserMapper && deptIds.size()>0){
-			List<EcmpUserDto> queryUserListByDeptIdsAndName = ecmpUserMapper.queryUserListByDeptIdsAndName(deptIds, name);
+			List<EcmpUserDto> queryUserListByDeptIdsAndName = ecmpUserMapper.queryUserListByDeptIdsAndName(deptIds, name,itIsDispatcher);
 			return queryUserListByDeptIdsAndName;
 		}
 		return null;

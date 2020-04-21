@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
+import com.hq.ecmp.mscore.dto.ApplyDTO;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.ApprovalInfoVO;
 
@@ -81,4 +82,9 @@ public interface IApplyApproveResultInfoService
     List<ApplyApproveResultInfo> selectApproveResultByNodeids(String nextNodeId,String state);
 
     List<ApplyApproveResultInfo> selectByUserId(Long applyId, Long userId,String state);
+
+    List<ApplyApproveResultInfo> beforeInspect(ApplyDTO journeyApplyDto,Long userId) throws Exception;
+    void applyReject(ApplyDTO journeyApplyDto, Long userId,List<ApplyApproveResultInfo> allcollect)throws Exception;
+
+    void applyPass(ApplyDTO journeyApplyDto, Long userId,List<ApplyApproveResultInfo> allcollect)throws Exception;
 }

@@ -63,4 +63,6 @@ public interface EcmpUserRoleMapper
     public int deleteEcmpUserRoleByIds(Long[] userIds);
 
     String findUserIds(String roleId);
+
+    int deleteUserRole(EcmpUserRole ecmpUserRole);
 }

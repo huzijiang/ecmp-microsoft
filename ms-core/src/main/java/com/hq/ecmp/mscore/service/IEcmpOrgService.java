@@ -231,7 +231,7 @@ public interface IEcmpOrgService
 
 
     //公司车队树
-    List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId);
+    List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId,Long parentId);
 
     /*公司树*/
     public List<CompanyTreeVO> getCompanyTree(Long deptId);
@@ -245,4 +245,12 @@ public interface IEcmpOrgService
      * @return
      */
     List<Long> queryDeptIdOfCompany(Long deptId);
+
+    /**
+     * 公司车队树升级版
+     * @param deptId
+     * @param parentId
+     * @return
+     */
+    List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId);
 }

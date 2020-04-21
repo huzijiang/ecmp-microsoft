@@ -187,6 +187,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              <if test="licenseIssueDate != null ">license_issue_date,</if>
             <if test="licenseExpireDate != null ">license_expire_date,</if>
             <if test="state != null ">state,</if>
+            <if test="lockState != null ">lock_state,</if>
             <if test="userId != null ">user_id,</if>
             <if test="optUserId != null ">create_by,</if>
             create_time
@@ -203,6 +204,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
               <if test="licenseIssueDate != null ">#{licenseIssueDate},</if>
               <if test="licenseExpireDate != null ">#{licenseExpireDate},</if>
               <if test="state != null ">#{state},</if>
+              <if test="lockState != null ">#{lockState},</if>
               <if test="userId != null ">#{userId},</if>
               <if test="optUserId != null ">#{optUserId},</if>
           	NOW()
@@ -294,11 +296,17 @@ SELECT
 	a.mobile AS mobile,
 	c.car_group_name AS carGroupName,
 	c.car_group_id AS carGroupId,
-d.job_number as jobNumber
+d.job_number as jobNumber,
+o.dept_name subName,
+o.dept_id subId,
+p.dept_name company,
+p.dept_Id companyId
 FROM
 	driver_info a
 LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
 LEFT JOIN car_group_info c ON c.car_group_id = b.car_group_id
+LEFT JOIN ecmp_org o ON c.owner_company = o.dept_id
+LEFT JOIN ecmp_org p ON p.dept_id = o.parent_id
 LEFT JOIN ecmp_user d on a.user_id =d.user_id
 WHERE
 	a.driver_id = #{driverId}
@@ -338,8 +346,8 @@ WHERE
         update driver_info  set lock_state = '1111' where driver_id = #{driverId}
     </update>
 
-    <select id="getDriverCanCar" parameterType="long" resultType="com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO">
-        select a.car_type as carType,a.car_license as carLicense,
+    <select id="getDriverCanCar" resultType="com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO">
+        select  a.car_id as carId,a.car_type as carType,a.car_license as carLicense,
         case a.power_type
         when 'P001' then '汽油'
         when 'P002' then '柴油'
@@ -362,7 +370,13 @@ WHERE
         from car_info a
         left join ecmp_org b on b.dept_id = a.dept_id
         left join car_group_info c on c.car_group_id = a.car_group_id
-
+        where a.car_id in (select d.car_id from driver_car_relation_info d where d.driver_id=#{driverId})
+        <if test="state != null and state != ''" >
+            and a.state = #{state}
+        </if>
+        <if test="search != null and search != '' ">
+            and a.car_license like concat('%', #{search}, '%')
+        </if>
     </select>
     <select id="getDriverLoseList" resultType="com.hq.ecmp.mscore.dto.DriverLoseDTO">
         select a.driver_id as driverId,a.user_id as userId,a.driver_name as driverName,a.mobile as mobile,e.dept_name as deptName,c.car_group_name as carGroupName,
@@ -529,6 +543,11 @@ WHERE
 		LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
 		WHERE
 		b.car_group_id = #{carGroupId}
+		<if test="carId!=null">
+		and a.driver_id not in (
+			select driver_id from driver_car_relation_info where car_id=#{carId}
+		)
+        </if>
 		AND a.state = 'V000'
 	</select>
 	

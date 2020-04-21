@@ -123,8 +123,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="loginIp != null  and loginIp != ''">login_ip = #{loginIp},</if>
             <if test="loginDate != null ">login_date = #{loginDate},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
-            <if test="updateTime != null ">update_time = #{updateTime}</if>
-            <if test="stationCode != null ">station_code = #{stationCode}</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="stationCode != null ">station_code = #{stationCode},</if>
+            <if test="itIsDispatcher != null ">it_is_dispatcher = #{itIsDispatcher},</if>
         </trim>
         where user_id = #{userId}
     </update>
@@ -161,17 +162,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       and  user_id =#{userId}
     </update>
 
-
-
     <!--获取上级组织id中的员工姓名和电话、邮箱
     and  (nick_name like concat('%', #{nickNameOrPhone}, '%') or   phonenumber like concat('%', #{nickNameOrPhone}, '%'))
     -->
-    <select id="getEcmpUserNameAndPhone" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo">
+    <select id="getEcmpUserNameAndPhone" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" >
       SELECT
       user_id as userId,
       dept_id as deptId,
       nick_name as nickName,phonenumber from ecmp_user
-      where  status = 0 and del_flag = 0 and dept_id=#{deptId}
+      where  status = 0 and del_flag = 0 and dept_id in
+      (select dept_id from ecmp_org where parent_id= #{deptId})
+    </select>
+
+    <select id="getCompanyEcmpUserNameAndPhone" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" >
+      SELECT
+      user_id as userId,
+      dept_id as deptId,
+      nick_name as nickName,phonenumber from ecmp_user
+      where  status = 0 and del_flag = 0 and dept_id in
+      (select dept_id from ecmp_org where dept_id= #{deptId})
     </select>
 
     <!--按照姓名/工号/手机号模糊查询匹配userId-->
@@ -697,11 +706,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="queryUserListByDeptIdsAndName" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
 		select user_id as userId,nick_name as nickName,phonenumber as
 		phonenumber from ecmp_user
-		where (nick_name like concat('%', #{name}, '%') or phonenumber like concat('%', #{name}, '%')) and dept_id in
+		where 
+		 <if test="name != null  and name != ''"> (nick_name like concat('%', #{name}, '%') or phonenumber like concat('%', #{name}, '%')) and</if>
+		 dept_id in
 		<foreach collection="deptIds" open="(" close=")" separator=","
 			item="deptId">
 			#{deptId}
 		</foreach>
+		<if test="itIsDispatcher != null and itIsDispatcher!='' "> and it_is_dispatcher = #{itIsDispatcher}</if>
 	</select>
 
     <select id="selectEcmpUser" parameterType="com.hq.ecmp.mscore.vo.EcmpUserVo" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
@@ -721,4 +733,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateEcmpUserjobNumber" parameterType="com.hq.ecmp.mscore.domain.EcmpUser">
     update ecmp_user set job_number=#{jobNumber} where user_id=#{userId}
     </update>
+
+
+    <select id="getUsersByCompany" resultType="com.hq.ecmp.mscore.vo.ProjectUserVO">
+        select user_id userId,nick_name name,phonenumber,job_number jobNumber from ecmp_user
+        where
+        status=0 and del_flag=0
+        <if test="orgComcany!=null">
+            and  dept_id in ( select  dept_id from ecmp_org where find_in_set(#{orgComcany},ancestors) or dept_id=#{orgComcany})
+        </if>
+        <if test="search!=null and search!=''">
+            and (nick_name like CONCAT('%',#{search},'%') or job_number like concat('%', #{search}, '%') or   phonenumber like concat('%', #{search}, '%'))
+        </if>
+    </select>
 </mapper>

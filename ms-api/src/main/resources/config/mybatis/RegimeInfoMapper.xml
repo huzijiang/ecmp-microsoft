@@ -48,17 +48,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="approveTemplateId != null "> and approve_template_id = #{approveTemplateId}</if>
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="allowCity != null  and allowCity != ''"> and allow_city = #{allowCity}</if>
-            <if test="setoutAddress != null  and setoutAddress != ''"> and setout_address = #{setoutAddress}</if>
-            <if test="arriveAddress != null  and arriveAddress != ''"> and arrive_address = #{arriveAddress}</if>
             <if test="allowDate != null  and allowDate != ''"> and allow_date = #{allowDate}</if>
             <if test="setoutEqualArrive != null  and setoutEqualArrive != ''"> and setout_equal_arrive = #{setoutEqualArrive}</if>
             <if test="serviceType != null  and serviceType != ''"> and service_type = #{serviceType}</if>
-            <if test="approvalProcess != null "> and approval_process = #{approvalProcess}</if>
-            <if test="projectNeed != null "> and project_need = #{projectNeed}</if>
-            <if test="canUseCarMode != null "> and can_use_car_mode = #{canUseCarMode}</if>
-            <if test="canUseCarLevel != null  and canUseCarLevel != ''"> and can_use_car_level = #{canUseCarLevel}</if>
-            <if test="allowDateRoundTravel != null "> and allow_date_round_travel = #{allowDateRoundTravel}</if>
-            <if test="allowCityRoundTravel != null  and allowCityRoundTravel != ''"> and allow_city_round_travel = #{allowCityRoundTravel}</if>
+            <if test="needApprovalProcess != null and needApprovalProcess !='' "> and need_approval_process = #{needApprovalProcess}</if>
+            <if test="canUseCarMode != null and canUseCarMode != '' "> and can_use_car_mode = #{canUseCarMode}</if>
+            <if test="useCarModeOwnerLevel != null  and useCarModeOwnerLevel != ''"> and use_car_mode_owner_level = #{useCarModeOwnerLevel}</if>
         </where>
     </select>
 
@@ -177,7 +172,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	LEFT JOIN scene_regime_relation b ON a.regimen_id = b.regimen_id
 	LEFT JOIN scene_info c ON b.scene_id = c.scene_id
 	WHERE
-	1=1
+    a.state !='N111'
 	<if test="null !=sceneId and sceneId !=''">
 		and c.scene_id = #{sceneId}
 	</if>
@@ -206,7 +201,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	LEFT JOIN scene_info c ON b.scene_id =
 	c.scene_id
 	WHERE
-	1=1
+	a.state !='N111'
 		<if test="null !=sceneId and sceneId !=''">
 		and c.scene_id = #{sceneId}
 	</if>
@@ -253,7 +248,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
 	    as_setout_equal_arrive AS asSetoutEqualArrive
         from regime_info
         where regimen_id = #{regimeId}
-
+        and state = 'Y000'
     </select>
 
 <insert id="insertRegime" parameterType="com.hq.ecmp.mscore.domain.RegimePo" useGeneratedKeys="true" keyProperty="regimenId">
@@ -283,7 +278,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
                    <if test="asAllowDateRound != null and asAllowDateRound !=''">as_allow_date_round,</if>
                    <if test="asSetoutEqualArrive != null and asSetoutEqualArrive !=''">as_setout_equal_arrive,</if>
             <if test="optId != null ">create_by,</if>
-            <if test="createTime != null ">create_time,</if>
+            create_time
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="templateId != null and templateId !=''">#{templateId},</if>
@@ -310,7 +305,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
               <if test="asAllowDateRound != null and asAllowDateRound !=''">#{asAllowDateRound},</if>
               <if test="asSetoutEqualArrive != null and asSetoutEqualArrive !=''">#{asSetoutEqualArrive},</if>
             <if test="optId != null ">#{optId},</if>
-            <if test="createTime != null ">now(),</if>
+            now()
          </trim>
 </insert>
 
@@ -387,7 +382,8 @@ SELECT
 	a.travel_use_car_mode_online_level AS travelUseCarModeOnlineLevel,
 	a.as_use_car_mode_owner_level AS asUseCarModeOwnerLevel,
 	a.as_use_car_mode_online_level AS asUseCarModeOnlineLevel,
-	a.regimen_type as regimenType
+	a.regimen_type as regimenType,
+	c.service_type as serviceType
 FROM
 	regime_info a
 LEFT JOIN journey_info b ON a.regimen_id = b.regimen_id
