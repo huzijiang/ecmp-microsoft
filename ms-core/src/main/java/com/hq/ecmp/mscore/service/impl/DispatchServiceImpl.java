@@ -119,7 +119,7 @@ public class DispatchServiceImpl implements IDispatchService {
         String userCarCity=orderAddressInfo.getCityPostalCode();
         String carModelLevelType=dispatchSelectCarDto.getCarModelLevelType();
 
-        int passengers=journeyPassengerInfoMapper.queryPeerCount(orderId)+1;
+        int passengers=journeyPassengerInfoMapper.queryPeerCount(orderInfo.getJourneyId())+2;
 
         SelectCarConditionBo    selectCarConditionBo=new SelectCarConditionBo();
                                 selectCarConditionBo.setCarLevel(carModelLevelType);
@@ -189,8 +189,7 @@ public class DispatchServiceImpl implements IDispatchService {
      * @return ApiResponse<DispatchResultVo>
      */
     @Override
-    public ApiResponse<DispatchResultVo> getWaitSelectedDrivers(DispatchSelectDriverDto dispatchSelectDriverDto) {
-        Long orderId=Long.parseLong(dispatchSelectDriverDto.getOrderNo());
+    public ApiResponse<DispatchResultVo> getWaitSelectedDrivers(DispatchSelectDriverDto dispatchSelectDriverDto) { Long orderId=Long.parseLong(dispatchSelectDriverDto.getOrderNo());
         LoginUser loginUser=new LoginUser();
         if(StringUtils.isNotEmpty(dispatchSelectDriverDto.getDispatcherId())){
             loginUser=tokenService.getLoginUser(dispatchSelectDriverDto.getDispatcherId());

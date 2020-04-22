@@ -292,7 +292,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and  car.state='S000'
             and  car.lock_state='0000'
             <if test="carTypeInfo != null  and carTypeInfo != '' ">     AND  car.car_type LIKE CONCAT('%',#{carTypeInfo},'%') </if>
-            <if test="passengers != null  and passengers != ''">    AND car.seat_num>#{passengers}</if>
+            <if test="passengers != null  and passengers != ''">    AND car.seat_num>=#{passengers}</if>
             <if test="carGroupId != null  and carGroupId != '' ">    AND cg.car_group_id=#{carGroupId}</if>
             <if test="carLevel != null  and carLevel != '' ">    AND ect.car_group_id=#{carLevel}</if>
         </where>
@@ -313,7 +313,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carTypeInfo != null  and carTypeInfo != '' ">     AND  car.car_type LIKE CONCAT('%',#{carTypeInfo},'%') </if>
             <if test="carLicense != null  and carLicense != '' ">     AND  car.car_license LIKE CONCAT('%',#{carLicense},'%') </if>
             <if test="carGroupId != null  and carGroupId != '' ">    AND cg.car_group_id=#{carGroupId}</if>
-            <if test="passengers != null  and passengers != ''">    AND car.seat_num>#{passengers}</if>
+            <if test="passengers != null  and passengers != ''">    AND car.seat_num>=#{passengers}</if>
             <if test="carLevel != null  and carLevel != '' ">    AND  ect.`level`=#{carLevel}</if>
         </where>
     </select>
