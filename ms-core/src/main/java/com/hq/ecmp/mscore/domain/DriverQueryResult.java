@@ -33,7 +33,7 @@ public class DriverQueryResult {
 
 	String itIsFullTime;// Z000 合同制 Z001 在编 Z002 外聘 Z003 借调
 	
-	String gender;//性别   1111-男 0000-女
+	String gender;//性别   1-男 0-女
 	
 	String idCard;//身份证号
 	

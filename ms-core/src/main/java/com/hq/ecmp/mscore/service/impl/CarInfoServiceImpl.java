@@ -490,13 +490,7 @@ public class CarInfoServiceImpl implements ICarInfoService
 					carGroupCarInfo.setCompanyName(company.getDeptName());
 				}
 			}
-			Long ownerOrg = carGroupInfo.getOwnerOrg();
-			if (null != ownerOrg) {
-				EcmpOrg dept = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
-				if (null != dept) {
-					carGroupCarInfo.setDeptName(dept.getDeptName());
-				}
-			}
+			carGroupCarInfo.setDeptName(carGroupInfo.getCarGroupName());
 		}
 		return carGroupCarInfo;
 	}

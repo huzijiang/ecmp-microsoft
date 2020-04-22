@@ -10,7 +10,7 @@ public class DriverCreateInfo {
 
 	    String driverName;//司机名字
 		String mobile;//电话号码
-		String gender;//性别   1111-男 0000-女
+		String gender;//性别   1-男 0-女
 
 		Long carGroupId;//车队
 
