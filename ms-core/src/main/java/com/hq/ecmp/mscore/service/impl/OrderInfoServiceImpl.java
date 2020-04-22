@@ -279,7 +279,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				if(!OrderStateTrace.APPLYREASSIGNMENT.getState().equals(orderStateTraceInfo.getState())){
 					continue;
 					}
+				result.add(dispatchOrderInfo);
 				}
+			
 			}
 		return result;
 	}
