@@ -19,6 +19,7 @@ public class DriverOrderInfoVO {
     private Long orderId;
     private Long journeyId;
     private Long userId;
+    private Long driverId;
     @ApiModelProperty(name = "userMobile",value = "乘客电话")
     private List<PassengerInfoVO> passengerInfoVOS;
     @ApiModelProperty(name = "serviceType",value = "1000预约 2001接机 2002送机 3000包车")
