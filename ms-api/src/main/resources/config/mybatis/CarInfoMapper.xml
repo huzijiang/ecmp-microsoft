@@ -243,13 +243,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 select dhi.longitude ,
                         dhi.latitude,
                         ecti.`level`,
-                        c.car_type,
-                        c.car_color,
-                        c.car_license,
+                        c.car_type as carType,
+                        c.car_color as carColor,
+                        c.car_license as carLicense,
                         o.state,
-                        o.order_id,
-                        o.driver_name,
-                        o.driver_mobile
+                        o.order_id as orderId,
+                        o.driver_name as driverName,
+                        o.driver_mobile as driverMobile
                 from car_info c
                 left  join order_info o on o.car_id=c.car_id
                 left  join
@@ -262,7 +262,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 left join car_group_info cgi on cgi.car_group_id=c.car_group_id
                 <where>
                     o.state in(
-                    'S299','S500','S600','S616'
+                    'S500','S600','S616'
                     )
                     <if test="carLevel != null and carLevel != ''">   and ecti.`level`= #{carLevel}</if>
                     <if test="carLicense != null and carLicense != ''">   and c.car_license like CONCAT('%',#{carLicense},'%')</if>

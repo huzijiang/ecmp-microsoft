@@ -103,4 +103,10 @@ public interface OrderStateTraceInfoMapper
     
     
     public OrderStateTraceInfo queryRecentlyDispatchInfo(Long orderId);
+
+    /**
+     * 获取需要确认行程的数据
+     * @return
+     */
+    public List<OrderStateTraceInfo> getExpiredConfirmOrder();
 }

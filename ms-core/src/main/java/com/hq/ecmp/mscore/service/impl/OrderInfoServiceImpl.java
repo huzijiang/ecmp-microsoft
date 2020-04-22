@@ -279,7 +279,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				if(!OrderStateTrace.APPLYREASSIGNMENT.getState().equals(orderStateTraceInfo.getState())){
 					continue;
 					}
+				result.add(dispatchOrderInfo);
 				}
+			
 			}
 		return result;
 	}
@@ -2203,5 +2205,23 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
     }
 
-
+    /**
+     * 过12小时自动确认行程
+     */
+    @Override
+    public void confirmOrderJourneyAuto() {
+        List<OrderStateTraceInfo> expiredConfirmOrder = orderStateTraceInfoMapper.getExpiredConfirmOrder();
+        if(expiredConfirmOrder!=null && expiredConfirmOrder.size()>0){
+            for (OrderStateTraceInfo orderStateTraceInfo:
+            expiredConfirmOrder) {
+                this.insertOrderStateTrace(String.valueOf(orderStateTraceInfo.getOrderId()), OrderStateTrace.ORDERCLOSE.getState(), "1", "超时自动确认");
+                OrderInfo orderInfo = new OrderInfo();
+                orderInfo.setOrderId(orderStateTraceInfo.getOrderId());
+                orderInfo.setState(OrderState.ORDERCLOSE.getState());
+                orderInfo.setUpdateBy("1");
+                orderInfo.setUpdateTime(DateUtils.getNowDate());
+                orderInfoMapper.updateOrderInfo(orderInfo);
+            }
+        }
+    }
 }

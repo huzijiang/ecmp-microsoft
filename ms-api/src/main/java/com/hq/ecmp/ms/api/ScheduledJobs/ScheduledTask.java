@@ -82,13 +82,18 @@ public class ScheduledTask {
     }
 
 	/**
-	 * 每五分钟判断订单是否过期s
+	 * 每五分钟判断订单（自有车或者未派车的订单）是否过期,约车中状态不做判断，由云端回调过期来处理
 	 */
 	@Scheduled(cron = "0 0/5 * * * ? ")
     public void checkOrderIsExpired(){
-        System.out.println("定时任务:checkOrderIsExpired:校验订单是否过期开始"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-        orderInfoService.checkOrderIsExpired();
-		System.out.println("定时任务:checkOrderIsExpired:校验订单是否过期结束"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+        log.info("定时任务:checkOrderIsExpired:校验订单是否过期开始,{}",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			orderInfoService.checkOrderIsExpired();
+		} catch (Exception e) {
+			log.error("校验订单是否过期定时任务执行异常");
+			e.printStackTrace();
+		}
+		log.info("定时任务:checkOrderIsExpired:校验订单是否过期结束,{}", DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 	}
 
 	/**
@@ -226,4 +231,20 @@ public class ScheduledTask {
 		}
 		log.info("定时任务:SchedulingTimingTask:通过云端获取的时间修改本地cloud_work_date_info假期EndTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 	}*/
+
+	/**
+	 * 过12小时，自动确认行程,目前是一小时，测试完成要改成12小时
+	 */
+	@Scheduled(cron = "0 0 0/1 * * ? ")
+	public void confirmOrderJourneyAuto(){
+		log.info("定时任务:confirmOrderJourneyAuto:自动确认行程开始,时间{}", DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			orderInfoService.confirmOrderJourneyAuto();
+		} catch (Exception e) {
+			log.error("自动确认行程定时任务执行异常");
+			e.printStackTrace();
+		}
+		log.info("定时任务:confirmOrderJourneyAuto:自动确认行程结束,时间{}", DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
+
 }

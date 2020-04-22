@@ -253,6 +253,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             <if test="state != null  and state != ''"> and a.state = #{state}</if>
              <if test="orderTraceState != null  and orderTraceState != ''"> and f.state = #{orderTraceState}</if>
         </where>
+         GROUP BY a.order_id
     </select>
 
 
@@ -910,7 +911,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         select oi.* from  order_info oi
         left join order_address_info oai on oi.order_id=oai.order_id and oai.type='A000'
         where oai.action_time &lt; now()
-        and oi.state in('S000','S100','S101','S200');
+        and oi.state in('S000','S100','S101');
     </select>
 
     <select id="queryLatestOrderByPowerId" parameterType="java.lang.Long" resultType="string">
