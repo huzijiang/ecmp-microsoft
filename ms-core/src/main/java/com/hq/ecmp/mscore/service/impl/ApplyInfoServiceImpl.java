@@ -23,6 +23,7 @@ import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.GsonUtils;
 import com.hq.ecmp.util.RandomUtil;
+import com.hq.ecmp.util.SortListUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
@@ -1748,6 +1749,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         if (CollectionUtils.isEmpty(applyApproveResultInfos)){
             return result;
         }
+        SortListUtil.sort(applyApproveResultInfos,"approveNodeId",SortListUtil.ASC);
+        boolean ISHASEXPIREDSTATE=false;
         for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){
             String approveTime=null;
             String approveUserId = resultInfo.getApproveUserId();
@@ -1759,6 +1762,17 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 }
                 if (StringUtils.isNotBlank(resultInfo.getUpdateBy())){
                      approveUserId=resultInfo.getUpdateBy();
+                }
+            }
+            //撤销
+            if (ApproveStateEnum.CANCEL_APPROVE_STATE.getKey().equals(resultInfo.getState())){
+                break;
+            }
+            if (ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey().equals(resultInfo.getState())){
+                if (ISHASEXPIREDSTATE){
+                    break;
+                }else{
+                    ISHASEXPIREDSTATE=true;
                 }
             }
             list=new ArrayList<>();
@@ -1775,18 +1789,24 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             }
             result.add(new ApprovalListVO(applyInfo.getApplyNumber(),"审批人",list, approveTime));
         }
-        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(result)&&result.size()>1){
-            Collections.sort(result, new Comparator<ApprovalListVO>() {
-                @Override
-                public int compare(ApprovalListVO o1, ApprovalListVO o2) {
-                    int i = o1.getList().get(0).getApprovalNodeId().intValue()- o2.getList().get(0).getApprovalNodeId().intValue();
-                    if(i == 0){
-                        return o1.getList().get(0).getApprovalNodeId().intValue() - o2.getList().get(0).getApprovalNodeId().intValue();
-                    }
-                    return i;
-                }
-            });
+        if (ApplyStateConstant.CANCEL_APPLY.equals(applyInfo.getState())){
+            list=new ArrayList<>();
+            String undoTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,applyInfo.getUpdateTime());
+            list.add(new ApprovalInfoVO(Long.MAX_VALUE,applyUser,applyMobile,"撤销申请",ApproveStateEnum.CANCEL_APPROVE_STATE.getDesc()));
+            result.add(new ApprovalListVO(applyInfo.getApplyNumber(),"撤销人",list, undoTime));
         }
+//        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(result)&&result.size()>1){
+//            Collections.sort(result, new Comparator<ApprovalListVO>() {
+//                @Override
+//                public int compare(ApprovalListVO o1, ApprovalListVO o2) {
+//                    int i = o1.getList().get(0).getApprovalNodeId().intValue()- o2.getList().get(0).getApprovalNodeId().intValue();
+//                    if(i == 0){
+//                        return o1.getList().get(0).getApprovalNodeId().intValue() - o2.getList().get(0).getApprovalNodeId().intValue();
+//                    }
+//                    return i;
+//                }
+//            });
+//        }
         return result;
     }
 
@@ -1826,7 +1846,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             if (!CollectionUtils.isEmpty(applyInfos)){
                 for (ApplyInfo applyInfo:applyInfos){
                     this.updateApplyState(applyInfo.getApplyId(),ApplyStateConstant.EXPIRED_APPLY,ApproveStateEnum.EXPIRED_APPROVE_STATE.getKey(),1L);
-                    applyIds.append(applyInfo.getJourneyId());
+                    applyIds.append(applyInfo.getApplyId());
                 }
             }
             log.info(DateUtils.getMonthAndToday()+"申请单已过期的单号:"+applyIds);
