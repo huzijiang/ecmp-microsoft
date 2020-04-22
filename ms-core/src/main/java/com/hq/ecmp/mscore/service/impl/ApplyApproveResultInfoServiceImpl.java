@@ -281,10 +281,10 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                     resultInfo.setState(state);
                     switch (ApproveTypeEnum.format(info.getApproverType())) {
                         case  APPROVE_T001://部门负责人
-                            String deptUser=ecmpUserMapper.findDeptLeader(Long.parseLong(applyInfo.getCreateBy()));
+                            EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
+                            String deptUser=ecmpUserMapper.findDeptLeader(ecmpUser.getDeptId());
                             if (deptUser==null){
-                                EcmpUser user = ecmpUserMapper.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
-                                deptUser= this.getOrgByDeptId(user.getDeptId());
+                                deptUser= this.getOrgByDeptId(ecmpUser.getDeptId());
                             }
                             if (deptUser==null){
                                 log.error("用车制度:"+regimenId+"对应审批模板项目主管审批未设置主管");
