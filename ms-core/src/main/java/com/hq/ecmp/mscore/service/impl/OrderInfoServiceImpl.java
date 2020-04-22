@@ -400,7 +400,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             throw new Exception("当前登录人不是司机");
         }
         Long driverId = driverInfo.getDriverId();
-        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState()+","+OrderState.ORDERCLOSE.getState();
+        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()
+                +","+OrderState.INSERVICE.getState()+","+OrderState.ORDERCLOSE.getState()+","+OrderState.STOPSERVICE.getState();
         return orderInfoMapper.getDriverOrderListCount(driverId,states);
     }
 
@@ -595,6 +596,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void platCallTaxiParamValid(Long  orderId,String userId,String carLevel) throws Exception {
+        log.info("调用网约车接口入参：orderId:{},userId:{},Carlevel:{}",orderId,userId,carLevel);
         //使用汽车的方式，改为网约
         OrderInfo orderInfoUp = new OrderInfo();
         orderInfoUp.setUseCarMode(CarConstant.USR_CARD_MODE_NET);

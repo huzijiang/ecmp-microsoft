@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -578,5 +579,74 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			}		
 		}
 		return regimeLimitUseCarCityInfo;
+	}
+
+	@Override
+	public List<SceneRegimensVo> getUserScenesRegimes(Long userId) throws Exception{
+		//1.查询用户所有场景（排除没有关联制度的场景） 用户--制度--场景
+		List<SceneInfo> sceneInfos = sceneInfoService.selectAllSceneSort(userId);
+		if(CollectionUtils.isEmpty(sceneInfos)){
+			return null;
+		}
+		//2.查询场景下的所有制度
+		List<SceneRegimensVo> list = new ArrayList<>();
+		SceneRegimensVo sceneRegimensVo = null;
+		for (SceneInfo sceneInfo : sceneInfos) {
+			sceneRegimensVo = new SceneRegimensVo();
+			sceneRegimensVo.setIcon(sceneInfo.getIcon());
+			sceneRegimensVo.setSceneId(sceneInfo.getSceneId());
+			sceneRegimensVo.setSceneName(sceneInfo.getName());
+			//根据场景id查制度集合
+			List<Long> regimenIds = sceneRegimeRelationMapper.selectRegimenIdsBySceneId(sceneInfo.getSceneId());
+			List<RegimenVO> regimenVOList = regimenIds.stream().
+					map(id -> regimeInfoMapper.selectRegimenVOById(id)).filter(r -> r != null).collect(Collectors.toList());
+			sceneRegimensVo.setRegimenVOS(regimenVOList);
+			list.add(sceneRegimensVo);
+		}
+		return list;
+	}
+
+	/**
+	 * 校验用车制度是否过期
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void checkRegimenExpired() {
+		try {
+			//查询所有制度
+			List<RegimenVO> regimenVOS = regimeInfoMapper.selectAllRegimenVO();
+			StringBuilder regimeIds = new StringBuilder();
+			RegimeInfo regimeInfo = null;
+			for (RegimenVO regimenVO : regimenVOS) {
+				//过滤掉已经过期制度
+				String allowDate = regimenVO.getAllowDate();
+				if(allowDate != null && !"0-0".equals(allowDate)){
+					String allowEndDate = allowDate.split("-")[1];
+					DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
+					Date parse = dateFormat.parse(allowEndDate);
+					Date date = new Date();
+					if( date.getTime() > parse.getTime()){
+						Long regimenId = Long.valueOf(regimenVO.getRegimenId());
+						//如果制度已过期，则修改制度状态
+						regimeInfo = new RegimeInfo();
+						//N111已失效（无法再生效） Y000生效中 E000已停用（还能启用）
+						regimeInfo.setState("N111");
+						regimeInfo.setRegimenId(regimenId);
+						int i = regimeInfoMapper.updateExpiredRegimeInfo(regimeInfo);
+						//同时删除场景制度关系表信息
+						int n = sceneRegimeRelationMapper.deleteSceneRegimeRelationByRegimeId(regimenId);
+						//同时删除用户制度关系表信息
+						int k = userRegimeRelationInfoMapper.deleteUserRegimeRelationInfoByRegimeId(regimenId);
+						regimeIds.append(regimenVO.getRegimenId()+" ");
+					}
+				}
+			}
+			log.info(DateUtils.getMonthAndToday()+"已过期的制度id集合：{}",regimeIds);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info(DateUtils.getMonthAndToday()+"定时任务：checkRegimenExpired 校验过期制度异常");
+		}
+
+
 	}
 }

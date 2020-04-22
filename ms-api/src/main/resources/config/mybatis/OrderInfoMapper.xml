@@ -276,11 +276,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
 				where o.driver_id=#{driverId}
 				<if test="flag==1">
-                   and  (o.state="S299"  or  o.state='S500' or o.state="S600" or o.state="S616" )
+                   and  (o.state='S299'  or  o.state='S500' or o.state='S600' or o.state='S616' )
                     order by useCarTime  asc
                 </if>
                 <if test="flag==0">
-                    and  (o.state='S299' or  o.state='S500' or o.state='S600' or o.state='S616' or o.state='S900' )
+                    and  (o.state='S299' or  o.state='S500' or o.state='S600' or o.state='S616' or o.state='S699' or o.state='S900' )
                     order by o.state='S900' asc,o.state asc,
                     CASE WHEN o.state='S900' THEN o.update_time  END DESC,useCarTime asc
                 </if>

@@ -116,7 +116,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update regime_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="templateId != null ">template_id = #{templateId},</if>
-            <if test="sceneFlowId != null ">scene_flow_id = #{sceneFlowId},</if>
             <if test="name != null  and name != ''">name = #{name},</if>
             <if test="allowCity != null  and allowCity != ''">allow_city = #{allowCity},</if>
             <if test="ruleCity != null  and ruleCity != ''">rule_city = #{ruleCity},</if>
@@ -132,6 +131,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="canUseCarLevel != null  and canUseCarLevel != ''">can_use_car_level = #{canUseCarLevel},</if>
             <if test="allowDateRoundTravel != null ">allow_date_round_travel = #{allowDateRoundTravel},</if>
             <if test="allowCityRoundTravel != null  and allowCityRoundTravel != ''">allow_city_round_travel = #{allowCityRoundTravel},</if>
+            <if test="state != null ">state = #{state},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -341,7 +341,7 @@ WHERE
 
 <select id="queryUseCarModelByNoteId" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.RegimeInfo">
 	SELECT
-	a.can_use_car_mode as canUseCarMode,a.regimen_id as regimenId,a.regimen_type as regimenType
+	a.can_use_car_mode as canUseCarMode,a.regimen_id as regimenId,a.regimen_type as regimenType,a.as_allow_date_round as asAllowDateRound
 FROM
 	regime_info a
 LEFT JOIN journey_info b ON a.regimen_id = b.regimen_id
@@ -417,7 +417,10 @@ LIMIT 1
 	    as_use_car_mode_online_level AS asUseCarModeOnlineLevel,
 	    as_allow_date_round AS asAllowDateRound,
 	    as_setout_equal_arrive AS asSetoutEqualArrive
-        from regime_info
+        from regime_info where state = 'Y000'
 </select>
+    <delete id="updateExpiredRegimeInfo" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo">
+        update regime_info set state = #{state},update_time = now() where regimen_id = #{regimenId}
+    </delete>
 
 </mapper>
