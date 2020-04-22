@@ -109,4 +109,7 @@ public interface OrderStateTraceInfoMapper
      * @return
      */
     public List<OrderStateTraceInfo> getExpiredConfirmOrder();
+    
+    //查询发起改派申请的司机ID
+    public Long queryApplyReassignmentDriver(Long orderId);
 }
