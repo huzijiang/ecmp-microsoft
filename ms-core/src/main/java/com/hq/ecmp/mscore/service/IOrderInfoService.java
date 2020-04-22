@@ -297,5 +297,10 @@ public interface IOrderInfoService {
      * @param orderId
      */
     public void checkCreateReturnAuthority(Long orderId,Long optUserId)throws Exception;
+
+    /**
+     * 过12小时自动确认行程
+     */
+    void confirmOrderJourneyAuto();
 }
 

@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -189,8 +190,10 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderAddressInfoOld.setOrderId(orderId);
             orderAddressInfoOld.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
             List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfoOld);
-            OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
-            arriveOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
+            if(CollectionUtils.isNotEmpty(orderAddressInfos)){
+                OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
+                arriveOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
+            }
             OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
             orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
             orderAddressInfo.setOrderId(orderId);
