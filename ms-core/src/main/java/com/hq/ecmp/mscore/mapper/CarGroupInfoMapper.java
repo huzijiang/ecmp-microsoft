@@ -148,4 +148,11 @@ public interface CarGroupInfoMapper
      * @return
      */
     List<String> selectAllCarGroupNameByCompany(Long owneCompany);
+
+    /**
+     * 查询启用的公司所有车队
+     * @param carGroupInfo
+     * @return
+     */
+    List<CarGroupInfo> selectEnableCarGroupInfoList(CarGroupInfo carGroupInfo);
 }
