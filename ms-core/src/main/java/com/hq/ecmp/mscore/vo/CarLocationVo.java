@@ -35,4 +35,6 @@ public class CarLocationVo {
     private String driverMobile;
     @ApiModelProperty(value = "订单编号")
     private String orderNumber;
+    @ApiModelProperty(value = "车牌")
+    private String carLicense;
 }
