@@ -101,15 +101,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
    <select id="queryApplyReassignmentOrderInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.DispatchDriverInfo">
    SELECT
-	b.nick_name AS driverName,
-	b.phonenumber AS driverTel,
+	b.driver_name AS driverName,
+	b.mobile AS driverTel,
 	a.content AS reassignmentApplyReason,
 	a.state as state,
 	d.car_license AS carLicense,
 	d.car_type AS carType
 FROM
 	order_state_trace_info a
-LEFT JOIN ecmp_user b ON a.create_by = b.user_id
+LEFT JOIN driver_info b ON a.create_by = b.driver_id
 LEFT JOIN order_info c ON c.order_id = a.order_id
 LEFT JOIN car_info d ON d.car_id = c.car_id
 WHERE

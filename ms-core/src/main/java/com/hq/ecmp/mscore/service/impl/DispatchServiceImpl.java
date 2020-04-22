@@ -524,11 +524,9 @@ public class DispatchServiceImpl implements IDispatchService {
         for (CarGroupServeScopeInfo carGroupServeScopeInfo:carGroupServiceScopesApiResponse.getData()) {
             List<DriverInfo> adrivers;
             selectDriverConditionBo.setCarGroupId(carGroupServeScopeInfo.getCarGroupId());
-            if(StringUtils.isEmpty(selectDriverConditionBo.getCarId())){
-                adrivers=driverInfoMapper.dispatcherSelectDriver(selectDriverConditionBo);
-            }else{
-                adrivers=driverInfoMapper.dispatcherSelectDriverUseDriverNameOrPhone(selectDriverConditionBo);
-            }
+
+            adrivers=driverInfoMapper.dispatcherSelectDriverUseDriverNameOrPhone(selectDriverConditionBo);
+
             drivers.addAll(adrivers);
         }
 
