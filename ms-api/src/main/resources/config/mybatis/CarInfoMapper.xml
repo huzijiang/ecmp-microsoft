@@ -247,6 +247,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                         c.car_color as carColor,
                         c.car_license as carLicense,
                         o.state,
+                        o.order_number as orderNumber,
                         o.order_id as orderId,
                         o.driver_name as driverName,
                         o.driver_mobile as driverMobile
