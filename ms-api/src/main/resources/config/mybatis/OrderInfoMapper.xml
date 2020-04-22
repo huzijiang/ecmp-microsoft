@@ -259,37 +259,49 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
 
     <select id="getDriverOrderList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">
-        	select
-					 o.order_id orderId,
-					 o.state,
-					 if (o.state='S900','已完成','未完成') stateType,
-					 o.service_type serviceType,
-					 o.flight_number flightNumber,
-					 jn.it_is_return itIsReturn,
-					 jn.charter_car_type charterCarType,
-                    s.action_time useCarTime,
-                    s.address startAddr,
-                    t.address endAddr,
-                    (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
-				from order_info o
-				left join journey_info jn on o.journey_id=jn.journey_id
-                left join order_address_info s on  s.order_id=o.order_id and s.type='A000'
-                left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
-				where o.driver_id=#{driverId}
-				<if test="flag==1">
-                   and  (o.state='S299'  or  o.state='S500' or o.state='S600' or o.state='S616' )
-                    order by useCarTime  asc
-                </if>
-                <if test="flag==0">
-                    and  (o.state='S299' or  o.state='S500' or o.state='S600' or o.state='S616' or o.state='S699' or o.state='S900' )
-                    order by o.state='S900' asc,o.state asc,
-                    CASE WHEN o.state='S900' THEN o.update_time  END DESC,useCarTime asc
-                </if>
+        select
+            o.order_id orderId,
+            o.state,
+            if (o.state='S900','已完成','未完成') stateType,
+            o.service_type serviceType,
+            o.flight_number flightNumber,
+            jn.it_is_return itIsReturn,
+            jn.charter_car_type charterCarType,
+            s.action_time useCarTime,
+            s.address startAddr,
+            t.address endAddr,
+            IF (
+            o.driver_id =#{driverId},
+            ( SELECT state FROM order_state_trace_info sti WHERE sti.order_id = o.order_id ORDER BY trace_id DESC LIMIT 1 ),
+            'S279'
+            ) labelState,
+            o.driver_id  driverId
+        from order_info o
+        left join journey_info jn on o.journey_id=jn.journey_id
+        left join order_address_info s on s.order_id=o.order_id and s.type='A000'
+        left join order_address_info t on t.order_id=o.order_id and t.type='A999'
+        where (o.driver_id=#{driverId} OR
+                 o.order_id IN ( SELECT order_id FROM order_state_trace_info st WHERE st.create_by =#{driverId} AND st.state = 'S270'
+        ))
+        <if test="flag==1">
+            and (o.state='S299' or o.state='S500' or o.state='S600' or o.state='S616' )
+            order by useCarTime asc
+        </if>
+        <if test="flag==0">
+            and (o.state='S299' or o.state='S500' or o.state='S600' or o.state='S616' or o.state='S699' or
+            o.state='S900' )
+            ORDER BY
+            o.state = 'S900' asc, labelState = 'S279' asc,
+            CASE WHEN  (o.state = 'S900' or  labelState = 'S279')  THEN o.update_time END DESC,
+            useCarTime ASC
+        </if>
     </select>
 
     <select id="getDriverOrderListCount" resultType="int">
         select count(*) from order_info
-        where driver_id=#{driverId} and find_in_set(state,#{states})
+        where (driver_id=#{driverId} OR
+                 order_id IN ( SELECT order_id FROM order_state_trace_info st WHERE st.create_by =#{driverId} AND st.state = 'S270'
+        )) and find_in_set(state,#{states})
     </select>
 
     <select id="selectOrderDetail" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.DriverOrderInfoVO">
@@ -297,6 +309,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              o.order_id orderId,
              o.journey_id journeyId,
              o.state,
+             o.driver_id driverId,
              o.service_type serviceType,
              jn.flight_number flightNumber,
              jn.it_is_return itIsReturn,
