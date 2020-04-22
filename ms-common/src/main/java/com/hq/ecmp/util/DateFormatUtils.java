@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -91,6 +92,28 @@ public class DateFormatUtils {
         }
         Long startDay=Long.parseLong(formatDate(DATE_FORMAT_2,start));
         Long endDay=Long.parseLong(formatDate(DATE_FORMAT_2,end));
+        try {
+            if (startDay.longValue()>endDay.longValue()){
+                return -1;
+            }else if(startDay.longValue()<endDay.longValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return 0;
+        }
+    }
+
+    //比较两个时间的大小
+    public static int compareTime(String start, String end) {
+        if (StringUtils.isBlank(start)||StringUtils.isBlank(end)){
+            return 0;
+        }
+        Long startDay=parseDate(TIME_FORMAT,start).getTime();
+        Long endDay=parseDate(TIME_FORMAT,end).getTime();
         try {
             if (startDay.longValue()>endDay.longValue()){
                 return -1;
@@ -253,6 +276,39 @@ public class DateFormatUtils {
 		long interval = diff / 60 / 1000;
 		return interval < minute;
 	}
+	
+	public static Long getDateToWaitInterval(Date date){
+		Date currentDate = new Date();
+		long diff = currentDate.getTime() - date.getTime();
+		long interval = diff / 60 / 1000;
+		return Long.valueOf(interval);
+	}
+
+	public static String getWeek(){
+        String week = "";
+            Date today = new Date();
+            Calendar c = Calendar.getInstance();
+            c.setTime(today);
+            int weekday = c.get(7);
+            if (weekday == 1) {
+                week = "0";
+            } else if (weekday == 2) {
+                week = "1";
+            } else if (weekday == 3) {
+                week = "2";
+            } else if (weekday == 4) {
+                week = "3";
+            } else if (weekday == 5) {
+                week ="4";
+            } else if (weekday == 6) {
+                week ="5";
+            } else if (weekday == 7) {
+                week = "6";
+            }
+            return week;
+	}
+
+
 
      public  static void main(String[] args){
          Date date = parseDate(DATE_TIME_FORMAT, "2020-04-10 22:22:22");

@@ -102,6 +102,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
             Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
             //司机姓名
             String driverName =  orderCommonInfo.get("driverName");
+            //司机手机号
+            String driverMobile =orderCommonInfo.get("driverMobile");
             //乘车人
             String riderMobile = orderCommonInfo.get("riderMobile");
             //乘车人姓名
@@ -148,6 +150,15 @@ public class SmsBusinessImpl implements IsmsBusiness{
                 }
             }else{//乘车人和申请人是一个人
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_SUCC_RIDER_ENTER,paramsMap,riderMobile );
+            }
+            
+            //司机手机号不为空  则给司机发送短信
+            if(StringUtil.isNotEmpty(driverMobile)){
+            	 Map<String,String> driverMap = new HashMap<>();
+            	 driverMap.put("orderNum", orderNum);
+            	 driverMap.put("useCarTime", useCarTime);
+            	 driverMap.put("riderName", riderName);
+            	 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_SUCC_DRIVER, driverMap, driverMobile);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -327,6 +338,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
                 paramsMap.put("riderMobile", riderMobile);
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.DRIVER_COMPLETESERVICE_APPLICANT,paramsMap,applyMobile);
             }
+            ecmpMessageMapper.updateByCategoryId(orderId,MsgStatusConstant.MESSAGE_STATUS_T001.getType(),null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -552,6 +564,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             }else{
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.DRIVER_COMPLETE_NOT_CONFIRM_RIDER,null,applyMobile);
             }
+            ecmpMessageMapper.updateByCategoryId(orderId,MsgStatusConstant.MESSAGE_STATUS_T001.getType(),null);
         } catch (Exception e) {
             e.printStackTrace();
         }

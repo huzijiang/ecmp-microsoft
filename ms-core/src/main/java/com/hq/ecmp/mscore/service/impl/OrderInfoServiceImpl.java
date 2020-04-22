@@ -274,12 +274,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				if(iOrderAddressInfoService.checkOrderOverTime(dispatchOrderInfo.getOrderId())){
 					continue;
 				}
-				result.add(dispatchOrderInfo);
+				//去除最新订单流转状态不是S270 申请改派的
+				OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.getLatestInfoByOrderId(dispatchOrderInfo.getOrderId());
+				if(!OrderStateTrace.APPLYREASSIGNMENT.getState().equals(orderStateTraceInfo.getState())){
+					continue;
+					}
+				}
 			}
-		}
 		return result;
 	}
-    
+
 	@Override
 	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
 		List<DispatchOrderInfo> result = queryAllWaitDispatchList();
@@ -290,7 +294,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		if(result.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : result) {
 				//计算该订单的等待时长 分钟
-				
+				if(null !=dispatchOrderInfo.getCreateTime()){
+					dispatchOrderInfo.setWaitMinute(DateFormatUtils.getDateToWaitInterval(dispatchOrderInfo.getCreateTime()));
+				}
 				//查询订单对应的上车地点时间,下车地点时间
 				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 				//查询订单对应制度的可用用车方式
@@ -357,7 +363,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 					continue;
 				}
 				result.add(dispatchOrderInfo);
-				
+
 			}
 		}
 		return result;
@@ -394,7 +400,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             throw new Exception("当前登录人不是司机");
         }
         Long driverId = driverInfo.getDriverId();
-        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()+","+OrderState.INSERVICE.getState()+","+OrderState.ORDERCLOSE.getState();
+        String states=OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState()+","+OrderState.READYSERVICE.getState()
+                +","+OrderState.INSERVICE.getState()+","+OrderState.ORDERCLOSE.getState()+","+OrderState.STOPSERVICE.getState();
         return orderInfoMapper.getDriverOrderListCount(driverId,states);
     }
 
@@ -425,6 +432,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public ApiResponse<DispatchOrderInfo> doWaitDispatchOrderDetailInfo(Long orderId) {
         ApiResponse apiResponse = new ApiResponse();
 		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.getWaitDispatchOrderDetailInfo(orderId);
+		//计算等待时长 分钟
+		if(null !=dispatchOrderInfo.getCreateTime()){
+			dispatchOrderInfo.setWaitMinute(DateFormatUtils.getDateToWaitInterval(dispatchOrderInfo.getCreateTime()));
+		}
 		dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
 		//查询订单对应的上车地点时间,下车地点时间
 		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
@@ -445,7 +456,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Override
 	public DispatchOrderInfo getCompleteDispatchOrderDetailInfo(Long orderId) {
 		DispatchOrderInfo dispatchOrderInfo = orderInfoMapper.queryCompleteDispatchOrderDetail(orderId);
-		//对应前端状态都为已处理-S299 
+		//对应前端状态都为已处理-S299
 		dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
 		//查询订单对应的上车地点时间,下车地点时间
 		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
@@ -585,6 +596,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void platCallTaxiParamValid(Long  orderId,String userId,String carLevel) throws Exception {
+        log.info("调用网约车接口入参：orderId:{},userId:{},Carlevel:{}",orderId,userId,carLevel);
         //使用汽车的方式，改为网约
         OrderInfo orderInfoUp = new OrderInfo();
         orderInfoUp.setUseCarMode(CarConstant.USR_CARD_MODE_NET);
@@ -842,7 +854,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		DispatchLockCarDto dispatchLockCarDto = new DispatchLockCarDto();
 		dispatchLockCarDto.setCarId(carId.toString());
 		dispatchService.unlockSelectedCar(dispatchLockCarDto);
-		//释放司机 
+		//释放司机
 		DispatchLockDriverDto dispatchLockDriverDto = new DispatchLockDriverDto();
 		dispatchLockDriverDto.setDriverId(driverId.toString());
 		dispatchService.unlockSelectedDriver(dispatchLockDriverDto);
@@ -1129,8 +1141,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
         //订单管理需要的状态 已取消  S911    已完成 S900  待确认 S699     服务中S616  待上车 S600   接驾中 S500  待服务 S299
-        PageHelper.startPage(orderListBackDto.getPageNum(),orderListBackDto.getPageSize());
         List<OrderListBackDto> list = orderInfoMapper.getOrderListBackDto(orderListBackDto);
+        if(orderListBackDto.getOrderState()!=null && orderListBackDto.getLabelState()!=null) {
+            List<OrderListBackDto> list1 = list.stream().filter(e -> orderListBackDto.getOrderState().contains(e.getOrderState())).collect(Collectors.toList());
+            String labelState = orderListBackDto.getLabelState();
+            List<OrderListBackDto> list2 = list1.stream().filter(e -> !labelState.contains(e.getLabelState())).collect(Collectors.toList());
+            PageInfo<OrderListBackDto> info = new PageInfo<>(list2);
+            return new PageResult<>(info.getTotal(),info.getPages(),list2);
+        }else if(orderListBackDto.getLabelState()!=null){
+            List<OrderListBackDto> list1 = list.stream().filter(e -> orderListBackDto.getLabelState().contains(e.getLabelState())).collect(Collectors.toList());
+            PageInfo<OrderListBackDto> info = new PageInfo<>(list1);
+            return new PageResult<>(info.getTotal(),info.getPages(),list1);
+        }
         PageInfo<OrderListBackDto> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
@@ -1370,6 +1392,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<ApplyDispatchVo> applyDispatchVoList = orderInfoMapper.queryApplyDispatchList(query);
 		if(null !=applyDispatchVoList && applyDispatchVoList.size()>0){
 			for (ApplyDispatchVo applyDispatchVo : applyDispatchVoList) {
+				//预计等待时长 转化为分钟
+				String waitTimeLong = applyDispatchVo.getWaitTimeLong();
+				if(StringUtil.isNotEmpty(waitTimeLong)){
+					Integer waitTime=Integer.valueOf(waitTimeLong);
+					applyDispatchVo.setWaitTime(Long.valueOf(waitTime/(1000*60)));
+				}
+
 				Long orderId = applyDispatchVo.getOrderId();
 				Long journeyId = applyDispatchVo.getJourneyId();
                 //查询乘车人
@@ -1387,8 +1416,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		}
 		return applyDispatchVoList;
 	}
-	
-	
+
+
 
 	@Override
 	public Integer queryApplyDispatchListCount(ApplyDispatchQuery query) {
@@ -1400,6 +1429,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<ApplyDispatchVo> reassignmentDispatchList = orderInfoMapper.queryReassignmentDispatchList(query);
 		if(null !=reassignmentDispatchList && reassignmentDispatchList.size()>0){
 			for (ApplyDispatchVo applyDispatchVo : reassignmentDispatchList) {
+				//预计等待时长 转化为分钟
+				String waitTimeLong = applyDispatchVo.getWaitTimeLong();
+				if(StringUtil.isNotEmpty(waitTimeLong)){
+					Integer waitTime=Integer.valueOf(waitTimeLong);
+					applyDispatchVo.setWaitTime(Long.valueOf(waitTime/(1000*60)));
+				}
 				Long orderId = applyDispatchVo.getOrderId();
 				Long journeyId = applyDispatchVo.getJourneyId();
             //查询乘车人
@@ -1479,17 +1514,19 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 throw new Exception("获取轨迹失败");
             }
             String data = jsonObject.getString("data");
-            List<OrderTraceDto> resultList = JSONObject.parseArray(data, OrderTraceDto.class);
-            if(resultList.size()>0){
-                for (OrderTraceDto orderTraceDto:
-                resultList) {
-                    OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();
-                    orderHistoryTraceDto.setOrderId(orderId+"");
-                    orderHistoryTraceDto.setLongitude(orderTraceDto.getX());
-                    orderHistoryTraceDto.setLatitude(orderTraceDto.getY());
-                    Date date = new Date(Long.parseLong(orderTraceDto.getPt()));
-                    orderHistoryTraceDto.setCreateTime(date);
-                    orderHistoryTraceDtos.add(orderHistoryTraceDto);
+            if(data!=null){
+                List<OrderTraceDto> resultList = JSONObject.parseArray(data, OrderTraceDto.class);
+                if(resultList.size()>0){
+                    for (OrderTraceDto orderTraceDto:
+                            resultList) {
+                        OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();
+                        orderHistoryTraceDto.setOrderId(orderId+"");
+                        orderHistoryTraceDto.setLongitude(orderTraceDto.getX());
+                        orderHistoryTraceDto.setLatitude(orderTraceDto.getY());
+                        Date date = new Date(Long.parseLong(orderTraceDto.getPt()));
+                        orderHistoryTraceDto.setCreateTime(date);
+                        orderHistoryTraceDtos.add(orderHistoryTraceDto);
+                    }
                 }
             }
         }else{
@@ -1498,7 +1535,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderHistoryTraceDtos;
     }
 
-	
+
     @Override
 	public OrderCostDetailVO getOrderCost(Long orderId){
         OrderCostDetailVO result=new OrderCostDetailVO();
@@ -1808,7 +1845,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 					}
 				}
 			}
-			
+
 		}
 		return dispatchSendCarPageInfo;
 	}
@@ -2067,7 +2104,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
     }
-    
+
     @Override
     @Transactional(propagation=Propagation.REQUIRED)
 	public void checkCreateReturnAuthority(Long orderId,Long optUserId) throws Exception {
@@ -2165,4 +2202,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
         }
     }
+
+
 }

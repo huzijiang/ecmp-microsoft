@@ -4,23 +4,30 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.mscore.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.MsgConstant;
+import com.hq.ecmp.constant.MsgStatusConstant;
+import com.hq.ecmp.constant.MsgTypeConstant;
+import com.hq.ecmp.constant.MsgUserConstant;
+import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
+import com.hq.ecmp.mscore.domain.EcmpMessage;
+import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.domain.ReassignInfo;
 import com.hq.ecmp.mscore.domain.SendCarInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.mapper.EcmpMessageMapper;
+import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
+import com.hq.ecmp.mscore.vo.UserVO;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -35,6 +42,10 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Autowired
     private IDriverInfoService iDriverInfoService;
+	@Autowired
+	private EcmpMessageMapper ecmpMessageMapper;
+	@Autowired
+	private EcmpUserMapper ecmpUserMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -175,7 +186,42 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 		orderStateTraceInfo.setCreateTime(new Date());
 		orderStateTraceInfo.setContent(applyReason);
 		orderStateTraceInfo.setState(OrderStateTrace.APPLYREASSIGNMENT.getState());
-		return orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo)>0;
+		int num= orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+		//插入改派通知
+		if(num>0){
+			EcmpMessage ecmpMessage = new EcmpMessage();
+			//司机
+			ecmpMessage.setConfigType(MsgUserConstant.MESSAGE_USER_DRIVER.getType());
+			//消息类型
+			ecmpMessage.setType(MsgTypeConstant.MESSAGE_TYPE_T001.getType());
+			//消息状态
+			ecmpMessage.setStatus(MsgStatusConstant.MESSAGE_STATUS_T002.getType());
+			//内容
+			ecmpMessage.setContent("您有一条任务被改派，请及时查看！");
+			//消息类别
+			ecmpMessage.setCategory(MsgConstant.MESSAGE_T004.getType());
+			//对应的消息业务id
+			ecmpMessage.setCategoryId(orderId);
+			//创建人
+			ecmpMessage.setCreateBy(userId);
+			//创建时间
+			ecmpMessage.setCreateTime(DateUtils.getNowDate());
+			//查询系统里所有的调度员
+			EcmpUser queryEcmpUser = new EcmpUser();
+			queryEcmpUser.setItIsDispatcher("1");
+			List<EcmpUser> ecmpUserList = ecmpUserMapper.selectEcmpUserList(queryEcmpUser);
+			if(null !=ecmpUserList && ecmpUserList.size()>0){
+				for (EcmpUser ecmpUser : ecmpUserList) {
+					Long dispatcherId = ecmpUser.getUserId();
+					//用户类型Id
+					ecmpMessage.setEcmpId(dispatcherId);
+					ecmpMessageMapper.insert(ecmpMessage);
+				}
+			}
+			
+			
+		}
+		return true;
 	}
 
 	@Override
