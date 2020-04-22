@@ -5,9 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.hq.ecmp.constant.ApplyTypeEnum;
-import com.hq.ecmp.constant.OrderConstant;
-import com.hq.ecmp.constant.OrderServiceType;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
@@ -22,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.vo.RegimenVO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -179,7 +176,9 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 				ApproveTemplateNodeInfo approveTemplateNodeInfo = approveTemplateNodeInfoMapper.selectFirstOpproveNode(regimeId);
 				if (ObjectUtils.isNotEmpty(approveTemplateNodeInfo)) {
 					String approverType = approveTemplateNodeInfo.getApproverType();
-					regimenVO.setFirstOpproveNodeTypeIsProjectLeader(approverType == "T004" ? true : false);
+					regimenVO.setFirstOpproveNodeTypeIsProjectLeader(ApproveTypeEnum.APPROVE_T004.getKey().equals(approverType) ? true : false);
+				}else{
+					regimenVO.setFirstOpproveNodeTypeIsProjectLeader(false);
 				}
 				regimeInfoList.add(regimenVO);
 			}
