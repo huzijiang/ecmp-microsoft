@@ -119,4 +119,6 @@ public interface RegimeInfoMapper
      * @return
      */
     int updateExpiredRegimeInfo(RegimeInfo regimeInfo);
+
+    List<Long> selectEnableRegimenIdByUserId(Long userId);
 }

@@ -422,5 +422,11 @@ LIMIT 1
     <delete id="updateExpiredRegimeInfo" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo">
         update regime_info set state = #{state},update_time = now() where regimen_id = #{regimenId}
     </delete>
+    <select id="selectEnableRegimenIdByUserId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        select r.regimen_id
+        from regime_info r
+        left join user_regime_relation_info u on u.regimen_id = r.regimen_id
+        where u.user_id = #{userId} and r.state = 'Y000'
+    </select>
 
 </mapper>
