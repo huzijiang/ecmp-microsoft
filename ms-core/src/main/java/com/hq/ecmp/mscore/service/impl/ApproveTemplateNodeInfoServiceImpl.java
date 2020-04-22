@@ -162,10 +162,10 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
             approveTemplateInfoMapper.updateApproveTemplateInfo(approveTemplateInfo);
         }
         List<ApproveTemplateNodeInfo> approveTemplateNodeInfos = approveTemplateNodeInfoMapper.selectApproveTemplateNodeInfoList(new ApproveTemplateNodeInfo(addFolwDTO.getApproveTemplateId()));
-        if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos))
+        if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos)) {
             approveTemplateNodeInfoMapper.deleteByTemplateId(addFolwDTO.getApproveTemplateId());
-            log.info(addFolwDTO.getApproveTemplateId()+"审批模板节点删除成功!");
-
+            log.info(addFolwDTO.getApproveTemplateId() + "审批模板节点删除成功!");
+        }
         List<FolwInfoDTO> flowList = addFolwDTO.getFlowList();
         //TODO 修改逻辑有缺失
         this.addTemeplateNode(flowList,addFolwDTO.getApproveTemplateId(),userId);
