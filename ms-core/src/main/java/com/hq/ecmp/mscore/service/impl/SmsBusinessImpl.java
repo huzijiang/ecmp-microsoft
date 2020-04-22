@@ -1,24 +1,50 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
 import com.github.pagehelper.util.StringUtil;
 import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.sms.service.ISmsTemplateInfoService;
-import com.hq.ecmp.constant.*;
-import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.mapper.*;
-import com.hq.ecmp.mscore.service.EcmpMessageService;
+import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.MessageTemplateConstant;
+import com.hq.ecmp.constant.MsgConstant;
+import com.hq.ecmp.constant.MsgStatusConstant;
+import com.hq.ecmp.constant.MsgTypeConstant;
+import com.hq.ecmp.constant.MsgUserConstant;
+import com.hq.ecmp.constant.OrderConstant;
+import com.hq.ecmp.constant.SmsTemplateConstant;
+import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
+import com.hq.ecmp.mscore.domain.CarGroupInfo;
+import com.hq.ecmp.mscore.domain.CarInfo;
+import com.hq.ecmp.mscore.domain.EcmpMessage;
+import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import com.hq.ecmp.mscore.domain.OrderAddressInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.mapper.CarGroupDispatcherInfoMapper;
+import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
+import com.hq.ecmp.mscore.mapper.CarInfoMapper;
+import com.hq.ecmp.mscore.mapper.EcmpMessageMapper;
+import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
+import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyPassengerInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderAddressInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IsmsBusiness;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @ClassName SmsBusinessImpl
@@ -51,6 +77,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
     private CarGroupInfoMapper carGroupInfoMapper;
     @Resource
     private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
+    @Resource
+    private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
 
 
 
@@ -669,6 +697,14 @@ public class SmsBusinessImpl implements IsmsBusiness{
                             MsgConstant.MESSAGE_T004.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
                             orderId,createId,"您有一个行程发生改派变更，请及时查看！");
                 }
+            }
+            //查询该订单的发起改派申请的司机
+            Long applyReassignmentDriverId = orderStateTraceInfoMapper.queryApplyReassignmentDriver(orderId);
+            if(null !=applyReassignmentDriverId){
+            	//给发起改派申请的司机发送消息通知  改派成功了
+            	 sendMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),applyReassignmentDriverId,
+                         MsgConstant.MESSAGE_T004.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                         orderId,createId,"你提交的改派申请已经通过,请及时查看");
             }
         } catch (Exception e) {
             e.printStackTrace();

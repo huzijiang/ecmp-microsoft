@@ -82,7 +82,7 @@ public class ScheduledTask {
     }
 
 	/**
-	 * 每五分钟判断订单是否过期s
+	 * 每五分钟判断订单（自有车或者未派车的订单）是否过期,约车中状态不做判断，由云端回调过期来处理
 	 */
 	@Scheduled(cron = "0 0/5 * * * ? ")
     public void checkOrderIsExpired(){

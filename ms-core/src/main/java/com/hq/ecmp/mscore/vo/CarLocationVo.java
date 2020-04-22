@@ -27,10 +27,14 @@ public class CarLocationVo {
     private String carColor;
     @ApiModelProperty(value = "服务状态（订单状态）")
     private String state;
-    @ApiModelProperty(value = "订单编号")
+    @ApiModelProperty(value = "订单id")
     private String orderId;
     @ApiModelProperty(value = "司机姓名")
     private String driverName;
     @ApiModelProperty(value = "司机手机号")
     private String driverMobile;
+    @ApiModelProperty(value = "订单编号")
+    private String orderNumber;
+    @ApiModelProperty(value = "车牌")
+    private String carLicense;
 }
