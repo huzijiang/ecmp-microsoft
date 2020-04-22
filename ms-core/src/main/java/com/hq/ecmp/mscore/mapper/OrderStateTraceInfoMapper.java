@@ -108,5 +108,8 @@ public interface OrderStateTraceInfoMapper
      * 获取需要确认行程的数据
      * @return
      */
-    public List<OrderStateTraceInfo> getExpiredConfirmOrder();
+    public List<OrderStateTraceInfo> getExpiredConfirmOrder(@Param("timeout") int timeout);
+    
+    //查询发起改派申请的司机ID
+    public Long queryApplyReassignmentDriver(Long orderId);
 }
