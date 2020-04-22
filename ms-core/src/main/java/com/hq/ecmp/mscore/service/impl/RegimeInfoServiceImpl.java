@@ -149,7 +149,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
     @Override
     public List<RegimenVO> findRegimeInfoListByUserId(Long userId, Long sceneId) throws Exception{
         //根据userId查询有效的regimeId集合
-        List<Long> regimeIds = userRegimeRelationInfoMapper.selectIdsByUserId(userId);
+		List<Long> regimeIds = regimeInfoMapper.selectEnableRegimenIdByUserId(userId);
         //如果有制度条件限制,则进行条件筛选
         if(sceneId != null){
             //根据sceneId查询制度id集合
