@@ -105,6 +105,10 @@ dispatch:
   #回车队驻地缓冲时间: 90分钟
   backCarGroup: 90
 
+#调度行程确认的时间间隔
+schedule:
+  confirmTimeout: 1
+
 #/upload
 app:
   zimg:

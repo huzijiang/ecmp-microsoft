@@ -300,7 +300,8 @@ public interface IOrderInfoService {
 
     /**
      * 过12小时自动确认行程
+     * @param timeout 超时时间
      */
-    void confirmOrderJourneyAuto();
+    void confirmOrderJourneyAuto(int timeout);
 }
 
