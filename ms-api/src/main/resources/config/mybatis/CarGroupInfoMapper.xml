@@ -176,7 +176,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectValidCarGroupListByCity" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
         select car_group_id as carGroupId,car_group_name as carGroupName, telephone
          from car_group_info
-         where city = #{cityCode}
+         where city = #{cityCode} and state = 'Y000'
     </select>
     <select id="selectCarGroupPhones" resultType="com.hq.ecmp.mscore.vo.CarGroupFixedPhoneVO" parameterType="long">
             select car_group_name as carGroupName, telephone as phone
@@ -185,7 +185,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <foreach collection="list" item="groupId" index="index" open="(" close=")" separator=",">
             #{groupId}
         </foreach>
-         and state != 'S444'
+         and state = 'Y000'
     </select>
 
     <select id="selectCarGroupsByDriverId" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo" parameterType="long">
@@ -222,5 +222,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAllCarGroupNameByCompany" resultType="java.lang.String">
         select distinct car_group_name from car_group_info where owner_company = #{owneCompany} and state != 'S444'
     </select>
+    <select id="selectEnableCarGroupInfoList" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo" resultMap="CarGroupInfoResult">
+        <include refid="selectCarGroupInfoVo"/>
+        <where>
+            state = 'Y000'
+            <if test="city != null "> and city = #{city}</if>
+            <if test="ownerOrg != null "> and owner_org = #{ownerOrg}</if>
+            <if test="leader != null "> and leader = #{leader}</if>
+            <if test="ownerCompany != null "> and owner_company = #{ownerCompany}</if>
+        </where>
+    </select>
+
 
 </mapper>

@@ -926,7 +926,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         Long nodeIdNoReturn = 0L;
         Long nodeIdIsReturn = 0L;
 
-
         if(size == 0){
             journeyNodeInfo = new JourneyNodeInfo();
             //设置行程节点信息表
