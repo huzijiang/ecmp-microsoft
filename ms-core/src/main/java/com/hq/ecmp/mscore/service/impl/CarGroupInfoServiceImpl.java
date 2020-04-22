@@ -9,6 +9,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.hq.api.system.domain.SysDriver;
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
@@ -334,6 +335,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
         carGroupDispatcherInfo.setCarGroupId(carGroupId);
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
+        if(CollectionUtils.isEmpty(carGroupDispatcherInfos)){
+            //没有调度员 则返回空
+            return null;
+        }
         //调度员id集合
         List<Long> list = carGroupDispatcherInfos.stream().map(CarGroupDispatcherInfo::getUserId).collect(Collectors.toList());
         //2.查询调度员 姓名、电话
@@ -709,29 +714,48 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      */
     @Override
     public List<CarGroupPhoneVO> getCarGroupPhone(String cityCode) {
-        //查询城市所有车队
+        //查询城市所有车队(只查启用的)
         List<CarGroupInfo> list = carGroupInfoMapper.selectValidCarGroupListByCity(cityCode);
         List<CarGroupPhoneVO> carGroupPhoneVOS = new ArrayList<>();
         CarGroupPhoneVO carGroupPhoneVO = null;
         if(CollectionUtils.isEmpty(list)){
             //如果城市内没有车队，则查询公司所有车队调度员及车队座机
-            Long loginUserId = getLoginUserId();
-            //1. 查询员工所在部门
-            EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(loginUserId);
-            Long deptId = ecmpUser.getDeptId();
-            //查询员工所在公司
-            EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
-            //只要查询出来的部门type不为1（不为公司类型），则向上查询
-            while (!"1".equals(ecmpOrg.getDeptType())){
-                ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpOrg.getParentId());
-                if(ecmpOrg == null || ecmpOrg.getParentId()  == null){
-                    break;
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            SysUser loginSysUser = loginUser.getUser();
+            Long ownerCompany = null;
+            if(loginSysUser != null){
+                //如果登陆用户是公司员工
+                Long loginUserId = loginUserId = loginSysUser.getUserId();
+                // 查询员工所在部门
+                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(loginUserId);
+                Long deptId = ecmpUser.getDeptId();
+                //查询员工所在公司
+                EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
+                //只要查询出来的部门type不为1（不为公司类型），则向上查询
+                while (!"1".equals(ecmpOrg.getDeptType())){
+                    ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpOrg.getParentId());
+                    if(ecmpOrg == null || ecmpOrg.getParentId()  == null){
+                        break;
+                    }
                 }
+                ownerCompany = ecmpOrg.getDeptId();
+            }else {
+                //如果登录用户不是公司员工， 那么就是司机(司机可能不是公司员工) 则查询司机所在车队
+                Long driverId = loginUser.getDriver().getDriverId();
+                CarGroupDriverRelation carGroupDriverRelation = carGroupDriverRelationMapper.selectCarGroupDriverRelationById(driverId);
+                //查询车队所在公司
+                ownerCompany = carGroupInfoMapper.selectCarGroupInfoById(carGroupDriverRelation.getCarGroupId()).getOwnerCompany();
             }
             CarGroupInfo carGroupInfo = new CarGroupInfo();
-            carGroupInfo.setOwnerCompany(ecmpOrg.getDeptId());
-            List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectCarGroupInfoList(carGroupInfo);
-            //查询车队
+            carGroupInfo.setOwnerCompany(ownerCompany);
+            //查询公司所有车队（只查启用的）
+            List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectEnableCarGroupInfoList(carGroupInfo);
+            if(CollectionUtils.isEmpty(carGroupInfos)){
+                //如果整个（分子)公司都没有车队，返回空
+                return null;
+            }
+            //查询车队及调度员电话
             getCarGroupsPhones(carGroupInfos,carGroupPhoneVOS);
             return carGroupPhoneVOS;
         }
@@ -777,14 +801,16 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      */
     @Override
     public DispatcherAndFixedLineVO getDispatcherAndFixedLine(Long orderId) {
-        //根据订单id查询调度员的userId
+        //根据订单id查询调度员的userId(调度员是有)
         String userId  = orderStateTraceInfoMapper.selectDispatcherUserId(orderId);
        //查询调度员信息
         UserVO userVO = ecmpUserMapper.selectUserVoById(Long.valueOf(userId));
         //查询调度员所在车队及车队座机
         CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
         carGroupDispatcherInfo.setUserId(Long.valueOf(userId));
+        //调度员车队关系表查询（一个调度员可能管理多个车队）
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
+       //获取车队id集合
         List<Long> groupIds = carGroupDispatcherInfos.stream().map(CarGroupDispatcherInfo::getCarGroupId).collect(Collectors.toList());
         //查询车队电话
         List<CarGroupFixedPhoneVO> groupPhones = carGroupInfoMapper.selectCarGroupPhones(groupIds);

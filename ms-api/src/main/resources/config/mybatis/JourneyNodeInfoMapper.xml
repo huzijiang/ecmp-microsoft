@@ -209,6 +209,7 @@ ORDER BY
 		a.plan_end_address AS planEndAddress,
 		a.plan_setout_time AS planSetoutTime,
 		a.node_id as nodeId,
+		a.journey_id as journeyId,
 		a.plan_arrive_time as planArriveTime
 		FROM
 		journey_node_info a

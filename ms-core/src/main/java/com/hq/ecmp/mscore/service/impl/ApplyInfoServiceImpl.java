@@ -926,7 +926,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         Long nodeIdNoReturn = 0L;
         Long nodeIdIsReturn = 0L;
 
-
         if(size == 0){
             journeyNodeInfo = new JourneyNodeInfo();
             //设置行程节点信息表
@@ -1745,34 +1744,35 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //TODO 后期优化
         list.add(new ApprovalInfoVO(0L,applyUser,applyMobile,"发起申请","申请成功"));
         result.add(new ApprovalListVO(applyInfo.getApplyNumber(),"申请人",list, DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,time)));
-        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(applyApproveResultInfos)){
-            for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){
-                String approveTime=null;
-                String approveUserId = resultInfo.getApproveUserId();
-                String appresult = resultInfo.getApproveResult();
-                String state = resultInfo.getState();
-                if (ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(resultInfo.getState())){
-                    if (resultInfo.getUpdateTime()!=null){
-                        approveTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,resultInfo.getUpdateTime());
-                    }
-                    if (StringUtils.isNotBlank(resultInfo.getUpdateBy())){
-                         approveUserId=resultInfo.getUpdateBy();
-                    }
+        if (CollectionUtils.isEmpty(applyApproveResultInfos)){
+            return result;
+        }
+        for (ApplyApproveResultInfo resultInfo:applyApproveResultInfos){
+            String approveTime=null;
+            String approveUserId = resultInfo.getApproveUserId();
+            String appresult = resultInfo.getApproveResult();
+            String state = resultInfo.getState();
+            if (ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey().equals(resultInfo.getState())){
+                if (resultInfo.getUpdateTime()!=null){
+                    approveTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,resultInfo.getUpdateTime());
                 }
-                list=new ArrayList<>();
-                if (StringUtils.isNotBlank(approveUserId)){
-                    List<EcmpUser> userList=ecmpUserMapper.selectUserListByUserIds(approveUserId);
-                    if (org.apache.commons.collections.CollectionUtils.isNotEmpty(userList)) {
-                        for (EcmpUser user:userList){
-                            ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO(resultInfo.getApproveNodeId(), user.getNickName(), user.getPhonenumber(), ApproveStateEnum.format(appresult), ApproveStateEnum.format(state));
-                            approvalInfoVO.setContent(resultInfo.getContent());
-                            approvalInfoVO.setUserId(user.getUserId());
-                            list.add(approvalInfoVO);
-                        }
-                    }
+                if (StringUtils.isNotBlank(resultInfo.getUpdateBy())){
+                     approveUserId=resultInfo.getUpdateBy();
                 }
-                result.add(new ApprovalListVO(applyInfo.getApplyNumber(),"审批人",list, approveTime));
             }
+            list=new ArrayList<>();
+            if (StringUtils.isNotBlank(approveUserId)){
+                List<EcmpUser> userList=ecmpUserMapper.selectUserListByUserIds(approveUserId);
+                if (org.apache.commons.collections.CollectionUtils.isNotEmpty(userList)) {
+                    for (EcmpUser user:userList){
+                        ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO(resultInfo.getApproveNodeId(), user.getNickName(), user.getPhonenumber(), ApproveStateEnum.format(appresult), ApproveStateEnum.format(state));
+                        approvalInfoVO.setContent(resultInfo.getContent());
+                        approvalInfoVO.setUserId(user.getUserId());
+                        list.add(approvalInfoVO);
+                    }
+                }
+            }
+            result.add(new ApprovalListVO(applyInfo.getApplyNumber(),"审批人",list, approveTime));
         }
         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(result)&&result.size()>1){
             Collections.sort(result, new Comparator<ApprovalListVO>() {
