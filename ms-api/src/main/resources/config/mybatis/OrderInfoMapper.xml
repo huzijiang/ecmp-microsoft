@@ -597,7 +597,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         s.order_id orderId,
         s.order_number orderNumber,
         eu.nick_name applyName,
-        eu.phonenumber phoneNumber,
+        eu.phonenumber applyPhoneNumber,
         eo.dept_name deptName,
         ri.name regimenName,
         jpi.name passengerName,

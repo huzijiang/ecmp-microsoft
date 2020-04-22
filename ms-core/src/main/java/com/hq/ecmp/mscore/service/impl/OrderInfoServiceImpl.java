@@ -596,6 +596,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void platCallTaxiParamValid(Long  orderId,String userId,String carLevel) throws Exception {
+        log.info("调用网约车接口入参：orderId:{},userId:{},Carlevel:{}",orderId,userId,carLevel);
         //使用汽车的方式，改为网约
         OrderInfo orderInfoUp = new OrderInfo();
         orderInfoUp.setUseCarMode(CarConstant.USR_CARD_MODE_NET);

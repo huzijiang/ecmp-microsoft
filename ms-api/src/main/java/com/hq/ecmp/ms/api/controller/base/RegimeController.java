@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.hq.ecmp.mscore.dto.RegimenDTO;
 import com.hq.ecmp.mscore.vo.RegimenVO;
+import com.hq.ecmp.mscore.vo.SceneRegimensVo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +39,7 @@ import io.swagger.annotations.ApiOperation;
  * @Author: zj.hu
  * @Date: 2019-12-31 11:59
  */
+@Slf4j
 @RestController
 @RequestMapping("/regime")
 public class RegimeController {
@@ -73,6 +76,33 @@ public class RegimeController {
             return ApiResponse.success(regimeInfoList);
         } catch (Exception e) {
             e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+
+    /**
+     * 根据用户信息查询用户的用车制度信息（可添加场景id条件筛选）
+     * @param
+     * @return ApiResponse<List<RegimeInfo>> 用车制度信息列表
+     */
+    @Log(title = "用车制度",content = "查询登录用户场景与制度", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getUserScenesRegimes",notes = "根据用户信息查询用户的用车场景与制度信息",httpMethod ="POST")
+    @PostMapping("/getUserScenesRegimes")
+    public ApiResponse<List<SceneRegimensVo>> getUserScenesRegimes(){
+        //查询登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        if(userId == null){
+            return ApiResponse.error("该用户不是公司员工");
+        }
+        try {
+            //根据用户id查询用车制度
+            List<SceneRegimensVo> list = regimeInfoService.getUserScenesRegimes(userId);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            log.error("查询用户场景与制度列表失败，登录用户：{}",userId,e);
             return ApiResponse.error(e.getMessage());
         }
     }
