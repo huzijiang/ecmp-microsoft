@@ -253,6 +253,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             <if test="state != null  and state != ''"> and a.state = #{state}</if>
              <if test="orderTraceState != null  and orderTraceState != ''"> and f.state = #{orderTraceState}</if>
         </where>
+         GROUP BY a.order_id
     </select>
 
 
