@@ -610,6 +610,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	 * 校验用车制度是否过期
 	 */
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void checkRegimenExpired() {
 		try {
 			//查询所有制度
@@ -625,12 +626,17 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 					Date parse = dateFormat.parse(allowEndDate);
 					Date date = new Date();
 					if( date.getTime() > parse.getTime()){
+						Long regimenId = Long.valueOf(regimenVO.getRegimenId());
 						//如果制度已过期，则修改制度状态
 						regimeInfo = new RegimeInfo();
 						//N111已失效（无法再生效） Y000生效中 E000已停用（还能启用）
 						regimeInfo.setState("N111");
-						regimeInfo.setRegimenId(Long.valueOf(regimenVO.getRegimenId()));
+						regimeInfo.setRegimenId(regimenId);
 						int i = regimeInfoMapper.updateExpiredRegimeInfo(regimeInfo);
+						//同时删除场景制度关系表信息
+						int n = sceneRegimeRelationMapper.deleteSceneRegimeRelationByRegimeId(regimenId);
+						//同时删除用户制度关系表信息
+						int k = userRegimeRelationInfoMapper.deleteUserRegimeRelationInfoByRegimeId(regimenId);
 						regimeIds.append(regimenVO.getRegimenId()+" ");
 					}
 				}
