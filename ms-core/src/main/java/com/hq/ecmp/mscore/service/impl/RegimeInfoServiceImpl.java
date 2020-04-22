@@ -580,6 +580,12 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		return regimeLimitUseCarCityInfo;
 	}
 
+	/**
+	 * 查询用户场景制度列表
+	 * @param userId
+	 * @return
+	 * @throws Exception
+	 */
 	@Override
 	public List<SceneRegimensVo> getUserScenesRegimes(Long userId) throws Exception{
 		//1.查询用户所有场景（排除没有关联制度的场景） 用户--制度--场景
@@ -597,6 +603,9 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			sceneRegimensVo.setSceneName(sceneInfo.getName());
 			//根据场景id查制度集合
 			List<Long> regimenIds = sceneRegimeRelationMapper.selectRegimenIdsBySceneId(sceneInfo.getSceneId());
+			//根据userId查询用户的有效的regimeId集合
+			List<Long> userRegimeIds = regimeInfoMapper.selectEnableRegimenIdByUserId(userId);
+			regimenIds.retainAll(userRegimeIds);
 			List<RegimenVO> regimenVOList = regimenIds.stream().
 					map(id -> regimeInfoMapper.selectRegimenVOById(id)).filter(r -> r != null).collect(Collectors.toList());
 			sceneRegimensVo.setRegimenVOS(regimenVOList);
