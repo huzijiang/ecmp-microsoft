@@ -196,16 +196,20 @@ public class CarGroupController {
     }
 
     /**
-     * 查询指定城市所有车队调度员及车队座机/城市没有车队则查询公司所有车队调度员及车队座机
+     * 查询指定城市所有车队调度员及车队座机
+     * 不传城市code 则会根据用户角色（司机/用户都行）查询所在（分子）公司所有车队调度员及车队座机
      * @param
      * @return
      */
     @Log(title = "车队管理",content = "获取城市车队联系电话", businessType = BusinessType.OTHER)
-    @ApiOperation(value = "getCarGroupPhone",notes = "查询车队联系电话",httpMethod ="POST")
+    @ApiOperation(value = "getCarGroupPhone",notes = "查询登录用户（司机/用户均可）所在公司所有车队联系电话(可传城市代码特定查某城市车队)",httpMethod ="POST")
     @PostMapping("/getCarGroupPhone")
-    public ApiResponse<List<CarGroupPhoneVO>> getCarGroupPhone(@RequestBody CarGroupPhoneDTO carGroupPhoneDTO){
+    public ApiResponse<List<CarGroupPhoneVO>> getCarGroupPhone(@RequestBody(required = false) CarGroupPhoneDTO carGroupPhoneDTO){
         List<CarGroupPhoneVO>  list = null;
         try {
+            if (carGroupPhoneDTO == null){
+                carGroupPhoneDTO = new CarGroupPhoneDTO();
+            }
             list = carGroupInfoService.getCarGroupPhone(carGroupPhoneDTO.getCityCode());
         } catch (Exception e) {
             e.printStackTrace();
