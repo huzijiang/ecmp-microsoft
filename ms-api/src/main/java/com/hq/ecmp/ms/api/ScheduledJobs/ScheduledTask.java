@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.hq.ecmp.mscore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +53,9 @@ public class ScheduledTask {
 
     @Autowired
     private IEcmpNoticeService iEcmpNoticeService;
+
+    @Value("${schedule.confirmTimeout}")
+    private int timeout;
 
 	//@Autowired
 	//private IDriverWorkInfoService driverWorkInfoService;
@@ -235,11 +239,11 @@ public class ScheduledTask {
 	/**
 	 * 过12小时，自动确认行程,目前是一小时，测试完成要改成12小时
 	 */
-	@Scheduled(cron = "0 0 0/1 * * ? ")
+	@Scheduled(cron = "0 0/20 * * * ? ")
 	public void confirmOrderJourneyAuto(){
 		log.info("定时任务:confirmOrderJourneyAuto:自动确认行程开始,时间{}", DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		try {
-			orderInfoService.confirmOrderJourneyAuto();
+			orderInfoService.confirmOrderJourneyAuto(timeout);
 		} catch (Exception e) {
 			log.error("自动确认行程定时任务执行异常");
 			e.printStackTrace();

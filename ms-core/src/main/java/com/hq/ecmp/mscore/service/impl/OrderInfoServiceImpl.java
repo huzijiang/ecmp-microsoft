@@ -1713,7 +1713,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
             orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
             //改派订单消息通知
-            ismsBusiness.sendMessageReassignSucc(Long.parseLong(orderNo),userId);
+//            ismsBusiness.sendMessageReassignSucc(Long.parseLong(orderNo),userId);
         } else if ("2".equals(status)) {
             OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
             orderStateTraceInfo.setCreateBy(String.valueOf(userId));
@@ -2209,8 +2209,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * 过12小时自动确认行程
      */
     @Override
-    public void confirmOrderJourneyAuto() {
-        List<OrderStateTraceInfo> expiredConfirmOrder = orderStateTraceInfoMapper.getExpiredConfirmOrder();
+    public void confirmOrderJourneyAuto(int timeout) {
+        List<OrderStateTraceInfo> expiredConfirmOrder = orderStateTraceInfoMapper.getExpiredConfirmOrder(timeout);
         if(expiredConfirmOrder!=null && expiredConfirmOrder.size()>0){
             for (OrderStateTraceInfo orderStateTraceInfo:
             expiredConfirmOrder) {
