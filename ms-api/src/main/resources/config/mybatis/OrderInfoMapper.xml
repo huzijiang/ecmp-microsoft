@@ -637,7 +637,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oai2.address endAddress,
         s.service_type serviceType,
         ji.charter_car_type,
-        ifnull(ecti.level,s.demand_car_level) carLevel,
+        ifnull(ecti.name,s.demand_car_level) carLevel,
         osi.total_mileage totalMileage,
         osi.total_time totalTime,
         osi.amount_detail amountDetail,
