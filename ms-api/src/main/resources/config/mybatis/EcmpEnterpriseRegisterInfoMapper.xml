@@ -237,7 +237,10 @@
        where a.state='S000' and a.type=#{type}
        <if test="deptId!=null and deptId gt 0">
            AND a.invitation_id in ( SELECT invitation_id from ecmp_enterprise_invitation_info where type=#{type} AND (department_id =#{deptId} OR enterprise_id =#{deptId}) )
-    </if>
+        </if>
+        <if test="carGroupId!=null and deptId gt 0">
+            AND car_group_id=#{carGroupId}
+        </if>
     </select>
     <!--待审核列表员工-->
     <select id="queryRegisterUserWait" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.RegisterUserVO">
