@@ -1,14 +1,15 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.ecmp.mscore.domain.EcmpConfig;
 import com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo;
+import com.hq.ecmp.mscore.dto.config.ConfigValueDTO;
+import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import com.hq.ecmp.mscore.service.IHomePageSortService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,6 +22,9 @@ public class HomePageSortController {
 
     @Autowired
     private IHomePageSortService homePageSortService;
+
+    @Autowired
+    private IEcmpConfigService ecmpConfigService;
 
     /**
      * 获取首页排序数据
@@ -50,5 +54,19 @@ public class HomePageSortController {
             e.printStackTrace();
             return ApiResponse.error("修改首页排序数据失败");
         }
+    }
+
+    @ApiOperation(value = "backgroundImage ", notes = "设置背景图片信息默认")
+    @PostMapping("/backgroundImage")
+    public ApiResponse backgroundImage(@RequestBody ConfigValueDTO configValueDTO,MultipartFile file) {
+        ApiResponse apiResponse =ecmpConfigService.setUpBackGroundImage(configValueDTO.getStatus(),configValueDTO.getValue(),file);
+        return apiResponse;
+    }
+
+    @ApiOperation(value = "screen ", notes = "设置开屏图片信息为null")
+    @PostMapping(value = "/screen", produces = "application/json;charset=UTF-8")
+    public ApiResponse screen(@RequestBody ConfigValueDTO configValueDTO,MultipartFile file) {
+        ecmpConfigService.setUpWelComeImage(configValueDTO.getStatus(),configValueDTO.getValue(),file);
+        return ApiResponse.success();
     }
 }
