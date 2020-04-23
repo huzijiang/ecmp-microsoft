@@ -122,3 +122,7 @@ app:
       url: https://service-image.hqzhixing.com/
   welcome: https://service-image.hqzhixing.com/7641d1dcf64d4d082e061d6e65f37a51
   background: https://service-image.hqzhixing.com/7641d1dcf64d4d082e061d6e65f37a51
+
+#调度行程确认的时间间隔
+schedule:
+  confirmTimeout: 1
