@@ -344,7 +344,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		if (null != endOrderAddressInfo) {
 			dispatchOrderInfo.setEndSite(endOrderAddressInfo.getAddress());
 			dispatchOrderInfo.setEndDate(endOrderAddressInfo.getActionTime());
-		}
+		}else{//如果是差旅则 从形成节点表去拿预计的结束时间
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(dispatchOrderInfo.getOrderId());
+            if(orderInfo.getServiceType().equals(ServiceTypeConstant.CHARTERED)){
+                JourneyNodeInfo journeyNodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
+                if(journeyNodeInfo != null){
+                    dispatchOrderInfo.setEndDate(journeyNodeInfo.getPlanArriveTime());
+                }
+            }
+        }
 
 	}
 
