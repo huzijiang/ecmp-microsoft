@@ -320,12 +320,15 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         员工拥有审批权限和查看自己单据权限的
         无法【删除】该员工！；*/
         //根据roleId查询dataScope
-        EcmpUserRole ecmpUserRole = ecmpUserRoleMapper.selectEcmpUserRoleById(userId);
-        if(ecmpUserRole!=null){
-            EcmpRole ecmpRole = ecmpRoleMapper.selectEcmpRoleById(ecmpUserRole.getRoleId());
-            String dataScope = ecmpRole.getDataScope();
-            if(RoleConstant.DATA_SCOPE_1.equals(dataScope)||dataScope.equals(RoleConstant.DATA_SCOPE_3)||dataScope.equals(RoleConstant.DATA_SCOPE_4)){
-                return "不可删除！";
+        EcmpUserRole ecmpUserRole=new EcmpUserRole(userId);
+        List<EcmpUserRole> ecmpUserRoleList = ecmpUserRoleMapper.selectEcmpUserRoleList(ecmpUserRole);
+        if(!CollectionUtils.isEmpty(ecmpUserRoleList)){
+            for(EcmpUserRole ecmpUserRole1 : ecmpUserRoleList) {
+                EcmpRole ecmpRole = ecmpRoleMapper.selectEcmpRoleById(ecmpUserRole1.getRoleId());
+                String roleKey = ecmpRole.getRoleKey();
+                if(RoleConstant.ADMIN.equals(roleKey)||RoleConstant.DEPT_MANAGER.equals(roleKey)||RoleConstant.PROJECT_MANAGER.equals(roleKey)){
+                    return "不可删除！";
+                }
             }
         }
         /*CarGroupDispatcherInfo carGroupDispatcherInfo=new CarGroupDispatcherInfo();
