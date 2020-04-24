@@ -238,7 +238,7 @@
        <if test="deptId!=null and deptId gt 0">
            AND a.invitation_id in ( SELECT invitation_id from ecmp_enterprise_invitation_info where type=#{type} AND (department_id =#{deptId} OR enterprise_id =#{deptId}) )
         </if>
-        <if test="carGroupId!=null and deptId gt 0">
+        <if test="carGroupId!=null and carGroupId gt 0">
             AND car_group_id=#{carGroupId}
         </if>
     </select>
