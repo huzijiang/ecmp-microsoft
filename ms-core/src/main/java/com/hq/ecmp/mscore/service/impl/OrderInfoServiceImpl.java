@@ -672,7 +672,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String applyType = applyInfo1.getApplyType();
         //如果是差旅用车，需要添加价格预算表
         if(applyType.equals(CarConstant.USE_CAR_TYPE_TRAVEL)){
-            if(carLevel == null || carLevel.equals("")){
+            if(carLevel == null || carLevel.equals("") || carLevel.equals("null")){
                 String groups = regimeInfoService.queryCarModeLevel(orderId, null);
                 if("".equals(groups)){
                     throw new Exception("调用网约车参数异常-》差旅用车，获取车型失败！");
@@ -711,17 +711,20 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 }
             }
         }else if(applyType.equals(CarConstant.USE_CAR_TYPE_OFFICIAL)){ //如果是公务用车，没传车型（不是取消后选车型的情况），校验车型价格表是否有数据
-            if(carLevel == null || carLevel.equals("")){
+            if(carLevel == null || carLevel.equals("") || carLevel.equals("null")){
                 String groups = regimeInfoService.queryCarModeLevel(orderId, null);
                 if("".equals(groups) || groups == null){
                     throw new Exception("调用网约车参数异常-》公务用车，获取车型失败！");
                 }
             }
+        }else{
+            throw new Exception("调用网约车参数异常-》申请单类型"+applyType+"错误！");
         }
         //校验车型价格表是否有数据
         JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
         journeyPlanPriceInfo.setJourneyId(orderInfo.getJourneyId());
         journeyPlanPriceInfo.setNodeId(orderInfo.getNodeId());
+        journeyPlanPriceInfo.setUseCarMode(CarConstant.USR_CARD_MODE_NET);
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos = iJourneyPlanPriceInfoService.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
         if(journeyPlanPriceInfos == null || journeyPlanPriceInfos.size()==0){
             throw new Exception("调用网约车参数异常-》车型价格表无可用数据，预估价获取失败！");
@@ -758,10 +761,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(userIdOrder);
             paramMap.put("riderName",ecmpUser.getUserName());
             paramMap.put("riderPhone",ecmpUser.getPhonenumber());
-            if(carLevel != null && !carLevel.equals("")){
+            if(carLevel != null && !carLevel.equals("") &&  !carLevel.equals("null")){
                 paramMap.put("groupIds",carLevel);
             }else{
                 String groups = regimeInfoService.queryCarModeLevel(orderId, null);
+                if(groups == null){
+                    throw new Exception("调用网约车下单前通过订单id"+orderId+"获取车型失败");
+                }
                 paramMap.put("groupIds",groups);
             }
             List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfo);
@@ -792,6 +798,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             List<JourneyPlanPriceInfo> journeyPlanPriceInfos = iJourneyPlanPriceInfoService.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
             if(journeyPlanPriceInfos.size()>0){
                 paramMap.put("estimatedAmount",journeyPlanPriceInfos.get(0).getPrice()+"");
+            }else{
+                throw new Exception("预估价获取失败");
             }
                 //发起约车
                 //订单类型,1:随叫随到;2:预约用车;3:接机;5:送机
