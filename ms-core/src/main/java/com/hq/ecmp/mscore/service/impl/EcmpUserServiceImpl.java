@@ -328,11 +328,11 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
                 return "不可删除！";
             }
         }
-        CarGroupDispatcherInfo carGroupDispatcherInfo=new CarGroupDispatcherInfo();
+        /*CarGroupDispatcherInfo carGroupDispatcherInfo=new CarGroupDispatcherInfo();
         carGroupDispatcherInfo.setUserId(userId);
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
         Long carGroupId = carGroupDispatcherInfos.get(0).getCarGroupId();
-        carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+        carGroupInfoMapper.selectCarGroupInfoById(carGroupId);*/
         int delFlag=ecmpUserMapper.updateDelFlagById(userId);
         if(delFlag==1){
             return "删除员工成功！";
