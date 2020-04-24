@@ -111,16 +111,18 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
     /**
      * 手机号是否已经申请注册
      */
+    @Override
     public  int itIsRegistration(String phoneNum,String state){
         return ecmpEnterpriseRegisterInfoMapper.itIsRegistration(phoneNum,state);
     }
 
     /**
-     * 待审批数量 员工/驾驶员
+     * 待审批数量 员工
      * @param
      */
+    @Override
     public int waitAmount(Long deptId,String type){
-        return ecmpEnterpriseRegisterInfoMapper.waitAmountCount(deptId,type);
+        return ecmpEnterpriseRegisterInfoMapper.waitAmountCount(deptId,type,null);
     }
 
     /**
@@ -160,6 +162,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
      * @param userRegisterDTO
      * @return
      */
+    @Override
     public int insertUserRegister(UserRegisterDTO userRegisterDTO){
         userRegisterDTO.setCreateTime(DateUtils.getNowDate());
         userRegisterDTO.setType("T001");
@@ -277,9 +280,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         registerInfo.setUpdateBy(String.valueOf(userId));
         registerInfo.setUpdateTime(new Date());
         registerInfo.setState(state);
-        if (InvitionStateEnum.APPROVEREJECT.getKey().equals(state)){
-            registerInfo.setRejectReason(reason);
-        }
+        registerInfo.setRejectReason(reason);
         int count = ecmpEnterpriseRegisterInfoMapper.update(registerInfo);
         log.info(registerId+"邀请注册被员工"+userId+"审核通过");
         if (InvitionStateEnum.APPROVEREJECT.getKey().equals(state)){
@@ -333,6 +334,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         }
         return count;
     }
+    @Override
     public RegisterDriverDetailVO queryDriverRegDetail(Long registerId){
         return ecmpEnterpriseRegisterInfoMapper.queryDriverRegDetail(registerId);
     }

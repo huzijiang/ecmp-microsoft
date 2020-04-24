@@ -92,7 +92,7 @@ public interface EcmpEnterpriseRegisterInfoMapper {
      * 待审批数量
      * @param
      */
-    public int waitAmountCount(@Param("deptId") Long deptId,@Param("type") String type);
+    public int waitAmountCount(@Param("deptId") Long deptId,@Param("type") String type,@Param("carGroupId") Long carGroupId);
     /**
      * 注册申请：拒绝/通过
      */
