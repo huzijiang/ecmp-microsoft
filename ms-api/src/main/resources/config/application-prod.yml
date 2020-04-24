@@ -6,16 +6,16 @@ spring:
     druid:
       # 主库数据源
       master:
-        url: jdbc:mysql://10.123.208.2:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
-        username: hqzc_online
-        password: HSXnO3k0EBbyFRxb
+        url: jdbc:mysql://10.117.1.221:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+        username: root
+        password: hqzc@2019
       # 从库数据源
       slave:
         # 从数据源开关/默认关闭
         enabled: false
-        url: jdbc:mysql://10.123.208.3:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
-        username: hqzc_online
-        password: HSXnO3k0EBbyFRxb
+        url: jdbc:mysql://10.117.1.222:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+        username: root
+        password: hqzc@2019
       # 初始连接数
       initialSize: 5
       # 最小连接池数量
@@ -43,8 +43,8 @@ spring:
         allow:
         url-pattern: /druid/*
         # 控制台管理用户名和密码
-        login-username:
-        login-password:
+        login-username: admin
+        login-password: admin123
       filter:
         stat:
           enabled: true
@@ -57,9 +57,13 @@ spring:
             multi-statement-allow: true
   redis:
     cluster:
-      nodes: 10.123.208.4:6379,10.123.208.5:6380,10.123.208.5:6379,10.123.208.13:6380,10.123.208.13:6379,10.123.208.4:6380
-      max-redirects: 5
-      timeout: 6000ms
+      nodes:
+        - 10.117.1.223:6379
+        - 10.117.1.223:6380
+        - 10.117.1.224:6379
+        - 10.117.1.224:6380
+        - 10.117.1.225:6379
+        - 10.117.1.225:6380
     jedis:
       pool:
         max-active: 1000
@@ -81,19 +85,6 @@ server:
     max-threads: 800
     # Tomcat启动初始化的线程数，默认值25
     min-spare-threads: 30
-
-file:
-  config:
-    savepath: d://
-  path:
-    feedback: /feedback
-  url:
-    feedback: https://app.hqzhixing.com
-
-#行程分享路径
-order:
-  shareUrl: https://app.hqzhixing.com?
-
 # token配置
 token:
   # 令牌自定义标识
@@ -103,26 +94,22 @@ token:
   # 令牌有效期（默认30分钟）
   expireTime: 30
 
-thirdService:
-  enterpriseId: 100000
-  licenseContent: AAAAAAAA
-  apiUrl: https://inside-serivce-enterprise.hqzhixing.com
-
-dispatch:
-  #不回车队驻地缓冲时间: 60分钟
-  notBackCarGroup: 60
-  #回车队驻地缓冲时间: 90分钟
-  backCarGroup: 90
-
 #/upload
 app:
   zimg:
-    server: https://inside-service-image.hqzhixing.com
+    server: http://10.117.1.232:4869
     access:
-      url: https://service-image.hqzhixing.com/
-  welcome: https://service-image.hqzhixing.com/7641d1dcf64d4d082e061d6e65f37a51
-  background: https://service-image.hqzhixing.com/7641d1dcf64d4d082e061d6e65f37a51
+      url: http://123.127.89.218:4869/
+  welcome: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
+  background: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
 
-#调度行程确认的时间间隔
-schedule:
-  confirmTimeout: 1
+#行程分享路径
+order:
+  shareUrl: https://www.baidu.com?
+file:
+  config:
+    savepath: d://
+  path:
+    feedback: /feedback
+  url:
+    feedback: http://10.117.1.231

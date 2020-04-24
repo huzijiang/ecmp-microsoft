@@ -3,11 +3,10 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.reflect.TypeToken;
-import com.google.gson.JsonObject;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CarModeEnum;
-import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.ConfigTypeEnum;
 import com.hq.ecmp.mscore.domain.EcmpConfig;
 import com.hq.ecmp.mscore.dto.config.*;
@@ -26,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Type;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.hq.ecmp.constant.CommonConstant.*;
@@ -205,7 +203,7 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.WELCOME_IMAGE_INFO.getConfigKey());
             if (SWITCH_OFF.equals(status)) {
-                value = defaultWelcome;
+                value = null;
             } else {
                 value = zimgService.uploadImage(file);
             }
@@ -226,7 +224,8 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public void setUpBackGroundImage(String status, String value, MultipartFile file) {
+    public ApiResponse setUpBackGroundImage(String status, String value, MultipartFile file) {
+        ApiResponse apiResponse = new ApiResponse();
         try {
             EcmpConfig backgroundInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BACKGROUND_IMAGE_INFO.getConfigKey()).build());
             //判断是否设置过，存在则更新设置
@@ -244,13 +243,16 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
                 baseConfig.setConfigType(ConfigTypeEnum.BACKGROUND_IMAGE_INFO.getConfigType());
                 baseConfig.setCreateTime(new Date());
                 ecmpConfigMapper.insertEcmpConfig(baseConfig);
+                apiResponse.setMsg(value);
             } else {
                 baseConfig.setUpdateTime(new Date());
                 ecmpConfigMapper.updateConfigByKey(baseConfig);
+                apiResponse.setMsg(value);
             }
         } catch (Exception e) {
             log.error("背景图片信息 {}", e);
         }
+        return apiResponse;
     }
 
     @Override

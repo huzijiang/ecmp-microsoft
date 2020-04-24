@@ -60,9 +60,9 @@ public class CompanyConfigController {
      */
     @ApiOperation(value = "backgroundImage ", notes = "设置背景图片信息")
     @PostMapping("/backgroundImage")
-    public ApiResponse backgroundImage(@RequestParam("file") MultipartFile file, String status, String value) {
-        ecmpConfigService.setUpBackGroundImage(status, value, file);
-        return ApiResponse.success();
+    public ApiResponse backgroundImage(MultipartFile file, String status, String value) {
+        ApiResponse apiResponse = ecmpConfigService.setUpBackGroundImage(status, value, file);
+        return apiResponse;
     }
 
     /**
