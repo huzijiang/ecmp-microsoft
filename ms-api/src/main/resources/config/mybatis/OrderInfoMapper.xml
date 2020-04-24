@@ -555,7 +555,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 实际下车地址
         oai2.address endAddress,
         -- 服务类型 1000预约  2001接机 2002送机 3000包车
-        ji.service_type serviceType,
+        s.service_type serviceType,
         -- 包车类型  T000  非包车 T001 半日租（4小时） T002 整日租（8小时）
         ji.charter_car_type  charterCarType,
         -- 用车时间
@@ -635,9 +635,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oai2.action_time endTime,
         oai.address beginAddress,
         oai2.address endAddress,
-        ji.service_type serviceType,
+        s.service_type serviceType,
         ji.charter_car_type,
-        ecti.level carLevel,
+        ifnull(ecti.name,s.demand_car_level) carLevel,
         osi.total_mileage totalMileage,
         osi.total_time totalTime,
         osi.amount_detail amountDetail,

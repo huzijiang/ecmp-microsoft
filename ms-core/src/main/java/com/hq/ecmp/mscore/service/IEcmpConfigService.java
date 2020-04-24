@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpConfig;
 import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
 import com.hq.ecmp.mscore.dto.config.EnterPriseBaseInfoDTO;
@@ -90,7 +91,7 @@ public interface IEcmpConfigService
      * @param value
      * @param file
      */
-    void setUpBackGroundImage(String status, String value, MultipartFile file);
+    ApiResponse setUpBackGroundImage(String status, String value, MultipartFile file);
 
     /**
      * 设置企业公告

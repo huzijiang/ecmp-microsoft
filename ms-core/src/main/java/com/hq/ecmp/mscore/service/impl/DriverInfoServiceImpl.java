@@ -5,8 +5,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import com.hq.ecmp.constant.CommonConstant;
+import com.hq.ecmp.constant.InvitionTypeEnum;
+import com.hq.ecmp.mscore.mapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -36,12 +40,6 @@ import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
 import com.hq.ecmp.mscore.dto.DriverCarDTO;
 import com.hq.ecmp.mscore.dto.DriverLoseDTO;
 import com.hq.ecmp.mscore.dto.DriverRegisterDTO;
-import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
-import com.hq.ecmp.mscore.mapper.DriverCarRelationInfoMapper;
-import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
-import com.hq.ecmp.mscore.mapper.DriverWorkInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
-import com.hq.ecmp.mscore.mapper.EcmpUserRoleMapper;
 import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
@@ -67,7 +65,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     private IEcmpUserService ecmpUserService;
     @Autowired
     private ICarGroupDriverRelationService carGroupDriverRelationService;
-    
+	@Resource
+	private EcmpEnterpriseRegisterInfoMapper ecmpEnterpriseRegisterInfoMapper;
     @Autowired
     private IDriverCarRelationInfoService driverCarRelationInfoService;
     @Autowired
@@ -470,12 +469,13 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			}
 		}
 		//查询待审核驾驶员人数
+//		driverQuery.setState("W001");
+//		Integer waitAuditDriverNum = driverInfoMapper.queryDriverNumOfStateAndCarGroup(driverQuery);
+		Integer waitAuditDriverNum =ecmpEnterpriseRegisterInfoMapper.waitAmountCount(null, InvitionTypeEnum.DRIVER.getKey(),carGroupId);
+		//查询已失效驾驶员人数
 		DriverQuery driverQuery = new DriverQuery();
 		driverQuery.setCarGroupId(carGroupId);
-		driverQuery.setState("W001");
-		Integer waitAuditDriverNum = driverInfoMapper.queryDriverNumOfStateAndCarGroup(driverQuery);
-		//查询已失效驾驶员人数
-		driverQuery.setState("NV00");
+		driverQuery.setState(CommonConstant.STATE_OFF);
 		Integer loseDriverNum = driverInfoMapper.queryDriverNumOfStateAndCarGroup(driverQuery);
 		carGroupDriverInfo.setWaitAuditDriverNum(waitAuditDriverNum);
 		carGroupDriverInfo.setLoseDriverNum(loseDriverNum);
