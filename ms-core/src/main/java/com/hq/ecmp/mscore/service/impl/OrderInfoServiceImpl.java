@@ -1267,6 +1267,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setCreateTime(DateUtils.getNowDate());
         orderInfo.setCreateBy(userId+"");
         orderInfoMapper.insertOrderInfo(orderInfo);
+        //不走调度时，根据前台传的时长算出结束时间存入地址表，走调度根据高德算时间
+        Date endAction = null;
         if(applyUseWithTravelDto.getIsDispatch() == 2){
             //添加预估价
             String groupId = applyUseWithTravelDto.getGroupId();
@@ -1288,7 +1290,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date parse = simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime());
                 String formatEnd = simpleDateFormat.format(parse.getTime() + (Integer.parseInt(applyUseWithTravelDto.getDuration()) * 60000));
-                journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
+                endAction = simpleDateFormat.parse(formatEnd);
+                journeyPlanPriceInfo.setPlannedArrivalTime(endAction);
                 journeyPlanPriceInfo.setPlannedDepartureTime(simpleDateFormat.parse(applyUseWithTravelDto.getCalculatePriceStartTime()));
                 journeyPlanPriceInfo.setDuration(Integer.parseInt(applyUseWithTravelDto.getDuration()));
                 journeyPlanPriceInfo.setPowerId(applyUseWithTravelDto.getTicketId());
@@ -1313,6 +1316,52 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //订单地址表
         String startPoint = applyUseWithTravelDto.getStartPoint();
         String endPoint = applyUseWithTravelDto.getEndPoint();
+
+
+        //自有车添加车型预估价格表时长里程数据
+        if(applyUseWithTravelDto.getIsDispatch() == 1){
+            DirectionDto directionDto = thirdService.drivingRoute(startPoint, endPoint);
+            if(directionDto == null || directionDto.getCount() == 0){
+                throw new Exception("获取时长和里程失败");
+            }
+            List<PathDto> paths = directionDto.getRoute().getPaths();
+            int totalTime = 0;
+            for (int i = 0; i <paths.size() ; i++) {
+                totalTime = totalTime + paths.get(i).getDuration();
+            }
+            totalTime = Math.round(totalTime/paths.size());
+            JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+            journeyPlanPriceInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
+            journeyPlanPriceInfo.setSource("高德");
+            journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
+            journeyPlanPriceInfo.setCreateBy(String.valueOf(userId));
+            journeyPlanPriceInfo.setNodeId(journeyUserCarPower.getNodeId());
+            journeyPlanPriceInfo.setJourneyId(journeyUserCarPower.getJourneyId());
+            journeyPlanPriceInfo.setPrice(new BigDecimal(0));
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date parse = simpleDateFormat.parse(applyUseWithTravelDto.getBookingDate());
+            String formatEnd = simpleDateFormat.format(parse.getTime() + (totalTime * 1000));
+            endAction = simpleDateFormat.parse(formatEnd);
+            journeyPlanPriceInfo.setPlannedArrivalTime(endAction);
+            journeyPlanPriceInfo.setPlannedDepartureTime(simpleDateFormat.parse(applyUseWithTravelDto.getBookingDate()));
+            journeyPlanPriceInfo.setDuration((int)TimeUnit.MINUTES.convert(totalTime, TimeUnit.SECONDS));
+            journeyPlanPriceInfo.setPowerId(applyUseWithTravelDto.getTicketId());
+            journeyPlanPriceInfo.setOrderId(orderInfo.getOrderId());
+            String groupIds = regimeInfoService.queryCarModeLevel(orderInfo.getOrderId(), CarConstant.USR_CARD_MODE_HAVE);
+            String[] splits = groupIds.split(",");
+            for (String split:
+                    splits) {
+                EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
+                enterpriseCarTypeInfo.setLevel(split);
+                List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
+                if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
+                    EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
+                    journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
+                }
+                iJourneyPlanPriceInfoService.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+            }
+        }
+        //订单地址表
         String[] start = startPoint.split("\\,");
         String[] end = endPoint.split("\\,");
 
@@ -1343,7 +1392,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
         //终点
         orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
-        orderAddressInfo.setActionTime(null);
+        orderAddressInfo.setActionTime(endAction);
         orderAddressInfo.setLongitude(Double.parseDouble(end[0]));
         orderAddressInfo.setLatitude(Double.parseDouble(end[1]));
         orderAddressInfo.setAddress(applyUseWithTravelDto.getEndAddr());
@@ -1352,48 +1401,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //用车权限次数变化
         journeyUserCarCountOp(applyUseWithTravelDto.getTicketId(),1);
 
-        //自有车添加车型预估价格表时长里程数据
-        if(applyUseWithTravelDto.getIsDispatch() == 1){
-            DirectionDto directionDto = thirdService.drivingRoute(startPoint, endPoint);
-            if(directionDto == null || directionDto.getCount() == 0){
-                throw new Exception("获取时长和里程失败");
-            }
-            List<PathDto> paths = directionDto.getRoute().getPaths();
-            int totalTime = 0;
-            for (int i = 0; i <paths.size() ; i++) {
-                totalTime = totalTime + paths.get(i).getDuration();
-            }
-            totalTime = Math.round(totalTime/paths.size());
-            JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
-            journeyPlanPriceInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
-            journeyPlanPriceInfo.setSource("高德");
-            journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
-            journeyPlanPriceInfo.setCreateBy(String.valueOf(userId));
-            journeyPlanPriceInfo.setNodeId(journeyUserCarPower.getNodeId());
-            journeyPlanPriceInfo.setJourneyId(journeyUserCarPower.getJourneyId());
-            journeyPlanPriceInfo.setPrice(new BigDecimal(0));
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date parse = simpleDateFormat.parse(applyUseWithTravelDto.getBookingDate());
-            String formatEnd = simpleDateFormat.format(parse.getTime() + (totalTime * 1000));
-            journeyPlanPriceInfo.setPlannedArrivalTime(simpleDateFormat.parse(formatEnd));
-            journeyPlanPriceInfo.setPlannedDepartureTime(simpleDateFormat.parse(applyUseWithTravelDto.getBookingDate()));
-            journeyPlanPriceInfo.setDuration((int)TimeUnit.MINUTES.convert(totalTime, TimeUnit.SECONDS));
-            journeyPlanPriceInfo.setPowerId(applyUseWithTravelDto.getTicketId());
-            journeyPlanPriceInfo.setOrderId(orderInfo.getOrderId());
-            String groupIds = regimeInfoService.queryCarModeLevel(orderInfo.getOrderId(), CarConstant.USR_CARD_MODE_HAVE);
-            String[] splits = groupIds.split(",");
-            for (String split:
-            splits) {
-                EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
-                enterpriseCarTypeInfo.setLevel(split);
-                List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
-                if(enterpriseCarTypeInfos !=null && enterpriseCarTypeInfos.size()>0){
-                    EnterpriseCarTypeInfo enterpriseCarTypeInfo1 = enterpriseCarTypeInfos.get(0);
-                    journeyPlanPriceInfo.setCarTypeId(enterpriseCarTypeInfo1.getCarTypeId());
-                }
-                iJourneyPlanPriceInfoService.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
-            }
-        }
         //走调度给调度员发短信
         if(applyUseWithTravelDto.getIsDispatch() == 1){
             ismsBusiness.sendMessagePriTravelOrderSucc(orderInfo.getOrderId(),userId);
