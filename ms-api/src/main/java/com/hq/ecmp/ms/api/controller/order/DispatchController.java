@@ -15,6 +15,7 @@ import com.hq.ecmp.mscore.dto.dispatch.*;
 import com.hq.ecmp.mscore.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,10 +49,11 @@ import io.swagger.annotations.ApiOperation;
 public class DispatchController {
 
 
-    @Resource
+    @Autowired
+    @Lazy
     private IOrderInfoService iOrderInfoService;
 
-    @Resource
+    @Autowired
     private IDispatchService dispatchService;
 
     @Autowired

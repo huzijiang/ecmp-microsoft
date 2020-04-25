@@ -1,5 +1,6 @@
 package com.hq.ecmp.config.redis;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +19,7 @@ import java.io.Serializable;
 @Configuration
 public class RedisConfiguration {
 
-    @Resource
+    @Autowired
     private LettuceConnectionFactory myLettuceConnectionFactory;
 
     @ConditionalOnMissingBean
