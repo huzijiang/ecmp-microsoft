@@ -849,14 +849,16 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Transactional(rollbackFor = Exception.class)
     public ApplyVO applyOfficialCommit(ApplyOfficialRequest officialCommitApply) throws Exception {
 
-        //公务申请 单程的行车时长（单位秒）
+        //公务申请 单程的行车时长（单位秒）（调预约价或者高德接口）
         Integer duration2;
         DirectionDto directionDto = null;
         String useCarModeOwnerLevel="";
+        //调用高德情况下 单程的行车时长（单位秒）
         int totalTime = 0;
         //预估行驶时间
         RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById((long) officialCommitApply.getRegimenId());
         String canUseCarMode = regimeInfo.getCanUseCarMode();
+        //如果用车方式包含自有车则调用高德接口查询单程用车时间（秒）
         if(canUseCarMode.contains(CarConstant.USR_CARD_MODE_HAVE)) {
             //公务自有车的可选车型
             useCarModeOwnerLevel = regimeInfo.getUseCarModeOwnerLevel();
@@ -882,17 +884,17 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             }
         }
         if(officialCommitApply.getCarLevelAndPriceVOs() !=null){
-            // 此处使用预估价接口时间 单位为分钟 *60 转为秒
+            // 如果预估价接口返回数据则使用预估价计算的单程行驶时间 单位为分钟 *60 转为秒
             duration2 = officialCommitApply.getCarLevelAndPriceVOs().get(0).getDuration()*60;
         }else{
-            //totalTime高德时间单位是秒
+            //预估价接口没有数据则使用（totalTime）高德地图接口返回的单程预计时间  单位是秒
             duration2 = totalTime;
         }
 
         //1.保存乘客行程信息 journey_info表
         JourneyInfo journeyInfo = new JourneyInfo();
         //提交公务行程表信息
-        journeyOfficialCommit(officialCommitApply, journeyInfo);
+        journeyOfficialCommit(officialCommitApply, journeyInfo,duration2);
         Long journeyId = journeyInfo.getJourneyId();
 
         //2.保存申请信息 apply_info表
@@ -936,7 +938,22 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             Date applyDate = officialCommitApply.getApplyDate();
             if (applyDate != null){
                 journeyNodeInfo.setPlanSetoutTime(applyDate);
-                journeyNodeInfo.setPlanArriveTime(new Date(applyDate.getTime() + duration2*1000));
+                if(!"5000".equals(officialCommitApply.getServiceType())){
+                    //如果不是包车 则预计到达时间为出发时间 加上行驶时间(此处为没有途经点 情况 的去程节点预计到达时间)
+                    journeyNodeInfo.setPlanArriveTime(new Date(applyDate.getTime() + duration2*1000));
+                }else {
+                    //如果是包车 包车只有一个节点 是没有途经点，也没有往返的
+                    String charterType = officialCommitApply.getCharterType();
+                    if (CharterTypeEnum.HALF_DAY_TYPE.getKey().equals(charterType)) {
+                        //半日租 4小时
+                        Date endTime = new Date(applyDate.getTime() + 4 * 60 * 60 * 1000);
+                        journeyNodeInfo.setPlanArriveTime(endTime);
+                    } else if (CharterTypeEnum.OVERALL_RENT_TYPE.getKey().equals(charterType)) {
+                        //整日组 8小时
+                        Date endTime = new Date(applyDate.getTime() + 8 * 60 * 60 * 1000);
+                        journeyNodeInfo.setPlanArriveTime(endTime);
+                    }
+                }
             }else {
                 //如果applyDate为空，则表示接机
                 Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
@@ -1093,8 +1110,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         if(ServiceTypeConstant.CHARTERED.equals(officialCommitApply.getServiceType())){
             Date applyDate = officialCommitApply.getApplyDate();
             //包车类型
-            String charterType = officialCommitApply.getCharterType();
             Date planArriveTime = null;
+            String charterType = officialCommitApply.getCharterType();
             int duration = 0;
             if (CharterTypeEnum.HALF_DAY_TYPE.getKey().equals(charterType)) {
                 //半日租 4小时
@@ -1637,8 +1654,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * 提交公务行程表信息
      * @param officialCommitApply
      * @param journeyInfo
+     * @param driveTime 单程预计行驶时间(秒)
      */
-    private void journeyOfficialCommit(ApplyOfficialRequest officialCommitApply, JourneyInfo journeyInfo) {
+    private void journeyOfficialCommit(ApplyOfficialRequest officialCommitApply, JourneyInfo journeyInfo,Integer driveTime) {
         //1.1 userId          非空
         journeyInfo.setUserId(Long.valueOf(officialCommitApply.getApplyUser().getUserId()));
         //1.2 用车制度id        非空
@@ -1649,17 +1667,54 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUseCarMode(officialCommitApply.getUseType());
         //1.5 use_car_time 用车时间
         Date applyDate = officialCommitApply.getApplyDate();
-        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");  //TODO 时间方法改动下
-        if (applyDate != null){
-            //String date = dateFormat.format(applyDate);
-            journeyInfo.setUseCarTime(applyDate);
-        }else {
-            Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
-            Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
-            journeyInfo.setUseCarTime(useCarTime);
-        }
         //1.6 it_is_return 是否往返 Y000 N444
         String isGoBack = officialCommitApply.getIsGoBack();
+        // 行程开始时间，用车时间  预约(2000)、送机(4000) 有往返  两种情况一起判断   接机(3000)、包车(5000) 没往返 这两种分别单独判断
+        //包车类型
+        String charterType = officialCommitApply.getCharterType();
+        String serviceType = officialCommitApply.getServiceType();
+        //往返等待时间 单位毫秒
+        String returnWaitTime = officialCommitApply.getReturnWaitTime();
+        if (applyDate != null){
+            // 预约（2000） 送机（4000） 包车（5000） 三种情况下 用车时间都为applyDate
+            journeyInfo.setUseCarTime(applyDate);
+            journeyInfo.setStartDate(applyDate);
+            // 预计行程结束时间
+            // (5000)如果是包车情况 包车没有往返
+            if("5000".equals(serviceType)){
+                if (CharterTypeEnum.HALF_DAY_TYPE.getKey().equals(charterType)) {
+                    //半日租 4小时
+                    Date endTime = new Date(applyDate.getTime() + 4 * 60 * 60 * 1000);
+                    journeyInfo.setEndDate(endTime);
+                } else if (CharterTypeEnum.OVERALL_RENT_TYPE.getKey().equals(charterType)) {
+                    //整日组 8小时
+                    Date endTime = new Date(applyDate.getTime() + 8 * 60 * 60 * 1000);
+                    journeyInfo.setEndDate(endTime);
+                }
+            }else {
+                // 预约(2000)、送机(4000)情况 有往返
+                //如果没有往返
+                if("N444".equals(isGoBack)){
+                    journeyInfo.setEndDate(new Date(applyDate.getTime() + driveTime*1000));
+                }else {
+                   //如果有往返 则要算上 往返等待时间 和 返程行驶时间
+                    if(returnWaitTime != null){
+                        journeyInfo.setEndDate(new Date(applyDate.getTime() + 2*driveTime*1000 + Long.valueOf(returnWaitTime)));
+                    }
+                }
+
+            }
+        }else {
+            //如果是接机（3000）  接机没有往返
+            Long flightPlanArriveTime = officialCommitApply.getFlightPlanArriveTime().getTime();
+            Date useCarTime = getUseCarTimeForFlight(officialCommitApply, flightPlanArriveTime);
+            // 用车时间
+            journeyInfo.setUseCarTime(useCarTime);
+            // 行程开始时间
+            journeyInfo.setStartDate(useCarTime);
+            // 预计行程结束时间
+            journeyInfo.setEndDate(new Date(useCarTime.getTime()+driveTime));
+        }
         //  有往返的话，创建两个行程
         journeyInfo.setItIsReturn(isGoBack == null ? JourneyConstant.IT_IS_NOT_RETURN : isGoBack);
         //1.7 estimate_price 预估价格     非空
@@ -1671,7 +1726,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setFlightNumber(officialCommitApply.getFlightNumber());
         //1.10 use_time 行程总时长  多少天 该字段未使用（差旅的）
         journeyInfo.setUseTime(null);
-        //1.11 wait_time_long 预计等待时间，出发地 第一个节点 等待时长   往返，返回等待时长
+        //1.11 wait_time_long 预计等待时间，出发地 第一个节点 等待时长   往返，返回等待时长(单位毫秒)
         journeyInfo.setWaitTimeLong(officialCommitApply.getReturnWaitTime());
         //1.12 charter_car_type 包车类型：T000  非包车 T001 半日租（4小时）T002 整日租（8小时）
         journeyInfo.setCharterCarType(officialCommitApply.getCharterType());
@@ -1685,10 +1740,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setUpdateBy(null);
         //1.17 预计航班起飞时间
         journeyInfo.setFlightPlanTakeOffTime(officialCommitApply.getFlightPlanTakeOffTime());
-        //行程开始时间，用车时间
-        journeyInfo.setStartDate(officialCommitApply.getApplyDate());
-        // 公务行程结束时间，未知。也用不着
-        journeyInfo.setEndDate(null);
         // 新增 出差需接送机城市为空
         journeyInfo.setTravelPickupCity(null);
         // 新增 出差市内用车城市为空
