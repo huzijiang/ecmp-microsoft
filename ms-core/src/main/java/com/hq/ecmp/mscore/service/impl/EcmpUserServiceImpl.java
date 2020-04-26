@@ -322,15 +322,21 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         //根据roleId查询dataScope
         EcmpUserRole ecmpUserRole=new EcmpUserRole(userId);
         List<EcmpUserRole> ecmpUserRoleList = ecmpUserRoleMapper.selectEcmpUserRoleList(ecmpUserRole);
-        System.out.println("-----ecmpUserRoleList-----"+ecmpUserRoleList.toString());
-        System.out.println("-----size-----"+ecmpUserRoleList.size());
+       /* System.out.println("-----ecmpUserRoleList-----"+ecmpUserRoleList.toString());
+        System.out.println("-----size-----"+ecmpUserRoleList.size());*/
         if(!CollectionUtils.isEmpty(ecmpUserRoleList)){
             for(EcmpUserRole ecmpUserRole1 : ecmpUserRoleList) {
                 EcmpRole ecmpRole = ecmpRoleMapper.selectEcmpRoleById(ecmpUserRole1.getRoleId());
                 String roleKey = ecmpRole.getRoleKey();
                 System.out.println("-----roleKey-----"+roleKey);
-                if(RoleConstant.ADMIN.equals(roleKey)||RoleConstant.DEPT_MANAGER.equals(roleKey)||RoleConstant.PROJECT_MANAGER.equals(roleKey)){
-                    return "不可删除！";
+                if(RoleConstant.ADMIN.equals(roleKey)){
+                    return "此员工为系统管理员，不可删除！";
+                }
+                if(RoleConstant.DEPT_MANAGER.equals(roleKey)){
+                    return "此员工为部门主管，不可删除！";
+                }
+                if(RoleConstant.PROJECT_MANAGER.equals(roleKey)){
+                    return "此员工为项目主管，不可删除！";
                 }
             }
         }
