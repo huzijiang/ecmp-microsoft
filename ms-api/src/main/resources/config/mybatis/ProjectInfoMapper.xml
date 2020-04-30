@@ -120,7 +120,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--手动编写sql start-->
     <select id="getListByUserId" parameterType="Object" resultMap="ProjectInfoResult">
         <include refid="selectProjectInfoVo"/>
-        <where> is_effective=0 and (project_id in(select project_id from project_user_relation_info where user_id=#{userId}) or is_all_user_use=0)
+        <where> is_effective=0 and (project_id in(select project_id from project_user_relation_info where user_id=#{userId}) or (is_all_user_use=0 and owner_company = #{orgComcany}))
         <if test="projectName !=null and projectName!=''">
             and (name like CONCAT('%',#{projectName},'%') or project_code = #{projectName})
         </if>
