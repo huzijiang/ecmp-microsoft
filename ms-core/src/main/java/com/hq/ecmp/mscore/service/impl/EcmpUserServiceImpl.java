@@ -320,19 +320,31 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         员工拥有审批权限和查看自己单据权限的
         无法【删除】该员工！；*/
         //根据roleId查询dataScope
-        EcmpUserRole ecmpUserRole = ecmpUserRoleMapper.selectEcmpUserRoleById(userId);
-        if(ecmpUserRole!=null){
-            EcmpRole ecmpRole = ecmpRoleMapper.selectEcmpRoleById(ecmpUserRole.getRoleId());
-            String dataScope = ecmpRole.getDataScope();
-            if(RoleConstant.DATA_SCOPE_1.equals(dataScope)||dataScope.equals(RoleConstant.DATA_SCOPE_3)||dataScope.equals(RoleConstant.DATA_SCOPE_4)){
-                return "不可删除！";
+        EcmpUserRole ecmpUserRole=new EcmpUserRole(userId);
+        List<EcmpUserRole> ecmpUserRoleList = ecmpUserRoleMapper.selectEcmpUserRoleList(ecmpUserRole);
+       /* System.out.println("-----ecmpUserRoleList-----"+ecmpUserRoleList.toString());
+        System.out.println("-----size-----"+ecmpUserRoleList.size());*/
+        if(!CollectionUtils.isEmpty(ecmpUserRoleList)){
+            for(EcmpUserRole ecmpUserRole1 : ecmpUserRoleList) {
+                EcmpRole ecmpRole = ecmpRoleMapper.selectEcmpRoleById(ecmpUserRole1.getRoleId());
+                String roleKey = ecmpRole.getRoleKey();
+                System.out.println("-----roleKey-----"+roleKey);
+                if(RoleConstant.ADMIN.equals(roleKey)){
+                    return "此员工为系统管理员，不可删除！";
+                }
+                if(RoleConstant.DEPT_MANAGER.equals(roleKey)){
+                    return "此员工为部门主管，不可删除！";
+                }
+                if(RoleConstant.PROJECT_MANAGER.equals(roleKey)){
+                    return "此员工为项目主管，不可删除！";
+                }
             }
         }
-        CarGroupDispatcherInfo carGroupDispatcherInfo=new CarGroupDispatcherInfo();
+        /*CarGroupDispatcherInfo carGroupDispatcherInfo=new CarGroupDispatcherInfo();
         carGroupDispatcherInfo.setUserId(userId);
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
         Long carGroupId = carGroupDispatcherInfos.get(0).getCarGroupId();
-        carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+        carGroupInfoMapper.selectCarGroupInfoById(carGroupId);*/
         int delFlag=ecmpUserMapper.updateDelFlagById(userId);
         if(delFlag==1){
             return "删除员工成功！";

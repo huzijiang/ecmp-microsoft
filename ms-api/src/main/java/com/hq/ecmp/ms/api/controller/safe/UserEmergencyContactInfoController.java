@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.domain.UserEmergencyContactInfo;
 import com.hq.ecmp.mscore.service.UserEmergencyContactInfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,10 +27,10 @@ public class UserEmergencyContactInfoController {
     /**
      * 服务对象
      */
-    @Resource
+    @Autowired
     private UserEmergencyContactInfoService userEmergencyContactInfoService;
 
-    @Resource
+    @Autowired
     private TokenService tokenService;
     /**
      * 新增紧急联系人
