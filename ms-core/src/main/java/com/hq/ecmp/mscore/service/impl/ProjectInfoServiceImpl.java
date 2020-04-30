@@ -132,8 +132,8 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
      * @return
      */
     @Override
-    public List<ProjectInfo> getListByUserId(Long userId,String projectName) {
-        return projectInfoMapper.getListByUserId(userId,projectName);
+    public List<ProjectInfo> getListByUserId(Long userId,String projectName,Long orgComcany) {
+        return projectInfoMapper.getListByUserId(userId,projectName,orgComcany);
     }
 
     @Override
