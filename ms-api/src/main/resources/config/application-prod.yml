@@ -113,3 +113,7 @@ file:
     feedback: /feedback
   url:
     feedback: http://10.117.1.231
+
+#调度行程确认的时间间隔
+schedule:
+  confirmTimeout: 12
