@@ -150,6 +150,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             String planEndAddress =  orderCommonInfo.get("planEndAddress");
             //订单号
             String orderNum = orderCommonInfo.get("orderNum");
+            String driverId = orderCommonInfo.get("driverId");
             Map<String,String> paramsMap = new HashMap<>();
             paramsMap.put("useCarTime", useCarTime);
             paramsMap.put("driverName", driverName);
@@ -181,7 +182,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             }
             
             //司机手机号不为空  则给司机发送短信
-            if(StringUtil.isNotEmpty(driverMobile)){
+            if(StringUtil.isNotEmpty(driverMobile) && StringUtil.isNotEmpty(driverId)){
             	 Map<String,String> driverMap = new HashMap<>();
             	 driverMap.put("orderNum", orderNum);
             	 driverMap.put("useCarTime", useCarTime);
