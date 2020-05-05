@@ -220,7 +220,7 @@ class OrgControllerTest {
     @Test
     public void getListByUserId(){
         try {
-            List<ProjectInfo> listByUserId = iProjectInfoService.getListByUserId(101l, null);
+            List<ProjectInfo> listByUserId = iProjectInfoService.getListByUserId(101l, null,null);
             System.out.println(listByUserId.toString());
         } catch (Exception e) {
             e.printStackTrace();

@@ -476,6 +476,9 @@ public class DispatchServiceImpl implements IDispatchService {
                 }
             }
 
+            CarGroupInfo carGroupInfo =  carGroupInfoMapper.selectCarGroupInfoById(carInfo.getCarGroupId());
+            waitSelectedCarBo.setCarGroupName(carGroupInfo.getCarGroupName());
+            //waitSelectedCarBo.setCarTypeImage(enterpriseCarTypeInfo.get);
             waitSelectedCarBoList.add(waitSelectedCarBo);
         });
 

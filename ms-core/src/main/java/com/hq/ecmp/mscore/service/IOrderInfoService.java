@@ -303,5 +303,7 @@ public interface IOrderInfoService {
      * @param timeout 超时时间
      */
     void confirmOrderJourneyAuto(int timeout);
+
+    void replaceCar(OrderInfo orderInfo,Long userId) throws Exception;
 }
 

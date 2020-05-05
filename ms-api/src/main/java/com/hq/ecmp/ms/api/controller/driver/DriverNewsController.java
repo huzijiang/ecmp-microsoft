@@ -93,8 +93,7 @@ public class DriverNewsController {
     @PostMapping("/getDriverDelete")
     public ApiResponse  getDriverDelete(@RequestBody DriverNewDTO driverDTO) throws Exception {
         try {
-            String rtnMsg = iDriverInfoService.deleteDriver(driverDTO.getDriverId());
-            return ApiResponse.success(rtnMsg);
+            return iDriverInfoService.deleteDriver(driverDTO.getDriverId());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
