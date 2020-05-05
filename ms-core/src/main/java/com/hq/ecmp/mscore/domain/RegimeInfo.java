@@ -11,6 +11,8 @@ import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 import com.hq.ecmp.constant.CarConstant;
 
+import java.math.BigDecimal;
+
 /**
  * 【请填写功能名称】对象 regime_info
  *
@@ -126,9 +128,62 @@ public class RegimeInfo extends BaseEntity
     /** Y000-生效中         N111-已失效 */
     @Excel(name = "Y000-生效中         N111-已失效")
     private String state;
-    
 
-    
+    /**************************二期添加字段*******************************/
+    /**
+     * 成本中心
+     * C000 公司付费
+     * D000 部门付费
+     * P000 项目付费
+     */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String costCenter;
+    /**
+     * 公务限额类型(此字段仅网约车使用，和字段limit_money一起使用)
+     * T000 不限
+     * T001 按天
+     * T002 按次数
+     */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String limitType;
+    /**
+     * 公务限额金额（：元）
+     */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private BigDecimal limitMoney;
+    /**
+     * 差旅市内用车限额类型(此字段仅网约车使用，和字段travel_city_use_car_limit_money一起使用)
+     * T000 不限
+     * T001 按天
+     * T002 按次数
+     */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String travelCityUseCarLimitType;
+
+    /**
+     * 差旅市内用车限额金额(:元)
+     */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private BigDecimal travelCityUseCarLimitMoney;
+
+    /**
+     * 差旅接送机限额类型(此字段仅网约车使用，和字段travel_limit_money一起使用)
+     * T000 不限
+     * T001 按天
+     * T002 按次数
+     */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String travelLimitType;
+
+    /**
+     * 差旅接送机限额金额(:元)
+     */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private BigDecimal travelLimitMoney;
+
+
+    /**************************二期添加字段*******************************/
+
     public String parseApplyType(){
     	if(StringUtil.isEmpty(this.regimenType)){
     		return "";
