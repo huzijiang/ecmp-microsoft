@@ -1,5 +1,10 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 
 /**
@@ -8,6 +13,10 @@ import java.io.Serializable;
  * @author makejava
  * @since 2020-05-05 13:15:10
  */
+@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CarGroupServeOrgRelation implements Serializable {
     private static final long serialVersionUID = 168974335357840443L;
     

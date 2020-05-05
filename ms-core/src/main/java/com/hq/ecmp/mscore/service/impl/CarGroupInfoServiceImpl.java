@@ -15,6 +15,7 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.mscore.bo.CityInfo;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
@@ -66,6 +67,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     private EcmpUserRoleMapper ecmpUserRoleMapper;
     @Autowired
     private  CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
+    @Autowired
+    private CarGroupServeOrgRelationMapper carGroupServeOrgRelationMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -174,10 +177,51 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             throw new RuntimeException("车队服务范围新增失败");
         }
         //4.添加车队服务关系表
+        //A.允许外部调用公司
         Long[] companyIds = carGroupDTO.getCompanyIds();
-        if(companyIds.length != 0){
-
+        if(companyIds.length > 0){
+            saveCarGroupServeCompany(carGroupId, companyIds);
         }
+        //B.服务本公司部门
+        Long[] deptIds = carGroupDTO.getDeptIds();
+        if(deptIds.length > 0){
+            saveCarGroupServeDepts(carGroupId, deptIds);
+        }
+
+    }
+
+    /**
+     * 保存车队允许外部调度公司数据
+     * @param carGroupId
+     * @param companyIds
+     */
+    private void saveCarGroupServeCompany(Long carGroupId, Long[] companyIds) {
+        CarGroupServeOrgRelation carGroupServeOrgRelation;
+        for (Long companyId : companyIds) {
+            carGroupServeOrgRelation = CarGroupServeOrgRelation.builder()
+            .carGroupId(carGroupId).deptId(companyId).type(OrgConstant.OUTER_COMPANY).build();
+            int i = carGroupServeOrgRelationMapper.insert(carGroupServeOrgRelation);
+            if(i != 1){
+                throw new RuntimeException("新增车队服务外部公司失败");
+            }
+        }
+    }
+
+    /**
+     *
+     *保存车队服务部门表数据
+     */
+    private void saveCarGroupServeDepts(Long carGroupId, Long[] deptIds) {
+        CarGroupServeOrgRelation carGroupServeOrgRelation;
+        for (Long deptId : deptIds) {
+            carGroupServeOrgRelation = CarGroupServeOrgRelation.builder()
+                    .carGroupId(carGroupId).deptId(deptId).type(OrgConstant.INNER_ORG).build();
+            int n = carGroupServeOrgRelationMapper.insert(carGroupServeOrgRelation);
+            if(n != 1){
+                throw new RuntimeException("新增车队服务部门失败");
+            }
+        }
+
     }
 
     /**
@@ -405,6 +449,18 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //2.2 绑定车队调度员
         Long[] userIds = carGroupDTO.getUserIds();
         saveCarGroupDispatchers(userIds,userId,carGroupId);
+        //3.1 删除车队服务部门 及 外部调度公司
+        carGroupServeOrgRelationMapper.deleteById(carGroupDTO.getCarGroupId());
+        //3.2 保存服务部门
+        Long[] deptIds = carGroupDTO.getDeptIds();
+        if(deptIds.length > 0){
+            saveCarGroupServeDepts(carGroupId,deptIds);
+        }
+        //3.3 保存允许调度的公司
+        Long[] companyIds = carGroupDTO.getCompanyIds();
+        if(companyIds.length > 0){
+            saveCarGroupServeCompany(carGroupId,companyIds);
+        }
     }
 
     /**
@@ -959,6 +1015,17 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
         //查询调度员
         List<UserVO> dispatchers = getCarGroupDispatchers(carGroupId);
+        //查询服务部门及服务公司
+        List<CarGroupServeOrgRelation> carGroupServeOrgRelations = carGroupServeOrgRelationMapper.queryById(carGroupId);
+        List<Long> deptIds = new ArrayList<>();
+        List<Long> companyIds = new ArrayList<>();
+        for (CarGroupServeOrgRelation carGroupServeOrgRelation : carGroupServeOrgRelations) {
+            if(carGroupServeOrgRelation.getType() == OrgConstant.INNER_ORG ){
+                deptIds.add(carGroupServeOrgRelation.getDeptId());
+            }else{
+                companyIds.add(carGroupServeOrgRelation.getDeptId());
+            }
+        }
         if(carGroupInfo != null){
             //判断车队是否是一级车队
             CarGroupDTO vo = CarGroupDTO.builder()
@@ -973,6 +1040,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     .dispatchers(dispatchers)
                     .shortAddress(carGroupInfo.getShortAddress())
                     .fullAddress(carGroupInfo.getFullAddress())
+                    .companyIds(companyIds.toArray(new Long[]{}))
+                    .deptIds(deptIds.toArray(new Long[]{}))
                     .build();
             return vo;
         }
