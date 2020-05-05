@@ -1520,6 +1520,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyPassengerInfo.setUpdateBy(null);
         //4.8 update_time 更新时间
         journeyPassengerInfo.setUpdateTime(null);
+        //4.9 新增  同行人数
+        journeyPassengerInfo.setPeerNumber(officialCommitApply.getPeerNumber());
         journeyPassengerInfoMapper.insertJourneyPassengerInfo(journeyPassengerInfo);
         //保存同行人
         //同行人
@@ -1747,7 +1749,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //  新增 出差接送机总次数为空
         journeyInfo.setPickupTimes(null);
         //  新增 公务title为reason
-        journeyInfo.setTitle(officialCommitApply.getReason());
+        journeyInfo.setTitle(StringUtils.isBlank(officialCommitApply.getReason()) ? "公务用车申请" : officialCommitApply.getReason());
         journeyInfoMapper.insertJourneyInfo(journeyInfo);
     }
 

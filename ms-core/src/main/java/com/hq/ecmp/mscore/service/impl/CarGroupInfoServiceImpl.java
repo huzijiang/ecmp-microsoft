@@ -173,6 +173,11 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         if(k != 1){
             throw new RuntimeException("车队服务范围新增失败");
         }
+        //4.添加车队服务关系表
+        Long[] companyIds = carGroupDTO.getCompanyIds();
+        if(companyIds.length != 0){
+
+        }
     }
 
     /**
@@ -182,6 +187,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param carGroupInfo
      */
     private void insertCarGroupInfo(CarGroupDTO carGroupDTO, Long userId, CarGroupInfo carGroupInfo) {
+        Long[] companyIds = carGroupDTO.getCompanyIds();
+        if(companyIds.length == 0){
+            carGroupInfo.setAllowOuterDispatch("N111");
+        }else {
+            carGroupInfo.setAllowOuterDispatch("Y000");
+        }
         //车队编码
         carGroupInfo.setCarGroupCode(carGroupDTO.getCarGroupCode());
         //父车队id

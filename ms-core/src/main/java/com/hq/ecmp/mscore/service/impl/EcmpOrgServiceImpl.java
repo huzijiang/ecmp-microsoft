@@ -214,7 +214,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 
     @Override
     public List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId) {
-        if(deptId == null && parentId == null){
+       /* if(deptId == null && parentId == null){
             parentId = 0L;
         }
         List<CarGroupTreeVO> tree = ecmpOrgMapper.selectNewCompanyCarGroupTree(deptId,parentId);
@@ -228,7 +228,14 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                     carGroupTreeVO.addAll(this.selectNewCompanyCarGroupTree(null, tree.get(i).getDeptId()));
                 }
             }
+        }*/
+        if(deptId == null){
+            throw new RuntimeException("公司id不能为空");
         }
+        //查询公司
+        List<CarGroupTreeVO> tree = ecmpOrgMapper.selectNewCompanyCarGroupTree(deptId,parentId);
+        //递归查询公司的车队树
+        tree.get(0).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(deptId));
         return tree;
     }
 
