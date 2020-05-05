@@ -32,7 +32,7 @@ public class CarGroupInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String city;  //TODO Long改动
+    private String city;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -48,41 +48,45 @@ public class CarGroupInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String state;    //TODO 新增 启用状态
+    private String state;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String telephone;    //TODO 新增 车队座机
+    private String telephone;
 
-    private String carGroupName;   //TODO 新增
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String carGroupCode;   //TODO 新增
+    private String carGroupName;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String shortAddress;   //TODO 新增
+    private String carGroupCode;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String fullAddress;   //TODO 新增
+    private String shortAddress;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String province;   //TODO 新增  所属省份代码：110000  北京
+    private String fullAddress;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Float longitude;   //TODO 新增
+    private String province;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Float latitude;   //TODO 新增
+    private Float longitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long ownerCompany;   //TODO 新增 所属公司id
+    private Float latitude;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long ownerCompany;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String allowOuterDispatch;   //TODO 新增 是否允许外部调度
 
     public String getTelephone() {
         return telephone;

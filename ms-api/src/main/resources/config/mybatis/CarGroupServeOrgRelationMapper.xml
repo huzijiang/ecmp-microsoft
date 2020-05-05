@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CarGroupServeOrgRelationMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.CarGroupServeOrgRelation" id="CarGroupServeOrgRelationMap">
+        <result property="carGroupId" column="car_group_id" jdbcType="INTEGER"/>
+        <result property="deptId" column="dept_id" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CarGroupServeOrgRelationMap" parameterType="long">
+        select
+          car_group_id, dept_id, type
+        from ecmp.car_group_serve_org_relation
+        where car_group_id = #{carGroupId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="CarGroupServeOrgRelationMap">
+        select
+          car_group_id, dept_id, type
+        from ecmp.car_group_serve_org_relation
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="CarGroupServeOrgRelationMap">
+        select
+          car_group_id, dept_id, type
+        from ecmp.car_group_serve_org_relation
+        <where>
+            <if test="carGroupId != null">
+                and car_group_id = #{carGroupId}
+            </if>
+            <if test="deptId != null">
+                and dept_id = #{deptId}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" parameterType="com.hq.ecmp.mscore.domain.CarGroupServeOrgRelation">
+        insert into car_group_serve_org_relation(car_group_id, dept_id, type)
+        values (#{carGroupId}, #{deptId}, #{type})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update ecmp.car_group_serve_org_relation
+        <set>
+            <if test="carGroupId != null">
+                car_group_id = #{carGroupId},
+            </if>
+            <if test="deptId != null">
+                dept_id = #{deptId},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+        </set>
+        where  = #{}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from car_group_serve_org_relation where car_group_id = #{carGroupId}
+    </delete>
+
+</mapper>
