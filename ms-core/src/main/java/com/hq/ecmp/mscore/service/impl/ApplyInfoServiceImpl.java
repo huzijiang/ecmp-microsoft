@@ -669,8 +669,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Override
     public List<ApprovaReesultVO> getApprovePage(int pageIndex,int pageSize,Long userId) {
         PageHelper.startPage(pageIndex,pageSize);
-//        List<EcmpUserRole> list=userRoleMapper.selectEcmpUserRoleList(new EcmpUserRole(userId));
-//        List<Long> roleIds = list.stream().map(EcmpUserRole::getRoleId).collect(Collectors.toList());
         List<ApprovaReesultVO> applyApproveResultInfos = resultInfoMapper.selectResultList(userId,ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
         if (!CollectionUtils.isEmpty(applyApproveResultInfos)){
             for (ApprovaReesultVO info:applyApproveResultInfos){

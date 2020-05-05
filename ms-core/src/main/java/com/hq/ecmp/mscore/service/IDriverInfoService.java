@@ -160,8 +160,11 @@ public interface IDriverInfoService
 	 * @throws Exception
 	 */
 	public void checkjobNumber(DriverUserJobNumber driverUserJobNumber) throws Exception;
-    
 
-
-
+    /**
+     * 驾驶员调度看板
+     * @param pageRequest
+     * @return
+     */
+    PageResult driverWorkOrderList(PageRequest pageRequest);
 }

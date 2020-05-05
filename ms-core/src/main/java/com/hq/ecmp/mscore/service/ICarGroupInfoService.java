@@ -149,4 +149,6 @@ public interface ICarGroupInfoService
      * @return
      */
     Boolean judgeCarGroupName(String carGroupName, Long owneCompany);
+
+    List<CarGroupListVO> getCarGroupList(Long userId);
 }

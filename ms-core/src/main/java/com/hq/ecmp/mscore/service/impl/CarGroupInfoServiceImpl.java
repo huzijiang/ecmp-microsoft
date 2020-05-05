@@ -1020,6 +1020,11 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         return false;
     }
 
+    @Override
+    public List<CarGroupListVO> getCarGroupList(Long userId) {
+        return carGroupInfoMapper.getCarGroupList(userId);
+    }
+
     /* *//**
      * 判断是否是一级车队
      * @param carGroupId

@@ -269,11 +269,17 @@ public class ProjectController {
     @ApiOperation(value = "显示部门及员工树",notes = "显示部门及员工树",httpMethod ="POST")
     @PostMapping("/selectProjectUserTree")
     public ApiResponse<List<OrgTreeVo>> selectProjectUserTree(@RequestBody ProjectInfoDTO projectInfoDto){
-
-        OrgTreeVo deptList = iProjectInfoService.selectProjectUserTree(projectInfoDto.getProjectId());
+        OrgTreeVo deptList=null;
         List<OrgTreeVo> lsit=new ArrayList<>();
-        lsit.add(deptList);
+        if (StringUtils.isEmpty(projectInfoDto.getName())){
+            deptList = iProjectInfoService.selectProjectUserTree(projectInfoDto.getProjectId());
+            lsit.add(deptList);
+        }else {
+            lsit= iProjectInfoService.selectProjectUserBySearch(projectInfoDto.getProjectId(), projectInfoDto.getName());
+        }
         return ApiResponse.success(lsit);
+
+
     }
 
     @ApiOperation(value = "getProjectUserInfo",notes = "根据项目id获取已绑定所有成员列表",httpMethod ="POST")

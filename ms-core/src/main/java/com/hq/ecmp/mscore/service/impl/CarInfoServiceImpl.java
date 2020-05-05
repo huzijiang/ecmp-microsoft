@@ -563,4 +563,12 @@ public class CarInfoServiceImpl implements ICarInfoService
     public List<String> selectCarTypeList() {
         return carInfoMapper.selectCarTypeList();
     }
+
+    @Override
+    public PageResult carWorkOrderList(PageRequest pageRequest) {
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+        List<DriverOrderVo> driverOrderVos =carInfoMapper.carWorkOrderList(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
+        Long count=carInfoMapper.carWorkOrderListCount(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
+        return new PageResult(count,driverOrderVos);
+    }
 }

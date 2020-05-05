@@ -33,6 +33,34 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateTime"    column="update_time"    />
     </resultMap>
 
+    <resultMap type="com.hq.ecmp.mscore.vo.DriverOrderVo" id="driverWorkOrderMap">
+        <id column="driver_id" property="driverId"/>
+        <result property="driverName"    column="driver_name"    />
+        <result property="driverPhone"    column="mobile"   />
+        <result property="date"    column="date" />
+        <collection property="orderDetailVOS" select="getOrderList" column="{driverId=driver_id,date=date}" ofType="OrderDetailVO" javaType="java.util.ArrayList">
+        </collection>
+    </resultMap>
+
+<!--    <resultMap type="com.hq.ecmp.mscore.vo.OrderDetailVO" id="orderDetailVoMap">-->
+<!--        <id column="approve_template_id" property="approveTemplateId"/>-->
+<!--        <result property="orderId"    column="order_id"    />-->
+<!--        <result property="state"    column="state"    />-->
+<!--        <result property="labelState"    column="labelState"   />-->
+<!--        <result property="orderNumber"    column="order_number"   />-->
+<!--        <result property="orderStartTime"    column="orderStartTime"   />-->
+<!--        <result property="orderEndTime"    column="orderEndTime"   />-->
+<!--        <result property="startAddress"    column="startAddress"   />-->
+<!--        <result property="endAddress"    column="endAddress"   />-->
+<!--        <result property="serviceType"    column="serviceType"   />-->
+<!--        <result property="charterCarType"    column="charterCarType"   />-->
+<!--        <result property="carColor"    column="carColor"   />-->
+<!--        <result property="carLicense"    column="carLicense"   />-->
+<!--        <result property="carGrade"    column="carGrade"   />-->
+<!--        <result property="carType"    column="carType"   />-->
+<!--        <result property="date"    column="date" />-->
+<!--    </resultMap>-->
+
     <sql id="selectDriverInfoVo">
         select driver_id, user_id, driver_name, country, nation, id_card, birthday, gender, mobile, address, emergency_contact_a, emergency_contact_b, emergency_contact_c, it_is_full_time, license_type, license_issue_date, license_init_issue_date, license_number, license_archives_number, license_expire_date, create_by, create_time, update_by, update_time,state,state_description from driver_info
     </sql>
@@ -595,5 +623,54 @@ WHERE
             <if test="businessFlag != null and businessFlag!='' "> and (di.driver_name like concat('%',#{businessFlag},'%') or di.mobile=#{businessFlag} or dcri.user_id=#{businessFlag} )</if>
             <if test="carId !=null"> and dcri.car_id=#{carId}</if>
         </where>
+    </select>
+
+    <select id="driverWorkOrderList" parameterType="Object" resultMap="driverWorkOrderMap">
+        select driver_id,driver_name,mobile,#{date} date from driver_info
+        where state='V000'
+        and driver_id in (select driver_id from car_group_driver_relation
+        where car_group_id=#{carGroupId}
+        <if test="search!=null and search!=''">
+            and driver_id in (select driver_id from driver_info where driver_name like concat('%', #{search}, '%') or mobile like concat('%', #{search}, '%')  )
+        </if>
+        )
+    </select>
+    <select id="driverWorkOrderListCount" parameterType="Object" resultType="Long">
+        select count(*) from driver_info
+        where state='V000'
+        and driver_id in (select driver_id from car_group_driver_relation
+        where car_group_id=#{carGroupId}
+        <if test="search!=null and search!=''">
+            and driver_id in (select driver_id from driver_info where driver_name like concat('%', #{search}, '%') or mobile like concat('%', #{search}, '%')  )
+        </if>
+        )
+    </select>
+    <select id="getOrderList" parameterType="java.util.Map" resultType="com.hq.ecmp.mscore.vo.OrderDetailVO">
+        select
+             o.order_id orderId,
+             o.state,
+             o.service_type serviceType,
+             jn.it_is_return itIsReturn,
+             jn.charter_car_type charterCarType,
+             DATE_FORMAT(s.action_time, '%Y-%m-%d %H:%i') orderStartTime,
+             s.address startAddress,
+             t.address endAddress,
+             DATE_FORMAT(t.action_time, '%Y-%m-%d %H:%i') orderEndTime,
+             eu.nick_name passengerName,
+             eu.phonenumber passengerPhone,
+             ci.car_color carColor,
+             ci.car_license carLicense,
+             cti.name carGrade,
+             ci.car_type carType,
+            (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
+        from order_info o
+        left join journey_info jn on o.journey_id=jn.journey_id
+        left join ecmp_user eu on o.user_id=eu.user_id
+        left join car_info ci on o.car_id=ci.car_id
+        left join enterprise_car_type_info cti on cti.car_type_id=ci.car_type_id
+        left join order_address_info s on  s.order_id=o.order_id and s.type='A000'
+        left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
+        where o.driver_id=#{driverId}
+        <![CDATA[AND DATE_FORMAT(o.create_time, '%Y-%m-%d') = DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>
     </select>
 </mapper>
