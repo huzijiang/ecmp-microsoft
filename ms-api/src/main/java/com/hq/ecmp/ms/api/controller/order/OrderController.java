@@ -19,6 +19,8 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.mapper.CarInfoMapper;
+import com.hq.ecmp.mscore.mapper.EnterpriseCarTypeInfoMapper;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiImplicitParam;
@@ -57,10 +59,6 @@ public class OrderController {
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
     @Resource
     private IDriverHeartbeatInfoService driverHeartbeatInfoService;
-    @Resource
-    private IOrderSettlingInfoService orderSettlingInfoService;
-    @Resource
-    private IsmsBusiness ismsBusiness;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -664,6 +662,23 @@ public class OrderController {
         }catch (Exception e){
             e.printStackTrace();
             return  ApiResponse.error("获取提示语异常!");
+        }
+    }
+
+    @ApiOperation(value = "更换车辆",httpMethod = "POST")
+    @RequestMapping("/replaceCar")
+    public ApiResponse<DriverOrderInfoVO> replaceCar(@RequestBody OrderDto orderDto){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setOrderId(orderDto.getOrderId());
+            orderInfo.setCarId(orderDto.getCarId());
+            iOrderInfoService.replaceCar(orderInfo,loginUser.getUser()==null?null:loginUser.getUser().getUserId());
+            return ApiResponse.success();
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("更换车辆失败");
         }
     }
 }

@@ -65,9 +65,9 @@ public class SmsTemplateConstant {
     //服务结束未确认行程乘车人
     public static final String DRIVER_COMPLETE_NOT_CONFIRM_RIDER = "driver_complete_not_confirm_rider";
 
-
-
-
-
+    public static final String REPLACE_CAR_DISPATCH_NOTICE = "replace_car_dispatch_notice";
+    public static final String REPLACE_CAR_APPLY_NOTICE = "replace_car_apply_notice";
+    public static final String REPLACE_CAR_RIDER_ENTERPRICE_NOTICE = "replace_car_rider_enterprice_notice";
+    public static final String REPLACE_CAR_RIDER_NO_ENTERPRICE_NOTICE = "replace_car_rider_no_enterprice_notice";
 
 }

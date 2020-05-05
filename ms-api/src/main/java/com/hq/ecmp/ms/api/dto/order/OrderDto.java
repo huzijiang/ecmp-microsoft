@@ -29,4 +29,7 @@ public class OrderDto {
     @NotNull
     @ApiParam(required = true)
     private String flag;
+
+    //车辆id
+    private Long carId;
 }

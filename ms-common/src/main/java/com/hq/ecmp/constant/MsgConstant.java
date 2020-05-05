@@ -21,6 +21,7 @@ public enum MsgConstant {
     MESSAGE_T011("改派成功","M011"),
     MESSAGE_T012("改派驳回","M012"),
     MESSAGE_T013("派车通知","M013"),
+    MESSAGE_T014("换车通知","M014"),
     MESSAGE_T999("其他","M999");
 
 
