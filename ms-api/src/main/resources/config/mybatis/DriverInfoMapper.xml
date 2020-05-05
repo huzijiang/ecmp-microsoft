@@ -671,6 +671,6 @@ WHERE
         left join order_address_info s on  s.order_id=o.order_id and s.type='A000'
         left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
         where o.driver_id=#{driverId}
-        <![CDATA[AND DATE_FORMAT(o.create_time, '%Y-%m-%d') = DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>
+        <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') = DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>
     </select>
 </mapper>

@@ -1,9 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -535,6 +532,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
 		List<DriverOrderVo> driverOrderVos =driverInfoMapper.driverWorkOrderList(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
 		Long count=driverInfoMapper.driverWorkOrderListCount(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
+		Collections.sort(driverOrderVos);
 		return new PageResult(count,driverOrderVos);
 	}
 

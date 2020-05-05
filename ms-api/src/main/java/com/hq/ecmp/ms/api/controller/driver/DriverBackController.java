@@ -9,6 +9,7 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
+import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
@@ -37,6 +38,10 @@ public class DriverBackController {
     ICarGroupInfoService carGroupInfoService;
     @Autowired
     ICarInfoService carInfoService;
+    @Autowired
+    IEcmpOrgService ecmpOrgService;
+    @Autowired
+    IDispatchService dispatchService;
 
 
     /**
@@ -77,6 +82,26 @@ public class DriverBackController {
     @PostMapping("/carWorkOrderList")
     public ApiResponse<PageResult<DriverOrderVo>> carWorkOrderList(@RequestBody PageRequest pageRequest){
         PageResult pageResult=carInfoService.carWorkOrderList(pageRequest);
+        return ApiResponse.success(pageResult);
+    }
+
+    /**
+     *驾驶员调度看板(分页列表)
+     * @return
+     */
+    @Log(title = "驾驶员管理模块",content = "查询驾驶员可用车辆列表", businessType = BusinessType.OTHER)
+    @ApiOperation(value="getOrderStateCount" ,notes="查询驾驶员可用车辆列表", httpMethod = "POST")
+    @PostMapping("/getOrderStateCount")
+    public ApiResponse<OrderStateCountVO> getOrderStateCount(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        Long orgComcany=null;
+        EcmpOrg ecmpOrg = ecmpOrgService.getOrgByDeptId(loginUser.getUser().getDeptId());
+        if (ecmpOrg!=null){
+            orgComcany=ecmpOrg.getDeptId();
+        }
+        OrderStateCountVO pageResult=dispatchService.getOrderStateCount(orgComcany);
         return ApiResponse.success(pageResult);
     }
 }

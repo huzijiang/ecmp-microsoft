@@ -32,6 +32,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.hq.ecmp.constant.CommonConstant.DEPT_TYPE_ORG;
+import static com.hq.ecmp.constant.CommonConstant.SWITCH_ON;
+
 /**
  * 部门Service业务层处理
  *
@@ -869,6 +872,29 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         }
 
         return leader;
+    }
+
+    @Override
+    public EcmpOrg getOrgByDeptId(Long deptId){
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
+        if (DEPT_TYPE_ORG.equals(ecmpOrg.getDeptType())){//是公司
+            return ecmpOrg;
+        }else{
+            String ancestors = ecmpOrg.getAncestors();
+            if (com.hq.common.utils.StringUtils.isNotEmpty(ancestors)){
+                String[] split = ancestors.split(",");
+                for (int i=split.length-1;i>=0;i--){
+                    if (SWITCH_ON.equals(split[i])){
+                        continue;
+                    }
+                    EcmpOrg org= ecmpOrgMapper.selectEcmpOrgById(Long.parseLong(split[i]));
+                    if (DEPT_TYPE_ORG.equals(org.getDeptType())){//是公司
+                        return org;
+                    }
+                }
+            }
+            return null;
+        }
     }
 
     /**

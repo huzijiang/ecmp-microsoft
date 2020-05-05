@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Data
 @ApiModel(description = "看板模型")
-public class DriverOrderVo {
+public class DriverOrderVo implements Comparable<DriverOrderVo>{
 
     @ApiModelProperty(name = "driverId",value = "司机id")
     private Long driverId;
@@ -34,4 +34,8 @@ public class DriverOrderVo {
     private List<OrderDetailVO> orderDetailVOS;
 
 
+    @Override
+    public int compareTo(DriverOrderVo o) {
+        return o.getOrderDetailVOS().size()-this.getOrderDetailVOS().size();
+    }
 }
