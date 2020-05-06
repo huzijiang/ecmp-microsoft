@@ -128,4 +128,5 @@ public interface ICarInfoService
      */
     List<String> selectCarTypeList();
 
+    PageResult carWorkOrderList(PageRequest pageRequest);
 }

@@ -253,4 +253,6 @@ public interface IEcmpOrgService
      * @return
      */
     List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId);
+
+    EcmpOrg getOrgByDeptId(Long deptId);
 }

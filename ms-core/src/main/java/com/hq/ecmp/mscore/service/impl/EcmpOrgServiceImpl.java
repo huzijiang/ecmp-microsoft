@@ -32,6 +32,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.hq.ecmp.constant.CommonConstant.DEPT_TYPE_ORG;
+import static com.hq.ecmp.constant.CommonConstant.SWITCH_ON;
+
 /**
  * 部门Service业务层处理
  *
@@ -214,7 +217,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
 
     @Override
     public List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId) {
-        if(deptId == null && parentId == null){
+       /* if(deptId == null && parentId == null){
             parentId = 0L;
         }
         List<CarGroupTreeVO> tree = ecmpOrgMapper.selectNewCompanyCarGroupTree(deptId,parentId);
@@ -228,7 +231,14 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                     carGroupTreeVO.addAll(this.selectNewCompanyCarGroupTree(null, tree.get(i).getDeptId()));
                 }
             }
+        }*/
+        if(deptId == null){
+            throw new RuntimeException("公司id不能为空");
         }
+        //查询公司
+        List<CarGroupTreeVO> tree = ecmpOrgMapper.selectNewCompanyCarGroupTree(deptId,parentId);
+        //递归查询公司的车队树
+        tree.get(0).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(deptId));
         return tree;
     }
 
@@ -862,6 +872,29 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         }
 
         return leader;
+    }
+
+    @Override
+    public EcmpOrg getOrgByDeptId(Long deptId){
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
+        if (DEPT_TYPE_ORG.equals(ecmpOrg.getDeptType())){//是公司
+            return ecmpOrg;
+        }else{
+            String ancestors = ecmpOrg.getAncestors();
+            if (com.hq.common.utils.StringUtils.isNotEmpty(ancestors)){
+                String[] split = ancestors.split(",");
+                for (int i=split.length-1;i>=0;i--){
+                    if (SWITCH_ON.equals(split[i])){
+                        continue;
+                    }
+                    EcmpOrg org= ecmpOrgMapper.selectEcmpOrgById(Long.parseLong(split[i]));
+                    if (DEPT_TYPE_ORG.equals(org.getDeptType())){//是公司
+                        return org;
+                    }
+                }
+            }
+            return null;
+        }
     }
 
     /**

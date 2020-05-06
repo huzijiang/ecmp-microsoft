@@ -62,6 +62,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
+    @Resource
+    private CarInfoMapper carInfoMapper;
     @Autowired
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
     @Autowired
@@ -2246,5 +2248,20 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderInfoMapper.updateOrderInfo(orderInfo);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public void replaceCar(OrderInfo orderInfo, Long userId) throws Exception {
+        CarInfo carInfo = carInfoMapper.selectCarInfoById(orderInfo.getCarId());
+        orderInfo.setCarColor(carInfo.getCarColor());
+        orderInfo.setCarLicense(carInfo.getCarLicense());
+        orderInfo.setCarModel(carInfo.getCarType());
+        orderInfo.setDemandCarLevel(enterpriseCarTypeInfoMapper.queryCarTypeNameByCarId(orderInfo.getCarId()));
+        orderInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
+        updateOrderInfo(orderInfo);
+        ismsBusiness.sendMessageReplaceCarComplete(orderInfo.getOrderId(),userId);
+        // 发送短信
+        ismsBusiness.sendSmsReplaceCar(orderInfo.getOrderId());
     }
 }

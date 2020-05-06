@@ -374,5 +374,7 @@ public interface EcmpUserMapper
      * @return
      */
     List<ProjectUserVO> getUsersByCompany(@Param("search")String search,@Param("orgComcany") Long orgComcany);
+
+    List<Long> getUserListByOrgId(@Param("orgId")Long orgId);
 }
 

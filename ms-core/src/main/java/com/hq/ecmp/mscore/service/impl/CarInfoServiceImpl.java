@@ -1,10 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -562,5 +559,14 @@ public class CarInfoServiceImpl implements ICarInfoService
     @Override
     public List<String> selectCarTypeList() {
         return carInfoMapper.selectCarTypeList();
+    }
+
+    @Override
+    public PageResult carWorkOrderList(PageRequest pageRequest) {
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+        List<DriverOrderVo> driverOrderVos =carInfoMapper.carWorkOrderList(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
+        Long count=carInfoMapper.carWorkOrderListCount(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
+        Collections.sort(driverOrderVos);
+        return new PageResult(count,driverOrderVos);
     }
 }

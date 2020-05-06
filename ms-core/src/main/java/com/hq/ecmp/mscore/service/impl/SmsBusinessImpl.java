@@ -1,12 +1,16 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
+import com.hq.api.system.domain.SysUser;
+import com.hq.ecmp.constant.*;
+import com.hq.ecmp.mscore.vo.UserVO;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +19,6 @@ import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.sms.service.ISmsTemplateInfoService;
-import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.constant.MessageTemplateConstant;
-import com.hq.ecmp.constant.MsgConstant;
-import com.hq.ecmp.constant.MsgStatusConstant;
-import com.hq.ecmp.constant.MsgTypeConstant;
-import com.hq.ecmp.constant.MsgUserConstant;
-import com.hq.ecmp.constant.OrderConstant;
-import com.hq.ecmp.constant.SmsTemplateConstant;
 import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.CarInfo;
@@ -45,6 +41,7 @@ import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IsmsBusiness;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @ClassName SmsBusinessImpl
@@ -473,6 +470,12 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String carLicense = null;
         //订单号
         String orderNum = null;
+        //调度员id
+        String dispatchId = null;
+        //调度员name
+        String dispatchName = null;
+        //调度员电话
+        String dispatchMobile = null;
 
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         driverName = orderInfo.getDriverName();
@@ -512,6 +515,11 @@ public class SmsBusinessImpl implements IsmsBusiness{
                 }
             }
         }
+        //已派车状态,调度员信息
+        UserVO sysUser =  orderStateTraceInfoMapper.getOrderDispatcher(orderId, OrderState.ALREADYSENDING.getState());
+        dispatchId = sysUser.getUserId().toString();
+        dispatchMobile = sysUser.getUserPhone();
+        dispatchName = sysUser.getUserName();
         result.put("useCarTime", useCarTime);
         result.put("planBeginAddress", planBeginAddress);
         result.put("planEndAddress",planEndAddress);
@@ -525,6 +533,9 @@ public class SmsBusinessImpl implements IsmsBusiness{
         result.put("carType",carType);
         result.put("carLicense",carLicense);
         result.put("orderNum",orderNum);
+        result.put("dispatchId",dispatchId);
+        result.put("dispatchMobile",dispatchMobile);
+        result.put("dispatchName",dispatchName);
         return result;
     }
 
@@ -801,4 +812,75 @@ public class SmsBusinessImpl implements IsmsBusiness{
 		}
 
 	}
+
+    @Override
+    @Async
+    public void sendMessageReplaceCarComplete(Long orderId, Long userId) {
+        Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
+        String applyUserId = orderCommonInfo.get("applyUserId");
+        if (null != applyUserId) {
+            // 给申请人发消息
+            sendMessage(MsgUserConstant.MESSAGE_USER_USER.getType(), Long.valueOf(applyUserId),
+                    MsgConstant.MESSAGE_T004.getType(), MsgTypeConstant.MESSAGE_TYPE_T001.getType(), orderId, userId,
+                    String.format(MessageTemplateConstant.REPLACE_CAR_COMPLETE_APPLY));
+        }
+
+        String dispatchId = orderCommonInfo.get("dispatchId");
+        String driverName = orderCommonInfo.get("driverName");
+        /*//司机姓名
+        String driverName = null;
+        //司机手机号
+        String driverMobile = null;
+        //司机编号
+        String driverId=null;*/
+        if (null != dispatchId) {
+            SimpleDateFormat df = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+            // 给调度员发消息
+            sendMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(), Long.valueOf(dispatchId),
+                    MsgConstant.MESSAGE_T014.getType(), MsgTypeConstant.MESSAGE_TYPE_T001.getType(), orderId, userId,
+                    String.format(MessageTemplateConstant.REPLACE_CAR_COMPLETE_DISPATCH,df.format(new Date())
+                    ,driverName));
+        }
+    }
+
+    @Override
+    @Transactional
+    public void sendSmsReplaceCar(Long orderId) throws Exception {
+        log.info("短信开始-订单{},换车成功", orderId);
+        Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        CarInfo carInfo = carInfoMapper.selectCarInfoById(orderInfo.getCarId());
+        SimpleDateFormat df = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+        String driverMobile = orderCommonInfo.get("driverMobile");
+        String applyMobile = orderCommonInfo.get("applyMobile");
+        String riderMobile = orderCommonInfo.get("riderMobile");
+        if(isEnterpriseWorker(riderMobile)){//企业员工
+            Map mapEnterprice = new HashMap();
+            mapEnterprice.put("date",df.format(orderInfo.getCreateTime()));
+            mapEnterprice.put("driverName",orderCommonInfo.get("driverName"));
+            mapEnterprice.put("carType",carInfo.getCarType());
+            mapEnterprice.put("carLicense",carInfo.getCarLicense());
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.REPLACE_CAR_RIDER_ENTERPRICE_NOTICE, mapEnterprice, riderMobile);
+        }else {
+            Map mapNoEnterprice = new HashMap();
+            mapNoEnterprice.put("date",df.format(orderInfo.getCreateTime()));
+            mapNoEnterprice.put("driverName",orderCommonInfo.get("driverName"));
+            mapNoEnterprice.put("applyName",orderCommonInfo.get("applyMobile"));
+            mapNoEnterprice.put("carType",carInfo.getCarType());
+            mapNoEnterprice.put("carLicense",carInfo.getCarLicense());
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.REPLACE_CAR_RIDER_NO_ENTERPRICE_NOTICE, mapNoEnterprice, riderMobile);
+        }
+        Map mapDispatch = new HashMap();
+        mapDispatch.put("date",df.format(orderInfo.getCreateTime()));
+        mapDispatch.put("driverName",orderCommonInfo.get("driverName"));
+        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.REPLACE_CAR_DISPATCH_NOTICE, mapDispatch, driverMobile);
+        Map mapApply = new HashMap();
+        mapApply.put("date",df.format(orderInfo.getCreateTime()));
+        mapApply.put("driverName",orderCommonInfo.get("driverName"));
+        mapApply.put("riderName",orderCommonInfo.get("riderName"));
+        mapApply.put("carType",carInfo.getCarType());
+        mapApply.put("carLicense",carInfo.getCarLicense());
+        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.REPLACE_CAR_APPLY_NOTICE, mapApply, applyMobile);
+        log.info("短信结束-订单{},换车成功", orderId);
+    }
 }

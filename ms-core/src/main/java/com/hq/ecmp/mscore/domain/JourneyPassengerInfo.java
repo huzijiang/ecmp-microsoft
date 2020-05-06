@@ -34,9 +34,21 @@ public class JourneyPassengerInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsPeer;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Integer peerNumber;
+
     public void setJourneyPassengerId(Long journeyPassengerId)
     {
         this.journeyPassengerId = journeyPassengerId;
+    }
+
+    public Integer getPeerNumber() {
+        return peerNumber;
+    }
+
+    public void setPeerNumber(Integer peerNumber) {
+        this.peerNumber = peerNumber;
     }
 
     public Long getJourneyPassengerId()

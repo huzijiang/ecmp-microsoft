@@ -121,48 +121,54 @@ public class ApplyOfficialRequest {
      * 航班编号
      */
     @ApiModelProperty(name = "flightNumber", value = "航班号", required = false, position = 17)
-    private String flightNumber;    //TODO 新增
+    private String flightNumber;
 
     /**
      * 航班到达后等待多长时间用车 单位 分钟 M010 10分钟 M020 20分钟 M030 30分钟 H100 一小时 H130 一个半小时
      */
     @ApiModelProperty(name = "waitDurition", value = "等待时长", required = false, position = 18)
-    private String waitDurition;    //TODO 新增
+    private String waitDurition;
 
     /**
      * 往返开启后 等待 多长时间 返程用车
      */
     @ApiModelProperty(name = "returnWaitTime", value = "等待时长", required = false, position = 19)
-    private String returnWaitTime;    //TODO 新增
+    private String returnWaitTime;
 
     /**
      * 审批人
      */
     @ApiModelProperty(name = "approvers", value = "审批人", required = false, position = 20)
-    private List<ApprovalVO> approvers;  // TODO 新增
+    private List<ApprovalVO> approvers;
 
     /**
      * 用车制度id
      */
     @ApiModelProperty(name = "regimeId", value = "用车制度id", required = true, position = 21)
-    private Integer regimenId;  // TODO 新增
+    private Integer regimenId;
 
     /**
      * 航班计划起飞时间
      */
     @ApiModelProperty(name = "flightPlanTakeOffTime", value = "航班计划起飞时间", required = false, position = 21)
-    private Date flightPlanTakeOffTime;  // TODO 新增
+    private Date flightPlanTakeOffTime;
 
     /**
      * 航班计划到达时间
      */
     @ApiModelProperty(name = "flightPlanArriveTime", value = "航班计划到达时间", required = false, position = 22)
-    private Date flightPlanArriveTime;  // TODO 新增
+    private Date flightPlanArriveTime;
 
     /**
      * 航班计划到达时间
      */
     @ApiModelProperty(name = "carLevelAndPriceVOs", value = "车型及预估价集合", required = false, position = 23)
     List<CarLevelAndPriceVO> carLevelAndPriceVOs;
+
+    /**
+     * 航班计划到达时间
+     */
+    @ApiModelProperty(name = "peerNumber", value = "同行人数", required = false, position = 24)
+    private Integer peerNumber;  //TODO 新增
 
 }

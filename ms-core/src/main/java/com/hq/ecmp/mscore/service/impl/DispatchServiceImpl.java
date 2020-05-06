@@ -14,6 +14,7 @@ import com.hq.ecmp.mscore.dto.dispatch.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
+import com.hq.ecmp.mscore.vo.OrderStateCountVO;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -365,6 +366,14 @@ public class DispatchServiceImpl implements IDispatchService {
         return ApiResponse.success(dispatchResultVo);
     }
 
+    @Override
+    public OrderStateCountVO getOrderStateCount(Long orgComcany) {
+        List<Long> users = ecmpUserMapper.getUserListByOrgId(orgComcany);
+        Long dispatchedCount= orderInfoMapper.getCountForDispatched(orgComcany,users);
+        Long reassignedCount= orderInfoMapper.getCountForReassigned(orgComcany,users);
+        OrderStateCountVO vo=new OrderStateCountVO(dispatchedCount,reassignedCount);
+        return vo;
+    }
 
 
     /**
@@ -476,6 +485,9 @@ public class DispatchServiceImpl implements IDispatchService {
                 }
             }
 
+            CarGroupInfo carGroupInfo =  carGroupInfoMapper.selectCarGroupInfoById(carInfo.getCarGroupId());
+            waitSelectedCarBo.setCarGroupName(carGroupInfo.getCarGroupName());
+            //waitSelectedCarBo.setCarTypeImage(enterpriseCarTypeInfo.get);
             waitSelectedCarBoList.add(waitSelectedCarBo);
         });
 

@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.dto.dispatch.*;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
+import com.hq.ecmp.mscore.vo.OrderStateCountVO;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
@@ -62,4 +63,11 @@ public interface IDispatchService {
      * @return ApiResponse<DispatchResultVo>
      */
     ApiResponse<DispatchResultVo> autoDispatch(@RequestBody DispatchCountCarAndDriverDto dispatchCountCarAndDriverDto);
+
+    /**
+     * 调度看板待派车.待改派订单统计
+     * @param orgComcany
+     * @return
+     */
+    OrderStateCountVO getOrderStateCount(Long orgComcany);
 }

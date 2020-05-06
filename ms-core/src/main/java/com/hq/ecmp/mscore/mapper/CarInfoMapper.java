@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
+import com.hq.ecmp.mscore.vo.DriverOrderVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
@@ -173,4 +174,8 @@ public interface CarInfoMapper
      * @return
      */
     int updateStartCar(CarInfo carInfo);
+
+    List<DriverOrderVo> carWorkOrderList(@Param("carGroupId") Long carGroupId,@Param("date") String date, @Param("search")String search);
+
+    Long carWorkOrderListCount(Long carGroupId, String data, String search);
 }

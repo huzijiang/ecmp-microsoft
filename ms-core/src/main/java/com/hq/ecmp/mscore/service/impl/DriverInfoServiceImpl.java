@@ -1,16 +1,16 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.InvitionTypeEnum;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
+import com.hq.ecmp.mscore.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -36,18 +36,10 @@ import com.hq.ecmp.mscore.domain.DriverUserJobNumber;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.EcmpUserRole;
-import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
-import com.hq.ecmp.mscore.dto.DriverCarDTO;
-import com.hq.ecmp.mscore.dto.DriverLoseDTO;
-import com.hq.ecmp.mscore.dto.DriverRegisterDTO;
 import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
-import com.hq.ecmp.mscore.vo.CarVO;
-import com.hq.ecmp.mscore.vo.CloudWorkIDateVo;
-import com.hq.ecmp.mscore.vo.DriverWorkInfoVo;
-import com.hq.ecmp.mscore.vo.PageResult;
 
 
 /**
@@ -355,13 +347,13 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * 已失效驾驶员进行删除
      */
     @Override
-    public String deleteDriver(Long driverId)throws Exception {
+    public ApiResponse deleteDriver(Long driverId)throws Exception {
 		DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
 		driverCarRelationInfo.setDriverId(driverId);
 		List<DriverCarRelationInfo> driverCarRelationInfos = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo);
 		int size = driverCarRelationInfos.size();
 		if(size != 0){
-			return "请先删除该驾驶员下的所有车辆，再尝试删除";
+			return ApiResponse.error("请先删除该驾驶员下的所有车辆，再尝试删除");
 		}
 		int i=driverInfoMapper.deleteDriver(driverId);
 		if(i!=0){
@@ -370,7 +362,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		}else {
 			throw new Exception("删除失败");
 		}
-		return "删除成功";
+		return ApiResponse.success("删除成功");
     }
 
 
@@ -533,6 +525,15 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		}else{
 			throw new Exception("员工"+driverName+"："+mobile+"对应的工号是"+userJobNumber+"，请核实后重新输入!");
 		}
+	}
+
+	@Override
+	public PageResult driverWorkOrderList(PageRequest pageRequest) {
+    	PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+		List<DriverOrderVo> driverOrderVos =driverInfoMapper.driverWorkOrderList(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
+		Long count=driverInfoMapper.driverWorkOrderListCount(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
+		Collections.sort(driverOrderVos);
+		return new PageResult(count,driverOrderVos);
 	}
 
 	public boolean setDriverWorkInfo(Long driverId) {

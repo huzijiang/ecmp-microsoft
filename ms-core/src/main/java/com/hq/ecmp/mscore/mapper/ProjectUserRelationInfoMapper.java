@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
+import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import com.hq.ecmp.mscore.vo.ProjectUserVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -71,4 +72,6 @@ public interface ProjectUserRelationInfoMapper
     int removeProjectUser(@Param("projectId")Long projectId, @Param("userId")Long userId);
 
     Long getProjectUserListCount(@Param("projectId")Long projectId,@Param("search") String search);
+
+    List<OrgTreeVo> selectProjectUserBySearch(@Param("projectId") Long projectId, @Param("name")String name,@Param("orgId") Long orgId);
 }

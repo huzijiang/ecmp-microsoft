@@ -97,4 +97,16 @@ public interface IsmsBusiness {
      * @param orderId
      */
     public void endServiceNotConfirm(Long orderId);
+
+    /**
+     * 更换车辆后通知调度员，申请员，乘车人
+     * @param orderId
+     */
+    public void sendMessageReplaceCarComplete(Long orderId,Long userId);
+
+    /**
+     * 换车成功短信通知
+     * @param orderId
+     */
+    public void sendSmsReplaceCar(Long orderId) throws Exception;
 }

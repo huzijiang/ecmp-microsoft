@@ -247,5 +247,9 @@ public interface OrderInfoMapper {
      * @return
      */
     OrderInfo selectOrderStateById(@Param("orderId")Long orderId);
+
+    Long getCountForDispatched(@Param("orgId")Long orgId,@Param("users")List<Long> users);
+
+    Long getCountForReassigned(@Param("orgId")Long orgId,@Param("users")List<Long> users);
 }
 
