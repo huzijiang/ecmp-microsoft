@@ -136,6 +136,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="licensePrice != null ">license_price,</if>
             <if test="price != null ">price,</if>
             <if test="lockState != null ">lock_state,</if>
+            <if test="companyId != null ">company_id,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="carId != null ">#{carId},</if>
@@ -176,6 +177,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="licensePrice != null ">#{licensePrice},</if>
             <if test="price != null ">#{price},</if>
             <if test="lockState != null ">#{lockState},</if>
+            <if test="companyId != null ">#{companyId},</if>
         </trim>
     </insert>
 
@@ -406,6 +408,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                   AND SYSDATE() <= IFNULL(driving_license_end_date,SYSDATE())
                   AND state != 'S444' ]]>
     </update>
+    <select id="selectAll" resultMap="CarInfoResult">
+        <include refid="selectCarInfoVo"/>
+        WHERE state != 'S444'
+    </select>
 
     <select id="carWorkOrderList" parameterType="Object" resultMap="carWorkOrderMap">
         select car_id,car_license,car_type_id,car_type,#{date} date from car_info

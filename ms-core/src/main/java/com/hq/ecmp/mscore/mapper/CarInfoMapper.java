@@ -178,4 +178,9 @@ public interface CarInfoMapper
     List<DriverOrderVo> carWorkOrderList(@Param("carGroupId") Long carGroupId,@Param("date") String date, @Param("search")String search);
 
     Long carWorkOrderListCount(Long carGroupId, String data, String search);
+
+    /**
+     * 查询所有（没被删除）的车辆
+     */
+    List<CarInfo> selectAll();
 }
