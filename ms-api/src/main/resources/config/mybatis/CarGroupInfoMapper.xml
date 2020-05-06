@@ -140,32 +140,32 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectAllByPage" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO">
-            select car_group_id as carGroupId, car_group_name as carGroupName,
-                car_group_code as carGroupCode,owner_org as ownerOrg,
+            select c.car_group_id as carGroupId, c.car_group_name as carGroupName,
+                c.car_group_code as carGroupCode,c.owner_org as ownerOrg,
                 eo.dept_name ownerOrgName,
-                company_id as ownerCompany,
+                c.company_id as ownerCompany,
                 e1.dept_name as ownerCompanyName,
-                state,city
-             from car_group_info
-             left join ecmp_org eo on eo.dept_id=owner_org
-            left join ecmp_org e1 on e1.dept_id=company_id
+                c.state,c.city
+             from car_group_info c
+             left join ecmp_org eo on eo.dept_id= c.owner_org
+            left join ecmp_org e1 on e1.dept_id= c.company_id
         <where>
             state != 'S444'
             <if test="search != null and search != '' ">
-                and (car_group_name like concat('%',#{search},'%')
-                or car_group_code like concat('%',#{search},'%'))
+                and (c.car_group_name like concat('%',#{search},'%')
+                or c.car_group_code like concat('%',#{search},'%'))
             </if>
             <if test="state != null and state != ''">
-                and state = #{state}
+                and c.state = #{state}
             </if>
             <if test="deptId != null">
-                and company_id = #{deptId} and parent_car_group_id = 0
+                and c.company_id = #{deptId} and parent_car_group_id = 0
             </if>
             <if test="carGroupId != null">
-                and parent_car_group_id = #{carGroupId}
+                and c.parent_car_group_id = #{carGroupId}
             </if>
         </where>
-             order by car_group_name
+             order by c.car_group_name
     </select>
 
     <select id="selectSubCarGroupInfoList" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO" parameterType="long">

@@ -178,9 +178,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
         //4.添加车队服务关系表
         //A.允许外部调用公司
+        Long owneCompany = carGroupDTO.getOwneCompany();
         Long[] companyIds = carGroupDTO.getCompanyIds();
         if(companyIds.length > 0){
-            saveCarGroupServeCompany(carGroupId, companyIds);
+            saveCarGroupServeCompany(carGroupId, companyIds,owneCompany);
         }
         //B.服务本公司部门
         Long[] deptIds = carGroupDTO.getDeptIds();
@@ -195,9 +196,13 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param carGroupId
      * @param companyIds
      */
-    private void saveCarGroupServeCompany(Long carGroupId, Long[] companyIds) {
+    private void saveCarGroupServeCompany(Long carGroupId, Long[] companyIds,Long owneCompany) {
+
         CarGroupServeOrgRelation carGroupServeOrgRelation;
         for (Long companyId : companyIds) {
+            if(owneCompany != null && owneCompany.equals(companyId)){
+                continue;
+            }
             carGroupServeOrgRelation = CarGroupServeOrgRelation.builder()
             .carGroupId(carGroupId).deptId(companyId).type(OrgConstant.OUTER_COMPANY).build();
             int i = carGroupServeOrgRelationMapper.insert(carGroupServeOrgRelation);
@@ -233,9 +238,11 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     private void insertCarGroupInfo(CarGroupDTO carGroupDTO, Long userId, CarGroupInfo carGroupInfo) {
         Long[] companyIds = carGroupDTO.getCompanyIds();
         if(companyIds.length == 0){
-            carGroupInfo.setAllowOuterDispatch("N111");
+            carGroupInfo.setAllowOuterDispatch(OrgConstant.NOT_ALLOW_OUTER_DISPATCH);
+        }else if(companyIds.length == 1 && companyIds[0].equals(carGroupDTO.getOwneCompany())){
+            carGroupInfo.setAllowOuterDispatch(OrgConstant.NOT_ALLOW_OUTER_DISPATCH);
         }else {
-            carGroupInfo.setAllowOuterDispatch("Y000");
+            carGroupInfo.setAllowOuterDispatch(OrgConstant.ALLOW_OUTER_DISPATCH);
         }
         //车队编码
         carGroupInfo.setCarGroupCode(carGroupDTO.getCarGroupCode());
@@ -457,9 +464,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             saveCarGroupServeDepts(carGroupId,deptIds);
         }
         //3.3 保存允许调度的公司
+        Long owneCompany = carGroupDTO.getOwneCompany();
         Long[] companyIds = carGroupDTO.getCompanyIds();
         if(companyIds.length > 0){
-            saveCarGroupServeCompany(carGroupId,companyIds);
+            saveCarGroupServeCompany(carGroupId,companyIds,owneCompany);
         }
     }
 
@@ -515,7 +523,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         Long[] companyIds = carGroupDTO.getCompanyIds();
         if(companyIds.length == 0){
             carGroupInfo.setAllowOuterDispatch(OrgConstant.NOT_ALLOW_OUTER_DISPATCH);
-        }else {
+        }else if(companyIds.length == 1 && companyIds[0].equals(carGroupDTO.getOwneCompany())){
+            carGroupInfo.setAllowOuterDispatch(OrgConstant.NOT_ALLOW_OUTER_DISPATCH);
+        } else {
             carGroupInfo.setAllowOuterDispatch(OrgConstant.ALLOW_OUTER_DISPATCH);
         }
         //所属城市编码

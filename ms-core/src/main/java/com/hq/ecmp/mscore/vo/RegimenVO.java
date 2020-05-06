@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * @Author: chao.zhang
  * @Date: 2020/2/27 10:36
@@ -109,4 +111,53 @@ public class RegimenVO {
             "\n" +
             "起点和终点 是否要求在一个城市",example = "Y000---不允许跨域 N111--允许跨域",position = 10)
     private String asSetoutEqualArrive;// 接送服务 同城限制 Y000 ：相等---不允许跨域 N111 ：不相等--允许跨域
+
+    //----------------------  二期新增字段 ------------------------------
+    /**
+     *成本中心（不为空）
+     * C000 公司付费
+     * D000 部门付费
+     * P000 项目付费
+     */
+    private String costCenter;
+
+    /**
+     * 公务限额类型(此字段仅网约车使用，和字段limit_money一起使用)
+     *
+     * T000 不限
+     * T001 按天
+     * T002 按次数
+     */
+    private String limitType;
+
+    /**
+     * 公务限额金额(:元)
+     */
+    private BigDecimal limitMoney;
+
+    /**
+     * 差旅市内用车限额类型(此字段仅网约车使用，和字段travel_city_use_car_limit_money一起使用)
+     * T000 不限
+     * T001 按天
+     * T002 按次数
+     */
+    private String travelCityUseCarLimitType;
+
+    /**
+     * 差旅市内用车限额金额(:元)
+     */
+    private BigDecimal travelCityUseCarLimitMoney;
+
+    /**
+     * 差旅接送机限额类型(此字段仅网约车使用，和字段travel_limit_money一起使用)
+     * T000 不限
+     * T001 按天
+     * T002 按次数
+     */
+    private String travelLimitType;
+
+    /**
+     * 差旅接送机限额金额(:元)
+     */
+    private BigDecimal travelLimitMoney;
 }
