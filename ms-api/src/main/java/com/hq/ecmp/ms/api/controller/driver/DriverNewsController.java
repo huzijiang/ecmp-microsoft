@@ -92,11 +92,13 @@ public class DriverNewsController {
     @ApiOperation(value="getDriverDelete" ,notes="删除驾驶员", httpMethod = "POST")
     @PostMapping("/getDriverDelete")
     public ApiResponse  getDriverDelete(@RequestBody DriverNewDTO driverDTO) throws Exception {
-        int deleteDriver = iDriverInfoService.deleteDriver(driverDTO.getDriverId());
-        if(deleteDriver !=0){
-            return ApiResponse.success("删除已失效驾驶员成功");
+        try {
+            String rtnMsg = iDriverInfoService.deleteDriver(driverDTO.getDriverId());
+            return ApiResponse.success(rtnMsg);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
         }
-        return ApiResponse.error("删除以失效驾驶员失败");
     }
 
     /**

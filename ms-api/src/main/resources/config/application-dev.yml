@@ -126,5 +126,5 @@ dispatch:
 
 #调度行程确认的时间间隔
 schedule:
-    confirmTimeout: 1
+    confirmTimeout: 12
 

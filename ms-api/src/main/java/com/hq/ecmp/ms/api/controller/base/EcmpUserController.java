@@ -79,10 +79,13 @@ public class EcmpUserController {
     public ApiResponse updateDelFlagById(@RequestBody EcmpUserVo ecmpUser ){
         Long userId=ecmpUser.getUserId();
         if(userId==null){
-            return ApiResponse.error("员工id不能为空！");
+            return ApiResponse.error(1,"员工id不能为空！",null);
         }
         String msg= ecmpUserService.updateDelFlagById(userId);
-        return ApiResponse.error(msg);
+        if(!("删除员工成功！".equals(msg))){
+            return ApiResponse.error(1,msg,null);
+        }
+        return ApiResponse.error(0,msg,null);
     }
 
     /**
