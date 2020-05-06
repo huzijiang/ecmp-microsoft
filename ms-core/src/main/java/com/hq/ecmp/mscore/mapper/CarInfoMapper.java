@@ -173,4 +173,9 @@ public interface CarInfoMapper
      * @return
      */
     int updateStartCar(CarInfo carInfo);
+
+    /**
+     * 查询所有（没被删除）的车辆
+     */
+    List<CarInfo> selectAll();
 }

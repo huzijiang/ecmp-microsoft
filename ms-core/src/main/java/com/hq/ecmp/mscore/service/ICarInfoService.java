@@ -128,4 +128,9 @@ public interface ICarInfoService
      */
     List<String> selectCarTypeList();
 
+    /**
+     * 检验车辆状态
+     */
+    public void checkCarState();
+
 }

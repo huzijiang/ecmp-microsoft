@@ -512,6 +512,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @throws Exception
      */
     private void updateCarGroupInfo(CarGroupDTO carGroupDTO, Long userId, CarGroupInfo carGroupInfo, String city) throws Exception {
+        Long[] companyIds = carGroupDTO.getCompanyIds();
+        if(companyIds.length == 0){
+            carGroupInfo.setAllowOuterDispatch(OrgConstant.NOT_ALLOW_OUTER_DISPATCH);
+        }else {
+            carGroupInfo.setAllowOuterDispatch(OrgConstant.ALLOW_OUTER_DISPATCH);
+        }
         //所属城市编码
         carGroupInfo.setCity(city);
         carGroupInfo.setCarGroupId(carGroupDTO.getCarGroupId());

@@ -109,59 +109,63 @@ public class CarInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long ownerOrgId;  //TODO String 改动
+    private Long ownerOrgId;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long enterpriseCarTypeId;  //TODO er模型数据   车型 商务 公务 等
+    private Long enterpriseCarTypeId;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date rentStartDate;  //TODO 新增 租赁开始时间
+    private Date rentStartDate;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date borrowStartDate; // TODO 新增 借调开始时间
+    private Date borrowStartDate;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date borrowEndDate; // TODO 新增 借调结束时间
+    private Date borrowEndDate;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String  assetTag; // TODO 新增 资产标签
+    private String  assetTag;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String  source; // TODO 新增 车辆来源
+    private String  source;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Double  price; // TODO 新增 购车价格
+    private Double  price;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Double  tax; // TODO 新增 购车价格
+    private Double  tax;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Double  licensePrice; // TODO 新增 牌号费
+    private Double  licensePrice;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String  drivingLicense; // TODO 新增 牌号费
+    private String  drivingLicense;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date  drivingLicenseStartDate; // TODO 新增 牌号费
+    private Date  drivingLicenseStartDate;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date  drivingLicenseEndDate; // TODO 新增 牌号费
+    private Date  drivingLicenseEndDate;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String  lockState; // TODO 新增 牌号费
+    private String  lockState;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long   companyId; // TODO 新增
 
     public void setCarId(Long carId)
     {

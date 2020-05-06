@@ -36,8 +36,12 @@ public interface CarConstant {
 	String DISABLE_CAR = "S001";  //禁用中
 	String MAINTENANCE_CAR = "S002"; //维护中
 	String TIME_OUT_CAR = "SOO3";  //已到期
+	String WAIT_START_CAR = "S004"; //待启用
 	String BE_BORROWED_CAR = "S101"; // 被借调
 	String DELETE_CAR = "S444";    //被删除
+
+	String LOCKED = "1111";   // 车辆被锁定
+	String UN_LOCKED = "0000"; // 车辆未被锁定
 
 	String START_CAR_TYPE = "S000";  //车型 有效
 	String DISABLE_CAR_TYPE = "S444";  // 车型 失效
@@ -45,5 +49,9 @@ public interface CarConstant {
 	String START_DRIVER_TYPE = "V000"; //驾驶员 有效
 	String DISABLE_DRIVER_TYPE = "NV00"; //驾驶员 失效
 	String DELETE_DRIVER_TYPE = "S444"; //驾驶员 被删除
+
+	String OWN_CAR = "S001"; //自有车
+	String RENT_CAR = "S002"; //租来的车
+	String BORROW_CAR = "S003"; //借来的车
 
 }

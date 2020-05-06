@@ -344,11 +344,11 @@ public class CarGroupController {
 
 
     /**
-     * 车队人数统计
+     * （分、子）公司车队人数统计
      * @param
      * @return
      */
-    @Log(title = "车队管理",content = "公司车队人数统计", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "公司车队总人数统计", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupCount",notes = "车队人数统计",httpMethod ="POST")
     @PostMapping("/getCarGroupCount")
     public ApiResponse<CarGroupCountVO> getCarGroupCount(

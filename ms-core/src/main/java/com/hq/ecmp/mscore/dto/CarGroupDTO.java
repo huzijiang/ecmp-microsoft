@@ -86,7 +86,7 @@ public class CarGroupDTO {
     @ApiModelProperty(name = "deptIds", value = "服务部门id集合")
     private Long[] deptIds;  //TODO 新增
 
-    @ApiModelProperty(name = "deptIds", value = "允许调度的外部公司id集合")
+    @ApiModelProperty(name = "companyIds", value = "允许调度的外部公司id集合")
     private Long[] companyIds;  //TODO 新增
 
 }
