@@ -173,8 +173,8 @@ class OrgControllerTest {
         PageRequest pageRequest=new PageRequest();
         pageRequest.setPageNum(5);
         pageRequest.setPageSize(10);
-        List<ApprovaTemplateVO> templateList = templateInfoService.getTemplateList(pageRequest);
-        System.out.println(templateList.toString());
+        //List<ApprovaTemplateVO> templateList = templateInfoService.getTemplateList(pageRequest);
+        //System.out.println(templateList.toString());
     }
     @Test
     void getDriverOrderList() {//项目员工树
@@ -195,8 +195,8 @@ class OrgControllerTest {
         PageRequest pageRequest = new PageRequest();
         pageRequest.setPageNum(1);
         pageRequest.setPageSize(20);
-        List<ApprovaTemplateVO> templateList = templateInfoService.getTemplateList(pageRequest);
-        System.out.println(templateList.toString());
+        //List<ApprovaTemplateVO> templateList = templateInfoService.getTemplateList(pageRequest);
+        //System.out.println(templateList.toString());
     }
 
     @Test
@@ -207,7 +207,7 @@ class OrgControllerTest {
         list.add(new FolwInfoDTO(0,"T001","","",""));
         dto.setFlowList(list);
         try {
-            nodeInfoService.addFlowTemplate(dto,101L);
+            //nodeInfoService.addFlowTemplate(dto,101L);
         } catch (Exception e) {
             e.printStackTrace();
         }
