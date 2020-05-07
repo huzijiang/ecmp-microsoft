@@ -416,8 +416,10 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	public CarGroupDriverInfo queryCarGroupDriverList(Map map) {
 		Long carGroupId = Long.valueOf(map.get("carGroupId").toString());
 		Long carId = map.get("carId")==null?null:Long.valueOf(map.get("carId").toString());
+		String search = map.get("search")==null?null: map.get("search").toString();
 		CarGroupDriverInfo carGroupDriverInfo = new CarGroupDriverInfo();
-		List<DriverQueryResult> list = driverInfoMapper.queryDriverInfoList(carGroupId,carId);
+		//查询车队下的可用驾驶员列表（driverId 和 driverName）如果传了carId，则排除该车辆下的驾驶员
+		List<DriverQueryResult> list = driverInfoMapper.queryDriverInfoList(carGroupId,carId,search);
 		carGroupDriverInfo.setDriverList(list);
 		//查询车队对应的部门和公司
 		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
