@@ -520,8 +520,9 @@ public class CarInfoServiceImpl implements ICarInfoService
 	public CarGroupCarInfo queryCarGroupCarList(Map map) {
         Long carGroupId = Long.valueOf(map.get("carGroupId").toString());
         Long driverId = map.get("driverId")==null?null:Long.valueOf(map.get("driverId").toString());
+        String search = map.get("search")==null?null:map.get("search").toString();
 		CarGroupCarInfo carGroupCarInfo = new CarGroupCarInfo();
-		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId,driverId);
+		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId,driverId,search);
 		carGroupCarInfo.setList(queryCarGroupCarList);
 		// 查询车队对应的部门和公司
 		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);

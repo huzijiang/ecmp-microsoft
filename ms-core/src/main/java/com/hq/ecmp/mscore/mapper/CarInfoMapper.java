@@ -143,7 +143,7 @@ public interface CarInfoMapper
      * @param carGroupId
      * @return
      */
-    public List<CarListVO> queryCarGroupCarList(@Param("carGroupId")Long carGroupId,@Param("driverId")Long driverId);
+    public List<CarListVO> queryCarGroupCarList(@Param("carGroupId")Long carGroupId,@Param("driverId")Long driverId,@Param("search")String search);
 
     /**
      * 根据车队id 条件查询车辆列表
