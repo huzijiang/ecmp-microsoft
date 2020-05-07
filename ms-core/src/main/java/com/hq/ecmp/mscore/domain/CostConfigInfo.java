@@ -5,6 +5,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
+import java.math.BigDecimal;
+
 /**
  * 【请填写功能名称】对象 cost_config_info
  * 
@@ -36,15 +38,15 @@ public class CostConfigInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Double startPrice;
+    private BigDecimal startPrice;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Double combosPrice;
+    private BigDecimal combosPrice;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Double combosMileage;
+    private BigDecimal combosMileage;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -52,15 +54,15 @@ public class CostConfigInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Double beyondPriceEveryKm;
+    private BigDecimal beyondPriceEveryKm;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Double beyondPriceEveryMinute;
+    private BigDecimal beyondPriceEveryMinute;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Double waitPriceEreryMinute;
+    private BigDecimal waitPriceEreryMinute;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -111,30 +113,30 @@ public class CostConfigInfo extends BaseEntity
     {
         return rentType;
     }
-    public void setStartPrice(Double startPrice) 
+    public void setStartPrice(BigDecimal startPrice) 
     {
         this.startPrice = startPrice;
     }
 
-    public Double getStartPrice() 
+    public BigDecimal getStartPrice() 
     {
         return startPrice;
     }
-    public void setCombosPrice(Double combosPrice) 
+    public void setCombosPrice(BigDecimal combosPrice) 
     {
         this.combosPrice = combosPrice;
     }
 
-    public Double getCombosPrice() 
+    public BigDecimal getCombosPrice() 
     {
         return combosPrice;
     }
-    public void setCombosMileage(Double combosMileage) 
+    public void setCombosMileage(BigDecimal combosMileage) 
     {
         this.combosMileage = combosMileage;
     }
 
-    public Double getCombosMileage() 
+    public BigDecimal getCombosMileage() 
     {
         return combosMileage;
     }
@@ -147,30 +149,30 @@ public class CostConfigInfo extends BaseEntity
     {
         return combosTimes;
     }
-    public void setBeyondPriceEveryKm(Double beyondPriceEveryKm) 
+    public void setBeyondPriceEveryKm(BigDecimal beyondPriceEveryKm) 
     {
         this.beyondPriceEveryKm = beyondPriceEveryKm;
     }
 
-    public Double getBeyondPriceEveryKm() 
+    public BigDecimal getBeyondPriceEveryKm() 
     {
         return beyondPriceEveryKm;
     }
-    public void setBeyondPriceEveryMinute(Double beyondPriceEveryMinute) 
+    public void setBeyondPriceEveryMinute(BigDecimal beyondPriceEveryMinute) 
     {
         this.beyondPriceEveryMinute = beyondPriceEveryMinute;
     }
 
-    public Double getBeyondPriceEveryMinute() 
+    public BigDecimal getBeyondPriceEveryMinute() 
     {
         return beyondPriceEveryMinute;
     }
-    public void setWaitPriceEreryMinute(Double waitPriceEreryMinute) 
+    public void setWaitPriceEreryMinute(BigDecimal waitPriceEreryMinute) 
     {
         this.waitPriceEreryMinute = waitPriceEreryMinute;
     }
 
-    public Double getWaitPriceEreryMinute() 
+    public BigDecimal getWaitPriceEreryMinute() 
     {
         return waitPriceEreryMinute;
     }
