@@ -698,7 +698,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN china_city f  ON c.city_postal_code =f.CITY_CODE
 		WHERE
 		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S100','S199','S299','S500','S600','S616','S699','S900')
-		and (a.use_car_mode is null or a.use_car_mode='W100' or a.use_car_mode='')
+		and (a.use_car_mode is null or a.use_car_mode='W100' or a.use_car_mode='' or a.use_car_mode='W200')
 		<if test="null !=applyMobile and applyMobile !=''">
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>

@@ -108,7 +108,7 @@ public interface IDriverInfoService
     /**
      * 已失效驾驶员进行删除
      */
-    public int deleteDriver(Long driverId) throws Exception;
+    public String deleteDriver(Long driverId) throws Exception;
 
 
     /**

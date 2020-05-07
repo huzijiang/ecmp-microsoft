@@ -83,7 +83,12 @@ public class ProjectController {
         //根据用户Id查询项目对象
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        List<ProjectInfo> projectInfos = iProjectInfoService.getListByUserId(loginUser.getUser().getUserId(),projectDto.getProjectName());
+        Long orgComcany=null;
+        EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+        if (ecmpOrg!=null){
+            orgComcany=ecmpOrg.getDeptId();
+        }
+        List<ProjectInfo> projectInfos = iProjectInfoService.getListByUserId(loginUser.getUser().getUserId(),projectDto.getProjectName(),orgComcany);
         if(CollectionUtils.isNotEmpty(projectInfos)){
             return ApiResponse.success(projectInfos);
         }else {
@@ -196,11 +201,11 @@ public class ProjectController {
         projectInfo.setCreateBy(String.valueOf(loginUser.getUser().getUserId()));
         projectInfo.setCreateTime(new Date());
         int i = iProjectInfoService.insertProjectInfo(projectInfo);
-        if (i>0){
-            if (projectInfoDto.getIsAllUserUse()==ZERO){//全部员工
-                this.saveUserProject(projectInfo.getProjectId());
-            }
-        }
+//        if (i>0){
+//            if (projectInfoDto.getIsAllUserUse()==ZERO){//全部员工
+//                this.saveUserProject(projectInfo.getProjectId());
+//            }
+//        }
         return ApiResponse.success("新建项目成功");
     }
 
@@ -247,11 +252,8 @@ public class ProjectController {
         if (i>0){
             if (isAlluser!=projectInfoDto.getIsAllUserUse()){
                 if (projectInfoDto.getIsAllUserUse()==ZERO){//全部员工
-                    this.saveUserProject(projectInfoDto.getProjectId());
+                    iProjectUserRelationInfoService.deleteProjectUserRelationInfoById(projectInfoDto.getProjectId());
                 }
-//                else{
-//                    iProjectUserRelationInfoService.deleteProjectUserRelationInfoById(projectInfoDto.getProjectId());
-//                }
             }
         }
         return ApiResponse.success("编辑项目成功");

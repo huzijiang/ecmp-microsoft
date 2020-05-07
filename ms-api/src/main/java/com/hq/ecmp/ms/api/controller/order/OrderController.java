@@ -70,8 +70,6 @@ public class OrderController {
 
     @Value("${thirdService.apiUrl}")//三方平台的接口前地址
     private String apiUrl;
-    @Value("${order.shareUrl}")//行程分享的详情路径
-    private String shareUrl;
 
     /**
      * 初始化订单-公务创建订单
@@ -366,8 +364,6 @@ public class OrderController {
 	/**
      * 调度 选择了自有车后生成行程预估价
      * @param orderId
-     * @param driverId
-     * @param carId
      * @return
      */
 	@ApiOperation(value = "sendCarBeforeCreatePlanPrice", notes = "调度 选择了自有车后生成行程预估价", httpMethod = "POST")
@@ -659,7 +655,7 @@ public class OrderController {
     @ApiOperation(value = "行程分享",httpMethod = "POST")
     @RequestMapping("/orderShare")
     public ApiResponse<String> orderShare(@RequestBody OrderDto orderDto){
-        String url=shareUrl;
+        String url="";
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
