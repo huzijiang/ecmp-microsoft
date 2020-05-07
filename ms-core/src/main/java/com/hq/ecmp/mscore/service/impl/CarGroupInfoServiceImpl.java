@@ -178,7 +178,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
         //4.添加车队服务关系表
         //A.允许外部调用公司
-        Long owneCompany = carGroupDTO.getOwneCompany();
+        Long owneCompany = carGroupDTO.getCompanyId();
         Long[] companyIds = carGroupDTO.getCompanyIds();
         if(companyIds.length > 0){
             saveCarGroupServeCompany(carGroupId, companyIds,owneCompany);
@@ -239,7 +239,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         Long[] companyIds = carGroupDTO.getCompanyIds();
         if(companyIds.length == 0){
             carGroupInfo.setAllowOuterDispatch(OrgConstant.NOT_ALLOW_OUTER_DISPATCH);
-        }else if(companyIds.length == 1 && companyIds[0].equals(carGroupDTO.getOwneCompany())){
+        }else if(companyIds.length == 1 && companyIds[0].equals(carGroupDTO.getCompanyId())){
             carGroupInfo.setAllowOuterDispatch(OrgConstant.NOT_ALLOW_OUTER_DISPATCH);
         }else {
             carGroupInfo.setAllowOuterDispatch(OrgConstant.ALLOW_OUTER_DISPATCH);
@@ -463,7 +463,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             saveCarGroupServeDepts(carGroupId,deptIds);
         }
         //3.3 保存允许调度的公司
-        Long owneCompany = carGroupDTO.getOwneCompany();
+        Long owneCompany = carGroupDTO.getCompanyId();
         Long[] companyIds = carGroupDTO.getCompanyIds();
         if(companyIds.length > 0){
             saveCarGroupServeCompany(carGroupId,companyIds,owneCompany);
@@ -522,7 +522,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         Long[] companyIds = carGroupDTO.getCompanyIds();
         if(companyIds.length == 0){
             carGroupInfo.setAllowOuterDispatch(OrgConstant.NOT_ALLOW_OUTER_DISPATCH);
-        }else if(companyIds.length == 1 && companyIds[0].equals(carGroupDTO.getOwneCompany())){
+        }else if(companyIds.length == 1 && companyIds[0].equals(carGroupDTO.getCompanyId())){
             carGroupInfo.setAllowOuterDispatch(OrgConstant.NOT_ALLOW_OUTER_DISPATCH);
         } else {
             carGroupInfo.setAllowOuterDispatch(OrgConstant.ALLOW_OUTER_DISPATCH);
