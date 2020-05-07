@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpUserFeedbackImage extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -30,42 +32,6 @@ public class EcmpUserFeedbackImage extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String imageUrl;
 
-    public void setImageId(Long imageId)
-    {
-        this.imageId = imageId;
-    }
-
-    public Long getImageId()
-    {
-        return imageId;
-    }
-    public void setFeedbackId(Long feedbackId)
-    {
-        this.feedbackId = feedbackId;
-    }
-
-    public Long getFeedbackId()
-    {
-        return feedbackId;
-    }
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
-
-    public Long getUserId()
-    {
-        return userId;
-    }
-    public void setImageUrl(String imageUrl)
-    {
-        this.imageUrl = imageUrl;
-    }
-
-    public String getImageUrl()
-    {
-        return imageUrl;
-    }
 
     public EcmpUserFeedbackImage() {
     }

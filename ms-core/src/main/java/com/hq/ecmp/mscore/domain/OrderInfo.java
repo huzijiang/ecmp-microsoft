@@ -14,7 +14,7 @@ import java.util.Date;
 
 /**
  * 派车订单信息对象 order_info
- * 
+ *
  * @author hqer
  * @date 2020-03-16
  */
@@ -28,6 +28,8 @@ public class OrderInfo extends BaseEntity
 
     /** $column.columnComment */
     private Long orderId;
+
+    private Long companyId;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")

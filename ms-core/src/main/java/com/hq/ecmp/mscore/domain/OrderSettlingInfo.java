@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.domain;
 
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class OrderSettlingInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -42,69 +44,6 @@ public class OrderSettlingInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private BigDecimal totalTime;// TODO 新增。实际时长
-    public void setTotalMileage(BigDecimal totalMileage)
-    {
-        this.totalMileage = totalMileage;
-    }
-    public BigDecimal getTotalMileage()
-    {
-        return totalMileage;
-    }
-
-    public void setTotalTime(BigDecimal totalTime)
-    {
-        this.totalTime = totalTime;
-    }
-    public BigDecimal getTotalTime()
-    {
-        return totalTime;
-    }
-
-
-    public void setBillId(Long billId)
-    {
-        this.billId = billId;
-    }
-    public Long getBillId()
-    {
-        return billId;
-    }
-    public void setOrderId(Long orderId)
-    {
-        this.orderId = orderId;
-    }
-
-    public Long getOrderId()
-    {
-        return orderId;
-    }
-    public void setAmount(BigDecimal amount)
-    {
-        this.amount = amount;
-    }
-
-    public BigDecimal getAmount()
-    {
-        return amount;
-    }
-    public void setAmountDetail(String amountDetail)
-    {
-        this.amountDetail = amountDetail;
-    }
-
-    public String getAmountDetail()
-    {
-        return amountDetail;
-    }
-    public void setOutPrice(BigDecimal outPrice)
-    {
-        this.outPrice = outPrice;
-    }
-
-    public BigDecimal getOutPrice()
-    {
-        return outPrice;
-    }
 
     public OrderSettlingInfo() {
     }

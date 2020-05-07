@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class DriverServiceStateInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -25,34 +27,6 @@ public class DriverServiceStateInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String state;
-
-    public void setId(Long id)
-    {
-        this.id = id;
-    }
-
-    public Long getId()
-    {
-        return id;
-    }
-    public void setDriverId(Long driverId)
-    {
-        this.driverId = driverId;
-    }
-
-    public Long getDriverId()
-    {
-        return driverId;
-    }
-    public void setState(String state)
-    {
-        this.state = state;
-    }
-
-    public String getState()
-    {
-        return state;
-    }
 
     @Override
     public String toString() {

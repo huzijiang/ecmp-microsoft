@@ -76,4 +76,6 @@ public class OrderListBackDto extends PageRequest {
     private String state;
     @ApiModelProperty(value = "轨迹状态")
     private String labelState;
+
+    private Long companyId;
 }

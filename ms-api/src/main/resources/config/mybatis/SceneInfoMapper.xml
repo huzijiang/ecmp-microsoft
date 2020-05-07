@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.domain.SceneInfo" id="SceneInfoResult">
         <result property="sceneId"    column="scene_id"    />
         <result property="name"    column="name"    />
+        <result property="companyId"    column="company_id"    />
         <result property="sortNo"    column="sort_no"    />
         <result property="icon"    column="icon"    />
         <result property="effectStatus"    column="effect_status"    />
@@ -43,6 +44,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="sceneId != null ">scene_id,</if>
             <if test="name != null  and name != ''">name,</if>
+            <if test="companyId != null  and companyId != ''">company_id,</if>
             <if test="sortNo == null ">sort_no,</if>
             <if test="icon != null  and icon != ''">icon,</if>
             <if test="effectStatus != null  and effectStatus != ''">effect_status,</if>
@@ -54,6 +56,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="sceneId != null ">#{sceneId},</if>
             <if test="name != null  and name != ''">#{name},</if>
+            <if test="companyId != null  and companyId != ''">#{companyId},</if>
             <if test="sortNo == null ">(SELECT IFNULL(a.x,0)*100 FROM (SELECT MAX(scene_id) X FROM scene_info) a),</if>
             <if test="icon != null  and icon != ''">#{icon},</if>
             <if test="effectStatus != null  and effectStatus != ''">#{effectStatus},</if>
@@ -112,10 +115,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from scene_info
         <where>
         <if test="name != null  and name != ''">name like CONCAT('%',#{name},'%')</if>
+        <if test="companyId != null">
+            and company_id = #{companyId}
+        </if>
         </where>
         order by sort_no
     </select>
-    
+
     <select id="querySceneByRegimeId" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.SceneInfo">
             SELECT
                 a. NAME AS NAME,
@@ -127,7 +133,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 b.regimen_id = #{regimeId}
             LIMIT 1
     </select>
-    
+
     <select id="seleSceneByIcon" parameterType="com.hq.ecmp.mscore.vo.SceneListVO" resultType="com.hq.ecmp.mscore.vo.SceneListVO">
         <include refid="selectSceneInfoVo"/>
         <where>

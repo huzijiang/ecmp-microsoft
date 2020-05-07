@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpRole extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -40,70 +42,6 @@ public class EcmpRole extends BaseEntity
 
     /** 删除标志（0代表存在 2代表删除） */
     private String delFlag;
-
-    public void setRoleId(Long roleId)
-    {
-        this.roleId = roleId;
-    }
-
-    public Long getRoleId()
-    {
-        return roleId;
-    }
-    public void setRoleName(String roleName)
-    {
-        this.roleName = roleName;
-    }
-
-    public String getRoleName()
-    {
-        return roleName;
-    }
-    public void setRoleKey(String roleKey)
-    {
-        this.roleKey = roleKey;
-    }
-
-    public String getRoleKey()
-    {
-        return roleKey;
-    }
-    public void setRoleSort(Integer roleSort)
-    {
-        this.roleSort = roleSort;
-    }
-
-    public Integer getRoleSort()
-    {
-        return roleSort;
-    }
-    public void setDataScope(String dataScope)
-    {
-        this.dataScope = dataScope;
-    }
-
-    public String getDataScope()
-    {
-        return dataScope;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-
-    public String getStatus()
-    {
-        return status;
-    }
-    public void setDelFlag(String delFlag)
-    {
-        this.delFlag = delFlag;
-    }
-
-    public String getDelFlag()
-    {
-        return delFlag;
-    }
 
     @Override
     public String toString() {

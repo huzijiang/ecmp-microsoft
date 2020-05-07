@@ -103,7 +103,11 @@ public class OrgController {
     public ApiResponse<List<EcmpOrgDto>> selectCombinationOfCompany(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
         String deptType=ecmpOrgVo.getDeptType();
-        List<EcmpOrgDto> deptList = orgService.selectCombinationOfCompany(deptId,deptType);
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long ownerCompany = loginUser.getUser().getOwnerCompany();
+        System.out.println("####"+ownerCompany);
+        List<EcmpOrgDto> deptList = orgService.selectCombinationOfCompany(deptId,Long.parseLong(deptType),ownerCompany);
         return ApiResponse.success(deptList);
     }
 
@@ -200,8 +204,9 @@ public class OrgController {
     public ApiResponse insertCompany(@RequestBody EcmpOrgVo ecmpOrg){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
+        ecmpOrg.setCompanyId(loginUser.getUser().getOwnerCompany());
         try {
-            ecmpOrg.setDeptType(CommonConstant.SWITCH_OFF);
+            ecmpOrg.setDeptType(CommonConstant.DEPT_TYPE_ORG);
             int i = orgService.addDept(ecmpOrg,loginUser.getUser().getUserId());
             return ApiResponse.success("添加分/子公司成功");
         } catch (Exception e) {
@@ -221,7 +226,7 @@ public class OrgController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            ecmpOrg.setDeptType(CommonConstant.SWITCH_OFF);
+            //ecmpOrg.setDeptType(CommonConstant.SWITCH_OFF);
             int i = orgService.updateEcmpOrg(ecmpOrg,loginUser.getUser().getUserId());
             return ApiResponse.success("修改分/子公司成功");
         } catch (Exception e) {

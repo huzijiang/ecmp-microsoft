@@ -239,8 +239,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         int i = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         return  i;
     }
-    
-    
+
+
     @Override
 	public List<DispatchOrderInfo> queryAllWaitDispatchList() {
     	List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
@@ -283,7 +283,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 					}
 				result.add(dispatchOrderInfo);
 				}
-			
+
 			}
 		return result;
 	}
@@ -932,6 +932,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //插入订单初始信息
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderNumber(OrderUtils.getOrderNum());
+        orderInfo.setCompanyId(officialOrderReVo.getCompanyId());
         orderInfo.setServiceType(serviceType);
         if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState())){
             orderInfo.setFlightNumber(journeyInfo.getFlightNumber());

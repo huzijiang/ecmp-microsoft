@@ -11,6 +11,7 @@ import lombok.Data;
  */
 @Data
 public class OrderDriverListInfo {
+
     //服务类型
     //1000预约
     //2001接机

@@ -137,9 +137,9 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     }
 
     @Override
-    public PageResult<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, String search, Long fatherProjectId) {
+    public PageResult<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, String search, Long fatherProjectId,Long ownerCompany) {
         PageHelper.startPage(pageNum,pageSize);
-        List<ProjectInfoVO> list= projectInfoMapper.getProjectList(search,fatherProjectId);
+        List<ProjectInfoVO> list= projectInfoMapper.getProjectList(search,fatherProjectId,ownerCompany);
         if(CollectionUtils.isNotEmpty(list)){
             for (ProjectInfoVO vo:list){
                 int isdeleteCount=  projectInfoMapper.selectChildProject(vo.getProjectId());

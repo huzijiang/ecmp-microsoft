@@ -67,7 +67,7 @@ public interface IApproveTemplateNodeInfoService
     //根据节点id查询所有审批节点用户id
     String getListByNodeIds(List<Long> nodeIds);
 
-    void addFlowTemplate(AddFolwDTO addFolwDTO,Long userId)throws Exception ;
+    void addFlowTemplate(AddFolwDTO addFolwDTO,Long userId,Long ownerCompany)throws Exception ;
 
     void editFlowTemplate(AddFolwDTO addFolwDTO,Long userId)throws Exception ;
 

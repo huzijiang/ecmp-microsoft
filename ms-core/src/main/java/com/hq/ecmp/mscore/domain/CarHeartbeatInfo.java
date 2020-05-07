@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class CarHeartbeatInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -21,25 +23,6 @@ public class CarHeartbeatInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String attribute9;
-
-    public void setCarHeartbeatId(String carHeartbeatId)
-    {
-        this.carHeartbeatId = carHeartbeatId;
-    }
-
-    public String getCarHeartbeatId()
-    {
-        return carHeartbeatId;
-    }
-    public void setAttribute9(String attribute9)
-    {
-        this.attribute9 = attribute9;
-    }
-
-    public String getAttribute9()
-    {
-        return attribute9;
-    }
 
     @Override
     public String toString() {

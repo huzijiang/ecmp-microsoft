@@ -89,6 +89,19 @@ public final class CommonConstant {
     public static final String DEPT_TYPE_DEPT = "2";
     public static final String DEPT_TYPE_FLEET = "3";
 
+    //初始角色KEY
+    public static final String ROLE_ADMIN = "admin";
 
+    public static final String ROLE_SUB_ADMIN = "sub_admin";
+
+    public static final String ROLE_EMPLOYEE = "employee";
+
+    public static final String ROLE_DRIVER = "driver";
+
+    public static final String ROLE_DEPT_MANAGER = "dept_manager";
+
+    public static final String ROLE_PROJECT_MANAGER = "project_manager";
+
+    public static final String ROLE_DISPATCHER = "dispatcher";
 
 }

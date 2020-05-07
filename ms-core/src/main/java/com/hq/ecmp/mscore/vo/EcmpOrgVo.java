@@ -22,6 +22,9 @@ public class EcmpOrgVo {
     @ApiModelProperty(value = "上级组织id")
     private Long parentId;
 
+    @ApiModelProperty(value = "所属公司ID")
+    private Long companyId;
+
     @ApiModelProperty(value = "企业自定义机构编码")
     private String  deptCode;
 

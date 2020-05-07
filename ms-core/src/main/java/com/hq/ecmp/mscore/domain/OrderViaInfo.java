@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.domain;
 
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -9,10 +10,11 @@ import java.util.Date;
 
 /**
  * 【请填写功能名称】对象 order_via_info
- * 
+ *
  * @author hqer
  * @date 2020-03-12
  */
+@Data
 public class OrderViaInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -59,106 +61,6 @@ public class OrderViaInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsPassed;
-
-    public void setViaId(Long viaId) 
-    {
-        this.viaId = viaId;
-    }
-
-    public Long getViaId() 
-    {
-        return viaId;
-    }
-    public void setOrderId(Long orderId) 
-    {
-        this.orderId = orderId;
-    }
-
-    public Long getOrderId() 
-    {
-        return orderId;
-    }
-    public void setLongitude(Double longitude) 
-    {
-        this.longitude = longitude;
-    }
-
-    public Double getLongitude() 
-    {
-        return longitude;
-    }
-    public void setLatitude(Double latitude) 
-    {
-        this.latitude = latitude;
-    }
-
-    public Double getLatitude() 
-    {
-        return latitude;
-    }
-    public void setShortAddress(String shortAddress) 
-    {
-        this.shortAddress = shortAddress;
-    }
-
-    public String getShortAddress() 
-    {
-        return shortAddress;
-    }
-    public void setFullAddress(String fullAddress) 
-    {
-        this.fullAddress = fullAddress;
-    }
-
-    public String getFullAddress() 
-    {
-        return fullAddress;
-    }
-    public void setSortNumber(Integer sortNumber)
-    {
-        this.sortNumber = sortNumber;
-    }
-
-    public Integer getSortNumber()
-    {
-        return sortNumber;
-    }
-    public void setArrivedTime(Date arrivedTime) 
-    {
-        this.arrivedTime = arrivedTime;
-    }
-
-    public Date getArrivedTime() 
-    {
-        return arrivedTime;
-    }
-    public void setDuration(Long duration) 
-    {
-        this.duration = duration;
-    }
-
-    public Long getDuration() 
-    {
-        return duration;
-    }
-    public void setLeaveTime(Date leaveTime) 
-    {
-        this.leaveTime = leaveTime;
-    }
-
-    public Date getLeaveTime() 
-    {
-        return leaveTime;
-    }
-    public void setItIsPassed(String itIsPassed) 
-    {
-        this.itIsPassed = itIsPassed;
-    }
-
-    public String getItIsPassed() 
-    {
-        return itIsPassed;
-    }
 
     @Override
     public String toString() {

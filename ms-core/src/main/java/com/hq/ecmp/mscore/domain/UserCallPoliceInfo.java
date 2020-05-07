@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class UserCallPoliceInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -53,97 +55,6 @@ public class UserCallPoliceInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String result;
-
-    public void setId(Long id)
-    {
-        this.id = id;
-    }
-
-    public Long getId()
-    {
-        return id;
-    }
-    public void setUserId(String userId)
-    {
-        this.userId = userId;
-    }
-
-    public String getUserId()
-    {
-        return userId;
-    }
-    public void setUserPhone(String userPhone)
-    {
-        this.userPhone = userPhone;
-    }
-
-    public String getUserPhone()
-    {
-        return userPhone;
-    }
-    public void setArea(String area)
-    {
-        this.area = area;
-    }
-
-    public String getArea()
-    {
-        return area;
-    }
-    public void setLongitude(Long longitude)
-    {
-        this.longitude = longitude;
-    }
-
-    public Long getLongitude()
-    {
-        return longitude;
-    }
-    public void setLatitude(Long latitude)
-    {
-        this.latitude = latitude;
-    }
-
-    public Long getLatitude()
-    {
-        return latitude;
-    }
-    public void setCarLicense(String carLicense)
-    {
-        this.carLicense = carLicense;
-    }
-
-    public String getCarLicense()
-    {
-        return carLicense;
-    }
-    public void setJourneyId(String journeyId)
-    {
-        this.journeyId = journeyId;
-    }
-
-    public String getJourneyId()
-    {
-        return journeyId;
-    }
-    public void setState(String state)
-    {
-        this.state = state;
-    }
-
-    public String getState()
-    {
-        return state;
-    }
-    public void setResult(String result)
-    {
-        this.result = result;
-    }
-
-    public String getResult()
-    {
-        return result;
-    }
 
     @Override
     public String toString() {

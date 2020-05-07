@@ -38,6 +38,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectEcmpRoleVo"/>
         where role_id = #{roleId}
     </select>
+    <select id="selectEcmpRoleByRoleKey" resultMap="EcmpRoleResult"
+            parameterType="java.lang.String">
+        <include refid="selectEcmpRoleVo"/>
+        where role_key = #{roleKey}
+    </select>
 
     <insert id="insertEcmpRole" parameterType="com.hq.ecmp.mscore.domain.EcmpRole" useGeneratedKeys="true" keyProperty="roleId">
         insert into ecmp_role

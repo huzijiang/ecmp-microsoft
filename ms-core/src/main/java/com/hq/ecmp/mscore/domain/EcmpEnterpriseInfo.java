@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpEnterpriseInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -37,61 +39,6 @@ public class EcmpEnterpriseInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String uscc;
-
-    public void setEnterpriseId(Long enterpriseId)
-    {
-        this.enterpriseId = enterpriseId;
-    }
-
-    public Long getEnterpriseId()
-    {
-        return enterpriseId;
-    }
-    public void setDeptId(Long deptId)
-    {
-        this.deptId = deptId;
-    }
-
-    public Long getDeptId()
-    {
-        return deptId;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-    public void setAddress(String address)
-    {
-        this.address = address;
-    }
-
-    public String getAddress()
-    {
-        return address;
-    }
-    public void setMobile(String mobile)
-    {
-        this.mobile = mobile;
-    }
-
-    public String getMobile()
-    {
-        return mobile;
-    }
-    public void setUscc(String uscc)
-    {
-        this.uscc = uscc;
-    }
-
-    public String getUscc()
-    {
-        return uscc;
-    }
 
     @Override
     public String toString() {

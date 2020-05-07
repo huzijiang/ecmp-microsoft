@@ -59,4 +59,6 @@ public interface EcmpRoleMapper
      * @return 结果
      */
     public int deleteEcmpRoleByIds(Long[] roleIds);
+
+    EcmpRole selectEcmpRoleByRoleKey(String roleKey);
 }

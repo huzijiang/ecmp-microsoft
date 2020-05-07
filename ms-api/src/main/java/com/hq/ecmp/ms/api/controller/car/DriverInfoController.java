@@ -43,6 +43,7 @@ public class DriverInfoController {
 		 HttpServletRequest request = ServletUtils.getRequest();
 	      LoginUser loginUser = tokenService.getLoginUser(request);
 	      driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
+	      driverCreateInfo.setCompanyId(loginUser.getUser().getOwnerCompany());
 		boolean createDriver = driverInfoService.createDriver(driverCreateInfo);
 		if(createDriver){
 			return ApiResponse.success();
@@ -50,7 +51,7 @@ public class DriverInfoController {
 			return ApiResponse.error();
 		}
 	}
-	
+
 	@Log(title = "驾驶员管理:驾驶员列表", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "driverList", notes = "驾驶员列表", httpMethod = "POST")
 	@PostMapping("/driverList")
@@ -60,14 +61,14 @@ public class DriverInfoController {
 		PageResult<DriverQueryResult> pageResult = new PageResult<DriverQueryResult>(Long.valueOf(totalNum), list);
 		return ApiResponse.success(pageResult);
 	}
-	
+
 	@Log(title = "驾驶员管理:驾驶员详情", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "detail", notes = "驾驶员详情", httpMethod = "POST")
 	@PostMapping("/detail")
 	public ApiResponse<DriverQueryResult> detail(@RequestBody Long driverId) {
 		return ApiResponse.success(driverInfoService.queryDriverDetail(driverId));
 	}
-	
+
 	@Log(title = "驾驶员管理:驾驶员启用/禁用", businessType = BusinessType.UPDATE)
 	@ApiOperation(value = "optDriver", notes = "驾驶员启用/禁用", httpMethod = "POST")
 	@PostMapping("/optDriver")
@@ -78,15 +79,15 @@ public class DriverInfoController {
 		}
 		return ApiResponse.error();
 	}
-	
-	
+
+
 	@Log(title = "驾驶员管理:指定车队下的可用驾驶员", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "carGroup", notes = "指定车队下的可用驾驶员", httpMethod = "POST")
 	@PostMapping("/carGroup")
 	public ApiResponse<CarGroupDriverInfo> queryCarGroupDriverList(@RequestBody Map map) {
 		return ApiResponse.success(driverInfoService.queryCarGroupDriverList(map));
 	}
-	
+
 	@Log(title = "驾驶员管理:校验驾驶员手机号是否已经存在", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "checkMobile", notes = "校验驾驶员手机号是否已经存在", httpMethod = "POST")
 	@PostMapping("/checkMobile")
@@ -97,7 +98,7 @@ public class DriverInfoController {
 		}
 		return ApiResponse.success();
 	}
-	
+
 	@Log(title = "驾驶员管理:校验驾驶员用户的工号", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "checkjobNumber", notes = "校验驾驶员用户的工号", httpMethod = "POST")
 	@PostMapping("/checkjobNumber")
