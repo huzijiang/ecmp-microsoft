@@ -134,7 +134,7 @@
             cc.id as  costConfigCityId,
             c.company_id as companyId,
             c.cost_config_name as costConfigName,
-            c.rent_type,
+            c.rent_type as rentType,
             cc.city_name as cityName,
             c.service_type as serviceType,
             c.create_time as createTime,
