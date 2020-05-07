@@ -151,4 +151,11 @@ public interface ICarGroupInfoService
     Boolean judgeCarGroupName(String carGroupName, Long owneCompany);
 
     List<CarGroupListVO> getCarGroupList(Long userId);
+
+    /**
+     * 联系车队（通用）
+     * @param orderId
+     * @return
+     */
+    List<ContactCarGroupVO> cantactCarGroup(Long orderId);
 }

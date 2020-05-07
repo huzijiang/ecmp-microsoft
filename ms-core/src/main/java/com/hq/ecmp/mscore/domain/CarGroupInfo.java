@@ -54,6 +54,8 @@ public class CarGroupInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String telephone;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carGroupName;
 
     /** $column.columnComment */
