@@ -20,7 +20,7 @@ import java.util.List;
 public class CostConfigQueryDto extends PageRequest {
 
     @ApiModelProperty(value = "城市code")
-    private int cityCode;
+    private Integer cityCode;
 
     @ApiModelProperty(value = "成本名称")
     private String costConfigName;
@@ -30,4 +30,10 @@ public class CostConfigQueryDto extends PageRequest {
 
     @ApiModelProperty(value = "车型集合")
     private List<CostConfigCarTypeInfo> carType;
+
+    @ApiModelProperty(value = "公司Id")
+    private String companyId;
+
+    @ApiModelProperty(value = "包车类型")
+    private String rentType;
 }
