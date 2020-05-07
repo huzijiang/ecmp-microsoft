@@ -155,4 +155,6 @@ public interface CarGroupInfoMapper
      * @return
      */
     List<CarGroupInfo> selectEnableCarGroupInfoList(CarGroupInfo carGroupInfo);
+
+    List<CarGroupListVO> getCarGroupList(Long userId);
 }

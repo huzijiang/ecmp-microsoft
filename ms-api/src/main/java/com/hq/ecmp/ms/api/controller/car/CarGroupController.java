@@ -14,6 +14,7 @@ import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/cargroup")
+@Slf4j
 public class CarGroupController {
 
     @Autowired
@@ -294,6 +296,8 @@ public class CarGroupController {
             list = ecmpOrgService.selectNewCompanyCarGroupTree(ecmpOrgDto.getDeptId(),null);
         } catch (Exception e) {
             e.printStackTrace();
+            log.error("车队树查询失败,公司id:{}",ecmpOrgDto.getDeptId());
+            return ApiResponse.error("车队树查询失败");
         }
         return ApiResponse.success(list);
     }
@@ -340,11 +344,11 @@ public class CarGroupController {
 
 
     /**
-     * 车队人数统计
+     * （分、子）公司车队人数统计
      * @param
      * @return
      */
-    @Log(title = "车队管理",content = "公司车队人数统计", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "公司车队总人数统计", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupCount",notes = "车队人数统计",httpMethod ="POST")
     @PostMapping("/getCarGroupCount")
     public ApiResponse<CarGroupCountVO> getCarGroupCount(

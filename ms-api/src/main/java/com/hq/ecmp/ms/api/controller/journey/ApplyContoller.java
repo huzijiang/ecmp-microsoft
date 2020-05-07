@@ -328,8 +328,35 @@ public class ApplyContoller {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
-       int count= applyInfoService.getApplyApproveCount(userId);
+        int count= applyInfoService.getApplyApproveCount(userId);
         return ApiResponse.success("查询成功",count+"");
     }
 
+    /**
+     * 校验用车制度的用车时间是否可用
+     * @return
+     */
+    @ApiOperation(value = "checkUseCarTime",notes = "校验申请用车时间是否可用",httpMethod ="POST")
+    @PostMapping("/checkUseCarTime")
+    public ApiResponse<String> checkUseCarTime(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        int count= applyInfoService.getApplyApproveCount(userId);
+        return ApiResponse.success("查询成功",count+"");
+    }
+
+    /**
+     * 校验用车制度的用车时间是否可用
+     * @return
+     */
+    @ApiOperation(value = "checkUseCarModeAndType",notes = "校验申请用车时间是否可用",httpMethod ="POST")
+    @PostMapping("/checkUseCarModeAndType")
+    public ApiResponse<String> checkUseCarModeAndType(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        int count= applyInfoService.getApplyApproveCount(userId);
+        return ApiResponse.success("查询成功",count+"");
+    }
 }

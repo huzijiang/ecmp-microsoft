@@ -84,7 +84,7 @@ public class ProjectController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long orgComcany=null;
-        EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+        EcmpOrg ecmpOrg = ecmpOrgService.getOrgByDeptId(loginUser.getUser().getDeptId());
         if (ecmpOrg!=null){
             orgComcany=ecmpOrg.getDeptId();
         }
@@ -110,7 +110,7 @@ public class ProjectController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long orgComcany=null;
         if (projectInfoDto.getProjectId()==null){
-            EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+            EcmpOrg ecmpOrg = ecmpOrgService.getOrgByDeptId(loginUser.getUser().getDeptId());
             if (ecmpOrg!=null){
                 orgComcany=ecmpOrg.getDeptId();
             }
@@ -138,7 +138,7 @@ public class ProjectController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long orgComcany=null;
         if (projectInfoDto.getProjectId()==null){
-            EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+            EcmpOrg ecmpOrg = ecmpOrgService.getOrgByDeptId(loginUser.getUser().getDeptId());
             if (ecmpOrg!=null){
                 orgComcany=ecmpOrg.getDeptId();
             }
@@ -186,7 +186,7 @@ public class ProjectController {
         ProjectInfo projectInfo = new ProjectInfo();
         BeanUtils.copyProperties(projectInfoDto,projectInfo);
         projectInfo.setIsEffective(ZERO);
-        EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+        EcmpOrg ecmpOrg = ecmpOrgService.getOrgByDeptId(loginUser.getUser().getDeptId());
         if (ecmpOrg!=null){
             projectInfo.setOwnerCompany(ecmpOrg.getDeptId());
         }
@@ -269,11 +269,17 @@ public class ProjectController {
     @ApiOperation(value = "显示部门及员工树",notes = "显示部门及员工树",httpMethod ="POST")
     @PostMapping("/selectProjectUserTree")
     public ApiResponse<List<OrgTreeVo>> selectProjectUserTree(@RequestBody ProjectInfoDTO projectInfoDto){
-
-        OrgTreeVo deptList = iProjectInfoService.selectProjectUserTree(projectInfoDto.getProjectId());
+        OrgTreeVo deptList=null;
         List<OrgTreeVo> lsit=new ArrayList<>();
-        lsit.add(deptList);
+        if (StringUtils.isEmpty(projectInfoDto.getName())){
+            deptList = iProjectInfoService.selectProjectUserTree(projectInfoDto.getProjectId());
+            lsit.add(deptList);
+        }else {
+            lsit= iProjectInfoService.selectProjectUserBySearch(projectInfoDto.getProjectId(), projectInfoDto.getName());
+        }
         return ApiResponse.success(lsit);
+
+
     }
 
     @ApiOperation(value = "getProjectUserInfo",notes = "根据项目id获取已绑定所有成员列表",httpMethod ="POST")
@@ -284,7 +290,7 @@ public class ProjectController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long orgComcany=null;
         if (projectDto.getProjectId()==null){
-            EcmpOrg ecmpOrg = this.getOrgByDeptId(loginUser.getUser().getDeptId());
+            EcmpOrg ecmpOrg = ecmpOrgService.getOrgByDeptId(loginUser.getUser().getDeptId());
             if (ecmpOrg!=null){
                 orgComcany=ecmpOrg.getDeptId();
             }
@@ -348,26 +354,6 @@ public class ProjectController {
         return ApiResponse.success();
     }
 
-    private EcmpOrg getOrgByDeptId(Long deptId){
-        EcmpOrg ecmpOrg = ecmpOrgService.selectEcmpOrgById(deptId);
-        if (DEPT_TYPE_ORG.equals(ecmpOrg.getDeptType())){//是公司
-            return ecmpOrg;
-        }else{
-            String ancestors = ecmpOrg.getAncestors();
-            if (StringUtils.isNotEmpty(ancestors)){
-                String[] split = ancestors.split(",");
-                for (int i=split.length-1;i>=0;i--){
-                    if (SWITCH_ON.equals(split[i])){
-                        continue;
-                    }
-                    EcmpOrg org= ecmpOrgService.selectEcmpOrgById(Long.parseLong(split[i]));
-                    if (DEPT_TYPE_ORG.equals(org.getDeptType())){//是公司
-                        return org;
-                    }
-                }
-            }
-            return null;
-        }
-    }
+
 
 }

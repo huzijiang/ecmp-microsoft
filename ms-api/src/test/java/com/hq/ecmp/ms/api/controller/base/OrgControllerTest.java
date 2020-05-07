@@ -1,10 +1,9 @@
 package com.hq.ecmp.ms.api.controller.base;
 
-import static com.hq.ecmp.constant.CommonConstant.DEPT_TYPE_ORG;
-import static com.hq.ecmp.constant.CommonConstant.PROJECT_USER_TREE;
-
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.hq.api.system.domain.SysDriver;
 import com.hq.common.utils.StringUtils;
@@ -13,6 +12,7 @@ import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
@@ -23,9 +23,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.alibaba.fastjson.JSON;
 import com.hq.api.system.domain.SysUser;
-import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
-import com.hq.ecmp.mscore.mapper.ProjectInfoMapper;
-import com.hq.ecmp.mscore.mapper.ProjectUserRelationInfoMapper;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IApproveTemplateInfoService;
 import com.hq.ecmp.mscore.service.IApproveTemplateNodeInfoService;
@@ -38,6 +35,10 @@ import com.hq.ecmp.mscore.vo.ApprovalListVO;
 import com.hq.ecmp.mscore.vo.ApprovalUserVO;
 import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import com.hq.ecmp.util.RedisUtil;
+
+import javax.annotation.Resource;
+
+import static com.hq.ecmp.constant.CommonConstant.*;
 
 /**
  * @Author: chao.zhang
@@ -57,6 +58,10 @@ class OrgControllerTest {
     private IApproveTemplateNodeInfoService nodeInfoService;
     @Autowired
     private ProjectInfoMapper projectInfoMapper;
+    @Autowired
+    private ICarInfoService carInfoService;
+    @Autowired
+    private IDriverInfoService driverInfoService;
     @Autowired
     private ProjectUserRelationInfoMapper projectUserRelationInfoMapper;
     @Autowired
@@ -83,6 +88,12 @@ class OrgControllerTest {
     private IDriverHeartbeatInfoService driverHeartbeatInfoService;
     @Autowired
     private EcmpMessageService ecmpMessageService;
+    @Resource
+    private DriverServiceAppraiseeInfoMapper driverServiceAppraiseeInfoMapper;
+    @Autowired
+    private IEcmpConfigService ecmpConfigService;
+    @Autowired
+    private DriverInfoMapper driverInfoMapper;
 
 
 
@@ -125,6 +136,7 @@ class OrgControllerTest {
         System.out.println(a.equals(b));
         System.out.println("dfsfad");
     }
+
 
     @Test
     void applyPass() {
@@ -297,9 +309,9 @@ class OrgControllerTest {
     public void getApprovalList(){//根据制度获取审批人
         try {
             SysUser sysUser = new SysUser();
-            sysUser.setUserId(106l);
-            sysUser.setDeptId(252L);
-            List<ApprovalUserVO> approvalList = nodeInfoService.getApprovalList("1", "7", sysUser);
+            sysUser.setUserId(200487l);
+            sysUser.setDeptId(685l);
+            List<ApprovalUserVO> approvalList = nodeInfoService.getApprovalList("713", "", sysUser);
             System.out.println(approvalList);
         } catch (Exception e) {
             e.printStackTrace();
@@ -416,5 +428,63 @@ class OrgControllerTest {
             e.printStackTrace();
         }
     }
+    @Test
+    public void jisuanstor(){
+        Long orderNo=935l;
+        try {
+            List<DriverServiceAppraiseeInfo> driverServiceAppraiseeInfos1 = driverServiceAppraiseeInfoMapper.queryAll(new DriverServiceAppraiseeInfo(3319l));
+            String star="";
+            if (!org.springframework.util.CollectionUtils.isEmpty(driverServiceAppraiseeInfos1)){
+                Double sumAge = driverServiceAppraiseeInfos1.stream().collect(Collectors.averagingDouble(DriverServiceAppraiseeInfo::getScore));
+                star= BigDecimal.valueOf(sumAge).stripTrailingZeros().setScale(ONE, BigDecimal.ROUND_HALF_UP).toPlainString();
+            }
+            System.out.println(star);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void driverOrderUndoneList(){//根据制度获取审批人
+        try {
+            LoginUser loginUser = new LoginUser();
+            SysDriver sysDriver = new SysDriver();
+            sysDriver.setDriverId(3353l);
+            loginUser.setDriver(sysDriver);
+            List<OrderDriverListInfo> orderDriverListInfos = orderInfoService.driverOrderUndoneList(loginUser, 1, 10, -1);
+            System.out.println(JSON.toJSONString(orderDriverListInfos));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void checkAutoDispatch(){
+        try {
+            boolean b = ecmpConfigService.checkAutoDispatch();
+            System.out.println(JSON.toJSONString(b));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    public void driverWorkOrderList(){
+        try {
+            PageRequest pageRequest = new PageRequest();
+            pageRequest.setPageSize(10);
+            pageRequest.setPageNum(1);
+            pageRequest.setCarGroupId(102021l);
+            pageRequest.setSearch(null);
+            pageRequest.setDate("2020-4-27");
+            PageResult pageResult=carInfoService.carWorkOrderList(pageRequest);
+//            PageResult driverOrderVos =driverInfoService.driverWorkOrderList(pageRequest);
+            System.out.println(JSON.toJSONString(pageResult));
+//            System.out.println(JSON.toJSONString(driverOrderVos));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 }

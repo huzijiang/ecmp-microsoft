@@ -944,4 +944,22 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
          from  order_info where order_id = #{orderId}
     </select>
 
+    <select id="getCountForDispatched" parameterType="Object" resultType="java.lang.Long">
+         SELECT count(*) FROM order_info where state='S100'
+          and user_id in
+        <foreach item="userId" collection="users" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </select>
+    <select id="getCountForReassigned" parameterType="Object" resultType="java.lang.Long">
+         SELECT count(*) FROM order_info
+         where  user_id in
+            <foreach item="userId" collection="users" open="(" separator="," close=")">
+            #{userId}
+            </foreach>
+        AND order_id IN  (SELECT order_id from
+        ( SELECT order_id ,state FROM ( SELECT order_id, state FROM order_state_trace_info ORDER BY trace_id DESC) r GROUP BY r.order_id having r.state = 'S279' )
+         tmp)
+    </select>
+
 </mapper>

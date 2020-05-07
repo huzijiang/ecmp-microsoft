@@ -88,4 +88,6 @@ public interface IProjectInfoService
     List<ProjectInfo> checkProjectName(String trim, Long orgComcany, Long projectId);
 
     List<ProjectUserVO> getUsersByOrg(Long projectId, String search, Long orgComcany);
+
+    List<OrgTreeVo> selectProjectUserBySearch(Long projectId, String name);
 }

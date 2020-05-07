@@ -138,7 +138,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         A.apply_id applyId,A.approve_node_id approveNodeId,A.approve_result approveResult,A.content,
         if (A.approve_result='pass' or A.approve_result='fail',A.approve_result,A.state) state,
         B.create_time applyTime,B.apply_type applyType,B.journey_id jouneyId,C.nick_name applyName,
-        D.it_is_return itIsReturn,D.title,DATE_FORMAT(D.use_car_time, '%Y年%m月%d日 %H:%i') useCarTime,
+        D.it_is_return itIsReturn,
+        case
+        when B.apply_type='A001' then if(ISNULL(B.reason)=1 or LENGTH(trim(B.reason))=0,'公务审批列表',D.title )
+        when B.apply_type='A002' then D.title
+        end title,
+        DATE_FORMAT(D.use_car_time, '%Y年%m月%d日 %H:%i') useCarTime,
         D.start_date startDate,D.end_date endDate
         from apply_approve_result_info A
         left join apply_info B on B.apply_id=A.apply_id

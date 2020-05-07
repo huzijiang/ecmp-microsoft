@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
 import com.hq.ecmp.mscore.dto.DriverDTO;
 import com.hq.ecmp.mscore.dto.DriverLoseDTO;
 
+import com.hq.ecmp.mscore.vo.DriverOrderVo;
 import com.hq.ecmp.mscore.vo.DriverVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import org.apache.ibatis.annotations.Param;
@@ -242,4 +243,7 @@ public interface DriverInfoMapper
 
     public List<DriverVO> selectDriverInfoByCarId(@Param("workState") String workState, @Param("itIsFullTime") String itIsFullTime, @Param("businessFlag") String businessFlag,@Param("carId") Long carId);
 
+    List<DriverOrderVo> driverWorkOrderList(@Param("carGroupId")Long carGroupId,@Param("date")String date,@Param("search")String search);
+
+    Long driverWorkOrderListCount(@Param("carGroupId")Long carGroupId,@Param("date")String date,@Param("search")String search);
 }

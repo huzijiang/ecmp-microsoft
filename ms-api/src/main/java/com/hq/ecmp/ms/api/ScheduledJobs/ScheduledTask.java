@@ -50,7 +50,8 @@ public class ScheduledTask {
     private RedisUtil redisUtil;
     @Autowired
 	private IRegimeInfoService regimeInfoService;
-
+    @Autowired
+	private ICarInfoService carInfoService;
     @Autowired
     private IEcmpNoticeService iEcmpNoticeService;
 
@@ -108,6 +109,23 @@ public class ScheduledTask {
 		System.out.println("定时任务:checkRegimenExpired:校验制度是否过期开始"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		regimeInfoService.checkRegimenExpired();
 		System.out.println("定时任务:checkRegimenExpired:校验制度是否过期结束"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
+
+	/**
+	 * 每天0点15分检验车辆状态
+	 */
+	@Scheduled(cron = "0 15 0 * * ? ")
+	public void checkCarState(){
+		log.info("定时任务:checkCarState:校验车辆状态开始,{}",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		long start = System.currentTimeMillis();
+		try {
+			carInfoService.checkCarState();
+		} catch (Exception e) {
+			log.error("校验车辆状态异常");
+			e.printStackTrace();
+		}
+		long end = System.currentTimeMillis();
+		log.info("定时任务:checkCarState:校验车辆状态结束,{}，耗时：{}",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()),end-start);
 	}
     
     

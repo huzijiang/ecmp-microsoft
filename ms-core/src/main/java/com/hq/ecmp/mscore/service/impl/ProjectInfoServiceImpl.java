@@ -257,6 +257,17 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         return ecmpUserMapper.getUsersByCompany(search,orgComcany);
     }
 
+    @Override
+    public List<OrgTreeVo> selectProjectUserBySearch(Long projectId, String name) {
+        ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectId);
+        Long orgId=null;
+        if (projectInfo!=null&&projectInfo.getIsAllUserUse()!=ZERO){
+            orgId=projectInfo.getOwnerCompany();
+        }
+        List<OrgTreeVo> vo=projectUserRelationInfoMapper.selectProjectUserBySearch(projectId,name,orgId);
+        return vo;
+    }
+
     private OrgTreeVo getChildNode(OrgTreeVo orgTreeVos, List<UserTreeVo> userList) {
         if (CollectionUtils.isEmpty(userList)) {
             return orgTreeVos;
