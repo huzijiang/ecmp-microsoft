@@ -73,11 +73,33 @@ public class DateFormatUtils {
      */
     public static Date parseDate(String pattern, String dateString) {
         try {
-            return FastDateFormat.getInstance(pattern).parse(dateString);
-        } catch (ParseException e) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+            Date dateTime = null;
+            try {
+                dateTime = simpleDateFormat.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return dateTime;
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String timeStamp2Date(String seconds,String format) {
+        if(StringUtils.isBlank(seconds)){
+            return "";
+        }
+        if(format == null || format.isEmpty()){
+            format = DATE_TIME_FORMAT;
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        if (seconds.length()==13){
+            return sdf.format(new Date(Long.valueOf(seconds)));
+        }else{
+            return sdf.format(new Date(Long.valueOf(seconds+"000")));
+        }
     }
 
     /**
@@ -333,7 +355,9 @@ public class DateFormatUtils {
 
      public  static void main(String[] args){
          Date date = parseDate(DATE_TIME_FORMAT, "2020-04-10 22:22:22");
-         int i=compareDay(date,new Date());
+         System.out.println(date);
+         System.out.println(date.getTime());
+         int i=compareTime("2020-05-06 19:30:50","2020-05-07 19:30:50");
          if (i==-1){
              System.out.println("大于当前时间");
          }else if (i==0){
@@ -342,7 +366,5 @@ public class DateFormatUtils {
              System.out.println("小于当前时候");
          }
 
-         System.out.println(date.toString());
-         System.out.println(new Date().toString());
      }
 }
