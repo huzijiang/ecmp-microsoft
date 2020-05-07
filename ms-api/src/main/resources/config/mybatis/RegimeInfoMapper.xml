@@ -260,7 +260,14 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
 	    as_use_car_mode_owner_level AS asUseCarModeOwnerLevel,
 	    as_use_car_mode_online_level AS asUseCarModeOnlineLevel,
 	    as_allow_date_round AS asAllowDateRound,
-	    as_setout_equal_arrive AS asSetoutEqualArrive
+	    as_setout_equal_arrive AS asSetoutEqualArrive,
+	    cost_center as costCenter,
+        limit_type as limitType,
+        limit_money as limitMoney,
+        travel_city_use_car_limit_type as travelCityUseCarLimitType,
+        travel_city_use_car_limit_money as travelCityUseCarLimitMoney,
+        travel_limit_type as travelLimitType,
+        travel_limit_money as travelLimitMoney
         from regime_info
         where regimen_id = #{regimeId}
         and state = 'Y000'

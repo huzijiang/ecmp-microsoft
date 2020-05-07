@@ -5,7 +5,7 @@
     <resultMap type="com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo" id="EcmpEnterpriseInvitationInfoMap">
     <result property="invitationId" column="invitation_id" jdbcType="INTEGER"/>
     <result property="name" column="name" jdbcType="VARCHAR"/>
-    <result property="enterpriseId" column="enterprise_id" jdbcType="INTEGER"/>
+    <result property="enterpriseId" column="company_id" jdbcType="INTEGER"/>
     <result property="departmentId" column="department_id" jdbcType="INTEGER"/>
     <result property="carGroupId" column="car_group_id" jdbcType="INTEGER"/>
     <result property="type" column="type" jdbcType="VARCHAR"/>
@@ -22,7 +22,7 @@
     <!--查询单个-->
     <select id="queryById" resultMap="EcmpEnterpriseInvitationInfoMap">
         select
-          invitation_id, name, enterprise_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time
+          invitation_id, name, company_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time
         from ecmp.ecmp_enterprise_invitation_info
         where invitation_id = #{invitationId}
     </select>
@@ -30,7 +30,7 @@
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="EcmpEnterpriseInvitationInfoMap">
         select
-          invitation_id, name, enterprise_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time
+          invitation_id, name, company_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time
         from ecmp.ecmp_enterprise_invitation_info
         limit #{offset}, #{limit}
     </select>
@@ -38,7 +38,7 @@
     <!--通过实体作为筛选条件查询-->
     <select id="queryAll" resultMap="EcmpEnterpriseInvitationInfoMap">
         select
-          invitation_id, name, enterprise_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time
+          invitation_id, name, company_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time
         from ecmp.ecmp_enterprise_invitation_info
         <where>
             <if test="invitationId != null">
@@ -48,7 +48,7 @@
                 and name = #{name}
             </if>
             <if test="enterpriseId != null">
-                and enterprise_id = #{enterpriseId}
+                and company_id = #{enterpriseId}
             </if>
             <if test="departmentId != null">
                 and department_id = #{departmentId}
@@ -88,7 +88,7 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="invitationId" useGeneratedKeys="true">
-        insert into ecmp.ecmp_enterprise_invitation_info(name, enterprise_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time)
+        insert into ecmp.ecmp_enterprise_invitation_info(name, company_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time)
         values (#{name}, #{enterpriseId}, #{departmentId}, #{carGroupId}, #{type}, #{roseId}, #{regimeIds}, #{url}, #{state}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
     </insert>
 
@@ -100,7 +100,7 @@
                 name = #{name},
             </if>
             <if test="enterpriseId != null">
-                enterprise_id = #{enterpriseId},
+                company_id = #{enterpriseId},
             </if>
             <if test="departmentId != null">
                 department_id = #{departmentId},
@@ -150,7 +150,7 @@
       a.invitation_id AS invitationId,
       a.NAME AS yqName,
       a.url AS url,
-      (SELECT dept_name from ecmp_org where dept_id=a.enterprise_id) AS companyName,
+      (SELECT dept_name from ecmp_org where dept_id=a.company_id) AS companyName,
       (SELECT dept_name from ecmp_org where dept_id=a.department_id)  AS deptName,
       (SELECT GROUP_CONCAT(name) from  regime_info where find_in_set(regimen_id,a.regime_ids)) AS regimeUser,
       (select count(*) as amountPass from ecmp_enterprise_register_info d where invitation_id=a.invitation_id and d.state='S001') AS amountPass,
@@ -187,20 +187,20 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
         from ecmp_enterprise_invitation_info  a
         left join regime_info b
         on find_in_set(b.regimen_id,a.regime_ids)
-        left join ecmp_org c on c.dept_id = a.enterprise_id
+        left join ecmp_org c on c.dept_id = a.company_id
         left join ecmp_role f on f.role_id = a.rose_id
         left join ecmp_org e on e.dept_id = a.department_id
         left join (select d.invitation_id, count(*) as amountPass from ecmp_enterprise_register_info d where d.state='S001' group by d.invitation_id) d_amountPass on d_amountPass.invitation_id = a.invitation_id
         left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
         where a.type='T001'and a.invitation_id = #{invitationId}
-        group by a.name,a.enterprise_id,a.department_id
+        group by a.name,a.company_id,a.department_id
     </select>
     <!--驾驶员工列表-->
     <select id="queryInvitationDriver" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.InvitationDriverVO">
         select a.invitation_id as invitationId,
         a.name as yqName,
         a.url AS url,
-        (SELECT dept_name from ecmp_org where dept_id=a.enterprise_id) AS companyName,
+        (SELECT dept_name from ecmp_org where dept_id=a.company_id) AS companyName,
         (SELECT car_group_name from car_group_info where car_group_id= a.car_group_id) AS carGroupName,
         (select count(*) as carNum from car_info b where b.car_group_id = a.car_group_id and b.state='S000') as carNum,
         (select count(*) as amountPass from ecmp_enterprise_register_info d where d.invitation_id=a.invitation_id and d.state='S001')as amountPass,
@@ -227,21 +227,21 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
                       else '无状态' END as stateValue
         from ecmp_enterprise_invitation_info  a
         left join (select b.car_group_id,count(*) as carNum from car_info b where b.state='S000' group by b.car_group_id ) b_amountCar on b_amountCar.car_group_id=a.car_group_id
-        left join ecmp_org c on c.dept_id = a.enterprise_id
+        left join ecmp_org c on c.dept_id = a.company_id
         left join ecmp_role f on f.role_id = a.rose_id
         left join car_group_info e on e.car_group_id= a.car_group_id
         left join (select d.invitation_id, count(*) as amountPass from ecmp_enterprise_register_info d where d.state='S001' group by d.invitation_id) d_amountPass on d_amountPass.invitation_id = a.invitation_id
         left join (select d.invitation_id, count(*) as amountWait from ecmp_enterprise_register_info d where d.state='S000' group by d.invitation_id) d_amountWait on d_amountWait.invitation_id = a.invitation_id
         where a.type='T002'and a.invitation_id = #{invitationId}
-        group by a.name,a.enterprise_id,a.car_group_id
+        group by a.name,a.company_id,a.car_group_id
 
     </select>
    <!-- <insert id="insertDriverInvitation"  parameterType="com.hq.ecmp.mscore.dto.DriverInvitationDTO">
-        insert into ecmp_enterprise_invitation_info(name, enterprise_id, car_group_id, type, rose_id, regime_ids, url, state, create_time)
+        insert into ecmp_enterprise_invitation_info(name, company_id, car_group_id, type, rose_id, regime_ids, url, state, create_time)
         values (#{name}, #{enterpriseId}, #{carGroupId}, #{type}, #{roseId}, #{regimeIds}, #{url}, #{state},  #{createTime})
     </insert>-->
   <!--  <insert id="insertUserInvitation"  parameterType="com.hq.ecmp.mscore.dto.UserInvitationDTO">
-        insert into ecmp_enterprise_invitation_info(name, enterprise_id, department_id, type, rose_id, regime_ids, url, state, create_time)
+        insert into ecmp_enterprise_invitation_info(name, company_id, department_id, type, rose_id, regime_ids, url, state, create_time)
         values (#{name}, #{enterpriseId}, #{departmentId}, #{type}, #{roseId}, #{regimeIds}, #{url}, #{state}, #{createTime})
     </insert>-->
     <!--通过主键修改数据-->
@@ -271,7 +271,7 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
         insert into ecmp_enterprise_invitation_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null ">name,</if>
-            <if test="enterpriseId != null  and enterpriseId != ''">enterprise_id,</if>
+            <if test="enterpriseId != null  and enterpriseId != ''">company_id,</if>
             <if test="departmentId != null  and departmentId != ''">department_id,</if>
             <if test="type != null  and type != ''">type,</if>
             <if test="roseId != null  and roseId != ''">rose_id,</if>
@@ -297,7 +297,7 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
         insert into ecmp_enterprise_invitation_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null ">name,</if>
-            <if test="enterpriseId != null  and enterpriseId != ''">enterprise_id,</if>
+            <if test="enterpriseId != null  and enterpriseId != ''">company_id,</if>
             <if test="carGroupId != null  and carGroupId != ''">car_group_id,</if>
             <if test="type != null  and type != ''">type,</if>
             <if test="roseId != null  and roseId != ''">rose_id,</if>
