@@ -143,9 +143,9 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
      * @return
      */
     @Override
-    public PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize) {
+    public PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize,Long companyId) {
             PageHelper.startPage(pageNum,pageSize);
-            List<EcmpNotice> list =  ecmpNoticeMapper.selectNoticeSearchList();
+            List<EcmpNotice> list =  ecmpNoticeMapper.selectNoticeSearchList(companyId);
             for(EcmpNotice ecmpNotice: list){
                 List<Long> bucIds = ecmpNoticeMappingMapper.selectNoticeId(ecmpNotice.getNoticeId());
                 ecmpNotice.setBucIds(bucIds);

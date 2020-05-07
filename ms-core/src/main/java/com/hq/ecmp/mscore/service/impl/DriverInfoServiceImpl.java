@@ -81,7 +81,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	private EcmpUserRoleMapper ecmpUserRoleMapper;
 	@Autowired
 	private TokenService tokenService;
-    
+
 
     /**
      * 查询【请填写功能名称】
@@ -156,12 +156,12 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     {
         return driverInfoMapper.deleteDriverInfoById(driverId);
     }
-    
-    
+
+
     @Transactional(propagation=Propagation.REQUIRED)
 	@Override
 	public boolean createDriver(DriverCreateInfo driverCreateInfo) {
-    	
+
 /*       	//生成用户记录
     	EcmpUser ecmpUser = new EcmpUser();
     	ecmpUser.setUserName(driverCreateInfo.getMobile());
@@ -204,7 +204,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		driverCreateInfo.setLockState("0000");
     	Integer createDriver = driverInfoMapper.createDriver(driverCreateInfo);
     	Long driverId = driverCreateInfo.getDriverId();
-    	
+
     	//生成驾驶员-车队关系记录
     	CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
     	carGroupDriverRelation.setCarGroupId(driverCreateInfo.getCarGroupId());
@@ -437,14 +437,14 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		}
 		carGroupDriverInfo.setCarGroupName(carGroupName);
 		if(null !=carGroupInfo){
-			Long ownerCompany = carGroupInfo.getOwnerCompany();
+			Long ownerCompany = carGroupInfo.getCompanyId();
 			if(null !=ownerCompany){
 				EcmpOrg company = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
 				if(null !=company){
 					carGroupDriverInfo.setCompanyName(company.getDeptName());
 				}
 			}
-			Long ownerOrg = carGroupInfo.getOwnerOrg();
+			Long ownerOrg = carGroupInfo.getCompanyId();
 			if(null !=ownerOrg){
 				EcmpOrg dept = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
 				if(null !=dept){
@@ -464,7 +464,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 					if(null!=selectEcmpUserList){
 						carGroupDriverInfo.setDeptUserNum(selectEcmpUserList.size());
 					}
-					
+
 				}
 			}
 		}

@@ -137,12 +137,15 @@ public class SceneInfoServiceImpl implements ISceneInfoService
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void saveScene(SceneDTO sceneDTO, Long userId) throws Exception {
+    public void saveScene(SceneDTO sceneDTO, Long userId ,Long ownerCompany) throws Exception {
         SceneInfo sceneInfo = new SceneInfo();
         //图标名称
         sceneInfo.setIcon(sceneDTO.getIcon());
         //场景名称
         sceneInfo.setName(sceneDTO.getName());
+
+        //所属公司
+        sceneInfo.setCompanyId(ownerCompany);
         //创建人
         sceneInfo.setCreateBy(String.valueOf(userId));
         //创建时间
@@ -248,10 +251,10 @@ public class SceneInfoServiceImpl implements ISceneInfoService
      * @return
      */
     @Override
-    public PageResult<SceneListVO> seleSceneByPage(PageRequest pageRequest) {
+    public PageResult<SceneListVO> seleSceneByPage(PageRequest pageRequest,Long ownerCompany) {
         //分页查询场景
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
-        List<SceneInfo> sceneInfos = sceneInfoMapper.selectAll(pageRequest.getSearch());
+        List<SceneInfo> sceneInfos = sceneInfoMapper.selectAll(pageRequest.getSearch(),ownerCompany);
         //查询场景对应的用车制度
         ArrayList<SceneListVO> list = Lists.newArrayList();
         SceneListVO sceneListVO = null;

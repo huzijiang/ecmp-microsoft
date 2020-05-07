@@ -18,6 +18,11 @@ public class ApproveTemplateInfo extends BaseEntity
     /** $column.columnComment */
     private Long approveTemplateId;
 
+    /**
+     * 审批流程模块所属公司ID
+     */
+    private Long ownerCompany;
+
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String name;
@@ -48,11 +53,20 @@ public class ApproveTemplateInfo extends BaseEntity
     public ApproveTemplateInfo() {
     }
 
+    public Long getOwnerCompany() {
+        return ownerCompany;
+    }
+
+    public void setOwnerCompany(Long ownerCompany) {
+        this.ownerCompany = ownerCompany;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("approveTemplateId", getApproveTemplateId())
             .append("name", getName())
+            .append("ownerCompany", getOwnerCompany())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

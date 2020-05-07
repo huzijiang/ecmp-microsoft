@@ -178,6 +178,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
           <if test="driverName != null ">driver_name,</if>
            <if test="mobile != null ">mobile,</if>
+            <if test="companyId != null ">company_id,</if>
            <if test="gender != null ">gender,</if>
            <if test="idCard != null ">id_card,</if>
            <if test="licenseType != null ">license_type,</if>
@@ -195,6 +196,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="driverName != null ">#{driverName},</if>
             <if test="mobile != null ">#{mobile},</if>
+            <if test="companyId != null ">#{companyId},</if>
             <if test="gender != null ">#{gender},</if>
             <if test="idCard != null ">#{idCard},</if>
             <if test="licenseType != null ">#{licenseType},</if>

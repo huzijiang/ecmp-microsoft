@@ -19,64 +19,65 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EcmpMessage implements Serializable {
+
     private static final long serialVersionUID = 480753607230255189L;
-    
+
     private Long id;
     /**
-    * 对应用户类型（1.乘客，2.司机，3.调度员。4，审批员）
-    */
+     * 对应用户类型（1.乘客，2.司机，3.调度员。4，审批员）
+     */
     private Integer configType;
     /**
-    * 对应用户类型id
-    */
+     * 对应用户类型id
+     */
     private Long ecmpId;
     private Long categoryId;
     private Long applyId;
     /**
-    * 消息类型
-T001-业务消息
-T002-
-T003
-T004
-    */
+     * 消息类型
+     * T001-业务消息
+     * T002-
+     * T003
+     * T004
+     */
     private String type;
     /**
-    * 消息状态  分已读 和 未读
-0000-已读
-1111-未读
-    */
+     * 消息状态  分已读 和 未读
+     * 0000-已读
+     * 1111-未读
+     */
     private String status;
 
     private String content;
     /**
-    * 消息类别，随业务自行添加
-M001  申请通知
-M002  审批通知
-M003  调度通知
-M004  订单改派
-M005  订单取消
-M999  其他
-    */
+     * 消息类别，随业务自行添加
+     * M001  申请通知
+     * M002  审批通知
+     * M003  调度通知
+     * M004  订单改派
+     * M005  订单取消
+     * M999  其他
+     */
     private String category;
     /**
-    * 事项处理跳转链接地址，
-需要密切联系业务调整规则
-
-大部分应该是跳转到  事项处理的列表页
-
-单个具体事项出题 请带上 业务的主键ID，
-    */
+     * 事项处理跳转链接地址，
+     * 需要密切联系业务调整规则
+     * <p>
+     * 大部分应该是跳转到  事项处理的列表页
+     * <p>
+     * 单个具体事项出题 请带上 业务的主键ID，
+     */
     private String url;
-    
+
     private Long createBy;
-    
+
     private Date createTime;
-    
+
     private Long updateBy;
-    
+
     private Date updateTime;
 
-    public EcmpMessage(Integer configType, String status,Long ecmpId,Long categoryId) {
+    public EcmpMessage(Integer configType, String status, Long ecmpId, Long categoryId) {
         this.configType = configType;
         this.status = status;
         this.ecmpId = ecmpId;
@@ -102,7 +103,8 @@ M999  其他
         this.createBy = createBy;
         this.createTime = createTime;
     }
-    public EcmpMessage(Integer configType, Long ecmpId, Long categoryId,Long applyId, String type, String status, String content, String category, Long createBy, Date createTime) {
+
+    public EcmpMessage(Integer configType, Long ecmpId, Long categoryId, Long applyId, String type, String status, String content, String category, Long createBy, Date createTime) {
         this.configType = configType;
         this.ecmpId = ecmpId;
         this.categoryId = categoryId;

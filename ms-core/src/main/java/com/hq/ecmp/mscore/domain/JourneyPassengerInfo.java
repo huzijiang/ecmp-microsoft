@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class JourneyPassengerInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -33,52 +35,6 @@ public class JourneyPassengerInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsPeer;
-
-    public void setJourneyPassengerId(Long journeyPassengerId)
-    {
-        this.journeyPassengerId = journeyPassengerId;
-    }
-
-    public Long getJourneyPassengerId()
-    {
-        return journeyPassengerId;
-    }
-    public void setJourneyId(Long journeyId)
-    {
-        this.journeyId = journeyId;
-    }
-
-    public Long getJourneyId()
-    {
-        return journeyId;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-    public void setMobile(String mobile)
-    {
-        this.mobile = mobile;
-    }
-
-    public String getMobile()
-    {
-        return mobile;
-    }
-    public void setItIsPeer(String itIsPeer)
-    {
-        this.itIsPeer = itIsPeer;
-    }
-
-    public String getItIsPeer()
-    {
-        return itIsPeer;
-    }
 
     public JourneyPassengerInfo() {
     }

@@ -40,10 +40,6 @@ public class CarGroupInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long ownerOrg;
-
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long leader;
 
     /** $column.columnComment */
@@ -82,62 +78,7 @@ public class CarGroupInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long ownerCompany;   //TODO 新增 所属公司id
-
-    public String getTelephone() {
-        return telephone;
-    }
-
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
-    }
-
-
-    public void setCarGroupId(Long carGroupId)
-    {
-        this.carGroupId = carGroupId;
-    }
-
-    public Long getCarGroupId()
-    {
-        return carGroupId;
-    }
-    public void setCity(String city)
-    {
-        this.city = city;
-    }
-
-    public String getCity()
-    {
-        return city;
-    }
-    public void setCityName(String cityName)
-    {
-        this.cityName = cityName;
-    }
-
-    public String getCityName()
-    {
-        return cityName;
-    }
-    public void setOwnerOrg(Long ownerOrg)
-    {
-        this.ownerOrg = ownerOrg;
-    }
-
-    public Long getOwnerOrg()
-    {
-        return ownerOrg;
-    }
-    public void setLeader(Long leader)
-    {
-        this.leader = leader;
-    }
-
-    public Long getLeader()
-    {
-        return leader;
-    }
+    private Long companyId;   //TODO 新增 所属公司id
 
     @Override
     public String toString() {
@@ -145,7 +86,6 @@ public class CarGroupInfo extends BaseEntity
             .append("carGroupId", getCarGroupId())
             .append("city", getCity())
             .append("cityName", getCityName())
-            .append("ownerOrg", getOwnerOrg())
             .append("leader", getLeader())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())

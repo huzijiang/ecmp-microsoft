@@ -153,7 +153,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM
         project_info a
         LEFT JOIN ecmp_user b ON b.user_id = a.leader
-        where a.is_effective!=4
+        where a.is_effective!=4 and a.owner_company = #{ownerCompany}
             <if test="search!=null and search!=''">
               and (a.name like CONCAT('%',#{search},'%') or a.project_code = #{search})
             </if>

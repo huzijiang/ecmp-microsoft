@@ -65,7 +65,7 @@ public interface ISceneInfoService
      * @return 结果
      */
     public int deleteSceneInfoById(Long sceneId);
-    
+
     /**
      * 获取用户的用车场景
      * @param
@@ -79,7 +79,7 @@ public interface ISceneInfoService
      * @param userId
      * @return
      */
-    void saveScene(SceneDTO sceneDTO, Long userId) throws Exception;
+    void saveScene(SceneDTO sceneDTO, Long userId,Long ownerCompany) throws Exception;
 
     /**
      * 修改用车场景
@@ -101,7 +101,7 @@ public interface ISceneInfoService
      * @param pageRequest
      * @return
      */
-    PageResult<SceneListVO> seleSceneByPage(PageRequest pageRequest);
+    PageResult<SceneListVO> seleSceneByPage(PageRequest pageRequest,Long ownerCompany);
 
     /**
      * 场景排序 上、下移
@@ -109,7 +109,7 @@ public interface ISceneInfoService
      * @param userId
      */
     void sortScene(SceneSortDTO sceneSortDTO, Long userId);
-    
+
     /**
      * 查询制度对应的场景名称
      * @param regimeId

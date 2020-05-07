@@ -1,6 +1,9 @@
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
@@ -14,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +29,8 @@ public class EcmpUserController {
     @Autowired
     private IEcmpUserService ecmpUserService;
 
-
+    @Autowired
+    TokenService tokenService;
 
     /*
      * 新增员工信息
@@ -44,6 +49,9 @@ public class EcmpUserController {
             }
         }*/
         /*用户可自由选择该员工所属部门*/
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        ecmpUser.setOwnerCompany(loginUser.getUser().getOwnerCompany());
         String s = ecmpUserService.addEcmpUser(ecmpUser);
         /*保存用车制度 （多个）*/
         return ApiResponse.success(s);
@@ -257,8 +265,8 @@ public class EcmpUserController {
         List<EcmpUser> selectEcmpUserList = ecmpUserService.selectEcmpUserList(ecmpUser);
         return ApiResponse.success(selectEcmpUserList);
     }
- 
-    
+
+
     /**
      * 据分子公司+员工姓名查询所有员工
      * @return*/
@@ -268,7 +276,7 @@ public class EcmpUserController {
     	List<EcmpUserDto> result=ecmpUserService.queryUserListByCompanyIdAndName(ecmpUser.getDeptId(),ecmpUser.getNickName(),ecmpUser.getItIsDispatcher());
     	return ApiResponse.success(result);
     }
-    	
+
 
     /**
      * 查询所有有效员工

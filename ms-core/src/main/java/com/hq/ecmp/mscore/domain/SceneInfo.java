@@ -18,6 +18,11 @@ public class SceneInfo extends BaseEntity
     /** $column.columnComment */
     private Long sceneId;
 
+    /**
+     * 所属公司ID
+     */
+    private Long companyId;
+
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String name;
@@ -80,11 +85,20 @@ public class SceneInfo extends BaseEntity
         return effectStatus;
     }
 
+    public Long getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Long companyId) {
+        this.companyId = companyId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("sceneId", getSceneId())
             .append("name", getName())
+            .append("companyId", getCompanyId())
             .append("sortNo", getSortNo())
             .append("icon", getIcon())
             .append("effectStatus", getEffectStatus())

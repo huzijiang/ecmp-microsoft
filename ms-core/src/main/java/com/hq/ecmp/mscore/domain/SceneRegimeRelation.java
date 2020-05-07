@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -17,6 +18,7 @@ import com.hq.core.web.domain.BaseEntity;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class SceneRegimeRelation extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -28,25 +30,6 @@ public class SceneRegimeRelation extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long regimenId;
-
-    public void setSceneId(Long sceneId)
-    {
-        this.sceneId = sceneId;
-    }
-
-    public Long getSceneId()
-    {
-        return sceneId;
-    }
-    public void setRegimenId(Long regimenId)
-    {
-        this.regimenId = regimenId;
-    }
-
-    public Long getRegimenId()
-    {
-        return regimenId;
-    }
 
     @Override
     public String toString() {

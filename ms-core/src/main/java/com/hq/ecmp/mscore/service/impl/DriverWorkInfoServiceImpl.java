@@ -192,8 +192,8 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
      * @return
      */
     @Override
-    public List<WorkInfoMonthVo> getWorkInfoMonthList(String month){
-        return driverWorkInfoMapper.getWorkInfoMonthList(month);
+    public List<WorkInfoMonthVo> getWorkInfoMonthList(String month,Long companyId){
+        return driverWorkInfoMapper.getWorkInfoMonthList(month,companyId);
     }
 
     /**

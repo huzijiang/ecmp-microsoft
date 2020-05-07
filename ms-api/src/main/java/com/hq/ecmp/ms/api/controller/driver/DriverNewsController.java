@@ -240,8 +240,12 @@ public class DriverNewsController {
     @Log(title = "驾驶员管理模块:按月获取全部司机排班详情", businessType = BusinessType.OTHER)
     @PostMapping("/getMonthWorkDetail")
     public ApiResponse<List<WorkInfoMonthVo>> getMonthWorkDetail(@RequestParam("month") String month){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
         List<WorkInfoMonthVo> workInfoMonthList = null;
-        workInfoMonthList = driverWorkInfoService.getWorkInfoMonthList(month);
+
+        workInfoMonthList = driverWorkInfoService.getWorkInfoMonthList(month,companyId);
         try {
             if( StringUtils.isBlank(month)){
                 throw new Exception("参数异常");

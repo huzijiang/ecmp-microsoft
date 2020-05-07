@@ -27,6 +27,8 @@ public class RegimeInfo extends BaseEntity
     /** $column.columnComment */
     private Long regimenId;
 
+    private Long companyId;
+
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long templateId;
@@ -126,9 +128,9 @@ public class RegimeInfo extends BaseEntity
     /** Y000-生效中         N111-已失效 */
     @Excel(name = "Y000-生效中         N111-已失效")
     private String state;
-    
 
-    
+
+
     public String parseApplyType(){
     	if(StringUtil.isEmpty(this.regimenType)){
     		return "";

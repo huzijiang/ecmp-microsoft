@@ -122,4 +122,6 @@ public class EcmpUserVo {
     @ApiModelProperty(value= "员工姓名/工号/手机号")
     private String nameOrJobNumberOrPhone;
 
+    @ApiModelProperty(value= "归属公司ID")
+    private Long ownerCompany;
 }

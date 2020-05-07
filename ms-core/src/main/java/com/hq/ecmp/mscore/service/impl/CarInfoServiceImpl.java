@@ -203,6 +203,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setCarLicense(carSaveDTO.getCarLicense());
         carInfo.setCarTypeId(carSaveDTO.getEnterpriseCarTypeId());
         carInfo.setDeptId(carSaveDTO.getOwnerOrgId());
+        carInfo.setCompanyId(carSaveDTO.getCompanyId());
         carInfo.setCarGroupId(carSaveDTO.getCarGroupId());
         carInfo.setSource(carSaveDTO.getSource());  //TODO 新增
         carInfo.setBuyDate(carSaveDTO.getBuyDate());
@@ -483,7 +484,7 @@ public class CarInfoServiceImpl implements ICarInfoService
 		// 查询车队对应的部门和公司
 		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
 		if (null != carGroupInfo) {
-			Long ownerCompany = carGroupInfo.getOwnerCompany();
+			Long ownerCompany = carGroupInfo.getCompanyId();
 			if (null != ownerCompany) {
 				EcmpOrg company = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
 				if (null != company) {

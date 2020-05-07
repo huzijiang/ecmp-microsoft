@@ -11,7 +11,7 @@ public class CarTypeDTO {
 
     private Long carTypeId;
 
-    private Long enterpriseId;  //企业id
+    private Long companyId;  //企业id
 
     private Long countryCarTypeId;  // 暂用不着
 

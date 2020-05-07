@@ -37,42 +37,6 @@ public class CarGroupDispatcherInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$\ncolumn.readConverterExp()")
     private String name;
-    public void setDispatcherId(Long dispatcherId)
-    {
-        this.dispatcherId = dispatcherId;
-    }
-
-    public Long getDispatcherId()
-    {
-        return dispatcherId;
-    }
-    public void setCarGroupId(Long carGroupId)
-    {
-        this.carGroupId = carGroupId;
-    }
-
-    public Long getCarGroupId()
-    {
-        return carGroupId;
-    }
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
-
-    public Long getUserId()
-    {
-        return userId;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
 
     @Override
     public String toString() {

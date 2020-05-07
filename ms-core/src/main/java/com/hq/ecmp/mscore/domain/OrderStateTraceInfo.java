@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class OrderStateTraceInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -41,63 +43,6 @@ public class OrderStateTraceInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String content;
 
-    public void setTraceId(Long traceId)
-    {
-        this.traceId = traceId;
-    }
-
-    public Long getTraceId()
-    {
-        return traceId;
-    }
-    public void setOrderId(Long orderId)
-    {
-        this.orderId = orderId;
-    }
-
-    public Long getOrderId()
-    {
-        return orderId;
-    }
-    public void setState(String state)
-    {
-        this.state = state;
-    }
-
-    public String getState()
-    {
-        return state;
-    }
-
-    public void setDriverLongitude(Double driverLongitude)
-    {
-        this.driverLongitude = driverLongitude;
-    }
-
-
-    public Double getDriverLongitude()
-    {
-        return driverLongitude;
-    }
-    public void setDriverLatitude(Double driverLatitude)
-    {
-        this.driverLatitude = driverLatitude;
-    }
-
-
-    public Double getDriverLatitude()
-    {
-        return driverLatitude;
-    }
-    public void setContent(String content)
-    {
-        this.content = content;
-    }
-
-    public String getContent()
-    {
-        return content;
-    }
 
     public OrderStateTraceInfo() {
     }

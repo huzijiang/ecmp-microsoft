@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class CarYearlyCheckInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -33,52 +35,6 @@ public class CarYearlyCheckInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String result;
-
-    public void setYearlyCheckId(Long yearlyCheckId)
-    {
-        this.yearlyCheckId = yearlyCheckId;
-    }
-
-    public Long getYearlyCheckId()
-    {
-        return yearlyCheckId;
-    }
-    public void setCarId(Long carId)
-    {
-        this.carId = carId;
-    }
-
-    public Long getCarId()
-    {
-        return carId;
-    }
-    public void setYearCheckNextDate(String yearCheckNextDate)
-    {
-        this.yearCheckNextDate = yearCheckNextDate;
-    }
-
-    public String getYearCheckNextDate()
-    {
-        return yearCheckNextDate;
-    }
-    public void setYearCheckState(String yearCheckState)
-    {
-        this.yearCheckState = yearCheckState;
-    }
-
-    public String getYearCheckState()
-    {
-        return yearCheckState;
-    }
-    public void setResult(String result)
-    {
-        this.result = result;
-    }
-
-    public String getResult()
-    {
-        return result;
-    }
 
     @Override
     public String toString() {

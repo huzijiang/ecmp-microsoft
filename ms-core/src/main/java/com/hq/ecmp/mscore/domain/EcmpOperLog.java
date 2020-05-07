@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -12,6 +13,7 @@ import java.util.Date;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpOperLog extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -78,151 +80,6 @@ public class EcmpOperLog extends BaseEntity
     /** 操作时间 */
     @Excel(name = "操作时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date operTime;
-
-    public void setOperId(Long operId)
-    {
-        this.operId = operId;
-    }
-
-    public Long getOperId()
-    {
-        return operId;
-    }
-    public void setTitle(String title)
-    {
-        this.title = title;
-    }
-
-    public String getTitle()
-    {
-        return title;
-    }
-    public void setBusinessType(Integer businessType)
-    {
-        this.businessType = businessType;
-    }
-
-    public Integer getBusinessType()
-    {
-        return businessType;
-    }
-    public void setMethod(String method)
-    {
-        this.method = method;
-    }
-
-    public String getMethod()
-    {
-        return method;
-    }
-    public void setRequestMethod(String requestMethod)
-    {
-        this.requestMethod = requestMethod;
-    }
-
-    public String getRequestMethod()
-    {
-        return requestMethod;
-    }
-    public void setOperatorType(Integer operatorType)
-    {
-        this.operatorType = operatorType;
-    }
-
-    public Integer getOperatorType()
-    {
-        return operatorType;
-    }
-    public void setOperName(String operName)
-    {
-        this.operName = operName;
-    }
-
-    public String getOperName()
-    {
-        return operName;
-    }
-    public void setDeptName(String deptName)
-    {
-        this.deptName = deptName;
-    }
-
-    public String getDeptName()
-    {
-        return deptName;
-    }
-    public void setOperUrl(String operUrl)
-    {
-        this.operUrl = operUrl;
-    }
-
-    public String getOperUrl()
-    {
-        return operUrl;
-    }
-    public void setOperIp(String operIp)
-    {
-        this.operIp = operIp;
-    }
-
-    public String getOperIp()
-    {
-        return operIp;
-    }
-    public void setOperLocation(String operLocation)
-    {
-        this.operLocation = operLocation;
-    }
-
-    public String getOperLocation()
-    {
-        return operLocation;
-    }
-    public void setOperParam(String operParam)
-    {
-        this.operParam = operParam;
-    }
-
-    public String getOperParam()
-    {
-        return operParam;
-    }
-    public void setJsonResult(String jsonResult)
-    {
-        this.jsonResult = jsonResult;
-    }
-
-    public String getJsonResult()
-    {
-        return jsonResult;
-    }
-    public void setStatus(Integer status)
-    {
-        this.status = status;
-    }
-
-    public Integer getStatus()
-    {
-        return status;
-    }
-    public void setErrorMsg(String errorMsg)
-    {
-        this.errorMsg = errorMsg;
-    }
-
-    public String getErrorMsg()
-    {
-        return errorMsg;
-    }
-    public void setOperTime(Date operTime)
-    {
-        this.operTime = operTime;
-    }
-
-    public Date getOperTime()
-    {
-        return operTime;
-    }
 
     @Override
     public String toString() {

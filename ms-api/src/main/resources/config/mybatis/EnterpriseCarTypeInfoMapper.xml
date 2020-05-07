@@ -6,7 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo" id="EnterpriseCarTypeInfoResult">
         <result property="carTypeId"    column="car_type_id"    />
-        <result property="enterpriseId"    column="enterprise_id"    />
+        <result property="companyId"    column="company_id"    />
         <result property="countryCarTypeId"    column="country_car_type_id"    />
         <result property="name"    column="name"    />
         <result property="level"    column="level"    />
@@ -18,13 +18,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectEnterpriseCarTypeInfoVo">
-        select car_type_id, enterprise_id, country_car_type_id, name, level, status, create_by, create_time, update_by, update_time from enterprise_car_type_info
+        select car_type_id, company_id, country_car_type_id, name, level, status, create_by, create_time, update_by, update_time from enterprise_car_type_info
     </sql>
 
     <select id="selectEnterpriseCarTypeInfoList" parameterType="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo" resultType="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo">
         SELECT
         ecti.car_type_id AS carTypeId,
-        ecti.enterprise_id AS enterpriseId,
+        ecti.company_id AS companyId,
         ecti.country_car_type_id AS country_carTypeId,
         ecti. NAME,
         ecti. LEVEL,
@@ -49,7 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         LEFT JOIN
         (select car_type_id,count(car_type)num from  car_info GROUP BY car_type_id) ci_two on ecti.car_type_id = ci_two.car_type_id
         <where>
-            <if test="enterpriseId != null "> and ecti.enterprise_id = #{enterpriseId}</if>
+            <if test="companyId != null "> and ecti.company_id = #{companyId}</if>
             <if test="countryCarTypeId != null "> and ecti.country_car_type_id = #{countryCarTypeId}</if>
             <if test="name != null  and name != ''"> and ecti.name like concat('%', #{name}, '%')</if>
             <if test="level != null  and level != ''"> and ecti.level = #{level}</if>
@@ -70,7 +70,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into enterprise_car_type_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="carTypeId != null ">car_type_id,</if>
-            <if test="enterpriseId != null ">enterprise_id,</if>
+            <if test="companyId != null ">company_id,</if>
             <if test="countryCarTypeId != null ">country_car_type_id,</if>
             <if test="name != null  and name != ''">name,</if>
             <if test="level != null  and level != ''">level,</if>
@@ -82,7 +82,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="carTypeId != null ">#{carTypeId},</if>
-            <if test="enterpriseId != null ">#{enterpriseId},</if>
+            <if test="companyId != null ">#{companyId},</if>
             <if test="countryCarTypeId != null ">#{countryCarTypeId},</if>
             <if test="name != null  and name != ''">#{name},</if>
             <if test="level != null  and level != ''">#{level},</if>
@@ -97,7 +97,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateEnterpriseCarTypeInfo" parameterType="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo">
         update enterprise_car_type_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="enterpriseId != null ">enterprise_id = #{enterpriseId},</if>
+            <if test="companyId != null ">company_id = #{companyId},</if>
             <if test="countryCarTypeId != null ">country_car_type_id = #{countryCarTypeId},</if>
             <if test="name != null  and name != ''">name = #{name},</if>
             <if test="level != null  and level != ''">level = #{level},</if>
