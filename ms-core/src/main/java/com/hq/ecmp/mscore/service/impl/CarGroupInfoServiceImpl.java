@@ -261,7 +261,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //车队短地址
         carGroupInfo.setShortAddress(carGroupDTO.getShortAddress());
         //所属组织
-        carGroupInfo.setOwnerOrg(carGroupDTO.getOwnerOrg());
         //车队负责人  冗余字段 暂无数据
         carGroupInfo.setLeader(carGroupDTO.getLeader());
         //创建人
@@ -273,7 +272,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //车队座机
         carGroupInfo.setTelephone(carGroupDTO.getTelephone());
         //所属公司
-        carGroupInfo.setOwnerCompany(carGroupDTO.getOwneCompany());
+        carGroupInfo.setCompanyId(carGroupDTO.getCompanyId());
         //初始化可用
         carGroupInfo.setState("Y000");
         //1.保存车队
@@ -357,7 +356,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //根据cityCode查询城市名字
         CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(carGroupInfo.getCity());
         //查询所属组织名字
-        Long ownerOrg = carGroupInfo.getOwnerOrg();
+        Long ownerOrg = carGroupInfo.getCompanyId();
         EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
         String deptName = null;
         if(ecmpOrg != null){
@@ -541,8 +540,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setFullAddress(carGroupDTO.getFullAddress());
         //车队短地址
         carGroupInfo.setShortAddress(carGroupDTO.getShortAddress());
-        //所属组织
-        carGroupInfo.setOwnerOrg(carGroupDTO.getOwnerOrg());
         //车队负责人 冗余字段 暂无数据
         carGroupInfo.setLeader(carGroupDTO.getLeader());
         //修改人
@@ -624,7 +621,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         } else {
             //车队归属直接组织(包含-所有总公司、分公司、部门、车队)
             if(ownerOrg != null) {
-                carGroupBean.setOwnerOrg(ownerOrg);
                 carGroupList = carGroupInfoMapper.selectCarGroupInfoList(carGroupBean);
             }
         }
@@ -747,7 +743,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         } else {
             //车队归属直接组织(包含-所有总公司、分公司、部门、车队)
             if(ownerOrg != null) {
-                carGroupBean.setOwnerOrg(ownerOrg);
                 carGroupList = carGroupInfoMapper.selectCarGroupInfoList(carGroupBean);
             }
         }
@@ -828,10 +823,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 Long driverId = loginUser.getDriver().getDriverId();
                 CarGroupDriverRelation carGroupDriverRelation = carGroupDriverRelationMapper.selectCarGroupDriverRelationById(driverId);
                 //查询车队所在公司
-                ownerCompany = carGroupInfoMapper.selectCarGroupInfoById(carGroupDriverRelation.getCarGroupId()).getOwnerCompany();
+                ownerCompany = carGroupInfoMapper.selectCarGroupInfoById(carGroupDriverRelation.getCarGroupId()).getCompanyId();
             }
             CarGroupInfo carGroupInfo = new CarGroupInfo();
-            carGroupInfo.setOwnerCompany(ownerCompany);
+            carGroupInfo.setCompanyId(ownerCompany);
             //查询公司所有车队（只查启用的）
             List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectEnableCarGroupInfoList(carGroupInfo);
             if(CollectionUtils.isEmpty(carGroupInfos)){
@@ -945,7 +940,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         } else {
             //车队归属直接组织(包含-所有总公司、分公司、部门、车队)
             if(ownerOrg != null) {
-                carGroupBean.setOwnerOrg(ownerOrg);
                 carGroupList = carGroupInfoMapper.selectCarGroupInfoList(carGroupBean);
             }
         }
@@ -1007,7 +1001,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         Long parentCarGroupId = carGroupInfo.getParentCarGroupId();
         //如果是一级车队  所属组织为部门或公司
         String ownerOrgName = null;
-        long ownerOrg = carGroupInfo.getOwnerOrg();
+        long ownerOrg = carGroupInfo.getCompanyId();
         if(parentCarGroupId == 0L){
             EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
             if(ecmpOrg != null){

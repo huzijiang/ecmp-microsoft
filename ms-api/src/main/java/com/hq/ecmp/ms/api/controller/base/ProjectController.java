@@ -170,7 +170,11 @@ public class ProjectController {
     @ApiOperation(value = "getProjectList",notes = "获取项目列表",httpMethod ="POST")
     @PostMapping("/getProjectList")
     public ApiResponse<PageResult<ProjectInfoVO>> getProjectList(@RequestBody PageRequest page){
-        PageResult<ProjectInfoVO> pageInfo= iProjectInfoService.getProjectList(page.getPageNum(),page.getPageSize(),page.getSearch(),page.getFatherProjectId());
+        //获取当前登录用户的公司ID
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long ownerCompany = loginUser.getUser().getOwnerCompany();
+        PageResult<ProjectInfoVO> pageInfo= iProjectInfoService.getProjectList(page.getPageNum(),page.getPageSize(),page.getSearch(),page.getFatherProjectId(),ownerCompany);
         return ApiResponse.success(pageInfo);
     }
 

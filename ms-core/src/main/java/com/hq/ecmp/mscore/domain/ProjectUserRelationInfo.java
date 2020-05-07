@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -12,6 +13,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class ProjectUserRelationInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -24,24 +26,6 @@ public class ProjectUserRelationInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long userId;
 
-    public void setProjectId(Long projectId)
-    {
-        this.projectId = projectId;
-    }
-
-    public Long getProjectId()
-    {
-        return projectId;
-    }
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
-
-    public Long getUserId()
-    {
-        return userId;
-    }
 
     public ProjectUserRelationInfo() {
     }

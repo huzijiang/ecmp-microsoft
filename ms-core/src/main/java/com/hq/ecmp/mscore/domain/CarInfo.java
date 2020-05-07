@@ -37,6 +37,10 @@ public class CarInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long companyId;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carTypeId;
 
     /** $column.columnComment */
@@ -167,211 +171,13 @@ public class CarInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long   companyId; // TODO 新增
 
-    public void setCarId(Long carId)
-    {
-        this.carId = carId;
-    }
-
-    public Long getCarId()
-    {
-        return carId;
-    }
-    public void setCarGroupId(Long carGroupId)
-    {
-        this.carGroupId = carGroupId;
-    }
-
-    public Long getCarGroupId()
-    {
-        return carGroupId;
-    }
-    public void setDeptId(Long deptId)
-    {
-        this.deptId = deptId;
-    }
-
-    public Long getDeptId()
-    {
-        return deptId;
-    }
-    public void setCarTypeId(Long carTypeId)
-    {
-        this.carTypeId = carTypeId;
-    }
-
-    public Long getCarTypeId()
-    {
-        return carTypeId;
-    }
-    public void setCarLicense(String carLicense)
-    {
-        this.carLicense = carLicense;
-    }
-
-    public String getCarLicense()
-    {
-        return carLicense;
-    }
-    public void setState(String state)
-    {
-        this.state = state;
-    }
-
-    public String getState()
-    {
-        return state;
-    }
-    public void setCarType(String carType)
-    {
-        this.carType = carType;
-    }
-
-    public String getCarType()
-    {
-        return carType;
-    }
-    public void setSeatNum(Integer seatNum)
-    {
-        this.seatNum = seatNum;
-    }
-
-    public Integer getSeatNum()
-    {
-        return seatNum;
-    }
-    public void setCarColor(String carColor)
-    {
-        this.carColor = carColor;
-    }
-
-    public String getCarColor()
-    {
-        return carColor;
-    }
-    public void setCarLicenseColor(String carLicenseColor)
-    {
-        this.carLicenseColor = carLicenseColor;
-    }
-
-    public String getCarLicenseColor()
-    {
-        return carLicenseColor;
-    }
-    public void setPowerType(String powerType)
-    {
-        this.powerType = powerType;
-    }
-
-    public String getPowerType()
-    {
-        return powerType;
-    }
-    public void setCarType01(String carType01)
-    {
-        this.carType01 = carType01;
-    }
-
-    public String getCarType01()
-    {
-        return carType01;
-    }
-    public void setEngineNumber(String engineNumber)
-    {
-        this.engineNumber = engineNumber;
-    }
-
-    public String getEngineNumber()
-    {
-        return engineNumber;
-    }
-    public void setEngineCc(String engineCc)
-    {
-        this.engineCc = engineCc;
-    }
-
-    public String getEngineCc()
-    {
-        return engineCc;
-    }
-    public void setEnginePower(String enginePower)
-    {
-        this.enginePower = enginePower;
-    }
-
-    public String getEnginePower()
-    {
-        return enginePower;
-    }
-    public void setCarNumber(String carNumber)
-    {
-        this.carNumber = carNumber;
-    }
-
-    public String getCarNumber()
-    {
-        return carNumber;
-    }
-    public void setCarImgaeUrl(String carImgaeUrl)
-    {
-        this.carImgaeUrl = carImgaeUrl;
-    }
-
-    public String getCarImgaeUrl()
-    {
-        return carImgaeUrl;
-    }
-    public void setCarDrivingLicenseImagesUrl(String carDrivingLicenseImagesUrl)
-    {
-        this.carDrivingLicenseImagesUrl = carDrivingLicenseImagesUrl;
-    }
-
-    public String getCarDrivingLicenseImagesUrl()
-    {
-        return carDrivingLicenseImagesUrl;
-    }
-    public void setCarLicenseImageUrl(String carLicenseImageUrl)
-    {
-        this.carLicenseImageUrl = carLicenseImageUrl;
-    }
-
-    public String getCarLicenseImageUrl()
-    {
-        return carLicenseImageUrl;
-    }
-    public void setBuyDate(Date buyDate)
-    {
-        this.buyDate = buyDate;
-    }
-
-    public Date getBuyDate()
-    {
-        return buyDate;
-    }
-    public void setRentEndDate(Date rentEndDate)
-    {
-        this.rentEndDate = rentEndDate;
-    }
-
-    public Date getRentEndDate()
-    {
-        return rentEndDate;
-    }
-    public void setOwnerOrgId(Long ownerOrgId)
-    {
-        this.ownerOrgId = ownerOrgId;
-    }
-
-    public Long getOwnerOrgId()
-    {
-        return ownerOrgId;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("carId", getCarId())
             .append("carGroupId", getCarGroupId())
             .append("deptId", getDeptId())
+            .append("comppanyId", getCompanyId())
             .append("carTypeId", getCarTypeId())
             .append("carLicense", getCarLicense())
             .append("state", getState())

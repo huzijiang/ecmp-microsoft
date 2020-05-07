@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.core.web.domain.server.Sys;
 import com.hq.ecmp.ms.api.dto.base.DictDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.PageRequest;
@@ -51,7 +52,7 @@ public class SceneController {
 	private ISceneRegimeRelationService sceneRegimeRelationService;
 	@Autowired
 	private IEcmpDictDataService iEcmpDictDataService;
-	
+
 	/**
 	 * 获取用户的用车场景
 	 * @param
@@ -81,8 +82,9 @@ public class SceneController {
 		HttpServletRequest request = ServletUtils.getRequest();
 		LoginUser loginUser = tokenService.getLoginUser(request);
 		Long userId = loginUser.getUser().getUserId();
+		Long ownerCompany = loginUser.getUser().getOwnerCompany();
 		try {
-			sceneInfoService.saveScene(sceneDTO,userId);
+			sceneInfoService.saveScene(sceneDTO,userId,ownerCompany);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ApiResponse.success("保存失败");
@@ -171,7 +173,11 @@ public class SceneController {
 	@PostMapping("/getSceneList")
 	public ApiResponse<PageResult<SceneListVO>> getSceneList(@RequestBody PageRequest pageRequest) {
 		try {
-			PageResult<SceneListVO> list = sceneInfoService.seleSceneByPage(pageRequest);
+			HttpServletRequest request = ServletUtils.getRequest();
+			LoginUser loginUser = tokenService.getLoginUser(request);
+			Long ownerCompany = loginUser.getUser().getOwnerCompany();
+			System.out.println(":::"+ownerCompany);
+			PageResult<SceneListVO> list = sceneInfoService.seleSceneByPage(pageRequest,ownerCompany);
 			return ApiResponse.success(list);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -74,8 +74,8 @@ public class CarGroupDTO {
     @ApiModelProperty(name = "dispatchers", value = "调度员列表")
     private List<UserVO> dispatchers;
 
-    @ApiModelProperty(name = "owneCompany", value = "所属公司id")
-    private Long owneCompany;
+    @ApiModelProperty(name = "companyId", value = "所属公司id")
+    private Long companyId;
 
     @ApiModelProperty(name = "ownerOrgName", value = "所属组织 名称",required = false)
     private String ownerOrgName;  //回显使用

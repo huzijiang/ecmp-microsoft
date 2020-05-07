@@ -88,6 +88,7 @@ public class OrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
+            officialOrderReVo.setCompanyId(loginUser.getUser().getOwnerCompany());
             orderId = iOrderInfoService.officialOrder(officialOrderReVo,userId);
         } catch (Exception e) {
             e.printStackTrace();
@@ -273,9 +274,9 @@ public class OrderController {
 
     /**
      * 获取所有等待 调度员 调派 的订单列表(包含改派订单)
-     * 
+     *
      * 自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的驾驶员能看到该订单
-     * 
+     *
      * 只有自有车时，且上车地点不在车队的用车城市范围内，则所有车车队的所有调度员都能看到该订单
      * @param  userDto  调度员用户信息
      * @return
@@ -357,7 +358,7 @@ public class OrderController {
 		}
 
 	}
-	
+
 	/**
      * 调度 选择了自有车后生成行程预估价
      * @param orderId
@@ -382,7 +383,7 @@ public class OrderController {
 		}
 
 	}
-	
+
 
     /**
      * 评价 订单

@@ -135,9 +135,10 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
 
     @Override
     @Transactional
-    public void addFlowTemplate(AddFolwDTO addFolwDTO,Long userId) throws Exception {
+    public void addFlowTemplate(AddFolwDTO addFolwDTO,Long userId,Long ownerCompany) throws Exception {
         ApproveTemplateInfo approveTemplateInfo = new ApproveTemplateInfo();
         approveTemplateInfo.setName(addFolwDTO.getName());
+        approveTemplateInfo.setOwnerCompany(ownerCompany);
         approveTemplateInfo.setCreateBy(String.valueOf(userId));
         approveTemplateInfo.setCreateTime(new Date());
         log.info("新增审批流参数:"+addFolwDTO.getName()+"创建人"+userId+"审批级数"+addFolwDTO.getFlowList().size());

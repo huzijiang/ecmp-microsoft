@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class ApproveTemplateNodeInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -43,76 +45,6 @@ public class ApproveTemplateNodeInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String nextNodeId;
 
-    public void setApproveNodeId(Long approveNodeId)
-    {
-        this.approveNodeId = approveNodeId;
-    }
-
-    public Long getApproveNodeId()
-    {
-        return approveNodeId;
-    }
-    public void setApproveTemplateId(Long approveTemplateId)
-    {
-        this.approveTemplateId = approveTemplateId;
-    }
-
-    public Long getApproveTemplateId()
-    {
-        return approveTemplateId;
-    }
-    public void setApproverType(String approverType)
-    {
-        this.approverType = approverType;
-    }
-
-    public String getApproverType()
-    {
-        return approverType;
-    }
-    public void setLeaderLevel(String leaderLevel)
-    {
-        this.leaderLevel = leaderLevel;
-    }
-
-    public String getLeaderLevel()
-    {
-        return leaderLevel;
-    }
-    public void setRoleId(String roleId)
-    {
-        this.roleId = roleId;
-    }
-
-    public String getRoleId()
-    {
-        return roleId;
-    }
-    public void setUserId(String userId)
-    {
-        this.userId = userId;
-    }
-
-    public String getUserId()
-    {
-        return userId;
-    }
-
-    public String getNextNodeId() {
-        return nextNodeId;
-    }
-
-    public void setNextNodeId(String nextNodeId) {
-        this.nextNodeId = nextNodeId;
-    }
-
-    public String getDeptProjectId() {
-        return deptProjectId;
-    }
-
-    public void setDeptProjectId(String deptProjectId) {
-        this.deptProjectId = deptProjectId;
-    }
 
     public ApproveTemplateNodeInfo() {
     }

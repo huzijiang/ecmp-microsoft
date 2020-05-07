@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.domain;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -13,12 +14,18 @@ import java.util.Date;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpUser extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
     /** 用户ID */
     private Long userId;
+
+    /**
+     * 所属公司ID
+     */
+    private Long ownerCompany;
 
     /** 部门ID */
     @Excel(name = "部门ID")
@@ -93,181 +100,6 @@ public class EcmpUser extends BaseEntity
     @Excel(name =  "工号")
     private String jobNumber;
 
-    public String getStationCode() {
-        return stationCode;
-    }
-
-    public void setStationCode(String stationCode) {
-        this.stationCode = stationCode;
-    }
-
-    public Date getDimissionTime() {
-        return dimissionTime;
-    }
-
-    public void setDimissionTime(Date dimissionTime) {
-        this.dimissionTime = dimissionTime;
-    }
-
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
-
-    public Long getUserId()
-    {
-        return userId;
-    }
-    public void setDeptId(Long deptId)
-    {
-        this.deptId = deptId;
-    }
-
-    public Long getDeptId()
-    {
-        return deptId;
-    }
-    public void setUserName(String userName)
-    {
-        this.userName = userName;
-    }
-
-    public String getUserName()
-    {
-        return userName;
-    }
-    public void setNickName(String nickName)
-    {
-        this.nickName = nickName;
-    }
-
-    public String getNickName()
-    {
-        return nickName;
-    }
-    public void setUserType(String userType)
-    {
-        this.userType = userType;
-    }
-
-    public String getUserType()
-    {
-        return userType;
-    }
-    public void setEmail(String email)
-    {
-        this.email = email;
-    }
-
-    public String getEmail()
-    {
-        return email;
-    }
-    public void setPhonenumber(String phonenumber)
-    {
-        this.phonenumber = phonenumber;
-    }
-
-    public String getPhonenumber()
-    {
-        return phonenumber;
-    }
-    public void setSex(String sex)
-    {
-        this.sex = sex;
-    }
-
-    public String getSex()
-    {
-        return sex;
-    }
-    public void setAvatar(String avatar)
-    {
-        this.avatar = avatar;
-    }
-
-    public String getAvatar()
-    {
-        return avatar;
-    }
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
-
-    public String getPassword()
-    {
-        return password;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-
-    public String getStatus()
-    {
-        return status;
-    }
-    public void setDelFlag(String delFlag)
-    {
-        this.delFlag = delFlag;
-    }
-
-    public String getDelFlag()
-    {
-        return delFlag;
-    }
-    public void setLoginIp(String loginIp)
-    {
-        this.loginIp = loginIp;
-    }
-
-    public String getLoginIp()
-    {
-        return loginIp;
-    }
-    public void setLoginDate(Date loginDate)
-    {
-        this.loginDate = loginDate;
-    }
-
-    public Date getLoginDate()
-    {
-        return loginDate;
-    }
-
-    public String getItIsDriver() {
-        return itIsDriver;
-    }
-
-    public void setItIsDriver(String itIsDriver) {
-        this.itIsDriver = itIsDriver;
-    }
-
-    public String getItIsDispatcher() {
-        return itIsDispatcher;
-    }
-
-    public void setItIsDispatcher(String itIsDispatcher) {
-        this.itIsDispatcher = itIsDispatcher;
-    }
-
-    public String getPayMode() {
-        return payMode;
-    }
-
-    public void setPayMode(String payMode) {
-        this.payMode = payMode;
-    }
-
-    public String getJobNumber() {
-        return jobNumber;
-    }
-
-    public void setJobNumber(String jobNumber) {
-        this.jobNumber = jobNumber;
-    }
-
     public EcmpUser() {
     }
 
@@ -276,11 +108,20 @@ public class EcmpUser extends BaseEntity
         this.delFlag = delFlag;
     }
 
+    public Long getOwnerCompany() {
+        return ownerCompany;
+    }
+
+    public void setOwnerCompany(Long ownerCompany) {
+        this.ownerCompany = ownerCompany;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("userId", getUserId())
             .append("deptId", getDeptId())
+            .append("ownerCompany", getOwnerCompany())
             .append("userName", getUserName())
             .append("nickName", getNickName())
             .append("userType", getUserType())

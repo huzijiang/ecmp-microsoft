@@ -7,7 +7,6 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
@@ -26,8 +25,8 @@ import com.hq.ecmp.util.RandomUtil;
 import com.hq.ecmp.util.SortListUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -100,6 +99,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Autowired
     private EcmpMessageService ecmpMessageService;
     @Autowired
+    @Lazy
     private IOrderInfoService orderInfoService;
 
     private ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("apply-pool-%d").build();

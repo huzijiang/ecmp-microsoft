@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -17,6 +18,7 @@ import java.util.Date;
  */
 @Builder
 @AllArgsConstructor
+@Data
 public class JourneyNodeInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -91,7 +93,7 @@ public class JourneyNodeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Integer number;
-    
+
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -108,202 +110,6 @@ public class JourneyNodeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String planEndCityCode;
-    
-
-    public String getPlanBeginCityCode() {
-        return planBeginCityCode;
-    }
-
-    public void setPlanBeginCityCode(String planBeginCityCode) {
-        this.planBeginCityCode = planBeginCityCode;
-    }
-
-    public String getPlanEndCityCode() {
-        return planEndCityCode;
-    }
-
-    public void setPlanEndCityCode(String planEndCityCode) {
-        this.planEndCityCode = planEndCityCode;
-    }
-
-    public String getPlanEndLongAddress() {
-        return planEndLongAddress;
-    }
-
-    public void setPlanEndLongAddress(String planEndLongAddress) {
-        this.planEndLongAddress = planEndLongAddress;
-    }
-
-    public String getPlanBeginLongAddress() {
-        return planBeginLongAddress;
-    }
-
-    public void setPlanBeginLongAddress(String planBeginLongAddress) {
-        this.planBeginLongAddress = planBeginLongAddress;
-    }
-
-    public void setNodeId(Long nodeId)
-    {
-        this.nodeId = nodeId;
-    }
-
-    public Long getNodeId()
-    {
-        return nodeId;
-    }
-    public void setJourneyId(Long journeyId)
-    {
-        this.journeyId = journeyId;
-    }
-
-    public Long getJourneyId()
-    {
-        return journeyId;
-    }
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
-
-    public Long getUserId()
-    {
-        return userId;
-    }
-    public void setPlanBeginAddress(String planBeginAddress)
-    {
-        this.planBeginAddress = planBeginAddress;
-    }
-
-    public String getPlanBeginAddress()
-    {
-        return planBeginAddress;
-    }
-    public void setPlanEndAddress(String planEndAddress)
-    {
-        this.planEndAddress = planEndAddress;
-    }
-
-    public String getPlanEndAddress()
-    {
-        return planEndAddress;
-    }
-    public void setPlanSetoutTime(Date planSetoutTime)
-    {
-        this.planSetoutTime = planSetoutTime;
-    }
-
-    public Date getPlanSetoutTime()
-    {
-        return planSetoutTime;
-    }
-    public void setPlanArriveTime(Date planArriveTime)
-    {
-        this.planArriveTime = planArriveTime;
-    }
-
-    public Date getPlanArriveTime()
-    {
-        return planArriveTime;
-    }
-    public void setPlanBeginLongitude(String planBeginLongitude)
-    {
-        this.planBeginLongitude = planBeginLongitude;
-    }
-
-    public String getPlanBeginLongitude()
-    {
-        return planBeginLongitude;
-    }
-    public void setPlanBeginLatitude(String planBeginLatitude)
-    {
-        this.planBeginLatitude = planBeginLatitude;
-    }
-
-    public String getPlanBeginLatitude()
-    {
-        return planBeginLatitude;
-    }
-    public void setPlanEndLongitude(String planEndLongitude)
-    {
-        this.planEndLongitude = planEndLongitude;
-    }
-
-    public String getPlanEndLongitude()
-    {
-        return planEndLongitude;
-    }
-    public void setPlanEndLatitude(String planEndLatitude)
-    {
-        this.planEndLatitude = planEndLatitude;
-    }
-
-    public String getPlanEndLatitude()
-    {
-        return planEndLatitude;
-    }
-    public void setItIsViaPoint(String itIsViaPoint)
-    {
-        this.itIsViaPoint = itIsViaPoint;
-    }
-
-    public String getItIsViaPoint()
-    {
-        return itIsViaPoint;
-    }
-    public void setVehicle(String vehicle)
-    {
-        this.vehicle = vehicle;
-    }
-
-    public String getVehicle()
-    {
-        return vehicle;
-    }
-    public void setDuration(String duration)
-    {
-        this.duration = duration;
-    }
-
-    public String getDuration()
-    {
-        return duration;
-    }
-    public void setDistance(String distance)
-    {
-        this.distance = distance;
-    }
-
-    public String getDistance()
-    {
-        return distance;
-    }
-    public void setWaitDuration(String waitDuration)
-    {
-        this.waitDuration = waitDuration;
-    }
-
-    public String getWaitDuration()
-    {
-        return waitDuration;
-    }
-    public void setNodeState(String nodeState)
-    {
-        this.nodeState = nodeState;
-    }
-
-    public String getNodeState()
-    {
-        return nodeState;
-    }
-    public void setNumber(Integer number)
-    {
-        this.number = number;
-    }
-
-    public Integer getNumber()
-    {
-        return number;
-    }
 
     public JourneyNodeInfo() {
     }

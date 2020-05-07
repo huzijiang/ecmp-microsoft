@@ -130,31 +130,31 @@ public interface IDriverInfoService
      * @return
      */
     public void bindDriverCars(DriverCarDTO driverCarDTO, Long userId) throws Exception;
-    
+
     /**
      * 查询指定车队下的可用驾驶员
      * @param map
      * @return
      */
     public  CarGroupDriverInfo queryCarGroupDriverList(Map map);
-    
+
     /**
      * 校验驾驶员手机号是否已经存在
      * @param mobile
-     * @return  true - 已经存在    
+     * @return  true - 已经存在
      */
     public boolean checkMobile(String mobile);
-    
+
 	/**
 	 * 新增驾驶员时输入工号 校验正确性
 	 * 1、输入工号之后，根据姓名和手机号去员工表查询工号：
-	 * 
+	 *
 	 * a、若输入工号等于员工工号，输入正确
-	 * 
+	 *
 	 * b、若输入工号不等于员工工号，弹窗提示：员工张三：15989890980对应的工号是D2345，请核实后重新输入！
-	 * 
+	 *
 	 * c、若员工表查询不到工号，则直接保存此驾驶员录入的工号，并且做去重校验，若员工表已存在此工号，弹窗提示：工号已被占用，请重新录入！
-	 * 
+	 *
 	 * @param driverUserJobNumber
 	 * @return
 	 * @throws Exception

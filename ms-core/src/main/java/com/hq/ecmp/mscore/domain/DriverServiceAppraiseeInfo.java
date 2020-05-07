@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -13,6 +15,7 @@ import java.util.Date;
  * @author makejava
  * @since 2020-03-07 15:56:25
  */
+@Data
 public class DriverServiceAppraiseeInfo implements Serializable {
     private static final long serialVersionUID = 359913880982924174L;
     /**
@@ -49,19 +52,19 @@ N005  着装不整
     * 评价内容
     */
     private String content;
-    
+
     private Long driverId;
-    
+
     private Long carId;
-    
+
     private String carLicense;
-    
+
     private Long createBy;
-    
+
     private Date createTime;
-    
+
     private Long updateBy;
-    
+
     private Date updateTime;
 
     public DriverServiceAppraiseeInfo() {
@@ -69,102 +72,6 @@ N005  着装不整
 
     public DriverServiceAppraiseeInfo(Long driverId) {
         this.driverId = driverId;
-    }
-
-    public Long getAppraiseId() {
-        return appraiseId;
-    }
-
-    public void setAppraiseId(Long appraiseId) {
-        this.appraiseId = appraiseId;
-    }
-
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
-
-    public String getItem() {
-        return item;
-    }
-
-    public void setItem(String item) {
-        this.item = item;
-    }
-
-    public Double getScore() {
-        return score;
-    }
-
-    public void setScore(Double score) {
-        this.score = score;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Long getDriverId() {
-        return driverId;
-    }
-
-    public void setDriverId(Long driverId) {
-        this.driverId = driverId;
-    }
-
-    public Long getCarId() {
-        return carId;
-    }
-
-    public void setCarId(Long carId) {
-        this.carId = carId;
-    }
-
-    public String getCarLicense() {
-        return carLicense;
-    }
-
-    public void setCarLicense(String carLicense) {
-        this.carLicense = carLicense;
-    }
-
-    public Long getCreateBy() {
-        return createBy;
-    }
-
-    public void setCreateBy(Long createBy) {
-        this.createBy = createBy;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Long getUpdateBy() {
-        return updateBy;
-    }
-
-    public void setUpdateBy(Long updateBy) {
-        this.updateBy = updateBy;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
     }
 
 }

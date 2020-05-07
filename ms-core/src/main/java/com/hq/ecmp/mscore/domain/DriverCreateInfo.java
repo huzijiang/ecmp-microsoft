@@ -12,6 +12,7 @@ public class DriverCreateInfo {
 		String mobile;//电话号码
 		String gender;//性别   1-男 0-女
 
+		Long companyId;
 		Long carGroupId;//车队
 
 		String idCard;//身份证号
@@ -44,5 +45,5 @@ public class DriverCreateInfo {
 	    Date createTime;
 	    Long createBy;
 
-		
+
 }

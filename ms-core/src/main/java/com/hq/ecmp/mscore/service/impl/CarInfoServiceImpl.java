@@ -246,6 +246,7 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setCarLicense(carSaveDTO.getCarLicense());
         carInfo.setCarTypeId(carSaveDTO.getEnterpriseCarTypeId());
         carInfo.setDeptId(carSaveDTO.getOwnerOrgId());
+        carInfo.setCompanyId(carSaveDTO.getCompanyId());
         carInfo.setCarGroupId(carSaveDTO.getCarGroupId());
         carInfo.setSource(carSaveDTO.getSource());
         carInfo.setBuyDate(carSaveDTO.getBuyDate());
@@ -520,13 +521,14 @@ public class CarInfoServiceImpl implements ICarInfoService
 	public CarGroupCarInfo queryCarGroupCarList(Map map) {
         Long carGroupId = Long.valueOf(map.get("carGroupId").toString());
         Long driverId = map.get("driverId")==null?null:Long.valueOf(map.get("driverId").toString());
+        String search = map.get("search")==null?null:map.get("search").toString();
 		CarGroupCarInfo carGroupCarInfo = new CarGroupCarInfo();
-		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId,driverId);
+		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId,driverId,search);
 		carGroupCarInfo.setList(queryCarGroupCarList);
 		// 查询车队对应的部门和公司
 		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
 		if (null != carGroupInfo) {
-			Long ownerCompany = carGroupInfo.getOwnerCompany();
+			Long ownerCompany = carGroupInfo.getCompanyId();
 			if (null != ownerCompany) {
 				EcmpOrg company = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
 				if (null != company) {

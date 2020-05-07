@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpCityTrafficNodeInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -41,70 +43,6 @@ public class EcmpCityTrafficNodeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long latitude;
-
-    public void setTrafficNodeId(Long trafficNodeId)
-    {
-        this.trafficNodeId = trafficNodeId;
-    }
-
-    public Long getTrafficNodeId()
-    {
-        return trafficNodeId;
-    }
-    public void setCityId(Long cityId)
-    {
-        this.cityId = cityId;
-    }
-
-    public Long getCityId()
-    {
-        return cityId;
-    }
-    public void setCityLevel(String cityLevel)
-    {
-        this.cityLevel = cityLevel;
-    }
-
-    public String getCityLevel()
-    {
-        return cityLevel;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
-    public String getType()
-    {
-        return type;
-    }
-    public void setLongitude(Long longitude)
-    {
-        this.longitude = longitude;
-    }
-
-    public Long getLongitude()
-    {
-        return longitude;
-    }
-    public void setLatitude(Long latitude)
-    {
-        this.latitude = latitude;
-    }
-
-    public Long getLatitude()
-    {
-        return latitude;
-    }
 
     @Override
     public String toString() {

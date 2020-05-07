@@ -73,7 +73,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	private EcmpUserRoleMapper ecmpUserRoleMapper;
 	@Autowired
 	private TokenService tokenService;
-    
+
 
     /**
      * 查询【请填写功能名称】
@@ -148,12 +148,12 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     {
         return driverInfoMapper.deleteDriverInfoById(driverId);
     }
-    
-    
+
+
     @Transactional(propagation=Propagation.REQUIRED)
 	@Override
 	public boolean createDriver(DriverCreateInfo driverCreateInfo) {
-    	
+
 /*       	//生成用户记录
     	EcmpUser ecmpUser = new EcmpUser();
     	ecmpUser.setUserName(driverCreateInfo.getMobile());
@@ -196,7 +196,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		driverCreateInfo.setLockState("0000");
     	Integer createDriver = driverInfoMapper.createDriver(driverCreateInfo);
     	Long driverId = driverCreateInfo.getDriverId();
-    	
+
     	//生成驾驶员-车队关系记录
     	CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
     	carGroupDriverRelation.setCarGroupId(driverCreateInfo.getCarGroupId());
@@ -416,8 +416,10 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	public CarGroupDriverInfo queryCarGroupDriverList(Map map) {
 		Long carGroupId = Long.valueOf(map.get("carGroupId").toString());
 		Long carId = map.get("carId")==null?null:Long.valueOf(map.get("carId").toString());
+		String search = map.get("search")==null?null: map.get("search").toString();
 		CarGroupDriverInfo carGroupDriverInfo = new CarGroupDriverInfo();
-		List<DriverQueryResult> list = driverInfoMapper.queryDriverInfoList(carGroupId,carId);
+		//查询车队下的可用驾驶员列表（driverId 和 driverName）如果传了carId，则排除该车辆下的驾驶员
+		List<DriverQueryResult> list = driverInfoMapper.queryDriverInfoList(carGroupId,carId,search);
 		carGroupDriverInfo.setDriverList(list);
 		//查询车队对应的部门和公司
 		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
@@ -431,14 +433,14 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		}
 		carGroupDriverInfo.setCarGroupName(carGroupName);
 		if(null !=carGroupInfo){
-			Long ownerCompany = carGroupInfo.getOwnerCompany();
+			Long ownerCompany = carGroupInfo.getCompanyId();
 			if(null !=ownerCompany){
 				EcmpOrg company = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
 				if(null !=company){
 					carGroupDriverInfo.setCompanyName(company.getDeptName());
 				}
 			}
-			Long ownerOrg = carGroupInfo.getOwnerOrg();
+			Long ownerOrg = carGroupInfo.getCompanyId();
 			if(null !=ownerOrg){
 				EcmpOrg dept = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
 				if(null !=dept){
@@ -458,7 +460,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 					if(null!=selectEcmpUserList){
 						carGroupDriverInfo.setDeptUserNum(selectEcmpUserList.size());
 					}
-					
+
 				}
 			}
 		}

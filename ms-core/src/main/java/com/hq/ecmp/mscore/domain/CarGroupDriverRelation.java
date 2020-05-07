@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class CarGroupDriverRelation extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -22,25 +24,6 @@ public class CarGroupDriverRelation extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long carGroupId;
-
-    public void setDriverId(Long driverId)
-    {
-        this.driverId = driverId;
-    }
-
-    public Long getDriverId()
-    {
-        return driverId;
-    }
-    public void setCarGroupId(Long carGroupId)
-    {
-        this.carGroupId = carGroupId;
-    }
-
-    public Long getCarGroupId()
-    {
-        return carGroupId;
-    }
 
     @Override
     public String toString() {

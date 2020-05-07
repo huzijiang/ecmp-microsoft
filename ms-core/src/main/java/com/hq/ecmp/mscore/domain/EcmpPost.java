@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpPost extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -33,52 +35,6 @@ public class EcmpPost extends BaseEntity
     /** 状态（0正常 1停用） */
     @Excel(name = "状态", readConverterExp = "0=正常,1=停用")
     private String status;
-
-    public void setPostId(Long postId)
-    {
-        this.postId = postId;
-    }
-
-    public Long getPostId()
-    {
-        return postId;
-    }
-    public void setPostCode(String postCode)
-    {
-        this.postCode = postCode;
-    }
-
-    public String getPostCode()
-    {
-        return postCode;
-    }
-    public void setPostName(String postName)
-    {
-        this.postName = postName;
-    }
-
-    public String getPostName()
-    {
-        return postName;
-    }
-    public void setPostSort(Integer postSort)
-    {
-        this.postSort = postSort;
-    }
-
-    public Integer getPostSort()
-    {
-        return postSort;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-
-    public String getStatus()
-    {
-        return status;
-    }
 
     @Override
     public String toString() {

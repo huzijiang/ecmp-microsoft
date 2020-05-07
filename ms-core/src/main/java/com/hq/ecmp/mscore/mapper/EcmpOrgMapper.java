@@ -23,7 +23,15 @@ public interface EcmpOrgMapper {
      * @param parentId 上级ID
      * @return 公司
      */
-    public List<EcmpOrgDto> selectByEcmpOrgParentId(@Param("deptId") Long deptId,@Param("parentId") Long parentId,@Param("deptType")String deptType);
+    public List<EcmpOrgDto> selectByEcmpOrgParentId(@Param("parentId") Long parentId,@Param("deptType")Long deptType);
+
+    /**
+     * 查询所有公司一级
+     *l
+     * @param ownerCompany 顶级公司ID
+     * @return 公司
+     */
+    public List<EcmpOrgDto> selectByEcmpOrgOwnerCompanyId(@Param("ownerCompany") Long ownerCompany);
     /**
      * 查询部门详情
      *
@@ -262,10 +270,9 @@ public interface EcmpOrgMapper {
     /**
      * 公司车队树
      * @param deptId
-     * @param parentId
      * @return
      */
-    List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(@Param("deptId")Long deptId,@Param("parentId") Long parentId);
+    List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(@Param("deptId")Long deptId);
 
     List<UserVO> selectUserByLeader(@Param("leader") String leader);
 

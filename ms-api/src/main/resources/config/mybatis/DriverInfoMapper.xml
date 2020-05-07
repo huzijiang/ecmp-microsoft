@@ -206,6 +206,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
           <if test="driverName != null ">driver_name,</if>
            <if test="mobile != null ">mobile,</if>
+            <if test="companyId != null ">company_id,</if>
            <if test="gender != null ">gender,</if>
            <if test="idCard != null ">id_card,</if>
            <if test="licenseType != null ">license_type,</if>
@@ -223,6 +224,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="driverName != null ">#{driverName},</if>
             <if test="mobile != null ">#{mobile},</if>
+            <if test="companyId != null ">#{companyId},</if>
             <if test="gender != null ">#{gender},</if>
             <if test="idCard != null ">#{idCard},</if>
             <if test="licenseType != null ">#{licenseType},</if>
@@ -577,6 +579,9 @@ WHERE
 		and a.driver_id not in (
 			select driver_id from driver_car_relation_info where car_id=#{carId}
 		)
+        </if>
+        <if test="search!=null and search != ''">
+            and a.driver_name like concat('%',#{search},'%') or a.mobile like concat('%',#{search},'%')
         </if>
 		AND a.state = 'V000'
 	</select>

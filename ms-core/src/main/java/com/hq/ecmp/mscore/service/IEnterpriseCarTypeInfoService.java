@@ -87,10 +87,10 @@ public interface IEnterpriseCarTypeInfoService
 
     /**
      * 查询企业车型列表
-     * @param enterpriseId
+     * @param companyId
      * @return
      */
-    List<CarTypeVO> getCarTypeList(Long enterpriseId);
+    List<CarTypeVO> getCarTypeList(Long companyId);
 
     /**
      * 车型排序（交换位置）

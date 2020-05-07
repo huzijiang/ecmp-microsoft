@@ -64,7 +64,7 @@ public interface ApproveTemplateInfoMapper
      */
     public int deleteApproveTemplateInfoByIds(Long[] approveTemplateIds);
 
-    List<ApprovaTemplateVO> getTemplateList(@Param("search") String search);
+    List<ApprovaTemplateVO> getTemplateList(@Param("search") String search,@Param("ownerCompany") Long ownerCompany);
 
     Long getTemplateListCount(@Param("search") String search);
 }

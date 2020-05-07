@@ -61,9 +61,12 @@ public class NoticeController {
     @Log(title = "公告管理", content = "公告列表",businessType = BusinessType.OTHER)
     @PostMapping("/getNoticeSearchList")
     public ApiResponse<PageResult<EcmpNotice>> getNoticeSearchList(@RequestBody PageRequest pageRequest){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
         try {
             PageResult<EcmpNotice> list = iEcmpNoticeService.selectNoticeSearchList(pageRequest.getPageNum(),
-                    pageRequest.getPageSize());
+                    pageRequest.getPageSize(),companyId);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,6 +217,7 @@ public class NoticeController {
         notice.setPublishTime(ecmpNoticeDTO.getPublishTime());
         //默认是公告
         notice.setNoticeType("2");
+        notice.setCompanyId(loginUser.getUser().getOwnerCompany());
         //结束时间
         notice.setEndTime(ecmpNoticeDTO.getEndTime());
         //默认是开启状态

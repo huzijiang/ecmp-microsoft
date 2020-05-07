@@ -156,6 +156,7 @@ public class CarController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         Long carId = null;
+        carSaveDTO.setCompanyId(loginUser.getUser().getOwnerCompany());
         try {
             carId = carInfoService.saveCar(carSaveDTO, userId);
         } catch (Exception e) {

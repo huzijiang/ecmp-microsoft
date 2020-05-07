@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpJobLog extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -41,70 +43,6 @@ public class EcmpJobLog extends BaseEntity
     /** 异常信息 */
     @Excel(name = "异常信息")
     private String exceptionInfo;
-
-    public void setJobLogId(Long jobLogId)
-    {
-        this.jobLogId = jobLogId;
-    }
-
-    public Long getJobLogId()
-    {
-        return jobLogId;
-    }
-    public void setJobName(String jobName)
-    {
-        this.jobName = jobName;
-    }
-
-    public String getJobName()
-    {
-        return jobName;
-    }
-    public void setJobGroup(String jobGroup)
-    {
-        this.jobGroup = jobGroup;
-    }
-
-    public String getJobGroup()
-    {
-        return jobGroup;
-    }
-    public void setInvokeTarget(String invokeTarget)
-    {
-        this.invokeTarget = invokeTarget;
-    }
-
-    public String getInvokeTarget()
-    {
-        return invokeTarget;
-    }
-    public void setJobMessage(String jobMessage)
-    {
-        this.jobMessage = jobMessage;
-    }
-
-    public String getJobMessage()
-    {
-        return jobMessage;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-
-    public String getStatus()
-    {
-        return status;
-    }
-    public void setExceptionInfo(String exceptionInfo)
-    {
-        this.exceptionInfo = exceptionInfo;
-    }
-
-    public String getExceptionInfo()
-    {
-        return exceptionInfo;
-    }
 
     @Override
     public String toString() {
