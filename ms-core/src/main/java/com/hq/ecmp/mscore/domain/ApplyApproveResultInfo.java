@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class ApplyApproveResultInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -58,119 +60,6 @@ public class ApplyApproveResultInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String nextNodeId;
 
-    public void setApproveResultId(Long approveResultId)
-    {
-        this.approveResultId = approveResultId;
-    }
-
-    public Long getApproveResultId()
-    {
-        return approveResultId;
-    }
-    public void setApplyId(Long applyId)
-    {
-        this.applyId = applyId;
-    }
-
-    public Long getApplyId()
-    {
-        return applyId;
-    }
-    public void setApproveTemplateId(Long approveTemplateId)
-    {
-        this.approveTemplateId = approveTemplateId;
-    }
-
-    public Long getApproveTemplateId()
-    {
-        return approveTemplateId;
-    }
-    public void setApproveNodeId(Long approveNodeId)
-    {
-        this.approveNodeId = approveNodeId;
-    }
-
-    public Long getApproveNodeId()
-    {
-        return approveNodeId;
-    }
-    public void setApprover(String approver)
-    {
-        this.approver = approver;
-    }
-
-    public String getApprover()
-    {
-        return approver;
-    }
-    public void setApproverMobile(String approverMobile)
-    {
-        this.approverMobile = approverMobile;
-    }
-
-    public String getApproverMobile()
-    {
-        return approverMobile;
-    }
-    public void setApproveResult(String approveResult)
-    {
-        this.approveResult = approveResult;
-    }
-
-    public String getApproveResult()
-    {
-        return approveResult;
-    }
-    public void setState(String state)
-    {
-        this.state = state;
-    }
-
-    public String getState()
-    {
-        return state;
-    }
-    public void setContent(String content)
-    {
-        this.content = content;
-    }
-
-    public String getContent()
-    {
-        return content;
-    }
-
-    public String getApproveUserId() {
-        return approveUserId;
-    }
-
-    public void setApproveUserId(String approveUserId) {
-        this.approveUserId = approveUserId;
-    }
-
-    public String getApproveRoleId() {
-        return approveRoleId;
-    }
-
-    public void setApproveRoleId(String approveRoleId) {
-        this.approveRoleId = approveRoleId;
-    }
-
-    public String getApproveType() {
-        return approveType;
-    }
-
-    public void setApproveType(String approveType) {
-        this.approveType = approveType;
-    }
-
-    public String getNextNodeId() {
-        return nextNodeId;
-    }
-
-    public void setNextNodeId(String nextNodeId) {
-        this.nextNodeId = nextNodeId;
-    }
 
     public ApplyApproveResultInfo() {
     }

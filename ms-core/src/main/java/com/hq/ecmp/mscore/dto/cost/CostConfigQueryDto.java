@@ -29,7 +29,7 @@ public class CostConfigQueryDto extends PageRequest {
     private String serviceType;
 
     @ApiModelProperty(value = "车型集合")
-    private List<CostConfigCarTypeInfo> carType;
+    private List<CostConfigCarTypeInfo> carTypes;
 
     @ApiModelProperty(value = "公司Id")
     private String companyId;

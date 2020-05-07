@@ -291,9 +291,12 @@ public class CarGroupController {
     public ApiResponse<List<CompanyCarGroupTreeVO>> getCompanyCarGroupTree(
             @RequestBody EcmpOrgDto ecmpOrgDto){
         //根据公司id查询车队列表
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
         List<CompanyCarGroupTreeVO>  list = null;
         try {
-            list = ecmpOrgService.selectCompanyCarGroupTree(ecmpOrgDto.getDeptId(),null);
+            list = ecmpOrgService.selectCompanyCarGroupTree(companyId);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -435,7 +438,7 @@ public class CarGroupController {
             @RequestBody CarGroupDTO carGroupDTO){
         try {
             //如果已经存在 返回true 不存在则返回false
-            Boolean exist = carGroupInfoService.judgeCarGroupName(carGroupDTO.getCarGroupName(),carGroupDTO.getOwneCompany());
+            Boolean exist = carGroupInfoService.judgeCarGroupName(carGroupDTO.getCarGroupName(),carGroupDTO.getCompanyId());
             return ApiResponse.success(exist);
         } catch (Exception e) {
             e.printStackTrace();

@@ -7,7 +7,6 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
@@ -26,8 +25,8 @@ import com.hq.ecmp.util.RandomUtil;
 import com.hq.ecmp.util.SortListUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -100,6 +99,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Autowired
     private EcmpMessageService ecmpMessageService;
     @Autowired
+    @Lazy
     private IOrderInfoService orderInfoService;
 
     private ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("apply-pool-%d").build();
@@ -388,11 +388,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //3.3 plan_begin_address 计划上车地址  非空
         journeyNodeInfo.setPlanBeginLongAddress(null);
         journeyNodeInfo.setPlanBeginAddress(travelRequest.getStartCity().getCityName());
-        journeyNodeInfo.setPlanBeginCityCode(String.valueOf(travelRequest.getStartCity().getCityCode()));
+        journeyNodeInfo.setPlanBeginCityCode(travelRequest.getStartCity().getCityCode());
         //3.4 plan_end_address 计划下车地址    非空
         journeyNodeInfo.setPlanEndLongAddress(null);
         journeyNodeInfo.setPlanEndAddress(travelRequest.getEndCity().getCityName());
-        journeyNodeInfo.setPlanEndCityCode(String.valueOf(travelRequest.getEndCity().getCityCode()));
+        journeyNodeInfo.setPlanEndCityCode(travelRequest.getEndCity().getCityCode());
         //3.5 plan_setout_time 计划出发时间     出差某一节点开始日期
         journeyNodeInfo.setPlanSetoutTime(travelRequest.getStartDate());
         //3.6 plan_arrive_time 计划到达时间  出差某一节点结束日期

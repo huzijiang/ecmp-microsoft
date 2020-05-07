@@ -11,8 +11,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="city"    column="city"    />
         <result property="fullAddress"    column="full_address"    />
         <result property="shortAddress"    column="short_address"    />
-        <result property="ownerCompany"    column="company_id"    />
-        <result property="ownerOrg"    column="owner_org"    />
+        <result property="companyId"    column="company_id"    />
         <result property="leader"    column="leader"    />
         <result property="telephone"    column="telephone"    />
         <result property="province"    column="province"    />
@@ -36,9 +35,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>
             state != 'S444'
             <if test="city != null "> and city = #{city}</if>
-            <if test="ownerOrg != null "> and owner_org = #{ownerOrg}</if>
             <if test="leader != null "> and leader = #{leader}</if>
-            <if test="ownerCompany != null "> and company_id = #{ownerCompany}</if>
+            <if test="companyId != null "> and company_id = #{companyId}</if>
         </where>
     </select>
 
@@ -57,8 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="parentCarGroupId != null ">parent_car_group_id,</if>
             <if test="city != null ">city,</if>
             <if test="cityName != null  and cityName != ''">city_name,</if>
-            <if test="ownerOrg != null ">owner_org,</if>
-            <if test="ownerCompany != null ">company_id,</if>
+            <if test="companyId != null ">company_id,</if>
             <if test="leader != null ">leader,</if>
             <if test="province != null ">province,</if>
             <if test="longitude != null ">longitude,</if>
@@ -80,8 +77,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="parentCarGroupId != null ">#{parentCarGroupId},</if>
             <if test="city != null ">#{city},</if>
             <if test="cityName != null  and cityName != ''">#{cityName},</if>
-            <if test="ownerOrg != null ">#{ownerOrg},</if>
-            <if test="ownerCompany != null ">#{ownerCompany},</if>
+            <if test="companyId != null ">#{companyId},</if>
             <if test="leader != null ">#{leader},</if>
             <if test="province != null ">#{province},</if>
             <if test="longitude != null ">#{longitude},</if>
@@ -107,6 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carGroupName != null  and carGroupName != ''">car_group_name = #{carGroupName},</if>
             <if test="carGroupCode != null  and carGroupCode != ''">car_group_code = #{carGroupCode},</if>
             <if test="ownerOrg != null ">owner_org = #{ownerOrg},</if>
+            <if test="ownerCompany != null ">company_id = #{ownerCompany},</if>
             <if test="parentCarGroupId != null ">parent_car_group_id = #{parentCarGroupId},</if>
             <if test="leader != null ">leader = #{leader},</if>
             <if test="longitude != null ">longitude = #{longitude},</if>
@@ -141,14 +138,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectAllByPage" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO">
             select c.car_group_id as carGroupId, c.car_group_name as carGroupName,
-                c.car_group_code as carGroupCode,
-                eo.dept_name ownerOrgName,
-                c.company_id as ownerCompany,
+        c.car_group_code as carGroupCode,
+        c.company_id as companyId,
                 e1.dept_name as ownerCompanyName,
-                c.state,c.city
+        c.state,c.city
              from car_group_info c
-             left join ecmp_org eo on eo.dept_id= c.company_id
-            left join ecmp_org e1 on e1.dept_id= c.company_id
+            left join ecmp_org e1 on e1.dept_id = c.company_id
         <where>
             state != 'S444'
             <if test="search != null and search != '' ">
@@ -159,7 +154,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 and c.state = #{state}
             </if>
             <if test="deptId != null">
-                and c.company_id = #{deptId} and parent_car_group_id = 0
+                and c.company_id = #{deptId} and c.parent_car_group_id = 0
             </if>
             <if test="carGroupId != null">
                 and c.parent_car_group_id = #{carGroupId}
@@ -170,11 +165,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSubCarGroupInfoList" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO" parameterType="long">
         select car_group_id as carGroupId, car_group_name as carGroupName,
-                car_group_code as carGroupCode,owner_org as ownerOrg,
+                car_group_code as carGroupCode,
                 state,city
              from car_group_info
-             inner join ecmp_org on car_group_info.owner_org = ecmp_org.dept_id
-             where ecmp_org.dept_id = #{deptId} and state != 'S444'
+             where state != 'S444'
     </select>
     <select id="selectValidCarGroupListByCity" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
         select car_group_id as carGroupId,car_group_name as carGroupName, telephone
@@ -223,7 +217,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select count(1) from car_group_info where parent_car_group_id = #{parentId} and state != 'S444'
     </select>
     <select id="selectAllCarGroupNameByCompany" resultType="java.lang.String">
-        select distinct car_group_name from car_group_info where company_id = #{owneCompany} and state != 'S444'
+        select distinct car_group_name from car_group_info where company_id = #{companyId} and state != 'S444'
     </select>
     <select id="selectEnableCarGroupInfoList" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo" resultMap="CarGroupInfoResult">
         <include refid="selectCarGroupInfoVo"/>
@@ -231,7 +225,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             state = 'Y000'
             <if test="city != null "> and city = #{city}</if>
             <if test="leader != null "> and leader = #{leader}</if>
-            <if test="ownerCompany != null "> and company_id = #{ownerCompany}</if>
+            <if test="companyId != null "> and company_id = #{companyId}</if>
         </where>
     </select>
 
@@ -241,6 +235,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         or parent_car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
     </select>
 
-
+    <select id="selectCarGroupInfoByDeptId" resultMap="CarGroupInfoResult">
+        <include refid="selectCarGroupInfoVo"/>
+        <where>
+            car_group_id in (
+            select distinct car_group_id from car_group_serve_org_relation
+            where (dept_id=#{deptId} and type='N100') or (dept_id=#{orgComcany} and type='W200' )
+            )
+        </where>
+    </select>
 
 </mapper>

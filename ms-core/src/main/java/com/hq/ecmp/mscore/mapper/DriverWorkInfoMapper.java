@@ -116,7 +116,7 @@ public interface DriverWorkInfoMapper
      * @param month
      * @return
      */
-    List<WorkInfoMonthVo> getWorkInfoMonthList(@Param("month") String month);
+    List<WorkInfoMonthVo> getWorkInfoMonthList(@Param("month") String month,@Param("companyId") Long companyId);
 
     /**
      * 按月更新司机的排班信息

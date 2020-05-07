@@ -102,6 +102,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
         insert into order_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">journey_id,</if>
+            <if test="companyId != null ">company_id,</if>
             <if test="nodeId != null ">node_id,</if>
             <if test="powerId != null ">power_id,</if>
             <if test="driverId != null ">driver_id,</if>
@@ -129,6 +130,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">#{journeyId},</if>
+            <if test="companyId != null ">#{companyId},</if>
             <if test="nodeId != null ">#{nodeId},</if>
             <if test="powerId != null ">#{powerId},</if>
             <if test="driverId != null ">#{driverId},</if>
@@ -602,6 +604,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 </if>
                 <if test="state == 2">
                     and s.state  in ('S699','S616','S600','S500','S299')
+                </if>
+                <if test="null != companyId and companyId !=''">
+                    and s.company_id = #{companyId}
                 </if>
             </where>
             group by s.order_id

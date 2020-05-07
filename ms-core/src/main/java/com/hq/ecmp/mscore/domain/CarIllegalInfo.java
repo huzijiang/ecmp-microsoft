@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class CarIllegalInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -33,52 +35,6 @@ public class CarIllegalInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String driverId;
-
-    public void setIllegalId(Long illegalId)
-    {
-        this.illegalId = illegalId;
-    }
-
-    public Long getIllegalId()
-    {
-        return illegalId;
-    }
-    public void setCarId(Long carId)
-    {
-        this.carId = carId;
-    }
-
-    public Long getCarId()
-    {
-        return carId;
-    }
-    public void setAddress(String address)
-    {
-        this.address = address;
-    }
-
-    public String getAddress()
-    {
-        return address;
-    }
-    public void setScore(String score)
-    {
-        this.score = score;
-    }
-
-    public String getScore()
-    {
-        return score;
-    }
-    public void setDriverId(String driverId)
-    {
-        this.driverId = driverId;
-    }
-
-    public String getDriverId()
-    {
-        return driverId;
-    }
 
     @Override
     public String toString() {

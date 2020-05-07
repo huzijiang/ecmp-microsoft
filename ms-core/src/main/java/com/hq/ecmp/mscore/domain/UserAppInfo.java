@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class UserAppInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -25,34 +27,6 @@ public class UserAppInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String softInfo;
-
-    public void setId(Long id)
-    {
-        this.id = id;
-    }
-
-    public Long getId()
-    {
-        return id;
-    }
-    public void setInfoId(Long infoId)
-    {
-        this.infoId = infoId;
-    }
-
-    public Long getInfoId()
-    {
-        return infoId;
-    }
-    public void setSoftInfo(String softInfo)
-    {
-        this.softInfo = softInfo;
-    }
-
-    public String getSoftInfo()
-    {
-        return softInfo;
-    }
 
     @Override
     public String toString() {

@@ -83,12 +83,12 @@
     </delete>
 
     <insert id="insertCostConfigCarTypeInfoBatch">
-        INSERT INTO cost_config_car_type_info(cost_id, car_type_id, car_type_name, create_by, create_time, update_by, update_time)
+        INSERT INTO cost_config_car_type_info(cost_id, car_type_id, car_type_name, create_by, create_time)
         VALUES
         <foreach collection="list" item="item" separator=",">
             (#{costId},
             #{item.carTypeId},
-            #{name},
+            #{item.carTypeName},
             #{userId},
             #{createTime}
             )

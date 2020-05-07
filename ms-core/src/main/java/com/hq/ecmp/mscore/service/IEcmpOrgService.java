@@ -23,14 +23,14 @@ public interface IEcmpOrgService
      * @param deptId 部门ID
      * @return
      */
-    public List<EcmpOrgDto> selectCombinationOfCompany(Long deptId,String deptType);
+    public List<EcmpOrgDto> selectCombinationOfCompany(Long deptId,Long deptType,Long ownerCompany);
     /**
      * 显示当前登陆用户所属公司与公司下的部门
      *
      * @param deptId 部门ID
      * @return
      */
-    public List<EcmpOrgDto> selectDeptComTree(Long deptId,String deptType);
+    public List<EcmpOrgDto> selectDeptComTree(Long deptId,Long deptType,Long ownerCompany);
 
     /**
      * 显示公司列表
@@ -231,14 +231,14 @@ public interface IEcmpOrgService
 
 
     //公司车队树
-    List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId,Long parentId);
+    List<CompanyCarGroupTreeVO> selectCompanyCarGroupTree(Long deptId);
 
     /*公司树*/
     public List<CompanyTreeVO> getCompanyTree(Long deptId);
 
     /*查询公司车队总人数*/
     CarGroupCountVO selectCarGroupCount(Long deptId);
-    
+
     /**
      * 查询公司下面所有的组织(包含公司和部门)ID
      * @param deptId  公司ID

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.demo.mapper.CloudWorkDateInfoMapper">
+
+    <resultMap type="CloudWorkDateInfo" id="CloudWorkDateInfoResult">
+        <result property="id"    column="id"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="calendarDate"    column="calendar_date"    />
+        <result property="calendarYear"    column="calendar_year"    />
+        <result property="calendarMonth"    column="calendar_month"    />
+        <result property="calendarDay"    column="calendar_day"    />
+        <result property="itIsWork"    column="it_is_work"    />
+        <result property="festivalName"    column="festival_name"    />
+        <result property="workStart"    column="work_start"    />
+        <result property="workEnd"    column="work_end"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCloudWorkDateInfoVo">
+        select id, company_id, calendar_date, calendar_year, calendar_month, calendar_day, it_is_work, festival_name, work_start, work_end, create_by, create_time, update_by, update_time from cloud_work_date_info
+    </sql>
+
+    <select id="selectCloudWorkDateInfoList" parameterType="CloudWorkDateInfo" resultMap="CloudWorkDateInfoResult">
+        <include refid="selectCloudWorkDateInfoVo"/>
+        <where>
+            <if test="companyId != null "> and company_id = #{companyId}</if>
+            <if test="calendarDate != null "> and calendar_date = #{calendarDate}</if>
+            <if test="calendarYear != null  and calendarYear != ''"> and calendar_year = #{calendarYear}</if>
+            <if test="calendarMonth != null  and calendarMonth != ''"> and calendar_month = #{calendarMonth}</if>
+            <if test="calendarDay != null  and calendarDay != ''"> and calendar_day = #{calendarDay}</if>
+            <if test="itIsWork != null  and itIsWork != ''"> and it_is_work = #{itIsWork}</if>
+            <if test="festivalName != null  and festivalName != ''"> and festival_name like concat('%', #{festivalName}, '%')</if>
+            <if test="workStart != null  and workStart != ''"> and work_start = #{workStart}</if>
+            <if test="workEnd != null  and workEnd != ''"> and work_end = #{workEnd}</if>
+        </where>
+    </select>
+
+    <select id="selectCloudWorkDateInfoById" parameterType="Long" resultMap="CloudWorkDateInfoResult">
+        <include refid="selectCloudWorkDateInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCloudWorkDateInfo" parameterType="CloudWorkDateInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into cloud_work_date_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyId != null ">company_id,</if>
+            <if test="calendarDate != null ">calendar_date,</if>
+            <if test="calendarYear != null  and calendarYear != ''">calendar_year,</if>
+            <if test="calendarMonth != null  and calendarMonth != ''">calendar_month,</if>
+            <if test="calendarDay != null  and calendarDay != ''">calendar_day,</if>
+            <if test="itIsWork != null  and itIsWork != ''">it_is_work,</if>
+            <if test="festivalName != null  and festivalName != ''">festival_name,</if>
+            <if test="workStart != null  and workStart != ''">work_start,</if>
+            <if test="workEnd != null  and workEnd != ''">work_end,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyId != null ">#{companyId},</if>
+            <if test="calendarDate != null ">#{calendarDate},</if>
+            <if test="calendarYear != null  and calendarYear != ''">#{calendarYear},</if>
+            <if test="calendarMonth != null  and calendarMonth != ''">#{calendarMonth},</if>
+            <if test="calendarDay != null  and calendarDay != ''">#{calendarDay},</if>
+            <if test="itIsWork != null  and itIsWork != ''">#{itIsWork},</if>
+            <if test="festivalName != null  and festivalName != ''">#{festivalName},</if>
+            <if test="workStart != null  and workStart != ''">#{workStart},</if>
+            <if test="workEnd != null  and workEnd != ''">#{workEnd},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCloudWorkDateInfo" parameterType="CloudWorkDateInfo">
+        update cloud_work_date_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyId != null ">company_id = #{companyId},</if>
+            <if test="calendarDate != null ">calendar_date = #{calendarDate},</if>
+            <if test="calendarYear != null  and calendarYear != ''">calendar_year = #{calendarYear},</if>
+            <if test="calendarMonth != null  and calendarMonth != ''">calendar_month = #{calendarMonth},</if>
+            <if test="calendarDay != null  and calendarDay != ''">calendar_day = #{calendarDay},</if>
+            <if test="itIsWork != null  and itIsWork != ''">it_is_work = #{itIsWork},</if>
+            <if test="festivalName != null  and festivalName != ''">festival_name = #{festivalName},</if>
+            <if test="workStart != null  and workStart != ''">work_start = #{workStart},</if>
+            <if test="workEnd != null  and workEnd != ''">work_end = #{workEnd},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCloudWorkDateInfoById" parameterType="Long">
+        delete from cloud_work_date_info where id = #{id}
+    </delete>
+
+    <delete id="deleteCloudWorkDateInfoByIds" parameterType="String">
+        delete from cloud_work_date_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

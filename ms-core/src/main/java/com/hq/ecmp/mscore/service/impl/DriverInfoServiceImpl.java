@@ -64,7 +64,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	private TokenService tokenService;
 	@Autowired
 	private CarInfoMapper carInfoMapper;
-    
+
 
     /**
      * 查询【请填写功能名称】
@@ -139,12 +139,12 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     {
         return driverInfoMapper.deleteDriverInfoById(driverId);
     }
-    
-    
+
+
     @Transactional(propagation=Propagation.REQUIRED)
 	@Override
 	public boolean createDriver(DriverCreateInfo driverCreateInfo) {
-    	
+
 /*       	//生成用户记录
     	EcmpUser ecmpUser = new EcmpUser();
     	ecmpUser.setUserName(driverCreateInfo.getMobile());
@@ -430,14 +430,14 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		}
 		carGroupDriverInfo.setCarGroupName(carGroupName);
 		if(null !=carGroupInfo){
-			Long ownerCompany = carGroupInfo.getOwnerCompany();
+			Long ownerCompany = carGroupInfo.getCompanyId();
 			if(null !=ownerCompany){
 				EcmpOrg company = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
 				if(null !=company){
 					carGroupDriverInfo.setCompanyName(company.getDeptName());
 				}
 			}
-			Long ownerOrg = carGroupInfo.getOwnerOrg();
+			Long ownerOrg = carGroupInfo.getCompanyId();
 			if(null !=ownerOrg){
 				EcmpOrg dept = ecmpOrgMapper.selectEcmpOrgById(ownerOrg);
 				if(null !=dept){

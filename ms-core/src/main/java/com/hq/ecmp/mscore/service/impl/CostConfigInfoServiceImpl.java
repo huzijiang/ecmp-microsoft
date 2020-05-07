@@ -43,9 +43,9 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
      * @return 【请填写功能名称】
      */
     @Override
-    public CostConfigListResult selectCostConfigInfoById(Long costId)
+    public CostConfigListResult selectCostConfigInfoById(Long costId,Integer cityCode)
     {
-        CostConfigListResult costConfigListResult = costConfigInfoMapper.selectCostConfigInfoById(costId);
+        CostConfigListResult costConfigListResult = costConfigInfoMapper.selectCostConfigInfoById(costId,cityCode);
         CostConfigCarTypeInfo costConfigCarTypeInfo = new CostConfigCarTypeInfo();
         costConfigCarTypeInfo.setCostId(costConfigListResult.getCostId());
         List<CostConfigCarTypeInfo> costConfigCarTypeInfos = costConfigCarTypeInfoMapper.selectCostConfigCarTypeInfoList(costConfigCarTypeInfo);
@@ -133,6 +133,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         CostConfigInfo costConfigInfo = new CostConfigInfo();
         BeanUtils.copyProperties(costConfigDto,costConfigInfo);
         costConfigInfo.setCreateBy(String.valueOf(userId));
+        costConfigInfo.setCostId(null);
         ((ICostConfigInfoService)AopContext.currentProxy()).insertCostConfigInfo(costConfigInfo);
         Long costId = costConfigInfo.getCostId();
         if(costId == null){
@@ -173,6 +174,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         int i = costConfigCityInfoMapper.queryOtherDataByCostIdAndCityCode(costId, cityCode);
         if(i==0){
             costConfigInfoMapper.deleteCostConfigInfoById(costId);
+            costConfigCarTypeInfoMapper.deleteCostConfigByCostId(costId);
         }
         costConfigCityInfoMapper.deleteCostConfigCityInfoById(String.valueOf(costConfigCityId));
     }
@@ -186,7 +188,8 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     public int checkDoubleByServiceTypeCityCarType(CostConfigQueryDto costConfigQueryDto) {
         int count;
         count = costConfigInfoMapper.checkDoubleByServiceTypeCityCarType(
-                costConfigQueryDto.getCarType(),costConfigQueryDto.getCityCode(),costConfigQueryDto.getServiceType());
+                costConfigQueryDto.getCarTypes(),costConfigQueryDto.getCityCode(),costConfigQueryDto.getServiceType(),
+                costConfigQueryDto.getRentType());
         return count;
     }
 }

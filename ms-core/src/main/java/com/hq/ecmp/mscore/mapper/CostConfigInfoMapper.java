@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public interface CostConfigInfoMapper
      * @param costId 【请填写功能名称】ID
      * @return 【请填写功能名称】
      */
-    public CostConfigListResult selectCostConfigInfoById(Long costId);
+    public CostConfigListResult selectCostConfigInfoById(@Param("costId") Long costId, @Param("cityCode") Integer cityCode);
 
     /**
      * 查询【请填写功能名称】列表
@@ -68,8 +69,10 @@ public interface CostConfigInfoMapper
      * @param costConfigCarTypeInfos 车型集合
      * @param cityCode  城市code
      * @param serviceType 服务类型
+     * @param rentType  包车类型
      * @return  数量
      */
-    int checkDoubleByServiceTypeCityCarType(List<CostConfigCarTypeInfo> costConfigCarTypeInfos,
-                                             int cityCode,String serviceType);
+    int checkDoubleByServiceTypeCityCarType(@Param("list") List<CostConfigCarTypeInfo> costConfigCarTypeInfos,
+                                            @Param("cityCode") int cityCode,@Param("serviceType") String serviceType,
+                                            @Param("rentType") String rentType);
 }

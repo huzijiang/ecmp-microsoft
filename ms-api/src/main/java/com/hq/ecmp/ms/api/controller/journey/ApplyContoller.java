@@ -338,12 +338,21 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "checkUseCarTime",notes = "校验申请用车时间是否可用",httpMethod ="POST")
     @PostMapping("/checkUseCarTime")
-    public ApiResponse<String> checkUseCarTime(){
+    public ApiResponse<UseCarTimeVO> checkUseCarTime(@RequestBody RegimeCheckDto regimeDto){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
-        int count= applyInfoService.getApplyApproveCount(userId);
-        return ApiResponse.success("查询成功",count+"");
+        try {
+            UseCarTimeVO useCarTimeVO = regimeInfoService.checkUseCarTime(regimeDto);
+            if (useCarTimeVO==null){
+                return ApiResponse.success();
+            }else{
+                return ApiResponse.error("时间不可用",useCarTimeVO);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("网络异常");
+        }
     }
 
     /**
@@ -352,11 +361,18 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "checkUseCarModeAndType",notes = "校验申请用车时间是否可用",httpMethod ="POST")
     @PostMapping("/checkUseCarModeAndType")
-    public ApiResponse<String> checkUseCarModeAndType(){
+    public ApiResponse<String> checkUseCarModeAndType(RegimeCheckDto regimeDto){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
-        int count= applyInfoService.getApplyApproveCount(userId);
-        return ApiResponse.success("查询成功",count+"");
+        try {
+            if (CollectionUtils.isEmpty(regimeDto.getCityCodes())||regimeDto.getRegimeId()==null){
+                return ApiResponse.error("参数为空");
+            }
+            List<UseCarTypeVO> list=regimeInfoService.checkUseCarModeAndType(regimeDto,loginUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success();
     }
 }

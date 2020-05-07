@@ -1,8 +1,11 @@
 package com.hq.ecmp.ms.api.controller.order;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
@@ -17,6 +20,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -35,6 +39,9 @@ public class OrderBackController {
     @Lazy
     private IOrderInfoService iOrderInfoService;
 
+    @Autowired
+    private TokenService tokenService;
+
     @ApiOperation(value = "订单列表查询")
     @PostMapping(value = "/getOrderList")
     @Log(title = "订单管理", content = "订单列表", businessType = BusinessType.OTHER)
@@ -45,6 +52,9 @@ public class OrderBackController {
                 orderListBackDto.setPageSize(10);
                 orderListBackDto.setPageNum(1);
             }
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            orderListBackDto.setCompanyId(loginUser.getUser().getOwnerCompany());
             //获取订单列表
             PageResult<OrderListBackDto> orderListBackDtos  = iOrderInfoService.getOrderListBackDto(orderListBackDto);
             return ApiResponse.success(orderListBackDtos);

@@ -171,7 +171,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAll" resultMap="RegimeInfoResult">
         <include refid="selectRegimeInfoVo"/>
     </select>
-    
+
     	<select id="queryRegimeList" parameterType="com.hq.ecmp.mscore.domain.RegimeQueryPo"
 	resultType="com.hq.ecmp.mscore.domain.RegimeVo">
 	SELECT
@@ -197,6 +197,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<if test="null !=regimeName and regimeName !=''">
 		and a.NAME like CONCAT('%',#{regimeName},'%')
 	</if>
+    <if test="null != companyId and companyId !=''">
+        and a.company_id = #{companyId}
+    </if>
 	group by a.regimen_id
 	<!-- <if test="offset != null and pageSize != null">
 		LIMIT #{offset},#{pageSize}
@@ -206,7 +209,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 <select id="queryRegimeListCount" parameterType="com.hq.ecmp.mscore.domain.RegimeQueryPo"
 	resultType="java.lang.Integer">
-	select count(1) from 
+	select count(1) from
 	(SELECT
 	count(1)
 	FROM
@@ -277,6 +280,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
      insert into regime_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="templateId != null and templateId !=''">template_id,</if>
+            <if test="companyId != null and companyId !=''">company_id,</if>
             <if test="name != null  and name != ''">name,</if>
              <if test="regimenType != null and regimenType !=''">regimen_type,</if>
             <if test="canUseCarMode != null and canUseCarMode !=''">can_use_car_mode,</if>
@@ -311,6 +315,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="templateId != null and templateId !=''">#{templateId},</if>
+            <if test="companyId != null and companyId !=''">#{companyId},</if>
             <if test="name != null  and name != ''">#{name},</if>
             <if test="regimenType != null and regimenType !=''">#{regimenType},</if>
            <if test="canUseCarMode != null and canUseCarMode !=''">#{canUseCarMode},</if>

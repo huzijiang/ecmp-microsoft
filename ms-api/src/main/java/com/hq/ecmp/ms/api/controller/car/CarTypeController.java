@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.controller.car;
 
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
@@ -45,7 +46,9 @@ public class CarTypeController {
     @ApiOperation(value = "saveCarType",notes = "新增车型",httpMethod ="POST")
     @PostMapping("/saveCarType")
     public ApiResponse saveCarType(@RequestBody CarTypeDTO carTypeDto){
-        Long userId = getLoginUserId();
+        Long userId = getLoginUser().getUserId();
+        Long companyId = getLoginUser().getOwnerCompany();
+        carTypeDto.setCompanyId(companyId);
         try {
             enterpriseCarTypeInfoService.saveCarType(carTypeDto,userId);
         } catch (Exception e) {
@@ -59,11 +62,11 @@ public class CarTypeController {
      * 获取登录用户
      * @return
      */
-    private Long getLoginUserId() {
+    private SysUser getLoginUser() {
         //获取登录用户
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        return loginUser.getUser().getUserId();
+        return loginUser.getUser();
     }
 
     /**
@@ -76,7 +79,7 @@ public class CarTypeController {
     @PostMapping("/updateCarType")
     public ApiResponse updateCarType(@RequestBody CarTypeDTO carTypeDto){
         //获取登录用户
-        Long userId = getLoginUserId();
+        Long userId = getLoginUser().getUserId();
         try {
             enterpriseCarTypeInfoService.updateCarType(carTypeDto,userId);
         } catch (Exception e) {
@@ -113,8 +116,9 @@ public class CarTypeController {
     @ApiOperation(value = "getCarTypeList",notes = "查询车型列表")
     @PostMapping("/getCarTypeList")
     public ApiResponse<List<CarTypeVO>> getCarTypeList(@RequestBody Long enterpriseId){
+        Long companyId = getLoginUser().getOwnerCompany();
         try {
-            List<CarTypeVO> result = enterpriseCarTypeInfoService.getCarTypeList(enterpriseId);
+            List<CarTypeVO> result = enterpriseCarTypeInfoService.getCarTypeList(companyId);
             return ApiResponse.success("查询成功",result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -133,7 +137,7 @@ public class CarTypeController {
     public ApiResponse sortCarType(@RequestBody CarTypeSortDTO carTypeSortDTO){
         try {
             enterpriseCarTypeInfoService.sortCarType(
-                    carTypeSortDTO.getMainCarTypeId(),carTypeSortDTO.getTargetCarTypeId(),getLoginUserId()
+                    carTypeSortDTO.getMainCarTypeId(),carTypeSortDTO.getTargetCarTypeId(),getLoginUser().getUserId()
             );
             return ApiResponse.success("车型排序成功");
         } catch (Exception e) {

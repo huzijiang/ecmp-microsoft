@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -12,6 +13,7 @@ import java.util.Date;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class DriverWorkInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -34,52 +36,6 @@ public class DriverWorkInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Date caledarDate;
-
-    public void setWorkId(Long workId)
-    {
-        this.workId = workId;
-    }
-
-    public Long getWorkId()
-    {
-        return workId;
-    }
-    public void setDriverId(Long driverId)
-    {
-        this.driverId = driverId;
-    }
-
-    public Long getDriverId()
-    {
-        return driverId;
-    }
-    public void setLeaveStatus(String leaveStatus)
-    {
-        this.leaveStatus = leaveStatus;
-    }
-
-    public String getLeaveStatus()
-    {
-        return leaveStatus;
-    }
-    public void setLeaveConfirmStatus(String leaveConfirmStatus)
-    {
-        this.leaveConfirmStatus = leaveConfirmStatus;
-    }
-
-    public String getLeaveConfirmStatus()
-    {
-        return leaveConfirmStatus;
-    }
-    public void setCaledarDate(Date caledarDate)
-    {
-        this.caledarDate = caledarDate;
-    }
-
-    public Date getCaledarDate()
-    {
-        return caledarDate;
-    }
 
     @Override
     public String toString() {

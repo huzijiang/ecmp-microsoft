@@ -29,6 +29,8 @@ public class RegimeInfo extends BaseEntity
     /** $column.columnComment */
     private Long regimenId;
 
+    private Long companyId;
+
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long templateId;
@@ -160,6 +162,7 @@ public class RegimeInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String travelCityUseCarLimitType;
 
+
     /**
      * 差旅市内用车限额金额(:元)
      */
@@ -183,6 +186,7 @@ public class RegimeInfo extends BaseEntity
 
 
     /**************************二期添加字段*******************************/
+
 
     public String parseApplyType(){
     	if(StringUtil.isEmpty(this.regimenType)){

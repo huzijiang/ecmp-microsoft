@@ -12,8 +12,9 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.*;
-import com.hq.ecmp.mscore.bo.CityInfo;
+import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.EcmpMessageDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.EcmpMessageService;
@@ -52,6 +53,8 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
     private DriverInfoMapper driverInfoMapper;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
+    @Autowired
+    private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Autowired
     private ApplyInfoMapper applyInfoMapper;
     @Autowired
@@ -217,19 +220,19 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
 
     @Override
     public List<MessageDto> getMessagesForPassenger(SysUser user) throws Exception {
-        String categorys="M001,M004,M006";//申请人
+        String categorys=MsgConstant.applyUserCategry();//申请人
         if ("1".equals(user.getItIsDispatcher())){//调度员
-            categorys+=",M003";
+            categorys+=","+MsgConstant.dispatchCategry();
         }
         List<ApplyApproveResultInfo> approveTemplateNodeInfos = applyApproveResultInfoMapper.selectByUserId(null,user.getUserId(), ApproveStateEnum.WAIT_APPROVE_STATE.getKey());
         if (CollectionUtils.isNotEmpty(approveTemplateNodeInfos)){//审批员
-            categorys+=",M002";
+            categorys+=","+MsgConstant.MESSAGE_T002.getType();
         }
         List<MessageDto> list = ecmpMessageDao.getMessagesForPassenger(user.getUserId(), categorys);
         if (CollectionUtils.isNotEmpty(list)){
             for (MessageDto messageDto:list){
                 messageDto.setMessageTypeStr(MsgConstant.getDespByType(messageDto.getMessageType()));
-                if (MsgConstant.MESSAGE_T006.getType().equals(messageDto.getMessageType())){
+                if (MsgConstant.MESSAGE_T006.getType().equals(messageDto.getMessageType())||MsgConstant.MESSAGE_T015.getType().equals(messageDto.getMessageType())){
                     OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(messageDto.getMessageId());
                     messageDto.setUseCarMode(orderInfo.getUseCarMode());
                 }
@@ -282,7 +285,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         List<EcmpMessage> dispatcherMessage=new ArrayList<>();
         if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){//公务
             //公务需要给申请人和调度员发送通知
-            dispatcherMessage = this.getDispatcherMessage(orderId, userId, powerId);
+            dispatcherMessage = this.getDispatcherMessage(orderId, userId, powerId,applyId,null);
         }
         if (CollectionUtils.isNotEmpty(dispatcherMessage)){
             ecmpMessageDao.insertList(dispatcherMessage);//保存消息通知
@@ -474,7 +477,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
      * @param powerId
      * @return
      */
-    private List<EcmpMessage> getDispatcherMessage(Long orderId,Long userId,Long powerId){
+    private List<EcmpMessage> getDispatcherMessage(Long orderId,Long userId,Long powerId,Long applyId,Long orgId){
         List<EcmpMessage> msgList=new ArrayList<>();
         JourneyUserCarPower journeyUserCarPower = userCarPowerMapper.selectJourneyUserCarPowerById(powerId);
         if (journeyUserCarPower==null){
@@ -489,9 +492,9 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         if (StringUtils.isNotEmpty(journeyNodeInfo.getPlanBeginCityCode())){
             cityCodes+=","+journeyNodeInfo.getPlanBeginCityCode();
         }
-        if (StringUtils.isNotEmpty(journeyNodeInfo.getPlanEndCityCode())){
-            cityCodes+=","+journeyNodeInfo.getPlanEndCityCode();
-        }
+//        if (StringUtils.isNotEmpty(journeyNodeInfo.getPlanEndCityCode())){
+//            cityCodes+=","+journeyNodeInfo.getPlanEndCityCode();
+//        }
         if (StringUtils.isNotEmpty(cityCodes)){
             cityCodes=cityCodes.substring(1);
         }
@@ -505,11 +508,175 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         }
         if (CollectionUtils.isNotEmpty(dispatchers)){
             for (Long dispatcherId:dispatchers){
-                msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(),dispatcherId,orderId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
-                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),"您有一条调度通知",MsgConstant.MESSAGE_T003.getType(),userId,new Date()));
+                msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(),dispatcherId,orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T003.getDesc(),MsgConstant.MESSAGE_T003.getType(),userId,new Date()));
             }
         }
         return msgList;
     }
 
+
+    /**
+     *
+     * @param orderId 订单id或者applyId
+     * @param msgConstant
+     * @throws Exception
+     */
+    @Override
+    @Async
+    public void saveMessageUnite(Long orderId, MsgConstant msgConstant) throws Exception {
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        SysUser user = loginUser.getUser();
+        Long userId=null;
+        if (user!=null){
+            userId=user.getUserId();
+        }
+        SysDriver driver = loginUser.getDriver();
+        Long driverId=null;
+        if (driver!=null){
+            driverId=driver.getDriverId();
+        }
+        if (user==null&&driver==null){
+            return;
+        }
+        ApplyInfo applyInfo=null;
+        Long applyId=null;
+        if (MsgConstant.MESSAGE_T001.equals(msgConstant)||MsgConstant.MESSAGE_T002.equals(msgConstant)
+                ||MsgConstant.MESSAGE_T009.equals(msgConstant)||MsgConstant.MESSAGE_T010.equals(msgConstant)){
+            applyId=orderId;
+        }else{
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            if (orderInfo!=null){
+                List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
+                if (CollectionUtils.isNotEmpty(applyInfos)){
+                    applyInfo=applyInfos.get(0);
+                    applyId=applyInfo.getApplyId();
+                }
+            }
+        }
+        switch (msgConstant){
+            case MESSAGE_T001://发起申请
+                EcmpMessage ecmpMessage1 = EcmpMessage.builder().configType(MsgUserConstant.MESSAGE_USER_USER.getType())
+                        .ecmpId(user.getUserId()).categoryId(applyId).type(MsgTypeConstant.MESSAGE_TYPE_T001.getType())
+                        .status(MsgStatusConstant.MESSAGE_STATUS_T002.getType())
+                        .applyId(applyId)
+                        .category(MsgConstant.MESSAGE_T001.getType()).content(MsgConstant.MESSAGE_T001.getDesc()).url("")
+                        .createBy(user.getUserId()).createTime(new Date()).updateBy(null).updateTime(null).build();
+                ecmpMessageDao.insert(ecmpMessage1);
+                //给下一审批人发消息
+                saveApproveMessage(applyId,user.getUserId());
+                break;
+            case MESSAGE_T002:
+                updateOldStateMessage(MsgUserConstant.applyUsers(), applyId, applyId, MsgConstant.applyAndApprove());
+                saveApproveMessage(applyId,user.getUserId());
+                break;
+            case MESSAGE_T003://调度通知
+//                OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+//                if (orderInfo==null){
+//                    break;
+//                }
+//                List<EcmpMessage> dispatcherMessage = this.getDispatcherMessage(orderId, userId, orderInfo.getPowerId(),applyId,orgId);
+//                if (CollectionUtils.isNotEmpty(dispatcherMessage)){
+//                    //给调度员发通知
+//                    ecmpMessageDao.insertList(dispatcherMessage);
+//                }
+                break;
+            case MESSAGE_T004:
+                Long reassignDriverId = orderStateTraceInfoMapper.queryApplyReassignmentDriver(orderId,OrderState.ALREADYSENDING.getState());
+                ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(),reassignDriverId,orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T004.getDesc(),MsgConstant.MESSAGE_T004.getType(),driverId,new Date()));
+                break;
+            case MESSAGE_T005://
+                break;
+            case MESSAGE_T006://行程通知
+                break;
+            case MESSAGE_T007://新任务通知
+                OrderInfo orderInfo1 = orderInfoMapper.selectOrderInfoById(orderId);
+                if (orderInfo1==null){
+                    break;
+                }
+                ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),orderInfo1.getDriverId(),orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T007.getDesc(),MsgConstant.MESSAGE_T007.getType(),userId,new Date()));
+                break;
+            case MESSAGE_T009://审批通过
+                updateOldStateMessage(MsgUserConstant.applyUsers(), applyId, applyId, MsgConstant.applyAndApprove());
+                ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),Long.parseLong(applyInfo.getCreateBy()),applyId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T009.getDesc(),MsgConstant.MESSAGE_T009.getType(),userId,new Date()));
+                break;
+            case MESSAGE_T010://审批驳回
+                updateOldStateMessage(MsgUserConstant.applyUsers(), applyId, applyId, MsgConstant.applyAndApprove());
+                ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),Long.parseLong(applyInfo.getCreateBy()),applyId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T010.getDesc(),MsgConstant.MESSAGE_T010.getType(),userId,new Date()));
+                break;
+            case MESSAGE_T011:
+                OrderInfo orderInfo2 = orderInfoMapper.selectOrderInfoById(orderId);
+                if (orderInfo2==null){
+                    break;
+                }
+                ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),orderInfo2.getDriverId(),orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T007.getDesc(),MsgConstant.MESSAGE_T007.getType(),userId,new Date()));
+                Long reassignDriverId1 = orderStateTraceInfoMapper.queryApplyReassignmentDriver(orderId,OrderStateTrace.APPLYREASSIGNMENT.getState());
+                ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),reassignDriverId1,orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T011.getDesc(),MsgConstant.MESSAGE_T011.getType(),userId,new Date()));
+                ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),reassignDriverId1,orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T015.getDesc(),MsgConstant.MESSAGE_T015.getType(),userId,new Date()));
+                break;
+            case MESSAGE_T012:
+                Long reassignDriverId2 = orderStateTraceInfoMapper.queryApplyReassignmentDriver(orderId,OrderStateTrace.APPLYREASSIGNMENT.getState());
+                ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),reassignDriverId2,orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T012.getDesc(),MsgConstant.MESSAGE_T012.getType(),userId,new Date()));
+                break;
+            case MESSAGE_T013:
+                updateOldStateMessage(null, orderId, applyId, null);
+                ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),Long.parseLong(applyInfo.getCreateBy()),orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T013.getDesc(),MsgConstant.MESSAGE_T013.getType(),userId,new Date()));
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void sendDispatcherMessage(Long orderId,Long dispatchId,Long userId){
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        Long applyId=null;
+        if (orderInfo!=null){
+            List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
+            if (CollectionUtils.isNotEmpty(applyInfos)){
+                applyId=applyInfos.get(0).getApplyId();
+            }
+        }
+        ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(),dispatchId,orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T004.getDesc(),MsgConstant.MESSAGE_T004.getType(),userId,new Date()));
+    }
+
+    private void saveApproveMessage(Long applyId,Long createId){
+        List<ApplyApproveResultInfo> applyApproveResultInfos = applyApproveResultInfoMapper.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(applyId, ApproveStateEnum.WAIT_APPROVE_STATE.getKey()));
+        if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
+            ApplyApproveResultInfo resultInfo = applyApproveResultInfos.get(0);
+            String approveUserId = resultInfo.getApproveUserId();
+            String[] split = approveUserId.split(",");
+            if (split!=null&&split.length>0){
+                for (String approveUser:split){
+                    EcmpMessage approveMessage = EcmpMessage.builder().configType(MsgUserConstant.MESSAGE_USER_APPROVAL.getType())
+                            .ecmpId(Long.parseLong(approveUser)).categoryId(applyId).type(MsgTypeConstant.MESSAGE_TYPE_T001.getType())
+                            .status(MsgStatusConstant.MESSAGE_STATUS_T002.getType()).applyId(applyId)
+                            .category(MsgConstant.MESSAGE_T001.getType()).content("你有1条用车审批待处理,点击查看详情").url("")
+                            .createBy(createId).createTime(new Date()).updateBy(null).updateTime(null).build();
+                    ecmpMessageDao.insert(approveMessage);
+                }
+            }
+        }
+    }
+
+    private void updateOldStateMessage(String configType,Long applyId,Long categoryId,String categorys){
+        List<EcmpMessage> ecmpMessages = ecmpMessageDao.queryList(new EcmpMessageDto(configType, categoryId, applyId, MsgStatusConstant.MESSAGE_STATUS_T002.getType(),categorys));
+        if (CollectionUtils.isNotEmpty(ecmpMessages)){
+            for (EcmpMessage message:ecmpMessages){
+                message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T001.getType());
+                message.setUpdateBy(Long.valueOf(ONE));
+            }
+            ecmpMessageDao.updateList(ecmpMessages);
+        }
+    }
 }

@@ -157,4 +157,6 @@ public interface CarGroupInfoMapper
     List<CarGroupInfo> selectEnableCarGroupInfoList(CarGroupInfo carGroupInfo);
 
     List<CarGroupListVO> getCarGroupList(Long userId);
+
+    List<CarGroupInfo> selectCarGroupInfoByDeptId(@Param("orgComcany") Long orgComcany,@Param("deptId") Long deptId);
 }

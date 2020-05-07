@@ -51,7 +51,8 @@ public class RegimeVo {
 
 	String ruleCity;// C001：不限 C002：限制可用城市 C003：限制不可用城市
 
-	List<String> cityLimitIds;//限制城市编号
+	List<String> cityLimitIds;//限制固定城市编号
+	List<String> notCityLimitIds;//限制不可用城市编号
 
 	String useCarModeOwnerLevel;// 公务 自有车车型配置
 

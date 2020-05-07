@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -19,12 +20,18 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class EcmpNotice extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
     /** 公告ID */
     private Integer noticeId;
+
+    /**
+     * 所属公司
+     */
+    private Long companyId;
 
     /** 公告标题 */
     @Excel(name = "公告标题")
@@ -58,53 +65,6 @@ public class EcmpNotice extends BaseEntity
     @Excel(name = "多条对应的公告id")
     private List<Long> bucIds;
 
-
-    public void setNoticeId(Integer noticeId)
-    {
-        this.noticeId = noticeId;
-    }
-
-    public Integer getNoticeId()
-    {
-        return noticeId;
-    }
-    public void setNoticeTitle(String noticeTitle)
-    {
-        this.noticeTitle = noticeTitle;
-    }
-
-    public String getNoticeTitle()
-    {
-        return noticeTitle;
-    }
-    public void setNoticeType(String noticeType)
-    {
-        this.noticeType = noticeType;
-    }
-
-    public String getNoticeType()
-    {
-        return noticeType;
-    }
-    public void setNoticeContent(String noticeContent)
-    {
-        this.noticeContent = noticeContent;
-    }
-
-    public String getNoticeContent()
-    {
-        return noticeContent;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-
-    public String getStatus()
-    {
-        return status;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -121,39 +81,5 @@ public class EcmpNotice extends BaseEntity
             .append("configType", getConfigType())
             .append("bucIds", getBucIds())
             .toString();
-    }
-
-    public String getPublishTime() {
-        return publishTime;
-    }
-
-    public void setPublishTime(String publishTime) {
-        this.publishTime = publishTime;
-    }
-
-    @Override
-    public String getEndTime() {
-        return endTime;
-    }
-
-    @Override
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-
-    public String getConfigType() {
-        return configType;
-    }
-
-    public void setConfigType(String configType) {
-        this.configType = configType;
-    }
-
-    public List<Long> getBucIds() {
-        return bucIds;
-    }
-
-    public void setBucIds(List<Long> bucIds) {
-        this.bucIds = bucIds;
     }
 }

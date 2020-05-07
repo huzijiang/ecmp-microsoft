@@ -126,9 +126,9 @@ public class ApproveTemplateInfoServiceImpl implements IApproveTemplateInfoServi
     }
 
     @Override
-    public List<ApprovaTemplateVO> getTemplateList(PageRequest pageRequest) {
+    public List<ApprovaTemplateVO> getTemplateList(PageRequest pageRequest,Long ownerCompany) {
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
-        List<ApprovaTemplateVO> templateList = approveTemplateInfoMapper.getTemplateList(pageRequest.getSearch());
+        List<ApprovaTemplateVO> templateList = approveTemplateInfoMapper.getTemplateList(pageRequest.getSearch(),ownerCompany);
         if (CollectionUtils.isNotEmpty(templateList)){
             for (ApprovaTemplateVO vo:templateList){
                 List<ApprovaTemplateNodeVO> nodeIds = vo.getNodeIds();

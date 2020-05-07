@@ -10,12 +10,13 @@ import org.etsi.uri.x01903.v13.impl.CertIDTypeImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.bo.CityInfo;
+import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.bo.WeatherAndCity;
 
 import io.swagger.annotations.ApiOperation;
@@ -31,8 +32,8 @@ public class CityController {
 	
 	@ApiOperation(value = "getCityByName", notes = "据城市名称模糊搜索城市列表 ", httpMethod = "POST")
 	@PostMapping("/getCityByName")	
-	public ApiResponse<List<CityInfo>> getCityByName(String cityName) {
-		return ApiResponse.success(cityService.queryCityInfoListByCityName(cityName));
+	public ApiResponse<List<CityInfo>> getCityByName(@RequestParam("regimenId") Long regimenId,@RequestParam("cityName") String cityName) {
+		return ApiResponse.success(cityService.queryCityInfoListByCityName(cityName,regimenId));
 	}
 	
 	@ApiOperation(value = "getIndex", notes = "获取首页信息 ", httpMethod = "POST")

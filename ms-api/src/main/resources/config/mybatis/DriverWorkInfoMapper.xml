@@ -124,8 +124,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         DATE_FORMAT(calendar_date,'%Y-%m-%d') calendarDate,
         it_is_work as workState
         from cloud_work_date_info
-        <where>
-            <if test="month != null and month !='' ">date_format(calendar_date,'%Y-%m') = #{month}</if>
+        <where> 1=1
+            <if test="month != null and month !='' "> and date_format(calendar_date,'%Y-%m') = #{month}</if>
+            <if test="companyId != null and companyId !='' "> and company_id = #{companyId}</if>
         </where>
         order by calendar_date
     </select>

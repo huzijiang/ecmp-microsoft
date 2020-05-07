@@ -65,6 +65,10 @@ public interface CostConfigCarTypeInfoMapper
 
     /**
      * 批量插入成本配置车型信息
+     * @param carTypes
+     * @param costId
+     * @param userId
+     * @param createTime
      */
     void insertCostConfigCarTypeInfoBatch(@Param("list") List<CostConfigCarTypeInfo> carTypes,@Param("costId") Long costId,
                                           @Param("userId") Long userId,@Param("createTime") Date createTime);

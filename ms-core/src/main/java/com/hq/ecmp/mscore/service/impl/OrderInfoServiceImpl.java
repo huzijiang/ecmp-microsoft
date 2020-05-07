@@ -12,7 +12,7 @@ import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
-import com.hq.ecmp.mscore.bo.CityInfo;
+import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
@@ -239,8 +239,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         int i = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         return  i;
     }
-    
-    
+
+
     @Override
 	public List<DispatchOrderInfo> queryAllWaitDispatchList() {
     	List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
@@ -283,7 +283,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 					}
 				result.add(dispatchOrderInfo);
 				}
-			
+
 			}
 		return result;
 	}
@@ -932,6 +932,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //插入订单初始信息
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderNumber(OrderUtils.getOrderNum());
+        orderInfo.setCompanyId(officialOrderReVo.getCompanyId());
         orderInfo.setServiceType(serviceType);
         if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState())){
             orderInfo.setFlightNumber(journeyInfo.getFlightNumber());
@@ -1584,7 +1585,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String basePrice = orderFeeDetailVO.getBasePrice();
         String includeMileage = orderFeeDetailVO.getIncludeMileage();
         String includeMinute = orderFeeDetailVO.getIncludeMinute();
-        if(BigDecimal.ZERO!=new BigDecimal(basePrice)){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(basePrice).stripTrailingZeros())<0){
             list.add(new OtherCostVO("起步价",basePrice,includeMileage,includeMinute,"含时长"+includeMinute+"分钟,含里程"+includeMileage+"公里"));
         }
         //超时长费：超出基础时长时计算，同时会区分高峰和平峰时段
@@ -1606,34 +1607,34 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String hotMileage = orderFeeDetailVO.getHotMileage();//高峰里程
         String peakPrice = orderFeeDetailVO.getPeakPrice();//高峰里程单价
         String allMileage=new BigDecimal(hotMileage).add(new BigDecimal(overMilageNum)).stripTrailingZeros().toPlainString();
-        if(BigDecimal.ZERO.compareTo(new BigDecimal(overMilageNumTotal))<0){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(overMilageNumTotal).stripTrailingZeros())<0){
             list.add(new OtherCostVO("超里程费",overMilageNumTotal,"平峰里程:"+overMilageNum+"公里,高峰里程:"+hotMileage+"公里,累计超时里程:"+allMileage+"公里"));
         }
         //夜间里程费：用车过程在设定为夜间服务时间的，加收夜间服务费。
         String nightDistancePrice = orderFeeDetailVO.getNightDistancePrice();
         String nightDistanceNum	 = orderFeeDetailVO.getNightDistanceNum();
         String nightPrice = orderFeeDetailVO.getNightPrice();
-        if(BigDecimal.ZERO.compareTo(new BigDecimal(nightDistancePrice))<0){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(nightDistancePrice).stripTrailingZeros())<0){
             list.add(new OtherCostVO("夜间时长费",nightDistancePrice,"夜间服务费（里程）单价:"+nightPrice+",夜间服务里程"+nightDistanceNum+"公里"));
         }
         //夜间时长费：用车过程在设定为夜间服务时间的，加收夜间服务费。
         String nighitDurationFees = orderFeeDetailVO.getNighitDurationFees();
         String nighitDuration = orderFeeDetailVO.getNighitDuration();
         String nightPriceTime = orderFeeDetailVO.getNightPriceTime();
-        if(BigDecimal.ZERO.compareTo(new BigDecimal(nighitDurationFees))<0){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(nighitDurationFees).stripTrailingZeros())<0){
             list.add(new OtherCostVO("夜间时长费",nighitDurationFees,"夜间服务费（时长）单价:"+nightPriceTime+",夜间服务时长"+nighitDuration+"分钟"));
         }
         //等待费
         String waitingFee = orderFeeDetailVO.getWaitingFee();
         String waitingMinutes = orderFeeDetailVO.getWaitingMinutes();
-        if(BigDecimal.ZERO.compareTo(new BigDecimal(waitingFee))<0){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(waitingFee).stripTrailingZeros())<0){
             list.add(new OtherCostVO("等待费",waitingFee,"等待时长为"+waitingMinutes+"分钟"));
         }
         //长途费：超过长途费起始里程时计算
         String longDistancePrice = orderFeeDetailVO.getLongDistancePrice();
         String longDistanceNum = orderFeeDetailVO.getLongDistanceNum();
         String longPrice = orderFeeDetailVO.getLongPrice();
-        if(BigDecimal.ZERO.compareTo(new BigDecimal(longDistancePrice))<0){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(longDistancePrice).stripTrailingZeros())<0){
             list.add(new OtherCostVO("长途费",longDistancePrice,"长途单价:"+longPrice+",长途里程"+longDistanceNum+"公里"));
         }
         //价外税:如高速费和停车费
@@ -1642,7 +1643,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (!CollectionUtils.isEmpty(otherCostBeans)){
             otherFee = otherCostBeans.stream().map(OtherCostBean::getCostFee).collect(Collectors.reducing(Double::sum)).get();
         }
-        if(BigDecimal.ZERO.compareTo(BigDecimal.valueOf(otherFee))<0){
+        if(BigDecimal.ZERO.compareTo(BigDecimal.valueOf(otherFee).stripTrailingZeros())<0){
             list.add(new OtherCostVO("其他费用",String.valueOf(otherFee),"包含停车费、高速费、机场服务费"));
         }
         result.setOtherCost(list);

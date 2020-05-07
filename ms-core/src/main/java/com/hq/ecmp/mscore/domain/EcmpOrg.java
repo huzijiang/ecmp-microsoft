@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -13,6 +14,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpOrg extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -23,6 +25,10 @@ public class EcmpOrg extends BaseEntity
     /** 上级组织id */
     @Excel(name = "上级组织id")
     private Long parentId;
+
+    /** 所属公司ID */
+    @Excel(name = "所属公司ID")
+    private Long companyId;
 
     /** 企业自定义机构编码 */
     @Excel(name = "企业自定义机构编码")
@@ -66,128 +72,12 @@ public class EcmpOrg extends BaseEntity
     /*新增临时字段 */
     private List<EcmpOrg> deptList;
 
-    public String  getDeptCode() {
-        return deptCode;
-    }
-
-    public void setDeptCode(String deptCode) {
-        this.deptCode = deptCode;
-    }
-
-    public List<EcmpOrg> getDeptList() {
-        return deptList;
-    }
-
-    public void setDeptList(List<EcmpOrg> deptList) {
-        this.deptList = deptList;
-    }
-
-    public void setDeptId(Long deptId)
-    {
-        this.deptId = deptId;
-    }
-
-    public Long getDeptId()
-    {
-        return deptId;
-    }
-    public void setParentId(Long parentId)
-    {
-        this.parentId = parentId;
-    }
-
-    public Long getParentId()
-    {
-        return parentId;
-    }
-
-    public void setAncestors(String ancestors)
-    {
-        this.ancestors = ancestors;
-    }
-
-    public String getAncestors()
-    {
-        return ancestors;
-    }
-    public void setDeptName(String deptName)
-    {
-        this.deptName = deptName;
-    }
-
-    public String getDeptName()
-    {
-        return deptName;
-    }
-    public void setDeptType(String deptType)
-    {
-        this.deptType = deptType;
-    }
-
-    public String getDeptType()
-    {
-        return deptType;
-    }
-    public void setOrderNum(Integer orderNum)
-    {
-        this.orderNum = orderNum;
-    }
-
-    public Integer getOrderNum()
-    {
-        return orderNum;
-    }
-    public void setLeader(String leader)
-    {
-        this.leader = leader;
-    }
-
-    public String getLeader()
-    {
-        return leader;
-    }
-    public void setPhone(String phone)
-    {
-        this.phone = phone;
-    }
-
-    public String getPhone()
-    {
-        return phone;
-    }
-    public void setEmail(String email)
-    {
-        this.email = email;
-    }
-
-    public String getEmail()
-    {
-        return email;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-
-    public String getStatus()
-    {
-        return status;
-    }
-    public void setDelFlag(String delFlag)
-    {
-        this.delFlag = delFlag;
-    }
-
-    public String getDelFlag()
-    {
-        return delFlag;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("deptId", getDeptId())
             .append("parentId", getParentId())
+            .append("companyId", getCompanyId())
             .append("ancestors", getAncestors())
             .append("deptName", getDeptName())
             .append("deptType", getDeptType())

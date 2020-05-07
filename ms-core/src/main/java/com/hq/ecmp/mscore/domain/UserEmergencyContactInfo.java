@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hq.core.web.domain.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
@@ -18,15 +19,16 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class UserEmergencyContactInfo implements Serializable {
     private static final long serialVersionUID = 354305554870640327L;
-    
+
     private Long id;
-    
+
     private Long userId;
-    
+
     private String name;
-    
+
     private String mobile;
 
     private Long createBy;

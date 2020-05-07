@@ -103,7 +103,7 @@ public interface IDriverWorkInfoService
      * @param month
      * @return
      */
-    List<WorkInfoMonthVo> getWorkInfoMonthList(String month);
+    List<WorkInfoMonthVo> getWorkInfoMonthList(String month,Long companyId);
 
     /**
      * 按月更新全部司机的排班信息

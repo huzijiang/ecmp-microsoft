@@ -101,6 +101,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carId != null ">car_id,</if>
             <if test="carGroupId != null ">car_group_id,</if>
             <if test="deptId != null ">dept_id,</if>
+            <if test="companyId != null ">company_id,</if>
             <if test="carTypeId != null ">car_type_id,</if>
             <if test="carLicense != null  and carLicense != ''">car_license,</if>
             <if test="state != null  and state != ''">state,</if>
@@ -142,6 +143,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carId != null ">#{carId},</if>
             <if test="carGroupId != null ">#{carGroupId},</if>
             <if test="deptId != null ">#{deptId},</if>
+            <if test="companyId != null ">#{companyId},</if>
             <if test="carTypeId != null ">#{carTypeId},</if>
             <if test="carLicense != null  and carLicense != ''">#{carLicense},</if>
             <if test="state != null  and state != ''">#{state},</if>

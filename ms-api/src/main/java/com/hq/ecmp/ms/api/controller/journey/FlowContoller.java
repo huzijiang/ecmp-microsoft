@@ -70,7 +70,8 @@ public class FlowContoller {
         try{
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            nodeInfoService.addFlowTemplate(addFolwDTO,loginUser.getUser().getUserId());
+            Long ownerCompany = loginUser.getUser().getOwnerCompany();
+            nodeInfoService.addFlowTemplate(addFolwDTO,loginUser.getUser().getUserId(),ownerCompany);
         }catch (Exception e){
             return ApiResponse.success();
         }
@@ -87,7 +88,10 @@ public class FlowContoller {
     @PostMapping("/flowTemplateList")
     public ApiResponse<PageResult<ApprovaTemplateVO>> flowTemplateList(@RequestBody PageRequest pageRequest){
         //提交行程申请
-        List<ApprovaTemplateVO> list=templateInfoService.getTemplateList(pageRequest);
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long ownerCompany = loginUser.getUser().getOwnerCompany();
+        List<ApprovaTemplateVO> list=templateInfoService.getTemplateList(pageRequest,ownerCompany);
         Long count=templateInfoService.getTemplateListCount(pageRequest.getSearch());
         return ApiResponse.success(new PageResult<ApprovaTemplateVO>(count,list));
     }
@@ -143,7 +147,7 @@ public class FlowContoller {
         return ApiResponse.success("删除模板成功:"+templateIDTO.getApproveTemplateId());
     }
 
-    
+
     @ApiOperation(value = "getAllTemplateList",notes = "获取所有审批流 ",httpMethod ="POST")
     @PostMapping("/getAllTemplateList")
     public ApiResponse<List<ApproveTemplateInfo>> getAllTemplateList(){

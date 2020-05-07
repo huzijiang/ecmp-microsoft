@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -12,6 +13,7 @@ import java.util.Date;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class CarInsuranceInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -34,52 +36,6 @@ public class CarInsuranceInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long price;
-
-    public void setCarInsuranceId(Long carInsuranceId)
-    {
-        this.carInsuranceId = carInsuranceId;
-    }
-
-    public Long getCarInsuranceId()
-    {
-        return carInsuranceId;
-    }
-    public void setCarId(Long carId)
-    {
-        this.carId = carId;
-    }
-
-    public Long getCarId()
-    {
-        return carId;
-    }
-    public void setInsuranceBeginDate(Date insuranceBeginDate)
-    {
-        this.insuranceBeginDate = insuranceBeginDate;
-    }
-
-    public Date getInsuranceBeginDate()
-    {
-        return insuranceBeginDate;
-    }
-    public void setInsuranceEndDate(Date insuranceEndDate)
-    {
-        this.insuranceEndDate = insuranceEndDate;
-    }
-
-    public Date getInsuranceEndDate()
-    {
-        return insuranceEndDate;
-    }
-    public void setPrice(Long price)
-    {
-        this.price = price;
-    }
-
-    public Long getPrice()
-    {
-        return price;
-    }
 
     @Override
     public String toString() {

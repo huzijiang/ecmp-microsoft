@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class OrderInvoiceInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -22,25 +24,6 @@ public class OrderInvoiceInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long accountId;
-
-    public void setInvoiceId(Long invoiceId)
-    {
-        this.invoiceId = invoiceId;
-    }
-
-    public Long getInvoiceId()
-    {
-        return invoiceId;
-    }
-    public void setAccountId(Long accountId)
-    {
-        this.accountId = accountId;
-    }
-
-    public Long getAccountId()
-    {
-        return accountId;
-    }
 
     @Override
     public String toString() {

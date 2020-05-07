@@ -1,11 +1,12 @@
 package com.hq.ecmp.mscore.dto.cost;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
-import com.hq.ecmp.mscore.vo.CarTypeVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +31,8 @@ public class CostConfigListResult {
     private String costConfigName;
     @ApiModelProperty(value = "城市名称")
     private String cityName;
+    @ApiModelProperty(value = "城市code")
+    private String cityCode;
     @ApiModelProperty(value = "服务类型")
     private String serviceType;
     @ApiModelProperty(value = "包车类型，T001  半日租\n" +
@@ -38,21 +41,23 @@ public class CostConfigListResult {
     @ApiModelProperty("车型集合")
     private List<CostConfigCarTypeInfo> carTypes;
     @ApiModelProperty(value = "起步价，非包车类型使用")
-    private Double startPrice;
+    private BigDecimal startPrice;
     @ApiModelProperty(value = "套餐价，包车类型使用")
-    private Double combosPrice;
+    private BigDecimal combosPrice;
     @ApiModelProperty(value = "套餐里程（：公里）")
-    private Double combosMileage;
+    private BigDecimal combosMileage;
     @ApiModelProperty(value = "套餐时长（：分钟）")
     private Long combosTimes;
     @ApiModelProperty(value = "超里程单价（元/公里）")
-    private Double beyondPriceEveryKm;
+    private BigDecimal beyondPriceEveryKm;
     @ApiModelProperty(value = "超里程时长（元/分钟）")
-    private Double beyondPriceEveryMinute;
+    private BigDecimal beyondPriceEveryMinute;
     @ApiModelProperty(value = "等待费（元/分钟）")
-    private Double waitPriceEreryMinute;
+    private BigDecimal waitPriceEreryMinute;
     @ApiModelProperty(value = "创建时间")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone ="GMT+8" )
     private Date createTime;
     @ApiModelProperty(value = "更新时间")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone ="GMT+8" )
     private Date updateTime;
 }

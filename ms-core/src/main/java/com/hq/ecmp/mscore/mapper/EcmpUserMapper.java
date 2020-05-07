@@ -342,7 +342,7 @@ public interface EcmpUserMapper
 
     List<UserTreeVo> selectListByDeptId(Long deptId);
 
-    List<UserTreeVo> selectUserListByDeptIdAndProjectId(@Param("projectId")Long projectId);
+    List<UserTreeVo> selectUserListByDeptIdAndProjectId(@Param("projectId")Long projectId,@Param("search")String search);
     /**
      * 查询所有有效员工
      * @param  //ecmpUser

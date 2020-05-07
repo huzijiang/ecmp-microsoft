@@ -21,5 +21,7 @@ CityInfo {
     private String cityName;                 // TODO 由Integer改为String
 
     @ApiModelProperty(name = "cityCode",value = "城市code码")
-    private Integer cityCode;
+    private String cityCode;
+    private String provinceCode;
+
 }

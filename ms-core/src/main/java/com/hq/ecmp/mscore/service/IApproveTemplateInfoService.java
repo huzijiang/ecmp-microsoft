@@ -62,7 +62,7 @@ public interface IApproveTemplateInfoService
      */
     public int deleteApproveTemplateInfoById(Long approveTemplateId);
 
-    List<ApprovaTemplateVO> getTemplateList(PageRequest pageRequest);
+    List<ApprovaTemplateVO> getTemplateList(PageRequest pageRequest,Long ownerCompany);
 
     ApprovaTemplateVO flowTemplateDetail(Long templateId);
 

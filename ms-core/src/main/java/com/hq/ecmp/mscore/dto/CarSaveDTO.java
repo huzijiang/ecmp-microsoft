@@ -95,8 +95,5 @@ public class CarSaveDTO {
     //private String powerTypeName; // 燃料类型名字 回显展示）暂不使用
     private String ownerCompanyName; //所属公司名字
 
-    private Long companyId; //所属公司
-
-
-
+    private Long companyId;
 }

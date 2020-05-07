@@ -129,6 +129,28 @@ public class DateFormatUtils {
         }
     }
 
+    //比较两个时间的大小
+    // -1:start>end,0:end=start,1:start<end
+    public static int compareDate(String start, String end) {
+        if (StringUtils.isBlank(start)||StringUtils.isBlank(end)){
+            return 0;
+        }
+        Long startDay=parseDate(DATE_FORMAT,start).getTime();
+        Long endDay=parseDate(DATE_FORMAT,end).getTime();
+        try {
+            if (startDay.longValue()>endDay.longValue()){
+                return -1;
+            }else if(startDay.longValue()<endDay.longValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     /**
      * 格式化日期, 仅用于pattern不固定的情况.
      * <p>
@@ -284,9 +306,8 @@ public class DateFormatUtils {
 		return Long.valueOf(interval);
 	}
 
-	public static String getWeek(){
+	public static String getWeek( Date today){
         String week = "";
-            Date today = new Date();
             Calendar c = Calendar.getInstance();
             c.setTime(today);
             int weekday = c.get(7);

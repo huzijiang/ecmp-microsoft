@@ -3,6 +3,8 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarGroupServeOrgRelation;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 /**
@@ -11,6 +13,7 @@ import java.util.List;
  * @author makejava
  * @since 2020-05-05 13:40:29
  */
+@Repository
 public interface CarGroupServeOrgRelationMapper {
 
     /**

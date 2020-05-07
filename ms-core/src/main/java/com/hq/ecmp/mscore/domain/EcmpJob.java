@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpJob extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -43,79 +45,6 @@ public class EcmpJob extends BaseEntity
     /** 状态（0正常 1暂停） */
     @Excel(name = "状态", readConverterExp = "0=正常,1=暂停")
     private String status;
-
-    public void setJobId(Long jobId)
-    {
-        this.jobId = jobId;
-    }
-
-    public Long getJobId()
-    {
-        return jobId;
-    }
-    public void setJobName(String jobName)
-    {
-        this.jobName = jobName;
-    }
-
-    public String getJobName()
-    {
-        return jobName;
-    }
-    public void setJobGroup(String jobGroup)
-    {
-        this.jobGroup = jobGroup;
-    }
-
-    public String getJobGroup()
-    {
-        return jobGroup;
-    }
-    public void setInvokeTarget(String invokeTarget)
-    {
-        this.invokeTarget = invokeTarget;
-    }
-
-    public String getInvokeTarget()
-    {
-        return invokeTarget;
-    }
-    public void setCronExpression(String cronExpression)
-    {
-        this.cronExpression = cronExpression;
-    }
-
-    public String getCronExpression()
-    {
-        return cronExpression;
-    }
-    public void setMisfirePolicy(String misfirePolicy)
-    {
-        this.misfirePolicy = misfirePolicy;
-    }
-
-    public String getMisfirePolicy()
-    {
-        return misfirePolicy;
-    }
-    public void setConcurrent(String concurrent)
-    {
-        this.concurrent = concurrent;
-    }
-
-    public String getConcurrent()
-    {
-        return concurrent;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-
-    public String getStatus()
-    {
-        return status;
-    }
 
     @Override
     public String toString() {
