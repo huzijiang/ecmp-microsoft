@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CostConfigCarTypeInfoMapper">
+
+    <resultMap type="CostConfigCarTypeInfo" id="CostConfigCarTypeInfoResult">
+        <result property="id"    column="id"    />
+        <result property="costId"    column="cost_id"    />
+        <result property="carTypeId"    column="car_type_id"    />
+        <result property="carTypeName"    column="car_type_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCostConfigCarTypeInfoVo">
+        select id, cost_id, car_type_id, car_type_name, create_by, create_time, update_by, update_time from cost_config_car_type_info
+    </sql>
+
+    <select id="selectCostConfigCarTypeInfoList" parameterType="CostConfigCarTypeInfo" resultMap="CostConfigCarTypeInfoResult">
+        <include refid="selectCostConfigCarTypeInfoVo"/>
+        <where>
+            <if test="costId != null "> and cost_id = #{costId}</if>
+            <if test="carTypeId != null "> and car_type_id = #{carTypeId}</if>
+            <if test="carTypeName != null  and carTypeName != ''"> and car_type_name like concat('%', #{carTypeName}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectCostConfigCarTypeInfoById" parameterType="String" resultMap="CostConfigCarTypeInfoResult">
+        <include refid="selectCostConfigCarTypeInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCostConfigCarTypeInfo" parameterType="CostConfigCarTypeInfo">
+        insert into cost_config_car_type_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''">id,</if>
+            <if test="costId != null ">cost_id,</if>
+            <if test="carTypeId != null ">car_type_id,</if>
+            <if test="carTypeName != null  and carTypeName != ''">car_type_name,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''">#{id},</if>
+            <if test="costId != null ">#{costId},</if>
+            <if test="carTypeId != null ">#{carTypeId},</if>
+            <if test="carTypeName != null  and carTypeName != ''">#{carTypeName},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCostConfigCarTypeInfo" parameterType="CostConfigCarTypeInfo">
+        update cost_config_car_type_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="costId != null ">cost_id = #{costId},</if>
+            <if test="carTypeId != null ">car_type_id = #{carTypeId},</if>
+            <if test="carTypeName != null  and carTypeName != ''">car_type_name = #{carTypeName},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCostConfigCarTypeInfoById" parameterType="String">
+        delete from cost_config_car_type_info where id = #{id}
+    </delete>
+
+    <delete id="deleteCostConfigCarTypeInfoByIds" parameterType="String">
+        delete from cost_config_car_type_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="insertCostConfigCarTypeInfoBatch">
+        INSERT INTO cost_config_car_type_info(cost_id, car_type_id, car_type_name, create_by, create_time, update_by, update_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{costId},
+            #{item.carTypeId},
+            #{name},
+            #{userId},
+            #{createTime}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteCostConfigByCostId">
+        delete from cost_config_car_type_info  where cost_id = #{costId}
+    </delete>
+
+</mapper>

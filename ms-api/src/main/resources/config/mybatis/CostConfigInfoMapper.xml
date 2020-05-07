@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CostConfigInfoMapper">
+
+    <resultMap type="CostConfigInfo" id="CostConfigInfoResult">
+        <result property="costId"    column="cost_id"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="costConfigName"    column="cost_config_name"    />
+        <result property="serviceType"    column="service_type"    />
+        <result property="rentType"    column="rent_type"    />
+        <result property="startPrice"    column="start_price"    />
+        <result property="combosPrice"    column="combos_price"    />
+        <result property="combosMileage"    column="combos_mileage"    />
+        <result property="combosTimes"    column="combos_times"    />
+        <result property="beyondPriceEveryKm"    column="beyond_price_every_km"    />
+        <result property="beyondPriceEveryMinute"    column="beyond_price_every_minute"    />
+        <result property="waitPriceEreryMinute"    column="wait_price_erery_minute"    />
+        <result property="state"    column="state"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCostConfigInfoVo">
+        select cost_id, company_id, cost_config_name, service_type, rent_type, start_price, combos_price, combos_mileage, combos_times, beyond_price_every_km, beyond_price_every_minute, wait_price_erery_minute, state, create_by, create_time, update_by, update_time from cost_config_info
+    </sql>
+
+    <select id="selectCostConfigInfoById" parameterType="Long" resultMap="CostConfigInfoResult">
+         select c.cost_id as costId,
+            c.company_id as companyId,
+            c.cost_config_name as costConfigName,
+            cc.city_name as cityName,
+            c.service_type as serviceType,
+						c.rent_type as rentType,
+						c.start_price as startPrice,
+						c.combos_price as combosPrice,
+						c.combos_mileage as combosMileage,
+						c.beyond_price_every_km as beyondPriceEveryKm,
+						c.beyond_price_every_minute as beyondPriceEveryMinute,
+						c.wait_price_erery_minute as waitPriceEreryMinute,
+            c.create_time as createTime,
+            c.update_by as updateTime
+            from cost_config_info c
+            left join cost_config_city_info  cc on cc.cost_id=c.cost_id
+            left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
+        where cost_id = #{costId}
+         group by c.company_id,cc.city_name,c.service_type
+    </select>
+
+    <insert id="insertCostConfigInfo" parameterType="CostConfigInfo">
+        <selectKey keyColumn="cost_id" keyProperty="costId" resultType="long" order="AFTER">
+            select last_insert_id();
+        </selectKey>
+        insert into cost_config_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="costId != null ">cost_id,</if>
+            <if test="companyId != null ">company_id,</if>
+            <if test="costConfigName != null  and costConfigName != ''">cost_config_name,</if>
+            <if test="serviceType != null  and serviceType != ''">service_type,</if>
+            <if test="rentType != null  and rentType != ''">rent_type,</if>
+            <if test="startPrice != null ">start_price,</if>
+            <if test="combosPrice != null ">combos_price,</if>
+            <if test="combosMileage != null ">combos_mileage,</if>
+            <if test="combosTimes != null ">combos_times,</if>
+            <if test="beyondPriceEveryKm != null ">beyond_price_every_km,</if>
+            <if test="beyondPriceEveryMinute != null ">beyond_price_every_minute,</if>
+            <if test="waitPriceEreryMinute != null ">wait_price_erery_minute,</if>
+            <if test="state != null  and state != ''">state,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="costId != null ">#{costId},</if>
+            <if test="companyId != null ">#{companyId},</if>
+            <if test="costConfigName != null  and costConfigName != ''">#{costConfigName},</if>
+            <if test="serviceType != null  and serviceType != ''">#{serviceType},</if>
+            <if test="rentType != null  and rentType != ''">#{rentType},</if>
+            <if test="startPrice != null ">#{startPrice},</if>
+            <if test="combosPrice != null ">#{combosPrice},</if>
+            <if test="combosMileage != null ">#{combosMileage},</if>
+            <if test="combosTimes != null ">#{combosTimes},</if>
+            <if test="beyondPriceEveryKm != null ">#{beyondPriceEveryKm},</if>
+            <if test="beyondPriceEveryMinute != null ">#{beyondPriceEveryMinute},</if>
+            <if test="waitPriceEreryMinute != null ">#{waitPriceEreryMinute},</if>
+            <if test="state != null  and state != ''">#{state},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCostConfigInfo" parameterType="CostConfigInfo">
+        update cost_config_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyId != null ">company_id = #{companyId},</if>
+            <if test="costConfigName != null  and costConfigName != ''">cost_config_name = #{costConfigName},</if>
+            <if test="serviceType != null  and serviceType != ''">service_type = #{serviceType},</if>
+            <if test="rentType != null  and rentType != ''">rent_type = #{rentType},</if>
+            <if test="startPrice != null ">start_price = #{startPrice},</if>
+            <if test="combosPrice != null ">combos_price = #{combosPrice},</if>
+            <if test="combosMileage != null ">combos_mileage = #{combosMileage},</if>
+            <if test="combosTimes != null ">combos_times = #{combosTimes},</if>
+            <if test="beyondPriceEveryKm != null ">beyond_price_every_km = #{beyondPriceEveryKm},</if>
+            <if test="beyondPriceEveryMinute != null ">beyond_price_every_minute = #{beyondPriceEveryMinute},</if>
+            <if test="waitPriceEreryMinute != null ">wait_price_erery_minute = #{waitPriceEreryMinute},</if>
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where cost_id = #{costId}
+    </update>
+
+    <delete id="deleteCostConfigInfoById" parameterType="Long">
+        delete from cost_config_info where cost_id = #{costId}
+    </delete>
+
+    <delete id="deleteCostConfigInfoByIds" parameterType="String">
+        delete from cost_config_info where cost_id in
+        <foreach item="costId" collection="array" open="(" separator="," close=")">
+            #{costId}
+        </foreach>
+    </delete>
+
+    <select id="selectCostConfigInfoList" parameterType="com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto" resultType="com.hq.ecmp.mscore.dto.cost.CostConfigListResult">
+            select c.cost_id as costId,
+            cc.id as  costConfigCityId,
+            c.company_id as companyId,
+            c.cost_config_name as costConfigName,
+            cc.city_name as cityName,
+            c.service_type as serviceType,
+            c.create_time as createTime,
+            c.update_by as updateTime
+            from cost_config_info c
+            left join cost_config_city_info  cc on cc.cost_id=c.cost_id
+            left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
+            <where>
+            <if test="costConfigName != null and costConfigName!=''">
+            c.cost_config_name like  CONCAT('%',#{costConfigName},'%')
+            </if>
+            <if test="cityCode != null and cityCode!=''">
+                and cc.city_code=#{cityCode}
+            </if>
+            <if test="cityCode != null ">
+            and c.service_type=#{serviceType}
+            </if>
+            </where>
+            group by c.cost_id,c.company_id,c.cost_config_name,cc.city_name,c.service_type
+
+    </select>
+
+    <select id="checkDoubleByServiceTypeCityCarType" resultType="java.lang.Integer">
+          select count(1)
+            from cost_config_info c
+            left join cost_config_city_info  cc on cc.cost_id=c.cost_id
+            left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
+            where   cc.city_code=#{cityCode} and c.service_type=#{serviceType}
+           and ct.car_type_id in
+           <foreach collection="list" item="item" open="(" close=")" separator=",">
+              #{item.carTypeId}
+            </foreach>
+    </select>
+
+</mapper>
