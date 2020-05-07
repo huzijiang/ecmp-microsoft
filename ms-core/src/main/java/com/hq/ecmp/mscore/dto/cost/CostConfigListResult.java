@@ -1,7 +1,7 @@
 package com.hq.ecmp.mscore.dto.cost;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
-import com.hq.ecmp.mscore.vo.CarTypeVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -30,6 +30,8 @@ public class CostConfigListResult {
     private String costConfigName;
     @ApiModelProperty(value = "城市名称")
     private String cityName;
+    @ApiModelProperty(value = "城市code")
+    private String cityCode;
     @ApiModelProperty(value = "服务类型")
     private String serviceType;
     @ApiModelProperty(value = "包车类型，T001  半日租\n" +
@@ -52,7 +54,9 @@ public class CostConfigListResult {
     @ApiModelProperty(value = "等待费（元/分钟）")
     private Double waitPriceEreryMinute;
     @ApiModelProperty(value = "创建时间")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone ="GMT+8" )
     private Date createTime;
     @ApiModelProperty(value = "更新时间")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone ="GMT+8" )
     private Date updateTime;
 }

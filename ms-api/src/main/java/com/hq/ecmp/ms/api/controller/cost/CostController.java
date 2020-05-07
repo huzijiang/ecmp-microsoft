@@ -12,9 +12,7 @@ import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -40,10 +38,10 @@ public class CostController {
      * 成本设置信息录入
      * @param costConfigDto 成本信息录入model
      */
-    @RequestMapping("/createCostConfig")
+    @PostMapping("/createCostConfig")
     @Log(value = "成本设置信息录入")
     @com.hq.core.aspectj.lang.annotation.Log(title = "新增成本设置",businessType = BusinessType.INSERT,operatorType = OperatorType.MANAGE)
-    public ApiResponse  createCostConfig(CostConfigInsertDto costConfigDto){
+    public ApiResponse  createCostConfig(@RequestBody CostConfigInsertDto costConfigDto){
         try {
             //获取当前登陆用户的信息
             HttpServletRequest request = ServletUtils.getRequest();
@@ -64,8 +62,8 @@ public class CostController {
      */
     @Log(value = "成本设置列表查询")
     @com.hq.core.aspectj.lang.annotation.Log(title = "成本设置列表查询",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
-    @RequestMapping("/queryCostConfigList")
-    public ApiResponse<List<CostConfigListResult>> queryCostConfigList(CostConfigQueryDto costConfigQueryDto){
+    @PostMapping("/queryCostConfigList")
+    public ApiResponse<List<CostConfigListResult>> queryCostConfigList(@RequestBody  CostConfigQueryDto costConfigQueryDto){
         List<CostConfigListResult> costConfigListResults;
         try {
             costConfigListResults = costConfigInfoService.selectCostConfigInfoList(costConfigQueryDto);
@@ -83,11 +81,11 @@ public class CostController {
      */
     @Log(value = "通过id查询成本设置信息 AND 成本设置详情以及修改的成本回显")
     @com.hq.core.aspectj.lang.annotation.Log(title = "通过id查询成本设置信息 AND 成本设置详情以及修改的成本回显",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
-    @RequestMapping("/queryCostConfigById")
-    public ApiResponse<CostConfigListResult> queryCostConfigById(Long costId){
+    @PostMapping("/queryCostConfigById")
+    public ApiResponse<CostConfigListResult> queryCostConfigById(@RequestParam("costId") Long costId,@RequestParam("cityCode")Integer cityCode){
         CostConfigListResult costConfigListResult;
         try {
-            costConfigListResult = costConfigInfoService.selectCostConfigInfoById(costId);
+            costConfigListResult = costConfigInfoService.selectCostConfigInfoById(costId,cityCode);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("通过id查询成本信息失败");
@@ -101,8 +99,8 @@ public class CostController {
      */
     @Log(value = "成本设置信息修改")
     @com.hq.core.aspectj.lang.annotation.Log(title = "成本设置信息修改",businessType = BusinessType.UPDATE,operatorType = OperatorType.MANAGE)
-    @RequestMapping("/updateCostConfigById")
-    public ApiResponse updateCostConfig(CostConfigListResult costConfigListResult){
+    @PostMapping("/updateCostConfigById")
+    public ApiResponse updateCostConfig(@RequestBody CostConfigListResult costConfigListResult){
         //获取当前登陆用户的信息
         try {
             HttpServletRequest request = ServletUtils.getRequest();
@@ -126,7 +124,7 @@ public class CostController {
      */
     @Log(value = "通过成本设置城市附表ID删除数据")
     @com.hq.core.aspectj.lang.annotation.Log(title = "成本设置信息修改",businessType = BusinessType.DELETE,operatorType = OperatorType.MANAGE)
-    @RequestMapping("/deleteCostConfigByCostCityId")
+    @PostMapping("/deleteCostConfigByCostCityId")
     public ApiResponse deleteCostConfigByCostCityId(@RequestParam("costConfigCityId") Long costConfigCityId, @RequestParam("costId") Long costId,
                                                     @RequestParam("cityCode") Integer cityCode){
         try {
@@ -145,8 +143,8 @@ public class CostController {
      */
     @Log(value = "车型，城市，服务类型三者校验是否重复")
     @com.hq.core.aspectj.lang.annotation.Log(title = "车型，城市，服务类型三者校验是否重复",businessType = BusinessType.DELETE,operatorType = OperatorType.MANAGE)
-    @RequestMapping("/checkDoubleByServiceTypeCityCarType")
-    public ApiResponse<Integer> checkDoubleByServiceTypeCityCarType(CostConfigQueryDto costConfigQueryDto){
+    @PostMapping("/checkDoubleByServiceTypeCityCarType")
+    public ApiResponse<Integer> checkDoubleByServiceTypeCityCarType(@RequestBody CostConfigQueryDto costConfigQueryDto){
         Integer i = 0;
         try {
             i = costConfigInfoService.checkDoubleByServiceTypeCityCarType(costConfigQueryDto);

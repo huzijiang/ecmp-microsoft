@@ -28,16 +28,19 @@
         select cost_id, company_id, cost_config_name, service_type, rent_type, start_price, combos_price, combos_mileage, combos_times, beyond_price_every_km, beyond_price_every_minute, wait_price_erery_minute, state, create_by, create_time, update_by, update_time from cost_config_info
     </sql>
 
-    <select id="selectCostConfigInfoById" parameterType="Long" resultMap="CostConfigInfoResult">
+    <select id="selectCostConfigInfoById" resultType="com.hq.ecmp.mscore.dto.cost.CostConfigListResult">
          select c.cost_id as costId,
             c.company_id as companyId,
             c.cost_config_name as costConfigName,
             cc.city_name as cityName,
+             cc.city_code as cityCode,
+            ct.id as  costConfigCityId,
             c.service_type as serviceType,
 						c.rent_type as rentType,
 						c.start_price as startPrice,
 						c.combos_price as combosPrice,
 						c.combos_mileage as combosMileage,
+						c.combos_times as combosTimes,
 						c.beyond_price_every_km as beyondPriceEveryKm,
 						c.beyond_price_every_minute as beyondPriceEveryMinute,
 						c.wait_price_erery_minute as waitPriceEreryMinute,
@@ -46,7 +49,8 @@
             from cost_config_info c
             left join cost_config_city_info  cc on cc.cost_id=c.cost_id
             left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
-        where cost_id = #{costId}
+        where c.cost_id = #{costId}
+            and cc.city_code=#{cityCode}
          group by c.company_id,cc.city_name,c.service_type
     </select>
 
@@ -69,9 +73,9 @@
             <if test="beyondPriceEveryMinute != null ">beyond_price_every_minute,</if>
             <if test="waitPriceEreryMinute != null ">wait_price_erery_minute,</if>
             <if test="state != null  and state != ''">state,</if>
-            <if test="createBy != null ">create_by,</if>
+            <if test="createBy != null and createBy != '' ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
-            <if test="updateBy != null ">update_by,</if>
+            <if test="updateBy != null and updateBy != ''">update_by,</if>
             <if test="updateTime != null ">update_time,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -88,9 +92,9 @@
             <if test="beyondPriceEveryMinute != null ">#{beyondPriceEveryMinute},</if>
             <if test="waitPriceEreryMinute != null ">#{waitPriceEreryMinute},</if>
             <if test="state != null  and state != ''">#{state},</if>
-            <if test="createBy != null ">#{createBy},</if>
+            <if test="createBy != null and createBy != '' ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
-            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateBy != null and updateBy != ''">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
         </trim>
     </insert>
@@ -136,9 +140,10 @@
             c.cost_config_name as costConfigName,
             c.rent_type as rentType,
             cc.city_name as cityName,
+            cc.city_code as cityCode,
             c.service_type as serviceType,
             c.create_time as createTime,
-            c.update_by as updateTime
+            c.update_time as updateTime
             from cost_config_info c
             left join cost_config_city_info  cc on cc.cost_id=c.cost_id
             left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
@@ -172,6 +177,9 @@
             left join cost_config_city_info  cc on cc.cost_id=c.cost_id
             left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
             where   cc.city_code=#{cityCode} and c.service_type=#{serviceType}
+            <if test="serviceType=='5000'">
+                and c.rent_type=#{rentType}
+            </if>
            and ct.car_type_id in
            <foreach collection="list" item="item" open="(" close=")" separator=",">
               #{item.carTypeId}

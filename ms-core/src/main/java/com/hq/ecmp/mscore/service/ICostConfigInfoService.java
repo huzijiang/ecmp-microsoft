@@ -21,7 +21,7 @@ public interface ICostConfigInfoService
      * @param costId 【请填写功能名称】ID
      * @return 【请填写功能名称】
      */
-    CostConfigListResult selectCostConfigInfoById(Long costId);
+    CostConfigListResult selectCostConfigInfoById(Long costId,Integer cityCode);
 
 
     /**
