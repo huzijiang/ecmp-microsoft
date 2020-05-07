@@ -45,7 +45,7 @@
 						c.beyond_price_every_minute as beyondPriceEveryMinute,
 						c.wait_price_erery_minute as waitPriceEreryMinute,
             c.create_time as createTime,
-            c.update_by as updateTime
+            c.update_time as updateTime
             from cost_config_info c
             left join cost_config_city_info  cc on cc.cost_id=c.cost_id
             left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
