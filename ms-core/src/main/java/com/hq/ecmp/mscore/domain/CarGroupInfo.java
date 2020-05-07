@@ -84,6 +84,11 @@ public class CarGroupInfo extends BaseEntity
     private String allowOuterDispatch;   //TODO 新增 是否允许外部调度
 
 
+    public CarGroupInfo(String city, Long ownerCompany) {
+        this.city = city;
+        this.companyId = ownerCompany;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

@@ -217,7 +217,7 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     }
 
     @Override
-    public OrgTreeVo selectProjectUserTree(Long projectId) {
+    public OrgTreeVo selectProjectUserTree(Long projectId,String search) {
 //        String str =(String) redisUtil.get(String.format(PROJECT_USER_TREE, projectId));
 //        if (StringUtils.isNotEmpty(str)){
 //            OrgTreeVo orgTreeVo = JSONObject.parseObject(str, OrgTreeVo.class);
@@ -229,9 +229,9 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
             orgId=projectInfo.getOwnerCompany();
         }
         OrgTreeVo orgTreeVo = ecmpOrgMapper.selectDeptTree(orgId,null);
-        List<UserTreeVo> userList =ecmpUserMapper.selectUserListByDeptIdAndProjectId(projectId);
+        List<UserTreeVo> userList =ecmpUserMapper.selectUserListByDeptIdAndProjectId(projectId,search);
         OrgTreeVo childNode = getChildNode(orgTreeVo, userList);
-//        redisUtil.set(String.format(PROJECT_USER_TREE, projectId), JSON.toJSONString(childNode));
+
         return childNode;
     }
 
@@ -270,7 +270,7 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
 
     private OrgTreeVo getChildNode(OrgTreeVo orgTreeVos, List<UserTreeVo> userList) {
         if (CollectionUtils.isEmpty(userList)) {
-            return orgTreeVos;
+            return null;
         }
         List<OrgTreeVo> children = orgTreeVos.getChildren();
         for (UserTreeVo vo:userList) {

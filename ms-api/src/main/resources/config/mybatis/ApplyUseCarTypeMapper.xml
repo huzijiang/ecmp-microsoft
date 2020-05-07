@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.demo.mapper.ApplyUseCarTypeMapper">
+
+    <resultMap type="ApplyUseCarType" id="ApplyUseCarTypeResult">
+        <result property="applyUseCarTypeId"    column="apply_use_car_type_id"    />
+        <result property="applyId"    column="apply_id"    />
+        <result property="cityCode"    column="city_code"    />
+        <result property="shuttleOwnerCarType"    column="Shuttle_owner_car_type"    />
+        <result property="shuttleOnlineCarType"    column="Shuttle_online_car_type"    />
+        <result property="ownerCarType"    column="owner_car_type"    />
+        <result property="onlineCarType"    column="online_car_type"    />
+    </resultMap>
+
+    <sql id="selectApplyUseCarTypeVo">
+        select apply_use_car_type_id, apply_id, city_code, Shuttle_owner_car_type, Shuttle_online_car_type, owner_car_type, online_car_type from apply_use_car_type
+    </sql>
+
+    <select id="selectApplyUseCarTypeList" parameterType="ApplyUseCarType" resultMap="ApplyUseCarTypeResult">
+        <include refid="selectApplyUseCarTypeVo"/>
+        <where>
+            <if test="applyId != null "> and apply_id = #{applyId}</if>
+            <if test="cityCode != null  and cityCode != ''"> and city_code = #{cityCode}</if>
+            <if test="shuttleOwnerCarType != null  and shuttleOwnerCarType != ''"> and Shuttle_owner_car_type = #{shuttleOwnerCarType}</if>
+            <if test="shuttleOnlineCarType != null  and shuttleOnlineCarType != ''"> and Shuttle_online_car_type = #{shuttleOnlineCarType}</if>
+            <if test="ownerCarType != null  and ownerCarType != ''"> and owner_car_type = #{ownerCarType}</if>
+            <if test="onlineCarType != null  and onlineCarType != ''"> and online_car_type = #{onlineCarType}</if>
+        </where>
+    </select>
+
+    <select id="selectApplyUseCarTypeById" parameterType="Long" resultMap="ApplyUseCarTypeResult">
+        <include refid="selectApplyUseCarTypeVo"/>
+        where apply_use_car_type_id = #{applyUseCarTypeId}
+    </select>
+
+    <insert id="insertApplyUseCarType" parameterType="ApplyUseCarType">
+        insert into apply_use_car_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="applyUseCarTypeId != null ">apply_use_car_type_id,</if>
+            <if test="applyId != null ">apply_id,</if>
+            <if test="cityCode != null  and cityCode != ''">city_code,</if>
+            <if test="shuttleOwnerCarType != null  and shuttleOwnerCarType != ''">Shuttle_owner_car_type,</if>
+            <if test="shuttleOnlineCarType != null  and shuttleOnlineCarType != ''">Shuttle_online_car_type,</if>
+            <if test="ownerCarType != null  and ownerCarType != ''">owner_car_type,</if>
+            <if test="onlineCarType != null  and onlineCarType != ''">online_car_type,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applyUseCarTypeId != null ">#{applyUseCarTypeId},</if>
+            <if test="applyId != null ">#{applyId},</if>
+            <if test="cityCode != null  and cityCode != ''">#{cityCode},</if>
+            <if test="shuttleOwnerCarType != null  and shuttleOwnerCarType != ''">#{shuttleOwnerCarType},</if>
+            <if test="shuttleOnlineCarType != null  and shuttleOnlineCarType != ''">#{shuttleOnlineCarType},</if>
+            <if test="ownerCarType != null  and ownerCarType != ''">#{ownerCarType},</if>
+            <if test="onlineCarType != null  and onlineCarType != ''">#{onlineCarType},</if>
+        </trim>
+    </insert>
+
+    <update id="updateApplyUseCarType" parameterType="ApplyUseCarType">
+        update apply_use_car_type
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="applyId != null ">apply_id = #{applyId},</if>
+            <if test="cityCode != null  and cityCode != ''">city_code = #{cityCode},</if>
+            <if test="shuttleOwnerCarType != null  and shuttleOwnerCarType != ''">Shuttle_owner_car_type = #{shuttleOwnerCarType},</if>
+            <if test="shuttleOnlineCarType != null  and shuttleOnlineCarType != ''">Shuttle_online_car_type = #{shuttleOnlineCarType},</if>
+            <if test="ownerCarType != null  and ownerCarType != ''">owner_car_type = #{ownerCarType},</if>
+            <if test="onlineCarType != null  and onlineCarType != ''">online_car_type = #{onlineCarType},</if>
+        </trim>
+        where apply_use_car_type_id = #{applyUseCarTypeId}
+    </update>
+
+    <delete id="deleteApplyUseCarTypeById" parameterType="Long">
+        delete from apply_use_car_type where apply_use_car_type_id = #{applyUseCarTypeId}
+    </delete>
+
+    <delete id="deleteApplyUseCarTypeByIds" parameterType="String">
+        delete from apply_use_car_type where apply_use_car_type_id in
+        <foreach item="applyUseCarTypeId" collection="array" open="(" separator="," close=")">
+            #{applyUseCarTypeId}
+        </foreach>
+    </delete>
+
+</mapper>

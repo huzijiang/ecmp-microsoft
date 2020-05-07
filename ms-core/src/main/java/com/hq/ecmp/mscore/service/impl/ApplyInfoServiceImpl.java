@@ -388,11 +388,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //3.3 plan_begin_address 计划上车地址  非空
         journeyNodeInfo.setPlanBeginLongAddress(null);
         journeyNodeInfo.setPlanBeginAddress(travelRequest.getStartCity().getCityName());
-        journeyNodeInfo.setPlanBeginCityCode(String.valueOf(travelRequest.getStartCity().getCityCode()));
+        journeyNodeInfo.setPlanBeginCityCode(travelRequest.getStartCity().getCityCode());
         //3.4 plan_end_address 计划下车地址    非空
         journeyNodeInfo.setPlanEndLongAddress(null);
         journeyNodeInfo.setPlanEndAddress(travelRequest.getEndCity().getCityName());
-        journeyNodeInfo.setPlanEndCityCode(String.valueOf(travelRequest.getEndCity().getCityCode()));
+        journeyNodeInfo.setPlanEndCityCode(travelRequest.getEndCity().getCityCode());
         //3.5 plan_setout_time 计划出发时间     出差某一节点开始日期
         journeyNodeInfo.setPlanSetoutTime(travelRequest.getStartDate());
         //3.6 plan_arrive_time 计划到达时间  出差某一节点结束日期

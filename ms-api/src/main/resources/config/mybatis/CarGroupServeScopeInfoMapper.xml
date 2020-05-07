@@ -136,4 +136,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <delete id="deleteByCarGroupId">
         delete from ecmp.car_group_serve_scope_info where car_group_id = #{carGroupId}
     </delete>
+
+    <select id="findByCityAndGroupId" parameterType="Object" resultMap="CarGroupServeScopeInfoMap">
+        select
+          id, car_group_id, province, city, create_by, create_time, update_by, update_time
+        from ecmp.car_group_serve_scope_info
+        <where>
+            <if test="groupIds!=null">
+                and  car_group_id in
+                <foreach collection="groupIds" item="groupId" open="(" separator="," close=")">
+                    #{groupId}
+                </foreach>
+            </if>
+            <if test="city!=null">
+                and city=#{city}
+            </if>
+        </where>
+    </select>
 </mapper>

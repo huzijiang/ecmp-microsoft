@@ -101,6 +101,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="city != null ">city = #{city},</if>
             <if test="carGroupName != null  and carGroupName != ''">car_group_name = #{carGroupName},</if>
             <if test="carGroupCode != null  and carGroupCode != ''">car_group_code = #{carGroupCode},</if>
+            <if test="ownerOrg != null ">owner_org = #{ownerOrg},</if>
+            <if test="ownerCompany != null ">company_id = #{ownerCompany},</if>
             <if test="parentCarGroupId != null ">parent_car_group_id = #{parentCarGroupId},</if>
             <if test="leader != null ">leader = #{leader},</if>
             <if test="longitude != null ">longitude = #{longitude},</if>
@@ -230,5 +232,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
 
+    <select id="getCarGroupList" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO">
+        select car_group_id carGroupId,car_group_name carGroupName,car_group_code carGroupCode,owner_company ownerCompany,owner_org ownerOrg from car_group_info
+        where car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+        or parent_car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+    </select>
+
+    <select id="selectCarGroupInfoByDeptId" resultMap="CarGroupInfoResult">
+        <include refid="selectCarGroupInfoVo"/>
+        <where>
+            car_group_id in (
+            select distinct car_group_id from car_group_serve_org_relation
+            where (dept_id=#{deptId} and type='N100') or (dept_id=#{orgComcany} and type='W200' )
+            )
+        </where>
+    </select>
 
 </mapper>

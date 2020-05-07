@@ -462,7 +462,7 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
                     SortListUtil.sort(autoDispatchSetting,"weekType",SortListUtil.ASC);
                     for (int i=0;i<autoDispatchSetting.size();i++){
                         AutoDispatchSetting dispatchSetting = autoDispatchSetting.get(i);
-                        String week = DateFormatUtils.getWeek();
+                        String week = DateFormatUtils.getWeek(new Date());
                         String weekType = dispatchSetting.getWeekType();
                         String nowTime=DateFormatUtils.formatDate(DateFormatUtils.TIME_FORMAT,new Date());
                         if (weekType.equals(week)){

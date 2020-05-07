@@ -277,7 +277,7 @@ AND a.state ='S270' order by a.create_time desc limit 1
 		order_state_trace_info
 		WHERE
 		order_id = #{orderId}
-		AND state = 'S270'
+		AND state = #{state}
 		ORDER BY
 		create_time DESC
 		LIMIT 1
