@@ -117,6 +117,13 @@ public class CostController {
         return ApiResponse.success("成本设置信息更新成功");
     }
 
+    /**
+     * 成本设置信息删除
+     * @param costConfigCityId
+     * @param costId
+     * @param cityCode
+     * @return
+     */
     @Log(value = "通过成本设置城市附表ID删除数据")
     @com.hq.core.aspectj.lang.annotation.Log(title = "成本设置信息修改",businessType = BusinessType.DELETE,operatorType = OperatorType.MANAGE)
     @RequestMapping("/deleteCostConfigByCostCityId")
@@ -139,7 +146,7 @@ public class CostController {
     @Log(value = "车型，城市，服务类型三者校验是否重复")
     @com.hq.core.aspectj.lang.annotation.Log(title = "车型，城市，服务类型三者校验是否重复",businessType = BusinessType.DELETE,operatorType = OperatorType.MANAGE)
     @RequestMapping("/checkDoubleByServiceTypeCityCarType")
-    public ApiResponse checkDoubleByServiceTypeCityCarType(CostConfigQueryDto costConfigQueryDto){
+    public ApiResponse<Integer> checkDoubleByServiceTypeCityCarType(CostConfigQueryDto costConfigQueryDto){
         Integer i = 0;
         try {
             i = costConfigInfoService.checkDoubleByServiceTypeCityCarType(costConfigQueryDto);
