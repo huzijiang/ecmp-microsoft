@@ -813,7 +813,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             //如果没传订单id，则查询所在公司所有车队座机
             if(orderId == null){
                 CarGroupInfo carGroupInfo = new CarGroupInfo();
-                carGroupInfo.setOwnerCompany(Long.valueOf(companyId));
+                    carGroupInfo.setCompanyId(Long.valueOf(companyId));
                 //查询公司所有车队（只查启用的）
                 List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectEnableCarGroupInfoList(carGroupInfo);
                 if(CollectionUtils.isEmpty(carGroupInfos)){
