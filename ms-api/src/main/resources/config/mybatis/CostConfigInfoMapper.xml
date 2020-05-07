@@ -149,8 +149,17 @@
             <if test="cityCode != null and cityCode!=''">
                 and cc.city_code=#{cityCode}
             </if>
-            <if test="cityCode != null ">
-            and c.service_type=#{serviceType}
+            <if test="serviceType != null and serviceType!='' ">
+                and c.service_type=#{serviceType}
+            </if>
+            <if test="companyId != null and companyId!=''">
+                and c.company_id=#{companyId}
+            </if>
+            <if test="rentType != null and rentType!=''">
+                and c.rent_type=#{rentType}
+            </if>
+            <if test="carTypeId != null and carTypeId!=''">
+                and ct.car_type_id=#{carTypeId}
             </if>
             </where>
             group by c.cost_id,c.company_id,c.cost_config_name,cc.city_name,c.service_type
