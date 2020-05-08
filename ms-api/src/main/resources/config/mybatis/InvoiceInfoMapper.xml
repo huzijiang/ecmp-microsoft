@@ -41,6 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="tin != null  and tin != ''">tin,</if>
             <if test="content != null  and content != ''">content,</if>
             <if test="type != null  and type != ''">type,</if>
+            <if test="companyId != null  and companyId != ''">company_id,</if>
             <if test="acceptAddress != null  and acceptAddress != ''">accept_address,</if>
             <if test="status != null  and status != ''">status,</if>
             <if test="createTime != null ">create_time,</if>
@@ -51,6 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="tin != null  and tin != ''">#{tin},</if>
             <if test="content != null  and content != ''">#{content},</if>
             <if test="type != null  and type != ''">#{type},</if>
+            <if test="companyId != null  and companyId != ''">#{companyId},</if>
             <if test="acceptAddress != null  and acceptAddress != ''">#{acceptAddress},</if>
             <if test="status != null  and status != ''">#{status},</if>
             <if test="createTime != null ">#{createTime},</if>
@@ -120,6 +122,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="status != null and status != '' ">
                 and status = #{status}
             </if>
+            <if test="companyId != null and companyId != '' ">
+                and company_id = #{companyId}
+            </if>
         </where>
     </select>
 
@@ -141,6 +146,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into invoice_header_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="header != null  and header != ''">header,</if>
+            <if test="companyId != null  and companyId != ''">company_id,</if>
             <if test="tin != null  and tin != ''">tin,</if>
             <if test="bankName != null  and bankName != ''">bank_name,</if>
             <if test="bankCardNo != null  and bankCardNo != ''">bank_card_no,</if>
@@ -150,6 +156,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="header != null  and header != ''">#{header},</if>
+            <if test="companyId != null  and companyId != ''">#{companyId},</if>
             <if test="tin != null  and tin != ''">#{tin},</if>
             <if test="bankName != null  and bankName != ''">#{bankName},</if>
             <if test="bankCardNo != null  and bankCardNo != ''">#{bankCardNo},</if>
@@ -158,9 +165,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">#{createTime},</if>
         </trim>
     </insert>
-    <select id="queryInvoiceHeader" resultType="com.hq.ecmp.mscore.vo.InvoiceHeaderVO">
+    <select id="queryInvoiceHeader" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.InvoiceHeaderVO">
         select create_time as createTime,header as header,tin as tin,bank_name as bankName,bank_card_no as bankCardNo,
-        registed_address as registedAddress,telephone as telephone from invoice_header_info ORDER BY create_time
+        registed_address as registedAddress,telephone as telephone
+        from invoice_header_info
+        where company_id = #{companyId}
+        ORDER BY create_time
     </select>
     <delete id="deleteInvoiceHeader">
         delete from invoice_header_info

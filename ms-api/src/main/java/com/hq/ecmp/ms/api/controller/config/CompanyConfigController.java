@@ -1,18 +1,19 @@
 package com.hq.ecmp.ms.api.controller.config;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
 import com.hq.ecmp.mscore.dto.config.EnterPriseBaseInfoDTO;
 import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -25,13 +26,19 @@ public class CompanyConfigController {
     @Autowired
     private IEcmpConfigService ecmpConfigService;
 
+    @Autowired
+    private TokenService tokenService;
+
     /**
      * 获取企业配置信息
      */
     @ApiOperation(value = "queryCompanyInfo ", notes = "获取企业配置信息")
     @PostMapping("/queryCompanyInfo")
     public ApiResponse<ConfigInfoDTO> query() {
-        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo();
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        String companyId = loginUser.getUser().getOwnerCompany().toString();
+        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
         return ApiResponse.success(configInfoDTO);
     }
 

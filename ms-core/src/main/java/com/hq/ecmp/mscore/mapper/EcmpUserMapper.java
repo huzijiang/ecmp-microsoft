@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.mscore.vo.ProjectUserVO;
 import com.hq.ecmp.mscore.vo.UserTreeVo;
 import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.util.RedisUtil;
 import org.apache.ibatis.annotations.Param;
 
 import org.springframework.stereotype.Repository;
@@ -364,7 +365,7 @@ public interface EcmpUserMapper
     int updatePhoneByUserId(@Param("newPhoneNum") String newPhoneNum,@Param("userId") Long userId);
 
     List<EcmpUserDto> queryUserListByDeptIdsAndName(@Param("deptIds")List<Long> deptIds, @Param("name")String name,@Param("itIsDispatcher")String itIsDispatcher);
-    
+
     public int updateEcmpUserjobNumber(EcmpUser ecmpUser);
 
     /**
@@ -376,5 +377,7 @@ public interface EcmpUserMapper
     List<ProjectUserVO> getUsersByCompany(@Param("search")String search,@Param("orgComcany") Long orgComcany);
 
     List<Long> getUserListByOrgId(@Param("orgId")Long orgId);
+
+    List<EcmpUser> selectUserByCompanyId(@Param("ownerCompany") Long ownerCompany);
 }
 

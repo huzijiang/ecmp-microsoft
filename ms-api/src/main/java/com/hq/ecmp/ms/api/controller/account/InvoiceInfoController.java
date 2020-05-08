@@ -2,8 +2,11 @@ package com.hq.ecmp.ms.api.controller.account;
 
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.DictTypeDto;
 import com.hq.ecmp.ms.api.dto.invoice.InvoiceDto;
 import com.hq.ecmp.mscore.domain.EcmpDictType;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -35,6 +39,10 @@ public class InvoiceInfoController {
 
     @Autowired
     private IInvoiceInfoService invoiceInfoService;
+
+    @Autowired
+    private TokenService tokenService;
+
     /**I
      * 根据时间区间、开票状态查询发票记录信息
      * @param invoiceByTimeStateDTO
@@ -44,6 +52,11 @@ public class InvoiceInfoController {
     @ApiOperation(value = "getInvoiceInfoList",notes = "发票记录列表查询",httpMethod = "POST")
     @PostMapping("/getInvoiceInfoList")
     public ApiResponse<PageResult<InvoiceRecordVO>> getInvoiceInfoList(@RequestBody InvoiceByTimeStateDTO invoiceByTimeStateDTO){
+
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        invoiceByTimeStateDTO.setCompanyId(companyId);
         PageResult<InvoiceRecordVO> invoiceInfoList = invoiceInfoService.queryAllByTimeState(invoiceByTimeStateDTO);
         return ApiResponse.success(invoiceInfoList);
     }
@@ -64,6 +77,10 @@ public class InvoiceInfoController {
         invoiceInsertDTO.setContent(invoiceDTO.getContent());
         invoiceInsertDTO.setAmount(invoiceDTO.getAmount());
         invoiceInsertDTO.setAcceptAddress(invoiceDTO.getAcceptAddress());
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        invoiceInsertDTO.setCompanyId(companyId);
         try {
          invoiceInfoService.insertInvoiceInfo(invoiceInsertDTO);
          Long invoiceId = invoiceInsertDTO.getInvoiceId();
@@ -115,8 +132,13 @@ public class InvoiceInfoController {
     @ApiOperation(value = "invoiceHeaderCommit",notes = "新增发票抬头",httpMethod = "POST")
     @PostMapping("/invoiceHeaderCommit")
     public ApiResponse invoiceHeaderCommit(@RequestBody InvoiceHeaderDTO invoiceHeaderDTO){
+
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        invoiceHeaderDTO.setCompanyId(companyId);
         try {
-            List<InvoiceHeaderVO> invoiceHeaderList = invoiceInfoService.queryInvoiceHeader();
+            List<InvoiceHeaderVO> invoiceHeaderList = invoiceInfoService.queryInvoiceHeader(companyId);
             if(invoiceHeaderList.size()>0){
                 invoiceInfoService.deleteInvoiceHeader();
             }
@@ -137,7 +159,10 @@ public class InvoiceInfoController {
     @ApiOperation(value = "getInvoiceHeaderList",notes = "发票抬头查询",httpMethod = "POST")
     @PostMapping("/getInvoiceHeaderList")
     public ApiResponse<List<InvoiceHeaderVO>> getInvoiceHeaderList(){
-        List<InvoiceHeaderVO> invoiceHeaderList = invoiceInfoService.queryInvoiceHeader();
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        List<InvoiceHeaderVO> invoiceHeaderList = invoiceInfoService.queryInvoiceHeader(companyId);
         return ApiResponse.success(invoiceHeaderList);
     }
  }

@@ -75,7 +75,7 @@ public interface CarGroupInfoMapper
      * @param carGroupId
      * @return
      */
-    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId);
+    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId,@Param("companyId") Long companyId);
 
     /**
      * 查询该组织下的车队信息

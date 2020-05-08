@@ -37,7 +37,7 @@ public class InvoiceInsertDTO {
        @ApiModelProperty(value = "状态")
        private String status;
 
-
+       private Long companyId;
 
 
 }
