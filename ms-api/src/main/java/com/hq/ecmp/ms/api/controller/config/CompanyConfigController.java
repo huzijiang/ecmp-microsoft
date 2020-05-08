@@ -4,11 +4,11 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
 import com.hq.ecmp.mscore.dto.config.EnterPriseBaseInfoDTO;
 import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +20,8 @@ import javax.servlet.http.HttpServletRequest;
  * @author xueyong
  */
 @RestController
-@RequestMapping("/config/v1")
+@RequestMapping("/config/")
+@Slf4j
 public class CompanyConfigController {
 
     @Autowired
@@ -35,11 +36,16 @@ public class CompanyConfigController {
     @ApiOperation(value = "queryCompanyInfo ", notes = "获取企业配置信息")
     @PostMapping("/queryCompanyInfo")
     public ApiResponse<ConfigInfoDTO> query() {
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        String companyId = loginUser.getUser().getOwnerCompany().toString();
-        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
-        return ApiResponse.success(configInfoDTO);
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            String companyId = loginUser.getUser().getOwnerCompany().toString();
+            ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
+            return ApiResponse.success(configInfoDTO);
+        } catch (Exception e) {
+            log.error("error:{}", e);
+        }
+        return null;
     }
 
     /**
