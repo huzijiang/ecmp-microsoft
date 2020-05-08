@@ -349,8 +349,8 @@ WHERE
         and state = 'V000'
     </select>
 
-    <select id="queryCompanyDriver"  resultType="java.lang.Integer">
-          select count(*) from driver_info
+    <select id="queryCompanyDriver" parameterType="java.lang.Long" resultType="java.lang.Integer">
+          select count(*) from driver_info where company_id = #{companyId}
     </select>
 
     <!--根据deptId查询归属驾驶员数量-->
@@ -610,6 +610,7 @@ WHERE
         <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
             #{item.driverId}
         </foreach>
+        and state != 'S444'
     </update>
 
     <select id="selectDriverInfoByCarId"  resultType="com.hq.ecmp.mscore.vo.DriverVO">

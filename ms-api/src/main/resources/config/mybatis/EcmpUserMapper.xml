@@ -758,4 +758,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SELECT user_id from ecmp_user where status=0 and del_flag=0 and dept_id in(
             SELECT dept_id from ecmp_org where FIND_IN_SET(#{orgId},ancestors) or dept_id=#{orgId})
     </select>
+    <select id="selectUserByCompanyId" resultType="com.hq.ecmp.mscore.domain.EcmpUser"
+            parameterType="java.lang.Long">
+        select * from ecmp_user where owner_company = #{ownerCompany}
+    </select>
 </mapper>

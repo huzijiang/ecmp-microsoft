@@ -20,6 +20,6 @@ public class InvoiceAddressDTO {
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
 
-
+    private Long companyId;
 
 }

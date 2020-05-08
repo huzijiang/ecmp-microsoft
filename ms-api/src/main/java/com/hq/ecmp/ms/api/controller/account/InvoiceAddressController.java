@@ -3,8 +3,11 @@ package com.hq.ecmp.ms.api.controller.account;
 
 import com.hq.common.core.api.ApiResponse;
 
+import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.dto.InvoiceAddUpdateDTO;
 import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
 import com.hq.ecmp.mscore.dto.PageRequest;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -32,6 +36,10 @@ public class InvoiceAddressController {
 
     @Autowired
     private IInvoiceAddressService invoiceAddressService;
+
+    @Autowired
+    private TokenService tokenService;
+
     /**
      * 发票地址查询-查询所有的发票地址
      * @param
@@ -41,7 +49,10 @@ public class InvoiceAddressController {
     @ApiOperation(value = "getInvoiceAddressList",notes = "查询所有的发票地址信息",httpMethod = "POST")
     @PostMapping("/getInvoiceAddressList")
     public ApiResponse<PageResult<InvoiceAddVO>> getInvoiceAddressList(@RequestBody PageRequest pageRequest){
-        PageResult<InvoiceAddVO> invoiceAddressList = invoiceAddressService.selectInvoiceAddressList(pageRequest);
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        PageResult<InvoiceAddVO> invoiceAddressList = invoiceAddressService.selectInvoiceAddressList(pageRequest,companyId);
         return ApiResponse.success(invoiceAddressList);
     }
     /**
@@ -53,7 +64,11 @@ public class InvoiceAddressController {
     @ApiOperation(value = "invoiceAddCommit",notes = "新增发票地址信息",httpMethod = "POST")
     @PostMapping("/invoiceAddCommit")
      public ApiResponse invoiceAddCommit(@RequestBody InvoiceAddressDTO invoiceAddressDTO){
-         try {
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        invoiceAddressDTO.setCompanyId(companyId);
+        try {
              invoiceAddressService.insertInvoiceAddress(invoiceAddressDTO);
          } catch (Exception e) {
              e.printStackTrace();

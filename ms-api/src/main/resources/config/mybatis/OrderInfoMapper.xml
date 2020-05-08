@@ -717,6 +717,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
+        <if test="null !=companyId and companyId !=''">
+            AND a.company_id = #{companyId}
+        </if>
 		GROUP BY d.order_id
 	</select>
 
@@ -795,6 +798,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
+        <if test="null !=companyId and companyId !=''">
+            AND a.company_id = #{companyId}
+        </if>
 		GROUP BY d.order_id
 	</select>
 

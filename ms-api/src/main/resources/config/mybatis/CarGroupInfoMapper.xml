@@ -37,6 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="city != null "> and city = #{city}</if>
             <if test="leader != null "> and leader = #{leader}</if>
             <if test="companyId != null "> and company_id = #{companyId}</if>
+            <if test="parentCarGroupId != null "> and parent_car_group_id = #{parentCarGroupId}</if>
         </where>
     </select>
 
@@ -102,8 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="city != null ">city = #{city},</if>
             <if test="carGroupName != null  and carGroupName != ''">car_group_name = #{carGroupName},</if>
             <if test="carGroupCode != null  and carGroupCode != ''">car_group_code = #{carGroupCode},</if>
-            <if test="ownerOrg != null ">owner_org = #{ownerOrg},</if>
-            <if test="ownerCompany != null ">company_id = #{ownerCompany},</if>
+            <if test="companyId != null ">company_id = #{companyId},</if>
             <if test="parentCarGroupId != null ">parent_car_group_id = #{parentCarGroupId},</if>
             <if test="leader != null ">leader = #{leader},</if>
             <if test="longitude != null ">longitude = #{longitude},</if>
@@ -159,6 +159,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carGroupId != null">
                 and c.parent_car_group_id = #{carGroupId}
             </if>
+            <if test="companyId != null">
+                and c.company_id = #{companyId}
+            </if>
         </where>
              order by c.car_group_name
     </select>
@@ -209,8 +212,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from   car_group_info
         where  parent_car_group_id = #{carGroupId} and state != 'S444'
     </select>
-    <select id="selectAllCarGroupCode" resultType="java.lang.String">
-        SELECT car_group_code FROM car_group_info where state != 'S444'
+    <select id="selectAllCarGroupCode" resultType="java.lang.String" parameterType="long">
+        SELECT car_group_code FROM car_group_info where state != 'S444' and company_id = #{companyId}
     </select>
 
     <select id="selectCountByParentId" resultType="int">

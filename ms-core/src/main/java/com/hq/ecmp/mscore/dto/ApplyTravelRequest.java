@@ -133,5 +133,6 @@ public class  ApplyTravelRequest {
     @ApiModelProperty(name = "endDate", value = "行程最后结束时间", required = false, position = 18)
     private Date endDate;  // TODO 新增
 
+    private Long companyId;
 
 }

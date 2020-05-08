@@ -42,6 +42,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="accountId != null ">account_id,</if>
             <if test="billId != null ">bill_id,</if>
+            <if test="companyId != null ">company_id,</if>
             <if test="orderId != null  and orderId != ''">order_id,</if>
             <if test="costCenter != null ">cost_center,</if>
             <if test="projectId != null ">project_id,</if>
@@ -54,6 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="accountId != null ">#{accountId},</if>
             <if test="billId != null ">#{billId},</if>
+            <if test="companyId != null ">#{companyId},</if>
             <if test="orderId != null  and orderId != ''">#{orderId},</if>
             <if test="costCenter != null ">#{costCenter},</if>
             <if test="projectId != null ">#{projectId},</if>
@@ -97,17 +99,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where bill_id in (select bill_id from order_account_info  where state='S008')) a group by a.createTime
     </select>-->
 
-    <select id="getAccountViewList" resultType="com.hq.ecmp.mscore.vo.OrderAccountViewVO">
+    <select id="getAccountViewList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.OrderAccountViewVO">
         select createTime accountDate,count(order_id) orderNum,ROUND(sum(amount),2) amount,ROUND(sum(out_price),2) amountOut from
         (SELECT DATE_FORMAT(create_time, '%Y-%m') createTime,amount,order_id,out_price from order_settling_info
-        where bill_id in (select bill_id from order_account_info)) a group by a.createTime
+        where bill_id in (select bill_id from order_account_info where company_id = #{companyId})) a group by a.createTime
     </select>
 
     <select id="getAccountViewListCount" resultType="Long">
         select count(*) from
         (select createTime accountDate,count(order_id) orderNum,ROUND(sum(amount),2) amount,ROUND(sum(out_price),2) amountOut from
         (SELECT DATE_FORMAT(create_time, '%Y-%m') createTime,amount,order_id,out_price from order_settling_info
-        where bill_id in (select bill_id from order_account_info)) a group by a.createTime) b
+        where bill_id in (select bill_id from order_account_info where company_id = #{companyId})) a group by a.createTime) b
     </select>
     <select id="getAccountList" resultType="com.hq.ecmp.mscore.vo.OrderAccountVO">
         select DISTINCT  a.period_id as periodId,
@@ -117,7 +119,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from order_account_period_info a
         left join account_period_info b on b.period_id = a.period_id
         left join order_account_info c on c.account_id = b.account_id
-        where c.state='S008'
+        where c.state='S008' and c.company_id = #{companyId}
     </select>
 
 

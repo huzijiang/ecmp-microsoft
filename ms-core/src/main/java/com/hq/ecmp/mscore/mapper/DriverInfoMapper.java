@@ -85,7 +85,7 @@ public interface DriverInfoMapper
     /**
      *驾驶员总数
      */
-    public int queryCompanyDriver();
+    public int queryCompanyDriver(@Param("companyId") Long companyId);
 
 
     DriverInfo selectDriverInfoByUserId(Long userId);

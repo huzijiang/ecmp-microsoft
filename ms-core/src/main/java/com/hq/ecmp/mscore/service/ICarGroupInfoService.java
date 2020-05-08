@@ -101,7 +101,7 @@ public interface ICarGroupInfoService
      * @param pageSize
      * @return
      */
-    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId);
+    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId,Long companyId);
 
     /**
      * 删除车队
@@ -112,6 +112,13 @@ public interface ICarGroupInfoService
 
     //查询下级车队列表
     List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);
+
+    /**
+     * 根据车队id查询所有调度员名字
+     * @param carGroupId
+     * @return
+     */
+    public List<String> getDispatcherNames(Long carGroupId);
 
     /**
      * 查询指定城市所有车队调度员及车队座机
@@ -131,10 +138,10 @@ public interface ICarGroupInfoService
     List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
 
     /*查询所有车队编号*/
-    List<String> selectAllCarGroupCode();
+    List<String> selectAllCarGroupCode(Long companyId);
 
     /*判断车队编号是否存在*/
-    boolean judgeCarGroupCode(String carGroupCode);
+    boolean judgeCarGroupCode(String carGroupCode,Long companyId);
 
     /*回显车队信息*/
     CarGroupDTO getCarGroupInfoFeedBack(Long carGroupId);
