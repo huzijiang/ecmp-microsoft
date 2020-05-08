@@ -169,10 +169,13 @@ public class CarGroupController {
     @ApiOperation(value = "getCarGroupList",notes = "分页全部查询车队列表",httpMethod ="POST")
     @PostMapping("/getCarGroupList")
     public ApiResponse<PageResult<CarGroupListVO>> getCarGroupList(@RequestBody PageRequest pageRequest){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
         try {
             PageResult<CarGroupListVO> list = carGroupInfoService.selectCarGroupInfoByPage(pageRequest.getPageNum(),
                     pageRequest.getPageSize(),pageRequest.getSearch(),
-                    pageRequest.getState(),pageRequest.getDeptId(),pageRequest.getCarGroupId());
+                    pageRequest.getState(),pageRequest.getDeptId(),pageRequest.getCarGroupId(),companyId);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();

@@ -103,8 +103,8 @@ public class OrderAccountInfoServiceImpl implements IOrderAccountInfoService
     }
 
     @Override
-    public List<OrderAccountVO> getAccountList() {
-        List<OrderAccountVO> accountList = orderAccountInfoMapper.getAccountList();
+    public List<OrderAccountVO> getAccountList(Long companyId) {
+        List<OrderAccountVO> accountList = orderAccountInfoMapper.getAccountList(companyId);
         if (CollectionUtils.isNotEmpty(accountList)){
             for (OrderAccountVO vo:accountList){
              //   String beginMonth=vo.getAccountDate()+"-01";
@@ -118,9 +118,9 @@ public class OrderAccountInfoServiceImpl implements IOrderAccountInfoService
         return accountList;
     }
     @Override
-    public PageResult<OrderAccountViewVO> getAccountViewList( PageRequest pageRequest){
+    public PageResult<OrderAccountViewVO> getAccountViewList( PageRequest pageRequest,Long companyId){
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
-        List<OrderAccountViewVO> accountViewList = orderAccountInfoMapper.getAccountViewList();
+        List<OrderAccountViewVO> accountViewList = orderAccountInfoMapper.getAccountViewList(companyId);
         if(CollectionUtils.isNotEmpty(accountViewList)){
             for (OrderAccountViewVO vo:accountViewList){
                 String beginMonth= vo.getAccountDate()+"-01";

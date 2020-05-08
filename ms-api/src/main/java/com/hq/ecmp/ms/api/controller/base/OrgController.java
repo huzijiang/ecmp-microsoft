@@ -101,13 +101,11 @@ public class OrgController {
     @ApiOperation(value = "显示公司组织结构",notes = "显示公司组织结构",httpMethod ="POST")
     @PostMapping("/selectCombinationOfCompany")
     public ApiResponse<List<EcmpOrgDto>> selectCombinationOfCompany(@RequestBody EcmpOrgVo ecmpOrgVo){
-        Long deptId=ecmpOrgVo.getDeptId();
-        String deptType=ecmpOrgVo.getDeptType();
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long ownerCompany = loginUser.getUser().getOwnerCompany();
-        System.out.println("####"+ownerCompany);
-        List<EcmpOrgDto> deptList = orgService.selectCombinationOfCompany(deptId,Long.parseLong(deptType),ownerCompany);
+        ecmpOrgVo.setCompanyId(ownerCompany);
+        List<EcmpOrgDto> deptList = orgService.selectCombinationOfCompany(ecmpOrgVo);
         return ApiResponse.success(deptList);
     }
 
@@ -206,7 +204,7 @@ public class OrgController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         ecmpOrg.setCompanyId(loginUser.getUser().getOwnerCompany());
         try {
-            ecmpOrg.setDeptType(CommonConstant.DEPT_TYPE_ORG);
+            ecmpOrg.setDeptType(Long.parseLong(CommonConstant.DEPT_TYPE_ORG));
             int i = orgService.addDept(ecmpOrg,loginUser.getUser().getUserId());
             return ApiResponse.success("添加分/子公司成功");
         } catch (Exception e) {
@@ -243,7 +241,7 @@ public class OrgController {
     @PostMapping("/updateDelFlagById")
     public ApiResponse updateDelFlagById(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
-        String deptType=ecmpOrgVo.getDeptType();
+        String deptType=ecmpOrgVo.getDeptType().toString();
         if(deptId==null){
             return ApiResponse.error("组织id不能为空！");
         }

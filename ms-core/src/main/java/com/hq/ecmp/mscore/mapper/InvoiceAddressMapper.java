@@ -4,6 +4,8 @@ import com.hq.ecmp.mscore.domain.InvoiceAddress;
 import com.hq.ecmp.mscore.dto.InvoiceAddUpdateDTO;
 import com.hq.ecmp.mscore.dto.InvoiceAddressDTO;
 import com.hq.ecmp.mscore.vo.InvoiceAddVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,7 +33,7 @@ public interface InvoiceAddressMapper
      * @param  【请填写功能名称】
      * @return 【请填写功能名称】集合
      */
-    public List<InvoiceAddVO> selectInvoiceAddressList();
+    public List<InvoiceAddVO> selectInvoiceAddressList(@Param("companyId") Long companyId);
 
     /**
      * 新增【请填写功能名称】

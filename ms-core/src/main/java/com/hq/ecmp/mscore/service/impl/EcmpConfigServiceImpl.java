@@ -120,19 +120,19 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public ConfigInfoDTO selectConfigInfo() {
+    public ConfigInfoDTO selectConfigInfo(String companyId) {
         try {
             //查询基本信息
-            EcmpConfig c = EcmpConfig.builder().configKey(ConfigTypeEnum.BASE_INFO.getConfigKey()).build();
+            EcmpConfig c = EcmpConfig.builder().configKey(ConfigTypeEnum.BASE_INFO.getConfigKey()).companyId(companyId).build();
             EcmpConfig baseInfo = ecmpConfigMapper.selectConfigByKey(c);
-            EcmpConfig messageInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.MESSAGE_INFO.getConfigKey()).build());
-            EcmpConfig backgroundInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BACKGROUND_IMAGE_INFO.getConfigKey()).build());
-            EcmpConfig welcomeInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WELCOME_IMAGE_INFO.getConfigKey()).build());
-            EcmpConfig smsInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.SMS_INFO.getConfigKey()).build());
-            EcmpConfig virtualPhoneInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey()).build());
-            EcmpConfig orderConfirmInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey()).build());
-            EcmpConfig dispatchInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.DISPATCH_INFO.getConfigKey()).build());
-            EcmpConfig waitInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WAIT_MAX_MINUTE.getConfigKey()).build());
+            EcmpConfig messageInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.MESSAGE_INFO.getConfigKey()).companyId(companyId).build());
+            EcmpConfig backgroundInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BACKGROUND_IMAGE_INFO.getConfigKey()).companyId(companyId).build());
+            EcmpConfig welcomeInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WELCOME_IMAGE_INFO.getConfigKey()).companyId(companyId).build());
+            EcmpConfig smsInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.SMS_INFO.getConfigKey()).companyId(companyId).build());
+            EcmpConfig virtualPhoneInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey()).companyId(companyId).build());
+            EcmpConfig orderConfirmInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey()).companyId(companyId).build());
+            EcmpConfig dispatchInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.DISPATCH_INFO.getConfigKey()).companyId(companyId).build());
+            EcmpConfig waitInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WAIT_MAX_MINUTE.getConfigKey()).companyId(companyId).build());
 
             ConfigInfoDTO configInfoDTO = new ConfigInfoDTO();
             if (baseInfo != null) {

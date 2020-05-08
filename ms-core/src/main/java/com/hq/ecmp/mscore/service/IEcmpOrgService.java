@@ -20,10 +20,10 @@ public interface IEcmpOrgService
     /**
      * 显示公司组织结构
      *
-     * @param deptId 部门ID
+     * @param ecmpOrgVo 部门ID
      * @return
      */
-    public List<EcmpOrgDto> selectCombinationOfCompany(Long deptId,Long deptType,Long ownerCompany);
+    public List<EcmpOrgDto> selectCombinationOfCompany(EcmpOrgVo ecmpOrgVo);
     /**
      * 显示当前登陆用户所属公司与公司下的部门
      *

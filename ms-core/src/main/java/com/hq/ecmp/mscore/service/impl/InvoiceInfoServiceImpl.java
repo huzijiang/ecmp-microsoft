@@ -123,8 +123,8 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
     /**
      * 发票抬头查询
      */
-    public List<InvoiceHeaderVO> queryInvoiceHeader(){
-        return invoiceInfoMapper.queryInvoiceHeader();
+    public List<InvoiceHeaderVO> queryInvoiceHeader(Long companyId){
+        return invoiceInfoMapper.queryInvoiceHeader(companyId);
     }
     /**
      * 发票抬头删除所有数据

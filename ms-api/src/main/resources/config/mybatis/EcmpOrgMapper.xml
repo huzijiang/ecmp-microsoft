@@ -95,7 +95,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              and dept_type = #{deptType}
             </if>
     </select>
-    <select id="selectByEcmpOrgOwnerCompanyId"  resultMap="EcmpOrgDtoResult">
+    <select id="selectByEcmpOrgOwnerCompanyId" parameterType="java.lang.Long" resultMap="EcmpOrgDtoResult">
         select
         dept_id, parent_id,ancestors, dept_name,
         dept_type, order_num, leader, phone, email,
@@ -105,7 +105,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ecmp_org
         where
         del_flag = 0
-        <if test="ownerCompany != null "> and dept_id = #{ownerCompany}</if>
+        <if test="companyId != null "> and dept_id = #{companyId}</if>
     </select>
     <!-- /**
      * 查询部门详情

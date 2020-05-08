@@ -35,7 +35,7 @@ public class EcmpOrgVo {
     private String deptName;
 
     @ApiModelProperty(value = "组织类别（1 公司 2 部门 3 车队）")
-    private String deptType;
+    private Long deptType;
 
     @ApiModelProperty(value = "显示顺序")
     private Integer orderNum;

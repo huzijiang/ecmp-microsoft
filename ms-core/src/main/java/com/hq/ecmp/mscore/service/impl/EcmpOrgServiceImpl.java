@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.acl.Owner;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static com.hq.ecmp.constant.CommonConstant.DEPT_TYPE_ORG;
@@ -76,14 +77,15 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @return deptList 部门列表
      */
     @Override
-    public List<EcmpOrgDto> selectCombinationOfCompany(Long deptId,Long deptType,Long ownerCompany){
+    public List<EcmpOrgDto> selectCombinationOfCompany(EcmpOrgVo ecmpOrgVo){
 
         List<EcmpOrgDto> ecmpOrgList = new ArrayList<>();
-
+        Long deptId = ecmpOrgVo.getDeptId();
+        Long companyId = ecmpOrgVo.getCompanyId();
+        Long deptType =  ecmpOrgVo.getDeptType();
         if(deptId==null){
-            Long parentId = ownerCompany;
             //默认查询所有公司列表
-            ecmpOrgList = ecmpOrgMapper.selectByEcmpOrgOwnerCompanyId(ownerCompany);
+            ecmpOrgList = ecmpOrgMapper.selectByEcmpOrgOwnerCompanyId(companyId);
         }else {
             ecmpOrgList = ecmpOrgMapper.selectByEcmpOrgParentId(deptId,deptType);
         }
@@ -475,7 +477,22 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                 }
 
                 //默认将当前公司的企业配置信息给分子公司
-                //List<EcmpConfig> ecmpConfigs = ecmpConfigMapper.selectEcmpConfigList()
+                String ownerCompanyId = ecmpUserMapper.selectEcmpUserById(userId).getOwnerCompany().toString();
+                EcmpConfig ecmpConfig = new EcmpConfig();
+                ecmpConfig.setCompanyId(ownerCompanyId);
+                List<EcmpConfig> ecmpConfigs = ecmpConfigMapper.selectEcmpConfigList(ecmpConfig);
+                String newCompanyId = ecmpOrgVo.getDeptId().toString();
+                for(EcmpConfig config:ecmpConfigs){
+                    EcmpConfig newConfig = new EcmpConfig();
+                    newConfig.setCompanyId(newCompanyId);
+                    newConfig.setConfigName(config.getConfigName());
+                    newConfig.setConfigKey(config.getConfigKey());
+                    newConfig.setConfigType(config.getConfigType());
+                    newConfig.setConfigValue(config.getConfigValue());
+                    newConfig.setCreateTime(new Date());
+                    newConfig.setUpdateTime(new Date());
+                    ecmpConfigMapper.insertEcmpConfig(newConfig);
+                }
             }
         }
         return iz;

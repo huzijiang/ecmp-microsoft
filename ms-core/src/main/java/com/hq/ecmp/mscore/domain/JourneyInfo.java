@@ -104,6 +104,8 @@ public class JourneyInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Date flightPlanTakeOffTime;   // TODO 新增。航班计划起飞时间
 
+    private Long companyId;
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

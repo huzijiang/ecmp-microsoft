@@ -365,7 +365,11 @@ public class NoticeController {
     @ApiOperation(value = "queryCompanyInfo ", notes = "获取企业配置信息")
     @PostMapping("/queryCompanyInfo")
     public ApiResponse<ConfigInfoDTO> query() {
-        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo();
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        String companyId = loginUser.getUser().getOwnerCompany().toString();
+        System.out.println("==========="+companyId);
+        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
         return ApiResponse.success(configInfoDTO);
     }
 
