@@ -114,6 +114,13 @@ public interface ICarGroupInfoService
     List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);
 
     /**
+     * 根据车队id查询所有调度员名字
+     * @param carGroupId
+     * @return
+     */
+    public List<String> getDispatcherNames(Long carGroupId);
+
+    /**
      * 查询指定城市所有车队调度员及车队座机
      * @param
      * @return

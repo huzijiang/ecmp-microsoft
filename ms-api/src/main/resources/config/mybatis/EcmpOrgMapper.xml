@@ -212,6 +212,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
             <if test="email != null  and email != ''"> and email = #{email}</if>
             <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="companyId != null "> and (company_id = #{companyId} or dept_id = #{companyId})</if>
         </where>
     </select>
 

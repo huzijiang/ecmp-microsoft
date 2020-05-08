@@ -52,12 +52,20 @@ public class OrgController {
      */
     @ApiOperation(value = "getUserOwnCompanyDept",notes = "查询用户 所在（子）公司的 部门列表 ",httpMethod ="POST")
     @PostMapping("/getUserOwnCompanyDept")
-    public ApiResponse<List<EcmpOrg>> getUserOwnCompanyDept(@RequestBody UserDto userDto){
+    public ApiResponse<List<EcmpOrg>> getUserOwnCompanyDept(@RequestBody(required = false) UserDto userDto){
         //获取登录用户
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        if(userDto != null && userDto.getUserId() != null){
+            //如果传了userId则查询用户的,如果没传用户id，则查询登录用户的
+            userId = userDto.getUserId();
+        }
+        if(userDto == null){
+            userDto = new UserDto();
+        }
         //(根据用户及部门名称模糊)查询用户 所在（子）公司的 部门列表
-        List<EcmpOrg> ecmpOrgs = orgService.selectUserOwnCompanyDept(loginUser.getUser().getUserId(),userDto.getDeptName());
+        List<EcmpOrg> ecmpOrgs = orgService.selectUserOwnCompanyDept(userId,userDto.getDeptName());
        if(CollectionUtils.isNotEmpty(ecmpOrgs)){
            return ApiResponse.success(ecmpOrgs);
        }else {

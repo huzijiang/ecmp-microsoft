@@ -241,11 +241,37 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     }
 
 
-    /*根据公司id查询公司车队总人数*/
+    /**
+     * 1.如果传的是车队id则查询该车队人数返回  (司机数量)
+     * 2.如果传的公司id，则查询公司车队总人数  （司机数量）
+     * @param deptId
+     * @param carGroupId
+     * @return
+     */
     @Override
-    public CarGroupCountVO selectCarGroupCount(Long deptId) {
-        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
+    public CarGroupCountVO selectCarGroupCount(Long deptId,Long carGroupId) {
+        if(deptId == null && carGroupId == null){
+            throw new RuntimeException("车队id和公司id为空");
+        }
         CarGroupCountVO carGroupCountVO = new CarGroupCountVO();
+        //1.如果传的是车队id则查询该车队人数返回
+        if(carGroupId != null){
+            CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+            //车队编号
+            carGroupCountVO.setDeptCode(carGroupInfo.getCarGroupCode());
+            List<String> dispatcherNames = carGroupInfoService.getDispatcherNames(carGroupId);
+            StringBuilder leaderName = new StringBuilder();
+            dispatcherNames.forEach(a->leaderName.append(a+" "));
+            String names = leaderName.toString().trim();
+            //调度员名字
+            carGroupCountVO.setLeaderName(names);
+            int n = carGroupDriverRelationMapper.selectCountDriver(carGroupId);
+            //该车队人数
+            carGroupCountVO.setTotalMember(n);
+            return carGroupCountVO;
+        }
+        //2.如果传的公司id，则查询公司车队总人数
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
         //公司编号
         if(ObjectUtils.isNotEmpty(ecmpOrgMapper)){
             carGroupCountVO.setDeptCode(ecmpOrg.getDeptCode());
@@ -267,12 +293,13 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         if(size > 0){
             for (CarGroupInfo groupInfo : carGroupInfos) {
                 if (carGroupInfo != null) {
-                    Long carGroupId = groupInfo.getCarGroupId();
-                    int i = carGroupDriverRelationMapper.selectCountDriver(carGroupId);
+                    Long groupId = groupInfo.getCarGroupId();
+                    int i = carGroupDriverRelationMapper.selectCountDriver(groupId);
                     num += i;
                 }
             }
         }
+        //公司车队总司机数
         carGroupCountVO.setTotalMember(num);
        /* List<CarGroupTreeVO> list = selectCarGroupTree(deptId);
         int num = 0;
@@ -664,13 +691,28 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     public List<EcmpOrg> selectUserOwnCompanyDept(Long userId, String name) {
         ///根据userId查询用户信息
         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(userId);
-        //根据用户的部门id查询用户部门对象
-        EcmpOrg userEcmpOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
-        //根据公司id（以及部门名称模糊）查询部门对象列表
+        //用户所属公司
+        Long ownerCompany = ecmpUser.getOwnerCompany();
+        //用户所属部门
+        Long deptId = ecmpUser.getDeptId();
+        //查询公司信息
+        //EcmpOrg companyInfo = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
+        //查询公司下的所有部门
         EcmpOrg ecmpOrg = new EcmpOrg();
+        ecmpOrg.setCompanyId(ownerCompany);
         ecmpOrg.setDeptName(name);
-        //1
-       List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
+        List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
+       // ecmpOrgs.add(companyInfo);
+        for (EcmpOrg org : ecmpOrgs) {
+            if(org.getDeptId().equals(deptId)){
+                //如果是本部门，状态 为 1
+                org.setStatus("1");
+            }else {
+                //不是本部门，状态为 0
+                org.setStatus("0");
+            }
+        }
+
         return ecmpOrgs;
     }
 

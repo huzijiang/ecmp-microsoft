@@ -477,18 +477,20 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param carGroupId
      */
     private void deleteCarGroupDispatcher(Long carGroupId,Long userId) {
-        //1.查询调度员
+        //1.根据车队id查询调度员集合
         CarGroupDispatcherInfo carGroupDispatcherInfo = CarGroupDispatcherInfo.builder().carGroupId(carGroupId).build();
         List<CarGroupDispatcherInfo> list = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
         //2..删除调度员车队关系
         int n = carGroupDispatcherInfoMapper.deleteCarGroupDispatcherInfoByGroupId(carGroupId);
         if(!CollectionUtils.isEmpty(list)){
+            //调度员的userId集合
             List<Long> collect = list.stream().map(CarGroupDispatcherInfo::getUserId).collect(Collectors.toList());
             for (Long id : collect) {
                 if(id == null){
                     continue;
                 }
                 CarGroupDispatcherInfo build = CarGroupDispatcherInfo.builder().userId(id).build();
+                //查询调度员负责的车队关系集合
                 List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(build);
                 //如果不是其他车队调度员
                 if(CollectionUtils.isEmpty(carGroupDispatcherInfos)){
@@ -676,7 +678,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * 获取车队主管名字集合/车队人数/下级车队人数
      * @param list
      */
-    private void getCarGroupExtraInfo(List<CarGroupListVO> list) {
+    public void getCarGroupExtraInfo(List<CarGroupListVO> list) {
         for (CarGroupListVO carGroupListVO : list) {
             Long carGroupId = carGroupListVO.getCarGroupId();
             Integer ownerOrg = carGroupListVO.getOwnerOrg();
@@ -696,17 +698,30 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             int driverNum = carGroupDriverRelationMapper.selectCountDriver(carGroupId);
             carGroupListVO.setCountMember(driverNum);
             // 3. 查询调度员(主管名字)
-            CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
-            carGroupDispatcherInfo.setCarGroupId(carGroupId);
-            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
-            List<String> leaderNames = Lists.newArrayList();
-            if(!CollectionUtils.isEmpty(carGroupDispatcherInfos)){
-                for (CarGroupDispatcherInfo groupDispatcherInfo : carGroupDispatcherInfos) {
-                    leaderNames.add(groupDispatcherInfo.getName());
-                }
-            }
+            List<String> leaderNames = getDispatcherNames(carGroupId);
             carGroupListVO.setLeaderNames(leaderNames);
         }
+    }
+
+    /**
+     * 根据车队id查询所有调度员名字
+     * @param carGroupId
+     * @return
+     */
+    @Override
+    public List<String> getDispatcherNames(Long carGroupId) {
+        CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+        carGroupDispatcherInfo.setCarGroupId(carGroupId);
+        //查询所有调度员
+        List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
+        List<String> leaderNames = Lists.newArrayList();
+        if(!CollectionUtils.isEmpty(carGroupDispatcherInfos)){
+            //遍历获取调度员名字
+            for (CarGroupDispatcherInfo groupDispatcherInfo : carGroupDispatcherInfos) {
+                leaderNames.add(groupDispatcherInfo.getName());
+            }
+        }
+        return leaderNames;
     }
 
     /**
@@ -717,9 +732,10 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     @Override
     public String deleteCarGroup(Long carGroupId, Long userId) throws Exception {
         //判断车队及下属车队下是否有车辆和驾驶员
-        carGroupDelFlag = false;
+        //carGroupDelFlag = false;
         if(existCarOrDriver(carGroupId, null)){
-            carGroupDelFlag = false;
+            //车队下有车辆或者有驾驶员，则返回不能删除的提示信息
+            //carGroupDelFlag = false;
             return "请先删除该车队下的所有车辆及人员信息";
         }
         //执行删除
@@ -733,7 +749,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @param ownerOrg
      */
     private void executeDeleteCarGroup(Long carGroupId, Long ownerOrg, Long userId) throws Exception {
-        CarGroupInfo carGroupBean = new CarGroupInfo();
+        CarGroupInfo carGroupBean = null;
         List<CarGroupInfo> carGroupList = new ArrayList<>();
         //判断是不是首次进入，如果首次根据车队ID查询，否则根据归属直接组织
         if (carGroupId != null) {
@@ -744,11 +760,14 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         } else {
             //车队归属直接组织(包含-所有总公司、分公司、部门、车队)
             if(ownerOrg != null) {
+                //根据福父车队id查询下级车队集合
+                carGroupBean = CarGroupInfo.builder().parentCarGroupId(ownerOrg).build();
                 carGroupList = carGroupInfoMapper.selectCarGroupInfoList(carGroupBean);
             }
         }
         int row = 0;
         if (carGroupList != null && carGroupList.size() > 0) {
+            //遍历车队列表执行删除
             for (CarGroupInfo carGroupInfo : carGroupList) {
                 Long itemCarGroupId = carGroupInfo.getCarGroupId();
                 CarGroupInfo updateBean = new CarGroupInfo();
@@ -756,15 +775,18 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 updateBean.setState(CarConstant.DELETE_CAR_GROUP);
                 updateBean.setUpdateBy(String.valueOf(userId));
                 updateBean.setUpdateTime(new Date());
+                //删除车队
                 row = carGroupInfoMapper.updateCarGroupInfo(updateBean);
                 if( row != 1){
                     throw new Exception("删除下属车队失败");
                 }
-                //新增删除车队调度员信息、车队服务范围信息、用户角色关系，修改用户表用户角色不是调度员的逻辑
                 //删除车队服务城市
                 carGroupServeScopeInfoMapper.deleteByCarGroupId(itemCarGroupId);
+                //删除车队服务组织表信息
+                carGroupServeOrgRelationMapper.deleteById(itemCarGroupId);
                 //删除车队调度员、修改员工的调度员角色、删除用户角色关系
                 deleteCarGroupDispatcher(itemCarGroupId, userId);
+                //递归删除车队下的车队
                 executeDeleteCarGroup(null, itemCarGroupId, userId);
             }
         }
@@ -1011,7 +1033,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
 
 
     /**
-     * 判断车队下是否有车辆
+     * 判断车队下是否有车辆  false表示没有 true表示有车辆
      * @param carGroupId
      * @return
      */
@@ -1040,17 +1062,21 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @return
      */
     public boolean existCarOrDriver(Long carGroupId, Long ownerOrg) {
-        CarGroupInfo carGroupBean = new CarGroupInfo();
+        CarGroupInfo carGroupBean = null;
         List<CarGroupInfo> carGroupList = new ArrayList<>();
         //判断是不是首次进入，如果首次根据车队ID查询，否则根据归属直接组织
         if (carGroupId != null) {
+            //查询车队信息
             carGroupBean = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
             if (carGroupBean != null) {
+                //存入车队集合
                 carGroupList.add(carGroupBean);
             }
         } else {
-            //车队归属直接组织(包含-所有总公司、分公司、部门、车队)
+            //不是首次进来 则查询上次车队的下级车队   车队归属直接组织(包含-所有总公司、分公司、部门、车队)
             if(ownerOrg != null) {
+                carGroupBean = CarGroupInfo.builder().parentCarGroupId(ownerOrg).build();
+                //根据车队id查询下级车队集合
                 carGroupList = carGroupInfoMapper.selectCarGroupInfoList(carGroupBean);
             }
         }
@@ -1058,15 +1084,18 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             for (CarGroupInfo carGroupInfo : carGroupList) {
                 //判断车队下是否有车辆和驾驶员
                 Long id = carGroupInfo.getCarGroupId();
+                //如果车队下有车辆或者有驾驶员，则返回true
                 if (hasCar(id) || hasDriver(id)) {
-                    carGroupDelFlag = true;
+                    //carGroupDelFlag = true;
                     return true;
                 } else {
+                    //如果车队下没有车辆也没有驾驶员， 则递归查询该车队的下级车队下是否有车辆和驾驶员
                     existCarOrDriver(null, id);
                 }
             }
         }
-        return carGroupDelFlag;
+        //如果上面走完都没返回true 则说明车队下没有车辆和驾驶员了 返回false
+        return false;
     }
 
     /*根据公司id 查询车队树*/
