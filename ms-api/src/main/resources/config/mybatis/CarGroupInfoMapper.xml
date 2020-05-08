@@ -159,6 +159,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="carGroupId != null">
                 and c.parent_car_group_id = #{carGroupId}
             </if>
+            <if test="companyId != null">
+                and c.company_id = #{companyId}
+            </if>
         </where>
              order by c.car_group_name
     </select>

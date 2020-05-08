@@ -87,6 +87,10 @@ public class ApplyContoller {
     public ApiResponse<ApplyVO>   applyOfficialCommit(@RequestBody ApplyOfficialRequest officialCommitApply){
         //提交公务行程申请
         ApplyVO applyVO = null;
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        officialCommitApply.setCompanyId(companyId);
         try {
             applyVO = applyInfoService.applyOfficialCommit(officialCommitApply);
         } catch (Exception e) {
@@ -108,6 +112,10 @@ public class ApplyContoller {
     public ApiResponse<ApplyVO>  applyTravelCommit(@RequestBody ApplyTravelRequest travelCommitApply){
         //提交差旅行程申请
         ApplyVO applyVO = null;
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        travelCommitApply.setCompanyId(companyId);
         try {
             applyVO = applyInfoService.applytravliCommit(travelCommitApply);
 

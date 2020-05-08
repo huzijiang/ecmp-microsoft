@@ -295,8 +295,8 @@ public class CarInfoServiceImpl implements ICarInfoService
      * 可管理车辆总数
      */
     @Override
-    public int queryCompanyCarCount(){
-        return carInfoMapper.queryCompanyCar();
+    public int queryCompanyCarCount(Long companyId){
+        return carInfoMapper.queryCompanyCar(companyId);
     }
 
     /**
