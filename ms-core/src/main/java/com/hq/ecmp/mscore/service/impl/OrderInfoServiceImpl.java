@@ -64,10 +64,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private OrderInfoMapper orderInfoMapper;
     @Resource
     private CarInfoMapper carInfoMapper;
-    @Autowired
+    @Resource
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
     @Autowired
-    private IDriverInfoService driverInfoService;
+    private DriverInfoMapper driverInfoMapper;
     @Resource
     private IJourneyInfoService iJourneyInfoService;
     @Resource
@@ -81,15 +81,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Resource
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
     @Resource
-    private IDriverInfoService iDriverInfoService;
-    @Resource
     private ApplyInfoMapper applyInfoMapper;
     @Resource
     private RedisUtil redisUtil;
     @Resource
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
     @Resource
-    private IOrderViaInfoService iOrderViaInfoService;
+    private OrderViaInfoMapper orderViaInfoMapper;
     @Autowired
     private IRegimeInfoService regimeInfoService;
     @Autowired
@@ -103,7 +101,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Resource
     private IJourneyPlanPriceInfoService iJourneyPlanPriceInfoService;
     @Resource
-    private IDriverHeartbeatInfoService iDriverHeartbeatInfoService;
+    private DriverHeartbeatInfoMapper driverHeartbeatInfoMapper;
     @Resource
     private OrderAddressInfoMapper orderAddressInfoMapper;
     @Resource
@@ -524,6 +522,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //服务结束时间
         OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
         vo.setLabelState(orderStateTraceInfo.getState());
+        vo.setCancelReason(orderStateTraceInfo.getContent());
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
             vo.setOrderEndTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderStateTraceInfo.getCreateTime()));
         }
@@ -547,10 +546,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setDriverId(orderInfo.getDriverId());
             vo.setCardId(orderInfo.getCarId());
             //查询车辆信息
-            CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
+            CarInfo carInfo = carInfoMapper.selectCarInfoById(orderInfo.getCarId());
+            EnterpriseCarTypeInfo enterpriseCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
             if (carInfo!=null){
                 BeanUtils.copyProperties(carInfo,vo);
                 vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
+                if (enterpriseCarTypeInfo!=null){
+                    vo.setCarPhoto(enterpriseCarTypeInfo.getImageUrl());
+                }
             }
 //            DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
             List<DriverServiceAppraiseeInfo> driverServiceAppraiseeInfos1 = driverServiceAppraiseeInfoMapper.queryAll(new DriverServiceAppraiseeInfo(orderInfo.getDriverId()));
@@ -847,7 +850,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		OrderInfo orderInfo = new OrderInfo();
 		orderInfo.setState(OrderState.ALREADYSENDING.getState());
 		// 查询司机信息
-		DriverInfo driverInfo = driverInfoService.selectDriverInfoById(driverId);
+		DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(driverId);
 		orderInfo.setOrderId(orderId);
 		orderInfo.setDriverId(driverId);
 		if (null != driverInfo) {
@@ -922,7 +925,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         Long journeyId = journeyUserCarPower.getJourneyId();
         Long applyId = journeyUserCarPower.getApplyId();
         //获取行程主表信息
-        JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyId);
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journeyId);
         String serviceType = journeyInfo.getServiceType();
         //是否往返 是Y000  否N444
         String itIsReturn = journeyInfo.getItIsReturn();
@@ -1067,7 +1070,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 }
             }
             if(orderViaInfos.size()>0){
-                iOrderViaInfoService.insertOrderViaInfoBatch(orderViaInfos);
+                orderViaInfoMapper.insertOrderViaInfoBatch(orderViaInfos);
             }
         }
         //插入订单轨迹表
@@ -1220,7 +1223,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto, Long userId) throws Exception {
-        JourneyUserCarPower journeyUserCarPower = iJourneyUserCarPowerService.selectJourneyUserCarPowerById(applyUseWithTravelDto.getTicketId());
+        JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(applyUseWithTravelDto.getTicketId());
         if(journeyUserCarPower == null){
             throw new Exception("用车权限不存在");
         }
@@ -1228,7 +1231,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(validOrderByPowerId!=null && validOrderByPowerId.size()>0){
             throw new Exception("此用车权限已存在有效订单");
         }
-        JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderNumber(OrderUtils.getOrderNum());
         orderInfo.setPowerId(journeyUserCarPower.getPowerId());
@@ -1520,7 +1523,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
             DriverHeartbeatInfo driverHeartbeatInfo = new DriverHeartbeatInfo();
             driverHeartbeatInfo.setOrderId(orderId);
-            List<DriverHeartbeatInfo> driverHeartbeatInfos = iDriverHeartbeatInfoService.selectDriverHeartbeatInfoList(driverHeartbeatInfo);
+            List<DriverHeartbeatInfo> driverHeartbeatInfos = driverHeartbeatInfoMapper.selectDriverHeartbeatInfoList(driverHeartbeatInfo);
             for (DriverHeartbeatInfo driverHeartbeatInfo1:
             driverHeartbeatInfos) {
                 OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();

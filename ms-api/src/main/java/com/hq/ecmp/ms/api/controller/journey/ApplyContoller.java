@@ -5,24 +5,21 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.ApplyStateConstant;
-import com.hq.ecmp.constant.ApplyTypeEnum;
-import com.hq.ecmp.constant.ApproveStateEnum;
-import com.hq.ecmp.constant.CarLeaveEnum;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.ms.api.dto.base.RegimeDto;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
-import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
+import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.DateFormatUtils;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,12 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static com.hq.ecmp.constant.CommonConstant.*;
 
 /**
  * @Author: zj.hu
@@ -347,7 +339,11 @@ public class ApplyContoller {
             if (useCarTimeVO==null){
                 return ApiResponse.success();
             }else{
-                return ApiResponse.error("时间不可用",useCarTimeVO);
+                if (CollectionUtils.isEmpty(useCarTimeVO.getUseTime())){
+                    return ApiResponse.success();
+                }else{
+                    return ApiResponse.error("时间不可用",useCarTimeVO);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -356,10 +352,10 @@ public class ApplyContoller {
     }
 
     /**
-     * 校验用车制度的用车时间是否可用
+     * 校验用车制度的用车城市是否可用
      * @return
      */
-    @ApiOperation(value = "checkUseCarModeAndType",notes = "校验申请用车时间是否可用",httpMethod ="POST")
+    @ApiOperation(value = "checkUseCarModeAndType",notes = "校验用车制度的用车城市是否可用",httpMethod ="POST")
     @PostMapping("/checkUseCarModeAndType")
     public ApiResponse<String> checkUseCarModeAndType(RegimeCheckDto regimeDto){
         HttpServletRequest request = ServletUtils.getRequest();
@@ -375,4 +371,22 @@ public class ApplyContoller {
         }
         return ApiResponse.success();
     }
+
+    /**
+     * 获取自由车开城城市//网约车开城城市
+     * @return
+     */
+    @ApiOperation(value = "getUseCarType",notes = "校验用车制度的用车城市是否可用",httpMethod ="POST")
+    @PostMapping("/getUseCarType")
+    public ApiResponse<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            List<OnLineCarTypeVO> list=regimeInfoService.getUseCarType(regimeDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success();
+    }
+
 }

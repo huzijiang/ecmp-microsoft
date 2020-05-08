@@ -73,11 +73,33 @@ public class DateFormatUtils {
      */
     public static Date parseDate(String pattern, String dateString) {
         try {
-            return FastDateFormat.getInstance(pattern).parse(dateString);
-        } catch (ParseException e) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+            Date dateTime = null;
+            try {
+                dateTime = simpleDateFormat.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return dateTime;
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String timeStamp2Date(String seconds,String format) {
+        if(StringUtils.isBlank(seconds)){
+            return "";
+        }
+        if(format == null || format.isEmpty()){
+            format = DATE_TIME_FORMAT;
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        if (seconds.length()==13){
+            return sdf.format(new Date(Long.valueOf(seconds)));
+        }else{
+            return sdf.format(new Date(Long.valueOf(seconds+"000")));
+        }
     }
 
     /**
@@ -329,20 +351,41 @@ public class DateFormatUtils {
             return week;
 	}
 
+    public static String addDay(String s, int n) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+
+            Calendar cd = Calendar.getInstance();
+            cd.setTime(sdf.parse(s));
+            cd.add(Calendar.DATE, n);//增加一天
+            //cd.add(Calendar.MONTH, n);//增加一个月
+
+            return sdf.format(cd.getTime());
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
 
      public  static void main(String[] args){
-         Date date = parseDate(DATE_TIME_FORMAT, "2020-04-10 22:22:22");
-         int i=compareDay(date,new Date());
-         if (i==-1){
-             System.out.println("大于当前时间");
-         }else if (i==0){
-             System.out.println("相等");
-         }else{
-             System.out.println("小于当前时候");
-         }
+//         Date date = parseDate(DATE_TIME_FORMAT, "2020-04-10 22:22:22");
+//         System.out.println(date);
+//         System.out.println(date.getTime());
+         String date1="2020-04-30";
+         System.out.println("当前时间"+date1);
+         System.out.println("加的日期"+addDay(date1, 1));
+         System.out.println("减的日期"+addDay(date1, -1));
 
-         System.out.println(date.toString());
-         System.out.println(new Date().toString());
+//         int i=compareTime("2020-05-06 19:30:50","2020-05-07 19:30:50");
+//         if (i==-1){
+//             System.out.println("大于当前时间");
+//         }else if (i==0){
+//             System.out.println("相等");
+//         }else{
+//             System.out.println("小于当前时候");
+//         }
+
      }
 }

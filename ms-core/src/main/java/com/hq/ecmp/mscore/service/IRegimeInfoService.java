@@ -195,5 +195,7 @@ public interface IRegimeInfoService
      * @return
      */
     List<UseCarTypeVO> checkUseCarModeAndType(RegimeCheckDto regimeDto, LoginUser loginUser) throws Exception;
+
+    List<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto)throws Exception;
 }
 

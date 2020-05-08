@@ -34,6 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Resource;
 
 import static com.hq.ecmp.constant.CommonConstant.ALLOW_DATA;
+import static com.hq.ecmp.util.DateFormatUtils.DATE_TIME_FORMAT;
+import static com.hq.ecmp.util.DateFormatUtils.TIME_FORMAT;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -686,13 +688,35 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}
 		if (StringUtils.isNotBlank(regimeVo.getAllowDate())&&!ALLOW_DATA.equals(regimeVo.getAllowDate())){
 			String[] split = regimeVo.getAllowDate().split("-");
-			if (DateFormatUtils.compareDate(regimeDto.getStartTime(),split[0])==1||DateFormatUtils.compareDate(regimeDto.getStartTime(),split[0])==-1){
+			String time=DateFormatUtils.timeStamp2Date(regimeDto.getStartTime(),DATE_TIME_FORMAT);
+			String beginDate=split[0];
+			String endDate=split[1];
+			String asAllowDateRound = regimeVo.getAsAllowDateRound();
+			String extendBeginDate=null;
+			String extendEndDate=null;
+			if (StringUtils.isNotBlank(asAllowDateRound)&&!String.valueOf(CommonConstant.ZERO).equals(asAllowDateRound)){
+				int day=Integer.parseInt(asAllowDateRound);
+				extendBeginDate=DateFormatUtils.addDay(beginDate,-day);
+				extendEndDate=DateFormatUtils.addDay(beginDate,day);
+				if (DateFormatUtils.compareDate(time,extendBeginDate)==1||DateFormatUtils.compareDate(time,extendEndDate)==-1){
+					throw new Exception("用车时间不在可用时间段内");
+				}
+				//校验差旅前后可用的时间时不校验具体的时间段只校验日期符合
+				if (DateFormatUtils.compareDate(time,extendBeginDate)!=1&&DateFormatUtils.compareDate(time,split[0])==1){
+					return null;
+				}
+				if (DateFormatUtils.compareDate(time,split[1])==-1&&DateFormatUtils.compareDate(time,extendEndDate)==1){
+					return null;
+				}
+			}else
+			if (DateFormatUtils.compareDate(time,split[0])==1||DateFormatUtils.compareDate(time,split[1])==-1){
 				throw new Exception("用车时间不在可用时间段内");
 			}
 		}
 		UseCarTimeVO useCarTimeVO=new UseCarTimeVO();
 		useCarTimeVO.setRegimeId(regimeDto.getRegimeId());
-		useCarTimeVO.setAllowDate(allowDate);
+		String allowDateStr=ALLOW_DATA.equals(regimeVo.getAllowDate())||StringUtils.isBlank(regimeVo.getAllowDate())?"不限":regimeVo.getAllowDate();
+		useCarTimeVO.setAllowDate(allowDateStr);
 		switch(regimeVo.getRuleTime()){
 			case "T001":
 				return null;
@@ -703,7 +727,6 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			case "T003":
 				Map<String,Object> checkResult1 = checkRoleCarTime(regimeDto.getStartTime(), regimeDto.getRegimeId());
 				useCarTimeVO=useCarTimeResult(checkResult1,useCarTimeVO);
-
 		}
 		return useCarTimeVO;
 	}
@@ -748,18 +771,18 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		return null;
 	}
 
-	private void checkAffairsCompanyCar(Long orgComcany,Long deptId,String city)throws Exception{
-		List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectCarGroupInfoByDeptId(orgComcany,deptId);
-		if (CollectionUtils.isEmpty(carGroupInfos)){
-			log.info("该公司:"+orgComcany+"下无可用/调度车队");
-			throw new Exception("该城市暂无企业车队");
+	//获取开城城市
+	@Override
+	public List<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto)throws Exception {
+		RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimeDto.getRegimeId());
+		if (regimeVo==null){
+			throw new Exception("该制度不存在");
 		}
-		List<Long> groupIds = carGroupInfos.stream().map(CarGroupInfo::getCarGroupId).collect(Collectors.toList());
-		List<CarGroupServeScopeInfo> list=carGroupServeScopeInfoMapper.findByCityAndGroupId(groupIds,city);
-		if (CollectionUtils.isEmpty(list)){
-			log.info("该公司:"+orgComcany+"下,城市:"+city+"不支持服务");
-			throw new Exception("该城市当前所属公司不支持服务");
+		String useCarMode = regimeDto.getUseCarMode();
+		if (StringUtils.isNotBlank(useCarMode)&&CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){
+
 		}
+		return null;
 	}
 
 	/**
@@ -805,7 +828,8 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 
 	private Map<String,Object> checkRoleCarTime(String startTime,Long regimeId){
 		Map<String,Object> map= Maps.newHashMap();
-		Date date = DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT, startTime);
+//		Date date = DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT, startTime);
+		Date date = new Date(Long.parseLong(startTime));
 		String week = DateFormatUtils.getWeek(date);
 		Integer integer = Integer.valueOf(week);
 		boolean flag=false;
@@ -846,14 +870,15 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}else{
 			RegimeUseCarTimeRuleInfo regimeUseCarTimeRuleInfo = todayList.get(0);
 			String key = regimeUseCarTimeRuleInfo.getRuleKey().substring(0,1);
+			String time=DateFormatUtils.timeStamp2Date(startTime,TIME_FORMAT);
 			if ("D".equals(key)){///次日只校验用车是否大于开始时间
-				if (DateFormatUtils.compareTime(startTime,regimeUseCarTimeRuleInfo.getStartTime())==-1){
+				if (DateFormatUtils.compareTime(time,regimeUseCarTimeRuleInfo.getStartTime())==-1){
 					map.put("flag",true);
 					return map;
 				}
 			}else{ //校验用车时间再开始结束时间中间
-				if (DateFormatUtils.compareTime(startTime,regimeUseCarTimeRuleInfo.getStartTime())==-1&&
-						DateFormatUtils.compareTime(startTime,regimeUseCarTimeRuleInfo.getEndTime())==1){
+				if (DateFormatUtils.compareTime(time,regimeUseCarTimeRuleInfo.getStartTime())==-1&&
+						DateFormatUtils.compareTime(time,regimeUseCarTimeRuleInfo.getEndTime())==1){
 					map.put("flag",true);
 					return map;
 				}
@@ -866,8 +891,8 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 				List<RegimeUseCarTimeRuleInfo> lastInfo = regimeUseCarTimeRuleInfos.stream().filter(p->newRoleKey.equals(p.getRuleKey())).collect(Collectors.toList());
 				if (CollectionUtils.isNotEmpty(lastInfo)){
 					RegimeUseCarTimeRuleInfo ruleInfo = lastInfo.get(0);
-					if (DateFormatUtils.compareTime("00:00",startTime)==1&&
-							DateFormatUtils.compareTime(startTime,ruleInfo.getEndTime())==1){
+					if (DateFormatUtils.compareTime("00:00",time)==1&&
+							DateFormatUtils.compareTime(time,ruleInfo.getEndTime())==1){
 						map.put("flag",true);
 						return map;
 					}
@@ -882,7 +907,9 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 
 	private Map<String,Object> checkRoleCarTimeForWoking(String startTime,Long regimeId){
 		Map<String,Object> map= Maps.newHashMap();
-		Date date = DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT, startTime);
+//		Date date = DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT, startTime);
+		Date date = new Date(Long.parseLong(startTime));
+
 		String week = DateFormatUtils.getWeek(date);
 		Integer integer = Integer.valueOf(week);
 		boolean flag=false;
@@ -910,14 +937,15 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}else{
 			RegimeUseCarTimeRuleInfo regimeUseCarTimeRuleInfo = todayList.get(0);
 			String key = regimeUseCarTimeRuleInfo.getRuleKey().substring(3);
+			String time=DateFormatUtils.timeStamp2Date(startTime,TIME_FORMAT);
 			if ("2".equals(key)){///次日只校验用车是否大于开始时间
-				if (DateFormatUtils.compareTime(startTime,regimeUseCarTimeRuleInfo.getStartTime())==-1){
+				if (DateFormatUtils.compareTime(time,regimeUseCarTimeRuleInfo.getStartTime())==-1){
 					map.put("flag",true);
 					return map;
 				}
 			}else{ //校验用车时间再开始结束时间中间
-				if (DateFormatUtils.compareTime(startTime,regimeUseCarTimeRuleInfo.getStartTime())==-1&&
-						DateFormatUtils.compareTime(startTime,regimeUseCarTimeRuleInfo.getEndTime())==1){
+				if (DateFormatUtils.compareTime(time,regimeUseCarTimeRuleInfo.getStartTime())==-1&&
+						DateFormatUtils.compareTime(time,regimeUseCarTimeRuleInfo.getEndTime())==1){
 					map.put("flag",true);
 					return map;
 				}

@@ -19,6 +19,7 @@ public class OrderVO {
     private Long driverId;
     private Long cardId;
     private String orderNumber;
+    private Long regimeId;
     @ApiModelProperty(name = "driverMobile",value = "司机手机")
     private String driverMobile;
     @ApiModelProperty(name = "driverName",value = "司机姓名")
@@ -71,7 +72,15 @@ public class OrderVO {
     private String orderEndTime;
     @ApiModelProperty(name = "description",value = "订单评分描述")
     private String description;
+    @ApiModelProperty(name = "cancelReason",value = "取消原因")
+    private String cancelReason;
+    @ApiModelProperty(name = "carPhoto",value = "车辆照片")
+    private String carPhoto;
     @ApiModelProperty(name = "orderCostDetailVO",value = "费用对象")
     private OrderCostDetailVO   orderCostDetailVO;
+    @ApiModelProperty(name = "isExcess",value = "是否超额:0否1超额")
+    private Integer isExcess;
+    @ApiModelProperty(name = "excessMoney",value = "超额金额")
+    private String excessMoney;
 
 }
