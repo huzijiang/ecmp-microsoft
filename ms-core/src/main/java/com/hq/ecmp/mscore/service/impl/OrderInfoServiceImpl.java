@@ -9,8 +9,10 @@ import com.hq.api.system.domain.SysDriver;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
+import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.domain.*;
@@ -37,9 +39,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -58,6 +62,8 @@ import static com.hq.ecmp.constant.CommonConstant.ONE;
 @Slf4j
 public class OrderInfoServiceImpl implements IOrderInfoService
 {
+    @Autowired
+    private TokenService tokenService;
 	@Autowired
 	private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Autowired
@@ -122,6 +128,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private ChinaCityMapper chinaCityMapper;
     @Autowired
     private IDispatchService dispatchService;
+    @Autowired
+    private IOrderPayInfoService iOrderPayInfoService;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -580,6 +588,60 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderStateTraceInfo.getState())){
                 OrderCostDetailVO orderCost = this.getOrderCost(orderId);
                 vo.setOrderCostDetailVO(orderCost);
+            }
+            //网约车是否限额
+            //查询出用车制度表的限额额度，和限额类型
+            OrderSettlingInfo orderSettlingInfo2 = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
+            RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
+            BigDecimal limitMoney = regimeInfo.getLimitMoney();
+            String limitType = regimeInfo.getLimitType();
+            //按天
+            DecimalFormat df = new DecimalFormat("#0.00");
+            if("T001" == limitType){
+                    //查询出当前申请人
+                    HttpServletRequest request = ServletUtils.getRequest();
+                    LoginUser loginUser = tokenService.getLoginUser(request);
+                    Long userId = loginUser.getUser().getUserId();
+                    //根据订单号和当前申请人，得出当前申请人在当天一共申请的单量
+                    List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoByIdAllDay(orderId);
+                    List<OrderInfo> list = new ArrayList<>();
+                    for (OrderInfo  order : orderInfos){
+                        if(userId == order.getUserId()){
+                            list.add(order);
+                        }
+                    }
+                    //从订单结算表当中，查询出当前申请人在当天一共申请的单量的金额总和
+                    BigDecimal sum = new BigDecimal(0);
+                    for (OrderInfo  order : list){
+                        OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoById(order.getOrderId());
+                        sum = sum.add(orderSettlingInfo.getAmount());
+                    }
+                // 当前申请人在当天一共申请的单量的金额总和-限额=超额
+                if(sum.compareTo(limitMoney) >= 0){
+                    BigDecimal subtract = sum.subtract(limitMoney);
+                    vo.setIsExcess(1);
+                    vo.setExcessMoney(df.format(subtract));
+                    //总额sum
+                }else{
+                    vo.setIsExcess(0);
+                    vo.setExcessMoney(df.format(0));
+                }
+
+             // 按次数
+            }else if("T002".equals(limitType)){
+                //判断
+                if(orderSettlingInfo2.getAmount().compareTo(limitMoney) > 0){
+                    BigDecimal subtract = orderSettlingInfo2.getAmount().subtract(limitMoney);
+                    vo.setIsExcess(1);
+                    vo.setExcessMoney(df.format(subtract));
+                }else{
+                    vo.setIsExcess(0);
+                    vo.setExcessMoney(df.format(0));
+                }
+            //不限
+            }else{
+                vo.setIsExcess(0);
+                vo.setExcessMoney(df.format(0));
             }
         }
         vo.setState(orderInfo.getState());
@@ -2006,6 +2068,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderSettlingInfo.setCreateBy(CommonConstant.START);
                 orderSettlingInfo.setCreateTime(new Date());
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
+                //插入订单支付表
+                OrderPayInfo orderPayInfo = new OrderPayInfo();
+                OrderSettlingInfo orderSettlingInfo1 = orderSettlingInfoMapper.selectOrderSettlingInfoById(orderNo);
+                orderPayInfo.setBillId(orderSettlingInfo1.getBillId());
+                orderPayInfo.setOrderId(orderNo);
+                orderPayInfo.setState("0000");
+                orderPayInfo.setPayMode("M001");
+                orderPayInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
+                orderPayInfo.setCreateTime(DateUtils.getNowDate());
+                iOrderPayInfoService.insertOrderPayInfo(orderPayInfo);
             }
 
             int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());

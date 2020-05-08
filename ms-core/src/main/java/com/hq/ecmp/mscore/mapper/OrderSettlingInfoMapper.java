@@ -21,6 +21,14 @@ public interface OrderSettlingInfoMapper
     public OrderSettlingInfo selectOrderSettlingInfoById(Long billId);
 
     /**
+     * 查询【请填写功能名称】
+     *
+     * @param orderId 【请填写功能名称】ID
+     * @return 【请填写功能名称】
+     */
+    public OrderSettlingInfo selectOrderSettlingInfoByOrderId(Long orderId);
+
+    /**
      * 查询【请填写功能名称】列表
      *
      * @param orderSettlingInfo 【请填写功能名称】
