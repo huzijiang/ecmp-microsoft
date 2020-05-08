@@ -241,6 +241,7 @@ public interface OrderInfoMapper {
      */
     public String queryLatestOrderByPowerId(Long powerId);
 
+
     /**
      *轨迹状态 订单状态
      * @param orderId

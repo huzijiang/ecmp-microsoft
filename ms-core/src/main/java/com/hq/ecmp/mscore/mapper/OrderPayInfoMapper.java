@@ -5,4 +5,5 @@ import com.hq.ecmp.mscore.domain.OrderPayInfo;
 public interface OrderPayInfoMapper {
 
     int insertOrderPayInfo(OrderPayInfo orderPayInfo);
+
 }

@@ -35,4 +35,5 @@ public class AlipayConfig {
         public static String SIGNTYPE = "RSA2";
 
 
+
 }

@@ -73,6 +73,7 @@ public class OrderPayInfo {
     @ApiParam(required = true)
     private String url;
 
+
     /**
      * 用户订单支付总金额
      */

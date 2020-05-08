@@ -24,4 +24,5 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
         return orderPayInfoMapper.insertOrderPayInfo(orderPayInfo);
     }
 
+
 }

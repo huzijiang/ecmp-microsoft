@@ -8,3 +8,4 @@ public interface IOrderPayInfoService {
     int insertOrderPayInfo(OrderPayInfo orderPayInfo);
 
 }
+

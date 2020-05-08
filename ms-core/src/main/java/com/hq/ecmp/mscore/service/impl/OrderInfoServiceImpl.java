@@ -589,6 +589,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 OrderCostDetailVO orderCost = this.getOrderCost(orderId);
                 vo.setOrderCostDetailVO(orderCost);
             }
+
             //网约车是否限额
             //查询出用车制度表的限额额度，和限额类型
             OrderSettlingInfo orderSettlingInfo2 = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
