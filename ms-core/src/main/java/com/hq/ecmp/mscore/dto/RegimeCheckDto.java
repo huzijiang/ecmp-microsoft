@@ -21,6 +21,7 @@ public class RegimeCheckDto {
     @NotNull
     private Long regimeId;
     private String startTime;
+    private String useCarMode;
     private String endTime;
     private List<String> cityCodes;
     private String startCityCode;

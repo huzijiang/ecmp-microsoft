@@ -339,7 +339,11 @@ public class ApplyContoller {
             if (useCarTimeVO==null){
                 return ApiResponse.success();
             }else{
-                return ApiResponse.error("时间不可用",useCarTimeVO);
+                if (CollectionUtils.isEmpty(useCarTimeVO.getUseTime())){
+                    return ApiResponse.success();
+                }else{
+                    return ApiResponse.error("时间不可用",useCarTimeVO);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -348,10 +352,10 @@ public class ApplyContoller {
     }
 
     /**
-     * 校验用车制度的用车时间是否可用
+     * 校验用车制度的用车城市是否可用
      * @return
      */
-    @ApiOperation(value = "checkUseCarModeAndType",notes = "校验申请用车时间是否可用",httpMethod ="POST")
+    @ApiOperation(value = "checkUseCarModeAndType",notes = "校验用车制度的用车城市是否可用",httpMethod ="POST")
     @PostMapping("/checkUseCarModeAndType")
     public ApiResponse<String> checkUseCarModeAndType(RegimeCheckDto regimeDto){
         HttpServletRequest request = ServletUtils.getRequest();
@@ -367,4 +371,22 @@ public class ApplyContoller {
         }
         return ApiResponse.success();
     }
+
+    /**
+     * 获取自由车开城城市//网约车开城城市
+     * @return
+     */
+    @ApiOperation(value = "getUseCarType",notes = "校验用车制度的用车城市是否可用",httpMethod ="POST")
+    @PostMapping("/getUseCarType")
+    public ApiResponse<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            List<OnLineCarTypeVO> list=regimeInfoService.getUseCarType(regimeDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success();
+    }
+
 }

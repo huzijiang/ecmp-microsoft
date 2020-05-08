@@ -47,6 +47,9 @@ public class EnterpriseCarTypeInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carNum;
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String imageUrl;
 
     @Override
     public String toString() {
@@ -57,6 +60,7 @@ public class EnterpriseCarTypeInfo extends BaseEntity
             .append("name", getName())
             .append("level", getLevel())
             .append("status", getStatus())
+            .append("imageUrl", getImageUrl())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

@@ -71,7 +71,12 @@ public class OrderVO {
     private String orderEndTime;
     @ApiModelProperty(name = "description",value = "订单评分描述")
     private String description;
+    @ApiModelProperty(name = "cancelReason",value = "取消原因")
+    private String cancelReason;
+    @ApiModelProperty(name = "carPhoto",value = "车辆照片")
+    private String carPhoto;
     @ApiModelProperty(name = "orderCostDetailVO",value = "费用对象")
     private OrderCostDetailVO   orderCostDetailVO;
+
 
 }
