@@ -257,6 +257,27 @@ public class CarGroupController {
         return ApiResponse.success(vo);
     }
 
+    /**
+     * 联系车队 （乘客（有无订单、司机（有无订单） 4种情况通用）
+     * @param
+     * @return
+     */
+    @Log(title = "车队管理",content = "联系车队(通用)", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "cantactCarGroup",notes = "联系车队",httpMethod ="POST")
+    @PostMapping("/cantactCarGroup")
+    public ApiResponse<List<ContactCarGroupVO>> cantactCarGroup(@RequestBody(required = false) CarGroupPhoneDTO carGroupPhoneDTO){
+        List<ContactCarGroupVO>  list = null;
+        try {
+            if (carGroupPhoneDTO == null){
+                carGroupPhoneDTO = new CarGroupPhoneDTO();
+            }
+            list = carGroupInfoService.cantactCarGroup(carGroupPhoneDTO.getOrderId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success(list);
+    }
+
 
 
    /**

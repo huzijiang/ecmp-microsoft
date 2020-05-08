@@ -66,6 +66,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="shortAddress != null ">short_address,</if>
             <if test="fullAddress != null ">full_address,</if>
             <if test="state != null ">state,</if>
+            <if test="allowOuterDispatch != null ">allow_outer_dispatch,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
