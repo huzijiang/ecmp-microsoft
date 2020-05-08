@@ -209,8 +209,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from   car_group_info
         where  parent_car_group_id = #{carGroupId} and state != 'S444'
     </select>
-    <select id="selectAllCarGroupCode" resultType="java.lang.String">
-        SELECT car_group_code FROM car_group_info where state != 'S444'
+    <select id="selectAllCarGroupCode" resultType="java.lang.String" parameterType="long">
+        SELECT car_group_code FROM car_group_info where state != 'S444' and company_id = #{companyId}
     </select>
 
     <select id="selectCountByParentId" resultType="int">

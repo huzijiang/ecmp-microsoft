@@ -610,6 +610,7 @@ WHERE
         <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
             #{item.driverId}
         </foreach>
+        and state != 'S444'
     </update>
 
     <select id="selectDriverInfoByCarId"  resultType="com.hq.ecmp.mscore.vo.DriverVO">

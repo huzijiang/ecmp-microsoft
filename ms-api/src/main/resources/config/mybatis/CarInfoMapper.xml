@@ -394,7 +394,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null ">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
         </trim>
-        where car_group_id = #{carGroupId}
+        where car_group_id = #{carGroupId} and state != 'S444'
     </update>
     <select id="selectCarTypeList" resultType="java.lang.String">
         SELECT DISTINCT car_type FROM car_info

@@ -138,10 +138,10 @@ public interface ICarGroupInfoService
     List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
 
     /*查询所有车队编号*/
-    List<String> selectAllCarGroupCode();
+    List<String> selectAllCarGroupCode(Long companyId);
 
     /*判断车队编号是否存在*/
-    boolean judgeCarGroupCode(String carGroupCode);
+    boolean judgeCarGroupCode(String carGroupCode,Long companyId);
 
     /*回显车队信息*/
     CarGroupDTO getCarGroupInfoFeedBack(Long carGroupId);

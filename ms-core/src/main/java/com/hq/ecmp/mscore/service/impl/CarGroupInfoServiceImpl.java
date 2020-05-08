@@ -601,7 +601,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      */
     @Override
     public void startUpCarGroup(Long carGroupId, Long userId) throws Exception {
-        int startFlag = 1;
+        //int startFlag = 1;
         //递归启用车队及下属车队的驾驶员和车辆
         changeState(carGroupId, null, String.valueOf(userId), CarConstant.START_UP_CAR_GROUP,
                 CarConstant.START_CAR, CarConstant.START_DRIVER_TYPE);
@@ -613,7 +613,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      */
     private void changeState(Long carGroupId, Long ownerOrg, String userId,
                                 String carGroupState, String carState, String driverState) {
-        CarGroupInfo carGroupBean = new CarGroupInfo();
+        CarGroupInfo carGroupBean = null;
         List<CarGroupInfo> carGroupList = new ArrayList<>();
         //判断是不是首次进入，如果首次根据车队ID查询，否则根据归属直接组织
         if(carGroupId != null) {
@@ -622,8 +622,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 carGroupList.add(carGroupBean);
             }
         } else {
-            //车队归属直接组织(包含-所有总公司、分公司、部门、车队)
+            //根据车队id 查询下级车队列表
             if(ownerOrg != null) {
+                carGroupBean = CarGroupInfo.builder().parentCarGroupId(ownerOrg).build();
                 carGroupList = carGroupInfoMapper.selectCarGroupInfoList(carGroupBean);
             }
         }
@@ -1117,15 +1118,15 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
 
     /*查询所有车队编号*/
     @Override
-    public List<String> selectAllCarGroupCode() {
-        List<String> list = carGroupInfoMapper.selectAllCarGroupCode();
+    public List<String> selectAllCarGroupCode(Long companyId) {
+        List<String> list = carGroupInfoMapper.selectAllCarGroupCode(companyId);
         return list;
     }
 
     /*判断车队编号是否存在*/
     @Override
-    public boolean judgeCarGroupCode(String carGroupCode) {
-        List<String> list = selectAllCarGroupCode();
+    public boolean judgeCarGroupCode(String carGroupCode,Long companyId) {
+        List<String> list = selectAllCarGroupCode(companyId);
         for (String s : list) {
             if (carGroupCode.equals(s)){
                 return true;

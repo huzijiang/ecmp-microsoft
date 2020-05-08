@@ -398,8 +398,11 @@ public class CarGroupController {
     @PostMapping("/judgeCarGroupCode")
     public ApiResponse<Boolean> judgeCarGroupCode(
             @RequestBody CarGroupDTO carGroupDTO){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long ownerCompany = loginUser.getUser().getOwnerCompany();
         try {
-           boolean exist = carGroupInfoService.judgeCarGroupCode(carGroupDTO.getCarGroupCode());
+           boolean exist = carGroupInfoService.judgeCarGroupCode(carGroupDTO.getCarGroupCode(),ownerCompany);
            return ApiResponse.success(exist);
         } catch (Exception e) {
             e.printStackTrace();

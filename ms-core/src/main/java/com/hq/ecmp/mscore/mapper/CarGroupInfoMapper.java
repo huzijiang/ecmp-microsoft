@@ -140,7 +140,7 @@ public interface CarGroupInfoMapper
      * 查询所有车队编号
      * @return
      */
-    List<String> selectAllCarGroupCode();
+    List<String> selectAllCarGroupCode(Long companyId);
 
     /**
      * 查询公司所有车队名字
