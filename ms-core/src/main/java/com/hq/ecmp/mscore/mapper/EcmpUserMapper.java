@@ -379,5 +379,14 @@ public interface EcmpUserMapper
     List<Long> getUserListByOrgId(@Param("orgId")Long orgId);
 
     List<EcmpUser> selectUserByCompanyId(@Param("ownerCompany") Long ownerCompany);
+
+    /**
+     * 根据公司id+员工名字或电话查询所有员工
+     * @param companyId
+     * @param name
+     * @param itIsDispatcher
+     * @return
+     */
+    List<EcmpUserDto> queryUserListByCompanyIdsAndName(@Param("companyId") Long companyId,@Param("name") String name,@Param("itIsDispatcher") String itIsDispatcher);
 }
 

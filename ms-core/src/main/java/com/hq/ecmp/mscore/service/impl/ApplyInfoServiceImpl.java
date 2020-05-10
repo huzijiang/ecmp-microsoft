@@ -313,12 +313,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                                 map.put("userName",userName);
                                 map.put("date",date);
                                 map.put("city",title);
-                                try {
-                                    //给审批人发短信
-                                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TRAVEL_APPLY_APPROVER,map,approver.getApprovalPhone());
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+
+                                //给审批人发短信
+                                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TRAVEL_APPLY_APPROVER,map,approver.getApprovalPhone());
+
                             }
                             //给自己发通知
                             sendApplyNoticeToSelf(userId,applyId);
