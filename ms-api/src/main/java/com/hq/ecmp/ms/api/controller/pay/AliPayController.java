@@ -67,7 +67,7 @@ public class AliPayController {
     @ResponseBody
     public String pay(@RequestBody String param) {
         JSONObject jsonObject = JSONObject.parseObject(param);
-        Integer orderId = jsonObject.getInteger("orderId");
+        String orderId = jsonObject.getString("payId");
         String price = jsonObject.getString("price");
         String body = jsonObject.getString("body");
         AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.URL, AlipayConfig.APPID, AlipayConfig.APP_PRIVATE_KEY, AlipayConfig.FORMAT, AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGNTYPE);
@@ -149,7 +149,7 @@ public class AliPayController {
                 }
                 //插入订单支付表
                 OrderPayInfo orderPayInfo = new OrderPayInfo();
-                orderPayInfo.setPayId(Long.valueOf(trade_no));
+                orderPayInfo.setTransactionLog(trade_no);
                 OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
                 orderSettlingInfo.setOrderId(Long.valueOf(out_trade_no));
                 List<OrderSettlingInfo> orderSettlingInfos = iOrderSettlingInfoService.selectOrderSettlingInfoList(orderSettlingInfo);

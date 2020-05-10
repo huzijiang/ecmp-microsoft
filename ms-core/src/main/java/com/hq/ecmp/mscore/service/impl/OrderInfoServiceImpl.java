@@ -11,7 +11,6 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
-import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
@@ -59,8 +58,6 @@ import static com.hq.ecmp.constant.CommonConstant.ONE;
 @Slf4j
 public class OrderInfoServiceImpl implements IOrderInfoService
 {
-    @Autowired
-    private TokenService tokenService;
 	@Autowired
 	private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Autowired
@@ -71,8 +68,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
     @Autowired
     private DriverInfoMapper driverInfoMapper;
-    @Resource
-    private IJourneyInfoService iJourneyInfoService;
     @Resource
     private IJourneyNodeInfoService iJourneyNodeInfoService;
     @Autowired
@@ -647,6 +642,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
         OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderId);
+        vo.setPayId(orderPayInfo.getPayId());
         vo.setPayState(orderPayInfo.getState());
         return vo;
     }
@@ -2076,6 +2072,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 //插入订单支付表
                 OrderPayInfo orderPayInfo = new OrderPayInfo();
                 OrderSettlingInfo orderSettlingInfo1 = orderSettlingInfoMapper.selectOrderSettlingInfoById(orderNo);
+                String substring = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32);
+                orderPayInfo.setPayId(substring);
                 orderPayInfo.setBillId(orderSettlingInfo1.getBillId());
                 orderPayInfo.setOrderId(orderNo);
                 orderPayInfo.setState(OrderPayConstant.PAID);

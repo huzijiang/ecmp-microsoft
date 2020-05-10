@@ -71,7 +71,7 @@ public class WxPayController {
         log.info("微信支付，传来的参数为："+param);
         String ipAddr = IpAddressUtil.getIpAddr(request);
         JSONObject jsonObject = JSONObject.parseObject(param);
-        Integer orderId = jsonObject.getInteger("orderId");
+        String orderId = jsonObject.getString("payId");
         String price = jsonObject.getString("price");
         String body = jsonObject.getString("body");
         WxPayAppOrderResult result = null;
@@ -156,7 +156,7 @@ public class WxPayController {
             }
             //插入订单支付表
             OrderPayInfo orderPayInfo = new OrderPayInfo();
-            orderPayInfo.setPayId(Long.valueOf(result.getTransactionId()));
+            orderPayInfo.setTransactionLog(result.getTransactionId());
             OrderSettlingInfo  orderSettlingInfo = new OrderSettlingInfo();
             orderSettlingInfo.setOrderId(Long.valueOf(Long.valueOf(result.getOutTradeNo())));
             List<OrderSettlingInfo> orderSettlingInfos = iOrderSettlingInfoService.selectOrderSettlingInfoList(orderSettlingInfo);

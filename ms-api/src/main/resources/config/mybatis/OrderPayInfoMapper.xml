@@ -12,7 +12,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="payMode"    column="pay_mode"    />
         <result property="payChannel"    column="pay_channel"    />
         <result property="channelRate"    column="channel_rate"    />
-        <result property="url"    column="url"    />
+        <result property="transactionLog"    column="transaction_log"    />
         <result property="amount"    column="amount"    />
         <result property="channelAmount"    column="channel_amount"    />
         <result property="arriveAmount"    column="arrive_amount"    />
@@ -25,7 +25,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectOrderPayInfoVo">
-        select pay_id, bill_id, order_id, state, pay_mode, pay_channel, channel_rate, url,  amount, channel_amount, arrive_amount, finish_pay_time, finish_result,
+        select pay_id, bill_id, order_id, state, pay_mode, pay_channel, channel_rate, transaction_log,  amount, channel_amount, arrive_amount, finish_pay_time, finish_result,
         create_by, create_time, update_by, update_time
         from order_pay_info
     </sql>
@@ -40,7 +40,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="payMode != null ">pay_mode,</if>
             <if test="payChannel != null ">pay_channel,</if>
             <if test="channelRate != null ">channel_rate,</if>
-            <if test="url != null ">url,</if>
+            <if test="transaction_log != null ">transactionLog,</if>
             <if test="amount != null ">amount,</if>
             <if test="channelAmount != null ">channel_amount,</if>
             <if test="arriveAmount != null ">arrive_amount,</if>
@@ -59,7 +59,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="payMode != null ">#{payMode},</if>
             <if test="payChannel != null ">#{payChannel},</if>
             <if test="channelRate != null ">#{channelRate},</if>
-            <if test="url != null ">#{url},</if>
+            <if test="transaction_log != null ">#{transactionLog},</if>
             <if test="amount != null ">#{amount},</if>
             <if test="channelAmount != null ">#{channelAmount},</if>
             <if test="arriveAmount != null ">#{arriveAmount},</if>
