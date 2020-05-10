@@ -67,8 +67,14 @@ public class OrderSettling {
     private BigDecimal waitingFee;
 
     /**
-     * 取消费
+     * 个人取消费
      */
-    @ApiModelProperty(name = " cancellationFee ", value = "取消费")
-    private BigDecimal cancellationFee;
+    @ApiModelProperty(name = " personalCancellationFee ", value = "个人取消费")
+    private BigDecimal personalCancellationFee;
+
+    /**
+     * 企业取消费
+     */
+    @ApiModelProperty(name = " enterpriseCancellationFee ", value = "企业取消费")
+    private BigDecimal enterpriseCancellationFee;
 }

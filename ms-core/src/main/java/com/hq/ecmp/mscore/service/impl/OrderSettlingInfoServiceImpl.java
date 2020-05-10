@@ -171,8 +171,10 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         CostCalculation calculator = new CostCalculator();
         OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
         OrderSettling OrderSettling =new OrderSettling();
-        //默认取消费用为0
-        BigDecimal cancellationFee = new BigDecimal("0");
+        //默认个人取消费用为0
+        BigDecimal personalCancellationFee = new BigDecimal("0");
+        //默认个人取消费用为0
+        BigDecimal enterpriseCancellationFee = new BigDecimal("0");
         //路桥费
         OrderSettling.setRoadBridgeFee(orderSettlingInfoVo.getRoadBridgeFee());
         //高速费
@@ -191,8 +193,10 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         OrderSettling.setStartingPrice(orderSettlingInfo.getStartingPrice());
         //等待费
         OrderSettling.setWaitingFee(orderSettlingInfo.getWaitingFee());
-        //取消费
-        OrderSettling.setCancellationFee(cancellationFee);
+        //个人取消费
+        OrderSettling.setPersonalCancellationFee(personalCancellationFee);
+        //企业取消费
+        OrderSettling.setEnterpriseCancellationFee(enterpriseCancellationFee);
         String json= JSON.toJSONString(OrderSettling);
         //落库到订单结算信息表
         orderSettlingInfoVo.setCreateTime(DateUtils.getNowDate());
