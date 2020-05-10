@@ -17,7 +17,10 @@ public class AlipayConfig {
         public static String ALIPAY_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnYXyZokXkeyj1NuZvCSP0jTKQ007wSvkqQPsZWtl4Z1xPof6t6Hva3Ua9KBiJplSXhUQHj4Dkknwr572tiGnbsZTEMHiMqnrVGL0SWakT3zrzU9u5E6feE0OVohtCw6jMDkFUuyXWX/eBNiFTVuraGhnl8iiB+KyTy1j5hMh1Dqd08ncpWQ9NTXJRXrcmlpUTggub3SOh9680SDtQfxILzzgWOGdRkO60tGZvSuFwhVipK5DEzW2qgxxY9b95kpc7cEqOi5s2pNu/0nppsFrXGukiuS1Ky9gt+1xfP/4E5d6DbIYiUjw5yjyLeIVXZM9yMvdt9GUbAIKRboP9BHbUwIDAQAB";
 
         // 4.服务器异步通知页面路径 需http://或者https://格式的完整路径，必须外网可以正常访问，可以使用natapp进行外网映射
-        public static String notify_url = "https://app-api.hqzhixing.com/pay/ali/v1/callback";
+        //正式环境
+//        public static String notify_url = "https://app-api.hqzhixing.com/pay/ali/v1/callback";
+        //测试环境
+        public static String notify_url = "https://test-app-api.hqzhixing.com:60001//pay/ali/v1/callback";
 
         //5.页面跳转同步通知页面路径 需http://或者https://格式的完整路径，必须外网可以正常访问 商户可以自定义同步跳转地址
         public static String return_url = "";

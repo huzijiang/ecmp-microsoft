@@ -5,6 +5,8 @@ import com.hq.common.utils.DateUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.OrderConstant;
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.constant.enumerate.DispatchExceptionEnum;
 import com.hq.ecmp.constant.enumerate.NoValueCommonEnum;
 import com.hq.ecmp.constant.enumerate.TaskConflictEnum;
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
@@ -39,6 +42,11 @@ public class DispatchServiceImpl implements IDispatchService {
     public  int notBackCarGroup;
     @Value("${dispatch.backCarGroup}")
     public  int backCarGroup;
+    /**
+     * 无车驳回的时间限制(:分钟)
+     */
+    @Value("${dispatch.noCarDeniedMinutes}")
+    public int noCarDeniedMinutes;
 
     @Resource
     TokenService tokenService;
@@ -87,6 +95,9 @@ public class DispatchServiceImpl implements IDispatchService {
 
     @Resource
     RegimeInfoMapper regimeInfoMapper;
+
+    @Resource
+    OrderStateTraceInfoMapper orderStateTraceInfoMapper;
 
     /**
      *
@@ -727,4 +738,33 @@ public class DispatchServiceImpl implements IDispatchService {
 
         return ApiResponse.success(carGroupServeScopeInfoListResult);
     }
+
+    /**
+     * 无车驳回操作（非改派的，改派的直接用1.0的申请改派审核功能即可）
+     * @param orderId 订单id
+     * @param reason 驳回原因
+     * @param userId  创建人
+     * @throws Exception
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void noCarDenied(Long orderId,String reason,Long userId) throws Exception {
+        OrderInfo orderInfoOld = orderInfoMapper.selectOrderInfoById(orderId);
+        Long duration = (DateUtils.getNowDate().getTime()-orderInfoOld.getCreateTime().getTime())/1000;
+        if(duration<noCarDeniedMinutes*60){
+            throw new Exception("未到"+noCarDeniedMinutes+"分钟,驳回失败");
+        }
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setState(OrderState.ORDERCLOSE.getState());
+        orderInfo.setOrderId(orderId);
+        orderInfoMapper.updateOrderInfo(orderInfo);
+        OrderStateTraceInfo orderStateTraceInfo = OrderStateTraceInfo.builder().orderId(orderId)
+        .content(reason)
+        .state(OrderStateTrace.ORDERDENIED.getState())
+        .build();
+        orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
+        orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+        orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+    }
+
 }

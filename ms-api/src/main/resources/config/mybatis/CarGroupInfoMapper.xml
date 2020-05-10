@@ -248,4 +248,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
 
+    <select id="findCarTypeByGroupIds" resultType="com.hq.ecmp.mscore.vo.CarLevelVO" parameterType="Object">
+        SELECT car_group_id ,level,name from (SELECT
+            a.car_group_id,
+            b.NAME name ,
+            b.LEVEL level,
+            b.car_type_id
+        FROM
+            car_info a
+            INNER JOIN enterprise_car_type_info b ON b.car_type_id = a.car_type_id
+        WHERE 1=1
+            <if test="groupIds!=null">
+                and find_in_set(a.car_group_id,#{groupIds})
+            </if>
+            ) t
+             group by t.car_type_id
+    </select>
 </mapper>

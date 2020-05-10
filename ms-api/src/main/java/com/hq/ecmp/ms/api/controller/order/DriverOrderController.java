@@ -10,19 +10,18 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
 import com.hq.ecmp.mscore.dto.ContactorDto;
 import com.hq.ecmp.mscore.dto.IsContinueReDto;
 import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
 import com.hq.ecmp.mscore.service.IDriverOrderService;
+import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +41,8 @@ public class DriverOrderController {
     @Autowired
     @Lazy
     IDriverOrderService iDriverOrderService;
+    @Resource
+    IOrderSettlingInfoService iOrderSettlingInfoService;
 
 
 
@@ -200,5 +201,27 @@ public class DriverOrderController {
             return ApiResponse.error();
         }
         return ApiResponse.success(orderViaInfos);
+    }
+    /**
+     * 司机端费用上报提交
+     */
+    @ApiOperation(value = "addExpenseReport", notes = "司机端费用上报提交 ", httpMethod = "POST")
+    @PostMapping("/addExpenseReport")
+    public ApiResponse addExpenseReport(@RequestBody OrderSettlingInfoVo orderSettlingInfoVo){
+        try {
+            //获取登陆用户的信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getDriver().getDriverId();
+            String companyId = loginUser.getUser().getDept().getCompanyId();
+           int  i = iOrderSettlingInfoService.addExpenseReport(orderSettlingInfoVo,userId,companyId);
+           if(i<0){
+               return ApiResponse.error("司机端费用上报提交失败");
+           }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.success();
     }
 }

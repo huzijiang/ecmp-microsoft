@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.List;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpDictData;
+import com.hq.ecmp.mscore.dto.CarTypeDTO;
 import com.hq.ecmp.mscore.mapper.EcmpDictDataMapper;
 import com.hq.ecmp.mscore.service.IEcmpDictDataService;
 import com.hq.ecmp.mscore.vo.SceneListVO;
@@ -111,6 +112,16 @@ public class EcmpDictDataServiceImpl implements IEcmpDictDataService
     @Override
     public List<SceneListVO> selectEcmpDictByType(String dictType) {
         return ecmpDictDataMapper.selectEcmpDictByType(dictType);
+    }
+
+    /**
+     * 查询字典表中的车型图标
+     * @param dictType
+     * @return
+     */
+    @Override
+    public List<CarTypeDTO> selectEcmpDictByCarType(String dictType) {
+        return ecmpDictDataMapper.selectEcmpDictByCarType(dictType);
     }
     /**
      * 评价标签的好评

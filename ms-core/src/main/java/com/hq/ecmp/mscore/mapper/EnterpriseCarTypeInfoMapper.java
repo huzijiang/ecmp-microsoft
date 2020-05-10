@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarTypeDTO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -74,7 +75,7 @@ public interface EnterpriseCarTypeInfoMapper
      * 查詢最大的車型級別
      * @return
      */
-    String getCarTypeDTOById();
+    String getCarTypeDTOById(@Param("enterpriseId") Long enterpriseId);
     
     /**
      * 查询车辆的车型名称
@@ -82,4 +83,18 @@ public interface EnterpriseCarTypeInfoMapper
      * @return
      */
     String queryCarTypeNameByCarId(Long carId);
+
+    /**
+     * 车型图标中已经用过的图标
+     * @param companyId
+     * @return
+     */
+    List<CarTypeDTO> selectEnterpriseCarTypeList(@Param("enterpriseId") Long enterpriseId);
+
+    /**
+     * 根据CarTypeIdd查询对应的车型id集合
+     * @param carTypeDTO
+     * @return
+     */
+    List<CarTypeDTO> selectCarTypeById(CarTypeDTO carTypeDTO);
 }

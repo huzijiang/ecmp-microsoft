@@ -81,5 +81,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{imageId}
         </foreach>
     </delete>
-
+    <select id="selectEcmpUserFeedbackByImage" parameterType="Long" resultType="String">
+          select image_url image_url from ecmp_user_feedback_image where feedback_id =#{feedbackId}
+    </select>
 </mapper>

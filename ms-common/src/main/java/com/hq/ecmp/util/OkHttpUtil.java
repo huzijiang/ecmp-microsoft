@@ -186,7 +186,25 @@ public class OkHttpUtil {
         return execute(OkHttp.builder().url(UrlConstant.getCloudUrl()+url).method(POST).data(data).mediaType(
                 "application/x-www-form-urlencoded").headerMap(m).build());
     }
+    /**
+     * POST application/x-www-form-urlencoded
+     *
+     * @param url
+     * @param formMap
+     * @return
+     */
+    public static String postForm(String url, Map<String, Object> formMap)
+            throws Exception {
 
+        String data = "";
+        if (MapUtils.isNotEmpty(formMap)) {
+            data = formMap.entrySet().stream().map(
+                    entry -> String.format("%s=%s", entry.getKey(), entry.getValue())).collect(
+                    Collectors.joining("&"));
+        }
+        return execute(OkHttp.builder().url(url).method(POST).data(data).mediaType(
+                "application/x-www-form-urlencoded").build());
+    }
     /**
      * 微服务调用接口
      *

@@ -257,6 +257,6 @@ public interface OrderInfoMapper {
      * @author ghb
      * @description  查询某订单所在当天的所有订单
      */
-    List<OrderInfo> selectOrderInfoByIdAllDay(@Param("orderId")Long orderId);
+    List<OrderInfo> selectOrderInfoByIdAllDay(@Param("userId")Long userId);
 }
 

@@ -105,4 +105,9 @@ public interface IEcmpNoticeService
      * 定时任务修改公告状态
      */
     void announcementTask() throws ParseException;
+
+    /**
+     *
+     */
+    void addObtainScheduling();
 }

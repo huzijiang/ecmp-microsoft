@@ -117,3 +117,18 @@ file:
 #调度行程确认的时间间隔
 schedule:
   confirmTimeout: 12
+
+#应用ID
+appId: "wxb1c50ac4effd77c7"
+#公众号 APP_SECRET
+appSecret: "bb9dbc446e5c8bfef07babe402d9d7af"
+#商户号
+mchId: "1517977791"
+#商户秘钥
+mchKey: "f6ad7e4369c963d75c2e19a5f88a261a"
+#正式环境回调地址
+notify_url: "https://app-api.hqzhixing.com/pay/wechat/v1/callback"
+#交易类型
+trade_type: "APP"
+#签名类型
+sign_type: "MD5"

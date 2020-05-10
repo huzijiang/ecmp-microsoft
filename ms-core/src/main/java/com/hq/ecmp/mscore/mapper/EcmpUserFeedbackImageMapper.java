@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackImage;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -61,4 +62,11 @@ public interface EcmpUserFeedbackImageMapper
      * @return 结果
      */
     public int deleteEcmpUserFeedbackImageByIds(Long[] imageIds);
+
+    /**
+     * 查询图片
+     * @param feedbackId
+     * @return
+     */
+    List<String> selectEcmpUserFeedbackByImage(@Param("feedbackId") Long feedbackId);
 }

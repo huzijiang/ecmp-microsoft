@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
 import com.hq.ecmp.mscore.vo.DriverOrderVo;
+import com.hq.ecmp.mscore.vo.OnLineCarTypeVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
@@ -183,4 +184,6 @@ public interface CarInfoMapper
      * 查询所有（没被删除）的车辆
      */
     List<CarInfo> selectAll();
+
+    List<OnLineCarTypeVO> findByGroupIds(@Param("groupIds") List<Long> groupIds);
 }

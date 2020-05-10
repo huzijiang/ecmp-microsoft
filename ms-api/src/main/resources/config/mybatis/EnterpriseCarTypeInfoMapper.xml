@@ -130,7 +130,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="getCarTypeDTOById" parameterType="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo" resultType="String">
-        select MAX(level) level from enterprise_car_type_info
+        select MAX(level) level from enterprise_car_type_info where enterprise_id =#{enterpriseId}
     </select>
 
 	<select id="queryCarTypeNameByCarId" parameterType="java.lang.Long"
@@ -143,4 +143,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		WHERE
 		b.car_id = #{carId}
 	</select>
+
+    <select id="selectEnterpriseCarTypeList" parameterType="java.lang.Long" resultMap="EnterpriseCarTypeInfoResult">
+
+        <include refid="selectEnterpriseCarTypeInfoVo"/>
+        where enterprise_id = #{enterpriseId}
+
+    </select>
+
+    <select id="selectCarTypeById" parameterType="com.hq.ecmp.mscore.dto.CarTypeDTO" resultMap="EnterpriseCarTypeInfoResult">
+        <include refid="selectEnterpriseCarTypeInfoVo"/>
+        where car_type_id = #{carTypeId}
+    </select>
 </mapper>

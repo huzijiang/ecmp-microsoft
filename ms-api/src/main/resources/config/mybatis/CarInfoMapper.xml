@@ -463,4 +463,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <![CDATA[AND DATE_FORMAT(o.create_time, '%Y-%m-%d') = DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>
     </select>
 
+    <select id="findByGroupIds" resultType="com.hq.ecmp.mscore.vo.OnLineCarTypeVO">
+        SELECT
+        a.city_id cityId,
+        a.CITY_CODE cityCode,
+        a.city_name cityName,
+        group_concat( DISTINCT b.car_group_id ) carGroupIds
+        FROM
+        china_city a
+        inner JOIN car_group_serve_scope_info b ON b.city = a.CITY_CODE
+        WHERE
+        1 =1
+        <if test="groupIds!=null">
+            and b.car_group_id in
+            <foreach collection="groupIds" open="(" separator="," close=")" item="groupId">
+                #{groupId}
+            </foreach>
+        </if>
+        GROUP BY a.CITY_CODE
+
+
+    </select>
 </mapper>

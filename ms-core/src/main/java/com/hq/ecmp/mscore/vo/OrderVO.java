@@ -81,6 +81,9 @@ public class OrderVO {
     private Integer isExcess;
     @ApiModelProperty(name = "excessMoney",value = "超额金额")
     private String excessMoney;
-
+    @ApiModelProperty(name = "payState",value = "是否支付")
+    private String payState;
+    @ApiModelProperty(name = "payId",value = "对外订单编号，与第三方平台对接")
+    private String payId;
 }
 
