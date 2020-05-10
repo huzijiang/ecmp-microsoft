@@ -10,6 +10,8 @@ import com.github.binarywang.wxpay.config.WxPayConfig;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.OrderPayConstant;
+import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.ms.api.util.IpAddressUtil;
 import com.hq.ecmp.ms.api.util.PayUtil;
 import com.hq.ecmp.mscore.domain.*;
@@ -133,7 +135,7 @@ public class WxPayController {
             //把订单状态改为关闭状态
             OrderInfo orderInfo = new OrderInfo();
             orderInfo.setOrderId(Long.valueOf(result.getOutTradeNo()));
-            orderInfo.setState("S900");
+            orderInfo.setState(OrderState.ORDERCLOSE.getState());
             OrderInfo orderInfo1 = iOrderInfoService.selectOrderInfoById(Long.valueOf(result.getOutTradeNo()));
             if(null != orderInfo1){
                 int i = iOrderInfoService.updateOrderInfo(orderInfo);
@@ -145,7 +147,7 @@ public class WxPayController {
             }else{
                 log.info("该订单不存在");
             }
-            OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(Long.valueOf(result.getOutTradeNo()), "S900");
+            OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(Long.valueOf(result.getOutTradeNo()), OrderState.ORDERCLOSE.getState());
             int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
             if(1 ==j){
                 log.info("订单轨迹表修改成功");
@@ -162,9 +164,9 @@ public class WxPayController {
                 orderPayInfo.setBillId(orderSettlingInfos.get(0).getBillId());
             }
             orderPayInfo.setOrderId(Long.valueOf(Long.valueOf(result.getOutTradeNo())));
-            orderPayInfo.setState("0000");
-            orderPayInfo.setPayMode("M001");
-            orderPayInfo.setPayChannel("weixin");
+            orderPayInfo.setState(OrderPayConstant.PAID);
+            orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
+            orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_WX);
 //            orderPayInfo.setChannelRate(0.006);
 //            orderPayInfo.setAmount(new BigDecimal(Long.valueOf(result.getTotalFee())));
             orderPayInfo.setAmount(new BigDecimal(result.getTotalFee()));

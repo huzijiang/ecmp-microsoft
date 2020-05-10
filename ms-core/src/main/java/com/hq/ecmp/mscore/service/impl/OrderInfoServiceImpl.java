@@ -2078,10 +2078,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 OrderSettlingInfo orderSettlingInfo1 = orderSettlingInfoMapper.selectOrderSettlingInfoById(orderNo);
                 orderPayInfo.setBillId(orderSettlingInfo1.getBillId());
                 orderPayInfo.setOrderId(orderNo);
-                //state属性   0000已支付  N111 未支付
-                orderPayInfo.setState("0000");
-                //payMode属性  M001结单后付费  M002开单预付费  M003充值卡扣款  M999其他
-                orderPayInfo.setPayMode("M001");
+                orderPayInfo.setState(OrderPayConstant.PAID);
+                orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
                 orderPayInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
                 orderPayInfo.setCreateTime(DateUtils.getNowDate());
                 iOrderPayInfoService.insertOrderPayInfo(orderPayInfo);
