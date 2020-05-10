@@ -81,7 +81,7 @@ public interface IApplyInfoService
      * 提交差旅行程申请
      * @param travelCommitApply
      */
-    ApplyVO applytravliCommit(ApplyTravelRequest travelCommitApply);
+   public ApplyVO applytravliCommit(ApplyTravelRequest travelCommitApply);
 
     /**
      *
