@@ -15,4 +15,14 @@ public class OrgConstant {
      * 外部公司
      */
     public static final String OUTER_COMPANY = "W200";
+
+    /**
+     * 允许外部公司调度
+     */
+    public static final String ALLOW_OUTER_DISPATCH = "Y000";
+
+    /**
+     * 不允许外部调度
+     */
+    public static final String NOT_ALLOW_OUTER_DISPATCH = "N111";
 }

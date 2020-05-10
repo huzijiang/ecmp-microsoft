@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -19,6 +20,7 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class JourneyInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -102,179 +104,7 @@ public class JourneyInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Date flightPlanTakeOffTime;   // TODO 新增。航班计划起飞时间
 
-    public Date getFlightPlanTakeOffTime() {
-        return flightPlanTakeOffTime;
-    }
-    public void setFlightPlanTakeOffTime(Date flightPlanTakeOffTime) {
-        this.flightPlanTakeOffTime = flightPlanTakeOffTime;
-    }
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
-    public String getTravelPickupCity() {
-        return travelPickupCity;
-    }
-
-    public void setTravelPickupCity(String travelPickupCity) {
-        this.travelPickupCity = travelPickupCity;
-    }
-
-    public String getTravelCitiesStr() {
-        return travelCitiesStr;
-    }
-
-    public void setTravelCitiesStr(String travelCitiesStr) {
-        this.travelCitiesStr = travelCitiesStr;
-    }
-
-    public Integer getPickupTimes() {
-        return pickupTimes;
-    }
-
-    public void setPickupTimes(Integer pickupTimes) {
-        this.pickupTimes = pickupTimes;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-
-
-    public void setJourneyId(Long journeyId)
-    {
-        this.journeyId = journeyId;
-    }
-
-    public Long getJourneyId()
-    {
-        return journeyId;
-    }
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
-
-    public Long getUserId()
-    {
-        return userId;
-    }
-    public void setRegimenId(Long regimenId)
-    {
-        this.regimenId = regimenId;
-    }
-
-    public Long getRegimenId()
-    {
-        return regimenId;
-    }
-    public void setServiceType(String serviceType)
-    {
-        this.serviceType = serviceType;
-    }
-
-    public String getServiceType()
-    {
-        return serviceType;
-    }
-    public void setUseCarMode(String useCarMode)
-    {
-        this.useCarMode = useCarMode;
-    }
-
-    public String getUseCarMode()
-    {
-        return useCarMode;
-    }
-    public void setUseCarTime(Date useCarTime)
-    {
-        this.useCarTime = useCarTime;
-    }
-
-    public Date getUseCarTime()
-    {
-        return useCarTime;
-    }
-    public void setItIsReturn(String itIsReturn)
-    {
-        this.itIsReturn = itIsReturn;
-    }
-
-    public String getItIsReturn()
-    {
-        return itIsReturn;
-    }
-    public void setEstimatePrice(String estimatePrice)
-    {
-        this.estimatePrice = estimatePrice;
-    }
-
-    public String getEstimatePrice()
-    {
-        return estimatePrice;
-    }
-    public void setProjectId(Long projectId)
-    {
-        this.projectId = projectId;
-    }
-
-    public Long getProjectId()
-    {
-        return projectId;
-    }
-    public void setFlightNumber(String flightNumber)
-    {
-        this.flightNumber = flightNumber;
-    }
-
-    public String getFlightNumber()
-    {
-        return flightNumber;
-    }
-    public void setUseTime(String useTime)
-    {
-        this.useTime = useTime;
-    }
-
-    public String getUseTime()
-    {
-        return useTime;
-    }
-    public void setWaitTimeLong(String waitTimeLong)
-    {
-        this.waitTimeLong = waitTimeLong;
-    }
-
-    public String getWaitTimeLong()
-    {
-        return waitTimeLong;
-    }
-    public void setCharterCarType(String charterCarType)
-    {
-        this.charterCarType = charterCarType;
-    }
-
-    public String getCharterCarType()
-    {
-        return charterCarType;
-    }
+    private Long companyId;
 
     @Override
     public String toString() {

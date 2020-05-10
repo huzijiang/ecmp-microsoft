@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.OrderWaitTraceInfo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -59,4 +60,11 @@ public interface OrderWaitTraceInfoMapper
      * @return 结果
      */
     public int deleteOrderWaitTraceInfoByIds(Long[] traceIds);
+
+    /**
+     * 查询等待时长
+     * @param orderId
+     * @return
+     */
+    BigDecimal selectOrderWaitingTimeById(Long orderId);
 }

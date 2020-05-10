@@ -87,4 +87,50 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <select id="getObjectionOrderList" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo" resultType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo">
+        SELECT
+        eufi.feedback_id feedbackId,
+        eufi.order_id orderId,
+        oi.service_type serviceType,
+        oi.use_car_mode useCarMode,
+        eu.nick_name nickName,
+        eu.phonenumber phone,
+        eufi.type type,
+        eufi.content,
+        eufi.state state,
+        eufi.create_time createTime,
+        group_concat(eufim.image_url) imageUrl,
+        eufi.result result
+        FROM
+        ecmp_user_feedback_info eufi
+        LEFT JOIN order_info oi ON eufi.order_id = oi.order_id
+        LEFT JOIN ecmp_user eu ON eufi.user_id = eu.user_id
+        LEFT JOIN ecmp_user_feedback_image eufim ON eufi.feedback_id = eufim.feedback_id
+        <where>
+            <if test="nickName != null  and nickName!='' "> and eu.nick_name like  CONCAT('%',#{nickName},'%')</if>
+            <if test="feedbackId != null and feedbackId!='' "> and eufi.feedback_id = #{feedbackId}</if>
+            <if test="phone != null and phone!='' "> and eu.phonenumber = #{phone}</if>
+            <if test="orderId != null and orderId!='' "> and eufi.order_id = #{orderId}</if>
+            <if test="type != null  and type != '' "> and eufi.type = #{type}</if>
+            and eufi.order_id is not null
+        </where>
+        GROUP BY eufi.feedback_id
+    </select>
+
+    <update id="updateFeedbackInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo">
+        update ecmp_user_feedback_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null ">user_id = #{userId},</if>
+            <if test="orderId != null ">order_id = #{orderId},</if>
+            <if test="type != null  and type != ''">type = #{type},</if>
+            <if test="result != null  and result != ''">result = #{result},</if>
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="content != null  and content != ''">content = #{content},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where feedback_id = #{feedbackId}
+    </update>
 </mapper>

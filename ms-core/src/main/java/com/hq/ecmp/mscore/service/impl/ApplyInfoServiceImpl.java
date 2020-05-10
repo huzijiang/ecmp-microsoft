@@ -7,7 +7,6 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
@@ -26,8 +25,8 @@ import com.hq.ecmp.util.RandomUtil;
 import com.hq.ecmp.util.SortListUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -100,6 +99,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Autowired
     private EcmpMessageService ecmpMessageService;
     @Autowired
+    @Lazy
     private IOrderInfoService orderInfoService;
 
     private ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("apply-pool-%d").build();
@@ -388,11 +388,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //3.3 plan_begin_address 计划上车地址  非空
         journeyNodeInfo.setPlanBeginLongAddress(null);
         journeyNodeInfo.setPlanBeginAddress(travelRequest.getStartCity().getCityName());
-        journeyNodeInfo.setPlanBeginCityCode(String.valueOf(travelRequest.getStartCity().getCityCode()));
+        journeyNodeInfo.setPlanBeginCityCode(travelRequest.getStartCity().getCityCode());
         //3.4 plan_end_address 计划下车地址    非空
         journeyNodeInfo.setPlanEndLongAddress(null);
         journeyNodeInfo.setPlanEndAddress(travelRequest.getEndCity().getCityName());
-        journeyNodeInfo.setPlanEndCityCode(String.valueOf(travelRequest.getEndCity().getCityCode()));
+        journeyNodeInfo.setPlanEndCityCode(travelRequest.getEndCity().getCityCode());
         //3.5 plan_setout_time 计划出发时间     出差某一节点开始日期
         journeyNodeInfo.setPlanSetoutTime(travelRequest.getStartDate());
         //3.6 plan_arrive_time 计划到达时间  出差某一节点结束日期
@@ -745,6 +745,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         if(regimenId != null) {
             applyInfo.setRegimenId(Long.valueOf(regimenId));
         }
+        //所属公司
+        applyInfo.setCompanyId(travelCommitApply.getCompanyId());
         //2.4 apply_type 用车申请类型；A001:  公务用车 A002:  差旅用车
         applyInfo.setApplyType(String.valueOf(travelCommitApply.getApplyType()));
         //2.5 approver_name 第一审批阶段 审批人列表，前两位
@@ -798,6 +800,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setServiceType(null);
         //1.4 use_car_mode 用车方式（自有、网约车）
         journeyInfo.setUseCarMode(travelCommitApply.getUseType());
+        //增加所属公司
+        journeyInfo.setCompanyId(travelCommitApply.getCompanyId());
         //1.5 use_car_time 用车时间
         Date startDate = travelCommitApply.getTravelRequests().get(0).getStartDate();
         journeyInfo.setUseCarTime(startDate);
@@ -1610,6 +1614,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.2 project_id
         Long projectId=StringUtils.isBlank(officialCommitApply.getProjectNumber())?null:Long.valueOf(officialCommitApply.getProjectNumber());
         applyInfo.setProjectId(projectId);
+        applyInfo.setCompanyId(officialCommitApply.getCompanyId());
         //2.3 regimen_id 非空
         applyInfo.setRegimenId(Long.valueOf(officialCommitApply.getRegimenId()));
         //2.4 apply_type 用车申请类型；A001:  公务用车 A002:  差旅用车
@@ -1665,6 +1670,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setServiceType(officialCommitApply.getServiceType());
         //1.4 use_car_mode 用车方式（自有、网约车）
         journeyInfo.setUseCarMode(officialCommitApply.getUseType());
+        //增加 companyId
+        journeyInfo.setCompanyId(officialCommitApply.getCompanyId());
+
         //1.5 use_car_time 用车时间
         Date applyDate = officialCommitApply.getApplyDate();
         //1.6 it_is_return 是否往返 Y000 N444

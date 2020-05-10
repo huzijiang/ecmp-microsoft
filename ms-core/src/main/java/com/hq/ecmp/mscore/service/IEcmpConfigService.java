@@ -69,7 +69,7 @@ public interface IEcmpConfigService
      * 查询企业配置信息
      * @return
      */
-    ConfigInfoDTO selectConfigInfo();
+    ConfigInfoDTO selectConfigInfo(String companyId);
 
     /**
      * 设置企业基本信息
@@ -139,10 +139,10 @@ public interface IEcmpConfigService
      * 获取行程确认/异议 开关状态(0:自动,1手动)
      */
     int getOrderConfirmStatus(String key,String useCarMode);
-    
-    
+
+
     public boolean checkAutoDispatch();
-    
+
     /**
      * 判断设置的等待时长是否超过预计等待时长
      * @param waitMin   等待时长 分钟

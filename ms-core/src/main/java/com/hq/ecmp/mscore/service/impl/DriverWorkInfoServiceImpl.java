@@ -1,8 +1,15 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonArray;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.domain.DriverCarRelationInfo;
+import com.hq.common.utils.MacTools;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
 import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
 import com.hq.ecmp.mscore.mapper.DriverServiceStateInfoMapper;
@@ -12,8 +19,10 @@ import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
 import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
 import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.OkHttpUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
@@ -32,6 +41,13 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
     private DriverServiceStateInfoMapper driverServiceStateInfoMapper;
     @Autowired
     private DriverInfoMapper driverInfoMapper;
+
+    @Value("${thirdService.enterpriseId}") // 企业编号
+    private String enterpriseId;
+    @Value("${thirdService.licenseContent}") // 企业证书信息
+    private String licenseContent;
+    @Value("${thirdService.apiUrl}") // 三方平台的接口前地址
+    private String apiUrl;
 
     /**
      * 查询【请填写功能名称】
@@ -192,8 +208,8 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
      * @return
      */
     @Override
-    public List<WorkInfoMonthVo> getWorkInfoMonthList(String month){
-        return driverWorkInfoMapper.getWorkInfoMonthList(month);
+    public List<WorkInfoMonthVo> getWorkInfoMonthList(String month,Long companyId){
+        return driverWorkInfoMapper.getWorkInfoMonthList(month,companyId);
     }
 
     /**
@@ -211,6 +227,80 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
 
     }
 
+    /**
+     * 从云端获取一年的节假日修改本地数据的cloud_work_date_info表
+     */
+    @Override
+    public void SchedulingTimingTask() {
+        try {
+            // MAC地址
+            List<String> macList = MacTools.getMacList();
+            String macAdd = macList.get(0);
+            // 调用云端接口
+            Map<String, Object> querySchedulingMap = new HashMap<>();
+            //企业编号
+            querySchedulingMap.put("enterpriseId", enterpriseId);
+            //企业证书信息
+            querySchedulingMap.put("licenseContent", licenseContent);
+            //物理地址
+            querySchedulingMap.put("mac", macAdd);
+            //year
+            querySchedulingMap.put("year","");
+            //去云端的路径
+            String resultQuery = OkHttpUtil.postForm(apiUrl + "/basic/holidays", querySchedulingMap);
+            JSONObject jsonObjectQuery = JSONObject.parseObject(resultQuery);
+            JSONObject json = jsonObjectQuery.getJSONObject("data");
+            JSONArray jsonArrayHolidays = json.getJSONArray("holidays");
+            JSONArray jsonArrayDutyDays = json.getJSONArray("dutyDays");
+            jsonArrayHolidays.addAll(jsonArrayDutyDays);
+
+            List<WorkInfoMonthVo> cloudWorkDateInfo = new ArrayList<WorkInfoMonthVo>();
+            WorkInfoMonthVo workInfoMonthVo =new WorkInfoMonthVo();
+            //查询cloud_work_date_info表中的数据
+            List<DriverWorkInfo> list = driverWorkInfoMapper.selectDriverWorkInfoList(new DriverWorkInfo());
+            for(int i= 0; i<jsonArrayHolidays.size(); i++){
+                //System.out.println(jsonArrayHolidays.get(i));
+                for(int j =0; j<list.size(); j++ ){
+                    if(jsonArrayHolidays.get(i).equals(list.get(j).getCaledarDate())){
+                        workInfoMonthVo.setCalendarDate(list.get(j).getCaledarDate());
+                        //这里缺一个枚举类 定义状态
+                        workInfoMonthVo.setWorkState("1111");
+                        cloudWorkDateInfo.add(workInfoMonthVo);
+                    }
+                }
+            }
+            //定时任务没有操作用户所有默认为1
+            Long userId = 1L;
+            //System.out.println(cloudWorkDateInfo);
+            //driverWorkInfoMapper.updateWorkDetailMonth(cloudWorkDateInfo,userId,DateUtils.getNowDate());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 排班初始化
+     * @param driverId
+     * @return
+     */
+/*    public boolean setDriverWorkInfo(Long driverId){
+
+        String date=DateUtils.getNowDate().toString();
+        List<CloudWorkIDateVo> workDateVos = driverWorkInfoMapper.getCloudWorkDateList(date);
+        DriverWorkInfoVo driverWorkInfoVo=null;
+        driverWorkInfoVo.setDriverId(driverId);
+        for(CloudWorkIDateVo work : workDateVos){
+            driverWorkInfoVo.setCalendarDate(work.getCalendarDate());
+            driverWorkInfoVo.setOnDutyRegisteTime(work.getWorkStart());
+            driverWorkInfoVo.setOffDutyRegisteTime(work.getWorkEnd());
+            driverWorkInfoVo.setTodayItIsOnDuty(work.getItIsWork());
+            int i = driverWorkInfoMapper.insertDriverWorkInfo(driverWorkInfoVo);
+            if(i > 0){
+                return true;
+            }
+        }
+        return false;
+    }*/
 
 
 }

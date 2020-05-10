@@ -102,6 +102,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
         insert into order_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">journey_id,</if>
+            <if test="companyId != null ">company_id,</if>
             <if test="nodeId != null ">node_id,</if>
             <if test="powerId != null ">power_id,</if>
             <if test="driverId != null ">driver_id,</if>
@@ -129,6 +130,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">#{journeyId},</if>
+            <if test="companyId != null ">#{companyId},</if>
             <if test="nodeId != null ">#{nodeId},</if>
             <if test="powerId != null ">#{powerId},</if>
             <if test="driverId != null ">#{driverId},</if>
@@ -603,6 +605,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="state == 2">
                     and s.state  in ('S699','S616','S600','S500','S299')
                 </if>
+                <if test="null != companyId and companyId !=''">
+                    and s.company_id = #{companyId}
+                </if>
             </where>
             group by s.order_id
             order by a.create_time desc
@@ -712,6 +717,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
+        <if test="null !=companyId and companyId !=''">
+            AND a.company_id = #{companyId}
+        </if>
 		GROUP BY d.order_id
 	</select>
 
@@ -790,6 +798,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
+        <if test="null !=companyId and companyId !=''">
+            AND a.company_id = #{companyId}
+        </if>
 		GROUP BY d.order_id
 	</select>
 
@@ -961,5 +972,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ( SELECT order_id ,state FROM ( SELECT order_id, state FROM order_state_trace_info ORDER BY trace_id DESC) r GROUP BY r.order_id having r.state = 'S279' )
          tmp)
     </select>
+
+    <select id="selectOrderInfoByIdAllDay" parameterType="java.lang.Long" resultMap="OrderInfoResult">
+        <include refid="selectOrderInfoVo"/>
+        where user_id = #{userId} and to_days(create_time) = to_days(now());
+    </select>
+
 
 </mapper>

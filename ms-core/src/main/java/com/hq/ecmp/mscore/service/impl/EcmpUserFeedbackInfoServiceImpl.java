@@ -5,19 +5,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
-import com.hq.ecmp.mscore.domain.EcmpUserFeedbackImage;
-import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.constant.ReplyObjectionEnum;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
 import com.hq.ecmp.mscore.mapper.EcmpUserFeedbackImageMapper;
 import com.hq.ecmp.mscore.mapper.EcmpUserFeedbackInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
+import com.hq.ecmp.mscore.vo.PageResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -170,4 +171,45 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         orderInfoMapper.updateOrderInfo(orderInfo);
         return ecmpUserFeedbackInfo.getFeedbackId();
     }
+
+    /**
+     * 异议订单
+     * @param ecmpUserFeedbackInfo
+     * @return
+     */
+    @Override
+    public PageResult<EcmpUserFeedbackInfoVo> getObjectionOrderList(EcmpUserFeedbackInfoVo ecmpUserFeedbackInfo) {
+        PageHelper.startPage(ecmpUserFeedbackInfo.getPageNum(),ecmpUserFeedbackInfo.getPageSize());
+        List<EcmpUserFeedbackInfoVo> list =  ecmpUserFeedbackInfoMapper.getObjectionOrderList(ecmpUserFeedbackInfo);
+        for (EcmpUserFeedbackInfoVo EcmpUserFeedbackInfoVo :list){
+            List<String> imageUrl = ecmpUserFeedbackImageMapper.selectEcmpUserFeedbackByImage(EcmpUserFeedbackInfoVo.getFeedbackId());
+            if(!imageUrl.isEmpty()){
+                EcmpUserFeedbackInfoVo.setImageUrl(imageUrl);
+            }
+        }
+        PageInfo<EcmpUserFeedbackInfoVo> info = new PageInfo<>(list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
+    }
+
+    /**
+     * 回复异议订单
+     * @param ecmpUserFeedbackInfo
+     */
+    @Override
+    public int replyObjectionOrder(EcmpUserFeedbackInfoVo ecmpUserFeedbackInfo,Long userId) {
+        EcmpUserFeedbackInfoVo feedbackInfoVo = new EcmpUserFeedbackInfoVo();
+        //主键id
+        feedbackInfoVo.setFeedbackId(ecmpUserFeedbackInfo.getFeedbackId());
+        //回复内容
+        feedbackInfoVo.setResult(ecmpUserFeedbackInfo.getResult());
+        //回复的格式
+        feedbackInfoVo.setState(ReplyObjectionEnum.YES_REPLY.getKey());
+        //回复操作人
+        feedbackInfoVo.setUpdateBy(userId);
+        //回复操作时间
+        feedbackInfoVo.setUpdateTime(new Date());
+        int i = ecmpUserFeedbackInfoMapper.updateFeedbackInfo(feedbackInfoVo);
+        return i;
+    }
+
 }

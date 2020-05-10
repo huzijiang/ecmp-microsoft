@@ -169,10 +169,13 @@ public class CarGroupController {
     @ApiOperation(value = "getCarGroupList",notes = "分页全部查询车队列表",httpMethod ="POST")
     @PostMapping("/getCarGroupList")
     public ApiResponse<PageResult<CarGroupListVO>> getCarGroupList(@RequestBody PageRequest pageRequest){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
         try {
             PageResult<CarGroupListVO> list = carGroupInfoService.selectCarGroupInfoByPage(pageRequest.getPageNum(),
                     pageRequest.getPageSize(),pageRequest.getSearch(),
-                    pageRequest.getState(),pageRequest.getDeptId(),pageRequest.getCarGroupId());
+                    pageRequest.getState(),pageRequest.getDeptId(),pageRequest.getCarGroupId(),companyId);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
@@ -185,7 +188,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @ApiOperation(value = "getSubCarGroupList",notes = "启用车队",httpMethod ="POST")
+   /* @ApiOperation(value = "getSubCarGroupList",notes = "启用车队",httpMethod ="POST")
     @PostMapping("/getSubCarGroupList")
     public ApiResponse<List<CarGroupListVO>> getSubCarGroupList(@RequestBody SubGroupListDTO subGroupListDTO){
         try {
@@ -195,7 +198,7 @@ public class CarGroupController {
             e.printStackTrace();
             return ApiResponse.error("查询下级车队列表失败");
         }
-    }
+    }*/
 
     /**
      * 查询指定城市所有车队调度员及车队座机
@@ -203,7 +206,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理",content = "获取城市车队联系电话", businessType = BusinessType.OTHER)
+   /* @Log(title = "车队管理",content = "获取城市车队联系电话", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupPhone",notes = "查询登录用户（司机/用户均可）所在公司所有车队联系电话(可传城市代码特定查某城市车队)",httpMethod ="POST")
     @PostMapping("/getCarGroupPhone")
     public ApiResponse<List<CarGroupPhoneVO>> getCarGroupPhone(@RequestBody(required = false) CarGroupPhoneDTO carGroupPhoneDTO){
@@ -217,14 +220,14 @@ public class CarGroupController {
             e.printStackTrace();
         }
         return ApiResponse.success(list);
-    }
+    }*/
 
     /**
      * 查询司机所属 车队调度员及车队座机
      * @param
      * @return
      */
-    @Log(title = "车队管理",content = "查询司机所属车队联系电话", businessType = BusinessType.OTHER)
+   /* @Log(title = "车队管理",content = "查询司机所属车队联系电话", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getOwnerCarGroupPhone",notes = "查询车队联系电话",httpMethod ="POST")
     @PostMapping("/getOwnerCarGroupPhone")
     public ApiResponse<CarGroupPhoneVO> getOwnerCarGroupPhone(){
@@ -236,14 +239,14 @@ public class CarGroupController {
             return ApiResponse.error("查询失败");
         }
         return ApiResponse.success(carGroupPhoneVO);
-    }
+    }*/
 
     /**
      * 查询调度员电话机和调度员所在车队座机
      * @param
      * @return
      */
-    @Log(title = "车队管理",content = "查询订单调度员所在车队电话", businessType = BusinessType.OTHER)
+    /*@Log(title = "车队管理",content = "查询订单调度员所在车队电话", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getDispatcherAndFixedLine",notes = "查询调度员电话机和调度员所在车队座机",httpMethod ="POST")
     @PostMapping("/getDispatcherAndFixedLine")
     public ApiResponse<DispatcherAndFixedLineVO> getDispatcherAndFixedLine(@RequestBody DispatcherAndFixedLineDTO
@@ -255,6 +258,27 @@ public class CarGroupController {
             e.printStackTrace();
         }
         return ApiResponse.success(vo);
+    }*/
+
+    /**
+     * 联系车队 （乘客（有无订单、司机（有无订单） 4种情况通用）
+     * @param
+     * @return
+     */
+    @Log(title = "车队管理",content = "联系车队(通用)", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "cantactCarGroup",notes = "联系车队",httpMethod ="POST")
+    @PostMapping("/cantactCarGroup")
+    public ApiResponse<List<ContactCarGroupVO>> cantactCarGroup(@RequestBody(required = false) CarGroupPhoneDTO carGroupPhoneDTO){
+        List<ContactCarGroupVO>  list = null;
+        try {
+            if (carGroupPhoneDTO == null){
+                carGroupPhoneDTO = new CarGroupPhoneDTO();
+            }
+            list = carGroupInfoService.cantactCarGroup(carGroupPhoneDTO.getOrderId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ApiResponse.success(list);
     }
 
 
@@ -264,20 +288,23 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理", content = "查询公司车队树",businessType = BusinessType.OTHER)
+   /* @Log(title = "车队管理", content = "查询公司车队树",businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCompanyCarGroupTree",notes = "公司车队树",httpMethod ="POST")
     @PostMapping("/getCompanyCarGroupTree")
     public ApiResponse<List<CompanyCarGroupTreeVO>> getCompanyCarGroupTree(
             @RequestBody EcmpOrgDto ecmpOrgDto){
         //根据公司id查询车队列表
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
         List<CompanyCarGroupTreeVO>  list = null;
         try {
-            list = ecmpOrgService.selectCompanyCarGroupTree(ecmpOrgDto.getDeptId(),null);
+            list = ecmpOrgService.selectCompanyCarGroupTree(companyId);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return ApiResponse.success(list);
-    }
+    }*/
 
 
     /**
@@ -307,7 +334,7 @@ public class CarGroupController {
      * @param
      * @return
      */
-    @Log(title = "车队管理",content = "查询公司树", businessType = BusinessType.OTHER)
+   /* @Log(title = "车队管理",content = "查询公司树", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCompanyTree",notes = "公司树",httpMethod ="POST")
     @PostMapping("/getCompanyTree")
     public ApiResponse<List<CompanyTreeVO>> getCompanyTree(
@@ -320,14 +347,14 @@ public class CarGroupController {
             e.printStackTrace();
         }
         return ApiResponse.success(list);
-    }
+    }*/
 
     /**
      * 根据分/子公司id查询  车队树
      * @param
      * @return
      */
-    @Log(title = "车队管理",content = "查询车队树", businessType = BusinessType.OTHER)
+    /*@Log(title = "车队管理",content = "查询车队树", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupTree",notes = "公司树",httpMethod ="POST")
     @PostMapping("/getCarGroupTree")
     public ApiResponse<List<CarGroupTreeVO>> getCarGroupTree(
@@ -340,23 +367,23 @@ public class CarGroupController {
             e.printStackTrace();
         }
         return ApiResponse.success(list);
-    }
+    }*/
 
 
     /**
-     * 车队人数统计
+     * （分、子）公司车队人数统计
      * @param
      * @return
      */
-    @Log(title = "车队管理",content = "公司车队人数统计", businessType = BusinessType.OTHER)
+    @Log(title = "车队管理",content = "公司车队总人数统计", businessType = BusinessType.OTHER)
     @ApiOperation(value = "getCarGroupCount",notes = "车队人数统计",httpMethod ="POST")
     @PostMapping("/getCarGroupCount")
     public ApiResponse<CarGroupCountVO> getCarGroupCount(
-            @RequestBody EcmpOrgDto ecmpOrgDto){
+            @RequestBody CarGroupCountDto carGroupCountDto){
         //根据公司id查询车队人数
         CarGroupCountVO carGroupCountVO = null;
         try {
-            carGroupCountVO = ecmpOrgService.selectCarGroupCount(ecmpOrgDto.getDeptId());
+            carGroupCountVO = ecmpOrgService.selectCarGroupCount(carGroupCountDto.getDeptId(),carGroupCountDto.getCarGroupId());
             return ApiResponse.success(carGroupCountVO);
         } catch (Exception e) {
             e.printStackTrace();
@@ -374,8 +401,11 @@ public class CarGroupController {
     @PostMapping("/judgeCarGroupCode")
     public ApiResponse<Boolean> judgeCarGroupCode(
             @RequestBody CarGroupDTO carGroupDTO){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long ownerCompany = loginUser.getUser().getOwnerCompany();
         try {
-           boolean exist = carGroupInfoService.judgeCarGroupCode(carGroupDTO.getCarGroupCode());
+           boolean exist = carGroupInfoService.judgeCarGroupCode(carGroupDTO.getCarGroupCode(),ownerCompany);
            return ApiResponse.success(exist);
         } catch (Exception e) {
             e.printStackTrace();
@@ -414,7 +444,7 @@ public class CarGroupController {
             @RequestBody CarGroupDTO carGroupDTO){
         try {
             //如果已经存在 返回true 不存在则返回false
-            Boolean exist = carGroupInfoService.judgeCarGroupName(carGroupDTO.getCarGroupName(),carGroupDTO.getOwneCompany());
+            Boolean exist = carGroupInfoService.judgeCarGroupName(carGroupDTO.getCarGroupName(),carGroupDTO.getCompanyId());
             return ApiResponse.success(exist);
         } catch (Exception e) {
             e.printStackTrace();

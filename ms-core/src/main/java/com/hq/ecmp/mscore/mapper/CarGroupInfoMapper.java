@@ -1,10 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.vo.CarGroupFixedPhoneVO;
-import com.hq.ecmp.mscore.vo.CarGroupListVO;
-import com.hq.ecmp.mscore.vo.CarGroupPhoneVO;
-import com.hq.ecmp.mscore.vo.CarGroupTreeVO;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -75,7 +72,7 @@ public interface CarGroupInfoMapper
      * @param carGroupId
      * @return
      */
-    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId);
+    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId,@Param("companyId") Long companyId);
 
     /**
      * 查询该组织下的车队信息
@@ -140,7 +137,7 @@ public interface CarGroupInfoMapper
      * 查询所有车队编号
      * @return
      */
-    List<String> selectAllCarGroupCode();
+    List<String> selectAllCarGroupCode(Long companyId);
 
     /**
      * 查询公司所有车队名字
@@ -157,4 +154,8 @@ public interface CarGroupInfoMapper
     List<CarGroupInfo> selectEnableCarGroupInfoList(CarGroupInfo carGroupInfo);
 
     List<CarGroupListVO> getCarGroupList(Long userId);
+
+    List<CarGroupInfo> selectCarGroupInfoByDeptId(@Param("orgComcany") Long orgComcany,@Param("deptId") Long deptId);
+
+    List<CarLevelVO> findCarTypeByGroupIds(@Param("groupIds")String groupIds);
 }

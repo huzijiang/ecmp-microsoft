@@ -85,7 +85,7 @@ public interface DriverInfoMapper
     /**
      *驾驶员总数
      */
-    public int queryCompanyDriver();
+    public int queryCompanyDriver(@Param("companyId") Long companyId);
 
 
     DriverInfo selectDriverInfoByUserId(Long userId);
@@ -225,7 +225,7 @@ public interface DriverInfoMapper
      * @return
      */
 
-    public List<DriverQueryResult>  queryDriverInfoList(@Param("carGroupId")Long carGroupId,@Param("carId")Long carId);
+    public List<DriverQueryResult>  queryDriverInfoList(@Param("carGroupId")Long carGroupId,@Param("carId")Long carId,@Param("search")String search);
 
     public int unlockDriver(@Param("driverId") long driverId);
 

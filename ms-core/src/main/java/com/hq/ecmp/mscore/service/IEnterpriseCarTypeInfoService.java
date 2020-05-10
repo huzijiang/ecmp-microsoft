@@ -87,10 +87,10 @@ public interface IEnterpriseCarTypeInfoService
 
     /**
      * 查询企业车型列表
-     * @param enterpriseId
+     * @param companyId
      * @return
      */
-    List<CarTypeVO> getCarTypeList(Long enterpriseId);
+    List<CarTypeVO> getCarTypeList(Long companyId);
 
     /**
      * 车型排序（交换位置）
@@ -98,4 +98,18 @@ public interface IEnterpriseCarTypeInfoService
      * @param targetCarTypeId
      */
     void sortCarType(Long mainCarTypeId, Long targetCarTypeId,Long userId) throws Exception;
+
+    /**
+     * 车型图标中已经用过的图标
+     * @param companyId
+     * @return
+     */
+    List<CarTypeDTO> selectEnterpriseCarTypeList(String companyId);
+
+    /**
+     *根据CarTypeIdd查询对应的车型id集合
+     * @param carTypeDTO
+     * @return
+     */
+    List<CarTypeDTO> selectCarTypeById(CarTypeDTO carTypeDTO);
 }

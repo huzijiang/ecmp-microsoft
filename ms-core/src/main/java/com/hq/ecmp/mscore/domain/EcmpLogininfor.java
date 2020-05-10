@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -12,6 +13,7 @@ import java.util.Date;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpLogininfor extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -50,88 +52,6 @@ public class EcmpLogininfor extends BaseEntity
     /** 访问时间 */
     @Excel(name = "访问时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date loginTime;
-
-    public void setInfoId(Long infoId)
-    {
-        this.infoId = infoId;
-    }
-
-    public Long getInfoId()
-    {
-        return infoId;
-    }
-    public void setUserName(String userName)
-    {
-        this.userName = userName;
-    }
-
-    public String getUserName()
-    {
-        return userName;
-    }
-    public void setIpaddr(String ipaddr)
-    {
-        this.ipaddr = ipaddr;
-    }
-
-    public String getIpaddr()
-    {
-        return ipaddr;
-    }
-    public void setLoginLocation(String loginLocation)
-    {
-        this.loginLocation = loginLocation;
-    }
-
-    public String getLoginLocation()
-    {
-        return loginLocation;
-    }
-    public void setBrowser(String browser)
-    {
-        this.browser = browser;
-    }
-
-    public String getBrowser()
-    {
-        return browser;
-    }
-    public void setOs(String os)
-    {
-        this.os = os;
-    }
-
-    public String getOs()
-    {
-        return os;
-    }
-    public void setStatus(String status)
-    {
-        this.status = status;
-    }
-
-    public String getStatus()
-    {
-        return status;
-    }
-    public void setMsg(String msg)
-    {
-        this.msg = msg;
-    }
-
-    public String getMsg()
-    {
-        return msg;
-    }
-    public void setLoginTime(Date loginTime)
-    {
-        this.loginTime = loginTime;
-    }
-
-    public Date getLoginTime()
-    {
-        return loginTime;
-    }
 
     @Override
     public String toString() {

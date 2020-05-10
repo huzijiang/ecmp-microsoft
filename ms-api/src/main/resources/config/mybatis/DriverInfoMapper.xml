@@ -206,6 +206,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
           <if test="driverName != null ">driver_name,</if>
            <if test="mobile != null ">mobile,</if>
+            <if test="companyId != null ">company_id,</if>
            <if test="gender != null ">gender,</if>
            <if test="idCard != null ">id_card,</if>
            <if test="licenseType != null ">license_type,</if>
@@ -223,6 +224,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="driverName != null ">#{driverName},</if>
             <if test="mobile != null ">#{mobile},</if>
+            <if test="companyId != null ">#{companyId},</if>
             <if test="gender != null ">#{gender},</if>
             <if test="idCard != null ">#{idCard},</if>
             <if test="licenseType != null ">#{licenseType},</if>
@@ -333,7 +335,7 @@ FROM
 	driver_info a
 LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
 LEFT JOIN car_group_info c ON c.car_group_id = b.car_group_id
-LEFT JOIN ecmp_org o ON c.owner_company = o.dept_id
+LEFT JOIN ecmp_org o ON c.company_id = o.dept_id
 LEFT JOIN ecmp_org p ON p.dept_id = o.parent_id
 LEFT JOIN ecmp_user d on a.user_id =d.user_id
 WHERE
@@ -347,8 +349,8 @@ WHERE
         and state = 'V000'
     </select>
 
-    <select id="queryCompanyDriver"  resultType="java.lang.Integer">
-          select count(*) from driver_info
+    <select id="queryCompanyDriver" parameterType="java.lang.Long" resultType="java.lang.Integer">
+          select count(*) from driver_info where company_id = #{companyId}
     </select>
 
     <!--根据deptId查询归属驾驶员数量-->
@@ -567,7 +569,8 @@ WHERE
 		resultType="com.hq.ecmp.mscore.domain.DriverQueryResult">
 		SELECT
 		a.driver_name AS driverName,
-		a.driver_id AS driverId
+		a.driver_id AS driverId,
+        a.mobile
 		FROM
 		driver_info a
 		LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
@@ -577,6 +580,9 @@ WHERE
 		and a.driver_id not in (
 			select driver_id from driver_car_relation_info where car_id=#{carId}
 		)
+        </if>
+        <if test="search!=null and search != ''">
+            and (a.driver_name like concat('%',#{search},'%') or a.mobile like concat('%',#{search},'%'))
         </if>
 		AND a.state = 'V000'
 	</select>
@@ -604,6 +610,7 @@ WHERE
         <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
             #{item.driverId}
         </foreach>
+        and state != 'S444'
     </update>
 
     <select id="selectDriverInfoByCarId"  resultType="com.hq.ecmp.mscore.vo.DriverVO">

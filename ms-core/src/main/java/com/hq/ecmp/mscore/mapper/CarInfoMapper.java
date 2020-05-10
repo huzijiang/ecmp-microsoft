@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
 import com.hq.ecmp.mscore.vo.DriverOrderVo;
+import com.hq.ecmp.mscore.vo.OnLineCarTypeVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
@@ -79,7 +80,7 @@ public interface CarInfoMapper
     /**
      * 可管理车辆总数
      */
-    public int queryCompanyCar();
+    public int queryCompanyCar(@Param("companyId") Long companyId);
 
     /**
      * 根据组织id查询归属车辆信息
@@ -143,7 +144,7 @@ public interface CarInfoMapper
      * @param carGroupId
      * @return
      */
-    public List<CarListVO> queryCarGroupCarList(@Param("carGroupId")Long carGroupId,@Param("driverId")Long driverId);
+    public List<CarListVO> queryCarGroupCarList(@Param("carGroupId")Long carGroupId,@Param("driverId")Long driverId,@Param("search")String search);
 
     /**
      * 根据车队id 条件查询车辆列表
@@ -178,4 +179,11 @@ public interface CarInfoMapper
     List<DriverOrderVo> carWorkOrderList(@Param("carGroupId") Long carGroupId,@Param("date") String date, @Param("search")String search);
 
     Long carWorkOrderListCount(Long carGroupId, String data, String search);
+
+    /**
+     * 查询所有（没被删除）的车辆
+     */
+    List<CarInfo> selectAll();
+
+    List<OnLineCarTypeVO> findByGroupIds(@Param("groupIds") List<Long> groupIds);
 }

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CostConfigCityInfoMapper">
+
+    <resultMap type="CostConfigCityInfo" id="CostConfigCityInfoResult">
+        <result property="id"    column="id"    />
+        <result property="costId"    column="cost_id"    />
+        <result property="cityCode"    column="city_code"    />
+        <result property="cityName"    column="city_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCostConfigCityInfoVo">
+        select id, cost_id, city_code, city_name, create_by, create_time, update_by, update_time from cost_config_city_info
+    </sql>
+
+    <select id="selectCostConfigCityInfoList" parameterType="CostConfigCityInfo" resultMap="CostConfigCityInfoResult">
+        <include refid="selectCostConfigCityInfoVo"/>
+        <where>
+            <if test="costId != null "> and cost_id = #{costId}</if>
+            <if test="cityCode != null  and cityCode != ''"> and city_code = #{cityCode}</if>
+            <if test="cityName != null  and cityName != ''"> and city_name like concat('%', #{cityName}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectCostConfigCityInfoById" parameterType="String" resultMap="CostConfigCityInfoResult">
+        <include refid="selectCostConfigCityInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCostConfigCityInfo" parameterType="CostConfigCityInfo">
+        insert into cost_config_city_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''">id,</if>
+            <if test="costId != null ">cost_id,</if>
+            <if test="cityCode != null  and cityCode != ''">city_code,</if>
+            <if test="cityName != null  and cityName != ''">city_name,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null  and id != ''">#{id},</if>
+            <if test="costId != null ">#{costId},</if>
+            <if test="cityCode != null  and cityCode != ''">#{cityCode},</if>
+            <if test="cityName != null  and cityName != ''">#{cityName},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCostConfigCityInfo" parameterType="CostConfigCityInfo">
+        update cost_config_city_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="costId != null ">cost_id = #{costId},</if>
+            <if test="cityCode != null  and cityCode != ''">city_code = #{cityCode},</if>
+            <if test="cityName != null  and cityName != ''">city_name = #{cityName},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCostConfigCityInfoById" parameterType="String">
+        delete from cost_config_city_info where id = #{id}
+    </delete>
+
+    <delete id="deleteCostConfigCityInfoByIds" parameterType="String">
+        delete from cost_config_city_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="insertCostConfigCityInfoBatch">
+        INSERT INTO cost_config_city_info(cost_id, city_code, city_name, create_by, create_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{costId},
+            #{item.cityCode},
+            #{item.cityName},
+            #{userId},
+            #{createTime}
+           )
+        </foreach>
+    </insert>
+
+    <select id="queryOtherDataByCostIdAndCityCode" resultType="java.lang.Integer">
+        select count(1) from cost_config_city_info
+        where cost_id = #{costId}
+        and city_code!=#{cityCode}
+    </select>
+
+</mapper>

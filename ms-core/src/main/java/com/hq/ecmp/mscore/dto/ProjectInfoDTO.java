@@ -30,5 +30,6 @@ public class ProjectInfoDTO
     private String closeDate;
 
     private Integer isAllUserUse;
+    private String search;
 
 }

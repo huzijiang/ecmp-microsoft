@@ -5,7 +5,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.hq.ecmp.mscore.mapper.EcmpEnterpriseInfoMapper">
 
     <resultMap type="com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo" id="EcmpEnterpriseInfoResult">
-        <result property="enterpriseId"    column="enterprise_id"    />
+        <result property="enterpriseId"    column="company_id"    />
         <result property="deptId"    column="dept_id"    />
         <result property="name"    column="name"    />
         <result property="address"    column="address"    />
@@ -14,7 +14,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectEcmpEnterpriseInfoVo">
-        select enterprise_id, dept_id, name, address, mobile, uscc from ecmp_enterprise_info
+        select company_id, dept_id, name, address, mobile, uscc from ecmp_enterprise_info
     </sql>
 
     <select id="selectEcmpEnterpriseInfoList" parameterType="com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo" resultMap="EcmpEnterpriseInfoResult">
@@ -30,13 +30,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectEcmpEnterpriseInfoById" parameterType="Long" resultMap="EcmpEnterpriseInfoResult">
         <include refid="selectEcmpEnterpriseInfoVo"/>
-        where enterprise_id = #{enterpriseId}
+        where company_id = #{enterpriseId}
     </select>
 
     <insert id="insertEcmpEnterpriseInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo">
         insert into ecmp_enterprise_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="enterpriseId != null ">enterprise_id,</if>
+            <if test="enterpriseId != null ">company_id,</if>
             <if test="deptId != null ">dept_id,</if>
             <if test="name != null  and name != ''">name,</if>
             <if test="address != null  and address != ''">address,</if>
@@ -62,15 +62,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="mobile != null  and mobile != ''">mobile = #{mobile},</if>
             <if test="uscc != null  and uscc != ''">uscc = #{uscc},</if>
         </trim>
-        where enterprise_id = #{enterpriseId}
+        where company_id = #{enterpriseId}
     </update>
 
     <delete id="deleteEcmpEnterpriseInfoById" parameterType="Long">
-        delete from ecmp_enterprise_info where enterprise_id = #{enterpriseId}
+        delete from ecmp_enterprise_info where company_id = #{enterpriseId}
     </delete>
 
     <delete id="deleteEcmpEnterpriseInfoByIds" parameterType="String">
-        delete from ecmp_enterprise_info where enterprise_id in
+        delete from ecmp_enterprise_info where company_id in
         <foreach item="enterpriseId" collection="array" open="(" separator="," close=")">
             #{enterpriseId}
         </foreach>

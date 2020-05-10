@@ -7,6 +7,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.core.web.domain.server.Sys;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
@@ -62,12 +63,17 @@ public class DepartmentController {
 
     /**
      * 查询部门组织结构
-     * @param  deptId
+     * @param  ecmpOrgVo
      * @return*/
     @ApiOperation(value = "显示部门组织结构",notes = "显示部门组织结构",httpMethod ="POST")
     @PostMapping("/selectCombinationOfCompany")
-    public ApiResponse<List<EcmpOrgDto>> selectCombinationOfCompany(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptType",required = false) String deptType){
-        List<EcmpOrgDto> deptList = orgService.selectCombinationOfCompany(StringUtils.isEmpty(deptId) ?null:Long.valueOf(deptId),deptType);
+    public ApiResponse<List<EcmpOrgDto>> selectCombinationOfCompany(@RequestBody EcmpOrgVo ecmpOrgVo){
+         //获取当前用户所属公司
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long ownerCompany = loginUser.getUser().getOwnerCompany();
+        ecmpOrgVo.setCompanyId(ownerCompany);
+        List<EcmpOrgDto> deptList = orgService.selectCombinationOfCompany(ecmpOrgVo);
         return ApiResponse.success(deptList);
     }
     /**
@@ -111,8 +117,9 @@ public class DepartmentController {
     public ApiResponse addDept(@RequestBody EcmpOrgVo ecmpOrg){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
+        ecmpOrg.setCompanyId(loginUser.getUser().getOwnerCompany());
         try {
-            ecmpOrg.setDeptType(CommonConstant.FINISH);
+            ecmpOrg.setDeptType(Long.parseLong(CommonConstant.DEPT_TYPE_DEPT));
             int i = orgService.addDept(ecmpOrg,loginUser.getUser().getUserId());
             return ApiResponse.success("添加部门成功");
         } catch (Exception e) {
@@ -150,7 +157,7 @@ public class DepartmentController {
     @PostMapping("/updateDelFlagById")
     public ApiResponse updateDelFlagById(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
-        String deptType=ecmpOrgVo.getDeptType();
+        String deptType=ecmpOrgVo.getDeptType().toString();
         if(deptId==null){
             return ApiResponse.error("组织id不能为空！");
         }
@@ -242,11 +249,12 @@ public class DepartmentController {
      * @return*/
     @ApiOperation(value = "显示当前登陆用户所属公司与公司下的部门",notes = "显示当前登陆用户所属公司与公司下的部门",httpMethod ="POST")
     @PostMapping("/selectDeptComTree")
-    public ApiResponse<List<EcmpOrgDto>> selectDeptComTree(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptType",required = false) String deptType){
+    public ApiResponse<List<EcmpOrgDto>> selectDeptComTree(@RequestParam(value = "deptId",required = false)String deptId,@RequestParam(value = "deptType",required = false) Long deptType){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         SysUser user = loginUser.getUser();
-        List<EcmpOrgDto> deptList = orgService.selectDeptComTree(StringUtils.isEmpty(deptId) ?user.getDeptId():Long.valueOf(deptId),deptType);
+        Long ownerCompany = loginUser.getUser().getOwnerCompany();
+        List<EcmpOrgDto> deptList = orgService.selectDeptComTree(StringUtils.isEmpty(deptId) ?user.getDeptId():Long.valueOf(deptId),deptType,ownerCompany);
         return ApiResponse.success(deptList);
     }
 }

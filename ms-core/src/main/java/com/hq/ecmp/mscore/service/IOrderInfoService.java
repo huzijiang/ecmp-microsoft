@@ -82,17 +82,17 @@ public interface IOrderInfoService {
      * @return
      */
     public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason);
-    
-    
+
+
     /**
      * 查询所有待调度的订单(包含待改派)
      * @return
      */
     public List<DispatchOrderInfo> queryWaitDispatchList(Long userId);
-    
-    
+
+
     public List<DispatchOrderInfo>  queryAllWaitDispatchList();
-    
+
     /**
      * 查询所有已完成调度的订单
      * @return
@@ -206,13 +206,13 @@ public interface IOrderInfoService {
     JSONObject getThirdPartyOrderState(Long orderId)throws Exception;
     JSONObject getDriverLocation(String driverPhone)throws Exception;
     OrderStateVO getTaxiState(OrderStateVO orderVO,Long orderNo)throws Exception;
-    
+
     public List<ApplyDispatchVo> queryApplyDispatchList(ApplyDispatchQuery query);
-    
+
     public Integer queryApplyDispatchListCount(ApplyDispatchQuery query);
-    
+
     public List<ApplyDispatchVo> queryReassignmentDispatchList(ApplyDispatchQuery query);
-    
+
     public Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query);
     /**
      * 驳回改派申请
@@ -276,13 +276,13 @@ public interface IOrderInfoService {
      * @return
      */
     OrderCostDetailVO getOrderCost(Long orderId);
-    
+
     public DispatchSendCarPageInfo  getDispatchSendCarPageInfo(Long orderId);
-    
+
     public DispatchSendCarPageInfo getUserDispatchedOrder(Long orderId);
     //回调修改订单状态
     void callBackOrderState(String jsonResult)throws Exception;
-    
+
     public boolean sendCarBeforeCreatePlanPrice(Long orderId,Long userId) throws Exception ;
 
     /**
@@ -290,10 +290,10 @@ public interface IOrderInfoService {
      * @return
      */
     public  void checkOrderIsExpired();
-    
-    
+
+
     /**
-     * 公务调度后选择网约车 生成返程的权限 和订单 
+     * 公务调度后选择网约车 生成返程的权限 和订单
      * @param orderId
      */
     public void checkCreateReturnAuthority(Long orderId,Long optUserId)throws Exception;

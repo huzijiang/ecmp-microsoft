@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.DictQuery;
 import com.hq.ecmp.mscore.domain.DriverQuery;
 import com.hq.ecmp.mscore.domain.EcmpDictData;
+import com.hq.ecmp.mscore.dto.CarTypeDTO;
 import com.hq.ecmp.mscore.vo.SceneListVO;
 
 import javax.validation.constraints.NotEmpty;
@@ -78,6 +79,13 @@ public interface IEcmpDictDataService
      * @return
      */
     List<SceneListVO> selectEcmpDictByType(String dictType);
+
+    /**
+     * 查询字典里面的车型图标
+     * @param dictType
+     * @return
+     */
+    List<CarTypeDTO> selectEcmpDictByCarType(String dictType);
     /**
      * 评价标签的好评
      * @return 字典数据集合

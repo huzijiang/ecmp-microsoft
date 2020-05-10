@@ -14,8 +14,10 @@ import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.ICarInfoService;
 import com.hq.ecmp.mscore.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.formula.functions.Now;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @date 2020-01-02
  */
 @Service
+@Slf4j
 public class CarInfoServiceImpl implements ICarInfoService
 {
     @Autowired
@@ -160,8 +163,10 @@ public class CarInfoServiceImpl implements ICarInfoService
         CarInfo carInfo = setCarInfo(carSaveDTO);
         carInfo.setCreateBy(String.valueOf(userId));
         carInfo.setCreateTime(new Date());
-        carInfo.setState(CarConstant.START_CAR);   //初始化启用车辆
-        carInfo.setLockState("0000");//初始化锁定状态
+        //设置车辆初始化状态
+        setCarInitialState(carSaveDTO, carInfo);
+        //初始化未锁定状态 锁定状态 0000   未锁定    1111   已锁定
+        carInfo.setLockState(CarConstant.UN_LOCKED);
         //新增车辆表
         int i = carInfoMapper.insertCarInfo(carInfo);
         if(i!= 1){
@@ -189,6 +194,47 @@ public class CarInfoServiceImpl implements ICarInfoService
     }
 
     /**
+     * //如果是自有车 初始化微启用状态 如果是借调车辆/租赁车辆 则根据开始时间看 没到开始时间为待启用 已到开始时间为启用状态
+     * @param carSaveDTO
+     * @param carInfo
+     */
+    private void setCarInitialState(CarSaveDTO carSaveDTO, CarInfo carInfo) {
+        String source = carSaveDTO.getSource();
+        if(CarConstant.OWN_CAR.equals(source)){
+            //1.自有车 初始化为启用状态
+            carInfo.setState(CarConstant.START_CAR);
+        }else if(CarConstant.BORROW_CAR.equals(source)){
+            //2.借来的车
+            Date borrowStartDate = carSaveDTO.getBorrowStartDate();
+            if(borrowStartDate == null){
+                throw new RuntimeException("借调开始时间不能为空");
+            }
+            if(borrowStartDate.before(new Date())){
+                //当借调开始时间 小于 当前时间时 初始化启用状态
+                carInfo.setState(CarConstant.START_CAR);
+            }else {
+                // 借调开始时间 大于 当前时间时 初始化待启用状态
+                carInfo.setState(CarConstant.WAIT_START_CAR);
+            }
+        }else if(CarConstant.RENT_CAR.equals(source)){
+            //3. 租来的车
+            Date rentStartDate = carSaveDTO.getRentStartDate();
+            if(rentStartDate == null){
+                throw new RuntimeException("租赁车辆开始时间不能为空");
+            }
+            if(rentStartDate.before(new Date())){
+                //租赁开始时间 小于 当前时间时 初始化为 启用状态
+                carInfo.setState(CarConstant.START_CAR);
+            }else {
+                //租赁开始时间 大于等于开始时间 初始化为 待启用状态
+                carInfo.setState(CarConstant.WAIT_START_CAR);
+            }
+        }else {
+            throw new RuntimeException("车辆来源不明");
+        }
+    }
+
+    /**
      * 设置车辆基本信息
      * @param carSaveDTO
      * @return
@@ -200,14 +246,15 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setCarLicense(carSaveDTO.getCarLicense());
         carInfo.setCarTypeId(carSaveDTO.getEnterpriseCarTypeId());
         carInfo.setDeptId(carSaveDTO.getOwnerOrgId());
+        carInfo.setCompanyId(carSaveDTO.getCompanyId());
         carInfo.setCarGroupId(carSaveDTO.getCarGroupId());
-        carInfo.setSource(carSaveDTO.getSource());  //TODO 新增
+        carInfo.setSource(carSaveDTO.getSource());
         carInfo.setBuyDate(carSaveDTO.getBuyDate());
-        carInfo.setRentStartDate(carSaveDTO.getRentStartDate()); //TODO 新增
+        carInfo.setRentStartDate(carSaveDTO.getRentStartDate());
         carInfo.setRentEndDate(carSaveDTO.getRentEndDate());
-        carInfo.setBorrowStartDate(carSaveDTO.getBorrowStartDate()); //TODO 新增
-        carInfo.setBorrowEndDate(carSaveDTO.getBorrowEndDate()); //TODO 新增
-
+        carInfo.setBorrowStartDate(carSaveDTO.getBorrowStartDate());
+        carInfo.setBorrowEndDate(carSaveDTO.getBorrowEndDate());
+        carInfo.setCompanyId(carSaveDTO.getCompanyId());
         //车辆实照信息
         carInfo.setAssetTag(carSaveDTO.getAssetTag());
         carInfo.setCarColor(carSaveDTO.getCarColor());
@@ -248,8 +295,8 @@ public class CarInfoServiceImpl implements ICarInfoService
      * 可管理车辆总数
      */
     @Override
-    public int queryCompanyCarCount(){
-        return carInfoMapper.queryCompanyCar();
+    public int queryCompanyCarCount(Long companyId){
+        return carInfoMapper.queryCompanyCar(companyId);
     }
 
     /**
@@ -474,13 +521,14 @@ public class CarInfoServiceImpl implements ICarInfoService
 	public CarGroupCarInfo queryCarGroupCarList(Map map) {
         Long carGroupId = Long.valueOf(map.get("carGroupId").toString());
         Long driverId = map.get("driverId")==null?null:Long.valueOf(map.get("driverId").toString());
+        String search = map.get("search")==null?null:map.get("search").toString();
 		CarGroupCarInfo carGroupCarInfo = new CarGroupCarInfo();
-		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId,driverId);
+		List<CarListVO> queryCarGroupCarList = carInfoMapper.queryCarGroupCarList(carGroupId,driverId,search);
 		carGroupCarInfo.setList(queryCarGroupCarList);
 		// 查询车队对应的部门和公司
 		CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
 		if (null != carGroupInfo) {
-			Long ownerCompany = carGroupInfo.getOwnerCompany();
+			Long ownerCompany = carGroupInfo.getCompanyId();
 			if (null != ownerCompany) {
 				EcmpOrg company = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
 				if (null != company) {
@@ -568,5 +616,92 @@ public class CarInfoServiceImpl implements ICarInfoService
         Long count=carInfoMapper.carWorkOrderListCount(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
         Collections.sort(driverOrderVos);
         return new PageResult(count,driverOrderVos);
+    }
+
+    /**
+     * 检验车辆状态
+     * -------状态
+     *    S000    启用中
+     *    S001    禁用中
+     *    S002    维护中
+     *    S003    已到期
+     *    S004    待启用
+     *    S101    被借调
+     *    S444    被删除
+     *    1.租赁到期   2.借调到期  3.行驶证到期（所有来源车辆都要考虑） 4.租赁时间没开始 5.借调时间没开始
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void checkCarState() {
+        //1.查询所有没被删除的车辆
+        List<CarInfo> carInfoList = carInfoMapper.selectAll();
+        StringBuilder licenseTimeOutCars = new StringBuilder();
+        StringBuilder rentTimeOutCars = new StringBuilder();
+        StringBuilder rentStartCars = new StringBuilder();
+        StringBuilder borrowStartCars = new StringBuilder();
+        StringBuilder borrowTimeOutCars = new StringBuilder();
+        Date date = new Date();
+        for (CarInfo carInfo : carInfoList) {
+            String source = carInfo.getSource();
+            String state = carInfo.getState();
+            //1.查看行驶证是否过期 行驶证过期 以上所有状态被覆盖 为已过期状态
+            Date drivingLicenseEndDate = carInfo.getDrivingLicenseEndDate();
+            if(drivingLicenseEndDate != null){
+                if(drivingLicenseEndDate.before(date) && !CarConstant.TIME_OUT_CAR.equals(state)){
+                    //A.------如果行驶证结束日期 小于 当前时间 （即行驶证已过期）并且状态没改为已过期的 把状态改为已过期
+                    carInfo.setState(CarConstant.TIME_OUT_CAR);
+                    licenseTimeOutCars.append(carInfo.getCarId()+" ");
+                    carInfoMapper.updateCarInfo(carInfo);
+                }else if(drivingLicenseEndDate.after(date) && !CarConstant.TIME_OUT_CAR.equals(state)){
+                    //B.------如果行驶证没过期 并且状态不是已过期的车辆 （因为已过期的车辆的状态只能通过手动修改）
+                    //2.如果是租来的车 查看租赁开始时间 是否到了
+                    if(CarConstant.RENT_CAR.equals(source)){
+                        Date rentStartDate = carInfo.getRentStartDate();
+                        Date rentEndDate = carInfo.getRentEndDate();
+                        if(rentStartDate != null || rentEndDate != null){
+                            log.error("租赁车辆开始时间或结束时间为空,车辆id:{}",carInfo.getCarId());
+                            throw new RuntimeException("租赁车辆开始时间和结束时间不能为空");
+                        }
+                        if(rentEndDate.before(date) && rentEndDate.after(date) && CarConstant.WAIT_START_CAR.equals(state)){
+                            //2.1租赁开始时间到了 结束时间没到 并且 则状态为待启用状态 则启用车辆
+                            carInfo.setState(CarConstant.START_CAR);
+                            rentStartCars.append(carInfo.getCarId()+" ");
+                            carInfoMapper.updateCarInfo(carInfo);
+                        }
+                        if(rentEndDate.before(date) && !CarConstant.TIME_OUT_CAR.equals(state)){
+                            //2.2租赁结束时间到了 没改为已到期状态的 状态改为为已到期
+                            carInfo.setState(CarConstant.TIME_OUT_CAR);
+                            rentTimeOutCars.append(carInfo.getCarId()+" ");
+                            carInfoMapper.updateCarInfo(carInfo);
+                        }
+                    }
+                    //3.如果是借来的车 借调开始时间 和 借调结束时间
+                    if(CarConstant.BORROW_CAR.equals(source)){
+                        Date borrowStartDate = carInfo.getBorrowStartDate();
+                        Date borrowEndDate = carInfo.getBorrowEndDate();
+                        if(borrowStartDate == null || borrowEndDate == null){
+                            log.error("借来车辆开始时间或结束时间为空,车辆id:{}",carInfo.getCarId());
+                            throw new RuntimeException("借调车辆开始时间和结束时间不能为空");
+                        }
+                        if(borrowStartDate.before(date) && borrowEndDate.after(date) && CarConstant.WAIT_START_CAR.equals(state)){
+                            //3.1借来车辆开始时间到了 结束时间没到 并且是待启用状态的 则状态为启用状态
+                            carInfo.setState(CarConstant.START_CAR);
+                            borrowStartCars.append(carInfo.getCarId()+" ");
+                            carInfoMapper.updateCarInfo(carInfo);
+                        }
+                        if(borrowEndDate.before(date) && !CarConstant.TIME_OUT_CAR.equals(state)){
+                            //3.2借来车辆结束时间到了 但是状态还没改为已到期状态的 车辆状态改为已到期
+                            carInfo.setState(CarConstant.TIME_OUT_CAR);
+                            borrowTimeOutCars.append(carInfo.getCarId()+" ");
+                            carInfoMapper.updateCarInfo(carInfo);
+                        }
+                    }
+                }
+            }
+        }
+        log.info("{}行驶证已过期的车辆id集合：{},租赁到期的车辆id集合：{},租赁车辆开始启用的车辆id集合：{},借来车辆开始启用的车辆id集合：{},借来车辆到期的车辆id集合：{}",
+                DateUtils.getMonthAndToday(),licenseTimeOutCars,
+                rentTimeOutCars,rentStartCars,
+                borrowStartCars,borrowTimeOutCars);
     }
 }

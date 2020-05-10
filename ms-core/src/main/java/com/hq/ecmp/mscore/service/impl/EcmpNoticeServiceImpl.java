@@ -2,17 +2,19 @@ package com.hq.ecmp.mscore.service.impl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
+import com.hq.ecmp.mscore.dto.CarDriverDTO;
+import com.hq.ecmp.mscore.dto.config.Scheduling;
+import com.hq.ecmp.mscore.mapper.ChinaCityMapper;
 import com.hq.ecmp.mscore.mapper.EcmpNoticeMapper;
 import com.hq.ecmp.mscore.mapper.EcmpNoticeMappingMapper;
 import com.hq.ecmp.mscore.service.IEcmpNoticeService;
+import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.vo.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,9 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
 
     @Autowired
     private EcmpNoticeMappingMapper ecmpNoticeMappingMapper;
+
+    @Autowired
+    private ChinaCityMapper chinaCityMapper;
 
     /**
      * 查询通知公告
@@ -143,9 +148,9 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
      * @return
      */
     @Override
-    public PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize) {
+    public PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize,Long companyId) {
             PageHelper.startPage(pageNum,pageSize);
-            List<EcmpNotice> list =  ecmpNoticeMapper.selectNoticeSearchList();
+            List<EcmpNotice> list =  ecmpNoticeMapper.selectNoticeSearchList(companyId);
             for(EcmpNotice ecmpNotice: list){
                 List<Long> bucIds = ecmpNoticeMappingMapper.selectNoticeId(ecmpNotice.getNoticeId());
                 ecmpNotice.setBucIds(bucIds);
@@ -161,8 +166,17 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
      */
     @Override
     public EcmpNotice getNoticeDetails(Integer noticeId) {
-        EcmpNotice EcmpNotice = ecmpNoticeMapper.getNoticeDetails(noticeId);
-        return EcmpNotice;
+        EcmpNotice ecmpNotice = ecmpNoticeMapper.getNoticeDetails(noticeId);
+        String [] cityCode = ecmpNotice.getNoticeCity().split(",");
+        List list =Arrays.asList(cityCode);
+        String notice = "";
+        for (int i = 0; i<list.size(); i++){
+            String code = list.get(i).toString();
+            CityInfo cityInfo =chinaCityMapper.queryCityByCityCode(code);
+            notice+=cityInfo.getCityName()+"、";
+        }
+        ecmpNotice.setNoticeCity(notice.substring(0,notice.length()-1));
+        return ecmpNotice;
     }
 
     /**
@@ -192,4 +206,47 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
                  ecmpNoticeMapper.updateEcmpNotice(ecmpNotice);
             }
         }
+
+    @Override
+    public void addObtainScheduling(){
+        List<String> list = new ArrayList<String>();
+        Calendar start = Calendar.getInstance();
+        start.set(2020, 0, 0);
+        Calendar end = Calendar.getInstance();
+        end.set(2021, 0, 0);
+
+        int sumSunday = 0;
+        int sumSat = 0;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        while(start.compareTo(end) <= 0) {
+            int w = start.get(Calendar.DAY_OF_WEEK);
+            if(w == Calendar.SUNDAY){
+                sumSunday ++;}
+            if(w == Calendar.SATURDAY){
+                sumSunday ++;}
+            list.add(format.format(start.getTime()));
+            //循环，每次天数加1
+            start.set(Calendar.DATE, start.get(Calendar.DATE) + 1);
+        }
+        for (String s : list){
+            String date =s;
+            try {
+                Scheduling scheduling=new Scheduling();
+                Date date1 =format.parse(date);
+                scheduling.setCalendarDate(date1);
+                scheduling.setCalendarYear(new SimpleDateFormat("yyyy").format(date1));
+                scheduling.setCalendarMonth(new SimpleDateFormat("MM").format(date1));
+                scheduling.setCalendarDay(new SimpleDateFormat("dd").format(date1));
+                scheduling.setItIsWork("0000");
+                scheduling.setWorkStart("08:00");
+                scheduling.setWorkEnd("18:00");
+                scheduling.setCreateBy("100");
+                scheduling.setCreateTime(new Date());
+                ecmpNoticeMapper.addObtainScheduling(scheduling);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
 }

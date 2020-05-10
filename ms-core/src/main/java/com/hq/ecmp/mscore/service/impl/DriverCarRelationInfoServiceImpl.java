@@ -211,7 +211,7 @@ public class DriverCarRelationInfoServiceImpl implements IDriverCarRelationInfoS
             driverVO.setDriverMobile(carRelationInfo.getDriverMobile());
             int carCount = driverCarRelationInfoMapper.queryCountCarByDriverId(driverId);
             driverVO.setCarCount(carCount);
-            EcmpOrg ecmpOrgDto1 = ecmpOrgMapper.selectEcmpOrgById(carGroupInfo.getOwnerCompany());
+            EcmpOrg ecmpOrgDto1 = ecmpOrgMapper.selectEcmpOrgById(carGroupInfo.getCompanyId());
             driverVO.setCompany(ecmpOrgDto1.getDeptName());
             /*EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carRelationInfo.getUserId());
             EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());

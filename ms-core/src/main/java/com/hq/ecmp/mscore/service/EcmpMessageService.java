@@ -86,4 +86,5 @@ public interface EcmpMessageService {
     void sendNextApproveUsers(String approveUserId,Long applyId,Long userId);
 
     void readMessage(MessageDto messageDto, LoginUser user);
+    void saveMessageUnite(Long orderId, MsgConstant msgConstant) throws Exception;
 }

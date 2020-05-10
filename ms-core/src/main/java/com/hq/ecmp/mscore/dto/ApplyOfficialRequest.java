@@ -171,4 +171,6 @@ public class ApplyOfficialRequest {
     @ApiModelProperty(name = "peerNumber", value = "同行人数", required = false, position = 24)
     private Integer peerNumber;  //TODO 新增
 
+    private Long companyId;
+
 }

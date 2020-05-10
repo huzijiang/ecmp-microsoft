@@ -7,7 +7,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import com.hq.ecmp.mscore.bo.CityInfo;
+import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.AirportVo;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.domain.ApproveTemplateInfo" id="ApproveTemplateInfoResult">
         <result property="approveTemplateId"    column="approve_template_id"    />
         <result property="name"    column="name"    />
+        <result property="companyId"    column="company_id"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -43,6 +44,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="approveTemplateId != null ">approve_template_id,</if>
             <if test="name != null  and name != ''">name,</if>
+            <if test="companyId != null  and companyId != ''">company_id,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -51,6 +53,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="approveTemplateId != null ">#{approveTemplateId},</if>
             <if test="name != null  and name != ''">#{name},</if>
+            <if test="companyId != null">#{companyId},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -86,6 +89,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          <if test="search!=null and search!=''">
              where name like CONCAT('%',#{search},'%')
          </if>
+        <if test="companyId != null">
+            and company_id = #{companyId}
+        </if>
     </select>
     <select id="getTemplateListCount" resultType="Long">
         select count(*) from approve_template_info

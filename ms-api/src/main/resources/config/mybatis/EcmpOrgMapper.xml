@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.domain.EcmpOrg" id="EcmpOrgResult">
         <result property="deptId"    column="dept_id"    />
         <result property="parentId"    column="parent_id"    />
+        <result property="companyId"    column="company_id"    />
         <result property="ancestors"    column="ancestors"    />
         <result property="deptName"    column="dept_name"    />
         <result property="deptType"    column="dept_type"    />
@@ -26,6 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.vo.EcmpOrgVo" id="EcmpOrgVoResult">
         <result property="deptId"    column="dept_id"    />
         <result property="parentId"    column="parent_id"    />
+        <result property="companyId"    column="company_id"    />
         <result property="ancestors"    column="ancestors"    />
         <result property="deptName"    column="dept_name"    />
         <result property="deptType"    column="dept_type"    />
@@ -88,9 +90,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             ecmp_org
        where
             del_flag = 0
-            <if test="deptId != null "> and dept_id = #{deptId}</if>
             <if test="parentId != null "> and parent_id = #{parentId}</if>
-            <if test="deptType != null  and deptType != ''"> and dept_type = #{deptType}</if>
+            <if test="deptType != null ">
+             and dept_type = #{deptType}
+            </if>
+    </select>
+    <select id="selectByEcmpOrgOwnerCompanyId" parameterType="java.lang.Long" resultMap="EcmpOrgDtoResult">
+        select
+        dept_id, parent_id,ancestors, dept_name,
+        dept_type, order_num, leader, phone, email,
+        status, del_flag, create_by, create_time,
+        update_by, update_time
+        from
+        ecmp_org
+        where
+        del_flag = 0
+        <if test="companyId != null "> and dept_id = #{companyId}</if>
     </select>
     <!-- /**
      * 查询部门详情
@@ -126,6 +141,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into ecmp_org
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="parentId != null ">parent_id,</if>
+            <if test="companyId != null ">company_id,</if>
             <if test="deptCode != null ">dept_code,</if>
             <if test="ancestors != null  and ancestors != ''">ancestors,</if>
             <if test="deptName != null  and deptName != ''">dept_name,</if>
@@ -143,6 +159,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="parentId != null ">#{parentId},</if>
+            <if test="companyId != null ">#{companyId},</if>
             <if test="deptCode != null ">#{deptCode},</if>
             <if test="ancestors != null  and ancestors != ''">#{ancestors},</if>
             <if test="deptName != null  and deptName != ''">#{deptName},</if>
@@ -195,6 +212,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
             <if test="email != null  and email != ''"> and email = #{email}</if>
             <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="companyId != null "> and (company_id = #{companyId} or dept_id = #{companyId})</if>
         </where>
     </select>
 
@@ -508,10 +526,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="deptId != null ">
              dept_id= #{deptId}
         </if>
-        <if test="parentId != null ">
-            parent_id = #{parentId}
-        </if>
-         and  dept_type = '1'
+
     </select>
 
     <select id="selectUserByLeader" resultType="com.hq.ecmp.mscore.vo.UserVO">

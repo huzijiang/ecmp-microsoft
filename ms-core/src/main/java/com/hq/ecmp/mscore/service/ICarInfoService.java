@@ -108,15 +108,15 @@ public interface ICarInfoService
      * @param userId
      */
     void updateCar(CarSaveDTO carSaveDTO, Long userId) throws Exception;
- 
+
     /**
      * 可管理车辆总数
      */
-    public int queryCompanyCarCount();
+    public int queryCompanyCarCount(Long companyId);
 
     public List<CarLocationVo> locationCars(CarLocationDto carLocationDto);
-    
-    
+
+
     public CarGroupCarInfo queryCarGroupCarList(Map map);
 
     /*车辆信息回显*/
@@ -127,6 +127,11 @@ public interface ICarInfoService
      * @return
      */
     List<String> selectCarTypeList();
+
+    /**
+     * 检验车辆状态
+     */
+    public void checkCarState();
 
     PageResult carWorkOrderList(PageRequest pageRequest);
 }

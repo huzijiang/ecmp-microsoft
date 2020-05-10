@@ -31,6 +31,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="asAllowDateRound"    column="as_allow_date_round"    />
         <result property="asSetoutEqualArrive"    column="as_setout_equal_arrive"    />
         <result property="state"    column="state"    />
+        <result property="costCenter" column="cost_center"/>
+        <result property="limitType" column="limit_type"/>
+        <result property="limitMoney" column="limit_money"/>
+        <result property="travelCityUseCarLimitType" column="travel_city_use_car_limit_type"/>
+        <result property="travelCityUseCarLimitMoney" column="travel_city_use_car_limit_money"/>
+        <result property="travelLimitType" column="travel_limit_type"/>
+        <result property="travelLimitMoney" column="travel_limit_money"/>
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -38,7 +45,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectRegimeInfoVo">
-         select regimen_id, template_id, approve_template_id, regimen_type, name, can_use_car_mode, service_type, allow_city, allow_date, rule_time, rule_city, setout_equal_arrive, use_car_mode_owner_level, need_approval_process, use_car_mode_online_level, travel_allow_in_travel_city_use_car, travel_use_car_mode_owner_level, travel_use_car_mode_online_level, travel_allow_date_round, travel_setout_equal_arrive, as_allow_airport_shuttle, as_use_car_mode_owner_level, as_use_car_mode_online_level, as_allow_date_round, as_setout_equal_arrive, state, create_by, create_time, update_by, update_time from regime_info
+         select regimen_id, template_id, approve_template_id, regimen_type, name, can_use_car_mode, service_type, allow_city, allow_date, rule_time, rule_city, setout_equal_arrive, use_car_mode_owner_level, need_approval_process, use_car_mode_online_level, travel_allow_in_travel_city_use_car, travel_use_car_mode_owner_level, travel_use_car_mode_online_level, travel_allow_date_round, travel_setout_equal_arrive, as_allow_airport_shuttle, as_use_car_mode_owner_level, as_use_car_mode_online_level, as_allow_date_round, as_setout_equal_arrive, state,cost_center,limit_type,limit_money,travel_city_use_car_limit_type,travel_city_use_car_limit_money,travel_limit_type,travel_limit_money, create_by, create_time, update_by, update_time from regime_info
     </sql>
 
     <select id="selectRegimeInfoList" parameterType="com.hq.ecmp.mscore.domain.RegimeInfo" resultMap="RegimeInfoResult">
@@ -136,6 +143,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="costCenter != null and costCenter !=''">cost_center=#{costCenter},</if>
+            <if test="limitType != null ">limit_type=#{limitType},</if>
+            <if test="limitMoney != null and limitMoney !=''">limit_money=#{limitMoney},</if>
+            <if test="travelCityUseCarLimitType != null and travelCityUseCarLimitType !=''">travel_city_use_car_limit_type=#{travelCityUseCarLimitType},</if>
+            <if test="travelCityUseCarLimitMoney != null ">travel_city_use_car_limit_money=#{travelCityUseCarLimitMoney},</if>
+            <if test="travelLimitType != null and travelLimitType !=''">travel_limit_type=#{travelLimitType},</if>
+            <if test="travelLimitMoney != null ">travel_limit_money=#travelLimitMoney},</if>
+            <if test="optId != null ">create_by,</if>
         </trim>
         where regimen_id = #{regimenId}
     </update>
@@ -156,7 +171,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAll" resultMap="RegimeInfoResult">
         <include refid="selectRegimeInfoVo"/>
     </select>
-    
+
     	<select id="queryRegimeList" parameterType="com.hq.ecmp.mscore.domain.RegimeQueryPo"
 	resultType="com.hq.ecmp.mscore.domain.RegimeVo">
 	SELECT
@@ -182,6 +197,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<if test="null !=regimeName and regimeName !=''">
 		and a.NAME like CONCAT('%',#{regimeName},'%')
 	</if>
+    <if test="null != companyId and companyId !=''">
+        and a.company_id = #{companyId}
+    </if>
 	group by a.regimen_id
 	<!-- <if test="offset != null and pageSize != null">
 		LIMIT #{offset},#{pageSize}
@@ -191,7 +209,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 <select id="queryRegimeListCount" parameterType="com.hq.ecmp.mscore.domain.RegimeQueryPo"
 	resultType="java.lang.Integer">
-	select count(1) from 
+	select count(1) from
 	(SELECT
 	count(1)
 	FROM
@@ -245,7 +263,14 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
 	    as_use_car_mode_owner_level AS asUseCarModeOwnerLevel,
 	    as_use_car_mode_online_level AS asUseCarModeOnlineLevel,
 	    as_allow_date_round AS asAllowDateRound,
-	    as_setout_equal_arrive AS asSetoutEqualArrive
+	    as_setout_equal_arrive AS asSetoutEqualArrive,
+	    cost_center as costCenter,
+        limit_type as limitType,
+        limit_money as limitMoney,
+        travel_city_use_car_limit_type as travelCityUseCarLimitType,
+        travel_city_use_car_limit_money as travelCityUseCarLimitMoney,
+        travel_limit_type as travelLimitType,
+        travel_limit_money as travelLimitMoney
         from regime_info
         where regimen_id = #{regimeId}
         and state = 'Y000'
@@ -255,6 +280,7 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
      insert into regime_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="templateId != null and templateId !=''">template_id,</if>
+            <if test="companyId != null and companyId !=''">company_id,</if>
             <if test="name != null  and name != ''">name,</if>
              <if test="regimenType != null and regimenType !=''">regimen_type,</if>
             <if test="canUseCarMode != null and canUseCarMode !=''">can_use_car_mode,</if>
@@ -277,11 +303,19 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
                   <if test="asUseCarModeOnlineLevel != null and asUseCarModeOnlineLevel !=''">as_use_car_mode_online_level,</if>
                    <if test="asAllowDateRound != null and asAllowDateRound !=''">as_allow_date_round,</if>
                    <if test="asSetoutEqualArrive != null and asSetoutEqualArrive !=''">as_setout_equal_arrive,</if>
+            <if test="costCenter != null and costCenter !=''">cost_center,</if>
+            <if test="limitType != null  and limitType !=''">limit_type,</if>
+            <if test="limitMoney != null">limit_money,</if>
+            <if test="travelCityUseCarLimitType != null and travelCityUseCarLimitType !=''">travel_city_use_car_limit_type,</if>
+            <if test="travelCityUseCarLimitMoney != null ">travel_city_use_car_limit_money,</if>
+            <if test="travelLimitType != null and travelLimitType !=''">travel_limit_type,</if>
+            <if test="travelLimitMoney != null ">travel_limit_money,</if>
             <if test="optId != null ">create_by,</if>
             create_time
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="templateId != null and templateId !=''">#{templateId},</if>
+            <if test="companyId != null and companyId !=''">#{companyId},</if>
             <if test="name != null  and name != ''">#{name},</if>
             <if test="regimenType != null and regimenType !=''">#{regimenType},</if>
            <if test="canUseCarMode != null and canUseCarMode !=''">#{canUseCarMode},</if>
@@ -304,6 +338,13 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
               <if test="asUseCarModeOnlineLevel != null and asUseCarModeOnlineLevel !=''">#{asUseCarModeOnlineLevel},</if>
               <if test="asAllowDateRound != null and asAllowDateRound !=''">#{asAllowDateRound},</if>
               <if test="asSetoutEqualArrive != null and asSetoutEqualArrive !=''">#{asSetoutEqualArrive},</if>
+              <if test="costCenter != null and costCenter !=''">#{costCenter},</if>
+              <if test="limitType != null and limitType !=''">#{limitType},</if>
+              <if test="limitMoney != null ">#{limitMoney},</if>
+              <if test="travelCityUseCarLimitType != null and travelCityUseCarLimitType !=''">#{travelCityUseCarLimitType},</if>
+              <if test="travelCityUseCarLimitMoney != null ">#{travelCityUseCarLimitMoney},</if>
+              <if test="travelLimitType != null and travelLimitType !=''">#{travelLimitType},</if>
+              <if test="travelLimitMoney != null ">#{travelLimitMoney},</if>
             <if test="optId != null ">#{optId},</if>
             now()
          </trim>
@@ -332,7 +373,14 @@ SELECT
 	as_use_car_mode_owner_level AS asUseCarModeOwnerLevel,
 	as_use_car_mode_online_level AS asUseCarModeOnlineLevel,
 	as_allow_date_round AS asAllowDateRound,
-	as_setout_equal_arrive AS asSetoutEqualArrive
+	as_setout_equal_arrive AS asSetoutEqualArrive,
+	cost_center as costCenter,
+	limit_type as limitType,
+	limit_money as limitMoney,
+	travel_city_use_car_limit_type as travelCityUseCarLimitType,
+	travel_city_use_car_limit_money as travelCityUseCarLimitMoney,
+	travel_limit_type as travelLimitType,
+	travel_limit_money as travelLimitMoney
 FROM
 	regime_info
 WHERE

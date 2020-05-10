@@ -92,7 +92,7 @@ public interface IEcmpNoticeService
      * @param search
      * @return
      */
-    PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize);
+    PageResult<EcmpNotice> selectNoticeSearchList(Integer pageNum, Integer pageSize,Long companyId);
 
     /**
      * 查询公告列表详情（后台管理系统）
@@ -105,4 +105,9 @@ public interface IEcmpNoticeService
      * 定时任务修改公告状态
      */
     void announcementTask() throws ParseException;
+
+    /**
+     *
+     */
+    void addObtainScheduling();
 }

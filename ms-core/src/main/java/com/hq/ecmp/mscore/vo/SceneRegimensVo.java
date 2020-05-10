@@ -15,10 +15,10 @@ public class SceneRegimensVo {
     @ApiModelProperty(name = "icon",value = "场景图标")
     private String icon;
 
-    @ApiModelProperty(name = "icon",value = "场景图标")
+    @ApiModelProperty(name = "sceneName",value = "场景名字")
     private String sceneName;
 
-    @ApiModelProperty(name = "icon",value = "场景图标")
+    @ApiModelProperty(name = "sceneId",value = "场景id")
     private Long sceneId;
 
     @ApiModelProperty(name = "regimenVOS",value = "场景对应的制度集合")

@@ -202,7 +202,7 @@ public class RegimeController {
         }
 
     }
-    
+
     @Log(title = "用车制度:可用城市or不可用城市", businessType = BusinessType.OTHER)
     @ApiOperation(value = "queryRegimeCityLimit",notes = "通过用车制度编号,查询用车制度的可用or不可用车城市",httpMethod ="POST")
     @PostMapping("/queryRegimeCityLimit")
@@ -215,8 +215,8 @@ public class RegimeController {
         }
 
     }
-    
-    
+
+
     @Log(title = "用车制度:创建用车制度", businessType = BusinessType.INSERT)
 	@ApiOperation(value = "createRegime", notes = "创建用车制度", httpMethod = "POST")
 	@PostMapping("/createRegime")
@@ -224,13 +224,14 @@ public class RegimeController {
 		 HttpServletRequest request = ServletUtils.getRequest();
 	      LoginUser loginUser = tokenService.getLoginUser(request);
 	      regimePo.setOptId(loginUser.getUser().getUserId());
+	      regimePo.setCompanyId(loginUser.getUser().getOwnerCompany());
 		boolean createRegime = regimeInfoService.createRegime(regimePo);
 		if (createRegime) {
 			return ApiResponse.success();
 		}
 		return ApiResponse.error();
 	}
-	
+
     @Log(title = "用车制度:修改用车制度", businessType = BusinessType.UPDATE)
 	@ApiOperation(value = "updateRegime", notes = "修改用车制度", httpMethod = "POST")
 	@PostMapping("/updateRegime")
@@ -244,19 +245,22 @@ public class RegimeController {
 		}
 		return ApiResponse.error();
 	}
-	
-	
+
+
     @Log(title = "用车制度:查询制度列表", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "queryRegimeList", notes = "查询制度列表", httpMethod = "POST")
 	@PostMapping("/queryRegimeList")
 	public ApiResponse<PageResult<RegimeVo>> queryRegimeList(@RequestBody RegimeQueryPo regimeQueryPo) {
-		List<RegimeVo> regimeVoList = regimeInfoService.queryRegimeList(regimeQueryPo);
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        regimeQueryPo.setCompanyId(loginUser.getUser().getOwnerCompany());
+        List<RegimeVo> regimeVoList = regimeInfoService.queryRegimeList(regimeQueryPo);
 		//总条数
 		Integer count = regimeInfoService.queryRegimeListCount(regimeQueryPo);
 		PageResult<RegimeVo> pageResult = new PageResult<RegimeVo>(Long.valueOf(count), regimeVoList);
 		return ApiResponse.success(pageResult);
 	}
-    
+
     @Log(title = "用车制度:制度删除 or启用or停用", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "optRegime", notes = "制度删除 or启用or停用", httpMethod = "POST")
 	@PostMapping("/optRegime")
@@ -271,15 +275,35 @@ public class RegimeController {
 		}
 		return ApiResponse.error();
 	}
-	
+
     @Log(title = "用车制度:制度详情查询", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "detail", notes = "后管制度详情查询", httpMethod = "POST")
 	@PostMapping("/detail")
 	public ApiResponse<RegimeVo> queryRegimeDetail(@RequestBody Long regimeId) {
 		return ApiResponse.success(regimeInfoService.queryRegimeDetail(regimeId));
 	}
-	
-	
-	
-	
+
+    /**
+     * 通过申请人查询可用的制度
+     * @param
+     * @return ApiResponse<List<RegimeInfo>> 用车制度信息
+     */
+    @Log(title = "用车制度",content = "通过申请人查询可用的制度", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getUserSystem",notes = "通过申请人查询可用的制度",httpMethod ="POST")
+    @PostMapping("/getUserSystem")
+    public ApiResponse<List<RegimenVO>> getUserSystem(@RequestBody Long userId){
+        try {
+            if(userId==null){
+                return ApiResponse.error("该用户不是公司员工");
+            }
+            //根据用户id查询用车制度
+            List<RegimenVO> list = regimeInfoService.getUserSystem(userId);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            log.error("查询用户场景与制度列表失败，用户id：{}",userId,e);
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+
 }

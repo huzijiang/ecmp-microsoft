@@ -74,8 +74,8 @@ public class CarGroupDTO {
     @ApiModelProperty(name = "dispatchers", value = "调度员列表")
     private List<UserVO> dispatchers;
 
-    @ApiModelProperty(name = "owneCompany", value = "所属公司id")
-    private Long owneCompany;
+    @ApiModelProperty(name = "companyId", value = "所属公司id")
+    private Long companyId;
 
     @ApiModelProperty(name = "ownerOrgName", value = "所属组织 名称",required = false)
     private String ownerOrgName;  //回显使用
@@ -86,7 +86,7 @@ public class CarGroupDTO {
     @ApiModelProperty(name = "deptIds", value = "服务部门id集合")
     private Long[] deptIds;  //TODO 新增
 
-    @ApiModelProperty(name = "deptIds", value = "允许调度的外部公司id集合")
+    @ApiModelProperty(name = "companyIds", value = "允许调度的外部公司id集合")
     private Long[] companyIds;  //TODO 新增
 
 }

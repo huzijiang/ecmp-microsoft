@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpMenu extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -57,106 +59,6 @@ public class EcmpMenu extends BaseEntity
     /** 菜单图标 */
     @Excel(name = "菜单图标")
     private String icon;
-
-    public void setMenuId(Long menuId)
-    {
-        this.menuId = menuId;
-    }
-
-    public Long getMenuId()
-    {
-        return menuId;
-    }
-    public void setMenuName(String menuName)
-    {
-        this.menuName = menuName;
-    }
-
-    public String getMenuName()
-    {
-        return menuName;
-    }
-    public void setParentId(Long parentId)
-    {
-        this.parentId = parentId;
-    }
-
-    public Long getParentId()
-    {
-        return parentId;
-    }
-    public void setOrderNum(Integer orderNum)
-    {
-        this.orderNum = orderNum;
-    }
-
-    public Integer getOrderNum()
-    {
-        return orderNum;
-    }
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
-
-    public String getPath()
-    {
-        return path;
-    }
-    public void setComponent(String component)
-    {
-        this.component = component;
-    }
-
-    public String getComponent()
-    {
-        return component;
-    }
-    public void setIsFrame(Integer isFrame)
-    {
-        this.isFrame = isFrame;
-    }
-
-    public Integer getIsFrame()
-    {
-        return isFrame;
-    }
-    public void setMenuType(String menuType)
-    {
-        this.menuType = menuType;
-    }
-
-    public String getMenuType()
-    {
-        return menuType;
-    }
-    public void setVisible(String visible)
-    {
-        this.visible = visible;
-    }
-
-    public String getVisible()
-    {
-        return visible;
-    }
-    public void setPerms(String perms)
-    {
-        this.perms = perms;
-    }
-
-    public String getPerms()
-    {
-        return perms;
-    }
-    public void setIcon(String icon)
-    {
-        this.icon = icon;
-    }
-
-    public String getIcon()
-    {
-        return icon;
-    }
 
     @Override
     public String toString() {

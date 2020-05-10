@@ -3,15 +3,16 @@ package com.hq.ecmp.mscore.service;
 import java.text.ParseException;
 import java.util.List;
 
+import com.hq.api.system.domain.SysUser;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.RegimeLimitUseCarCityInfo;
 import com.hq.ecmp.mscore.domain.RegimeOpt;
 import com.hq.ecmp.mscore.domain.RegimePo;
 import com.hq.ecmp.mscore.domain.RegimeQueryPo;
 import com.hq.ecmp.mscore.domain.RegimeVo;
-import com.hq.ecmp.mscore.vo.CarLevelAndPriceReVo;
-import com.hq.ecmp.mscore.vo.RegimenVO;
-import com.hq.ecmp.mscore.vo.SceneRegimensVo;
+import com.hq.ecmp.mscore.dto.RegimeCheckDto;
+import com.hq.ecmp.mscore.vo.*;
 
 /**
  * 【请填写功能名称】Service接口
@@ -186,5 +187,23 @@ public interface IRegimeInfoService
      *校验用车制度是否过期
      */
     public void checkRegimenExpired();
+
+    UseCarTimeVO checkUseCarTime(RegimeCheckDto regimeDto)throws Exception ;
+
+    /**
+     * 校验申请单的真实可用车型
+     * @param regimeDto
+     * @return
+     */
+    List<UseCarTypeVO> checkUseCarModeAndType(RegimeCheckDto regimeDto, LoginUser loginUser) throws Exception;
+
+    List<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto, SysUser user)throws Exception;
+
+    /**
+     * 通过申请人查询可用的制度
+     * @param userId
+     * @return
+     */
+    List<RegimenVO> getUserSystem(Long userId);
 }
 

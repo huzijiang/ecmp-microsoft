@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -8,10 +9,11 @@ import java.util.Date;
 
 /**
  * 【请填写功能名称】对象 order_address_info
- * 
+ *
  * @author hqer
  * @date 2020-03-16
  */
+@Data
 public class OrderAddressInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -79,153 +81,9 @@ public class OrderAddressInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String type;
 
-    public void setOrderAddressId(Long orderAddressId) 
-    {
-        this.orderAddressId = orderAddressId;
-    }
 
-    public Long getOrderAddressId() 
-    {
-        return orderAddressId;
-    }
-    public void setOrderId(Long orderId) 
-    {
-        this.orderId = orderId;
-    }
-
-    public Long getOrderId() 
-    {
-        return orderId;
-    }
-    public void setJourneyId(Long journeyId) 
-    {
-        this.journeyId = journeyId;
-    }
-
-    public Long getJourneyId() 
-    {
-        return journeyId;
-    }
-    public void setNodeId(Long nodeId) 
-    {
-        this.nodeId = nodeId;
-    }
-
-    public Long getNodeId() 
-    {
-        return nodeId;
-    }
-    public void setPowerId(Long powerId) 
-    {
-        this.powerId = powerId;
-    }
-
-    public Long getPowerId() 
-    {
-        return powerId;
-    }
-    public void setDriverId(Long driverId) 
-    {
-        this.driverId = driverId;
-    }
-
-    public Long getDriverId() 
-    {
-        return driverId;
-    }
-    public void setCarId(Long carId) 
-    {
-        this.carId = carId;
-    }
-
-    public Long getCarId() 
-    {
-        return carId;
-    }
-    public void setUserId(String userId) 
-    {
-        this.userId = userId;
-    }
-
-    public String getUserId() 
-    {
-        return userId;
-    }
-    public void setCityPostalCode(String cityPostalCode) 
-    {
-        this.cityPostalCode = cityPostalCode;
-    }
-
-    public String getCityPostalCode() 
-    {
-        return cityPostalCode;
-    }
-    public void setActionTime(Date actionTime) 
-    {
-        this.actionTime = actionTime;
-    }
-
-    public Date getActionTime() 
-    {
-        return actionTime;
-    }
-    public void setAddress(String address) 
-    {
-        this.address = address;
-    }
-
-    public String getAddress() 
-    {
-        return address;
-    }
-    public void setAddressLong(String addressLong) 
-    {
-        this.addressLong = addressLong;
-    }
-
-    public String getAddressLong() 
-    {
-        return addressLong;
-    }
-    public void setLongitude(Double longitude) 
-    {
-        this.longitude = longitude;
-    }
-
-    public Double getLongitude() 
-    {
-        return longitude;
-    }
-    public void setLatitude(Double latitude) 
-    {
-        this.latitude = latitude;
-    }
-
-    public Double getLatitude() 
-    {
-        return latitude;
-    }
-    public void setIcaoCode(String icaoCode) 
-    {
-        this.icaoCode = icaoCode;
-    }
-
-    public String getIcaoCode() 
-    {
-        return icaoCode;
-    }
-    public void setType(String type) 
-    {
-        this.type = type;
-    }
-
-    public String getType() 
-    {
-        return type;
-    }
-    
     public OrderAddressInfo (){};
-    
+
     public OrderAddressInfo(String type,Long orderId){
     	this.orderId=orderId;
     	this.type=type;

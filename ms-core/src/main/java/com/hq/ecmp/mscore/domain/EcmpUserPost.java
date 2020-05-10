@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class EcmpUserPost extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -20,25 +22,6 @@ public class EcmpUserPost extends BaseEntity
 
     /** 岗位ID */
     private Long postId;
-
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
-
-    public Long getUserId()
-    {
-        return userId;
-    }
-    public void setPostId(Long postId)
-    {
-        this.postId = postId;
-    }
-
-    public Long getPostId()
-    {
-        return postId;
-    }
 
     @Override
     public String toString() {

@@ -67,7 +67,7 @@ public interface IProjectInfoService
     public int deleteProjectInfoById(Long projectId);
     public List<ProjectInfo> getListByUserId(Long userId,String projectName,Long orgComcany);
 
-    PageResult<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, String search, Long fatherProjectId);
+    PageResult<ProjectInfoVO> getProjectList(Integer pageNum, Integer pageSize, String search, Long fatherProjectId,Long ownerCompany);
 
     ProjectInfoVO getProjectInfo(Long projectId);
 
@@ -81,7 +81,7 @@ public interface IProjectInfoService
 
     List<ProjectUserVO> getProjectUserInfo(Long projectId);
 
-    OrgTreeVo selectProjectUserTree( Long projectId);
+    OrgTreeVo selectProjectUserTree( Long projectId,String search);
 
     List<ProjectInfo> checkProjectCode(String projectCode, Long projectId,Long orgCompany);
 

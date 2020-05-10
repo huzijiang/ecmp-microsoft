@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -11,6 +12,7 @@ import com.hq.core.web.domain.BaseEntity;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class OrderAccountInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -38,60 +40,7 @@ public class OrderAccountInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String state;
 
-    public void setAccountId(Long accountId)
-    {
-        this.accountId = accountId;
-    }
-
-    public Long getAccountId()
-    {
-        return accountId;
-    }
-    public void setBillId(Long billId)
-    {
-        this.billId = billId;
-    }
-
-    public Long getBillId()
-    {
-        return billId;
-    }
-    public void setOrderId(String orderId)
-    {
-        this.orderId = orderId;
-    }
-
-    public String getOrderId()
-    {
-        return orderId;
-    }
-    public void setCostCenter(Long costCenter)
-    {
-        this.costCenter = costCenter;
-    }
-
-    public Long getCostCenter()
-    {
-        return costCenter;
-    }
-    public void setProjectId(Long projectId)
-    {
-        this.projectId = projectId;
-    }
-
-    public Long getProjectId()
-    {
-        return projectId;
-    }
-    public void setState(String state)
-    {
-        this.state = state;
-    }
-
-    public String getState()
-    {
-        return state;
-    }
+    private Long companyId;
 
     @Override
     public String toString() {
