@@ -973,4 +973,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
          tmp)
     </select>
 
+    <select id="selectOrderInfoByIdAllDay" parameterType="java.lang.Long" resultMap="OrderInfoResult">
+        select * from order_info a where DATEDIFF(a.create_time,(SELECT date_format(create_time,'%Y-%m-%d') a FROM `order_info` where order_id = #{orderId})) = 0
+    </select>
+
+
 </mapper>

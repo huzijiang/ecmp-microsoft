@@ -241,6 +241,7 @@ public interface OrderInfoMapper {
      */
     public String queryLatestOrderByPowerId(Long powerId);
 
+
     /**
      *轨迹状态 订单状态
      * @param orderId
@@ -251,5 +252,11 @@ public interface OrderInfoMapper {
     Long getCountForDispatched(@Param("orgId")Long orgId,@Param("users")List<Long> users);
 
     Long getCountForReassigned(@Param("orgId")Long orgId,@Param("users")List<Long> users);
+
+    /*
+     * @author ghb
+     * @description  查询某订单所在当天的所有订单
+     */
+    List<OrderInfo> selectOrderInfoByIdAllDay(@Param("orderId")Long orderId);
 }
 
