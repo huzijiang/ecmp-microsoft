@@ -9,9 +9,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		select CITY_CODE from china_city where CITY_NAME= #{cityName} or SHORT_NAME
 		= #{cityName} limit 1
 	</select>
-	
+	<select id="findByCityCode" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.CityInfo">
+		select CITY_ID cityId,CITY_CODE cityCode,CITY_NAME cityName from china_city where find_in_set(CITY_CODE,#{cityCode})
+	</select>
+
 	<select id="queryCityInfoListByCityName" 
-	resultType="com.hq.ecmp.mscore.bo.CityInfo">
+	resultType="com.hq.ecmp.mscore.vo.CityInfo">
 	select CITY_ID as cityId, CITY_CODE as cityCode,SHORT_NAME as cityName
 	from
 	china_city
@@ -20,10 +23,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="null !=cityName">
 			and SHORT_NAME like concat('%',#{cityName},'%')
 		</if>
+		<if test="flag=1">
+			<if test="citys!=null">
+				and CITY_CODE in
+				<foreach collection="citys" open="(" close=")" separator="," item="cityCode">
+					#{cityCode}
+				</foreach>
+			</if>
+		</if>
+		<if test="flag=0">
+			<if test="citys!=null">
+				and CITY_CODE not in
+				<foreach collection="citys" open="(" close=")" separator="," item="cityCode">
+					#{cityCode}
+				</foreach>
+			</if>
+		</if>
 	</where>
 	</select>
 
-	<select id="queryCityByCityCode" resultType="com.hq.ecmp.mscore.bo.CityInfo">
+	<select id="queryCityByCityCode" resultType="com.hq.ecmp.mscore.vo.CityInfo">
 		select CITY_ID as cityId, CITY_CODE as cityCode,SHORT_NAME as cityName,PROVINCE_CODE as provinceCode
 	from
 	china_city where CITY_CODE=#{cityCode}

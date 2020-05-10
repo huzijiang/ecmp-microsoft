@@ -86,4 +86,12 @@ public interface CarGroupServeScopeInfoMapper
 	 * @return 影响行数
 	 */
 	int deleteByCarGroupId(Long carGroupId);
+
+	/**
+	 * 查询车队服务城市
+	 * @param groupIds
+	 * @param city
+	 * @return
+	 */
+    List<CarGroupServeScopeInfo> findByCityAndGroupId(@Param("groupIds") List<Long> groupIds,@Param("city")  String city);
 }

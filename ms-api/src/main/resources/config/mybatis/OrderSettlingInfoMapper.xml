@@ -37,6 +37,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where bill_id = #{billId}
     </select>
 
+    <select id="selectOrderSettlingInfoByOrderId" parameterType="Long" resultMap="OrderSettlingInfoResult">
+        <include refid="selectOrderSettlingInfoVo"/>
+        where order_id = #{orderId}
+    </select>
+
     <insert id="insertOrderSettlingInfo" parameterType="com.hq.ecmp.mscore.domain.OrderSettlingInfo">
         insert into order_settling_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -92,5 +97,34 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{billId}
         </foreach>
     </delete>
-
+    <insert id="insertOrderSettlingInfoOne" parameterType="com.hq.ecmp.mscore.domain.OrderSettlingInfoVo">
+        insert into order_settling_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billId != null ">bill_id,</if>
+            <if test="orderId != null ">order_id,</if>
+            <if test="amount != null ">amount,</if>
+            <if test="amountDetail != null  and amountDetail != ''">amount_detail,</if>
+            <if test="totalMileage != null  ">total_mileage,</if>
+            <if test="totalTime != null  ">total_time,</if>
+            <if test="outPrice != null ">out_price,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billId != null ">#{billId},</if>
+            <if test="orderId != null ">#{orderId},</if>
+            <if test="amount != null ">#{amount},</if>
+            <if test="amountDetail != null  and amountDetail != ''">#{amountDetail},</if>
+            <if test="totalMileage != null ">#{totalMileage},</if>
+            <if test="totalTime != null ">#{totalTime},</if>
+            <if test="outPrice != null ">#{outPrice},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+        </trim>
+    </insert>
 </mapper>
+

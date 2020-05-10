@@ -213,6 +213,10 @@ public class NoticeController {
         notice.setNoticeTitle(ecmpNoticeDTO.getNoticeTitle());
         //内容
         notice.setNoticeContent(ecmpNoticeDTO.getNoticeContent());
+        //首图
+        notice.setNoticeIcon(ecmpNoticeDTO.getNoticeIcon());
+        //发布城市
+        notice.setNoticeCity(ecmpNoticeDTO.getNoticeCity());
         //开始时间
         notice.setPublishTime(ecmpNoticeDTO.getPublishTime());
         //默认是公告
@@ -299,6 +303,8 @@ public class NoticeController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         EcmpNotice notice = new EcmpNotice();
         notice.setNoticeTitle(ecmpNoticeDTO.getNoticeTitle());
+        notice.setNoticeIcon(ecmpNoticeDTO.getNoticeIcon());
+        notice.setNoticeCity(ecmpNoticeDTO.getNoticeCity());
         notice.setNoticeContent(ecmpNoticeDTO.getNoticeContent());
         notice.setPublishTime(ecmpNoticeDTO.getPublishTime());
         notice.setEndTime(ecmpNoticeDTO.getEndTime());
@@ -365,8 +371,29 @@ public class NoticeController {
     @ApiOperation(value = "queryCompanyInfo ", notes = "获取企业配置信息")
     @PostMapping("/queryCompanyInfo")
     public ApiResponse<ConfigInfoDTO> query() {
-        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo();
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        String companyId = loginUser.getUser().getOwnerCompany().toString();
+        System.out.println("==========="+companyId);
+        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
         return ApiResponse.success(configInfoDTO);
+    }
+
+    /**
+     * 排班日期落库数据库
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "addObtainScheduling",notes = "排班日期落库数据库",httpMethod ="POST")
+    @PostMapping("/addObtainScheduling")
+    public ApiResponse addObtainScheduling(){
+        try {
+            iEcmpNoticeService.addObtainScheduling();
+            return ApiResponse.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("排班日期落库数据库失败");
+        }
     }
 
 }

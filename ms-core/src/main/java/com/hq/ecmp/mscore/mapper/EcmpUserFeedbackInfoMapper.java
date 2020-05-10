@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
+import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo;
 
 import java.util.List;
 
@@ -59,4 +60,18 @@ public interface EcmpUserFeedbackInfoMapper
      * @return 结果
      */
     public int deleteEcmpUserFeedbackInfoByIds(Long[] feedbackIds);
+
+    /**
+     * 异议订单
+     * @param ecmpUserFeedbackInfo
+     * @return
+     */
+    List<EcmpUserFeedbackInfoVo> getObjectionOrderList(EcmpUserFeedbackInfoVo ecmpUserFeedbackInfo);
+
+    /**
+     * 回复异议订单
+     * @param feedbackInfoVo
+     * @return
+     */
+    int updateFeedbackInfo(EcmpUserFeedbackInfoVo feedbackInfoVo);
 }

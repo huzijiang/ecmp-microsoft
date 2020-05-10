@@ -23,8 +23,7 @@ public class RegimeUseCarTimeRuleInfoServiceImpl implements IRegimeUseCarTimeRul
 
 	@Override
 	public List<RegimeUseCarTimeRuleInfo> queryRegimeUseCarTimeRuleInfoList(Long regimenId) {
-		
-		return regimeUseCarTimeRuleInfoMapper.queryRegimeUseCarTimeRuleInfoList(regimenId);
+		return regimeUseCarTimeRuleInfoMapper.queryRegimeUseCarTimeRuleInfoList(regimenId,null);
 	}
 
 	

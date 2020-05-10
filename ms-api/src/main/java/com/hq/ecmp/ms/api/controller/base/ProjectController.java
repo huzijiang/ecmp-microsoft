@@ -275,12 +275,12 @@ public class ProjectController {
     public ApiResponse<List<OrgTreeVo>> selectProjectUserTree(@RequestBody ProjectInfoDTO projectInfoDto){
         OrgTreeVo deptList=null;
         List<OrgTreeVo> lsit=new ArrayList<>();
-        if (StringUtils.isEmpty(projectInfoDto.getName())){
-            deptList = iProjectInfoService.selectProjectUserTree(projectInfoDto.getProjectId());
+//        if (StringUtils.isEmpty(projectInfoDto.getName())){
+            deptList = iProjectInfoService.selectProjectUserTree(projectInfoDto.getProjectId(),projectInfoDto.getSearch());
             lsit.add(deptList);
-        }else {
-            lsit= iProjectInfoService.selectProjectUserBySearch(projectInfoDto.getProjectId(), projectInfoDto.getName());
-        }
+//        }else {
+//            lsit= iProjectInfoService.selectProjectUserBySearch(projectInfoDto.getProjectId(), projectInfoDto.getName());
+//        }
         return ApiResponse.success(lsit);
 
 

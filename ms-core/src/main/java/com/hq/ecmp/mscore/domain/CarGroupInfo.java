@@ -50,6 +50,8 @@ public class CarGroupInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String telephone;
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String carGroupName;
 
     /** $column.columnComment */
@@ -83,6 +85,14 @@ public class CarGroupInfo extends BaseEntity
 
     private String allowOuterDispatch;   //TODO 新增 是否允许外部调度
 
+
+    public CarGroupInfo(String city, Long companyId) {
+        this.city = city;
+        this.companyId = companyId;
+    }
+    public CarGroupInfo( Long companyId) {
+        this.companyId = companyId;
+    }
 
     @Override
     public String toString() {

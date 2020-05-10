@@ -43,6 +43,9 @@ public class PageRequest {
     @ApiModelProperty(name = "carTypeId", value = "车型级别id",required = false)
     private Long carTypeId;
 
+    @ApiModelProperty(name = "costId", value = "成本id",required = false)
+    private Long costId;
+
     private Long carId;
 
     private Long driverId;

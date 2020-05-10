@@ -112,5 +112,8 @@ public interface IDriverWorkInfoService
      */
     void updateWorkDetailMonth(WorkInfoDetailVo workInfoDetailVo,Long userId);
 
-
+    /**
+     * //从云端获取一年的节假日修改本地数据的cloud_work_date_info表
+     */
+    void SchedulingTimingTask();
 }

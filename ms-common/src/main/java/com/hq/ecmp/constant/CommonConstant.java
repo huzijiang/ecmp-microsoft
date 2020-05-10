@@ -89,11 +89,16 @@ public final class CommonConstant {
     public static final String DEPT_TYPE_DEPT = "2";
     public static final String DEPT_TYPE_FLEET = "3";
 
+    public static final String ALLOW_DATA="0-0";
     //初始角色KEY
     public static final String ROLE_ADMIN = "admin";
 
     public static final String ROLE_SUB_ADMIN = "sub_admin";
 
+    /** 制度用车城市规则C001不限,C002可用城市,C003不可用城市*/
+    public static final String ROLE_CITY_C001="C001";
+    public static final String ROLE_CITY_C002="C002";
+    public static final String ROLE_CITY_C003="C003";
     public static final String ROLE_EMPLOYEE = "employee";
 
     public static final String ROLE_DRIVER = "driver";

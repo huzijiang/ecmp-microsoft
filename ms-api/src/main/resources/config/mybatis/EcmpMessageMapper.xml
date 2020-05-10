@@ -203,7 +203,7 @@
         select id,category_id messageId,category messageType,count(*) messageCount,config_type configType from ecmp_message
         where ecmp_id=#{userId} and type='T001' and status='0000'and config_type !=2
         and find_in_set(category,#{categorys}) and (category_id is not null or category_id!=0)
-        group by category
+        group by apply_id,category
     </select>
 
     <select id="getRunMessageForDrive" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">

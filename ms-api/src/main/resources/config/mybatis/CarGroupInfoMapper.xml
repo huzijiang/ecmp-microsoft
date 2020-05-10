@@ -37,6 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="city != null "> and city = #{city}</if>
             <if test="leader != null "> and leader = #{leader}</if>
             <if test="companyId != null "> and company_id = #{companyId}</if>
+            <if test="parentCarGroupId != null "> and parent_car_group_id = #{parentCarGroupId}</if>
         </where>
     </select>
 
@@ -66,6 +67,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="shortAddress != null ">short_address,</if>
             <if test="fullAddress != null ">full_address,</if>
             <if test="state != null ">state,</if>
+            <if test="allowOuterDispatch != null ">allow_outer_dispatch,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -101,6 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="city != null ">city = #{city},</if>
             <if test="carGroupName != null  and carGroupName != ''">car_group_name = #{carGroupName},</if>
             <if test="carGroupCode != null  and carGroupCode != ''">car_group_code = #{carGroupCode},</if>
+            <if test="companyId != null ">company_id = #{companyId},</if>
             <if test="parentCarGroupId != null ">parent_car_group_id = #{parentCarGroupId},</if>
             <if test="leader != null ">leader = #{leader},</if>
             <if test="longitude != null ">longitude = #{longitude},</if>
@@ -141,10 +144,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         c.state,c.city
              from car_group_info c
             left join ecmp_org e1 on e1.dept_id = c.company_id
-                c.state,c.city
-             from car_group_info c
-             left join ecmp_org eo on eo.dept_id= c.owner_org
-            left join ecmp_org e1 on e1.dept_id= c.company_id
         <where>
             state != 'S444'
             <if test="search != null and search != '' ">
@@ -159,6 +158,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
             <if test="carGroupId != null">
                 and c.parent_car_group_id = #{carGroupId}
+            </if>
+            <if test="companyId != null">
+                and c.company_id = #{companyId}
             </if>
         </where>
              order by c.car_group_name
@@ -210,8 +212,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from   car_group_info
         where  parent_car_group_id = #{carGroupId} and state != 'S444'
     </select>
-    <select id="selectAllCarGroupCode" resultType="java.lang.String">
-        SELECT car_group_code FROM car_group_info where state != 'S444'
+    <select id="selectAllCarGroupCode" resultType="java.lang.String" parameterType="long">
+        SELECT car_group_code FROM car_group_info where state != 'S444' and company_id = #{companyId}
     </select>
 
     <select id="selectCountByParentId" resultType="int">
@@ -230,5 +232,36 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
 
+    <select id="getCarGroupList" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO">
+        select car_group_id carGroupId,car_group_name carGroupName,car_group_code carGroupCode,owner_company ownerCompany,owner_org ownerOrg from car_group_info
+        where car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+        or parent_car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+    </select>
 
+    <select id="selectCarGroupInfoByDeptId" resultMap="CarGroupInfoResult">
+        <include refid="selectCarGroupInfoVo"/>
+        <where>
+            car_group_id in (
+            select distinct car_group_id from car_group_serve_org_relation
+            where (dept_id=#{deptId} and type='N100') or (dept_id=#{orgComcany} and type='W200' )
+            )
+        </where>
+    </select>
+
+    <select id="findCarTypeByGroupIds" resultType="com.hq.ecmp.mscore.vo.CarLevelVO" parameterType="Object">
+        SELECT car_group_id ,level,name from (SELECT
+            a.car_group_id,
+            b.NAME name ,
+            b.LEVEL level,
+            b.car_type_id
+        FROM
+            car_info a
+            INNER JOIN enterprise_car_type_info b ON b.car_type_id = a.car_type_id
+        WHERE 1=1
+            <if test="groupIds!=null">
+                and find_in_set(a.car_group_id,#{groupIds})
+            </if>
+            ) t
+             group by t.car_type_id
+    </select>
 </mapper>

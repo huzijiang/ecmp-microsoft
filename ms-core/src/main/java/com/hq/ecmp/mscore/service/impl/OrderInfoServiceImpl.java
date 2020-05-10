@@ -11,8 +11,8 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.*;
-import com.hq.ecmp.mscore.bo.CityInfo;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
@@ -40,6 +40,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -58,16 +59,18 @@ import static com.hq.ecmp.constant.CommonConstant.ONE;
 @Slf4j
 public class OrderInfoServiceImpl implements IOrderInfoService
 {
+    @Autowired
+    private TokenService tokenService;
 	@Autowired
 	private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
     @Resource
     private CarInfoMapper carInfoMapper;
-    @Autowired
+    @Resource
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
     @Autowired
-    private IDriverInfoService driverInfoService;
+    private DriverInfoMapper driverInfoMapper;
     @Resource
     private IJourneyInfoService iJourneyInfoService;
     @Resource
@@ -81,15 +84,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Resource
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
     @Resource
-    private IDriverInfoService iDriverInfoService;
-    @Resource
     private ApplyInfoMapper applyInfoMapper;
     @Resource
     private RedisUtil redisUtil;
     @Resource
     private UserEmergencyContactInfoMapper userEmergencyContactInfoMapper;
     @Resource
-    private IOrderViaInfoService iOrderViaInfoService;
+    private OrderViaInfoMapper orderViaInfoMapper;
     @Autowired
     private IRegimeInfoService regimeInfoService;
     @Autowired
@@ -103,7 +104,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Resource
     private IJourneyPlanPriceInfoService iJourneyPlanPriceInfoService;
     @Resource
-    private IDriverHeartbeatInfoService iDriverHeartbeatInfoService;
+    private DriverHeartbeatInfoMapper driverHeartbeatInfoMapper;
     @Resource
     private OrderAddressInfoMapper orderAddressInfoMapper;
     @Resource
@@ -128,6 +129,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private IEcmpOrgService ecmpOrgService;
     @Autowired
     private SceneInfoMapper sceneInfoMapper;
+    @Autowired
+    private IOrderPayInfoService iOrderPayInfoService;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -535,6 +538,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         //服务结束时间
         OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
         vo.setLabelState(orderStateTraceInfo.getState());
+        vo.setCancelReason(orderStateTraceInfo.getContent());
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
             vo.setOrderEndTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderStateTraceInfo.getCreateTime()));
         }
@@ -558,10 +562,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setDriverId(orderInfo.getDriverId());
             vo.setCardId(orderInfo.getCarId());
             //查询车辆信息
-            CarInfo carInfo = carInfoService.selectCarInfoById(orderInfo.getCarId());
+            CarInfo carInfo = carInfoMapper.selectCarInfoById(orderInfo.getCarId());
+            EnterpriseCarTypeInfo enterpriseCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
             if (carInfo!=null){
                 BeanUtils.copyProperties(carInfo,vo);
                 vo.setPowerType(CarPowerEnum.format(carInfo.getPowerType()));
+                if (enterpriseCarTypeInfo!=null){
+                    vo.setCarPhoto(enterpriseCarTypeInfo.getImageUrl());
+                }
             }
 //            DriverInfo driverInfo = driverInfoService.selectDriverInfoById(orderInfo.getDriverId());
             List<DriverServiceAppraiseeInfo> driverServiceAppraiseeInfos1 = driverServiceAppraiseeInfoMapper.queryAll(new DriverServiceAppraiseeInfo(orderInfo.getDriverId()));
@@ -589,8 +597,57 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 OrderCostDetailVO orderCost = this.getOrderCost(orderId);
                 vo.setOrderCostDetailVO(orderCost);
             }
+
+            //网约车是否限额
+            //查询出用车制度表的限额额度，和限额类型
+            OrderSettlingInfo orderSettlingInfo2 = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
+            RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
+            vo.setRegimeId(regimeInfo.getRegimenId());
+            BigDecimal limitMoney = regimeInfo.getLimitMoney();
+            String limitType = regimeInfo.getLimitType();
+            //按天
+            DecimalFormat df = new DecimalFormat("#0.00");
+            if("T001" .equals(limitType) ){
+                    //查询出当前申请人
+                    Long userId = orderInfo.getUserId();
+                    //根据订单号和当前申请人，得出当前申请人在当天一共申请的单量
+                    List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoByIdAllDay(userId);
+                    //从订单结算表当中，查询出当前申请人在当天一共申请的单量的金额总和
+                    BigDecimal sum = new BigDecimal(0);
+                    for (OrderInfo  order : orderInfos){
+                        OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoById(order.getOrderId());
+                        sum = sum.add(orderSettlingInfo.getAmount());
+                    }
+                // 当前申请人在当天一共申请的单量的金额总和-限额=超额
+                if(sum.compareTo(limitMoney) >= 0){
+                    BigDecimal subtract = sum.subtract(limitMoney);
+                    vo.setIsExcess(1);
+                    vo.setExcessMoney(df.format(subtract));
+                    //总额sum
+                }else{
+                    vo.setIsExcess(0);
+                    vo.setExcessMoney(df.format(0));
+                }
+
+             // 按次数
+            }else if("T002".equals(limitType)){
+                //判断
+                if(orderSettlingInfo2.getAmount().compareTo(limitMoney) > 0){
+                    BigDecimal subtract = orderSettlingInfo2.getAmount().subtract(limitMoney);
+                    vo.setIsExcess(1);
+                    vo.setExcessMoney(df.format(subtract));
+                }else{
+                    vo.setIsExcess(0);
+                    vo.setExcessMoney(df.format(0));
+                }
+            //不限
+            }else{
+                vo.setIsExcess(0);
+                vo.setExcessMoney(df.format(0));
+            }
         }
-        vo.setState(orderInfo.getState());
+        OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderId);
+        vo.setPayState(orderPayInfo.getState());
         return vo;
     }
 
@@ -858,7 +915,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		OrderInfo orderInfo = new OrderInfo();
 		orderInfo.setState(OrderState.ALREADYSENDING.getState());
 		// 查询司机信息
-		DriverInfo driverInfo = driverInfoService.selectDriverInfoById(driverId);
+		DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(driverId);
 		orderInfo.setOrderId(orderId);
 		orderInfo.setDriverId(driverId);
 		if (null != driverInfo) {
@@ -933,7 +990,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         Long journeyId = journeyUserCarPower.getJourneyId();
         Long applyId = journeyUserCarPower.getApplyId();
         //获取行程主表信息
-        JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyId);
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journeyId);
         String serviceType = journeyInfo.getServiceType();
         //是否往返 是Y000  否N444
         String itIsReturn = journeyInfo.getItIsReturn();
@@ -1078,7 +1135,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 }
             }
             if(orderViaInfos.size()>0){
-                iOrderViaInfoService.insertOrderViaInfoBatch(orderViaInfos);
+                orderViaInfoMapper.insertOrderViaInfoBatch(orderViaInfos);
             }
         }
         //插入订单轨迹表
@@ -1231,7 +1288,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto, Long userId) throws Exception {
-        JourneyUserCarPower journeyUserCarPower = iJourneyUserCarPowerService.selectJourneyUserCarPowerById(applyUseWithTravelDto.getTicketId());
+        JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(applyUseWithTravelDto.getTicketId());
         if(journeyUserCarPower == null){
             throw new Exception("用车权限不存在");
         }
@@ -1239,7 +1296,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(validOrderByPowerId!=null && validOrderByPowerId.size()>0){
             throw new Exception("此用车权限已存在有效订单");
         }
-        JourneyInfo journeyInfo = iJourneyInfoService.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(journeyUserCarPower.getJourneyId());
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderNumber(OrderUtils.getOrderNum());
         orderInfo.setPowerId(journeyUserCarPower.getPowerId());
@@ -1531,7 +1588,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
             DriverHeartbeatInfo driverHeartbeatInfo = new DriverHeartbeatInfo();
             driverHeartbeatInfo.setOrderId(orderId);
-            List<DriverHeartbeatInfo> driverHeartbeatInfos = iDriverHeartbeatInfoService.selectDriverHeartbeatInfoList(driverHeartbeatInfo);
+            List<DriverHeartbeatInfo> driverHeartbeatInfos = driverHeartbeatInfoMapper.selectDriverHeartbeatInfoList(driverHeartbeatInfo);
             for (DriverHeartbeatInfo driverHeartbeatInfo1:
             driverHeartbeatInfos) {
                 OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();
@@ -1596,7 +1653,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String basePrice = orderFeeDetailVO.getBasePrice();
         String includeMileage = orderFeeDetailVO.getIncludeMileage();
         String includeMinute = orderFeeDetailVO.getIncludeMinute();
-        if(BigDecimal.ZERO!=new BigDecimal(basePrice)){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(basePrice).stripTrailingZeros())<0){
             list.add(new OtherCostVO("起步价",basePrice,includeMileage,includeMinute,"含时长"+includeMinute+"分钟,含里程"+includeMileage+"公里"));
         }
         //超时长费：超出基础时长时计算，同时会区分高峰和平峰时段
@@ -1618,34 +1675,34 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String hotMileage = orderFeeDetailVO.getHotMileage();//高峰里程
         String peakPrice = orderFeeDetailVO.getPeakPrice();//高峰里程单价
         String allMileage=new BigDecimal(hotMileage).add(new BigDecimal(overMilageNum)).stripTrailingZeros().toPlainString();
-        if(BigDecimal.ZERO.compareTo(new BigDecimal(overMilageNumTotal))<0){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(overMilageNumTotal).stripTrailingZeros())<0){
             list.add(new OtherCostVO("超里程费",overMilageNumTotal,"平峰里程:"+overMilageNum+"公里,高峰里程:"+hotMileage+"公里,累计超时里程:"+allMileage+"公里"));
         }
         //夜间里程费：用车过程在设定为夜间服务时间的，加收夜间服务费。
         String nightDistancePrice = orderFeeDetailVO.getNightDistancePrice();
         String nightDistanceNum	 = orderFeeDetailVO.getNightDistanceNum();
         String nightPrice = orderFeeDetailVO.getNightPrice();
-        if(BigDecimal.ZERO.compareTo(new BigDecimal(nightDistancePrice))<0){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(nightDistancePrice).stripTrailingZeros())<0){
             list.add(new OtherCostVO("夜间时长费",nightDistancePrice,"夜间服务费（里程）单价:"+nightPrice+",夜间服务里程"+nightDistanceNum+"公里"));
         }
         //夜间时长费：用车过程在设定为夜间服务时间的，加收夜间服务费。
         String nighitDurationFees = orderFeeDetailVO.getNighitDurationFees();
         String nighitDuration = orderFeeDetailVO.getNighitDuration();
         String nightPriceTime = orderFeeDetailVO.getNightPriceTime();
-        if(BigDecimal.ZERO.compareTo(new BigDecimal(nighitDurationFees))<0){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(nighitDurationFees).stripTrailingZeros())<0){
             list.add(new OtherCostVO("夜间时长费",nighitDurationFees,"夜间服务费（时长）单价:"+nightPriceTime+",夜间服务时长"+nighitDuration+"分钟"));
         }
         //等待费
         String waitingFee = orderFeeDetailVO.getWaitingFee();
         String waitingMinutes = orderFeeDetailVO.getWaitingMinutes();
-        if(BigDecimal.ZERO.compareTo(new BigDecimal(waitingFee))<0){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(waitingFee).stripTrailingZeros())<0){
             list.add(new OtherCostVO("等待费",waitingFee,"等待时长为"+waitingMinutes+"分钟"));
         }
         //长途费：超过长途费起始里程时计算
         String longDistancePrice = orderFeeDetailVO.getLongDistancePrice();
         String longDistanceNum = orderFeeDetailVO.getLongDistanceNum();
         String longPrice = orderFeeDetailVO.getLongPrice();
-        if(BigDecimal.ZERO.compareTo(new BigDecimal(longDistancePrice))<0){
+        if(BigDecimal.ZERO.compareTo(new BigDecimal(longDistancePrice).stripTrailingZeros())<0){
             list.add(new OtherCostVO("长途费",longDistancePrice,"长途单价:"+longPrice+",长途里程"+longDistanceNum+"公里"));
         }
         //价外税:如高速费和停车费
@@ -1654,7 +1711,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (!CollectionUtils.isEmpty(otherCostBeans)){
             otherFee = otherCostBeans.stream().map(OtherCostBean::getCostFee).collect(Collectors.reducing(Double::sum)).get();
         }
-        if(BigDecimal.ZERO.compareTo(BigDecimal.valueOf(otherFee))<0){
+        if(BigDecimal.ZERO.compareTo(BigDecimal.valueOf(otherFee).stripTrailingZeros())<0){
             list.add(new OtherCostVO("其他费用",String.valueOf(otherFee),"包含停车费、高速费、机场服务费"));
         }
         result.setOtherCost(list);
@@ -1772,6 +1829,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         log.info("订单号:"+orderNo+"状态详情:"+orderVO.toString());
         List<String> states=Arrays.asList(OrderState.INITIALIZING.getState(),OrderState.WAITINGLIST.getState(),OrderState.GETARIDE.getState(),
                             OrderState.SENDINGCARS.getState(),OrderState.ORDERCLOSE.getState(),OrderState.STOPSERVICE.getState());
+        OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderNo);
+        orderVO.setPayState(orderPayInfo.getState());
         if (states.contains(orderVO.getState())){
             return orderVO;
         }
@@ -2014,6 +2073,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderSettlingInfo.setCreateBy(CommonConstant.START);
                 orderSettlingInfo.setCreateTime(new Date());
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
+                //插入订单支付表
+                OrderPayInfo orderPayInfo = new OrderPayInfo();
+                OrderSettlingInfo orderSettlingInfo1 = orderSettlingInfoMapper.selectOrderSettlingInfoById(orderNo);
+                orderPayInfo.setBillId(orderSettlingInfo1.getBillId());
+                orderPayInfo.setOrderId(orderNo);
+                //state属性   0000已支付  N111 未支付
+                orderPayInfo.setState("0000");
+                //payMode属性  M001结单后付费  M002开单预付费  M003充值卡扣款  M999其他
+                orderPayInfo.setPayMode("M001");
+                orderPayInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
+                orderPayInfo.setCreateTime(DateUtils.getNowDate());
+                iOrderPayInfoService.insertOrderPayInfo(orderPayInfo);
             }
 
             int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());

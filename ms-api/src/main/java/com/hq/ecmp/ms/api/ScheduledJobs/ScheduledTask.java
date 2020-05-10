@@ -58,8 +58,8 @@ public class ScheduledTask {
     @Value("${schedule.confirmTimeout}")
     private int timeout;
 
-	//@Autowired
-	//private IDriverWorkInfoService driverWorkInfoService;
+	@Autowired
+	private IDriverWorkInfoService driverWorkInfoService;
 
     @Scheduled(cron = "5 * * * * ?")
     public void testJob(){
@@ -243,7 +243,8 @@ public class ScheduledTask {
     }
 
     //从云端获取一年的节假日修改本地数据的cloud_work_date_info表
-	/*@Scheduled(cron = "0 0/3 * * * ? ")
+	//@Scheduled(cron = "0 0/3 * * * ? ")
+    @Scheduled(cron = "0 0 0 * * ?")
 	public void  SchedulingTimingTask (){
 		log.info("定时任务:SchedulingTimingTask:通过云端获取的时间修改本地cloud_work_date_info假期StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		try {
@@ -252,7 +253,7 @@ public class ScheduledTask {
 			e.printStackTrace();
 		}
 		log.info("定时任务:SchedulingTimingTask:通过云端获取的时间修改本地cloud_work_date_info假期EndTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-	}*/
+	}
 
 	/**
 	 * 过12小时，自动确认行程,目前是一小时，测试完成要改成12小时

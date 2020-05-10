@@ -711,7 +711,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
                 }
             }
             //查询该订单的发起改派申请的司机
-            Long applyReassignmentDriverId = orderStateTraceInfoMapper.queryApplyReassignmentDriver(orderId);
+            Long applyReassignmentDriverId = orderStateTraceInfoMapper.queryApplyReassignmentDriver(orderId,OrderStateTrace.APPLYREASSIGNMENT.getState());
             if(null !=applyReassignmentDriverId){
             	//给发起改派申请的司机发送消息通知  改派成功了
             	 sendMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),applyReassignmentDriverId,

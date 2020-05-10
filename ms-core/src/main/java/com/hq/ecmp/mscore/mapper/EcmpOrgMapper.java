@@ -31,7 +31,7 @@ public interface EcmpOrgMapper {
      * @param ownerCompany 顶级公司ID
      * @return 公司
      */
-    public List<EcmpOrgDto> selectByEcmpOrgOwnerCompanyId(@Param("ownerCompany") Long ownerCompany);
+    public List<EcmpOrgDto> selectByEcmpOrgOwnerCompanyId(@Param("companyId") Long companyId);
     /**
      * 查询部门详情
      *

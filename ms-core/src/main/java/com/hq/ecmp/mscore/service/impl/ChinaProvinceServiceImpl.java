@@ -1,9 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import com.hq.ecmp.mscore.bo.CityInfo;
-import com.hq.ecmp.mscore.mapper.ChinaCityMapper;
 import com.hq.ecmp.mscore.mapper.ChinaProvinceMapper;
-import com.hq.ecmp.mscore.service.ChinaCityService;
 import com.hq.ecmp.mscore.service.ChinaProvinceService;
 import com.hq.ecmp.mscore.vo.ProvinceCityVO;
 import com.hq.ecmp.mscore.vo.ProvinceVO;

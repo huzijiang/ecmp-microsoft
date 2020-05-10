@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpNotice;
+import com.hq.ecmp.mscore.dto.config.Scheduling;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -95,4 +96,6 @@ public interface EcmpNoticeMapper
      * 定时任务：修改公告管理公告状态
      */
     List<EcmpNotice> selectNoticeByStatus();
+
+    void addObtainScheduling(Scheduling scheduling);
 }

@@ -115,5 +115,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{traceId}
         </foreach>
     </delete>
-    
+
+    <select id="selectOrderWaitingTimeById" parameterType="Long" resultType="java.math.BigDecimal">
+        SELECT
+                ROUND(sum( a.waitingTime ),2) waitingTime
+            FROM
+                ( SELECT ( UNIX_TIMESTAMP( update_time ) - UNIX_TIMESTAMP( create_time ))/ 60 waitingTime FROM order_wait_trace_info where order_id =#{orderId} GROUP BY trace_id ) a
+    </select>
 </mapper>

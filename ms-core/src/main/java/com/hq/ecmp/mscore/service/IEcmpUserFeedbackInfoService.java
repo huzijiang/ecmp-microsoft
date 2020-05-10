@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
+import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo;
 import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
+import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
 
@@ -62,4 +64,17 @@ public interface IEcmpUserFeedbackInfoService
     public int deleteEcmpUserFeedbackInfoById(Long feedbackId);
 
     Long saveOrderEvaluation(OrderEvaluationDto evaluationDto, Long userId) throws Exception;
+
+    /**
+     * 异议订单
+     * @param ecmpUserFeedbackInfo
+     * @return
+     */
+    PageResult<EcmpUserFeedbackInfoVo> getObjectionOrderList(EcmpUserFeedbackInfoVo ecmpUserFeedbackInfo);
+
+    /**
+     * 回复异议订单
+     * @param ecmpUserFeedbackInfo
+     */
+    int replyObjectionOrder(EcmpUserFeedbackInfoVo ecmpUserFeedbackInfo,Long userId);
 }
