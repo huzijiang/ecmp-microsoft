@@ -123,6 +123,8 @@ dispatch:
     notBackCarGroup: 60
     #回车队驻地缓冲时间: 90分钟
     backCarGroup: 90
+    #无车驳回的可操作最小时间限制 30分钟
+    noCarDeniedMinutes: 30
 
 #调度行程确认的时间间隔
 schedule:
