@@ -37,6 +37,10 @@ public class EcmpNotice extends BaseEntity
     @Excel(name = "公告标题")
     private String noticeTitle;
 
+    /** 公告首图 */
+    @Excel(name = "公告首图")
+    private String noticeIcon;
+
     /** 公告类型（1通知 2公告） */
     @Excel(name = "公告类型", readConverterExp = "1=通知,2=公告")
     private String noticeType;
@@ -65,6 +69,9 @@ public class EcmpNotice extends BaseEntity
     @Excel(name = "多条对应的公告id")
     private List<Long> bucIds;
 
+    /** 发布城市*/
+    @Excel(name = "发布城市")
+    private String noticeCity;
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -80,6 +87,7 @@ public class EcmpNotice extends BaseEntity
             .append("remark", getRemark())
             .append("configType", getConfigType())
             .append("bucIds", getBucIds())
+            .append("noticeCity", getNoticeCity())
             .toString();
     }
 }

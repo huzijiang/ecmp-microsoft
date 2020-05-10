@@ -119,4 +119,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select  dict_value AS icon from ecmp_dict_data where dict_type = #{dictType}
 
     </select>
+
+    <select id="selectEcmpDictByCarType" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.CarTypeDTO">
+
+        select  dict_value AS imageUrl from ecmp_dict_data where dict_type = #{dictType}
+
+    </select>
 </mapper>

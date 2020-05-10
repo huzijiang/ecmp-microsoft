@@ -33,6 +33,9 @@ public class EcmpNoticeDTO
     /** 公告内容 */
     private String noticeContent;
 
+    /** 公告首图 */
+    private String noticeIcon;
+
     /** 公告状态（0正常 1关闭） */
     private String status;
 
@@ -50,6 +53,10 @@ public class EcmpNoticeDTO
      * 对应id
      */
     private Long bucId;
+    /**
+     * 城市id
+     */
+    private String noticeCity;
     /**
      * 多条对应id
      */

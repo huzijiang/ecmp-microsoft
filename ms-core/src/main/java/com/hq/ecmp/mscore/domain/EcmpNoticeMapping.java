@@ -30,7 +30,7 @@ public class EcmpNoticeMapping implements Serializable {
     * 状态，0：有效，1：无效
     */
     private String status;
-    
+
     private Date createTime;
     
     private Date updateTime;

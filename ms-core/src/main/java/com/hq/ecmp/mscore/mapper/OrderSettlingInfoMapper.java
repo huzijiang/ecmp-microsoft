@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
+import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
 
 import java.util.List;
 
@@ -68,4 +69,11 @@ public interface OrderSettlingInfoMapper
      * @return 结果
      */
     public int deleteOrderSettlingInfoByIds(Long[] billIds);
+
+    /**
+     * 新增订单结算信息表
+     * @param orderSettlingInfoVo
+     * @return
+     */
+    int insertOrderSettlingInfoOne(OrderSettlingInfoVo orderSettlingInfoVo);
 }

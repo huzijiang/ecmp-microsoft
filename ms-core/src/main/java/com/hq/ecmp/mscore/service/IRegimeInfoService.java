@@ -198,5 +198,12 @@ public interface IRegimeInfoService
     List<UseCarTypeVO> checkUseCarModeAndType(RegimeCheckDto regimeDto, LoginUser loginUser) throws Exception;
 
     List<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto, SysUser user)throws Exception;
+
+    /**
+     * 通过申请人查询可用的制度
+     * @param userId
+     * @return
+     */
+    List<RegimenVO> getUserSystem(Long userId);
 }
 

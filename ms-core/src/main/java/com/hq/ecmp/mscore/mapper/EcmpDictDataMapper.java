@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DictQuery;
 import com.hq.ecmp.mscore.domain.EcmpDictData;
+import com.hq.ecmp.mscore.dto.CarTypeDTO;
 import com.hq.ecmp.mscore.vo.SceneListVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -75,6 +76,13 @@ public interface EcmpDictDataMapper
      *查询字典里面的图标
      */
     List<SceneListVO> selectEcmpDictByType(@Param("dictType") String dictType);
+
+    /**
+     * 查询字典表中的车型图标
+     * @param dictType
+     * @return
+     */
+    List<CarTypeDTO> selectEcmpDictByCarType(@Param("dictType") String dictType);
 
     /**
      * 评价标签的好评

@@ -787,7 +787,20 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		return cityCarGroup;
 	}
 
-	/**
+    /**
+     * 通过申请人查询可用的制度
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<RegimenVO> getUserSystem(Long userId) {
+        List<Long> userRegimeIds = regimeInfoMapper.selectEnableRegimenIdByUserId(userId);
+        List<RegimenVO> regimenVOList = userRegimeIds.stream().
+                map(id -> regimeInfoMapper.selectRegimenVOById(id)).filter(r -> r != null).collect(Collectors.toList());
+        return regimenVOList;
+    }
+
+    /**
 	 *
 	 * 校验自由车服务城市是否可用
 	 * @param orgComcany
