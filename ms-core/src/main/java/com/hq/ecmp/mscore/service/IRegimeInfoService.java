@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import java.text.ParseException;
 import java.util.List;
 
+import com.hq.api.system.domain.SysUser;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.RegimeInfo;
 import com.hq.ecmp.mscore.domain.RegimeLimitUseCarCityInfo;
@@ -196,6 +197,6 @@ public interface IRegimeInfoService
      */
     List<UseCarTypeVO> checkUseCarModeAndType(RegimeCheckDto regimeDto, LoginUser loginUser) throws Exception;
 
-    List<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto)throws Exception;
+    List<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto, SysUser user)throws Exception;
 }
 

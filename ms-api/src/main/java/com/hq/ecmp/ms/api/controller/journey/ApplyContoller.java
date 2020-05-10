@@ -382,7 +382,7 @@ public class ApplyContoller {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            List<OnLineCarTypeVO> list=regimeInfoService.getUseCarType(regimeDto);
+            List<OnLineCarTypeVO> list=regimeInfoService.getUseCarType(regimeDto,loginUser.getUser());
         } catch (Exception e) {
             e.printStackTrace();
         }

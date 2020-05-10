@@ -59,6 +59,8 @@ public class OrderController {
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
     @Resource
     private IDriverHeartbeatInfoService driverHeartbeatInfoService;
+    @Resource
+    private OrderInfoTwoService orderInfoTwoService;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -645,7 +647,7 @@ public class OrderController {
 
     /**
      *   @author caobj
-     *   @Description 轮询获取提示语
+     *   @Description 行程分享
      *   @Date 10:11 2020/3/4
      *   @Param  []
      *   @return com.hq.common.core.api.ApiResponse
@@ -682,4 +684,20 @@ public class OrderController {
             return  ApiResponse.error("更换车辆失败");
         }
     }
+
+    @ApiOperation(value = "公务取消订单",httpMethod = "POST")
+    @RequestMapping("/cancelBusinessOrder")
+    public ApiResponse cancelBusinessOrder(@RequestBody OrderDto orderDto){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            orderInfoTwoService.cancelBusinessOrder(orderDto.getOrderId(),orderDto.getCancelReason());
+            return ApiResponse.success();
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("更换车辆失败");
+        }
+    }
+
+
 }

@@ -19,6 +19,7 @@ public class OnLineCarTypeVO {
     private Long cityId;
     private String cityCode;
     private String cityName;
+    private String carGroupIds;
     private List<CarLevelVO> carType;
     private List<CarServiceTypeVO> serviceType;
 }

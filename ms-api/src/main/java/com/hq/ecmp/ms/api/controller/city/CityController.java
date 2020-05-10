@@ -32,7 +32,13 @@ public class CityController {
 	
 	@ApiOperation(value = "getCityByName", notes = "据城市名称模糊搜索城市列表 ", httpMethod = "POST")
 	@PostMapping("/getCityByName")	
-	public ApiResponse<List<CityInfo>> getCityByName(@RequestParam("regimenId") Long regimenId,@RequestParam("cityName") String cityName) {
+	public ApiResponse<List<CityInfo>> getCityByName(@RequestParam("cityName") String cityName) {
+		return ApiResponse.success(cityService.queryCityInfoListByCityName(cityName,null));
+	}
+
+	@ApiOperation(value = "getCityByNameAndRegimeId", notes = "据制度id和城市名称模糊搜索城市列表 ", httpMethod = "POST")
+	@PostMapping("/getCityByNameAndRegimeId")
+	public ApiResponse<List<CityInfo>> getCityByNameAndRegimeId(@RequestParam("regimenId") Long regimenId,@RequestParam("cityName") String cityName) {
 		return ApiResponse.success(cityService.queryCityInfoListByCityName(cityName,regimenId));
 	}
 	

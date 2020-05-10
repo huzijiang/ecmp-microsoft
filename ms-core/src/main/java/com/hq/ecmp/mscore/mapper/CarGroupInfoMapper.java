@@ -1,10 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.vo.CarGroupFixedPhoneVO;
-import com.hq.ecmp.mscore.vo.CarGroupListVO;
-import com.hq.ecmp.mscore.vo.CarGroupPhoneVO;
-import com.hq.ecmp.mscore.vo.CarGroupTreeVO;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -159,4 +156,6 @@ public interface CarGroupInfoMapper
     List<CarGroupListVO> getCarGroupList(Long userId);
 
     List<CarGroupInfo> selectCarGroupInfoByDeptId(@Param("orgComcany") Long orgComcany,@Param("deptId") Long deptId);
+
+    List<CarLevelVO> findCarTypeByGroupIds(@Param("groupIds")String groupIds);
 }

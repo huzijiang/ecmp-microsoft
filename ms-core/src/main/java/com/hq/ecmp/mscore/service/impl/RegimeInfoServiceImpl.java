@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Maps;
+import com.hq.api.system.domain.SysUser;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
@@ -61,6 +62,8 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
     private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Autowired
     private CarGroupInfoMapper carGroupInfoMapper;
+    @Autowired
+    private CarInfoMapper carInfoMapper;
     @Autowired
 	private ApproveTemplateNodeInfoMapper approveTemplateNodeInfoMapper;
     @Resource
@@ -750,10 +753,6 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}
 		switch (canUseCarMode){
 			case CarConstant.USR_CARD_MODE_HAVE://自由车
-//				if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(regimeVo.getRegimenType())){
-//					checkAffairsCompanyCar(orgComcany,loginUser.getUser().getDeptId(),cityCodes.get(0));
-//				}else{
-//				}
 				String noAvailableCity = checkTraveCompanyCar(orgComcany, loginUser.getUser().getDeptId(), cityCodes);
 				if (StringUtils.isNotBlank(noAvailableCity)){
 					List<CityInfo> cityList=chinaCityMapper.findByCityCode(noAvailableCity.substring(1));
@@ -773,16 +772,19 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 
 	//获取开城城市
 	@Override
-	public List<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto)throws Exception {
+	public List<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto, SysUser user)throws Exception {
 		RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimeDto.getRegimeId());
 		if (regimeVo==null){
 			throw new Exception("该制度不存在");
 		}
+		List<OnLineCarTypeVO> cityCarGroup=null;
 		String useCarMode = regimeDto.getUseCarMode();
 		if (StringUtils.isNotBlank(useCarMode)&&CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){
+			cityCarGroup = getOwnerCityCarGroup(user.getDeptId());
+		}else{
 
 		}
-		return null;
+		return cityCarGroup;
 	}
 
 	/**
@@ -824,6 +826,24 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			   }
 		}
 		return null;
+	}
+
+	//获取登录人所属公司自由车开城情况
+	private List<OnLineCarTypeVO> getOwnerCityCarGroup(Long deptId) throws Exception{
+		EcmpOrg ecmpOrg = orgService.getOrgByDeptId(deptId);
+		List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectCarGroupInfoList(new CarGroupInfo(ecmpOrg.getCompanyId()));
+		if (CollectionUtils.isEmpty(carGroupInfos)){
+			throw new Exception("该申请人所属公司暂无车队服务");
+		}
+		List<Long> collect = carGroupInfos.stream().map(CarGroupInfo::getCarGroupId).collect(Collectors.toList());
+		List<OnLineCarTypeVO> cityList=carInfoMapper.findByGroupIds(collect);
+		if(CollectionUtils.isNotEmpty(cityList)){
+			for (OnLineCarTypeVO vo:cityList){
+				List<CarLevelVO> carType =carGroupInfoMapper.findCarTypeByGroupIds(vo.getCarGroupIds());
+				vo.setCarType(carType);
+			}
+		}
+		return cityList;
 	}
 
 	private Map<String,Object> checkRoleCarTime(String startTime,Long regimeId){
