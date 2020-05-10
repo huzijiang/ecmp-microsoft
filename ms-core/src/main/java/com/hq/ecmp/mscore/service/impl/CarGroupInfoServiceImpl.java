@@ -858,15 +858,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //如果传了订单id，则查询订单对应的调度员（如果有改派，改派和第一次调度员都是同一个人）及调度员所在车队电话
                 //根据订单id查询调度员的userId(调度员是有)
                 String userId  = orderStateTraceInfoMapper.selectDispatcherUserId(orderId);
-                //（2.1）查询调度员信息
-                UserVO userVO = ecmpUserMapper.selectUserVoById(Long.valueOf(userId));
-                contactCarGroupVO = ContactCarGroupVO.builder()
-                        .name(userVO.getUserName())
-                        .phone(userVO.getUserPhone())
-                        //0 表示车队  1表示调度员
-                        .type(1)
-                        .build();
-                phones.add(contactCarGroupVO);
                 //查询调度员所在车队及车队座机
                 CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
                 carGroupDispatcherInfo.setUserId(Long.valueOf(userId));
@@ -885,6 +876,15 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                             .build();
                     phones.add(contactCarGroupVO);
                 }
+                //（2.1）查询调度员信息
+                UserVO userVO = ecmpUserMapper.selectUserVoById(Long.valueOf(userId));
+                contactCarGroupVO = ContactCarGroupVO.builder()
+                        .name(userVO.getUserName())
+                        .phone(userVO.getUserPhone())
+                        //0 表示车队  1表示调度员
+                        .type(1)
+                        .build();
+                phones.add(contactCarGroupVO);
             }
         }else {
             //2.如果是司机  (司机可能不是公司员工) 则查询司机所在车队

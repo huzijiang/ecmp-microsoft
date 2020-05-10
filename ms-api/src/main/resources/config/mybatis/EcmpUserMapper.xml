@@ -762,4 +762,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             parameterType="java.lang.Long">
         select * from ecmp_user where owner_company = #{ownerCompany}
     </select>
+    <select id="queryUserListByCompanyIdsAndName" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+            select user_id as userId,nick_name as nickName,phonenumber as
+            phonenumber from ecmp_user
+            where
+            owner_company = #{companyId}
+            <if test="name != null  and name != ''">and (nick_name like concat('%', #{name}, '%') or phonenumber like concat('%', #{name}, '%'))  </if>
+            <if test="itIsDispatcher != null and itIsDispatcher!='' "> and it_is_dispatcher = #{itIsDispatcher}</if>
+    </select>
 </mapper>
