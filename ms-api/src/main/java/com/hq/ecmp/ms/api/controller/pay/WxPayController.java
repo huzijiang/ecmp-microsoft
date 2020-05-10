@@ -66,10 +66,11 @@ public class WxPayController {
     @RequestMapping(value = "/wechat", method = RequestMethod.POST)
     @ResponseBody
     public WxPayAppOrderResult pay(@RequestBody String param, HttpServletRequest request) {
+        log.info("微信支付，传来的参数为："+param);
         String ipAddr = IpAddressUtil.getIpAddr(request);
         JSONObject jsonObject = JSONObject.parseObject(param);
-        String orderId = jsonObject.getString("orderId");
-        BigDecimal price = jsonObject.getBigDecimal("price");
+        Integer orderId = jsonObject.getInteger("orderId");
+        String price = jsonObject.getString("price");
         String body = jsonObject.getString("body");
         WxPayAppOrderResult result = null;
             try {
@@ -77,9 +78,9 @@ public class WxPayController {
                 //商品描述
                 orderRequest.setBody(body);
                 //商户订单号
-                orderRequest.setOutTradeNo(orderId);
+                orderRequest.setOutTradeNo(orderId.toString());
                 //金额
-                orderRequest.setTotalFee(BaseWxPayRequest.yuanToFen(price.toString()));//元转成分
+                orderRequest.setTotalFee(BaseWxPayRequest.yuanToFen(price));//元转成分
                 //ip
                 orderRequest.setSpbillCreateIp(ipAddr);
                 //签名

@@ -594,26 +594,19 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             //查询出用车制度表的限额额度，和限额类型
             OrderSettlingInfo orderSettlingInfo2 = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
             RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
+            vo.setRegimeId(regimeInfo.getRegimenId());
             BigDecimal limitMoney = regimeInfo.getLimitMoney();
             String limitType = regimeInfo.getLimitType();
             //按天
             DecimalFormat df = new DecimalFormat("#0.00");
-            if("T001" == limitType){
+            if("T001" .equals(limitType) ){
                     //查询出当前申请人
-                    HttpServletRequest request = ServletUtils.getRequest();
-                    LoginUser loginUser = tokenService.getLoginUser(request);
-                    Long userId = loginUser.getUser().getUserId();
+                    Long userId = orderInfo.getUserId();
                     //根据订单号和当前申请人，得出当前申请人在当天一共申请的单量
-                    List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoByIdAllDay(orderId);
-                    List<OrderInfo> list = new ArrayList<>();
-                    for (OrderInfo  order : orderInfos){
-                        if(userId == order.getUserId()){
-                            list.add(order);
-                        }
-                    }
+                    List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoByIdAllDay(userId);
                     //从订单结算表当中，查询出当前申请人在当天一共申请的单量的金额总和
                     BigDecimal sum = new BigDecimal(0);
-                    for (OrderInfo  order : list){
+                    for (OrderInfo  order : orderInfos){
                         OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoById(order.getOrderId());
                         sum = sum.add(orderSettlingInfo.getAmount());
                     }
@@ -645,7 +638,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 vo.setExcessMoney(df.format(0));
             }
         }
-        vo.setState(orderInfo.getState());
+        OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderId);
+        vo.setPayState(orderPayInfo.getState());
         return vo;
     }
 
@@ -1827,6 +1821,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         log.info("订单号:"+orderNo+"状态详情:"+orderVO.toString());
         List<String> states=Arrays.asList(OrderState.INITIALIZING.getState(),OrderState.WAITINGLIST.getState(),OrderState.GETARIDE.getState(),
                             OrderState.SENDINGCARS.getState(),OrderState.ORDERCLOSE.getState(),OrderState.STOPSERVICE.getState());
+        OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderNo);
+        orderVO.setPayState(orderPayInfo.getState());
         if (states.contains(orderVO.getState())){
             return orderVO;
         }
@@ -2074,7 +2070,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 OrderSettlingInfo orderSettlingInfo1 = orderSettlingInfoMapper.selectOrderSettlingInfoById(orderNo);
                 orderPayInfo.setBillId(orderSettlingInfo1.getBillId());
                 orderPayInfo.setOrderId(orderNo);
+                //state属性   0000已支付  N111 未支付
                 orderPayInfo.setState("0000");
+                //payMode属性  M001结单后付费  M002开单预付费  M003充值卡扣款  M999其他
                 orderPayInfo.setPayMode("M001");
                 orderPayInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
                 orderPayInfo.setCreateTime(DateUtils.getNowDate());

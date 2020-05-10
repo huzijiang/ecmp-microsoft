@@ -24,5 +24,8 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
         return orderPayInfoMapper.insertOrderPayInfo(orderPayInfo);
     }
 
-
+    @Override
+    public OrderPayInfo getOrderPayInfo(Long orderId) {
+        return orderPayInfoMapper.getOrderPayInfo(orderId);
+    }
 }

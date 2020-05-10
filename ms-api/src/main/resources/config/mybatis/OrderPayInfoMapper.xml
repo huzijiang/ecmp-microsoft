@@ -24,6 +24,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateTime"    column="update_time"    />
     </resultMap>
 
+    <sql id="selectOrderPayInfoVo">
+        select pay_id, bill_id, order_id, state, pay_mode, pay_channel, channel_rate, url,  amount, channel_amount, arrive_amount, finish_pay_time, finish_result,
+        create_by, create_time, update_by, update_time
+        from order_pay_info
+    </sql>
+
     <insert id="insertOrderPayInfo" parameterType="com.hq.ecmp.mscore.domain.OrderPayInfo">
         insert into order_pay_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -65,5 +71,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null ">#{updateTime},</if>
         </trim>
     </insert>
+
+    <select id="getOrderPayInfo" parameterType="Long" resultMap="OrderPayInfoResult">
+        <include refid="selectOrderPayInfoVo"/>
+        where order_id = #{orderId} order by create_time desc limit 1
+    </select>
 </mapper>
 

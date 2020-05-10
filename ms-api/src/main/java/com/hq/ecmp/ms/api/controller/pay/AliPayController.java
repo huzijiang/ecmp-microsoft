@@ -65,8 +65,8 @@ public class AliPayController {
     @ResponseBody
     public String pay(@RequestBody String param) {
         JSONObject jsonObject = JSONObject.parseObject(param);
-        String orderId = jsonObject.getString("orderId");
-        BigDecimal price = jsonObject.getBigDecimal("price");
+        Integer orderId = jsonObject.getInteger("orderId");
+        String price = jsonObject.getString("price");
         String body = jsonObject.getString("body");
         AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.URL, AlipayConfig.APPID, AlipayConfig.APP_PRIVATE_KEY, AlipayConfig.FORMAT, AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGNTYPE);
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
@@ -74,9 +74,9 @@ public class AliPayController {
         //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
         AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
         model.setSubject(body); //商品标题
-        model.setOutTradeNo(orderId); //商家订单的唯一编号
+        model.setOutTradeNo(orderId.toString()); //商家订单的唯一编号
         model.setTimeoutExpress("30m"); //超时关闭该订单时间
-        model.setTotalAmount(price.toString());  //订单总金额
+        model.setTotalAmount(price);  //订单总金额
         model.setProductCode("QUICK_MSECURITY_PAY"); //销售产品码，商家和支付宝签约的产品码，为固定值QUICK_MSECURITY_PAY
         request.setBizModel(model);
         request.setNotifyUrl(AlipayConfig.notify_url);  //回调地址
@@ -91,6 +91,8 @@ public class AliPayController {
             orderString = response.getBody();
         } catch (AlipayApiException e) {
             e.printStackTrace();
+            log.info("支付宝下单失败，错误原因为："+e);
+            log.info("支付宝下单失败，错误原因为："+e.getMessage());
         }
         return orderString;
     }
@@ -171,9 +173,10 @@ public class AliPayController {
             }
         } catch (AlipayApiException e) {
             e.printStackTrace();
+            log.info("支付宝回调失败，错误原因为："+e);
+            log.info("支付宝回调失败，错误原因为："+e.getMessage());
         }
-        log.info("支付标志" + flag);
-        //成功后进行自己相关业务的操作
+        log.info("支付回调标志" + flag);
         return flag;
     }
 }
