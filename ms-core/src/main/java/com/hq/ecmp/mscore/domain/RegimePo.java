@@ -92,13 +92,7 @@ public class RegimePo {
     Date createTime;
 
 	/**************************二期添加字段*******************************/
-	/**
-	 * 成本中心
-	 * C000 公司付费
-	 * D000 部门付费
-	 * P000 项目付费
-	 */
-	private String costCenter;
+
 	/**
 	 * 公务限额类型(此字段仅网约车使用，和字段limit_money一起使用)
 	 * T000 不限

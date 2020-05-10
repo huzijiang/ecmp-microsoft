@@ -1,12 +1,13 @@
 package com.hq.ecmp.mscore.domain;
 
-import lombok.Data;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
-
-import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * 【请填写功能名称】对象 order_state_trace_info
@@ -15,6 +16,8 @@ import java.math.BigDecimal;
  * @date 2020-01-02
  */
 @Data
+@Builder
+@AllArgsConstructor
 public class OrderStateTraceInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;

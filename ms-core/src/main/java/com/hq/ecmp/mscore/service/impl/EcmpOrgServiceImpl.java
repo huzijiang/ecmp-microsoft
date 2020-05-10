@@ -14,6 +14,7 @@ import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.EcmpUserInfoDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
@@ -991,4 +992,23 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         return ecmpOrgMapper.selectDeptByCompany(deptId);
     }*/
 
+    /**
+     * 通过用户id获取末级部门信息和末级公司信息
+     * @param userId 用户id
+     * @return
+     */
+    @Override
+    public EcmpUserInfoDto getUserLatestDeptInfoByUserId(Long userId) {
+        EcmpUserInfoDto ecmpUserInfoDto = new EcmpUserInfoDto();
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(userId);
+        EcmpOrg ecmpDept = ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
+        if(ecmpDept!=null){
+            EcmpOrg ecmpCompany = ecmpOrgMapper.selectEcmpOrgById(ecmpDept.getCompanyId());
+            ecmpUserInfoDto.setUserDeptInfo(ecmpDept);
+            if(ecmpCompany!=null){
+                ecmpUserInfoDto.setUserCompanyInfo(ecmpCompany);
+            }
+        }
+        return ecmpUserInfoDto;
+    }
 }

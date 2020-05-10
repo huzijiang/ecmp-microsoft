@@ -79,6 +79,22 @@ public class DispatchOrderInfo {
        	Long applyId;//申请单编号
        	
        	Date createTime;//订单生成时间
+	/**
+	 * 申请人的末级公司
+	 */
+	String companyName;
+	/**
+	 * 申请人的末级部门
+	 */
+	String deptName;
+	/**
+	 * 用车场景名称
+	 */
+	String userCarScene;
+	/**
+	 * 用车制度名称
+	 */
+	String userCarRegime;
        	
        	
 }

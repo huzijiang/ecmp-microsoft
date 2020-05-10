@@ -16,7 +16,9 @@ public enum OrderStateTrace {
     ORDERCLOSE("S900","订单关闭"),
     OBJECTION("S901","订单异议"),
     CANCEL("S911","订单取消"),
-    ORDEROVERTIME("S921","订单超时")
+    ORDEROVERTIME("S921","订单超时"),
+    ORDERDENIED("S930","订单驳回"),
+    CHANGINGCAR("S301","换车中")
     ;
 
 
