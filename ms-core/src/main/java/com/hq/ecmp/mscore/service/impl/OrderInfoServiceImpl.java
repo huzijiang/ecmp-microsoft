@@ -124,6 +124,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private ChinaCityMapper chinaCityMapper;
     @Autowired
     private IDispatchService dispatchService;
+    @Autowired
+    private IEcmpOrgService ecmpOrgService;
+    @Autowired
+    private SceneInfoMapper sceneInfoMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -303,6 +307,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				}
 				//查询订单对应的上车地点时间,下车地点时间
 				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+				//订单添加用车场景用车制度以及任务来源信息
+				DispatchOrderInfoPacking(dispatchOrderInfo);
 				//查询订单对应制度的可用用车方式
 				Long regimenId = dispatchOrderInfo.getRegimenId();
 				if(null ==regimenId || ! regimeInfoService.findOwnCar(regimenId)){
@@ -369,6 +375,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
 				//查询订单对应的上车地点时间,下车地点时间
 				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+				DispatchOrderInfoPacking(dispatchOrderInfo);
 				//过滤掉未走调度自动约车的
 				boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(dispatchOrderInfo.getRegimenId(), dispatchOrderInfo.getUseCarCityCode());
 				if(judgeNotDispatch){
@@ -451,6 +458,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
 		//查询订单对应的上车地点时间,下车地点时间
 		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+		//订单添加用车场景用车制度以及任务来源信息
+        DispatchOrderInfoPacking(dispatchOrderInfo);
 		//判断该订单是否改派过
 		if(iOrderStateTraceInfoService.isReassignment(orderId)){
 			//是改派过的单子  则查询改派详情
@@ -472,6 +481,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
 		//查询订单对应的上车地点时间,下车地点时间
 		buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+        //订单添加用车场景用车制度以及任务来源信息
+        DispatchOrderInfoPacking(dispatchOrderInfo);
 		if(iOrderStateTraceInfoService.isReassignment(orderId)){
 			//是改派过的单子  则查询改派详情
 			DispatchDriverInfo dispatchDriverInfo = iOrderStateTraceInfoService.queryReassignmentOrderInfo(orderId);
@@ -2264,5 +2275,40 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         ismsBusiness.sendMessageReplaceCarComplete(orderInfo.getOrderId(),userId);
         // 发送短信
         ismsBusiness.sendSmsReplaceCar(orderInfo.getOrderId());
+    }
+
+    /**
+     * 调度信息包装
+     * 添加任务来源信息，用车场景名称和用车制度名称
+     * @return
+     */
+    private  void DispatchOrderInfoPacking(DispatchOrderInfo dispatchOrderInfo){
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(dispatchOrderInfo.getOrderId());
+        if(orderInfo != null){
+            JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
+            if(journeyUserCarPower!=null){
+                ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
+                if(applyInfo!=null){
+                    EcmpUserInfoDto ecmpUserInfoDto = ecmpOrgService.getUserLatestDeptInfoByUserId(Long.parseLong(applyInfo.getCreateBy()));
+                    if (ecmpUserInfoDto.getUserDeptInfo()!=null){
+                        dispatchOrderInfo.setDeptName(ecmpUserInfoDto.getUserDeptInfo().getDeptName());
+                    }
+                    if (ecmpUserInfoDto.getUserCompanyInfo()!=null){
+                        dispatchOrderInfo.setCompanyName(ecmpUserInfoDto.getUserCompanyInfo().getDeptName());
+                    }
+                }
+            }
+            JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+            if(journeyInfo!=null){
+                RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
+                if(regimeInfo!=null){
+                    dispatchOrderInfo.setUserCarRegime(regimeInfo.getName());
+                }
+                SceneInfo sceneInfo = sceneInfoMapper.querySceneByRegimeId(journeyInfo.getRegimenId());
+                if(sceneInfo!=null){
+                    dispatchOrderInfo.setUserCarScene(sceneInfo.getName());
+                }
+            }
+        }
     }
 }

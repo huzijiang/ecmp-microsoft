@@ -303,7 +303,6 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
                   <if test="asUseCarModeOnlineLevel != null and asUseCarModeOnlineLevel !=''">as_use_car_mode_online_level,</if>
                    <if test="asAllowDateRound != null and asAllowDateRound !=''">as_allow_date_round,</if>
                    <if test="asSetoutEqualArrive != null and asSetoutEqualArrive !=''">as_setout_equal_arrive,</if>
-            <if test="costCenter != null and costCenter !=''">cost_center,</if>
             <if test="limitType != null  and limitType !=''">limit_type,</if>
             <if test="limitMoney != null">limit_money,</if>
             <if test="travelCityUseCarLimitType != null and travelCityUseCarLimitType !=''">travel_city_use_car_limit_type,</if>
@@ -338,7 +337,6 @@ select regimen_type as  regimenType,can_use_car_mode as canUseCarMode from regim
               <if test="asUseCarModeOnlineLevel != null and asUseCarModeOnlineLevel !=''">#{asUseCarModeOnlineLevel},</if>
               <if test="asAllowDateRound != null and asAllowDateRound !=''">#{asAllowDateRound},</if>
               <if test="asSetoutEqualArrive != null and asSetoutEqualArrive !=''">#{asSetoutEqualArrive},</if>
-              <if test="costCenter != null and costCenter !=''">#{costCenter},</if>
               <if test="limitType != null and limitType !=''">#{limitType},</if>
               <if test="limitMoney != null ">#{limitMoney},</if>
               <if test="travelCityUseCarLimitType != null and travelCityUseCarLimitType !=''">#{travelCityUseCarLimitType},</if>
@@ -374,7 +372,6 @@ SELECT
 	as_use_car_mode_online_level AS asUseCarModeOnlineLevel,
 	as_allow_date_round AS asAllowDateRound,
 	as_setout_equal_arrive AS asSetoutEqualArrive,
-	cost_center as costCenter,
 	limit_type as limitType,
 	limit_money as limitMoney,
 	travel_city_use_car_limit_type as travelCityUseCarLimitType,

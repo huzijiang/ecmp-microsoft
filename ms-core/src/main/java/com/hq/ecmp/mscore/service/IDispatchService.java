@@ -70,4 +70,12 @@ public interface IDispatchService {
      * @return
      */
     OrderStateCountVO getOrderStateCount(Long orgComcany);
+
+    /**
+     * 调度员无车驳回操作
+     * @param orderId 订单id
+     * @param reason 驳回原因
+     * @param userId  创建人
+     */
+    void  noCarDenied(Long orderId,String reason,Long userId) throws Exception;
 }

@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.EcmpUserInfoDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.*;
 
@@ -255,4 +256,10 @@ public interface IEcmpOrgService
     List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId);
 
     EcmpOrg getOrgByDeptId(Long deptId);
+
+    /**
+     * 通过用户id获取末级部门和末级公司信息
+     * @return
+     */
+    EcmpUserInfoDto getUserLatestDeptInfoByUserId(Long userId);
 }

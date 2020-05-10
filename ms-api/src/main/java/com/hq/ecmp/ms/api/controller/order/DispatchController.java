@@ -195,5 +195,25 @@ public class DispatchController {
         return  dispatchService.autoDispatch(dispatchCountCarAndDriverDto);
     }
 
+    /**
+     * 调度无车驳回操作
+     * @param orderId  订单id
+     * @param reason 驳回原因
+     * @return
+     */
+    @ApiOperation(value = "调度无车驳回")
+    @PostMapping("/noCarDenied")
+    public ApiResponse noCarDenied(Long orderId,String reason){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            dispatchService.noCarDenied(orderId, reason, loginUser.getUser().getUserId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("调度无车驳回失败");
+        }
+        return ApiResponse.success("调度无车驳回通过");
+    }
+
 
 }
