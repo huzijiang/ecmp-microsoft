@@ -52,6 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="applyId != null ">apply_id,</if>
             <if test="journeyId != null ">journey_id,</if>
             <if test="projectId != null ">project_id,</if>
+            <if test="companyId != null ">company_id,</if>
             <if test="regimenId != null ">regimen_id,</if>
             <if test="applyNumber != null ">apply_number,</if>
             <if test="applyType != null ">apply_type,</if>
@@ -68,6 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="applyId != null ">#{applyId},</if>
             <if test="journeyId != null ">#{journeyId},</if>
             <if test="projectId != null ">#{projectId},</if>
+            <if test="companyId != null ">#{companyId},</if>
             <if test="regimenId != null ">#{regimenId},</if>
             <if test="applyNumber != null ">#{applyNumber},</if>
             <if test="applyType != null ">#{applyType},</if>

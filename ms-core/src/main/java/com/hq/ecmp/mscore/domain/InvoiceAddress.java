@@ -36,6 +36,8 @@ public class InvoiceAddress extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsDefault;
 
+    private Long companyId;
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

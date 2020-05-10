@@ -32,7 +32,7 @@ public interface IInvoiceAddressService
      * @param  【请填写功能名称】
      * @return 【请填写功能名称】集合
      */
-    public PageResult<InvoiceAddVO> selectInvoiceAddressList(PageRequest pageRequest);
+    public PageResult<InvoiceAddVO> selectInvoiceAddressList(PageRequest pageRequest,Long companyId);
 
     /**
      * 新增【请填写功能名称】

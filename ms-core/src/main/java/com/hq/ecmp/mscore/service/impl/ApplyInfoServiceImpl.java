@@ -745,6 +745,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         if(regimenId != null) {
             applyInfo.setRegimenId(Long.valueOf(regimenId));
         }
+        //所属公司
+        applyInfo.setCompanyId(travelCommitApply.getCompanyId());
         //2.4 apply_type 用车申请类型；A001:  公务用车 A002:  差旅用车
         applyInfo.setApplyType(String.valueOf(travelCommitApply.getApplyType()));
         //2.5 approver_name 第一审批阶段 审批人列表，前两位
@@ -798,6 +800,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setServiceType(null);
         //1.4 use_car_mode 用车方式（自有、网约车）
         journeyInfo.setUseCarMode(travelCommitApply.getUseType());
+        //增加所属公司
+        journeyInfo.setCompanyId(travelCommitApply.getCompanyId());
         //1.5 use_car_time 用车时间
         Date startDate = travelCommitApply.getTravelRequests().get(0).getStartDate();
         journeyInfo.setUseCarTime(startDate);
@@ -1610,6 +1614,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.2 project_id
         Long projectId=StringUtils.isBlank(officialCommitApply.getProjectNumber())?null:Long.valueOf(officialCommitApply.getProjectNumber());
         applyInfo.setProjectId(projectId);
+        applyInfo.setCompanyId(officialCommitApply.getCompanyId());
         //2.3 regimen_id 非空
         applyInfo.setRegimenId(Long.valueOf(officialCommitApply.getRegimenId()));
         //2.4 apply_type 用车申请类型；A001:  公务用车 A002:  差旅用车
@@ -1665,6 +1670,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setServiceType(officialCommitApply.getServiceType());
         //1.4 use_car_mode 用车方式（自有、网约车）
         journeyInfo.setUseCarMode(officialCommitApply.getUseType());
+        //增加 companyId
+        journeyInfo.setCompanyId(officialCommitApply.getCompanyId());
+
         //1.5 use_car_time 用车时间
         Date applyDate = officialCommitApply.getApplyDate();
         //1.6 it_is_return 是否往返 Y000 N444

@@ -72,7 +72,7 @@ public interface CarGroupInfoMapper
      * @param carGroupId
      * @return
      */
-    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId);
+    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId,@Param("companyId") Long companyId);
 
     /**
      * 查询该组织下的车队信息
@@ -137,7 +137,7 @@ public interface CarGroupInfoMapper
      * 查询所有车队编号
      * @return
      */
-    List<String> selectAllCarGroupCode();
+    List<String> selectAllCarGroupCode(Long companyId);
 
     /**
      * 查询公司所有车队名字

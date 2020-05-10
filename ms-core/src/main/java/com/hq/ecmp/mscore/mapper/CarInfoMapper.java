@@ -80,7 +80,7 @@ public interface CarInfoMapper
     /**
      * 可管理车辆总数
      */
-    public int queryCompanyCar();
+    public int queryCompanyCar(@Param("companyId") Long companyId);
 
     /**
      * 根据组织id查询归属车辆信息

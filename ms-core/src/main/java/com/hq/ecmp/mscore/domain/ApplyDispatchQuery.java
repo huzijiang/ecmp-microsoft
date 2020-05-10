@@ -26,4 +26,5 @@ public class ApplyDispatchQuery  {
 
         String driverMobile;//驾驶员手机号
 
+        Long companyId;
 }
