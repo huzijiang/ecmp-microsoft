@@ -8,6 +8,8 @@ import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.hq.ecmp.constant.OrderPayConstant;
+import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.ms.api.conf.AlipayConfig;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderPayInfo;
@@ -65,7 +67,7 @@ public class AliPayController {
     @ResponseBody
     public String pay(@RequestBody String param) {
         JSONObject jsonObject = JSONObject.parseObject(param);
-        Integer orderId = jsonObject.getInteger("orderId");
+        String orderId = jsonObject.getString("payId");
         String price = jsonObject.getString("price");
         String body = jsonObject.getString("body");
         AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.URL, AlipayConfig.APPID, AlipayConfig.APP_PRIVATE_KEY, AlipayConfig.FORMAT, AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGNTYPE);
@@ -75,9 +77,9 @@ public class AliPayController {
         AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
         model.setSubject(body); //商品标题
         model.setOutTradeNo(orderId.toString()); //商家订单的唯一编号
-        model.setTimeoutExpress("30m"); //超时关闭该订单时间
+        model.setTimeoutExpress(OrderPayConstant.ORDER_PAY_TIMEOUT); //超时关闭该订单时间
         model.setTotalAmount(price);  //订单总金额
-        model.setProductCode("QUICK_MSECURITY_PAY"); //销售产品码，商家和支付宝签约的产品码，为固定值QUICK_MSECURITY_PAY
+        model.setProductCode(OrderPayConstant.PRODUCT_CODE); //销售产品码，商家和支付宝签约的产品码，为固定值QUICK_MSECURITY_PAY
         request.setBizModel(model);
         request.setNotifyUrl(AlipayConfig.notify_url);  //回调地址
         String orderString = "";
@@ -136,9 +138,9 @@ public class AliPayController {
                 log.info("支付宝回调获取到的流水号为："+trade_no);
                 log.info("支付宝回调获取到的金额为："+total_amount);
                 orderInfo.setOrderId(Long.valueOf(out_trade_no));
-                orderInfo.setState("S900");
+                orderInfo.setState(OrderState.ORDERCLOSE.getState());
                 int i = iOrderInfoService.updateOrderInfo(orderInfo);
-                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(Long.valueOf(out_trade_no), "S900");
+                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(Long.valueOf(out_trade_no), OrderState.ORDERCLOSE.getState());
                 int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
                 if(1 == i && 1 ==j){
                     log.info("订单信息修改成功");
@@ -147,7 +149,7 @@ public class AliPayController {
                 }
                 //插入订单支付表
                 OrderPayInfo orderPayInfo = new OrderPayInfo();
-                orderPayInfo.setPayId(Long.valueOf(trade_no));
+                orderPayInfo.setTransactionLog(trade_no);
                 OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
                 orderSettlingInfo.setOrderId(Long.valueOf(out_trade_no));
                 List<OrderSettlingInfo> orderSettlingInfos = iOrderSettlingInfoService.selectOrderSettlingInfoList(orderSettlingInfo);
@@ -155,9 +157,9 @@ public class AliPayController {
                     orderPayInfo.setBillId(orderSettlingInfos.get(0).getBillId());
                 }
                 orderPayInfo.setOrderId(Long.valueOf(out_trade_no));
-                orderPayInfo.setState("0000");
-                orderPayInfo.setPayMode("M001");
-                orderPayInfo.setPayChannel("zhifubao");
+                orderPayInfo.setState(OrderPayConstant.PAID);
+                orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
+                orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_ALI);
 //                orderPayInfo.setChannelRate(0.01);
 //            orderPayInfo.setAmount(Long.valueOf(result.getTotalFee()));
                 orderPayInfo.setAmount(new BigDecimal(total_amount));

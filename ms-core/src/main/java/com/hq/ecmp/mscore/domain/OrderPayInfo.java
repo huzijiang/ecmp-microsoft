@@ -22,7 +22,7 @@ public class OrderPayInfo {
      */
     @NotNull
     @ApiParam(required = true)
-    private Long payId;
+    private String payId;
 
     /**
      * 结算单  编号
@@ -67,11 +67,11 @@ public class OrderPayInfo {
     private double channelRate;
 
     /**
-     *  支付路径留存
+     *  支付流水
      */
     @NotNull
     @ApiParam(required = true)
-    private String url;
+    private String transactionLog;
 
 
     /**
