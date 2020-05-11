@@ -2,7 +2,6 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
-import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.OrderPayConstant;
 import com.hq.ecmp.mscore.domain.*;
@@ -11,20 +10,14 @@ import com.hq.ecmp.mscore.mapper.OrderPayInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderSettlingInfoMapper;
 import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.service.IOrderPayInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static com.hq.ecmp.constant.CommonConstant.ONE;
-import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
 /**
  * @author ghb
@@ -91,12 +84,8 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
         BigDecimal limitMoney = regimeInfo.getLimitMoney();
         String limitType = regimeInfo.getLimitType();
         //按天
-//        DecimalFormat df = new DecimalFormat("#0.00");
-        int  isExcess=0;
         String  excessMoney=String.valueOf(CommonConstant.ZERO);
         if ("T001".equals(limitType)) {
-            //查询出当前申请人
-//            Long userId = orderInfo.getUserId();
             //根据订单号和当前申请人，得出当前申请人在当天一共申请的单量
             List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoByIdAllDay(applyUserId);
             //从订单结算表当中，查询出当前申请人在当天一共申请的单量的金额总和
@@ -107,7 +96,6 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
             // 当前申请人在当天一共申请的单量的金额总和-限额=超额
             if (sum.compareTo(limitMoney) >= 0) {
                 BigDecimal subtract = sum.subtract(limitMoney);
-                isExcess=CommonConstant.ONE;
                 excessMoney=subtract.stripTrailingZeros().toPlainString();
                 //总额sum
             }
@@ -116,7 +104,6 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
             //判断
             if (orderSettlingInfo2.getAmount().compareTo(limitMoney) > 0) {
                 BigDecimal subtract = orderSettlingInfo2.getAmount().subtract(limitMoney);
-                isExcess=CommonConstant.ONE;
                 excessMoney=subtract.stripTrailingZeros().toPlainString();
             }
             //不限

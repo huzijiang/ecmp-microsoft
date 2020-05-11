@@ -264,4 +264,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             ) t
              group by t.car_type_id
     </select>
+    <select id="getCarGroupTreeByDeptIds" resultType="map">
+        select car_group_id id,car_group_name showname,company_id pid,1 type,CONCAT(car_group_id,'-','1') onlyId,CONCAT(company_id,'-','0') onlyPid from car_group_info
+		where state = 'Y000' and company_id in
+        <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getCarGroupTreeByCarIds" resultType="map">
+        select car_group_id id,car_group_name showname,company_id pid,1 type,CONCAT(car_group_id,'-','1') onlyId,CONCAT(company_id,'-','0') onlyPid from car_group_info
+        where state = 'Y000' and car_group_id in
+        <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

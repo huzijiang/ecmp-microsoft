@@ -186,4 +186,7 @@ public interface CarInfoMapper
     List<CarInfo> selectAll();
 
     List<OnLineCarTypeVO> findByGroupIds(@Param("groupIds") List<Long> groupIds);
+
+    List<CarInfo> selectCarInfoListByIds(List list);
+    int getMileageSumById(Long orderId);
 }
