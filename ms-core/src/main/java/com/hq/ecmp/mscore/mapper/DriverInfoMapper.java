@@ -44,6 +44,13 @@ public interface DriverInfoMapper
     public List<DriverInfo> selectDriverInfoList(DriverInfo driverInfo);
 
     /**
+     * 根据车队查询集查询 司机信息
+     * @param list
+     * @return
+     */
+    public List<DriverInfo> selectDriverInfoListByIds(List list);
+
+    /**
      * 新增【请填写功能名称】
      *
      * @param driverInfo 【请填写功能名称】

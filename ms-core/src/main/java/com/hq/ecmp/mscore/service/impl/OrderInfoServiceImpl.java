@@ -2349,6 +2349,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setDemandCarLevel(enterpriseCarTypeInfoMapper.queryCarTypeNameByCarId(orderInfo.getCarId()));
         orderInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
         updateOrderInfo(orderInfo);
+        //插入流转状态
+        OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+        orderStateTraceInfo.setCreateBy("0");
+        orderStateTraceInfo.setState(OrderState.REPLACECAR.getState());
+        orderStateTraceInfo.setOrderId(orderInfo.getOrderId());
+        orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
+        orderStateTraceInfo.setContent("换车车牌号："+carInfo.getCarLicense());
+        orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
         ismsBusiness.sendMessageReplaceCarComplete(orderInfo.getOrderId(),userId);
         // 发送短信
         ismsBusiness.sendSmsReplaceCar(orderInfo.getOrderId());

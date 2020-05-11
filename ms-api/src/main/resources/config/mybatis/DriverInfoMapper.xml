@@ -89,6 +89,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="licenseExpireDate != null "> and license_expire_date = #{licenseExpireDate}</if>
         </where>
     </select>
+    <select id="selectDriverInfoListByIds" resultMap="DriverInfoResult">
+        <include refid="selectDriverInfoVo"/>
+        where state='V000' and driver_id in(
+            select driver_id from car_group_driver_relation where car_group_id in
+            <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        )
+    </select>
 
     <select id="selectDriverInfoById" parameterType="Long" resultMap="DriverInfoResult">
         <include refid="selectDriverInfoVo"/>
