@@ -15,7 +15,9 @@ public enum OrderState {
     DISSENT("S901","订单异议"),ORDERCANCEL("S911","订单取消"),
     WAITCONFIRMED("S960","待确认"),
     TIMELIMIT("S970","已过期"),
+    REPLACECAR("S301","换车通知"),
     ORDEROVERTIME("S921","订单超时");
+
 
 
     private String state;

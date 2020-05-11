@@ -258,5 +258,22 @@ public interface OrderInfoMapper {
      * @description  查询某订单所在当天的所有订单
      */
     List<OrderInfo> selectOrderInfoByIdAllDay(@Param("userId")Long userId);
+    //查询已完单订单
+    List<OrderInfo> selectOrderEnd();
+
+    //根据行程id查询场景id
+    Long getSceneByOrder(Long journeyId);
+
+    //根据订单id查询城市
+    String getProvinceByOrder(Long orderId);
+
+    //查询已完单订单耗时
+    double getOrderDurationById(Long orderId);
+
+    //查询所有自有车订单
+    String getOrderStateTraceById(Long orderId);
+
+    //根据订单查询派单耗时
+    int getdispatchDurationById(Long orderId);
 }
 

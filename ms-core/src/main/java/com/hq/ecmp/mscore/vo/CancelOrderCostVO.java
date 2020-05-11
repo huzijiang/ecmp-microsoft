@@ -19,8 +19,10 @@ public class CancelOrderCostVO {
     private String ownerAmount;
     @ApiModelProperty(name = "personalAmount",value = "个人支付的取消费")
     private String personalAmount;
-    @ApiModelProperty(name = "carId",value = "carid")
-    private String carId;
+    @ApiModelProperty(name = "payId",value = "payId")
+    private String payId;
+    @ApiModelProperty(name = "payState",value = "payState")
+    private String payState;
     @ApiModelProperty(name = " carType",value = "车型名称")
     private String carType;
     @ApiModelProperty(name = " isPayFee",value = "是否支付取消费:1有取消费,0无")

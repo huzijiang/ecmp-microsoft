@@ -484,4 +484,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 
     </select>
+    <select id="selectCarInfoListByIds" resultMap="CarInfoResult">
+        select * from car_info where car_group_id in
+        <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getMileageSumById" resultType="int">
+        select total_mileage from order_settling_info where order_id=#{orderId}
+    </select>
+
 </mapper>
