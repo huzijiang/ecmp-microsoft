@@ -8,5 +8,5 @@ package com.hq.ecmp.mscore.service;
  */
 public interface OrderInfoTwoService {
 
-    void cancelBusinessOrder(Long orderId,String cancelReason);
+    void cancelBusinessOrder(Long orderId,String cancelReason) throws Exception;
 }

@@ -129,7 +129,12 @@ public class DateFormatUtils {
         }
     }
 
-    //比较两个时间的大小
+    /**
+     * 比较两个时间大小
+     * @param start  hh:mm
+     * @param end   hh:mm
+     * @return -1:start>end,0:end=start,1:start<end
+     */
     public static int compareTime(String start, String end) {
         if (StringUtils.isBlank(start)||StringUtils.isBlank(end)){
             return 0;
@@ -151,8 +156,41 @@ public class DateFormatUtils {
         }
     }
 
-    //比较两个时间的大小
-    // -1:start>end,0:end=start,1:start<end
+    /**
+     * 比较两个日期+时间大小
+     * @param startDate  yyyy-MM-dd HH:mm
+     * @param endDate  yyyy-MM-dd HH:mm
+     * @return -1:start>end,0:end=start,1:start<end
+     */
+    public static int compareDayAndTime(Date startDate, Date endDate) {
+        if (startDate==null||endDate==null){
+            return 0;
+        }
+        String start= new SimpleDateFormat(DATE_TIME_FORMAT_1). format(startDate);
+        String end= new SimpleDateFormat(DATE_TIME_FORMAT_1). format(endDate);
+        Long startDay=parseDate(DATE_TIME_FORMAT_1,start).getTime();
+        Long endDay=parseDate(DATE_TIME_FORMAT_1,end).getTime();
+        try {
+            if (startDay.longValue()>endDay.longValue()){
+                return -1;
+            }else if(startDay.longValue()<endDay.longValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return 0;
+        }
+    }
+
+    /**
+     * 比较两个日期+时间大小
+     * @param start  yyyy-MM-dd
+     * @param end  yyyy-MM-dd
+     * @return -1:start>end,0:end=start,1:start<end
+     */
     public static int compareDate(String start, String end) {
         if (StringUtils.isBlank(start)||StringUtils.isBlank(end)){
             return 0;

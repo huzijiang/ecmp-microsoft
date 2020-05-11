@@ -15,8 +15,10 @@ import lombok.NoArgsConstructor;
 public class UseCarTypeVO {
 
     private Long applyId;
+    private String useCarModeStr;
     private String useCarMode;
-    private String carType;
+    private String carTypeStr;
+    private String carTypeId;
     private String cityCode;
 
 }

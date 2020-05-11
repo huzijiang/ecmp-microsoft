@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -365,17 +367,40 @@ public class ApplyContoller {
      */
     @ApiOperation(value = "checkUseCarModeAndType",notes = "校验用车制度的用车城市是否可用",httpMethod ="POST")
     @PostMapping("/checkUseCarModeAndType")
-    public ApiResponse<String> checkUseCarModeAndType(RegimeCheckDto regimeDto){
+    public ApiResponse<String> checkUseCarModeAndType(@RequestBody RegimeCheckDto regimeDto){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
-            if (CollectionUtils.isEmpty(regimeDto.getCityCodes())||regimeDto.getRegimeId()==null){
+            if (StringUtils.isBlank(regimeDto.getCityCodes())||regimeDto.getRegimeId()==null){
                 return ApiResponse.error("参数为空");
             }
             List<UseCarTypeVO> list=regimeInfoService.checkUseCarModeAndType(regimeDto,loginUser);
         } catch (Exception e) {
             e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+        return ApiResponse.error("该城市暂不支持服务");
+    }
+
+    /**
+     * 校验用车制度的用车城市是否可用
+     * @return
+     */
+    @ApiOperation(value = "getUseCarModeAndType",notes = "校验用车制度的用车城市是否可用",httpMethod ="POST")
+    @PostMapping("/getUseCarModeAndType")
+    public ApiResponse<List<UseCarTypeVO>> getUseCarModeAndType(@RequestBody RegimeCheckDto regimeDto){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        try {
+            if (StringUtils.isBlank(regimeDto.getCityCodes())||regimeDto.getRegimeId()==null){
+                return ApiResponse.error("参数为空");
+            }
+            List<UseCarTypeVO> list=regimeInfoService.checkUseCarModeAndType(regimeDto,loginUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();
     }
@@ -384,13 +409,22 @@ public class ApplyContoller {
      * 获取自由车开城城市//网约车开城城市
      * @return
      */
-    @ApiOperation(value = "getUseCarType",notes = "校验用车制度的用车城市是否可用",httpMethod ="POST")
-    @PostMapping("/getUseCarType")
-    public ApiResponse<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto){
+    @ApiOperation(value = "getAllUseCarType",notes = "校验用车制度的用车城市是否可用",httpMethod ="POST")
+    @PostMapping("/getAllUseCarType")
+    public ApiResponse<List<OnLineCarTypeVO>> getAllUseCarType(@RequestBody RegimeCheckDto regimeDto){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
             List<OnLineCarTypeVO> list=regimeInfoService.getUseCarType(regimeDto,loginUser.getUser());
+           list=new ArrayList<>();
+            OnLineCarTypeVO vo=new OnLineCarTypeVO(1L,"100100","北京","");
+            List<CarLevelVO> levelList=new ArrayList<>();
+            levelList.add(new CarLevelVO("经济型","P001",39L));
+            levelList.add(new CarLevelVO("舒适型","P002",39L));
+            levelList.add(new CarLevelVO("豪华型","P003",39L));
+            vo.setCarType(levelList);
+            list.add(vo);
+            return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
         }

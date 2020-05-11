@@ -745,7 +745,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 
 		RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimeDto.getRegimeId());
 		String canUseCarMode = regimeVo.getCanUseCarMode();
-		List<String> cityCodes = regimeDto.getCityCodes();
+		List<String> cityCodes = Arrays.asList(regimeDto.getCityCodes().split(","));
 		String ruleCity = regimeVo.getRuleCity();
 		if (StringUtils.isBlank(canUseCarMode)){
 			log.error("制度:"+regimeDto.getRegimeId()+"未配置用车方式!");

@@ -9,5 +9,7 @@ public interface IOrderPayInfoService {
     int insertOrderPayInfo(OrderPayInfo orderPayInfo);
 
     OrderPayInfo getOrderPayInfo(Long orderId);
+    OrderPayInfo insertOrderPayAndSetting(Long orderNo,String amount,String distance,String duration,String json,String userId);
+    String checkOrderFeeOver(Long orderId,Long regimeId,Long applyUserId) throws Exception;
 }
 

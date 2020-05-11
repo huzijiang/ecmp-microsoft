@@ -10,13 +10,19 @@ import lombok.NoArgsConstructor;
  * @Date: 2020/3/17 8:35
  */
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class CarLevelVO {
 
     private Long carGroupId;
     private String groupName;
     private String level;
     private Long carTypeId;
+
+    public CarLevelVO() {
+    }
+
+    public CarLevelVO(String groupName, String level, Long carTypeId) {
+        this.groupName = groupName;
+        this.level = level;
+        this.carTypeId = carTypeId;
+    }
 }

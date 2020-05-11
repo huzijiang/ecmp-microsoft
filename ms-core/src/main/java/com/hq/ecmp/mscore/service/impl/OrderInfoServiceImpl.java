@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.hq.ecmp.constant.CommonConstant.ONE;
+import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
 
 /**
@@ -595,50 +596,59 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
             //网约车是否限额
             //查询出用车制度表的限额额度，和限额类型
-            OrderSettlingInfo orderSettlingInfo2 = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
-            RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
-            vo.setRegimeId(regimeInfo.getRegimenId());
-            BigDecimal limitMoney = regimeInfo.getLimitMoney();
-            String limitType = regimeInfo.getLimitType();
-            //按天
-            DecimalFormat df = new DecimalFormat("#0.00");
-            if("T001" .equals(limitType) ){
-                    //查询出当前申请人
-                    Long userId = orderInfo.getUserId();
-                    //根据订单号和当前申请人，得出当前申请人在当天一共申请的单量
-                    List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoByIdAllDay(userId);
-                    //从订单结算表当中，查询出当前申请人在当天一共申请的单量的金额总和
-                    BigDecimal sum = new BigDecimal(0);
-                    for (OrderInfo  order : orderInfos){
-                        OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoById(order.getOrderId());
-                        sum = sum.add(orderSettlingInfo.getAmount());
-                    }
-                // 当前申请人在当天一共申请的单量的金额总和-限额=超额
-                if(sum.compareTo(limitMoney) >= 0){
-                    BigDecimal subtract = sum.subtract(limitMoney);
-                    vo.setIsExcess(1);
-                    vo.setExcessMoney(df.format(subtract));
-                    //总额sum
-                }else{
-                    vo.setIsExcess(0);
-                    vo.setExcessMoney(df.format(0));
-                }
-
-             // 按次数
-            }else if("T002".equals(limitType)){
-                //判断
-                if(orderSettlingInfo2.getAmount().compareTo(limitMoney) > 0){
-                    BigDecimal subtract = orderSettlingInfo2.getAmount().subtract(limitMoney);
-                    vo.setIsExcess(1);
-                    vo.setExcessMoney(df.format(subtract));
-                }else{
-                    vo.setIsExcess(0);
-                    vo.setExcessMoney(df.format(0));
-                }
-            //不限
+            String overMoney = iOrderPayInfoService.checkOrderFeeOver(orderId, journeyInfo.getRegimenId(), orderInfo.getUserId());
+//            OrderSettlingInfo orderSettlingInfo2 = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
+//            RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(journeyInfo.getRegimenId());
+//            vo.setRegimeId(regimeInfo.getRegimenId());
+//            BigDecimal limitMoney = regimeInfo.getLimitMoney();
+//            String limitType = regimeInfo.getLimitType();
+//            //按天
+//            DecimalFormat df = new DecimalFormat("#0.00");
+//            if("T001" .equals(limitType) ){
+//                    //查询出当前申请人
+//                    Long userId = orderInfo.getUserId();
+//                    //根据订单号和当前申请人，得出当前申请人在当天一共申请的单量
+//                    List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoByIdAllDay(userId);
+//                    //从订单结算表当中，查询出当前申请人在当天一共申请的单量的金额总和
+//                    BigDecimal sum = new BigDecimal(0);
+//                    for (OrderInfo  order : orderInfos){
+//                        OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoById(order.getOrderId());
+//                        sum = sum.add(orderSettlingInfo.getAmount());
+//                    }
+//                // 当前申请人在当天一共申请的单量的金额总和-限额=超额
+//                if(sum.compareTo(limitMoney) >= 0){
+//                    BigDecimal subtract = sum.subtract(limitMoney);
+//                    vo.setIsExcess(1);
+//                    vo.setExcessMoney(df.format(subtract));
+//                    //总额sum
+//                }else{
+//                    vo.setIsExcess(0);
+//                    vo.setExcessMoney(df.format(0));
+//                }
+//
+//             // 按次数
+//            }else if("T002".equals(limitType)){
+//                //判断
+//                if(orderSettlingInfo2.getAmount().compareTo(limitMoney) > 0){
+//                    BigDecimal subtract = orderSettlingInfo2.getAmount().subtract(limitMoney);
+//                    vo.setIsExcess(1);
+//                    vo.setExcessMoney(df.format(subtract));
+//                }else{
+//                    vo.setIsExcess(0);
+//                    vo.setExcessMoney(df.format(0));
+//                }
+//            //不限
+//            }else{
+//                vo.setIsExcess(0);
+//                vo.setExcessMoney(df.format(0));
+//            }
+//        }
+            if (StringUtils.isEmpty(overMoney)||BigDecimal.ZERO.compareTo(new BigDecimal(overMoney))>0){
+                vo.setIsExcess(ZERO);
+                vo.setExcessMoney(String.valueOf(CommonConstant.ZERO));
             }else{
-                vo.setIsExcess(0);
-                vo.setExcessMoney(df.format(0));
+                vo.setIsExcess(ONE);
+                vo.setExcessMoney(overMoney);
             }
         }
         OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderId);

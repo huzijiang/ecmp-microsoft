@@ -12,8 +12,6 @@ import java.util.List;
  * @Date: 2020/3/14 13:52
  */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class OnLineCarTypeVO {
 
     private Long cityId;
@@ -22,4 +20,14 @@ public class OnLineCarTypeVO {
     private String carGroupIds;
     private List<CarLevelVO> carType;
     private List<CarServiceTypeVO> serviceType;
+
+    public OnLineCarTypeVO() {
+    }
+
+    public OnLineCarTypeVO(Long cityId, String cityCode, String cityName, String carGroupIds) {
+        this.cityId = cityId;
+        this.cityCode = cityCode;
+        this.cityName = cityName;
+        this.carGroupIds = carGroupIds;
+    }
 }

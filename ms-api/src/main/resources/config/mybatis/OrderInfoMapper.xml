@@ -397,6 +397,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		select
 		a.order_id AS orderId,
 		a.journey_id journeyId,
+		a.power_id powerId,
 	    a.state,
 	    a.service_type serviceType,
 	    a.user_id userId,
@@ -405,6 +406,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 	    a.driver_mobile driverPhone,
         e.address startAddress,
         DATE_FORMAT(e.action_time, '%m月%d日 %H:%i ') useCarTime,
+        e.action_time useCarDate,
         e.longitude startLongitude,
         e.latitude startLatitude,
         d.address endAddress,
