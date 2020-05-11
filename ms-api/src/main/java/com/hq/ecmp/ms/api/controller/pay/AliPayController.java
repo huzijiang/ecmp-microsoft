@@ -140,7 +140,7 @@ public class AliPayController {
                 log.info("支付宝回调获取到的金额为："+total_amount);
                 //判断订单是否已支付
                 OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(out_trade_no);
-                if(!OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
+                if(null != orderPayInfoByPayId && !OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
                     //把订单状态改为关闭状态
                     OrderInfo orderInfo = new OrderInfo();
                     orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());

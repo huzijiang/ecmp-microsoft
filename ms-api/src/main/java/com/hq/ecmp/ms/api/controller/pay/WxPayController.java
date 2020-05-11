@@ -80,7 +80,7 @@ public class WxPayController {
                 //商品描述
                 orderRequest.setBody(body);
                 //商户订单号
-                orderRequest.setOutTradeNo(orderId.toString());
+                orderRequest.setOutTradeNo(orderId);
                 //金额
                 orderRequest.setTotalFee(BaseWxPayRequest.yuanToFen(price));//元转成分
                 //ip
@@ -93,16 +93,6 @@ public class WxPayController {
                 //统一下单
                 result = wxPayService.createOrder(orderRequest);
                 log.info("微信下单后返回结果为："+result);
-//                if(null != result && !"".equals(result.getPrepayId())){
-//                    log.info("微信统一下单成功，返回参数为："+result);
-//                    map.put("result_code","success");
-//                    map.put("result_msg","微信下单成功");
-//                    map.put("result",result);
-//                }else{
-//                    log.info("微信统一下单失败，返回参数为："+result);
-//                    map.put("result_code","error");
-//                    map.put("result_msg","微信下单失败");
-//                }
             } catch (Exception e) {
                 e.printStackTrace();
                 log.info("下单失败，错误信息为："+e);
@@ -138,7 +128,7 @@ public class WxPayController {
             }
             //判断订单是否已支付
             OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(result.getOutTradeNo());
-            if(!OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
+            if(null != orderPayInfoByPayId && !OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
                 //把订单状态改为关闭状态
                 OrderInfo orderInfo = new OrderInfo();
                 orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
