@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.OrderPayConstant;
 import com.hq.ecmp.mscore.domain.*;
@@ -21,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static com.hq.ecmp.constant.CommonConstant.ONE;
+import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
 /**
  * @author ghb
@@ -49,28 +53,30 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
         return orderPayInfoMapper.getOrderPayInfo(orderId);
     }
     @Override
-    public OrderPayInfo insertOrderPayAndSetting(Long orderNo,String amount,String distance,String duration,String json,String userId) {
+    public OrderPayInfo insertOrderPayAndSetting(Long orderNo,BigDecimal amount,String distance,String duration,String json,Long userId) {
+        if (amount==null||BigDecimal.ZERO.compareTo(amount)>0){
+            return null;
+        }
         OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
         orderSettlingInfo.setOrderId(orderNo);
         orderSettlingInfo.setTotalMileage(new BigDecimal(distance).stripTrailingZeros());
         orderSettlingInfo.setTotalTime(new BigDecimal(duration).stripTrailingZeros());
-        orderSettlingInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
+        orderSettlingInfo.setAmount(amount);
         orderSettlingInfo.setAmountDetail(json);
         orderSettlingInfo.setCreateBy(CommonConstant.START);
         orderSettlingInfo.setCreateTime(DateUtils.getNowDate());
         orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
         //插入订单支付表
         OrderPayInfo orderPayInfo = new OrderPayInfo();
-//        OrderSettlingInfo orderSettlingInfo1 = orderSettlingInfoMapper.selectOrderSettlingInfoById(orderNo);
         String substring = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32);
         orderPayInfo.setPayId(substring);
         orderPayInfo.setBillId(orderSettlingInfo.getBillId());
         orderPayInfo.setOrderId(orderNo);
-        orderPayInfo.setState(OrderPayConstant.PAID);
+        orderPayInfo.setState(OrderPayConstant.UNPAID);
         orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
-        orderPayInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
+        orderPayInfo.setAmount(amount);
         orderPayInfo.setCreateTime(DateUtils.getNowDate());
-        orderPayInfo.setCreateBy(Long.parseLong(userId));
+        orderPayInfo.setCreateBy(userId);
         this.insertOrderPayInfo(orderPayInfo);
         return orderPayInfo;
     }
