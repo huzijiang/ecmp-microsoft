@@ -124,7 +124,8 @@ public class WxPayController {
         try {
             String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
             WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
-            log.info("回调接口---返回结果为："+result);
+            log.info("回调接口---返回结果--xmlResult为："+xmlResult);
+            log.info("回调接口---返回结果--result为："+result);
             if (!"SUCCESS".equals(result.getReturnCode())) {
                 log.info("微信支付-通知失败");
                 log.error(xmlResult);
