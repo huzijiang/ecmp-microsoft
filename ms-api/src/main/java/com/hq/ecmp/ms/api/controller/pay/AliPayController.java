@@ -105,6 +105,9 @@ public class AliPayController {
      */
     @RequestMapping(value = "ali/v1/callback")
     public Boolean payNotify(HttpServletRequest request) {
+        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
+        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
+        log.info("已经进入支付宝支付回调接口");
         Map<String, String> params = new HashMap<String, String>();
         Map requestParams = request.getParameterMap();
         for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext(); ) {
@@ -129,46 +132,52 @@ public class AliPayController {
             flag = AlipaySignature.rsaCheckV1(params, alipayPublicKey, charset, "RSA2");
             if(flag){
                 log.info("支付宝回调签名认证成功");
-                //把订单状态改为关闭状态
-                OrderInfo orderInfo = new OrderInfo();
                 String out_trade_no = request.getParameter("out_trade_no");
                 String trade_no = request.getParameter("trade_no");
                 String total_amount = request.getParameter("total_amount");
                 log.info("支付宝回调获取到的订单号为："+out_trade_no);
                 log.info("支付宝回调获取到的流水号为："+trade_no);
                 log.info("支付宝回调获取到的金额为："+total_amount);
-                orderInfo.setOrderId(Long.valueOf(out_trade_no));
-                orderInfo.setState(OrderState.ORDERCLOSE.getState());
-                int i = iOrderInfoService.updateOrderInfo(orderInfo);
-                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(Long.valueOf(out_trade_no), OrderState.ORDERCLOSE.getState());
-                int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-                if(1 == i && 1 ==j){
-                    log.info("订单信息修改成功");
-                }else{
-                    log.info("订单信息修改失败");
-                }
-                //插入订单支付表
-                OrderPayInfo orderPayInfo = new OrderPayInfo();
-                orderPayInfo.setTransactionLog(trade_no);
-                OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
-                orderSettlingInfo.setOrderId(Long.valueOf(out_trade_no));
-                List<OrderSettlingInfo> orderSettlingInfos = iOrderSettlingInfoService.selectOrderSettlingInfoList(orderSettlingInfo);
-                if(orderSettlingInfos.size() != 0){
-                    orderPayInfo.setBillId(orderSettlingInfos.get(0).getBillId());
-                }
-                orderPayInfo.setOrderId(Long.valueOf(out_trade_no));
-                orderPayInfo.setState(OrderPayConstant.PAID);
-                orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
-                orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_ALI);
+                //判断订单是否已支付
+                OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(out_trade_no);
+                if(!OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
+                    //把订单状态改为关闭状态
+                    OrderInfo orderInfo = new OrderInfo();
+                    orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
+                    orderInfo.setState(OrderState.ORDERCLOSE.getState());
+                    int i = iOrderInfoService.updateOrderInfo(orderInfo);
+                    OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderPayInfoByPayId.getOrderId(), OrderState.ORDERCLOSE.getState());
+                    int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+                    if(1 == i && 1 ==j){
+                        log.info("订单信息修改成功");
+                    }else{
+                        log.info("订单信息修改失败");
+                    }
+                    //插入订单支付表
+                    OrderPayInfo orderPayInfo = new OrderPayInfo();
+                    orderPayInfo.setTransactionLog(trade_no);
+                    OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
+                    orderSettlingInfo.setOrderId(orderPayInfoByPayId.getOrderId());
+                    List<OrderSettlingInfo> orderSettlingInfos = iOrderSettlingInfoService.selectOrderSettlingInfoList(orderSettlingInfo);
+                    if(orderSettlingInfos.size() != 0){
+                        orderPayInfo.setBillId(orderSettlingInfos.get(0).getBillId());
+                    }
+                    orderPayInfo.setPayId(out_trade_no);
+                    orderPayInfo.setState(OrderPayConstant.PAID);
+                    orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
+                    orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_ALI);
 //                orderPayInfo.setChannelRate(0.01);
 //            orderPayInfo.setAmount(Long.valueOf(result.getTotalFee()));
-                orderPayInfo.setAmount(new BigDecimal(total_amount));
+                    orderPayInfo.setAmount(new BigDecimal(total_amount));
 //                orderPayInfo.setChannelAmount(1L);
 //                orderPayInfo.setArriveAmount(9L);
-                orderPayInfo.setCreateTime(new Date());
-                int k = iOrderPayInfoService.insertOrderPayInfo(orderPayInfo);
-                if(1 == k){
-                    log.info("订单支付表----- 信息已更新");
+                    orderPayInfo.setCreateTime(new Date());
+                    int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
+                    if(1 == k){
+                        log.info("订单支付表----- 信息已更新");
+                    }
+                }else{
+                    log.info("该订单已支付");
                 }
             }else{
                 log.info("支付宝回调签名认证失败");

@@ -118,6 +118,9 @@ public class WxPayController {
      */
     @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST)
     public String payNotify(HttpServletRequest request){
+        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
+        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
+        log.info("已经进入微信支付回调接口");
         try {
             String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
             WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
@@ -132,51 +135,56 @@ public class WxPayController {
                 log.error(xmlResult);
                 throw new WxPayException("微信支付-通知失败！");
             }
-            //把订单状态改为关闭状态
-            OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setOrderId(Long.valueOf(result.getOutTradeNo()));
-            orderInfo.setState(OrderState.ORDERCLOSE.getState());
-            OrderInfo orderInfo1 = iOrderInfoService.selectOrderInfoById(Long.valueOf(result.getOutTradeNo()));
-            if(null != orderInfo1){
-                int i = iOrderInfoService.updateOrderInfo(orderInfo);
-                if(1 == i){
-                    log.info("订单信息表修改成功");
+            //判断订单是否已支付
+            OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(result.getOutTradeNo());
+            if(!OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
+                //把订单状态改为关闭状态
+                OrderInfo orderInfo = new OrderInfo();
+                orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
+                orderInfo.setState(OrderState.ORDERCLOSE.getState());
+                OrderInfo orderInfo1 = iOrderInfoService.selectOrderInfoById(orderPayInfoByPayId.getOrderId());
+                if(null != orderInfo1){
+                    int i = iOrderInfoService.updateOrderInfo(orderInfo);
+                    if(1 == i){
+                        log.info("订单信息表修改成功");
+                    }else{
+                        log.info("订单信息表修改失败");
+                    }
                 }else{
-                    log.info("订单信息表修改失败");
+                    log.info("该订单不存在");
                 }
-            }else{
-                log.info("该订单不存在");
-            }
-            OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(Long.valueOf(result.getOutTradeNo()), OrderState.ORDERCLOSE.getState());
-            int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-            if(1 ==j){
-                log.info("订单轨迹表修改成功");
-            }else{
-                log.info("订单轨迹表修改失败");
-            }
-            //插入订单支付表
-            OrderPayInfo orderPayInfo = new OrderPayInfo();
-            orderPayInfo.setTransactionLog(result.getTransactionId());
-            OrderSettlingInfo  orderSettlingInfo = new OrderSettlingInfo();
-            orderSettlingInfo.setOrderId(Long.valueOf(Long.valueOf(result.getOutTradeNo())));
-            List<OrderSettlingInfo> orderSettlingInfos = iOrderSettlingInfoService.selectOrderSettlingInfoList(orderSettlingInfo);
-            if(orderSettlingInfos.size() != 0){
-                orderPayInfo.setBillId(orderSettlingInfos.get(0).getBillId());
-            }
-            orderPayInfo.setOrderId(Long.valueOf(Long.valueOf(result.getOutTradeNo())));
-            orderPayInfo.setState(OrderPayConstant.PAID);
-            orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
-            orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_WX);
+                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderPayInfoByPayId.getOrderId(), OrderState.ORDERCLOSE.getState());
+                int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+                if(1 ==j){
+                    log.info("订单轨迹表修改成功");
+                }else{
+                    log.info("订单轨迹表修改失败");
+                }
+                //插入订单支付表
+                OrderPayInfo orderPayInfo = new OrderPayInfo();
+                orderPayInfo.setPayId(result.getOutTradeNo());
+                orderPayInfo.setTransactionLog(result.getTransactionId());
+                OrderSettlingInfo  orderSettlingInfo = new OrderSettlingInfo();
+                List<OrderSettlingInfo> orderSettlingInfos = iOrderSettlingInfoService.selectOrderSettlingInfoList(orderSettlingInfo);
+                if(orderSettlingInfos.size() != 0){
+                    orderPayInfo.setBillId(orderSettlingInfos.get(0).getBillId());
+                }
+                orderPayInfo.setState(OrderPayConstant.PAID);
+                orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
+                orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_WX);
 //            orderPayInfo.setChannelRate(0.006);
-//            orderPayInfo.setAmount(new BigDecimal(Long.valueOf(result.getTotalFee())));
-            orderPayInfo.setAmount(new BigDecimal(result.getTotalFee()));
+                orderPayInfo.setAmount(new BigDecimal(result.getTotalFee()));
 //            orderPayInfo.setChannelAmount(1L);
 //            orderPayInfo.setArriveAmount(9L);
-            orderPayInfo.setCreateTime(DateUtils.getNowDate());
-            int k = iOrderPayInfoService.insertOrderPayInfo(orderPayInfo);
-            if(1 == k){
-                log.info("订单支付表----- 信息已更新");
+                orderPayInfo.setCreateTime(DateUtils.getNowDate());
+                int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
+                if(1 == k){
+                    log.info("订单支付表----- 信息已更新");
+                }
+            }else{
+                log.info("该订单已支付");
             }
+
             return WxPayNotifyResponse.success("处理成功!");
         } catch (Exception e) {
             log.info("微信支付失败----------------错误信息为："+e);

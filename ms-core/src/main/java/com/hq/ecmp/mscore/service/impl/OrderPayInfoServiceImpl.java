@@ -120,4 +120,14 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
 
         return excessMoney;
     }
+    @Override
+    public int updateOrderPayInfo(OrderPayInfo orderPayInfo) {
+        return orderPayInfoMapper.updateOrderPayInfo(orderPayInfo);
+    }
+
+    @Override
+    public OrderPayInfo getOrderPayInfoByPayId(String payId) {
+        return orderPayInfoMapper.getOrderPayInfoByPayId(payId);
+    }
+
 }

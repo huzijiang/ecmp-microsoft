@@ -2086,7 +2086,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderPayInfo.setPayId(substring);
                 orderPayInfo.setBillId(orderSettlingInfo1.getBillId());
                 orderPayInfo.setOrderId(orderNo);
-                orderPayInfo.setState(OrderPayConstant.PAID);
+                orderPayInfo.setState(OrderPayConstant.UNPAID);
                 orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
                 orderPayInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
                 orderPayInfo.setCreateTime(DateUtils.getNowDate());

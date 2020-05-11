@@ -8,4 +8,8 @@ public interface OrderPayInfoMapper {
     int insertOrderPayInfo(OrderPayInfo orderPayInfo);
 
     OrderPayInfo getOrderPayInfo(Long orderId);
+
+    int updateOrderPayInfo(OrderPayInfo orderPayInfo);
+
+    OrderPayInfo getOrderPayInfoByPayId(String payId);
 }
