@@ -685,14 +685,14 @@ public class OrderController {
         }
     }
 
-    @ApiOperation(value = "公务取消订单",httpMethod = "POST")
+    @ApiOperation(value = "取消订单",httpMethod = "POST")
     @RequestMapping("/cancelBusinessOrder")
-    public ApiResponse cancelBusinessOrder(@RequestBody OrderDto orderDto){
+    public ApiResponse<CancelOrderCostVO> cancelBusinessOrder(@RequestBody OrderDto orderDto){
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            orderInfoTwoService.cancelBusinessOrder(orderDto.getOrderId(),orderDto.getCancelReason());
-            return ApiResponse.success();
+            CancelOrderCostVO cancelOrderCostVO = orderInfoTwoService.cancelBusinessOrder(orderDto.getOrderId(), orderDto.getCancelReason());
+            return ApiResponse.success(cancelOrderCostVO);
         }catch (Exception e){
             e.printStackTrace();
             return  ApiResponse.error("更换车辆失败");

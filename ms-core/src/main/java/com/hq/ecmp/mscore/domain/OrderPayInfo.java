@@ -136,4 +136,12 @@ public class OrderPayInfo {
     @NotNull
     @ApiParam(required = true)
     private Date updateTime;
+
+    public OrderPayInfo() {
+    }
+
+    public OrderPayInfo(@NotNull String payId, @NotNull String state) {
+        this.payId = payId;
+        this.state = state;
+    }
 }
