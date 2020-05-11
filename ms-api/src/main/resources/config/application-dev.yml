@@ -134,10 +134,8 @@ appSecret: "bb9dbc446e5c8bfef07babe402d9d7af"
 mchId: "1517977791"
 #商户秘钥
 mchKey: "f6ad7e4369c963d75c2e19a5f88a261a"
-#正式环境回调地址
-#notify_url: "https://app-api.hqzhixing.com/pay/wechat/v1/callback"
-#测试环境回调地址
-notify_url: "https://test-app-api.hqzhixing.com:60001/pay/wechat/v1/callback"
+#开发环境回调地址
+notify_url: "http://10.7.106.64:60011/pay/wechat/v1/callback"
 #交易类型
 trade_type: "APP"
 #签名类型
