@@ -26,6 +26,7 @@ import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.DriverVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,6 +43,7 @@ import java.util.Map;
  * @Date: 2019-12-31 13:16
  */
 @RestController
+@Slf4j
 @RequestMapping("/car")
 public class CarController {
 
@@ -160,7 +162,7 @@ public class CarController {
         try {
             carId = carInfoService.saveCar(carSaveDTO, userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("新增车辆失败，请求参数：{},操作人：{}",carSaveDTO,loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error(e.getMessage());
         }
        return ApiResponse.success("新增车辆成功",carId);
@@ -183,6 +185,7 @@ public class CarController {
              carInfoService.updateCar(carSaveDTO, userId);
         } catch (Exception e) {
             e.printStackTrace();
+            log.error("编辑车辆失败，请求参数：{}，操作人：{}",carSaveDTO,loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error("修改信息失败");
         }
         return ApiResponse.success("修改车辆信息成功");

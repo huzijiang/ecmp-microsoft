@@ -52,7 +52,7 @@ public class CarGroupController {
         try {
           carGroupInfoService.saveCarGroupAndDispatcher(carGroupDTO,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("新增车队失败,请求参数：{}，操作人：{}",carGroupDTO,loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error("保存车队信息失败");
         }
         return ApiResponse.success("保存成功");
