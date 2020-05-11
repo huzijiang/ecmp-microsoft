@@ -94,7 +94,7 @@ public class StatisticsCostServiceImpl implements StatisticsCostService {
      */
     private List<SysDept> getDepts(StatisticsParam statisticsParam){
         List<SysDept> list = new ArrayList<>();
-        if(statisticsParam.getType()==0){
+        if(statisticsParam.getType()==1){
             statisticsParam.getDeptIds().stream().forEach(x->{
                 SysDept sysDept = new SysDept();
                 sysDept.setDeptId(statisticsParam.getDeptIds().get(0));
