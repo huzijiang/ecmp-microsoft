@@ -8,7 +8,6 @@ import com.hq.common.utils.TreeUtil;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.constant.CarModeEnum;
 import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.constant.enumerate.DriverStateEnum;
 import com.hq.ecmp.mscore.bo.CarInfoPlus;
 import com.hq.ecmp.mscore.bo.DriverInfoPlus;
 import com.hq.ecmp.mscore.bo.OrderInfoPlus;
