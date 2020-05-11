@@ -32,7 +32,7 @@ public class CityController {
 	
 	@ApiOperation(value = "getCityByName", notes = "据城市名称模糊搜索城市列表 ", httpMethod = "POST")
 	@PostMapping("/getCityByName")	
-	public ApiResponse<List<CityInfo>> getCityByName(@RequestParam("cityName") String cityName) {
+	public ApiResponse<List<CityInfo>> getCityByName(@RequestParam(value = "cityName",required = false)  String cityName) {
 		return ApiResponse.success(cityService.queryCityInfoListByCityName(cityName,null));
 	}
 
