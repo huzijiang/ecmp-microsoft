@@ -588,6 +588,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		RegimeLimitUseCarCityInfo regimeLimitUseCarCityInfo = new RegimeLimitUseCarCityInfo();
 		RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimeId);
 		if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimeVo.getRegimenType())){
+			//用车城市规则  C001：不限   C002：限制可用城市  C003：限制不可用城市
 			String ruleCity = regimeVo.getRuleCity();
 			if(StringUtil.isNotEmpty(ruleCity)){
 				List<String> queryLimitCityCodeList = regimeUseCarCityRuleInfoMapper.queryLimitCityCodeList(regimeId);

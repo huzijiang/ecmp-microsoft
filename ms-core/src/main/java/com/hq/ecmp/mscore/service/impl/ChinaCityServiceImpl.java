@@ -40,14 +40,18 @@ public class ChinaCityServiceImpl implements ChinaCityService {
 		int flag=1;
 		List<String> queryLimitCityCodeList=null;
 		if (regimeVo!=null){
+			//用车城市规则  C001：不限   C002：限制可用城市  C003：限制不可用城市
 			String ruleCity = regimeVo.getRuleCity();
 			if (ROLE_CITY_C002.equals(ruleCity)){
+				//如果制度是限制可用城市  查询可用的城市code集合
 				queryLimitCityCodeList = regimeUseCarCityRuleInfoMapper.queryLimitCityCodeList(regimeId);
 			}else if (ROLE_CITY_C003.equals(ruleCity)){
 				flag=0;
+				//如果制度是限制不可用城市  查询不可用的城市code集合
 				queryLimitCityCodeList = regimeUseCarCityRuleInfoMapper.queryLimitCityCodeList(regimeId);
 			}
 		}
+		// 根据名字搜索 查询可用的城市信息CityInfo集合返回
 		return chinaCityMapper.queryCityInfoListByCityName(cityName,queryLimitCityCodeList,flag);
 	}
 
