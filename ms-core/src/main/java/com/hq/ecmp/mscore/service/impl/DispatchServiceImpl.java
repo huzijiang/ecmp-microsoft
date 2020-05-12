@@ -29,6 +29,7 @@ import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * 调度业务实现
@@ -68,6 +69,8 @@ public class DispatchServiceImpl implements IDispatchService {
 
     @Resource
     CarInfoMapper carInfoMapper;
+    @Resource
+    DriverCarRelationInfoMapper driverCarRelationInfoMapper;
 
     @Resource
     CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
@@ -411,6 +414,14 @@ public class DispatchServiceImpl implements IDispatchService {
                 acars=carInfoMapper.dispatcherSelectCarGroupOwnedCarInfoListUseCarLicense(selectCarConditionBo);
             }
             cars.addAll(acars);
+        }
+        //如果有驾驶员，过滤驾驶员车辆数据
+        if(selectCarConditionBo.getDriverId()!=null){
+            DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+            driverCarRelationInfo.setDriverId(Long.valueOf(selectCarConditionBo.getDriverId()));
+            Set<Long> longs = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo)
+                    .stream().map(DriverCarRelationInfo::getCarId).collect(Collectors.toSet());
+            cars = cars.stream().filter(x->longs.contains(x.getCarId())).collect(Collectors.toList());
         }
 
         Iterator<CarInfo> carInfoIterator=cars.iterator();
