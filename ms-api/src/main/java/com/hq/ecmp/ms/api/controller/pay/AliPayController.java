@@ -103,7 +103,7 @@ public class AliPayController {
      * @author ghb
      * @description  支付回调接口
      */
-    @RequestMapping(value = "ali/v1/callback", produces = "text/xml; charset=utf-8")
+    @RequestMapping(value = "ali/v1/callback")
     public Boolean payNotify(HttpServletRequest request, @RequestBody Map<String,String> params) {
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
@@ -119,7 +119,7 @@ public class AliPayController {
 //                        : valueStr + values[i] + ",";
 //            }
 //            //乱码解决，这段代码在出现乱码时使用。
-//            //valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+//            valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
 //            params.put(name, valueStr);
 //        }
         log.info("回调接口，重要参数：---" + params.toString());
