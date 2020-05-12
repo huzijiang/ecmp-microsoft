@@ -21,6 +21,7 @@ import com.hq.ecmp.mscore.service.IOrderPayInfoService;
 import com.hq.ecmp.mscore.service.OrderInfoTwoService;
 import com.hq.ecmp.mscore.vo.CancelOrderCostVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
+import com.hq.ecmp.mscore.vo.RunningOrderVo;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.MacTools;
 import lombok.extern.slf4j.Slf4j;
@@ -162,6 +163,18 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         return vo;
     }
 
+    /**
+     * 首次登陆进行中的行程订单
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<RunningOrderVo> runningOrder(Long userId) {
+        String states=OrderState.INSERVICE.getState()+","+OrderState.READYSERVICE.getState()
+                +","+OrderState.ALREADYSENDING.getState()+","+OrderState.REASSIGNMENT.getState();
+        return orderInfoMapper.getRunningOrder(userId,states);
+    }
+
     private int ownerCarCancel(Long orderId,String cancelReason,Long userId) throws Exception{
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setState(OrderState.ORDERCLOSE.getState());
@@ -215,4 +228,6 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
     }
+
+
 }

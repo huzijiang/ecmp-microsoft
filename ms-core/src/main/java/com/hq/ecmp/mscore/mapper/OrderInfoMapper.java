@@ -13,6 +13,7 @@ import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
+import com.hq.ecmp.mscore.vo.RunningOrderVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -283,5 +284,7 @@ public interface OrderInfoMapper {
 
     //根据订单查询派单耗时
     int getdispatchDurationById(Long orderId);
+
+    List<RunningOrderVo> getRunningOrder(@Param("userId")Long userId,@Param("states")String states);
 }
 

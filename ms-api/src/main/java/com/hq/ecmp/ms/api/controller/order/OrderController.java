@@ -696,22 +696,23 @@ public class OrderController {
             return ApiResponse.success(cancelOrderCostVO);
         }catch (Exception e){
             e.printStackTrace();
-            return  ApiResponse.error("更换车辆失败");
+            return  ApiResponse.error("取消订单失败");
         }
     }
 
 
     @ApiOperation(value = "正在进行中的订单(乘客端卡片)",httpMethod = "POST")
     @RequestMapping("/runningOrder")
-    public ApiResponse<CancelOrderCostVO> runningOrder(@RequestBody OrderDto orderDto){
+    public ApiResponse<List<RunningOrderVo>> runningOrder(){
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            CancelOrderCostVO cancelOrderCostVO = orderInfoTwoService.cancelBusinessOrder(orderDto.getOrderId(), orderDto.getCancelReason());
-            return ApiResponse.success(cancelOrderCostVO);
+
+            List<RunningOrderVo> runningOrders = orderInfoTwoService.runningOrder(loginUser.getUser().getUserId());
+            return ApiResponse.success(runningOrders);
         }catch (Exception e){
             e.printStackTrace();
-            return  ApiResponse.error("更换车辆失败");
+            return  ApiResponse.error("查询失败");
         }
     }
 
