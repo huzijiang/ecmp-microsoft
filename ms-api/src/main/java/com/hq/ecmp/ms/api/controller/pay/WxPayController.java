@@ -113,24 +113,24 @@ public class WxPayController {
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("已经进入微信支付回调接口");
         try {
-            log.info("1111111111111111111111111----------"+request.getInputStream());
-            log.info("2222222222222222222222222----------"+request.getCharacterEncoding());
-            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
-            log.info("回调接口---返回结果--xmlResult为："+xmlResult);
+//            log.info("1111111111111111111111111----------"+request.getInputStream());
+//            log.info("2222222222222222222222222----------"+request.getCharacterEncoding());
+//            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
+//            log.info("回调接口---返回结果--xmlResult为："+xmlResult);
 
             BufferedReader reader = null;
 
             reader = request.getReader();
             String line = "";
-            String xmlString = null;
+            String xmlResult = null;
             StringBuffer inputString = new StringBuffer();
 
             while ((line = reader.readLine()) != null) {
                 inputString.append(line);
             }
-            xmlString = inputString.toString();
+            xmlResult = inputString.toString();
             request.getReader().close();
-            System.out.println("----接收到的数据如下：---" + xmlString);
+            System.out.println("----接收到的数据如下：---" + xmlResult);
 
             WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
             log.info("回调接口---返回结果--result为："+result);
