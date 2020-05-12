@@ -173,7 +173,7 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     public void setUpBaseInfo(EnterPriseBaseInfoDTO enterPriseBaseInfoDTO) {
         try {
             //查询基本信息
-            EcmpConfig baseInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BASE_INFO.getConfigKey()).build());
+            EcmpConfig baseInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BASE_INFO.getConfigKey()).companyId(enterPriseBaseInfoDTO.getCompanyId()).build());
             //判断是否设置过，存在则更新设置
             if (baseInfo == null) {
                 EcmpConfig baseConfig = new EcmpConfig();
@@ -196,9 +196,9 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public void setUpWelComeImage(String status, String value, MultipartFile file) {
+    public void setUpWelComeImage(String status, String value, MultipartFile file,String companyId) {
         try {
-            EcmpConfig welcomeInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WELCOME_IMAGE_INFO.getConfigKey()).build());
+            EcmpConfig welcomeInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WELCOME_IMAGE_INFO.getConfigKey()).companyId(companyId).build());
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.WELCOME_IMAGE_INFO.getConfigKey());
@@ -224,10 +224,10 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public ApiResponse setUpBackGroundImage(String status, String value, MultipartFile file) {
+    public ApiResponse setUpBackGroundImage(String status, String value, MultipartFile file,String companyId) {
         ApiResponse apiResponse = new ApiResponse();
         try {
-            EcmpConfig backgroundInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BACKGROUND_IMAGE_INFO.getConfigKey()).build());
+            EcmpConfig backgroundInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.BACKGROUND_IMAGE_INFO.getConfigKey()).companyId(companyId).build());
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             if (SWITCH_OFF.equals(status)) {
@@ -256,9 +256,9 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public void setUpMessageConfig(String status) {
+    public void setUpMessageConfig(String status,String companyId) {
         try {
-            EcmpConfig messageInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.MESSAGE_INFO.getConfigKey()).build());
+            EcmpConfig messageInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.MESSAGE_INFO.getConfigKey()).companyId(companyId).build());
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.MESSAGE_INFO.getConfigKey());
@@ -279,9 +279,9 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public void setUpSms(String status) {
+    public void setUpSms(String status,String companyId) {
         try {
-            EcmpConfig smsInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.SMS_INFO.getConfigKey()).build());
+            EcmpConfig smsInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.SMS_INFO.getConfigKey()).companyId(companyId).build());
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.SMS_INFO.getConfigKey());
@@ -302,9 +302,9 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public void setUpVirtualPhone(String status) {
+    public void setUpVirtualPhone(String status,String companyId) {
         try {
-            EcmpConfig virtualInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey()).build());
+            EcmpConfig virtualInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey()).companyId(companyId).build());
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey());
@@ -325,9 +325,9 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public void setUpOrderConfirm(String status, String value, String owenType, String rideHailing) {
+    public void setUpOrderConfirm(String status, String value, String owenType, String rideHailing,String companyId) {
         try {
-            EcmpConfig backgroundInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey()).build());
+            EcmpConfig backgroundInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey()).companyId(companyId).build());
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey());
@@ -357,9 +357,9 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public void setUpDispatchInfo(String status, String value) {
+    public void setUpDispatchInfo(String status, String value,String companyId) {
         try {
-            EcmpConfig dispatchInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.DISPATCH_INFO.getConfigKey()).build());
+            EcmpConfig dispatchInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.DISPATCH_INFO.getConfigKey()).companyId(companyId).build());
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.DISPATCH_INFO.getConfigKey());
@@ -390,9 +390,9 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
     @Override
-    public void setUpWaitMaxMinute(String status, String value) {
+    public void setUpWaitMaxMinute(String status, String value,String companyId) {
         try {
-            EcmpConfig waitInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WAIT_MAX_MINUTE.getConfigKey()).build());
+            EcmpConfig waitInfo = ecmpConfigMapper.selectConfigByKey(EcmpConfig.builder().configKey(ConfigTypeEnum.WAIT_MAX_MINUTE.getConfigKey()).companyId(companyId).build());
             //判断是否设置过，存在则更新设置
             EcmpConfig baseConfig = new EcmpConfig();
             baseConfig.setConfigKey(ConfigTypeEnum.WAIT_MAX_MINUTE.getConfigKey());
