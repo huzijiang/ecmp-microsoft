@@ -83,4 +83,11 @@ public interface CarGroupDispatcherInfoMapper
     int deleteCarGroupDispatcherInfoByGroupId(Long carGroupId);
 
     List<Long> findByCityCode(String cityCode);
+
+    /**
+     * 通过公司id查询公司下所有城市的所有车队的所有调度员
+     * @param companyId 公司id
+     * @return
+     */
+    List<Long> findDispatchersByCompanyId(Long companyId);
 }

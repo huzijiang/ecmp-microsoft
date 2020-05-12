@@ -59,6 +59,14 @@ public interface OrderInfoMapper {
     public int updateOrderInfo(OrderInfo orderInfo);
 
     /**
+     * 修改【请填写功能名称】
+     *
+     * @param orderInfo 【请填写功能名称】
+     * @return 结果
+     */
+    public int updateOrderInfoNull(OrderInfo orderInfo);
+
+    /**
      * 删除【请填写功能名称】
      *
      * @param orderId 【请填写功能名称】ID
