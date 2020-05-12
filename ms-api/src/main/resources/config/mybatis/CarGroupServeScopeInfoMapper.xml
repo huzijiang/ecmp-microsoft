@@ -149,7 +149,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 </foreach>
             </if>
             <if test="city!=null">
-                and city=#{city}
+                and find_in_set(city,#{city})
             </if>
         </where>
     </select>

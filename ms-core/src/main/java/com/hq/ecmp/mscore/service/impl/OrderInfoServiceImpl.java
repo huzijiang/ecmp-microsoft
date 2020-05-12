@@ -1790,7 +1790,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         List<String> states=Arrays.asList(OrderState.INITIALIZING.getState(),OrderState.WAITINGLIST.getState(),OrderState.GETARIDE.getState(),
                             OrderState.SENDINGCARS.getState(),OrderState.ORDERCLOSE.getState(),OrderState.STOPSERVICE.getState());
         OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderNo);
-        orderVO.setPayState(orderPayInfo.getState());
+        String payState=OrderPayConstant.UNPAID;
+        if (orderPayInfo!=null){
+            payState=orderPayInfo.getState();
+        }
+        orderVO.setPayState(payState);
         if (states.contains(orderVO.getState())){
             return orderVO;
         }

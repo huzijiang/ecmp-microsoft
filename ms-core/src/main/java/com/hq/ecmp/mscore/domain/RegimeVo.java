@@ -17,6 +17,7 @@ public class RegimeVo {
 	String regimenType;
 
 	String regimeName;// 制度名称
+	Long companyId;//企业公司ID
 
 	String sceneName;// 场景名称
 
