@@ -39,7 +39,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectConfigByKey" parameterType="com.hq.ecmp.mscore.domain.EcmpConfig" resultMap="EcmpConfigResult">
         <include refid="selectEcmpConfigVo"/>
-        where config_key = #{configKey} and company_id = #{companyId}
+        where 1=1
+        <if test="configKey != null">
+            and config_key = #{configKey}
+        </if>
+        <if test="companyId != null">
+            and company_id = #{companyId}
+        </if>
     </select>
 
     <insert id="insertEcmpConfig" parameterType="com.hq.ecmp.mscore.domain.EcmpConfig" useGeneratedKeys="true" keyProperty="configId">

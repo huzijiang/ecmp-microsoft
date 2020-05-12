@@ -10,6 +10,7 @@ import com.hq.core.security.service.TokenService;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
+import com.hq.ecmp.mscore.domain.DriverInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
@@ -278,5 +279,23 @@ public class DriverNewsController {
             return ApiResponse.error("排班变更失败");
         }
         return ApiResponse.success("排班变更成功");
+    }
+
+    /**
+     * 补单驾驶员列表
+     * @param pageRequest
+     * @return
+     */
+    @Log(title = "补单驾驶员列表",content = "查询补单驾驶员列表", businessType = BusinessType.OTHER)
+    @ApiOperation(value="supplementObtainDriver" ,notes="查询补单驾驶员列表", httpMethod = "POST")
+    @PostMapping("/supplementObtainDriver")
+    public ApiResponse<List<DriverInfo>> supplementObtainDriver(@RequestBody DriverInfo driverInfo){
+
+        //获取登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        driverInfo.setCompanyId(Long.valueOf(loginUser.getUser().getDept().getCompanyId()));
+        List<DriverInfo>  driverCanUseCarsList = iDriverInfoService.supplementObtainDriver(driverInfo);
+        return ApiResponse.success(driverCanUseCarsList);
     }
 }

@@ -14,19 +14,17 @@ import java.util.List;
 @Data
 public class OnLineCarTypeVO {
 
-    private Long cityId;
-    private String cityCode;
+    private String cityId;
     private String cityName;
     private String carGroupIds;
-    private List<CarLevelVO> carType;
-    private List<CarServiceTypeVO> serviceType;
+    private List<CarLevelVO> carTypes;
+    private List<CarServiceTypeVO> serviceTypes;
 
     public OnLineCarTypeVO() {
     }
 
-    public OnLineCarTypeVO(Long cityId, String cityCode, String cityName, String carGroupIds) {
+    public OnLineCarTypeVO(String cityId, String cityName, String carGroupIds) {
         this.cityId = cityId;
-        this.cityCode = cityCode;
         this.cityName = cityName;
         this.carGroupIds = carGroupIds;
     }

@@ -111,4 +111,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         and s.state='Y000'
     </select>
 
+    <select id="selectCarGroupDispatcherAllId" parameterType="java.lang.Long" resultType="java.lang.String">
+
+	  select GROUP_CONCAT(car_group_id) carGroupId  from car_group_dispatcher_info where user_id = #{userId}
+
+    </select>
 </mapper>

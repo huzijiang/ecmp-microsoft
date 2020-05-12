@@ -6,8 +6,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.hq.api.system.domain.SysUser;
+import com.hq.common.core.api.ApiResponse;
+import com.hq.common.exception.CustomException;
+import com.hq.common.utils.OkHttpUtil;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
@@ -16,12 +20,14 @@ import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.MacTools;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.Now;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,7 +88,15 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	private RegimeUseCarTimeRuleInfoMapper useCarTimeRuleInfoMapper;
     @Resource
 	private CloudWorkDateInfoMapper workDateInfoMapper;
+    @Resource
+	private EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
 
+	@Value("${thirdService.enterpriseId}") //企业编号
+	private String enterpriseId;
+	@Value("${thirdService.licenseContent}") //企业证书信息
+	private String licenseContent;
+	@Value("${thirdService.apiUrl}")//三方平台的接口前地址
+	private String apiUrl;
 
     /**
      * 根据用车制度id查询用车值得详细信息
@@ -737,38 +751,82 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 
 
 	@Override
-	public List<UseCarTypeVO> checkUseCarModeAndType(RegimeCheckDto regimeDto, LoginUser loginUser) throws Exception{
+	public String checkUseCarModeAndType(RegimeCheckDto regimeDto, LoginUser loginUser) throws Exception{
 		Long orgComcany=null;
 		EcmpOrg ecmpOrg = orgService.getOrgByDeptId(loginUser.getUser().getDeptId());
 		if (ecmpOrg!=null){
 			orgComcany=ecmpOrg.getDeptId();
 		}
-
+		String msg=null;
 		RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimeDto.getRegimeId());
 		String canUseCarMode = regimeVo.getCanUseCarMode();
 		List<String> cityCodes = Arrays.asList(regimeDto.getCityCodes().split(","));
-		String ruleCity = regimeVo.getRuleCity();
 		if (StringUtils.isBlank(canUseCarMode)){
 			log.error("制度:"+regimeDto.getRegimeId()+"未配置用车方式!");
 			throw new Exception("该制度未配置用车方式!");
 		}
+		String regimenType=regimeVo.getRegimenType();
 		switch (canUseCarMode){
 			case CarConstant.USR_CARD_MODE_HAVE://自由车
-				String noAvailableCity = checkTraveCompanyCar(orgComcany, loginUser.getUser().getDeptId(), cityCodes);
-				if (StringUtils.isNotBlank(noAvailableCity)){
-					List<CityInfo> cityList=chinaCityMapper.findByCityCode(noAvailableCity.substring(1));
-					String collect = cityList.stream().map(CityInfo::getCityName).collect(Collectors.joining("、", "", ""));
-					throw new Exception(collect+"城市所属公司暂不支持服务");
+				List<CarGroupServeScopeInfo> noAvailableCity = checkTraveCompanyCar(orgComcany, loginUser.getUser().getDeptId(), cityCodes);
+				if (CollectionUtils.isEmpty(noAvailableCity)){
+//					List<CityInfo> cityList=chinaCityMapper.findByCityCode(noAvailableCity);
+//					String collect = cityList.stream().map(CityInfo::getCityName).collect(Collectors.joining("、", "", ""));
+					log.error(cityCodes+"城市暂无企业车队");
+					throw new CustomException("该城市暂无企业车队");
 				}
 				break;
 			case CarConstant.USR_CARD_MODE_NET://网约车
-				
-				break;
-			default:
+				List<OnLineCarTypeVO> onLineCarTypeVOS = this.threeCityServer(regimeDto.getCityCodes());
+				if (CollectionUtils.isEmpty(onLineCarTypeVOS)){
+					log.error(cityCodes+"城市所属公司网约车暂不支持服务");
+					throw new CustomException("网约车暂未开通该城市服务");
+				}else{
+					if (CommonConstant.TRAVLE_APPLY.equals(regimenType)) {
+						List<CarLevelVO> carTypes = onLineCarTypeVOS.get(0).getCarTypes();
+						if (CollectionUtils.isEmpty(carTypes)){
+							log.error(cityCodes+"城市网约车暂不支持企业配置的车型");
+							throw new CustomException("该城市暂不支持企业配置的网约车车型");
+						}else{
+							List<String> collect = carTypes.stream().map(CarLevelVO::getGroupId).collect(Collectors.toList());
+							String onlineLevel = regimeVo.getUseCarModeOnlineLevel();
+							if (StringUtils.isNotBlank(onlineLevel)){
+								List<String> strings = Arrays.asList(onlineLevel.split(","));
+								boolean b = collect.retainAll(strings);
+								if (!b){
+									log.error(cityCodes+"城市网约车暂不支持企业配置的车型");
+									throw new CustomException("该城市暂不支持企业配置的网约车车型");
+								}
+							}
+						}
 
+					}
+				}
+//				List<String> realCitys = onLineCarTypeVOS.stream().map(OnLineCarTypeVO::getCityId).collect(Collectors.toList());
+//				cityCodes.removeAll(realCitys);
+//				if (CollectionUtils.isNotEmpty(cityCodes)){
+//					log.error(cityCodes.toString()+"城市所属公司网约车暂不支持服务");
+//					throw new CustomException("网约车暂未开通该城市服务");
+//				}
+			default:
+				List<CarGroupServeScopeInfo>  ownerCity = checkTraveCompanyCar(orgComcany, loginUser.getUser().getDeptId(), cityCodes);
+				List<OnLineCarTypeVO> onLineCitys = this.threeCityServer(regimeDto.getCityCodes());
+				if (CollectionUtils.isEmpty(ownerCity)&&CollectionUtils.isEmpty(onLineCitys)){
+					throw new CustomException("该城市暂不支持自有车/网约车服务");
+				}
+					/*公务*/
+				if (CommonConstant.AFFICIAL_APPLY.equals(regimenType)) {
+					if (CollectionUtils.isEmpty(ownerCity)) {
+						log.error(cityCodes.toString() + "城市所属公司网约车暂不支持服务");
+						msg = "该城市暂无企业车队";
+					} else if (CollectionUtils.isEmpty(onLineCitys)) {
+						log.error(cityCodes.toString() + "网约车暂未开通该城市服务");
+						msg = "网约车暂未开通该城市服务";
+					}
+				}
 				break;
 		}
-		return null;
+		return msg;
 	}
 
 	//获取开城城市
@@ -783,7 +841,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		if (StringUtils.isNotBlank(useCarMode)&&CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){
 			cityCarGroup = getOwnerCityCarGroup(user.getDeptId());
 		}else{
-
+			cityCarGroup=threeCityServer(regimeDto.getCityCodes());
 		}
 		return cityCarGroup;
 	}
@@ -801,16 +859,251 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
         return regimenVOList;
     }
 
-    /**
+	/**
+	 * 根据制度ID和城市获取具体可用车型
+	 * @param regimeDto
+	 * @param loginUser
+	 * @return
+	 */
+	@Override
+	public List<UseCarTypeVO> getUseCarModeAndType(RegimeCheckDto regimeDto, LoginUser loginUser) throws Exception{
+		List<UseCarTypeVO> voList=new ArrayList<>();
+		RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimeDto.getRegimeId());
+		if (regimeVo==null){
+			throw new Exception("该制度不存在");
+		}
+		String useCarMode = regimeVo.getCanUseCarMode();
+		Long userId = loginUser.getUser().getUserId();
+		Long ownerCompany = loginUser.getUser().getOwnerCompany();
+		String regimenType = regimeVo.getRegimenType();
+		if (CommonConstant.AFFICIAL_APPLY.equals(regimenType)) {
+			if (CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){
+				UseCarTypeVO vo = getCarTypeForOwnerBusiness(regimeVo, regimeDto.getCityCodes(), new UseCarTypeVO(), ownerCompany);
+				voList.add(vo);
+			}else if (CarModeEnum.ORDER_MODE_NET.getKey().equals(useCarMode)){
+				/*网约车*/
+				UseCarTypeVO carTypefor = getCarTypeForOnlie(regimeVo, regimeDto.getCityCodes(), new UseCarTypeVO());
+				if (carTypefor!=null){
+					voList.add(carTypefor);
+				}
+			}else{
+				/**自有车+网约车*/
+				/*自有车*/
+				UseCarTypeVO vo = getCarTypeForOwnerBusiness(regimeVo, regimeDto.getCityCodes(), new UseCarTypeVO(), ownerCompany);
+				UseCarTypeVO carTypefor = getCarTypeForOnlie(regimeVo, regimeDto.getCityCodes(), new UseCarTypeVO());
+				if (vo!=null&&carTypefor!=null){
+					vo.setRideHileCarType(carTypefor.getRideHileCarType());
+					vo.setOnlineCarType(carTypefor.getOnlineCarType());
+					vo.setShuttleOnlineCarType(carTypefor.getShuttleOnlineCarType());
+				}else if(vo==null&&carTypefor!=null){
+					voList.add(carTypefor);
+				}else if (vo!=null&&carTypefor==null){
+					voList.add(vo);
+				}
+			}
+		}else{
+			if (CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){
+				voList = getCarTypeForOwnerTravel(regimeVo, regimeDto.getCityCodes(),ownerCompany);
+			}else if (CarModeEnum.ORDER_MODE_NET.getKey().equals(useCarMode)){
+				/*网约车*/
+				List<UseCarTypeVO> carTypeList = getCarTypeForTraveOnlie(regimeVo, regimeDto.getCityCodes());
+				voList.addAll(carTypeList);
+			}else{
+				/**自有车+网约车*/
+				/*自有车*/
+				List<UseCarTypeVO> ownerCarTypes = getCarTypeForOwnerTravel(regimeVo, regimeDto.getCityCodes(), ownerCompany);
+				List<UseCarTypeVO> onlineCarType = getCarTypeForTraveOnlie(regimeVo, regimeDto.getCityCodes());
+				if (CollectionUtils.isNotEmpty(ownerCarTypes)&&CollectionUtils.isNotEmpty(onlineCarType)){
+					for (UseCarTypeVO vo:ownerCarTypes){
+						List<UseCarTypeVO> collect = onlineCarType.stream().filter(p -> vo.getCityCode().equals(p.getCityCode())).collect(Collectors.toList());
+						if (CollectionUtils.isNotEmpty(collect)){
+							vo.setRideHileCarType(collect.get(0).getRideHileCarType());
+						}
+					}
+				}
+				voList.addAll(ownerCarTypes);
+			}
+
+		}
+
+		return voList;
+	}
+
+	private List<UseCarTypeVO> getCarTypeForTraveOnlie(RegimeVo regimeVo, String cityCodes)throws Exception {
+		String ownerCarLevel = getOwnerCarLevel(regimeVo);
+		if (StringUtils.isBlank(ownerCarLevel)){
+			return null;
+		}
+		List<String>  regimeCarLevel=Arrays.asList(regimeVo.getUseCarModeOnlineLevel().split(","));
+		List<OnLineCarTypeVO> onLineCarTypeVOS = threeCityServer(cityCodes);
+		if (CollectionUtils.isEmpty(onLineCarTypeVOS)){
+			return null;
+		}
+		List<UseCarTypeVO> resultList=new ArrayList<>();
+		List<String> groupNames=new ArrayList<>();
+		for (OnLineCarTypeVO vo:onLineCarTypeVOS){
+			List<CarLevelVO> carTypes = vo.getCarTypes();
+			if (CollectionUtils.isNotEmpty(carTypes)){
+				//网约车当前城市可用车型
+				List<String> collect = carTypes.stream().map(CarLevelVO::getGroupName).collect(Collectors.toList());
+				groupNames.addAll(collect);
+				UseCarTypeVO carTypeVO=new UseCarTypeVO();
+				carTypeVO.setCityCode(vo.getCityId());
+				List<CarServiceTypeVO> serviceTypes = vo.getServiceTypes();
+				if (CollectionUtils.isNotEmpty(serviceTypes)){
+					List<CarServiceTypeVO> canServiceType=serviceTypes.stream().filter(p-> OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState().equals(p.getServiceTypeId())||
+							OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState().equals(p.getServiceTypeId())).collect(Collectors.toList());
+					if (CollectionUtils.isNotEmpty(canServiceType)){
+						carTypeVO.setShuttleOnlineCarType(String.join(",",collect));
+					}
+					List<CarServiceTypeVO> canType=serviceTypes.stream().filter(p-> OrderServiceType.ORDER_SERVICE_TYPE_NOW.getBcState().equals(p.getServiceTypeId())||
+							OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState().equals(p.getServiceTypeId())).collect(Collectors.toList());
+					if (CollectionUtils.isNotEmpty(canType)){
+						carTypeVO.setShuttleOnlineCarType(String.join(",",collect));
+					}
+				}
+				resultList.add(carTypeVO);
+			}
+		}
+		regimeCarLevel.retainAll(groupNames);
+		if (CollectionUtils.isNotEmpty(regimeCarLevel)){
+			if (CollectionUtils.isNotEmpty(resultList)){
+				resultList.stream().forEach(p->p.setRideHileCarType(String.join(",",regimeCarLevel)));
+			}
+		}
+		return resultList;
+
+	}
+
+	private UseCarTypeVO getCarTypeForOnlie(RegimeVo regimeVo,String cityCodes,UseCarTypeVO vo)throws Exception{
+		if (StringUtils.isBlank(regimeVo.getUseCarModeOnlineLevel())){
+			return null;
+		}
+		List<String>  regimeCarLevel=Arrays.asList(regimeVo.getUseCarModeOnlineLevel().split(","));
+		List<OnLineCarTypeVO> onLineCarTypeVOS = threeCityServer(cityCodes);
+		if (CollectionUtils.isNotEmpty(onLineCarTypeVOS)&&CollectionUtils.isNotEmpty(onLineCarTypeVOS.get(0).getCarTypes())) {
+			List<CarLevelVO> carTypes = onLineCarTypeVOS.get(0).getCarTypes();
+			List<String> collectList = carTypes.stream().map(CarLevelVO::getGroupId).collect(Collectors.toList());
+			//与制度取交集
+			regimeCarLevel.retainAll(collectList);
+			if (CollectionUtils.isEmpty(regimeCarLevel)) {
+				return null;
+			} else {
+				String join = String.join(",", regimeCarLevel);
+				String collect = carTypes.stream().filter(p -> join.contains(p.getGroupId())).map(CarLevelVO::getGroupName).collect(Collectors.joining(",", "", ""));
+				vo.setCityCode(cityCodes);
+				vo.setRideHileCarType(collect);
+				vo.setOnlineCarType(join);
+				vo.setShuttleOnlineCarType(join);
+				return vo;
+			}
+		}
+		return null;
+	}
+
+	private UseCarTypeVO getCarTypeForOwnerBusiness(RegimeVo regimeVo,String cityCodes,UseCarTypeVO vo,Long ownerCompany){
+		if (StringUtils.isBlank(regimeVo.getUseCarModeOwnerLevel())){
+			return null;
+		}
+		String	regimeCarLevel=regimeVo.getUseCarModeOwnerLevel();
+		String carTypeName=enterpriseCarTypeInfoMapper.selectCarTypesByTypeIds(ownerCompany,regimeCarLevel);
+		vo.setCityCode(cityCodes);
+		vo.setEnterpriseCarType(carTypeName);
+		vo.setOwnerCarType(regimeCarLevel);
+		vo.setShuttleOwnerCarType(regimeCarLevel);
+		return vo;
+	}
+
+	private List<UseCarTypeVO> getCarTypeForOwnerTravel(RegimeVo regimeVo,String cityCodes,Long ownerCompany){
+		if (StringUtils.isBlank(regimeVo.getUseCarModeOwnerLevel())){
+			return null;
+		}
+		List<UseCarTypeVO> list=new ArrayList();
+		String	regimeCarLevel=regimeVo.getUseCarModeOwnerLevel();
+		String carTypeName=enterpriseCarTypeInfoMapper.selectCarTypesByTypeIds(ownerCompany,regimeCarLevel);
+		List<String> citylist=  Arrays.asList(cityCodes.split(","));
+		for (String city:citylist){
+			UseCarTypeVO useCarTypeVO = new UseCarTypeVO();
+			useCarTypeVO.setCityCode(city);
+			useCarTypeVO.setEnterpriseCarType(carTypeName);
+			useCarTypeVO.setOwnerCarType(regimeCarLevel);
+			useCarTypeVO.setShuttleOwnerCarType(regimeCarLevel);
+			list.add(useCarTypeVO);
+		}
+		return list;
+	}
+
+	/**
+	 * 获取制度对应的车辆等级
+	 * @param regimeVo
+	 * @param flag  1:自有车,2网约车 ,3自有+网约车
+	 * @return
+	 */
+	private String getRegimeCarLevel(RegimeVo regimeVo ,int flag){
+		String carLevel="";
+		switch (flag){
+			case 1:
+				carLevel=getOwnerCarLevel(regimeVo);
+				break;
+			case 2:
+				carLevel=getOnlineCarLevel(regimeVo);
+				break;
+			case 3:
+				String ownerCarLevel=getOwnerCarLevel(regimeVo);
+				String onlineCarLevel = getOnlineCarLevel(regimeVo);
+				if (StringUtils.isNotBlank(ownerCarLevel)){
+					carLevel+=","+ownerCarLevel;
+				}
+				if (StringUtils.isNotBlank(onlineCarLevel)){
+					carLevel+=","+onlineCarLevel;
+				}
+				break;
+			default:
+				break;
+		}
+		if (StringUtils.isNotBlank(carLevel)){
+			return carLevel.substring(1);
+		}
+		return carLevel;
+	}
+
+
+	private String getOwnerCarLevel(RegimeVo regimeVo){
+		String carLevel="";
+
+		if (StringUtils.isNotBlank(regimeVo.getTravelUseCarModeOwnerLevel())){
+			carLevel+=","+regimeVo.getTravelUseCarModeOwnerLevel();
+		}
+		if (StringUtils.isNotBlank(regimeVo.getAsUseCarModeOwnerLevel())){
+			carLevel+=","+regimeVo.getAsUseCarModeOwnerLevel();
+		}
+		return carLevel;
+	}
+
+	private String getOnlineCarLevel(RegimeVo regimeVo){
+		String carLevel="";
+		if (StringUtils.isNotBlank(regimeVo.getUseCarModeOnlineLevel())){
+			carLevel+=","+regimeVo.getUseCarModeOnlineLevel();
+		}
+		if (StringUtils.isNotBlank(regimeVo.getTravelUseCarModeOnlineLevel())){
+			carLevel+=","+regimeVo.getTravelUseCarModeOnlineLevel();
+		}
+		if (StringUtils.isNotBlank(regimeVo.getAsUseCarModeOnlineLevel())){
+			carLevel+=","+regimeVo.getAsUseCarModeOnlineLevel();
+		}
+		return carLevel;
+	}
+
+	/**
 	 *
 	 * 校验自由车服务城市是否可用
 	 * @param orgComcany
 	 * @param deptId
-	 * @param citys
+	 * @param cityList
 	 * @return
 	 * @throws Exception
 	 */
-	private String checkTraveCompanyCar(Long orgComcany,Long deptId,List<String> citys)throws Exception{
+	private List<CarGroupServeScopeInfo> checkTraveCompanyCar(Long orgComcany,Long deptId,List<String> cityList)throws Exception{
 		List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectCarGroupInfoByDeptId(orgComcany,deptId);
 		if (CollectionUtils.isEmpty(carGroupInfos)){
 			log.info("该公司:"+orgComcany+"下无可用/可调度车队");
@@ -818,28 +1111,15 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}
 		String noAvailableCity="";
 		List<Long> groupIds = carGroupInfos.stream().map(CarGroupInfo::getCarGroupId).collect(Collectors.toList());
-		for (String city:citys){
-			List<CarGroupServeScopeInfo> list=carGroupServeScopeInfoMapper.findByCityAndGroupId(groupIds,city);
-			if (CollectionUtils.isEmpty(list)){
-				noAvailableCity+=","+city;
-			}
-		}
-		return noAvailableCity;
+		String citys=String.join(",",cityList);
+		List<CarGroupServeScopeInfo> list=carGroupServeScopeInfoMapper.findByCityAndGroupId(groupIds,citys);
+		return list;
 	}
 
-	private String checkOnlineCar(Long orgComcany,Long deptId,List<String> citys)throws Exception{
-		List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectCarGroupInfoByDeptId(orgComcany,deptId);
-		if (CollectionUtils.isEmpty(carGroupInfos)){
-			log.info("该公司:"+orgComcany+"下无可用/可调度车队");
-			throw new Exception("当前登录人所属公司暂无企业车队");
-		}
-		for(String city:citys){
-			   OnLineCarTypeVO onLineCarTypeVO=new OnLineCarTypeVO();
-			   if(onLineCarTypeVO!=null){
-			   	
-			   }
-		}
-		return null;
+	private List<OnLineCarTypeVO> checkOnlineCar(List<String> citys)throws Exception{
+		String join = String.join(",", citys);
+		List<OnLineCarTypeVO> onLineCarTypeVOS = this.threeCityServer(join);
+		return onLineCarTypeVOS;
 	}
 
 	//获取登录人所属公司自由车开城情况
@@ -854,7 +1134,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		if(CollectionUtils.isNotEmpty(cityList)){
 			for (OnLineCarTypeVO vo:cityList){
 				List<CarLevelVO> carType =carGroupInfoMapper.findCarTypeByGroupIds(vo.getCarGroupIds());
-				vo.setCarType(carType);
+				vo.setCarTypes(carType);
 			}
 		}
 		return cityList;
@@ -865,7 +1145,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 //		Date date = DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT, startTime);
 		Date date = new Date(Long.parseLong(startTime));
 		String week = DateFormatUtils.getWeek(date);
-		Integer integer = Integer.valueOf(week);
+		Integer weekint = Integer.valueOf(week);
 		boolean flag=false;
 		List<RegimeUseCarTimeRuleInfo> regimeUseCarTimeRuleInfos = useCarTimeRuleInfoMapper.queryRegimeUseCarTimeRuleInfoList(regimeId, null);
 		if (CollectionUtils.isEmpty(regimeUseCarTimeRuleInfos)){
@@ -873,31 +1153,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			return map;
 		}
 		List <RegimeUseCarTimeRuleInfo> todayList=new ArrayList<>();
-		switch (integer.intValue()){
-			case 1:
-				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D101.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R101.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
-				break;
-			case 2:
-				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D102.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R102.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
-				break;
-			case 3:
-				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D103.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R103.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
-				break;
-			case 4:
-				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D104.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R104.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
-				break;
-			case 5:
-				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D105.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R105.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
-				break;
-			case 6:
-				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D106.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R106.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
-				break;
-			case 0:
-				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D107.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R107.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
-				break;
-			default:
-				break;
-		}
+		todayList=checkWeek(weekint,regimeUseCarTimeRuleInfos,todayList);
 		if (CollectionUtils.isEmpty(todayList)){
 			map.put("flag",true);
 			return map;
@@ -938,6 +1194,35 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		return map;
 	}
 
+
+	private List<RegimeUseCarTimeRuleInfo> checkWeek(Integer weekint,List<RegimeUseCarTimeRuleInfo> regimeUseCarTimeRuleInfos,List <RegimeUseCarTimeRuleInfo> todayList){
+		switch (weekint.intValue()){
+			case 1:
+				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D101.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R101.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
+				break;
+			case 2:
+				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D102.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R102.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
+				break;
+			case 3:
+				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D103.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R103.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
+				break;
+			case 4:
+				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D104.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R104.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
+				break;
+			case 5:
+				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D105.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R105.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
+				break;
+			case 6:
+				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D106.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R106.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
+				break;
+			case 0:
+				todayList=regimeUseCarTimeRuleInfos.stream().filter(p->CarTimeRuleKeyEnum.CAR_TIME_KAY_D107.getKey().equals(p.getRuleKey())||CarTimeRuleKeyEnum.CAR_TIME_KAY_R107.getKey().equals(p.getRuleKey())).collect(Collectors.toList());
+				break;
+			default:
+				break;
+		}
+		return todayList;
+	}
 
 	private Map<String,Object> checkRoleCarTimeForWoking(String startTime,Long regimeId){
 		Map<String,Object> map= Maps.newHashMap();
@@ -1015,6 +1300,26 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 
 		}
 		return useCarTimeVO;
+	}
+
+	private List<OnLineCarTypeVO> threeCityServer(String cityCodes)throws Exception{
+//		String join = String.join(",", cityCodes);
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("enterpriseId", enterpriseId);
+		paramMap.put("cityCodes", cityCodes);
+		paramMap.put("licenseContent", licenseContent);
+		paramMap.put("mac",  MacTools.getMacList().get(0));
+		log.info("网约车开城及车型{}参数{}",cityCodes,paramMap);
+		String result = OkHttpUtil.postForm(apiUrl + "/basic/cityService", paramMap);
+		log.info("网约车开城及车型{}返回结果{}",cityCodes,result);
+		JSONObject jsonObject = JSONObject.parseObject(result);
+		if (ApiResponse.SUCCESS_CODE != jsonObject.getInteger("code")) {
+			throw new Exception("调用三方获取网约车开城情况-》失败!");
+		}
+		String data = jsonObject.getString("data");
+		List<OnLineCarTypeVO> list = JSONObject.parseArray(data, OnLineCarTypeVO.class);
+
+		return list;
 	}
 
 }

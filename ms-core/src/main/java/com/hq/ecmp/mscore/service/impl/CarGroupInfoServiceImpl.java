@@ -10,6 +10,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysUser;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.StringUtils;
@@ -917,6 +918,26 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
 
         return phones;
+    }
+
+    /**
+     * 补单获取调度员所管理车队的服务城市
+     * @param userId
+     * @return
+     */
+    @Override
+    public ApiResponse  obtainDispatcherCity(Long userId) {
+        ApiResponse apiResponse = new ApiResponse();
+        //查询该调度员的车队Id
+        String carGroupId = carGroupDispatcherInfoMapper.selectCarGroupDispatcherAllId(200426L);
+        if(!carGroupId.equals(null) && !carGroupId.equals("")){
+            List<CityInfo> cityInfo =carGroupServeScopeInfoMapper.selectObtainDispatcherCity(carGroupId);
+            apiResponse.setData(cityInfo);
+            return apiResponse;
+        }else {
+            apiResponse.setMsg("该调度员没有任何的车队Id");
+        }
+        return apiResponse;
     }
 
     /**

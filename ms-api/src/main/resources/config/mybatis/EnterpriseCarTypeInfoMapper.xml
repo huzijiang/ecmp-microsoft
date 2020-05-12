@@ -30,7 +30,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ecti. NAME,
         ecti. LEVEL,
         ecti. STATUS,
-        ecti. image_url,
+        ecti.image_url imageUrl,
         ecti.create_by,
         ecti.create_time,
         ecti.update_by,
@@ -130,7 +130,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="getCarTypeDTOById" parameterType="com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo" resultType="String">
-        select MAX(level) level from enterprise_car_type_info where enterprise_id =#{enterpriseId}
+        select MAX(level) level from enterprise_car_type_info where company_id =#{enterpriseId}
     </select>
 
 	<select id="queryCarTypeNameByCarId" parameterType="java.lang.Long"
@@ -144,15 +144,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		b.car_id = #{carId}
 	</select>
 
-    <select id="selectEnterpriseCarTypeList" parameterType="java.lang.Long" resultMap="EnterpriseCarTypeInfoResult">
+    <select id="selectEnterpriseCarTypeList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.CarTypeDTO">
 
-        <include refid="selectEnterpriseCarTypeInfoVo"/>
-        where enterprise_id = #{enterpriseId}
+        select car_type_id carTypeId, company_id companyId, image_url AS imageUrl  from enterprise_car_type_info
+        where company_id = #{enterpriseId}
 
     </select>
 
-    <select id="selectCarTypeById" parameterType="com.hq.ecmp.mscore.dto.CarTypeDTO" resultMap="EnterpriseCarTypeInfoResult">
-        <include refid="selectEnterpriseCarTypeInfoVo"/>
+    <select id="selectCarTypeById" parameterType="com.hq.ecmp.mscore.dto.CarTypeDTO" resultType="com.hq.ecmp.mscore.dto.CarTypeDTO">
+        select car_type_id carTypeId, company_id companyId, country_car_type_id countryCarTypeId, name, level, status,image_url imageUrl from enterprise_car_type_info
         where car_type_id = #{carTypeId}
+    </select>
+
+    <select id="selectCarTypesByTypeIds" parameterType="Object" resultType="String">
+        select group_concat(distinct ) from enterprise_car_type_info
+        where find_in_set(level,#{levels})  and company_id =#{ownerCompany}
     </select>
 </mapper>

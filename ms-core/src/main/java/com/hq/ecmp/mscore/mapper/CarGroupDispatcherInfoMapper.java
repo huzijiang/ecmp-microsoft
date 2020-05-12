@@ -90,4 +90,10 @@ public interface CarGroupDispatcherInfoMapper
      * @return
      */
     List<Long> findDispatchersByCompanyId(Long companyId);
+    /**
+     * 补单获取调度员所管理车队的服务城市
+     * @param userId
+     * @return
+     */
+    String selectCarGroupDispatcherAllId(@Param("userId") Long userId);
 }

@@ -189,4 +189,11 @@ public interface CarInfoMapper
 
     List<CarInfo> selectCarInfoListByIds(List list);
     int getMileageSumById(Long orderId);
+
+    /**
+     * 补单查询车辆列表
+     * @param carInfo
+     * @return
+     */
+    List<CarInfo> supplementObtainCar(CarInfo carInfo);
 }

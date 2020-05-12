@@ -31,11 +31,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carColor"    column="car_color"    />
         <result property="driverGrade"    column="driver_grade"    />
         <result property="flightPlanTakeOffTime"    column="flight_plan_take_off_time"    />
+        <result property="itIsSupplement"    column="it_is_supplement" />
 
     </resultMap>
 
     <sql id="selectOrderInfoVo">
-        select order_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time,car_model,car_color,driver_grade ,flight_plan_take_off_time from order_info
+        select order_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time,car_model,car_color,driver_grade ,flight_plan_take_off_time,it_is_supplement from order_info
     </sql>
 
     <sql id="queryDispatchAchieve">
@@ -75,6 +76,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="nodeId != null "> and node_id = #{nodeId}</if>
             <if test="powerId != null "> and power_id = #{powerId}</if>
             <if test="driverId != null "> and driver_id = #{driverId}</if>
+            <if test="itIsSupplement != null "> and it_is_supplement = #{itIsSupplement}</if>
             <if test="carId != null "> and car_id = #{carId}</if>
             <if test="userId != null "> and user_id = #{userId}</if>
             <if test="useCarMode != null  and useCarMode != ''"> and use_car_mode = #{useCarMode}</if>
@@ -127,6 +129,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carColor != null and carColor != ''">car_color,</if>
             <if test="driverGrade != null and driverGrade != ''">driver_grade,</if>
             <if test="flightPlanTakeOffTime != null ">flight_plan_take_off_time,</if>
+            <if test="itIsSupplement != null ">it_is_supplement,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">#{journeyId},</if>
@@ -155,6 +158,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carColor != null and carColor != ''">#{carColor},</if>
             <if test="driverGrade != null and driverGrade != ''">#{driverGrade},</if>
             <if test="flightPlanTakeOffTime != null ">#{flightPlanTakeOffTime},</if>
+            <if test="itIsSupplement != null ">#{itIsSupplement},</if>
         </trim>
     </insert>
 
@@ -185,6 +189,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carModel != null and carModel != ''">car_model =#{carModel},</if>
             <if test="carColor != null and carColor != ''">car_color =#{carColor},</if>
             <if test="driverGrade != null and driverGrade != ''">driver_grade =#{driverGrade},</if>
+            <if test="itIsSupplement != null and itIsSupplement != ''">it_is_supplement =#{itIsSupplement},</if>
         </trim>
         where order_id = #{orderId}
     </update>
@@ -237,6 +242,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             ecti.`level`,
             o.use_car_mode useCarMode,
             o.state,
+            o.it_is_supplement itIsSupplement,
             jn.service_type serviceType,
             IFNULL(oai.action_time,jni.plan_setout_time) setOutTime,
             IFNULL(oai.address,jni.plan_begin_address) setOutAddress,
@@ -263,6 +269,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
 	a.create_time as createTime,
 	a.driver_name as driverName,
 	a.car_license as carLicense,
+	a.it_is_supplement as itIsSupplement,
 	a.car_model as carType,
 	d.apply_type AS applyType,
 	d.update_time as applyPassDate,
@@ -296,6 +303,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             o.state,
             if (o.state='S900','已完成','未完成') stateType,
             o.service_type serviceType,
+            o.it_is_supplement itIsSupplement,
             o.flight_number flightNumber,
             jn.it_is_return itIsReturn,
             jn.charter_car_type charterCarType,
@@ -341,6 +349,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              o.order_id orderId,
              o.journey_id journeyId,
              o.state,
+             o.it_is_supplement itIsSupplement,
              o.driver_id driverId,
              o.service_type serviceType,
              jn.flight_number flightNumber,
@@ -393,6 +402,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		 SELECT
             a.order_id AS orderId,
             a.state,
+            a.it_is_supplement itIsSupplement,
             a.demand_car_level as demandCarLevel,
             d.apply_type AS applyType,
             b.type AS serverType,

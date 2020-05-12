@@ -53,5 +53,7 @@ public class OrderDriverListInfo {
     private String labelState;
     //订单类型(已完成,未完成)
     private String stateType;
+    private String itIsSupplement;
+
 
 }

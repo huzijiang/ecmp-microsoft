@@ -101,6 +101,9 @@ public class OrderInfo extends BaseEntity
 
     @JsonFormat( pattern = "yyyy-MM-dd HH:mm:ss")
     private Date flightPlanTakeOffTime;
+
+    private String itIsSupplement;
+
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String orderNumber;

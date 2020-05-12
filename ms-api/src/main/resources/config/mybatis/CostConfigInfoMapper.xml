@@ -186,7 +186,7 @@
             </foreach>
     </select>
 
-    <select id="selectCostConfigInfo" parameterType="com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto" resultMap="CostConfigInfoResult">
+    <select id="selectCostConfigInfo" parameterType="com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto" resultType="com.hq.ecmp.mscore.domain.CostConfigInfo">
             select c.cost_id as costId,
             c.company_id as companyId,
             c.cost_config_name as costConfigName,
@@ -196,6 +196,7 @@
             c.rent_type as rentType,
             c.start_price as startPrice,
             c.combos_price as combosPrice,
+            c.combos_times as combosTimes,
             c.combos_mileage as combosMileage,
             c.beyond_price_every_km as beyondPriceEveryKm,
             c.beyond_price_every_minute as beyondPriceEveryMinute,

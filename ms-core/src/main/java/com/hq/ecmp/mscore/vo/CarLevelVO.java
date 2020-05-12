@@ -12,17 +12,15 @@ import lombok.NoArgsConstructor;
 @Data
 public class CarLevelVO {
 
-    private Long carGroupId;
+    private String groupId;
     private String groupName;
-    private String level;
-    private Long carTypeId;
 
     public CarLevelVO() {
     }
 
-    public CarLevelVO(String groupName, String level, Long carTypeId) {
+    public CarLevelVO(String groupName, String groupId) {
         this.groupName = groupName;
-        this.level = level;
-        this.carTypeId = carTypeId;
+        this.groupId = groupId;
+
     }
 }

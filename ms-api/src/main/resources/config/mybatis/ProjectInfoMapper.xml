@@ -233,4 +233,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and project_id!=#{projectId}
         </if>
     </select>
+    <select id="selectProjects" parameterType="com.hq.ecmp.mscore.vo.ProjectInfoVO" resultType="com.hq.ecmp.mscore.vo.ProjectInfoVO">
+        SELECT
+        project_id as projectId,
+        NAME,
+        leader,
+        father_project_id fatherProjectId,
+        is_effective isEffective
+        FROM
+        project_info
+        where
+        <if test="ownerCompany!=null">
+            owner_company=#{ownerCompany}
+        </if>
+    </select>
 </mapper>

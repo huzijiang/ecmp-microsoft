@@ -1168,7 +1168,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             }else {
                 //----------------- 如果需要审批  则1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信
                 //2.给审批人和自己发通知 并给审批人发短信
-                sendNoticeAndMessage(officialCommitApply, applyId, userId);
+                if(officialCommitApply.getDistinguish().equals("0")){
+                    applyApproveResultInfoMapper.updateApproveState(applyId,ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey(),ApproveStateEnum.APPROVE_PASS.getKey());
+                }else {
+                    sendNoticeAndMessage(officialCommitApply, applyId, userId);
+                }
             }
         }
         return applyVO;
