@@ -112,6 +112,8 @@ public class WxPayController {
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("已经进入微信支付回调接口");
         try {
+            log.info("1111111111111111111111111----------"+request.getInputStream());
+            log.info("2222222222222222222222222----------"+request.getCharacterEncoding());
             String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
             WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
             log.info("回调接口---返回结果--xmlResult为："+xmlResult);
