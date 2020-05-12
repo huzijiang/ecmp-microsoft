@@ -103,7 +103,7 @@ public class AliPayController {
      * @author ghb
      * @description  支付回调接口
      */
-    @RequestMapping(value = "ali/v1/callback", produces = "application/json; charset=utf-8")
+    @RequestMapping(value = "ali/v1/callback", produces = "text/xml; charset=utf-8")
     public Boolean payNotify(HttpServletRequest request) {
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");

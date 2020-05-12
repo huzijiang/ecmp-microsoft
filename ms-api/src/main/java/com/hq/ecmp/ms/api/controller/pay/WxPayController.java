@@ -105,7 +105,7 @@ public class WxPayController {
      * @author ghb
      * @description  微信app支付回调接口
      */
-    @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST)
+    @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST, produces = "text/xml; charset=utf-8")
     public String payNotify(HttpServletRequest request){
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
