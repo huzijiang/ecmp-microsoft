@@ -104,24 +104,24 @@ public class AliPayController {
      * @description  支付回调接口
      */
     @RequestMapping(value = "ali/v1/callback", produces = "text/xml; charset=utf-8")
-    public Boolean payNotify(HttpServletRequest request) {
+    public Boolean payNotify(HttpServletRequest request, @RequestBody Map<String,String> params) {
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("已经进入支付宝支付回调接口");
-        Map<String, String> params = new HashMap<String, String>();
-        Map requestParams = request.getParameterMap();
-        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext(); ) {
-            String name = (String) iter.next();
-            String[] values = (String[]) requestParams.get(name);
-            String valueStr = "";
-            for (int i = 0; i < values.length; i++) {
-                valueStr = (i == values.length - 1) ? valueStr + values[i]
-                        : valueStr + values[i] + ",";
-            }
-//            乱码解决，这段代码在出现乱码时使用。
-//            valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
-            params.put(name, valueStr);
-        }
+//        Map<String, String> params = new HashMap<String, String>();
+//        Map requestParams = request.getParameterMap();
+//        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext(); ) {
+//            String name = (String) iter.next();
+//            String[] values = (String[]) requestParams.get(name);
+//            String valueStr = "";
+//            for (int i = 0; i < values.length; i++) {
+//                valueStr = (i == values.length - 1) ? valueStr + values[i]
+//                        : valueStr + values[i] + ",";
+//            }
+//            //乱码解决，这段代码在出现乱码时使用。
+//            //valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+//            params.put(name, valueStr);
+//        }
         log.info("回调接口，重要参数：---" + params.toString());
         //支付宝公钥
         String alipayPublicKey = AlipayConfig.ALIPAY_PUBLIC_KEY;

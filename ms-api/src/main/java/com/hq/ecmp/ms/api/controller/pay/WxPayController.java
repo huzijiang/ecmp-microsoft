@@ -106,46 +106,48 @@ public class WxPayController {
      * @description  微信app支付回调接口
      */
     @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST, produces = "text/xml; charset=utf-8")
-    public String payNotify(HttpServletRequest request){
+    public String payNotify(@RequestBody JSONObject jsonObject, HttpServletRequest request){
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("已经进入微信支付回调接口");
         try {
-            InputStream inputStream = request.getInputStream();
-            String stringFromInputStream = PayUtil.getStringFromInputStream(inputStream);
-            log.info("xml转换为String--------------："+stringFromInputStream);
-            log.info("1111111111111111111111111----------"+request.getInputStream());
-
-            DataInputStream in;
-            String wxNotifyXml = "";
-            try {
-                in = new DataInputStream(request.getInputStream());
-                byte[] dataOrigin = new byte[request.getContentLength()];
-                in.readFully(dataOrigin); // 根据长度，将消息实体的内容读入字节数组dataOrigin中
-
-                if(null != in) in.close(); // 关闭数据流
-                wxNotifyXml = new String(dataOrigin); // 从字节数组中得到表示实体的字符串
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            log.info("最终--------------："+wxNotifyXml);
-//            log.info("2222222222222222222222222----------"+request.getCharacterEncoding());
+            String xmlResult = jsonObject.getString("xmlResult");
+//            InputStream inputStream = request.getInputStream();
+//            //第一种方式
+//            String stringFromInputStream = PayUtil.getStringFromInputStream(inputStream);
+//            log.info("第一种方式---------xml转换为String--------------："+stringFromInputStream);
+//            log.info("获取到的数据流为----------"+request.getInputStream());
+//
+//            DataInputStream in;
+//            String wxNotifyXml = "";
+//            try {
+//                in = new DataInputStream(request.getInputStream());
+//                byte[] dataOrigin = new byte[request.getContentLength()];
+//                in.readFully(dataOrigin); // 根据长度，将消息实体的内容读入字节数组dataOrigin中
+//
+//                if(null != in) in.close(); // 关闭数据流
+//                wxNotifyXml = new String(dataOrigin); // 从字节数组中得到表示实体的字符串
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            log.info("第二种方式--------xml转换为Strin--------------："+wxNotifyXml);
+////            log.info("2222222222222222222222222----------"+request.getCharacterEncoding());
 //            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
-//            log.info("回调接口---返回结果--xmlResult为："+xmlResult);
-            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(wxNotifyXml);
+            log.info("第三种方式------------xmlResult为："+xmlResult);
+//            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(wxNotifyXml);
+//            log.info("回调接口---返回结果--result为："+result);
+            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
             log.info("回调接口---返回结果--result为："+result);
-//            WxPayOrderNotifyResult  result1 = wxPayService.parseOrderNotifyResult(xmlResult);
-//            log.info("回调接口---返回结果--result为："+result1);
             if (!"SUCCESS".equals(result.getReturnCode())) {
                 log.info("微信支付-通知失败");
 //                log.error(xmlResult);
-                log.error(stringFromInputStream);
+                log.error(xmlResult);
                 throw new WxPayException("微信支付-通知失败！");
             }
             if (!"SUCCESS".equals(result.getResultCode())) {
                 log.info("微信支付-通知失败");
 //                log.error(xmlResult);
-                log.error(stringFromInputStream);
+                log.error(xmlResult);
                 throw new WxPayException("微信支付-通知失败！");
             }
             //判断订单是否已支付
