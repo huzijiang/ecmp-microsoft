@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import oshi.jna.platform.mac.SystemB;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -1390,23 +1392,20 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public DriverOrderInfoVO driverOrderDetail(Long orderId) {
         DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
-//        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
-        // TODO 获取车队电话和乘客电话有单独的接口(好像)
         vo.setCustomerServicePhone(serviceMobile);
-//        List<PassengerInfoVO> list=new ArrayList();
-//        list.add(new PassengerInfoVO(ecmpUser.getNickName(),ecmpUser.getPhonenumber(),"申请人"));
-//        List<JourneyPassengerInfo> journeyPassengerInfos = passengerInfoMapper.selectJourneyPassengerInfoList(new JourneyPassengerInfo(vo.getJourneyId()));
-//        if (!CollectionUtils.isEmpty(journeyPassengerInfos)){
-//            for (JourneyPassengerInfo info:journeyPassengerInfos){
-//                if ("00".equals(info.getItIsPeer())){
-//                    list.add(new PassengerInfoVO(info.getName(),info.getMobile(),"乘车人"));
-//                }else{
-//                    list.add(new PassengerInfoVO(info.getName(),info.getMobile(),"同行人"));
-//                }
-//
-//            }
-//        }
-
+        OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
+        if (orderSettlingInfo!=null){
+            vo.setOrderAmount(orderSettlingInfo.getAmount().toPlainString());
+                String amountDetail = orderSettlingInfo.getAmountDetail();
+            if (StringUtils.isNotEmpty(amountDetail)){
+                JSONObject jsonObject=JSONObject.parseObject(amountDetail);
+                String otherCostJson = jsonObject.getString("otherCost");
+                List<OtherCostBean> otherCostBeans = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
+                vo.setOrderFees(otherCostBeans);
+            }
+        }
+        List<String> imgUrls = orderSettlingInfoMapper.selectOrderSettlingImageList(orderId);
+        vo.setFeeImageUrls(imgUrls);
         return vo;
     }
 

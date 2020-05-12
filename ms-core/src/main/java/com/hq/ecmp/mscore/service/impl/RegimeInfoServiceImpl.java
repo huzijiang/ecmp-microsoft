@@ -907,7 +907,9 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			}else if (CarModeEnum.ORDER_MODE_NET.getKey().equals(useCarMode)){
 				/*网约车*/
 				List<UseCarTypeVO> carTypeList = getCarTypeForTraveOnlie(regimeVo, regimeDto.getCityCodes());
+				if (CollectionUtils.isNotEmpty(carTypeList)){
 				voList.addAll(carTypeList);
+				}
 			}else{
 				/**自有车+网约车*/
 				/*自有车*/
@@ -930,23 +932,26 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	}
 
 	private List<UseCarTypeVO> getCarTypeForTraveOnlie(RegimeVo regimeVo, String cityCodes)throws Exception {
-		String ownerCarLevel = getOwnerCarLevel(regimeVo);
+		String ownerCarLevel = getOnlineCarLevel(regimeVo);
 		if (StringUtils.isBlank(ownerCarLevel)){
 			return null;
 		}
-		List<String>  regimeCarLevel=Arrays.asList(regimeVo.getUseCarModeOnlineLevel().split(","));
+		List<String>  regimeCarLevel=Arrays.asList(ownerCarLevel.substring(1).split(","));
 		List<OnLineCarTypeVO> onLineCarTypeVOS = threeCityServer(cityCodes);
 		if (CollectionUtils.isEmpty(onLineCarTypeVOS)){
 			return null;
 		}
 		List<UseCarTypeVO> resultList=new ArrayList<>();
 		List<String> groupNames=new ArrayList<>();
+		List<String> groupIds=new ArrayList<>();
 		for (OnLineCarTypeVO vo:onLineCarTypeVOS){
 			List<CarLevelVO> carTypes = vo.getCarTypes();
 			if (CollectionUtils.isNotEmpty(carTypes)){
 				//网约车当前城市可用车型
-				List<String> collect = carTypes.stream().map(CarLevelVO::getGroupName).collect(Collectors.toList());
-				groupNames.addAll(collect);
+				List<String> collectName = carTypes.stream().map(CarLevelVO::getGroupName).collect(Collectors.toList());
+				List<String> collectId = carTypes.stream().map(CarLevelVO::getGroupId).collect(Collectors.toList());
+				groupNames.addAll(collectName);
+				groupIds.addAll(collectId);
 				UseCarTypeVO carTypeVO=new UseCarTypeVO();
 				carTypeVO.setCityCode(vo.getCityId());
 				List<CarServiceTypeVO> serviceTypes = vo.getServiceTypes();
@@ -954,21 +959,23 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 					List<CarServiceTypeVO> canServiceType=serviceTypes.stream().filter(p-> OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState().equals(p.getServiceTypeId())||
 							OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState().equals(p.getServiceTypeId())).collect(Collectors.toList());
 					if (CollectionUtils.isNotEmpty(canServiceType)){
-						carTypeVO.setShuttleOnlineCarType(String.join(",",collect));
+						carTypeVO.setShuttleOnlineCarType(String.join(",",collectId));
 					}
 					List<CarServiceTypeVO> canType=serviceTypes.stream().filter(p-> OrderServiceType.ORDER_SERVICE_TYPE_NOW.getBcState().equals(p.getServiceTypeId())||
 							OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState().equals(p.getServiceTypeId())).collect(Collectors.toList());
 					if (CollectionUtils.isNotEmpty(canType)){
-						carTypeVO.setShuttleOnlineCarType(String.join(",",collect));
+						carTypeVO.setShuttleOnlineCarType(String.join(",",collectId));
 					}
 				}
 				resultList.add(carTypeVO);
 			}
 		}
-		regimeCarLevel.retainAll(groupNames);
+		regimeCarLevel=regimeCarLevel.stream().distinct().collect(Collectors.toList());
+		regimeCarLevel.retainAll(groupIds);
+		List<String> result=regimeCarLevel;
 		if (CollectionUtils.isNotEmpty(regimeCarLevel)){
 			if (CollectionUtils.isNotEmpty(resultList)){
-				resultList.stream().forEach(p->p.setRideHileCarType(String.join(",",regimeCarLevel)));
+				resultList.stream().forEach(p->p.setRideHileCarType(String.join(",",result)));
 			}
 		}
 		return resultList;
@@ -1313,7 +1320,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		String result = OkHttpUtil.postForm(apiUrl + "/basic/cityService", paramMap);
 		log.info("网约车开城及车型{}返回结果{}",cityCodes,result);
 		JSONObject jsonObject = JSONObject.parseObject(result);
-		if (ApiResponse.SUCCESS_CODE != jsonObject.getInteger("code")) {
+		if (ApiResponse.SUCCESS_CODE!=jsonObject.getInteger("code")) {
 			throw new Exception("调用三方获取网约车开城情况-》失败!");
 		}
 		String data = jsonObject.getString("data");
