@@ -10,13 +10,10 @@ import com.hq.ecmp.mscore.mapper.OrderPayInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderSettlingInfoMapper;
 import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.service.IOrderPayInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -49,28 +46,30 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
         return orderPayInfoMapper.getOrderPayInfo(orderId);
     }
     @Override
-    public OrderPayInfo insertOrderPayAndSetting(Long orderNo,String amount,String distance,String duration,String json,String userId) {
+    public OrderPayInfo insertOrderPayAndSetting(Long orderNo,BigDecimal amount,String distance,String duration,String json,Long userId) {
+        if (amount==null||BigDecimal.ZERO.compareTo(amount)>0){
+            return null;
+        }
         OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
         orderSettlingInfo.setOrderId(orderNo);
         orderSettlingInfo.setTotalMileage(new BigDecimal(distance).stripTrailingZeros());
         orderSettlingInfo.setTotalTime(new BigDecimal(duration).stripTrailingZeros());
-        orderSettlingInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
+        orderSettlingInfo.setAmount(amount);
         orderSettlingInfo.setAmountDetail(json);
         orderSettlingInfo.setCreateBy(CommonConstant.START);
         orderSettlingInfo.setCreateTime(DateUtils.getNowDate());
         orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
         //插入订单支付表
         OrderPayInfo orderPayInfo = new OrderPayInfo();
-//        OrderSettlingInfo orderSettlingInfo1 = orderSettlingInfoMapper.selectOrderSettlingInfoById(orderNo);
         String substring = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32);
         orderPayInfo.setPayId(substring);
         orderPayInfo.setBillId(orderSettlingInfo.getBillId());
         orderPayInfo.setOrderId(orderNo);
-        orderPayInfo.setState(OrderPayConstant.PAID);
+        orderPayInfo.setState(OrderPayConstant.UNPAID);
         orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
-        orderPayInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
+        orderPayInfo.setAmount(amount);
         orderPayInfo.setCreateTime(DateUtils.getNowDate());
-        orderPayInfo.setCreateBy(Long.parseLong(userId));
+        orderPayInfo.setCreateBy(userId);
         this.insertOrderPayInfo(orderPayInfo);
         return orderPayInfo;
     }
@@ -85,12 +84,8 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
         BigDecimal limitMoney = regimeInfo.getLimitMoney();
         String limitType = regimeInfo.getLimitType();
         //按天
-//        DecimalFormat df = new DecimalFormat("#0.00");
-        int  isExcess=0;
         String  excessMoney=String.valueOf(CommonConstant.ZERO);
         if ("T001".equals(limitType)) {
-            //查询出当前申请人
-//            Long userId = orderInfo.getUserId();
             //根据订单号和当前申请人，得出当前申请人在当天一共申请的单量
             List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoByIdAllDay(applyUserId);
             //从订单结算表当中，查询出当前申请人在当天一共申请的单量的金额总和
@@ -101,7 +96,6 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
             // 当前申请人在当天一共申请的单量的金额总和-限额=超额
             if (sum.compareTo(limitMoney) >= 0) {
                 BigDecimal subtract = sum.subtract(limitMoney);
-                isExcess=CommonConstant.ONE;
                 excessMoney=subtract.stripTrailingZeros().toPlainString();
                 //总额sum
             }
@@ -110,7 +104,6 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
             //判断
             if (orderSettlingInfo2.getAmount().compareTo(limitMoney) > 0) {
                 BigDecimal subtract = orderSettlingInfo2.getAmount().subtract(limitMoney);
-                isExcess=CommonConstant.ONE;
                 excessMoney=subtract.stripTrailingZeros().toPlainString();
             }
             //不限
@@ -120,4 +113,14 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
 
         return excessMoney;
     }
+    @Override
+    public int updateOrderPayInfo(OrderPayInfo orderPayInfo) {
+        return orderPayInfoMapper.updateOrderPayInfo(orderPayInfo);
+    }
+
+    @Override
+    public OrderPayInfo getOrderPayInfoByPayId(String payId) {
+        return orderPayInfoMapper.getOrderPayInfoByPayId(payId);
+    }
+
 }
