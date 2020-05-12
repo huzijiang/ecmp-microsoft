@@ -104,18 +104,22 @@ public class WxPayController {
      * @description  微信app支付回调接口
      */
     @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST)
-    public String payNotify(@RequestBody String xmlResult){
+    public String payNotify(@RequestBody String xmlResult,HttpServletRequest request){
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("已经进入微信支付回调接口");
         try {
-
+            InputStream inputStream = request.getInputStream();
+            String stringFromInputStream = PayUtil.getStringFromInputStream(inputStream);
+            log.info("xml转换为String--------------："+stringFromInputStream);
 //            log.info("1111111111111111111111111----------"+request.getInputStream());
 //            log.info("2222222222222222222222222----------"+request.getCharacterEncoding());
 //            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
 //            log.info("回调接口---返回结果--xmlResult为："+xmlResult);
-            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
+            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(stringFromInputStream);
             log.info("回调接口---返回结果--result为："+result);
+            WxPayOrderNotifyResult  result1 = wxPayService.parseOrderNotifyResult(xmlResult);
+            log.info("回调接口---返回结果--result为："+result1);
             if (!"SUCCESS".equals(result.getReturnCode())) {
                 log.info("微信支付-通知失败");
                 log.error(xmlResult);

@@ -3,6 +3,10 @@ package com.hq.ecmp.ms.api.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.UUID;
 
 /**
@@ -21,6 +25,37 @@ public class PayUtil {
      */
     public static String makeUUID(int len) {
         return UUID.randomUUID().toString().replaceAll("-", "").substring(0, len);
+    }
+
+    /**
+     * @author ghb
+     * @description  xml转换成string类型
+     */
+    public static String getStringFromInputStream(InputStream is) {
+
+        BufferedReader br = null;
+        StringBuilder sb = new StringBuilder();
+
+        String line;
+        try {
+            br = new BufferedReader(new InputStreamReader(is));
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    log.info("xml 转换 String报错，原因为："+e);
+                    log.info("xml 转换 String报错，原因为："+e.getMessage());
+                }
+            }
+        }
+        return sb.toString();
     }
 
 }
