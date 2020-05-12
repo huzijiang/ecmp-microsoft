@@ -191,11 +191,11 @@ public interface IRegimeInfoService
     UseCarTimeVO checkUseCarTime(RegimeCheckDto regimeDto)throws Exception ;
 
     /**
-     * 校验申请单的真实可用车型
+     * 校验申请单的真实开城情况
      * @param regimeDto
      * @return
      */
-    List<UseCarTypeVO> checkUseCarModeAndType(RegimeCheckDto regimeDto, LoginUser loginUser) throws Exception;
+    String checkUseCarModeAndType(RegimeCheckDto regimeDto, LoginUser loginUser) throws Exception;
 
     List<OnLineCarTypeVO> getUseCarType(RegimeCheckDto regimeDto, SysUser user)throws Exception;
 
@@ -205,5 +205,13 @@ public interface IRegimeInfoService
      * @return
      */
     List<RegimenVO> getUserSystem(Long userId);
+
+    /**
+     * 根据制度ID和城市获取具体可用车型
+     * @param regimeDto
+     * @param loginUser
+     * @return
+     */
+    List<UseCarTypeVO> getUseCarModeAndType(RegimeCheckDto regimeDto, LoginUser loginUser)throws Exception;
 }
 

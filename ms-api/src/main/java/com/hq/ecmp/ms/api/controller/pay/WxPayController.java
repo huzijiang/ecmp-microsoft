@@ -18,22 +18,20 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -113,35 +111,41 @@ public class WxPayController {
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("已经进入微信支付回调接口");
         try {
+            InputStream inputStream = request.getInputStream();
+            String stringFromInputStream = PayUtil.getStringFromInputStream(inputStream);
+            log.info("xml转换为String--------------："+stringFromInputStream);
             log.info("1111111111111111111111111----------"+request.getInputStream());
-            log.info("2222222222222222222222222----------"+request.getCharacterEncoding());
-            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
-            log.info("回调接口---返回结果--xmlResult为："+xmlResult);
 
-            BufferedReader reader = null;
+            DataInputStream in;
+            String wxNotifyXml = "";
+            try {
+                in = new DataInputStream(request.getInputStream());
+                byte[] dataOrigin = new byte[request.getContentLength()];
+                in.readFully(dataOrigin); // 根据长度，将消息实体的内容读入字节数组dataOrigin中
 
-            reader = request.getReader();
-            String line = "";
-            String xmlString = null;
-            StringBuffer inputString = new StringBuffer();
-
-            while ((line = reader.readLine()) != null) {
-                inputString.append(line);
+                if(null != in) in.close(); // 关闭数据流
+                wxNotifyXml = new String(dataOrigin); // 从字节数组中得到表示实体的字符串
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            xmlString = inputString.toString();
-            request.getReader().close();
-            System.out.println("----接收到的数据如下：---" + xmlString);
-
-            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
+            log.info("最终--------------："+wxNotifyXml);
+//            log.info("2222222222222222222222222----------"+request.getCharacterEncoding());
+//            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
+//            log.info("回调接口---返回结果--xmlResult为："+xmlResult);
+            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(wxNotifyXml);
             log.info("回调接口---返回结果--result为："+result);
+//            WxPayOrderNotifyResult  result1 = wxPayService.parseOrderNotifyResult(xmlResult);
+//            log.info("回调接口---返回结果--result为："+result1);
             if (!"SUCCESS".equals(result.getReturnCode())) {
                 log.info("微信支付-通知失败");
-                log.error(xmlResult);
+//                log.error(xmlResult);
+                log.error(stringFromInputStream);
                 throw new WxPayException("微信支付-通知失败！");
             }
             if (!"SUCCESS".equals(result.getResultCode())) {
                 log.info("微信支付-通知失败");
-                log.error(xmlResult);
+//                log.error(xmlResult);
+                log.error(stringFromInputStream);
                 throw new WxPayException("微信支付-通知失败！");
             }
             //判断订单是否已支付

@@ -606,8 +606,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
         OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderId);
+        if (orderPayInfo!=null){
         vo.setPayId(orderPayInfo.getPayId());
         vo.setPayState(orderPayInfo.getState());
+        }
         return vo;
     }
 
@@ -1787,10 +1789,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public OrderStateVO getTaxiState(OrderStateVO orderVO,Long orderNo)throws Exception{
         log.info("订单号:"+orderNo+"状态详情:"+orderVO.toString());
-        List<String> states=Arrays.asList(OrderState.INITIALIZING.getState(),OrderState.WAITINGLIST.getState(),OrderState.GETARIDE.getState(),
+        List<String> states=Arrays.asList(OrderState.INITIALIZING.getState(),OrderState.WAITINGLIST.getState(),OrderState.GETARIDE.getState(),OrderState.INSERVICE.getState(),
                             OrderState.SENDINGCARS.getState(),OrderState.ORDERCLOSE.getState(),OrderState.STOPSERVICE.getState());
         OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderNo);
-        orderVO.setPayState(orderPayInfo.getState());
+        String payState=OrderPayConstant.UNPAID;
+        if (orderPayInfo!=null){
+            payState=orderPayInfo.getState();
+        }
+        orderVO.setPayState(payState);
         if (states.contains(orderVO.getState())){
             return orderVO;
         }

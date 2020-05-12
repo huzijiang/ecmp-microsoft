@@ -465,8 +465,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="findByGroupIds" resultType="com.hq.ecmp.mscore.vo.OnLineCarTypeVO">
         SELECT
-        a.city_id cityId,
-        a.CITY_CODE cityCode,
+        a.CITY_CODE cityId,
         a.city_name cityName,
         group_concat( DISTINCT b.car_group_id ) carGroupIds
         FROM

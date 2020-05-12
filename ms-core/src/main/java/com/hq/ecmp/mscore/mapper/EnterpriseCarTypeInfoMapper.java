@@ -86,7 +86,7 @@ public interface EnterpriseCarTypeInfoMapper
 
     /**
      * 车型图标中已经用过的图标
-     * @param companyId
+     * @param enterpriseId
      * @return
      */
     List<CarTypeDTO> selectEnterpriseCarTypeList(@Param("enterpriseId") Long enterpriseId);
@@ -97,4 +97,6 @@ public interface EnterpriseCarTypeInfoMapper
      * @return
      */
     List<CarTypeDTO> selectCarTypeById(CarTypeDTO carTypeDTO);
+
+    String selectCarTypesByTypeIds(@Param("ownerCompany") Long ownerCompany, @Param("levels") String levels);
 }
