@@ -28,6 +28,8 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.List;
@@ -112,11 +114,25 @@ public class WxPayController {
             InputStream inputStream = request.getInputStream();
             String stringFromInputStream = PayUtil.getStringFromInputStream(inputStream);
             log.info("xml转换为String--------------："+stringFromInputStream);
-//            log.info("1111111111111111111111111----------"+request.getInputStream());
+            log.info("1111111111111111111111111----------"+request.getInputStream());
+
+            DataInputStream in;
+            String wxNotifyXml = "";
+            try {
+                in = new DataInputStream(request.getInputStream());
+                byte[] dataOrigin = new byte[request.getContentLength()];
+                in.readFully(dataOrigin); // 根据长度，将消息实体的内容读入字节数组dataOrigin中
+
+                if(null != in) in.close(); // 关闭数据流
+                wxNotifyXml = new String(dataOrigin); // 从字节数组中得到表示实体的字符串
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            log.info("最终--------------："+wxNotifyXml);
 //            log.info("2222222222222222222222222----------"+request.getCharacterEncoding());
 //            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
 //            log.info("回调接口---返回结果--xmlResult为："+xmlResult);
-            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(stringFromInputStream);
+            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(wxNotifyXml);
             log.info("回调接口---返回结果--result为："+result);
 //            WxPayOrderNotifyResult  result1 = wxPayService.parseOrderNotifyResult(xmlResult);
 //            log.info("回调接口---返回结果--result为："+result1);
