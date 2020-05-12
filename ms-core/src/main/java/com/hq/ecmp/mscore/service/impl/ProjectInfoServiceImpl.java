@@ -261,6 +261,17 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         return vo;
     }
 
+    /**
+     * 申请人所属公司内的所有项目
+     * @param ownerCompany
+     * @return
+     */
+    @Override
+    public List<ProjectInfoVO> selectProjects(Long ownerCompany) {
+
+        return projectInfoMapper.selectProjects(ownerCompany);
+    }
+
     private OrgTreeVo getChildNode(OrgTreeVo orgTreeVos, List<UserTreeVo> userList) {
         if (CollectionUtils.isEmpty(userList)) {
             return null;

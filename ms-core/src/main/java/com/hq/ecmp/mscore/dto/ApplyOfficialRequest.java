@@ -173,4 +173,6 @@ public class ApplyOfficialRequest {
 
     private Long companyId;
 
+    //后台管理直接调度所用  0 为直接调度
+    private String distinguish;
 }

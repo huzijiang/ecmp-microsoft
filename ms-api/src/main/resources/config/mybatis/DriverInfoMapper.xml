@@ -689,4 +689,15 @@ WHERE
         where o.driver_id=#{driverId}
         <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') = DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>
     </select>
+
+    <select id="supplementObtainDriver" parameterType="com.hq.ecmp.mscore.domain.DriverInfo" resultType="com.hq.ecmp.mscore.domain.DriverInfo">
+        select driver_id driverId,
+        driver_name driverName,
+        mobile mobile
+        from driver_info
+        where company_id=#{companyId}
+        <if test="search!=null and search!=''">
+            and driver_name like concat('%', #{search}, '%') or mobile like concat('%', #{search}, '%')
+        </if>
+    </select>
 </mapper>

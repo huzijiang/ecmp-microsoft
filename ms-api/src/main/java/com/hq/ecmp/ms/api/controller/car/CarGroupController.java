@@ -452,4 +452,24 @@ public class CarGroupController {
         }
     }
 
+    /**
+     * 补单获取调度员所管理车队的服务城市
+     * @param
+     * @return
+     */
+    @Log(title = "补单获取调度员所管理车队的服务城市",content = "补单获取调度员所管理车队的服务城市", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "obtainDispatcherCity",notes = "补单获取调度员所管理车队的服务城市",httpMethod ="POST")
+    @PostMapping("/obtainDispatcherCity")
+    public ApiResponse obtainDispatcherCity(){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            ApiResponse apiResponse = carGroupInfoService.obtainDispatcherCity(userId);
+            return apiResponse;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("补单获取调度员所管理车队的服务城市失败");
+        }
+    }
 }
