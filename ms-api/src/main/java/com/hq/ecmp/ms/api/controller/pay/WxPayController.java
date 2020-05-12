@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -115,8 +116,23 @@ public class WxPayController {
             log.info("1111111111111111111111111----------"+request.getInputStream());
             log.info("2222222222222222222222222----------"+request.getCharacterEncoding());
             String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
-            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
             log.info("回调接口---返回结果--xmlResult为："+xmlResult);
+
+            BufferedReader reader = null;
+
+            reader = request.getReader();
+            String line = "";
+            String xmlString = null;
+            StringBuffer inputString = new StringBuffer();
+
+            while ((line = reader.readLine()) != null) {
+                inputString.append(line);
+            }
+            xmlString = inputString.toString();
+            request.getReader().close();
+            System.out.println("----接收到的数据如下：---" + xmlString);
+
+            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
             log.info("回调接口---返回结果--result为："+result);
             if (!"SUCCESS".equals(result.getReturnCode())) {
                 log.info("微信支付-通知失败");
