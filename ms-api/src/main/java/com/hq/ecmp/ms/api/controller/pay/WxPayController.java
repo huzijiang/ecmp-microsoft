@@ -18,7 +18,6 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,13 +98,9 @@ public class WxPayController {
      * @description  微信app支付回调接口
      */
     @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST)
-//    public String payNotify(String xmlResult){
-    public String payNotify(HttpServletRequest request){
+    public String payNotify(String xmlResult){
         log.info("已经进入微信支付回调接口");
         try {
-            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
-            log.info("获取到的数据流为----------"+xmlResult);
-
             log.info("回调接口---重要参数为："+xmlResult);
             WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
             log.info("回调接口---返回结果--result为："+result);
