@@ -104,21 +104,9 @@ public class AliPayController {
      * @description  支付回调接口
      */
     @RequestMapping(value = "/ali/v1/callback")
-    public Boolean payNotify(String params,String out_trade_no, String trade_no, String total_amount) {
-        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
-        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
+    public void payNotify(String out_trade_no, String trade_no, String total_amount) {
         log.info("已经进入支付宝支付回调接口");
-        log.info("回调接口，重要参数：---" + params);
-        Map<String, String> stringStringMap = mapStringToMap(params);
-        log.info("String转换为map为================="+stringStringMap);
-        //支付宝公钥
-        String alipayPublicKey = AlipayConfig.ALIPAY_PUBLIC_KEY;
-        //字符编码
-        String charset = AlipayConfig.CHARSET;
-        boolean flag = false;
         try {
-            flag = AlipaySignature.rsaCheckV1(stringStringMap, alipayPublicKey, charset, "RSA2");
-            if(flag){
                 log.info("支付宝回调签名认证成功");
                 log.info("支付宝回调获取到的订单号为："+out_trade_no);
                 log.info("支付宝回调获取到的流水号为："+trade_no);
@@ -167,16 +155,11 @@ public class AliPayController {
                 }else{
                     log.info("该订单已支付");
                 }
-            }else{
-                log.info("支付宝回调签名认证失败");
-            }
-        } catch (AlipayApiException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             log.info("支付宝回调失败，错误原因为："+e);
             log.info("支付宝回调失败，错误原因为："+e.getMessage());
         }
-        log.info("支付回调标志" + flag);
-        return flag;
     }
 
     private static Map<String,String> mapStringToMap(String str){
