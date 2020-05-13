@@ -116,7 +116,8 @@ public class WxPayController {
             }
             //判断订单是否已支付
             OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(result.getOutTradeNo());
-            if(null != orderPayInfoByPayId && !OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
+//            if(null == orderPayInfoByPayId || !OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
+            if(null == orderPayInfoByPayId){
                 //把订单状态改为关闭状态
                 OrderInfo orderInfo = new OrderInfo();
                 orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
