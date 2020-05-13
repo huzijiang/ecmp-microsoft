@@ -105,14 +105,12 @@ public class WxPayController {
      * @author ghb
      * @description  微信app支付回调接口
      */
-    @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST,produces = "application/json;charset=UTF-8")
-    @ResponseBody
-    public String payNotify(@RequestBody JSONObject jsonObject, HttpServletRequest request){
+    @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST)
+    public String payNotify(String xmlResult){
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("已经进入微信支付回调接口");
         try {
-            String xmlResult = jsonObject.getString("xmlResult");
 //            InputStream inputStream = request.getInputStream();
 //            //第一种方式
 //            String stringFromInputStream = PayUtil.getStringFromInputStream(inputStream);

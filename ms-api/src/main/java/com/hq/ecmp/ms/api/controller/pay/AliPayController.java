@@ -103,9 +103,8 @@ public class AliPayController {
      * @author ghb
      * @description  支付回调接口
      */
-    @RequestMapping(value = "ali/v1/callback",produces = "application/json;charset=UTF-8")
-    @ResponseBody
-    public Boolean payNotify(HttpServletRequest request, @RequestBody Map<String,String> params) {
+    @RequestMapping(value = "ali/v1/callback")
+    public Boolean payNotify(Map<String,String> params,String out_trade_no, String trade_no, String total_amount) {
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("已经进入支付宝支付回调接口");
@@ -133,9 +132,9 @@ public class AliPayController {
             flag = AlipaySignature.rsaCheckV1(params, alipayPublicKey, charset, "RSA2");
             if(flag){
                 log.info("支付宝回调签名认证成功");
-                String out_trade_no = request.getParameter("out_trade_no");
-                String trade_no = request.getParameter("trade_no");
-                String total_amount = request.getParameter("total_amount");
+//                String out_trade_no = request.getParameter("out_trade_no");
+//                String trade_no = request.getParameter("trade_no");
+//                String total_amount = request.getParameter("total_amount");
                 log.info("支付宝回调获取到的订单号为："+out_trade_no);
                 log.info("支付宝回调获取到的流水号为："+trade_no);
                 log.info("支付宝回调获取到的金额为："+total_amount);
