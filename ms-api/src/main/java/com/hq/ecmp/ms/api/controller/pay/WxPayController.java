@@ -18,22 +18,14 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/pay")
@@ -107,45 +99,18 @@ public class WxPayController {
      */
     @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST)
     public String payNotify(String xmlResult){
-        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
-        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("已经进入微信支付回调接口");
         try {
-//            InputStream inputStream = request.getInputStream();
-//            //第一种方式
-//            String stringFromInputStream = PayUtil.getStringFromInputStream(inputStream);
-//            log.info("第一种方式---------xml转换为String--------------："+stringFromInputStream);
-//            log.info("获取到的数据流为----------"+request.getInputStream());
-//
-//            DataInputStream in;
-//            String wxNotifyXml = "";
-//            try {
-//                in = new DataInputStream(request.getInputStream());
-//                byte[] dataOrigin = new byte[request.getContentLength()];
-//                in.readFully(dataOrigin); // 根据长度，将消息实体的内容读入字节数组dataOrigin中
-//
-//                if(null != in) in.close(); // 关闭数据流
-//                wxNotifyXml = new String(dataOrigin); // 从字节数组中得到表示实体的字符串
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            log.info("第二种方式--------xml转换为Strin--------------："+wxNotifyXml);
-////            log.info("2222222222222222222222222----------"+request.getCharacterEncoding());
-//            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
-            log.info("第三种方式------------xmlResult为："+xmlResult);
-//            WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(wxNotifyXml);
-//            log.info("回调接口---返回结果--result为："+result);
+            log.info("回调接口---重要参数为："+xmlResult);
             WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
             log.info("回调接口---返回结果--result为："+result);
             if (!"SUCCESS".equals(result.getReturnCode())) {
                 log.info("微信支付-通知失败");
-//                log.error(xmlResult);
                 log.error(xmlResult);
                 throw new WxPayException("微信支付-通知失败！");
             }
             if (!"SUCCESS".equals(result.getResultCode())) {
                 log.info("微信支付-通知失败");
-//                log.error(xmlResult);
                 log.error(xmlResult);
                 throw new WxPayException("微信支付-通知失败！");
             }
