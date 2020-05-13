@@ -66,29 +66,29 @@ public class WxPayController {
         String price = jsonObject.getString("price");
         String body = jsonObject.getString("body");
         WxPayAppOrderResult result = null;
-            try {
-                WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
-                //商品描述
-                orderRequest.setBody(body);
-                //商户订单号
-                orderRequest.setOutTradeNo(orderId);
-                //金额
-                orderRequest.setTotalFee(BaseWxPayRequest.yuanToFen(price));//元转成分
-                //ip
-                orderRequest.setSpbillCreateIp(ipAddr);
-                //签名
-                orderRequest.setSign(wxPayService.getSandboxSignKey());
-                //随机字符串
-                String s = PayUtil.makeUUID(32);
-                orderRequest.setNonceStr(s);
-                //统一下单
-                result = wxPayService.createOrder(orderRequest);
-                log.info("微信下单后返回结果为："+result);
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.info("下单失败，错误信息为："+e);
-                log.info("下单失败，错误信息为："+e.getMessage());
-            }
+        try {
+            WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
+            //商品描述
+            orderRequest.setBody(body);
+            //商户订单号
+            orderRequest.setOutTradeNo(orderId);
+            //金额
+            orderRequest.setTotalFee(BaseWxPayRequest.yuanToFen(price));//元转成分
+            //ip
+            orderRequest.setSpbillCreateIp(ipAddr);
+            //签名
+            orderRequest.setSign(wxPayService.getSandboxSignKey());
+            //随机字符串
+            String s = PayUtil.makeUUID(32);
+            orderRequest.setNonceStr(s);
+            //统一下单
+            result = wxPayService.createOrder(orderRequest);
+            log.info("微信下单后返回结果为："+result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("下单失败，错误信息为："+e);
+            log.info("下单失败，错误信息为："+e.getMessage());
+        }
         return result;
     }
 
@@ -151,10 +151,16 @@ public class WxPayController {
                 orderPayInfo.setState(OrderPayConstant.PAID);
                 orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
                 orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_WX);
-//            orderPayInfo.setChannelRate(0.006);
-                orderPayInfo.setAmount(new BigDecimal(result.getTotalFee()));
-//            orderPayInfo.setChannelAmount(1L);
-//            orderPayInfo.setArriveAmount(9L);
+                orderPayInfo.setChannelRate(new BigDecimal(OrderPayConstant.WX_CHANNEL_RATE));
+                //分转换为元
+                BigDecimal totalFee = BigDecimal.valueOf(Long.parseLong(result.getTotalFee().toString())).divide(new BigDecimal(100));
+                orderPayInfo.setAmount(totalFee);
+                //渠道费
+                BigDecimal channelAmount = new BigDecimal(OrderPayConstant.WX_CHANNEL_RATE).multiply(totalFee);
+                orderPayInfo.setChannelAmount(channelAmount);
+                //到账金额
+                BigDecimal arriveAmount = totalFee.subtract(channelAmount);
+                orderPayInfo.setArriveAmount(arriveAmount);
                 orderPayInfo.setCreateTime(DateUtils.getNowDate());
                 int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
                 if(1 == k){

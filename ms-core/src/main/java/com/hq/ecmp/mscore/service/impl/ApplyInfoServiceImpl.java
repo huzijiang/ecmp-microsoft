@@ -91,6 +91,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
     @Autowired
     private JourneyPlanPriceInfoMapper journeyPlanPriceInfoMapper;
+    @Autowired
+    private ApplyUseCarTypeMapper applyUseCarTypeMapper;
 
     @Resource
     private ThirdService thirdService;
@@ -269,7 +271,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         // -------------- 初始化审批流   发通知（给审批人和自己） 、 发短信（给审批人）-----------------------------
         Long userId = getLoginUserId();
         Integer regimenId = travelCommitApply.getRegimenId();
-
+        Thread mainThread = Thread.currentThread();
         //如果不需要审批 则初始化用车权限
         if(regimenId != null){
             RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(Long.valueOf(regimenId));
@@ -290,11 +292,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                     }
                 });
             }else {
-
+                Thread thread = Thread.currentThread();
                 executor.submit(new Runnable() {
                     @Override
                     public void run() {
                         try {
+                            thread.join();
                             String userName = travelCommitApply.getApplyUser().getUserName();
                             Date startDate = travelCommitApply.getStartDate();
                             Date endDate = travelCommitApply.getEndDate();
@@ -327,6 +330,23 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 });
             }
         }
+
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mainThread.join();
+                    // 新增城市可用车型数据
+                    List<UseCarTypeVO> canUseCarTypes = travelCommitApply.getCanUseCarTypes();
+                    if(!CollectionUtils.isEmpty(canUseCarTypes )){
+                        applyUseCarTypeMapper.insertApplyUseCarTypeBatch(canUseCarTypes,applyId,userId,DateUtils.getNowDate());
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    log.error("插入可用车型数据失败");
+                }
+            }
+        });
 
         return applyVO;
     }
@@ -1175,6 +1195,24 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 }
             }
         }
+        Thread mainThread = Thread.currentThread();
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mainThread.join();
+                    // 插入可用车型表
+                    List<UseCarTypeVO> canUseCarTypes = officialCommitApply.getCanUseCarTypes();
+                    if(!CollectionUtils.isEmpty(canUseCarTypes)){
+                        applyUseCarTypeMapper.insertApplyUseCarTypeBatch(canUseCarTypes,applyId,userId, DateUtils.getNowDate());
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    log.info("插入可用车型表数据失败");
+                }
+            }
+        });
+
         return applyVO;
     }
 
@@ -1326,11 +1364,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param regimenId
      */
     private void initOfficialApproveFlow(Long applyId, Long userId, Integer regimenId) {
+        Thread mainThread = Thread.currentThread();
         executor.submit(new Runnable() {
             @Override
             public void run() {
                 try {
                     //1.初始化审批流
+                    mainThread.join();
                     applyApproveResultInfoService.initApproveResultInfo(applyId, Long.valueOf(regimenId), userId);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1347,11 +1387,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      *
      */
     private void sendNoticeAndMessage(ApplyOfficialRequest officialCommitApply, Long applyId, Long userId) {
+        Thread mainThread = Thread.currentThread();
         List<ApprovalVO> approvers = officialCommitApply.getApprovers();
         executor.submit(new Runnable() {
             @Override
             public void run() {
                 try {
+                    mainThread.join();
                     //申请人名字
                     String userName = officialCommitApply.getApplyUser().getUserName();
                     //申请用车时间

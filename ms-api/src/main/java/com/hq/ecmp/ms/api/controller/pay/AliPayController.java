@@ -63,7 +63,7 @@ public class AliPayController {
      * @description  支付宝支付接口，统一下单
      */
     @ApiOperation(value = "支付宝支付接口", notes = "")
-    @RequestMapping(value = "ali", method = RequestMethod.POST)
+    @RequestMapping(value = "/ali", method = RequestMethod.POST)
     @ResponseBody
     public String pay(@RequestBody String param) {
         JSONObject jsonObject = JSONObject.parseObject(param);
@@ -103,40 +103,11 @@ public class AliPayController {
      * @author ghb
      * @description  支付回调接口
      */
-    @RequestMapping(value = "ali/v1/callback")
-    public Boolean payNotify(String params,String out_trade_no, String trade_no, String total_amount) {
-        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
-        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
+    @RequestMapping(value = "/ali/v1/callback")
+    public void payNotify(String out_trade_no, String trade_no, String total_amount) {
         log.info("已经进入支付宝支付回调接口");
-//        Map<String, String> params = new HashMap<String, String>();
-//        Map requestParams = request.getParameterMap();
-//        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext(); ) {
-//            String name = (String) iter.next();
-//            String[] values = (String[]) requestParams.get(name);
-//            String valueStr = "";
-//            for (int i = 0; i < values.length; i++) {
-//                valueStr = (i == values.length - 1) ? valueStr + values[i]
-//                        : valueStr + values[i] + ",";
-//            }
-//            //乱码解决，这段代码在出现乱码时使用。
-//            valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
-//            params.put(name, valueStr);
-//        }
-        log.info("回调接口，重要参数：---" + params);
-        HashMap param = JSON.parseObject(params, HashMap.class);
-        log.info("回调接口，重要参数：---" + param);
-        //支付宝公钥
-        String alipayPublicKey = AlipayConfig.ALIPAY_PUBLIC_KEY;
-        //字符编码
-        String charset = AlipayConfig.CHARSET;
-        boolean flag = false;
         try {
-            flag = AlipaySignature.rsaCheckV1(param, alipayPublicKey, charset, "RSA2");
-            if(flag){
                 log.info("支付宝回调签名认证成功");
-//                String out_trade_no = request.getParameter("out_trade_no");
-//                String trade_no = request.getParameter("trade_no");
-//                String total_amount = request.getParameter("total_amount");
                 log.info("支付宝回调获取到的订单号为："+out_trade_no);
                 log.info("支付宝回调获取到的流水号为："+trade_no);
                 log.info("支付宝回调获取到的金额为："+total_amount);
@@ -168,11 +139,14 @@ public class AliPayController {
                     orderPayInfo.setState(OrderPayConstant.PAID);
                     orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
                     orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_ALI);
-//                orderPayInfo.setChannelRate(0.01);
-//            orderPayInfo.setAmount(Long.valueOf(result.getTotalFee()));
+                    orderPayInfo.setChannelRate(new BigDecimal(OrderPayConstant.ALI_CHANNEL_RATE));
                     orderPayInfo.setAmount(new BigDecimal(total_amount));
-//                orderPayInfo.setChannelAmount(1L);
-//                orderPayInfo.setArriveAmount(9L);
+                    //渠道费
+                    BigDecimal channelAmount = new BigDecimal(OrderPayConstant.WX_CHANNEL_RATE).multiply(new BigDecimal(total_amount));
+                    orderPayInfo.setChannelAmount(channelAmount);
+                    //到账金额
+                    BigDecimal arriveAmount = new BigDecimal(total_amount).subtract(channelAmount);
+                    orderPayInfo.setArriveAmount(arriveAmount);
                     orderPayInfo.setCreateTime(new Date());
                     int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
                     if(1 == k){
@@ -181,16 +155,23 @@ public class AliPayController {
                 }else{
                     log.info("该订单已支付");
                 }
-            }else{
-                log.info("支付宝回调签名认证失败");
-            }
-        } catch (AlipayApiException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             log.info("支付宝回调失败，错误原因为："+e);
             log.info("支付宝回调失败，错误原因为："+e.getMessage());
         }
-        log.info("支付回调标志" + flag);
-        return flag;
+    }
+
+    private static Map<String,String> mapStringToMap(String str){
+        str=str.substring(1, str.length()-1);
+        String[] strs=str.split(", ");
+        Map<String,String> map = new HashMap();
+            for (String string : strs) {
+                String key=string.split("=")[0];
+                String value=string.split("=")[1];
+                map.put(key, value);
+            }
+        return map;
     }
 }
 

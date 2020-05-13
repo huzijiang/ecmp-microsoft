@@ -81,7 +81,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="payMode != null ">pay_mode = #{payMode},</if>
             <if test="payChannel != null ">pay_channel = #{payChannel},</if>
             <if test="channelRate != null ">channel_rate = #{channelRate},</if>
-            <if test="transaction_log != null ">transactionLog = #{transaction_log},</if>
+            <if test="transactionLog != null ">transaction_log = #{transactionLog},</if>
             <if test="amount != null ">amount = #{amount},</if>
             <if test="channelAmount != null ">channel_amount = #{channelAmount},</if>
             <if test="arriveAmount != null ">arrive_amount = #{arriveAmount},</if>
