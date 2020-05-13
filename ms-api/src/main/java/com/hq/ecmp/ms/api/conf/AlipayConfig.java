@@ -23,7 +23,7 @@ public class AlipayConfig {
         //开发环境
         public static String notify_url = "http://dev-app-api.hqzhixing.com/pay/ali/v1/callback";
         //5.页面跳转同步通知页面路径 需http://或者https://格式的完整路径，必须外网可以正常访问 商户可以自定义同步跳转地址
-        public static String return_url = "";
+//        public static String return_url = "";
 
         // 6.请求支付宝的网关地址,此处为沙箱测试地址，正式环境替换即可
         public static String URL = "https://openapi.alipay.com/gateway.do";
