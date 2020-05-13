@@ -63,7 +63,7 @@ public class AliPayController {
      * @description  支付宝支付接口，统一下单
      */
     @ApiOperation(value = "支付宝支付接口", notes = "")
-    @RequestMapping(value = "ali", method = RequestMethod.POST)
+    @RequestMapping(value = "/ali", method = RequestMethod.POST)
     @ResponseBody
     public String pay(@RequestBody String param) {
         JSONObject jsonObject = JSONObject.parseObject(param);
@@ -103,7 +103,7 @@ public class AliPayController {
      * @author ghb
      * @description  支付回调接口
      */
-    @RequestMapping(value = "ali/v1/callback")
+    @RequestMapping(value = "/ali/v1/callback")
     public Boolean payNotify(String params,String out_trade_no, String trade_no, String total_amount) {
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
@@ -191,6 +191,38 @@ public class AliPayController {
         }
         log.info("支付回调标志" + flag);
         return flag;
+    }
+
+    public static void main(String[] args) {
+        String ss = "{gmt_create=2020-05-13 10:45:02, charset=UTF-8, seller_email=finance@hqzhuanche.com, subject=????????????0.01?, sign=a2OB8HybgRqL/ydKZrrc6yABOgwqbl+8rAJxO64n8hVHezreyNbxVpxby8TToQN3tA+lYiiaX45KG8N38FX2sI94jvnW7H9+UgmI0CCS+UlogSjcB9yQAgRZj7zEjTxilfh35VvLGJRIREghi1XyeBA05T838faVnEMm+rkEEZhf/kNtbo6rS56wPQ9sJ3hIHFzmlfcwe29u99KrqHnsvIcggxwiIv0/NEOUSjpnysk74i2Z/5VGMH06rwqDdOHCP6pAofjhb6M1qSqz59/kae9cqK3eNjj3R8TCNlVMNzF+0ThAVSY9TY0rWp5ydD6/ai21E+oiNCNPxuPhzCB7gg==, buyer_id=2088912325951133, invoice_amount=0.01, notify_id=2020051300222104502051131436917297, fund_bill_list=[{\"amount\":\"0.01\",\"fundChannel\":\"PCREDIT\"}], notify_type=trade_status_sync, trade_status=TRADE_SUCCESS, receipt_amount=0.01, app_id=2021001160623612, buyer_pay_amount=0.01, sign_type=RSA2, seller_id=2088331209193267, gmt_payment=2020-05-13 10:45:02, notify_time=2020-05-13 10:59:06, version=1.0, out_trade_no=2we98yuirplkjkgf9sggx84d3d13f6e5, total_amount=0.01, trade_no=2020051322001451131455923791, auth_app_id=2021001160623612, buyer_logon_id=182****5671, point_amount=0.00}";
+        Map map =  getStringToMap(ss);
+        System.out.println(map);
+    }
+
+    public static Map<String,String> getStringToMap(String str){
+        //感谢bojueyou指出的问题
+        //判断str是否有值
+        if(null == str || "".equals(str)){
+            return null;
+        }
+        //根据&截取
+        String[] strings = str.split("&");
+        //设置HashMap长度
+        int mapLength = strings.length;
+        //判断hashMap的长度是否是2的幂。
+        if((strings.length % 2) != 0){
+            mapLength = mapLength+1;
+        }
+
+        Map<String,String> map = new HashMap<>(mapLength);
+        //循环加入map集合
+        for (int i = 0; i < strings.length; i++) {
+            //截取一组字符串
+            String[] strArray = strings[i].split("=");
+            //strArray[0]为KEY  strArray[1]为值
+            map.put(strArray[0],strArray[1]);
+        }
+        return map;
     }
 }
 
