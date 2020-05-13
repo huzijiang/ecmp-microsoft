@@ -15,10 +15,7 @@ import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderSettlingInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
-import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.service.IOrderPayInfoService;
-import com.hq.ecmp.mscore.service.OrderInfoTwoService;
+import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.CancelOrderCostVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.RunningOrderVo;
@@ -62,7 +59,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
     @Autowired
     private IOrderInfoService orderInfoService;
     @Resource
-    private OrderSettlingInfoMapper orderSettlingInfoMapper;
+    private IOrderSettlingInfoService orderSettlingInfoService;
     @Resource
     private IOrderPayInfoService iOrderPayInfoService;
     @Resource
@@ -121,7 +118,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
                 JSONObject jsonObject = this.threeCancelServer(orderId, cancelReason);
                 BigDecimal cancelFee1 = jsonObject.getDouble("cancelFee")==null?BigDecimal.ZERO:BigDecimal.valueOf(jsonObject.getDouble("cancelFee"));
                 if (cancelFee1.compareTo(BigDecimal.ZERO)<=0){
-                    //不需要支付取消费
+                    //个人不需要支付取消费
                     if (DateFormatUtils.compareDayAndTime(useCarDate,DateUtils.getNowDate()) == 1) {
                         this.onlineCarCancel(orderId, cancelReason, orderStateVO.getUserId(),BigDecimal.ZERO,BigDecimal.ZERO,BigDecimal.ZERO);
                         //公务网约车待服务取消超时无需支付取消费后  权限消失
@@ -193,10 +190,11 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         }
         OrderPayInfo orderPayInfo=null;
         if (cancelFee!=null&&cancelFee.compareTo(BigDecimal.ZERO)==1){
-            OrderSettling OrderSettling =new OrderSettling();
-            OrderSettling.setEnterpriseCancellationFee(ownerFee);
-            OrderSettling.setPersonalCancellationFee(persionFee);
-            String json= JSON.toJSONString(OrderSettling);
+//            OrderSettling OrderSettling =new OrderSettling();
+//            OrderSettling.setEnterpriseCancellationFee(ownerFee);
+//            OrderSettling.setPersonalCancellationFee(persionFee);
+            String json = orderSettlingInfoService.formatCostFee(new OrderSettlingInfoVo(), persionFee,ownerFee);
+//            String json= JSON.toJSONString(OrderSettling);
             orderPayInfo = iOrderPayInfoService.insertOrderPayAndSetting(orderId, cancelFee, String.valueOf(ZERO), String.valueOf(ZERO), json, userId);
         }
         return orderPayInfo;

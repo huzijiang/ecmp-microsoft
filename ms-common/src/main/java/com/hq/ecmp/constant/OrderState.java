@@ -88,4 +88,9 @@ public enum OrderState {
     public static List<String> carAuthorityJundgeOrderCompleteFront() {
         return Arrays.asList(STOPSERVICE.getState(),WAITCONFIRMED.getState());
     }
+    public static String endServerStates() {
+        return STOPSERVICE.getState()+","+ORDERCLOSE.getState()+","+DISSENT.getState();
+    }
+
+
 }

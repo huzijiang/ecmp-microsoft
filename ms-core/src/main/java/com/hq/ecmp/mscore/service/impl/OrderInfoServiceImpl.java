@@ -814,15 +814,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
                     vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
                     vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime().intValue()));
-//                    vo.setAmount(orderSettlingInfos.get(0).getAmount().toPlainString());
                 }
             }
         }else{
-                vo.setCarLicense(orderInfo.getCarLicense());//车牌号
-                vo.setCarColor(orderInfo.getCarColor());
-                vo.setCarType(orderInfo.getCarModel());
-                vo.setDriverScore(orderInfo.getDriverGrade());
-            if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderStateTraceInfo.getState())){
+            vo.setCarLicense(orderInfo.getCarLicense());//车牌号
+            vo.setCarColor(orderInfo.getCarColor());
+            vo.setCarType(orderInfo.getCarModel());
+            vo.setDriverScore(orderInfo.getDriverGrade());
+            if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState()) || OrderState.endServerStates().contains(orderStateTraceInfo.getState())) {
                 OrderCostDetailVO orderCost = this.getOrderCost(orderId);
                 vo.setOrderCostDetailVO(orderCost);
             }
@@ -830,18 +829,22 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             //网约车是否限额
             //查询出用车制度表的限额额度，和限额类型
             String overMoney = iOrderPayInfoService.checkOrderFeeOver(orderId, journeyInfo.getRegimenId(), orderInfo.getUserId());
-            if (StringUtils.isEmpty(overMoney)||BigDecimal.ZERO.compareTo(new BigDecimal(overMoney))>0){
+            if (StringUtils.isEmpty(overMoney) || BigDecimal.ZERO.compareTo(new BigDecimal(overMoney)) > 0) {
                 vo.setIsExcess(ZERO);
                 vo.setExcessMoney(String.valueOf(CommonConstant.ZERO));
-            }else{
+            } else {
                 vo.setIsExcess(ONE);
                 vo.setExcessMoney(overMoney);
             }
         }
         OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderId);
-        if (orderPayInfo!=null){
-        vo.setPayId(orderPayInfo.getPayId());
-        vo.setPayState(orderPayInfo.getState());
+        if (orderPayInfo != null) {
+            vo.setPayId(orderPayInfo.getPayId());
+            vo.setPayState(orderPayInfo.getState());
+        }
+        if (OrderState.endServerStates().contains(orderStateTraceInfo.getState())){
+            List<OrderHistoryTraceDto> orderHistoryTrace = this.getOrderHistoryTrace(orderId);
+            vo.setHistoryTraceList(orderHistoryTrace);
         }
         return vo;
     }
