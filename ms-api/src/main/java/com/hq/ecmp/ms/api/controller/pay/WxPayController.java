@@ -18,6 +18,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,9 +99,13 @@ public class WxPayController {
      * @description  微信app支付回调接口
      */
     @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST)
-    public String payNotify(String xmlResult){
+//    public String payNotify(String xmlResult){
+    public String payNotify(HttpServletRequest request){
         log.info("已经进入微信支付回调接口");
         try {
+            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
+            log.info("获取到的数据流为----------"+xmlResult);
+
             log.info("回调接口---重要参数为："+xmlResult);
             WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
             log.info("回调接口---返回结果--result为："+result);
@@ -151,10 +156,16 @@ public class WxPayController {
                 orderPayInfo.setState(OrderPayConstant.PAID);
                 orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
                 orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_WX);
-//            orderPayInfo.setChannelRate(0.006);
-                orderPayInfo.setAmount(new BigDecimal(result.getTotalFee()));
-//            orderPayInfo.setChannelAmount(1L);
-//            orderPayInfo.setArriveAmount(9L);
+                orderPayInfo.setChannelRate(new BigDecimal(OrderPayConstant.WX_CHANNEL_RATE));
+                //分转换为元
+                BigDecimal totalFee = BigDecimal.valueOf(Long.parseLong(result.getTotalFee().toString())).divide(new BigDecimal(100));
+                orderPayInfo.setAmount(totalFee);
+                //渠道费
+                BigDecimal channelAmount = new BigDecimal(OrderPayConstant.WX_CHANNEL_RATE).multiply(totalFee);
+                orderPayInfo.setChannelAmount(channelAmount);
+                //到账金额
+                BigDecimal arriveAmount = totalFee.subtract(channelAmount);
+                orderPayInfo.setArriveAmount(arriveAmount);
                 orderPayInfo.setCreateTime(DateUtils.getNowDate());
                 int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
                 if(1 == k){
