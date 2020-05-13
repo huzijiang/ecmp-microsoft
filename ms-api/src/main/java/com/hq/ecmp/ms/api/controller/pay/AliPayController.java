@@ -104,9 +104,11 @@ public class AliPayController {
      * @description  支付回调接口
      */
     @RequestMapping(value = "/ali/v1/callback")
-    public void payNotify(String out_trade_no, String trade_no, String total_amount) {
+    public Boolean payNotify(String out_trade_no, String trade_no, String total_amount) {
         log.info("已经进入支付宝支付回调接口");
+        Boolean flag = false;
         try {
+                flag = true;
                 log.info("支付宝回调签名认证成功");
                 log.info("支付宝回调获取到的订单号为："+out_trade_no);
                 log.info("支付宝回调获取到的流水号为："+trade_no);
@@ -159,7 +161,9 @@ public class AliPayController {
             e.printStackTrace();
             log.info("支付宝回调失败，错误原因为："+e);
             log.info("支付宝回调失败，错误原因为："+e.getMessage());
+            flag = true;
         }
+        return flag;
     }
 
     private static Map<String,String> mapStringToMap(String str){
