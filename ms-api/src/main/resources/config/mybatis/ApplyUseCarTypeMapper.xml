@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hq.demo.mapper.ApplyUseCarTypeMapper">
+<mapper namespace="com.hq.ecmp.mscore.mapper.ApplyUseCarTypeMapper">
 
-    <resultMap type="ApplyUseCarType" id="ApplyUseCarTypeResult">
+    <resultMap type="com.hq.ecmp.mscore.domain.ApplyUseCarType" id="ApplyUseCarTypeResult">
         <result property="applyUseCarTypeId"    column="apply_use_car_type_id"    />
         <result property="applyId"    column="apply_id"    />
         <result property="cityCode"    column="city_code"    />
@@ -18,7 +18,7 @@
         select apply_use_car_type_id, apply_id, city_code, Shuttle_owner_car_type, Shuttle_online_car_type, owner_car_type, online_car_type from apply_use_car_type
     </sql>
 
-    <select id="selectApplyUseCarTypeList" parameterType="ApplyUseCarType" resultMap="ApplyUseCarTypeResult">
+    <select id="selectApplyUseCarTypeList" parameterType="com.hq.ecmp.mscore.domain.ApplyUseCarType" resultMap="ApplyUseCarTypeResult">
         <include refid="selectApplyUseCarTypeVo"/>
         <where>
             <if test="applyId != null "> and apply_id = #{applyId}</if>
@@ -35,7 +35,7 @@
         where apply_use_car_type_id = #{applyUseCarTypeId}
     </select>
 
-    <insert id="insertApplyUseCarType" parameterType="ApplyUseCarType">
+    <insert id="insertApplyUseCarType" parameterType="com.hq.ecmp.mscore.domain.ApplyUseCarType">
         insert into apply_use_car_type
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="applyUseCarTypeId != null ">apply_use_car_type_id,</if>
@@ -57,7 +57,7 @@
         </trim>
     </insert>
 
-    <update id="updateApplyUseCarType" parameterType="ApplyUseCarType">
+    <update id="updateApplyUseCarType" parameterType="com.hq.ecmp.mscore.domain.ApplyUseCarType">
         update apply_use_car_type
         <trim prefix="SET" suffixOverrides=",">
             <if test="applyId != null ">apply_id = #{applyId},</if>
@@ -80,5 +80,21 @@
             #{applyUseCarTypeId}
         </foreach>
     </delete>
+    <insert id="insertApplyUseCarTypeBatch">
+            INSERT INTO apply_use_car_type
+            (apply_id, city_code, shuttle_owner_car_type, shuttle_online_car_type,owner_car_type,online_car_type, create_time,create_by)
+            VALUES
+            <foreach collection="list" item="item" separator=",">
+                (#{applyId},
+                #{item.cityCode},
+                #{item.shuttleOwnerCarType},
+                #{item.shuttleOnlineCarType},
+                #{item.ownerCarType},
+                #{item.onlineCarType},
+                #{createTime},
+                #{userId}
+                )
+            </foreach>
+    </insert>
 
 </mapper>
