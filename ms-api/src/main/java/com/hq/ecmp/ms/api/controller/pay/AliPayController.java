@@ -108,20 +108,6 @@ public class AliPayController {
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("已经进入支付宝支付回调接口");
-//        Map<String, String> params = new HashMap<String, String>();
-//        Map requestParams = request.getParameterMap();
-//        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext(); ) {
-//            String name = (String) iter.next();
-//            String[] values = (String[]) requestParams.get(name);
-//            String valueStr = "";
-//            for (int i = 0; i < values.length; i++) {
-//                valueStr = (i == values.length - 1) ? valueStr + values[i]
-//                        : valueStr + values[i] + ",";
-//            }
-//            //乱码解决，这段代码在出现乱码时使用。
-//            valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
-//            params.put(name, valueStr);
-//        }
         log.info("回调接口，重要参数：---" + params);
         Map<String, String> stringStringMap = mapStringToMap(params);
         log.info("String转换为map为================="+stringStringMap);
@@ -134,9 +120,6 @@ public class AliPayController {
             flag = AlipaySignature.rsaCheckV1(stringStringMap, alipayPublicKey, charset, "RSA2");
             if(flag){
                 log.info("支付宝回调签名认证成功");
-//                String out_trade_no = request.getParameter("out_trade_no");
-//                String trade_no = request.getParameter("trade_no");
-//                String total_amount = request.getParameter("total_amount");
                 log.info("支付宝回调获取到的订单号为："+out_trade_no);
                 log.info("支付宝回调获取到的流水号为："+trade_no);
                 log.info("支付宝回调获取到的金额为："+total_amount);
@@ -207,11 +190,5 @@ public class AliPayController {
             }
         return map;
     }
-
-//    public static void main(String[] args) {
-////        String ss = "{gmt_create=2020-05-13 15:37:18, charset=UTF-8, seller_email=finance@hqzhuanche.com, subject=????????????0.01?, sign=XlzwPNW3cnTsn5q2R/D vCzgg6sv0PF37uQv1jgsA1RNjL cVoabbBhFm8wKYWD1Rs2Jv4 3Oem2ZYHBM8Tix1FhOZWVAj2q/CaEce9vbpFUNus3l5l7WNzAZNdvGZjfgHuwiYGXKpwtNKTG4UtBxZ/ sp39YSgMdTy6icBOETs88Z2Ik QgJSBTQwFTXuzu3bfGV0Yn18KzFaclpg4auf3/ 6xJDZRvIPy2LuCP07cmjhis7c53jR2EQdl4/Y6XGYK9C9/FaRTFBx9f 30vtDdNuJhThnF4gG P6carloW4E0bj7l12UVheQK3EiTywPbxr9PHxUTEjhiYTYqiEag==, buyer_id=2088022153869156, invoice_amount=0.01, notify_id=2020051300222153718069151417347880, fund_bill_list=[{\"amount\":\"0.01\",\"fundChannel\":\"PCREDIT\"}], notify_type=trade_status_sync, trade_status=TRADE_SUCCESS, receipt_amount=0.01, app_id=2021001160623612, buyer_pay_amount=0.01, sign_type=RSA2, seller_id=2088331209193267, gmt_payment=2020-05-13 15:37:18, notify_time=2020-05-13 15:40:47, version=1.0, out_trade_no=1wf98yuirplkjkgf9s8gx84d3813fre5, total_amount=0.01, trade_no=2020051322001469151419497525, auth_app_id=2021001160623612, buyer_logon_id=151****4973, point_amount=0.00}";
-////        Map<String, String> stringStringMap = mapStringToMap(ss);
-////        System.out.println(stringStringMap);
-////    }
 }
 
