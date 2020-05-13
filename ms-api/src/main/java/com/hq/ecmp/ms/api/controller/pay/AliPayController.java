@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.controller.pay;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
@@ -103,7 +104,7 @@ public class AliPayController {
      * @description  支付回调接口
      */
     @RequestMapping(value = "ali/v1/callback")
-    public Boolean payNotify(Map<String,String> params,String out_trade_no, String trade_no, String total_amount) {
+    public Boolean payNotify(String params,String out_trade_no, String trade_no, String total_amount) {
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
         log.info("已经进入支付宝支付回调接口");
@@ -121,14 +122,16 @@ public class AliPayController {
 //            valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
 //            params.put(name, valueStr);
 //        }
-        log.info("回调接口，重要参数：---" + params.toString());
+        log.info("回调接口，重要参数：---" + params);
+        HashMap param = JSON.parseObject(params, HashMap.class);
+        log.info("回调接口，重要参数：---" + param);
         //支付宝公钥
         String alipayPublicKey = AlipayConfig.ALIPAY_PUBLIC_KEY;
         //字符编码
         String charset = AlipayConfig.CHARSET;
         boolean flag = false;
         try {
-            flag = AlipaySignature.rsaCheckV1(params, alipayPublicKey, charset, "RSA2");
+            flag = AlipaySignature.rsaCheckV1(param, alipayPublicKey, charset, "RSA2");
             if(flag){
                 log.info("支付宝回调签名认证成功");
 //                String out_trade_no = request.getParameter("out_trade_no");
@@ -139,7 +142,7 @@ public class AliPayController {
                 log.info("支付宝回调获取到的金额为："+total_amount);
                 //判断订单是否已支付
                 OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(out_trade_no);
-                if(null != orderPayInfoByPayId && !OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
+                if(null != orderPayInfoByPayId && OrderPayConstant.UNPAID.equals(orderPayInfoByPayId.getState())){
                     //把订单状态改为关闭状态
                     OrderInfo orderInfo = new OrderInfo();
                     orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());

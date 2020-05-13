@@ -102,7 +102,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="getOrderPayInfoByPayId" parameterType="String" resultMap="OrderPayInfoResult">
         <include refid="selectOrderPayInfoVo"/>
-        where pay_id = #{payId} and state = '0000'
+        where pay_id = #{payId} order by create_time desc limit 1
     </select>
 
 

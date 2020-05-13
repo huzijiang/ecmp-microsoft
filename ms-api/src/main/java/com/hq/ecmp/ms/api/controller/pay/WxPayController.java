@@ -116,8 +116,7 @@ public class WxPayController {
             }
             //判断订单是否已支付
             OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(result.getOutTradeNo());
-//            if(null == orderPayInfoByPayId || !OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
-            if(null == orderPayInfoByPayId){
+            if(null != orderPayInfoByPayId && OrderPayConstant.UNPAID.equals(orderPayInfoByPayId.getState())){
                 //把订单状态改为关闭状态
                 OrderInfo orderInfo = new OrderInfo();
                 orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
@@ -167,6 +166,7 @@ public class WxPayController {
 
             return WxPayNotifyResponse.success("处理成功!");
         } catch (Exception e) {
+            e.printStackTrace();
             log.info("微信支付失败----------------错误信息为："+e);
             log.info("微信支付失败----------------错误信息为："+e.getMessage());
             return WxPayNotifyResponse.fail(e.getMessage());
