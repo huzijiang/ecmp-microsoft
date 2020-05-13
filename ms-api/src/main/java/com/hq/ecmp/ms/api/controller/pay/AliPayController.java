@@ -102,7 +102,8 @@ public class AliPayController {
      * @description  支付回调接口
      */
     @RequestMapping(value = "/ali/v1/callback")
-    public void payNotify(String out_trade_no, String trade_no, String total_amount) {
+    @ResponseBody
+    public String payNotify(String out_trade_no, String trade_no, String total_amount) {
         log.info("已经进入支付宝支付回调接口");
         try {
                 log.info("支付宝回调签名认证成功");
@@ -158,6 +159,7 @@ public class AliPayController {
             log.info("支付宝回调失败，错误原因为："+e);
             log.info("支付宝回调失败，错误原因为："+e.getMessage());
         }
+        return "success";
     }
 }
 
