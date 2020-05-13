@@ -1,12 +1,10 @@
 package com.hq.ecmp.ms.api.controller.pay;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
-import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.hq.ecmp.constant.OrderPayConstant;
@@ -104,11 +102,9 @@ public class AliPayController {
      * @description  支付回调接口
      */
     @RequestMapping(value = "/ali/v1/callback")
-    public Boolean payNotify(String out_trade_no, String trade_no, String total_amount) {
+    public void payNotify(String out_trade_no, String trade_no, String total_amount) {
         log.info("已经进入支付宝支付回调接口");
-        Boolean flag = false;
         try {
-                flag = true;
                 log.info("支付宝回调签名认证成功");
                 log.info("支付宝回调获取到的订单号为："+out_trade_no);
                 log.info("支付宝回调获取到的流水号为："+trade_no);
@@ -161,21 +157,7 @@ public class AliPayController {
             e.printStackTrace();
             log.info("支付宝回调失败，错误原因为："+e);
             log.info("支付宝回调失败，错误原因为："+e.getMessage());
-            flag = true;
         }
-        return flag;
-    }
-
-    private static Map<String,String> mapStringToMap(String str){
-        str=str.substring(1, str.length()-1);
-        String[] strs=str.split(", ");
-        Map<String,String> map = new HashMap();
-            for (String string : strs) {
-                String key=string.split("=")[0];
-                String value=string.split("=")[1];
-                map.put(key, value);
-            }
-        return map;
     }
 }
 
