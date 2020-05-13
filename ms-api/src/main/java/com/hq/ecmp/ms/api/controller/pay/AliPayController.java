@@ -1,12 +1,10 @@
 package com.hq.ecmp.ms.api.controller.pay;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
-import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.hq.ecmp.constant.OrderPayConstant;
@@ -160,18 +158,6 @@ public class AliPayController {
             log.info("支付宝回调失败，错误原因为："+e);
             log.info("支付宝回调失败，错误原因为："+e.getMessage());
         }
-    }
-
-    private static Map<String,String> mapStringToMap(String str){
-        str=str.substring(1, str.length()-1);
-        String[] strs=str.split(", ");
-        Map<String,String> map = new HashMap();
-            for (String string : strs) {
-                String key=string.split("=")[0];
-                String value=string.split("=")[1];
-                map.put(key, value);
-            }
-        return map;
     }
 }
 
