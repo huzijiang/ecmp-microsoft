@@ -428,14 +428,14 @@ public class ApplyContoller {
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
             List<OnLineCarTypeVO> list=regimeInfoService.getUseCarType(regimeDto,loginUser.getUser());
-           list=new ArrayList<>();
-            OnLineCarTypeVO vo=new OnLineCarTypeVO("100100","北京","");
-            List<CarLevelVO> levelList=new ArrayList<>();
-            levelList.add(new CarLevelVO("经济型","P001"));
-            levelList.add(new CarLevelVO("舒适型","P002"));
-            levelList.add(new CarLevelVO("豪华型","P003"));
-            vo.setCarTypes(levelList);
-            list.add(vo);
+//           list=new ArrayList<>();
+//            OnLineCarTypeVO vo=new OnLineCarTypeVO("100100","北京","");
+//            List<CarLevelVO> levelList=new ArrayList<>();
+//            levelList.add(new CarLevelVO("经济型","P001"));
+//            levelList.add(new CarLevelVO("舒适型","P002"));
+//            levelList.add(new CarLevelVO("豪华型","P003"));
+//            vo.setCarTypes(levelList);
+//            list.add(vo);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();

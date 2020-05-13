@@ -13,6 +13,8 @@ public class RunningOrderVo {
     private String labelState;
     @ApiModelProperty(name = "orderNumber",value = "订单编号")
     private String orderNumber;
+    @ApiModelProperty(name = "useDate",value = "用车时间")
+    private String useDate;
     @ApiModelProperty(name = "orderStartTime",value = "开始时间")
     private String orderStartTime;
     @ApiModelProperty(name = "orderEndTime",value = "结束时间")
@@ -27,4 +29,6 @@ public class RunningOrderVo {
     private String charterCarType;
     @ApiModelProperty(name = "applyType",value = "申请单类型  公务/差旅")
     private String applyType;
+    @ApiModelProperty(name = "canUseCarMode",value = "用车方式 W100自有车")
+    private String canUseCarMode;
 }
