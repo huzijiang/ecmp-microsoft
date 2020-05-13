@@ -123,15 +123,14 @@ public class AliPayController {
 //            params.put(name, valueStr);
 //        }
         log.info("回调接口，重要参数：---" + params);
-        HashMap param = JSON.parseObject(params, HashMap.class);
-        log.info("回调接口，重要参数：---" + param);
+        Map<String, String> stringStringMap = mapStringToMap(params);
         //支付宝公钥
         String alipayPublicKey = AlipayConfig.ALIPAY_PUBLIC_KEY;
         //字符编码
         String charset = AlipayConfig.CHARSET;
         boolean flag = false;
         try {
-            flag = AlipaySignature.rsaCheckV1(param, alipayPublicKey, charset, "RSA2");
+            flag = AlipaySignature.rsaCheckV1(stringStringMap, alipayPublicKey, charset, "RSA2");
             if(flag){
                 log.info("支付宝回调签名认证成功");
 //                String out_trade_no = request.getParameter("out_trade_no");
@@ -168,11 +167,14 @@ public class AliPayController {
                     orderPayInfo.setState(OrderPayConstant.PAID);
                     orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
                     orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_ALI);
-//                orderPayInfo.setChannelRate(0.01);
-//            orderPayInfo.setAmount(Long.valueOf(result.getTotalFee()));
+                    orderPayInfo.setChannelRate(new BigDecimal(OrderPayConstant.ALI_CHANNEL_RATE));
                     orderPayInfo.setAmount(new BigDecimal(total_amount));
-//                orderPayInfo.setChannelAmount(1L);
-//                orderPayInfo.setArriveAmount(9L);
+                    //渠道费
+                    BigDecimal channelAmount = new BigDecimal(OrderPayConstant.WX_CHANNEL_RATE).multiply(new BigDecimal(total_amount));
+                    orderPayInfo.setChannelAmount(channelAmount);
+                    //到账金额
+                    BigDecimal arriveAmount = new BigDecimal(total_amount).subtract(channelAmount);
+                    orderPayInfo.setArriveAmount(arriveAmount);
                     orderPayInfo.setCreateTime(new Date());
                     int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
                     if(1 == k){
@@ -191,6 +193,18 @@ public class AliPayController {
         }
         log.info("支付回调标志" + flag);
         return flag;
+    }
+
+    private static Map<String,String> mapStringToMap(String str){
+        str=str.substring(1, str.length()-1);
+        String[] strs=str.split(",");
+        Map<String,String> map = new HashMap();
+            for (String string : strs) {
+                String key=string.split("=")[0];
+                String value=string.split("=")[1];
+                map.put(key, value);
+            }
+        return map;
     }
 }
 

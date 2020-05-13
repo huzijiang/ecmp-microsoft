@@ -66,29 +66,29 @@ public class WxPayController {
         String price = jsonObject.getString("price");
         String body = jsonObject.getString("body");
         WxPayAppOrderResult result = null;
-            try {
-                WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
-                //商品描述
-                orderRequest.setBody(body);
-                //商户订单号
-                orderRequest.setOutTradeNo(orderId);
-                //金额
-                orderRequest.setTotalFee(BaseWxPayRequest.yuanToFen(price));//元转成分
-                //ip
-                orderRequest.setSpbillCreateIp(ipAddr);
-                //签名
-                orderRequest.setSign(wxPayService.getSandboxSignKey());
-                //随机字符串
-                String s = PayUtil.makeUUID(32);
-                orderRequest.setNonceStr(s);
-                //统一下单
-                result = wxPayService.createOrder(orderRequest);
-                log.info("微信下单后返回结果为："+result);
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.info("下单失败，错误信息为："+e);
-                log.info("下单失败，错误信息为："+e.getMessage());
-            }
+        try {
+            WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
+            //商品描述
+            orderRequest.setBody(body);
+            //商户订单号
+            orderRequest.setOutTradeNo(orderId);
+            //金额
+            orderRequest.setTotalFee(BaseWxPayRequest.yuanToFen(price));//元转成分
+            //ip
+            orderRequest.setSpbillCreateIp(ipAddr);
+            //签名
+            orderRequest.setSign(wxPayService.getSandboxSignKey());
+            //随机字符串
+            String s = PayUtil.makeUUID(32);
+            orderRequest.setNonceStr(s);
+            //统一下单
+            result = wxPayService.createOrder(orderRequest);
+            log.info("微信下单后返回结果为："+result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("下单失败，错误信息为："+e);
+            log.info("下单失败，错误信息为："+e.getMessage());
+        }
         return result;
     }
 
