@@ -900,6 +900,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 					vo.setRideHileCarType(carTypefor.getRideHileCarType());
 					vo.setOnlineCarType(carTypefor.getOnlineCarType());
 					vo.setShuttleOnlineCarType(carTypefor.getShuttleOnlineCarType());
+					voList.add(vo);
 				}else if(vo==null&&carTypefor!=null){
 					voList.add(carTypefor);
 				}else if (vo!=null&&carTypefor==null){
@@ -929,6 +930,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 								vo.setRideHileCarType(collect.get(0).getRideHileCarType());
 							}
 						}
+						voList.addAll(ownerCarTypes);
 					}else {
 						for (UseCarTypeVO vo : onlineCarType) {
 							List<UseCarTypeVO> collect = ownerCarTypes.stream().filter(p -> vo.getCityCode().equals(p.getCityCode())).collect(Collectors.toList());
@@ -936,7 +938,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 								vo.setEnterpriseCarType(collect.get(0).getEnterpriseCarType());
 							}
 						}
-						voList.addAll(ownerCarTypes);
+						voList.addAll(onlineCarType);
 					}
 				}else if (CollectionUtils.isNotEmpty(ownerCarTypes)&&CollectionUtils.isEmpty(onlineCarType)){
 					/**差旅城市只有自有车*/
