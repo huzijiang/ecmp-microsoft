@@ -2625,4 +2625,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
     }
+    /***
+     * 获取乘车信息 ad by liuzb
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public OrderInfoMessage getMessage(Long orderId) throws Exception {
+        if(null==orderId){
+            return null;
+        }
+        OrderInfoMessage data =  orderInfoMapper.getCarMessage(orderId);
+        return data;
+    }
 }
