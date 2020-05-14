@@ -257,4 +257,18 @@ public class InvoiceInfoController {
         List<InvoiceHeaderVO> invoiceHeaderList = invoiceInfoService.queryInvoiceHeader(companyId);
         return ApiResponse.success(invoiceHeaderList);
     }
+
+    @Log(title = "发票模块",content = "发票重发", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "reissueofInvoice",notes = "发票重发",httpMethod = "POST")
+    @PostMapping("/reissueofInvoice")
+    @RequestMapping(value = "/reissueofInvoice", method = RequestMethod.POST)
+    public ApiResponse reissueofInvoice(Long invoiceId,String mailboxes,String toResend) {
+        try{
+            invoiceInfoService.reissueofInvoice(invoiceId,mailboxes,toResend);
+            ApiResponse.success("发票重发成功");
+        }catch(Exception e){
+            logger.error("发票重发异常",e);
+        }
+        return ApiResponse.error("发票重发异常");
+    }
  }
