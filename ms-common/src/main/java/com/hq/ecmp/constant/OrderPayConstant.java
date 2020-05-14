@@ -10,6 +10,7 @@ public class OrderPayConstant {
 
     public static String PAID  =  "0000";   //已支付
     public static String UNPAID  =  "N111";  //未支付
+    public static String CNFIRM_PAID  =  "1111";  //待确认
 
     public static String PAY_AFTER_STATEMENT  =  "M001";  //结单后付费
     public static String BILL_ADVANCE   =  "M002";  //开单预付费
