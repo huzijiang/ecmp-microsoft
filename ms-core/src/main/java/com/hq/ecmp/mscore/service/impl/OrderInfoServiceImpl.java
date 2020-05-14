@@ -843,8 +843,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setPayState(orderPayInfo.getState());
         }
         if (OrderState.endServerStates().contains(orderStateTraceInfo.getState())){
-            List<OrderHistoryTraceDto> orderHistoryTrace = this.getOrderHistoryTrace(orderId);
-            vo.setHistoryTraceList(orderHistoryTrace);
+            // TODO 开发发版放开
+//            List<OrderHistoryTraceDto> orderHistoryTrace = this.getOrderHistoryTrace(orderId);
+//            vo.setHistoryTraceList(orderHistoryTrace);
         }
         return vo;
     }
