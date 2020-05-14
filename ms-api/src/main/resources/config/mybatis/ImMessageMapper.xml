@@ -87,7 +87,7 @@
                 and status in (1, 0)
             )
 
-        order by id ASC
+        order by id DESC
         limit ${offset} ,${limit}
 
 
