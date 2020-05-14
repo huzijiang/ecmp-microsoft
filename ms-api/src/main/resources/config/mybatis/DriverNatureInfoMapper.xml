@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.DriverNatureInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.DriverNatureInfo" id="DriverNatureInfo">
+        <result property="driverId"      jdbcType="BIGINT"   column="driver_id"    />
+        <result property="driverNature"    jdbcType="VARCHAR"  column="driver_nature"    />
+        <result property="hireBeginTime" jdbcType="VARCHAR" column="hire_begin_time"    />
+        <result property="hireEndTime" jdbcType="VARCHAR" column="hire_end_time"    />
+        <result property="borrowBeginTime" jdbcType="VARCHAR" column="borrow_begin_time"    />
+        <result property="borrowEndTime" jdbcType="VARCHAR" column="borrow_end_time"    />
+    </resultMap>
+    <sql id="select">
+        select driver_id, driver_nature, hire_begin_time, hire_end_time, borrow_begin_time, borrow_end_time from driver_nature_info
+    </sql>
+    <select id="getDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo" resultMap="DriverNatureInfo">
+        <include refid="select"/>
+        <where>
+            <if test="driverId != null "> and driver_id = #{driverId}</if>
+        </where>
+    </select>
+    <insert id="addDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">
+        insert into driver_heartbeat_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="driverId != null ">driver_id,</if>
+            <if test="driverNature != null ">driver_nature,</if>
+            <if test="hireBeginTime != null ">hire_begin_time,</if>
+            <if test="hireEndTime != null ">hire_end_time,</if>
+            <if test="borrowBeginTime != null ">borrow_begin_time,</if>
+            <if test="borrowEndTime != null ">borrow_end_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="driverId != null ">#{driverId},</if>
+            <if test="driverNature != null ">#{driverNature},</if>
+            <if test="hireBeginTime != null ">#{hireBeginTime},</if>
+            <if test="hireEndTime != null ">#{hireEndTime},</if>
+            <if test="borrowBeginTime != null ">#{borrowBeginTime},</if>
+            <if test="borrowEndTime != null ">#{borrowEndTime},</if>
+        </trim>
+    </insert>
+    <update id="updateDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">
+        update driver_nature_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="driverNature != null  and driverName != ''">driver_iddriver_id = #{driverNature},</if>
+            <if test="hireBeginTime != null  and country != ''">hire_begin_time = #{hireBeginTime},</if>
+            <if test="hireEndTime != null  and nation != ''">hire_end_time = #{hireEndTime},</if>
+            <if test="borrowBeginTime != null  and idCard != ''">borrow_begin_time = #{borrowBeginTime},</if>
+            <if test="borrowEndTime != null ">borrow_end_time = #{borrowEndTime},</if>
+        </trim>
+        where driver_id = #{driverId}
+    </update>
+</mapper>

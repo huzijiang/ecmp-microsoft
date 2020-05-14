@@ -32,6 +32,17 @@ public class InvoiceRecordVO {
     private String type;
     @ApiModelProperty(value = "纳税号")
     private String tin;
+    @ApiModelProperty(value = "发票url")
+    private String invoiceUrl;
 
 
+    String bankName;
+
+    String bankCardNo;
+
+    String telephone;
+
+    String email;
+
+    String registedAddress;
 }

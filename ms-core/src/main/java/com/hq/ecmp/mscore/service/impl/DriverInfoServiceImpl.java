@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.InvitionTypeEnum;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.vo.*;
@@ -24,18 +25,6 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.RoleConstant;
-import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
-import com.hq.ecmp.mscore.domain.CarGroupDriverRelation;
-import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.domain.DriverCarRelationInfo;
-import com.hq.ecmp.mscore.domain.DriverCreateInfo;
-import com.hq.ecmp.mscore.domain.DriverInfo;
-import com.hq.ecmp.mscore.domain.DriverQuery;
-import com.hq.ecmp.mscore.domain.DriverQueryResult;
-import com.hq.ecmp.mscore.domain.DriverUserJobNumber;
-import com.hq.ecmp.mscore.domain.EcmpOrg;
-import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.domain.EcmpUserRole;
 import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
 import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
@@ -73,6 +62,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	private EcmpUserRoleMapper ecmpUserRoleMapper;
 	@Autowired
 	private TokenService tokenService;
+	@Autowired
+	private DriverNatureInfoMapper driverNatureInfoMapper;
 
 
     /**
@@ -216,8 +207,41 @@ public class DriverInfoServiceImpl implements IDriverInfoService
         	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
     	}
 		setDriverWorkInfo(driverId);
+    	//驾驶员性质
+		addDriverNatureInfo(driverId,driverCreateInfo.getDriverNature(),driverCreateInfo.getHireBeginTime(),driverCreateInfo.getHireEndTime(),
+				driverCreateInfo.getBorrowBeginTime(),driverCreateInfo.getBorrowEndTime());
 		return true;
 	}
+
+
+	/***
+	 *添加驾驶员性质
+	 * @param driverId
+	 * @param driverNature
+	 * @param hireBeginTime
+	 * @param hireEndTime
+	 * @param borrowBeginTime
+	 * @param borrowEndTime
+	 * @return
+	 */
+	private int addDriverNatureInfo(Long driverId, String  driverNature,Date hireBeginTime,
+									Date hireEndTime,Date borrowBeginTime,Date borrowEndTime){
+		try{
+			DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
+			driverNatureInfo.setDriverId(driverId);
+			driverNatureInfo.setDriverNature(driverNature);
+			driverNatureInfo.setHireBeginTime(hireBeginTime);
+			driverNatureInfo.setHireEndTime(hireEndTime);
+			driverNatureInfo.setBorrowBeginTime(borrowBeginTime);
+			driverNatureInfo.setBorrowEndTime(borrowEndTime);
+			return driverNatureInfoMapper.addDriverNatureInfo(driverNatureInfo);
+		}catch(Exception e){
+
+		}
+	     return 0;
+	}
+
+
     /**
      * 修改驾驶员
      * @param driverCreateInfo

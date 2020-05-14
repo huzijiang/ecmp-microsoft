@@ -38,6 +38,19 @@ public class InvoiceInsertDTO {
        private String status;
 
 
+       Long createBy;
+
+       String bankName;
+
+       String bankCardNo;
+
+       String telephone;
+
+       String email;
+
+       String registedAddress;
+
+
 
 
 }

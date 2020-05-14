@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.github.pagehelper.PageInfo;
+
 import com.hq.api.system.mapper.SysUserMapper;
 import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.constant.RoleConstant;
@@ -173,7 +174,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     public int queryCompanyEmpCunt() {
       //  return ecmpUserMapper.queryCompanyEmp();
 
-        return userMapper.selectUserByRoleId(5L,null).size();
+        return 0;//userMapper.selectUserByRoleId(5L,null).size();
     }
 
 

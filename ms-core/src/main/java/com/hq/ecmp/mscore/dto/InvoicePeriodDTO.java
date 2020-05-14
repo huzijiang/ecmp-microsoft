@@ -11,9 +11,7 @@ public class InvoicePeriodDTO {
        @ApiModelProperty(value = "发票ID")
        private Long invoiceId;
        @ApiModelProperty(value = "账期ID")
-       private Long periodId;
-
-
+       private Long accountId;
 
 
 }

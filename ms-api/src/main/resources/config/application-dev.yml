@@ -6,16 +6,16 @@ spring:
         druid:
             # 主库数据源
             master:
-                url: jdbc:mysql://10.117.1.221:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+                url: jdbc:mysql://10.7.106.65:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
                 username: root
-                password: hqzc@2019
+                password: HQZC@2020
             # 从库数据源
             slave:
                 # 从数据源开关/默认关闭
                 enabled: true
-                url: jdbc:mysql://10.117.1.222:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+                url: jdbc:mysql://10.7.106.66:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
                 username: root
-                password: hqzc@2019
+                password: HQZC@2020
             # 初始连接数
             initialSize: 5
             # 最小连接池数量
@@ -57,7 +57,7 @@ spring:
                         multi-statement-allow: true
     redis:
         cluster:
-            nodes: 10.117.1.223:6379,10.117.1.223:6380,10.117.1.224:6379,10.117.1.224:6380,10.117.1.225:6379,10.117.1.225:6380
+            nodes: 10.7.106.64:6379,10.7.106.64:6380,10.7.106.65:6379,10.7.106.65:6380,10.7.106.66:6379,10.7.106.66:6380
             max-redirects: 5
             timeout: 6000ms
         lettuce:

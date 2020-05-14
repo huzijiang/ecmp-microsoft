@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+PUBLIC "-//mybatis.org//DTD Mapper 3.0/InvoiceInfoMapper/EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hq.ecmp.mscore.mapper.OrderInvoiceInfoMapper">
 
@@ -56,5 +56,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{invoiceId}
         </foreach>
     </delete>
-
+    <insert id="addInvoicePeriod" parameterType="java.util.List" >
+        insert into order_invoice_info(invoice_id, account_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.invoiceId}, #{item.accountId})
+        </foreach>
+    </insert>
 </mapper>

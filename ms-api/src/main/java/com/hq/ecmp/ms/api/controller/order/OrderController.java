@@ -27,6 +27,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +46,8 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/order")
 public class OrderController {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
     @Resource
     private TokenService tokenService;
@@ -681,5 +685,22 @@ public class OrderController {
             e.printStackTrace();
             return  ApiResponse.error("更换车辆失败");
         }
+    }
+
+
+    /***
+     * add by liuzb (一键报警获取当前订单乘车信息)
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "获取乘车信息",httpMethod = "POST")
+    @RequestMapping("/getCarMessage")
+    public ApiResponse<OrderInfoMessage> getCarMessage(Long orderId){
+        try {
+            return ApiResponse.success(iOrderInfoService.getMessage(orderId));
+        }catch (Exception e){
+            logger.error("获取乘车信息异常");
+        }
+        return  ApiResponse.error("获取乘车信息失败");
     }
 }

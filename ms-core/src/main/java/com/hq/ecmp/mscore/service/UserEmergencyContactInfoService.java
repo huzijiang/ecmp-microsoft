@@ -61,4 +61,13 @@ public interface UserEmergencyContactInfoService {
      */
     List<UserEmergencyContactInfo> queryByUserId(Long userId);
 
+
+    /**8
+     * 根据用户id喝订单id查询紧急联系人，获取乘车信息并发编辑短信内容
+     * @param userId
+     * @param orderId
+     * @throws Exception
+     */
+    String callThepolice(Long userId,String phonenumber,Long orderId,String address)throws Exception;
+
 }

@@ -26,13 +26,26 @@ public class InvoiceDTO {
        @ApiModelProperty(value = "账期组")
        private Long[] periodId;
 
+       @ApiModelProperty(value = "账期组")
+       private  String periodIds;
+
        @ApiModelProperty(value = "金额")
        private String amount;
 
        @ApiModelProperty(value = "收货地址")
        private String acceptAddress;
 
+       String bankName;
 
+       String bankCardNo;
+
+       String telephone;
+
+       String email;
+
+       String registedAddress;
+
+       String toResend;
        public void setPeriodId(Long[] periodId)
        {
               this.periodId = periodId;

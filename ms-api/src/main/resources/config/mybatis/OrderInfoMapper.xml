@@ -33,7 +33,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="flightPlanTakeOffTime"    column="flight_plan_take_off_time"    />
 
     </resultMap>
-
     <sql id="selectOrderInfoVo">
         select order_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time,car_model,car_color,driver_grade ,flight_plan_take_off_time from order_info
     </sql>
@@ -966,5 +965,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ( SELECT order_id ,state FROM ( SELECT order_id, state FROM order_state_trace_info ORDER BY trace_id DESC) r GROUP BY r.order_id having r.state = 'S279' )
          tmp)
     </select>
-
+    <select id="getCarMessage" resultType="com.hq.ecmp.mscore.domain.OrderInfoMessage" parameterType="java.lang.Long">
+            select order_id orderId,car_model carModel,car_license carLicense,driver_name driverName,car_color carColor
+             from  order_info where order_id = #{orderId}
+    </select>
 </mapper>

@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.hq.ecmp.constant.*;
+import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.bo.JourneyBeingEndDate;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
@@ -546,4 +547,36 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		}
 		return journeyBeingEndDate;
 	}
+
+	/***
+	 *获取当前订单可开发票逻辑
+	 * @param userId
+	 * @return
+	 * @throws Exception
+	 */
+	@Override
+	public List<InvoiceAbleItineraryData> getInvoiceAbleItinerary(Long userId) throws Exception {
+		if(null!=userId){
+			return journeyInfoMapper.getInvoiceAbleItinerary(userId);
+		}
+		return null;
+	}
+
+	@Override
+	public List<InvoiceAbleItineraryData> getInvoiceAbleItineraryHistory(Long userId) throws Exception {
+		if(null!=userId){
+			return journeyInfoMapper.getInvoiceAbleItineraryHistory(userId);
+		}
+		return null;
+	}
+
+	@Override
+	public Integer getInvoiceItineraryCount(Long invoiceId) throws Exception {
+		if(null!=invoiceId){
+			return journeyInfoMapper.getInvoiceItineraryCount(invoiceId);
+		}
+		return null;
+	}
+
+
 }

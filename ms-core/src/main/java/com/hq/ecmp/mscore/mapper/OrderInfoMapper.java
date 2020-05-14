@@ -2,11 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 
 import com.hq.ecmp.mscore.bo.OrderTaskClashBo;
-import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
@@ -251,5 +247,13 @@ public interface OrderInfoMapper {
     Long getCountForDispatched(@Param("orgId")Long orgId,@Param("users")List<Long> users);
 
     Long getCountForReassigned(@Param("orgId")Long orgId,@Param("users")List<Long> users);
+
+
+    /***
+     *
+     * @param orderId
+     * @return
+     */
+    OrderInfoMessage getCarMessage(Long orderId);
 }
 
