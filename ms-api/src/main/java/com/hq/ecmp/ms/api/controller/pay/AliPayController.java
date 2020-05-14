@@ -23,11 +23,7 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -37,9 +33,9 @@ import java.util.*;
  * @description 支付宝支付接口
  * @date 2020/5/5
  */
-@Controller
+@RestController
 @RequestMapping("/pay")
-@Api(tags = {"-支付宝支付接口"}, description = "")
+@Api(tags = {"支付宝支付接口"}, description = "")
 public class AliPayController {
 
     private static final Logger log = LoggerFactory.getLogger(AliPayController.class);
@@ -112,7 +108,7 @@ public class AliPayController {
                 log.info("支付宝回调获取到的金额为："+total_amount);
                 //判断订单是否已支付
                 OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(out_trade_no);
-                if(null != orderPayInfoByPayId && OrderPayConstant.UNPAID.equals(orderPayInfoByPayId.getState())){
+                if(null != orderPayInfoByPayId && !OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
                     //把订单状态改为关闭状态
                     OrderInfo orderInfo = new OrderInfo();
                     orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
