@@ -670,8 +670,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 ApiResponse<DispatchOrderInfo> dispatchOrderInfo=this.doWaitDispatchOrderDetailInfo(orderId);
                 return dispatchOrderInfo;
             } else {
-                long a =redisUtil.getTime("dispatch_557");
-                System.out.println(a);
+               // long a =redisUtil.getTime("dispatch_557");
                 return ApiResponse.error("已有调度员操作");
             }
         }

@@ -44,7 +44,7 @@ public class OrderSettlingInfoVo {
      * 价外费
      */
     @ApiModelProperty(name = "outPrice", value = "价外费")
-    private BigDecimal outPrice;
+    private String outPrice;
 
     /**
      * 订单总里程

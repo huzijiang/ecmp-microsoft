@@ -68,8 +68,7 @@ public class NoticeController {
     public ApiResponse<PageResult<EcmpNotice>> getNoticeSearchList(@RequestBody PageRequest pageRequest){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long companyId = loginUser.getUser().getOwnerCompany();
-        companyId=100L;
+        Long companyId =Long.valueOf(loginUser.getUser().getDept().getCompanyId());
         try {
             PageResult<EcmpNotice> list = iEcmpNoticeService.selectNoticeSearchList(pageRequest.getPageNum(),
                     pageRequest.getPageSize(),companyId);
@@ -220,7 +219,7 @@ public class NoticeController {
         HttpServletRequest request = ServletUtils.getRequest();
         //获取登陆用户的信息
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long companyId = loginUser.getUser().getOwnerCompany();
+        Long companyId = Long.valueOf(loginUser.getUser().getDept().getCompanyId());
         EcmpNotice notice = new EcmpNotice();
         //标题
         notice.setCompanyId(companyId);
