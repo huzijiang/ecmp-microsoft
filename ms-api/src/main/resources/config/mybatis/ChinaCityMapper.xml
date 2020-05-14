@@ -20,7 +20,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	china_city
 	<where>
 		1=1
-		<if test="null !=cityName">
+		<if test="null !=cityName and cityName != ''">
 			and SHORT_NAME like concat('%',#{cityName},'%')
 		</if>
 		<if test="flag=1">

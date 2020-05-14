@@ -3,15 +3,13 @@ package com.hq.ecmp.ms.api.controller.city;
 import java.util.List;
 import java.util.Map;
 
+import com.hq.ecmp.mscore.dto.CityDto;
 import com.hq.ecmp.mscore.service.ChinaCityService;
 import com.hq.ecmp.mscore.service.ThirdService;
 
 import org.etsi.uri.x01903.v13.impl.CertIDTypeImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.core.api.ApiResponse;
@@ -32,8 +30,8 @@ public class CityController {
 	
 	@ApiOperation(value = "getCityByName", notes = "据城市名称模糊搜索城市列表 ", httpMethod = "POST")
 	@PostMapping("/getCityByName")	
-	public ApiResponse<List<CityInfo>> getCityByName(  String cityName) {
-		return ApiResponse.success(cityService.queryCityInfoListByCityName(cityName,null));
+	public ApiResponse<List<CityInfo>> getCityByName(@RequestBody(required = false) CityDto cityDto) {
+		return ApiResponse.success(cityService.queryCityInfoListByCityName(cityDto == null ? null : cityDto.getCityName(),null));
 	}
 
 	@ApiOperation(value = "getCityByNameAndRegimeId", notes = "据制度id和城市名称模糊搜索城市列表 ", httpMethod = "POST")

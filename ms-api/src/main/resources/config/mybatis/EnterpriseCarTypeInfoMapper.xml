@@ -157,7 +157,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectCarTypesByTypeIds" parameterType="Object" resultType="String">
-        select group_concat(distinct name) from enterprise_car_type_info
-        where find_in_set(level,#{levels})  and company_id =#{ownerCompany}
+        select group_concat(distinct name) from enterprise_car_type_info a
+        where find_in_set(a.level,#{levels})  and company_id =#{ownerCompany}
     </select>
 </mapper>
