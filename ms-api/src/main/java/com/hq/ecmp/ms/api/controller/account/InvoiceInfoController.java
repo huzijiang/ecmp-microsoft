@@ -168,7 +168,7 @@ public class InvoiceInfoController {
         map.put("taxNum",invoiceDTO.getTin());
         map.put("title",invoiceDTO.getHeader());
         map.put("userPhone",userPhone);
-        String json = OkHttpUtil.postForm("http://10.7.106.112:51002"+url, map);
+        String json = OkHttpUtil.postForm(apiUrl+url, map);
         JSONObject parseObject = JSONObject.parseObject(json);
         if(!"0".equals(parseObject.getString("code"))){
             logger.info("发票税务接口返回失败");
@@ -196,7 +196,7 @@ public class InvoiceInfoController {
                 message = message+key.get(0).getActionTime()+"              订单"+key.get(0).getAmount()+"元\r\n" +
                         key.get(0).getAddress()+"\r\n"+key.get(1).getAddress()+"\r\n";
             }
-            MailUtils.sendMail(invoiceDTO.getEmail(),"您有一封来自红旗智行的邮件",message);
+            MailUtils.sendMail(invoiceDTO.getEmail(),message,"您有一封来自红旗智行的邮件");
         }
     }
 
@@ -257,7 +257,6 @@ public class InvoiceInfoController {
         List<InvoiceHeaderVO> invoiceHeaderList = invoiceInfoService.queryInvoiceHeader(companyId);
         return ApiResponse.success(invoiceHeaderList);
     }
-
     @Log(title = "发票模块",content = "发票重发", businessType = BusinessType.OTHER)
     @ApiOperation(value = "reissueofInvoice",notes = "发票重发",httpMethod = "POST")
     @PostMapping("/reissueofInvoice")
