@@ -1,11 +1,13 @@
 package com.hq.ecmp.ms.api.controller.account;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.DictTypeDto;
 import com.hq.ecmp.ms.api.dto.invoice.InvoiceCodeDto;
@@ -36,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -47,6 +50,8 @@ import java.util.*;
  @RestController
  @RequestMapping("/invoice")
 public class InvoiceInfoController {
+
+     private static final Logger logger =LoggerFactory.getLogger(InvoiceInfoController.class);
 
     @Autowired
     private IInvoiceInfoService invoiceInfoService;
@@ -60,9 +65,21 @@ public class InvoiceInfoController {
     private OrderInvoiceInfoMapper orderInvoiceInfoMapper;
     @Autowired
     private JourneyInfoMapper journeyInfoMapper;
-
-    @Autowired
-    private TokenService tokenService;
+    /**
+     * 企业编号
+     */
+    @Value("${thirdService.enterpriseId}")
+    private String enterpriseId;
+    /**
+     * 企业证书信息
+     */
+    @Value("${thirdService.licenseContent}")
+    private String licenseContent;
+    /**
+     * 三方平台的接口前地址
+     */
+    @Value("${thirdService.apiUrl}")
+    private String apiUrl;
     /**I
      * 根据时间区间、开票状态查询发票记录信息
      * @param invoiceByTimeStateDTO
