@@ -295,7 +295,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             left join car_group_serve_scope_info cgssi on cgssi.car_group_id=ci.car_group_id
             left join car_group_serve_org_relation s on ci.car_group_id=s.car_group_id
             where s.type='W200'
-            and find_in_set(cgssi.city=#{cityCode})
+            and find_in_set(cgssi.city,#{cityCode})
             and ci.company_id!=#{companyId}
             and ci.allow_outer_dispatch='Y000'
             and ci.state='Y000'
