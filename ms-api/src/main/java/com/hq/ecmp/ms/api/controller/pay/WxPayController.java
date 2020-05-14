@@ -118,28 +118,13 @@ public class WxPayController {
             //判断订单是否已支付
             OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(result.getOutTradeNo());
             if(null != orderPayInfoByPayId && !OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
-//                //把订单状态改为关闭状态
-//                OrderInfo orderInfo = new OrderInfo();
-//                orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
-//                orderInfo.setState(OrderState.ORDERCLOSE.getState());
-//                OrderInfo orderInfo1 = iOrderInfoService.selectOrderInfoById(orderPayInfoByPayId.getOrderId());
-//                if(null != orderInfo1){
-//                    int i = iOrderInfoService.updateOrderInfo(orderInfo);
-//                    if(1 == i){
-//                        log.info("订单信息表修改成功");
-//                    }else{
-//                        log.info("订单信息表修改失败");
-//                    }
-//                }else{
-//                    log.info("该订单不存在");
-//                }
-//                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderPayInfoByPayId.getOrderId(), OrderState.ORDERCLOSE.getState());
-//                int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-//                if(1 ==j){
-//                    log.info("订单轨迹表修改成功");
-//                }else{
-//                    log.info("订单轨迹表修改失败");
-//                }
+                //把订单状态改为关闭状态
+                OrderInfo orderInfo = new OrderInfo();
+                orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
+                orderInfo.setState(OrderState.ORDERCLOSE.getState());
+                iOrderInfoService.updateOrderInfo(orderInfo);
+                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderPayInfoByPayId.getOrderId(), OrderState.ORDERCLOSE.getState());
+                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
                 //插入订单支付表
                 OrderPayInfo orderPayInfo = new OrderPayInfo();
                 orderPayInfo.setPayId(result.getOutTradeNo());
@@ -165,7 +150,7 @@ public class WxPayController {
                 orderPayInfo.setCreateTime(DateUtils.getNowDate());
                 int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
                 if(1 == k){
-                    log.info("订单支付表----- 信息已更新");
+                    log.info("订单信息已更新!!!!!!!!!!!!!!!!!!");
                 }
             }else{
                 log.info("该订单已支付");
