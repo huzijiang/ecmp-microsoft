@@ -281,5 +281,12 @@ public interface OrderInfoMapper {
     int getdispatchDurationById(Long orderId);
 
     List<RunningOrderVo> getRunningOrder(@Param("userId")Long userId, @Param("states")String states);
+
+    /***
+     *
+     * @param orderId
+     * @return
+     */
+    OrderInfoMessage getCarMessage(Long orderId);
 }
 
