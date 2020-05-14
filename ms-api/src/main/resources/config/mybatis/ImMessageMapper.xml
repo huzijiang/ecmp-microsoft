@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.ImMessageMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.ImMessage" id="ImMessageMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="receiveRoleType" column="receive_role_type" jdbcType="INTEGER"/>
+        <result property="receiveId" column="receive_id" jdbcType="INTEGER"/>
+        <result property="sendRoleType" column="send_role_type" jdbcType="INTEGER"/>
+        <result property="sendId" column="send_id" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="centext" column="centext" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="ImMessageMap">
+        select
+          id, receive_role_type, receive_id, send_role_type, send_id, status, centext, create_time
+        from ecmp.im_message
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="ImMessageMap">
+        select
+          id, receive_role_type, receive_id, send_role_type, send_id, status, centext, create_time
+        from ecmp.im_message
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="ImMessageMap">
+        select
+        id, receive_role_type, receive_id, send_role_type, send_id, status, centext, create_time
+        from ecmp.im_message
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="receiveRoleType != null">
+                and receive_role_type = #{receiveRoleType}
+            </if>
+            <if test="receiveId != null">
+                and receive_id = #{receiveId}
+            </if>
+            <if test="sendRoleType != null">
+                and send_role_type = #{sendRoleType}
+            </if>
+            <if test="sendId != null">
+                and send_id = #{sendId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="centext != null and centext != ''">
+                and centext = #{centext}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+        </where>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryMsgInfo" parameterType="com.hq.ecmp.mscore.dto.IMQueryMsgDto" resultMap="ImMessageMap">
+        select id,
+               receive_role_type,
+               receive_id,
+               send_role_type,
+               send_id,
+               status,
+               centext,
+               create_time
+        from ecmp.im_message
+        where (receive_role_type = #{receiveRoleType}
+            and receive_id = #{receiveId}
+            and send_role_type = #{sendRoleType}
+            and send_id = #{sendId}
+            and status in (1, 0)
+            )
+           or (
+                receive_role_type = #{sendRoleType}
+                and receive_id = #{sendId}
+                and send_role_type = #{receiveRoleType}
+                and send_id = #{receiveId}
+                and status in (1, 0)
+            )
+
+        order by id ASC
+        limit ${offset} ,${limit}
+
+
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into ecmp.im_message(receive_role_type, receive_id, send_role_type, send_id, status, centext, create_time)
+        values (#{receiveRoleType}, #{receiveId}, #{sendRoleType}, #{sendId}, #{status}, #{centext}, #{createTime})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update ecmp.im_message
+        <set>
+            <if test="receiveRoleType != null">
+                receive_role_type = #{receiveRoleType},
+            </if>
+            <if test="receiveId != null">
+                receive_id = #{receiveId},
+            </if>
+            <if test="sendRoleType != null">
+                send_role_type = #{sendRoleType},
+            </if>
+            <if test="sendId != null">
+                send_id = #{sendId},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="centext != null and centext != ''">
+                centext = #{centext},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from ecmp.im_message where id = #{id}
+    </delete>
+
+
+    <select id="queryAllMsgCount" parameterType="map" resultType="integer">
+        select
+        count(1)
+        from ecmp.im_message m
+        where
+         m.send_role_type = #{sendRoleType}
+        and m.send_id = #{sendId}
+        and m.status=${status}
+    </select>
+
+    <select id="queryMsgConutBy" parameterType="map" resultType="integer">
+        select
+        count(1)
+        from ecmp.im_message m
+        where
+        m.send_role_type = #{sendRoleType}
+        and m.send_id = #{sendId}
+        and m.status=${status}
+        and m.receive_role_type = #{receiveRoleType}
+        and m.receive_id = #{receiveId}
+    </select>
+
+    <update id="updateMsgFail" parameterType="com.hq.ecmp.mscore.dto.IMMsgStatusDto">
+        update ecmp.im_message
+            set status = ${status}
+        where send_role_type = ${sendRoleType} and send_id = ${sendId}
+        and receive_role_type = ${receiveRoleType} and receive_id = ${receiveId}
+    </update>
+
+</mapper>
