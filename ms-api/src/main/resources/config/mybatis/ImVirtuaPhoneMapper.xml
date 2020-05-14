@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.ImVirtuaPhoneMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.ImVirtuaPhone" id="ImVirtuaPhoneMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="customPhone" column="custom_phone" jdbcType="VARCHAR"/>
+        <result property="driverPhone" column="driver_phone" jdbcType="VARCHAR"/>
+        <result property="citycode" column="cityCode" jdbcType="VARCHAR"/>
+        <result property="customVirtuaPhone" column="custom_virtua_phone" jdbcType="VARCHAR"/>
+        <result property="driverVirtuaPhone" column="driver_virtua_phone" jdbcType="VARCHAR"/>
+        <result property="virtuaBindId" column="virtua_bind_id" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="ImVirtuaPhoneMap">
+        select
+            id, custom_phone, driver_phone, cityCode, custom_virtua_phone, driver_virtua_phone, virtua_bind_id, create_time
+        from ecmp.im_virtua_phone
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="ImVirtuaPhoneMap">
+        select
+            id, custom_phone, driver_phone, cityCode, custom_virtua_phone, driver_virtua_phone, virtua_bind_id, create_time
+        from ecmp.im_virtua_phone
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="ImVirtuaPhoneMap">
+        select
+        id, custom_phone, driver_phone, cityCode, custom_virtua_phone, driver_virtua_phone, virtua_bind_id, create_time
+        from ecmp.im_virtua_phone
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="customPhone != null and customPhone != ''">
+                and custom_phone = #{customPhone}
+            </if>
+            <if test="driverPhone != null and driverPhone != ''">
+                and driver_phone = #{driverPhone}
+            </if>
+            <if test="citycode != null and citycode != ''">
+                and cityCode = #{citycode}
+            </if>
+            <if test="customVirtuaPhone != null and customVirtuaPhone != ''">
+                and custom_virtua_phone = #{customVirtuaPhone}
+            </if>
+            <if test="driverVirtuaPhone != null and driverVirtuaPhone != ''">
+                and driver_virtua_phone = #{driverVirtuaPhone}
+            </if>
+            <if test="virtuaBindId != null">
+                and virtua_bind_id = #{virtuaBindId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into ecmp.im_virtua_phone(custom_phone, driver_phone, cityCode, custom_virtua_phone, driver_virtua_phone, virtua_bind_id, create_time)
+        values (#{customPhone}, #{driverPhone}, #{citycode}, #{customVirtuaPhone}, #{driverVirtuaPhone}, #{virtuaBindId}, #{createTime})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update ecmp.im_virtua_phone
+        <set>
+            <if test="customPhone != null and customPhone != ''">
+                custom_phone = #{customPhone},
+            </if>
+            <if test="driverPhone != null and driverPhone != ''">
+                driver_phone = #{driverPhone},
+            </if>
+            <if test="citycode != null and citycode != ''">
+                cityCode = #{citycode},
+            </if>
+            <if test="customVirtuaPhone != null and customVirtuaPhone != ''">
+                custom_virtua_phone = #{customVirtuaPhone},
+            </if>
+            <if test="driverVirtuaPhone != null and driverVirtuaPhone != ''">
+                driver_virtua_phone = #{driverVirtuaPhone},
+            </if>
+            <if test="virtuaBindId != null">
+                virtua_bind_id = #{virtuaBindId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from ecmp.im_virtua_phone where id = #{id}
+    </delete>
+
+    <!--查询指定行数据-->
+    <select id="queryByPhones" resultMap="ImVirtuaPhoneMap">
+        select
+            id, custom_phone, driver_phone, cityCode, custom_virtua_phone, driver_virtua_phone, virtua_bind_id, create_time
+        from ecmp.im_virtua_phone
+        where driver_phone = #{driverPhone} and custom_phone = #{customPhone}
+        order by id desc
+        limit 1
+    </select>
+
+</mapper>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.ImWindowMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.ImWindow" id="ImWindowMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="receiveRoleType" column="receive_role_type" jdbcType="INTEGER"/>
+        <result property="receiveId" column="receive_id" jdbcType="INTEGER"/>
+        <result property="sendRoleType" column="send_role_type" jdbcType="INTEGER"/>
+        <result property="sendId" column="send_id" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="ImWindowMap">
+        select
+          id, receive_role_type, receive_id, send_role_type, send_id, status, create_time
+        from ecmp.im_window
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="ImWindowMap">
+        select
+          id, receive_role_type, receive_id, send_role_type, send_id, status, create_time
+        from ecmp.im_window
+        limit #{offset}, #{limit}
+    </select>
+
+
+    <!--查询列表-->
+    <select id="queryWindowsBySend" resultMap="ImWindowMap">
+        select
+          id, receive_role_type, receive_id, send_role_type, send_id, status, create_time
+        from ecmp.im_window
+        where send_role_type = ${sendRoleType} and send_id = ${sendId} and status = ${status}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="ImWindowMap">
+        select
+          id, receive_role_type, receive_id, send_role_type, send_id, status, create_time
+        from ecmp.im_window
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="receiveRoleType != null">
+                and receive_role_type = #{receiveRoleType}
+            </if>
+            <if test="receiveId != null">
+                and receive_id = #{receiveId}
+            </if>
+            <if test="sendRoleType != null">
+                and send_role_type = #{sendRoleType}
+            </if>
+            <if test="sendId != null">
+                and send_id = #{sendId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into ecmp.im_window(receive_role_type, receive_id, send_role_type, send_id, status, create_time)
+        values (#{receiveRoleType}, #{receiveId}, #{sendRoleType}, #{sendId}, #{status}, #{createTime})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update ecmp.im_window
+        <set>
+            <if test="receiveRoleType != null">
+                receive_role_type = #{receiveRoleType},
+            </if>
+            <if test="receiveId != null">
+                receive_id = #{receiveId},
+            </if>
+            <if test="sendRoleType != null">
+                send_role_type = #{sendRoleType},
+            </if>
+            <if test="sendId != null">
+                send_id = #{sendId},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from ecmp.im_window where id = #{id}
+    </delete>
+
+</mapper>
