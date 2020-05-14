@@ -48,6 +48,8 @@ public class CostController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             //获取当前登陆用户的信息Id
             Long userId = loginUser.getUser().getUserId();
+            Long companyId = loginUser.getUser().getOwnerCompany();
+            costConfigDto.setCompanyId(companyId);
             costConfigInfoService.createCostConfig(costConfigDto,userId);
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,6 +68,11 @@ public class CostController {
     public ApiResponse<List<CostConfigListResult>> queryCostConfigList(@RequestBody  CostConfigQueryDto costConfigQueryDto){
         List<CostConfigListResult> costConfigListResults;
         try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            //获取当前登陆用户的信息Id
+            Long companyId = loginUser.getUser().getOwnerCompany();
+            costConfigQueryDto.setCompanyId(String.valueOf(companyId));
             costConfigListResults = costConfigInfoService.selectCostConfigInfoList(costConfigQueryDto);
         } catch (Exception e) {
             e.printStackTrace();

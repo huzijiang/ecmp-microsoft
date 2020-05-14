@@ -87,4 +87,11 @@ public interface ProjectInfoMapper
     List<ProjectInfo> checkProjectCode(@Param("projectCode")String projectCode,@Param("projectId") Long projectId,@Param("orgCompany")Long orgCompany);
 
     List<ProjectInfo> checkProjectName(@Param("name")String name,@Param("orgCompany") Long orgComcany,@Param("projectId") Long projectId);
+
+    /**
+     * 申请人所属公司内的所有项目
+     * @param ownerCompany
+     * @return
+     */
+    List<ProjectInfoVO> selectProjects(@Param("ownerCompany")Long ownerCompany);
 }

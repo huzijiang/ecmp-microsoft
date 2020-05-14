@@ -19,8 +19,8 @@ public class OrderPayConstant {
     public static String PAY_CHANNEL_WX  =  "weixin";  //微信支付
     public static String PAY_CHANNEL_ALI  =  "zhifubao";  //支付宝支付
 
-    public static String WX_CHANNEL_RATE  =  "";  //微信税率
-    public static String ALI_CHANNEL_RATE  =  "";  //支付宝税率
+    public static String WX_CHANNEL_RATE  =  "0.006";  //微信税率
+    public static String ALI_CHANNEL_RATE  =  "0.01";  //支付宝税率
 
     public static  String ORDER_PAY_TIMEOUT = "30m";  //支付宝--超时关闭该订单时间
     public static  String PRODUCT_CODE = "QUICK_MSECURITY_PAY";  //支付宝--销售产品码

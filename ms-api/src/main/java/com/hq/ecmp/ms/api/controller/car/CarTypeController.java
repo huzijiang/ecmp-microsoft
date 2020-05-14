@@ -52,7 +52,8 @@ public class CarTypeController {
     public ApiResponse saveCarType(@RequestBody CarTypeDTO carTypeDto){
         Long userId = getLoginUser().getUserId();
         Long companyId = getLoginUser().getOwnerCompany();
-        carTypeDto.setCompanyId(companyId);
+        //方便测试
+        carTypeDto.setCompanyId(100L);
         try {
             enterpriseCarTypeInfoService.saveCarType(carTypeDto,userId);
         } catch (Exception e) {

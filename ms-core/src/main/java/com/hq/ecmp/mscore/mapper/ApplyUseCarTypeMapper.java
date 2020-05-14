@@ -2,7 +2,11 @@ package com.hq.ecmp.mscore.mapper;
 
 
 import com.hq.ecmp.mscore.domain.ApplyUseCarType;
+import com.hq.ecmp.mscore.vo.UseCarTypeVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -60,4 +64,6 @@ public interface ApplyUseCarTypeMapper
      * @return 结果
      */
     public int deleteApplyUseCarTypeByIds(Long[] applyUseCarTypeIds);
+
+    void insertApplyUseCarTypeBatch(@Param("list") List<UseCarTypeVO> canUseCarTypes, @Param("applyId")Long applyId, @Param("userId") Long userId, @Param("createTime") Date nowDate);
 }

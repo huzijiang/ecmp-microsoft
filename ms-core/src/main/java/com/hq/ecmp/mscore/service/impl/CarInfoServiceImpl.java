@@ -619,6 +619,16 @@ public class CarInfoServiceImpl implements ICarInfoService
     }
 
     /**
+     * 补单查询车辆列表
+     * @param carInfo
+     * @return
+     */
+    @Override
+    public List<CarInfo> supplementObtainCar(CarInfo carInfo) {
+        return carInfoMapper.supplementObtainCar(carInfo);
+    }
+
+    /**
      * 检验车辆状态
      * -------状态
      *    S000    启用中

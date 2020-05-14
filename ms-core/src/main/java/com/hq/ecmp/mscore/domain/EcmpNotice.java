@@ -72,6 +72,9 @@ public class EcmpNotice extends BaseEntity
     /** 发布城市*/
     @Excel(name = "发布城市")
     private String noticeCity;
+
+    private List<String> noticeCode;
+    private String bucId;
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -88,6 +91,8 @@ public class EcmpNotice extends BaseEntity
             .append("configType", getConfigType())
             .append("bucIds", getBucIds())
             .append("noticeCity", getNoticeCity())
+            .append("noticeCode", getNoticeCode())
+            .append("bucId", getBucId())
             .toString();
     }
 }

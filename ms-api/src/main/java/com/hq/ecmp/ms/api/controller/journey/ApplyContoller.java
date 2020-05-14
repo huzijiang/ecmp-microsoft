@@ -1,6 +1,9 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
+import com.alibaba.fastjson.JSONArray;
+import com.google.gson.JsonObject;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.exception.CustomException;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
@@ -95,10 +98,9 @@ public class ApplyContoller {
         officialCommitApply.setCompanyId(companyId);
         try {
             applyVO = applyInfoService.applyOfficialCommit(officialCommitApply);
-            log.info("公务申请提交参数：{},申请人电话：{}",officialCommitApply,loginUser.getUser().getPhonenumber());
+            log.info("公务申请提交参数：{},申请人电话：{}",JSONArray.toJSON(officialCommitApply).toString(),loginUser.getUser().getPhonenumber());
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("公务申请提交失败，请求参数：{},申请人电话：{}",officialCommitApply,loginUser.getUser().getPhonenumber());
+            log.error("公务申请提交失败，请求参数：{},申请人电话：{}",JSONArray.toJSON(officialCommitApply).toString(),loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error("提交公务申请失败");
         }
         return ApiResponse.success("提交申请成功",applyVO);
@@ -122,10 +124,9 @@ public class ApplyContoller {
         travelCommitApply.setCompanyId(companyId);
         try {
             applyVO = applyInfoService.applytravliCommit(travelCommitApply);
-            log.info("差旅申请提交参数：{},申请人电话：{}",travelCommitApply,loginUser.getUser().getPhonenumber());
+            log.info("差旅申请提交参数：{},申请人电话：{}",JSONArray.toJSON(travelCommitApply).toString(),loginUser.getUser().getPhonenumber());
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("差旅申请提交失败，请求参数：{},申请人电话：{}",travelCommitApply,loginUser.getUser().getPhonenumber());
+            log.error("差旅申请提交失败，请求参数：{},申请人电话：{}",JSONArray.toJSON(travelCommitApply).toString(),loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error("提交差旅申请失败");
         }
         return ApiResponse.success("提交申请成功",applyVO);
@@ -378,16 +379,23 @@ public class ApplyContoller {
             if (StringUtils.isBlank(regimeDto.getCityCodes())||regimeDto.getRegimeId()==null){
                 return ApiResponse.error("参数为空");
             }
-            List<UseCarTypeVO> list=regimeInfoService.checkUseCarModeAndType(regimeDto,loginUser);
+            String msg=regimeInfoService.checkUseCarModeAndType(regimeDto,loginUser);
+            return ApiResponse.success(msg);
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error(e.getMessage());
+            if (e instanceof Exception){
+                return ApiResponse.error(e.getMessage());
+            }
+            if (e instanceof CustomException){
+                return ApiResponse.error("系统网络异常!");
+            }
+
         }
-        return ApiResponse.error("该城市暂不支持服务");
+        return ApiResponse.success();
     }
 
     /**
-     * 校验用车制度的用车城市是否可用
+     * 获取具体的车辆类别和可用车型
      * @return
      */
     @ApiOperation(value = "getUseCarModeAndType",notes = "校验用车制度的用车城市是否可用",httpMethod ="POST")
@@ -396,16 +404,17 @@ public class ApplyContoller {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
+        List<UseCarTypeVO> list=null;
         try {
             if (StringUtils.isBlank(regimeDto.getCityCodes())||regimeDto.getRegimeId()==null){
                 return ApiResponse.error("参数为空");
             }
-            List<UseCarTypeVO> list=regimeInfoService.checkUseCarModeAndType(regimeDto,loginUser);
+            list=regimeInfoService.getUseCarModeAndType(regimeDto,loginUser);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
         }
-        return ApiResponse.success();
+        return ApiResponse.success(list);
     }
 
     /**
@@ -419,14 +428,14 @@ public class ApplyContoller {
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
             List<OnLineCarTypeVO> list=regimeInfoService.getUseCarType(regimeDto,loginUser.getUser());
-           list=new ArrayList<>();
-            OnLineCarTypeVO vo=new OnLineCarTypeVO(1L,"100100","北京","");
-            List<CarLevelVO> levelList=new ArrayList<>();
-            levelList.add(new CarLevelVO("经济型","P001",39L));
-            levelList.add(new CarLevelVO("舒适型","P002",39L));
-            levelList.add(new CarLevelVO("豪华型","P003",39L));
-            vo.setCarType(levelList);
-            list.add(vo);
+//           list=new ArrayList<>();
+//            OnLineCarTypeVO vo=new OnLineCarTypeVO("100100","北京","");
+//            List<CarLevelVO> levelList=new ArrayList<>();
+//            levelList.add(new CarLevelVO("经济型","P001"));
+//            levelList.add(new CarLevelVO("舒适型","P002"));
+//            levelList.add(new CarLevelVO("豪华型","P003"));
+//            vo.setCarTypes(levelList);
+//            list.add(vo);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();

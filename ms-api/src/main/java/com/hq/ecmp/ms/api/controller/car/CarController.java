@@ -398,4 +398,25 @@ public class CarController {
        List<String> carTypeList = carInfoService.selectCarTypeList();
         return ApiResponse.success(carTypeList);
     }
+    /**
+     * 补单查询车辆列表
+     * @param
+     * @return
+     */
+    @Log(title = "补单查询车辆列表",content = "补单查询车辆列表", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "supplementObtainCar",notes = "补单查询车辆列表",httpMethod ="POST")
+    @PostMapping("/supplementObtainCar")
+    public ApiResponse<List<CarInfo>> supplementObtainCar(@RequestBody CarInfo carInfo){
+        try {
+            //获取登录用户
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            carInfo.setCompanyId(Long.valueOf(loginUser.getUser().getDept().getCompanyId()));
+            List<CarInfo> list = carInfoService.supplementObtainCar(carInfo);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询失败");
+        }
+    }
 }

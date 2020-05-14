@@ -7,6 +7,7 @@ package com.hq.ecmp.mscore.mapper;
 import java.util.List;
 
 import com.hq.ecmp.mscore.domain.CarGroupServeScopeInfo;
+import com.hq.ecmp.mscore.vo.CityInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -94,4 +95,11 @@ public interface CarGroupServeScopeInfoMapper
 	 * @return
 	 */
     List<CarGroupServeScopeInfo> findByCityAndGroupId(@Param("groupIds") List<Long> groupIds,@Param("city")  String city);
+
+	/**
+	 * 补单获取调度员所管理车队的服务城市
+	 * @param carGroupId
+	 * @return
+	 */
+	List<CityInfo> selectObtainDispatcherCity(@Param("carGroupId") String carGroupId);
 }

@@ -83,7 +83,7 @@ public interface IEcmpConfigService
      * @param value
      * @param file
      */
-    void setUpWelComeImage(String status, String value, MultipartFile file);
+    void setUpWelComeImage(String status, String value, MultipartFile file,String companyId);
 
     /**
      * 设置背景图
@@ -91,25 +91,25 @@ public interface IEcmpConfigService
      * @param value
      * @param file
      */
-    ApiResponse setUpBackGroundImage(String status, String value, MultipartFile file);
+    ApiResponse setUpBackGroundImage(String status, String value, MultipartFile file,String companyId);
 
     /**
      * 设置企业公告
      * @param status
      */
-    void setUpMessageConfig(String status);
+    void setUpMessageConfig(String status,String companyId);
 
     /**
      * 设置短信开关
      * @param status
      */
-    void setUpSms(String status);
+    void setUpSms(String status,String companyId);
 
     /**
      * 设置虚拟小号开关
      * @param status
      */
-    void setUpVirtualPhone(String status);
+    void setUpVirtualPhone(String status,String companyId);
 
     /**
      * 设置订单确认开关
@@ -119,21 +119,21 @@ public interface IEcmpConfigService
      * @param owenType
      * @param rideHailing
      */
-    void setUpOrderConfirm(String status, String value, String owenType, String rideHailing);
+    void setUpOrderConfirm(String status, String value, String owenType, String rideHailing,String companyId);
 
     /**
      * 设置自动派单方式
      * @param status
      * @param value
      */
-    void setUpDispatchInfo(String status, String value);
+    void setUpDispatchInfo(String status, String value,String companyId);
 
     /**
      * 设置用车往返等时长（单位分钟）
      * @param status
      * @param value
      */
-    void setUpWaitMaxMinute(String status, String value);
+    void setUpWaitMaxMinute(String status, String value,String companyId);
 
     /**
      * 获取行程确认/异议 开关状态(0:自动,1手动)

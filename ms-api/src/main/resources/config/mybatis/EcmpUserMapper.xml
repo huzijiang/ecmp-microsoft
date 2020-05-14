@@ -28,10 +28,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="itIsDriver"    column="it_is_driver"    />
         <result property="itIsDispatcher"    column="it_is_dispatcher"    />
          <result property="jobNumber"    column="job_number"    />
+        <result property="stationCode"    column="station_code"    />
     </resultMap>
 
     <sql id="selectEcmpUserVo">
-        select user_id, dept_id, owner_company, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, del_flag, login_ip, login_date, create_by, create_time, update_by, update_time, remark,it_is_dispatcher,it_is_driver,job_number from ecmp_user
+        select user_id, dept_id, owner_company, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, del_flag, station_code,login_ip, login_date, create_by, create_time, update_by, update_time, remark,it_is_dispatcher,it_is_driver,job_number from ecmp_user
     </sql>
 
     <select id="selectEcmpUserList" parameterType="com.hq.ecmp.mscore.domain.EcmpUser" resultMap="EcmpUserResult">

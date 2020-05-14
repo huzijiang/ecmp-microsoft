@@ -253,4 +253,11 @@ public interface DriverInfoMapper
     List<DriverOrderVo> driverWorkOrderList(@Param("carGroupId")Long carGroupId,@Param("date")String date,@Param("search")String search);
 
     Long driverWorkOrderListCount(@Param("carGroupId")Long carGroupId,@Param("date")String date,@Param("search")String search);
+
+    /**
+     * 补单获取驾驶员列表
+     * @param driverInfo
+     * @return
+     */
+    List<DriverInfo> supplementObtainDriver(DriverInfo driverInfo);
 }
