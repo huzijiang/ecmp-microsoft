@@ -691,4 +691,19 @@ public class OrderController {
             return  ApiResponse.error("更换车辆失败");
         }
     }
+    /***
+     * add by liuzb (一键报警获取当前订单乘车信息)
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "获取乘车信息",httpMethod = "POST")
+    @RequestMapping("/getCarMessage")
+    public ApiResponse<OrderInfoMessage> getCarMessage(Long orderId){
+        try {
+            return ApiResponse.success(iOrderInfoService.getMessage(orderId));
+        }catch (Exception e){
+            logger.error("获取乘车信息异常");
+        }
+        return  ApiResponse.error("获取乘车信息失败");
+    }
 }

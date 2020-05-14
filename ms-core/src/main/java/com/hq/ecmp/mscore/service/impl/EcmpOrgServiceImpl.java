@@ -1,9 +1,13 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.MacTools;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
@@ -21,20 +25,22 @@ import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.vo.*;
 
+import com.hq.ecmp.util.GsonUtils;
+import com.hq.ecmp.util.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Type;
 import java.security.acl.Owner;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+import static com.hq.common.core.api.ApiResponse.SUCCESS_CODE;
 import static com.hq.ecmp.constant.CommonConstant.DEPT_TYPE_ORG;
 import static com.hq.ecmp.constant.CommonConstant.SWITCH_ON;
 
@@ -71,6 +77,12 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     private EcmpRoleMapper ecmpRoleMapper;
     @Autowired
     private EcmpConfigMapper ecmpConfigMapper;
+    @Value("${thirdService.apiUrl}") // 三方平台的接口前地址
+    private String apiUrl;
+    @Value("${thirdService.enterpriseId}") // 企业编号
+    private String enterpriseId;
+    @Value("${thirdService.licenseContent}") // 企业证书信息
+    private String licenseContent;
     /**
      * 显示公司组织结构
      *
@@ -458,7 +470,26 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         EcmpOrg parentOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpOrgVo.getParentId());
         String ancestors=parentOrg.getAncestors()+","+ecmpOrgVo.getParentId();
         ecmpOrgVo.setAncestors(ancestors);
+        if(ecmpOrgVo.getItIsIndependent().equals("Y000")){
+            ecmpOrgVo.setStatus(EcmpOrgVo.statusEnum.CLOUD.getCode());
+        }else{
+            ecmpOrgVo.setStatus(EcmpOrgVo.statusEnum.OK.getCode());
+        }
         int iz = ecmpOrgMapper.addDept(ecmpOrgVo);
+        if(ecmpOrgVo.getItIsIndependent().equals("Y000")){
+            //云端独立核算
+            Map map = new HashMap();
+            // MAC地址
+            List<String> macList = MacTools.getMacList();
+            String macAdd = macList.get(0);
+            map.put("companyName",ecmpOrgVo.getDeptName());
+            map.put("enterpriseId",enterpriseId);
+            map.put("itIsIndependent","");
+            map.put("licenseContent",licenseContent);
+            map.put("mac",macAdd);
+            map.put("orgId",ecmpOrgVo.getDeptId());
+            uploadIndependentCompanyApply(map);
+        }
         if (CommonConstant.DEPT_TYPE_ORG.equals(ecmpOrgVo.getDeptType())){//公司
             if (!flag){//公司主管不存在
                 //新建公司主管
@@ -1010,5 +1041,52 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             }
         }
         return ecmpUserInfoDto;
+    }
+
+
+    //上传企业审核信息
+    private void uploadIndependentCompanyApply(Map map){
+        try {
+            String resultJSON =  OkHttpUtil.postForm(apiUrl+"/independentCompany/uploadIndependentCompanyApply",map);
+            Type type = new TypeToken<ApiResponse>() {
+            }.getType();
+            GsonUtils.jsonToBean(resultJSON, type);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //定时任务接口，查询云端审核状态，更新状态
+    @Override
+    public void selectIndependentCompanyApplyState() throws Exception {
+        EcmpOrg ecmpOrg = new EcmpOrg();
+        ecmpOrg.setStatus(EcmpOrgVo.statusEnum.CLOUD.getCode());
+        // MAC地址
+        List<String> macList = MacTools.getMacList();
+        String macAdd = macList.get(0);
+        ecmpOrgMapper.selectEcmpOrgList(ecmpOrg).stream().forEach(x->{
+            Map map = new HashMap();
+            map.put("enterpriseId",enterpriseId);
+            map.put("licenseContent",licenseContent);
+            map.put("mac",macAdd);
+            map.put("orgId",x.getDeptId());
+            try {
+                String resultJSON = OkHttpUtil.postForm(apiUrl+"/independentCompany/selectIndependentCompanyApplyState",map);
+                Type type = new TypeToken<ApiResponse>() {
+                }.getType();
+                ApiResponse apiResponse = GsonUtils.jsonToBean(resultJSON, type);
+                if(apiResponse.getMsg().equals("success")) {
+                    LinkedTreeMap linkedTreeMap = ((LinkedTreeMap) apiResponse.getData());
+                    if("Y000".equals(linkedTreeMap.get("state"))){
+                        EcmpOrgVo ecmpOrgVo = new EcmpOrgVo();
+                        ecmpOrgVo.setDeptId(x.getDeptId());
+                        ecmpOrgVo.setStatus(EcmpOrgVo.statusEnum.OK.getCode());
+                        ecmpOrgMapper.updateEcmpOrg(ecmpOrgVo);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
