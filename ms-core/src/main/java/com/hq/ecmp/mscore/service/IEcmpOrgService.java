@@ -268,4 +268,6 @@ public interface IEcmpOrgService
      * @return
      */
     EcmpUserInfoDto getUserLatestDeptInfoByUserId(Long userId);
+
+    void selectIndependentCompanyApplyState() throws Exception;
 }
