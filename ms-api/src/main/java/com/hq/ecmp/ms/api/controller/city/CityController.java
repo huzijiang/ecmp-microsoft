@@ -1,16 +1,27 @@
 package com.hq.ecmp.ms.api.controller.city;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.reflect.TypeToken;
+import com.hq.common.utils.OkHttpUtil;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.mscore.bo.CityHistoryAddress;
+import com.hq.ecmp.mscore.dto.CityDto;
 import com.hq.ecmp.mscore.service.ChinaCityService;
+import com.hq.ecmp.mscore.service.CityHistoryAddressService;
 import com.hq.ecmp.mscore.service.ThirdService;
 
+import com.hq.ecmp.util.GsonUtils;
+import com.hq.ecmp.util.MacTools;
 import org.etsi.uri.x01903.v13.impl.CertIDTypeImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.core.api.ApiResponse;
@@ -23,6 +34,8 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/city")
 public class CityController {
+
+	private  static final Logger logger = LoggerFactory.getLogger(CityController.class);
 
 	@Autowired
 	private ChinaCityService cityService;
@@ -51,7 +64,7 @@ public class CityController {
 
 	@ApiOperation(value = "getCityByNameAndRegimeId", notes = "据制度id和城市名称模糊搜索城市列表 ", httpMethod = "POST")
 	@PostMapping("/getCityByNameAndRegimeId")
-	public ApiResponse<List<CityInfo>> getCityByNameAndRegimeId(@RequestParam("regimenId") Long regimenId,@RequestParam("cityName") String cityName) {
+	public ApiResponse<List<CityInfo>> getCityByNameAndRegimeId(@RequestParam("regimenId") Long regimenId, @RequestParam("cityName") String cityName) {
 		return ApiResponse.success(cityService.queryCityInfoListByCityName(cityName,regimenId));
 	}
 	
