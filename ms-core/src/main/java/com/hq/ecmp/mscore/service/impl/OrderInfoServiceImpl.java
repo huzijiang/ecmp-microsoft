@@ -132,7 +132,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Resource
     private CarGroupInfoMapper carGroupInfoMapper;
     @Resource
-
+    private ApplyUseCarTypeMapper applyUseCarTypeMapper;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -852,6 +852,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 vo.setIsExcess(ONE);
                 vo.setExcessMoney(overMoney);
             }
+            List<ThridCarTypeVo> onlienCarType = thirdService.getOnlienCarType();
+            if (!CollectionUtils.isEmpty(onlienCarType)){
+                String demandCarLevel = orderInfo.getDemandCarLevel();
+                String carPhoto = onlienCarType.stream().filter(p -> p.getValue().equals(demandCarLevel)).map(ThridCarTypeVo::getRemark).toString();
+                vo.setCarPhoto(carPhoto);
+            }
         }
         OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderId);
         if (orderPayInfo != null) {
@@ -860,8 +866,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         if (OrderState.endServerStates().contains(orderStateTraceInfo.getState())){
             // TODO 开发发版放开
-//            List<OrderHistoryTraceDto> orderHistoryTrace = this.getOrderHistoryTrace(orderId);
-//            vo.setHistoryTraceList(orderHistoryTrace);
+            List<OrderHistoryTraceDto> orderHistoryTrace = this.getOrderHistoryTrace(orderId);
+            vo.setHistoryTraceList(orderHistoryTrace);
         }
         return vo;
     }
@@ -1049,16 +1055,34 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(userIdOrder);
             paramMap.put("riderName",ecmpUser.getUserName());
             paramMap.put("riderPhone",ecmpUser.getPhonenumber());
+            List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfo);
             if(carLevel != null && !carLevel.equals("") &&  !carLevel.equals("null")){
                 paramMap.put("groupIds",carLevel);
             }else{
-                String groups = regimeInfoService.queryCarModeLevel(orderId, null);
-                if(groups == null){
-                    throw new Exception("调用网约车下单前通过订单id"+orderId+"获取车型失败");
+//                String groups = regimeInfoService.queryCarModeLevel(orderId, null);
+                String groups="";
+                String startCity="";
+                List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfoOld.getJourneyId()));
+                Long applyId=null;
+                if (!CollectionUtils.isEmpty(applyInfos)){
+                    applyId=applyInfos.get(0).getApplyId();
+                    startCity=orderAddressInfos.stream().filter(p->p.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT)).map(OrderAddressInfo::getCityPostalCode).toString();
+                    List<ApplyUseCarType> applyUseCarTypes = applyUseCarTypeMapper.selectApplyUseCarTypeList(new ApplyUseCarType(applyId, startCity));
+                    if (!CollectionUtils.isEmpty(applyUseCarTypes)){
+                        ApplyUseCarType applyUseCarType = applyUseCarTypes.get(0);
+                        if (StringUtils.isNotEmpty(applyUseCarType.getOnlineCarType())){
+                            groups+=","+applyUseCarType.getOnlineCarType();
+                        }
+                        if (StringUtils.isNotEmpty(applyUseCarType.getShuttleOnlineCarType())){
+                            groups+=","+applyUseCarType.getOnlineCarType();
+                        }
+                    }
                 }
-                paramMap.put("groupIds",groups);
+                if(StringUtils.isEmpty(groups)){
+                    throw new Exception("调用网约车下单前通过订单id"+orderId+"城市"+startCity+"网约车型为空");
+                }
+                paramMap.put("groupIds",groups.substring(1));
             }
-            List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfo);
             for (int i = 0; i < orderAddressInfos.size() ; i++) {
                 OrderAddressInfo orderAddressInfo1 = orderAddressInfos.get(i);
                 //出发地址

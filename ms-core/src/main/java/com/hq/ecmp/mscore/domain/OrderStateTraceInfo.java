@@ -54,7 +54,8 @@ public class OrderStateTraceInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Long oldCarId;
 
-
+    /*非数据库字段   只用传参*/
+    private String itIsSupplement;
 
 
 
