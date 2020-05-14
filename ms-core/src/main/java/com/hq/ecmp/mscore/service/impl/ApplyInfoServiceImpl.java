@@ -982,14 +982,14 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(Long.valueOf(regimenId));
             String needApprovalProcess = regimenVO.getNeedApprovalProcess();
             //1.初始化审批流
+            initOfficialApproveFlow(applyId, userId, regimenId);
             if(NeedApproveEnum.NEED_NOT_APPROVE.getKey().equals(needApprovalProcess)){
-                initOfficialApproveFlow(applyId, userId, regimenId);
-                //如果不需要审批 则 初始化权限和初始化订单
+                // 初始化权限和初始化订单
                 initPowerAndOrder(journeyId, applyType, applyId, userId);
             }else {
                 //----------------- 如果需要审批  则1. 调用初始化审批流方法 2.给审批人发送通知，给自己发送通知 3.给审批人发送短信
                 //2.给审批人和自己发通知 并给审批人发短信
-                if(officialCommitApply.getDistinguish().equals("0")){
+                if("0".equals(officialCommitApply.getDistinguish())){
                     applyApproveResultInfoMapper.updateApproveState(applyId, ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey(),ApproveStateEnum.APPROVE_PASS.getKey());
                 }else {
                     sendNoticeAndMessage(officialCommitApply, applyId, userId);
