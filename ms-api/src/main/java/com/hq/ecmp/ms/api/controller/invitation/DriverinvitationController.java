@@ -9,20 +9,25 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.InvitionStateEnum;
 import com.hq.ecmp.ms.api.dto.base.InviteDto;
+import com.hq.ecmp.mscore.domain.DriverNatureInfo;
 import com.hq.ecmp.mscore.domain.DriverQueryResult;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInvitationInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo;
 import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.mapper.DriverNatureInfoMapper;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseInvitationInfoService;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,6 +39,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/invDriver")
 public class DriverinvitationController {
+
+    private static final Logger logger = LoggerFactory.getLogger(DriverinvitationController.class);
+
     @Autowired
     private EcmpEnterpriseInvitationInfoService ecmpEnterpriseInvitationInfoService;
     @Autowired
@@ -42,6 +50,8 @@ public class DriverinvitationController {
     private IDriverInfoService iDriverInfoService;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private DriverNatureInfoMapper driverNatureInfoMapper;
 
 
 
@@ -66,6 +76,12 @@ public class DriverinvitationController {
             userUrl.setUrl(url);
             userUrl.setInvitationId(invitationId);
             ecmpEnterpriseInvitationInfoService.updateInvitationUrl(userUrl);
+            addDriverNatureInfo(invitationId,driverInvitationDTO.getDriverNature(),
+                    driverInvitationDTO.getHireBeginTime(),
+                    driverInvitationDTO.getHireBeginTime(),
+                    driverInvitationDTO.getBorrowBeginTime(),
+                    driverInvitationDTO.getBorrowEndTime());
+
             return ApiResponse.success(invitationUrlVO);
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,6 +89,34 @@ public class DriverinvitationController {
         }
 
 
+    }
+
+
+    /***
+     *
+     * @param driverId
+     * @param driverNature
+     * @param hireBeginTime
+     * @param hireEndTime
+     * @param borrowBeginTime
+     * @param borrowEndTime
+     * @return
+     */
+    private int addDriverNatureInfo(Long driverId, String  driverNature, Date hireBeginTime,
+                                    Date hireEndTime, Date borrowBeginTime, Date borrowEndTime){
+        try{
+            DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
+            driverNatureInfo.setDriverId(driverId);
+            driverNatureInfo.setDriverNature(driverNature);
+            driverNatureInfo.setHireBeginTime(hireBeginTime);
+            driverNatureInfo.setHireEndTime(hireEndTime);
+            driverNatureInfo.setBorrowBeginTime(borrowBeginTime);
+            driverNatureInfo.setBorrowEndTime(borrowEndTime);
+            return driverNatureInfoMapper.addDriverNatureInfo(driverNatureInfo);
+        }catch(Exception e){
+            logger.error("addDriverNatureInfo error",e);
+        }
+        return 0;
     }
 
       /**

@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.JourneyVO;
@@ -96,4 +97,38 @@ public interface JourneyInfoMapper
      * @return 个数
      */
     public int getWhetherJourney(Long userId);
+
+
+    /***
+     * add by liuz 可以开发票的行程数据，或已开发票的行程数据
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    List<InvoiceAbleItineraryData> getInvoiceAbleItinerary(Long userId)throws Exception;
+
+
+    /***
+     *
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    List<InvoiceAbleItineraryData> getInvoiceAbleItineraryHistory(Long userId)throws Exception;
+
+
+    /***
+     *
+     * @param invoiceId
+     * @return
+     * @throws Exception
+     */
+    Integer getInvoiceItineraryCount(Long invoiceId)throws Exception;
+
+    /***
+     *
+     * @param accountId
+     * @return
+     */
+    List<InvoiceAbleItineraryData> getInvoiceAbleItineraryHistoryKey(Long accountId)throws Exception;
 }

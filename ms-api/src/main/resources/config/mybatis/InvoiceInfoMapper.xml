@@ -22,6 +22,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+        <result property="email"    column="email"    />
+        <result property="invoiceUrl"    column="invoice_url"    />
     </resultMap>
 
     <sql id="selectInvoiceInfoVo">
@@ -41,7 +43,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="tin != null  and tin != ''">tin,</if>
             <if test="content != null  and content != ''">content,</if>
             <if test="type != null  and type != ''">type,</if>
-            <if test="companyId != null  and companyId != ''">company_id,</if>
             <if test="acceptAddress != null  and acceptAddress != ''">accept_address,</if>
             <if test="status != null  and status != ''">status,</if>
             <if test="createTime != null ">create_time,</if>
@@ -52,11 +53,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="tin != null  and tin != ''">#{tin},</if>
             <if test="content != null  and content != ''">#{content},</if>
             <if test="type != null  and type != ''">#{type},</if>
-            <if test="companyId != null  and companyId != ''">#{companyId},</if>
             <if test="acceptAddress != null  and acceptAddress != ''">#{acceptAddress},</if>
             <if test="status != null  and status != ''">#{status},</if>
             <if test="createTime != null ">#{createTime},</if>
-         </trim>
+            <if test="bankName != null ">#{bankName},</if>
+            <if test="bankCardNo != null ">#{bankCardNo},</if>
+            <if test="telephone != null ">#{telephone},</if>
+            <if test="registedAddress != null ">#{registedAddress},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="email != null ">#{email},</if>
+        </trim>
 
     </insert>
 
@@ -97,11 +103,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryInvoiceById" resultType="com.hq.ecmp.mscore.vo.InvoiceRecordVO"  parameterType="Long">
         select create_time as createTime,header as header,amount as amount, content as content,tin as tin,
         accept_address as acceptAddress,
-        case type when '2000' then '增值税专用电子发票'
-        else '无发票类型' END as type,
-        CASE status WHEN '11' THEN '未开票'
-        WHEN '00' THEN '已开票'
-        else '无开票状态' END as status
+       bank_name as bankName,
+       bank_card_no as bankCardNo,
+       telephone ,
+       email ,
+       registed_address as  registedAddress,
+       invoice_url as invoiceUrl
         from invoice_info where invoice_id = #{invoiceId}
     </select>
     <!--根据时间区间、开票状态查询发票信息-->
@@ -121,9 +128,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
             <if test="status != null and status != '' ">
                 and status = #{status}
-            </if>
-            <if test="companyId != null and companyId != '' ">
-                and company_id = #{companyId}
             </if>
         </where>
     </select>
@@ -146,7 +150,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into invoice_header_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="header != null  and header != ''">header,</if>
-            <if test="companyId != null  and companyId != ''">company_id,</if>
             <if test="tin != null  and tin != ''">tin,</if>
             <if test="bankName != null  and bankName != ''">bank_name,</if>
             <if test="bankCardNo != null  and bankCardNo != ''">bank_card_no,</if>
@@ -156,7 +159,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="header != null  and header != ''">#{header},</if>
-            <if test="companyId != null  and companyId != ''">#{companyId},</if>
             <if test="tin != null  and tin != ''">#{tin},</if>
             <if test="bankName != null  and bankName != ''">#{bankName},</if>
             <if test="bankCardNo != null  and bankCardNo != ''">#{bankCardNo},</if>

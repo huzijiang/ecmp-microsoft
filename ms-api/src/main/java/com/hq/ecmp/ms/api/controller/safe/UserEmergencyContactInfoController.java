@@ -7,6 +7,8 @@ import com.hq.ecmp.mscore.domain.UserEmergencyContactInfo;
 import com.hq.ecmp.mscore.service.UserEmergencyContactInfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +26,8 @@ import java.util.List;
 @RequestMapping("/userEmergencyContactInfo")
 @Api(description = "用户紧急联系人")
 public class UserEmergencyContactInfoController {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserEmergencyContactInfoController.class);
     /**
      * 服务对象
      */
@@ -116,4 +120,19 @@ public class UserEmergencyContactInfoController {
         List<UserEmergencyContactInfo> list =  userEmergencyContactInfoService.queryByUserId(userId);
         return ApiResponse.success(list);
     }
+
+
+    @ApiOperation(value = "编辑短信报警", notes = "编辑短信报警")
+    @RequestMapping(value = "/callThepolice", method = RequestMethod.POST)
+    public ApiResponse<String> callThepolice(Long orderId,String address){
+        Long userId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId();
+        String phonenumber = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getPhonenumber();
+        try {
+            return ApiResponse.success(userEmergencyContactInfoService.callThepolice(userId,phonenumber,orderId,address));
+        } catch (Exception e) {
+            logger.error("编辑短信报警异常",e);
+        }
+        return ApiResponse.error("编辑短信报警异常");
+    }
+
 }

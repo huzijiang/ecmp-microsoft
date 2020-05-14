@@ -167,11 +167,4 @@ public interface IDriverInfoService
      * @return
      */
     PageResult driverWorkOrderList(PageRequest pageRequest);
-
-    /**
-     * 补单获取驾驶员列表
-     * @param driverInfo
-     * @return
-     */
-    List<DriverInfo> supplementObtainDriver(DriverInfo driverInfo);
 }

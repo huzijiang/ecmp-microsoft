@@ -35,5 +35,14 @@ public class DriverInvitationDTO {
     private String type;
     @ApiParam(name = "apiUrl", value = "域名")
     private String apiUrl;
-
+    @ApiParam(name = "driverNature", value = "驾驶员性质")
+    String driverNature;
+    @ApiParam(name = "hireBeginTime", value = "外聘驾驶员开始日期")
+    Date hireBeginTime;
+    @ApiParam(name = "hireEndTime", value = "外聘驾驶员结束日期")
+    Date hireEndTime;
+    @ApiParam(name = "borrowBeginTime", value = "借调开始日期")
+    Date borrowBeginTime;
+    @ApiParam(name = "borrowEndTime", value = "借调结束日期")
+    Date borrowEndTime;
 }

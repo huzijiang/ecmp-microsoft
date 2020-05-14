@@ -127,11 +127,11 @@ public class ScheduledTask {
 		long end = System.currentTimeMillis();
 		log.info("定时任务:checkCarState:校验车辆状态结束,{}，耗时：{}",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()),end-start);
 	}
-    
-    
+
+
 	/**
 	 * 自动调度 每五分钟一次
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Scheduled(cron = "0 */5 * * * ?")
@@ -179,7 +179,7 @@ public class ScheduledTask {
 										orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
 												null);
 									}else{
-										redisUtil.delKey(redisLockKey);	
+										redisUtil.delKey(redisLockKey);
 									}
 									continue;
 								}
@@ -192,7 +192,7 @@ public class ScheduledTask {
 										orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
 												null);
 									}else{
-										redisUtil.delKey(redisLockKey);	
+										redisUtil.delKey(redisLockKey);
 									}
 									continue;
 								}
@@ -228,7 +228,7 @@ public class ScheduledTask {
 		}
 
 	}
-    
+
 
     //后台公告管理通过发布时间与结束时间做状态修改
 	@Scheduled(cron = "0 0/1 * * * ? ")

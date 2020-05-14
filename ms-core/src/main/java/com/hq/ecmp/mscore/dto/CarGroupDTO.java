@@ -44,6 +44,9 @@ public class CarGroupDTO {
     @ApiModelProperty(name = "city", value = "归属城市编码")
     private String city;
 
+    @ApiModelProperty(name = "owneCompany", value = "归属城市编码")
+    private  Long owneCompany;
+
   //  @ApiModelProperty(name = "cityName", value = "归属城市名字")
   // private String cityName;
 
