@@ -122,24 +122,9 @@ public class WxPayController {
                 OrderInfo orderInfo = new OrderInfo();
                 orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
                 orderInfo.setState(OrderState.ORDERCLOSE.getState());
-                OrderInfo orderInfo1 = iOrderInfoService.selectOrderInfoById(orderPayInfoByPayId.getOrderId());
-                if(null != orderInfo1){
-                    int i = iOrderInfoService.updateOrderInfo(orderInfo);
-                    if(1 == i){
-                        log.info("订单信息表修改成功");
-                    }else{
-                        log.info("订单信息表修改失败");
-                    }
-                }else{
-                    log.info("该订单不存在");
-                }
+                iOrderInfoService.updateOrderInfo(orderInfo);
                 OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderPayInfoByPayId.getOrderId(), OrderState.ORDERCLOSE.getState());
-                int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-                if(1 ==j){
-                    log.info("订单轨迹表修改成功");
-                }else{
-                    log.info("订单轨迹表修改失败");
-                }
+                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
                 //插入订单支付表
                 OrderPayInfo orderPayInfo = new OrderPayInfo();
                 orderPayInfo.setPayId(result.getOutTradeNo());
@@ -165,7 +150,7 @@ public class WxPayController {
                 orderPayInfo.setCreateTime(DateUtils.getNowDate());
                 int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
                 if(1 == k){
-                    log.info("订单支付表----- 信息已更新");
+                    log.info("订单信息已更新!!!!!!!!!!!!!!!!!!");
                 }
             }else{
                 log.info("该订单已支付");

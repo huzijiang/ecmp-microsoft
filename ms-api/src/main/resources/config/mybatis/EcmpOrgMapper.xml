@@ -156,6 +156,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null  and createBy != ''">update_by,</if>
             <if test="updateTime != null  ">update_time,</if>
+            <if test="itIsIndependent != null  ">it_is_independent,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="parentId != null ">#{parentId},</if>
@@ -174,6 +175,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null  and createBy != ''">#{updateBy}</if>
             <if test="updateTime != null ">#{updateTime},</if>
+            <if test="itIsIndependent != null ">#{itIsIndependent},</if>
         </trim>
     </insert>
     <!--/*
@@ -265,6 +267,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="email != null  and email != ''">email = #{email},</if>
             <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="status != null ">status = #{status},</if>
         </trim>
         where dept_id = #{deptId}
     </update>

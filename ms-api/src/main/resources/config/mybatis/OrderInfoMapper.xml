@@ -188,7 +188,36 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
         </trim>
         where order_id = #{orderId}
     </update>
-
+    <update id="updateOrderInfoNull" parameterType="com.hq.ecmp.mscore.domain.OrderInfo">
+        update order_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="journeyId != null ">journey_id = #{journeyId},</if>
+            <if test="nodeId != null ">node_id = #{nodeId},</if>
+            <if test="powerId != null ">power_id = #{powerId},</if>
+            driver_id = #{driverId},
+            car_id = #{carId},
+            <if test="userId != null ">user_id = #{userId},</if>
+            <if test="useCarMode != null  and useCarMode != ''">use_car_mode = #{useCarMode},</if>
+            <if test="serviceType != null  and serviceType != ''">service_type = #{serviceType},</if>
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="tripartiteOrderId != null  and tripartiteOrderId != ''">tripartite_order_id = #{tripartiteOrderId},</if>
+            <if test="tripartitePlatformCode != null  and tripartitePlatformCode != ''">tripartite_platform_code = #{tripartitePlatformCode},</if>
+            <if test="driverName != null  and driverName != ''">driver_name = #{driverName},</if>
+            <if test="driverMobile != null  and driverMobile != ''">driver_mobile = #{driverMobile},</if>
+            <if test="carLicense != null  and carLicense != ''">car_license = #{carLicense},</if>
+            <if test="flightNumber != null  and flightNumber != ''">flight_number = #{flightNumber},</if>
+            <if test="demandCarLevel != null ">demand_car_level = #{demandCarLevel},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="orderNumber != null ">order_number = #{orderNumber},</if>
+            <if test="carModel != null and carModel != ''">car_model =#{carModel},</if>
+            <if test="carColor != null and carColor != ''">car_color =#{carColor},</if>
+            <if test="driverGrade != null and driverGrade != ''">driver_grade =#{driverGrade},</if>
+        </trim>
+        where order_id = #{orderId}
+    </update>
     <delete id="deleteOrderInfoById" parameterType="Long">
         delete from order_info where order_id = #{orderId}
     </delete>
