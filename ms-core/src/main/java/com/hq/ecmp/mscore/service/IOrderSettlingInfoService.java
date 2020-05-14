@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -67,4 +68,13 @@ public interface IOrderSettlingInfoService
      * @param userId
      */
     int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId,String companyId);
+
+    /**
+     * 格式化自有车费用
+     * @param orderSettlingInfoVo
+     * @param personalCancellationFee
+     * @param enterpriseCancellationFee
+     * @return
+     */
+    String formatCostFee(OrderSettlingInfoVo orderSettlingInfoVo, BigDecimal personalCancellationFee, BigDecimal enterpriseCancellationFee);
 }

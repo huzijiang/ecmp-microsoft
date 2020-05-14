@@ -1046,26 +1046,22 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             a.order_id AS orderId,
             a.journey_id journeyId,
             a.power_id powerId,
-            a.state,
+            '进行中' state,
             a.service_type serviceType,
             a.user_id userId,
             a.driver_id driverId,
-            a.use_car_mode useCarMode,
+            a.use_car_mode canUseCarMode,
             e.address startAddress,
-            DATE_FORMAT(e.action_time, '%m月%d日 %H:%i ') useCarTime,
-            e.longitude startLongitude,
-            e.latitude startLatitude,
+            UNIX_TIMESTAMP(e.action_time) useDate,
             d.address endAddress,
-            d.longitude endLongitude ,
-            d.latitude endLatitude,
             g.charter_car_type charterCarType,
-            (select state from order_state_trace_info sti where sti.order_id=#{orderId} order by sti.trace_id desc limit 1) labelState
-
+            ai.apply_type applyType
         from order_info a
 	        left join journey_info g on g.journey_id=a.journey_id
+	        left join apply_info ai on ai.journey_id=a.journey_id
             left join order_address_info e on e.order_id=a.order_id and e.type='A000'
             left join order_address_info d on d.order_id=a.order_id and d.type='A999'
 
-        where user_id=#{user_id}  and find_id_set(state,#{states})
+        where a.user_id=#{userId}  and find_in_set(a.state,#{states})
     </select>
 </mapper>

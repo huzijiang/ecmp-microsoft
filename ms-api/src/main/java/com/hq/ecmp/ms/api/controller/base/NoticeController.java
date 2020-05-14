@@ -388,10 +388,15 @@ public class NoticeController {
     public ApiResponse<ConfigInfoDTO> query() {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        String companyId = loginUser.getUser().getOwnerCompany().toString();
-        System.out.println("==========="+companyId);
-        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
-        return ApiResponse.success(configInfoDTO);
+        if (loginUser.getUser().getOwnerCompany()!=null){
+            String companyId = loginUser.getUser().getOwnerCompany().toString();
+            System.out.println("==========="+companyId);
+            ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
+            return ApiResponse.success(configInfoDTO);
+        }else{
+            return ApiResponse.error();
+        }
+
     }
 
     /**

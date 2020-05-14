@@ -1,12 +1,10 @@
 package com.hq.ecmp.ms.api.controller.pay;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
-import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.hq.ecmp.constant.OrderPayConstant;
@@ -104,39 +102,11 @@ public class AliPayController {
      * @description  支付回调接口
      */
     @RequestMapping(value = "/ali/v1/callback")
-    public Boolean payNotify(String params,String out_trade_no, String trade_no, String total_amount) {
-        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
-        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
+    @ResponseBody
+    public String payNotify(String out_trade_no, String trade_no, String total_amount) {
         log.info("已经进入支付宝支付回调接口");
-//        Map<String, String> params = new HashMap<String, String>();
-//        Map requestParams = request.getParameterMap();
-//        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext(); ) {
-//            String name = (String) iter.next();
-//            String[] values = (String[]) requestParams.get(name);
-//            String valueStr = "";
-//            for (int i = 0; i < values.length; i++) {
-//                valueStr = (i == values.length - 1) ? valueStr + values[i]
-//                        : valueStr + values[i] + ",";
-//            }
-//            //乱码解决，这段代码在出现乱码时使用。
-//            valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
-//            params.put(name, valueStr);
-//        }
-        log.info("回调接口，重要参数：---" + params);
-        HashMap param = JSON.parseObject(params, HashMap.class);
-        log.info("回调接口，重要参数：---" + param);
-        //支付宝公钥
-        String alipayPublicKey = AlipayConfig.ALIPAY_PUBLIC_KEY;
-        //字符编码
-        String charset = AlipayConfig.CHARSET;
-        boolean flag = false;
         try {
-            flag = AlipaySignature.rsaCheckV1(param, alipayPublicKey, charset, "RSA2");
-            if(flag){
                 log.info("支付宝回调签名认证成功");
-//                String out_trade_no = request.getParameter("out_trade_no");
-//                String trade_no = request.getParameter("trade_no");
-//                String total_amount = request.getParameter("total_amount");
                 log.info("支付宝回调获取到的订单号为："+out_trade_no);
                 log.info("支付宝回调获取到的流水号为："+trade_no);
                 log.info("支付宝回调获取到的金额为："+total_amount);
@@ -168,11 +138,14 @@ public class AliPayController {
                     orderPayInfo.setState(OrderPayConstant.PAID);
                     orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
                     orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_ALI);
-//                orderPayInfo.setChannelRate(0.01);
-//            orderPayInfo.setAmount(Long.valueOf(result.getTotalFee()));
+                    orderPayInfo.setChannelRate(new BigDecimal(OrderPayConstant.ALI_CHANNEL_RATE));
                     orderPayInfo.setAmount(new BigDecimal(total_amount));
-//                orderPayInfo.setChannelAmount(1L);
-//                orderPayInfo.setArriveAmount(9L);
+                    //渠道费
+                    BigDecimal channelAmount = new BigDecimal(OrderPayConstant.WX_CHANNEL_RATE).multiply(new BigDecimal(total_amount));
+                    orderPayInfo.setChannelAmount(channelAmount);
+                    //到账金额
+                    BigDecimal arriveAmount = new BigDecimal(total_amount).subtract(channelAmount);
+                    orderPayInfo.setArriveAmount(arriveAmount);
                     orderPayInfo.setCreateTime(new Date());
                     int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
                     if(1 == k){
@@ -181,48 +154,12 @@ public class AliPayController {
                 }else{
                     log.info("该订单已支付");
                 }
-            }else{
-                log.info("支付宝回调签名认证失败");
-            }
-        } catch (AlipayApiException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             log.info("支付宝回调失败，错误原因为："+e);
             log.info("支付宝回调失败，错误原因为："+e.getMessage());
         }
-        log.info("支付回调标志" + flag);
-        return flag;
-    }
-
-    public static void main(String[] args) {
-        String ss = "{gmt_create=2020-05-13 10:45:02, charset=UTF-8, seller_email=finance@hqzhuanche.com, subject=????????????0.01?, sign=a2OB8HybgRqL/ydKZrrc6yABOgwqbl+8rAJxO64n8hVHezreyNbxVpxby8TToQN3tA+lYiiaX45KG8N38FX2sI94jvnW7H9+UgmI0CCS+UlogSjcB9yQAgRZj7zEjTxilfh35VvLGJRIREghi1XyeBA05T838faVnEMm+rkEEZhf/kNtbo6rS56wPQ9sJ3hIHFzmlfcwe29u99KrqHnsvIcggxwiIv0/NEOUSjpnysk74i2Z/5VGMH06rwqDdOHCP6pAofjhb6M1qSqz59/kae9cqK3eNjj3R8TCNlVMNzF+0ThAVSY9TY0rWp5ydD6/ai21E+oiNCNPxuPhzCB7gg==, buyer_id=2088912325951133, invoice_amount=0.01, notify_id=2020051300222104502051131436917297, fund_bill_list=[{\"amount\":\"0.01\",\"fundChannel\":\"PCREDIT\"}], notify_type=trade_status_sync, trade_status=TRADE_SUCCESS, receipt_amount=0.01, app_id=2021001160623612, buyer_pay_amount=0.01, sign_type=RSA2, seller_id=2088331209193267, gmt_payment=2020-05-13 10:45:02, notify_time=2020-05-13 10:59:06, version=1.0, out_trade_no=2we98yuirplkjkgf9sggx84d3d13f6e5, total_amount=0.01, trade_no=2020051322001451131455923791, auth_app_id=2021001160623612, buyer_logon_id=182****5671, point_amount=0.00}";
-        Map map =  getStringToMap(ss);
-        System.out.println(map);
-    }
-
-    public static Map<String,String> getStringToMap(String str){
-        //感谢bojueyou指出的问题
-        //判断str是否有值
-        if(null == str || "".equals(str)){
-            return null;
-        }
-        //根据&截取
-        String[] strings = str.split("&");
-        //设置HashMap长度
-        int mapLength = strings.length;
-        //判断hashMap的长度是否是2的幂。
-        if((strings.length % 2) != 0){
-            mapLength = mapLength+1;
-        }
-
-        Map<String,String> map = new HashMap<>(mapLength);
-        //循环加入map集合
-        for (int i = 0; i < strings.length; i++) {
-            //截取一组字符串
-            String[] strArray = strings[i].split("=");
-            //strArray[0]为KEY  strArray[1]为值
-            map.put(strArray[0],strArray[1]);
-        }
-        return map;
+        return "success";
     }
 }
 

@@ -15,10 +15,7 @@ import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderSettlingInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
-import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.service.IOrderPayInfoService;
-import com.hq.ecmp.mscore.service.OrderInfoTwoService;
+import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.CancelOrderCostVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
 import com.hq.ecmp.mscore.vo.RunningOrderVo;
@@ -62,11 +59,13 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
     @Autowired
     private IOrderInfoService orderInfoService;
     @Resource
-    private OrderSettlingInfoMapper orderSettlingInfoMapper;
+    private IOrderSettlingInfoService orderSettlingInfoService;
     @Resource
     private IOrderPayInfoService iOrderPayInfoService;
     @Resource
     private JourneyInfoMapper journeyInfoMapper;
+    @Resource
+    private ThirdService thirdService;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -102,14 +101,14 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         boolean opType=true;
         int intState=Integer.parseInt(state.substring(1));
         //校验是否超过用车时间
-        //超时
         //未派车(无车无司机)
         if (intState < Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1))) {
             int i = this.ownerCarCancel(orderId, cancelReason, orderStateVO.getUserId());
         } else if (intState >= Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1)) &&
                 intState < Integer.parseInt(OrderState.INSERVICE.getState().substring(1))) {
             //待服务(有车有司机)
-            if (CarConstant.USR_CARD_MODE_HAVE .equals(orderStateVO.getUseCarMode())){//自由车带服务取消
+            if (CarConstant.USR_CARD_MODE_HAVE .equals(orderStateVO.getUseCarMode())){
+                //自由车带服务取消
                 int i = this.ownerCarCancel(orderId, cancelReason, orderStateVO.getUserId());
                 if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(orderStateVO.getApplyType())){//公务
                     if (DateFormatUtils.compareDayAndTime(useCarDate,DateUtils.getNowDate()) == 1) {
@@ -118,10 +117,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
                     }
                 }
             }else{//网约车带服务的取消
-                JSONObject jsonObject = this.threeCancelServer(orderId, cancelReason);
+                JSONObject jsonObject = thirdService.threeCancelServer(orderId, cancelReason);
                 BigDecimal cancelFee1 = jsonObject.getDouble("cancelFee")==null?BigDecimal.ZERO:BigDecimal.valueOf(jsonObject.getDouble("cancelFee"));
                 if (cancelFee1.compareTo(BigDecimal.ZERO)<=0){
-                    //不需要支付取消费
+                    //个人不需要支付取消费
                     if (DateFormatUtils.compareDayAndTime(useCarDate,DateUtils.getNowDate()) == 1) {
                         this.onlineCarCancel(orderId, cancelReason, orderStateVO.getUserId(),BigDecimal.ZERO,BigDecimal.ZERO,BigDecimal.ZERO);
                         //公务网约车待服务取消超时无需支付取消费后  权限消失
@@ -175,6 +174,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         return orderInfoMapper.getRunningOrder(userId,states);
     }
 
+    /**自有车取消订单**/
     private int ownerCarCancel(Long orderId,String cancelReason,Long userId) throws Exception{
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setState(OrderState.ORDERCLOSE.getState());
@@ -186,6 +186,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         return suc;
     }
 
+    /**网约车取消订单*/
     private OrderPayInfo onlineCarCancel(Long orderId,String cancelReason,Long userId,BigDecimal cancelFee,BigDecimal ownerFee,BigDecimal persionFee) throws Exception{
         int i = this.ownerCarCancel(orderId, cancelReason, userId);
         if (i!=ONE){
@@ -193,32 +194,13 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         }
         OrderPayInfo orderPayInfo=null;
         if (cancelFee!=null&&cancelFee.compareTo(BigDecimal.ZERO)==1){
-            OrderSettling OrderSettling =new OrderSettling();
-            OrderSettling.setEnterpriseCancellationFee(ownerFee);
-            OrderSettling.setPersonalCancellationFee(persionFee);
-            String json= JSON.toJSONString(OrderSettling);
+            String json = orderSettlingInfoService.formatCostFee(new OrderSettlingInfoVo(), persionFee,ownerFee);
             orderPayInfo = iOrderPayInfoService.insertOrderPayAndSetting(orderId, cancelFee, String.valueOf(ZERO), String.valueOf(ZERO), json, userId);
         }
         return orderPayInfo;
     }
 
-    private JSONObject threeCancelServer(Long orderId,String cancelReason)throws Exception{
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("enterpriseId", enterpriseId);
-        paramMap.put("enterpriseOrderId", String.valueOf(orderId));
-        paramMap.put("licenseContent", licenseContent);
-        paramMap.put("mac",  MacTools.getMacList().get(0));
-        paramMap.put("reason", cancelReason);
-        log.info("网约车订单{}取消参数{}",orderId,paramMap);
-        String result = OkHttpUtil.postForm(apiUrl + "/service/cancelOrder", paramMap);
-        log.info("网约车订单{}取消返回结果{}",orderId,result);
-        JSONObject jsonObject = JSONObject.parseObject(result);
-        if (ApiResponse.SUCCESS_CODE != jsonObject.getInteger("code")) {
-            throw new Exception("调用三方取消订单服务-》取消失败");
-        }
-        return jsonObject.getJSONObject("data");
-    }
-
+    /**插入订单轨迹*/
     private void insertOrderStateTraceInfo(Long orderId,String state,String cancelReason,Long userId){
         OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
         orderStateTraceInfo.setOrderId(orderId);

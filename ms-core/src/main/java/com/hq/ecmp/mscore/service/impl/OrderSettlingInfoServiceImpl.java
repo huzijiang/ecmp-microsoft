@@ -171,13 +171,31 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //计算成本的方法
         CostCalculation calculator = new CostCalculator();
         OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
+        //落库到订单结算信息表
+        String json = this.formatCostFee(orderSettlingInfoVo, BigDecimal.ZERO, BigDecimal.ZERO);
+        orderSettlingInfoVo.setCreateTime(DateUtils.getNowDate());
+        orderSettlingInfoVo.setCreateBy(userId.toString());
+        orderSettlingInfoVo.setAmountDetail(json);
+        orderSettlingInfoVo.setAmount(orderSettlingInfoVo.getAmount().setScale(2,BigDecimal.ROUND_HALF_UP));
+        int i = orderSettlingInfoMapper.insertOrderSettlingInfoOne(orderSettlingInfoVo);
+        if(!orderSettlingInfoVo.getImageUrl().equals(null) && !orderSettlingInfoVo.getImageUrl().equals("")){
+        String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
+            for (String url:imageUrl){
+                orderSettlingInfoVo.setImageUrl(url);
+                orderSettlingInfoMapper.insertOrderSettlingImageInfo(orderSettlingInfoVo);
+            }
+        }
+        return i;
+    }
+
+    @Override
+    public String formatCostFee(OrderSettlingInfoVo orderSettlingInfoVo,BigDecimal personalCancellationFee,BigDecimal enterpriseCancellationFee){
         Map map = new HashMap();
         List list= new ArrayList();
-        //OrderSettling OrderSettling =new OrderSettling();
         //默认个人取消费用为0
-        BigDecimal personalCancellationFee = BigDecimal.ZERO;
+//        BigDecimal personalCancellationFee = BigDecimal.ZERO;
         //默认个人取消费用为0
-        BigDecimal enterpriseCancellationFee = BigDecimal.ZERO;
+//        BigDecimal enterpriseCancellationFee = BigDecimal.ZERO;
         //路桥费
         //OrderSettling.setRoadBridgeFee(orderSettlingInfoVo.getRoadBridgeFee());
         Map roadBridgeFee = new HashMap();
@@ -246,19 +264,6 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         list.add(enterpriseCancellation);
         map.put("otherCost",list);
         String json= JSON.toJSONString(map);
-        //落库到订单结算信息表
-        orderSettlingInfoVo.setCreateTime(DateUtils.getNowDate());
-        orderSettlingInfoVo.setCreateBy(userId.toString());
-        orderSettlingInfoVo.setAmountDetail(json);
-        orderSettlingInfoVo.setAmount(orderSettlingInfoVo.getAmount().setScale(2,BigDecimal.ROUND_HALF_UP));
-        int i = orderSettlingInfoMapper.insertOrderSettlingInfoOne(orderSettlingInfoVo);
-        if(!orderSettlingInfoVo.getImageUrl().equals(null) && !orderSettlingInfoVo.getImageUrl().equals("")){
-        String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
-            for (String url:imageUrl){
-                orderSettlingInfoVo.setImageUrl(url);
-                orderSettlingInfoMapper.insertOrderSettlingImageInfo(orderSettlingInfoVo);
-            }
-        }
-        return i;
+        return json;
     }
 }

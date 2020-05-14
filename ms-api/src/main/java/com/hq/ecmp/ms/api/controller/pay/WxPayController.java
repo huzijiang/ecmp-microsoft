@@ -18,7 +18,6 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,29 +66,29 @@ public class WxPayController {
         String price = jsonObject.getString("price");
         String body = jsonObject.getString("body");
         WxPayAppOrderResult result = null;
-            try {
-                WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
-                //商品描述
-                orderRequest.setBody(body);
-                //商户订单号
-                orderRequest.setOutTradeNo(orderId);
-                //金额
-                orderRequest.setTotalFee(BaseWxPayRequest.yuanToFen(price));//元转成分
-                //ip
-                orderRequest.setSpbillCreateIp(ipAddr);
-                //签名
-                orderRequest.setSign(wxPayService.getSandboxSignKey());
-                //随机字符串
-                String s = PayUtil.makeUUID(32);
-                orderRequest.setNonceStr(s);
-                //统一下单
-                result = wxPayService.createOrder(orderRequest);
-                log.info("微信下单后返回结果为："+result);
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.info("下单失败，错误信息为："+e);
-                log.info("下单失败，错误信息为："+e.getMessage());
-            }
+        try {
+            WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
+            //商品描述
+            orderRequest.setBody(body);
+            //商户订单号
+            orderRequest.setOutTradeNo(orderId);
+            //金额
+            orderRequest.setTotalFee(BaseWxPayRequest.yuanToFen(price));//元转成分
+            //ip
+            orderRequest.setSpbillCreateIp(ipAddr);
+            //签名
+            orderRequest.setSign(wxPayService.getSandboxSignKey());
+            //随机字符串
+            String s = PayUtil.makeUUID(32);
+            orderRequest.setNonceStr(s);
+            //统一下单
+            result = wxPayService.createOrder(orderRequest);
+            log.info("微信下单后返回结果为："+result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("下单失败，错误信息为："+e);
+            log.info("下单失败，错误信息为："+e.getMessage());
+        }
         return result;
     }
 
@@ -99,13 +98,10 @@ public class WxPayController {
      * @description  微信app支付回调接口
      */
     @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST)
-//    public String payNotify(String xmlResult){
-    public String payNotify(HttpServletRequest request){
+    @ResponseBody
+    public String payNotify(String xmlResult){
         log.info("已经进入微信支付回调接口");
         try {
-            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
-            log.info("获取到的数据流为----------"+xmlResult);
-
             log.info("回调接口---重要参数为："+xmlResult);
             WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
             log.info("回调接口---返回结果--result为："+result);
