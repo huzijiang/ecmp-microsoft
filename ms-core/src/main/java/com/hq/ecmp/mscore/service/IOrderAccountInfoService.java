@@ -64,6 +64,7 @@ public interface IOrderAccountInfoService
      */
     public int deleteOrderAccountInfoById(Long accountId);
 
-    List<OrderAccountVO> getAccountList();
-    PageResult<OrderAccountViewVO> getAccountViewList( PageRequest pageRequest);
+    List<OrderAccountVO> getAccountList(Long companyId);
+
+    PageResult<OrderAccountViewVO> getAccountViewList( PageRequest pageRequest,Long companyId);
 }

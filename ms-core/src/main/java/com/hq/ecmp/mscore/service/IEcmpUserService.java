@@ -68,8 +68,8 @@ public interface IEcmpUserService {
      * @return 结果
      */
     public int deleteEcmpUserById(Long userId);
-    
-    
+
+
     /**
      * 判断用户是否是调度员
      * @param userId
@@ -81,7 +81,7 @@ public interface IEcmpUserService {
      * 可管理员工个数
      * @return
      */
-    public int  queryCompanyEmpCunt();
+    public int  queryCompanyEmpCunt(Long companyId);
     /**
      * 员工邀请判断是否该手机号是否已经注册
      */
@@ -217,15 +217,15 @@ public interface IEcmpUserService {
     EcmpUserDto selectEcmpUser(EcmpUserVo ecmpUser);
 
     PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest);
-    
+
     /**
-     * 根据分子公司+员工姓名查询所有员工
+     * 根据分子公司+员工姓名或电话查询所有员工
      * @param companyId
      * @param name
      * @return
      */
     public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId,String name,String itIsDispatcher);
-    
-    
+
+
     public int updateEcmpUserjobNumber(EcmpUser ecmpUser);
 }

@@ -1,23 +1,23 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.constant.OrderStateTrace;
-import com.hq.ecmp.mscore.domain.EcmpUserFeedbackImage;
-import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.constant.*;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
-import com.hq.ecmp.mscore.mapper.EcmpUserFeedbackImageMapper;
-import com.hq.ecmp.mscore.mapper.EcmpUserFeedbackInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
+import com.hq.ecmp.mscore.dto.OrderInfoDTO;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
+import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.util.OrderUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +46,10 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Resource
     private OrderInfoMapper orderInfoMapper;
+    @Resource
+    private OrderAddressInfoMapper orderAddressInfoMapper;
+    @Resource
+    private OrderSettlingInfoMapper orderSettlingInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -170,4 +174,184 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         orderInfoMapper.updateOrderInfo(orderInfo);
         return ecmpUserFeedbackInfo.getFeedbackId();
     }
+
+    /**
+     * 异议订单
+     * @param ecmpUserFeedbackInfo
+     * @return
+     */
+    @Override
+    public PageResult<EcmpUserFeedbackInfoVo> getObjectionOrderList(EcmpUserFeedbackInfoVo ecmpUserFeedbackInfo) {
+        PageHelper.startPage(ecmpUserFeedbackInfo.getPageNum(),ecmpUserFeedbackInfo.getPageSize());
+        List<EcmpUserFeedbackInfoVo> list =  ecmpUserFeedbackInfoMapper.getObjectionOrderList(ecmpUserFeedbackInfo);
+        for (EcmpUserFeedbackInfoVo EcmpUserFeedbackInfoVo :list){
+            List<String> imageUrl = ecmpUserFeedbackImageMapper.selectEcmpUserFeedbackByImage(EcmpUserFeedbackInfoVo.getFeedbackId());
+            if(!imageUrl.isEmpty()){
+                EcmpUserFeedbackInfoVo.setImageUrl(imageUrl);
+            }
+        }
+        PageInfo<EcmpUserFeedbackInfoVo> info = new PageInfo<>(list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
+    }
+
+    /**
+     * 回复异议订单
+     * @param ecmpUserFeedbackInfo
+     */
+    @Override
+    public int replyObjectionOrder(EcmpUserFeedbackInfoVo ecmpUserFeedbackInfo,Long userId) {
+        EcmpUserFeedbackInfoVo feedbackInfoVo = new EcmpUserFeedbackInfoVo();
+        //主键id
+        feedbackInfoVo.setFeedbackId(ecmpUserFeedbackInfo.getFeedbackId());
+        //回复内容
+        feedbackInfoVo.setResult(ecmpUserFeedbackInfo.getResult());
+        //回复的格式
+        feedbackInfoVo.setState(ReplyObjectionEnum.YES_REPLY.getKey());
+        //回复操作人
+        feedbackInfoVo.setUpdateBy(userId);
+        //回复操作时间
+        feedbackInfoVo.setUpdateTime(new Date());
+        int i = ecmpUserFeedbackInfoMapper.updateFeedbackInfo(feedbackInfoVo);
+        return i;
+    }
+
+    /**
+     * 订单管理补单提交功能
+     * @param orderInfoDTO
+     * @return
+     */
+    @Override
+    public ApiResponse supplementSubmit(OrderInfoDTO orderInfoDTO) {
+        ApiResponse apiResponse = new ApiResponse();
+        //判断提交的城市code值是否在该调度员所管理车队的服务城市中
+        List<String> cityCodes = orderInfoDTO.getCityCodes();
+        int i = 0;
+        for(String list: cityCodes){
+            if(orderInfoDTO.getUpCarPlace().equals(list)){
+                i++;
+            }
+            if (orderInfoDTO.getDownCarPlace().equals(list)){
+                i++;
+            }
+        }
+        if(i==0){
+            return  ApiResponse.error("所选择的城市不符合调度员所管理车队的服务城市");
+        }
+        //增加订单表数据
+        OrderInfo orderInfo = new OrderInfo();
+        //所属公司
+        orderInfo.setOwnerCompany(orderInfoDTO.getCompanyId());
+        //司机id
+        orderInfo.setDriverId(orderInfoDTO.getDriverId());
+        //车辆id
+        orderInfo.setCarId(orderInfoDTO.getCarId());
+        //企业id
+        orderInfo.setCompanyId(orderInfoDTO.getCompanyId());
+        //订单编号
+        orderInfo.setOrderNumber(OrderUtils.getOrderNum());
+        //乘车人id
+        orderInfo.setUserId(orderInfoDTO.getUserId());
+        //订单类型
+        orderInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
+        //服务类型
+        orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
+        //订单状态
+        orderInfo.setState(OrderState.ORDERCLOSE.getState());
+        //创建时间
+        orderInfo.setCreateTime(DateUtils.getNowDate());
+        //创建人
+        orderInfo.setCreateBy(orderInfoDTO.getUserId().toString());
+        //补单状态
+        orderInfo.setItIsSupplement(ItIsSupplementEnum.ORDER_REPLENISHMENT_STATUS.getValue());
+        int  num  = orderInfoMapper.insertOrderInfo(orderInfo);
+        //增加订单地址表数据
+        if(num==1){
+            //操作订单上车数据
+            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+            //订单id
+            orderAddressInfo.setOrderId(orderInfo.getOrderId());
+            //司机id
+            orderAddressInfo.setDriverId(orderInfo.getDriverId());
+            //A000  真实出发地址  A999  真实到达地址
+            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+            //车辆id
+            orderAddressInfo.setCarId(orderInfo.getCarId());
+            //订单所属人编号
+            orderAddressInfo.setUserId(orderInfo.getUserId().toString());
+            //城市邮政编码
+            orderAddressInfo.setCityPostalCode(orderInfoDTO.getUpCarCityCode());
+            //上车时间
+            orderAddressInfo.setActionTime(orderInfoDTO.getUpCarTime());
+            //上车短地址
+            orderAddressInfo.setAddress(orderInfoDTO.getUpCarActualSetoutAddress());
+            //上车长地址
+            orderAddressInfo.setAddressLong(orderInfoDTO.getUpCarActualSetoutAddressLong());
+            //上车经度
+            orderAddressInfo.setLongitude(orderInfoDTO.getUpCarActualSetoutLongitude());
+            //上车纬度
+            orderAddressInfo.setLatitude(orderInfoDTO.getUpCarActualSetoutLatitude());
+            //创建时间
+            orderAddressInfo.setCreateTime(DateUtils.getNowDate());
+            //创建人
+            orderAddressInfo.setCreateBy(orderInfoDTO.getUserId().toString());
+            orderAddressInfoMapper.insertOrderAddressInfo(orderAddressInfo);
+            //------------------------------------------------------------------------------------------
+            //操作订单下车数据
+            OrderAddressInfo orderAddress = new OrderAddressInfo();
+            //订单id
+            orderAddress.setOrderId(orderInfo.getOrderId());
+            //司机id
+            orderAddress.setDriverId(orderInfo.getDriverId());
+            //A000  真实出发地址  A999  真实到达地址
+            orderAddress.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+            //车辆id
+            orderAddress.setCarId(orderInfo.getCarId());
+            //订单所属人编号
+            orderAddress.setUserId(orderInfo.getUserId().toString());
+            //城市邮政编码
+            orderAddress.setCityPostalCode(orderInfoDTO.getDownCarCityCode());
+            //下车时间
+            orderAddress.setActionTime(orderInfoDTO.getDownCarTime());
+            //上车短地址
+            orderAddress.setAddress(orderInfoDTO.getDownCarActualSetoutAddress());
+            //上车长地址
+            orderAddress.setAddressLong(orderInfoDTO.getDownCarActualSetoutAddressLong());
+            //上车经度
+            orderAddress.setLongitude(orderInfoDTO.getDownCarActualSetoutLongitude());
+            //上车纬度
+            orderAddress.setLatitude(orderInfoDTO.getDownCarActualSetoutLatitude());
+            //创建时间
+            orderAddress.setCreateTime(DateUtils.getNowDate());
+            //创建人
+            orderAddress.setCreateBy(orderInfoDTO.getUserId().toString());
+            int  numTwo= orderAddressInfoMapper.insertOrderAddressInfo(orderAddress);
+            if(numTwo<0){
+                apiResponse.setMsg("增加订单地址失败");
+            }
+        }else{
+            apiResponse.setMsg("增加订单失败");
+        }
+        //增加结算表数据
+        OrderSettlingInfoVo orderSettlingInfoVo= new OrderSettlingInfoVo();
+        //订单id
+        orderSettlingInfoVo.setOrderId(orderInfo.getOrderId());
+        //总时长
+        orderSettlingInfoVo.setTotalTime(orderInfoDTO.getTotalTime());
+        //总里程
+        orderSettlingInfoVo.setTotalMileage(orderInfoDTO.getTotalMileage());
+        //创建时间
+        orderSettlingInfoVo.setCreateTime(DateUtils.getNowDate());
+        //创建人
+        orderSettlingInfoVo.setCreateBy(orderInfoDTO.getUserId().toString());
+        //费用详情
+        orderSettlingInfoVo.setAmountDetail(orderInfoDTO.getAmountDetail());
+        //费用总金额
+        orderSettlingInfoVo.setAmount(orderInfoDTO.getAmount());
+        int Three = orderSettlingInfoMapper.insertOrderSettlingInfoOne(orderSettlingInfoVo);
+        if(Three<0){
+            apiResponse.setMsg("增加结算表数据失败");
+        }
+        return apiResponse;
+    }
+
 }

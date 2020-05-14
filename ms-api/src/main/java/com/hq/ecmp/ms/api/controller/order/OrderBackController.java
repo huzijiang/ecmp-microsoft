@@ -6,9 +6,15 @@ import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
+import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
+import com.hq.ecmp.mscore.dto.OrderInfoDTO;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.Api;
@@ -17,6 +23,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -38,9 +45,11 @@ public class OrderBackController {
     @Autowired
     @Lazy
     private IOrderInfoService iOrderInfoService;
-
+    @Resource
+    private IEcmpUserFeedbackInfoService iEcmpUserFeedbackInfoService;
     @Autowired
-    private TokenService tokenService;
+    TokenService tokenService;
+
 
     @ApiOperation(value = "订单列表查询")
     @PostMapping(value = "/getOrderList")
@@ -50,7 +59,7 @@ public class OrderBackController {
             //根据与前台协商   首次进去订单管理 默认 10  - 1
             if(orderListBackDto.getPageSize()==null && orderListBackDto.getPageNum()==null){
                 orderListBackDto.setPageSize(10);
-                orderListBackDto.setPageNum(1);
+                orderListBackDto.setPageNum(0);
             }
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
@@ -96,5 +105,62 @@ public class OrderBackController {
             return ApiResponse.error("获取轨迹失败");
         }
         return ApiResponse.success(orderHistoryTraceDtos);
+    }
+
+    @ApiOperation(value = "订单异议列表查询")
+    @PostMapping(value = "/getObjectionOrderList")
+    @Log(title = "订单管理", content = "订单异议列表", businessType = BusinessType.OTHER)
+    public ApiResponse<PageResult<EcmpUserFeedbackInfoVo>> getObjectionOrderList(@RequestBody EcmpUserFeedbackInfoVo ecmpUserFeedbackInfo){
+        try {
+            //获取订单列表
+            //根据与前台协商   首次进去订单管理 默认 10  - 1
+            if(ecmpUserFeedbackInfo.getPageSize()==null && ecmpUserFeedbackInfo.getPageNum()==null){
+                ecmpUserFeedbackInfo.setPageSize(10);
+                ecmpUserFeedbackInfo.setPageNum(0);
+            }
+            PageResult<EcmpUserFeedbackInfoVo> result  = iEcmpUserFeedbackInfoService.getObjectionOrderList(ecmpUserFeedbackInfo);
+            return ApiResponse.success(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error();
+        }
+    }
+
+    @ApiOperation(value = "回复订单异议")
+    @PostMapping(value = "/replyObjectionOrder")
+    @Log(title = "订单管理", content = "回复订单异议", businessType = BusinessType.OTHER)
+    public ApiResponse replyObjectionOrder(@RequestBody EcmpUserFeedbackInfoVo ecmpUserFeedbackInfo){
+        try {
+            //获取登陆用户信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+           int  i =  iEcmpUserFeedbackInfoService.replyObjectionOrder(ecmpUserFeedbackInfo,userId);
+           if(i>0){
+               return ApiResponse.success();
+           }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error();
+        }
+        return ApiResponse.success();
+    }
+
+
+    @ApiOperation(value = "订单管理补单提交功能")
+    @PostMapping(value = "/supplementSubmit")
+    @Log(title = "订单管理", content = "补单功能", businessType = BusinessType.INSERT)
+    public ApiResponse supplementSubmit(@RequestBody OrderInfoDTO orderInfoDTO){
+        try {
+            //获取登陆用户信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            orderInfoDTO.setCompanyId(Long.valueOf(loginUser.getUser().getDept().getCompanyId()));
+            ApiResponse  apiResponse=  iEcmpUserFeedbackInfoService.supplementSubmit(orderInfoDTO);
+            return apiResponse;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error();
+        }
     }
 }

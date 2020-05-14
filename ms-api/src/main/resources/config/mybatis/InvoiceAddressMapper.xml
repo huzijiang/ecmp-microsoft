@@ -32,12 +32,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="accepter != null  and accepter != ''">accepter,</if>
             <if test="mobile != null  and mobile != ''">mobile,</if>
+            <if test="companyId != null  and companyId != ''">company_id,</if>
             <if test="address != null  and address != ''">address,</if>
             <if test="createTime != null ">create_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="accepter != null  and accepter != ''">#{accepter},</if>
             <if test="mobile != null  and mobile != ''">#{mobile},</if>
+            <if test="companyId != null  and companyId != ''">#{companyId},</if>
             <if test="address != null  and address != ''">#{address},</if>
             <if test="createTime != null ">#{createTime},</if>
          </trim>
@@ -54,23 +56,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where address_id = #{addressId}
     </update>
 
-    <delete id="deleteInvoiceAddressById" parameterType="Long">
+    <delete id="deleteInvoiceAddressById" parameterType="java.lang.Long">
         delete from invoice_address where address_id = #{addressId}
     </delete>
 
-    <delete id="deleteInvoiceAddressByIds" parameterType="String">
+    <delete id="deleteInvoiceAddressByIds" parameterType="java.lang.String">
         delete from invoice_address where address_id in
         <foreach item="addressId" collection="array" open="(" separator="," close=")">
             #{addressId}
         </foreach>
     </delete>
     <!--查询收货地址列表-->
-    <select id="selectInvoiceAddressList"  resultType="com.hq.ecmp.mscore.vo.InvoiceAddVO">
+    <select id="selectInvoiceAddressList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.InvoiceAddVO">
          select
          address_id  as addressId, accepter, mobile, address
-         from invoice_address order by create_time,update_time
+         from invoice_address
+         where company_id = #{companyId}
+         order by create_time,update_time
     </select>
-    <select id="selectInvoiceAddressListCount" resultType="Long">
+    <select id="selectInvoiceAddressListCount" resultType="java.lang.Long">
          select count(*) from invoice_address
     </select>
 

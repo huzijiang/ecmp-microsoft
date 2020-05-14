@@ -236,7 +236,7 @@ public class OrderController {
                 return ApiResponse.error("行程确认失败");
             }
             //插入订单轨迹表
-            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderState.ORDERCLOSE.getState(), String.valueOf(userId),null);
+            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderState.ORDERCLOSE.getState(), String.valueOf(userId),null,null,null);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("行程确认失败");
@@ -303,7 +303,12 @@ public class OrderController {
     @ApiOperation(value = "getUserDispatchedOrder", notes = "获取已经完成调派的订单列表 ", httpMethod = "POST")
     @PostMapping("/getUserDispatchedOrder")
     public ApiResponse<List<DispatchOrderInfo>> getUserDispatchedOrder(UserDto userDto){
-        return ApiResponse.success(iOrderInfoService.queryCompleteDispatchOrder());
+        //获取当前登陆用户的信息
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        //获取当前登陆用户的信息Id
+        Long userId = loginUser.getUser().getUserId();
+        return ApiResponse.success(iOrderInfoService.queryCompleteDispatchOrder(userId));
     }
 
     /**
@@ -685,22 +690,5 @@ public class OrderController {
             e.printStackTrace();
             return  ApiResponse.error("更换车辆失败");
         }
-    }
-
-
-    /***
-     * add by liuzb (一键报警获取当前订单乘车信息)
-     * @param orderId
-     * @return
-     */
-    @ApiOperation(value = "获取乘车信息",httpMethod = "POST")
-    @RequestMapping("/getCarMessage")
-    public ApiResponse<OrderInfoMessage> getCarMessage(Long orderId){
-        try {
-            return ApiResponse.success(iOrderInfoService.getMessage(orderId));
-        }catch (Exception e){
-            logger.error("获取乘车信息异常");
-        }
-        return  ApiResponse.error("获取乘车信息失败");
     }
 }

@@ -171,10 +171,10 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
      * @return
      */
     @Override
-    public int queryCompanyEmpCunt() {
+    public int queryCompanyEmpCunt(Long companyId) {
       //  return ecmpUserMapper.queryCompanyEmp();
 
-        return 0;//userMapper.selectUserByRoleId(5L,null).size();
+        return userMapper.selectUserByRoleId(5L,null).size();
     }
 
 

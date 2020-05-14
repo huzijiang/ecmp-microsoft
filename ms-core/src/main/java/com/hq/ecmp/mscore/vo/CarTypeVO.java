@@ -30,4 +30,6 @@ public class CarTypeVO {
     private String carType; //车型描述
 
     private String carNum; //总车辆数
+
+    private String  imageUrl; //车型图标
 }

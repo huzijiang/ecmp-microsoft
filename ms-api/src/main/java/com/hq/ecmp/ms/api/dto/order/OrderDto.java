@@ -26,8 +26,6 @@ public class OrderDto {
 //    @NotNull
 //    @ApiParam(required = true)
     private  String cancelReason;
-    @NotNull
-    @ApiParam(required = true)
     private String flag;
 
     //车辆id

@@ -179,6 +179,21 @@ public class ProjectController {
     }
 
     /**
+     * 申请人所属公司内的所有项目
+     * @return
+     */
+    @ApiOperation(value = "selectProjects",notes = "申请人所属公司内的所有项目",httpMethod ="POST")
+    @PostMapping("/selectProjects")
+    public ApiResponse<List<ProjectInfoVO>> selectProjects(){
+        //获取当前登录用户的公司ID
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        String ownerCompany = loginUser.getUser().getDept().getCompanyId();
+        List<ProjectInfoVO> pageInfo= iProjectInfoService.selectProjects(Long.valueOf(ownerCompany));
+
+        return ApiResponse.success(pageInfo);
+    }
+    /**
      * 新增项目
      * @return
      */
@@ -275,12 +290,12 @@ public class ProjectController {
     public ApiResponse<List<OrgTreeVo>> selectProjectUserTree(@RequestBody ProjectInfoDTO projectInfoDto){
         OrgTreeVo deptList=null;
         List<OrgTreeVo> lsit=new ArrayList<>();
-        if (StringUtils.isEmpty(projectInfoDto.getName())){
-            deptList = iProjectInfoService.selectProjectUserTree(projectInfoDto.getProjectId());
+//        if (StringUtils.isEmpty(projectInfoDto.getName())){
+            deptList = iProjectInfoService.selectProjectUserTree(projectInfoDto.getProjectId(),projectInfoDto.getSearch());
             lsit.add(deptList);
-        }else {
-            lsit= iProjectInfoService.selectProjectUserBySearch(projectInfoDto.getProjectId(), projectInfoDto.getName());
-        }
+//        }else {
+//            lsit= iProjectInfoService.selectProjectUserBySearch(projectInfoDto.getProjectId(), projectInfoDto.getName());
+//        }
         return ApiResponse.success(lsit);
 
 

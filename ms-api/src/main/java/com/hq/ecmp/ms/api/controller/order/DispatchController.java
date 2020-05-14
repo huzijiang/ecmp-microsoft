@@ -60,11 +60,14 @@ public class DispatchController {
     private TokenService tokenService;
 
 
-    
+
     @ApiOperation(value = "getApplyDispatchList", notes = "获取申请调度列表 ", httpMethod = "POST")
     @PostMapping("/getApplyDispatchList")
     public ApiResponse<PageResult<ApplyDispatchVo>> getUserDispatchedOrder(@RequestBody ApplyDispatchQuery query){
-    	List<ApplyDispatchVo> list = iOrderInfoService.queryApplyDispatchList(query);
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        query.setCompanyId(loginUser.getUser().getOwnerCompany());
+        List<ApplyDispatchVo> list = iOrderInfoService.queryApplyDispatchList(query);
     	Integer totalNum = iOrderInfoService.queryApplyDispatchListCount(query);
     	PageResult<ApplyDispatchVo> pageResult = new PageResult<ApplyDispatchVo>(Long.valueOf(totalNum), list);
         return ApiResponse.success(pageResult);
@@ -85,11 +88,14 @@ public class DispatchController {
     	return ApiResponse.success(iOrderInfoService.getDispatchSendCarPageInfo(orderId));
     }
 
-    
+
     @ApiOperation(value = "getReassignmentDispatchList", notes = "获取改派列表 ", httpMethod = "POST")
     @PostMapping("/getReassignmentDispatchList")
     public ApiResponse<PageResult<ApplyDispatchVo>> getReassignmentDispatchList(@RequestBody ApplyDispatchQuery query){
-    	List<ApplyDispatchVo> list = iOrderInfoService.queryReassignmentDispatchList(query);
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        query.setCompanyId(loginUser.getUser().getOwnerCompany());
+        List<ApplyDispatchVo> list = iOrderInfoService.queryReassignmentDispatchList(query);
     	Integer totalNum = iOrderInfoService.queryReassignmentDispatchListCount(query);
     	PageResult<ApplyDispatchVo> pageResult = new PageResult<ApplyDispatchVo>(Long.valueOf(totalNum), list);
         return ApiResponse.success(pageResult);
@@ -108,7 +114,7 @@ public class DispatchController {
     	}
     	return ApiResponse.error();
     }
-    
+
     @Log(title = "车辆调度:自有车派车", businessType = BusinessType.OTHER)
 	@ApiOperation(value = "ownCarSendCar", notes = "自有车派车", httpMethod = "POST")
 	@PostMapping("/ownCarSendCar")
@@ -193,6 +199,26 @@ public class DispatchController {
     @PostMapping("/autoDispatch")
     public ApiResponse<DispatchResultVo> autoDispatch(@RequestBody DispatchCountCarAndDriverDto dispatchCountCarAndDriverDto) {
         return  dispatchService.autoDispatch(dispatchCountCarAndDriverDto);
+    }
+
+    /**
+     * 调度无车驳回操作
+     * @param orderId  订单id
+     * @param reason 驳回原因
+     * @return
+     */
+    @ApiOperation(value = "调度无车驳回")
+    @PostMapping("/noCarDenied")
+    public ApiResponse noCarDenied(Long orderId,String reason){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            dispatchService.noCarDenied(orderId, reason, loginUser.getUser().getUserId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("调度无车驳回失败");
+        }
+        return ApiResponse.success("调度无车驳回通过");
     }
 
 

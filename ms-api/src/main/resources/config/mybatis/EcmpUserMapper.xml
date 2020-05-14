@@ -28,10 +28,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="itIsDriver"    column="it_is_driver"    />
         <result property="itIsDispatcher"    column="it_is_dispatcher"    />
          <result property="jobNumber"    column="job_number"    />
+        <result property="stationCode"    column="station_code"    />
     </resultMap>
 
     <sql id="selectEcmpUserVo">
-        select user_id, dept_id, owner_company, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, del_flag, login_ip, login_date, create_by, create_time, update_by, update_time, remark,it_is_dispatcher,it_is_driver,job_number from ecmp_user
+        select user_id, dept_id, owner_company, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, del_flag, station_code,login_ip, login_date, create_by, create_time, update_by, update_time, remark,it_is_dispatcher,it_is_driver,job_number from ecmp_user
     </sql>
 
     <select id="selectEcmpUserList" parameterType="com.hq.ecmp.mscore.domain.EcmpUser" resultMap="EcmpUserResult">
@@ -652,7 +653,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </select>
     <select id="selectUserVoById" resultType="com.hq.ecmp.mscore.vo.UserVO">
-        select user_name as userName,phonenumber as userPhone,user_id as userId
+        select nick_name as userName,phonenumber as userPhone,user_id as userId
         from ecmp_user
        where user_id = #{userId}
     </select>
@@ -702,9 +703,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectUserListByDeptIdAndProjectId" resultType="com.hq.ecmp.mscore.vo.UserTreeVo">
          select nick_name as nickName,user_id as  userId,dept_id deptId,user_name userName,
         phonenumber,sex,job_number jobNumber,it_is_driver itIsDriver,it_is_dispatcher itIsDispatcher
-         from ecmp_user
+         from ecmp_user a
         where status=0 and del_flag=0
         and user_id not in (SELECT user_id from project_user_relation_info where project_id=#{projectId} )
+        <if test="search!=null and search!='' ">
+            and (a.nick_name like concat('%', #{search}, '%') or a.phonenumber like concat('%', #{search}, '%') or a.job_number like concat('%', #{search}, '%') )
+        </if>
     </select>
 
 
@@ -754,5 +758,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getUserListByOrgId" resultType="Long" parameterType="Object">
         SELECT user_id from ecmp_user where status=0 and del_flag=0 and dept_id in(
             SELECT dept_id from ecmp_org where FIND_IN_SET(#{orgId},ancestors) or dept_id=#{orgId})
+    </select>
+    <select id="selectUserByCompanyId" resultType="com.hq.ecmp.mscore.domain.EcmpUser"
+            parameterType="java.lang.Long">
+        select * from ecmp_user where owner_company = #{ownerCompany}
+    </select>
+    <select id="queryUserListByCompanyIdsAndName" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
+            select user_id as userId,nick_name as nickName,phonenumber as
+            phonenumber from ecmp_user
+            where
+            owner_company = #{companyId}
+            <if test="name != null  and name != ''">and (nick_name like concat('%', #{name}, '%') or phonenumber like concat('%', #{name}, '%'))  </if>
+            <if test="itIsDispatcher != null and itIsDispatcher!='' "> and it_is_dispatcher = #{itIsDispatcher}</if>
     </select>
 </mapper>

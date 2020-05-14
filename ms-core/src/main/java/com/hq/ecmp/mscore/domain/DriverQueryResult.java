@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.domain;
 import java.util.Date;
 import java.util.List;
 
+import com.hq.ecmp.mscore.vo.CarListVO;
 import lombok.Data;
 
 @Data
@@ -50,5 +51,7 @@ public class DriverQueryResult {
 	Date licenseExpireDate;//驾驶证到期时间
 	
 	List<Long> carId;//可使用车辆
+
+	List<CarListVO> carList;
 	  
 }

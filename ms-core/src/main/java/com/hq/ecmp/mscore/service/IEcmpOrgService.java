@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.EcmpUserInfoDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.*;
 
@@ -20,10 +21,10 @@ public interface IEcmpOrgService
     /**
      * 显示公司组织结构
      *
-     * @param deptId 部门ID
+     * @param ecmpOrgVo 部门ID
      * @return
      */
-    public List<EcmpOrgDto> selectCombinationOfCompany(Long deptId,Long deptType,Long ownerCompany);
+    public List<EcmpOrgDto> selectCombinationOfCompany(EcmpOrgVo ecmpOrgVo);
     /**
      * 显示当前登陆用户所属公司与公司下的部门
      *
@@ -236,8 +237,13 @@ public interface IEcmpOrgService
     /*公司树*/
     public List<CompanyTreeVO> getCompanyTree(Long deptId);
 
-    /*查询公司车队总人数*/
-    CarGroupCountVO selectCarGroupCount(Long deptId);
+    /**
+     * 查询公司车队总人数 或者 某个车队人数
+     * @param deptId
+     * @param
+     * @return
+     */
+    CarGroupCountVO selectCarGroupCount(Long deptId,Long carGroupId);
 
     /**
      * 查询公司下面所有的组织(包含公司和部门)ID
@@ -255,4 +261,11 @@ public interface IEcmpOrgService
     List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId);
 
     EcmpOrg getOrgByDeptId(Long deptId);
+
+    /**
+     * 通过用户id获取末级部门和末级公司信息
+     * @param userId 用户id
+     * @return
+     */
+    EcmpUserInfoDto getUserLatestDeptInfoByUserId(Long userId);
 }

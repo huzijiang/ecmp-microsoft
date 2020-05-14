@@ -17,6 +17,7 @@ public class RegimeVo {
 	String regimenType;
 
 	String regimeName;// 制度名称
+	Long companyId;//企业公司ID
 
 	String sceneName;// 场景名称
 
@@ -51,7 +52,8 @@ public class RegimeVo {
 
 	String ruleCity;// C001：不限 C002：限制可用城市 C003：限制不可用城市
 
-	List<String> cityLimitIds;//限制城市编号
+	List<String> cityLimitIds;//限制固定城市编号
+	List<String> notCityLimitIds;//限制不可用城市编号
 
 	String useCarModeOwnerLevel;// 公务 自有车车型配置
 
@@ -83,13 +85,6 @@ public class RegimeVo {
 	String asSetoutEqualArrive;// 接送服务 同城限制 Y000 ：相等---不允许跨域 N111 ：不相等--允许跨域
 
 	//----------------------  二期新增字段 ------------------------------
-	/**
-	 *成本中心（不为空）
-	 * C000 公司付费
-	 * D000 部门付费
-	 * P000 项目付费
-	 */
-	String costCenter;
 
 	/**
 	 * 公务限额类型(此字段仅网约车使用，和字段limit_money一起使用)

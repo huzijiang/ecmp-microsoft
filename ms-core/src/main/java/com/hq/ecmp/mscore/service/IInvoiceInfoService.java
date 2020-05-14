@@ -80,7 +80,7 @@ public interface IInvoiceInfoService
     /**
      * 发票抬头查询
      */
-    public List<InvoiceHeaderVO> queryInvoiceHeader();
+    public List<InvoiceHeaderVO> queryInvoiceHeader(Long companyId);
     /**
      * 发票抬头删除所有数据
      */

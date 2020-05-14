@@ -58,5 +58,10 @@ public class DriverOrderInfoVO {
     private String halfway;
     @ApiModelProperty(name = "peopleCount",value = "乘车人数")
     private  String peopleCount;
+    @ApiModelProperty(name = "orderAmount",value = "订单费用")
+    private String orderAmount;
+    @ApiModelProperty(name = "orderFees",value = "费用")
+    private List<OtherCostBean> orderFees;
+    private List<String> feeImageUrls;
 
 }

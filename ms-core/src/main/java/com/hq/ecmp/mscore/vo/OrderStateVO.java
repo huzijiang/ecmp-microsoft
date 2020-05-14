@@ -25,6 +25,7 @@ public class OrderStateVO {
     private String labelState;
     private Long driverId;
     private Long journeyId;
+    private Long powerId;
     private String useCarMode;
     private String applyType;
     @ApiModelProperty(name = "startAddress",value = "出发地")
@@ -53,4 +54,7 @@ public class OrderStateVO {
     @ApiModelProperty(name = "isDisagree",value = "是否展示异议")
     private int isDisagree;
     private String driverPhone;
+    @ApiModelProperty(name = "excessMoney",value = "是否支付")
+    private String payState;
+    private Date useCarDate;
 }

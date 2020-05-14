@@ -1,14 +1,12 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.vo.CarGroupFixedPhoneVO;
-import com.hq.ecmp.mscore.vo.CarGroupListVO;
-import com.hq.ecmp.mscore.vo.CarGroupPhoneVO;
-import com.hq.ecmp.mscore.vo.CarGroupTreeVO;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -75,7 +73,7 @@ public interface CarGroupInfoMapper
      * @param carGroupId
      * @return
      */
-    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId);
+    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId,@Param("companyId") Long companyId);
 
     /**
      * 查询该组织下的车队信息
@@ -140,7 +138,7 @@ public interface CarGroupInfoMapper
      * 查询所有车队编号
      * @return
      */
-    List<String> selectAllCarGroupCode();
+    List<String> selectAllCarGroupCode(Long companyId);
 
     /**
      * 查询公司所有车队名字
@@ -157,4 +155,28 @@ public interface CarGroupInfoMapper
     List<CarGroupInfo> selectEnableCarGroupInfoList(CarGroupInfo carGroupInfo);
 
     List<CarGroupListVO> getCarGroupList(Long userId);
+
+    List<CarGroupInfo> selectCarGroupInfoByDeptId(@Param("orgComcany") Long orgComcany,@Param("deptId") Long deptId);
+
+    List<CarLevelVO> findCarTypeByGroupIds(@Param("groupIds")String groupIds);
+
+    List<Map> getCarGroupTreeByDeptIds(List list);
+
+    List<Map> getCarGroupTreeByCarIds(List list);
+    /**
+     * 查询内部公司在当前城市点的可服务于申请人所在部门的车队id列表
+     * @param deptId 部门id
+     * @param cityCode 城市code
+     * @param companyId 公司id
+     * @return
+     */
+    List<Long> queryCarGroupIdInnerCompany(@Param("deptId") Long deptId,@Param("cityCode") String cityCode,@Param("companyId") Long companyId);
+
+    /**
+     * 查询外部公司在当前城市可服务于申请人所在公司的车队id列表
+     * @param cityCode 城市code
+     * @param companyId 公司id
+     * @return
+     */
+    List<Long> queryCarGroupIdOuterCompany(@Param("cityCode") String cityCode,@Param("companyId") Long companyId);
 }

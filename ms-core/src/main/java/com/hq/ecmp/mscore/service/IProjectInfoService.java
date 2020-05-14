@@ -81,7 +81,7 @@ public interface IProjectInfoService
 
     List<ProjectUserVO> getProjectUserInfo(Long projectId);
 
-    OrgTreeVo selectProjectUserTree( Long projectId);
+    OrgTreeVo selectProjectUserTree( Long projectId,String search);
 
     List<ProjectInfo> checkProjectCode(String projectCode, Long projectId,Long orgCompany);
 
@@ -90,4 +90,11 @@ public interface IProjectInfoService
     List<ProjectUserVO> getUsersByOrg(Long projectId, String search, Long orgComcany);
 
     List<OrgTreeVo> selectProjectUserBySearch(Long projectId, String name);
+
+    /**
+     *申请人所属公司内的所有项目
+     * @param ownerCompany
+     * @return
+     */
+    List<ProjectInfoVO> selectProjects(Long ownerCompany);
 }

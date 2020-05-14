@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
 import com.hq.ecmp.mscore.vo.*;
@@ -101,7 +102,7 @@ public interface ICarGroupInfoService
      * @param pageSize
      * @return
      */
-    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId);
+    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId,Long companyId);
 
     /**
      * 删除车队
@@ -112,6 +113,13 @@ public interface ICarGroupInfoService
 
     //查询下级车队列表
     List<CarGroupListVO> selectSubCarGroupInfoList(Long deptId);
+
+    /**
+     * 根据车队id查询所有调度员名字
+     * @param carGroupId
+     * @return
+     */
+    public List<String> getDispatcherNames(Long carGroupId);
 
     /**
      * 查询指定城市所有车队调度员及车队座机
@@ -131,10 +139,10 @@ public interface ICarGroupInfoService
     List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
 
     /*查询所有车队编号*/
-    List<String> selectAllCarGroupCode();
+    List<String> selectAllCarGroupCode(Long companyId);
 
     /*判断车队编号是否存在*/
-    boolean judgeCarGroupCode(String carGroupCode);
+    boolean judgeCarGroupCode(String carGroupCode,Long companyId);
 
     /*回显车队信息*/
     CarGroupDTO getCarGroupInfoFeedBack(Long carGroupId);
@@ -151,4 +159,18 @@ public interface ICarGroupInfoService
     Boolean judgeCarGroupName(String carGroupName, Long owneCompany);
 
     List<CarGroupListVO> getCarGroupList(Long userId);
+
+    /**
+     * 联系车队（通用）
+     * @param orderId
+     * @return
+     */
+    List<ContactCarGroupVO> cantactCarGroup(Long orderId);
+
+    /**
+     * 补单获取调度员所管理车队的服务城市
+     * @param userId
+     * @return
+     */
+    ApiResponse obtainDispatcherCity(Long userId);
 }

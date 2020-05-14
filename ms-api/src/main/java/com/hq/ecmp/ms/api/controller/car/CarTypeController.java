@@ -14,9 +14,11 @@ import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarTypeDTO;
 import com.hq.ecmp.mscore.dto.CarTypeSortDTO;
+import com.hq.ecmp.mscore.service.IEcmpDictDataService;
 import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
 import com.hq.ecmp.mscore.vo.CarTypeVO;
 import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.SceneListVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +38,8 @@ public class CarTypeController {
     private TokenService tokenService;
     @Autowired
     private IEnterpriseCarTypeInfoService enterpriseCarTypeInfoService;
+    @Autowired
+    private IEcmpDictDataService iEcmpDictDataService;
 
     /**
      * 新增车型
@@ -47,7 +51,7 @@ public class CarTypeController {
     @PostMapping("/saveCarType")
     public ApiResponse saveCarType(@RequestBody CarTypeDTO carTypeDto){
         Long userId = getLoginUser().getUserId();
-        Long companyId = getLoginUser().getOwnerCompany();
+        Long companyId = Long.valueOf(getLoginCompanyId());
         carTypeDto.setCompanyId(companyId);
         try {
             enterpriseCarTypeInfoService.saveCarType(carTypeDto,userId);
@@ -67,6 +71,17 @@ public class CarTypeController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         return loginUser.getUser();
+    }
+
+    /**
+     * 获取登录的企业Id
+     * @return
+     */
+    private String  getLoginCompanyId() {
+        //获取登录用户
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        return loginUser.getUser().getDept().getCompanyId();
     }
 
     /**
@@ -144,5 +159,47 @@ public class CarTypeController {
             e.printStackTrace();
             return ApiResponse.error("车型排序失败");
         }
+    }
+
+    /**
+     * 车型可选图标
+     * @param
+     * @return
+     */
+    @Log(title = "车型模块",content = "车型可选图标", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getVehicleType", notes = "车型可选图标", httpMethod = "POST")
+    @PostMapping("/getVehicleType")
+    public ApiResponse<List<CarTypeDTO>> getVehicleType(@RequestBody CarTypeDTO carTypeDTO) {
+        //字典表的类型
+        String  dictType = "vehicleType";
+        //企业id
+        String companyId = getLoginCompanyId();
+        carTypeDTO.setCompanyId(Long.valueOf(companyId));
+        //所有车型图标
+        List<CarTypeDTO> ecmpDictDataList = iEcmpDictDataService.selectEcmpDictByCarType(dictType);
+        //车型图标中已经用过的图标
+        List<CarTypeDTO> sceneList = enterpriseCarTypeInfoService.selectEnterpriseCarTypeList(companyId);
+        //选出可以使用的制度
+        for(int i= 0; i<ecmpDictDataList.size(); i++){
+            for(int s =0; s<sceneList.size() ; s++){
+                if(ecmpDictDataList.get(i).getImageUrl().equals(sceneList.get(s).getImageUrl())){
+                    ecmpDictDataList.remove(i);
+                    i --;
+                    break;
+                }
+            }
+        }
+        //如果传了CarTypeId  则是返回增加时候的放进来的车型数据
+        if(carTypeDTO.getCarTypeId()!=null){
+            //根据CarTypeId查询对应的车型id集合
+            List<CarTypeDTO> carType = enterpriseCarTypeInfoService.selectCarTypeById(carTypeDTO);
+            //把增加的车型数据放进去regimeVoList中
+            if(!carType.isEmpty()){
+                for(CarTypeDTO car:carType){
+                    ecmpDictDataList.add(car);
+                }
+            }
+        }
+        return ApiResponse.success(ecmpDictDataList);
     }
 }

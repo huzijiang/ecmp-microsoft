@@ -10,17 +10,17 @@ package com.hq.ecmp.constant;
 public final class CommonConstant {
 
     //客服电话
-    public static final String CUSTOMER_PHONE="customer_phone";
-	//redis中调度锁的前缀
-	public static final String DISPATCH_LOCK_PREFIX="dispatch_";
+    public static final String CUSTOMER_PHONE = "customer_phone";
+    //redis中调度锁的前缀
+    public static final String DISPATCH_LOCK_PREFIX = "dispatch_";
     //redis中约车次数的前缀
-    public  static final String APPOINTMENT_NUMBER_PREFIX = "APPOINTMENT_NUMBER_";
-    public  static final String PROJECT_USER_TREE = "PROJECT_USER_TREE:%s";
+    public static final String APPOINTMENT_NUMBER_PREFIX = "APPOINTMENT_NUMBER_";
+    public static final String PROJECT_USER_TREE = "PROJECT_USER_TREE:%s";
     //司机等待的开启和关闭
     //开启
-    public static final  String  START = "1";
+    public static final String START = "1";
     //关闭
-    public static final  String  FINISH = "2";
+    public static final String FINISH = "2";
 
     //联系乘客或者联系车队，对应的电话角色名
     public static final String PASSENGER_ROLE = "乘车人";
@@ -28,7 +28,7 @@ public final class CommonConstant {
     public static final String CARGROUP_PHONE_ROLE = "车队座机";
 
     //订单途径地信息表，标识是否通过此途径地
-    public static final String  PASS = "Y000";
+    public static final String PASS = "Y000";
     public static final String NO_PASS = "N111";
 
     //标识是否往返
@@ -63,10 +63,11 @@ public final class CommonConstant {
      * 驾驶员状态：待审核
      */
     public static final String STATE_WAIT = "W001";
-    /**DRIVER
+    /**
+     * DRIVER
      * 驾驶员状态：生效中
      */
-    public static final String STATE_ON= "V000";
+    public static final String STATE_ON = "V000";
     /**
      * 驾驶员状态：失效/离职
      */
@@ -89,11 +90,18 @@ public final class CommonConstant {
     public static final String DEPT_TYPE_DEPT = "2";
     public static final String DEPT_TYPE_FLEET = "3";
 
+    public static final String ALLOW_DATA = "0-0";
     //初始角色KEY
     public static final String ROLE_ADMIN = "admin";
 
     public static final String ROLE_SUB_ADMIN = "sub_admin";
 
+    /**
+     * 制度用车城市规则C001不限,C002可用城市,C003不可用城市
+     */
+    public static final String ROLE_CITY_C001 = "C001";
+    public static final String ROLE_CITY_C002 = "C002";
+    public static final String ROLE_CITY_C003 = "C003";
     public static final String ROLE_EMPLOYEE = "employee";
 
     public static final String ROLE_DRIVER = "driver";
@@ -103,5 +111,14 @@ public final class CommonConstant {
     public static final String ROLE_PROJECT_MANAGER = "project_manager";
 
     public static final String ROLE_DISPATCHER = "dispatcher";
+    /**
+     * 系统判断字段：是
+     */
+    public static final String YES = "0";
+    /**
+     * 系统判断字段：否
+     */
+    public static final String NO = "1";
+
 
 }

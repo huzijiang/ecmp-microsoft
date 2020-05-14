@@ -167,10 +167,6 @@ public class CarInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String  lockState;
 
-    /** $column.columnComment */
-   /* @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long   companyId; // TODO 新增*/
-
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

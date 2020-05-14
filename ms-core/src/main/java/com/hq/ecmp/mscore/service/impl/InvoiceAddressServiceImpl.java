@@ -52,9 +52,9 @@ public class InvoiceAddressServiceImpl implements IInvoiceAddressService
      * @return 【请填写功能名称】
      */
     @Override
-    public PageResult<InvoiceAddVO> selectInvoiceAddressList(PageRequest pageRequest){
+    public PageResult<InvoiceAddVO> selectInvoiceAddressList(PageRequest pageRequest,Long companyId){
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
-        List<InvoiceAddVO> invoiceAddVOS = invoiceAddressMapper.selectInvoiceAddressList();
+        List<InvoiceAddVO> invoiceAddVOS = invoiceAddressMapper.selectInvoiceAddressList(companyId);
         Long count=invoiceAddressMapper.selectInvoiceAddressListCount();
         return new PageResult<>(count,invoiceAddVOS);
     }

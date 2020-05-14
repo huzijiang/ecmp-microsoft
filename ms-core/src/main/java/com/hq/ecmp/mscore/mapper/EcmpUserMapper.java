@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.mscore.vo.ProjectUserVO;
 import com.hq.ecmp.mscore.vo.UserTreeVo;
 import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.util.RedisUtil;
 import org.apache.ibatis.annotations.Param;
 
 import org.springframework.stereotype.Repository;
@@ -342,7 +343,7 @@ public interface EcmpUserMapper
 
     List<UserTreeVo> selectListByDeptId(Long deptId);
 
-    List<UserTreeVo> selectUserListByDeptIdAndProjectId(@Param("projectId")Long projectId);
+    List<UserTreeVo> selectUserListByDeptIdAndProjectId(@Param("projectId")Long projectId,@Param("search")String search);
     /**
      * 查询所有有效员工
      * @param  //ecmpUser
@@ -364,7 +365,7 @@ public interface EcmpUserMapper
     int updatePhoneByUserId(@Param("newPhoneNum") String newPhoneNum,@Param("userId") Long userId);
 
     List<EcmpUserDto> queryUserListByDeptIdsAndName(@Param("deptIds")List<Long> deptIds, @Param("name")String name,@Param("itIsDispatcher")String itIsDispatcher);
-    
+
     public int updateEcmpUserjobNumber(EcmpUser ecmpUser);
 
     /**
@@ -376,5 +377,16 @@ public interface EcmpUserMapper
     List<ProjectUserVO> getUsersByCompany(@Param("search")String search,@Param("orgComcany") Long orgComcany);
 
     List<Long> getUserListByOrgId(@Param("orgId")Long orgId);
+
+    List<EcmpUser> selectUserByCompanyId(@Param("ownerCompany") Long ownerCompany);
+
+    /**
+     * 根据公司id+员工名字或电话查询所有员工
+     * @param companyId
+     * @param name
+     * @param itIsDispatcher
+     * @return
+     */
+    List<EcmpUserDto> queryUserListByCompanyIdsAndName(@Param("companyId") Long companyId,@Param("name") String name,@Param("itIsDispatcher") String itIsDispatcher);
 }
 

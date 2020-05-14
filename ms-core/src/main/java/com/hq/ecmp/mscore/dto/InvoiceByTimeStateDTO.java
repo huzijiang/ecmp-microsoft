@@ -21,6 +21,8 @@ public class InvoiceByTimeStateDTO {
     private Long createBy;
 
 
+    private Long companyId;
+
 
 
 

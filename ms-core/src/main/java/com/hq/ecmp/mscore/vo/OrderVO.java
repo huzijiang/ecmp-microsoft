@@ -1,10 +1,12 @@
 package com.hq.ecmp.mscore.vo;
 
+import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
+import java.util.List;
+
 
 /**
  * @author xueyong
@@ -19,6 +21,7 @@ public class OrderVO {
     private Long driverId;
     private Long cardId;
     private String orderNumber;
+    private Long regimeId;
     @ApiModelProperty(name = "driverMobile",value = "司机手机")
     private String driverMobile;
     @ApiModelProperty(name = "driverName",value = "司机姓名")
@@ -71,7 +74,23 @@ public class OrderVO {
     private String orderEndTime;
     @ApiModelProperty(name = "description",value = "订单评分描述")
     private String description;
+    @ApiModelProperty(name = "cancelReason",value = "取消原因")
+    private String cancelReason;
+    @ApiModelProperty(name = "carPhoto",value = "车辆照片")
+    private String carPhoto;
     @ApiModelProperty(name = "orderCostDetailVO",value = "费用对象")
     private OrderCostDetailVO   orderCostDetailVO;
-
+    @ApiModelProperty(name = "isExcess",value = "是否超额:0否1超额")
+    private Integer isExcess;
+    @ApiModelProperty(name = "excessMoney",value = "超额金额")
+    private String excessMoney;
+    @ApiModelProperty(name = "payState",value = "是否支付")
+    private String payState;
+    @ApiModelProperty(name = "payId",value = "对外订单编号，与第三方平台对接")
+    private String payId;
+    @ApiModelProperty(name = "historyTraceList",value = "订单轨迹")
+    private List<OrderHistoryTraceDto> historyTraceList;
+    @ApiModelProperty(name = "cancelFee",value = "网约车取消费明细")
+    private List<OtherCostBean> cancelFee;
 }
+

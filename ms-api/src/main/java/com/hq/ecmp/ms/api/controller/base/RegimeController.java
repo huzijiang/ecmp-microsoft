@@ -283,7 +283,27 @@ public class RegimeController {
 		return ApiResponse.success(regimeInfoService.queryRegimeDetail(regimeId));
 	}
 
-
+    /**
+     * 通过申请人查询可用的制度
+     * @param
+     * @return ApiResponse<List<RegimeInfo>> 用车制度信息
+     */
+    @Log(title = "用车制度",content = "通过申请人查询可用的制度", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getUserSystem",notes = "通过申请人查询可用的制度",httpMethod ="POST")
+    @PostMapping("/getUserSystem")
+    public ApiResponse<List<RegimenVO>> getUserSystem(@RequestBody Long userId){
+        try {
+            if(userId==null){
+                return ApiResponse.error("该用户不是公司员工");
+            }
+            //根据用户id查询用车制度
+            List<RegimenVO> list = regimeInfoService.getUserSystem(userId);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            log.error("查询用户场景与制度列表失败，用户id：{}",userId,e);
+            return ApiResponse.error(e.getMessage());
+        }
+    }
 
 
 }

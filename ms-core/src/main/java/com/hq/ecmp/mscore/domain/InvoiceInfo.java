@@ -73,6 +73,10 @@ public class InvoiceInfo extends BaseEntity
     private String invoiceUrl;
 
 
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long companyId;
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

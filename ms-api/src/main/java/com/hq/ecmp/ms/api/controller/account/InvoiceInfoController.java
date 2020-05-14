@@ -1,7 +1,6 @@
 package com.hq.ecmp.ms.api.controller.account;
 
 
-import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.ServletUtils;
@@ -49,17 +48,12 @@ import java.util.*;
  @RequestMapping("/invoice")
 public class InvoiceInfoController {
 
-     private static final Logger logger = LoggerFactory.getLogger(InvoiceInfoController.class);
-
-    @Value("${thirdService.enterpriseId}") // 企业编号
-    private String enterpriseId;
-    @Value("${thirdService.licenseContent}") // 企业证书信息
-    private String licenseContent;
-    @Value("${thirdService.apiUrl}") // 三方平台的接口前地址
-    private String apiUrl;
-
     @Autowired
     private IInvoiceInfoService invoiceInfoService;
+
+    @Autowired
+    private TokenService tokenService;
+
     @Autowired
     private OrderAccountInfoMapper orderAccountInfoMapper;
     @Autowired
@@ -78,8 +72,6 @@ public class InvoiceInfoController {
     @ApiOperation(value = "getInvoiceInfoList",notes = "发票记录列表查询",httpMethod = "POST")
     @PostMapping("/getInvoiceInfoList")
     public ApiResponse<PageResult<InvoiceRecordVO>> getInvoiceInfoList(@RequestBody InvoiceByTimeStateDTO invoiceByTimeStateDTO){
-        Long  userId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId();
-        invoiceByTimeStateDTO.setCreateBy(userId);
         PageResult<InvoiceRecordVO> invoiceInfoList = invoiceInfoService.queryAllByTimeState(invoiceByTimeStateDTO);
         return ApiResponse.success(invoiceInfoList);
     }
@@ -102,12 +94,6 @@ public class InvoiceInfoController {
         invoiceInsertDTO.setContent(invoiceDTO.getContent());
         invoiceInsertDTO.setAmount(invoiceDTO.getAmount());
         invoiceInsertDTO.setAcceptAddress(invoiceDTO.getAcceptAddress());
-        invoiceInsertDTO.setBankName(invoiceDTO.getBankName());
-        invoiceInsertDTO.setBankCardNo(invoiceDTO.getBankCardNo());
-        invoiceInsertDTO.setTelephone(invoiceDTO.getTelephone());
-        invoiceInsertDTO.setRegistedAddress(invoiceDTO.getRegistedAddress());
-        invoiceInsertDTO.setCreateBy(userId);
-        invoiceInsertDTO.setEmail(invoiceDTO.getEmail());
         try {
          invoiceInfoService.insertInvoiceInfo(invoiceInsertDTO);
          Long invoiceId = invoiceInsertDTO.getInvoiceId();
@@ -199,7 +185,7 @@ public class InvoiceInfoController {
 
     /**
      * 发票信息详情
-     * @param invoiceId
+     * @param insertDTO
      * @return
      */
     @Log(title = "财务模块",content = "发票信息详情", businessType = BusinessType.OTHER)
@@ -221,8 +207,13 @@ public class InvoiceInfoController {
     @ApiOperation(value = "invoiceHeaderCommit",notes = "新增发票抬头",httpMethod = "POST")
     @PostMapping("/invoiceHeaderCommit")
     public ApiResponse invoiceHeaderCommit(@RequestBody InvoiceHeaderDTO invoiceHeaderDTO){
+
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        invoiceHeaderDTO.setCompanyId(companyId);
         try {
-            List<InvoiceHeaderVO> invoiceHeaderList = invoiceInfoService.queryInvoiceHeader();
+            List<InvoiceHeaderVO> invoiceHeaderList = invoiceInfoService.queryInvoiceHeader(companyId);
             if(invoiceHeaderList.size()>0){
                 invoiceInfoService.deleteInvoiceHeader();
             }
@@ -243,25 +234,10 @@ public class InvoiceInfoController {
     @ApiOperation(value = "getInvoiceHeaderList",notes = "发票抬头查询",httpMethod = "POST")
     @PostMapping("/getInvoiceHeaderList")
     public ApiResponse<List<InvoiceHeaderVO>> getInvoiceHeaderList(){
-        List<InvoiceHeaderVO> invoiceHeaderList = invoiceInfoService.queryInvoiceHeader();
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        List<InvoiceHeaderVO> invoiceHeaderList = invoiceInfoService.queryInvoiceHeader(companyId);
         return ApiResponse.success(invoiceHeaderList);
     }
-
-
-
-    @Log(title = "发票模块",content = "发票重发", businessType = BusinessType.OTHER)
-    @ApiOperation(value = "reissueofInvoice",notes = "发票重发",httpMethod = "POST")
-    @PostMapping("/reissueofInvoice")
-    @RequestMapping(value = "/reissueofInvoice", method = RequestMethod.POST)
-    public ApiResponse reissueofInvoice(Long invoiceId,String mailboxes,String toResend) {
-        try{
-            invoiceInfoService.reissueofInvoice(invoiceId,mailboxes,toResend);
-            ApiResponse.success("发票重发成功");
-        }catch(Exception e){
-            logger.error("发票重发异常",e);
-        }
-        return ApiResponse.error("发票重发异常");
-    }
-
-
  }

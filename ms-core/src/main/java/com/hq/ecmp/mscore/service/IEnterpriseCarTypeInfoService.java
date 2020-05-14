@@ -98,4 +98,18 @@ public interface IEnterpriseCarTypeInfoService
      * @param targetCarTypeId
      */
     void sortCarType(Long mainCarTypeId, Long targetCarTypeId,Long userId) throws Exception;
+
+    /**
+     * 车型图标中已经用过的图标
+     * @param companyId
+     * @return
+     */
+    List<CarTypeDTO> selectEnterpriseCarTypeList(String companyId);
+
+    /**
+     *根据CarTypeIdd查询对应的车型id集合
+     * @param carTypeDTO
+     * @return
+     */
+    List<CarTypeDTO> selectCarTypeById(CarTypeDTO carTypeDTO);
 }

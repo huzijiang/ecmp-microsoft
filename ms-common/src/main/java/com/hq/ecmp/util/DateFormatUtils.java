@@ -3,8 +3,10 @@ package com.hq.ecmp.util;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -51,6 +53,7 @@ public class DateFormatUtils {
     public static final String DATE_TIME_FORMAT_1 = "yyyy-MM-dd HH:mm";
 
     public static final String TIME_FORMAT = "HH:mm";
+    public static final String TIME_FORMAT_1 = "HH";
 
     public static final String MONTH_DAY_FORMAT = "MM-dd";
 
@@ -73,11 +76,33 @@ public class DateFormatUtils {
      */
     public static Date parseDate(String pattern, String dateString) {
         try {
-            return FastDateFormat.getInstance(pattern).parse(dateString);
-        } catch (ParseException e) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+            Date dateTime = null;
+            try {
+                dateTime = simpleDateFormat.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return dateTime;
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String timeStamp2Date(String seconds,String format) {
+        if(StringUtils.isBlank(seconds)){
+            return "";
+        }
+        if(format == null || format.isEmpty()){
+            format = DATE_TIME_FORMAT;
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        if (seconds.length()==13){
+            return sdf.format(new Date(Long.valueOf(seconds)));
+        }else{
+            return sdf.format(new Date(Long.valueOf(seconds+"000")));
+        }
     }
 
     /**
@@ -107,7 +132,12 @@ public class DateFormatUtils {
         }
     }
 
-    //比较两个时间的大小
+    /**
+     * 比较两个时间大小
+     * @param start  hh:mm
+     * @param end   hh:mm
+     * @return -1:start>end,0:end=start,1:start<end
+     */
     public static int compareTime(String start, String end) {
         if (StringUtils.isBlank(start)||StringUtils.isBlank(end)){
             return 0;
@@ -125,6 +155,61 @@ public class DateFormatUtils {
         } catch (Exception e) {
             e.printStackTrace();
 
+            return 0;
+        }
+    }
+
+    /**
+     * 比较两个日期+时间大小
+     * @param startDate  yyyy-MM-dd HH:mm
+     * @param endDate  yyyy-MM-dd HH:mm
+     * @return -1:start>end,0:end=start,1:start<end
+     */
+    public static int compareDayAndTime(Date startDate, Date endDate) {
+        if (startDate==null||endDate==null){
+            return 0;
+        }
+        String start= new SimpleDateFormat(DATE_TIME_FORMAT_1). format(startDate);
+        String end= new SimpleDateFormat(DATE_TIME_FORMAT_1). format(endDate);
+        Long startDay=parseDate(DATE_TIME_FORMAT_1,start).getTime();
+        Long endDay=parseDate(DATE_TIME_FORMAT_1,end).getTime();
+        try {
+            if (startDay.longValue()>endDay.longValue()){
+                return -1;
+            }else if(startDay.longValue()<endDay.longValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return 0;
+        }
+    }
+
+    /**
+     * 比较两个日期+时间大小
+     * @param start  yyyy-MM-dd
+     * @param end  yyyy-MM-dd
+     * @return -1:start>end,0:end=start,1:start<end
+     */
+    public static int compareDate(String start, String end) {
+        if (StringUtils.isBlank(start)||StringUtils.isBlank(end)){
+            return 0;
+        }
+        Long startDay=parseDate(DATE_FORMAT,start).getTime();
+        Long endDay=parseDate(DATE_FORMAT,end).getTime();
+        try {
+            if (startDay.longValue()>endDay.longValue()){
+                return -1;
+            }else if(startDay.longValue()<endDay.longValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             return 0;
         }
     }
@@ -284,9 +369,8 @@ public class DateFormatUtils {
 		return Long.valueOf(interval);
 	}
 
-	public static String getWeek(){
+	public static String getWeek( Date today){
         String week = "";
-            Date today = new Date();
             Calendar c = Calendar.getInstance();
             c.setTime(today);
             int weekday = c.get(7);
@@ -308,20 +392,109 @@ public class DateFormatUtils {
             return week;
 	}
 
+    public static String addDay(String s, int n) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+
+            Calendar cd = Calendar.getInstance();
+            cd.setTime(sdf.parse(s));
+            cd.add(Calendar.DATE, n);//增加一天
+            //cd.add(Calendar.MONTH, n);//增加一个月
+
+            return sdf.format(cd.getTime());
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String YEAR_REGEX = "^\\d{4}$";
+    public static String MONTH_REGEX = "^\\d{4}(\\-|\\/|\\.)\\d{1,2}$";
+    public static String DATE_REGEX = "^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$";
+    //根据开始结束时间的格式分割时间
+    public static List<String> sliceUpDateRange(String startDate, String endDate) {
+        List<String> rs = new ArrayList<>();
+        try {
+            int dt = Calendar.DATE;
+            String pattern = "yyyy-MM-dd";
+            String[] temp = getPattern(startDate);
+            pattern = temp[0];
+            dt = Integer.parseInt(temp[1]);
+            Calendar sc = Calendar.getInstance();
+            Calendar ec = Calendar.getInstance();
+            sc.setTime(parseDate(pattern,startDate));
+            ec.setTime(parseDate(pattern,endDate));
+            while(sc.compareTo(ec) < 1){
+                rs.add(formatDate(pattern,sc.getTime()));
+                sc.add(dt, 1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return rs;
+    }
+
+    /**
+     * 计算两个日期的相差天数，年 月 日 格式都可
+     * @param startDate 参数示例 2020、2020-01、2020-01-01
+     * @param endDate
+     * @return
+     */
+    public static int getDayDuration(String startDate, String endDate){
+        int dayDuration=0;
+        List<String> list = DateFormatUtils.sliceUpDateRange(startDate,endDate);
+        for (String date: list) {
+            Calendar calendar = Calendar.getInstance();
+            if(date.matches(DateFormatUtils.MONTH_REGEX)) {
+                date=date+"-01-01";
+                calendar.setTime(DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT,date));
+                dayDuration +=calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+            }
+            if(date.matches(DateFormatUtils.YEAR_REGEX)) {
+                date=date+"-01";
+                calendar.setTime(DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT,date));
+                dayDuration +=calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
+            }
+            if(date.matches(DateFormatUtils.DATE_REGEX)) {
+                dayDuration ++;
+            }
+        }
+        return dayDuration;
+    }
+
+    public static String[] getPattern(String date){
+        String[] x = new String[2];
+        if(date.matches(YEAR_REGEX)) {
+            x[0] = "yyyy";
+            x[1] = String.valueOf(Calendar.YEAR);
+        } else if(date.matches(MONTH_REGEX)) {
+            x[0] = "yyyy-MM";
+            x[1] = String.valueOf(Calendar.MONTH);
+        } else if(date.matches(DATE_REGEX)) {
+            x[0] = "yyyy-MM-dd";
+            x[1] = String.valueOf(Calendar.DATE);
+        }
+        return x;
+    }
 
 
      public  static void main(String[] args){
-         Date date = parseDate(DATE_TIME_FORMAT, "2020-04-10 22:22:22");
-         int i=compareDay(date,new Date());
-         if (i==-1){
-             System.out.println("大于当前时间");
-         }else if (i==0){
-             System.out.println("相等");
-         }else{
-             System.out.println("小于当前时候");
-         }
+//         Date date = parseDate(DATE_TIME_FORMAT, "2020-04-10 22:22:22");
+//         System.out.println(date);
+//         System.out.println(date.getTime());
+         String date1="2020-04-30";
+         System.out.println("当前时间"+date1);
+         System.out.println("加的日期"+addDay(date1, 1));
+         System.out.println("减的日期"+addDay(date1, -1));
 
-         System.out.println(date.toString());
-         System.out.println(new Date().toString());
+//         int i=compareTime("2020-05-06 19:30:50","2020-05-07 19:30:50");
+//         if (i==-1){
+//             System.out.println("大于当前时间");
+//         }else if (i==0){
+//             System.out.println("相等");
+//         }else{
+//             System.out.println("小于当前时候");
+//         }
+
      }
 }

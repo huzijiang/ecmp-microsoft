@@ -234,4 +234,39 @@ public class ThirdServiceImpl implements ThirdService {
             throw new Exception("获取客服电话异常");
         }
     }
+
+    @Override
+    public JSONObject threeCancelServer(Long orderId,String cancelReason)throws Exception{
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("enterpriseId", enterpriseId);
+        paramMap.put("enterpriseOrderId", String.valueOf(orderId));
+        paramMap.put("licenseContent", licenseContent);
+        paramMap.put("mac",  MacTools.getMacList().get(0));
+        paramMap.put("reason", cancelReason);
+        log.info("网约车订单{}取消参数{}",orderId,paramMap);
+        String result = OkHttpUtil.postForm(apiUrl + "/service/cancelOrder", paramMap);
+        log.info("网约车订单{}取消返回结果{}",orderId,result);
+        JSONObject jsonObject = JSONObject.parseObject(result);
+        if (ApiResponse.SUCCESS_CODE != jsonObject.getInteger("code")) {
+            throw new Exception("调用三方取消订单服务-》取消失败");
+        }
+        return jsonObject.getJSONObject("data");
+    }
+
+    @Override
+    public JSONObject getOnlienCarType(Long orderId)throws Exception{
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("enterpriseId", enterpriseId);
+        paramMap.put("licenseContent", licenseContent);
+        paramMap.put("mac",  MacTools.getMacList().get(0));
+        log.info("网约车订单{}取消参数{}",orderId,paramMap);
+        String result = OkHttpUtil.postForm(apiUrl + "/basic/carTypes", paramMap);
+        log.info("网约车订单{}取消返回结果{}",orderId,result);
+        JSONObject jsonObject = JSONObject.parseObject(result);
+        if (ApiResponse.SUCCESS_CODE != jsonObject.getInteger("code")) {
+            throw new Exception("调用三方取消订单服务-》取消失败");
+        }
+        return jsonObject.getJSONObject("data");
+    }
+
 }

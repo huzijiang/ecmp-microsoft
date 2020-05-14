@@ -295,8 +295,8 @@ public class CarInfoServiceImpl implements ICarInfoService
      * 可管理车辆总数
      */
     @Override
-    public int queryCompanyCarCount(){
-        return carInfoMapper.queryCompanyCar();
+    public int queryCompanyCarCount(Long companyId){
+        return carInfoMapper.queryCompanyCar(companyId);
     }
 
     /**
@@ -616,6 +616,16 @@ public class CarInfoServiceImpl implements ICarInfoService
         Long count=carInfoMapper.carWorkOrderListCount(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
         Collections.sort(driverOrderVos);
         return new PageResult(count,driverOrderVos);
+    }
+
+    /**
+     * 补单查询车辆列表
+     * @param carInfo
+     * @return
+     */
+    @Override
+    public List<CarInfo> supplementObtainCar(CarInfo carInfo) {
+        return carInfoMapper.supplementObtainCar(carInfo);
     }
 
     /**

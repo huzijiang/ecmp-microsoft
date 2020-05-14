@@ -82,7 +82,7 @@ public interface IDriverInfoService
     /**
      *驾驶员总数
      */
-    public int queryCompanyDriverCount();
+    public int queryCompanyDriverCount(Long companyId);
     /**
      *
      * @param driverRegisterDTO
@@ -167,6 +167,4 @@ public interface IDriverInfoService
      * @return
      */
     PageResult driverWorkOrderList(PageRequest pageRequest);
-
-
 }

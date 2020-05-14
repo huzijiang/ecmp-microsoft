@@ -51,6 +51,7 @@ public class InvoiceInsertDTO {
        String registedAddress;
 
 
+       private Long companyId;
 
 
 }

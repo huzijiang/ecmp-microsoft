@@ -26,6 +26,7 @@ import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.DriverVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,6 +43,7 @@ import java.util.Map;
  * @Date: 2019-12-31 13:16
  */
 @RestController
+@Slf4j
 @RequestMapping("/car")
 public class CarController {
 
@@ -160,7 +162,7 @@ public class CarController {
         try {
             carId = carInfoService.saveCar(carSaveDTO, userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("新增车辆失败，请求参数：{},操作人：{}",carSaveDTO,loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error(e.getMessage());
         }
        return ApiResponse.success("新增车辆成功",carId);
@@ -183,6 +185,7 @@ public class CarController {
              carInfoService.updateCar(carSaveDTO, userId);
         } catch (Exception e) {
             e.printStackTrace();
+            log.error("编辑车辆失败，请求参数：{}，操作人：{}",carSaveDTO,loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error("修改信息失败");
         }
         return ApiResponse.success("修改车辆信息成功");
@@ -394,5 +397,26 @@ public class CarController {
     public ApiResponse<List<String>> getCarTypeList() {
        List<String> carTypeList = carInfoService.selectCarTypeList();
         return ApiResponse.success(carTypeList);
+    }
+    /**
+     * 补单查询车辆列表
+     * @param
+     * @return
+     */
+    @Log(title = "补单查询车辆列表",content = "补单查询车辆列表", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "supplementObtainCar",notes = "补单查询车辆列表",httpMethod ="POST")
+    @PostMapping("/supplementObtainCar")
+    public ApiResponse<List<CarInfo>> supplementObtainCar(@RequestBody CarInfo carInfo){
+        try {
+            //获取登录用户
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            carInfo.setCompanyId(Long.valueOf(loginUser.getUser().getDept().getCompanyId()));
+            List<CarInfo> list = carInfoService.supplementObtainCar(carInfo);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询失败");
+        }
     }
 }

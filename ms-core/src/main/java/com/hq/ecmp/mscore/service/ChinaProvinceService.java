@@ -1,6 +1,5 @@
 package com.hq.ecmp.mscore.service;
 
-import com.hq.ecmp.mscore.bo.CityInfo;
 import com.hq.ecmp.mscore.vo.ProvinceCityVO;
 import com.hq.ecmp.mscore.vo.ProvinceVO;
 

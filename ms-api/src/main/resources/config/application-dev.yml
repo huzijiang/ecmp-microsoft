@@ -72,7 +72,7 @@ spring:
 # 开发环境配置
 server:
     # 服务器的HTTP端口，默认为8080
-    port: 33000
+    port: 8080
     servlet:
         # 应用的访问路径
         context-path: /
@@ -95,11 +95,7 @@ token:
 thirdService:
     enterpriseId: 100000
     licenseContent: AAAAAAAA
-    apiUrl: http://10.117.1.231:51002
-
-#行程分享路径
-order:
-   shareUrl: https://www.baidu.com?
+    apiUrl: http://10.7.106.112:51002
 
 file:
   config:
@@ -123,8 +119,26 @@ dispatch:
     notBackCarGroup: 60
     #回车队驻地缓冲时间: 90分钟
     backCarGroup: 90
+    #无车驳回的可操作最小时间限制 30分钟
+    noCarDeniedMinutes: 30
+    #外部公司可展示内部公司调度单的时间间隔
+    waitIntervalMinutes: 10
 
 #调度行程确认的时间间隔
 schedule:
     confirmTimeout: 12
 
+#应用ID
+appId: "wxb1c50ac4effd77c7"
+#公众号 APP_SECRET
+appSecret: "bb9dbc446e5c8bfef07babe402d9d7af"
+#商户号
+mchId: "1517977791"
+#商户秘钥
+mchKey: "f6ad7e4369c963d75c2e19a5f88a261a"
+#开发环境回调地址
+notify_url: "https://dev-app-api.hqzhixing.com/pay/wechat/v1/callback"
+#交易类型
+trade_type: "APP"
+#签名类型
+sign_type: "MD5"

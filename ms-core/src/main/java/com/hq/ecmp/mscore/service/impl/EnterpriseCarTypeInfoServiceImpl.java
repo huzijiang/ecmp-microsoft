@@ -159,7 +159,7 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
         enterpriseCarTypeInfo.setCompanyId(carDto.getCompanyId());
         enterpriseCarTypeInfo.setName(carDto.getName());
         //增加車型級別
-        String Level = enterpriseCarTypeInfoMapper.getCarTypeDTOById();
+        String Level = enterpriseCarTypeInfoMapper.getCarTypeDTOById(carDto.getCompanyId());
         String carLevelType= "P001";
         if(Level!=null && Level !=""){
             String carLevel = Level.substring(1);
@@ -172,6 +172,7 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
         // 初始化状态为生效  状态   S000   生效中    S444   失效中
         enterpriseCarTypeInfo.setStatus(CarConstant.START_CAR_TYPE);
         enterpriseCarTypeInfo.setCreateBy(String.valueOf(userId));
+        enterpriseCarTypeInfo.setImageUrl(carDto.getImageUrl());
         enterpriseCarTypeInfo.setCreateTime(new Date());
         int i = enterpriseCarTypeInfoMapper.insertEnterpriseCarTypeInfo(enterpriseCarTypeInfo);
         if(i != 1){
@@ -190,6 +191,7 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
         enterpriseCarTypeInfo.setCarTypeId(carDto.getCarTypeId());
         enterpriseCarTypeInfo.setName(carDto.getName());
         enterpriseCarTypeInfo.setLevel(carDto.getLevel());
+        enterpriseCarTypeInfo.setImageUrl(carDto.getImageUrl());
         enterpriseCarTypeInfo.setUpdateBy(String.valueOf(userId));
         enterpriseCarTypeInfo.setUpdateTime(new Date());
         int i = enterpriseCarTypeInfoMapper.updateEnterpriseCarTypeInfo(enterpriseCarTypeInfo);
@@ -219,6 +221,7 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
                     .enterpriseId(carTypeInfo.getCompanyId())
                     .carType(carTypeInfo.getCarType())
                     .carNum(carTypeInfo.getCarNum())
+                    .imageUrl(carTypeInfo.getImageUrl())
                     .build();
             list.add(carTypeVO);
         }
@@ -250,5 +253,25 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
         if(j != 1){
             throw new Exception();
         }
+    }
+
+    /**
+     * 车型图标中已经用过的图标
+     * @param companyId
+     * @return
+     */
+    @Override
+    public List<CarTypeDTO> selectEnterpriseCarTypeList(String companyId) {
+        return enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeList(Long.valueOf(companyId));
+    }
+
+    /**
+     * 根据CarTypeIdd查询对应的车型id集合
+     * @param carTypeDTO
+     * @return
+     */
+    @Override
+    public List<CarTypeDTO> selectCarTypeById(CarTypeDTO carTypeDTO) {
+        return enterpriseCarTypeInfoMapper.selectCarTypeById(carTypeDTO);
     }
 }

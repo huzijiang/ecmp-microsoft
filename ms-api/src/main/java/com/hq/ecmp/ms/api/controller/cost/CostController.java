@@ -11,6 +11,7 @@ import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
+import com.hq.ecmp.mscore.vo.SupplementVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +49,8 @@ public class CostController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             //获取当前登陆用户的信息Id
             Long userId = loginUser.getUser().getUserId();
+            Long companyId = loginUser.getUser().getOwnerCompany();
+            costConfigDto.setCompanyId(companyId);
             costConfigInfoService.createCostConfig(costConfigDto,userId);
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,6 +69,11 @@ public class CostController {
     public ApiResponse<List<CostConfigListResult>> queryCostConfigList(@RequestBody  CostConfigQueryDto costConfigQueryDto){
         List<CostConfigListResult> costConfigListResults;
         try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            //获取当前登陆用户的信息Id
+            Long companyId = loginUser.getUser().getOwnerCompany();
+            costConfigQueryDto.setCompanyId(String.valueOf(companyId));
             costConfigListResults = costConfigInfoService.selectCostConfigInfoList(costConfigQueryDto);
         } catch (Exception e) {
             e.printStackTrace();
@@ -153,6 +161,31 @@ public class CostController {
             return  ApiResponse.error("判重失败");
         }
         return ApiResponse.success(i);
+    }
+
+    /**
+     * 补单成本计算
+     * @param
+     * @return
+     */
+    @Log(value = "补单成本计算")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "补单成本计算",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
+    @PostMapping("/supplementAmountCalculation")
+    public ApiResponse supplementAmountCalculation(@RequestBody SupplementVO supplement){
+        ApiResponse apiResponse = new ApiResponse();
+        try {
+            //获取登陆用户的信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            String companyId = loginUser.getUser().getDept().getCompanyId();
+            String json = costConfigInfoService.supplementAmountCalculation(supplement,companyId);
+            apiResponse.setData(json);
+        } catch (Exception e) {
+            e.printStackTrace();
+            apiResponse.setMsg("补单成本计算失败");
+            return apiResponse;
+        }
+        return apiResponse;
     }
 
 }

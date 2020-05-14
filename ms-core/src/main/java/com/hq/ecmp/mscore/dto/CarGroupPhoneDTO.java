@@ -10,4 +10,6 @@ import lombok.Data;
 public class CarGroupPhoneDTO {
 
     private String cityCode;
+
+    private Long orderId;
 }

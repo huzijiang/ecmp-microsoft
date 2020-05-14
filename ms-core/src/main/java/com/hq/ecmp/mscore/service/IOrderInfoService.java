@@ -79,9 +79,11 @@ public interface IOrderInfoService {
      * @param orderId
      * @param updateState
      * @param userId
+     * @param oldCarId  改派前的车辆id
+     * @param oldDriverId 改派后的司机id
      * @return
      */
-    public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason);
+    public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason,Long oldDriverId,Long oldCarId);
 
 
     /**
@@ -95,9 +97,10 @@ public interface IOrderInfoService {
 
     /**
      * 查询所有已完成调度的订单
+     * @param userId  当前登录人id
      * @return
      */
-    public List<DispatchOrderInfo> queryCompleteDispatchOrder();
+    public List<DispatchOrderInfo> queryCompleteDispatchOrder(Long userId);
 
     /**
      *  通过用户id查询司机的任务列表
@@ -255,9 +258,11 @@ public interface IOrderInfoService {
      * @param rejectReason
      * @param status
      * @param userId
+     * @param oldDriverId 老司机id
+     * @param oldCarId 老车id
      * @throws Exception
      */
-    public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception;
+    public void reassign( String orderNo,String rejectReason,String status,Long userId,Long oldDriverId,Long oldCarId) throws Exception;
 
     Integer getDriverOrderListCount(LoginUser loginUser) throws Exception;
 

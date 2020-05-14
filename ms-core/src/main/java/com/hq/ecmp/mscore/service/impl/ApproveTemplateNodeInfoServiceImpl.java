@@ -138,7 +138,7 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
     public void addFlowTemplate(AddFolwDTO addFolwDTO,Long userId,Long ownerCompany) throws Exception {
         ApproveTemplateInfo approveTemplateInfo = new ApproveTemplateInfo();
         approveTemplateInfo.setName(addFolwDTO.getName());
-        approveTemplateInfo.setOwnerCompany(ownerCompany);
+        approveTemplateInfo.setCompanyId(ownerCompany);
         approveTemplateInfo.setCreateBy(String.valueOf(userId));
         approveTemplateInfo.setCreateTime(new Date());
         log.info("新增审批流参数:"+addFolwDTO.getName()+"创建人"+userId+"审批级数"+addFolwDTO.getFlowList().size());
@@ -192,7 +192,7 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
                     if (StringUtils.isEmpty(deptLeader)){
                         deptLeader=this.getOrgByDeptId(user.getDeptId());
                     }
-                    log.info("制度id:"+regimeId+"的部门主管审批对象为:"+deptLeader.toString());
+                    log.info("制度id:"+regimeId+"的部门主管审批对象为:"+deptLeader);
                     userIds=deptLeader;
                 }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(info.getApproverType())){//项目负责人
                     if (StringUtils.isEmpty(projectId)){

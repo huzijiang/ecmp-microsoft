@@ -1,9 +1,6 @@
 package com.hq.ecmp.mscore.dto;
 
-import com.hq.ecmp.mscore.vo.ApprovalVO;
-import com.hq.ecmp.mscore.vo.TravelPickupCity;
-import com.hq.ecmp.mscore.vo.TravelRequest;
-import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -133,5 +130,11 @@ public class  ApplyTravelRequest {
     @ApiModelProperty(name = "endDate", value = "行程最后结束时间", required = false, position = 18)
     private Date endDate;  // TODO 新增
 
+    private Long companyId;
 
+    /**
+     * 用车城市可用车型
+     */
+    @ApiModelProperty(name = "useCarTypes", value = "用车城市可用车型", required = false, position = 25)
+    private List<UseCarTypeVO> canUseCarTypes;
 }
