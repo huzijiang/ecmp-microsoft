@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.statistics;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.dto.statistics.StatisticsParam;
 import com.hq.ecmp.mscore.service.StatisticsOrderService;
@@ -8,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,10 +65,10 @@ public class OrderStatisticsController {
     }
     @ApiOperation(value = "orderEndOfDept",notes = "订单部门分布统计",httpMethod = "POST")
     @PostMapping("/orderEndOfDept")
-    public ApiResponse orderEndOfDept(@RequestHeader("Authorization")String authorization, @RequestBody StatisticsParam statisticsParam){
+    public ApiResponse orderEndOfDept(@RequestBody StatisticsParam statisticsParam){
         try {
             List<Long> longs = new ArrayList<>();
-            longs.add(tokenService.getLoginUser(authorization).getUser().getDept().getParentId());
+            longs.add(tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getDept().getParentId());
             statisticsParam.setDeptIds(longs);
             return statisticsOrderService.orderEndOfDept(statisticsParam);
         } catch (Exception e) {
