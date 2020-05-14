@@ -40,11 +40,11 @@ public class AliPayController {
 
     private static final Logger log = LoggerFactory.getLogger(AliPayController.class);
 
-//    @Autowired
-//    private IOrderInfoService iOrderInfoService;
-//
-//    @Autowired
-//    private IOrderStateTraceInfoService iOrderStateTraceInfoService;
+    @Autowired
+    private IOrderInfoService iOrderInfoService;
+
+    @Autowired
+    private IOrderStateTraceInfoService iOrderStateTraceInfoService;
 
     @Autowired
     private IOrderSettlingInfoService iOrderSettlingInfoService;
@@ -109,18 +109,18 @@ public class AliPayController {
                 //判断订单是否已支付
                 OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(out_trade_no);
                 if(null != orderPayInfoByPayId && !OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
-//                    //把订单状态改为关闭状态
-//                    OrderInfo orderInfo = new OrderInfo();
-//                    orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
-//                    orderInfo.setState(OrderState.ORDERCLOSE.getState());
-//                    int i = iOrderInfoService.updateOrderInfo(orderInfo);
-//                    OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderPayInfoByPayId.getOrderId(), OrderState.ORDERCLOSE.getState());
-//                    int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-//                    if(1 == i && 1 ==j){
-//                        log.info("订单信息修改成功");
-//                    }else{
-//                        log.info("订单信息修改失败");
-//                    }
+                    //把订单状态改为关闭状态
+                    OrderInfo orderInfo = new OrderInfo();
+                    orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
+                    orderInfo.setState(OrderState.ORDERCLOSE.getState());
+                    int i = iOrderInfoService.updateOrderInfo(orderInfo);
+                    OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderPayInfoByPayId.getOrderId(), OrderState.ORDERCLOSE.getState());
+                    int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+                    if(1 == i && 1 ==j){
+                        log.info("订单信息修改成功");
+                    }else{
+                        log.info("订单信息修改失败");
+                    }
                     //插入订单支付表
                     OrderPayInfo orderPayInfo = new OrderPayInfo();
                     orderPayInfo.setTransactionLog(trade_no);
