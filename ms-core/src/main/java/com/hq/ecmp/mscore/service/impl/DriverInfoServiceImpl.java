@@ -300,8 +300,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      *驾驶员总数
      */
     @Override
-    public int queryCompanyDriverCount(){
-        return driverInfoMapper.queryCompanyDriver();
+    public int queryCompanyDriverCount(Long companyId){
+        return driverInfoMapper.queryCompanyDriver(companyId);
     }
     /**
      *
@@ -572,6 +572,16 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * 补单获取驾驶员列表
+	 * @param driverInfo
+	 * @return
+	 */
+	@Override
+	public List<DriverInfo> supplementObtainDriver(DriverInfo driverInfo) {
+		return driverInfoMapper.supplementObtainDriver(driverInfo);
 	}
 
 }

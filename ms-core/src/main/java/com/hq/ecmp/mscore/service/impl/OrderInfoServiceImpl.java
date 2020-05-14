@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.hq.ecmp.constant.CommonConstant.ONE;
+import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
 
 /**
@@ -124,7 +125,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private IDispatchService dispatchService;
     @Autowired
     private IEcmpOrgService ecmpOrgService;
-    @Autowired
+    @Resource
     private SceneInfoMapper sceneInfoMapper;
     @Autowired
     private IOrderPayInfoService iOrderPayInfoService;
@@ -231,15 +232,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderList;
     }
 
+
     /**
      * 订单状态修改方法getOrderList
-     * @param orderId
-     * @param updateState
      * @return
      */
     @Override
     @Transactional
-    public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason){
+    public  int insertOrderStateTrace(String orderId, String updateState, String userId, String cancelReason, Long oldDriverId, Long oldCarId){
         OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
         orderStateTraceInfo.setOrderId(Long.parseLong(orderId));
         orderStateTraceInfo.setState(updateState);
@@ -481,7 +481,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	}
 
 	@Override
-	public List<DispatchOrderInfo> queryCompleteDispatchOrder() {
+	public List<DispatchOrderInfo> queryCompleteDispatchOrder(Long userId) {
 		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//获取系统里已经完成调度的订单
 		List<DispatchOrderInfo> list = orderInfoMapper.queryCompleteDispatchOrder();
@@ -781,7 +781,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         //服务结束时间
-        OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
         vo.setLabelState(orderStateTraceInfo.getState());
         vo.setCancelReason(orderStateTraceInfo.getContent());
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
@@ -848,7 +847,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             String overMoney = iOrderPayInfoService.checkOrderFeeOver(orderId, journeyInfo.getRegimenId(), orderInfo.getUserId());
             if (StringUtils.isEmpty(overMoney) || BigDecimal.ZERO.compareTo(new BigDecimal(overMoney)) > 0) {
                 vo.setIsExcess(ZERO);
-                vo.setExcessMoney(String.valueOf(CommonConstant.ZERO));
+                vo.setExcessMoney(String.valueOf(ZERO));
             } else {
                 vo.setIsExcess(ONE);
                 vo.setExcessMoney(overMoney);
@@ -915,17 +914,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (j != 1) {
             throw new Exception("约车失败");
         }
-        boolean reassignment = iOrderStateTraceInfoService.isReassignment(orderId);
         //改派的订单需要操作改派同意
-        if(reassignment){
-            insertOrderStateTrace(String.valueOf(orderId), ResignOrderTraceState.AGREE.getState(), userId, null);
-            //改派订单消息通知
-            ismsBusiness.sendMessageReassignSucc(orderId,Long.parseLong(userId));
-        }else{
-            //添加约车中轨迹状态
-            insertOrderStateTrace(String.valueOf(orderId), OrderState.SENDINGCARS.getState(), userId, null);
-        }
-        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         String serviceType = orderInfo.getServiceType();
         if(serviceType == null || !OrderServiceType.getNetServiceType().contains(serviceType)){
             throw new Exception("调用网约车参数异常-》服务类型异常！");
@@ -1611,8 +1600,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             applyUseWithTravelDto.setGroupId(substring);
         }
         //订单轨迹
-        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null);
-        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
+        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null,null,null);
+        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null,null,null);
         //订单地址表
         String startPoint = applyUseWithTravelDto.getStartPoint();
         String endPoint = applyUseWithTravelDto.getEndPoint();
@@ -1817,7 +1806,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
             DriverHeartbeatInfo driverHeartbeatInfo = new DriverHeartbeatInfo();
             driverHeartbeatInfo.setOrderId(orderId);
-            List<DriverHeartbeatInfo> driverHeartbeatInfos = iDriverHeartbeatInfoService.selectDriverHeartbeatInfoList(driverHeartbeatInfo);
+            List<DriverHeartbeatInfo> driverHeartbeatInfos = driverHeartbeatInfoMapper.selectDriverHeartbeatInfoList(driverHeartbeatInfo);
             for (DriverHeartbeatInfo driverHeartbeatInfo1:
             driverHeartbeatInfos) {
                 OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();
@@ -2001,7 +1990,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
 
         //插入订单轨迹表
-        this.insertOrderStateTrace(String.valueOf(orderId), OrderStateTrace.CANCEL.getState(), String.valueOf(userId),cancelReason);
+        this.insertOrderStateTrace(String.valueOf(orderId), OrderStateTrace.CANCEL.getState(), String.valueOf(userId),cancelReason,null,null);
         //用车权限次数做变化
         journeyUserCarCountOp(orderInfoOld.getPowerId(),2);
     }
@@ -2323,7 +2312,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
 
             int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
-            if (orderConfirmStatus == CommonConstant.ZERO) {
+            if (orderConfirmStatus == ZERO) {
                 //自动确认
                 status = OrderState.ORDERCLOSE.getState();
                 lableState = OrderState.ORDERCLOSE.getState();

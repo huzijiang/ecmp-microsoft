@@ -27,6 +27,8 @@ import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.util.DateFormatUtils;
 
+import javax.annotation.Resource;
+
 /**
  * 用户信息Service业务层处理
  *
@@ -37,7 +39,7 @@ import com.hq.ecmp.util.DateFormatUtils;
 public class EcmpUserServiceImpl implements IEcmpUserService {
     @Autowired
     private EcmpUserMapper ecmpUserMapper;
-    @Autowired
+    @Resource
     private UserRegimeRelationInfoMapper userRegimeRelationInfoMapper;
     @Autowired
     private RegimeInfoMapper regimeInfoMapper;
@@ -174,7 +176,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     public int queryCompanyEmpCunt(Long companyId) {
       //  return ecmpUserMapper.queryCompanyEmp();
 
-        return userMapper.selectUserByRoleId(5L,null).size();
+//        return userMapper.selectUserByRoleId(5L,null,companyId).size();
+        return ecmpUserMapper.selectUserByCompanyId(companyId).size();
     }
 
 

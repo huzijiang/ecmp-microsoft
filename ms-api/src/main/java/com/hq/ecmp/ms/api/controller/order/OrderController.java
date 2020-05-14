@@ -443,7 +443,7 @@ public class OrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            iOrderInfoService.reassign(orderNo,rejectReason,status,userId);
+            iOrderInfoService.reassign(orderNo,rejectReason,status,userId,null,null);
         } catch (Exception e) {
             e.printStackTrace();
         }
