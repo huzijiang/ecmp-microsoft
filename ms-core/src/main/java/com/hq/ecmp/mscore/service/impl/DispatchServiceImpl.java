@@ -421,6 +421,7 @@ public class DispatchServiceImpl implements IDispatchService {
             driverCarRelationInfo.setDriverId(Long.valueOf(selectCarConditionBo.getDriverId()));
             Set<Long> longs = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo)
                     .stream().map(DriverCarRelationInfo::getCarId).collect(Collectors.toSet());
+            longs.add(orderInfo.getCarId());
             cars = cars.stream().filter(x->longs.contains(x.getCarId())).collect(Collectors.toList());
         }
 
