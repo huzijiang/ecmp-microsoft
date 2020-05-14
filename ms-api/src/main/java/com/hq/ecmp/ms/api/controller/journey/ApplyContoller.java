@@ -97,8 +97,11 @@ public class ApplyContoller {
         Long companyId = loginUser.getUser().getOwnerCompany();
         officialCommitApply.setCompanyId(companyId);
         try {
-            applyVO = applyInfoService.applyOfficialCommit(officialCommitApply);
             log.info("公务申请提交参数：{},申请人电话：{}",JSONArray.toJSON(officialCommitApply).toString(),loginUser.getUser().getPhonenumber());
+            applyVO = applyInfoService.applyOfficialCommit(officialCommitApply);
+            //初始化审批流和订单
+           applyInfoService.initialOfficialPowerAndApprovalFlow(officialCommitApply, applyVO.getJourneyId(), applyVO.getApplyId(), loginUser.getUser().getUserId());
+
         } catch (Exception e) {
             log.error("公务申请提交失败，请求参数：{},申请人电话：{}",JSONArray.toJSON(officialCommitApply).toString(),loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error("提交公务申请失败");
@@ -123,8 +126,10 @@ public class ApplyContoller {
         Long companyId = loginUser.getUser().getOwnerCompany();
         travelCommitApply.setCompanyId(companyId);
         try {
-            applyVO = applyInfoService.applytravliCommit(travelCommitApply);
             log.info("差旅申请提交参数：{},申请人电话：{}",JSONArray.toJSON(travelCommitApply).toString(),loginUser.getUser().getPhonenumber());
+            applyVO = applyInfoService.applytravliCommit(travelCommitApply);
+            //初始化審批流和訂單
+            applyInfoService.initialPowerAndApprovalFlow(travelCommitApply,applyVO.getJourneyId(),applyVO.getApplyId());
         } catch (Exception e) {
             log.error("差旅申请提交失败，请求参数：{},申请人电话：{}",JSONArray.toJSON(travelCommitApply).toString(),loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error("提交差旅申请失败");
