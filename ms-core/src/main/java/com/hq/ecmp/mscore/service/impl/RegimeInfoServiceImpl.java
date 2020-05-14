@@ -37,6 +37,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.vo.RegimenVO;
 
 import lombok.extern.slf4j.Slf4j;
+import oshi.jna.platform.mac.SystemB;
 
 import javax.annotation.Resource;
 
@@ -1043,6 +1044,9 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			return null;
 		}
 		String regimeCarLevel=regimeVo.getUseCarModeOwnerLevel();
+		if (StringUtils.isBlank(regimeCarLevel)){
+				return null;
+		}
 		String carTypeName=enterpriseCarTypeInfoMapper.selectCarTypesByTypeIds(ownerCompany,regimeCarLevel);
 		vo.setCityCode(cityCodes);
 		vo.setEnterpriseCarType(carTypeName);

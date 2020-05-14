@@ -731,8 +731,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
         BeanUtils.copyProperties(orderInfo,vo);
-        String useCarTime=null;
+        OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
         List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
+        String useCarTime=null;
         if (!CollectionUtils.isEmpty(orderAddressInfos)){
             useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderAddressInfos.get(0).getActionTime());
             vo.setUseCarTimestamp(orderAddressInfos.get(0).getActionTime().getTime());
@@ -750,6 +751,21 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setHint(HintEnum.CALLCARFAILD.join(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,nodeInfo.getPlanSetoutTime())));
             return vo;
         }
+        if (OrderState.ORDERCANCEL.getState().equals(orderInfo.getState())){
+            List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
+            if (!CollectionUtils.isEmpty(orderSettlingInfos)){
+                String amountDetail = orderSettlingInfos.get(0).getAmountDetail();
+                if (StringUtils.isNotEmpty(amountDetail)){
+                    JSONObject parse = JSONObject.parseObject(amountDetail);
+                    String otherCost = parse.getString("otherCost");
+                    if (StringUtils.isNotEmpty(otherCost)){
+                        vo.setCancelFee(JSONObject.parseArray(otherCost,OtherCostBean.class));
+                    }
+                }
+
+            }
+            return vo;
+        }
         String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
         UserVO str= orderStateTraceInfoMapper.getOrderDispatcher(orderId,states);
         if (str!=null){
@@ -761,7 +777,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         //服务结束时间
-        OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
         vo.setLabelState(orderStateTraceInfo.getState());
         vo.setCancelReason(orderStateTraceInfo.getContent());
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){

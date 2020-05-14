@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static com.hq.ecmp.constant.CommonConstant.ONE;
 import static com.hq.ecmp.constant.CommonConstant.ZERO;
+import static com.hq.ecmp.constant.MsgConstant.*;
 
 /**
  * (EcmpMessage)表服务实现类
@@ -540,7 +541,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         }
         ApplyInfo applyInfo=null;
         Long applyId=null;
-        if (MsgConstant.MESSAGE_T001.equals(msgConstant)||MsgConstant.MESSAGE_T002.equals(msgConstant)
+        if (MESSAGE_T001.equals(msgConstant)||MsgConstant.MESSAGE_T002.equals(msgConstant)
                 ||MsgConstant.MESSAGE_T009.equals(msgConstant)||MsgConstant.MESSAGE_T010.equals(msgConstant)){
             applyId=orderId;
         }else{
@@ -559,7 +560,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
                         .ecmpId(user.getUserId()).categoryId(applyId).type(MsgTypeConstant.MESSAGE_TYPE_T001.getType())
                         .status(MsgStatusConstant.MESSAGE_STATUS_T002.getType())
                         .applyId(applyId)
-                        .category(MsgConstant.MESSAGE_T001.getType()).content(MsgConstant.MESSAGE_T001.getDesc()).url("")
+                        .category(MESSAGE_T001.getType()).content(MESSAGE_T001.getDesc()).url("员工"+user.getUserId()+"发起了用车申请")
                         .createBy(user.getUserId()).createTime(new Date()).updateBy(null).updateTime(null).build();
                 ecmpMessageDao.insert(ecmpMessage1);
                 //给下一审批人发消息
@@ -607,7 +608,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
                 ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),Long.parseLong(applyInfo.getCreateBy()),applyId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
                         MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T010.getDesc(),MsgConstant.MESSAGE_T010.getType(),userId,new Date()));
                 break;
-            case MESSAGE_T011:
+            case MESSAGE_T011://改派成功
                 OrderInfo orderInfo2 = orderInfoMapper.selectOrderInfoById(orderId);
                 if (orderInfo2==null){
                     break;
@@ -620,12 +621,12 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
                 ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),reassignDriverId1,orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
                         MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T015.getDesc(),MsgConstant.MESSAGE_T015.getType(),userId,new Date()));
                 break;
-            case MESSAGE_T012:
+            case MESSAGE_T012://改派驳回
                 Long reassignDriverId2 = orderStateTraceInfoMapper.queryApplyReassignmentDriver(orderId,OrderStateTrace.APPLYREASSIGNMENT.getState());
                 ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),reassignDriverId2,orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
                         MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T012.getDesc(),MsgConstant.MESSAGE_T012.getType(),userId,new Date()));
                 break;
-            case MESSAGE_T013:
+            case MESSAGE_T013://派车通知
                 updateOldStateMessage(null, orderId, applyId, null);
                 ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),Long.parseLong(applyInfo.getCreateBy()),orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
                         MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T013.getDesc(),MsgConstant.MESSAGE_T013.getType(),userId,new Date()));
@@ -659,7 +660,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
                     EcmpMessage approveMessage = EcmpMessage.builder().configType(MsgUserConstant.MESSAGE_USER_APPROVAL.getType())
                             .ecmpId(Long.parseLong(approveUser)).categoryId(applyId).type(MsgTypeConstant.MESSAGE_TYPE_T001.getType())
                             .status(MsgStatusConstant.MESSAGE_STATUS_T002.getType()).applyId(applyId)
-                            .category(MsgConstant.MESSAGE_T001.getType()).content("你有1条用车审批待处理,点击查看详情").url("")
+                            .category(MESSAGE_T001.getType()).content(MESSAGE_T001.getDesc()).url("")
                             .createBy(createId).createTime(new Date()).updateBy(null).updateTime(null).build();
                     ecmpMessageDao.insert(approveMessage);
                 }
