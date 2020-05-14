@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
@@ -12,6 +13,7 @@ import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
+import com.hq.ecmp.constant.enumerate.DispatcherFrontState;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
@@ -34,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import oshi.jna.platform.mac.SystemB;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -127,6 +130,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private SceneInfoMapper sceneInfoMapper;
     @Autowired
     private IOrderPayInfoService iOrderPayInfoService;
+    @Resource
+    private CarGroupInfoMapper carGroupInfoMapper;
+    @Resource
+    private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -137,6 +144,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private String apiUrl;
     @Value("${company.serviceMobile}")
     private String serviceMobile;
+    @Value("${dispatch.waitIntervalMinutes}")
+    private Long waitIntervalMinutes;
 
     /**
      * 查询【请填写功能名称】
@@ -233,12 +242,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     @Override
     @Transactional
-    public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason){
+    public  int insertOrderStateTrace(String orderId,String updateState,String userId,String cancelReason,Long oldDriverId,Long oldCarId){
         OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
         orderStateTraceInfo.setOrderId(Long.parseLong(orderId));
         orderStateTraceInfo.setState(updateState);
         orderStateTraceInfo.setContent(cancelReason);
         orderStateTraceInfo.setCreateBy(userId);
+        orderStateTraceInfo.setOldDriverId(oldDriverId);
+        orderStateTraceInfo.setOldCarId(oldCarId);
         int i = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
         return  i;
     }
@@ -291,6 +302,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		return result;
 	}
 
+
+    /**
+     * 乘客端待处理调度列表
+     * @param userId
+     * @return
+     */
 	@Override
 	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
 		List<DispatchOrderInfo> result = queryAllWaitDispatchList();
@@ -300,51 +317,151 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<DispatchOrderInfo> checkResult=new ArrayList<DispatchOrderInfo>();
 		if(result.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : result) {
-				//计算该订单的等待时长 分钟
-				if(null !=dispatchOrderInfo.getCreateTime()){
-					dispatchOrderInfo.setWaitMinute(DateFormatUtils.getDateToWaitInterval(dispatchOrderInfo.getCreateTime()));
-				}
-				//查询订单对应的上车地点时间,下车地点时间
-				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
-				//订单添加用车场景用车制度以及任务来源信息
-				DispatchOrderInfoPacking(dispatchOrderInfo);
 				//查询订单对应制度的可用用车方式
 				Long regimenId = dispatchOrderInfo.getRegimenId();
 				if(null ==regimenId || ! regimeInfoService.findOwnCar(regimenId)){
-					checkResult.add(dispatchOrderInfo);
-					continue;
-				}
+				    log.error("该订单相关的制度id是空，或者相关制度不包含自有车");
+                    continue;
+                }
 				String cityId = dispatchOrderInfo.getCityId();
 				if(StringUtil.isEmpty(cityId)){
-					checkResult.add(dispatchOrderInfo);
+                    log.error("该订单相关城市为空");
 					continue;
 				}
-				//查询上车地点对应城市有哪些车队
-				List<Long> carGroupList = carGroupServeScopeInfoMapper.queryCarGroupByCity(cityId);
-				if(null==carGroupList || carGroupList.size()==0){
-					//上车点所在城市没有车队  则所有车队的所欲调度员都能看见这个单子
-					checkResult.add(dispatchOrderInfo);
-					continue;
-				}
-				//判断登陆用户是否属于这些车队
-				List<Long> carGroupDispatcher = carGroupDispatcherInfoService.queryUserByCarGroup(carGroupList);
-				if(null==carGroupDispatcher || !carGroupDispatcher.contains(userId)){
-					//用户不属于这些车队的调度员  则不能看见这个订单
-					continue;
-				}
-				checkResult.add(dispatchOrderInfo);
+                //判断订单是否可以被当前调度员看到
+                if(!judgeOrderValid(userId,dispatchOrderInfo)){
+                    continue;
+                }
+                //计算该订单的等待时长 分钟
+                if(null !=dispatchOrderInfo.getCreateTime()){
+                    dispatchOrderInfo.setWaitMinute(DateFormatUtils.getDateToWaitInterval(dispatchOrderInfo.getCreateTime()));
+                }
+                //查询订单对应的上车地点时间,下车地点时间
+                buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+                //订单添加用车场景用车制度以及任务来源信息
+                DispatchOrderInfoPacking(dispatchOrderInfo);
+                checkResult.add(dispatchOrderInfo);
 			}
 		}
 		return checkResult;
 	}
 
-	//// 查询订单对应的上车地点时间,下车地点时间  A000-上车     A999-下车
+    /**
+     *      调度员待调度列表以及调度完成列表规则：
+     *      1. 总部在改城市没有能服务当前订单申请人所在部门的车队，分公司也没有能服务于当前订单申请人所在公司的车队
+     *          1.自有车：申请单无法提交
+     *          2.自有车+网约车：直接走网约车，不走调度。
+     *      2.总部在改城市有能服务当前订单申请人所在部门的车队，分公司有能服务于当前订单申请人所在公司的车队
+     *          1.自有车：十分钟前总部在该城市的能服务于当前订单申请人所在部门的所有车队的所有调度员可以看到，十分钟后,分公司在该城市的能服务于当前订单申请人所在公司的车队的所有调度员也可以看到
+     *          2.自有车+网约车: 十分钟前总部在该城市的能服务于当前订单申请人所在部门的所有车队的所有调度员可以看到，十分钟后,分公司在该城市的能服务于当前订单申请人所在公司的车队的所有调度员也可以看到
+     *      3.总部在改城市有能服务当前订单申请人所在部门的车队，分公司没有能服务于当前订单申请人所在公司的车队
+     *          1.自有车：总部在该城市的能服务于当前订单申请人所在部门的所有车队的所有调度员可以看到
+     *          2.自有车+网约车：总部在该城市的能服务于当前订单申请人所在部门的所有车队的所有调度员可以看到
+     *      4.总部在改城市没有能服务当前订单申请人所在部门的车队，分公司有能服务于当前订单申请人所在公司的车队
+     *          1.自有车：总部和分公司同时看到
+     *          2.自有车+网约车：总部看不到此调度单，分公司在该城市的能服务于当前订单申请人所在公司的车队的所有调度员也可以看到，二者同时能看到
+     * @param userId 当前登录人id
+     *
+     * @return
+     */
+    private boolean judgeOrderValid(Long userId, DispatchOrderInfo dispatchOrderInfo) {
+
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(dispatchOrderInfo.getOrderId());
+        if (orderInfo == null){
+            log.error("订单{}信息为空",dispatchOrderInfo.getOrderId());
+            return false;
+        }
+        if (StringUtils.isBlank(orderInfo.getUseCarMode())){
+           return false;
+        }
+        JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
+        if (journeyUserCarPower == null){
+            log.error("订单{}相关用车权限信息为空",dispatchOrderInfo.getOrderId());
+            return false;
+        }
+        ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
+        if (applyInfo == null){
+            log.error("订单{}相关申请表信息为空",dispatchOrderInfo.getOrderId());
+            return false;
+        }
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
+        if (ecmpUser == null){
+            log.error("订单{}相关申请人信息为空",dispatchOrderInfo.getOrderId());
+            return false;
+        }
+        RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(dispatchOrderInfo.getRegimenId());
+        if (regimeInfo == null){
+            log.error("订单{}相关制度信息为空",dispatchOrderInfo.getOrderId());
+            return false;
+        }
+
+        String canUseCarMode = regimeInfo.getCanUseCarMode();
+        if(StringUtil.isEmpty(canUseCarMode)){
+            log.error("订单{}相关制度表用车方式为空",dispatchOrderInfo.getOrderId());
+            return false;
+        }
+        List<String> list = Arrays.asList(canUseCarMode.split(","));
+        if (!list.contains(CarConstant.USR_CARD_MODE_HAVE)){
+            return false;
+        }
+        String cityId = dispatchOrderInfo.getCityId();
+        if(StringUtil.isEmpty(cityId)){
+            log.error("订单{}相关城市信息为空",dispatchOrderInfo.getOrderId());
+            return false;
+        }
+        //是否有内部可用车队标志
+        boolean innerFlag = false;
+        //是否有外部可用车队标志
+        boolean outerFlag = false;
+        List<Long> carGroupInnerDispatchers = null;
+        List<Long> carGroupOuterDispatchers = null;
+        List<Long> innerCompanyCarGroupIds = carGroupInfoMapper.queryCarGroupIdInnerCompany(ecmpUser.getDeptId(), dispatchOrderInfo.getCityId(), ecmpUser.getOwnerCompany());
+       if (!CollectionUtils.isEmpty(innerCompanyCarGroupIds)){
+           innerFlag = true;
+           //内部公司的调度员
+           carGroupInnerDispatchers = carGroupDispatcherInfoService.queryUserByCarGroup(innerCompanyCarGroupIds);
+       }
+        List<Long> outerCompanyCarGroupIds = carGroupInfoMapper.queryCarGroupIdOuterCompany(dispatchOrderInfo.getCityId(), ecmpUser.getOwnerCompany());
+        if (!CollectionUtils.isEmpty(outerCompanyCarGroupIds)){
+            outerFlag = true;
+            //外部公司的调度员
+            carGroupOuterDispatchers = carGroupDispatcherInfoService.queryUserByCarGroup(outerCompanyCarGroupIds);
+        }
+        if (!innerFlag && !outerFlag) {
+            return false;
+        }
+
+
+        if (innerFlag && outerFlag){
+            if(null!=carGroupInnerDispatchers && carGroupInnerDispatchers.contains(userId)){
+                return true;
+            }
+            if(null!=carGroupOuterDispatchers && carGroupOuterDispatchers.contains(userId)){
+                Long waitMinutes = DateFormatUtils.getDateToWaitInterval(dispatchOrderInfo.getCreateTime());
+                return    (waitMinutes>waitIntervalMinutes) ? true:false;
+            }
+        }
+        if(innerFlag && !outerFlag){
+            if(null!=carGroupInnerDispatchers && carGroupInnerDispatchers.contains(userId)){
+                return  true;
+            }
+        }
+        if(!innerFlag && outerFlag){
+            if(null!=carGroupOuterDispatchers && carGroupOuterDispatchers.contains(userId)){
+                return  true;
+            }
+        }
+        return false;
+    }
+
+    //// 查询订单对应的上车地点时间,下车地点时间  A000-上车     A999-下车
 	private void buildOrderStartAndEndSiteAndTime(DispatchOrderInfo dispatchOrderInfo) {
 		OrderAddressInfo startOrderAddressInfo = iOrderAddressInfoService
 				.queryOrderStartAndEndInfo(new OrderAddressInfo("A000", dispatchOrderInfo.getOrderId()));
 		if (null != startOrderAddressInfo) {
 			dispatchOrderInfo.setStartSite(startOrderAddressInfo.getAddress());
 			dispatchOrderInfo.setUseCarDate(startOrderAddressInfo.getActionTime());
+            dispatchOrderInfo.setCityId(startOrderAddressInfo.getCityPostalCode());
 		}
 		OrderAddressInfo endOrderAddressInfo = iOrderAddressInfoService
 				.queryOrderStartAndEndInfo(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId()));
@@ -364,28 +481,144 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	}
 
 	@Override
-	public List<DispatchOrderInfo> queryCompleteDispatchOrder() {
+	public List<DispatchOrderInfo> queryCompleteDispatchOrder(Long userId) {
 		List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//获取系统里已经完成调度的订单
 		List<DispatchOrderInfo> list = orderInfoMapper.queryCompleteDispatchOrder();
 		if(null !=list && list.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : list) {
-				//对应的前端状态都为已处理-S299
-				dispatchOrderInfo.setState(OrderState.ALREADYSENDING.getState());
-				//查询订单对应的上车地点时间,下车地点时间
-				buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
-				DispatchOrderInfoPacking(dispatchOrderInfo);
-				//过滤掉未走调度自动约车的
-				boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(dispatchOrderInfo.getRegimenId(), dispatchOrderInfo.getUseCarCityCode());
-				if(judgeNotDispatch){
-					continue;
-				}
-				result.add(dispatchOrderInfo);
+                //过滤掉未走调度自动约车的
+                boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(dispatchOrderInfo.getRegimenId(), dispatchOrderInfo.getUseCarCityCode());
+                if(judgeNotDispatch){
+                    continue;
+                }
+                //查询订单对应的上车地点时间,下车地点时间
+                buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+                //过滤掉看不到的订单
+                if(!judgeOrderValid(userId, dispatchOrderInfo)){
+                    continue;
+                }
 
+                //添加任务来源信息，用车场景名称和用车制度名称
+                DispatchOrderInfoPacking(dispatchOrderInfo);
+                //添加已处理调度单状态和对应的所需字段
+                buildStateAndOtherInfoRelateState(dispatchOrderInfo);
+				result.add(dispatchOrderInfo);
 			}
 		}
 		return result;
 	}
+
+    /**
+     * 补充已完成调度列表的前端状态，并根据前端状态补充额外和状态相关的信息
+     * 状态逻辑判断逻辑：
+     *      1.如果是 S270 或者S199且不包含已过期 则为 已派车 在去更加订单的状态区分自由车和网约车
+     *      2.如果是S270 或者S199且包含已过期 则为 改派过期
+     *      3.如果为S277 则为改派驳回
+     *      4.如果是 S279则为已改派 再去区分自由车和网约车
+     * 如果没有改派状态
+     *      1.如果订单状态包含订单驳回则为派车申请驳回
+     *      2.如果不包含订单驳回和订单超时，则为已派车，再去区分自由车和网约车
+     *      3.如果包含已过期且不包含已派单 则为派车申请过期
+     * @param dispatchOrderInfo
+     */
+    private void buildStateAndOtherInfoRelateState(DispatchOrderInfo dispatchOrderInfo) {
+        Long orderId = dispatchOrderInfo.getOrderId();
+        String useCarMode = dispatchOrderInfo.getUseCarMode();
+        //同行人数量
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        if(orderInfo != null){
+            JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
+            journeyPassengerInfo.setJourneyId(orderInfo.getJourneyId());
+            List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoService.selectJourneyPassengerInfoList(journeyPassengerInfo);
+            if(!CollectionUtils.isEmpty(journeyPassengerInfos)){
+                dispatchOrderInfo.setPeerNum(journeyPassengerInfos.size());
+            }
+        }
+        List<String> states = orderStateTraceInfoMapper.queryOrderAllState(orderId);
+        String ressaignLatestState = orderStateTraceInfoMapper.queryOrderLatestRessaignState(orderId);
+       if(!StringUtils.isBlank(ressaignLatestState)){
+           //已派车
+           boolean flagSendCar = (ressaignLatestState.equals(OrderStateTrace.APPLYREASSIGNMENT.getState())|| ressaignLatestState.equals(OrderStateTrace.APPLYINGPASS.getState()))
+                   && !states.contains(OrderStateTrace.ORDEROVERTIME.getState());
+           //改派已过期
+           boolean flagOverTime = (ressaignLatestState.equals(OrderStateTrace.APPLYREASSIGNMENT.getState())|| ressaignLatestState.equals(OrderStateTrace.APPLYINGPASS.getState()))
+                   && states.contains(OrderStateTrace.ORDEROVERTIME.getState());
+            if(flagSendCar){
+                OrderStateTraceInfo orderStateTraceInfoSendCar = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId, OrderStateTrace.SENDCAR.getState());
+                dispatchOrderInfo.setOpDate(orderStateTraceInfoSendCar.getCreateTime());
+                if(useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
+                    dispatchOrderInfo.setState(DispatcherFrontState.SENDCARHAVE.getState());
+                }else if (states.contains(useCarMode.equals(CarConstant.USR_CARD_MODE_NET))){
+                    dispatchOrderInfo.setState(DispatcherFrontState.SENDCARNET.getState());
+                }
+            }
+            if(flagOverTime){
+                OrderStateTraceInfo orderStateTraceInfoReassApply = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId, OrderStateTrace.APPLYREASSIGNMENT.getState());
+                dispatchOrderInfo.setReassignmentApplyReason(orderStateTraceInfoReassApply.getContent());
+                dispatchOrderInfo.setState(DispatcherFrontState.REASSIGNMENTEXPIRED.getState());
+            }
+            //改派申请已驳回
+            if (ressaignLatestState.equals(OrderStateTrace.TURNREASSIGNMENT.getState())){
+                dispatchOrderInfo.setState(DispatcherFrontState.REASSIGNMENTREJECT.getState());
+                OrderStateTraceInfo orderStateTraceInfoReassApply = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId, OrderStateTrace.APPLYREASSIGNMENT.getState());
+                dispatchOrderInfo.setReassignmentApplyReason(orderStateTraceInfoReassApply.getContent());
+                OrderStateTraceInfo orderStateTraceInfoReassReject = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId, OrderStateTrace.TURNREASSIGNMENT.getState());
+                dispatchOrderInfo.setRejectReason(orderStateTraceInfoReassReject.getContent());
+                dispatchOrderInfo.setOpDate(orderStateTraceInfoReassReject.getCreateTime());
+            }
+            //已改派。改派的网约车派车和自有车派车，轨迹表是改派成功，订单表是已派车
+            if (ressaignLatestState.equals(OrderStateTrace.PASSREASSIGNMENT.getState())){
+                OrderStateTraceInfo orderStateTraceInfoReassApply = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId, OrderStateTrace.APPLYREASSIGNMENT.getState());
+                dispatchOrderInfo.setReassignmentApplyReason(orderStateTraceInfoReassApply.getContent());
+                OrderStateTraceInfo orderStateTraceInfoReassAgree = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId, OrderStateTrace.PASSREASSIGNMENT.getState());
+                dispatchOrderInfo.setOpDate(orderStateTraceInfoReassAgree.getCreateTime());
+                if(useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
+                    dispatchOrderInfo.setState(DispatcherFrontState.REASSIGNMENTHAVE.getState());
+                    //改派前的司机和车辆信息
+                    if (orderStateTraceInfoReassAgree.getOldCarId() != null){
+                        CarInfo carInfo = carInfoMapper.selectCarInfoById(orderStateTraceInfoReassAgree.getOldCarId());
+                        if (carInfo != null){
+                            dispatchOrderInfo.setOldCarType(carInfo.getCarType());
+                            dispatchOrderInfo.setOldCarLicense(carInfo.getCarLicense());
+                        }
+                    }
+                    if (orderStateTraceInfoReassAgree.getOldDriverId() != null){
+                        DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(orderStateTraceInfoReassAgree.getOldDriverId());
+                        if (driverInfo != null){
+                            dispatchOrderInfo.setOldDriverName(driverInfo.getDriverName());
+                        }
+                    }
+                }else if (states.contains(useCarMode.equals(CarConstant.USR_CARD_MODE_NET))){
+                    dispatchOrderInfo.setState(DispatcherFrontState.REASSIGNMENTNET.getState());
+                }
+            }
+       }else{
+           //派车申请已驳回
+           if (states.contains(OrderStateTrace.ORDERDENIED.getState())) {
+               dispatchOrderInfo.setState(DispatcherFrontState.SENDCARREJECT.getState());
+               OrderStateTraceInfo orderStateTraceInfoApplyReject = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId, OrderStateTrace.ORDERDENIED.getState());
+               dispatchOrderInfo.setRejectReason(orderStateTraceInfoApplyReject.getContent());
+               dispatchOrderInfo.setOpDate(orderStateTraceInfoApplyReject.getCreateTime());
+           }
+           //已派车,非改派网约车派车，轨迹表是改派成功，订单表是约车中。非改派自由车，轨迹表是已派车，订单表是已派车
+           if (!states.contains(OrderStateTrace.ORDERDENIED.getState()) && !states.contains(OrderStateTrace.ORDEROVERTIME.getState())){
+               if(useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
+                   dispatchOrderInfo.setState(DispatcherFrontState.SENDCARHAVE.getState());
+                   OrderStateTraceInfo orderStateTraceInfoSendCar = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId, OrderStateTrace.SENDCAR.getState());
+                   dispatchOrderInfo.setOpDate(orderStateTraceInfoSendCar.getCreateTime());
+               }else if (useCarMode.equals(CarConstant.USR_CARD_MODE_NET)){
+                   OrderStateTraceInfo orderStateTraceInfoSendCar = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId, OrderStateTrace.SENDINGCARS.getState());
+                   dispatchOrderInfo.setOpDate(orderStateTraceInfoSendCar.getCreateTime());
+                   dispatchOrderInfo.setState(DispatcherFrontState.SENDCARNET.getState());
+               }
+           }
+           //派车已过期
+           if (!states.contains(OrderStateTrace.SENDCAR.getState()) && states.contains(OrderStateTrace.ORDEROVERTIME.getState())){
+               dispatchOrderInfo.setState(DispatcherFrontState.SENDCAREXPIRED.getState());
+           }
+       }
+    }
 
     /**
      * 获取司机的任务列表
@@ -581,15 +814,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
                     vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
                     vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime().intValue()));
-//                    vo.setAmount(orderSettlingInfos.get(0).getAmount().toPlainString());
                 }
             }
         }else{
-                vo.setCarLicense(orderInfo.getCarLicense());//车牌号
-                vo.setCarColor(orderInfo.getCarColor());
-                vo.setCarType(orderInfo.getCarModel());
-                vo.setDriverScore(orderInfo.getDriverGrade());
-            if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState())||OrderState.DISSENT.getState().equals(orderStateTraceInfo.getState())){
+            vo.setCarLicense(orderInfo.getCarLicense());//车牌号
+            vo.setCarColor(orderInfo.getCarColor());
+            vo.setCarType(orderInfo.getCarModel());
+            vo.setDriverScore(orderInfo.getDriverGrade());
+            if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState()) || OrderState.endServerStates().contains(orderStateTraceInfo.getState())) {
                 OrderCostDetailVO orderCost = this.getOrderCost(orderId);
                 vo.setOrderCostDetailVO(orderCost);
             }
@@ -597,17 +829,24 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             //网约车是否限额
             //查询出用车制度表的限额额度，和限额类型
             String overMoney = iOrderPayInfoService.checkOrderFeeOver(orderId, journeyInfo.getRegimenId(), orderInfo.getUserId());
-            if (StringUtils.isEmpty(overMoney)||BigDecimal.ZERO.compareTo(new BigDecimal(overMoney))>0){
+            if (StringUtils.isEmpty(overMoney) || BigDecimal.ZERO.compareTo(new BigDecimal(overMoney)) > 0) {
                 vo.setIsExcess(ZERO);
                 vo.setExcessMoney(String.valueOf(CommonConstant.ZERO));
-            }else{
+            } else {
                 vo.setIsExcess(ONE);
                 vo.setExcessMoney(overMoney);
             }
         }
         OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderId);
-        vo.setPayId(orderPayInfo.getPayId());
-        vo.setPayState(orderPayInfo.getState());
+        if (orderPayInfo != null) {
+            vo.setPayId(orderPayInfo.getPayId());
+            vo.setPayState(orderPayInfo.getState());
+        }
+        if (OrderState.endServerStates().contains(orderStateTraceInfo.getState())){
+            // TODO 开发发版放开
+//            List<OrderHistoryTraceDto> orderHistoryTrace = this.getOrderHistoryTrace(orderId);
+//            vo.setHistoryTraceList(orderHistoryTrace);
+        }
         return vo;
     }
 
@@ -637,26 +876,28 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Transactional(rollbackFor = Exception.class)
     public void platCallTaxiParamValid(Long  orderId,String userId,String carLevel) throws Exception {
         log.info("调用网约车接口入参：orderId:{},userId:{},Carlevel:{}",orderId,userId,carLevel);
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        boolean reassignment = iOrderStateTraceInfoService.isReassignment(orderId);
+        //改派的订单需要操作改派同意
+        if(reassignment){
+            insertOrderStateTrace(String.valueOf(orderId), ResignOrderTraceState.AGREE.getState(), userId, null,orderInfo.getDriverId(),orderInfo.getCarId());
+            //改派订单消息通知
+            ismsBusiness.sendMessageReassignSucc(orderId,Long.parseLong(userId));
+        }else{
+            //添加约车中轨迹状态
+            insertOrderStateTrace(String.valueOf(orderId), OrderState.SENDINGCARS.getState(), userId, null,null,null);
+        }
         //使用汽车的方式，改为网约
         OrderInfo orderInfoUp = new OrderInfo();
         orderInfoUp.setUseCarMode(CarConstant.USR_CARD_MODE_NET);
         orderInfoUp.setState(OrderState.SENDINGCARS.getState());
         orderInfoUp.setOrderId(orderId);
-        int j = orderInfoMapper.updateOrderInfo(orderInfoUp);
+        orderInfoUp.setDriverId(null);
+        orderInfoUp.setCarId(null);
+        int j = orderInfoMapper.updateOrderInfoNull(orderInfoUp);
         if (j != 1) {
             throw new Exception("约车失败");
         }
-        boolean reassignment = iOrderStateTraceInfoService.isReassignment(orderId);
-        //改派的订单需要操作改派同意
-        if(reassignment){
-            insertOrderStateTrace(String.valueOf(orderId), ResignOrderTraceState.AGREE.getState(), userId, null);
-            //改派订单消息通知
-            ismsBusiness.sendMessageReassignSucc(orderId,Long.parseLong(userId));
-        }else{
-            //添加约车中轨迹状态
-            insertOrderStateTrace(String.valueOf(orderId), OrderState.SENDINGCARS.getState(), userId, null);
-        }
-        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         String serviceType = orderInfo.getServiceType();
         if(serviceType == null || !OrderServiceType.getNetServiceType().contains(serviceType)){
             throw new Exception("调用网约车参数异常-》服务类型异常！");
@@ -872,7 +1113,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
 	public boolean ownCarSendCar(Long orderId, Long driverId, Long carId, Long userId) throws Exception {
-		OrderInfo orderInfo = new OrderInfo();
+        OrderInfo orderOldInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        Long oldDriverId = orderOldInfo.getDriverId();
+        Long oldCarId = orderOldInfo.getCarId();
+        OrderInfo orderInfo = new OrderInfo();
 		orderInfo.setState(OrderState.ALREADYSENDING.getState());
 		// 查询司机信息
 		DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(driverId);
@@ -918,7 +1162,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
 		if (iOrderStateTraceInfoService.isReassignment(orderId)) {
 			// 是改派单
-			reassign(orderId.toString(), null, "1", userId);
+			reassign(orderId.toString(), null, "1", userId,oldDriverId,oldCarId);
 		} else {
 			// 是申请单
 			OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
@@ -1099,8 +1343,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
         //插入订单轨迹表
-        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null);
-        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
+        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null,null,null);
+        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null,null,null);
         //用车权限次数变化
         journeyUserCarCountOp(powerId,1);
         //如果是网约车，发起异步约车请求
@@ -1152,23 +1396,20 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public DriverOrderInfoVO driverOrderDetail(Long orderId) {
         DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
-//        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
-        // TODO 获取车队电话和乘客电话有单独的接口(好像)
         vo.setCustomerServicePhone(serviceMobile);
-//        List<PassengerInfoVO> list=new ArrayList();
-//        list.add(new PassengerInfoVO(ecmpUser.getNickName(),ecmpUser.getPhonenumber(),"申请人"));
-//        List<JourneyPassengerInfo> journeyPassengerInfos = passengerInfoMapper.selectJourneyPassengerInfoList(new JourneyPassengerInfo(vo.getJourneyId()));
-//        if (!CollectionUtils.isEmpty(journeyPassengerInfos)){
-//            for (JourneyPassengerInfo info:journeyPassengerInfos){
-//                if ("00".equals(info.getItIsPeer())){
-//                    list.add(new PassengerInfoVO(info.getName(),info.getMobile(),"乘车人"));
-//                }else{
-//                    list.add(new PassengerInfoVO(info.getName(),info.getMobile(),"同行人"));
-//                }
-//
-//            }
-//        }
-
+        OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
+        if (orderSettlingInfo!=null){
+            vo.setOrderAmount(orderSettlingInfo.getAmount().toPlainString());
+                String amountDetail = orderSettlingInfo.getAmountDetail();
+            if (StringUtils.isNotEmpty(amountDetail)){
+                JSONObject jsonObject=JSONObject.parseObject(amountDetail);
+                String otherCostJson = jsonObject.getString("otherCost");
+                List<OtherCostBean> otherCostBeans = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
+                vo.setOrderFees(otherCostBeans);
+            }
+        }
+        List<String> imgUrls = orderSettlingInfoMapper.selectOrderSettlingImageList(orderId);
+        vo.setFeeImageUrls(imgUrls);
         return vo;
     }
 
@@ -1342,8 +1583,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             applyUseWithTravelDto.setGroupId(substring);
         }
         //订单轨迹
-        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null);
-        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null);
+        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.INITIALIZING.getState(), String.valueOf(userId),null,null,null);
+        this.insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.WAITINGLIST.getState(), String.valueOf(userId),null,null,null);
         //订单地址表
         String startPoint = applyUseWithTravelDto.getStartPoint();
         String endPoint = applyUseWithTravelDto.getEndPoint();
@@ -1732,7 +1973,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
 
         //插入订单轨迹表
-        this.insertOrderStateTrace(String.valueOf(orderId), OrderStateTrace.CANCEL.getState(), String.valueOf(userId),cancelReason);
+        this.insertOrderStateTrace(String.valueOf(orderId), OrderStateTrace.CANCEL.getState(), String.valueOf(userId),cancelReason,null,null);
         //用车权限次数做变化
         journeyUserCarCountOp(orderInfoOld.getPowerId(),2);
     }
@@ -1758,13 +1999,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void reassign( String orderNo,String rejectReason,String status,Long userId) throws Exception {
+    public void reassign( String orderNo,String rejectReason,String status,Long userId,Long oldDriverId,Long oldCarId) throws Exception {
         if ("1".equals(status)) {
             OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
             orderStateTraceInfo.setCreateBy(String.valueOf(userId));
             orderStateTraceInfo.setState(ResignOrderTraceState.AGREE.getState());
             orderStateTraceInfo.setOrderId(Long.parseLong(orderNo));
             orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
+            orderStateTraceInfo.setOldCarId(oldCarId);
+            orderStateTraceInfo.setOldDriverId(oldDriverId);
             orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
             //改派订单消息通知
 //            ismsBusiness.sendMessageReassignSucc(Long.parseLong(orderNo),userId);
@@ -1787,10 +2030,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public OrderStateVO getTaxiState(OrderStateVO orderVO,Long orderNo)throws Exception{
         log.info("订单号:"+orderNo+"状态详情:"+orderVO.toString());
-        List<String> states=Arrays.asList(OrderState.INITIALIZING.getState(),OrderState.WAITINGLIST.getState(),OrderState.GETARIDE.getState(),
+        List<String> states=Arrays.asList(OrderState.INITIALIZING.getState(),OrderState.WAITINGLIST.getState(),OrderState.GETARIDE.getState(),OrderState.INSERVICE.getState(),
                             OrderState.SENDINGCARS.getState(),OrderState.ORDERCLOSE.getState(),OrderState.STOPSERVICE.getState());
         OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderNo);
-        orderVO.setPayState(orderPayInfo.getState());
+        String payState=OrderPayConstant.UNPAID;
+        if (orderPayInfo!=null){
+            payState=orderPayInfo.getState();
+        }
+        orderVO.setPayState(payState);
         if (states.contains(orderVO.getState())){
             return orderVO;
         }
@@ -2168,7 +2415,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderInfoUp.setUpdateBy("1");
                 orderInfoMapper.updateOrderInfo(orderInfoUp);
                 //添加超时轨迹状态
-                insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.ORDEROVERTIME.getState(), "1", null);
+                insertOrderStateTrace(String.valueOf(orderInfo.getOrderId()), OrderState.ORDEROVERTIME.getState(), "1", null,null,null);
                 //用车权限次数做变化
                 journeyUserCarCountOp(orderInfo.getPowerId(),2);
             }
@@ -2282,7 +2529,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(expiredConfirmOrder!=null && expiredConfirmOrder.size()>0){
             for (OrderStateTraceInfo orderStateTraceInfo:
             expiredConfirmOrder) {
-                this.insertOrderStateTrace(String.valueOf(orderStateTraceInfo.getOrderId()), OrderStateTrace.ORDERCLOSE.getState(), "1", "超时自动确认");
+                this.insertOrderStateTrace(String.valueOf(orderStateTraceInfo.getOrderId()), OrderStateTrace.ORDERCLOSE.getState(), "1", "超时自动确认",null,null);
                 OrderInfo orderInfo = new OrderInfo();
                 orderInfo.setOrderId(orderStateTraceInfo.getOrderId());
                 orderInfo.setState(OrderState.ORDERCLOSE.getState());

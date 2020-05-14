@@ -81,7 +81,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="payMode != null ">pay_mode = #{payMode},</if>
             <if test="payChannel != null ">pay_channel = #{payChannel},</if>
             <if test="channelRate != null ">channel_rate = #{channelRate},</if>
-            <if test="transaction_log != null ">transactionLog = #{transaction_log},</if>
+            <if test="transactionLog != null ">transaction_log = #{transactionLog},</if>
             <if test="amount != null ">amount = #{amount},</if>
             <if test="channelAmount != null ">channel_amount = #{channelAmount},</if>
             <if test="arriveAmount != null ">arrive_amount = #{arriveAmount},</if>
@@ -100,9 +100,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where order_id = #{orderId} order by create_time desc limit 1
     </select>
 
-    <select id="getOrderPayInfoByPayId" parameterType="Long" resultMap="OrderPayInfoResult">
+    <select id="getOrderPayInfoByPayId" parameterType="String" resultMap="OrderPayInfoResult">
         <include refid="selectOrderPayInfoVo"/>
-        where pay_id = #{payId} and state = '0000'
+        where pay_id = #{payId} order by create_time desc limit 1
     </select>
 
 

@@ -7,6 +7,7 @@ import java.util.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.dto.CarDriverDTO;
 import com.hq.ecmp.mscore.dto.config.Scheduling;
@@ -16,6 +17,7 @@ import com.hq.ecmp.mscore.mapper.EcmpNoticeMappingMapper;
 import com.hq.ecmp.mscore.service.IEcmpNoticeService;
 import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.vo.PageResult;
+import org.apache.commons.beanutils.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -167,8 +169,13 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
     @Override
     public EcmpNotice getNoticeDetails(Integer noticeId) {
         EcmpNotice ecmpNotice = ecmpNoticeMapper.getNoticeDetails(noticeId);
+        String [] busId = ecmpNotice.getBucId().split(",");
+        Long[] answerIds = (Long[]) ConvertUtils.convert(busId,Long.class);
         String [] cityCode = ecmpNotice.getNoticeCity().split(",");
         List list =Arrays.asList(cityCode);
+        List busIds =Arrays.asList(answerIds);
+        ecmpNotice.setNoticeCode(list);
+        ecmpNotice.setBucIds(busIds);
         String notice = "";
         for (int i = 0; i<list.size(); i++){
             String code = list.get(i).toString();

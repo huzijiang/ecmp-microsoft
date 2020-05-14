@@ -1,8 +1,11 @@
 package com.hq.ecmp.mscore.vo;
 
+import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
 
 
 /**
@@ -85,5 +88,6 @@ public class OrderVO {
     private String payState;
     @ApiModelProperty(name = "payId",value = "对外订单编号，与第三方平台对接")
     private String payId;
+    private List<OrderHistoryTraceDto> historyTraceList;
 }
 

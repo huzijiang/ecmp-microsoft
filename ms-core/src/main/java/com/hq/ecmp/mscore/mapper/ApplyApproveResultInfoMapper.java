@@ -79,4 +79,12 @@ public interface ApplyApproveResultInfoMapper
     List<ApplyApproveResultInfo> selectByUserId(@Param("applyId") Long applyId,@Param("userId")  Long userId,@Param("state") String state);
 
     Integer getApprovePageCount(@Param("userId") Long userId, @Param("state") String state);
+
+    /**
+     * 直接调度修改审批
+     * @param applyId
+     * @param state
+     * @param approveResult
+     */
+    void updateApproveState(@Param("applyId")Long applyId, @Param("state")String state,@Param("approveResult")String approveResult);
 }

@@ -465,8 +465,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="findByGroupIds" resultType="com.hq.ecmp.mscore.vo.OnLineCarTypeVO">
         SELECT
-        a.city_id cityId,
-        a.CITY_CODE cityCode,
+        a.CITY_CODE cityId,
         a.city_name cityName,
         group_concat( DISTINCT b.car_group_id ) carGroupIds
         FROM
@@ -494,4 +493,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select total_mileage from order_settling_info where order_id=#{orderId}
     </select>
 
+    <select id="supplementObtainCar" parameterType="com.hq.ecmp.mscore.domain.CarInfo" resultType="com.hq.ecmp.mscore.domain.CarInfo">
+
+        select car_id carId,car_group_id carGroupId,car_type_id carTypeId,car_license carLicense from  car_info WHERE state = "S000"
+        <if test="searchValue!=null and searchValue!=''">
+            and  car_license like concat('%', #{searchValue}, '%')
+        </if>
+    </select>
 </mapper>

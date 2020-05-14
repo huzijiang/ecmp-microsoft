@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.api.system.domain.SysDept;
+import com.hq.api.system.mapper.SysDeptMapper;
 import com.hq.api.system.service.ISysDeptService;
 import com.hq.api.system.service.ISysUserService;
 import com.hq.common.core.api.ApiResponse;
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 public class StatisticsCostServiceImpl implements StatisticsCostService {
     @Autowired
     private ISysDeptService sysDeptService;
+    @Autowired
+    private SysDeptMapper sysDeptMapper;
     @Autowired
     private ISysUserService sysUserService;
     @Autowired
@@ -118,7 +121,7 @@ public class StatisticsCostServiceImpl implements StatisticsCostService {
             SysDept sysDept = new SysDept();
             sysDept.setParentId(statisticsParam.getDeptIds().get(0));
             sysDept.setDeptType("2");
-            list.addAll(sysDeptService.selectDeptList(sysDept));
+            list.addAll(sysDeptMapper.getListBySysDept(sysDept));
         }
         return list;
     }

@@ -18,23 +18,14 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/pay")
@@ -75,29 +66,29 @@ public class WxPayController {
         String price = jsonObject.getString("price");
         String body = jsonObject.getString("body");
         WxPayAppOrderResult result = null;
-            try {
-                WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
-                //商品描述
-                orderRequest.setBody(body);
-                //商户订单号
-                orderRequest.setOutTradeNo(orderId);
-                //金额
-                orderRequest.setTotalFee(BaseWxPayRequest.yuanToFen(price));//元转成分
-                //ip
-                orderRequest.setSpbillCreateIp(ipAddr);
-                //签名
-                orderRequest.setSign(wxPayService.getSandboxSignKey());
-                //随机字符串
-                String s = PayUtil.makeUUID(32);
-                orderRequest.setNonceStr(s);
-                //统一下单
-                result = wxPayService.createOrder(orderRequest);
-                log.info("微信下单后返回结果为："+result);
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.info("下单失败，错误信息为："+e);
-                log.info("下单失败，错误信息为："+e.getMessage());
-            }
+        try {
+            WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
+            //商品描述
+            orderRequest.setBody(body);
+            //商户订单号
+            orderRequest.setOutTradeNo(orderId);
+            //金额
+            orderRequest.setTotalFee(BaseWxPayRequest.yuanToFen(price));//元转成分
+            //ip
+            orderRequest.setSpbillCreateIp(ipAddr);
+            //签名
+            orderRequest.setSign(wxPayService.getSandboxSignKey());
+            //随机字符串
+            String s = PayUtil.makeUUID(32);
+            orderRequest.setNonceStr(s);
+            //统一下单
+            result = wxPayService.createOrder(orderRequest);
+            log.info("微信下单后返回结果为："+result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("下单失败，错误信息为："+e);
+            log.info("下单失败，错误信息为："+e.getMessage());
+        }
         return result;
     }
 
@@ -107,14 +98,12 @@ public class WxPayController {
      * @description  微信app支付回调接口
      */
     @RequestMapping(value = "/wechat/v1/callback", method = RequestMethod.POST)
-    public String payNotify(HttpServletRequest request){
-        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
-        log.info("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！");
+    @ResponseBody
+    public String payNotify(String xmlResult){
         log.info("已经进入微信支付回调接口");
         try {
-            String xmlResult = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
+            log.info("回调接口---重要参数为："+xmlResult);
             WxPayOrderNotifyResult  result = wxPayService.parseOrderNotifyResult(xmlResult);
-            log.info("回调接口---返回结果--xmlResult为："+xmlResult);
             log.info("回调接口---返回结果--result为："+result);
             if (!"SUCCESS".equals(result.getReturnCode())) {
                 log.info("微信支付-通知失败");
@@ -128,7 +117,7 @@ public class WxPayController {
             }
             //判断订单是否已支付
             OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(result.getOutTradeNo());
-            if(null != orderPayInfoByPayId && !OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
+            if(null != orderPayInfoByPayId && OrderPayConstant.UNPAID.equals(orderPayInfoByPayId.getState())){
                 //把订单状态改为关闭状态
                 OrderInfo orderInfo = new OrderInfo();
                 orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
@@ -163,10 +152,16 @@ public class WxPayController {
                 orderPayInfo.setState(OrderPayConstant.PAID);
                 orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
                 orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_WX);
-//            orderPayInfo.setChannelRate(0.006);
-                orderPayInfo.setAmount(new BigDecimal(result.getTotalFee()));
-//            orderPayInfo.setChannelAmount(1L);
-//            orderPayInfo.setArriveAmount(9L);
+                orderPayInfo.setChannelRate(new BigDecimal(OrderPayConstant.WX_CHANNEL_RATE));
+                //分转换为元
+                BigDecimal totalFee = BigDecimal.valueOf(Long.parseLong(result.getTotalFee().toString())).divide(new BigDecimal(100));
+                orderPayInfo.setAmount(totalFee);
+                //渠道费
+                BigDecimal channelAmount = new BigDecimal(OrderPayConstant.WX_CHANNEL_RATE).multiply(totalFee);
+                orderPayInfo.setChannelAmount(channelAmount);
+                //到账金额
+                BigDecimal arriveAmount = totalFee.subtract(channelAmount);
+                orderPayInfo.setArriveAmount(arriveAmount);
                 orderPayInfo.setCreateTime(DateUtils.getNowDate());
                 int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
                 if(1 == k){
@@ -178,6 +173,7 @@ public class WxPayController {
 
             return WxPayNotifyResponse.success("处理成功!");
         } catch (Exception e) {
+            e.printStackTrace();
             log.info("微信支付失败----------------错误信息为："+e);
             log.info("微信支付失败----------------错误信息为："+e.getMessage());
             return WxPayNotifyResponse.fail(e.getMessage());

@@ -79,4 +79,12 @@ public interface OrderSettlingInfoMapper
     int insertOrderSettlingInfoOne(OrderSettlingInfoVo orderSettlingInfoVo);
 
     List<OrderSettlingInfo> selectSettingInfoByOrderIds(@Param("orderIds") List<Long> orderIds);
+
+    /**
+     * 新增结算图片表数据
+     * @param orderSettlingInfoVo
+     */
+    void insertOrderSettlingImageInfo(OrderSettlingInfoVo orderSettlingInfoVo);
+
+    List<String> selectOrderSettlingImageList(@Param("orderId") Long orderId);
 }
