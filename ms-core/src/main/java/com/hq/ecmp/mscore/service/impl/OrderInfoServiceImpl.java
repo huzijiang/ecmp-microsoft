@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
@@ -36,7 +35,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import oshi.jna.platform.mac.SystemB;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -133,7 +131,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Resource
     private CarGroupInfoMapper carGroupInfoMapper;
     @Resource
-    private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -673,8 +670,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 ApiResponse<DispatchOrderInfo> dispatchOrderInfo=this.doWaitDispatchOrderDetailInfo(orderId);
                 return dispatchOrderInfo;
             } else {
-                long a =redisUtil.getTime("dispatch_557");
-                System.out.println(a);
+               // long a =redisUtil.getTime("dispatch_557");
                 return ApiResponse.error("已有调度员操作");
             }
         }
@@ -825,7 +821,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 OrderCostDetailVO orderCost = this.getOrderCost(orderId);
                 vo.setOrderCostDetailVO(orderCost);
             }
-
+            vo.setRegimeId(journeyInfo.getRegimenId());
             //网约车是否限额
             //查询出用车制度表的限额额度，和限额类型
             String overMoney = iOrderPayInfoService.checkOrderFeeOver(orderId, journeyInfo.getRegimenId(), orderInfo.getUserId());

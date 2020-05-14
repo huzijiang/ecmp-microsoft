@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.dto.IMQueryMsgDto;
 import com.hq.ecmp.mscore.service.ImMessageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,13 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author crk
  */
 @RestController
 @RequestMapping("/im")
-@Api(description = "即时通讯信息")
+@Api(tags = "即时通讯信息")
 public class IMMsgController {
 
     @Autowired
@@ -63,8 +65,17 @@ public class IMMsgController {
 
         List<Map<String, List<ImMessage>>> result = new ArrayList<>();
         List<ImMessage> sendMsgs = imMessageService.queryMsgInfo(queryMsgDto);
+        sendMsgs = sendMsgs.stream().sorted(Comparator.comparing(ImMessage::getId)).collect(Collectors.toList());
         Date nowTime = new Date();
+        //最后一条消息时间
         Date laseMsgTime = null;
+        //是否为今天
+        boolean isToDay = false;
+        //相差时间：单位分钟
+        int intervals = 5;
+        //展示日志的格式
+        String dataFormat = DateUtils.YYYY_MM_DD_HH_MM_SS;
+
         for (ImMessage sendMsg : sendMsgs) {
             if (sendMsg.getSendId().equals(queryMsgDto.getSendId()) && sendMsg.getSendRoleType().equals(queryMsgDto.getSendRoleType())) {
                 sendMsg.setIdentity(IMConStant.MSG_IDENTITY_MY.getStatus());
@@ -72,25 +83,29 @@ public class IMMsgController {
                 sendMsg.setIdentity(IMConStant.MSG_IDENTITY_YOUR.getStatus());
             }
             Date msgCreateTime = sendMsg.getCreateTime();
+            if(!isToDay && DateUtils.isSameDay(nowTime,msgCreateTime)){
+                isToDay = true;
+                dataFormat = DateUtils.HH_MM_SS;
+            }
             if (laseMsgTime == null) {
                 laseMsgTime = msgCreateTime;
                 Map<String, List<ImMessage>> map = new HashMap<>(8);
                 List<ImMessage> list = new ArrayList<>();
                 list.add(sendMsg);
-                map.put(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, laseMsgTime), list);
+                map.put(DateUtils.parseDateToStr(dataFormat, laseMsgTime), list);
                 result.add(map);
             } else {
-                int betweenTime = (int) ((msgCreateTime.getTime() - laseMsgTime.getTime()) / (1000 * 60 * 60));
-                if (betweenTime <= 1) {
+                int betweenTime = (int) ((msgCreateTime.getTime() - laseMsgTime.getTime()) / (1000 * 60));
+                if (betweenTime <= intervals) {
                     Map<String, List<ImMessage>> map = result.get(result.size() - 1);
-                    List<ImMessage> list = map.get(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, laseMsgTime));
+                    List<ImMessage> list = map.get(DateUtils.parseDateToStr(dataFormat, laseMsgTime));
                     list.add(sendMsg);
                 } else {
                     laseMsgTime = msgCreateTime;
                     Map<String, List<ImMessage>> map = new HashMap<>(8);
                     List<ImMessage> list = new ArrayList<>();
                     list.add(sendMsg);
-                    map.put(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, laseMsgTime), list);
+                    map.put(DateUtils.parseDateToStr(dataFormat, laseMsgTime), list);
                     result.add(map);
                 }
             }

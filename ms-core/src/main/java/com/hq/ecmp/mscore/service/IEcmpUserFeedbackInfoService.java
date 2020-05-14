@@ -1,8 +1,10 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo;
 import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
+import com.hq.ecmp.mscore.dto.OrderInfoDTO;
 import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
@@ -77,4 +79,11 @@ public interface IEcmpUserFeedbackInfoService
      * @param ecmpUserFeedbackInfo
      */
     int replyObjectionOrder(EcmpUserFeedbackInfoVo ecmpUserFeedbackInfo,Long userId);
+
+    /**
+     * 订单管理补单提交功能
+     * @param orderInfoDTO
+     * @return
+     */
+    ApiResponse supplementSubmit(OrderInfoDTO orderInfoDTO);
 }
