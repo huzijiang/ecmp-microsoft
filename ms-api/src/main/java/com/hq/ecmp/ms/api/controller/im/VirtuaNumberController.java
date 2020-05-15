@@ -67,7 +67,7 @@ public class VirtuaNumberController {
                 .createTime(new Date())
                 .build();
         imVirtuaPhone = virtuaPhoneService.insert(imVirtuaPhone);
-        return ApiResponse.success(imVirtuaPhone);
+        return ApiResponse.success(ImVirtuaPhone.builder().driverVirtuaPhone(imVirtuaPhone.getDriverVirtuaPhone()).customVirtuaPhone(imVirtuaPhone.getCustomVirtuaPhone()).build());
     }
 
     /**
