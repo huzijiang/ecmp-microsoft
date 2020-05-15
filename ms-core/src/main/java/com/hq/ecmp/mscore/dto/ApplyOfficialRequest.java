@@ -170,7 +170,7 @@ public class ApplyOfficialRequest {
 
     private Long companyId;
 
-    //后台管理直接调度所用  0 为直接调度
+    //后台管理直接调度所用  D000 为直接调度
     private String distinguish;
     /**
      * 用车城市可用车型
