@@ -9,6 +9,7 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
+import com.hq.ecmp.mscore.dto.cost.CostConfigListResultPage;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
 import com.hq.ecmp.mscore.vo.SupplementVO;
@@ -66,8 +67,8 @@ public class CostController {
     @Log(value = "成本设置列表查询")
     @com.hq.core.aspectj.lang.annotation.Log(title = "成本设置列表查询",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
     @PostMapping("/queryCostConfigList")
-    public ApiResponse<List<CostConfigListResult>> queryCostConfigList(@RequestBody  CostConfigQueryDto costConfigQueryDto){
-        List<CostConfigListResult> costConfigListResults;
+    public ApiResponse<CostConfigListResultPage> queryCostConfigList(@RequestBody  CostConfigQueryDto costConfigQueryDto){
+        CostConfigListResultPage costConfigListResults;
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);

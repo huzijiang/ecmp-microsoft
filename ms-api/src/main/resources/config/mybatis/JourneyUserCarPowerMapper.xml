@@ -32,6 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="type != null  and type != ''"> and type = #{type}</if>
             <if test="itIsReturn != null  and itIsReturn != ''"> and it_is_return = #{itIsReturn}</if>
         </where>
+        order by power_id
     </select>
 
     <select id="selectJourneyUserCarPowerById" parameterType="Long" resultMap="JourneyUserCarPowerResult">
@@ -82,6 +83,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="isRead != null  and isRead != ''">is_read = #{isRead},</if>
         </trim>
         where power_id = #{powerId}
     </update>
@@ -120,13 +122,13 @@ WHERE
     
     <select id="queryUserAuthorityFromService"
 	resultType="com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority">
-	SELECT
+  SELECT
 	a.node_id AS noteId,
 	vehicle AS vehicle,
 	b.power_id AS ticketId,
 	b.state as useStatus,
-	a.plan_begin_address AS cityName,
-	a.plan_begin_city_code AS cityCode,
+	a.plan_begin_address  AS cityName,
+    a.plan_begin_city_code  AS cityCode,
 	c.regimen_id AS regimenId
 	FROM
 	journey_node_info a
@@ -135,6 +137,7 @@ WHERE
 	WHERE
 	b.type = #{type}
 	AND a.journey_id = #{journeyId}
+	order by b.power_id
 </select>
     
     <select id="querySurplusNum" parameterType="com.hq.ecmp.mscore.domain.JourneyUserCarPower" resultType="java.lang.Integer">
@@ -162,7 +165,8 @@ AND a.type = #{type}
 	a.power_id AS ticketId,
 	b.order_id as orderId,
 	a.state AS status,
-	a.type AS returnIsType
+	a.type AS returnIsType,
+	a.apply_id as applyId
 FROM
 	journey_user_car_power a
 LEFT JOIN (
@@ -176,6 +180,7 @@ LEFT JOIN (
 ) b ON a.power_id = b.power_id
 WHERE
 	a.journey_id= #{journeyId}
+	and a.is_read='R002'
     
     </select>
     
@@ -197,7 +202,8 @@ WHERE
 	parameterType="java.lang.Long">
 	SELECT
 	power_id AS ticketId,
-	regimen_id AS regimenId
+	regimen_id AS regimenId,
+	apply_id as applyId
 	FROM
 	journey_user_car_power a
 	LEFT JOIN journey_info b ON a.journey_id = b.journey_id

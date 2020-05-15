@@ -324,6 +324,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				    log.error("该订单相关的制度id是空，或者相关制度不包含自有车");
                     continue;
                 }
+                //查询订单对应的上车地点时间,下车地点时间
+                buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 				String cityId = dispatchOrderInfo.getCityId();
 				if(StringUtil.isEmpty(cityId)){
                     log.error("该订单相关城市为空");
@@ -337,8 +339,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 if(null !=dispatchOrderInfo.getCreateTime()){
                     dispatchOrderInfo.setWaitMinute(DateFormatUtils.getDateToWaitInterval(dispatchOrderInfo.getCreateTime()));
                 }
-                //查询订单对应的上车地点时间,下车地点时间
-                buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+
                 //订单添加用车场景用车制度以及任务来源信息
                 DispatchOrderInfoPacking(dispatchOrderInfo);
                 checkResult.add(dispatchOrderInfo);
@@ -462,6 +463,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		if (null != startOrderAddressInfo) {
 			dispatchOrderInfo.setStartSite(startOrderAddressInfo.getAddress());
 			dispatchOrderInfo.setUseCarDate(startOrderAddressInfo.getActionTime());
+            dispatchOrderInfo.setCityId(startOrderAddressInfo.getCityPostalCode());
 		}
 		OrderAddressInfo endOrderAddressInfo = iOrderAddressInfoService
 				.queryOrderStartAndEndInfo(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId()));
@@ -488,7 +490,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		if(null !=list && list.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : list) {
                 //过滤掉未走调度自动约车的
-                boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(dispatchOrderInfo.getRegimenId(), dispatchOrderInfo.getUseCarCityCode());
+                boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(dispatchOrderInfo.getApplyId(), dispatchOrderInfo.getUseCarCityCode());
                 if(judgeNotDispatch){
                     continue;
                 }
@@ -733,6 +735,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (orderInfo==null){
             throw new Exception("该订单不存在");
         }
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+        vo.setRegimeId(journeyInfo.getRegimenId());
         JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
         BeanUtils.copyProperties(orderInfo,vo);
         OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
@@ -744,6 +748,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         vo.setUseCarTime(useCarTime);
         vo.setCreateTimestamp(orderInfo.getCreateTime().getTime());
+        vo.setOrderNumber(orderInfo.getOrderNumber());
+        vo.setCustomerServicePhone(thirdService.getCustomerPhone());
+        vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
+        vo.setLabelState(orderStateTraceInfo.getState());
+        vo.setCancelReason(orderStateTraceInfo.getContent());
         if (OrderState.WAITINGLIST.getState().equals(orderInfo.getState())||OrderState.GETARIDE.getState().equals(orderInfo.getState())){
             return vo;
         }
@@ -776,13 +785,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setCarGroupPhone(str.getUserPhone());
             vo.setCarGroupName(str.getUserName());
         }
-        vo.setOrderNumber(orderInfo.getOrderNumber());
-        vo.setCustomerServicePhone(thirdService.getCustomerPhone());
-        vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
-        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         //服务结束时间
-        vo.setLabelState(orderStateTraceInfo.getState());
-        vo.setCancelReason(orderStateTraceInfo.getContent());
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
             vo.setOrderEndTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderStateTraceInfo.getCreateTime()));
         }
@@ -841,7 +844,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 OrderCostDetailVO orderCost = this.getOrderCost(orderId);
                 vo.setOrderCostDetailVO(orderCost);
             }
-            vo.setRegimeId(journeyInfo.getRegimenId());
             //网约车是否限额
             //查询出用车制度表的限额额度，和限额类型
             String overMoney = iOrderPayInfoService.checkOrderFeeOver(orderId, journeyInfo.getRegimenId(), orderInfo.getUserId());

@@ -408,7 +408,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             f.car_type as carType,
             f.car_license AS carLicense,
             h.regimen_id as regimenId,
-            m.create_time as updateDate
+            m.create_time as updateDate,
+            d.apply_id as applyId
         FROM
             order_info a
         LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
@@ -891,7 +892,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </select>
 
     <select id="queryUseCarMode" parameterType="java.lang.Long" resultType="string">
-    select use_car_mode from order_info where power_id=#{powerId}
+    select use_car_mode from order_info where power_id=#{powerId} order by create_time desc
     </select>
 
     <select id="getValidOrderByPowerId" resultType="com.hq.ecmp.mscore.domain.OrderInfo" parameterType="java.lang.Long">

@@ -7,6 +7,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
@@ -974,9 +975,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param userId
      */
     @Override
-    public void initialOfficialPowerAndApprovalFlow(ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId) {
+    public List<Long> initialOfficialPowerAndApprovalFlow(ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId){
         String applyType = officialCommitApply.getApplyType();
         Integer regimenId = officialCommitApply.getRegimenId();
+        List<Long> orderIds = null;
         //-------------------- 如果不经审批 则初始化权限和初始化订单 ------------------------
         if(regimenId != null){
             RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(Long.valueOf(regimenId));
@@ -985,18 +987,20 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             initOfficialApproveFlow(applyId, userId, regimenId);
             if(NeedApproveEnum.NEED_NOT_APPROVE.getKey().equals(needApprovalProcess)){
                 // 初始化权限和初始化订单
-                initPowerAndOrder(journeyId, applyType, applyId, userId);
+                orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply.getDistinguish());
             }else {
                 //----------------- 如果需要审批   给审批人发送通知，给自己发送通知  给审批人发送短信
                 //2.给审批人和自己发通知 并给审批人发短信
-                if("0".equals(officialCommitApply.getDistinguish())){
+                if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
                     //如果是直接调度，走直接调度流程
                     applyApproveResultInfoMapper.updateApproveState(applyId, ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey(),ApproveStateEnum.APPROVE_PASS.getKey());
+                    orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply.getDistinguish());
                 }else {
-                    sendNoticeAndMessage(officialCommitApply, applyId, userId);
+                        sendNoticeAndMessage(officialCommitApply, applyId, userId);
+                    }
                 }
             }
-        }
+        return orderIds;
     }
 
     /**
@@ -1171,9 +1175,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         Long nodeIdNoReturn = journeyNodeBo.getNodeIdNoReturn();
         Long nodeIdIsReturn = journeyNodeBo.getNodeIdIsReturn();
         String useCarModeOwnerLevel = regimeInfo.getUseCarModeOwnerLevel();
-        if (StringUtils.isBlank(useCarModeOwnerLevel)) {
-            throw new Exception("自有车无可用车型");
-        }
         String canUseCarMode = regimeInfo.getCanUseCarMode();
         String isGoBack = officialCommitApply.getIsGoBack();
         //包含自有车且不是包车
@@ -1192,6 +1193,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyPlanPriceInfo.setDuration((int) TimeUnit.MINUTES.convert(totalTime, TimeUnit.SECONDS));
             journeyPlanPriceInfo.setPowerId(null);
             journeyPlanPriceInfo.setOrderId(null);
+            if (StringUtils.isBlank(useCarModeOwnerLevel)) {
+                throw new Exception("自有车无可用车型");
+            }
             String[] splits = useCarModeOwnerLevel.split(",");
             for (String split: splits) {
                 EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
@@ -1501,37 +1505,40 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param applyId
      * @param userId
      */
-    private void initPowerAndOrder(Long journeyId, String applyType, Long applyId, Long userId) {
-        Thread thread = Thread.currentThread();
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                        try {
-                            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
-                            if(!optFlag){
-                               log.error("生成用车权限失败");
-                            }
-                            //初始化订单
-                            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
-                            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
-                                int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
-                                ecmpMessageService.applyUserPassMessage(applyId,userId,userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
-                                for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
-                                    int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
-                                    OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
-                                    Long orderId=null;
-                                    if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyType)){
-                                        orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
-                                    }
-                                    ecmpMessageService.saveApplyMessagePass(applyId,userId,userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
-                                }
-                            }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-        });
+    private List<Long> initPowerAndOrder(Long journeyId, String applyType, Long applyId, Long userId,String distinguish) {
+         try {
+           ArrayList<Long> orderIds = new ArrayList<>();
+           boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
+           if(!optFlag){
+              log.error("生成用车权限失败");
+           }
+           //初始化订单
+           List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
+           if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
+               int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
+               ecmpMessageService.applyUserPassMessage(applyId,userId,userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
+               for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
+                   int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
+                   OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
+                   Long orderId=null;
+                   if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyType)){
+                       orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
+                       if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(distinguish)){
+                           OrderInfo orderInfo = new OrderInfo();
+                           orderInfo.setItIsSupplement(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue());
+                           orderInfo.setOrderId(orderId);
+                           orderInfoService.updateOrderInfo(orderInfo);
+                       }
+                       orderIds.add(orderId);
+                   }
+                   ecmpMessageService.saveApplyMessagePass(applyId,userId,userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
+               }
+           }
+           return orderIds;
+         } catch (Exception e) {
+           e.printStackTrace();
+           return null;
+         }
     }
 
     private Long getLoginUserId() {
@@ -1754,7 +1761,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.6 cost_center 成本中心 从组织机构表 中获取
         applyInfo.setCostCenter(costCenter);
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
-        applyInfo.setState(ApplyStateConstant.ON_APPLYING);
+        if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
+            //如果是直接调度，走直接调度流程
+            applyInfo.setState(ApplyStateConstant.APPLY_PASS);
+        }else {
+            applyInfo.setState(ApplyStateConstant.ON_APPLYING);
+        }
         //2.8 reason 行程原因
         applyInfo.setReason(officialCommitApply.getReason());
         //2.9 create_by 创建者
