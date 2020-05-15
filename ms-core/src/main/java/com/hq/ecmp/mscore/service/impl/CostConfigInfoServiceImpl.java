@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
 import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
+import com.hq.ecmp.mscore.dto.cost.CostConfigListResultPage;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.mapper.CostConfigCarTypeInfoMapper;
 import com.hq.ecmp.mscore.mapper.CostConfigCityInfoMapper;
@@ -68,8 +69,9 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
      * @return List<CostConfigListResult>
      */
     @Override
-    public List<CostConfigListResult> selectCostConfigInfoList(CostConfigQueryDto costConfigQueryDto)
+    public CostConfigListResultPage selectCostConfigInfoList(CostConfigQueryDto costConfigQueryDto)
     {
+        CostConfigListResultPage costConfigListResultPage = new CostConfigListResultPage();
         PageHelper.startPage(costConfigQueryDto.getPageNum(), costConfigQueryDto.getPageSize());
         List<CostConfigListResult> costConfigListResults = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
         for (CostConfigListResult costConfigListResult:
@@ -79,7 +81,10 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
             List<CostConfigCarTypeInfo> costConfigCarTypeInfos = costConfigCarTypeInfoMapper.selectCostConfigCarTypeInfoList(costConfigCarTypeInfo);
             costConfigListResult.setCarTypes(costConfigCarTypeInfos);
         }
-        return costConfigListResults;
+        int totalNum = costConfigInfoMapper.getTotalNum(costConfigQueryDto);
+        costConfigListResultPage.setResults(costConfigListResults);
+        costConfigListResultPage.setTotal(totalNum);
+        return costConfigListResultPage;
     }
 
     /**

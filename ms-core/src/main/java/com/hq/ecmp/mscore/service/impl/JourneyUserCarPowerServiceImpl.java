@@ -207,8 +207,18 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		List<ServiceTypeCarAuthority> list = journeyUserCarPowerMapper.queryUserAuthorityFromService(type, journeyId);
 		if (null != list && list.size() > 0) {
 			Iterator<ServiceTypeCarAuthority> iterator = list.iterator();
+			int i=0;
 			while(iterator.hasNext()){
 				ServiceTypeCarAuthority serviceTypeCarAuthority = iterator.next();
+				i = i+1;
+				if (type.equals(CarConstant.USE_CAR_AIRPORT_PICKUP)){
+					if (i == 1){
+						JourneyNodeInfo journeyNodeInfo = journeyNodeInfoService.selectJourneyNodeInfoById(serviceTypeCarAuthority.getNoteId());
+						serviceTypeCarAuthority.setCityCode(journeyNodeInfo.getPlanEndCityCode());
+						serviceTypeCarAuthority.setCityName(journeyNodeInfo.getPlanEndAddress());
+					}
+
+				}
 				//剩余次数
 				serviceTypeCarAuthority.parseSurplusCount();
 				RegimeInfo regimeInfo = regimeInfoService.selectRegimeInfoById(serviceTypeCarAuthority.getRegimenId());
@@ -401,16 +411,44 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	public String buildUserAuthorityPowerStatus(boolean flag, Long powerId) {
 		String vaildOrdetrState = orderInfoMapper.queryVaildOrderStatusByPowerId(powerId);
 		if(StringUtil.isEmpty(vaildOrdetrState) ||OrderState.INITIALIZING.getState().equals(vaildOrdetrState)){
-			//权限不可用状态  S001 -权限不可用
+			//权限不可用状态  S801 -权限不可用
 			JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(powerId);
 			JourneyNodeInfo journeyNodeInfo = journeyNodeInfoService.selectJourneyNodeInfoById(journeyUserCarPower.getNodeId());
-			if (journeyUserCarPower.getType().equals(CarConstant.USE_CAR_AIRPORT_PICKUP) ||
-					journeyUserCarPower.getType().equals(CarConstant.CITY_USE_CAR)){
+			if (journeyUserCarPower.getType().equals(CarConstant.USE_CAR_AIRPORT_PICKUP)){
+				//行程的最后一个行程节点的第一个接机，则取结束城市否则取开始城市
+				JourneyNodeInfo journeyNodeInfo1 = new JourneyNodeInfo();
+				journeyNodeInfo1.setJourneyId(journeyNodeInfo.getJourneyId());
+				List<JourneyNodeInfo> journeyNodeInfoList = journeyNodeInfoService.selectJourneyNodeInfoList(journeyNodeInfo1);
+				if(CollectionUtils.isNotEmpty(journeyNodeInfoList)){
+					//用车权限相关行程的最后一个行程节点
+					JourneyNodeInfo journeyNodeInfo2 = journeyNodeInfoList.get(journeyNodeInfoList.size() - 1);
+					if(journeyNodeInfo2.getNodeId().intValue() == journeyUserCarPower.getNodeId().intValue()){
+						JourneyUserCarPower journeyUserCarPower1 = new JourneyUserCarPower();
+						journeyUserCarPower1.setNodeId(journeyUserCarPower.getNodeId());
+						List<JourneyUserCarPower> journeyUserCarPowers = journeyUserCarPowerMapper.selectJourneyUserCarPowerList(journeyUserCarPower1);
+						for (JourneyUserCarPower journeyUserCarPower2:
+						journeyUserCarPowers) {
+							if(journeyUserCarPower2.getType().equals(CarConstant.USE_CAR_AIRPORT_PICKUP)){
+								if(journeyUserCarPower2.getPowerId().longValue() == powerId){
+								 	if(powerNotAvailable(journeyUserCarPower.getApplyId(),journeyNodeInfo.getPlanEndCityCode())){
+										return OrderState.POWERNOAVAILABLE.getState();
+									}
+								}else{
+									if(powerNotAvailable(journeyUserCarPower.getApplyId(),journeyNodeInfo.getPlanBeginCityCode())){
+										return OrderState.POWERNOAVAILABLE.getState();
+									}
+								}
+							}
+						}
+					}
+
+				}
+			}else if (journeyUserCarPower.getType().equals(CarConstant.CITY_USE_CAR)){
 				if (powerNotAvailable(journeyUserCarPower.getApplyId(),journeyNodeInfo.getPlanBeginCityCode())){
 					return OrderState.POWERNOAVAILABLE.getState();
 				}
 			}else if (journeyUserCarPower.getType().equals(CarConstant.USE_CAR_AIRPORT_DROP_OFF)){
-				if (powerNotAvailable(journeyUserCarPower.getApplyId(),journeyNodeInfo.getPlanEndCityCode())){
+				if (powerNotAvailable(journeyUserCarPower.getApplyId(),journeyNodeInfo.getPlanBeginCityCode())){
 					return OrderState.POWERNOAVAILABLE.getState();
 				}
 			}

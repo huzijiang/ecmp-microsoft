@@ -32,6 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="type != null  and type != ''"> and type = #{type}</if>
             <if test="itIsReturn != null  and itIsReturn != ''"> and it_is_return = #{itIsReturn}</if>
         </where>
+        order by power_id
     </select>
 
     <select id="selectJourneyUserCarPowerById" parameterType="Long" resultMap="JourneyUserCarPowerResult">
@@ -82,6 +83,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="isRead != null  and isRead != ''">is_read = #{isRead},</if>
         </trim>
         where power_id = #{powerId}
     </update>
@@ -125,10 +127,8 @@ WHERE
 	vehicle AS vehicle,
 	b.power_id AS ticketId,
 	b.state as useStatus,
-	case when #{type}='C001' then 	a.plan_end_address
-	else a.plan_begin_address end AS cityName,
-	case when #{type}='C001' then 	a.plan_end_city_code
-	else a.plan_begin_city_code end AS cityCode,
+	a.plan_begin_address  AS cityName,
+    a.plan_begin_city_code  AS cityCode,
 	c.regimen_id AS regimenId
 	FROM
 	journey_node_info a
@@ -137,6 +137,7 @@ WHERE
 	WHERE
 	b.type = #{type}
 	AND a.journey_id = #{journeyId}
+	order by b.power_id
 </select>
     
     <select id="querySurplusNum" parameterType="com.hq.ecmp.mscore.domain.JourneyUserCarPower" resultType="java.lang.Integer">

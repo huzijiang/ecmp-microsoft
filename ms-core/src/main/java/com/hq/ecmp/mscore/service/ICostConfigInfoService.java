@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
+import com.hq.ecmp.mscore.dto.cost.CostConfigListResultPage;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.vo.SupplementVO;
 
@@ -30,7 +31,7 @@ public interface ICostConfigInfoService
      * @param costConfigInfo
      * @return
      */
-    public List<CostConfigListResult> selectCostConfigInfoList(CostConfigQueryDto costConfigInfo);
+    public CostConfigListResultPage selectCostConfigInfoList(CostConfigQueryDto costConfigInfo);
 
     /**
      * 新增【请填写功能名称】
