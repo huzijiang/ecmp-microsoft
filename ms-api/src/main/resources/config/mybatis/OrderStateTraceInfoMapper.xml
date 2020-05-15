@@ -234,7 +234,8 @@ AND a.state ='S270' order by a.create_time desc limit 1
 		'S900',
 		'S901',
 		'S911',
-		'S921'
+		'S921',
+		'S930'
 		)
 		ORDER BY
 		a.create_time desc

@@ -90,6 +90,8 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	private CloudWorkDateInfoMapper workDateInfoMapper;
     @Resource
 	private EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
+    @Resource
+	private ApplyUseCarTypeMapper applyUseCarTypeMapper;
 
 	@Value("${thirdService.enterpriseId}") //企业编号
 	private String enterpriseId;
@@ -401,34 +403,34 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		return null;
 	}
 
+	/**
+	 * 是否不走调度
+	 * @param applyId 申请单id
+	 * @param cityCode 城市code
+	 * @return true 不走调度  false 走调度
+	 */
 	@Override
-	public boolean judgeNotDispatch(Long regimeId, String cityCode) {
+	public boolean judgeNotDispatch(Long applyId, String cityCode) {
 		if(StringUtil.isEmpty(cityCode)){
 			return false;
 		}
-		RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimeId);
-		if(null==regimeInfo){
+		if (applyId == null){
 			return false;
 		}
-		String canUseCarMode = regimeInfo.getCanUseCarMode();
-		if(StringUtil.isEmpty(canUseCarMode)){
+		ApplyUseCarType applyUseCarTypePa = new ApplyUseCarType();
+		applyUseCarTypePa.setApplyId(applyId);
+		applyUseCarTypePa.setCityCode(cityCode);
+		List<ApplyUseCarType> applyUseCarTypes = applyUseCarTypeMapper.selectApplyUseCarTypeList(applyUseCarTypePa);
+		if (CollectionUtils.isEmpty(applyUseCarTypes)){
+			log.error("城市{}和申请单id{}确认是否调度异常",cityCode,applyId);
 			return false;
 		}
-		String[] split = canUseCarMode.split(",");
-		List<String> asList = Arrays.asList(split);
-		if(asList.size()==1){
-			if(CarConstant.USR_CARD_MODE_HAVE.equals(asList.get(0))){
-				return false;
-			}else{
-				return true;
-			}
-		}
-		//自有车+网约车时，但上车地点“不在”车队的用车城市 范围内
-		List<Long> result = carGroupServeScopeInfoMapper.queryCarGroupByCity(cityCode);
-		if(null !=result && result.size()>0){
+		ApplyUseCarType applyUseCarType = applyUseCarTypes.get(0);
+		if (applyUseCarType.getShuttleOwnerCarType()!= null || applyUseCarType.getOwnerCarType() !=null ){
 			return false;
+		}else{
+			return true;
 		}
-		return true;
 	}
 
 	/**
