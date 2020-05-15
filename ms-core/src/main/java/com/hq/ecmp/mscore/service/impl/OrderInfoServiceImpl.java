@@ -463,6 +463,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		if (null != startOrderAddressInfo) {
 			dispatchOrderInfo.setStartSite(startOrderAddressInfo.getAddress());
 			dispatchOrderInfo.setUseCarDate(startOrderAddressInfo.getActionTime());
+            dispatchOrderInfo.setCityId(startOrderAddressInfo.getCityPostalCode());
 		}
 		OrderAddressInfo endOrderAddressInfo = iOrderAddressInfoService
 				.queryOrderStartAndEndInfo(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId()));
