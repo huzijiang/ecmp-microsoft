@@ -14,9 +14,17 @@ public enum OrderState {
     STOPSERVICE("S699","服务结束"),ORDERCLOSE("S900","订单关闭"),
     DISSENT("S901","订单异议"),ORDERCANCEL("S911","订单取消"),
     WAITCONFIRMED("S960","待确认"),
-    TIMELIMIT("S970","已过期"),
     REPLACECAR("S301","换车通知"),
-    ORDEROVERTIME("S921","订单超时");
+    ORDEROVERTIME("S921","订单超时"),
+    ORDERDENIED("S930","订单驳回"),
+    //权限独有状态
+    TIMELIMIT("S970","已过期"),
+    POWERNOAVAILABLE("S801","不可用"),
+    TRAVELOVERUSECARTIME("S980","差旅权限超过用车时间，仍然可约车的状态"),
+    ORDERDENYNOUSE("S931","订单驳回，后面的用车权限有已完成的，此为驳回不可用的情况状态码"),
+    TRAVELOVERUSECARTIMENOUSE("S990","后面与已经完成的权限，前面未使用的权限变为已过期对应的状态码")
+    ;
+
 
 
 
@@ -88,9 +96,16 @@ public enum OrderState {
     public static List<String> carAuthorityJundgeOrderCompleteFront() {
         return Arrays.asList(STOPSERVICE.getState(),WAITCONFIRMED.getState());
     }
+
+    /**
+     * 差旅权限快捷列表不展示的状态(S970  S699 S001  S990  S931)
+     * @return
+     */
+    public static List<String> noShowStateOfPower(){
+        return Arrays.asList(TIMELIMIT.getState(),STOPSERVICE.getState(),POWERNOAVAILABLE.getState(),ORDERDENYNOUSE.getState(),TRAVELOVERUSECARTIMENOUSE.getState());
+    }
+
     public static String endServerStates() {
         return STOPSERVICE.getState()+","+ORDERCLOSE.getState()+","+DISSENT.getState();
     }
-
-
 }

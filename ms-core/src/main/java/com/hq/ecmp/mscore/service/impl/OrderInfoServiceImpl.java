@@ -324,6 +324,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				    log.error("该订单相关的制度id是空，或者相关制度不包含自有车");
                     continue;
                 }
+                //查询订单对应的上车地点时间,下车地点时间
+                buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 				String cityId = dispatchOrderInfo.getCityId();
 				if(StringUtil.isEmpty(cityId)){
                     log.error("该订单相关城市为空");
@@ -337,8 +339,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 if(null !=dispatchOrderInfo.getCreateTime()){
                     dispatchOrderInfo.setWaitMinute(DateFormatUtils.getDateToWaitInterval(dispatchOrderInfo.getCreateTime()));
                 }
-                //查询订单对应的上车地点时间,下车地点时间
-                buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+
                 //订单添加用车场景用车制度以及任务来源信息
                 DispatchOrderInfoPacking(dispatchOrderInfo);
                 checkResult.add(dispatchOrderInfo);
@@ -462,6 +463,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		if (null != startOrderAddressInfo) {
 			dispatchOrderInfo.setStartSite(startOrderAddressInfo.getAddress());
 			dispatchOrderInfo.setUseCarDate(startOrderAddressInfo.getActionTime());
+            dispatchOrderInfo.setCityId(startOrderAddressInfo.getCityPostalCode());
 		}
 		OrderAddressInfo endOrderAddressInfo = iOrderAddressInfoService
 				.queryOrderStartAndEndInfo(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId()));
@@ -488,7 +490,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		if(null !=list && list.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : list) {
                 //过滤掉未走调度自动约车的
-                boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(dispatchOrderInfo.getRegimenId(), dispatchOrderInfo.getUseCarCityCode());
+                boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(dispatchOrderInfo.getApplyId(), dispatchOrderInfo.getUseCarCityCode());
                 if(judgeNotDispatch){
                     continue;
                 }

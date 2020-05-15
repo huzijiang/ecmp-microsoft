@@ -61,5 +61,9 @@ public class CarAuthorityInfo {
 
        String cityCode;//用车城市编码
 
+       /**
+        * 申请单id
+        */
+       Long applyId;
 
 }

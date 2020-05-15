@@ -986,15 +986,16 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             initOfficialApproveFlow(applyId, userId, regimenId);
             if(NeedApproveEnum.NEED_NOT_APPROVE.getKey().equals(needApprovalProcess)){
                 // 初始化权限和初始化订单
-                orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId);
+                orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply.getDistinguish());
             }else {
                 //----------------- 如果需要审批   给审批人发送通知，给自己发送通知  给审批人发送短信
                 //2.给审批人和自己发通知 并给审批人发短信
-                if("0".equals(officialCommitApply.getDistinguish())){
+                if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
                     //如果是直接调度，走直接调度流程
                     applyApproveResultInfoMapper.updateApproveState(applyId, ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey(),ApproveStateEnum.APPROVE_PASS.getKey());
                 }else {
                     sendNoticeAndMessage(officialCommitApply, applyId, userId);
+                    orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply.getDistinguish());
                 }
             }
         }
@@ -1503,62 +1504,40 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param applyId
      * @param userId
      */
-    private List<Long> initPowerAndOrder(Long journeyId, String applyType, Long applyId, Long userId) {
-
+    private List<Long> initPowerAndOrder(Long journeyId, String applyType, Long applyId, Long userId,String distinguish) {
          try {
-
            ArrayList<Long> orderIds = new ArrayList<>();
-
            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
-
            if(!optFlag){
-
               log.error("生成用车权限失败");
-
            }
-
            //初始化订单
-
            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
-
            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
-
                int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
-
                ecmpMessageService.applyUserPassMessage(applyId,userId,userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
-
                for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
-
                    int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
-
                    OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
-
                    Long orderId=null;
-
                    if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyType)){
-
                        orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
-
+                       if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(distinguish)){
+                           OrderInfo orderInfo = new OrderInfo();
+                           orderInfo.setItIsSupplement(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue());
+                           orderInfo.setOrderId(orderId);
+                           orderInfoService.updateOrderInfo(orderInfo);
+                       }
                        orderIds.add(orderId);
-
                    }
-
                    ecmpMessageService.saveApplyMessagePass(applyId,userId,userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
-
                }
-
            }
-
            return orderIds;
-
          } catch (Exception e) {
-
            e.printStackTrace();
-
            return null;
-
          }
-
     }
 
     private Long getLoginUserId() {
