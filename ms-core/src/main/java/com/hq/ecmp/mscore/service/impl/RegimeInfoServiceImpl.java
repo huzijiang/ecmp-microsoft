@@ -37,6 +37,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.vo.RegimenVO;
 
 import lombok.extern.slf4j.Slf4j;
+import oshi.jna.platform.mac.SystemB;
 
 import javax.annotation.Resource;
 
@@ -875,56 +876,15 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			throw new Exception("该制度不存在");
 		}
 		String useCarMode = regimeVo.getCanUseCarMode();
-		Long userId = loginUser.getUser().getUserId();
+		SysUser user = loginUser.getUser();
 		Long ownerCompany = loginUser.getUser().getOwnerCompany();
 		String regimenType = regimeVo.getRegimenType();
+		/**公务申请*/
 		if (CommonConstant.AFFICIAL_APPLY.equals(regimenType)) {
-			if (CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){
-				UseCarTypeVO vo = getCarTypeForOwnerBusiness(regimeVo, regimeDto.getCityCodes(), new UseCarTypeVO(), ownerCompany);
-				voList.add(vo);
-			}else if (CarModeEnum.ORDER_MODE_NET.getKey().equals(useCarMode)){
-				/*网约车*/
-				UseCarTypeVO carTypefor = getCarTypeForOnlie(regimeVo, regimeDto.getCityCodes(), new UseCarTypeVO());
-				if (carTypefor!=null){
-					voList.add(carTypefor);
-				}
-			}else{
-				/**自有车+网约车*/
-				/*自有车*/
-				UseCarTypeVO vo = getCarTypeForOwnerBusiness(regimeVo, regimeDto.getCityCodes(), new UseCarTypeVO(), ownerCompany);
-				UseCarTypeVO carTypefor = getCarTypeForOnlie(regimeVo, regimeDto.getCityCodes(), new UseCarTypeVO());
-				if (vo!=null&&carTypefor!=null){
-					vo.setRideHileCarType(carTypefor.getRideHileCarType());
-					vo.setOnlineCarType(carTypefor.getOnlineCarType());
-					vo.setShuttleOnlineCarType(carTypefor.getShuttleOnlineCarType());
-				}else if(vo==null&&carTypefor!=null){
-					voList.add(carTypefor);
-				}else if (vo!=null&&carTypefor==null){
-					voList.add(vo);
-				}
-			}
+			voList = getBusinessCarTypes(regimeVo, regimeDto.getCityCodes(), useCarMode, user.getDeptId(), ownerCompany);
 		}else{
-			if (CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){
-				voList = getCarTypeForOwnerTravel(regimeVo, regimeDto.getCityCodes(),ownerCompany);
-			}else if (CarModeEnum.ORDER_MODE_NET.getKey().equals(useCarMode)){
-				/*网约车*/
-				List<UseCarTypeVO> carTypeList = getCarTypeForTraveOnlie(regimeVo, regimeDto.getCityCodes());
-				voList.addAll(carTypeList);
-			}else{
-				/**自有车+网约车*/
-				/*自有车*/
-				List<UseCarTypeVO> ownerCarTypes = getCarTypeForOwnerTravel(regimeVo, regimeDto.getCityCodes(), ownerCompany);
-				List<UseCarTypeVO> onlineCarType = getCarTypeForTraveOnlie(regimeVo, regimeDto.getCityCodes());
-				if (CollectionUtils.isNotEmpty(ownerCarTypes)&&CollectionUtils.isNotEmpty(onlineCarType)){
-					for (UseCarTypeVO vo:ownerCarTypes){
-						List<UseCarTypeVO> collect = onlineCarType.stream().filter(p -> vo.getCityCode().equals(p.getCityCode())).collect(Collectors.toList());
-						if (CollectionUtils.isNotEmpty(collect)){
-							vo.setRideHileCarType(collect.get(0).getRideHileCarType());
-						}
-					}
-				}
-				voList.addAll(ownerCarTypes);
-			}
+			/**差旅申请*/
+			voList = getTraveCarTypes(regimeVo, regimeDto.getCityCodes(), useCarMode, user.getDeptId(), ownerCompany);
 
 		}
 
@@ -932,47 +892,57 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	}
 
 	private List<UseCarTypeVO> getCarTypeForTraveOnlie(RegimeVo regimeVo, String cityCodes)throws Exception {
-		String ownerCarLevel = getOwnerCarLevel(regimeVo);
+		List<UseCarTypeVO> resultList=new ArrayList<>();
+		String ownerCarLevel = getOnlineCarLevel(regimeVo);
 		if (StringUtils.isBlank(ownerCarLevel)){
-			return null;
+			return resultList;
 		}
-		List<String>  regimeCarLevel=Arrays.asList(regimeVo.getUseCarModeOnlineLevel().split(","));
+		List<String>  regimeCarLevel=Arrays.asList(ownerCarLevel.substring(1).split(","));
 		List<OnLineCarTypeVO> onLineCarTypeVOS = threeCityServer(cityCodes);
 		if (CollectionUtils.isEmpty(onLineCarTypeVOS)){
-			return null;
+			return resultList;
 		}
-		List<UseCarTypeVO> resultList=new ArrayList<>();
+		/**实际可用车型交集*/
 		List<String> groupNames=new ArrayList<>();
+		List<String> groupIds=new ArrayList<>();
+		/**遍历所有城市的可用车型*/
 		for (OnLineCarTypeVO vo:onLineCarTypeVOS){
 			List<CarLevelVO> carTypes = vo.getCarTypes();
+
 			if (CollectionUtils.isNotEmpty(carTypes)){
 				//网约车当前城市可用车型
-				List<String> collect = carTypes.stream().map(CarLevelVO::getGroupName).collect(Collectors.toList());
-				groupNames.addAll(collect);
+//				List<String> collectName = carTypes.stream().map(CarLevelVO::getGroupName).collect(Collectors.toList());
+				List<String> collectId = carTypes.stream().map(CarLevelVO::getGroupId).collect(Collectors.toList());
+//				groupNames.addAll(collectName);
+				groupIds.addAll(collectId);
 				UseCarTypeVO carTypeVO=new UseCarTypeVO();
 				carTypeVO.setCityCode(vo.getCityId());
 				List<CarServiceTypeVO> serviceTypes = vo.getServiceTypes();
 				if (CollectionUtils.isNotEmpty(serviceTypes)){
 					List<CarServiceTypeVO> canServiceType=serviceTypes.stream().filter(p-> OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState().equals(p.getServiceTypeId())||
 							OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState().equals(p.getServiceTypeId())).collect(Collectors.toList());
+					/**网约车接送机可用车型*/
 					if (CollectionUtils.isNotEmpty(canServiceType)){
-						carTypeVO.setShuttleOnlineCarType(String.join(",",collect));
+						carTypeVO.setShuttleOnlineCarType(String.join(",",collectId));
 					}
 					List<CarServiceTypeVO> canType=serviceTypes.stream().filter(p-> OrderServiceType.ORDER_SERVICE_TYPE_NOW.getBcState().equals(p.getServiceTypeId())||
 							OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState().equals(p.getServiceTypeId())).collect(Collectors.toList());
+					/**网约车市内用车可用车型*/
 					if (CollectionUtils.isNotEmpty(canType)){
-						carTypeVO.setShuttleOnlineCarType(String.join(",",collect));
+						carTypeVO.setOnlineCarType(String.join(",",collectId));
 					}
 				}
 				resultList.add(carTypeVO);
 			}
 		}
-		regimeCarLevel.retainAll(groupNames);
-		if (CollectionUtils.isNotEmpty(regimeCarLevel)){
+		regimeCarLevel=regimeCarLevel.stream().distinct().collect(Collectors.toList());
+		regimeCarLevel.retainAll(groupIds);
+		List<String> result=regimeCarLevel;
+//		if (CollectionUtils.isNotEmpty(regimeCarLevel)){
 			if (CollectionUtils.isNotEmpty(resultList)){
-				resultList.stream().forEach(p->p.setRideHileCarType(String.join(",",regimeCarLevel)));
+				resultList.stream().forEach(p->p.setRideHileCarType(String.join(",",result)));
 			}
-		}
+//		}
 		return resultList;
 
 	}
@@ -1003,11 +973,19 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		return null;
 	}
 
-	private UseCarTypeVO getCarTypeForOwnerBusiness(RegimeVo regimeVo,String cityCodes,UseCarTypeVO vo,Long ownerCompany){
+	private UseCarTypeVO getCarTypeForOwnerBusiness(RegimeVo regimeVo,String cityCodes,UseCarTypeVO vo,Long ownerCompany,Long deptId){
 		if (StringUtils.isBlank(regimeVo.getUseCarModeOwnerLevel())){
 			return null;
 		}
-		String	regimeCarLevel=regimeVo.getUseCarModeOwnerLevel();
+        List<Long> outerCompanyCarGroupIds = carGroupInfoMapper.queryCarGroupIdOuterCompany(cityCodes,ownerCompany);
+        List<Long> innerCompanyCarGroupIds = carGroupInfoMapper.queryCarGroupIdInnerCompany(deptId, cityCodes, ownerCompany);
+        if(CollectionUtils.isEmpty(outerCompanyCarGroupIds)&&CollectionUtils.isEmpty(innerCompanyCarGroupIds)){
+			return null;
+		}
+		String regimeCarLevel=regimeVo.getUseCarModeOwnerLevel();
+		if (StringUtils.isBlank(regimeCarLevel)){
+				return null;
+		}
 		String carTypeName=enterpriseCarTypeInfoMapper.selectCarTypesByTypeIds(ownerCompany,regimeCarLevel);
 		vo.setCityCode(cityCodes);
 		vo.setEnterpriseCarType(carTypeName);
@@ -1016,12 +994,17 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		return vo;
 	}
 
-	private List<UseCarTypeVO> getCarTypeForOwnerTravel(RegimeVo regimeVo,String cityCodes,Long ownerCompany){
-		if (StringUtils.isBlank(regimeVo.getUseCarModeOwnerLevel())){
-			return null;
-		}
+	private List<UseCarTypeVO> getCarTypeForOwnerTravel(RegimeVo regimeVo,String cityCodes,Long ownerCompany,Long deptId){
 		List<UseCarTypeVO> list=new ArrayList();
-		String	regimeCarLevel=regimeVo.getUseCarModeOwnerLevel();
+		if (StringUtils.isBlank(regimeVo.getUseCarModeOwnerLevel())){
+			return list;
+		}
+		List<Long> outerCompanyCarGroupIds = carGroupInfoMapper.queryCarGroupIdOuterCompany(cityCodes,ownerCompany);
+		List<Long> innerCompanyCarGroupIds = carGroupInfoMapper.queryCarGroupIdInnerCompany(deptId, cityCodes, ownerCompany);
+		if(CollectionUtils.isEmpty(outerCompanyCarGroupIds)&&CollectionUtils.isEmpty(innerCompanyCarGroupIds)){
+			return list;
+		}
+		String regimeCarLevel=regimeVo.getUseCarModeOwnerLevel();
 		String carTypeName=enterpriseCarTypeInfoMapper.selectCarTypesByTypeIds(ownerCompany,regimeCarLevel);
 		List<String> citylist=  Arrays.asList(cityCodes.split(","));
 		for (String city:citylist){
@@ -1315,13 +1298,92 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		String result = OkHttpUtil.postForm(apiUrl + "/basic/cityService", paramMap);
 		log.info("网约车开城及车型{}返回结果{}",cityCodes,result);
 		JSONObject jsonObject = JSONObject.parseObject(result);
-		if (ApiResponse.SUCCESS_CODE != jsonObject.getInteger("code")) {
+		if (ApiResponse.SUCCESS_CODE!=jsonObject.getInteger("code")) {
 			throw new Exception("调用三方获取网约车开城情况-》失败!");
 		}
 		String data = jsonObject.getString("data");
 		List<OnLineCarTypeVO> list = JSONObject.parseArray(data, OnLineCarTypeVO.class);
 
 		return list;
+	}
+
+	/**差旅申请可用车型*/
+	private List<UseCarTypeVO> getTraveCarTypes(RegimeVo regimeVo,String cityCodes,String useCarMode,Long deptId,Long ownerCompany)throws Exception{
+		List<UseCarTypeVO> voList=new ArrayList<>();
+		if (CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){
+			voList = getCarTypeForOwnerTravel(regimeVo, cityCodes,ownerCompany,deptId);
+		}else if (CarModeEnum.ORDER_MODE_NET.getKey().equals(useCarMode)){
+			/*网约车*/
+			List<UseCarTypeVO> carTypeList = getCarTypeForTraveOnlie(regimeVo, cityCodes);
+			if (CollectionUtils.isNotEmpty(carTypeList)){
+				voList.addAll(carTypeList);
+			}
+		}else{
+			/**自有车+网约车*/
+			/*自有车*/
+			List<UseCarTypeVO> ownerCarTypes = getCarTypeForOwnerTravel(regimeVo, cityCodes, ownerCompany,deptId);
+			List<UseCarTypeVO> onlineCarType = getCarTypeForTraveOnlie(regimeVo, cityCodes);
+			if (CollectionUtils.isNotEmpty(ownerCarTypes)&&CollectionUtils.isNotEmpty(onlineCarType)){
+				if (ownerCarTypes.size()>=onlineCarType.size()){
+					for (UseCarTypeVO vo:ownerCarTypes){
+						List<UseCarTypeVO> collect = onlineCarType.stream().filter(p -> vo.getCityCode().equals(p.getCityCode())).collect(Collectors.toList());
+						if (CollectionUtils.isNotEmpty(collect)){
+							vo.setRideHileCarType(collect.get(0).getRideHileCarType());
+						}
+					}
+					voList.addAll(ownerCarTypes);
+				}else {
+					for (UseCarTypeVO vo : onlineCarType) {
+						List<UseCarTypeVO> collect = ownerCarTypes.stream().filter(p -> vo.getCityCode().equals(p.getCityCode())).collect(Collectors.toList());
+						if (CollectionUtils.isNotEmpty(collect)) {
+							vo.setEnterpriseCarType(collect.get(0).getEnterpriseCarType());
+						}
+					}
+					voList.addAll(onlineCarType);
+				}
+			}else if (CollectionUtils.isNotEmpty(ownerCarTypes)&&CollectionUtils.isEmpty(onlineCarType)){
+				/**差旅城市只有自有车*/
+				voList.addAll(ownerCarTypes);
+			}else if (CollectionUtils.isEmpty(ownerCarTypes)&&CollectionUtils.isNotEmpty(onlineCarType)){
+				/**差旅城市只有网约车*/
+				voList.addAll(onlineCarType);
+			}
+		}
+		return voList;
+	}
+
+	/**公务申请可用车型*/
+	private List<UseCarTypeVO> getBusinessCarTypes(RegimeVo regimeVo,String cityCodes,String useCarMode,Long deptId,Long ownerCompany)throws Exception{
+		List<UseCarTypeVO> voList=new ArrayList<>();
+		if (CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){
+			/**不考虑往返*/
+			UseCarTypeVO vo = getCarTypeForOwnerBusiness(regimeVo, cityCodes, new UseCarTypeVO(), ownerCompany,deptId);
+			if (vo!=null){
+				voList.add(vo);
+			}
+		}else if (CarModeEnum.ORDER_MODE_NET.getKey().equals(useCarMode)){
+			/*网约车*/
+			UseCarTypeVO carTypefor = getCarTypeForOnlie(regimeVo, cityCodes, new UseCarTypeVO());
+			if (carTypefor!=null){
+				voList.add(carTypefor);
+			}
+		}else{
+			/**自有车+网约车*/
+			/*自有车*/
+			UseCarTypeVO vo = getCarTypeForOwnerBusiness(regimeVo, cityCodes, new UseCarTypeVO(), ownerCompany,deptId);
+			UseCarTypeVO carTypefor = getCarTypeForOnlie(regimeVo, cityCodes, new UseCarTypeVO());
+			if (vo!=null&&carTypefor!=null){
+				vo.setRideHileCarType(carTypefor.getRideHileCarType());
+				vo.setOnlineCarType(carTypefor.getOnlineCarType());
+				vo.setShuttleOnlineCarType(carTypefor.getShuttleOnlineCarType());
+				voList.add(vo);
+			}else if(vo==null&&carTypefor!=null){
+				voList.add(carTypefor);
+			}else if (vo!=null&&carTypefor==null){
+				voList.add(vo);
+			}
+		}
+		return voList;
 	}
 
 }

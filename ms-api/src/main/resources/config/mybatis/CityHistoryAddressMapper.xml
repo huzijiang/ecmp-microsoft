@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CityHistoryAddressMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.bo.CityHistoryAddress" id="CityHistoryAddress">
+        <id column="historyId" property="history_id" jdbcType="BIGINT" />
+        <result property="userId"      jdbcType="BIGINT"   column="user_id"    />
+        <result property="address"    jdbcType="VARCHAR"  column="address"    />
+        <result property="cityName" jdbcType="VARCHAR" column="city_name"    />
+        <result property="fullName" jdbcType="VARCHAR" column="full_name"    />
+        <result property="lat" jdbcType="VARCHAR" column="lat"    />
+        <result property="lng" jdbcType="VARCHAR" column="lng"    />
+        <result property="poi" jdbcType="VARCHAR" column="poi"    />
+        <result property="province" jdbcType="VARCHAR" column="province"    />
+        <result property="shortName" jdbcType="VARCHAR" column="short_name"    />
+    </resultMap>
+
+    <sql id="select">
+        select address, city_code, city_name, full_name, lat, lng,poi,province , short_name from ecmp_user_city_history_address
+    </sql>
+
+    <select id="getCityAddress" parameterType="com.hq.ecmp.mscore.bo.CityHistoryAddress" resultMap="CityHistoryAddress">
+        <include refid="select"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+	        <if test="cityCode != null "> and city_code = #{cityCode}</if>
+            <if test="cityName != null "> and city_Name = #{cityName}</if>
+            <if test="address != null "> and address = #{address}</if>
+            <if test="cityName != null "> and city_name = #{cityName}</if>
+            <if test="fullName != null "> and full_name = #{fullName}</if>
+            <if test="lat != null "> and lat = #{lat}</if>
+            <if test="lng != null "> and lng = #{lng}</if>
+            <if test="province != null "> and province = #{province}</if>
+            <if test="shortName != null "> and short_name = #{shortName}</if>
+
+        </where>
+    </select>
+    <select id="getCityAddressList" parameterType="com.hq.ecmp.mscore.bo.CityHistoryAddress" resultMap="CityHistoryAddress">
+        <include refid="select"/>
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="cityCode != null "> and city_code = #{cityCode}</if>
+        </where>
+    </select>
+    <insert id="addCityAddress" parameterType="java.util.List" >
+        insert into ecmp_user_city_history_address( history_id, user_id, address, city_name,city_code,  full_name, lat, lng, poi, province, short_name)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            ( #{item.historyId}, #{item.userId}, #{item.address}, #{item.cityName},#{item.cityCode}, #{item.fullName}, #{item.lat}, #{item.lng}, #{item.poi}, #{item.province}, #{item.shortName})
+        </foreach>
+    </insert>
+</mapper>

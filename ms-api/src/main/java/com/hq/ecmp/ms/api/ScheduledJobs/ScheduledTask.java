@@ -38,6 +38,8 @@ public class ScheduledTask {
 
     @Autowired
     private IEcmpUserService ecmpUserService;
+	@Autowired
+	private IEcmpOrgService ecmpOrgService;
     @Autowired
     private IApplyInfoService applyInfoService;
     @Autowired
@@ -127,11 +129,11 @@ public class ScheduledTask {
 		long end = System.currentTimeMillis();
 		log.info("定时任务:checkCarState:校验车辆状态结束,{}，耗时：{}",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()),end-start);
 	}
-    
-    
+
+
 	/**
 	 * 自动调度 每五分钟一次
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Scheduled(cron = "0 */5 * * * ?")
@@ -179,7 +181,7 @@ public class ScheduledTask {
 										orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
 												null);
 									}else{
-										redisUtil.delKey(redisLockKey);	
+										redisUtil.delKey(redisLockKey);
 									}
 									continue;
 								}
@@ -192,7 +194,7 @@ public class ScheduledTask {
 										orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
 												null);
 									}else{
-										redisUtil.delKey(redisLockKey);	
+										redisUtil.delKey(redisLockKey);
 									}
 									continue;
 								}
@@ -228,7 +230,7 @@ public class ScheduledTask {
 		}
 
 	}
-    
+
 
     //后台公告管理通过发布时间与结束时间做状态修改
 	@Scheduled(cron = "0 0/1 * * * ? ")
@@ -270,4 +272,15 @@ public class ScheduledTask {
 		log.info("定时任务:confirmOrderJourneyAuto:自动确认行程结束,时间{}", DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 	}
 
+	//定时任务独立审核
+	@Scheduled(cron = "0 0/1 * * * ? ")
+	public void  SchedulingIndependentTask (){
+		log.info("定时任务:SchedulingIndependentTask:定时查询独立审核结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			ecmpOrgService.selectIndependentCompanyApplyState();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		log.info("定时任务:SchedulingIndependentTask:定时查询独立审核结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
 }

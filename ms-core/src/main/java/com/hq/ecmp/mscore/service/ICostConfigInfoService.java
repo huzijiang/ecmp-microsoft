@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
+import com.hq.ecmp.mscore.vo.SupplementVO;
 
 import java.util.List;
 
@@ -93,4 +94,11 @@ public interface ICostConfigInfoService
      * @return
      */
     int checkDoubleByServiceTypeCityCarType(CostConfigQueryDto costConfigQueryDto);
+
+    /**
+     * 补单成本计算
+     * @param SupplementVO
+     * @return
+     */
+    String supplementAmountCalculation(SupplementVO supplementVO,String companyId);
 }

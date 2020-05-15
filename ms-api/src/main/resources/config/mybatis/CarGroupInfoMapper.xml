@@ -233,7 +233,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="getCarGroupList" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO">
-        select car_group_id carGroupId,car_group_name carGroupName,car_group_code carGroupCode,owner_company ownerCompany,owner_org ownerOrg from car_group_info
+        select car_group_id carGroupId,car_group_name carGroupName,car_group_code carGroupCode,company_id ownerCompany from car_group_info
         where car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
         or parent_car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
     </select>
@@ -284,7 +284,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             left join car_group_serve_scope_info cgssi on cgssi.car_group_id=ci.car_group_id
             left join car_group_serve_org_relation s on ci.car_group_id=s.car_group_id
             where s.dept_id=#{deptId}
-            and cgssi.city=#{cityCode}
+            and find_in_set(cgssi.city,#{cityCode})
             and ci.company_id=#{companyId}
             and ci.state='Y000'
             and s.type='N100'
@@ -295,7 +295,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             left join car_group_serve_scope_info cgssi on cgssi.car_group_id=ci.car_group_id
             left join car_group_serve_org_relation s on ci.car_group_id=s.car_group_id
             where s.type='W200'
-            and cgssi.city=#{cityCode}
+            and find_in_set(cgssi.city,#{cityCode})
             and ci.company_id!=#{companyId}
             and ci.allow_outer_dispatch='Y000'
             and ci.state='Y000'

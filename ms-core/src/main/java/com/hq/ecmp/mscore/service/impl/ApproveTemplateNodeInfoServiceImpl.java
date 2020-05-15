@@ -192,7 +192,7 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
                     if (StringUtils.isEmpty(deptLeader)){
                         deptLeader=this.getOrgByDeptId(user.getDeptId());
                     }
-                    log.info("制度id:"+regimeId+"的部门主管审批对象为:"+deptLeader.toString());
+                    log.info("制度id:"+regimeId+"的部门主管审批对象为:"+deptLeader);
                     userIds=deptLeader;
                 }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(info.getApproverType())){//项目负责人
                     if (StringUtils.isEmpty(projectId)){

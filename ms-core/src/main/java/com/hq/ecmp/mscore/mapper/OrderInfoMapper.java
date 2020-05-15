@@ -2,17 +2,14 @@ package com.hq.ecmp.mscore.mapper;
 
 
 import com.hq.ecmp.mscore.bo.OrderTaskClashBo;
-import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
+import com.hq.ecmp.mscore.vo.RunningOrderVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -249,7 +246,6 @@ public interface OrderInfoMapper {
      */
     public String queryLatestOrderByPowerId(Long powerId);
 
-
     /**
      *轨迹状态 订单状态
      * @param orderId
@@ -283,5 +279,14 @@ public interface OrderInfoMapper {
 
     //根据订单查询派单耗时
     int getdispatchDurationById(Long orderId);
+
+    List<RunningOrderVo> getRunningOrder(@Param("userId")Long userId, @Param("states")String states);
+
+    /***
+     *
+     * @param orderId
+     * @return
+     */
+    OrderInfoMessage getCarMessage(Long orderId);
 }
 

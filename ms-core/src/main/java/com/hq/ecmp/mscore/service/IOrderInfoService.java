@@ -310,5 +310,14 @@ public interface IOrderInfoService {
     void confirmOrderJourneyAuto(int timeout);
 
     void replaceCar(OrderInfo orderInfo,Long userId) throws Exception;
+
+
+    /***
+     * 获取乘车信息
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    OrderInfoMessage getMessage(Long orderId)throws Exception;
 }
 

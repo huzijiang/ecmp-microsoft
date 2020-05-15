@@ -85,4 +85,6 @@ public interface OrderSettlingInfoMapper
      * @param orderSettlingInfoVo
      */
     void insertOrderSettlingImageInfo(OrderSettlingInfoVo orderSettlingInfoVo);
+
+    List<String> selectOrderSettlingImageList(@Param("orderId") Long orderId);
 }

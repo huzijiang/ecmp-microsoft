@@ -104,4 +104,8 @@ public enum OrderState {
     public static List<String> noShowStateOfPower(){
         return Arrays.asList(TIMELIMIT.getState(),STOPSERVICE.getState(),POWERNOAVAILABLE.getState(),ORDERDENYNOUSE.getState(),TRAVELOVERUSECARTIMENOUSE.getState());
     }
+
+    public static String endServerStates() {
+        return STOPSERVICE.getState()+","+ORDERCLOSE.getState()+","+DISSENT.getState();
+    }
 }

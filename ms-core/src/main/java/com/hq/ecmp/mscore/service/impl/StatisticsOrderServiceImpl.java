@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.api.system.domain.SysDept;
+import com.hq.api.system.mapper.SysDeptMapper;
 import com.hq.api.system.service.ISysDeptService;
 import com.hq.api.system.service.ISysUserService;
 import com.hq.common.core.api.ApiResponse;
@@ -32,6 +33,8 @@ public class StatisticsOrderServiceImpl implements StatisticsOrderService {
 
     @Autowired
     private ISysDeptService iSysDeptService;
+    @Autowired
+    private SysDeptMapper sysDeptMapper;
 
     @Autowired
     private ISysUserService iSysUserService;
@@ -256,7 +259,7 @@ public class StatisticsOrderServiceImpl implements StatisticsOrderService {
         SysDept sysDept = new SysDept();
         sysDept.setParentId(statisticsParam.getDeptIds().get(0));
         sysDept.setDeptType("2");
-        List<SysDept> list = iSysDeptService.selectDeptList(sysDept);
+        List<SysDept> list = sysDeptMapper.getListBySysDept(sysDept);
         Map<String,Map<String,Integer>> resultMap = new LinkedHashMap();
         //先全部填空数据
         list.stream().forEach(x->resultMap.put(x.getDeptName(),getInitMapData(statisticsParam.getType())));

@@ -1,24 +1,33 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.OrderServiceType;
 import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
+import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
 import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.mapper.CostConfigCarTypeInfoMapper;
 import com.hq.ecmp.mscore.mapper.CostConfigCityInfoMapper;
 import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
+import com.hq.ecmp.mscore.service.CostCalculation;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
+import com.hq.ecmp.mscore.vo.SupplementVO;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -191,5 +200,103 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
                 costConfigQueryDto.getCarTypes(),costConfigQueryDto.getCityCode(),costConfigQueryDto.getServiceType(),
                 costConfigQueryDto.getRentType());
         return count;
+    }
+
+    /**
+     *
+     * 补单成本计算
+     * @param
+     * @return
+     */
+    @Override
+    public String supplementAmountCalculation(SupplementVO supplementVO,String companyId) {
+        CostConfigQueryDto costConfigQueryDto = new CostConfigQueryDto();
+        //公司id
+        costConfigQueryDto.setCompanyId(companyId);
+        //城市
+        costConfigQueryDto.setCityCode(Integer.valueOf(supplementVO.getCityCode()));
+        //服务类型
+        costConfigQueryDto.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
+        //车型级别
+        costConfigQueryDto.setCarTypeId(supplementVO.getCarTypeId());
+        List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
+        costConfigQueryDto.setCostId(costConfigListResult.get(0).getCostId());
+        CostConfigInfo costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
+        //计算成本的方法
+        CostCalculation calculator = new CostCalculator();
+        OrderSettlingInfoVo orderSettlingInfoVo =new OrderSettlingInfoVo();
+        //订单总时长
+        orderSettlingInfoVo.setTotalTime(orderSettlingInfoVo.getTotalTime());
+        //订单总里程
+        orderSettlingInfoVo.setTotalMileage(orderSettlingInfoVo.getTotalMileage());
+        //订单等待时间
+        orderSettlingInfoVo.setWaitingTime(orderSettlingInfoVo.getWaitingTime());
+        OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
+        Map map = new HashMap();
+        List list= new ArrayList();
+        //默认个人取消费用为0
+        BigDecimal personalCancellationFee = BigDecimal.ZERO;
+        //默认个人取消费用为0
+        BigDecimal enterpriseCancellationFee = BigDecimal.ZERO;
+        //路桥费
+        Map roadBridgeFee = new HashMap();
+        roadBridgeFee.put("cost",orderSettlingInfoVo.getRoadBridgeFee().setScale(2,BigDecimal.ROUND_HALF_UP));
+        roadBridgeFee.put("typeName","路桥费");
+        list.add(roadBridgeFee);
+        //高速费
+        Map highSpeedFee = new HashMap();
+        highSpeedFee.put("cost",orderSettlingInfoVo.getHighSpeedFee().setScale(2,BigDecimal.ROUND_HALF_UP));
+        highSpeedFee.put("typeName","高速费");
+        list.add(highSpeedFee);
+        //停车费
+        Map parkingRateFee = new HashMap();
+        parkingRateFee.put("cost",orderSettlingInfoVo.getParkingRateFee().setScale(2,BigDecimal.ROUND_HALF_UP));
+        parkingRateFee.put("typeName","停车费");
+        list.add(parkingRateFee);
+        //住宿费
+        Map hotelExpenseFee = new HashMap();
+        hotelExpenseFee.put("cost",orderSettlingInfoVo.getHotelExpenseFee().setScale(2,BigDecimal.ROUND_HALF_UP));
+        hotelExpenseFee.put("typeName","住宿费");
+        list.add(hotelExpenseFee);
+        //餐饮费
+        Map restaurantFee = new HashMap();
+        restaurantFee.put("cost",orderSettlingInfoVo.getRestaurantFee().setScale(2,BigDecimal.ROUND_HALF_UP));
+        restaurantFee.put("typeName","餐饮费");
+        list.add(restaurantFee);
+        //超里程价格
+        Map overMileagePrice = new HashMap();
+        overMileagePrice.put("cost",orderSettlingInfoVo.getOverMileagePrice().setScale(2,BigDecimal.ROUND_HALF_UP));
+        overMileagePrice.put("typeName","超里程价格");
+        list.add(overMileagePrice);
+        //超时长价格
+        Map overtimeLongPrice = new HashMap();
+        overtimeLongPrice.put("cost",orderSettlingInfoVo.getOvertimeLongPrice().setScale(2,BigDecimal.ROUND_HALF_UP));
+        overtimeLongPrice.put("typeName","超时长价格");
+        list.add(overtimeLongPrice);
+        //起步价
+        Map startingPrice = new HashMap();
+        startingPrice.put("cost",orderSettlingInfoVo.getStartingPrice().setScale(2,BigDecimal.ROUND_HALF_UP));
+        startingPrice.put("typeName","起步价");
+        list.add(startingPrice);
+        //等待费
+        Map waitingFee = new HashMap();
+        waitingFee.put("cost",orderSettlingInfoVo.getWaitingFee().setScale(2,BigDecimal.ROUND_HALF_UP));
+        waitingFee.put("typeName","等待费");
+        list.add(waitingFee);
+        //个人取消费
+        Map personalCancellation = new HashMap();
+        personalCancellation.put("cost",personalCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP));
+        personalCancellation.put("typeName","个人取消费");
+        list.add(personalCancellation);
+        //企业取消费
+        Map enterpriseCancellation = new HashMap();
+        enterpriseCancellation.put("cost",enterpriseCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP));
+        enterpriseCancellation.put("typeName","企业取消费");
+        list.add(enterpriseCancellation);
+        map.put("otherCost",list);
+        //总金额
+        map.put("amount",orderSettlingInfoVo.getAmount());
+        String json= JSON.toJSONString(map);
+        return json;
     }
 }

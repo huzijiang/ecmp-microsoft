@@ -18,6 +18,8 @@ public class InvoiceByTimeStateDTO {
     private String status;
     private Integer pageNum;
     private Integer pageSize;
+    private Long createBy;
+
 
     private Long companyId;
 

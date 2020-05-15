@@ -19,10 +19,16 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.mapper.CarInfoMapper;
+import com.hq.ecmp.mscore.mapper.EnterpriseCarTypeInfoMapper;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +47,8 @@ import java.util.List;
 @RequestMapping("/order")
 public class OrderController {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
     @Resource
     private TokenService tokenService;
 
@@ -55,8 +63,6 @@ public class OrderController {
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
     @Resource
     private IDriverHeartbeatInfoService driverHeartbeatInfoService;
-    @Resource
-    private OrderInfoTwoService orderInfoTwoService;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -648,7 +654,7 @@ public class OrderController {
 
     /**
      *   @author caobj
-     *   @Description 行程分享
+     *   @Description 轮询获取提示语
      *   @Date 10:11 2020/3/4
      *   @Param  []
      *   @return com.hq.common.core.api.ApiResponse
@@ -685,20 +691,19 @@ public class OrderController {
             return  ApiResponse.error("更换车辆失败");
         }
     }
-
-    @ApiOperation(value = "取消订单",httpMethod = "POST")
-    @RequestMapping("/cancelBusinessOrder")
-    public ApiResponse<CancelOrderCostVO> cancelBusinessOrder(@RequestBody OrderDto orderDto){
+    /***
+     * add by liuzb (一键报警获取当前订单乘车信息)
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "获取乘车信息",httpMethod = "POST")
+    @RequestMapping("/getCarMessage")
+    public ApiResponse<OrderInfoMessage> getCarMessage(Long orderId){
         try {
-            HttpServletRequest request = ServletUtils.getRequest();
-            LoginUser loginUser = tokenService.getLoginUser(request);
-            CancelOrderCostVO cancelOrderCostVO = orderInfoTwoService.cancelBusinessOrder(orderDto.getOrderId(), orderDto.getCancelReason());
-            return ApiResponse.success(cancelOrderCostVO);
+            return ApiResponse.success(iOrderInfoService.getMessage(orderId));
         }catch (Exception e){
-            e.printStackTrace();
-            return  ApiResponse.error("更换车辆失败");
+            logger.error("获取乘车信息异常");
         }
+        return  ApiResponse.error("获取乘车信息失败");
     }
-
-
 }

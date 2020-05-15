@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.github.pagehelper.PageInfo;
+
 import com.hq.api.system.mapper.SysUserMapper;
 import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.constant.RoleConstant;
@@ -26,6 +27,8 @@ import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.util.DateFormatUtils;
 
+import javax.annotation.Resource;
+
 /**
  * 用户信息Service业务层处理
  *
@@ -36,7 +39,7 @@ import com.hq.ecmp.util.DateFormatUtils;
 public class EcmpUserServiceImpl implements IEcmpUserService {
     @Autowired
     private EcmpUserMapper ecmpUserMapper;
-    @Autowired
+    @Resource
     private UserRegimeRelationInfoMapper userRegimeRelationInfoMapper;
     @Autowired
     private RegimeInfoMapper regimeInfoMapper;
@@ -173,7 +176,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     public int queryCompanyEmpCunt(Long companyId) {
       //  return ecmpUserMapper.queryCompanyEmp();
 
-        //return userMapper.selectUserByRoleId(5L,null).size();
+//        return userMapper.selectUserByRoleId(5L,null,companyId).size();
         return ecmpUserMapper.selectUserByCompanyId(companyId).size();
     }
 
@@ -640,13 +643,12 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 
 	@Override
 	public List<EcmpUserDto> queryUserListByCompanyIdAndName(Long companyId, String name,String itIsDispatcher) {
-        List<EcmpUserDto>  list = ecmpUserMapper.queryUserListByCompanyIdsAndName(companyId, name,itIsDispatcher);
-        /*List<Long> deptIds = ecmpOrgService.queryDeptIdOfCompany(companyId);
+		List<Long> deptIds = ecmpOrgService.queryDeptIdOfCompany(companyId);
 		if(null !=ecmpUserMapper && deptIds.size()>0){
 			List<EcmpUserDto> queryUserListByDeptIdsAndName = ecmpUserMapper.queryUserListByDeptIdsAndName(deptIds, name,itIsDispatcher);
 			return queryUserListByDeptIdsAndName;
-		}*/
-		return list;
+		}
+		return null;
 	}
 
 	@Override

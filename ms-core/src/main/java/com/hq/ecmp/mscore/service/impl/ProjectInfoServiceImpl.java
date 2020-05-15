@@ -211,11 +211,6 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
 
     @Override
     public OrgTreeVo selectProjectUserTree(Long projectId,String search) {
-//        String str =(String) redisUtil.get(String.format(PROJECT_USER_TREE, projectId));
-//        if (StringUtils.isNotEmpty(str)){
-//            OrgTreeVo orgTreeVo = JSONObject.parseObject(str, OrgTreeVo.class);
-//            return orgTreeVo;
-//        }
         ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectId);
         Long orgId=null;
         if (projectInfo!=null&&projectInfo.getIsAllUserUse()!=ZERO){

@@ -45,5 +45,15 @@ public class DriverCreateInfo {
 	    Date createTime;
 	    Long createBy;
 
+	    String driverNature;
+
+	    Date hireBeginTime;
+
+	    Date hireEndTime;
+
+	    Date borrowBeginTime;
+
+	    Date borrowEndTime;
+
 
 }

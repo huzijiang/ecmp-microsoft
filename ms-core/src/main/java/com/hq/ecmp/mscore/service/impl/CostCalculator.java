@@ -186,12 +186,12 @@ public class CostCalculator implements CostCalculation {
             totalPrice=startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice);
         }
         //订单各项费用科目和对应费用
-        amount=totalPrice
-                .add(roadBridgeFee
+        amount=totalPrice;
+                /*.add(roadBridgeFee)
                 .add(highSpeedFee)
                 .add(parkingRateFee
                 .add(hotelExpenseFee)
-                .add(restaurantFee)));
+                .add(restaurantFee));*/
         //返回所需要的详情
         orderSettlingInfoVo.setStartingPrice(startingPrice);
         orderSettlingInfoVo.setOverMileagePrice(overMileagePrice);

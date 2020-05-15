@@ -47,6 +47,15 @@ public class InvoiceDetailVO {
 
 
 
+    String bankName;
+
+    String bankCardNo;
+
+    String telephone;
+
+    String email;
+
+    String registedAddress;
 
 
 

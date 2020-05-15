@@ -59,4 +59,12 @@ public interface OrderInvoiceInfoMapper
      * @return 结果
      */
     public int deleteOrderInvoiceInfoByIds(Long[] invoiceIds);
+
+
+    /***
+     *
+     * @param list
+     * @return
+     */
+    int addInvoicePeriod(List<OrderInvoiceInfo> list );
 }

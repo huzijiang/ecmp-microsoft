@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.api.system.domain.SysDept;
+import com.hq.api.system.mapper.SysDeptMapper;
 import com.hq.api.system.service.ISysDeptService;
 import com.hq.api.system.service.ISysUserService;
 import com.hq.common.core.api.ApiResponse;
@@ -33,6 +34,8 @@ public class StatisticsRankingServiceImpl implements StatisticsRankingService {
     @Autowired
     private ISysDeptService sysDeptService;
     @Autowired
+    private SysDeptMapper sysDeptMapper;
+    @Autowired
     private ISysUserService sysUserService;
     @Autowired
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
@@ -42,7 +45,7 @@ public class StatisticsRankingServiceImpl implements StatisticsRankingService {
         //公司或部门列表
         SysDept sysDept = new SysDept();
         sysDept.setDeptType(String.valueOf(statisticsParam.getType()));
-        List<SysDept> list = sysDeptService.selectDeptList(sysDept);
+        List<SysDept> list = sysDeptMapper.getListBySysDept(sysDept);
         Map<String,Map<String,Integer>> map = list.stream().collect(Collectors.toMap(SysDept::getDeptName, x->{
             Map costData = new HashMap();
             costData.put("order",0);

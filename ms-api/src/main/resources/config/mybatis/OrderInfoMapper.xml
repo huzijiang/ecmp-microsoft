@@ -31,7 +31,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="carColor"    column="car_color"    />
         <result property="driverGrade"    column="driver_grade"    />
         <result property="flightPlanTakeOffTime"    column="flight_plan_take_off_time"    />
-        <result property="itIsSupplement"    column="it_is_supplement" />
 
     </resultMap>
 
@@ -76,7 +75,6 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="nodeId != null "> and node_id = #{nodeId}</if>
             <if test="powerId != null "> and power_id = #{powerId}</if>
             <if test="driverId != null "> and driver_id = #{driverId}</if>
-            <if test="itIsSupplement != null "> and it_is_supplement = #{itIsSupplement}</if>
             <if test="carId != null "> and car_id = #{carId}</if>
             <if test="userId != null "> and user_id = #{userId}</if>
             <if test="useCarMode != null  and useCarMode != ''"> and use_car_mode = #{useCarMode}</if>
@@ -129,7 +127,6 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carColor != null and carColor != ''">car_color,</if>
             <if test="driverGrade != null and driverGrade != ''">driver_grade,</if>
             <if test="flightPlanTakeOffTime != null ">flight_plan_take_off_time,</if>
-            <if test="itIsSupplement != null ">it_is_supplement,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">#{journeyId},</if>
@@ -158,7 +155,6 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carColor != null and carColor != ''">#{carColor},</if>
             <if test="driverGrade != null and driverGrade != ''">#{driverGrade},</if>
             <if test="flightPlanTakeOffTime != null ">#{flightPlanTakeOffTime},</if>
-            <if test="itIsSupplement != null ">#{itIsSupplement},</if>
         </trim>
     </insert>
 
@@ -189,11 +185,9 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carModel != null and carModel != ''">car_model =#{carModel},</if>
             <if test="carColor != null and carColor != ''">car_color =#{carColor},</if>
             <if test="driverGrade != null and driverGrade != ''">driver_grade =#{driverGrade},</if>
-            <if test="itIsSupplement != null and itIsSupplement != ''">it_is_supplement =#{itIsSupplement},</if>
         </trim>
         where order_id = #{orderId}
     </update>
-
     <update id="updateOrderInfoNull" parameterType="com.hq.ecmp.mscore.domain.OrderInfo">
         update order_info
         <trim prefix="SET" suffixOverrides=",">
@@ -224,7 +218,6 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
         </trim>
         where order_id = #{orderId}
     </update>
-
     <delete id="deleteOrderInfoById" parameterType="Long">
         delete from order_info where order_id = #{orderId}
     </delete>
@@ -242,7 +235,6 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             ecti.`level`,
             o.use_car_mode useCarMode,
             o.state,
-            o.it_is_supplement itIsSupplement,
             jn.service_type serviceType,
             IFNULL(oai.action_time,jni.plan_setout_time) setOutTime,
             IFNULL(oai.address,jni.plan_begin_address) setOutAddress,
@@ -269,7 +261,6 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
 	a.create_time as createTime,
 	a.driver_name as driverName,
 	a.car_license as carLicense,
-	a.it_is_supplement as itIsSupplement,
 	a.car_model as carType,
 	d.apply_type AS applyType,
 	d.update_time as applyPassDate,
@@ -277,6 +268,10 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
 	c.plan_begin_address AS useCarCity,
 	e.nick_name AS applyUserName,
 	e.nick_name AS useCarUserName,
+<!-- 	a.actual_setout_address AS startSite,
+	a.actual_setout_time AS useCarDate,
+	a.actual_arrive_address AS endSite,
+	a.actual_arrive_time AS endDate, -->
 	h.use_car_mode AS useCarMode,
 	h.regimen_id AS regimenId
 	<if test="orderTraceState != null  and orderTraceState != ''">,f.content as reassignmentApplyReason,f.create_time as updateDate</if>
@@ -303,7 +298,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             o.state,
             if (o.state='S900','已完成','未完成') stateType,
             o.service_type serviceType,
-            o.it_is_supplement itIsSupplement,
             o.flight_number flightNumber,
             jn.it_is_return itIsReturn,
             jn.charter_car_type charterCarType,
@@ -349,7 +343,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              o.order_id orderId,
              o.journey_id journeyId,
              o.state,
-             o.it_is_supplement itIsSupplement,
              o.driver_id driverId,
              o.service_type serviceType,
              jn.flight_number flightNumber,
@@ -402,7 +395,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		 SELECT
             a.order_id AS orderId,
             a.state,
-            a.it_is_supplement itIsSupplement,
             a.demand_car_level as demandCarLevel,
             d.apply_type AS applyType,
             b.type AS serverType,
@@ -427,7 +419,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN car_info f  ON a.car_id=f.car_id
         LEFT JOIN journey_info h on a.journey_id=h.journey_id
         LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
-        where a.state in ('S200','S299','S600','S616','S699','S900')  and m.state in ('S277','S299','S279','S200','S930')
+        where a.state in ('S200','S299','S600','S616','S699','S900')  and m.state in ('S299','S279','S200')
         GROUP BY a.order_id
 	</select>
 
@@ -435,7 +427,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		select
 		a.order_id AS orderId,
 		a.journey_id journeyId,
-		a.power_id powerId,
 	    a.state,
 	    a.service_type serviceType,
 	    a.user_id userId,
@@ -444,7 +435,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 	    a.driver_mobile driverPhone,
         e.address startAddress,
         DATE_FORMAT(e.action_time, '%m月%d日 %H:%i ') useCarTime,
-        e.action_time useCarDate,
         e.longitude startLongitude,
         e.latitude startLatitude,
         d.address endAddress,
@@ -757,9 +747,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
-        <if test="null !=companyId and companyId !=''">
-            AND a.company_id = #{companyId}
-        </if>
 		GROUP BY d.order_id
 	</select>
 
@@ -838,9 +825,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
-        <if test="null !=companyId and companyId !=''">
-            AND a.company_id = #{companyId}
-        </if>
 		GROUP BY d.order_id
 	</select>
 
@@ -1013,32 +997,4 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
          tmp)
     </select>
 
-    <select id="selectOrderInfoByIdAllDay" parameterType="java.lang.Long" resultMap="OrderInfoResult">
-        <include refid="selectOrderInfoVo"/>
-        where user_id = #{userId} and to_days(create_time) = to_days(now());
-    </select>
-
-
-    <select id="selectOrderEnd" resultMap="OrderInfoResult">
-        SELECT * FROM `order_info` where state='S900' and FIND_IN_SET('S900',(select GROUP_CONCAT(state) states from order_state_trace_info where order_id=order_info.order_id))
-    </select>
-
-    <select id="getSceneByOrder" resultType="long">
-        select scene_id from scene_regime_relation where regimen_id=(
-            SELECT regimen_id FROM `journey_info` where journey_id=#{journeyId}
-        )
-    </select>
-    <select id="getProvinceByOrder" resultType="string">
-        select PROVINCE_NAME from china_province where PROVINCE_CODE=CONCAT(SUBSTR((SELECT city_postal_code FROM order_address_info where order_id=#{orderId} and type='A000') FROM 1 FOR 2),'0000')
-    </select>
-    <select id="getOrderDurationById" resultType="double">
-        select ROUND((TIMESTAMPDIFF(MINUTE,MIN(create_time),MAX(create_time))/60),2)duration FROM order_state_trace_info where order_id=#{orderId}
-    </select>
-    <select id="getOrderStateTraceById" resultType="string">
-        select GROUP_CONCAT(order_state_trace_info.state) from order_state_trace_info where order_id=#{orderId}
-    </select>
-    <select id="getdispatchDurationById" resultType="int">
-        select TIMESTAMPDIFF(MINUTE,(select create_time from order_state_trace_info where order_id=#{orderId} and state='S100'),
-        (select create_time from order_state_trace_info where order_id=#{orderId} and state='S299'))
-    </select>
 </mapper>

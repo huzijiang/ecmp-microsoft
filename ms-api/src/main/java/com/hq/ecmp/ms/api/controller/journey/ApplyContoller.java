@@ -1,5 +1,7 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
+import com.alibaba.fastjson.JSONArray;
+import com.google.gson.JsonObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.CustomException;
 import com.hq.common.utils.ServletUtils;
@@ -95,11 +97,14 @@ public class ApplyContoller {
         Long companyId = loginUser.getUser().getOwnerCompany();
         officialCommitApply.setCompanyId(companyId);
         try {
+            log.info("公务申请提交参数：{},申请人电话：{}",JSONArray.toJSON(officialCommitApply).toString(),loginUser.getUser().getPhonenumber());
             applyVO = applyInfoService.applyOfficialCommit(officialCommitApply);
-            log.info("公务申请提交参数：{},申请人电话：{}",officialCommitApply,loginUser.getUser().getPhonenumber());
+            //初始化审批流和订单
+            List<Long> orderIds = applyInfoService.initialOfficialPowerAndApprovalFlow(officialCommitApply, applyVO.getJourneyId(), applyVO.getApplyId(), loginUser.getUser().getUserId());
+            applyVO.setOrderIds(orderIds);
+
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("公务申请提交失败，请求参数：{},申请人电话：{}",officialCommitApply,loginUser.getUser().getPhonenumber());
+            log.error("公务申请提交失败，请求参数：{},申请人电话：{}",JSONArray.toJSON(officialCommitApply).toString(),loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error("提交公务申请失败");
         }
         return ApiResponse.success("提交申请成功",applyVO);
@@ -122,11 +127,12 @@ public class ApplyContoller {
         Long companyId = loginUser.getUser().getOwnerCompany();
         travelCommitApply.setCompanyId(companyId);
         try {
+            log.info("差旅申请提交参数：{},申请人电话：{}",JSONArray.toJSON(travelCommitApply).toString(),loginUser.getUser().getPhonenumber());
             applyVO = applyInfoService.applytravliCommit(travelCommitApply);
-            log.info("差旅申请提交参数：{},申请人电话：{}",travelCommitApply,loginUser.getUser().getPhonenumber());
+            //初始化審批流和訂單
+            applyInfoService.initialPowerAndApprovalFlow(travelCommitApply,applyVO.getJourneyId(),applyVO.getApplyId());
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("差旅申请提交失败，请求参数：{},申请人电话：{}",travelCommitApply,loginUser.getUser().getPhonenumber());
+            log.error("差旅申请提交失败，请求参数：{},申请人电话：{}",JSONArray.toJSON(travelCommitApply).toString(),loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error("提交差旅申请失败");
         }
         return ApiResponse.success("提交申请成功",applyVO);
@@ -428,14 +434,14 @@ public class ApplyContoller {
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
             List<OnLineCarTypeVO> list=regimeInfoService.getUseCarType(regimeDto,loginUser.getUser());
-           list=new ArrayList<>();
-            OnLineCarTypeVO vo=new OnLineCarTypeVO("100100","北京","");
-            List<CarLevelVO> levelList=new ArrayList<>();
-            levelList.add(new CarLevelVO("经济型","P001"));
-            levelList.add(new CarLevelVO("舒适型","P002"));
-            levelList.add(new CarLevelVO("豪华型","P003"));
-            vo.setCarTypes(levelList);
-            list.add(vo);
+//           list=new ArrayList<>();
+//            OnLineCarTypeVO vo=new OnLineCarTypeVO("100100","北京","");
+//            List<CarLevelVO> levelList=new ArrayList<>();
+//            levelList.add(new CarLevelVO("经济型","P001"));
+//            levelList.add(new CarLevelVO("舒适型","P002"));
+//            levelList.add(new CarLevelVO("豪华型","P003"));
+//            vo.setCarTypes(levelList);
+//            list.add(vo);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
