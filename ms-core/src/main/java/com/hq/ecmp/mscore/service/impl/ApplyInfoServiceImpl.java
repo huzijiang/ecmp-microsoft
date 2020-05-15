@@ -1511,6 +1511,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
            if(!optFlag){
               log.error("生成用车权限失败");
            }
+             ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
            //初始化订单
            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
@@ -1530,7 +1531,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                        }
                        orderIds.add(orderId);
                    }
-                   ecmpMessageService.saveApplyMessagePass(applyId,userId,userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
+                   ecmpMessageService.saveApplyMessagePass(applyInfo,userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
                }
            }
            return orderIds;

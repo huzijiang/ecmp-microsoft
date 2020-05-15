@@ -26,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -66,6 +68,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
     private JourneyInfoMapper journeyInfoMapper;
     @Resource
     private ThirdService thirdService;
+    @Resource
+    private IsmsBusiness ismsBusiness;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -80,9 +84,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
      * @param cancelReason
      */
     @Override
+    @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public CancelOrderCostVO cancelBusinessOrder(Long orderId, String cancelReason) throws Exception{
         CancelOrderCostVO vo=new CancelOrderCostVO();
-        String cancelFee=null;
+        BigDecimal cancelFee1=BigDecimal.ZERO;
         int isPayFee=0;
         String ownerAmount=null;
         String personalAmount=null;
@@ -118,7 +123,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
                 }
             }else{//网约车带服务的取消
                 JSONObject jsonObject = thirdService.threeCancelServer(orderId, cancelReason);
-                BigDecimal cancelFee1 = jsonObject.getDouble("cancelFee")==null?BigDecimal.ZERO:BigDecimal.valueOf(jsonObject.getDouble("cancelFee"));
+                cancelFee1 = jsonObject.getDouble("cancelFee")==null?BigDecimal.ZERO:BigDecimal.valueOf(jsonObject.getDouble("cancelFee"));
                 if (cancelFee1.compareTo(BigDecimal.ZERO)<=0){
                     //个人不需要支付取消费
                     if (DateFormatUtils.compareDayAndTime(useCarDate,DateUtils.getNowDate()) == 1) {
@@ -128,7 +133,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
                     }
                 }else{
                     //需要支付取消费
-                    cancelFee=cancelFee1.stripTrailingZeros().toPlainString();
+//                    cancelFee=cancelFee1.stripTrailingZeros().toPlainString();
                     String s = iOrderPayInfoService.checkOrderFeeOver(orderId, journeyInfo.getRegimenId(), orderStateVO.getUserId());
                     /*超额个人支付*/
                     if (StringUtils.isNotBlank(s)&&new BigDecimal(s).compareTo(BigDecimal.ZERO)==1){
@@ -154,11 +159,16 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
             iJourneyUserCarPowerService.updatePowerSurplus(orderStateVO.getPowerId(),2);
         }
         vo.setIsPayFee(isPayFee);
-        vo.setCancelAmount(cancelFee);
+        vo.setCancelAmount(cancelFee1.stripTrailingZeros().toPlainString());
         vo.setOwnerAmount(ownerAmount);
         vo.setPersonalAmount(personalAmount);
         vo.setPayState(payState);
         vo.setPayId(payId);
+        if(cancelFee1.compareTo(BigDecimal.ZERO)==1){
+            ismsBusiness.sendSmsCancelOrder(orderId);
+        }else{
+            ismsBusiness.sendSmsCancelOrderHaveFee(orderId,cancelFee1.doubleValue());
+        }
         return vo;
     }
 

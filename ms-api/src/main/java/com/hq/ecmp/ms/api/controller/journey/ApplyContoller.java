@@ -1,6 +1,8 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.CustomException;
@@ -33,6 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.hq.ecmp.constant.MsgConstant.MESSAGE_T002;
 
 /**
  * @Author: zj.hu
@@ -263,6 +267,7 @@ public class ApplyContoller {
             List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.beforeInspect(journeyApplyDto, userId);
             if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
                 resultInfoService.applyPass(journeyApplyDto,userId,applyApproveResultInfos);
+                ecmpMessageService.saveMessageUnite(journeyApplyDto.getApplyId(),MESSAGE_T002);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -381,6 +386,7 @@ public class ApplyContoller {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
+        log.info("校验用车制度的用车城市是否可用--->参数{}", JSON.toJSONString(regimeDto));
         try {
             if (StringUtils.isBlank(regimeDto.getCityCodes())||regimeDto.getRegimeId()==null){
                 return ApiResponse.error("参数为空");
@@ -407,9 +413,9 @@ public class ApplyContoller {
     @ApiOperation(value = "getUseCarModeAndType",notes = "校验用车制度的用车城市是否可用",httpMethod ="POST")
     @PostMapping("/getUseCarModeAndType")
     public ApiResponse<List<UseCarTypeVO>> getUseCarModeAndType(@RequestBody RegimeCheckDto regimeDto){
+        log.info("获取用车方式和可用车型--->参数{}", JSON.toJSONString(regimeDto));
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
         List<UseCarTypeVO> list=null;
         try {
             if (StringUtils.isBlank(regimeDto.getCityCodes())||regimeDto.getRegimeId()==null){
@@ -424,24 +430,17 @@ public class ApplyContoller {
     }
 
     /**
-     * 获取自由车开城城市//网约车开城城市
+     * 获取自由车开城城市/网约车开城城市
      * @return
      */
-    @ApiOperation(value = "getAllUseCarType",notes = "校验用车制度的用车城市是否可用",httpMethod ="POST")
+    @ApiOperation(value = "getAllUseCarType",notes = "获取自由车开城城市/网约车开城城市",httpMethod ="POST")
     @PostMapping("/getAllUseCarType")
     public ApiResponse<List<OnLineCarTypeVO>> getAllUseCarType(@RequestBody RegimeCheckDto regimeDto){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
+        log.info("获取自由车开城城市/网约车开城城市--->参数{}", JSON.toJSONString(regimeDto));
         try {
             List<OnLineCarTypeVO> list=regimeInfoService.getUseCarType(regimeDto,loginUser.getUser());
-//           list=new ArrayList<>();
-//            OnLineCarTypeVO vo=new OnLineCarTypeVO("100100","北京","");
-//            List<CarLevelVO> levelList=new ArrayList<>();
-//            levelList.add(new CarLevelVO("经济型","P001"));
-//            levelList.add(new CarLevelVO("舒适型","P002"));
-//            levelList.add(new CarLevelVO("豪华型","P003"));
-//            vo.setCarTypes(levelList);
-//            list.add(vo);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
