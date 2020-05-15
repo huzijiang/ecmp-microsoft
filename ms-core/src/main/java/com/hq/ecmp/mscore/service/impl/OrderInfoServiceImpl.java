@@ -746,6 +746,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         vo.setUseCarTime(useCarTime);
         vo.setCreateTimestamp(orderInfo.getCreateTime().getTime());
+        vo.setOrderNumber(orderInfo.getOrderNumber());
+        vo.setCustomerServicePhone(thirdService.getCustomerPhone());
+        vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
+        vo.setLabelState(orderStateTraceInfo.getState());
+        vo.setCancelReason(orderStateTraceInfo.getContent());
         if (OrderState.WAITINGLIST.getState().equals(orderInfo.getState())||OrderState.GETARIDE.getState().equals(orderInfo.getState())){
             return vo;
         }
@@ -778,13 +783,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setCarGroupPhone(str.getUserPhone());
             vo.setCarGroupName(str.getUserName());
         }
-        vo.setOrderNumber(orderInfo.getOrderNumber());
-        vo.setCustomerServicePhone(thirdService.getCustomerPhone());
-        vo.setDriverType(CarModeEnum.format(orderInfo.getUseCarMode()));
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         //服务结束时间
-        vo.setLabelState(orderStateTraceInfo.getState());
-        vo.setCancelReason(orderStateTraceInfo.getContent());
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
             vo.setOrderEndTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderStateTraceInfo.getCreateTime()));
         }
