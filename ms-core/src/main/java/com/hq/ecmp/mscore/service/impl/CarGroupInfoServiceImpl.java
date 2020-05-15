@@ -253,7 +253,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         if(parentCarGroupId == null){
             parentCarGroupId = 0L;
         }
-        carGroupInfo.setParentCarGroupId(parentCarGroupId);
+        carGroupInfo.setParentCarGroupId(carGroupDTO.getOwnerOrg());
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
         //车队名称
@@ -274,7 +274,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //车队座机
         carGroupInfo.setTelephone(carGroupDTO.getTelephone());
         //所属公司
-        carGroupInfo.setCompanyId(carGroupDTO.getCompanyId());
+        carGroupInfo.setCompanyId(carGroupDTO.getOwneCompany());
         //初始化可用
         carGroupInfo.setState("Y000");
         //1.保存车队
@@ -1192,7 +1192,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         List<Long> deptIds = new ArrayList<>();
         List<Long> companyIds = new ArrayList<>();
         for (CarGroupServeOrgRelation carGroupServeOrgRelation : carGroupServeOrgRelations) {
-            if(carGroupServeOrgRelation.getType() == OrgConstant.INNER_ORG ){
+            if(OrgConstant.INNER_ORG.equals(carGroupServeOrgRelation.getType())){
                 deptIds.add(carGroupServeOrgRelation.getDeptId());
             }else{
                 companyIds.add(carGroupServeOrgRelation.getDeptId());
@@ -1206,9 +1206,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     .latitude(String.valueOf(carGroupInfo.getLatitude()) )
                     .longitude(String.valueOf(carGroupInfo.getLongitude()))
                     .ownerOrg(ownerOrg)
+                    .parentCarGroupId(carGroupInfo.getParentCarGroupId())
                     .ownerOrgName(ownerOrgName)
                     .city(carGroupInfo.getCity())
                     .cityName(cityName)
+                    .owneCompany(carGroupInfo.getCompanyId())
+                    .telephone(carGroupInfo.getTelephone())
                     .dispatchers(dispatchers)
                     .shortAddress(carGroupInfo.getShortAddress())
                     .fullAddress(carGroupInfo.getFullAddress())
