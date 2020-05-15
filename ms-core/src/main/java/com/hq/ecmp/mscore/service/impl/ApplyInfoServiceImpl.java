@@ -1174,9 +1174,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         Long nodeIdNoReturn = journeyNodeBo.getNodeIdNoReturn();
         Long nodeIdIsReturn = journeyNodeBo.getNodeIdIsReturn();
         String useCarModeOwnerLevel = regimeInfo.getUseCarModeOwnerLevel();
-        if (StringUtils.isBlank(useCarModeOwnerLevel)) {
-            throw new Exception("自有车无可用车型");
-        }
         String canUseCarMode = regimeInfo.getCanUseCarMode();
         String isGoBack = officialCommitApply.getIsGoBack();
         //包含自有车且不是包车
@@ -1195,6 +1192,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyPlanPriceInfo.setDuration((int) TimeUnit.MINUTES.convert(totalTime, TimeUnit.SECONDS));
             journeyPlanPriceInfo.setPowerId(null);
             journeyPlanPriceInfo.setOrderId(null);
+            if (StringUtils.isBlank(useCarModeOwnerLevel)) {
+                throw new Exception("自有车无可用车型");
+            }
             String[] splits = useCarModeOwnerLevel.split(",");
             for (String split: splits) {
                 EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
