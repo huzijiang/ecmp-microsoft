@@ -5,7 +5,7 @@ public enum ItIsSupplementEnum {
 
     ORDER_NORMAL_STATUS("正常单子","N000"),
     ORDER_REPLENISHMENT_STATUS("补单","Y000"),
-    ORDER_Replenishment_status("直接调度","D000");
+    ORDER_DIRECT_SCHEDULING_STATUS("直接调度","D000");
 
     private String key;
     private String value;

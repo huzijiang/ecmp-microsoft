@@ -77,7 +77,7 @@ public interface IApplyInfoService
      */
     ApplyVO applyOfficialCommit(ApplyOfficialRequest officialCommitApply) throws Exception;
 
-    public void initialOfficialPowerAndApprovalFlow(ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId);
+    public List<Long> initialOfficialPowerAndApprovalFlow(ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId);
 
     /**
      * 提交差旅行程申请

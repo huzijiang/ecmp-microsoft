@@ -19,7 +19,10 @@ public enum OrderStateTrace {
     ORDEROVERTIME("S921","订单超时"),
     ORDERDENIED("S930","订单驳回"),
     CHANGINGCAR("S301","换车中"),
-    APPLYINGPASS("S199","申请通过中")
+    APPLYINGPASS("S199","申请通过中"),
+    TRAVELOVERUSECARTIME("S980","差旅权限超过用车时间，仍然可约车的状态"),
+    ORDERDENYNOUSE("S931","订单驳回，后面的用车权限有已完成的，此为驳回不可用的情况状态码"),
+    TRAVELOVERUSECARTIMENOUSE("S990","后面与已经完成的权限，前面未使用的权限变为已过期对应的状态码")
     ;
 
 
@@ -53,7 +56,7 @@ public enum OrderStateTrace {
     }
     
     public static List<String> getCancelAndOverTime(){
-    	return Arrays.asList(CANCEL.getState(),ORDEROVERTIME.getState());
+    	return Arrays.asList(CANCEL.getState(),ORDEROVERTIME.getState(),ORDERDENIED.getState());
     }
     
    

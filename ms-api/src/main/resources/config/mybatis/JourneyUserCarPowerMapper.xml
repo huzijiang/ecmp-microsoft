@@ -120,13 +120,15 @@ WHERE
     
     <select id="queryUserAuthorityFromService"
 	resultType="com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority">
-	SELECT
+  SELECT
 	a.node_id AS noteId,
 	vehicle AS vehicle,
 	b.power_id AS ticketId,
 	b.state as useStatus,
-	a.plan_begin_address AS cityName,
-	a.plan_begin_city_code AS cityCode,
+	case when #{type}='C001' then 	a.plan_end_address
+	else a.plan_begin_address end AS cityName,
+	case when #{type}='C001' then 	a.plan_end_city_code
+	else a.plan_begin_city_code end AS cityCode,
 	c.regimen_id AS regimenId
 	FROM
 	journey_node_info a
@@ -162,7 +164,8 @@ AND a.type = #{type}
 	a.power_id AS ticketId,
 	b.order_id as orderId,
 	a.state AS status,
-	a.type AS returnIsType
+	a.type AS returnIsType,
+	a.apply_id as applyId
 FROM
 	journey_user_car_power a
 LEFT JOIN (
@@ -176,6 +179,7 @@ LEFT JOIN (
 ) b ON a.power_id = b.power_id
 WHERE
 	a.journey_id= #{journeyId}
+	and a.is_read='R002'
     
     </select>
     
@@ -197,7 +201,8 @@ WHERE
 	parameterType="java.lang.Long">
 	SELECT
 	power_id AS ticketId,
-	regimen_id AS regimenId
+	regimen_id AS regimenId,
+	apply_id as applyId
 	FROM
 	journey_user_car_power a
 	LEFT JOIN journey_info b ON a.journey_id = b.journey_id

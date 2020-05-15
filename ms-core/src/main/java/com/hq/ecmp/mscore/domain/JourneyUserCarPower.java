@@ -52,6 +52,8 @@ public class JourneyUserCarPower extends BaseEntity
     private Long createUser;
 
     private Date createDate;
+
+    private String isRead;
     public JourneyUserCarPower(){};
 
     public JourneyUserCarPower(Long applyId,Long journeyId,Date createDate,Long createUser,String state,String type,Long nodeId){
