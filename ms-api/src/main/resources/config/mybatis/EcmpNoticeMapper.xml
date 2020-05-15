@@ -88,7 +88,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="noticeIcon != null  and noticeIcon != ''">notice_icon,</if>
             <if test="noticeCity != null  and noticeCity != ''">notice_city,</if>
             <if test="noticeType != null  and noticeType != ''">notice_type,</if>
-            <if test="companyId != null  and companyId != ''">company_id,</if>
             <if test="noticeContent != null  and noticeContent != ''">notice_content,</if>
             <if test="status != null  and status != ''">status,</if>
             <if test="publishTime != null  and publishTime != ''">publish_time,</if>
@@ -105,7 +104,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="noticeIcon != null  and noticeIcon != ''">#{noticeIcon},</if>
             <if test="noticeCity != null  and noticeCity != ''">#{noticeCity},</if>
             <if test="noticeType != null  and noticeType != ''">#{noticeType},</if>
-            <if test="companyId != null  and companyId != ''">#{companyId},</if>
             <if test="noticeContent != null  and noticeContent != ''">#{noticeContent},</if>
             <if test="status != null  and status != ''">#{status},</if>
             <if test="publishTime != null  and publishTime != ''">#{publishTime},</if>

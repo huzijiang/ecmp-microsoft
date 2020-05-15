@@ -1,4 +1,3 @@
-/*
 package com.hq.ecmp.ms.api.controller.base;
 
 import com.hq.ecmp.ms.api.controller.order.OrderController;
@@ -20,15 +19,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-*/
 /**
  * @ClassName
  * @Description TODO
  * @Author yj
  * @Date 2020/4/9 18:31
  * @Version 1.0
- *//*
-
+ */
 @SpringBootTest
 public class ScTest {
 
@@ -109,4 +106,3 @@ public class ScTest {
     }
 
 }
-*/

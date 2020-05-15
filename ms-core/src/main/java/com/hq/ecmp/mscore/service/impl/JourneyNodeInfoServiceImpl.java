@@ -102,11 +102,19 @@ public class JourneyNodeInfoServiceImpl implements IJourneyNodeInfoService
 		query.setJourneyId(journeyId);
 		List<JourneyNodeInfo> list = selectJourneyNodeInfoList(query);
 		if(null !=list && list.size()>0){
+		    String lastPlanEndAddress = null;
 			for (JourneyNodeInfo journeyNodeInfo : list) {
-				cityList.add(journeyNodeInfo.getPlanBeginAddress());
+                String planBeginAddress = journeyNodeInfo.getPlanBeginAddress();
+                if (lastPlanEndAddress != null){
+                    if (!lastPlanEndAddress.equals(planBeginAddress)){
+                        cityList.add(planBeginAddress);
+                    }
+                }else{
+                    cityList.add(planBeginAddress);
+                }
+                lastPlanEndAddress = journeyNodeInfo.getPlanEndAddress();
+                cityList.add(lastPlanEndAddress);
 			}
-			//获取行程的目的城市
-			cityList.add(list.get(list.size()-1).getPlanEndAddress());
 		}
 		return cityList;
 	}

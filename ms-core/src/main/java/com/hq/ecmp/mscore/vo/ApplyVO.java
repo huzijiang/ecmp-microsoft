@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * @Author: chao.zhang
  * @Date: 2020/3/14 13:52
@@ -20,4 +22,7 @@ public class ApplyVO {
 
     //行程id
     private Long journeyId;
+
+    //订单ids
+    private List<Long> orderIds;
 }
