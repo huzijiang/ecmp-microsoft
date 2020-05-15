@@ -185,6 +185,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carModel != null and carModel != ''">car_model =#{carModel},</if>
             <if test="carColor != null and carColor != ''">car_color =#{carColor},</if>
             <if test="driverGrade != null and driverGrade != ''">driver_grade =#{driverGrade},</if>
+            <if test="itIsSupplement != null and itIsSupplement != ''">it_is_supplement =#{itIsSupplement},</if>
         </trim>
         where order_id = #{orderId}
     </update>
@@ -232,6 +233,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
     <select id="getOrderList" parameterType="Long"  resultType="com.hq.ecmp.mscore.domain.OrderListInfo">
         select
             o.order_id orderId,
+            o.it_is_supplement  itIsSupplement,
             ecti.`level`,
             o.use_car_mode useCarMode,
             o.state,

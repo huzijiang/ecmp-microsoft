@@ -54,4 +54,8 @@ public class OrderListInfo {
      */
     private String labelState;
 
+    /**
+     *   N000正常单子  Y000是补单  D000是直接调度
+     */
+    private String itIsSupplement;
 }

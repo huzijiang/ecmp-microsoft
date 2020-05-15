@@ -987,14 +987,14 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             initOfficialApproveFlow(applyId, userId, regimenId);
             if(NeedApproveEnum.NEED_NOT_APPROVE.getKey().equals(needApprovalProcess)){
                 // 初始化权限和初始化订单
-                orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply.getDistinguish());
+                orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply);
             }else {
                 //----------------- 如果需要审批   给审批人发送通知，给自己发送通知  给审批人发送短信
                 //2.给审批人和自己发通知 并给审批人发短信
                 if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
                     //如果是直接调度，走直接调度流程
                     applyApproveResultInfoMapper.updateApproveState(applyId, ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey(),ApproveStateEnum.APPROVE_PASS.getKey());
-                    orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply.getDistinguish());
+                    orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply);
                 }else {
                         sendNoticeAndMessage(officialCommitApply, applyId, userId);
                     }
@@ -1505,7 +1505,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param applyId
      * @param userId
      */
-    private List<Long> initPowerAndOrder(Long journeyId, String applyType, Long applyId, Long userId,String distinguish) {
+    private List<Long> initPowerAndOrder(Long journeyId, String applyType, Long applyId, Long userId,ApplyOfficialRequest officialCommitApply) {
          try {
            ArrayList<Long> orderIds = new ArrayList<>();
            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
@@ -1523,9 +1523,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                    Long orderId=null;
                    if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyType)){
                        orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
-                       if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(distinguish)){
+                       if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
                            OrderInfo orderInfo = new OrderInfo();
                            orderInfo.setItIsSupplement(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue());
+                           orderInfo.setUseCarMode(officialCommitApply.getUseType());
                            orderInfo.setOrderId(orderId);
                            orderInfoService.updateOrderInfo(orderInfo);
                        }
