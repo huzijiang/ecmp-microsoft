@@ -7,6 +7,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
@@ -974,7 +975,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param userId
      */
     @Override
-    public List<Long> initialOfficialPowerAndApprovalFlow(ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId) {
+    public List<Long> initialOfficialPowerAndApprovalFlow(ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId){
         String applyType = officialCommitApply.getApplyType();
         Integer regimenId = officialCommitApply.getRegimenId();
         List<Long> orderIds = null;
@@ -993,12 +994,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
                     //如果是直接调度，走直接调度流程
                     applyApproveResultInfoMapper.updateApproveState(applyId, ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey(),ApproveStateEnum.APPROVE_PASS.getKey());
-                }else {
-                    sendNoticeAndMessage(officialCommitApply, applyId, userId);
                     orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply.getDistinguish());
+                }else {
+                        sendNoticeAndMessage(officialCommitApply, applyId, userId);
+                    }
                 }
             }
-        }
         return orderIds;
     }
 
@@ -1760,7 +1761,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.6 cost_center 成本中心 从组织机构表 中获取
         applyInfo.setCostCenter(costCenter);
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
-        applyInfo.setState(ApplyStateConstant.ON_APPLYING);
+        if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
+            //如果是直接调度，走直接调度流程
+            applyInfo.setState(ApplyStateConstant.APPLY_PASS);
+        }else {
+            applyInfo.setState(ApplyStateConstant.ON_APPLYING);
+        }
         //2.8 reason 行程原因
         applyInfo.setReason(officialCommitApply.getReason());
         //2.9 create_by 创建者
