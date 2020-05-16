@@ -929,8 +929,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     public ApiResponse  obtainDispatcherCity(Long userId) {
         ApiResponse apiResponse = new ApiResponse();
         //查询该调度员的车队Id
-        String carGroupId = carGroupDispatcherInfoMapper.selectCarGroupDispatcherAllId(200426L);
-        if(!carGroupId.equals(null) && !carGroupId.equals("")){
+        String carGroupId = carGroupDispatcherInfoMapper.selectCarGroupDispatcherAllId(userId);
+        if(!"".equals(carGroupId)){
             List<CityInfo> cityInfo =carGroupServeScopeInfoMapper.selectObtainDispatcherCity(carGroupId);
             apiResponse.setData(cityInfo);
             return apiResponse;

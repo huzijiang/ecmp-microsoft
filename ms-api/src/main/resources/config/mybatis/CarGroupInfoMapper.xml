@@ -141,6 +141,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         c.car_group_code as carGroupCode,
         c.company_id as companyId,
                 e1.dept_name as ownerCompanyName,
+                e1.dept_id as ownerOrg,
         c.state,c.city
              from car_group_info c
             left join ecmp_org e1 on e1.dept_id = c.company_id

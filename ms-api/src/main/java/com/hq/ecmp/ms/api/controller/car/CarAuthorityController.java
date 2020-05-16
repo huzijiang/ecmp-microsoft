@@ -43,7 +43,7 @@ public class CarAuthorityController {
 	public ApiResponse<List<CarAuthorityInfo>> getUserCarAuthorityList() {
 		 HttpServletRequest request = ServletUtils.getRequest();
 	        LoginUser loginUser = tokenService.getLoginUser(request);
-		return ApiResponse.success(journeyInfoService.getUserCarAuthorityList(loginUser.getUser().getUserId()));
+			return ApiResponse.success(journeyInfoService.getUserCarAuthorityList(loginUser.getUser().getUserId()));
 	}
 	
 	

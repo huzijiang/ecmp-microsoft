@@ -42,14 +42,14 @@ public class CostCalculator implements CostCalculation {
         BigDecimal  waitingFee  =BigDecimal.ZERO;
         //路桥费
         BigDecimal  roadBridgeFee  =BigDecimal.ZERO;
-        if(orderSettlingInfoVo.getRoadBridgeFee().equals(null)){
+        if(null == orderSettlingInfoVo.getRoadBridgeFee()){
             roadBridgeFee=BigDecimal.ZERO;
         }else{
             roadBridgeFee=orderSettlingInfoVo.getRoadBridgeFee();
         }
         //高速费
         BigDecimal  highSpeedFee  =BigDecimal.ZERO;
-        if(orderSettlingInfoVo.getHighSpeedFee().equals(null)){
+        if(null == orderSettlingInfoVo.getHighSpeedFee()){
             highSpeedFee=BigDecimal.ZERO;
         }else{
             highSpeedFee=orderSettlingInfoVo.getHighSpeedFee();
@@ -57,21 +57,21 @@ public class CostCalculator implements CostCalculation {
 
         //停车费
         BigDecimal  parkingRateFee  =BigDecimal.ZERO;
-        if(orderSettlingInfoVo.getParkingRateFee().equals(null)){
+        if(null == orderSettlingInfoVo.getParkingRateFee()){
             parkingRateFee=BigDecimal.ZERO;
         }else{
             parkingRateFee=orderSettlingInfoVo.getParkingRateFee();
         }
         //住宿费
         BigDecimal  hotelExpenseFee  =BigDecimal.ZERO;
-        if(orderSettlingInfoVo.getHotelExpenseFee().equals(null)){
+        if(null == orderSettlingInfoVo.getHotelExpenseFee()){
             hotelExpenseFee=BigDecimal.ZERO;
         }else{
             hotelExpenseFee=orderSettlingInfoVo.getHotelExpenseFee();
         }
         //餐饮费
         BigDecimal  restaurantFee  =BigDecimal.ZERO;
-        if(orderSettlingInfoVo.getRestaurantFee().equals(null)){
+        if(null == orderSettlingInfoVo.getRestaurantFee()){
             restaurantFee=BigDecimal.ZERO;
         }else{
             restaurantFee=orderSettlingInfoVo.getRestaurantFee();

@@ -7,6 +7,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
@@ -974,7 +975,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param userId
      */
     @Override
-    public List<Long> initialOfficialPowerAndApprovalFlow(ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId) {
+    public List<Long> initialOfficialPowerAndApprovalFlow(ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId){
         String applyType = officialCommitApply.getApplyType();
         Integer regimenId = officialCommitApply.getRegimenId();
         List<Long> orderIds = null;
@@ -986,19 +987,19 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             initOfficialApproveFlow(applyId, userId, regimenId);
             if(NeedApproveEnum.NEED_NOT_APPROVE.getKey().equals(needApprovalProcess)){
                 // 初始化权限和初始化订单
-                orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply.getDistinguish());
+                orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply);
             }else {
                 //----------------- 如果需要审批   给审批人发送通知，给自己发送通知  给审批人发送短信
                 //2.给审批人和自己发通知 并给审批人发短信
                 if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
                     //如果是直接调度，走直接调度流程
                     applyApproveResultInfoMapper.updateApproveState(applyId, ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey(),ApproveStateEnum.APPROVE_PASS.getKey());
+                    orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply);
                 }else {
-                    sendNoticeAndMessage(officialCommitApply, applyId, userId);
-                    orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply.getDistinguish());
+                        sendNoticeAndMessage(officialCommitApply, applyId, userId);
+                    }
                 }
             }
-        }
         return orderIds;
     }
 
@@ -1174,9 +1175,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         Long nodeIdNoReturn = journeyNodeBo.getNodeIdNoReturn();
         Long nodeIdIsReturn = journeyNodeBo.getNodeIdIsReturn();
         String useCarModeOwnerLevel = regimeInfo.getUseCarModeOwnerLevel();
-        if (StringUtils.isBlank(useCarModeOwnerLevel)) {
-            throw new Exception("自有车无可用车型");
-        }
         String canUseCarMode = regimeInfo.getCanUseCarMode();
         String isGoBack = officialCommitApply.getIsGoBack();
         //包含自有车且不是包车
@@ -1195,6 +1193,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             journeyPlanPriceInfo.setDuration((int) TimeUnit.MINUTES.convert(totalTime, TimeUnit.SECONDS));
             journeyPlanPriceInfo.setPowerId(null);
             journeyPlanPriceInfo.setOrderId(null);
+            if (StringUtils.isBlank(useCarModeOwnerLevel)) {
+                throw new Exception("自有车无可用车型");
+            }
             String[] splits = useCarModeOwnerLevel.split(",");
             for (String split: splits) {
                 EnterpriseCarTypeInfo enterpriseCarTypeInfo = new EnterpriseCarTypeInfo();
@@ -1504,7 +1505,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param applyId
      * @param userId
      */
-    private List<Long> initPowerAndOrder(Long journeyId, String applyType, Long applyId, Long userId,String distinguish) {
+    private List<Long> initPowerAndOrder(Long journeyId, String applyType, Long applyId, Long userId,ApplyOfficialRequest officialCommitApply) {
          try {
            ArrayList<Long> orderIds = new ArrayList<>();
            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
@@ -1523,9 +1524,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                    Long orderId=null;
                    if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyType)){
                        orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
-                       if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(distinguish)){
+                       if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
                            OrderInfo orderInfo = new OrderInfo();
                            orderInfo.setItIsSupplement(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue());
+                           orderInfo.setUseCarMode(officialCommitApply.getUseType());
                            orderInfo.setOrderId(orderId);
                            orderInfoService.updateOrderInfo(orderInfo);
                        }
@@ -1761,7 +1763,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //2.6 cost_center 成本中心 从组织机构表 中获取
         applyInfo.setCostCenter(costCenter);
         //2.7 state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
-        applyInfo.setState(ApplyStateConstant.ON_APPLYING);
+        if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
+            //如果是直接调度，走直接调度流程
+            applyInfo.setState(ApplyStateConstant.APPLY_PASS);
+        }else {
+            applyInfo.setState(ApplyStateConstant.ON_APPLYING);
+        }
         //2.8 reason 行程原因
         applyInfo.setReason(officialCommitApply.getReason());
         //2.9 create_by 创建者

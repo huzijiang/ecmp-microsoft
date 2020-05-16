@@ -735,6 +735,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (orderInfo==null){
             throw new Exception("该订单不存在");
         }
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+        vo.setRegimeId(journeyInfo.getRegimenId());
         JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
         BeanUtils.copyProperties(orderInfo,vo);
         OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
@@ -783,7 +785,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setCarGroupPhone(str.getUserPhone());
             vo.setCarGroupName(str.getUserName());
         }
-        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         //服务结束时间
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
             vo.setOrderEndTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderStateTraceInfo.getCreateTime()));
@@ -843,7 +844,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 OrderCostDetailVO orderCost = this.getOrderCost(orderId);
                 vo.setOrderCostDetailVO(orderCost);
             }
-            vo.setRegimeId(journeyInfo.getRegimenId());
             //网约车是否限额
             //查询出用车制度表的限额额度，和限额类型
             String overMoney = iOrderPayInfoService.checkOrderFeeOver(orderId, journeyInfo.getRegimenId(), orderInfo.getUserId());

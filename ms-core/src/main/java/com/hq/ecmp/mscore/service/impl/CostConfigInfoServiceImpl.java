@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
 import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
+import com.hq.ecmp.mscore.dto.cost.CostConfigListResultPage;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.mapper.CostConfigCarTypeInfoMapper;
 import com.hq.ecmp.mscore.mapper.CostConfigCityInfoMapper;
@@ -68,8 +69,9 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
      * @return List<CostConfigListResult>
      */
     @Override
-    public List<CostConfigListResult> selectCostConfigInfoList(CostConfigQueryDto costConfigQueryDto)
+    public CostConfigListResultPage selectCostConfigInfoList(CostConfigQueryDto costConfigQueryDto)
     {
+        CostConfigListResultPage costConfigListResultPage = new CostConfigListResultPage();
         PageHelper.startPage(costConfigQueryDto.getPageNum(), costConfigQueryDto.getPageSize());
         List<CostConfigListResult> costConfigListResults = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
         for (CostConfigListResult costConfigListResult:
@@ -79,7 +81,10 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
             List<CostConfigCarTypeInfo> costConfigCarTypeInfos = costConfigCarTypeInfoMapper.selectCostConfigCarTypeInfoList(costConfigCarTypeInfo);
             costConfigListResult.setCarTypes(costConfigCarTypeInfos);
         }
-        return costConfigListResults;
+        int totalNum = costConfigInfoMapper.getTotalNum(costConfigQueryDto);
+        costConfigListResultPage.setResults(costConfigListResults);
+        costConfigListResultPage.setTotal(totalNum);
+        return costConfigListResultPage;
     }
 
     /**
@@ -226,43 +231,14 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         CostCalculation calculator = new CostCalculator();
         OrderSettlingInfoVo orderSettlingInfoVo =new OrderSettlingInfoVo();
         //订单总时长
-        orderSettlingInfoVo.setTotalTime(orderSettlingInfoVo.getTotalTime());
+        orderSettlingInfoVo.setTotalTime(supplementVO.getTotalTime());
         //订单总里程
-        orderSettlingInfoVo.setTotalMileage(orderSettlingInfoVo.getTotalMileage());
+        orderSettlingInfoVo.setTotalMileage(supplementVO.getTotalMileage());
         //订单等待时间
-        orderSettlingInfoVo.setWaitingTime(orderSettlingInfoVo.getWaitingTime());
+        orderSettlingInfoVo.setWaitingTime(supplementVO.getWaitingTime());
         OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
         Map map = new HashMap();
         List list= new ArrayList();
-        //默认个人取消费用为0
-        BigDecimal personalCancellationFee = BigDecimal.ZERO;
-        //默认个人取消费用为0
-        BigDecimal enterpriseCancellationFee = BigDecimal.ZERO;
-        //路桥费
-        Map roadBridgeFee = new HashMap();
-        roadBridgeFee.put("cost",orderSettlingInfoVo.getRoadBridgeFee().setScale(2,BigDecimal.ROUND_HALF_UP));
-        roadBridgeFee.put("typeName","路桥费");
-        list.add(roadBridgeFee);
-        //高速费
-        Map highSpeedFee = new HashMap();
-        highSpeedFee.put("cost",orderSettlingInfoVo.getHighSpeedFee().setScale(2,BigDecimal.ROUND_HALF_UP));
-        highSpeedFee.put("typeName","高速费");
-        list.add(highSpeedFee);
-        //停车费
-        Map parkingRateFee = new HashMap();
-        parkingRateFee.put("cost",orderSettlingInfoVo.getParkingRateFee().setScale(2,BigDecimal.ROUND_HALF_UP));
-        parkingRateFee.put("typeName","停车费");
-        list.add(parkingRateFee);
-        //住宿费
-        Map hotelExpenseFee = new HashMap();
-        hotelExpenseFee.put("cost",orderSettlingInfoVo.getHotelExpenseFee().setScale(2,BigDecimal.ROUND_HALF_UP));
-        hotelExpenseFee.put("typeName","住宿费");
-        list.add(hotelExpenseFee);
-        //餐饮费
-        Map restaurantFee = new HashMap();
-        restaurantFee.put("cost",orderSettlingInfoVo.getRestaurantFee().setScale(2,BigDecimal.ROUND_HALF_UP));
-        restaurantFee.put("typeName","餐饮费");
-        list.add(restaurantFee);
         //超里程价格
         Map overMileagePrice = new HashMap();
         overMileagePrice.put("cost",orderSettlingInfoVo.getOverMileagePrice().setScale(2,BigDecimal.ROUND_HALF_UP));
@@ -283,19 +259,9 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         waitingFee.put("cost",orderSettlingInfoVo.getWaitingFee().setScale(2,BigDecimal.ROUND_HALF_UP));
         waitingFee.put("typeName","等待费");
         list.add(waitingFee);
-        //个人取消费
-        Map personalCancellation = new HashMap();
-        personalCancellation.put("cost",personalCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP));
-        personalCancellation.put("typeName","个人取消费");
-        list.add(personalCancellation);
-        //企业取消费
-        Map enterpriseCancellation = new HashMap();
-        enterpriseCancellation.put("cost",enterpriseCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP));
-        enterpriseCancellation.put("typeName","企业取消费");
-        list.add(enterpriseCancellation);
-        map.put("otherCost",list);
         //总金额
-        map.put("amount",orderSettlingInfoVo.getAmount());
+        map.put("otherCost",list);
+        map.put("amount",orderSettlingInfoVo.getAmount().setScale(2,BigDecimal.ROUND_HALF_UP));
         String json= JSON.toJSONString(map);
         return json;
     }
