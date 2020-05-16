@@ -6,6 +6,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
+import java.math.BigDecimal;
+
 /**
  * 【请填写功能名称】对象 order_account_info
  *
@@ -38,6 +40,10 @@ public class OrderAccountInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private BigDecimal amount;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String state;
 
     private Long companyId;
@@ -50,6 +56,7 @@ public class OrderAccountInfo extends BaseEntity
             .append("orderId", getOrderId())
             .append("costCenter", getCostCenter())
             .append("projectId", getProjectId())
+            .append("amount", getAmount())
             .append("state", getState())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
@@ -57,4 +64,5 @@ public class OrderAccountInfo extends BaseEntity
             .append("updateTime", getUpdateTime())
             .toString();
     }
+
 }
