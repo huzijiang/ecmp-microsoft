@@ -162,9 +162,9 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
             }
         }
         //修改权限为未使用
-        if (opType){
+//        if (opType){
             iJourneyUserCarPowerService.updatePowerSurplus(orderStateVO.getPowerId(),2);
-        }
+//        }
         vo.setIsPayFee(isPayFee);
         vo.setCancelAmount(cancelFee1.stripTrailingZeros().toPlainString());
         vo.setOwnerAmount(ownerAmount);

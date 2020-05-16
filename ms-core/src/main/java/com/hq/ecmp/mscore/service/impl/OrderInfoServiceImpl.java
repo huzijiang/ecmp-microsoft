@@ -2338,6 +2338,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
                 //插入订单财务信息表
                 OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
+                orderAccountInfo.setBillId(orderSettlingInfo.getBillId());
                 orderAccountInfo.setOrderId(orderNo.toString());
                 orderAccountInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
                 orderAccountInfo.setCreateTime(new Date());

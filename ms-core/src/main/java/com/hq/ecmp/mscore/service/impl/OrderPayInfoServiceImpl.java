@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CommonConstant;
@@ -10,7 +11,9 @@ import com.hq.ecmp.mscore.mapper.OrderPayInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderSettlingInfoMapper;
 import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
 import com.hq.ecmp.mscore.service.IOrderPayInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import springfox.documentation.spring.web.json.Json;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
  * @date 2020/5/7
  */
 @Service
+@Slf4j
 public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
 
     @Resource
@@ -80,6 +84,7 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
         //查询出用车制度表的限额额度，和限额类型
         Map<String,Object> map= Maps.newHashMap();
         OrderSettlingInfo orderSettlingInfo2 = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
+        log.info("订单"+orderId+ JSONObject.toJSONString(orderSettlingInfo2));
         RegimeVo regimeInfo = regimeInfoMapper.queryRegimeDetail(regimeId);
         BigDecimal limitMoney = regimeInfo.getLimitMoney();
         String limitType = regimeInfo.getLimitType();

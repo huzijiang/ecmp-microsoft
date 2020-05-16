@@ -108,7 +108,7 @@
                 and status = #{status}
             </if>
             <if test="category != null and category != ''">
-                and find_id_set(category,#{category})
+                and find_in_set(category,#{category})
             </if>
         </where>
     </select>
