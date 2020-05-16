@@ -198,15 +198,26 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
     public void reissueofInvoice(Long invoiceId, String mailboxes,String toResend) throws Exception {
         InvoiceRecordVO invoiceRecordVO =invoiceInfoMapper.queryInvoiceById(invoiceId);
         String path = invoiceRecordVO.getInvoiceUrl();
-        String message="请查收您的发票，感谢关注红旗智行科技";
+        String message=" <div>\n" +
+                "         <span>您的行程单：感谢关注红旗智行</span>\n" +
+                "    </div><br>";
         if("1".equals(toResend)){//是否发送行程（0否1是）
             OrderInvoiceInfo orderInvoiceInfo = new OrderInvoiceInfo();
             orderInvoiceInfo.setInvoiceId(invoiceId);
             List<OrderInvoiceInfo> list  = orderInvoiceInfoMapper.selectOrderInvoiceInfoList(orderInvoiceInfo);
             for(OrderInvoiceInfo data :list ){
                 List<InvoiceAbleItineraryData> key =  journeyInfoMapper.getInvoiceAbleItineraryHistoryKey(data.getAccountId());
-                message = message+key.get(0).getActionTime()+"              订单"+key.get(0).getAmount()+"元\r\n" +
-                        key.get(0).getAddress()+"\r\n"+key.get(1).getAddress()+"\r\n";
+                message ="<div>\n" +
+                        "    <div>\n" +
+                        "         <span>"+message+key.get(0).getActionTime()+" &nbsp;&nbsp;&nbsp;&nbsp;订单金额"+key.get(0).getAmount()+"元</span>\n" +
+                        "    </div>\n" +
+                        "    <div>\n" +
+                        "         <span>"+ key.get(0).getAddress()+"</span>\n" +
+                        "    </div>\n" +
+                        "    <div>\n" +
+                        "         <span>"+key.get(1).getAddress()+"</span>\n" +
+                        "    </div>\n" +
+                        "<div><br<br>>";
             }
         }
         MailUtils.sendMail(mailboxes,"您有一张发票请查收",message,path,invoiceId+".pdf");
