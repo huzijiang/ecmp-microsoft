@@ -106,6 +106,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         if (useCarDate==null){
             throw new  Exception("用车时间不明确!");
         }
+        //修改权限标识
         boolean opType=true;
         int intState=Integer.parseInt(state.substring(1));
         //校验是否超过用车时间
@@ -160,6 +161,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
                 }
             }
         }
+        //修改权限为未使用
         if (opType){
             iJourneyUserCarPowerService.updatePowerSurplus(orderStateVO.getPowerId(),2);
         }
