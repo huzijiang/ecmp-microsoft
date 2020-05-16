@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.OrderServiceType;
 import com.hq.ecmp.mscore.domain.*;
@@ -123,9 +121,10 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
      * 司机端费用上报提交
      * @param orderSettlingInfoVo
      * @param userId
+     * @param companyId
      */
     @Override
-    public int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId,String companyId) {
+    public int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) {
         //计算等待时长
         BigDecimal waitingTime = orderWaitTraceInfoMapper.selectOrderWaitingTimeById(orderSettlingInfoVo.getOrderId());
         orderSettlingInfoVo.setWaitingTime(waitingTime);

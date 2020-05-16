@@ -219,7 +219,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
      * @return
      */
     @Override
-    public String supplementAmountCalculation(SupplementVO supplementVO,String companyId) {
+    public String supplementAmountCalculation(SupplementVO supplementVO,Long companyId) {
         CostConfigQueryDto costConfigQueryDto = new CostConfigQueryDto();
         //公司id
         costConfigQueryDto.setCompanyId(companyId);
