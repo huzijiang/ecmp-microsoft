@@ -1,11 +1,10 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
@@ -224,13 +223,13 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
     public ApiResponse supplementSubmit(OrderInfoDTO orderInfoDTO) {
         ApiResponse apiResponse = new ApiResponse();
         //判断提交的城市code值是否在该调度员所管理车队的服务城市中
-        List<String> cityCodes = orderInfoDTO.getCityCodes();
+       List<Map> cityCodes = orderInfoDTO.getCityCodes();
         int i = 0;
-        for(String list: cityCodes){
-            if(orderInfoDTO.getUpCarPlace().equals(list)){
+        for(Map list: cityCodes){
+            if(orderInfoDTO.getUpCarCityCode().equals(list.get("cityCode"))){
                 i++;
             }
-            if (orderInfoDTO.getDownCarPlace().equals(list)){
+            if (orderInfoDTO.getDownCarCityCode().equals(list.get("cityCode"))){
                 i++;
             }
         }
@@ -241,6 +240,10 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         OrderInfo orderInfo = new OrderInfo();
         //所属公司
         orderInfo.setOwnerCompany(orderInfoDTO.getCompanyId());
+        //默认为0
+        orderInfo.setJourneyId(0L);
+        orderInfo.setNodeId(0L);
+        orderInfo.setPowerId(0L);
         //司机id
         orderInfo.setDriverId(orderInfoDTO.getDriverId());
         //车辆id
@@ -270,6 +273,9 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
             OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
             //订单id
             orderAddressInfo.setOrderId(orderInfo.getOrderId());
+            orderAddressInfo.setJourneyId(0L);
+            orderAddressInfo.setPowerId(0L);
+            orderAddressInfo.setNodeId(0L);
             //司机id
             orderAddressInfo.setDriverId(orderInfo.getDriverId());
             //A000  真实出发地址  A999  真实到达地址
@@ -300,6 +306,9 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
             OrderAddressInfo orderAddress = new OrderAddressInfo();
             //订单id
             orderAddress.setOrderId(orderInfo.getOrderId());
+            orderAddress.setJourneyId(0L);
+            orderAddress.setPowerId(0L);
+            orderAddress.setNodeId(0L);
             //司机id
             orderAddress.setDriverId(orderInfo.getDriverId());
             //A000  真实出发地址  A999  真实到达地址
@@ -344,7 +353,9 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         //创建人
         orderSettlingInfoVo.setCreateBy(orderInfoDTO.getUserId().toString());
         //费用详情
-        orderSettlingInfoVo.setAmountDetail(orderInfoDTO.getAmountDetail());
+        Map map = new HashMap();
+        map.put("otherCost",orderInfoDTO.getAmountDetail());
+        orderSettlingInfoVo.setAmountDetail(JSON.toJSONString(map));
         //费用总金额
         orderSettlingInfoVo.setAmount(orderInfoDTO.getAmount());
         int Three = orderSettlingInfoMapper.insertOrderSettlingInfoOne(orderSettlingInfoVo);

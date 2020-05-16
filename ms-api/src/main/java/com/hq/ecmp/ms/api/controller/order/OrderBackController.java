@@ -155,7 +155,7 @@ public class OrderBackController {
             //获取登陆用户信息
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            orderInfoDTO.setCompanyId(Long.valueOf(loginUser.getUser().getDept().getCompanyId()));
+            orderInfoDTO.setCompanyId(loginUser.getUser().getDept().getCompanyId());
             ApiResponse  apiResponse=  iEcmpUserFeedbackInfoService.supplementSubmit(orderInfoDTO);
             return apiResponse;
         } catch (Exception e) {
