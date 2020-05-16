@@ -50,7 +50,7 @@ public class IMMsgController {
                 .status(IMConStant.MSG_UNREAD_STATUS.getStatus())
                 .build();
         imMessage = imMessageService.insert(imMessage);
-        return ApiResponse.success(imMessage.getId());
+        return ApiResponse.success(imMessage);
     }
 
     /**

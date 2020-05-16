@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.OrderRefundInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.OrderRefundInfo" id="OrderRefundInfoResult">
+        <id property="refundId"    column="refund_id"></id>
+        <result property="payId"    column="pay_id"></result>
+        <result property="billId"    column="bill_id"    />
+        <result property="orderId"    column="order_id"    />
+        <result property="amount"    column="amount"    />
+        <result property="reason"    column="reason"    />
+        <result property="transactionLog"    column="transaction_log"    />
+        <result property="finishPayTime"    column="finish_pay_time"    />
+        <result property="finishResult"    column="finish_result"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectOrderRefundInfoVo">
+        select pay_id, bill_id, order_id, state, pay_mode, pay_channel, channel_rate, transaction_log,  amount, channel_amount, arrive_amount, finish_pay_time, finish_result,
+        create_by, create_time, update_by, update_time
+        from order_pay_info
+    </sql>
+
+    <insert id="insertOrderRefundInfo" parameterType="com.hq.ecmp.mscore.domain.OrderRefundInfo">
+        insert into order_pay_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="refundId != null ">refund_id,</if>
+            <if test="payId != null ">pay_id,</if>
+            <if test="orderId != null ">order_id,</if>
+            <if test="billId != null">bill_id,</if>
+            <if test="amount != null ">amount,</if>
+            <if test="reason != null ">reason,</if>
+            <if test="transaction_log != null ">transactionLog,</if>
+            <if test="finishPayTime != null ">finish_pay_time,</if>
+            <if test="finishResult != null ">finish_result,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="refundId != null ">#{refundId},</if>
+            <if test="payId != null ">#{payId},</if>
+            <if test="orderId != null ">#{orderId},</if>
+            <if test="billId != null">#{billId},</if>
+            <if test="amount != null ">#{amount},</if>
+            <if test="reason != null ">#{reason},</if>
+            <if test="transaction_log != null ">#{transactionLog},</if>
+            <if test="finishPayTime != null ">#{finishPayTime},</if>
+            <if test="finishResult != null ">#{finishResult},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+        </trim>
+    </insert>
+
+
+</mapper>
+

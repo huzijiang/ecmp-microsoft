@@ -127,6 +127,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carColor != null and carColor != ''">car_color,</if>
             <if test="driverGrade != null and driverGrade != ''">driver_grade,</if>
             <if test="flightPlanTakeOffTime != null ">flight_plan_take_off_time,</if>
+            <if test="itIsSupplement != null ">it_is_supplement,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">#{journeyId},</if>
@@ -155,6 +156,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carColor != null and carColor != ''">#{carColor},</if>
             <if test="driverGrade != null and driverGrade != ''">#{driverGrade},</if>
             <if test="flightPlanTakeOffTime != null ">#{flightPlanTakeOffTime},</if>
+            <if test="itIsSupplement != null ">#{itIsSupplement},</if>
         </trim>
     </insert>
 

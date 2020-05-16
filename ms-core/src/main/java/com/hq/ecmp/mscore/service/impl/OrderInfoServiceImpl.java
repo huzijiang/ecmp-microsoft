@@ -605,8 +605,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                dispatchOrderInfo.setRejectReason(orderStateTraceInfoApplyReject.getContent());
                dispatchOrderInfo.setOpDate(orderStateTraceInfoApplyReject.getCreateTime());
            }
-           //已派车,非改派网约车派车，轨迹表是改派成功，订单表是约车中。非改派自由车，轨迹表是已派车，订单表是已派车
-           if (!states.contains(OrderStateTrace.ORDERDENIED.getState()) && !states.contains(OrderStateTrace.ORDEROVERTIME.getState())){
+           //已派车,非改派网约车派车，轨迹表是约车中，订单表是约车中。非改派自由车，轨迹表是已派车，订单表是已派车
+           if ((!states.contains(OrderStateTrace.ORDERDENIED.getState()) && !states.contains(OrderStateTrace.ORDEROVERTIME.getState()))||
+                   (states.contains(OrderStateTrace.ORDEROVERTIME.getState()) && states.contains(OrderStateTrace.SENDCAR.getState()))){
                if(useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
                    dispatchOrderInfo.setState(DispatcherFrontState.SENDCARHAVE.getState());
                    OrderStateTraceInfo orderStateTraceInfoSendCar = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId, OrderStateTrace.SENDCAR.getState());
