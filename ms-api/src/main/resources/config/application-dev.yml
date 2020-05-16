@@ -107,9 +107,9 @@ file:
 #/upload
 app:
   zimg:
-    server: http://10.7.106.66:6849
+    server: http://10.7.106.66:4869
     access:
-      url: http://10.7.106.66:6849/
+      url: http://10.7.106.66:4869/
   welcome: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
   background: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
 
