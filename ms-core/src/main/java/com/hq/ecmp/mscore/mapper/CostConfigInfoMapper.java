@@ -84,4 +84,11 @@ public interface CostConfigInfoMapper
     int checkDoubleByServiceTypeCityCarType(@Param("list") List<CostConfigCarTypeInfo> costConfigCarTypeInfos,
                                             @Param("cityCode") int cityCode,@Param("serviceType") String serviceType,
                                             @Param("rentType") String rentType);
+
+    /**
+     * 获取条件查询的总数据
+     * @param costConfigQueryDto
+     * @return
+     */
+    int getTotalNum(CostConfigQueryDto costConfigQueryDto);
 }

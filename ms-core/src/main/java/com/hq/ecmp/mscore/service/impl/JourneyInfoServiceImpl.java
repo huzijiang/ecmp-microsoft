@@ -4,11 +4,15 @@ import java.io.Console;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.bo.JourneyBeingEndDate;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.SortListUtil;
 
@@ -21,16 +25,6 @@ import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.domain.ApplyInfo;
-import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
-import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.RegimeInfo;
-import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
-import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
-import com.hq.ecmp.mscore.domain.UserCarAuthority;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
@@ -566,9 +560,11 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	 * @throws Exception
 	 */
 	@Override
-	public List<InvoiceAbleItineraryData> getInvoiceAbleItinerary(Long userId) throws Exception {
+	public List<InvoiceAbleItineraryData> getInvoiceAbleItinerary(Long userId,int pageNum, int pageSize) throws Exception {
 		if(null!=userId){
-			return journeyInfoMapper.getInvoiceAbleItinerary(userId);
+			PageHelper.startPage(pageNum,pageSize);
+			List<InvoiceAbleItineraryData> list  = journeyInfoMapper.getInvoiceAbleItinerary(userId);
+			return list;
 		}
 		return null;
 	}
@@ -576,7 +572,8 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	@Override
 	public List<InvoiceAbleItineraryData> getInvoiceAbleItineraryHistory(Long userId) throws Exception {
 		if(null!=userId){
-			return journeyInfoMapper.getInvoiceAbleItineraryHistory(userId);
+			List<InvoiceAbleItineraryData> list  = journeyInfoMapper.getInvoiceAbleItineraryHistory(userId);
+			return list;
 		}
 		return null;
 	}

@@ -10,7 +10,11 @@ import javax.annotation.Resource;
 
 import com.hq.api.system.domain.SysUser;
 import com.hq.ecmp.constant.*;
+import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.EcmpMessageDto;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.vo.UserVO;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -19,29 +23,12 @@ import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.sms.service.ISmsTemplateInfoService;
-import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
-import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.domain.CarInfo;
-import com.hq.ecmp.mscore.domain.EcmpMessage;
-import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
-import com.hq.ecmp.mscore.domain.OrderAddressInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.mapper.CarGroupDispatcherInfoMapper;
-import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
-import com.hq.ecmp.mscore.mapper.CarInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpMessageMapper;
-import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
-import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyPassengerInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderAddressInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IsmsBusiness;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.hq.ecmp.constant.CommonConstant.ONE;
 
 /**
  * @ClassName SmsBusinessImpl
@@ -66,6 +53,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
     private JourneyPassengerInfoMapper journeyPassengerInfoMapper;
     @Resource
     private CarInfoMapper carInfoMapper;
+    @Resource
+    private ApplyInfoMapper applyInfoMapper;
     @Resource
     private OrderAddressInfoMapper orderAddressInfoMapper;
     @Resource
@@ -547,10 +536,12 @@ public class SmsBusinessImpl implements IsmsBusiness{
     @Async
     @Override
     public void sendMessageCancelOrder(Long orderId,Long createId){
+        updateOldStateMessage(null, orderId, null, null);
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        Long applyId=getApplyIdByOrderId(orderId,orderInfo.getJourneyId());
         sendMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),orderInfo.getDriverId(),
                 MsgConstant.MESSAGE_T005.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
-                orderId,createId,"您有一条任务被取消，请及时查看！");
+                orderId,createId,MsgConstant.MESSAGE_T005.getDesc(),applyId);
     }
 
     /**
@@ -566,16 +557,17 @@ public class SmsBusinessImpl implements IsmsBusiness{
             Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
             String applyUserId = applyAndRiderMobile.get("applyUserId");
             String riderId = applyAndRiderMobile.get("riderId");
+            Long applyId=getApplyIdByOrderId(orderId,orderInfo.getJourneyId());
             //申请人
             sendMessage(MsgUserConstant.MESSAGE_USER_APPLICANT.getType(),Long.parseLong(applyUserId),
                     MsgConstant.MESSAGE_T006.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
-                    orderId,createId,"您有一个行程正在进行中，请及时查看！");
+                    orderId,createId,MsgConstant.MESSAGE_T006.getDesc(),applyId);
             if(!riderAndApplyMatch(applyAndRiderMobile)){
                 //乘车人
                 if(!"".equals(riderId)){
                     sendMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),Long.parseLong(riderId),
                             MsgConstant.MESSAGE_T006.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
-                            orderId,createId,"您有一个行程正在进行中，请及时查看！");
+                            orderId,createId,MsgConstant.MESSAGE_T006.getDesc(),applyId);
                 }
             }
         } catch (Exception e) {
@@ -688,6 +680,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
     public void sendMessageReassignSucc(Long orderId, Long createId) {
         try {
             OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            Long applyId=getApplyIdByOrderId(orderId,orderInfo.getJourneyId());
             Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
             Long driverId = orderInfo.getDriverId();
             String applyUserId = applyAndRiderMobile.get("applyUserId");
@@ -695,19 +688,19 @@ public class SmsBusinessImpl implements IsmsBusiness{
             //司机
             if(driverId != null){
                 sendMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),driverId,
-                        MsgConstant.MESSAGE_T004.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
-                        orderId,createId,"您有一条改派通知，请及时查看！");
+                        MsgConstant.MESSAGE_T007.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                        orderId,createId,MsgConstant.MESSAGE_T007.getDesc(),applyId);
             }
             //申请人
             sendMessage(MsgUserConstant.MESSAGE_USER_APPLICANT.getType(),Long.parseLong(applyUserId),
-                    MsgConstant.MESSAGE_T004.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
-                    orderId,createId,"您有一个行程发生改派变更，请及时查看！");
+                    MsgConstant.MESSAGE_T015.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                    orderId,createId,MsgConstant.MESSAGE_T015.getDesc(),applyId);
             if(!riderAndApplyMatch(applyAndRiderMobile)){
                 //乘车人
                 if(!"".equals(riderId)){
                     sendMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),Long.parseLong(riderId),
-                            MsgConstant.MESSAGE_T004.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
-                            orderId,createId,"您有一个行程发生改派变更，请及时查看！");
+                            MsgConstant.MESSAGE_T015.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                            orderId,createId,MsgConstant.MESSAGE_T015.getDesc(),applyId);
                 }
             }
             //查询该订单的发起改派申请的司机
@@ -715,8 +708,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
             if(null !=applyReassignmentDriverId){
             	//给发起改派申请的司机发送消息通知  改派成功了
             	 sendMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(),applyReassignmentDriverId,
-                         MsgConstant.MESSAGE_T004.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
-                         orderId,createId,"你提交的改派申请已经通过,请及时查看");
+                         MsgConstant.MESSAGE_T011.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                         orderId,createId,MsgConstant.MESSAGE_T011.getDesc(),applyId);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -734,6 +727,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
         orderAddressInfo.setOrderId(orderId);
         List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(orderAddressInfo);
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        Long applyId=getApplyIdByOrderId(orderId,orderInfo.getJourneyId());
         if(orderAddressInfos.size()>0){
             for (OrderAddressInfo orderAddressInfoCh1:
             orderAddressInfos) {
@@ -750,7 +745,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
                     carGroupDispatcherInfos) {
                         sendMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(),carGroupDispatcherInfo1.getUserId(),
                                 MsgConstant.MESSAGE_T003.getType(),MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
-                                orderId,createId,"您有一条调度任务待处理,请注意查看！");
+                                orderId,createId,MsgConstant.MESSAGE_T003.getDesc(),applyId);
                     }
                     break;
                  }
@@ -768,7 +763,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
      * @param createId
      * @param msg
      */
-    private void sendMessage(int role,Long personId ,String type,String businessType,Long businessId,Long createId,String msg){
+    private void sendMessage(int role,Long personId ,String type,String businessType,Long businessId,Long createId,String msg,Long applyId){
         EcmpMessage ecmpMessage = new EcmpMessage();
         ecmpMessage.setConfigType(role);
         ecmpMessage.setEcmpId(personId);
@@ -777,6 +772,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         ecmpMessage.setContent(msg);
         ecmpMessage.setCategory(type);
         ecmpMessage.setCategoryId(businessId);
+        ecmpMessage.setApplyId(applyId);
         ecmpMessage.setUrl("");
         ecmpMessage.setCreateBy(createId);
         ecmpMessage.setCreateTime(DateUtils.getNowDate());
@@ -786,43 +782,46 @@ public class SmsBusinessImpl implements IsmsBusiness{
     }
 
 
+    /**
+     * 自有车派车通知
+     * @param orderId
+     * @param userId
+     */
 	@Override
 	@Async
 	public void sendMessageDispatchCarComplete(Long orderId, Long userId) {
 		Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
 		String driverId = orderCommonInfo.get("driverId");
+        Long applyId=getApplyIdByOrderId(orderId,null);
 		if (null != driverId) {
 			// 给司机发送消息
 			sendMessage(MsgUserConstant.MESSAGE_USER_DRIVER.getType(), Long.valueOf(driverId),
 					MsgConstant.MESSAGE_T007.getType(), MsgTypeConstant.MESSAGE_TYPE_T001.getType(), orderId, userId,
-					String.format(MessageTemplateConstant.DISPATCH_CAR_COMPLETE_DRIVER, orderCommonInfo.get("orderNum"),
-							orderCommonInfo.get("useCarTime"), orderCommonInfo.get("riderName"),
-							orderCommonInfo.get("riderMobile")));
+                    MsgConstant.MESSAGE_T007.getDesc(),applyId);
 		}
 
 		String applyUserId = orderCommonInfo.get("applyUserId");
 		if (null != applyUserId) {
 			// 给申请人发消息
 			sendMessage(MsgUserConstant.MESSAGE_USER_APPLICANT.getType(), Long.valueOf(applyUserId),
-					MsgConstant.MESSAGE_T003.getType(), MsgTypeConstant.MESSAGE_TYPE_T001.getType(), orderId, userId,
-					String.format(MessageTemplateConstant.DISPATCH_CAR_COMPLETE_APPLY,
-							orderCommonInfo.get("useCarTime"), orderCommonInfo.get("driverName"),
-							orderCommonInfo.get("driverMobile"), orderCommonInfo.get("carType"),
-							orderCommonInfo.get("carLicense")));
+					MsgConstant.MESSAGE_T013.getType(), MsgTypeConstant.MESSAGE_TYPE_T001.getType(), orderId, userId,
+                    MsgConstant.MESSAGE_T013.getDesc(),applyId);
 		}
 
 	}
 
+	/**更换车辆通知*/
     @Override
     @Async
     public void sendMessageReplaceCarComplete(Long orderId, Long userId) {
         Map<String, String> orderCommonInfo = getOrderCommonInfo(orderId);
         String applyUserId = orderCommonInfo.get("applyUserId");
+        Long applyId=getApplyIdByOrderId(orderId,null);
         if (null != applyUserId) {
             // 给申请人发消息
             sendMessage(MsgUserConstant.MESSAGE_USER_USER.getType(), Long.valueOf(applyUserId),
-                    MsgConstant.MESSAGE_T004.getType(), MsgTypeConstant.MESSAGE_TYPE_T001.getType(), orderId, userId,
-                    String.format(MessageTemplateConstant.REPLACE_CAR_COMPLETE_APPLY));
+                    MsgConstant.MESSAGE_T014.getType(), MsgTypeConstant.MESSAGE_TYPE_T001.getType(), orderId, userId,
+                    MsgConstant.MESSAGE_T014.getDesc(),applyId);
         }
 
         String dispatchId = orderCommonInfo.get("dispatchId");
@@ -838,8 +837,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             // 给调度员发消息
             sendMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(), Long.valueOf(dispatchId),
                     MsgConstant.MESSAGE_T014.getType(), MsgTypeConstant.MESSAGE_TYPE_T001.getType(), orderId, userId,
-                    String.format(MessageTemplateConstant.REPLACE_CAR_COMPLETE_DISPATCH,df.format(new Date())
-                    ,driverName));
+                    MsgConstant.MESSAGE_T014.getType(), applyId);
         }
     }
 
@@ -882,5 +880,29 @@ public class SmsBusinessImpl implements IsmsBusiness{
         mapApply.put("carLicense",carInfo.getCarLicense());
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.REPLACE_CAR_APPLY_NOTICE, mapApply, applyMobile);
         log.info("短信结束-订单{},换车成功", orderId);
+    }
+
+    private Long getApplyIdByOrderId(Long orderId,Long journeryId){
+        if (journeryId==null){
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            journeryId=orderInfo.getJourneyId();
+        }
+        Long applyId=null;
+        List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(journeryId));
+        if (CollectionUtils.isNotEmpty(applyInfos)){
+            applyId=applyInfos.get(0).getApplyId();
+        }
+        return applyId;
+    }
+
+    private void updateOldStateMessage(String configType,Long applyId,Long categoryId,String categorys){
+        List<EcmpMessage> ecmpMessages = ecmpMessageMapper.queryList(new EcmpMessageDto(configType, categoryId, applyId, MsgStatusConstant.MESSAGE_STATUS_T002.getType(),categorys));
+        if (CollectionUtils.isNotEmpty(ecmpMessages)){
+            for (EcmpMessage message:ecmpMessages){
+                message.setStatus(MsgStatusConstant.MESSAGE_STATUS_T001.getType());
+                message.setUpdateBy(Long.valueOf(ONE));
+            }
+            ecmpMessageMapper.updateList(ecmpMessages);
+        }
     }
 }

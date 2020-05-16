@@ -830,7 +830,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //员工所属公司
         //1.如果不是司机（那就是员工）
         if(driver == null){
-            String companyId = user.getDept().getCompanyId().toString();
+            String companyId = String.valueOf(user.getDept().getCompanyId());
             if(StringUtils.isEmpty(companyId)){
                 throw new RuntimeException("员工无所属公司信息");
             }

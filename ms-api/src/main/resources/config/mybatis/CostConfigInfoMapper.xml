@@ -200,9 +200,7 @@
             c.combos_mileage as combosMileage,
             c.beyond_price_every_km as beyondPriceEveryKm,
             c.beyond_price_every_minute as beyondPriceEveryMinute,
-            c.wait_price_erery_minute as waitPriceEreryMinute,
-            c.create_time as createTime,
-            c.update_by as updateTime
+            c.wait_price_erery_minute as waitPriceEreryMinute
             from cost_config_info c
             left join cost_config_city_info  cc on cc.cost_id=c.cost_id
             left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
@@ -227,5 +225,32 @@
             </if>
         </where>
          group by c.company_id,cc.city_name,c.service_type
+    </select>
+
+    <select id="getTotalNum" resultType="java.lang.Integer" parameterType="com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto">
+            select count(1) total
+            from cost_config_info c
+            left join cost_config_city_info  cc on cc.cost_id=c.cost_id
+            left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
+            <where>
+                <if test="costConfigName != null and costConfigName!=''">
+                    c.cost_config_name like  CONCAT('%',#{costConfigName},'%')
+                </if>
+                <if test="cityCode != null and cityCode!=''">
+                    and cc.city_code=#{cityCode}
+                </if>
+                <if test="serviceType != null and serviceType!='' ">
+                    and c.service_type=#{serviceType}
+                </if>
+                <if test="companyId != null and companyId!=''">
+                    and c.company_id=#{companyId}
+                </if>
+                <if test="rentType != null and rentType!=''">
+                    and c.rent_type=#{rentType}
+                </if>
+                <if test="carTypeId != null and carTypeId!=''">
+                    and ct.car_type_id=#{carTypeId}
+                </if>
+            </where>
     </select>
 </mapper>

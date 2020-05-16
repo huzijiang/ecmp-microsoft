@@ -104,6 +104,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select user_id userId from car_group_dispatcher_info
         where car_group_id in (select car_group_id from car_group_info where find_in_set(city,#{cityCode}))
     </select>
+    <select id="findDispatchByCarGroupIds" resultType="Long">
+        select user_id userId from car_group_dispatcher_info
+        where car_group_id in
+        <foreach collection="carGroupIds" item="carGroupId" open="(" separator="," close=")">
+            #{carGroupId}
+        </foreach>
+    </select>
     <select id="findDispatchersByCompanyId" resultType="java.lang.Long">
         select d.user_id from car_group_info s
         left join car_group_dispatcher_info d on s.car_group_id=d.car_group_id

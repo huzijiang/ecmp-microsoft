@@ -264,7 +264,7 @@ public class InvoiceInfoController {
     public ApiResponse reissueofInvoice(Long invoiceId,String mailboxes,String toResend) {
         try{
             invoiceInfoService.reissueofInvoice(invoiceId,mailboxes,toResend);
-            ApiResponse.success("发票重发成功");
+            return ApiResponse.success("发票重发成功");
         }catch(Exception e){
             logger.error("发票重发异常",e);
         }

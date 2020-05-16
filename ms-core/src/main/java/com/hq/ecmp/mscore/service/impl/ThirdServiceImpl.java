@@ -14,6 +14,7 @@ import com.hq.ecmp.mscore.service.ThirdService;
 import com.hq.ecmp.mscore.vo.CarCostVO;
 import com.hq.ecmp.mscore.vo.EstimatePriceVo;
 import com.hq.ecmp.mscore.vo.FlightInfoVo;
+import com.hq.ecmp.mscore.vo.ThridCarTypeVo;
 import com.hq.ecmp.util.GsonUtils;
 import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.ObjectUtils;
@@ -254,19 +255,27 @@ public class ThirdServiceImpl implements ThirdService {
     }
 
     @Override
-    public JSONObject getOnlienCarType(Long orderId)throws Exception{
+    public List<ThridCarTypeVo> getOnlienCarType()throws Exception{
+        Object redisValue = redisUtil.get(CommonConstant.ONLINE_CAR_TYPR_REDIS);
+        if (redisValue!=null){
+            String json = redisValue.toString();
+            return JSONObject.parseArray(json,ThridCarTypeVo.class);
+        }
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("enterpriseId", enterpriseId);
         paramMap.put("licenseContent", licenseContent);
-        paramMap.put("mac",  MacTools.getMacList().get(0));
-        log.info("网约车订单{}取消参数{}",orderId,paramMap);
+        paramMap.put("mac", MacTools.getMacList().get(0));
+        log.info("网约车车型{}参数{}", paramMap);
         String result = OkHttpUtil.postForm(apiUrl + "/basic/carTypes", paramMap);
-        log.info("网约车订单{}取消返回结果{}",orderId,result);
+        log.info("网约车车型{}返回结果{}", result);
         JSONObject jsonObject = JSONObject.parseObject(result);
         if (ApiResponse.SUCCESS_CODE != jsonObject.getInteger("code")) {
-            throw new Exception("调用三方取消订单服务-》取消失败");
+            throw new Exception("调用三方网约车车型列表  失败");
         }
-        return jsonObject.getJSONObject("data");
+        if (StringUtils.isNotEmpty(jsonObject.getString("data"))) {
+            redisUtil.set(CommonConstant.ONLINE_CAR_TYPR_REDIS, jsonObject.getString("data"), 60 * 60 * 48);
+        }
+        return JSONObject.parseArray(jsonObject.getString("data"),ThridCarTypeVo.class);
     }
 
 }

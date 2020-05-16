@@ -5,6 +5,7 @@ import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.MsgConstant;
 import com.hq.ecmp.constant.MsgTypeConstant;
 import com.hq.ecmp.constant.MsgUserConstant;
+import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.EcmpMessage;
 import com.hq.ecmp.mscore.dto.MessageDto;
 
@@ -79,12 +80,15 @@ public interface EcmpMessageService {
 
     List<MessageDto> getRunMessageForDrive(LoginUser user)throws Exception ;
 
-    void saveApplyMessagePass(Long applyId,Long ecmpId,Long userId,Long orderId,Long powerId,int isDispatch) throws Exception;
+    void saveApplyMessagePass(ApplyInfo applyInfo, Long userId, Long orderId, Long powerId, int isDispatch) throws Exception;
     void applyUserPassMessage(Long applyId,Long ecmpId,Long userId,Long orderId,Long powerId,int isDispatch) throws Exception;
     void saveApplyMessageReject(Long applyId,Long ecmpId,Long userId,String reson) throws Exception;
 
     void sendNextApproveUsers(String approveUserId,Long applyId,Long userId);
-
+    /**阅读消息**/
     void readMessage(MessageDto messageDto, LoginUser user);
+    /**消息通知插入**/
     void saveMessageUnite(Long orderId, MsgConstant msgConstant) throws Exception;
+    /**专发调度员通知*/
+    void sendDispatcherMessage(Long orderId,Long dispatchId,Long userId,MsgConstant msgConstant)throws Exception;
 }

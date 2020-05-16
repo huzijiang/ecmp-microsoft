@@ -98,7 +98,7 @@ public enum OrderState {
     }
 
     /**
-     * 差旅权限快捷列表不展示的状态(S970  S699 S001  S990  S931)
+     * 差旅权限快捷列表不展示的状态(S970  S699 S801  S990  S931)
      * @return
      */
     public static List<String> noShowStateOfPower(){
