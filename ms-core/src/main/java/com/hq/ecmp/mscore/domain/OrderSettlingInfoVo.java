@@ -23,7 +23,7 @@ public class OrderSettlingInfoVo {
     private Long billId;
 
     /**
-     * 订单Id
+     *
      */
     @ApiModelProperty(name = "orderId", value = "订单Id")
     private Long orderId;
