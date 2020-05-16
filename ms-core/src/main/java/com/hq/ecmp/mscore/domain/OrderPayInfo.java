@@ -41,100 +41,72 @@ public class OrderPayInfo {
     /**
      *   支付状态  0000 已支付  N111未支付
      */
-    @NotNull
-    @ApiParam(required = true)
     private String state;
 
     /**
      *  支付方式  M001-结单后付费  M002-开单预付费   M003-充值卡扣款   M999-其他
      */
-    @NotNull
-    @ApiParam(required = true)
     private String payMode;
 
     /**
      * 支付渠道  weixin    zhifubao
      */
-    @NotNull
-    @ApiParam(required = true)
     private String payChannel;
 
     /**
      * 渠道费率
      */
-    @NotNull
-    @ApiParam(required = true)
     private BigDecimal channelRate;
 
     /**
      *  支付流水
      */
-    @NotNull
-    @ApiParam(required = true)
     private String transactionLog;
 
 
     /**
      * 用户订单支付总金额
      */
-    @NotNull
-    @ApiParam(required = true)
     private BigDecimal amount;
 
     /**
      * 渠道扣费总额
      */
-    @NotNull
-    @ApiParam(required = true)
     private BigDecimal channelAmount;
 
     /**
      *  到企业账户余额
      */
-    @NotNull
-    @ApiParam(required = true)
     private BigDecimal arriveAmount;
 
     /**
      *  支付完成状态
      */
-    @NotNull
-    @ApiParam(required = true)
     private String finishPayTime;
 
     /**
      *  完成结果，各个支付渠道返回的返回结果
      */
-    @NotNull
-    @ApiParam(required = true)
     private String finishResult;
 
     /**
      * 创建者
      */
-    @NotNull
-    @ApiParam(required = true)
     private Long createBy;
 
     /**
      *  创建时间
      */
-    @NotNull
-    @ApiParam(required = true)
     private Date createTime;
 
     /**
      *  更新者
      */
-    @NotNull
-    @ApiParam(required = true)
     private Long updateBy;
 
     /**
      *  更新时间
      */
-    @NotNull
-    @ApiParam(required = true)
     private Date updateTime;
 
     public OrderPayInfo() {

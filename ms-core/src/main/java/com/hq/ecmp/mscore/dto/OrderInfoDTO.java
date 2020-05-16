@@ -7,6 +7,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @ApiModel(value = "补单入参model")
@@ -100,8 +101,8 @@ public class OrderInfoDTO {
         private BigDecimal amount;
 
         @ApiModelProperty(value = "费用详情")
-        private String amountDetail;
+        private List<Map> amountDetail;
 
         @ApiModelProperty(value = "调度员所管理车队的服务城市")
-        private List<String> cityCodes;
+        private List<Map> cityCodes;
 }

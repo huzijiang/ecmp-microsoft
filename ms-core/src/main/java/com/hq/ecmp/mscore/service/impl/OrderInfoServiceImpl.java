@@ -133,6 +133,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private CarGroupInfoMapper carGroupInfoMapper;
     @Resource
     private ApplyUseCarTypeMapper applyUseCarTypeMapper;
+    @Resource
+    private OrderAccountInfoMapper orderAccountInfoMapper;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -749,7 +751,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setUseCarTimestamp(startOrderAddr.get(0).getActionTime().getTime());
             vo.setStartAddress(startOrderAddr.get(0).getAddress());
         }
-        List<OrderAddressInfo> endOrderAddr = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
+        List<OrderAddressInfo> endOrderAddr = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE));
         if (!CollectionUtils.isEmpty(endOrderAddr)){
             vo.setEndAddress(endOrderAddr.get(0).getAddress());
         }
@@ -2083,7 +2085,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public OrderStateVO getTaxiState(OrderStateVO orderVO,Long orderNo)throws Exception{
         log.info("订单号:"+orderNo+"状态详情:"+orderVO.toString());
-        List<String> states=Arrays.asList(OrderState.INITIALIZING.getState(),OrderState.WAITINGLIST.getState(),OrderState.GETARIDE.getState(),OrderState.INSERVICE.getState(),
+        List<String> states=Arrays.asList(OrderState.INITIALIZING.getState(),OrderState.WAITINGLIST.getState(),OrderState.GETARIDE.getState(),
                             OrderState.SENDINGCARS.getState(),OrderState.ORDERCLOSE.getState(),OrderState.STOPSERVICE.getState());
         OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderNo);
         String payState=OrderPayConstant.UNPAID;
@@ -2333,6 +2335,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderSettlingInfo.setCreateBy(CommonConstant.START);
                 orderSettlingInfo.setCreateTime(new Date());
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
+
+                //插入订单财务信息表
+                OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
+                orderAccountInfo.setOrderId(orderNo.toString());
+                orderAccountInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
+                orderAccountInfo.setCreateTime(new Date());
+                orderAccountInfo.setState(CommonConstant.NOT_INVOICED);
+                orderAccountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
                 //插入订单支付表
                 OrderPayInfo orderPayInfo = new OrderPayInfo();
                 String substring = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32);
