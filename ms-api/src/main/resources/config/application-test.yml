@@ -113,6 +113,9 @@ dispatch:
   backCarGroup: 90
   #无车驳回的可操作最小时间限制 30分钟
   noCarDeniedMinutes: 30
+  #外部公司可展示内部公司调度单的时间间隔
+  waitIntervalMinutes: 10
+
 
 #调度行程确认的时间间隔
 schedule:
