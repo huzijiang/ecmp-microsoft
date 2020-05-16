@@ -881,10 +881,10 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		String regimenType = regimeVo.getRegimenType();
 		/**公务申请*/
 		if (CommonConstant.AFFICIAL_APPLY.equals(regimenType)) {
-			voList = getBusinessCarTypes(regimeVo, regimeDto.getCityCodes(), useCarMode, user.getDeptId(), ownerCompany);
+			voList = this.getBusinessCarTypes(regimeVo, regimeDto.getCityCodes(), useCarMode, user.getDeptId(), ownerCompany);
 		}else{
 			/**差旅申请*/
-			voList = getTraveCarTypes(regimeVo, regimeDto.getCityCodes(), useCarMode, user.getDeptId(), ownerCompany);
+			voList = this.getTraveCarTypes(regimeVo, regimeDto.getCityCodes(), useCarMode, user.getDeptId(), ownerCompany);
 
 		}
 

@@ -122,7 +122,7 @@ public class IMMsgController {
     @ApiOperation(value = "updateMsgStatus", notes = "更改单个信息为以读", httpMethod = "POST")
     @PostMapping("/updateMsgStatus")
     public ApiResponse updateMsgStatus(Long id) {
-        ImMessage imMessage = ImMessage.builder().id(id).status(1).build();
+        ImMessage imMessage = ImMessage.builder().id(id).status(IMConStant.MSG_READ_STATUS.getStatus()).build();
         imMessage = imMessageService.update(imMessage);
         return ApiResponse.success(imMessage.getId());
     }
@@ -182,7 +182,7 @@ public class IMMsgController {
         map.put("sendId", sendId);
         map.put("receiveRoleType", receiveRoleType);
         map.put("receiveId", receiveId);
-        map.put("status", 0);
+        map.put("status", IMConStant.MSG_UNREAD_STATUS.getStatus());
         int count = imMessageService.queryMsgConutBy(map);
         return ApiResponse.success(count);
     }

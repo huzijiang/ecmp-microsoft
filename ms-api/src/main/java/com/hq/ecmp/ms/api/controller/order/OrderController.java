@@ -64,6 +64,10 @@ public class OrderController {
     @Resource
     private IDriverHeartbeatInfoService driverHeartbeatInfoService;
 
+    @Resource
+    private  OrderInfoTwoService orderInfoTwoService;
+
+
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
 
@@ -706,4 +710,35 @@ public class OrderController {
         }
         return  ApiResponse.error("获取乘车信息失败");
     }
+
+    @ApiOperation(value = "取消订单",httpMethod = "POST")
+    @RequestMapping("/cancelBusinessOrder")
+    public ApiResponse<CancelOrderCostVO> cancelBusinessOrder(@RequestBody OrderDto orderDto){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            CancelOrderCostVO cancelOrderCostVO = orderInfoTwoService.cancelBusinessOrder(orderDto.getOrderId(), orderDto.getCancelReason(),loginUser.getUser().getUserId());
+            return ApiResponse.success(cancelOrderCostVO);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("取消订单失败");
+        }
+    }
+
+
+    @ApiOperation(value = "正在进行中的订单(乘客端卡片)",httpMethod = "POST")
+    @RequestMapping("/runningOrder")
+    public ApiResponse<List<RunningOrderVo>> runningOrder(){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+
+            List<RunningOrderVo> runningOrders = orderInfoTwoService.runningOrder(loginUser.getUser().getUserId());
+            return ApiResponse.success(runningOrders);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("查询失败");
+        }
+    }
+
 }

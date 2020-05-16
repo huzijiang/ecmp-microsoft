@@ -96,4 +96,6 @@ public interface CarGroupDispatcherInfoMapper
      * @return
      */
     String selectCarGroupDispatcherAllId(@Param("userId") Long userId);
+
+    List<Long> findDispatchByCarGroupIds(@Param("carGroupIds") List<Long> carGroupIds);
 }

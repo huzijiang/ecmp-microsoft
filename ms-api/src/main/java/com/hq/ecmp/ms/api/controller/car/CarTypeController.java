@@ -81,7 +81,7 @@ public class CarTypeController {
         //获取登录用户
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        return loginUser.getUser().getDept().getCompanyId();
+        return String.valueOf(loginUser.getUser().getDept().getCompanyId());
     }
 
     /**

@@ -26,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -66,6 +68,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
     private JourneyInfoMapper journeyInfoMapper;
     @Resource
     private ThirdService thirdService;
+    @Resource
+    private IsmsBusiness ismsBusiness;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -80,15 +84,19 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
      * @param cancelReason
      */
     @Override
-    public CancelOrderCostVO cancelBusinessOrder(Long orderId, String cancelReason) throws Exception{
+    @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    public CancelOrderCostVO cancelBusinessOrder(Long orderId, String cancelReason,Long longinUserId) throws Exception{
         CancelOrderCostVO vo=new CancelOrderCostVO();
-        String cancelFee=null;
+        BigDecimal cancelFee1=BigDecimal.ZERO;
         int isPayFee=0;
         String ownerAmount=null;
         String personalAmount=null;
         String payId=null;
         String payState=null;
         OrderStateVO orderStateVO = orderInfoService.getOrderState(orderId);
+        if (!longinUserId.equals(orderStateVO.getUserId())){
+            throw new  Exception("取消订单操作人与申请人不一致,不可取消");
+        }
         if (orderStateVO==null){
             throw new  Exception("该订单不存在!");
         }
@@ -103,9 +111,11 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         //校验是否超过用车时间
         //未派车(无车无司机)
         if (intState < Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1))) {
+            log.info("订单:"+orderId+"无车无司机取消订单-------> start,原因{}",cancelReason);
             int i = this.ownerCarCancel(orderId, cancelReason, orderStateVO.getUserId());
         } else if (intState >= Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1)) &&
                 intState < Integer.parseInt(OrderState.INSERVICE.getState().substring(1))) {
+            log.info("订单:"+orderId+"有车有司机取消订单------- start,原因{}",cancelReason);
             //待服务(有车有司机)
             if (CarConstant.USR_CARD_MODE_HAVE .equals(orderStateVO.getUseCarMode())){
                 //自由车带服务取消
@@ -118,7 +128,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
                 }
             }else{//网约车带服务的取消
                 JSONObject jsonObject = thirdService.threeCancelServer(orderId, cancelReason);
-                BigDecimal cancelFee1 = jsonObject.getDouble("cancelFee")==null?BigDecimal.ZERO:BigDecimal.valueOf(jsonObject.getDouble("cancelFee"));
+                cancelFee1 = jsonObject.getDouble("cancelFee")==null?BigDecimal.ZERO:BigDecimal.valueOf(jsonObject.getDouble("cancelFee"));
                 if (cancelFee1.compareTo(BigDecimal.ZERO)<=0){
                     //个人不需要支付取消费
                     if (DateFormatUtils.compareDayAndTime(useCarDate,DateUtils.getNowDate()) == 1) {
@@ -128,7 +138,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
                     }
                 }else{
                     //需要支付取消费
-                    cancelFee=cancelFee1.stripTrailingZeros().toPlainString();
+//                    cancelFee=cancelFee1.stripTrailingZeros().toPlainString();
                     String s = iOrderPayInfoService.checkOrderFeeOver(orderId, journeyInfo.getRegimenId(), orderStateVO.getUserId());
                     /*超额个人支付*/
                     if (StringUtils.isNotBlank(s)&&new BigDecimal(s).compareTo(BigDecimal.ZERO)==1){
@@ -154,11 +164,18 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
             iJourneyUserCarPowerService.updatePowerSurplus(orderStateVO.getPowerId(),2);
         }
         vo.setIsPayFee(isPayFee);
-        vo.setCancelAmount(cancelFee);
+        vo.setCancelAmount(cancelFee1.stripTrailingZeros().toPlainString());
         vo.setOwnerAmount(ownerAmount);
         vo.setPersonalAmount(personalAmount);
         vo.setPayState(payState);
         vo.setPayId(payId);
+        ismsBusiness.sendMessageCancelOrder(orderId,longinUserId);
+        /**发送取消订单短信*/
+        if(cancelFee1.compareTo(BigDecimal.ZERO)==1){
+            ismsBusiness.sendSmsCancelOrder(orderId);
+        }else{
+            ismsBusiness.sendSmsCancelOrderHaveFee(orderId,cancelFee1.doubleValue());
+        }
         return vo;
     }
 

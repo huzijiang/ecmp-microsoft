@@ -11,6 +11,7 @@ public final class CommonConstant {
 
     //客服电话
     public static final String CUSTOMER_PHONE = "customer_phone";
+    public static final String ONLINE_CAR_TYPR_REDIS = "onlie_car_type";
     //redis中调度锁的前缀
     public static final String DISPATCH_LOCK_PREFIX = "dispatch_";
     //redis中约车次数的前缀
