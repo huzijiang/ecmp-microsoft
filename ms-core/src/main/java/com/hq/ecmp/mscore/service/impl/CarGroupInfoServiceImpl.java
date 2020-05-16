@@ -503,9 +503,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     // 是调度员为 1 ；不是调度员为 0
                     ecmpUserVo.setItIsDispatcher("0");
                     int m = ecmpUserMapper.updateEcmpUser(ecmpUserVo);
-                    if(m != 1){
+                    /*if(m != 1){
                         throw new RuntimeException("调度员用户表角色修改失败");
-                    }
+                    }*/
                     //B 员工角色表 删除员工角色表数据
                     EcmpUserRole ecmpUserRole = EcmpUserRole.builder().roleId(4L).userId(id).build();
                     int a = ecmpUserRoleMapper.deleteUserRole(ecmpUserRole);
@@ -814,6 +814,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * 联系车队（通用）
      * ------1. 如果是用户不是司机，没订单： 查询用户所在公司所有车队座机               ----------- 多个车队座机
      *          2.用户有订单： 查询调度员电话，调度员管理的（多个）车队电话      ----------- 一个调度员，多个车队
+     *          // TODO 有订单不一定有调度员 那么联系哪个车队呢
      * ------3. 如果是司机，没订单： 查询司机所在（一个）车队座机              -----------  一个车队电话
      *          4.有订单： 查询调度员电话，司机所在（一个）车队电话            -----------   一个车队，一个调度员
      * @param orderId
@@ -857,6 +858,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
 
             }else {
                 //如果传了订单id，则查询订单对应的调度员（如果有改派，改派和第一次调度员都是同一个人）及调度员所在车队电话
+                // TODO 有订单不一定有调度员 那么联系哪个车队呢
                 //根据订单id查询调度员的userId(调度员是有)
                 String userId  = orderStateTraceInfoMapper.selectDispatcherUserId(orderId);
                 //查询调度员所在车队及车队座机
