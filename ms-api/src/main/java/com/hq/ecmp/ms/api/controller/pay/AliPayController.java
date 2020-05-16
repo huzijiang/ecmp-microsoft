@@ -5,19 +5,18 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
+import com.alipay.api.domain.AlipayTradeRefundModel;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
+import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
+import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
+import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.hq.ecmp.constant.OrderPayConstant;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.ms.api.conf.AlipayConfig;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderPayInfo;
-import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.service.IOrderPayInfoService;
-import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
-import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
+import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -26,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -51,6 +51,10 @@ public class AliPayController {
 
     @Autowired
     private IOrderPayInfoService iOrderPayInfoService;
+
+    @Autowired
+    private IOrderRefundInfoService iOrderRefundInfoService;
+
 
     /**
      * @author ghb
@@ -156,6 +160,52 @@ public class AliPayController {
             log.info("支付宝回调失败，错误原因为："+e.getMessage());
         }
         return "success";
+    }
+
+    @ApiOperation(value = "支付宝退款", notes = "")
+    @RequestMapping(value = "/ali/refund", method = RequestMethod.POST)
+    @ResponseBody
+    public String aliRefun(@RequestBody String param) {
+        JSONObject jsonObject = JSONObject.parseObject(param);
+        String payId = jsonObject.getString("payId");
+        String refundAmount = jsonObject.getString("refundAmount");
+        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest(); // 统一收单交易退款接口
+        AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.URL, AlipayConfig.APPID, AlipayConfig.APP_PRIVATE_KEY, AlipayConfig.FORMAT, AlipayConfig.REFUND_CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGNTYPE);
+        AlipayTradeRefundModel model = new AlipayTradeRefundModel();
+        //退款参数
+        model.setOutTradeNo(payId);
+        model.setRefundAmount(refundAmount);
+//        model.setOutRequestNo(outRequestNo); 多次退款，部分退款必传
+        request.setBizModel(model);
+        AlipayTradeRefundResponse response;
+        try {
+            response  = alipayClient.execute(request);
+            if(response.isSuccess()){
+                log.info("退款成功！！！！！！！！！！！！！！！！！！！！");
+                //处理业务逻辑
+                //插入订单退款表
+
+                //先查询订单支付表
+                OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(response.getOutTradeNo());
+                OrderRefundInfo orderRefundInfo = new OrderRefundInfo();
+                orderRefundInfo.setRefundId(UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32));
+                orderRefundInfo.setPayId(response.getOutTradeNo());
+                orderRefundInfo.setBillId(orderPayInfoByPayId.getBillId());
+                orderRefundInfo.setOrderId(orderPayInfoByPayId.getOrderId());
+                orderRefundInfo.setAmount(new BigDecimal(response.getRefundFee()));
+                orderRefundInfo.setTransactionLog(response.getTradeNo());
+                orderRefundInfo.setFinishPayTime(response.getGmtRefundPay());
+                orderRefundInfo.setFinishResult(response.getMsg());
+                orderRefundInfo.setCreateTime(new Date());
+                int i = iOrderRefundInfoService.insertOrderRefundInfo(orderRefundInfo);
+            } else {
+                log.info("退款失败！！！！！！！！！！！！！！！！！！！！");
+                return OrderPayConstant.ALI_RETURN_CODE_ERROR;
+            }
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+        }
+        return OrderPayConstant.ALI_RETURN_CODE_OK;
     }
 }
 

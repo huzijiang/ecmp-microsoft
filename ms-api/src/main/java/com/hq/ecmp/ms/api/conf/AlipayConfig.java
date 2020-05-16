@@ -23,13 +23,13 @@ public class AlipayConfig {
         //开发环境
         public static String notify_url = "https://dev-app-api.hqzhixing.com/pay/ali/v1/callback";
         //5.页面跳转同步通知页面路径 需http://或者https://格式的完整路径，必须外网可以正常访问 商户可以自定义同步跳转地址
-//        public static String return_url = "";
 
         // 6.请求支付宝的网关地址,此处为沙箱测试地址，正式环境替换即可
         public static String URL = "https://openapi.alipay.com/gateway.do";
 
         // 7.编码
         public static String CHARSET = "UTF-8";
+        public static String REFUND_CHARSET = "GBK";
 
         // 8.返回格式
         public static String FORMAT = "json";
@@ -38,5 +38,13 @@ public class AlipayConfig {
         public static String SIGNTYPE = "RSA2";
 
 
+        //退款
+        //正式环境
+//        public static String refund_notify_url = "https://app-api.hqzhixing.com/pay/ali/v2/callback";
+        //测试环境
+//        public static String refund_notify_url = "https://test-app-api.hqzhixing.com:60001/pay/ali/v2/callback";
+        //开发环境
+        public static String refund_notify_url = "https://dev-app-api.hqzhixing.com/pay/ali/v2/callback";
+        //5.页面跳转同步通知页面路径 需http://或者https://格式的完整路径，必须外网可以正常访问 商户可以自定义同步跳转地址
 
 }
