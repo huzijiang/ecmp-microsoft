@@ -245,7 +245,7 @@ AND a.state ='S270' order by a.create_time desc limit 1
     <select id="getLatestInfoByOrderId" resultMap="OrderStateTraceInfoResult">
         <include refid="selectOrderStateTraceInfoVo"/>
         where order_id=#{orderId}
-        order by create_time desc limit 1
+        order by trace_id desc limit 1
     </select>
     <select id="selectDispatcherUserId" resultType="java.lang.String">
         SELECT create_by as userId
