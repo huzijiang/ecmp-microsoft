@@ -7,10 +7,8 @@ import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.interceptor.log.Log;
-import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
-import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
-import com.hq.ecmp.mscore.dto.cost.CostConfigListResultPage;
-import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
+import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
+import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
 import com.hq.ecmp.mscore.vo.SupplementVO;
 import org.apache.ibatis.annotations.Param;
@@ -153,15 +151,15 @@ public class CostController {
     @Log(value = "车型，城市，服务类型三者校验是否重复")
     @com.hq.core.aspectj.lang.annotation.Log(title = "车型，城市，服务类型三者校验是否重复",businessType = BusinessType.DELETE,operatorType = OperatorType.MANAGE)
     @PostMapping("/checkDoubleByServiceTypeCityCarType")
-    public ApiResponse<Integer> checkDoubleByServiceTypeCityCarType(@RequestBody CostConfigQueryDto costConfigQueryDto){
-        Integer i = 0;
+    public ApiResponse<List<CostConfigCityInfo>> checkDoubleByServiceTypeCityCarType(@RequestBody CostConfigQueryDoubleValidDto costConfigQueryDto){
+        List<CostConfigCityInfo> res = null;
         try {
-            i = costConfigInfoService.checkDoubleByServiceTypeCityCarType(costConfigQueryDto);
+            res = costConfigInfoService.checkDoubleByServiceTypeCityCarType(costConfigQueryDto);
         } catch (Exception e) {
             e.printStackTrace();
             return  ApiResponse.error("判重失败");
         }
-        return ApiResponse.success(i);
+        return ApiResponse.success(res);
     }
 
     /**

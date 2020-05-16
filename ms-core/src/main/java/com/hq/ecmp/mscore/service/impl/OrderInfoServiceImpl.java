@@ -360,8 +360,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      *          1.自有车：总部在该城市的能服务于当前订单申请人所在部门的所有车队的所有调度员可以看到
      *          2.自有车+网约车：总部在该城市的能服务于当前订单申请人所在部门的所有车队的所有调度员可以看到
      *      4.总部在改城市没有能服务当前订单申请人所在部门的车队，分公司有能服务于当前订单申请人所在公司的车队
-     *          1.自有车：总部和分公司同时看到
-     *          2.自有车+网约车：总部看不到此调度单，分公司在该城市的能服务于当前订单申请人所在公司的车队的所有调度员也可以看到，二者同时能看到
+     *          （1.自有车：总部和分公司同时看到
+     *          2.自有车+网约车：总部看不到此调度单，分公司在该城市的能服务于当前订单申请人所在公司的车队的所有调度员也可以看到，二者同时能看到）
+     *          --------》第4点修改为只有分公司能看到不管是自有车还是自有车+网约车（括号里的规则弃用）
      * @param userId 当前登录人id
      *
      * @return
@@ -373,9 +374,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             log.error("订单{}信息为空",dispatchOrderInfo.getOrderId());
             return false;
         }
-        if (StringUtils.isBlank(orderInfo.getUseCarMode())){
-           return false;
-        }
+//        if (StringUtils.isBlank(orderInfo.getUseCarMode())){
+//           return false;
+//        }
         JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
         if (journeyUserCarPower == null){
             log.error("订单{}相关用车权限信息为空",dispatchOrderInfo.getOrderId());

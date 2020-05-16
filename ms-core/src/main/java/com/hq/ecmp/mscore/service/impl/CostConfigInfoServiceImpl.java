@@ -8,10 +8,7 @@ import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
-import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
-import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
-import com.hq.ecmp.mscore.dto.cost.CostConfigListResultPage;
-import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
+import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.mapper.CostConfigCarTypeInfoMapper;
 import com.hq.ecmp.mscore.mapper.CostConfigCityInfoMapper;
 import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
@@ -196,15 +193,23 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     /**
      *
      * @param costConfigQueryDto  判重条件
-     * @return 数量
+     * @return 重复的城市集合
      */
     @Override
-    public int checkDoubleByServiceTypeCityCarType(CostConfigQueryDto costConfigQueryDto) {
-        int count;
-        count = costConfigInfoMapper.checkDoubleByServiceTypeCityCarType(
-                costConfigQueryDto.getCarTypes(),costConfigQueryDto.getCityCode(),costConfigQueryDto.getServiceType(),
-                costConfigQueryDto.getRentType());
-        return count;
+    public List<CostConfigCityInfo> checkDoubleByServiceTypeCityCarType(CostConfigQueryDoubleValidDto costConfigQueryDto) {
+        List<CostConfigCityInfo> result = new ArrayList<>();
+        List<CostConfigCityInfo> cities = costConfigQueryDto.getCities();
+        for (CostConfigCityInfo costConfigCityInfo:
+        cities) {
+            int count = 0;
+            count = costConfigInfoMapper.checkDoubleByServiceTypeCityCarType(
+                    costConfigQueryDto.getCarTypes(),Integer.parseInt(costConfigCityInfo.getCityCode()),costConfigQueryDto.getServiceType(),
+                    costConfigQueryDto.getRentType());
+            if (count >0){
+                result.add(costConfigCityInfo);
+            }
+        }
+        return result;
     }
 
     /**
