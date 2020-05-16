@@ -1,10 +1,7 @@
 package com.hq.ecmp.mscore.bo;
 
 import com.hq.ecmp.constant.CarPowerEnum;
-import com.hq.ecmp.constant.enumerate.CarLockStateEnum;
-import com.hq.ecmp.constant.enumerate.CarSourceEnum;
-import com.hq.ecmp.constant.enumerate.CarStateEnum;
-import com.hq.ecmp.constant.enumerate.TaskConflictEnum;
+import com.hq.ecmp.constant.enumerate.*;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -133,6 +130,14 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
      */
     private String status="";
 
+    /**
+     * 车型级别是否匹配
+     * 0000 匹配
+     * 1111 不匹配  跨级调度
+     *
+     */
+    private CarLevelMatchEnum levelIsMatch;
+
 
 
     /**
@@ -207,6 +212,11 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
             if(CarSourceEnum.BORROWED.getCode().equals(this.getSource())){
                 this.setSource(CarSourceEnum.BORROWED.getDesc());
             }
+        }
+
+        //是否跨级调度
+        if(CarLevelMatchEnum.UN_MATCH.equals(this.getLevelIsMatch())){
+            this.status.concat("跨级调度");
         }
 
 

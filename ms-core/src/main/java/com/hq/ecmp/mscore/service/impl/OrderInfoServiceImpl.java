@@ -605,8 +605,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                dispatchOrderInfo.setRejectReason(orderStateTraceInfoApplyReject.getContent());
                dispatchOrderInfo.setOpDate(orderStateTraceInfoApplyReject.getCreateTime());
            }
-           //已派车,非改派网约车派车，轨迹表是改派成功，订单表是约车中。非改派自由车，轨迹表是已派车，订单表是已派车
-           if (!states.contains(OrderStateTrace.ORDERDENIED.getState()) && !states.contains(OrderStateTrace.ORDEROVERTIME.getState())){
+           //已派车,非改派网约车派车，轨迹表是约车中，订单表是约车中。非改派自由车，轨迹表是已派车，订单表是已派车
+           if ((!states.contains(OrderStateTrace.ORDERDENIED.getState()) && !states.contains(OrderStateTrace.ORDEROVERTIME.getState()))||
+                   (states.contains(OrderStateTrace.ORDEROVERTIME.getState()) && states.contains(OrderStateTrace.SENDCAR.getState()))){
                if(useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
                    dispatchOrderInfo.setState(DispatcherFrontState.SENDCARHAVE.getState());
                    OrderStateTraceInfo orderStateTraceInfoSendCar = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId, OrderStateTrace.SENDCAR.getState());
@@ -741,11 +742,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
         BeanUtils.copyProperties(orderInfo,vo);
         OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
-        List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
+        List<OrderAddressInfo> startOrderAddr = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
         String useCarTime=null;
-        if (!CollectionUtils.isEmpty(orderAddressInfos)){
-            useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderAddressInfos.get(0).getActionTime());
-            vo.setUseCarTimestamp(orderAddressInfos.get(0).getActionTime().getTime());
+        if (!CollectionUtils.isEmpty(startOrderAddr)){
+            useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,startOrderAddr.get(0).getActionTime());
+            vo.setUseCarTimestamp(startOrderAddr.get(0).getActionTime().getTime());
+            vo.setStartAddress(startOrderAddr.get(0).getAddress());
+        }
+        List<OrderAddressInfo> endOrderAddr = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
+        if (!CollectionUtils.isEmpty(endOrderAddr)){
+            vo.setEndAddress(endOrderAddr.get(0).getAddress());
         }
         vo.setUseCarTime(useCarTime);
         vo.setCreateTimestamp(orderInfo.getCreateTime().getTime());
@@ -858,7 +864,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             List<ThridCarTypeVo> onlienCarType = thirdService.getOnlienCarType();
             if (!CollectionUtils.isEmpty(onlienCarType)){
                 String demandCarLevel = orderInfo.getDemandCarLevel();
-                String carPhoto = onlienCarType.stream().filter(p -> p.getValue().equals(demandCarLevel)).map(ThridCarTypeVo::getRemark).toString();
+                String carPhoto = onlienCarType.stream().filter(p -> p.getValue().equals(demandCarLevel)).map(ThridCarTypeVo::getRemark).collect(Collectors.joining());
                 vo.setCarPhoto(carPhoto);
             }
         }
@@ -1069,7 +1075,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 Long applyId=null;
                 if (!CollectionUtils.isEmpty(applyInfos)){
                     applyId=applyInfos.get(0).getApplyId();
-                    startCity=orderAddressInfos.stream().filter(p->p.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT)).map(OrderAddressInfo::getCityPostalCode).toString();
+                    startCity=orderAddressInfos.stream().filter(p->p.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT)).map(OrderAddressInfo::getCityPostalCode).collect(Collectors.joining());
                     List<ApplyUseCarType> applyUseCarTypes = applyUseCarTypeMapper.selectApplyUseCarTypeList(new ApplyUseCarType(applyId, startCity));
                     if (!CollectionUtils.isEmpty(applyUseCarTypes)){
                         ApplyUseCarType applyUseCarType = applyUseCarTypes.get(0);
@@ -1442,6 +1448,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
         vo.setCustomerServicePhone(serviceMobile);
         OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
+        vo.setUserName(ecmpUser.getNickName());
+        vo.setUserPhone(ecmpUser.getPhonenumber());
         if (orderSettlingInfo!=null){
             vo.setOrderAmount(orderSettlingInfo.getAmount().toPlainString());
                 String amountDetail = orderSettlingInfo.getAmountDetail();
@@ -2326,26 +2335,28 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
                 //插入订单支付表
                 OrderPayInfo orderPayInfo = new OrderPayInfo();
-                OrderSettlingInfo orderSettlingInfo1 = orderSettlingInfoMapper.selectOrderSettlingInfoById(orderNo);
                 String substring = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32);
                 orderPayInfo.setPayId(substring);
-                orderPayInfo.setBillId(orderSettlingInfo1.getBillId());
+                orderPayInfo.setBillId(orderSettlingInfo.getBillId());
                 orderPayInfo.setOrderId(orderNo);
                 orderPayInfo.setState(OrderPayConstant.UNPAID);
                 orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
                 orderPayInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
                 orderPayInfo.setCreateTime(DateUtils.getNowDate());
                 iOrderPayInfoService.insertOrderPayInfo(orderPayInfo);
-            }
-
             int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
             if (orderConfirmStatus == ZERO) {
                 //自动确认
-                status = OrderState.ORDERCLOSE.getState();
-                lableState = OrderState.ORDERCLOSE.getState();
-                newOrderInfo.setState(status);
+                /**判断是否需要支付*/
+                if (new BigDecimal(amount).compareTo(BigDecimal.ZERO) < 1) {
+                    status = OrderState.ORDERCLOSE.getState();
+                    lableState = OrderState.ORDERCLOSE.getState();
+                    newOrderInfo.setState(status);
+                }
             }
             log.info("网约车订单:"+orderNo+"确认方式为"+orderConfirmStatus);
+            }
+
             content="网约车服务结束";
             //更新网约车真实地址
             this.refreshRealAddr(longitude,latitude,OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE,orderInfo);
