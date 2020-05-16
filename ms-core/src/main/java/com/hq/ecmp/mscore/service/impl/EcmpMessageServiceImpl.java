@@ -520,12 +520,12 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         }
         //查询这个城市的调度员
         List<Long> dispatchers=carGroupDispatcherInfoMapper.findDispatchByCarGroupIds(carGroupIds);
-        if (CollectionUtils.isEmpty(dispatchers)){
-            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(null);
-            if (CollectionUtils.isNotEmpty(carGroupDispatcherInfos)){
-                dispatchers = carGroupDispatcherInfos.stream().map(CarGroupDispatcherInfo::getUserId).collect(Collectors.toList());
-            }
-        }
+//        if (CollectionUtils.isEmpty(dispatchers)){
+//            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(null);
+//            if (CollectionUtils.isNotEmpty(carGroupDispatcherInfos)){
+//                dispatchers = carGroupDispatcherInfos.stream().map(CarGroupDispatcherInfo::getUserId).collect(Collectors.toList());
+//            }
+//        }
         if (CollectionUtils.isNotEmpty(dispatchers)){
             for (Long dispatcherId:dispatchers){
                 msgList.add(new EcmpMessage(MsgUserConstant.MESSAGE_USER_DISPATCHER.getType(),dispatcherId,orderId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
