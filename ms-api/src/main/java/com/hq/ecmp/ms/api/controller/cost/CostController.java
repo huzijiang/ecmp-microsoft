@@ -178,7 +178,7 @@ public class CostController {
             //获取登陆用户的信息
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            String companyId = loginUser.getUser().getDept().getCompanyId();
+            String companyId = String.valueOf(loginUser.getUser().getDept().getCompanyId());
             String json = costConfigInfoService.supplementAmountCalculation(supplement,companyId);
             apiResponse.setData(json);
         } catch (Exception e) {
