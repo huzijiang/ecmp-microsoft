@@ -64,4 +64,5 @@ public class OrderAccountInfo extends BaseEntity
             .append("updateTime", getUpdateTime())
             .toString();
     }
+
 }

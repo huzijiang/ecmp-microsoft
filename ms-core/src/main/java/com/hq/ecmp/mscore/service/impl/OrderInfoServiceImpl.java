@@ -2335,6 +2335,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderSettlingInfo.setCreateBy(CommonConstant.START);
                 orderSettlingInfo.setCreateTime(new Date());
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
+
                 //插入订单财务信息表
                 OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
                 orderAccountInfo.setOrderId(orderNo.toString());

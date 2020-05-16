@@ -70,6 +70,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
+
     <update id="updateOrderAccountInfo" parameterType="com.hq.ecmp.mscore.domain.OrderAccountInfo">
         update order_account_info
         <trim prefix="SET" suffixOverrides=",">
