@@ -118,7 +118,7 @@ public interface IJourneyInfoService {
      * @return
      * @throws Exception
      */
-    List<InvoiceAbleItineraryData> getInvoiceAbleItinerary(Long userId)throws Exception;
+    List<InvoiceAbleItineraryData> getInvoiceAbleItinerary(Long userId,int pageNum, int pageSize)throws Exception;
 
 
     /***

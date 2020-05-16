@@ -272,7 +272,7 @@ public class JourneyController {
     public ApiResponse<List<InvoiceAbleItineraryData>> invoiceAbleItinerary(int pageNum, int pageSize){
         try{
             Long userId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId();
-            return ApiResponse.success(journeyInfoService.getInvoiceAbleItinerary(userId));
+            return ApiResponse.success(journeyInfoService.getInvoiceAbleItinerary(userId,pageNum,pageSize));
         }catch(Exception e){
             logger.error("当前可以开发票的行程异常",e);
         }
