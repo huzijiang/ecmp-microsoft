@@ -863,7 +863,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             List<ThridCarTypeVo> onlienCarType = thirdService.getOnlienCarType();
             if (!CollectionUtils.isEmpty(onlienCarType)){
                 String demandCarLevel = orderInfo.getDemandCarLevel();
-                String carPhoto = onlienCarType.stream().filter(p -> p.getValue().equals(demandCarLevel)).map(ThridCarTypeVo::getRemark).toString();
+                String carPhoto = onlienCarType.stream().filter(p -> p.getValue().equals(demandCarLevel)).map(ThridCarTypeVo::getRemark).collect(Collectors.joining());
                 vo.setCarPhoto(carPhoto);
             }
         }
