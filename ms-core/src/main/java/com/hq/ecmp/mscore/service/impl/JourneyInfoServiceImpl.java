@@ -10,6 +10,7 @@ import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.bo.JourneyBeingEndDate;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
 import com.hq.ecmp.mscore.vo.PageResult;
@@ -29,6 +30,8 @@ import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.vo.JourneyVO;
+
+import javax.annotation.Resource;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -64,6 +67,8 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
     @Lazy
     @Autowired
 	private IOrderInfoService orderInfoService;
+    @Resource
+    private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
 
     
 
@@ -234,8 +239,13 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								}
 								carAuthorityInfo.setCarType(carType);
 								//查询公务用车的前端状态
-								carAuthorityInfo.setStatus(journeyUserCarPowerService.buildUserAuthorityPowerStatus(judgeNotDispatch, carAuthorityInfo.getTicketId()));
-								carAuthorityInfoList.add(carAuthorityInfo);	
+                                String state = journeyUserCarPowerService.buildUserAuthorityPowerStatus(judgeNotDispatch, carAuthorityInfo.getTicketId());
+                                carAuthorityInfo.setStatus(state);
+                                if(state.equals(OrderState.ORDERDENIED.getState())){
+                                    OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(carAuthorityInfo.getTicketId());
+                                    carAuthorityInfo.setRejectReason(orderStateTraceInfo.getContent());
+                                }
+								carAuthorityInfoList.add(carAuthorityInfo);
 							}
 						}
 						
