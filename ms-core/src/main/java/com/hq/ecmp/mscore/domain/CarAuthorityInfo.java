@@ -65,5 +65,9 @@ public class CarAuthorityInfo {
         * 申请单id
         */
        Long applyId;
+       /**
+        * 无车驳回原因
+        */
+       String rejectReason;
 
 }
