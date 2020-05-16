@@ -2334,26 +2334,28 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
                 //插入订单支付表
                 OrderPayInfo orderPayInfo = new OrderPayInfo();
-                OrderSettlingInfo orderSettlingInfo1 = orderSettlingInfoMapper.selectOrderSettlingInfoById(orderNo);
                 String substring = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32);
                 orderPayInfo.setPayId(substring);
-                orderPayInfo.setBillId(orderSettlingInfo1.getBillId());
+                orderPayInfo.setBillId(orderSettlingInfo.getBillId());
                 orderPayInfo.setOrderId(orderNo);
                 orderPayInfo.setState(OrderPayConstant.UNPAID);
                 orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
                 orderPayInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
                 orderPayInfo.setCreateTime(DateUtils.getNowDate());
                 iOrderPayInfoService.insertOrderPayInfo(orderPayInfo);
-            }
-
             int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
             if (orderConfirmStatus == ZERO) {
                 //自动确认
-                status = OrderState.ORDERCLOSE.getState();
-                lableState = OrderState.ORDERCLOSE.getState();
-                newOrderInfo.setState(status);
+                /**判断是否需要支付*/
+                if (new BigDecimal(amount).compareTo(BigDecimal.ZERO) < 1) {
+                    status = OrderState.ORDERCLOSE.getState();
+                    lableState = OrderState.ORDERCLOSE.getState();
+                    newOrderInfo.setState(status);
+                }
             }
             log.info("网约车订单:"+orderNo+"确认方式为"+orderConfirmStatus);
+            }
+
             content="网约车服务结束";
             //更新网约车真实地址
             this.refreshRealAddr(longitude,latitude,OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE,orderInfo);
