@@ -7,6 +7,7 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.OrderConstant;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.constant.enumerate.CarLevelMatchEnum;
 import com.hq.ecmp.constant.enumerate.DispatchExceptionEnum;
 import com.hq.ecmp.constant.enumerate.NoValueCommonEnum;
 import com.hq.ecmp.constant.enumerate.TaskConflictEnum;
@@ -428,16 +429,17 @@ public class DispatchServiceImpl implements IDispatchService {
         Iterator<CarInfo> carInfoIterator=cars.iterator();
         JourneyInfo journeyInfo=journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         RegimeInfo regimeInfo=regimeInfoMapper.selectRegimeInfoById(journeyInfo.getRegimenId());
+
         String allowCarModelLevel=regimeInfo.getUseCarModeOwnerLevel();
-        if(!StringUtils.isEmpty(allowCarModelLevel)){
-            while (carInfoIterator.hasNext()){
-                CarInfo carInfo=carInfoIterator.next();
-                EnterpriseCarTypeInfo enterpriseCarTypeInfo=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
-                if(!allowCarModelLevel.contains(enterpriseCarTypeInfo.getLevel())){
-                    carInfoIterator.remove();
-                }
-            }
-        }
+//        if(!StringUtils.isEmpty(allowCarModelLevel)){
+//            while (carInfoIterator.hasNext()){
+//                CarInfo carInfo=carInfoIterator.next();
+//                EnterpriseCarTypeInfo enterpriseCarTypeInfo=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
+//                if(!allowCarModelLevel.contains(enterpriseCarTypeInfo.getLevel())){
+//
+//                }
+//            }
+//        }
 
         ApiResponse<OrderTaskClashBo>  apiResponseSelectOrderSetOutAndArrivalTime=selectOrderSetOutAndArrivalTime(orderInfo);
         if(!apiResponseSelectOrderSetOutAndArrivalTime.isSuccess()){
@@ -469,6 +471,13 @@ public class DispatchServiceImpl implements IDispatchService {
 
             orderTaskClashBo.setCarId(carInfo.getCarId());
             orderTaskClashBo.setCarLicense(carInfo.getCarLicense());
+
+            EnterpriseCarTypeInfo enterpriseCarTypeInfoa=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
+            if(!allowCarModelLevel.contains(enterpriseCarTypeInfo.getLevel())){
+                waitSelectedCarBo.setLevelIsMatch(CarLevelMatchEnum.UN_MATCH);
+            }else{
+                waitSelectedCarBo.setLevelIsMatch(CarLevelMatchEnum.MATCH);
+            }
 
             List<OrderInfo> orderInfosSetOutClash=orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
             List<OrderInfo> orderInfosArrivalClash=orderInfoMapper.getSetOutClashTask(orderTaskClashBo);

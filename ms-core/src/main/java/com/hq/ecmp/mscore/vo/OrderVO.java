@@ -92,5 +92,10 @@ public class OrderVO {
     private List<OrderHistoryTraceDto> historyTraceList;
     @ApiModelProperty(name = "cancelFee",value = "网约车取消费明细")
     private List<OtherCostBean> cancelFee;
+
+    @ApiModelProperty(name = "startAddress",value = "出发地")
+    private String startAddress;
+    @ApiModelProperty(name = "endAddress",value = "目的地")
+    private String endAddress;
 }
 

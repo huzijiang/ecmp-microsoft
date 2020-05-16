@@ -3,15 +3,20 @@ package com.hq.ecmp.ms.api.controller.pay;
 import com.alibaba.fastjson.JSONObject;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
+import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyResult;
 import com.github.binarywang.wxpay.bean.order.WxPayAppOrderResult;
 import com.github.binarywang.wxpay.bean.request.BaseWxPayRequest;
+import com.github.binarywang.wxpay.bean.request.WxPayRefundRequest;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
+import com.github.binarywang.wxpay.bean.result.WxPayRefundResult;
 import com.github.binarywang.wxpay.config.WxPayConfig;
+import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.OrderPayConstant;
 import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.ms.api.conf.WechatPayConfig;
 import com.hq.ecmp.ms.api.util.IpAddressUtil;
 import com.hq.ecmp.ms.api.util.PayUtil;
 import com.hq.ecmp.mscore.domain.*;
@@ -26,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/pay")
@@ -163,6 +169,68 @@ public class WxPayController {
             log.info("微信支付失败----------------错误信息为："+e.getMessage());
             return WxPayNotifyResponse.fail(e.getMessage());
         }
+    }
+
+    /**
+     * @author ghb
+     * @description   微信退款
+     */
+    @RequestMapping(value = "/wechat/refund", method = RequestMethod.POST)
+    @ResponseBody
+    public String wxRefund(@RequestBody String param) {
+        JSONObject jsonObject = JSONObject.parseObject(param);
+        String payId = jsonObject.getString("payId");
+        //商户退款单号
+        String refundId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32);
+        String totalFee = jsonObject.getString("totalFee");
+        String refundFee = jsonObject.getString("refundFee");
+        WxPayRefundRequest refundRequest = new WxPayRefundRequest();
+        refundRequest.setOutTradeNo(payId);
+        refundRequest.setOutRefundNo(refundId);
+        refundRequest.setTotalFee(BaseWxPayRequest.yuanToFen(totalFee));
+        refundRequest.setRefundFee(BaseWxPayRequest.yuanToFen(refundFee));
+        refundRequest.setRefundDesc("商品退款");
+        refundRequest.setNotifyUrl(WechatPayConfig.refund_notify_url);
+        try {
+            WxPayRefundResult result = wxPayService.refund(refundRequest);
+            if (OrderPayConstant.WX_RETURN_CODE_OK.equals(result.getReturnCode()) && OrderPayConstant.WX_RETURN_CODE_OK.equals(result.getResultCode())) {
+                // 退款成功
+            } else {
+                // 退款失败
+            }
+        } catch (WxPayException e) {
+            e.printStackTrace();
+        }
+        return OrderPayConstant.WX_RETURN_CODE_OK;
+    }
+
+    /**
+     * @author ghb
+     * @description
+     */
+    @RequestMapping(value = "/wechat/v2/callback", method = RequestMethod.POST)
+    @ResponseBody
+    public String wxRefundNotify(String xmlResult) {
+        WxPayRefundNotifyResult result;
+        try {
+            result = wxPayService.parseRefundNotifyResult(xmlResult);
+
+            if (!WxPayConstants.ResultCode.SUCCESS.equals(result.getReturnCode())) {
+                log.error(xmlResult);
+                throw new WxPayException("微信退款-通知失败！");
+            }
+            if (!WxPayConstants.RefundStatus.SUCCESS.equals(result.getReqInfo().getRefundStatus())) {
+                log.error(xmlResult);
+                throw new WxPayException("微信退款-通知失败");
+            }
+        } catch (WxPayException e) {
+            log.error("微信退款-通知失败", e);
+            return WxPayNotifyResponse.fail(e.getMessage());
+        }
+        WxPayRefundNotifyResult.ReqInfo reqInfo = result.getReqInfo();
+        reqInfo.getOutTradeNo();
+        // 退款成功业务处理
+        return WxPayNotifyResponse.success("OK");
     }
 }
 
