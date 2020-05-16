@@ -137,7 +137,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="licensePrice != null ">license_price,</if>
             <if test="price != null ">price,</if>
             <if test="lockState != null ">lock_state,</if>
-            <if test="companyId != null ">company_id,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="carId != null ">#{carId},</if>
@@ -179,7 +178,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="licensePrice != null ">#{licensePrice},</if>
             <if test="price != null ">#{price},</if>
             <if test="lockState != null ">#{lockState},</if>
-            <if test="companyId != null ">#{companyId},</if>
         </trim>
     </insert>
 

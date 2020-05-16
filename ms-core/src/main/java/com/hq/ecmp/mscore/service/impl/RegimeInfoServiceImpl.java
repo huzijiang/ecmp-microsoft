@@ -794,8 +794,9 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 							String onlineLevel = regimeVo.getUseCarModeOnlineLevel();
 							if (StringUtils.isNotBlank(onlineLevel)){
 								List<String> strings = Arrays.asList(onlineLevel.split(","));
-								boolean b = collect.retainAll(strings);
-								if (!b){
+								//与制度取交集
+								collect.retainAll(strings);
+								if (CollectionUtils.isEmpty(collect)){
 									log.error(cityCodes+"城市网约车暂不支持企业配置的车型");
 									throw new CustomException("该城市暂不支持企业配置的网约车车型");
 								}
@@ -1018,6 +1019,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			return list;
 		}
 		String regimeCarLevel = this.getOwnerCarLevel(regimeVo);
+		List<String> newOnwerCarType=Arrays.asList(regimeCarLevel.split(","));
 		String carTypeName=enterpriseCarTypeInfoMapper.selectCarTypesByTypeIds(ownerCompany,regimeCarLevel.substring(1));
 		List<String> citylist=  Arrays.asList(cityCodes.split(","));
 		for (String city:citylist){
