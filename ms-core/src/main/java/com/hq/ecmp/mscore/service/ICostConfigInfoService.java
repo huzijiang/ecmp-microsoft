@@ -99,5 +99,5 @@ public interface ICostConfigInfoService
      * @param SupplementVO
      * @return
      */
-    String supplementAmountCalculation(SupplementVO supplementVO,String companyId);
+    String supplementAmountCalculation(SupplementVO supplementVO,Long companyId);
 }

@@ -77,11 +77,11 @@ public class CarTypeController {
      * 获取登录的企业Id
      * @return
      */
-    private String  getLoginCompanyId() {
+    private Long  getLoginCompanyId() {
         //获取登录用户
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        return String.valueOf(loginUser.getUser().getDept().getCompanyId());
+        return loginUser.getUser().getDept().getCompanyId();
     }
 
     /**
@@ -173,7 +173,7 @@ public class CarTypeController {
         //字典表的类型
         String  dictType = "vehicleType";
         //企业id
-        String companyId = getLoginCompanyId();
+        Long companyId = getLoginCompanyId();
         carTypeDTO.setCompanyId(Long.valueOf(companyId));
         //所有车型图标
         List<CarTypeDTO> ecmpDictDataList = iEcmpDictDataService.selectEcmpDictByCarType(dictType);

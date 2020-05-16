@@ -11,7 +11,6 @@ import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
 import com.hq.ecmp.mscore.vo.SupplementVO;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -72,7 +71,7 @@ public class CostController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             //获取当前登陆用户的信息Id
             Long companyId = loginUser.getUser().getOwnerCompany();
-            costConfigQueryDto.setCompanyId(String.valueOf(companyId));
+            costConfigQueryDto.setCompanyId(companyId);
             costConfigListResults = costConfigInfoService.selectCostConfigInfoList(costConfigQueryDto);
         } catch (Exception e) {
             e.printStackTrace();
@@ -176,7 +175,7 @@ public class CostController {
             //获取登陆用户的信息
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            String companyId = String.valueOf(loginUser.getUser().getDept().getCompanyId());
+            Long companyId = loginUser.getUser().getDept().getCompanyId();
             String json = costConfigInfoService.supplementAmountCalculation(supplement,companyId);
             apiResponse.setData(json);
         } catch (Exception e) {
