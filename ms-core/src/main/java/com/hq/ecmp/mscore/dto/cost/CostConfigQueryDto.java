@@ -32,7 +32,7 @@ public class CostConfigQueryDto extends PageRequest {
     private List<CostConfigCarTypeInfo> carTypes;
 
     @ApiModelProperty(value = "公司Id")
-    private String companyId;
+    private Long companyId;
 
     @ApiModelProperty(value = "包车类型")
     private String rentType;
