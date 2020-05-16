@@ -10,6 +10,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysUser;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.StringUtils;
@@ -252,7 +253,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         if(parentCarGroupId == null){
             parentCarGroupId = 0L;
         }
-        carGroupInfo.setParentCarGroupId(parentCarGroupId);
+        carGroupInfo.setParentCarGroupId(carGroupDTO.getOwnerOrg());
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
         //车队名称
@@ -273,7 +274,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //车队座机
         carGroupInfo.setTelephone(carGroupDTO.getTelephone());
         //所属公司
-        carGroupInfo.setCompanyId(carGroupDTO.getCompanyId());
+        carGroupInfo.setCompanyId(carGroupDTO.getOwneCompany());
         //初始化可用
         carGroupInfo.setState("Y000");
         //1.保存车队
@@ -829,8 +830,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //员工所属公司
         //1.如果不是司机（那就是员工）
         if(driver == null){
-            String companyId = user.getDept().getCompanyId();
-            if(StringUtils.isEmpty(companyId)){
+            Long companyId = user.getDept().getCompanyId();
+            if(companyId == null){
                 throw new RuntimeException("员工无所属公司信息");
             }
             //如果没传订单id，则查询所在公司所有车队座机
@@ -858,15 +859,6 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //如果传了订单id，则查询订单对应的调度员（如果有改派，改派和第一次调度员都是同一个人）及调度员所在车队电话
                 //根据订单id查询调度员的userId(调度员是有)
                 String userId  = orderStateTraceInfoMapper.selectDispatcherUserId(orderId);
-                //（2.1）查询调度员信息
-                UserVO userVO = ecmpUserMapper.selectUserVoById(Long.valueOf(userId));
-                contactCarGroupVO = ContactCarGroupVO.builder()
-                        .name(userVO.getUserName())
-                        .phone(userVO.getUserPhone())
-                        //0 表示车队  1表示调度员
-                        .type(1)
-                        .build();
-                phones.add(contactCarGroupVO);
                 //查询调度员所在车队及车队座机
                 CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
                 carGroupDispatcherInfo.setUserId(Long.valueOf(userId));
@@ -885,6 +877,15 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                             .build();
                     phones.add(contactCarGroupVO);
                 }
+                //（2.1）查询调度员信息
+                UserVO userVO = ecmpUserMapper.selectUserVoById(Long.valueOf(userId));
+                contactCarGroupVO = ContactCarGroupVO.builder()
+                        .name(userVO.getUserName())
+                        .phone(userVO.getUserPhone())
+                        //0 表示车队  1表示调度员
+                        .type(1)
+                        .build();
+                phones.add(contactCarGroupVO);
             }
         }else {
             //2.如果是司机  (司机可能不是公司员工) 则查询司机所在车队
@@ -917,6 +918,26 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
 
         return phones;
+    }
+
+    /**
+     * 补单获取调度员所管理车队的服务城市
+     * @param userId
+     * @return
+     */
+    @Override
+    public ApiResponse  obtainDispatcherCity(Long userId) {
+        ApiResponse apiResponse = new ApiResponse();
+        //查询该调度员的车队Id
+        String carGroupId = carGroupDispatcherInfoMapper.selectCarGroupDispatcherAllId(userId);
+        if(!"".equals(carGroupId)){
+            List<CityInfo> cityInfo =carGroupServeScopeInfoMapper.selectObtainDispatcherCity(carGroupId);
+            apiResponse.setData(cityInfo);
+            return apiResponse;
+        }else {
+            apiResponse.setMsg("该调度员没有任何的车队Id");
+        }
+        return apiResponse;
     }
 
     /**
@@ -1171,7 +1192,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         List<Long> deptIds = new ArrayList<>();
         List<Long> companyIds = new ArrayList<>();
         for (CarGroupServeOrgRelation carGroupServeOrgRelation : carGroupServeOrgRelations) {
-            if(carGroupServeOrgRelation.getType() == OrgConstant.INNER_ORG ){
+            if(OrgConstant.INNER_ORG.equals(carGroupServeOrgRelation.getType())){
                 deptIds.add(carGroupServeOrgRelation.getDeptId());
             }else{
                 companyIds.add(carGroupServeOrgRelation.getDeptId());
@@ -1185,9 +1206,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     .latitude(String.valueOf(carGroupInfo.getLatitude()) )
                     .longitude(String.valueOf(carGroupInfo.getLongitude()))
                     .ownerOrg(ownerOrg)
+                    .parentCarGroupId(carGroupInfo.getParentCarGroupId())
                     .ownerOrgName(ownerOrgName)
                     .city(carGroupInfo.getCity())
                     .cityName(cityName)
+                    .owneCompany(carGroupInfo.getCompanyId())
+                    .telephone(carGroupInfo.getTelephone())
                     .dispatchers(dispatchers)
                     .shortAddress(carGroupInfo.getShortAddress())
                     .fullAddress(carGroupInfo.getFullAddress())

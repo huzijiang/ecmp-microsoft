@@ -3,8 +3,10 @@ package com.hq.ecmp.util;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -51,6 +53,7 @@ public class DateFormatUtils {
     public static final String DATE_TIME_FORMAT_1 = "yyyy-MM-dd HH:mm";
 
     public static final String TIME_FORMAT = "HH:mm";
+    public static final String TIME_FORMAT_1 = "HH";
 
     public static final String MONTH_DAY_FORMAT = "MM-dd";
 
@@ -129,7 +132,12 @@ public class DateFormatUtils {
         }
     }
 
-    //比较两个时间的大小
+    /**
+     * 比较两个时间大小
+     * @param start  hh:mm
+     * @param end   hh:mm
+     * @return -1:start>end,0:end=start,1:start<end
+     */
     public static int compareTime(String start, String end) {
         if (StringUtils.isBlank(start)||StringUtils.isBlank(end)){
             return 0;
@@ -151,8 +159,41 @@ public class DateFormatUtils {
         }
     }
 
-    //比较两个时间的大小
-    // -1:start>end,0:end=start,1:start<end
+    /**
+     * 比较两个日期+时间大小
+     * @param startDate  yyyy-MM-dd HH:mm
+     * @param endDate  yyyy-MM-dd HH:mm
+     * @return -1:start>end,0:end=start,1:start<end
+     */
+    public static int compareDayAndTime(Date startDate, Date endDate) {
+        if (startDate==null||endDate==null){
+            return 0;
+        }
+        String start= new SimpleDateFormat(DATE_TIME_FORMAT_1). format(startDate);
+        String end= new SimpleDateFormat(DATE_TIME_FORMAT_1). format(endDate);
+        Long startDay=parseDate(DATE_TIME_FORMAT_1,start).getTime();
+        Long endDay=parseDate(DATE_TIME_FORMAT_1,end).getTime();
+        try {
+            if (startDay.longValue()>endDay.longValue()){
+                return -1;
+            }else if(startDay.longValue()<endDay.longValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return 0;
+        }
+    }
+
+    /**
+     * 比较两个日期+时间大小
+     * @param start  yyyy-MM-dd
+     * @param end  yyyy-MM-dd
+     * @return -1:start>end,0:end=start,1:start<end
+     */
     public static int compareDate(String start, String end) {
         if (StringUtils.isBlank(start)||StringUtils.isBlank(end)){
             return 0;
@@ -367,6 +408,74 @@ public class DateFormatUtils {
         }
     }
 
+    public static String YEAR_REGEX = "^\\d{4}$";
+    public static String MONTH_REGEX = "^\\d{4}(\\-|\\/|\\.)\\d{1,2}$";
+    public static String DATE_REGEX = "^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$";
+    //根据开始结束时间的格式分割时间
+    public static List<String> sliceUpDateRange(String startDate, String endDate) {
+        List<String> rs = new ArrayList<>();
+        try {
+            int dt = Calendar.DATE;
+            String pattern = "yyyy-MM-dd";
+            String[] temp = getPattern(startDate);
+            pattern = temp[0];
+            dt = Integer.parseInt(temp[1]);
+            Calendar sc = Calendar.getInstance();
+            Calendar ec = Calendar.getInstance();
+            sc.setTime(parseDate(pattern,startDate));
+            ec.setTime(parseDate(pattern,endDate));
+            while(sc.compareTo(ec) < 1){
+                rs.add(formatDate(pattern,sc.getTime()));
+                sc.add(dt, 1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return rs;
+    }
+
+    /**
+     * 计算两个日期的相差天数，年 月 日 格式都可
+     * @param startDate 参数示例 2020、2020-01、2020-01-01
+     * @param endDate
+     * @return
+     */
+    public static int getDayDuration(String startDate, String endDate){
+        int dayDuration=0;
+        List<String> list = DateFormatUtils.sliceUpDateRange(startDate,endDate);
+        for (String date: list) {
+            Calendar calendar = Calendar.getInstance();
+            if(date.matches(DateFormatUtils.MONTH_REGEX)) {
+                date=date+"-01-01";
+                calendar.setTime(DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT,date));
+                dayDuration +=calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+            }
+            if(date.matches(DateFormatUtils.YEAR_REGEX)) {
+                date=date+"-01";
+                calendar.setTime(DateFormatUtils.parseDate(DateFormatUtils.DATE_FORMAT,date));
+                dayDuration +=calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
+            }
+            if(date.matches(DateFormatUtils.DATE_REGEX)) {
+                dayDuration ++;
+            }
+        }
+        return dayDuration;
+    }
+
+    public static String[] getPattern(String date){
+        String[] x = new String[2];
+        if(date.matches(YEAR_REGEX)) {
+            x[0] = "yyyy";
+            x[1] = String.valueOf(Calendar.YEAR);
+        } else if(date.matches(MONTH_REGEX)) {
+            x[0] = "yyyy-MM";
+            x[1] = String.valueOf(Calendar.MONTH);
+        } else if(date.matches(DATE_REGEX)) {
+            x[0] = "yyyy-MM-dd";
+            x[1] = String.valueOf(Calendar.DATE);
+        }
+        return x;
+    }
 
 
      public  static void main(String[] args){

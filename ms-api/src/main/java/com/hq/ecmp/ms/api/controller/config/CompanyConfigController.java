@@ -4,11 +4,11 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
 import com.hq.ecmp.mscore.dto.config.EnterPriseBaseInfoDTO;
 import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +20,8 @@ import javax.servlet.http.HttpServletRequest;
  * @author xueyong
  */
 @RestController
-@RequestMapping("/config/v1")
+@RequestMapping("/config/")
+@Slf4j
 public class CompanyConfigController {
 
     @Autowired
@@ -35,11 +36,13 @@ public class CompanyConfigController {
     @ApiOperation(value = "queryCompanyInfo ", notes = "获取企业配置信息")
     @PostMapping("/queryCompanyInfo")
     public ApiResponse<ConfigInfoDTO> query() {
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        String companyId = loginUser.getUser().getOwnerCompany().toString();
-        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
-        return ApiResponse.success(configInfoDTO);
+        try {
+            ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(getCurrentUserCompany().toString());
+            return ApiResponse.success(configInfoDTO);
+        } catch (Exception e) {
+            log.error("error:{}", e);
+        }
+        return null;
     }
 
     /**
@@ -48,6 +51,7 @@ public class CompanyConfigController {
     @ApiOperation(value = "companyInfo ", notes = "设置企业信息")
     @PostMapping("/companyInfo")
     public ApiResponse companyInfo(EnterPriseBaseInfoDTO enterPriseBaseInfoDTO) {
+        enterPriseBaseInfoDTO.setCompanyId(getCurrentUserCompany().toString());
         ecmpConfigService.setUpBaseInfo(enterPriseBaseInfoDTO);
         return ApiResponse.success();
     }
@@ -58,7 +62,7 @@ public class CompanyConfigController {
     @ApiOperation(value = "screen ", notes = "设置开屏图片信息")
     @PostMapping(value = "/screen", produces = "application/json;charset=UTF-8")
     public ApiResponse screen(@RequestParam("file") MultipartFile file, String status, String value) {
-        ecmpConfigService.setUpWelComeImage(status, value, file);
+        ecmpConfigService.setUpWelComeImage(status, value, file,getCurrentUserCompany().toString());
         return ApiResponse.success();
     }
 
@@ -68,7 +72,7 @@ public class CompanyConfigController {
     @ApiOperation(value = "backgroundImage ", notes = "设置背景图片信息")
     @PostMapping("/backgroundImage")
     public ApiResponse backgroundImage(MultipartFile file, String status, String value) {
-        ApiResponse apiResponse = ecmpConfigService.setUpBackGroundImage(status, value, file);
+        ApiResponse apiResponse = ecmpConfigService.setUpBackGroundImage(status, value, file,getCurrentUserCompany().toString());
         return apiResponse;
     }
 
@@ -78,7 +82,7 @@ public class CompanyConfigController {
     @ApiOperation(value = "sms ", notes = "设置短信开关")
     @PostMapping("/sms")
     public ApiResponse sms(String status) {
-        ecmpConfigService.setUpSms(status);
+        ecmpConfigService.setUpSms(status,getCurrentUserCompany().toString());
         return ApiResponse.success();
     }
 
@@ -88,7 +92,7 @@ public class CompanyConfigController {
     @ApiOperation(value = "virtualPhone ", notes = "设置虚拟小号信息")
     @PostMapping("/virtualPhone")
     public ApiResponse virtualPhone(String status) {
-        ecmpConfigService.setUpVirtualPhone(status);
+        ecmpConfigService.setUpVirtualPhone(status,getCurrentUserCompany().toString());
         return ApiResponse.success();
     }
 
@@ -101,7 +105,7 @@ public class CompanyConfigController {
     @ApiOperation(value = "confirmOrder ", notes = "设置确认订单方式")
     @PostMapping("/confirmOrder")
     public ApiResponse confirmOrder(String status, String value, String owenType, String rideHailing) {
-        ecmpConfigService.setUpOrderConfirm(status, value, owenType, rideHailing);
+        ecmpConfigService.setUpOrderConfirm(status, value, owenType, rideHailing,getCurrentUserCompany().toString());
         return ApiResponse.success();
     }
 
@@ -113,7 +117,7 @@ public class CompanyConfigController {
     @ApiOperation(value = "dispatch ", notes = "设置派单方式")
     @PostMapping("/dispatch")
     public ApiResponse dispatch(String status, String value) {
-        ecmpConfigService.setUpDispatchInfo(status, value);
+        ecmpConfigService.setUpDispatchInfo(status, value,getCurrentUserCompany().toString());
         return ApiResponse.success();
     }
 
@@ -125,7 +129,7 @@ public class CompanyConfigController {
     @ApiOperation(value = "waitDuration ", notes = "设置往返等待时长")
     @PostMapping("/waitDuration")
     public ApiResponse waitDuration(String status, String value) {
-        ecmpConfigService.setUpWaitMaxMinute(status, value);
+        ecmpConfigService.setUpWaitMaxMinute(status, value,getCurrentUserCompany().toString());
         return ApiResponse.success();
     }
 
@@ -136,7 +140,7 @@ public class CompanyConfigController {
     @ApiOperation(value = "message ", notes = "设置后台公告开关")
     @PostMapping("/message")
     public ApiResponse message(String status) {
-        ecmpConfigService.setUpMessageConfig(status);
+        ecmpConfigService.setUpMessageConfig(status,getCurrentUserCompany().toString());
         return ApiResponse.success();
     }
 
@@ -161,4 +165,9 @@ public class CompanyConfigController {
         ConfigInfoDTO onfigInfoDTO= ecmpConfigService.getHomeChart();
         return ApiResponse.success(onfigInfoDTO);
     }*/
+    private Long getCurrentUserCompany(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        return loginUser.getUser().getOwnerCompany();
+    }
 }

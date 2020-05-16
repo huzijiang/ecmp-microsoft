@@ -238,4 +238,52 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       left join journey_info as b on b.journey_id = a.journey_id
       where  a.state ='S699' and b.user_id=#{userId}) c
     </select>
+
+
+    <select id="getInvoiceAbleItinerary"  parameterType="Long" resultType="com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData" >
+        select oai.account_id accountId,
+               oai.state state,
+               oai.amount amount,
+               oaia.address address,
+               oaia.address_long addressLong,
+               oaia.action_time actionTime
+            from order_account_info oai
+            left join order_info oi on oai.order_id= oi.order_id
+            left join journey_info ji on ji.journey_id= oi.journey_id
+            left join order_address_info oaia on oai.order_id= oaia.order_id
+            where oai.state='S008' and oi.user_id=#{userId}
+    </select>
+
+    <select id="getInvoiceAbleItineraryHistory"  parameterType="Long" resultType="com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData" >
+        select oai.account_id accountId,
+               oai.state state,
+               oai.amount amount,
+               oaia.address address,
+               oaia.address_long addressLong,
+               oaia.action_time actionTime
+            from order_account_info oai
+            left join order_info oi on oai.order_id= oi.order_id
+            left join journey_info ji on ji.journey_id= oi.journey_id
+            left join order_address_info oaia on oai.order_id= oaia.order_id
+            where oai.state='S009' and oi.user_id=#{userId}
+    </select>
+
+    <select id="getInvoiceAbleItineraryHistoryKey"  parameterType="Long" resultType="com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData" >
+        select oai.account_id accountId,
+               oai.state state,
+               oai.amount amount,
+               oaia.address address,
+               oaia.address_long addressLong,
+               oaia.action_time actionTime
+            from order_account_info oai
+            left join order_info oi on oai.order_id= oi.order_id
+            left join journey_info ji on ji.journey_id= oi.journey_id
+            left join order_address_info oaia on oai.order_id= oaia.order_id
+            where oai.state='S009' and oai.account_id=#{accountId}
+    </select>
+
+    <select id="getInvoiceItineraryCount"  parameterType="Long" resultType="java.lang.Integer" >
+        select count(*)
+            from order_invoice_info where invoice_id=#{invoiceId}
+    </select>
 </mapper>

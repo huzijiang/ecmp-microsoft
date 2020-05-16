@@ -27,6 +27,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +47,8 @@ import java.util.List;
 @RequestMapping("/order")
 public class OrderController {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
     @Resource
     private TokenService tokenService;
 
@@ -59,8 +63,10 @@ public class OrderController {
     private DriverServiceAppraiseeInfoService driverServiceAppraiseeInfoService;
     @Resource
     private IDriverHeartbeatInfoService driverHeartbeatInfoService;
+
     @Resource
-    private OrderInfoTwoService orderInfoTwoService;
+    private  OrderInfoTwoService orderInfoTwoService;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -234,7 +240,7 @@ public class OrderController {
                 return ApiResponse.error("行程确认失败");
             }
             //插入订单轨迹表
-            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderState.ORDERCLOSE.getState(), String.valueOf(userId),null);
+            iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderState.ORDERCLOSE.getState(), String.valueOf(userId),null,null,null);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("行程确认失败");
@@ -301,7 +307,12 @@ public class OrderController {
     @ApiOperation(value = "getUserDispatchedOrder", notes = "获取已经完成调派的订单列表 ", httpMethod = "POST")
     @PostMapping("/getUserDispatchedOrder")
     public ApiResponse<List<DispatchOrderInfo>> getUserDispatchedOrder(UserDto userDto){
-        return ApiResponse.success(iOrderInfoService.queryCompleteDispatchOrder());
+        //获取当前登陆用户的信息
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        //获取当前登陆用户的信息Id
+        Long userId = loginUser.getUser().getUserId();
+        return ApiResponse.success(iOrderInfoService.queryCompleteDispatchOrder(userId));
     }
 
     /**
@@ -436,7 +447,7 @@ public class OrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            iOrderInfoService.reassign(orderNo,rejectReason,status,userId);
+            iOrderInfoService.reassign(orderNo,rejectReason,status,userId,null,null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -647,7 +658,7 @@ public class OrderController {
 
     /**
      *   @author caobj
-     *   @Description 行程分享
+     *   @Description 轮询获取提示语
      *   @Date 10:11 2020/3/4
      *   @Param  []
      *   @return com.hq.common.core.api.ApiResponse
@@ -684,20 +695,50 @@ public class OrderController {
             return  ApiResponse.error("更换车辆失败");
         }
     }
+    /***
+     * add by liuzb (一键报警获取当前订单乘车信息)
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "获取乘车信息",httpMethod = "POST")
+    @RequestMapping("/getCarMessage")
+    public ApiResponse<OrderInfoMessage> getCarMessage(Long orderId){
+        try {
+            return ApiResponse.success(iOrderInfoService.getMessage(orderId));
+        }catch (Exception e){
+            logger.error("获取乘车信息异常");
+        }
+        return  ApiResponse.error("获取乘车信息失败");
+    }
 
-    @ApiOperation(value = "公务取消订单",httpMethod = "POST")
+    @ApiOperation(value = "取消订单",httpMethod = "POST")
     @RequestMapping("/cancelBusinessOrder")
-    public ApiResponse cancelBusinessOrder(@RequestBody OrderDto orderDto){
+    public ApiResponse<CancelOrderCostVO> cancelBusinessOrder(@RequestBody OrderDto orderDto){
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            orderInfoTwoService.cancelBusinessOrder(orderDto.getOrderId(),orderDto.getCancelReason());
-            return ApiResponse.success();
+            CancelOrderCostVO cancelOrderCostVO = orderInfoTwoService.cancelBusinessOrder(orderDto.getOrderId(), orderDto.getCancelReason(),loginUser.getUser().getUserId());
+            return ApiResponse.success(cancelOrderCostVO);
         }catch (Exception e){
             e.printStackTrace();
-            return  ApiResponse.error("更换车辆失败");
+            return  ApiResponse.error("取消订单失败");
         }
     }
 
+
+    @ApiOperation(value = "正在进行中的订单(乘客端卡片)",httpMethod = "POST")
+    @RequestMapping("/runningOrder")
+    public ApiResponse<List<RunningOrderVo>> runningOrder(){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+
+            List<RunningOrderVo> runningOrders = orderInfoTwoService.runningOrder(loginUser.getUser().getUserId());
+            return ApiResponse.success(runningOrders);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("查询失败");
+        }
+    }
 
 }

@@ -109,6 +109,11 @@ public class DriverInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String stateDescription;
 
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long companyId;
+
+    private String search;
+
     public DriverInfo() {
     }
 
@@ -143,6 +148,8 @@ public class DriverInfo extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
+            .append("companyId", getCompanyId())
+            .append("search", getSearch())
             .toString();
     }
 }

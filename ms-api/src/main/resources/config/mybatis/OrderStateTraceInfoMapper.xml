@@ -15,10 +15,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+        <result property="oldDriverId"    column="old_driver_id" />
+        <result property="oldCarId"    column="old_car_id"    />
     </resultMap>
 
     <sql id="selectOrderStateTraceInfoVo">
-        select trace_id, order_id, state, driver_longitude, driver_latitude, content, create_by, create_time, update_by, update_time from order_state_trace_info
+        select trace_id, order_id, state, driver_longitude, driver_latitude, content, create_by, create_time, update_by, update_time,old_driver_id,old_car_id from order_state_trace_info
     </sql>
 
     <select id="selectOrderStateTraceInfoList" parameterType="com.hq.ecmp.mscore.domain.OrderStateTraceInfo" resultMap="OrderStateTraceInfoResult">
@@ -29,6 +31,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="driverLongitude != null "> and driver_longitude = #{driverLongitude}</if>
             <if test="driverLatitude != null "> and driver_latitude = #{driverLatitude}</if>
             <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="oldCarId != null "> and old_car_id = #{oldCarId}</if>
+            <if test="oldDriverId != null  "> and old_driver_id = #{oldDriverId}</if>
         </where>
     </select>
 
@@ -53,6 +57,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
             <if test="updateTime != null ">update_time,</if>
+            <if test="oldDriverId != null ">old_driver_id,</if>
+            <if test="oldCarId != null ">old_car_id,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="traceId != null ">#{traceId},</if>
@@ -65,6 +71,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
+            <if test="oldDriverId != null ">#{oldDriverId},</if>
+            <if test="oldCarId != null ">#{oldCarId},</if>
          </trim>
     </insert>
 
@@ -80,6 +88,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="oldDriverId != null ">old_driver_id = #{oldDriverId},</if>
+            <if test="oldCarId != null ">old_car_id = #{oldCarId},</if>
         </trim>
         where trace_id = #{traceId}
     </update>
@@ -224,7 +234,8 @@ AND a.state ='S270' order by a.create_time desc limit 1
 		'S900',
 		'S901',
 		'S911',
-		'S921'
+		'S921',
+		'S930'
 		)
 		ORDER BY
 		a.create_time desc
@@ -282,4 +293,16 @@ AND a.state ='S270' order by a.create_time desc limit 1
 		create_time DESC
 		LIMIT 1
 	</select>
+
+    <select id="queryLatestInfoByOrderIdAndState" resultMap="OrderStateTraceInfoResult">
+        <include refid="selectOrderStateTraceInfoVo"/>
+        where order_id=#{orderId}
+        and state=#{state}
+        order by create_time desc limit 1
+    </select>
+    <select id="queryOrderLatestRessaignState" resultType="java.lang.String">
+        select state from order_state_trace_info where order_id=#{orderId}
+        and state in('S270','S277','S199','S279')
+         order by create_time desc limit 1
+    </select>
 </mapper>

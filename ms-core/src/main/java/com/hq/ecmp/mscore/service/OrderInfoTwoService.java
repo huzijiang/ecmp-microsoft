@@ -1,5 +1,10 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.ecmp.mscore.vo.CancelOrderCostVO;
+import com.hq.ecmp.mscore.vo.RunningOrderVo;
+
+import java.util.List;
+
 /**
  * 【请填写功能名称】Service接口
  *
@@ -8,5 +13,7 @@ package com.hq.ecmp.mscore.service;
  */
 public interface OrderInfoTwoService {
 
-    void cancelBusinessOrder(Long orderId,String cancelReason);
+    CancelOrderCostVO cancelBusinessOrder(Long orderId, String cancelReason,Long loginUserId) throws Exception;
+
+    List<RunningOrderVo> runningOrder(Long orderId);
 }

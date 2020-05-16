@@ -20,8 +20,10 @@ public class DriverOrderInfoVO {
     private Long journeyId;
     private Long userId;
     private Long driverId;
-    @ApiModelProperty(name = "userMobile",value = "乘客电话")
-    private List<PassengerInfoVO> passengerInfoVOS;
+    @ApiModelProperty(name = "name",value = "姓名")
+    private String userName;
+    @ApiModelProperty(name = "phone",value = "电话")
+    private String userPhone;
     @ApiModelProperty(name = "serviceType",value = "1000预约 2001接机 2002送机 3000包车")
     private String serviceType;
     @ApiModelProperty(name = "carColor",value = "车辆颜色")
@@ -58,5 +60,10 @@ public class DriverOrderInfoVO {
     private String halfway;
     @ApiModelProperty(name = "peopleCount",value = "乘车人数")
     private  String peopleCount;
+    @ApiModelProperty(name = "orderAmount",value = "订单费用")
+    private String orderAmount;
+    @ApiModelProperty(name = "orderFees",value = "费用")
+    private List<OtherCostBean> orderFees;
+    private List<String> feeImageUrls;
 
 }

@@ -175,7 +175,6 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
     @Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
     public void applyReject(ApplyDTO journeyApplyDto, Long userId,List<ApplyApproveResultInfo> allcollect) throws Exception{
-//        List<ApplyApproveResultInfo> allcollect = this.beforeInspect(journeyApplyDto, userId);
         List<ApplyApproveResultInfo> collect = allcollect.stream().filter(p -> ApproveStateEnum.WAIT_APPROVE_STATE.getKey().equals(p.getState()) && org.apache.commons.lang3.StringUtils.isBlank(p.getApproveResult())).collect(Collectors.toList());
         this.updateApproveResult(collect, userId,ApproveStateEnum.APPROVE_FAIL.getKey(),journeyApplyDto.getRejectReason());
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyApplyDto.getApplyId());
@@ -190,13 +189,13 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
     /**
      * 审批通过
      * @param journeyApplyDto
-     * @param userId
+     * @param loginUserId
      * @param resultInfoList
      * @throws Exception
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
-    public void applyPass(ApplyDTO journeyApplyDto, Long userId,List<ApplyApproveResultInfo> resultInfoList) throws Exception {
+    public void applyPass(ApplyDTO journeyApplyDto, Long loginUserId,List<ApplyApproveResultInfo> resultInfoList) throws Exception {
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyApplyDto.getApplyId());
 //        List<ApplyApproveResultInfo> resultInfoList = this.beforeInspect(journeyApplyDto, userId);
         //判断当前审批人是不是最后审批人
@@ -208,37 +207,39 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
         //不是最后审批人
         if (CollectionUtils.isNotEmpty(waitcollect)&&!String.valueOf(ZERO).equals(nextNodeId)) {
             //修改当前审批记录状态已审批/审批通过，修改下一审批记录为待审批（）对应消息通知
-            this.updateApproveResult(waitcollect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
-            log.info("申请单:"+journeyApplyDto.getApplyId()+"当前审批节点"+waitcollect.get(0).getApproveNodeId()+"被"+userId+"审批通过");
+            this.updateApproveResult(waitcollect, loginUserId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
+            log.info("申请单:"+journeyApplyDto.getApplyId()+"当前审批节点"+waitcollect.get(0).getApproveNodeId()+"被"+loginUserId+"审批通过");
             List<ApplyApproveResultInfo> noArrivecollect = resultMap.get(ApproveStateEnum.NOT_ARRIVED_STATE.getKey());
-            //修改下一审批节点为待审批
-            this.updateNextApproveResult(noArrivecollect,Long.parseLong(nextNodeId),journeyApplyDto.getApplyId(),userId);
+            //修改下一审批节点为待审批,给下一审判人发通知
+            this.updateNextApproveResult(noArrivecollect,Long.parseLong(nextNodeId),journeyApplyDto.getApplyId(),loginUserId);
             log.info("申请单:"+journeyApplyDto.getApplyId()+"修改下一审批节点"+nextNodeId+"为待审批");
         } else if (CollectionUtils.isNotEmpty(waitcollect)&&"0".equals(waitcollect.get(0).getNextNodeId())) {
             //是最后节点审批人
             //修改审理状态
-            this.updateApproveResult(waitcollect, userId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
+            this.updateApproveResult(waitcollect, loginUserId,ApproveStateEnum.APPROVE_PASS.getKey(),"该订单审批通过");
             ApplyInfo info = ApplyInfo.builder().applyId(journeyApplyDto.getApplyId()).state(ApplyStateConstant.APPLY_PASS).build();
             info.setUpdateTime(new Date());
             applyInfoMapper.updateApplyInfo(info);
-            log.info("申请单:"+journeyApplyDto.getApplyId()+"被"+userId+"审批通过");
+            log.info("申请单:"+journeyApplyDto.getApplyId()+"被"+loginUserId+"审批通过");
             //TODO 调取生成用车权限,初始化订单
-            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(journeyApplyDto.getApplyId(), userId);
+            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(journeyApplyDto.getApplyId(), loginUserId);
             if(!optFlag){
                 throw new Exception("生成用车权限失败");
             }
             List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(applyInfo.getJourneyId());
             if (CollectionUtils.isNotEmpty(carAuthorityInfos)){
                 int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
-                ecmpMessageService.applyUserPassMessage(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
+                /**给申请人发通知*/
+                ecmpMessageService.applyUserPassMessage(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),loginUserId,null,carAuthorityInfos.get(0).getTicketId(),flag);
                 for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
                     int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
                     OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
                     Long orderId=null;
                     if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
-                        orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
+                        orderId = orderInfoService.officialOrder(officialOrderReVo, loginUserId);
                     }
-                    ecmpMessageService.saveApplyMessagePass(journeyApplyDto.getApplyId(),Long.parseLong(applyInfo.getCreateBy()),userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
+                    /**给调度员发通知/短信*/
+                    ecmpMessageService.saveApplyMessagePass(applyInfo,loginUserId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
                 }
             }
         }
@@ -317,7 +318,7 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
         //项目id不存在则查询当前申请人公司主管
         String leader=null;
         EcmpUser user = ecmpUserMapper.selectEcmpUserById(userId);
-        if (projectId==null||projectId==Long.valueOf(CommonConstant.SWITCH_ON)){
+        if (projectId==null||projectId==Long.valueOf(ZERO)){
             leader=this.getOrgByDeptId(user.getDeptId());
         }else{
             leader=projectInfoMapper.findLeader(projectId);

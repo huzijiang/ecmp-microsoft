@@ -37,6 +37,20 @@ public class InvoiceInsertDTO {
        @ApiModelProperty(value = "状态")
        private String status;
 
+
+       Long createBy;
+
+       String bankName;
+
+       String bankCardNo;
+
+       String telephone;
+
+       String email;
+
+       String registedAddress;
+
+
        private Long companyId;
 
 

@@ -1,10 +1,12 @@
 package com.hq.ecmp.mscore.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hq.ecmp.mscore.bo.WeatherAndCity;
 import com.hq.ecmp.mscore.dto.DirectionDto;
 import com.hq.ecmp.mscore.vo.CarCostVO;
 import com.hq.ecmp.mscore.vo.EstimatePriceVo;
 import com.hq.ecmp.mscore.vo.FlightInfoVo;
+import com.hq.ecmp.mscore.vo.ThridCarTypeVo;
 
 import java.net.SocketTimeoutException;
 import java.util.List;
@@ -64,5 +66,17 @@ public interface ThirdService {
      * @throws Exception
      */
     String getCustomerPhone() throws Exception;
+
+    /**
+     * 网约车取消订单
+     * @param orderId
+     * @param cancelReason
+     * @return
+     * @throws Exception
+     */
+    JSONObject threeCancelServer(Long orderId, String cancelReason)throws Exception;
+
+    /***/
+    List<ThridCarTypeVo>  getOnlienCarType()throws Exception;
 
 }

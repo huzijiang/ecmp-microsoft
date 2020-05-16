@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -158,4 +159,24 @@ public interface CarGroupInfoMapper
     List<CarGroupInfo> selectCarGroupInfoByDeptId(@Param("orgComcany") Long orgComcany,@Param("deptId") Long deptId);
 
     List<CarLevelVO> findCarTypeByGroupIds(@Param("groupIds")String groupIds);
+
+    List<Map> getCarGroupTreeByDeptIds(List list);
+
+    List<Map> getCarGroupTreeByCarIds(List list);
+    /**
+     * 查询内部公司在当前城市点的可服务于申请人所在部门的车队id列表
+     * @param deptId 部门id
+     * @param cityCode 城市code
+     * @param companyId 公司id
+     * @return
+     */
+    List<Long> queryCarGroupIdInnerCompany(@Param("deptId") Long deptId,@Param("cityCode") String cityCode,@Param("companyId") Long companyId);
+
+    /**
+     * 查询外部公司在当前城市可服务于申请人所在公司的车队id列表
+     * @param cityCode 城市code
+     * @param companyId 公司id
+     * @return
+     */
+    List<Long> queryCarGroupIdOuterCompany(@Param("cityCode") String cityCode,@Param("companyId") Long companyId);
 }

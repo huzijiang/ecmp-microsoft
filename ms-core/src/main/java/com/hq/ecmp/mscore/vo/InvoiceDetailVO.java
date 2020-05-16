@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.vo;
 
+import com.hq.ecmp.mscore.domain.OrderInvoiceInfo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,10 +44,21 @@ public class InvoiceDetailVO {
     private String acceptAddress;
 
     @ApiModelProperty(name = "periods", value = "账期列表")
-    private List<PeriodsVO> periods;
+    private List<PeriodsVO> periodsList;
+
+    private List<OrderInvoiceInfo> periods;
 
 
 
+    String bankName;
+
+    String bankCardNo;
+
+    String telephone;
+
+    String email;
+
+    String registedAddress;
 
 
 

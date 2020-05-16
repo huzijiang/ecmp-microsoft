@@ -85,9 +85,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <select id="getTemplateList" resultMap="TemplateInfoList">
-         select approve_template_id,name,(select count(*) from regime_info where approve_template_id=a.approve_template_id ) isBingRegime from approve_template_info a
+         select approve_template_id,name,
+         (select count(*) from regime_info where approve_template_id=a.approve_template_id ) isBingRegime
+          from approve_template_info a
+         where 1=1
          <if test="search!=null and search!=''">
-             where name like CONCAT('%',#{search},'%')
+             and name like CONCAT('%',#{search},'%')
          </if>
         <if test="companyId != null">
             and company_id = #{companyId}

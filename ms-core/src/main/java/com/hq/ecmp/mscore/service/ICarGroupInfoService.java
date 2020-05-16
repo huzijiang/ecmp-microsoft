@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
 import com.hq.ecmp.mscore.vo.*;
@@ -165,4 +166,11 @@ public interface ICarGroupInfoService
      * @return
      */
     List<ContactCarGroupVO> cantactCarGroup(Long orderId);
+
+    /**
+     * 补单获取调度员所管理车队的服务城市
+     * @param userId
+     * @return
+     */
+    ApiResponse obtainDispatcherCity(Long userId);
 }

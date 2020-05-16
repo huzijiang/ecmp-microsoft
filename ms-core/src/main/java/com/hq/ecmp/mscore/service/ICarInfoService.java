@@ -134,4 +134,11 @@ public interface ICarInfoService
     public void checkCarState();
 
     PageResult carWorkOrderList(PageRequest pageRequest);
+
+    /**
+     * 补单查询车辆列表
+     * @param carInfo
+     * @return
+     */
+    List<CarInfo> supplementObtainCar(CarInfo carInfo);
 }

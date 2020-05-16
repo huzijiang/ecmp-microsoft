@@ -264,7 +264,10 @@ public interface IEcmpOrgService
 
     /**
      * 通过用户id获取末级部门和末级公司信息
+     * @param userId 用户id
      * @return
      */
     EcmpUserInfoDto getUserLatestDeptInfoByUserId(Long userId);
+
+    void selectIndependentCompanyApplyState() throws Exception;
 }

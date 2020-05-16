@@ -1,19 +1,9 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
-import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
-import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
 import com.hq.ecmp.mscore.dto.ProjectUserDTO;
 import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
@@ -23,13 +13,16 @@ import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.RedisUtil;
-import com.sun.org.apache.regexp.internal.RE;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.hq.ecmp.constant.CommonConstant.*;
+import java.util.Date;
+import java.util.List;
+
+import static com.hq.ecmp.constant.CommonConstant.ONE;
+import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -218,11 +211,6 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
 
     @Override
     public OrgTreeVo selectProjectUserTree(Long projectId,String search) {
-//        String str =(String) redisUtil.get(String.format(PROJECT_USER_TREE, projectId));
-//        if (StringUtils.isNotEmpty(str)){
-//            OrgTreeVo orgTreeVo = JSONObject.parseObject(str, OrgTreeVo.class);
-//            return orgTreeVo;
-//        }
         ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectId);
         Long orgId=null;
         if (projectInfo!=null&&projectInfo.getIsAllUserUse()!=ZERO){
@@ -266,6 +254,17 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         }
         List<OrgTreeVo> vo=projectUserRelationInfoMapper.selectProjectUserBySearch(projectId,name,orgId);
         return vo;
+    }
+
+    /**
+     * 申请人所属公司内的所有项目
+     * @param ownerCompany
+     * @return
+     */
+    @Override
+    public List<ProjectInfoVO> selectProjects(Long ownerCompany) {
+
+        return projectInfoMapper.selectProjects(ownerCompany);
     }
 
     private OrgTreeVo getChildNode(OrgTreeVo orgTreeVos, List<UserTreeVo> userList) {

@@ -77,11 +77,15 @@ public interface IApplyInfoService
      */
     ApplyVO applyOfficialCommit(ApplyOfficialRequest officialCommitApply) throws Exception;
 
+    public List<Long> initialOfficialPowerAndApprovalFlow(ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId);
+
     /**
      * 提交差旅行程申请
      * @param travelCommitApply
      */
-    ApplyVO applytravliCommit(ApplyTravelRequest travelCommitApply);
+   public ApplyVO applytravliCommit(ApplyTravelRequest travelCommitApply);
+
+    public void initialPowerAndApprovalFlow(ApplyTravelRequest travelCommitApply, Long journeyId, Long applyId);
 
     /**
      *

@@ -15,12 +15,14 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.domain.EcmpNoticeMapping;
+import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpNoticeDTO;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.config.ConfigInfoDTO;
 import com.hq.ecmp.mscore.service.EcmpNoticeMappingService;
 import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import com.hq.ecmp.mscore.service.IEcmpNoticeService;
+import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,9 @@ public class NoticeController {
     @Autowired
     private IEcmpConfigService ecmpConfigService;
 
+    @Autowired
+    private IEcmpUserService iEcmpUserService;
+
     /**
      * 分页全部查询公告列表（后台管理系统）
      * @param
@@ -63,7 +68,7 @@ public class NoticeController {
     public ApiResponse<PageResult<EcmpNotice>> getNoticeSearchList(@RequestBody PageRequest pageRequest){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long companyId = loginUser.getUser().getOwnerCompany();
+        Long companyId =Long.valueOf(loginUser.getUser().getDept().getCompanyId());
         try {
             PageResult<EcmpNotice> list = iEcmpNoticeService.selectNoticeSearchList(pageRequest.getPageNum(),
                     pageRequest.getPageSize(),companyId);
@@ -128,6 +133,7 @@ public class NoticeController {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         SysUser sysUser= loginUser.getUser();
         long userId = sysUser.getUserId();
+        EcmpUser ecmpUser = iEcmpUserService.selectEcmpUserById(userId);
         long deptId = sysUser.getDeptId();
         List<SysRole> roles =sysUser.getRoles();
         String  role = "";
@@ -152,6 +158,8 @@ public class NoticeController {
         Map parm  = new HashMap();
         parm.put("noticeType",ecmpNotice.getNoticeType());
         parm.put("busIdList",list);
+        parm.put("companyId",loginUser.getUser().getDept().getCompanyId());
+        parm.put("stationCode",ecmpUser.getStationCode());
         List<EcmpNotice> ecmpNoticeList = iEcmpNoticeService.selectEcmpNoticeListByOtherId(parm);
         return ApiResponse.success(ecmpNoticeList);
     }
@@ -167,6 +175,7 @@ public class NoticeController {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         SysUser sysUser= loginUser.getUser();
         long userId = sysUser.getUserId();
+        EcmpUser ecmpUser = iEcmpUserService.selectEcmpUserById(userId);
         long deptId = sysUser.getDeptId();
         List<SysRole> roles =sysUser.getRoles();
         String  role = "";
@@ -191,6 +200,8 @@ public class NoticeController {
         Map parm  = new HashMap();
         parm.put("noticeType",2);
         parm.put("busIdList",list);
+        parm.put("companyId",loginUser.getUser().getDept().getCompanyId());
+        parm.put("stationCode",ecmpUser.getStationCode());
         EcmpNotice ecmpNotice = iEcmpNoticeService.selectExpirationDateNewNotice(parm);
         return ApiResponse.success(ecmpNotice);
     }
@@ -208,7 +219,10 @@ public class NoticeController {
         HttpServletRequest request = ServletUtils.getRequest();
         //获取登陆用户的信息
         LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = Long.valueOf(loginUser.getUser().getDept().getCompanyId());
         EcmpNotice notice = new EcmpNotice();
+        //标题
+        notice.setCompanyId(companyId);
         //标题
         notice.setNoticeTitle(ecmpNoticeDTO.getNoticeTitle());
         //内容
@@ -373,10 +387,15 @@ public class NoticeController {
     public ApiResponse<ConfigInfoDTO> query() {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        String companyId = loginUser.getUser().getOwnerCompany().toString();
-        System.out.println("==========="+companyId);
-        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
-        return ApiResponse.success(configInfoDTO);
+        if (loginUser.getUser().getOwnerCompany()!=null){
+            String companyId = loginUser.getUser().getOwnerCompany().toString();
+            System.out.println("==========="+companyId);
+            ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
+            return ApiResponse.success(configInfoDTO);
+        }else{
+            return ApiResponse.error();
+        }
+
     }
 
     /**

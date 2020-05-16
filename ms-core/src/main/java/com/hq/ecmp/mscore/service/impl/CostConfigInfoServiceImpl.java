@@ -1,24 +1,31 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.OrderServiceType;
 import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
-import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
-import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
-import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
+import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
+import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.mapper.CostConfigCarTypeInfoMapper;
 import com.hq.ecmp.mscore.mapper.CostConfigCityInfoMapper;
 import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
+import com.hq.ecmp.mscore.service.CostCalculation;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
+import com.hq.ecmp.mscore.vo.SupplementVO;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -59,8 +66,9 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
      * @return List<CostConfigListResult>
      */
     @Override
-    public List<CostConfigListResult> selectCostConfigInfoList(CostConfigQueryDto costConfigQueryDto)
+    public CostConfigListResultPage selectCostConfigInfoList(CostConfigQueryDto costConfigQueryDto)
     {
+        CostConfigListResultPage costConfigListResultPage = new CostConfigListResultPage();
         PageHelper.startPage(costConfigQueryDto.getPageNum(), costConfigQueryDto.getPageSize());
         List<CostConfigListResult> costConfigListResults = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
         for (CostConfigListResult costConfigListResult:
@@ -70,7 +78,10 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
             List<CostConfigCarTypeInfo> costConfigCarTypeInfos = costConfigCarTypeInfoMapper.selectCostConfigCarTypeInfoList(costConfigCarTypeInfo);
             costConfigListResult.setCarTypes(costConfigCarTypeInfos);
         }
-        return costConfigListResults;
+        int totalNum = costConfigInfoMapper.getTotalNum(costConfigQueryDto);
+        costConfigListResultPage.setResults(costConfigListResults);
+        costConfigListResultPage.setTotal(totalNum);
+        return costConfigListResultPage;
     }
 
     /**
@@ -182,14 +193,81 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     /**
      *
      * @param costConfigQueryDto  判重条件
-     * @return 数量
+     * @return 重复的城市集合
      */
     @Override
-    public int checkDoubleByServiceTypeCityCarType(CostConfigQueryDto costConfigQueryDto) {
-        int count;
-        count = costConfigInfoMapper.checkDoubleByServiceTypeCityCarType(
-                costConfigQueryDto.getCarTypes(),costConfigQueryDto.getCityCode(),costConfigQueryDto.getServiceType(),
-                costConfigQueryDto.getRentType());
-        return count;
+    public List<CostConfigCityInfo> checkDoubleByServiceTypeCityCarType(CostConfigQueryDoubleValidDto costConfigQueryDto) {
+        List<CostConfigCityInfo> result = new ArrayList<>();
+        List<CostConfigCityInfo> cities = costConfigQueryDto.getCities();
+        for (CostConfigCityInfo costConfigCityInfo:
+        cities) {
+            int count = 0;
+            count = costConfigInfoMapper.checkDoubleByServiceTypeCityCarType(
+                    costConfigQueryDto.getCarTypes(),Integer.parseInt(costConfigCityInfo.getCityCode()),costConfigQueryDto.getServiceType(),
+                    costConfigQueryDto.getRentType());
+            if (count >0){
+                result.add(costConfigCityInfo);
+            }
+        }
+        return result;
+    }
+
+    /**
+     *
+     * 补单成本计算
+     * @param
+     * @return
+     */
+    @Override
+    public String supplementAmountCalculation(SupplementVO supplementVO,Long companyId) {
+        CostConfigQueryDto costConfigQueryDto = new CostConfigQueryDto();
+        //公司id
+        costConfigQueryDto.setCompanyId(companyId);
+        //城市
+        costConfigQueryDto.setCityCode(Integer.valueOf(supplementVO.getCityCode()));
+        //服务类型
+        costConfigQueryDto.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
+        //车型级别
+        costConfigQueryDto.setCarTypeId(supplementVO.getCarTypeId());
+        List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
+        costConfigQueryDto.setCostId(costConfigListResult.get(0).getCostId());
+        CostConfigInfo costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
+        //计算成本的方法
+        CostCalculation calculator = new CostCalculator();
+        OrderSettlingInfoVo orderSettlingInfoVo =new OrderSettlingInfoVo();
+        //订单总时长
+        orderSettlingInfoVo.setTotalTime(supplementVO.getTotalTime());
+        //订单总里程
+        orderSettlingInfoVo.setTotalMileage(supplementVO.getTotalMileage());
+        //订单等待时间
+        orderSettlingInfoVo.setWaitingTime(supplementVO.getWaitingTime());
+        OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
+        Map map = new HashMap();
+        List list= new ArrayList();
+        //超里程价格
+        Map overMileagePrice = new HashMap();
+        overMileagePrice.put("cost",orderSettlingInfoVo.getOverMileagePrice().setScale(2,BigDecimal.ROUND_HALF_UP));
+        overMileagePrice.put("typeName","超里程价格");
+        list.add(overMileagePrice);
+        //超时长价格
+        Map overtimeLongPrice = new HashMap();
+        overtimeLongPrice.put("cost",orderSettlingInfoVo.getOvertimeLongPrice().setScale(2,BigDecimal.ROUND_HALF_UP));
+        overtimeLongPrice.put("typeName","超时长价格");
+        list.add(overtimeLongPrice);
+        //起步价
+        Map startingPrice = new HashMap();
+        startingPrice.put("cost",orderSettlingInfoVo.getStartingPrice().setScale(2,BigDecimal.ROUND_HALF_UP));
+        startingPrice.put("typeName","起步价");
+        list.add(startingPrice);
+        //等待费
+        Map waitingFee = new HashMap();
+        waitingFee.put("cost",orderSettlingInfoVo.getWaitingFee().setScale(2,BigDecimal.ROUND_HALF_UP));
+        waitingFee.put("typeName","等待费");
+        list.add(waitingFee);
+        //总金额
+        map.put("otherCost",list);
+        map.put("amount",orderSettlingInfoVo.getAmount().setScale(2,BigDecimal.ROUND_HALF_UP));
+        String json= JSON.toJSONString(map);
+        return json;
     }
 }

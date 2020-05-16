@@ -4,14 +4,19 @@ import java.util.List;
 
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
+import com.hq.ecmp.mscore.domain.OrderInvoiceInfo;
 import com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO;
 import com.hq.ecmp.mscore.dto.InvoiceHeaderDTO;
 import com.hq.ecmp.mscore.dto.InvoiceInsertDTO;
 import com.hq.ecmp.mscore.dto.InvoicePeriodDTO;
 import com.hq.ecmp.mscore.mapper.InvoiceInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.service.IInvoiceInfoService;
 import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.MailUtils;
+import com.hq.ecmp.mscore.mapper.OrderInvoiceInfoMapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +32,10 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
 {
     @Autowired
     private InvoiceInfoMapper invoiceInfoMapper;
+    @Autowired
+    private OrderInvoiceInfoMapper orderInvoiceInfoMapper;
+    @Autowired
+    private JourneyInfoMapper journeyInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -138,6 +147,9 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
     public int addInvoicePeriod(List<InvoicePeriodDTO> invoicePeriodList){
         return invoiceInfoMapper.addInvoicePeriod(invoicePeriodList);
     }
+    public int addInvoice(List<OrderInvoiceInfo> invoicePeriodList){
+        return orderInvoiceInfoMapper.addInvoicePeriod(invoicePeriodList);
+    }
     /**
      * 发票详情
      */
@@ -152,7 +164,14 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
         ivoice.setAcceptAddress(invoiceRecord.getAcceptAddress());
         ivoice.setTin(invoiceRecord.getTin());
         ivoice.setContent(invoiceRecord.getContent());
-        List<PeriodsVO> periods=invoiceInfoMapper.getPeriodListByInvoiceId(invoiceId);
+        ivoice.setBankName(invoiceRecord.getBankName());
+        ivoice.setRegistedAddress(invoiceRecord.getRegistedAddress());
+        ivoice.setBankCardNo(invoiceRecord.getBankCardNo());
+        ivoice.setTelephone(invoiceRecord.getTelephone());
+        ivoice.setEmail(invoiceRecord.getEmail());
+        OrderInvoiceInfo orderInvoiceInfo = new OrderInvoiceInfo();
+        orderInvoiceInfo.setInvoiceId(invoiceId);
+        List<OrderInvoiceInfo> periods=orderInvoiceInfoMapper.selectOrderInvoiceInfoList(orderInvoiceInfo);
         ivoice.setPeriods(periods);
 
         return ivoice;
@@ -169,5 +188,30 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
      */
     public List<PeriodsVO> getPeriodListByInvoiceId(Long invoiceId){
         return invoiceInfoMapper.getPeriodListByInvoiceId(invoiceId);
+    }
+
+    /***
+     * 发票重发
+     * @param invoiceId
+     * @param mailboxes
+     * @throws Exception
+     */
+    @Override
+    public void reissueofInvoice(Long invoiceId, String mailboxes,String toResend) throws Exception {
+        InvoiceRecordVO invoiceRecordVO =invoiceInfoMapper.queryInvoiceById(invoiceId);
+        String path = invoiceRecordVO.getInvoiceUrl();
+        String message="您的行程单：感谢关注红旗智行"+"\r\n";
+        if("1".equals(toResend)){//是否发送行程（0否1是）
+            OrderInvoiceInfo orderInvoiceInfo = new OrderInvoiceInfo();
+            orderInvoiceInfo.setInvoiceId(invoiceId);
+            List<OrderInvoiceInfo> list  = orderInvoiceInfoMapper.selectOrderInvoiceInfoList(orderInvoiceInfo);
+            for(OrderInvoiceInfo data :list ){
+                List<InvoiceAbleItineraryData> key =  journeyInfoMapper.getInvoiceAbleItineraryHistoryKey(data.getAccountId());
+                message = message+key.get(0).getActionTime()+"      订单金额:"+key.get(0).getAmount()+"元\r\n" +
+                        key.get(0).getAddress()+"\r\n"+key.get(1).getAddress()+"\r\n";
+            }
+        }
+        MailUtils.sendMail(mailboxes,"您有一张发票请查收",message,path,invoiceId+".pdf");
+
     }
 }

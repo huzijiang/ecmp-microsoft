@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 import java.util.List;
 
+import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.bo.JourneyBeingEndDate;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
@@ -109,4 +110,33 @@ public interface IJourneyInfoService {
      * @return
      */
     public JourneyBeingEndDate getValidDateByJourneyNodeId(JourneyNodeInfo journeyNodeInfo, RegimeInfo regimeInfo);
+
+
+    /***
+     *
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    List<InvoiceAbleItineraryData> getInvoiceAbleItinerary(Long userId,int pageNum, int pageSize)throws Exception;
+
+
+    /***
+     *
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    List<InvoiceAbleItineraryData> getInvoiceAbleItineraryHistory(Long userId)throws Exception;
+
+
+    /***
+     *
+     * @param invoiceId
+     * @return
+     * @throws Exception
+     */
+    Integer getInvoiceItineraryCount(Long invoiceId)throws Exception;
+
+
 }

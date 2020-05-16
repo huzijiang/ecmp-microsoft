@@ -197,4 +197,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and  apply_id=#{applyId}
         </if>
     </select>
+
+    <update id="updateApproveState">
+        update apply_approve_result_info set state=#{state},approve_result=#{approveResult} where apply_id=#{applyId}
+    </update>
 </mapper>

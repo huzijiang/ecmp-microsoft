@@ -4,10 +4,15 @@ import java.io.Console;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.constant.*;
+import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.bo.JourneyBeingEndDate;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.SortListUtil;
 
@@ -20,16 +25,6 @@ import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.util.StringUtil;
 import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.domain.ApplyInfo;
-import com.hq.ecmp.mscore.domain.CarAuthorityInfo;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
-import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.RegimeInfo;
-import com.hq.ecmp.mscore.domain.ServiceTypeCarAuthority;
-import com.hq.ecmp.mscore.domain.UserAuthorityGroupCity;
-import com.hq.ecmp.mscore.domain.UserCarAuthority;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
@@ -146,7 +141,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
         return journeyInfoMapper.deleteJourneyInfoById(journeyId);
     }
 
-		@Override
+    @Override
 	public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId) {
 		List<CarAuthorityInfo> carAuthorityInfoList=new ArrayList<>();
 		//获取申请人的用车权限
@@ -165,7 +160,8 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 						carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
 						carAuthorityInfo.setType(regimeInfo.getRegimenType());
 						//公务用车时间
-						carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());  //TODO  .toString() 适应性添加， zc
+						//TODO  .toString() 适应性添加， zc
+						carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());
 						//差旅类型
 						Map<String, Integer> countMap = journeyUserCarPowerService.selectStatusCount(journeyInfo.getJourneyId());
 						//统计差旅类型的几种用车类型的剩余次数
@@ -191,7 +187,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								//根据权限Id查询对应行程节点中的起止目的地
 								JourneyNodeInfo queryJourneyNodeInfoByPowerId = journeyNodeInfoService.queryJourneyNodeInfoByPowerId(carAuthorityInfo.getTicketId());
 								String returnIsType = carAuthorityInfo.getReturnIsType();
-							carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanEndAddress());
+								carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanEndAddress());
 								//查询该权限对应的用车城市
 								String cityCode = journeyUserCarPowerService.queryOfficialPowerUseCity(carAuthorityInfo.getTicketId());
 								carAuthorityInfo.setCityCode(cityCode);
@@ -211,8 +207,8 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								}
 								//公务用车用车方式(取制度里面的)
 								carAuthorityInfo.setCarType(journeyInfo.getUseCarMode());
-								//查询改权限是否需要走调度   true-不走调度  走网约    false-走调度 
-								boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(journeyInfo.getRegimenId(), cityCode);
+								//查询改权限是否需要走调度   true-不走调度  走网约    false-走调度
+								boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(applyInfoList.get(0).getApplyId(), cityCode);
 								// 返给前端是跳转到自有车页面还是网约车页面 carType   先从订单表里取  如果没有则取是否走调度的
 								String carType;
 								Long orderId = carAuthorityInfo.getOrderId();
@@ -298,20 +294,23 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 							}
 							beginUserAuthorityGroupCity.setCityName(currentNote.getPlanBeginAddress());
 							beginUserAuthorityGroupCity.setVehicle(currentNote.getVehicle());
-							beginUserAuthorityGroupCity.setCityId(currentNote.getPlanBeginCityCode());// 开始用车城市编号
+							// 开始用车城市编号
+							beginUserAuthorityGroupCity.setCityId(currentNote.getPlanBeginCityCode());
 							beginUserAuthorityGroupCity.setUserCarAuthorityList(beginUserCarAuthorityList);
 							userAuthorityGroupCityList.add(beginUserAuthorityGroupCity);
 							
 							endUserAuthorityGroupCity.setCityName(currentNote.getPlanEndAddress());
 							endUserAuthorityGroupCity.setVehicle(currentNote.getVehicle());
-							endUserAuthorityGroupCity.setCityId(currentNote.getPlanEndCityCode());// 结束用车城市编号
+							// 结束用车城市编号
+							endUserAuthorityGroupCity.setCityId(currentNote.getPlanEndCityCode());
 							endUserAuthorityGroupCity.setUserCarAuthorityList(endUserCarAuthorityList);
 							userAuthorityGroupCityList.add(endUserAuthorityGroupCity);
 						}else{
 							UserAuthorityGroupCity userAuthorityGroupCity = new UserAuthorityGroupCity();
 							userAuthorityGroupCity.setCityName(currentNote.getPlanBeginAddress());
 							userAuthorityGroupCity.setVehicle(currentNote.getVehicle());
-							userAuthorityGroupCity.setCityId(currentNote.getPlanBeginCityCode());// 用车城市编号
+							// 用车城市编号
+							userAuthorityGroupCity.setCityId(currentNote.getPlanBeginCityCode());
 							// 获取行程节点下的所有用户用车权限
 							userAuthorityGroupCity.setUserCarAuthorityList(
 									journeyUserCarPowerService.queryNoteAllUserAuthority(currentNote.getNodeId(),
@@ -329,6 +328,9 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 			}
 
 		}
+		/**
+		 * 后面有已完成的，前面有车有司机的则还保持原来的状态
+		 */
 		//排序
 		for (UserAuthorityGroupCity userAuthorityGroupCity:
 		userAuthorityGroupCityList) {
@@ -337,7 +339,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		//查询行程的实际开始时间和结束时间
 		RegimeInfo regimeInfo = regimeInfoService.queryUseCarModelByNoteId(journeyNodeInfoList.get(0).getNodeId());
 		JourneyBeingEndDate validDateByJourneyNodeId = getValidDateByJourneyNodeId(journeyNodeInfoList.get(0),regimeInfo);
-		//状态检查，找到返给前端的状态第一个是待确认或者已完成的
+		//状态检查，找到返给前端的状态最后一个是待确认或者已完成的
 		int innerIndex = -1;
 		int outerIndex = -1;
 		for (int i=0; i<userAuthorityGroupCityList.size();i++) {
@@ -367,12 +369,15 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 					UserCarAuthority userCarAuthority = userCarAuthorityList.get(j);
 					if(userCarAuthority.getState().equals(OrderState.INITIALIZING.getState()) ||
 							userCarAuthority.getState().equals(OrderState.GETARIDE.getState())){
-						userCarAuthority.setState(OrderState.TIMELIMIT.getState());
+						userCarAuthority.setState(OrderState.TRAVELOVERUSECARTIMENOUSE.getState());
+					}
+					if (userCarAuthority.getState().equals(OrderState.ORDERDENIED.getState())){
+						userCarAuthority.setState(OrderState.ORDERDENYNOUSE.getState());
 					}
 					//前端状态为待服务（已派单，准备服务，前往出发地）,则取消订单,返回前端状态变为已过期
-					if(userCarAuthority.getState().equals(OrderState.ALREADYSENDING.getState())){
-						cancelOrderAndExpiredCarAuth(userCarAuthority);
-					}
+//					if(userCarAuthority.getState().equals(OrderState.ALREADYSENDING.getState())){
+//						cancelOrderAndExpiredCarAuth(userCarAuthority);
+//					}
 					//前端状态为派车中或者约车中，调用取消订单，返回前端状态为已过期
 					if(OrderState.getWaitSendCar().contains(userCarAuthority.getState())){
 						cancelOrderAndExpiredCarAuth(userCarAuthority);
@@ -392,7 +397,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		if(orderInfo!=null && orderInfo.getOrderId()!=null){
 			try {
 				orderInfoService.cancelOrder(orderInfo.getOrderId(), 1L, "用车权限过期自动取消订单");
-				userCarAuthority.setState(OrderState.TIMELIMIT.getState());
+				userCarAuthority.setState(OrderState.TRAVELOVERUSECARTIMENOUSE.getState());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -409,7 +414,8 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		UserAuthorityGroupCity beginUserAuthorityGroupCity = new UserAuthorityGroupCity();
 		beginUserAuthorityGroupCity.setCityName(journeyNodeInfo.getPlanBeginAddress());
 		beginUserAuthorityGroupCity.setVehicle(journeyNodeInfo.getVehicle());
-		beginUserAuthorityGroupCity.setCityId(journeyNodeInfo.getPlanBeginCityCode());//用车城市编号
+		//用车城市编号
+		beginUserAuthorityGroupCity.setCityId(journeyNodeInfo.getPlanBeginCityCode());
 		//获取行程节点下的所有用户用车权限
 		List<UserCarAuthority> beginNoteAllUserAuthority = journeyUserCarPowerService.queryNoteAllUserAuthority(journeyNodeInfo.getNodeId(),journeyNodeInfo.getPlanBeginCityCode());
 		log.info("行程节点编号【"+journeyNodeInfo.getNodeId()+"】单程节点出发城市查询出的权限信息:",beginNoteAllUserAuthority.toString());
@@ -546,4 +552,39 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 		}
 		return journeyBeingEndDate;
 	}
+
+	/***
+	 *获取当前订单可开发票逻辑
+	 * @param userId
+	 * @return
+	 * @throws Exception
+	 */
+	@Override
+	public List<InvoiceAbleItineraryData> getInvoiceAbleItinerary(Long userId,int pageNum, int pageSize) throws Exception {
+		if(null!=userId){
+			PageHelper.startPage(pageNum,pageSize);
+			List<InvoiceAbleItineraryData> list  = journeyInfoMapper.getInvoiceAbleItinerary(userId);
+			return list;
+		}
+		return null;
+	}
+
+	@Override
+	public List<InvoiceAbleItineraryData> getInvoiceAbleItineraryHistory(Long userId) throws Exception {
+		if(null!=userId){
+			List<InvoiceAbleItineraryData> list  = journeyInfoMapper.getInvoiceAbleItineraryHistory(userId);
+			return list;
+		}
+		return null;
+	}
+
+	@Override
+	public Integer getInvoiceItineraryCount(Long invoiceId) throws Exception {
+		if(null!=invoiceId){
+			return journeyInfoMapper.getInvoiceItineraryCount(invoiceId);
+		}
+		return null;
+	}
+
+
 }

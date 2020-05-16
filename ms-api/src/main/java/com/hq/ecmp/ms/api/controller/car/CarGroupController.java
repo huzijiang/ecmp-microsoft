@@ -52,7 +52,7 @@ public class CarGroupController {
         try {
           carGroupInfoService.saveCarGroupAndDispatcher(carGroupDTO,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("新增车队失败,请求参数：{}，操作人：{}",carGroupDTO,loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error("保存车队信息失败");
         }
         return ApiResponse.success("保存成功");
@@ -452,4 +452,24 @@ public class CarGroupController {
         }
     }
 
+    /**
+     * 补单获取调度员所管理车队的服务城市
+     * @param
+     * @return
+     */
+    @Log(title = "补单获取调度员所管理车队的服务城市",content = "补单获取调度员所管理车队的服务城市", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "obtainDispatcherCity",notes = "补单获取调度员所管理车队的服务城市",httpMethod ="POST")
+    @PostMapping("/obtainDispatcherCity")
+    public ApiResponse obtainDispatcherCity(){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            ApiResponse apiResponse = carGroupInfoService.obtainDispatcherCity(userId);
+            return apiResponse;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("补单获取调度员所管理车队的服务城市失败");
+        }
+    }
 }

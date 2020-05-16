@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
+import com.hq.ecmp.mscore.domain.OrderInvoiceInfo;
 import com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO;
 import com.hq.ecmp.mscore.dto.InvoiceHeaderDTO;
 import com.hq.ecmp.mscore.dto.InvoiceInsertDTO;
@@ -88,6 +89,14 @@ public interface IInvoiceInfoService
      * 发票账期关联表新增
      */
     public int addInvoicePeriod(List<InvoicePeriodDTO> invoicePeriodList);
+
+    /***
+     *
+     * @param list
+     * @return
+     */
+
+    public int addInvoice(List<OrderInvoiceInfo> list);
     /**
      * 发票详情
      */
@@ -100,4 +109,13 @@ public interface IInvoiceInfoService
      * 根据ID查询账期表信息
      */
     List<PeriodsVO> getPeriodListByInvoiceId(Long invoiceId);
+
+
+    /***
+     *
+     * @param invoiceId
+     * @param mailboxes
+     * @throws Exception
+     */
+    void reissueofInvoice(Long invoiceId,String mailboxes,String toResend )throws Exception;
 }

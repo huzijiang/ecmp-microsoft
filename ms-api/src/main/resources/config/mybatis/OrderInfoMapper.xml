@@ -35,7 +35,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectOrderInfoVo">
-        select order_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time,car_model,car_color,driver_grade ,flight_plan_take_off_time from order_info
+        select order_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time,car_model,car_color,driver_grade ,flight_plan_take_off_time,it_is_supplement from order_info
     </sql>
 
     <sql id="queryDispatchAchieve">
@@ -127,6 +127,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carColor != null and carColor != ''">car_color,</if>
             <if test="driverGrade != null and driverGrade != ''">driver_grade,</if>
             <if test="flightPlanTakeOffTime != null ">flight_plan_take_off_time,</if>
+            <if test="itIsSupplement != null ">it_is_supplement,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="journeyId != null ">#{journeyId},</if>
@@ -155,6 +156,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carColor != null and carColor != ''">#{carColor},</if>
             <if test="driverGrade != null and driverGrade != ''">#{driverGrade},</if>
             <if test="flightPlanTakeOffTime != null ">#{flightPlanTakeOffTime},</if>
+            <if test="itIsSupplement != null ">#{itIsSupplement},</if>
         </trim>
     </insert>
 
@@ -185,10 +187,40 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             <if test="carModel != null and carModel != ''">car_model =#{carModel},</if>
             <if test="carColor != null and carColor != ''">car_color =#{carColor},</if>
             <if test="driverGrade != null and driverGrade != ''">driver_grade =#{driverGrade},</if>
+            <if test="itIsSupplement != null and itIsSupplement != ''">it_is_supplement =#{itIsSupplement},</if>
         </trim>
         where order_id = #{orderId}
     </update>
-
+    <update id="updateOrderInfoNull" parameterType="com.hq.ecmp.mscore.domain.OrderInfo">
+        update order_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="journeyId != null ">journey_id = #{journeyId},</if>
+            <if test="nodeId != null ">node_id = #{nodeId},</if>
+            <if test="powerId != null ">power_id = #{powerId},</if>
+            driver_id = #{driverId},
+            car_id = #{carId},
+            <if test="userId != null ">user_id = #{userId},</if>
+            <if test="useCarMode != null  and useCarMode != ''">use_car_mode = #{useCarMode},</if>
+            <if test="serviceType != null  and serviceType != ''">service_type = #{serviceType},</if>
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="tripartiteOrderId != null  and tripartiteOrderId != ''">tripartite_order_id = #{tripartiteOrderId},</if>
+            <if test="tripartitePlatformCode != null  and tripartitePlatformCode != ''">tripartite_platform_code = #{tripartitePlatformCode},</if>
+            <if test="driverName != null  and driverName != ''">driver_name = #{driverName},</if>
+            <if test="driverMobile != null  and driverMobile != ''">driver_mobile = #{driverMobile},</if>
+            <if test="carLicense != null  and carLicense != ''">car_license = #{carLicense},</if>
+            <if test="flightNumber != null  and flightNumber != ''">flight_number = #{flightNumber},</if>
+            <if test="demandCarLevel != null ">demand_car_level = #{demandCarLevel},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="orderNumber != null ">order_number = #{orderNumber},</if>
+            <if test="carModel != null and carModel != ''">car_model =#{carModel},</if>
+            <if test="carColor != null and carColor != ''">car_color =#{carColor},</if>
+            <if test="driverGrade != null and driverGrade != ''">driver_grade =#{driverGrade},</if>
+        </trim>
+        where order_id = #{orderId}
+    </update>
     <delete id="deleteOrderInfoById" parameterType="Long">
         delete from order_info where order_id = #{orderId}
     </delete>
@@ -203,6 +235,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
     <select id="getOrderList" parameterType="Long"  resultType="com.hq.ecmp.mscore.domain.OrderListInfo">
         select
             o.order_id orderId,
+            o.it_is_supplement  itIsSupplement,
             ecti.`level`,
             o.use_car_mode useCarMode,
             o.state,
@@ -325,7 +358,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              c.car_license carLicense,
              c.car_color carColor,
              c.car_type carType,
-             jn.user_id userId,
+             o.user_id userId,
              (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState,
              (select group_concat(short_address) from order_via_info f where f.order_id=o.order_id) halfway,
              (select count(*) from journey_passenger_info where journey_id=o.journey_id) peopleCount
@@ -379,7 +412,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             f.car_type as carType,
             f.car_license AS carLicense,
             h.regimen_id as regimenId,
-            m.create_time as updateDate
+            m.create_time as updateDate,
+            d.apply_id as applyId
         FROM
             order_info a
         LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
@@ -405,6 +439,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 	    a.driver_mobile driverPhone,
         e.address startAddress,
         DATE_FORMAT(e.action_time, '%m月%d日 %H:%i ') useCarTime,
+        e.action_time useCarDate,
         e.longitude startLongitude,
         e.latitude startLatitude,
         d.address endAddress,
@@ -717,9 +752,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
-        <if test="null !=companyId and companyId !=''">
-            AND a.company_id = #{companyId}
-        </if>
 		GROUP BY d.order_id
 	</select>
 
@@ -798,9 +830,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		<if test="null !=useCarMode and useCarMode !=''">
 			AND a.use_car_mode = #{useCarMode}
 		</if>
-        <if test="null !=companyId and companyId !=''">
-            AND a.company_id = #{companyId}
-        </if>
 		GROUP BY d.order_id
 	</select>
 
@@ -868,7 +897,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </select>
 
     <select id="queryUseCarMode" parameterType="java.lang.Long" resultType="string">
-    select use_car_mode from order_info where power_id=#{powerId}
+    select use_car_mode from order_info where power_id=#{powerId} order by create_time desc
     </select>
 
     <select id="getValidOrderByPowerId" resultType="com.hq.ecmp.mscore.domain.OrderInfo" parameterType="java.lang.Long">
@@ -973,10 +1002,32 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
          tmp)
     </select>
 
-    <select id="selectOrderInfoByIdAllDay" parameterType="java.lang.Long" resultMap="OrderInfoResult">
-        <include refid="selectOrderInfoVo"/>
-        where user_id = #{userId} and to_days(create_time) = to_days(now());
+    <select id="getRunningOrder" resultType="com.hq.ecmp.mscore.vo.RunningOrderVo">
+        select
+            a.order_id AS orderId,
+            a.journey_id journeyId,
+            a.power_id powerId,
+            '进行中' state,
+            a.service_type serviceType,
+            a.user_id userId,
+            a.driver_id driverId,
+            a.use_car_mode canUseCarMode,
+            e.address startAddress,
+            DATE_FORMAT(e.action_time, '%m月%d日 %H:%i ') useCarTime,
+            e.longitude startLongitude,
+            e.latitude startLatitude,
+            UNIX_TIMESTAMP(e.action_time) useDate,
+            d.address endAddress,
+            d.longitude endLongitude ,
+            d.latitude endLatitude,
+            g.charter_car_type charterCarType,
+            (select state from order_state_trace_info sti where sti.order_id=#{orderId} order by sti.trace_id desc limit 1) labelState,
+            ai.apply_type applyType
+        from order_info a
+	        left join journey_info g on g.journey_id=a.journey_id
+	        left join apply_info ai on ai.journey_id=a.journey_id
+            left join order_address_info e on e.order_id=a.order_id and e.type='A000'
+            left join order_address_info d on d.order_id=a.order_id and d.type='A999'
+        where a.user_id=#{userId}  and find_in_set(a.state,#{states})
     </select>
-
-
 </mapper>

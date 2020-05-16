@@ -141,6 +141,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         c.car_group_code as carGroupCode,
         c.company_id as companyId,
                 e1.dept_name as ownerCompanyName,
+                e1.dept_id as ownerOrg,
         c.state,c.city
              from car_group_info c
             left join ecmp_org e1 on e1.dept_id = c.company_id
@@ -233,7 +234,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="getCarGroupList" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO">
-        select car_group_id carGroupId,car_group_name carGroupName,car_group_code carGroupCode,owner_company ownerCompany,owner_org ownerOrg from car_group_info
+        select car_group_id carGroupId,car_group_name carGroupName,car_group_code carGroupCode,company_id ownerCompany from car_group_info
         where car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
         or parent_car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
     </select>
@@ -263,5 +264,41 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
             ) t
              group by t.car_type_id
+    </select>
+    <select id="getCarGroupTreeByDeptIds" resultType="map">
+        select car_group_id id,car_group_name showname,company_id pid,1 type,CONCAT(car_group_id,'-','1') onlyId,CONCAT(company_id,'-','0') onlyPid from car_group_info
+		where state = 'Y000' and company_id in
+        <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getCarGroupTreeByCarIds" resultType="map">
+        select car_group_id id,car_group_name showname,company_id pid,1 type,CONCAT(car_group_id,'-','1') onlyId,CONCAT(company_id,'-','0') onlyPid from car_group_info
+        where state = 'Y000' and car_group_id in
+        <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="queryCarGroupIdInnerCompany" resultType="java.lang.Long">
+        select ci.car_group_id from car_group_info ci
+            left join car_group_serve_scope_info cgssi on cgssi.car_group_id=ci.car_group_id
+            left join car_group_serve_org_relation s on ci.car_group_id=s.car_group_id
+            where s.dept_id=#{deptId}
+            and find_in_set(cgssi.city,#{cityCode})
+            and ci.company_id=#{companyId}
+            and ci.state='Y000'
+            and s.type='N100'
+    </select>
+
+    <select id="queryCarGroupIdOuterCompany" resultType="java.lang.Long">
+        select ci.car_group_id from car_group_info ci
+            left join car_group_serve_scope_info cgssi on cgssi.car_group_id=ci.car_group_id
+            left join car_group_serve_org_relation s on ci.car_group_id=s.car_group_id
+            where s.type='W200'
+            and find_in_set(cgssi.city,#{cityCode})
+            and ci.company_id!=#{companyId}
+            and ci.allow_outer_dispatch='Y000'
+            and ci.state='Y000'
     </select>
 </mapper>

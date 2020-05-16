@@ -8,10 +8,13 @@ import javax.servlet.http.HttpServletRequest;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.InvitionTypeEnum;
+import com.hq.ecmp.constant.enumerate.DriverStateEnum;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.vo.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -39,7 +42,10 @@ import com.hq.ecmp.mscore.service.IEcmpUserService;
  */
 @Service
 public class DriverInfoServiceImpl implements IDriverInfoService
+
 {
+	private static final Logger logger = LoggerFactory.getLogger(DriverInfoServiceImpl.class);
+
     @Autowired
     private DriverInfoMapper driverInfoMapper;
     @Autowired
@@ -63,8 +69,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	@Autowired
 	private TokenService tokenService;
 	@Autowired
-	private CarInfoMapper carInfoMapper;
-
+	private DriverNatureInfoMapper driverNatureInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -185,9 +190,12 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		}
     	//生成驾驶员记录
 		driverCreateInfo.setLockState("0000");
+		if("ownDriver".equals(driverCreateInfo.getDriverNature())){
+			driverCreateInfo.setState(DriverStateEnum.EFFECTIVE.getCode());
+		}
     	Integer createDriver = driverInfoMapper.createDriver(driverCreateInfo);
     	Long driverId = driverCreateInfo.getDriverId();
-    	
+
     	//生成驾驶员-车队关系记录
     	CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
     	carGroupDriverRelation.setCarGroupId(driverCreateInfo.getCarGroupId());
@@ -207,7 +215,36 @@ public class DriverInfoServiceImpl implements IDriverInfoService
         	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
     	}
 		setDriverWorkInfo(driverId);
+		//驾驶员性质
+		addDriverNatureInfo(driverId,driverCreateInfo.getDriverNature(),driverCreateInfo.getHireBeginTime(),driverCreateInfo.getHireEndTime(),
+				driverCreateInfo.getBorrowBeginTime(),driverCreateInfo.getBorrowEndTime());
 		return true;
+	}
+	/***
+	 *添加驾驶员性质
+	 * @param driverId
+	 * @param driverNature
+	 * @param hireBeginTime
+	 * @param hireEndTime
+	 * @param borrowBeginTime
+	 * @param borrowEndTime
+	 * @return
+	 */
+	private int addDriverNatureInfo(Long driverId, String  driverNature,Date hireBeginTime,
+									Date hireEndTime,Date borrowBeginTime,Date borrowEndTime){
+		try{
+			DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
+			driverNatureInfo.setDriverId(driverId);
+			driverNatureInfo.setDriverNature(driverNature);
+			driverNatureInfo.setHireBeginTime(hireBeginTime);
+			driverNatureInfo.setHireEndTime(hireEndTime);
+			driverNatureInfo.setBorrowBeginTime(borrowBeginTime);
+			driverNatureInfo.setBorrowEndTime(borrowEndTime);
+			return driverNatureInfoMapper.addDriverNatureInfo(driverNatureInfo);
+		}catch(Exception e){
+			logger.error("addDriverNatureInfo error",e);
+		}
+		return 0;
 	}
     /**
      * 修改驾驶员
@@ -278,19 +315,13 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
 		driverCarRelationInfo.setDriverId(driverId);
 		List<DriverCarRelationInfo> selectDriverCarRelationInfoList = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo);
-		List<CarListVO> cars = new ArrayList<>();
 		if(null !=selectDriverCarRelationInfoList && selectDriverCarRelationInfoList.size()>0){
 			for (DriverCarRelationInfo d : selectDriverCarRelationInfoList) {
 				carId.add(d.getCarId());
-				CarInfo carInfo = carInfoMapper.selectCarInfoById(d.getCarId());
-				CarListVO build = CarListVO.builder().carType(carInfo.getCarType())
-						.carLicense(carInfo.getCarLicense()).carId(d.getCarId()).build();
-				cars.add(build);
 			}
 		}
 		queryDriverDetail.setOwnCarCount(driverCarRelationInfoService.queryDriverUseCarCount(driverId));
 		queryDriverDetail.setCarId(carId);
-		queryDriverDetail.setCarList(cars);
 		return queryDriverDetail;
 	}
     /**
@@ -457,7 +488,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 					if(null!=selectEcmpUserList){
 						carGroupDriverInfo.setDeptUserNum(selectEcmpUserList.size());
 					}
-					
+
 				}
 			}
 		}
@@ -569,6 +600,16 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * 补单获取驾驶员列表
+	 * @param driverInfo
+	 * @return
+	 */
+	@Override
+	public List<DriverInfo> supplementObtainDriver(DriverInfo driverInfo) {
+		return driverInfoMapper.supplementObtainDriver(driverInfo);
 	}
 
 }

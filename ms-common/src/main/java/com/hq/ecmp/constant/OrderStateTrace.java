@@ -5,7 +5,7 @@ import java.util.List;
 
 public enum OrderStateTrace {
     APPLYREASSIGNMENT("S270","司机申请改派"),
-    
+    SENDINGCARS("S200","约车中"),
     TURNREASSIGNMENT("S277","改派请求驳回"),
     PASSREASSIGNMENT("S279","改派请求通过"),
     SENDCAR("S299","已派车"),
@@ -18,7 +18,11 @@ public enum OrderStateTrace {
     CANCEL("S911","订单取消"),
     ORDEROVERTIME("S921","订单超时"),
     ORDERDENIED("S930","订单驳回"),
-    CHANGINGCAR("S301","换车中")
+    CHANGINGCAR("S301","换车中"),
+    APPLYINGPASS("S199","申请通过中"),
+    TRAVELOVERUSECARTIME("S980","差旅权限超过用车时间，仍然可约车的状态"),
+    ORDERDENYNOUSE("S931","订单驳回，后面的用车权限有已完成的，此为驳回不可用的情况状态码"),
+    TRAVELOVERUSECARTIMENOUSE("S990","后面与已经完成的权限，前面未使用的权限变为已过期对应的状态码")
     ;
 
 
@@ -52,7 +56,7 @@ public enum OrderStateTrace {
     }
     
     public static List<String> getCancelAndOverTime(){
-    	return Arrays.asList(CANCEL.getState(),ORDEROVERTIME.getState());
+    	return Arrays.asList(CANCEL.getState(),ORDEROVERTIME.getState(),ORDERDENIED.getState());
     }
     
    

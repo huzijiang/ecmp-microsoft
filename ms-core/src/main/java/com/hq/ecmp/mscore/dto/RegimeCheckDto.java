@@ -23,7 +23,7 @@ public class RegimeCheckDto {
     private String startTime;
     private String useCarMode;
     private String endTime;
-    private List<String> cityCodes;
+    private String cityCodes;
     private String startCityCode;
 
 

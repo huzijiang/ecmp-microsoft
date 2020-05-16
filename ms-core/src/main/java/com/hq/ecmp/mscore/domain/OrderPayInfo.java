@@ -64,7 +64,7 @@ public class OrderPayInfo {
      */
     @NotNull
     @ApiParam(required = true)
-    private double channelRate;
+    private BigDecimal channelRate;
 
     /**
      *  支付流水
@@ -86,14 +86,14 @@ public class OrderPayInfo {
      */
     @NotNull
     @ApiParam(required = true)
-    private Long channelAmount;
+    private BigDecimal channelAmount;
 
     /**
      *  到企业账户余额
      */
     @NotNull
     @ApiParam(required = true)
-    private Long arriveAmount;
+    private BigDecimal arriveAmount;
 
     /**
      *  支付完成状态
@@ -136,4 +136,12 @@ public class OrderPayInfo {
     @NotNull
     @ApiParam(required = true)
     private Date updateTime;
+
+    public OrderPayInfo() {
+    }
+
+    public OrderPayInfo(@NotNull String payId, @NotNull String state) {
+        this.payId = payId;
+        this.state = state;
+    }
 }

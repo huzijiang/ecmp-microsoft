@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.OrderServiceType;
 import com.hq.ecmp.mscore.domain.*;
@@ -122,9 +121,10 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
      * 司机端费用上报提交
      * @param orderSettlingInfoVo
      * @param userId
+     * @param companyId
      */
     @Override
-    public int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId,String companyId) {
+    public int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) {
         //计算等待时长
         BigDecimal waitingTime = orderWaitTraceInfoMapper.selectOrderWaitingTimeById(orderSettlingInfoVo.getOrderId());
         orderSettlingInfoVo.setWaitingTime(waitingTime);
@@ -170,40 +170,223 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //计算成本的方法
         CostCalculation calculator = new CostCalculator();
         OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
-        OrderSettling OrderSettling =new OrderSettling();
-        //默认个人取消费用为0
-        BigDecimal personalCancellationFee = new BigDecimal("0");
-        //默认个人取消费用为0
-        BigDecimal enterpriseCancellationFee = new BigDecimal("0");
-        //路桥费
-        OrderSettling.setRoadBridgeFee(orderSettlingInfoVo.getRoadBridgeFee());
-        //高速费
-        OrderSettling.setHighSpeedFee(orderSettlingInfoVo.getHighSpeedFee());
-        //停车费
-        OrderSettling.setParkingRateFee(orderSettlingInfoVo.getParkingRateFee());
-        //住宿费
-        OrderSettling.setHotelExpenseFee(orderSettlingInfoVo.getHotelExpenseFee());
-        //餐饮费
-        OrderSettling.setRestaurantFee(orderSettlingInfoVo.getRestaurantFee());
-        //超里程价格
-        OrderSettling.setOverMileagePrice(orderSettlingInfo.getOverMileagePrice());
-        //超时长价格
-        OrderSettling.setOvertimeLongPrice(orderSettlingInfo.getOvertimeLongPrice());
-        //起步价
-        OrderSettling.setStartingPrice(orderSettlingInfo.getStartingPrice());
-        //等待费
-        OrderSettling.setWaitingFee(orderSettlingInfo.getWaitingFee());
-        //个人取消费
-        OrderSettling.setPersonalCancellationFee(personalCancellationFee);
-        //企业取消费
-        OrderSettling.setEnterpriseCancellationFee(enterpriseCancellationFee);
-        String json= JSON.toJSONString(OrderSettling);
         //落库到订单结算信息表
+        String json = this.costPrice(orderSettlingInfoVo,orderInfo.getServiceType());//成本价详情
+        String extraPrice = this.extraPrice(orderSettlingInfoVo);//价外费详情
         orderSettlingInfoVo.setCreateTime(DateUtils.getNowDate());
         orderSettlingInfoVo.setCreateBy(userId.toString());
         orderSettlingInfoVo.setAmountDetail(json);
-        orderSettlingInfoVo.setAmount(orderSettlingInfo.getAmount());
+        orderSettlingInfoVo.setOutPrice(extraPrice);
+        orderSettlingInfoVo.setAmount(orderSettlingInfoVo.getAmount().setScale(2,BigDecimal.ROUND_HALF_UP));
         int i = orderSettlingInfoMapper.insertOrderSettlingInfoOne(orderSettlingInfoVo);
+        if(!orderSettlingInfoVo.getImageUrl().equals(null) && !orderSettlingInfoVo.getImageUrl().equals("")){
+        String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
+            for (String url:imageUrl){
+                orderSettlingInfoVo.setImageUrl(url);
+                orderSettlingInfoMapper.insertOrderSettlingImageInfo(orderSettlingInfoVo);
+            }
+        }
         return i;
+    }
+
+    /**
+     * 取消费格式化
+     * @param orderSettlingInfoVo
+     * @param personalCancellationFee
+     * @param enterpriseCancellationFee
+     * @return
+     */
+    @Override
+    public String formatCostFee(OrderSettlingInfoVo orderSettlingInfoVo, BigDecimal personalCancellationFee, BigDecimal enterpriseCancellationFee) {
+        Map map = new HashMap();
+        List list= new ArrayList();
+        //默认个人取消费用为0
+        //BigDecimal personalCancellationFee = BigDecimal.ZERO;
+        //默认个人取消费用为0
+        //BigDecimal enterpriseCancellationFee = BigDecimal.ZERO;
+        //个人取消费
+        //OrderSettling.setPersonalCancellationFee(personalCancellationFee);
+        Map personalCancellation = new HashMap();
+        personalCancellation.put("cost",personalCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        personalCancellation.put("typeName","个人取消费");
+        list.add(personalCancellation);
+        //企业取消费
+        //OrderSettling.setEnterpriseCancellationFee(enterpriseCancellationFee);
+        Map enterpriseCancellation = new HashMap();
+        enterpriseCancellation.put("cost",enterpriseCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        enterpriseCancellation.put("typeName","企业取消费");
+        list.add(enterpriseCancellation);
+        map.put("otherCost",list);
+        String json= JSON.toJSONString(map);
+        return json;
+    }
+
+    /**
+     * 成本价详情
+     * @param orderSettlingInfoVo
+     * @param serviceType
+     * @return
+     */
+    public String costPrice(OrderSettlingInfoVo orderSettlingInfoVo,String serviceType){
+        Map map = new HashMap();
+        List list= new ArrayList();
+        //默认个人取消费用为0
+//        BigDecimal personalCancellationFee = BigDecimal.ZERO;
+        //默认个人取消费用为0
+//        BigDecimal enterpriseCancellationFee = BigDecimal.ZERO;
+        //路桥费
+        //OrderSettling.setRoadBridgeFee(orderSettlingInfoVo.getRoadBridgeFee());
+        //Map roadBridgeFee = new HashMap();
+        //roadBridgeFee.put("cost",orderSettlingInfoVo.getRoadBridgeFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //roadBridgeFee.put("typeName","路桥费");
+        //list.add(roadBridgeFee);
+        //高速费
+        //OrderSettling.setHighSpeedFee(orderSettlingInfoVo.getHighSpeedFee());
+        //Map highSpeedFee = new HashMap();
+        //highSpeedFee.put("cost",orderSettlingInfoVo.getHighSpeedFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //highSpeedFee.put("typeName","高速费");
+        //list.add(highSpeedFee);
+        //停车费
+        //OrderSettling.setParkingRateFee(orderSettlingInfoVo.getParkingRateFee());
+        //Map parkingRateFee = new HashMap();
+        //parkingRateFee.put("cost",orderSettlingInfoVo.getParkingRateFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //parkingRateFee.put("typeName","停车费");
+        //list.add(parkingRateFee);
+        //住宿费
+        //OrderSettling.setHotelExpenseFee(orderSettlingInfoVo.getHotelExpenseFee());
+        //Map hotelExpenseFee = new HashMap();
+        //hotelExpenseFee.put("cost",orderSettlingInfoVo.getHotelExpenseFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //hotelExpenseFee.put("typeName","住宿费");
+        //list.add(hotelExpenseFee);
+        //餐饮费
+        //OrderSettling.setRestaurantFee(orderSettlingInfoVo.getRestaurantFee());
+        //Map restaurantFee = new HashMap();
+        //restaurantFee.put("cost",orderSettlingInfoVo.getRestaurantFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //restaurantFee.put("typeName","餐饮费");
+        //list.add(restaurantFee);
+        //超里程价格
+        //OrderSettling.setOverMileagePrice(orderSettlingInfoVo.getOverMileagePrice());
+        Map overMileagePrice = new HashMap();
+        overMileagePrice.put("cost",orderSettlingInfoVo.getOverMileagePrice().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        overMileagePrice.put("typeName","超里程价格");
+        list.add(overMileagePrice);
+        //超时长价格
+        //OrderSettling.setOvertimeLongPrice(orderSettlingInfoVo.getOvertimeLongPrice());
+        Map overtimeLongPrice = new HashMap();
+        overtimeLongPrice.put("cost",orderSettlingInfoVo.getOvertimeLongPrice().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        overtimeLongPrice.put("typeName","超时长价格");
+        list.add(overtimeLongPrice);
+        //起步价
+        //OrderSettling.setStartingPrice(orderSettlingInfoVo.getStartingPrice());
+        Map startingPrice = new HashMap();
+        startingPrice.put("cost",orderSettlingInfoVo.getStartingPrice().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        startingPrice.put("typeName","起步价");
+        list.add(startingPrice);
+        //等待费
+        //OrderSettling.setWaitingFee(orderSettlingInfoVo.getWaitingFee());
+        if (serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState())) {
+            Map waitingFee = new HashMap();
+            waitingFee.put("cost", orderSettlingInfoVo.getWaitingFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+            waitingFee.put("typeName", "等待费");
+            list.add(waitingFee);
+        }
+        //个人取消费
+        //OrderSettling.setPersonalCancellationFee(personalCancellationFee);
+        //Map personalCancellation = new HashMap();
+        //personalCancellation.put("cost",personalCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //personalCancellation.put("typeName","个人取消费");
+        //list.add(personalCancellation);
+        //企业取消费
+        //OrderSettling.setEnterpriseCancellationFee(enterpriseCancellationFee);
+        //Map enterpriseCancellation = new HashMap();
+        //enterpriseCancellation.put("cost",enterpriseCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //enterpriseCancellation.put("typeName","企业取消费");
+        //list.add(enterpriseCancellation);
+        map.put("otherCost",list);
+        String json= JSON.toJSONString(map);
+        return json;
+    }
+
+    /**
+     * 价外费详情
+     * @param orderSettlingInfoVo
+     * @return
+     */
+    public String extraPrice(OrderSettlingInfoVo orderSettlingInfoVo){
+        Map map = new HashMap();
+        List list= new ArrayList();
+        //默认个人取消费用为0
+//        BigDecimal personalCancellationFee = BigDecimal.ZERO;
+        //默认个人取消费用为0
+//        BigDecimal enterpriseCancellationFee = BigDecimal.ZERO;
+        //路桥费
+        //OrderSettling.setRoadBridgeFee(orderSettlingInfoVo.getRoadBridgeFee());
+        Map roadBridgeFee = new HashMap();
+        roadBridgeFee.put("cost",orderSettlingInfoVo.getRoadBridgeFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        roadBridgeFee.put("typeName","路桥费");
+        list.add(roadBridgeFee);
+        //高速费
+        //OrderSettling.setHighSpeedFee(orderSettlingInfoVo.getHighSpeedFee());
+        Map highSpeedFee = new HashMap();
+        highSpeedFee.put("cost",orderSettlingInfoVo.getHighSpeedFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        highSpeedFee.put("typeName","高速费");
+        list.add(highSpeedFee);
+        //停车费
+        //OrderSettling.setParkingRateFee(orderSettlingInfoVo.getParkingRateFee());
+        Map parkingRateFee = new HashMap();
+        parkingRateFee.put("cost",orderSettlingInfoVo.getParkingRateFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        parkingRateFee.put("typeName","停车费");
+        list.add(parkingRateFee);
+        //住宿费
+        //OrderSettling.setHotelExpenseFee(orderSettlingInfoVo.getHotelExpenseFee());
+        Map hotelExpenseFee = new HashMap();
+        hotelExpenseFee.put("cost",orderSettlingInfoVo.getHotelExpenseFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        hotelExpenseFee.put("typeName","住宿费");
+        list.add(hotelExpenseFee);
+        //餐饮费
+        //OrderSettling.setRestaurantFee(orderSettlingInfoVo.getRestaurantFee());
+        Map restaurantFee = new HashMap();
+        restaurantFee.put("cost",orderSettlingInfoVo.getRestaurantFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        restaurantFee.put("typeName","餐饮费");
+        list.add(restaurantFee);
+        //超里程价格
+        //OrderSettling.setOverMileagePrice(orderSettlingInfoVo.getOverMileagePrice());
+        //Map overMileagePrice = new HashMap();
+        //overMileagePrice.put("cost",orderSettlingInfoVo.getOverMileagePrice().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //overMileagePrice.put("typeName","超里程价格");
+        //list.add(overMileagePrice);
+        //超时长价格
+        //OrderSettling.setOvertimeLongPrice(orderSettlingInfoVo.getOvertimeLongPrice());
+        //Map overtimeLongPrice = new HashMap();
+        //overtimeLongPrice.put("cost",orderSettlingInfoVo.getOvertimeLongPrice().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //overtimeLongPrice.put("typeName","超时长价格");
+        //list.add(overtimeLongPrice);
+        //起步价
+        //OrderSettling.setStartingPrice(orderSettlingInfoVo.getStartingPrice());
+        //Map startingPrice = new HashMap();
+        //startingPrice.put("cost",orderSettlingInfoVo.getStartingPrice().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //startingPrice.put("typeName","起步价");
+        //list.add(startingPrice);
+        //等待费
+        //OrderSettling.setWaitingFee(orderSettlingInfoVo.getWaitingFee());
+        //Map waitingFee = new HashMap();
+        //waitingFee.put("cost",orderSettlingInfoVo.getWaitingFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //waitingFee.put("typeName","等待费");
+        //list.add(waitingFee);
+        //个人取消费
+        //OrderSettling.setPersonalCancellationFee(personalCancellationFee);
+        //Map personalCancellation = new HashMap();
+        //personalCancellation.put("cost",personalCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //personalCancellation.put("typeName","个人取消费");
+        //list.add(personalCancellation);
+        //企业取消费
+        //OrderSettling.setEnterpriseCancellationFee(enterpriseCancellationFee);
+        //Map enterpriseCancellation = new HashMap();
+        //enterpriseCancellation.put("cost",enterpriseCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        //enterpriseCancellation.put("typeName","企业取消费");
+        //list.add(enterpriseCancellation);
+        map.put("otherCost",list);
+        String json= JSON.toJSONString(map);
+        return json;
     }
 }

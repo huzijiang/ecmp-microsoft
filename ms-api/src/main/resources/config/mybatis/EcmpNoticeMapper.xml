@@ -47,7 +47,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join ecmp_notice_mapping enm on nc.notice_id = enm.notice_id
         <where>
             now( ) between publish_time and end_time
-            and nc.notice_type = #{noticeType} AND nc.status=1
+            and nc.notice_type = #{noticeType} AND nc.status=1 and  nc.company_id =#{companyId}  and find_in_set (#{stationCode},nc.notice_city)
             and (
             <foreach collection="busIdList" open="" close="" index="index" item="item" separator="or">
                 (enm.buc_id in (#{item.bucId}) and enm.config_type = #{item.configType})
@@ -65,7 +65,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join ecmp_notice_mapping enm on nc.notice_id = enm.notice_id
         <where>
             now( ) between publish_time and end_time
-            and nc.notice_type = #{noticeType} AND nc.status=1
+            and nc.notice_type = #{noticeType} AND nc.status=1 and  nc.company_id =#{companyId}  and find_in_set (#{stationCode},nc.notice_city)
             and (
             <foreach collection="busIdList" open="" close="" index="index" item="item" separator="or">
                 (enm.buc_id in (#{item.bucId}) and enm.config_type = #{item.configType})
@@ -83,11 +83,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertEcmpNotice" parameterType="com.hq.ecmp.mscore.domain.EcmpNotice" useGeneratedKeys="true" keyProperty="noticeId">
         insert into ecmp_notice
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyId != null  and companyId != ''">company_id,</if>
             <if test="noticeTitle != null  and noticeTitle != ''">notice_title,</if>
             <if test="noticeIcon != null  and noticeIcon != ''">notice_icon,</if>
             <if test="noticeCity != null  and noticeCity != ''">notice_city,</if>
             <if test="noticeType != null  and noticeType != ''">notice_type,</if>
-            <if test="companyId != null  and companyId != ''">company_id,</if>
             <if test="noticeContent != null  and noticeContent != ''">notice_content,</if>
             <if test="status != null  and status != ''">status,</if>
             <if test="publishTime != null  and publishTime != ''">publish_time,</if>
@@ -99,11 +99,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="remark != null  and remark != ''">remark,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyId != null  and companyId != ''">#{companyId},</if>
             <if test="noticeTitle != null  and noticeTitle != ''">#{noticeTitle},</if>
             <if test="noticeIcon != null  and noticeIcon != ''">#{noticeIcon},</if>
             <if test="noticeCity != null  and noticeCity != ''">#{noticeCity},</if>
             <if test="noticeType != null  and noticeType != ''">#{noticeType},</if>
-            <if test="companyId != null  and companyId != ''">#{companyId},</if>
             <if test="noticeContent != null  and noticeContent != ''">#{noticeContent},</if>
             <if test="status != null  and status != ''">#{status},</if>
             <if test="publishTime != null  and publishTime != ''">#{publishTime},</if>
@@ -184,7 +184,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 en.create_time createTime,
                 en.update_by updateBy,
                 en.update_time updateTime,
-                en.remark remark
+                en.remark remark,
+                group_concat(enm.buc_id) bucId
                 FROM
                 ecmp_notice en
         LEFT JOIN ecmp_notice_mapping enm ON en.notice_id = enm.notice_id

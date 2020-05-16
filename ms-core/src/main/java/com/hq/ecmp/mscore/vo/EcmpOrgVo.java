@@ -78,6 +78,8 @@ public class EcmpOrgVo {
 
     @ApiModelProperty(value = "公司名称或编号")
     private String deptNameOrCode;
+    @ApiModelProperty(value = "是否独立审核(0 是，1否)")
+    private String itIsIndependent;
 
     public EcmpOrgVo() {
     }
@@ -85,6 +87,18 @@ public class EcmpOrgVo {
     public EcmpOrgVo(Long deptId, String leader) {
         this.deptId = deptId;
         this.leader = leader;
+    }
+    public enum statusEnum{
+        OK("00"),DISABLE("10"),CLOUD("05");
+
+        public String getCode() {
+            return code;
+        }
+
+        private String code;
+        statusEnum(String s) {
+            code = s;
+        }
     }
 }
 

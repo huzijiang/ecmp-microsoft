@@ -24,10 +24,14 @@
         <dependency>
             <groupId>com.hq.ecmp</groupId>
             <artifactId>ecmp-base</artifactId>
-            <version>1.0.39-SNAPSHOT</version>
+            <version>1.0.40-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.5.2</version>
+        </dependency>
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>

@@ -1,9 +1,6 @@
 package com.hq.ecmp.mscore.dto;
 
-import com.hq.ecmp.mscore.vo.AddressVO;
-import com.hq.ecmp.mscore.vo.ApprovalVO;
-import com.hq.ecmp.mscore.vo.CarLevelAndPriceVO;
-import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -172,5 +169,13 @@ public class ApplyOfficialRequest {
     private Integer peerNumber;  //TODO 新增
 
     private Long companyId;
+
+    //后台管理直接调度所用  D000 为直接调度
+    private String distinguish;
+    /**
+     * 用车城市可用车型
+     */
+    @ApiModelProperty(name = "useCarTypes", value = "用车城市可用车型", required = false, position = 25)
+    private List<UseCarTypeVO> canUseCarTypes;
 
 }

@@ -2,17 +2,14 @@ package com.hq.ecmp.mscore.mapper;
 
 
 import com.hq.ecmp.mscore.bo.OrderTaskClashBo;
-import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
 import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
 import com.hq.ecmp.mscore.vo.OrderStateVO;
+import com.hq.ecmp.mscore.vo.RunningOrderVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -57,6 +54,14 @@ public interface OrderInfoMapper {
      * @return 结果
      */
     public int updateOrderInfo(OrderInfo orderInfo);
+
+    /**
+     * 修改【请填写功能名称】
+     *
+     * @param orderInfo 【请填写功能名称】
+     * @return 结果
+     */
+    public int updateOrderInfoNull(OrderInfo orderInfo);
 
     /**
      * 删除【请填写功能名称】
@@ -241,7 +246,6 @@ public interface OrderInfoMapper {
      */
     public String queryLatestOrderByPowerId(Long powerId);
 
-
     /**
      *轨迹状态 订单状态
      * @param orderId
@@ -258,5 +262,31 @@ public interface OrderInfoMapper {
      * @description  查询某订单所在当天的所有订单
      */
     List<OrderInfo> selectOrderInfoByIdAllDay(@Param("userId")Long userId);
+    //查询已完单订单
+    List<OrderInfo> selectOrderEnd();
+
+    //根据行程id查询场景id
+    Long getSceneByOrder(Long journeyId);
+
+    //根据订单id查询城市
+    String getProvinceByOrder(Long orderId);
+
+    //查询已完单订单耗时
+    double getOrderDurationById(Long orderId);
+
+    //查询所有自有车订单
+    String getOrderStateTraceById(Long orderId);
+
+    //根据订单查询派单耗时
+    int getdispatchDurationById(Long orderId);
+
+    List<RunningOrderVo> getRunningOrder(@Param("userId")Long userId, @Param("states")String states);
+
+    /***
+     *
+     * @param orderId
+     * @return
+     */
+    OrderInfoMessage getCarMessage(Long orderId);
 }
 

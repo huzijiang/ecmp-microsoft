@@ -23,7 +23,7 @@ public class OrderSettlingInfoVo {
     private Long billId;
 
     /**
-     * 订单Id
+     *
      */
     @ApiModelProperty(name = "orderId", value = "订单Id")
     private Long orderId;
@@ -44,7 +44,7 @@ public class OrderSettlingInfoVo {
      * 价外费
      */
     @ApiModelProperty(name = "outPrice", value = "价外费")
-    private BigDecimal outPrice;
+    private String outPrice;
 
     /**
      * 订单总里程
@@ -124,4 +124,17 @@ public class OrderSettlingInfoVo {
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    /** 修改者 */
+    private String updateBy;
+
+    /** 修改时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
+
+    /**
+     * 发票照片
+     */
+    @ApiModelProperty(name = "imageUrl", value = "发票照片")
+    private String imageUrl;
 }

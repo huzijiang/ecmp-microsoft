@@ -3,7 +3,6 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarTypeDTO;
 import com.hq.ecmp.mscore.vo.CarTypeVO;
-import com.hq.ecmp.mscore.vo.PageResult;
 
 import java.util.List;
 
@@ -104,7 +103,7 @@ public interface IEnterpriseCarTypeInfoService
      * @param companyId
      * @return
      */
-    List<CarTypeDTO> selectEnterpriseCarTypeList(String companyId);
+    List<CarTypeDTO> selectEnterpriseCarTypeList(Long companyId);
 
     /**
      *根据CarTypeIdd查询对应的车型id集合

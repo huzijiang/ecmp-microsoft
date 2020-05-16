@@ -1,9 +1,9 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
-import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
-import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
-import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
+import com.hq.ecmp.mscore.dto.cost.*;
+import com.hq.ecmp.mscore.vo.SupplementVO;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public interface ICostConfigInfoService
      * @param costConfigInfo
      * @return
      */
-    public List<CostConfigListResult> selectCostConfigInfoList(CostConfigQueryDto costConfigInfo);
+    public CostConfigListResultPage selectCostConfigInfoList(CostConfigQueryDto costConfigInfo);
 
     /**
      * 新增【请填写功能名称】
@@ -92,5 +92,12 @@ public interface ICostConfigInfoService
      * @param costConfigQueryDto  判重条件
      * @return
      */
-    int checkDoubleByServiceTypeCityCarType(CostConfigQueryDto costConfigQueryDto);
+    List<CostConfigCityInfo> checkDoubleByServiceTypeCityCarType(CostConfigQueryDoubleValidDto costConfigQueryDto);
+
+    /**
+     * 补单成本计算
+     * @param SupplementVO
+     * @return
+     */
+    String supplementAmountCalculation(SupplementVO supplementVO,Long companyId);
 }

@@ -5,33 +5,27 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
-import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.api.domain.AlipayTradeRefundModel;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
+import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
+import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
+import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.hq.ecmp.constant.OrderPayConstant;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.ms.api.conf.AlipayConfig;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderPayInfo;
-import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.service.IOrderPayInfoService;
-import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
-import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
+import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -39,9 +33,9 @@ import java.util.*;
  * @description 支付宝支付接口
  * @date 2020/5/5
  */
-@Controller
+@RestController
 @RequestMapping("/pay")
-@Api(tags = {"-支付宝支付接口"}, description = "")
+@Api(tags = {"支付宝支付接口"}, description = "")
 public class AliPayController {
 
     private static final Logger log = LoggerFactory.getLogger(AliPayController.class);
@@ -58,12 +52,16 @@ public class AliPayController {
     @Autowired
     private IOrderPayInfoService iOrderPayInfoService;
 
+    @Autowired
+    private IOrderRefundInfoService iOrderRefundInfoService;
+
+
     /**
      * @author ghb
      * @description  支付宝支付接口，统一下单
      */
     @ApiOperation(value = "支付宝支付接口", notes = "")
-    @RequestMapping(value = "ali", method = RequestMethod.POST)
+    @RequestMapping(value = "/ali", method = RequestMethod.POST)
     @ResponseBody
     public String pay(@RequestBody String param) {
         JSONObject jsonObject = JSONObject.parseObject(param);
@@ -103,83 +101,111 @@ public class AliPayController {
      * @author ghb
      * @description  支付回调接口
      */
-    @RequestMapping(value = "ali/v1/callback")
-    public Boolean payNotify(HttpServletRequest request) {
-        Map<String, String> params = new HashMap<String, String>();
-        Map requestParams = request.getParameterMap();
-        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext(); ) {
-            String name = (String) iter.next();
-            String[] values = (String[]) requestParams.get(name);
-            String valueStr = "";
-            for (int i = 0; i < values.length; i++) {
-                valueStr = (i == values.length - 1) ? valueStr + values[i]
-                        : valueStr + values[i] + ",";
-            }
-            //乱码解决，这段代码在出现乱码时使用。
-            //valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
-            params.put(name, valueStr);
-        }
-        log.info("回调接口，重要参数：---" + params.toString());
-        //支付宝公钥
-        String alipayPublicKey = AlipayConfig.ALIPAY_PUBLIC_KEY;
-        //字符编码
-        String charset = AlipayConfig.CHARSET;
-        boolean flag = false;
+    @RequestMapping(value = "/ali/v1/callback")
+    @ResponseBody
+    public String payNotify(String out_trade_no, String trade_no, String total_amount) {
+        log.info("已经进入支付宝支付回调接口");
         try {
-            flag = AlipaySignature.rsaCheckV1(params, alipayPublicKey, charset, "RSA2");
-            if(flag){
                 log.info("支付宝回调签名认证成功");
-                //把订单状态改为关闭状态
-                OrderInfo orderInfo = new OrderInfo();
-                String out_trade_no = request.getParameter("out_trade_no");
-                String trade_no = request.getParameter("trade_no");
-                String total_amount = request.getParameter("total_amount");
                 log.info("支付宝回调获取到的订单号为："+out_trade_no);
                 log.info("支付宝回调获取到的流水号为："+trade_no);
                 log.info("支付宝回调获取到的金额为："+total_amount);
-                orderInfo.setOrderId(Long.valueOf(out_trade_no));
-                orderInfo.setState(OrderState.ORDERCLOSE.getState());
-                int i = iOrderInfoService.updateOrderInfo(orderInfo);
-                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(Long.valueOf(out_trade_no), OrderState.ORDERCLOSE.getState());
-                int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-                if(1 == i && 1 ==j){
-                    log.info("订单信息修改成功");
+                //判断订单是否已支付
+                OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(out_trade_no);
+                if(null != orderPayInfoByPayId && !OrderPayConstant.PAID.equals(orderPayInfoByPayId.getState())){
+                    //把订单状态改为关闭状态
+                    OrderInfo orderInfo = new OrderInfo();
+                    orderInfo.setOrderId(orderPayInfoByPayId.getOrderId());
+                    orderInfo.setState(OrderState.ORDERCLOSE.getState());
+                    int i = iOrderInfoService.updateOrderInfo(orderInfo);
+                    OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderPayInfoByPayId.getOrderId(), OrderState.ORDERCLOSE.getState());
+                    int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+                    if(1 == i && 1 ==j){
+                        log.info("订单信息修改成功");
+                    }else{
+                        log.info("订单信息修改失败");
+                    }
+                    //插入订单支付表
+                    OrderPayInfo orderPayInfo = new OrderPayInfo();
+                    orderPayInfo.setTransactionLog(trade_no);
+                    OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
+                    orderSettlingInfo.setOrderId(orderPayInfoByPayId.getOrderId());
+                    List<OrderSettlingInfo> orderSettlingInfos = iOrderSettlingInfoService.selectOrderSettlingInfoList(orderSettlingInfo);
+                    if(orderSettlingInfos.size() != 0){
+                        orderPayInfo.setBillId(orderSettlingInfos.get(0).getBillId());
+                    }
+                    orderPayInfo.setPayId(out_trade_no);
+                    orderPayInfo.setState(OrderPayConstant.PAID);
+                    orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
+                    orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_ALI);
+                    orderPayInfo.setChannelRate(new BigDecimal(OrderPayConstant.ALI_CHANNEL_RATE));
+                    orderPayInfo.setAmount(new BigDecimal(total_amount));
+                    //渠道费
+                    BigDecimal channelAmount = new BigDecimal(OrderPayConstant.WX_CHANNEL_RATE).multiply(new BigDecimal(total_amount));
+                    orderPayInfo.setChannelAmount(channelAmount);
+                    //到账金额
+                    BigDecimal arriveAmount = new BigDecimal(total_amount).subtract(channelAmount);
+                    orderPayInfo.setArriveAmount(arriveAmount);
+                    orderPayInfo.setCreateTime(new Date());
+                    int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
+                    if(1 == k){
+                        log.info("订单支付表----- 信息已更新");
+                    }
                 }else{
-                    log.info("订单信息修改失败");
+                    log.info("该订单已支付");
                 }
-                //插入订单支付表
-                OrderPayInfo orderPayInfo = new OrderPayInfo();
-                orderPayInfo.setTransactionLog(trade_no);
-                OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
-                orderSettlingInfo.setOrderId(Long.valueOf(out_trade_no));
-                List<OrderSettlingInfo> orderSettlingInfos = iOrderSettlingInfoService.selectOrderSettlingInfoList(orderSettlingInfo);
-                if(orderSettlingInfos.size() != 0){
-                    orderPayInfo.setBillId(orderSettlingInfos.get(0).getBillId());
-                }
-                orderPayInfo.setOrderId(Long.valueOf(out_trade_no));
-                orderPayInfo.setState(OrderPayConstant.PAID);
-                orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
-                orderPayInfo.setPayChannel(OrderPayConstant.PAY_CHANNEL_ALI);
-//                orderPayInfo.setChannelRate(0.01);
-//            orderPayInfo.setAmount(Long.valueOf(result.getTotalFee()));
-                orderPayInfo.setAmount(new BigDecimal(total_amount));
-//                orderPayInfo.setChannelAmount(1L);
-//                orderPayInfo.setArriveAmount(9L);
-                orderPayInfo.setCreateTime(new Date());
-                int k = iOrderPayInfoService.insertOrderPayInfo(orderPayInfo);
-                if(1 == k){
-                    log.info("订单支付表----- 信息已更新");
-                }
-            }else{
-                log.info("支付宝回调签名认证失败");
-            }
-        } catch (AlipayApiException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             log.info("支付宝回调失败，错误原因为："+e);
             log.info("支付宝回调失败，错误原因为："+e.getMessage());
         }
-        log.info("支付回调标志" + flag);
-        return flag;
+        return "success";
+    }
+
+    @ApiOperation(value = "支付宝退款", notes = "")
+    @RequestMapping(value = "/ali/refund", method = RequestMethod.POST)
+    @ResponseBody
+    public String aliRefun(@RequestBody String param) {
+        JSONObject jsonObject = JSONObject.parseObject(param);
+        String payId = jsonObject.getString("payId");
+        String refundAmount = jsonObject.getString("refundAmount");
+        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest(); // 统一收单交易退款接口
+        AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.URL, AlipayConfig.APPID, AlipayConfig.APP_PRIVATE_KEY, AlipayConfig.FORMAT, AlipayConfig.REFUND_CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGNTYPE);
+        AlipayTradeRefundModel model = new AlipayTradeRefundModel();
+        //退款参数
+        model.setOutTradeNo(payId);
+        model.setRefundAmount(refundAmount);
+//        model.setOutRequestNo(outRequestNo); 多次退款，部分退款必传
+        request.setBizModel(model);
+        AlipayTradeRefundResponse response;
+        try {
+            response  = alipayClient.execute(request);
+            if(response.isSuccess()){
+                log.info("退款成功！！！！！！！！！！！！！！！！！！！！");
+                //处理业务逻辑
+                //插入订单退款表
+
+                //先查询订单支付表
+                OrderPayInfo orderPayInfoByPayId = iOrderPayInfoService.getOrderPayInfoByPayId(response.getOutTradeNo());
+                OrderRefundInfo orderRefundInfo = new OrderRefundInfo();
+                orderRefundInfo.setRefundId(UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32));
+                orderRefundInfo.setPayId(response.getOutTradeNo());
+                orderRefundInfo.setBillId(orderPayInfoByPayId.getBillId());
+                orderRefundInfo.setOrderId(orderPayInfoByPayId.getOrderId());
+                orderRefundInfo.setAmount(new BigDecimal(response.getRefundFee()));
+                orderRefundInfo.setTransactionLog(response.getTradeNo());
+                orderRefundInfo.setFinishPayTime(response.getGmtRefundPay());
+                orderRefundInfo.setFinishResult(response.getMsg());
+                orderRefundInfo.setCreateTime(new Date());
+                int i = iOrderRefundInfoService.insertOrderRefundInfo(orderRefundInfo);
+            } else {
+                log.info("退款失败！！！！！！！！！！！！！！！！！！！！");
+                return OrderPayConstant.ALI_RETURN_CODE_ERROR;
+            }
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+        }
+        return OrderPayConstant.ALI_RETURN_CODE_OK;
     }
 }
 

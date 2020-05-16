@@ -12,6 +12,7 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
+import com.hq.ecmp.mscore.dto.OrderInfoDTO;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
@@ -143,5 +144,23 @@ public class OrderBackController {
             return ApiResponse.error();
         }
         return ApiResponse.success();
+    }
+
+
+    @ApiOperation(value = "订单管理补单提交功能")
+    @PostMapping(value = "/supplementSubmit")
+    @Log(title = "订单管理", content = "补单功能", businessType = BusinessType.INSERT)
+    public ApiResponse supplementSubmit(@RequestBody OrderInfoDTO orderInfoDTO){
+        try {
+            //获取登陆用户信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            orderInfoDTO.setCompanyId(loginUser.getUser().getDept().getCompanyId());
+            ApiResponse  apiResponse=  iEcmpUserFeedbackInfoService.supplementSubmit(orderInfoDTO);
+            return apiResponse;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error();
+        }
     }
 }
