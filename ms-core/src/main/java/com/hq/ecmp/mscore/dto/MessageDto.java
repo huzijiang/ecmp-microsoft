@@ -23,6 +23,7 @@ public class MessageDto {
      * 通知id
      */
     private Long messageId;
+    private Long applyId;
     private Long id;
     private String useCarMode;
     private Integer configType;
