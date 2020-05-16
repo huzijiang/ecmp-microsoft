@@ -22,7 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     <insert id="addDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">
-        insert into driver_heartbeat_info
+        insert into driver_nature_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="driverId != null ">driver_id,</if>
             <if test="driverNature != null ">driver_nature,</if>

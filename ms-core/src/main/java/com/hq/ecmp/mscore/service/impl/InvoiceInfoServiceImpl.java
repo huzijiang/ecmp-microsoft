@@ -209,7 +209,7 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
                         key.get(0).getAddress()+"\r\n"+key.get(1).getAddress()+"\r\n";
             }
         }
-        MailUtils.sendMail(mailboxes,"您有一张发票请查收",message,path,+invoiceRecordVO.getInvoiceId()+".pdf");
+        MailUtils.sendMail(mailboxes,"您有一张发票请查收",message,path,invoiceId+".pdf");
 
     }
 }

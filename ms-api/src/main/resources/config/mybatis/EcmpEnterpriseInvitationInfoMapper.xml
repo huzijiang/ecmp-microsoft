@@ -297,7 +297,7 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
         insert into ecmp_enterprise_invitation_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="name != null ">name,</if>
-            <if test="enterpriseId != null  and enterpriseId != ''">company_id,</if>
+            <if test="enterpriseId != null  and enterpriseId != ''">enterprise_id,</if>
             <if test="carGroupId != null  and carGroupId != ''">car_group_id,</if>
             <if test="type != null  and type != ''">type,</if>
             <if test="roseId != null  and roseId != ''">rose_id,</if>
