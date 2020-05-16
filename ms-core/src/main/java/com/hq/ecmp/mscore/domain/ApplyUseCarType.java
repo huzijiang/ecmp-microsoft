@@ -106,6 +106,14 @@ public class ApplyUseCarType extends BaseEntity
         return onlineCarType;
     }
 
+    public ApplyUseCarType() {
+    }
+
+    public ApplyUseCarType(Long applyId, String cityCode) {
+        this.applyId = applyId;
+        this.cityCode = cityCode;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

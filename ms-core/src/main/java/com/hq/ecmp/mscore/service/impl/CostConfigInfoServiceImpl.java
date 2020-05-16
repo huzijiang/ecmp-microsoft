@@ -231,11 +231,11 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         CostCalculation calculator = new CostCalculator();
         OrderSettlingInfoVo orderSettlingInfoVo =new OrderSettlingInfoVo();
         //订单总时长
-        orderSettlingInfoVo.setTotalTime(orderSettlingInfoVo.getTotalTime());
+        orderSettlingInfoVo.setTotalTime(supplementVO.getTotalTime());
         //订单总里程
-        orderSettlingInfoVo.setTotalMileage(orderSettlingInfoVo.getTotalMileage());
+        orderSettlingInfoVo.setTotalMileage(supplementVO.getTotalMileage());
         //订单等待时间
-        orderSettlingInfoVo.setWaitingTime(orderSettlingInfoVo.getWaitingTime());
+        orderSettlingInfoVo.setWaitingTime(supplementVO.getWaitingTime());
         OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
         Map map = new HashMap();
         List list= new ArrayList();
@@ -260,6 +260,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         waitingFee.put("typeName","等待费");
         list.add(waitingFee);
         //总金额
+        map.put("otherCost",list);
         map.put("amount",orderSettlingInfoVo.getAmount().setScale(2,BigDecimal.ROUND_HALF_UP));
         String json= JSON.toJSONString(map);
         return json;

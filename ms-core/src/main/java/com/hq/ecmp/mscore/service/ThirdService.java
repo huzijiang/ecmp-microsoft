@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.dto.DirectionDto;
 import com.hq.ecmp.mscore.vo.CarCostVO;
 import com.hq.ecmp.mscore.vo.EstimatePriceVo;
 import com.hq.ecmp.mscore.vo.FlightInfoVo;
+import com.hq.ecmp.mscore.vo.ThridCarTypeVo;
 
 import java.net.SocketTimeoutException;
 import java.util.List;
@@ -76,6 +77,6 @@ public interface ThirdService {
     JSONObject threeCancelServer(Long orderId, String cancelReason)throws Exception;
 
     /***/
-    JSONObject getOnlienCarType(Long orderId)throws Exception;
+    List<ThridCarTypeVo>  getOnlienCarType()throws Exception;
 
 }
