@@ -485,9 +485,9 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
         JourneyDetailVO vo=new JourneyDetailVO();
 		vo.setPowerId(powerId);
 		JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerService.selectJourneyUserCarPowerById(powerId);
-		if (journeyUserCarPower==null||CarConstant.YES_USER_USE_CAR.equals(journeyUserCarPower.getState())){
-			throw new Exception(powerId+"此用车权限以使用");
-		}
+//		if (journeyUserCarPower==null||CarConstant.YES_USER_USE_CAR.equals(journeyUserCarPower.getState())){
+//			throw new Exception(powerId+"此用车权限以使用");
+//		}
 		Long applyId = journeyUserCarPower.getApplyId();
 		String itIsReturn = journeyUserCarPower.getItIsReturn();
 		ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(applyId);
