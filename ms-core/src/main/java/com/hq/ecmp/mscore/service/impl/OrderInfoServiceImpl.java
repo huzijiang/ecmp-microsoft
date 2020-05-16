@@ -740,11 +740,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         JourneyNodeInfo nodeInfo = iJourneyNodeInfoService.selectJourneyNodeInfoById(orderInfo.getNodeId());
         BeanUtils.copyProperties(orderInfo,vo);
         OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
-        List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
+        List<OrderAddressInfo> startOrderAddr = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
         String useCarTime=null;
-        if (!CollectionUtils.isEmpty(orderAddressInfos)){
-            useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,orderAddressInfos.get(0).getActionTime());
-            vo.setUseCarTimestamp(orderAddressInfos.get(0).getActionTime().getTime());
+        if (!CollectionUtils.isEmpty(startOrderAddr)){
+            useCarTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,startOrderAddr.get(0).getActionTime());
+            vo.setUseCarTimestamp(startOrderAddr.get(0).getActionTime().getTime());
+            vo.setStartAddress(startOrderAddr.get(0).getAddress());
+        }
+        List<OrderAddressInfo> endOrderAddr = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
+        if (!CollectionUtils.isEmpty(endOrderAddr)){
+            vo.setEndAddress(endOrderAddr.get(0).getAddress());
         }
         vo.setUseCarTime(useCarTime);
         vo.setCreateTimestamp(orderInfo.getCreateTime().getTime());
@@ -1068,7 +1073,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 Long applyId=null;
                 if (!CollectionUtils.isEmpty(applyInfos)){
                     applyId=applyInfos.get(0).getApplyId();
-                    startCity=orderAddressInfos.stream().filter(p->p.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT)).map(OrderAddressInfo::getCityPostalCode).toString();
+                    startCity=orderAddressInfos.stream().filter(p->p.getType().equals(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT)).map(OrderAddressInfo::getCityPostalCode).collect(Collectors.joining());
                     List<ApplyUseCarType> applyUseCarTypes = applyUseCarTypeMapper.selectApplyUseCarTypeList(new ApplyUseCarType(applyId, startCity));
                     if (!CollectionUtils.isEmpty(applyUseCarTypes)){
                         ApplyUseCarType applyUseCarType = applyUseCarTypes.get(0);
@@ -1441,6 +1446,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
         vo.setCustomerServicePhone(serviceMobile);
         OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
+        vo.setUserName(ecmpUser.getNickName());
+        vo.setUserPhone(ecmpUser.getPhonenumber());
         if (orderSettlingInfo!=null){
             vo.setOrderAmount(orderSettlingInfo.getAmount().toPlainString());
                 String amountDetail = orderSettlingInfo.getAmountDetail();
