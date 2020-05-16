@@ -28,6 +28,10 @@ public class ServiceTypeCarAuthority {
     String useStatus;//是否被使用  U999 -已使用     U000 -未使用
 
     Long orderId;//订单编号
+    /**
+     * 无车驳回原因
+     */
+    String rejectReason;
 
 
     public void parseSurplusCount() {
