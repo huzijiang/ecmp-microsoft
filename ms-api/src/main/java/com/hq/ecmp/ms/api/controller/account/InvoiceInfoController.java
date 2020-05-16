@@ -187,16 +187,27 @@ public class InvoiceInfoController {
         }
         //发送行程邮件
         if("1".equals(invoiceDTO.getToResend())){
-            String message="请查收您的发票，感谢关注红旗智行科技";
+            String message=" <div>\n" +
+                    "         <span>您的行程单：感谢关注红旗智行</span>\n" +
+                    "    </div><br>";
             OrderInvoiceInfo orderInvoiceInfo = new OrderInvoiceInfo();
             orderInvoiceInfo.setInvoiceId(invoiceId);
             List<OrderInvoiceInfo> orderInvoiceInfoList  = orderInvoiceInfoMapper.selectOrderInvoiceInfoList(orderInvoiceInfo);
             for(OrderInvoiceInfo data :orderInvoiceInfoList ){
                 List<InvoiceAbleItineraryData> key =  journeyInfoMapper.getInvoiceAbleItineraryHistoryKey(data.getAccountId());
-                message = message+key.get(0).getActionTime()+"              订单"+key.get(0).getAmount()+"元\r\n" +
-                        key.get(0).getAddress()+"\r\n"+key.get(1).getAddress()+"\r\n";
+                message ="<div>\n" +
+                        "    <div>\n" +
+                        "         <span>"+message+key.get(0).getActionTime()+" &nbsp;&nbsp;&nbsp;&nbsp;订单金额"+key.get(0).getAmount()+"元</span>\n" +
+                        "    </div>\n" +
+                        "    <div>\n" +
+                        "         <span>"+ key.get(0).getAddress()+"</span>\n" +
+                        "    </div>\n" +
+                        "    <div>\n" +
+                        "         <span>"+key.get(1).getAddress()+"</span>\n" +
+                        "    </div>\n" +
+                        "<div><br><br>";
             }
-            MailUtils.sendMail(invoiceDTO.getEmail(),message,"您有一封来自红旗智行的邮件");
+            MailUtils.sendMail(invoiceDTO.getEmail(),message,"您有一张发票请查收");
         }
     }
 

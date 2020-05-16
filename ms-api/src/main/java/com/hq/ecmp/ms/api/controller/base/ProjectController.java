@@ -188,7 +188,7 @@ public class ProjectController {
         //获取当前登录用户的公司ID
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        String ownerCompany = loginUser.getUser().getDept().getCompanyId();
+        Long ownerCompany = loginUser.getUser().getDept().getCompanyId();
         List<ProjectInfoVO> pageInfo= iProjectInfoService.selectProjects(Long.valueOf(ownerCompany));
 
         return ApiResponse.success(pageInfo);

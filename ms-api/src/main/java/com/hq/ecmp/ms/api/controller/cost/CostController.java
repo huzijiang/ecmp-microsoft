@@ -7,13 +7,10 @@ import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.interceptor.log.Log;
-import com.hq.ecmp.mscore.dto.cost.CostConfigInsertDto;
-import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
-import com.hq.ecmp.mscore.dto.cost.CostConfigListResultPage;
-import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
+import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
+import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
 import com.hq.ecmp.mscore.vo.SupplementVO;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -74,7 +71,7 @@ public class CostController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             //获取当前登陆用户的信息Id
             Long companyId = loginUser.getUser().getOwnerCompany();
-            costConfigQueryDto.setCompanyId(String.valueOf(companyId));
+            costConfigQueryDto.setCompanyId(companyId);
             costConfigListResults = costConfigInfoService.selectCostConfigInfoList(costConfigQueryDto);
         } catch (Exception e) {
             e.printStackTrace();
@@ -153,15 +150,15 @@ public class CostController {
     @Log(value = "车型，城市，服务类型三者校验是否重复")
     @com.hq.core.aspectj.lang.annotation.Log(title = "车型，城市，服务类型三者校验是否重复",businessType = BusinessType.DELETE,operatorType = OperatorType.MANAGE)
     @PostMapping("/checkDoubleByServiceTypeCityCarType")
-    public ApiResponse<Integer> checkDoubleByServiceTypeCityCarType(@RequestBody CostConfigQueryDto costConfigQueryDto){
-        Integer i = 0;
+    public ApiResponse<List<CostConfigCityInfo>> checkDoubleByServiceTypeCityCarType(@RequestBody CostConfigQueryDoubleValidDto costConfigQueryDto){
+        List<CostConfigCityInfo> res = null;
         try {
-            i = costConfigInfoService.checkDoubleByServiceTypeCityCarType(costConfigQueryDto);
+            res = costConfigInfoService.checkDoubleByServiceTypeCityCarType(costConfigQueryDto);
         } catch (Exception e) {
             e.printStackTrace();
             return  ApiResponse.error("判重失败");
         }
-        return ApiResponse.success(i);
+        return ApiResponse.success(res);
     }
 
     /**
@@ -178,7 +175,7 @@ public class CostController {
             //获取登陆用户的信息
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            String companyId = loginUser.getUser().getDept().getCompanyId();
+            Long companyId = loginUser.getUser().getDept().getCompanyId();
             String json = costConfigInfoService.supplementAmountCalculation(supplement,companyId);
             apiResponse.setData(json);
         } catch (Exception e) {

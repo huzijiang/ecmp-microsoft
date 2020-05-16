@@ -261,7 +261,7 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
      * @return
      */
     @Override
-    public List<CarTypeDTO> selectEnterpriseCarTypeList(String companyId) {
+    public List<CarTypeDTO> selectEnterpriseCarTypeList(Long companyId) {
         return enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeList(Long.valueOf(companyId));
     }
 

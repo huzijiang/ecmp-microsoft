@@ -66,8 +66,9 @@ public interface IOrderSettlingInfoService
      * 司机端费用上报提交
      * @param orderSettlingInfoVo
      * @param userId
+     * @param companyId
      */
-    int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId,String companyId);
+    int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId,Long companyId);
 
     /**
      * 格式化自有车费用
