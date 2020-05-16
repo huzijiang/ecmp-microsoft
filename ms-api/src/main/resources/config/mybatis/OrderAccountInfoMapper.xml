@@ -10,6 +10,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="orderId"    column="order_id"    />
         <result property="costCenter"    column="cost_center"    />
         <result property="projectId"    column="project_id"    />
+        <result property="amount"    column="amount"    />
         <result property="state"    column="state"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
@@ -46,6 +47,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="orderId != null  and orderId != ''">order_id,</if>
             <if test="costCenter != null ">cost_center,</if>
             <if test="projectId != null ">project_id,</if>
+            <if test="amount != null ">amount,</if>
             <if test="state != null  and state != ''">state,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
@@ -59,6 +61,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="orderId != null  and orderId != ''">#{orderId},</if>
             <if test="costCenter != null ">#{costCenter},</if>
             <if test="projectId != null ">#{projectId},</if>
+            <if test="amount != null ">#{amount},</if>
             <if test="state != null  and state != ''">#{state},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>

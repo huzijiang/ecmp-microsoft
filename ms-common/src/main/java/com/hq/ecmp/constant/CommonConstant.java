@@ -121,5 +121,5 @@ public final class CommonConstant {
      */
     public static final String NO = "1";
 
-
+    public static final String NOT_INVOICED = "S008";  //订单财务信息表 S008未开票
 }
