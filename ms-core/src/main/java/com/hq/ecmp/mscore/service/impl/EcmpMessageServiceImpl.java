@@ -329,7 +329,9 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         }
         List<JourneyNodeInfo> journeyNodeInfos = journeyNodeInfoMapper.selectJourneyNodeInfoList(new JourneyNodeInfo(applyInfo.getJourneyId()));
         /**给申请人发驳回通知*/
-        this.saveMessageUnite(applyId,MESSAGE_T010);
+        updateOldStateMessage(MsgUserConstant.applyUsers(), applyId, applyId, MsgConstant.applyAndApprove());
+        ecmpMessageDao.insert(new EcmpMessage(MsgUserConstant.MESSAGE_USER_USER.getType(),Long.parseLong(applyInfo.getCreateBy()),applyId,applyId,MsgTypeConstant.MESSAGE_TYPE_T001.getType(),
+                MsgStatusConstant.MESSAGE_STATUS_T002.getType(),MsgConstant.MESSAGE_T010.getDesc(),MsgConstant.MESSAGE_T010.getType(),userId,new Date()));
         /**给申请人发送驳回短信*/
         sendMessageForApplyUser(journeyInfo,journeyNodeInfos,applyInfo,ONE,ecmpId,ApproveStateEnum.APPROVE_FAIL.getKey(),reson);
     }

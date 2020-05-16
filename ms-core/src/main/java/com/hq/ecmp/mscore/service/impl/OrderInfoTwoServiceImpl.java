@@ -85,7 +85,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
-    public CancelOrderCostVO cancelBusinessOrder(Long orderId, String cancelReason) throws Exception{
+    public CancelOrderCostVO cancelBusinessOrder(Long orderId, String cancelReason,Long longinUserId) throws Exception{
         CancelOrderCostVO vo=new CancelOrderCostVO();
         BigDecimal cancelFee1=BigDecimal.ZERO;
         int isPayFee=0;
@@ -94,6 +94,9 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         String payId=null;
         String payState=null;
         OrderStateVO orderStateVO = orderInfoService.getOrderState(orderId);
+        if (!longinUserId.equals(orderStateVO.getUserId())){
+            throw new  Exception("取消订单操作人与申请人不一致,不可取消");
+        }
         if (orderStateVO==null){
             throw new  Exception("该订单不存在!");
         }
@@ -108,9 +111,11 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         //校验是否超过用车时间
         //未派车(无车无司机)
         if (intState < Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1))) {
+            log.info("订单:"+orderId+"无车无司机取消订单-------> start,原因{}",cancelReason);
             int i = this.ownerCarCancel(orderId, cancelReason, orderStateVO.getUserId());
         } else if (intState >= Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1)) &&
                 intState < Integer.parseInt(OrderState.INSERVICE.getState().substring(1))) {
+            log.info("订单:"+orderId+"有车有司机取消订单------- start,原因{}",cancelReason);
             //待服务(有车有司机)
             if (CarConstant.USR_CARD_MODE_HAVE .equals(orderStateVO.getUseCarMode())){
                 //自由车带服务取消
@@ -164,6 +169,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         vo.setPersonalAmount(personalAmount);
         vo.setPayState(payState);
         vo.setPayId(payId);
+        ismsBusiness.sendMessageCancelOrder(orderId,longinUserId);
+        /**发送取消订单短信*/
         if(cancelFee1.compareTo(BigDecimal.ZERO)==1){
             ismsBusiness.sendSmsCancelOrder(orderId);
         }else{

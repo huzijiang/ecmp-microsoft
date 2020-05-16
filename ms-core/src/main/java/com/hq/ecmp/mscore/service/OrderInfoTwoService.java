@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface OrderInfoTwoService {
 
-    CancelOrderCostVO cancelBusinessOrder(Long orderId, String cancelReason) throws Exception;
+    CancelOrderCostVO cancelBusinessOrder(Long orderId, String cancelReason,Long loginUserId) throws Exception;
 
     List<RunningOrderVo> runningOrder(Long orderId);
 }

@@ -267,7 +267,6 @@ public class ApplyContoller {
             List<ApplyApproveResultInfo> applyApproveResultInfos = resultInfoService.beforeInspect(journeyApplyDto, userId);
             if (CollectionUtils.isNotEmpty(applyApproveResultInfos)){
                 resultInfoService.applyPass(journeyApplyDto,userId,applyApproveResultInfos);
-                ecmpMessageService.saveMessageUnite(journeyApplyDto.getApplyId(),MESSAGE_T002);
             }
         }catch (Exception e){
             e.printStackTrace();

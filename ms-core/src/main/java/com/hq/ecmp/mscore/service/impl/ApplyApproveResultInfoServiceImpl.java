@@ -238,7 +238,7 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                     if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
                         orderId = orderInfoService.officialOrder(officialOrderReVo, loginUserId);
                     }
-                    /**给调度员发短信*/
+                    /**给调度员发通知/短信*/
                     ecmpMessageService.saveApplyMessagePass(applyInfo,loginUserId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
                 }
             }
