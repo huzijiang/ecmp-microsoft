@@ -84,9 +84,12 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
         //查询出用车制度表的限额额度，和限额类型
         Map<String,Object> map= Maps.newHashMap();
         OrderSettlingInfo orderSettlingInfo2 = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
+        if (orderSettlingInfo2==null){
+            return null;
+        }
         log.info("订单"+orderId+ JSONObject.toJSONString(orderSettlingInfo2));
         RegimeVo regimeInfo = regimeInfoMapper.queryRegimeDetail(regimeId);
-        BigDecimal limitMoney = regimeInfo.getLimitMoney();
+        BigDecimal limitMoney = regimeInfo.getLimitMoney()==null?BigDecimal.ZERO:regimeInfo.getLimitMoney();
         String limitType = regimeInfo.getLimitType();
         //按天
         String  excessMoney=String.valueOf(CommonConstant.ZERO);
