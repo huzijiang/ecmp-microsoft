@@ -749,7 +749,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setUseCarTimestamp(startOrderAddr.get(0).getActionTime().getTime());
             vo.setStartAddress(startOrderAddr.get(0).getAddress());
         }
-        List<OrderAddressInfo> endOrderAddr = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
+        List<OrderAddressInfo> endOrderAddr = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE));
         if (!CollectionUtils.isEmpty(endOrderAddr)){
             vo.setEndAddress(endOrderAddr.get(0).getAddress());
         }
