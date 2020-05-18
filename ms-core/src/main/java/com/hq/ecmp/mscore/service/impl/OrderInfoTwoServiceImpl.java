@@ -166,14 +166,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         //修改权限为未使用
         iJourneyUserCarPowerService.updatePowerSurplus(orderStateVO.getPowerId(),2);
         //TODO 生产放开
-//        vo.setIsPayFee(isPayFee);
-//        vo.setCancelAmount(cancelFee1.stripTrailingZeros().toPlainString());
-//        vo.setOwnerAmount(ownerAmount);
-//        vo.setPersonalAmount(personalAmount);
-        vo.setIsPayFee(1);
-        vo.setCancelAmount("10.00");
-        vo.setOwnerAmount("9.99");
-        vo.setPersonalAmount("0.01");
+        vo.setIsPayFee(isPayFee);
+        vo.setCancelAmount(cancelFee1.stripTrailingZeros().toPlainString());
+        vo.setOwnerAmount(ownerAmount);
+        vo.setPersonalAmount(personalAmount);
         vo.setPayState(payState);
         vo.setPayId(payId);
         ismsBusiness.sendMessageCancelOrder(orderId,longinUserId);
