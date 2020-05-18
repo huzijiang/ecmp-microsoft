@@ -363,6 +363,15 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 					innerIndex = j;
 					outerIndex = i;
 				}
+				//市内用车，用过一次车，则前面的未使用的需要过期
+				if (userCarAuthority.getType().equals(CarConstant.CITY_USE_CAR)){
+					//查询权限对应的已经完成的订单
+					List<Long> alreadyUsingOrderIdByPowerIds = orderInfoMapper.getAlreadyUsingOrderIdByPowerId(userCarAuthority.getTicketId());
+					if(alreadyUsingOrderIdByPowerIds!=null && alreadyUsingOrderIdByPowerIds.size()>0){
+						innerIndex = j;
+						outerIndex = i;
+					}
+				}
 			}
 		}
 		if(outerIndex != -1 && innerIndex !=-1){

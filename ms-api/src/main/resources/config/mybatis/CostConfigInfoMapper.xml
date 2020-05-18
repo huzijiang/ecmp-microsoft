@@ -180,10 +180,7 @@
             <if test="serviceType=='5000'">
                 and c.rent_type=#{rentType}
             </if>
-           and ct.car_type_id in
-           <foreach collection="list" item="item" open="(" close=")" separator=",">
-              #{item.carTypeId}
-            </foreach>
+           and ct.car_type_id = #{carTypeId}
     </select>
 
     <select id="selectCostConfigInfo" parameterType="com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto" resultType="com.hq.ecmp.mscore.domain.CostConfigInfo">

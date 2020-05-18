@@ -179,4 +179,11 @@ public interface CarGroupInfoMapper
      * @return
      */
     List<Long> queryCarGroupIdOuterCompany(@Param("cityCode") String cityCode,@Param("companyId") Long companyId);
+
+    /**
+     * 通过公司id查询公司的所有调度员
+     * @param companyId
+     * @return
+     */
+    List<Long> queryAllDispatchersByCompanyId(Long companyId);
 }

@@ -7,14 +7,11 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.alipay.api.domain.AlipayTradeRefundModel;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
-import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
 import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
-import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.hq.ecmp.constant.OrderPayConstant;
 import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.ms.api.conf.AlipayConfig;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.Api;
@@ -22,10 +19,10 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -55,6 +52,36 @@ public class AliPayController {
     @Autowired
     private IOrderRefundInfoService iOrderRefundInfoService;
 
+    @Value("${ali.app_id}")
+    private String app_id;
+
+    @Value("${ali.app_private_key}")
+    private String app_private_key;
+
+    @Value("${ali.ali_pay_public_key}")
+    private String ali_pay_public_key;
+
+    @Value("${ali.notify_url}")
+    private String notify_url;
+
+    @Value("${ali.url}")
+    private String url;
+
+    @Value("${ali.charset}")
+    private String charset;
+
+    @Value("${ali.refund_charset}")
+    private String refund_charset;
+
+    @Value("${ali.format}")
+    private String format;
+
+    @Value("${ali.sign_type}")
+    private String sign_type;
+
+    @Value("${ali.refund_notify_url}")
+    private String refund_notify_url;
+
 
     /**
      * @author ghb
@@ -68,18 +95,18 @@ public class AliPayController {
         String orderId = jsonObject.getString("payId");
         String price = jsonObject.getString("price");
         String body = jsonObject.getString("body");
-        AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.URL, AlipayConfig.APPID, AlipayConfig.APP_PRIVATE_KEY, AlipayConfig.FORMAT, AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGNTYPE);
+        AlipayClient alipayClient = new DefaultAlipayClient(url, app_id, app_private_key, format, charset, ali_pay_public_key, sign_type);
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
         //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
         AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
         model.setSubject(body); //商品标题
-        model.setOutTradeNo(orderId.toString()); //商家订单的唯一编号
+        model.setOutTradeNo(orderId); //商家订单的唯一编号
         model.setTimeoutExpress(OrderPayConstant.ORDER_PAY_TIMEOUT); //超时关闭该订单时间
         model.setTotalAmount(price);  //订单总金额
         model.setProductCode(OrderPayConstant.PRODUCT_CODE); //销售产品码，商家和支付宝签约的产品码，为固定值QUICK_MSECURITY_PAY
         request.setBizModel(model);
-        request.setNotifyUrl(AlipayConfig.notify_url);  //回调地址
+        request.setNotifyUrl(notify_url);  //回调地址
         String orderString = "";
         try {
             //这里和普通的接口调用不同，使用的是sdkExecute
@@ -170,7 +197,7 @@ public class AliPayController {
         String payId = jsonObject.getString("payId");
         String refundAmount = jsonObject.getString("refundAmount");
         AlipayTradeRefundRequest request = new AlipayTradeRefundRequest(); // 统一收单交易退款接口
-        AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.URL, AlipayConfig.APPID, AlipayConfig.APP_PRIVATE_KEY, AlipayConfig.FORMAT, AlipayConfig.REFUND_CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGNTYPE);
+        AlipayClient alipayClient = new DefaultAlipayClient(url, app_id, app_private_key, format, refund_charset, ali_pay_public_key, sign_type);
         AlipayTradeRefundModel model = new AlipayTradeRefundModel();
         //退款参数
         model.setOutTradeNo(payId);

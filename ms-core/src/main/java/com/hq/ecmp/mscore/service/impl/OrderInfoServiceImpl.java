@@ -455,6 +455,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             if(null!=carGroupOuterDispatchers && carGroupOuterDispatchers.contains(userId)){
                 return  true;
             }
+            //查询公司的所有调度员
+            List<Long> carGroupInnerAllDispatchers = carGroupInfoMapper.queryAllDispatchersByCompanyId(ecmpUser.getOwnerCompany());
+            if(null!=carGroupInnerAllDispatchers && carGroupInnerAllDispatchers.contains(userId)){
+                Long waitMinutes = DateFormatUtils.getDateToWaitInterval(dispatchOrderInfo.getCreateTime());
+                return    (waitMinutes>waitIntervalMinutes) ? true:false;
+            }
         }
         return false;
     }
