@@ -92,7 +92,7 @@ public interface ICostConfigInfoService
      * @param costConfigQueryDto  判重条件
      * @return
      */
-    List<CostConfigCityInfo> checkDoubleByServiceTypeCityCarType(CostConfigQueryDoubleValidDto costConfigQueryDto);
+    List<ValidDoubleDtoResult> checkDoubleByServiceTypeCityCarType(CostConfigQueryDoubleValidDto costConfigQueryDto);
 
     /**
      * 补单成本计算

@@ -301,4 +301,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and ci.allow_outer_dispatch='Y000'
             and ci.state='Y000'
     </select>
+    <select id="queryAllDispatchersByCompanyId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select s.user_id from car_group_info c
+        left join car_group_dispatcher_info s on c.car_group_id=s.car_group_id
+        where c.company_id=#{companyId}
+        and c.state='Y000'
+    </select>
 </mapper>
