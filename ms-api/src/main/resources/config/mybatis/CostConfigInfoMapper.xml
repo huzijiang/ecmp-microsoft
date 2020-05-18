@@ -180,10 +180,7 @@
             <if test="serviceType=='5000'">
                 and c.rent_type=#{rentType}
             </if>
-           and ct.car_type_id in
-           <foreach collection="list" item="item" open="(" close=")" separator=",">
-              #{item.carTypeId}
-            </foreach>
+           and ct.car_type_id = #{carTypeId}
     </select>
 
     <select id="selectCostConfigInfo" parameterType="com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto" resultType="com.hq.ecmp.mscore.domain.CostConfigInfo">
@@ -228,7 +225,17 @@
     </select>
 
     <select id="getTotalNum" resultType="java.lang.Integer" parameterType="com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto">
-            select count(1) total
+        select count(1) from (
+        select c.cost_id as costId,
+        cc.id as  costConfigCityId,
+        c.company_id as companyId,
+        c.cost_config_name as costConfigName,
+        c.rent_type as rentType,
+        cc.city_name as cityName,
+        cc.city_code as cityCode,
+        c.service_type as serviceType,
+        c.create_time as createTime,
+        c.update_time as updateTime
             from cost_config_info c
             left join cost_config_city_info  cc on cc.cost_id=c.cost_id
             left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
@@ -252,5 +259,6 @@
                     and ct.car_type_id=#{carTypeId}
                 </if>
             </where>
+        group by c.cost_id,c.company_id,c.cost_config_name,cc.city_name,c.service_type) d
     </select>
 </mapper>

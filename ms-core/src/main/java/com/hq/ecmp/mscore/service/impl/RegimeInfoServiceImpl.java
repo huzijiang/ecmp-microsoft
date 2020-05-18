@@ -784,7 +784,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 					log.error(cityCodes+"城市所属公司网约车暂不支持服务");
 					throw new CustomException("网约车暂未开通该城市服务");
 				}else{
-					if (CommonConstant.TRAVLE_APPLY.equals(regimenType)) {
+					if (CommonConstant.AFFICIAL_APPLY.equals(regimenType)) {
 						List<CarLevelVO> carTypes = onLineCarTypeVOS.get(0).getCarTypes();
 						if (CollectionUtils.isEmpty(carTypes)){
 							log.error(cityCodes+"城市网约车暂不支持企业配置的车型");
@@ -794,8 +794,9 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 							String onlineLevel = regimeVo.getUseCarModeOnlineLevel();
 							if (StringUtils.isNotBlank(onlineLevel)){
 								List<String> strings = Arrays.asList(onlineLevel.split(","));
-								boolean b = collect.retainAll(strings);
-								if (!b){
+								//与制度取交集
+								collect.retainAll(strings);
+								if (CollectionUtils.isEmpty(collect)){
 									log.error(cityCodes+"城市网约车暂不支持企业配置的车型");
 									throw new CustomException("该城市暂不支持企业配置的网约车车型");
 								}
@@ -810,6 +811,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 //					log.error(cityCodes.toString()+"城市所属公司网约车暂不支持服务");
 //					throw new CustomException("网约车暂未开通该城市服务");
 //				}
+				break;
 			default:
 				List<CarGroupServeScopeInfo>  ownerCity = checkTraveCompanyCar(orgComcany, loginUser.getUser().getDeptId(), cityCodes);
 				List<OnLineCarTypeVO> onLineCitys = this.threeCityServer(regimeDto.getCityCodes());
@@ -920,14 +922,14 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 				carTypeVO.setCityCode(vo.getCityId());
 				List<CarServiceTypeVO> serviceTypes = vo.getServiceTypes();
 				if (CollectionUtils.isNotEmpty(serviceTypes)){
-					List<CarServiceTypeVO> canServiceType=serviceTypes.stream().filter(p-> OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState().equals(p.getServiceTypeId())||
-							OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState().equals(p.getServiceTypeId())).collect(Collectors.toList());
+					List<CarServiceTypeVO> canServiceType=serviceTypes.stream().filter(p-> OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState().equals(p.getServiceTypeId()+"")||
+							OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState().equals(p.getServiceTypeId()+"")).collect(Collectors.toList());
 					/**网约车接送机可用车型*/
 					if (CollectionUtils.isNotEmpty(canServiceType)){
 						carTypeVO.setShuttleOnlineCarType(String.join(",",collectId));
 					}
-					List<CarServiceTypeVO> canType=serviceTypes.stream().filter(p-> OrderServiceType.ORDER_SERVICE_TYPE_NOW.getBcState().equals(p.getServiceTypeId())||
-							OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState().equals(p.getServiceTypeId())).collect(Collectors.toList());
+					List<CarServiceTypeVO> canType=serviceTypes.stream().filter(p-> OrderServiceType.ORDER_SERVICE_TYPE_NOW.getBcState().equals(p.getServiceTypeId()+"")||
+							OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState().equals(p.getServiceTypeId()+"")).collect(Collectors.toList());
 					/**网约车市内用车可用车型*/
 					if (CollectionUtils.isNotEmpty(canType)){
 						carTypeVO.setOnlineCarType(String.join(",",collectId));
@@ -1017,6 +1019,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			return list;
 		}
 		String regimeCarLevel = this.getOwnerCarLevel(regimeVo);
+		List<String> newOnwerCarType=Arrays.asList(regimeCarLevel.split(","));
 		String carTypeName=enterpriseCarTypeInfoMapper.selectCarTypesByTypeIds(ownerCompany,regimeCarLevel.substring(1));
 		List<String> citylist=  Arrays.asList(cityCodes.split(","));
 		for (String city:citylist){

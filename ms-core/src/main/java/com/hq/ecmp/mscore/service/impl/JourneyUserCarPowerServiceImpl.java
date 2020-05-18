@@ -124,16 +124,18 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 
 	@Override
 	public Map<String, Integer> selectStatusCount(Long journeyId) {
-		Map<String, Integer> map =new HashMap<>();
-		JourneyUserCarPower journeyUserCarPower = new JourneyUserCarPower();
 		//查询未使用的次数
-		journeyUserCarPower.setState(CarConstant.NOT_USER_USE_CAR);
-		journeyUserCarPower.setJourneyId(journeyId);;
-		List<JourneyUserCarPower> list = selectJourneyUserCarPowerList(journeyUserCarPower);
-		if(null !=list && list.size()>0){
-			//对三种类型的分组统计次数
-			for (JourneyUserCarPower j : list) {
-				String type = j.getType();
+		Map<String, Integer> map =new HashMap<>();
+		List<UserAuthorityGroupCity> userCarAuthorities = journeyInfoService.getUserCarAuthority(journeyId);
+		for (UserAuthorityGroupCity userAuthorityGroupCity:
+		userCarAuthorities) {
+			List<UserCarAuthority> userCarAuthorityList = userAuthorityGroupCity.getUserCarAuthorityList();
+			for (UserCarAuthority userCarAuthority:
+			userCarAuthorityList) {
+				String type = userCarAuthority.getType();
+				if (OrderState.noShowStateOfPower().contains(userCarAuthority.getState())){
+					continue;
+				}
 				Integer sum = map.get(type);
 				if(null ==sum){
 					sum=1;
@@ -196,7 +198,13 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 					userCarAuthority.setSetoutEqualArrive(selectRegimeInfo.getAsSetoutEqualArrive());
 				}
 				// 生成用车权限对应的前端状态
-				userCarAuthority.setState(buildUserAuthorityPowerStatus(flag, userCarAuthority.getTicketId()));
+				String state = buildUserAuthorityPowerStatus(flag, userCarAuthority.getTicketId());
+				userCarAuthority.setState(state);
+				if(state.equals(OrderState.ORDERDENIED.getState())){
+					OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(userCarAuthority.getTicketId());
+					userCarAuthority.setRejectReason(orderStateTraceInfo.getContent());
+				}
+
 			}
 		}
 		return list;
@@ -239,7 +247,12 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				boolean flag = regimeInfoService.judgeNotDispatch(journeyUserCarPowers.get(0).getApplyId(),
 						serviceTypeCarAuthority.getCityCode());
 				// 生成用车权限对应的前端状态
-				serviceTypeCarAuthority.setState(buildUserAuthorityPowerStatus(flag, serviceTypeCarAuthority.getTicketId()));
+				String state = buildUserAuthorityPowerStatus(flag, serviceTypeCarAuthority.getTicketId());
+				serviceTypeCarAuthority.setState(state);
+				if(state.equals(OrderState.ORDERDENIED.getState())){
+					OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(serviceTypeCarAuthority.getTicketId());
+					serviceTypeCarAuthority.setRejectReason(orderStateTraceInfo.getContent());
+				}
 				//获取权限状态对应的有效订单
 				serviceTypeCarAuthority.setOrderId(orderInfoMapper.queryVaildOrderIdByPowerId(serviceTypeCarAuthority.getTicketId()));
 				//过滤掉不需要在差旅快捷入库展示的权限
@@ -408,7 +421,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	}
 
 	@Override
-	public String buildUserAuthorityPowerStatus(boolean flag, Long powerId) {
+	public String  buildUserAuthorityPowerStatus(boolean flag, Long powerId) {
 		String vaildOrdetrState = orderInfoMapper.queryVaildOrderStatusByPowerId(powerId);
 		if(StringUtil.isEmpty(vaildOrdetrState) ||OrderState.INITIALIZING.getState().equals(vaildOrdetrState)){
 			//权限不可用状态  S801 -权限不可用
@@ -439,6 +452,10 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 									}
 								}
 							}
+						}
+					}else{
+						if(powerNotAvailable(journeyUserCarPower.getApplyId(),journeyNodeInfo.getPlanBeginCityCode())){
+							return OrderState.POWERNOAVAILABLE.getState();
 						}
 					}
 
@@ -523,7 +540,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 					//差旅没超过行程时间，超过用车时间，此过期状态如果后面没有使用的权限，则此权限仍可约车（定时器会去判断超过用车时间则状态变为S921）
 					return OrderState.TRAVELOVERUSECARTIME.getState();
 				}
-				if (orderStateTraceInfo.getState().equals(OrderStateTrace.ORDERDENIED)){
+				if (orderStateTraceInfo.getState().equals(OrderStateTrace.ORDERDENIED.getState())){
 					return OrderState.ORDERDENIED.getState();
 				}
 				if(flag || queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){

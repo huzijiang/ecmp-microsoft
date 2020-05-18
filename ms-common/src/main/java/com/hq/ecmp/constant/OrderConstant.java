@@ -10,9 +10,12 @@ package com.hq.ecmp.constant;
 public class OrderConstant {
 
     //订单地址表相关类型
-    public static String ORDER_ADDRESS_ACTUAL_SETOUT="A000"; //真是出发地址
-    public static String ORDER_ADDRESS_ACTUAL_TRACE="A500";//订单轨迹地址
-    public static String ORDER_ADDRESS_ACTUAL_ARRIVE="A999";//真实到达地址
+    //真是出发地址
+    public static String ORDER_ADDRESS_ACTUAL_SETOUT="A000";
+    //订单轨迹地址
+    public static String ORDER_ADDRESS_ACTUAL_TRACE="A500";
+    //真实到达地址
+    public static String ORDER_ADDRESS_ACTUAL_ARRIVE="A999";
 
 
 }

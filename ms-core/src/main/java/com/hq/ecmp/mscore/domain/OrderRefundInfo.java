@@ -48,64 +48,47 @@ public class OrderRefundInfo {
     /**
      * 退款金额
      */
-    @NotNull
-    @ApiParam(required = true)
     private BigDecimal amount;
 
     /**
      * 退款原因
      */
-    @NotNull
-    @ApiParam(required = true)
     private String reason;
 
     /**
      *  退款流水
      */
-    @NotNull
-    @ApiParam(required = true)
     private String transactionLog;
 
     /**
      *  交易截止时间
      */
-    @NotNull
-    @ApiParam(required = true)
     private Date finishPayTime;
 
     /**
      *  退款结果
      */
-    @NotNull
-    @ApiParam(required = true)
     private String finishResult;
 
     /**
      * 创建者
      */
-    @NotNull
-    @ApiParam(required = true)
     private Long createBy;
 
     /**
      *  创建时间
      */
-    @NotNull
-    @ApiParam(required = true)
     private Date createTime;
 
     /**
      *  更新者
      */
-    @NotNull
-    @ApiParam(required = true)
     private Long updateBy;
 
     /**
      *  更新时间
      */
-    @NotNull
-    @ApiParam(required = true)
     private Date updateTime;
+
 
 }

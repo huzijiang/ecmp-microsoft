@@ -196,18 +196,26 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
      * @return 重复的城市集合
      */
     @Override
-    public List<CostConfigCityInfo> checkDoubleByServiceTypeCityCarType(CostConfigQueryDoubleValidDto costConfigQueryDto) {
-        List<CostConfigCityInfo> result = new ArrayList<>();
+    public List<ValidDoubleDtoResult> checkDoubleByServiceTypeCityCarType(CostConfigQueryDoubleValidDto costConfigQueryDto) {
+        List<ValidDoubleDtoResult> result = new ArrayList<>();
         List<CostConfigCityInfo> cities = costConfigQueryDto.getCities();
         for (CostConfigCityInfo costConfigCityInfo:
         cities) {
             int count = 0;
-            count = costConfigInfoMapper.checkDoubleByServiceTypeCityCarType(
-                    costConfigQueryDto.getCarTypes(),Integer.parseInt(costConfigCityInfo.getCityCode()),costConfigQueryDto.getServiceType(),
-                    costConfigQueryDto.getRentType());
-            if (count >0){
-                result.add(costConfigCityInfo);
+            for (CostConfigCarTypeInfo costConfigCarTypeInfo:
+            costConfigQueryDto.getCarTypes()) {
+                count = costConfigInfoMapper.checkDoubleByServiceTypeCityCarType(
+                        costConfigCarTypeInfo.getCarTypeId(),Integer.parseInt(costConfigCityInfo.getCityCode()),costConfigQueryDto.getServiceType(),
+                        costConfigQueryDto.getRentType());
+                if (count >0){
+                    ValidDoubleDtoResult validDoubleDtoResult = ValidDoubleDtoResult.builder().carTypeName(costConfigCarTypeInfo.getCarTypeName())
+                            .cityName(costConfigCityInfo.getCityName())
+                            .serviceType(costConfigQueryDto.getServiceType())
+                            .build();
+                    result.add(validDoubleDtoResult);
+                }
             }
+
         }
         return result;
     }

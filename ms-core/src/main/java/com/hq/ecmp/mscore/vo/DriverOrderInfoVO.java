@@ -46,6 +46,8 @@ public class DriverOrderInfoVO {
     private String customerServicePhone;
     @ApiModelProperty(name = "useCarTime",value = "用车时间")
     private Date useCarTime;
+    @ApiModelProperty(name = "endTime",value = "结束时间")
+    private Date endTime;
     @ApiModelProperty(name = "flightNumber",value = "航班号")
     private String flightNumber;
     @ApiModelProperty(name = "charterCarType",value = "T001 半日租（4小时）T002 整日租（8小时）")
