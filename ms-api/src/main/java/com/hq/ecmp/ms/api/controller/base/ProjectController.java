@@ -289,12 +289,7 @@ public class ProjectController {
     @ApiOperation(value = "显示部门及员工树",notes = "显示部门及员工树",httpMethod ="POST")
     @PostMapping("/selectProjectUserTree")
     public ApiResponse<List<Map>> selectProjectUserTree(@RequestBody ProjectInfoDTO projectInfoDto){
-        List<Map> lsit=new ArrayList<>();
-//        if (StringUtils.isEmpty(projectInfoDto.getName())){
-        lsit = iProjectInfoService.buildProjectUserTree(projectInfoDto.getProjectId(),projectInfoDto.getSearch());
-//        }else {
-//            lsit= iProjectInfoService.selectProjectUserBySearch(projectInfoDto.getProjectId(), projectInfoDto.getName());
-//        }
+        List<Map> lsit = iProjectInfoService.buildProjectUserTree(projectInfoDto.getProjectId(),projectInfoDto.getSearch());
         return ApiResponse.success(lsit);
 
 
