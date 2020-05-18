@@ -470,13 +470,13 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         EcmpOrg parentOrg = ecmpOrgMapper.selectEcmpOrgById(ecmpOrgVo.getParentId());
         String ancestors=parentOrg.getAncestors()+","+ecmpOrgVo.getParentId();
         ecmpOrgVo.setAncestors(ancestors);
-        if(ecmpOrgVo.getItIsIndependent().equals("Y000")){
+        if("Y000".equals(ecmpOrgVo.getItIsIndependent())){
             ecmpOrgVo.setStatus(EcmpOrgVo.statusEnum.CLOUD.getCode());
         }else{
             ecmpOrgVo.setStatus(EcmpOrgVo.statusEnum.OK.getCode());
         }
         int iz = ecmpOrgMapper.addDept(ecmpOrgVo);
-        if(ecmpOrgVo.getItIsIndependent().equals("Y000")){
+        if("Y000".equals(ecmpOrgVo.getItIsIndependent())){
             //云端独立核算
             Map map = new HashMap();
             // MAC地址
