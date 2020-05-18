@@ -546,9 +546,10 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
      */
     @Override
     @Async
-    public void saveMessageUnite(Long orderId, MsgConstant msgConstant) throws Exception {
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
+    @Transactional
+    public void saveMessageUnite(LoginUser loginUser,Long orderId, MsgConstant msgConstant) throws Exception {
+//        HttpServletRequest request = ServletUtils.getRequest();
+//        LoginUser loginUser = tokenService.getLoginUser(request);
         SysUser user = loginUser.getUser();
         Long userId=null;
         if (user!=null){
