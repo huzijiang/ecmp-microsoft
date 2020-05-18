@@ -45,7 +45,8 @@ public class StatisticsRankingServiceImpl implements StatisticsRankingService {
         //公司或部门列表
         SysDept sysDept = new SysDept();
         sysDept.setDeptType(String.valueOf(statisticsParam.getType()));
-        List<SysDept> list = sysDeptMapper.getListBySysDept(sysDept);
+        sysDept.setCompanyId(statisticsParam.getCompanyId());
+        List<SysDept> list = sysDeptMapper.selectDeptList(sysDept);
         Map<String,Map<String,Integer>> map = list.stream().collect(Collectors.toMap(SysDept::getDeptName, x->{
             Map costData = new HashMap();
             costData.put("order",0);

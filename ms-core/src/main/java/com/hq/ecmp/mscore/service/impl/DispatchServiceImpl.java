@@ -122,16 +122,8 @@ public class DispatchServiceImpl implements IDispatchService {
         }
 
         OrderInfo orderInfo=orderInfoMapper.selectOrderInfoById(orderId);
-        if(orderInfo==null){
-            return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_EXIST.getDesc());
-        }
-        OrderAddressInfo orderAddressInfoParam=new OrderAddressInfo();
-                         orderAddressInfoParam.setOrderId(orderId);
-                         orderAddressInfoParam.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
-        OrderAddressInfo orderAddressInfo=orderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfoParam);
-        if(orderAddressInfo==null){
-            return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_FIND_SET_OUT_ADDRESS.getDesc());
-        }
+        OrderAddressInfo orderAddressInfo=verifyOrderActualSetoutAddress(orderInfo).getData();
+
         String userCarCity=orderAddressInfo.getCityPostalCode();
         String carModelLevelType=dispatchSelectCarDto.getCarModelLevelType();
 
@@ -217,18 +209,7 @@ public class DispatchServiceImpl implements IDispatchService {
         }
 
         OrderInfo orderInfo=orderInfoMapper.selectOrderInfoById(orderId);
-        if(orderInfo==null){
-            return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_EXIST.getDesc());
-        }
-
-        OrderAddressInfo orderAddressInfoParam=new OrderAddressInfo();
-                         orderAddressInfoParam.setOrderId(orderId);
-                         orderAddressInfoParam.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
-        OrderAddressInfo orderAddressInfo=orderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfoParam);
-
-        if(orderAddressInfo==null){
-            return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_FIND_SET_OUT_ADDRESS.getDesc());
-        }
+        OrderAddressInfo orderAddressInfo=verifyOrderActualSetoutAddress(orderInfo).getData();
 
         selectDriverConditionBo.setCityCode(orderAddressInfo.getCityPostalCode());
         selectDriverConditionBo.setDispatcherId(0L);
@@ -426,20 +407,10 @@ public class DispatchServiceImpl implements IDispatchService {
             cars = cars.stream().filter(x->longs.contains(x.getCarId())).collect(Collectors.toList());
         }
 
-        Iterator<CarInfo> carInfoIterator=cars.iterator();
         JourneyInfo journeyInfo=journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         RegimeInfo regimeInfo=regimeInfoMapper.selectRegimeInfoById(journeyInfo.getRegimenId());
 
         String allowCarModelLevel=regimeInfo.getUseCarModeOwnerLevel();
-//        if(!StringUtils.isEmpty(allowCarModelLevel)){
-//            while (carInfoIterator.hasNext()){
-//                CarInfo carInfo=carInfoIterator.next();
-//                EnterpriseCarTypeInfo enterpriseCarTypeInfo=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
-//                if(!allowCarModelLevel.contains(enterpriseCarTypeInfo.getLevel())){
-//
-//                }
-//            }
-//        }
 
         ApiResponse<OrderTaskClashBo>  apiResponseSelectOrderSetOutAndArrivalTime=selectOrderSetOutAndArrivalTime(orderInfo);
         if(!apiResponseSelectOrderSetOutAndArrivalTime.isSuccess()){
@@ -474,9 +445,9 @@ public class DispatchServiceImpl implements IDispatchService {
 
             EnterpriseCarTypeInfo enterpriseCarTypeInfoa=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
             if(!allowCarModelLevel.contains(enterpriseCarTypeInfo.getLevel())){
-                waitSelectedCarBo.setLevelIsMatch(CarLevelMatchEnum.UN_MATCH);
+                waitSelectedCarBo.setLevelIsMatch(CarLevelMatchEnum.UN_MATCH.getCode());
             }else{
-                waitSelectedCarBo.setLevelIsMatch(CarLevelMatchEnum.MATCH);
+                waitSelectedCarBo.setLevelIsMatch(CarLevelMatchEnum.MATCH.getCode());
             }
 
             List<OrderInfo> orderInfosSetOutClash=orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
@@ -760,6 +731,29 @@ public class DispatchServiceImpl implements IDispatchService {
 
         return ApiResponse.success(carGroupServeScopeInfoListResult);
     }
+
+    /**
+     * 校验订单的真实出发地址
+     */
+    public ApiResponse<OrderAddressInfo>  verifyOrderActualSetoutAddress(OrderInfo orderInfo){
+
+        if(orderInfo==null){
+            return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_EXIST.getDesc());
+        }
+        OrderAddressInfo orderAddressInfoParam=new OrderAddressInfo();
+        orderAddressInfoParam.setOrderId(orderInfo.getOrderId());
+        orderAddressInfoParam.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+
+        OrderAddressInfo orderAddressInfo=orderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfoParam);
+
+        if(orderAddressInfo==null){
+            return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_FIND_SET_OUT_ADDRESS.getDesc());
+        }
+        return ApiResponse.success(orderAddressInfo);
+    }
+
+
+
 
     /**
      * 无车驳回操作（非改派的，改派的直接用1.0的申请改派审核功能即可）

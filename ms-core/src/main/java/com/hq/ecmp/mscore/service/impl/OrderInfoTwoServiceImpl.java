@@ -113,7 +113,11 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         //未派车(无车无司机)
         if (intState < Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1))) {
             log.info("订单:"+orderId+"无车无司机取消订单-------> start,原因{}",cancelReason);
-            int i = this.ownerCarCancel(orderId, cancelReason, orderStateVO.getUserId());
+            if (CarConstant.USR_CARD_MODE_HAVE .equals(orderStateVO.getUseCarMode())){
+                int i = this.ownerCarCancel(orderId, cancelReason, orderStateVO.getUserId());
+            }else{
+                JSONObject jsonObject = thirdService.threeCancelServer(orderId, cancelReason);
+            }
         } else if (intState >= Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1)) &&
                 intState < Integer.parseInt(OrderState.INSERVICE.getState().substring(1))) {
             log.info("订单:"+orderId+"有车有司机取消订单------- start,原因{}",cancelReason);
