@@ -17,4 +17,6 @@ public class StatisticsParam {
     //订单-数据类型
     //运力-统计维度 0公司 1车队
     private int type;
+    //公司id
+    private Long companyId;
 }

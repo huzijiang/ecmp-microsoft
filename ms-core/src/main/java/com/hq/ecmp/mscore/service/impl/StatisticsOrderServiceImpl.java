@@ -259,7 +259,8 @@ public class StatisticsOrderServiceImpl implements StatisticsOrderService {
         SysDept sysDept = new SysDept();
         sysDept.setParentId(statisticsParam.getDeptIds().get(0));
         sysDept.setDeptType("2");
-        List<SysDept> list = sysDeptMapper.getListBySysDept(sysDept);
+        sysDept.setCompanyId(statisticsParam.getCompanyId());
+        List<SysDept> list = sysDeptMapper.selectDeptList(sysDept);
         Map<String,Map<String,Integer>> resultMap = new LinkedHashMap();
         //先全部填空数据
         list.stream().forEach(x->resultMap.put(x.getDeptName(),getInitMapData(statisticsParam.getType())));
