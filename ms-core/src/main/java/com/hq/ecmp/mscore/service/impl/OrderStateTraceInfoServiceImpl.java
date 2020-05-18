@@ -197,9 +197,9 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 			//消息状态
 			ecmpMessage.setStatus(MsgStatusConstant.MESSAGE_STATUS_T002.getType());
 			//内容
-			ecmpMessage.setContent("您有一条任务改派，请及时查看！");
+			ecmpMessage.setContent(MsgConstant.MESSAGE_T004.getDesc());
 			//消息类别
-			ecmpMessage.setCategory(MsgConstant.MESSAGE_T003.getType());
+			ecmpMessage.setCategory(MsgConstant.MESSAGE_T004.getType());
 			//对应的消息业务id
 			ecmpMessage.setCategoryId(orderId);
 			//创建人

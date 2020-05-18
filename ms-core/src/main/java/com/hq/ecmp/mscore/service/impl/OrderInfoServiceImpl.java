@@ -776,15 +776,30 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (OrderState.ORDERCANCEL.getState().equals(orderInfo.getState())){
             List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
             if (!CollectionUtils.isEmpty(orderSettlingInfos)){
-                String amountDetail = orderSettlingInfos.get(0).getAmountDetail();
+                OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
+                CancelOrderCostVO cancelOrderCostVO=new CancelOrderCostVO();
+                cancelOrderCostVO.setCancelAmount(orderSettlingInfo.getAmount().toPlainString());
+                String amountDetail = orderSettlingInfo.getAmountDetail();
+                String ownerAmount="";
+                String personalAmount="";
                 if (StringUtils.isNotEmpty(amountDetail)){
                     JSONObject parse = JSONObject.parseObject(amountDetail);
                     String otherCost = parse.getString("otherCost");
                     if (StringUtils.isNotEmpty(otherCost)){
-                        vo.setCancelFee(JSONObject.parseArray(otherCost,OtherCostBean.class));
+                        List<OtherCostBean> otherCostBeans = JSONObject.parseArray(otherCost, OtherCostBean.class);
+                        for (OtherCostBean bean:otherCostBeans){
+                            if ("personalAmount".equals(bean.getTypeName())){
+                                personalAmount=bean.getCost();
+                            }else if ("ownerAmount".equals(bean.getTypeName())){
+                                ownerAmount=bean.getCost();
+                            }
+                        }
                     }
                 }
-
+                cancelOrderCostVO.setOwnerAmount(ownerAmount);
+                cancelOrderCostVO.setPersonalAmount(personalAmount);
+                vo.setCancelFee(cancelOrderCostVO);
+                this.checkIsOverMoney(orderInfo,vo,2);
             }
             return vo;
         }
@@ -841,7 +856,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
                     vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
                     vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime().intValue()));
-//                    vo.setAmount(orderSettlingInfos.get(0).getAmount().toPlainString());
                 }
             }
         }else{
@@ -852,28 +866,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             if (OrderState.STOPSERVICE.getState().equals(orderInfo.getState()) || OrderState.endServerStates().contains(orderStateTraceInfo.getState())) {
                 OrderCostDetailVO orderCost = this.getOrderCost(orderId);
                 vo.setOrderCostDetailVO(orderCost);
+                //网约车是否限额
+                //查询出用车制度表的限额额度，和限额类型
+                this.checkIsOverMoney(orderInfo,vo,1);
             }
-            //网约车是否限额
-            //查询出用车制度表的限额额度，和限额类型
-            String overMoney = iOrderPayInfoService.checkOrderFeeOver(orderId, journeyInfo.getRegimenId(), orderInfo.getUserId());
-            if (StringUtils.isEmpty(overMoney) || BigDecimal.ZERO.compareTo(new BigDecimal(overMoney)) > 0) {
-                vo.setIsExcess(ZERO);
-                vo.setExcessMoney(String.valueOf(ZERO));
-            } else {
-                vo.setIsExcess(ONE);
-                vo.setExcessMoney(overMoney);
-            }
-            List<ThridCarTypeVo> onlienCarType = thirdService.getOnlienCarType();
-            if (!CollectionUtils.isEmpty(onlienCarType)){
-                String demandCarLevel = orderInfo.getDemandCarLevel();
-                String carPhoto = onlienCarType.stream().filter(p -> p.getValue().equals(demandCarLevel)).map(ThridCarTypeVo::getRemark).collect(Collectors.joining());
-                vo.setCarPhoto(carPhoto);
-            }
-        }
-        OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderId);
-        if (orderPayInfo != null) {
-            vo.setPayId(orderPayInfo.getPayId());
-            vo.setPayState(orderPayInfo.getState());
         }
         if (OrderState.endServerStates().contains(orderStateTraceInfo.getState())){
             // TODO 开发发版放开
@@ -2326,36 +2322,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 String amount = feeInfoBean.getString("customerPayPrice");
                 String distance = feeInfoBean.getString("mileage");//里程
                 String duration = feeInfoBean.getString("min");//时长
-                OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
-                orderSettlingInfo.setOrderId(orderNo);
-                orderSettlingInfo.setTotalMileage(new BigDecimal(distance).stripTrailingZeros());
-                orderSettlingInfo.setTotalTime(new BigDecimal(duration).stripTrailingZeros());
-                orderSettlingInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
-                orderSettlingInfo.setAmountDetail(feeInfoBean.toString());
-                orderSettlingInfo.setCreateBy(CommonConstant.START);
-                orderSettlingInfo.setCreateTime(new Date());
-                orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
-
-                //插入订单财务信息表
-                OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
-                orderAccountInfo.setBillId(orderSettlingInfo.getBillId());
-                orderAccountInfo.setOrderId(orderNo.toString());
-                orderAccountInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
-                orderAccountInfo.setCreateTime(new Date());
-                orderAccountInfo.setState(CommonConstant.NOT_INVOICED);
-                orderAccountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
-                //插入订单支付表
-                OrderPayInfo orderPayInfo = new OrderPayInfo();
-                String substring = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32);
-                orderPayInfo.setPayId(substring);
-                orderPayInfo.setBillId(orderSettlingInfo.getBillId());
-                orderPayInfo.setOrderId(orderNo);
-                orderPayInfo.setState(OrderPayConstant.UNPAID);
-                orderPayInfo.setPayMode(OrderPayConstant.PAY_AFTER_STATEMENT);
-                orderPayInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
-                orderPayInfo.setCreateTime(DateUtils.getNowDate());
-                iOrderPayInfoService.insertOrderPayInfo(orderPayInfo);
-            int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
+                JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+                BigDecimal persionMoney = iOrderPayInfoService.checkOrderFeeOver(new BigDecimal(amount), journeyInfo.getRegimenId(), orderInfo.getUserId());
+                OrderPayInfo orderPayInfo = iOrderPayInfoService.insertOrderPayAndSetting(orderNo, new BigDecimal(amount),distance, duration, feeInfoBean.toJSONString(), Long.parseLong(CommonConstant.START), persionMoney);
+                int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
             if (orderConfirmStatus == ZERO) {
                 //自动确认
                 /**判断是否需要支付*/
@@ -2676,5 +2646,59 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         OrderInfoMessage data =  orderInfoMapper.getCarMessage(orderId);
         return data;
+    }
+
+
+    private OrderVO checkIsOverMoney(OrderInfo orderInfo,OrderVO vo,int flag)throws Exception{
+        List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderInfo.getOrderId()));
+        String personalAmount = "";
+        String ownerAmount = "";
+        if (flag == 1) {//正常结单
+            if (!CollectionUtils.isEmpty(orderSettlingInfos)) {
+                OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
+                vo.setAmount(orderSettlingInfo.getAmount().toPlainString());
+            }
+        } else {//取消结单
+            if (!CollectionUtils.isEmpty(orderSettlingInfos)) {
+                OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
+                CancelOrderCostVO cancelOrderCostVO = new CancelOrderCostVO();
+                cancelOrderCostVO.setCancelAmount(orderSettlingInfo.getAmount().toPlainString());
+                String amountDetail = orderSettlingInfo.getAmountDetail();
+                if (StringUtils.isNotEmpty(amountDetail)) {
+                    JSONObject parse = JSONObject.parseObject(amountDetail);
+                    String otherCost = parse.getString("otherCost");
+                    if (StringUtils.isNotEmpty(otherCost)) {
+                        List<OtherCostBean> otherCostBeans = JSONObject.parseArray(otherCost, OtherCostBean.class);
+                        for (OtherCostBean bean : otherCostBeans) {
+                            if ("personalAmount".equals(bean.getTypeName())) {
+                                personalAmount = bean.getCost();
+                            } else if ("ownerAmount".equals(bean.getTypeName())) {
+                                ownerAmount = bean.getCost();
+                            }
+                        }
+                    }
+                }
+                cancelOrderCostVO.setOwnerAmount(ownerAmount);
+                cancelOrderCostVO.setPersonalAmount(personalAmount);
+                vo.setCancelFee(cancelOrderCostVO);
+            }
+        }
+        OrderPayInfo orderPayInfo = iOrderPayInfoService.getOrderPayInfo(orderInfo.getOrderId());
+        if (orderPayInfo != null) {
+            vo.setPayId(orderPayInfo.getPayId());
+            vo.setPayState(orderPayInfo.getState());
+            vo.setIsExcess(ONE);
+            vo.setExcessMoney(orderPayInfo.getAmount().toPlainString());
+        } else {
+            vo.setIsExcess(ZERO);
+            vo.setExcessMoney(String.valueOf(ZERO));
+        }
+        List<ThridCarTypeVo> onlienCarType = thirdService.getOnlienCarType();
+        if (!CollectionUtils.isEmpty(onlienCarType)) {
+            String demandCarLevel = orderInfo.getDemandCarLevel();
+            String carPhoto = onlienCarType.stream().filter(p -> p.getValue().equals(demandCarLevel)).map(ThridCarTypeVo::getRemark).collect(Collectors.joining());
+            vo.setCarPhoto(carPhoto);
+        }
+        return vo;
     }
 }

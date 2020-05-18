@@ -506,9 +506,12 @@ public class SmsBusinessImpl implements IsmsBusiness{
         }
         //已派车状态,调度员信息
         UserVO sysUser =  orderStateTraceInfoMapper.getOrderDispatcher(orderId, OrderState.ALREADYSENDING.getState());
-        dispatchId = sysUser.getUserId().toString();
-        dispatchMobile = sysUser.getUserPhone();
-        dispatchName = sysUser.getUserName();
+        if (sysUser!=null){
+
+            dispatchId = sysUser.getUserId().toString();
+            dispatchMobile = sysUser.getUserPhone();
+            dispatchName = sysUser.getUserName();
+        }
         result.put("useCarTime", useCarTime);
         result.put("planBeginAddress", planBeginAddress);
         result.put("planEndAddress",planEndAddress);

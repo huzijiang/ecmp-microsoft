@@ -355,6 +355,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              s.action_time useCarTime,
              s.address startAddr,
              t.address endAddr,
+             t.action_time endTime,
              c.car_license carLicense,
              c.car_color carColor,
              c.car_type carType,
