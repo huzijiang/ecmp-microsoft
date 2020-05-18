@@ -1,6 +1,5 @@
 package com.hq.ecmp.mscore.service;
 
-import com.github.pagehelper.PageInfo;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.dto.ProjectUserDTO;
 import com.hq.ecmp.mscore.vo.OrgTreeVo;
@@ -9,6 +8,7 @@ import com.hq.ecmp.mscore.vo.ProjectInfoVO;
 import com.hq.ecmp.mscore.vo.ProjectUserVO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 项目Service接口
@@ -97,4 +97,6 @@ public interface IProjectInfoService
      * @return
      */
     List<ProjectInfoVO> selectProjects(Long ownerCompany);
+
+    List<Map> buildProjectUserTree(Long projectId, String search);
 }

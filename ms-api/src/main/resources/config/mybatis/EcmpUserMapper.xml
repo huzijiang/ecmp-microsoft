@@ -771,4 +771,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null  and name != ''">and (nick_name like concat('%', #{name}, '%') or phonenumber like concat('%', #{name}, '%'))  </if>
             <if test="itIsDispatcher != null and itIsDispatcher!='' "> and it_is_dispatcher = #{itIsDispatcher}</if>
     </select>
+
+    <select id="selectUserListByProjectId" resultType="java.util.Map">
+        select user_id id,nick_name showname,dept_id pid,1 type,CONCAT(user_id,'-','1') onlyId,CONCAT(dept_id,'-','0') onlyPid from ecmp_user a
+        where status=0 and del_flag=0 and owner_company=#{companyId}
+        and user_id not in (SELECT user_id from project_user_relation_info where project_id=#{projectId} )
+        <if test="search!=null and search!='' ">
+            and (a.nick_name like concat('%', #{search}, '%') or a.phonenumber like concat('%', #{search}, '%') or a.job_number like concat('%', #{search}, '%') )
+        </if>
+    </select>
 </mapper>
