@@ -161,7 +161,7 @@ public class InvoiceInfoController {
         map.put("mac", MacTools.getMacList().get(0));
         map.put("email",invoiceDTO.getEmail());
         map.put("address",invoiceDTO.getAcceptAddress());
-        map.put(" bankAccount",invoiceDTO.getContent());
+        map.put(" bankAccount","红旗智行开发票请求");
         map.put("bankName",invoiceDTO.getBankName());
         map.put("amount",invoiceDTO.getAmount());
         map.put("phone",invoiceDTO.getTelephone());
