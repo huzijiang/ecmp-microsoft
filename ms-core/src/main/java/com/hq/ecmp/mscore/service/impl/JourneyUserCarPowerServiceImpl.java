@@ -453,6 +453,10 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 								}
 							}
 						}
+					}else{
+						if(powerNotAvailable(journeyUserCarPower.getApplyId(),journeyNodeInfo.getPlanBeginCityCode())){
+							return OrderState.POWERNOAVAILABLE.getState();
+						}
 					}
 
 				}
