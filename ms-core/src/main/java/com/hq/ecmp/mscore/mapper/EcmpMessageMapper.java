@@ -77,7 +77,7 @@ public interface EcmpMessageMapper {
     List<MessageDto> getMessagesForPassenger(@Param("userId") Long userId, @Param("categorys") String categorys);
 
     List<MessageDto> getRunMessageForDrive(@Param("driverId") Long driverId,@Param("categorys") String categorys);
-    List<MessageDto> getRunMessageForDispatcher(@Param("ecmpId") Long ecmpId,@Param("category") String category);
+    List<MessageDto> getRunMessageForDispatcher(@Param("ecmpId") Long ecmpId,@Param("categorys") String category);
 
     void insertList(@Param("msgList")List<EcmpMessage> msgList);
 

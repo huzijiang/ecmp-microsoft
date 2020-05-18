@@ -89,7 +89,7 @@ public class EcmpOrgVo {
         this.leader = leader;
     }
     public enum statusEnum{
-        OK("00"),DISABLE("10"),CLOUD("05");
+        OK("00"),DISABLE("10"),CLOUD("05"),Fail("08");
 
         public String getCode() {
             return code;

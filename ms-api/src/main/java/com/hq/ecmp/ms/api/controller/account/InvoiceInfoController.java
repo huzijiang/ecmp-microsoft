@@ -135,7 +135,10 @@ public class InvoiceInfoController {
             }
             if(list.size()>0){
             invoiceInfoService.addInvoice(list);
-            updateInvoiceUrl(invoiceId,invoiceDTO,list);
+            String str = updateInvoiceUrl(invoiceId,invoiceDTO,list);
+            if("发票税务接口返回失败".equals(str)){
+                return ApiResponse.error(str);
+            }
           //  return ApiResponse.success("成功开发票");
            }
         } catch (Exception e) {
@@ -151,7 +154,7 @@ public class InvoiceInfoController {
      *(发票完成后直接上送数据更新发票表url，后续发票重发使用)
      * @param invoiceId
      */
-    private void updateInvoiceUrl(Long invoiceId,InvoiceDTO invoiceDTO,List<OrderInvoiceInfo> list)throws Exception{
+    private String updateInvoiceUrl(Long invoiceId,InvoiceDTO invoiceDTO,List<OrderInvoiceInfo> list)throws Exception{
         String  userPhone = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getPhonenumber();
         /**接口获取发票税务并返回图片*/
         String url="/service/v2/invoice/create";
@@ -161,7 +164,7 @@ public class InvoiceInfoController {
         map.put("mac", MacTools.getMacList().get(0));
         map.put("email",invoiceDTO.getEmail());
         map.put("address",invoiceDTO.getAcceptAddress());
-        map.put(" bankAccount",invoiceDTO.getContent());
+        map.put("bankAccount","红旗智行开发票请求");
         map.put("bankName",invoiceDTO.getBankName());
         map.put("amount",invoiceDTO.getAmount());
         map.put("phone",invoiceDTO.getTelephone());
@@ -172,7 +175,7 @@ public class InvoiceInfoController {
         JSONObject parseObject = JSONObject.parseObject(json);
         if(!"0".equals(parseObject.getString("code"))){
             logger.info("发票税务接口返回失败");
-            return ;
+            return "发票税务接口返回失败";
         }
         InvoiceInfo invoiceInfo = new InvoiceInfo();
         invoiceInfo.setInvoiceId(invoiceId);
@@ -209,6 +212,7 @@ public class InvoiceInfoController {
             }
             MailUtils.sendMail(invoiceDTO.getEmail(),message,"您有一张发票请查收");
         }
+        return "开发票成功";
     }
 
     /**

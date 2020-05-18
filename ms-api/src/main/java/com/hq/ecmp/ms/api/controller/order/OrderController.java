@@ -532,6 +532,8 @@ public class OrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
+            Long companyId = loginUser.getUser().getOwnerCompany();
+            applyUseWithTravelDto.setCompanyId(companyId);
             orderId = iOrderInfoService.applyUseCarWithTravel(applyUseWithTravelDto,userId);
         } catch (Exception e) {
             e.printStackTrace();

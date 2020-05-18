@@ -200,23 +200,23 @@
     </select>
 
     <select id="getMessagesForPassenger" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
-        select id,category_id messageId,category messageType,count(*) messageCount,config_type configType from ecmp_message
+        select id,category_id messageId,apply_id applyId,category messageType,count(*) messageCount,config_type configType from ecmp_message
         where ecmp_id=#{userId} and type='T001' and status='0000'and config_type !=2
         and find_in_set(category,#{categorys}) and (category_id is not null or category_id!=0)
-        group by apply_id,category
+        group by category
     </select>
 
     <select id="getRunMessageForDrive" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
-        select id,category_id messageId,category messageType ,count(*) messageCount,config_type configType from ecmp_message
+        select id,category_id messageId,apply_id applyId,category messageType ,count(*) messageCount,config_type configType from ecmp_message
         where type='T001' and status='0000' and config_type =2 and  ecmp_id=#{driverId}
         and find_in_set(category,#{categorys}) and (category_id is not null or category_id!=0)
         group by category
     </select>
 
     <select id="getRunMessageForDispatcher" parameterType="Object" resultType="com.hq.ecmp.mscore.dto.MessageDto">
-        select id,category_id messageId,category messageType ,count(*) messageCount,config_type configType from ecmp_message
+        select id,category_id messageId,apply_id applyId,category messageType ,count(*) messageCount,config_type configType from ecmp_message
         where type='T001' and status='0000' and config_type =3 and  ecmp_id=#{ecmpId}
-        and category=#{category} and (category_id is not null or category_id!=0)
+        and find_in_set(category,#{categorys}) and (category_id is not null or category_id!=0)
         group by category
     </select>
 
