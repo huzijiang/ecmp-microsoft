@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.hq.ecmp.constant.ConfigTypeEnum;
+import com.hq.ecmp.mscore.domain.EcmpConfig;
 import com.hq.ecmp.mscore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -139,90 +141,96 @@ public class ScheduledTask {
 	@Scheduled(cron = "0 */5 * * * ?")
 	public void autoDispatch() {
 		log.info("定时任务:autoDispatch:自动调度" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
-		// 查询企业设置是否开启了自动调度
-		if (ecmpConfigService.checkAutoDispatch()) {
-			// 虚拟一个调度员来处理自动调度 编号 1
-			Long autoDispatchUserId = new Long(1);
-			// 查询所有处于待调度订单
-			List<DispatchOrderInfo> queryAllWaitDispatchList = orderInfoService.queryAllWaitDispatchList();
-			if (null != queryAllWaitDispatchList && queryAllWaitDispatchList.size() > 0) {
-				for (DispatchOrderInfo dispatchOrderInfo : queryAllWaitDispatchList) {
-					Long orderId = dispatchOrderInfo.getOrderId();
-					//订单用车提交时间时间是否大于五分钟
-					Date createTime = dispatchOrderInfo.getCreateTime();
-					if(DateFormatUtils.compareDateInterval(createTime, 5)){
-						continue;
-					}
-					log.info("订单【"+orderId+"】开始自动派单");
-					String redisLockKey = "dispatch_" + orderId;
-					// 查询是否存在调度员已经在进行操作
-					Object o = redisUtil.get(redisLockKey);
-					if (null != o && !autoDispatchUserId.equals(Long.parseLong(o.toString()))) {
-						continue;
-					}
-					String useCarMode = dispatchOrderInfo.getUseCarMode();
-					if (StringUtil.isNotEmpty(useCarMode)) {
-						// 对自动调度上锁
-						redisUtil.set(redisLockKey, autoDispatchUserId.toString());
-						try {
-							String[] split = useCarMode.split(",");
-							List<String> asList = Arrays.asList(split);
-							if (asList.contains(CarConstant.USR_CARD_MODE_HAVE)) {
-								// 如果自有车 网约车都有 则先走自有车调度 自有车调度失败再走网约车调度
-								DispatchCountCarAndDriverDto dispatchCountCarAndDriverDto = new DispatchCountCarAndDriverDto();
-								dispatchCountCarAndDriverDto.setOrderNo(orderId.toString());
-								ApiResponse<DispatchResultVo> autoDispatch = dispatchService
-										.autoDispatch(dispatchCountCarAndDriverDto);
-								log.info("订单["+orderId+"]自动派单-自有车 返回可用车辆和可用驾驶员:" + JSONObject.toJSONString(autoDispatch));
-								if (!autoDispatch.isSuccess()) {
-									if(asList.contains(CarConstant.USR_CARD_MODE_NET)){
-										// 网约车派车
-										log.info("订单["+orderId+"]自动派单-网约车派车:订单编号:" + orderId);
-										orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
-												null);
-									}else{
-										redisUtil.delKey(redisLockKey);
-									}
-									continue;
-								}
-								DispatchResultVo data = autoDispatch.getData();
-								// 自有车调度
-								if(null ==data.getDriverList() || null ==data.getDriverList().get(0) || null ==data.getCarList() || null==data.getCarList().get(0)){
-									//没有可用车辆和可用驾驶员
-									log.info("订单["+orderId+"]自动派单-自有车派车 没有可用车辆或驾驶员 ");
-									if(asList.contains(CarConstant.USR_CARD_MODE_NET)){
-										orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
-												null);
-									}else{
-										redisUtil.delKey(redisLockKey);
-									}
-									continue;
-								}
-								log.info("订单["+orderId+"]自动派单-自有车派车 选择的驾驶员编号:" + data.getDriverList().get(0).getDriverId()
-										+ "  选择的车辆编号:" + data.getCarList().get(0).getCarId());
-								boolean ownCarSendCar = orderInfoService.ownCarSendCar(orderId,
-										data.getDriverList().get(0).getDriverId(), data.getCarList().get(0).getCarId(),
-										autoDispatchUserId);
-								if (ownCarSendCar) {
-									// 调度成功 释放自动调度锁
-									redisUtil.delKey(redisLockKey);
-									continue;
-								}
-							}
 
-							if (asList.size() == 1 && CarConstant.USR_CARD_MODE_NET.equals(asList.get(0))) {
-								// 只有网约车
-								log.info("订单["+orderId+"]自动派单-网约车派车:订单编号:" + orderId);
-								orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
-										null);
-								continue;
-							}
+		EcmpConfig ecmpConfig = new EcmpConfig(ConfigTypeEnum.DISPATCH_INFO.getConfigKey());
+		List<EcmpConfig> ecmpConfigs = ecmpConfigService.selectEcmpConfigList(ecmpConfig);
+		for (EcmpConfig ecmpConfig1 :
+				ecmpConfigs) {
+			// 查询企业设置是否开启了自动调度
+			if (ecmpConfigService.checkAutoDispatch(Long.parseLong(ecmpConfig1.getCompanyId()))) {
+				// 虚拟一个调度员来处理自动调度 编号 1
+				Long autoDispatchUserId = new Long(1);
+				// 查询所有处于待调度订单
+				List<DispatchOrderInfo> queryAllWaitDispatchList = orderInfoService.queryAllWaitDispatchList(1L, true,Long.parseLong(ecmpConfig1.getCompanyId()));
+				if (null != queryAllWaitDispatchList && queryAllWaitDispatchList.size() > 0) {
+					for (DispatchOrderInfo dispatchOrderInfo : queryAllWaitDispatchList) {
+						Long orderId = dispatchOrderInfo.getOrderId();
+						//订单用车提交时间时间是否大于五分钟
+						Date createTime = dispatchOrderInfo.getCreateTime();
+						if (DateFormatUtils.compareDateInterval(createTime, 5)) {
+							continue;
+						}
+						log.info("订单【" + orderId + "】开始自动派单");
+						String redisLockKey = "dispatch_" + orderId;
+						// 查询是否存在调度员已经在进行操作
+						Object o = redisUtil.get(redisLockKey);
+						if (null != o && !autoDispatchUserId.equals(Long.parseLong(o.toString()))) {
+							continue;
+						}
+						String useCarMode = dispatchOrderInfo.getUseCarMode();
+						if (StringUtil.isNotEmpty(useCarMode)) {
+							// 对自动调度上锁
+							redisUtil.set(redisLockKey, autoDispatchUserId.toString());
+							try {
+								String[] split = useCarMode.split(",");
+								List<String> asList = Arrays.asList(split);
+								if (asList.contains(CarConstant.USR_CARD_MODE_HAVE)) {
+									// 如果自有车 网约车都有 则先走自有车调度 自有车调度失败再走网约车调度
+									DispatchCountCarAndDriverDto dispatchCountCarAndDriverDto = new DispatchCountCarAndDriverDto();
+									dispatchCountCarAndDriverDto.setOrderNo(orderId.toString());
+									ApiResponse<DispatchResultVo> autoDispatch = dispatchService
+											.autoDispatch(dispatchCountCarAndDriverDto);
+									log.info("订单[" + orderId + "]自动派单-自有车 返回可用车辆和可用驾驶员:" + JSONObject.toJSONString(autoDispatch));
+									if (!autoDispatch.isSuccess()) {
+										if (asList.contains(CarConstant.USR_CARD_MODE_NET)) {
+											// 网约车派车
+											log.info("订单[" + orderId + "]自动派单-网约车派车:订单编号:" + orderId);
+											orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
+													null);
+										} else {
+											redisUtil.delKey(redisLockKey);
+										}
+										continue;
+									}
+									DispatchResultVo data = autoDispatch.getData();
+									// 自有车调度
+									if (null == data.getDriverList() || null == data.getDriverList().get(0) || null == data.getCarList() || null == data.getCarList().get(0)) {
+										//没有可用车辆和可用驾驶员
+										log.info("订单[" + orderId + "]自动派单-自有车派车 没有可用车辆或驾驶员 ");
+										if (asList.contains(CarConstant.USR_CARD_MODE_NET)) {
+											orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
+													null);
+										} else {
+											redisUtil.delKey(redisLockKey);
+										}
+										continue;
+									}
+									log.info("订单[" + orderId + "]自动派单-自有车派车 选择的驾驶员编号:" + data.getDriverList().get(0).getDriverId()
+											+ "  选择的车辆编号:" + data.getCarList().get(0).getCarId());
+									boolean ownCarSendCar = orderInfoService.ownCarSendCar(orderId,
+											data.getDriverList().get(0).getDriverId(), data.getCarList().get(0).getCarId(),
+											autoDispatchUserId);
+									if (ownCarSendCar) {
+										// 调度成功 释放自动调度锁
+										redisUtil.delKey(redisLockKey);
+										continue;
+									}
+								}
 
-						} catch (Exception e) {
-							log.error("订单【"+orderId+"】自动派单异常:"+JSONObject.toJSONString(e));
-							//释放自动派单锁
-							redisUtil.delKey(redisLockKey);
-							e.printStackTrace();
+								if (asList.size() == 1 && CarConstant.USR_CARD_MODE_NET.equals(asList.get(0))) {
+									// 只有网约车
+									log.info("订单[" + orderId + "]自动派单-网约车派车:订单编号:" + orderId);
+									orderInfoService.platCallTaxiParamValid(orderId, String.valueOf(autoDispatchUserId),
+											null);
+									continue;
+								}
+
+							} catch (Exception e) {
+								log.error("订单【" + orderId + "】自动派单异常:" + JSONObject.toJSONString(e));
+								//释放自动派单锁
+								redisUtil.delKey(redisLockKey);
+								e.printStackTrace();
+							}
 						}
 					}
 				}

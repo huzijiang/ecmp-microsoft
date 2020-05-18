@@ -88,7 +88,7 @@ public interface EcmpMessageService {
     /**阅读消息**/
     void readMessage(MessageDto messageDto, LoginUser user);
     /**消息通知插入**/
-    void saveMessageUnite(Long orderId, MsgConstant msgConstant) throws Exception;
+    void saveMessageUnite(LoginUser loginUser,Long orderId, MsgConstant msgConstant) throws Exception;
     /**专发调度员通知*/
     void sendDispatcherMessage(Long orderId,Long dispatchId,Long userId,MsgConstant msgConstant)throws Exception;
 }

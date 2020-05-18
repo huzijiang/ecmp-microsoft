@@ -447,8 +447,10 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
     }
 
 	@Override
-	public boolean checkAutoDispatch() {
-		EcmpConfig ecmpConfig = ecmpConfigMapper.selectConfigByKey(new EcmpConfig(ConfigTypeEnum.DISPATCH_INFO.getConfigKey()));
+	public boolean checkAutoDispatch(Long companyId) {
+        EcmpConfig ecmpConfig1 = new EcmpConfig(ConfigTypeEnum.DISPATCH_INFO.getConfigKey());
+        ecmpConfig1.setCompanyId(String.valueOf(companyId));
+		EcmpConfig ecmpConfig = ecmpConfigMapper.selectConfigByKey(ecmpConfig1);
 		if(null !=ecmpConfig && StringUtils.isNotEmpty(ecmpConfig.getConfigValue())){
 		    JSONObject jsonObject = JSONObject.parseObject(ecmpConfig.getConfigValue());
 		    log.info("自动派单方式:{}",jsonObject);
