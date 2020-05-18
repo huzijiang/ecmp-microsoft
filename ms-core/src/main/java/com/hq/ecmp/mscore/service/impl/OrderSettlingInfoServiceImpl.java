@@ -208,13 +208,13 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //OrderSettling.setPersonalCancellationFee(personalCancellationFee);
         Map personalCancellation = new HashMap();
         personalCancellation.put("cost",personalCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        personalCancellation.put("typeName","个人取消费");
+        personalCancellation.put("typeName","personalAmount");
         list.add(personalCancellation);
         //企业取消费
         //OrderSettling.setEnterpriseCancellationFee(enterpriseCancellationFee);
         Map enterpriseCancellation = new HashMap();
         enterpriseCancellation.put("cost",enterpriseCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        enterpriseCancellation.put("typeName","企业取消费");
+        enterpriseCancellation.put("typeName","ownerAmount");
         list.add(enterpriseCancellation);
         map.put("otherCost",list);
         String json= JSON.toJSONString(map);

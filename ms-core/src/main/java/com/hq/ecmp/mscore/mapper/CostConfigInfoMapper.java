@@ -81,7 +81,16 @@ public interface CostConfigInfoMapper
      * @return
      */
     CostConfigInfo selectCostConfigInfo(CostConfigQueryDto costConfigQueryDto);
-    int checkDoubleByServiceTypeCityCarType(@Param("list") List<CostConfigCarTypeInfo> costConfigCarTypeInfos,
+
+    /**
+     * 通过城市，车型，服务类型来判断是否重复
+     * @param carTypeId 车型id
+     * @param cityCode 城市code
+     * @param serviceType 服务类型
+     * @param rentType  包车类型（服务类型是包车时使用）
+     * @return
+     */
+    int checkDoubleByServiceTypeCityCarType(@Param("carTypeId") Long carTypeId,
                                             @Param("cityCode") int cityCode,@Param("serviceType") String serviceType,
                                             @Param("rentType") String rentType);
 

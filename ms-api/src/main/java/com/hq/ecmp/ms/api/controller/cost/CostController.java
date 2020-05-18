@@ -150,8 +150,8 @@ public class CostController {
     @Log(value = "车型，城市，服务类型三者校验是否重复")
     @com.hq.core.aspectj.lang.annotation.Log(title = "车型，城市，服务类型三者校验是否重复",businessType = BusinessType.DELETE,operatorType = OperatorType.MANAGE)
     @PostMapping("/checkDoubleByServiceTypeCityCarType")
-    public ApiResponse<List<CostConfigCityInfo>> checkDoubleByServiceTypeCityCarType(@RequestBody CostConfigQueryDoubleValidDto costConfigQueryDto){
-        List<CostConfigCityInfo> res = null;
+    public ApiResponse<List<ValidDoubleDtoResult>> checkDoubleByServiceTypeCityCarType(@RequestBody CostConfigQueryDoubleValidDto costConfigQueryDto){
+        List<ValidDoubleDtoResult> res = null;
         try {
             res = costConfigInfoService.checkDoubleByServiceTypeCityCarType(costConfigQueryDto);
         } catch (Exception e) {

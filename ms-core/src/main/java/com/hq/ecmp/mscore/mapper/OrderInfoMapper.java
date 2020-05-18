@@ -288,5 +288,11 @@ public interface OrderInfoMapper {
      * @return
      */
     OrderInfoMessage getCarMessage(Long orderId);
+
+    /**
+     * 查询市内用车权限已经使用过的订单id
+     * @param powerId
+     */
+    List<Long> getAlreadyUsingOrderIdByPowerId(Long powerId);
 }
 
