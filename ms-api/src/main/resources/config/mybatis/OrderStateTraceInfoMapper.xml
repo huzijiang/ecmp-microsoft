@@ -309,7 +309,6 @@ AND a.state ='S270' order by a.create_time desc limit 1
          select  s.create_by  from order_state_trace_info s
          where s.state in('S299','S200')
          and s.order_id=#{orderId}
-         limit 1
         limit 1
     </select>
 </mapper>
