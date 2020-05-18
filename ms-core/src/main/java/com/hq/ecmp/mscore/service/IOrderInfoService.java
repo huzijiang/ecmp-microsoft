@@ -93,7 +93,7 @@ public interface IOrderInfoService {
     public List<DispatchOrderInfo> queryWaitDispatchList(Long userId);
 
 
-    public List<DispatchOrderInfo>  queryAllWaitDispatchList();
+    public List<DispatchOrderInfo>  queryAllWaitDispatchList(Long userId,Boolean isAutoDis,Long companyId);
 
     /**
      * 查询所有已完成调度的订单

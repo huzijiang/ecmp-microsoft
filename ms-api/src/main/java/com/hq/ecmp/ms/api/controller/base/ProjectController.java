@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.hq.common.enums.ErrorCodeEnum.SUCCESS;
@@ -287,15 +288,8 @@ public class ProjectController {
      * @return*/
     @ApiOperation(value = "显示部门及员工树",notes = "显示部门及员工树",httpMethod ="POST")
     @PostMapping("/selectProjectUserTree")
-    public ApiResponse<List<OrgTreeVo>> selectProjectUserTree(@RequestBody ProjectInfoDTO projectInfoDto){
-        OrgTreeVo deptList=null;
-        List<OrgTreeVo> lsit=new ArrayList<>();
-//        if (StringUtils.isEmpty(projectInfoDto.getName())){
-            deptList = iProjectInfoService.selectProjectUserTree(projectInfoDto.getProjectId(),projectInfoDto.getSearch());
-            lsit.add(deptList);
-//        }else {
-//            lsit= iProjectInfoService.selectProjectUserBySearch(projectInfoDto.getProjectId(), projectInfoDto.getName());
-//        }
+    public ApiResponse<List<Map>> selectProjectUserTree(@RequestBody ProjectInfoDTO projectInfoDto){
+        List<Map> lsit = iProjectInfoService.buildProjectUserTree(projectInfoDto.getProjectId(),projectInfoDto.getSearch());
         return ApiResponse.success(lsit);
 
 

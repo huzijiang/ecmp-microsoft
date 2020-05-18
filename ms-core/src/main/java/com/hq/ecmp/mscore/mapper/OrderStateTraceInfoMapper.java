@@ -127,4 +127,11 @@ public interface OrderStateTraceInfoMapper
      * @return
      */
     String queryOrderLatestRessaignState(Long orderId);
+
+    /**
+     * 获取订单之前的调度员
+     * @param orderId
+     * @return
+     */
+    Long getOldDispatcher(Long orderId);
 }
