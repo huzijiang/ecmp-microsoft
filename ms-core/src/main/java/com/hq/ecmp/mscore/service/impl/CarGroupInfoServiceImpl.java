@@ -253,7 +253,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         if(parentCarGroupId == null){
             parentCarGroupId = 0L;
         }
-        carGroupInfo.setParentCarGroupId(carGroupDTO.getOwnerOrg());
+        carGroupInfo.setParentCarGroupId(parentCarGroupId);
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
         //车队名称
