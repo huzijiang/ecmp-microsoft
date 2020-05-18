@@ -900,13 +900,12 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		if (StringUtils.isBlank(ownerCarLevel)){
 			return resultList;
 		}
-		List<String>  regimeCarLevel=Arrays.asList(ownerCarLevel.substring(1).split(","));
+		List<String>  regimeCarLevel=Arrays.asList(ownerCarLevel.split(","));
 		List<OnLineCarTypeVO> onLineCarTypeVOS = threeCityServer(cityCodes);
 		if (CollectionUtils.isEmpty(onLineCarTypeVOS)){
 			return resultList;
 		}
 		/**实际可用车型交集*/
-		List<String> groupNames=new ArrayList<>();
 		List<String> groupIds=new ArrayList<>();
 		/**遍历所有城市的可用车型*/
 		for (OnLineCarTypeVO vo:onLineCarTypeVOS){
@@ -914,9 +913,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 
 			if (CollectionUtils.isNotEmpty(carTypes)){
 				//网约车当前城市可用车型
-//				List<String> collectName = carTypes.stream().map(CarLevelVO::getGroupName).collect(Collectors.toList());
 				List<String> collectId = carTypes.stream().map(CarLevelVO::getGroupId).collect(Collectors.toList());
-//				groupNames.addAll(collectName);
 				groupIds.addAll(collectId);
 				UseCarTypeVO carTypeVO=new UseCarTypeVO();
 				carTypeVO.setCityCode(vo.getCityId());
@@ -1019,8 +1016,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			return list;
 		}
 		String regimeCarLevel = this.getOwnerCarLevel(regimeVo);
-		List<String> newOnwerCarType=Arrays.asList(regimeCarLevel.split(","));
-		String carTypeName=enterpriseCarTypeInfoMapper.selectCarTypesByTypeIds(ownerCompany,regimeCarLevel.substring(1));
+		String carTypeName=enterpriseCarTypeInfoMapper.selectCarTypesByTypeIds(ownerCompany,regimeCarLevel);
 		List<String> citylist=  Arrays.asList(cityCodes.split(","));
 		for (String city:citylist){
 			UseCarTypeVO useCarTypeVO = new UseCarTypeVO();
@@ -1043,6 +1039,13 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		if (StringUtils.isNotBlank(regimeVo.getAsUseCarModeOwnerLevel())){
 			carLevel+=","+regimeVo.getAsUseCarModeOwnerLevel();
 		}
+		if (StringUtils.isNotBlank(carLevel)){
+			carLevel=carLevel.substring(1);
+			List<String> carLevels = Arrays.asList(carLevel.split(","));
+			if (CollectionUtils.isNotEmpty(carLevels)) {
+				carLevel = carLevels.stream().distinct().collect(Collectors.joining(",", "", ""));
+			}
+		}
 		return carLevel;
 	}
 
@@ -1053,6 +1056,13 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}
 		if (StringUtils.isNotBlank(regimeVo.getAsUseCarModeOnlineLevel())){
 			carLevel+=","+regimeVo.getAsUseCarModeOnlineLevel();
+		}
+		if (StringUtils.isNotBlank(carLevel)){
+			carLevel=carLevel.substring(1);
+			List<String> carLevels = Arrays.asList(carLevel.split(","));
+			if (CollectionUtils.isNotEmpty(carLevels)) {
+				carLevel = carLevels.stream().distinct().collect(Collectors.joining(",", "", ""));
+			}
 		}
 		return carLevel;
 	}
