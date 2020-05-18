@@ -251,6 +251,7 @@ AND a.state ='S270' order by a.create_time desc limit 1
         SELECT create_by as userId
         FROM order_state_trace_info
         WHERE order_id = #{orderId}
+        AND (state = 'S299' OR state = 'S930')
         LIMIT 1
     </select>
     

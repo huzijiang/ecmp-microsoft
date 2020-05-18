@@ -128,17 +128,33 @@ dispatch:
 schedule:
     confirmTimeout: 12
 
+wx:
 #应用ID
-appId: "wxb1c50ac4effd77c7"
+ appId: "wxb1c50ac4effd77c7"
 #公众号 APP_SECRET
-appSecret: "bb9dbc446e5c8bfef07babe402d9d7af"
+ appSecret: "bb9dbc446e5c8bfef07babe402d9d7af"
 #商户号
-mchId: "1517977791"
+ mchId: "1517977791"
 #商户秘钥
-mchKey: "f6ad7e4369c963d75c2e19a5f88a261a"
-#开发环境回调地址
-notify_url: "https://dev-app-api.hqzhixing.com/pay/wechat/v1/callback"
+ mchKey: "f6ad7e4369c963d75c2e19a5f88a261a"
+#回调地址
+ notify_url: "https://dev-app-api.hqzhixing.com/pay/wechat/v1/callback"
 #交易类型
-trade_type: "APP"
+ trade_type: "APP"
 #签名类型
-sign_type: "MD5"
+ sign_type: "MD5"
+
+ali:
+ #商户appid,使用商户自己的appid即可
+ app_id: "2021001160623612"
+ #私钥 pkcs8格式的，与在支付宝存储的公钥对应
+ app_private_key: "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCUDSC1DnE0s8Rjhd5LJWsv8jVre7/ZG1YOqSFrmuia9qTmi9+rJOML6DaygdeZ8DJTKnUz5MSmLfl2r6WaMSB3kXYaHk4/XDt8w5MJWtg1BXgxGA2MChHaUzYvzmuQ2Ru7cGTNCU5QGgoGpbBF77RBp8zZeLdwNsCre8QEsmgi57d2i6d6A5ZUd7jZufhclxdhNjlcSJUXXnmgTF/raXl4X7EHUAB3XPY4SQIs1i5DmYmYK62q+WFt+POz2DKVEemAVnb0Je1VsVRoOkKeJ9Av0M+k35ql8ZNDXWEP057/eX+OrkeKJ+53nCHa03HxGK24sV/MiF+zdPIXLGslUfYbAgMBAAECggEAJYniliXQTGWcUQO7ZmBZejG2m8cn0LueqV7261q+ybPqAc7LapCSxQ0e+Un0ycJecDnet8a0mdIkY5SLr7nvGoIWaO7wNh6DstG/8WpIUcFORVxs6uoOtsXMgnibS4HRB0irNlW6tpKzohXWyRTLJq6OQUHbeSdY2OIrxGkcAGVPXZGUfmgDSPQphXGTcEUAG8eYvyBVXGlMq3ehOCqgIlV2QKd+eHe/atdDf/7zTwnLLD/4BIONC2nmN3hvcSTiTytTtCHThsYoTm7JJtfEB6+HC+n4608ZtEWSFMcoHBW9HDN5LdFU5krQTg7uozdnK/vZnUlI40+9g8FUAop6kQKBgQDR1jzC/iLF0SnRLjuI13RSFdUxQdNm9kTTRL0M+Lk0dxGgjpxY9xL2RJ4U5YFUsaNoDS06YqE+MMJjhF9wE2vk/atx+cuZPANKiqpeYlifbFDMOKV50/F8ETIMKAdja6BjkWjEu/ul3pGjHDgdKsMgXvE7kW8+JZZfAYr6M7x2CQKBgQC0nzMlQCRELlV2QfY/y4DVVdwOHa0kcWK4BDQoG3hrIqZI8qDHtylbQOr2x7OzCkevyPhAxktTpSB6En+h1kSlMXgW50G7BJgRh02PYjO/LzG1keTrskd/Lhz/rLJx6RNu38Kd0qXyyu4ECdh3a5uwdGcGR5gK0j8gRaNLI7z0AwKBgGCR2RrgPH6PmVAkl8+NYIIafCgUJEeBVQFp5BthKFMF7T3YBApJgxeFUr9JNDEXI53SWptBIvXtGLkWBZodxgz31Xw5usKFxPn8QRX46tJL1g92jmk36i3v9/lyPpw5vvGzzOSlotWeTaYkaYq60FxIdXq1nt2aDM8idaRaRQSJAoGBAK14UIiwJ6SL02x2QWhXrG43vdaYzdc4RpVxBB6Y83gBmS5qR9xHnyKTIJbOiVmkv+Cl5Tdguquk5aIX7hiiTt9QuYNVqx1QdjQvfF/+8q/lRZqaef+cA2q0AQnU9LTOIunTYXht/Q9HsnyScCGRab94rBGt5OpPrmzyNLhPpIO9AoGAWz1zT29lmjadHei346qJJ0OkQcva8XJm/NtQ05XZ1pQFq03e+mI/FuIpG39n2exMAWt4zmW1f3b5X31h53LtA2a1/RsWZuowz3lTXbZ1XZxNTzCzqCnZthwc7keavhx1gwvowduLJ0AEEPXyEmR5g+4tNTDbNO1awzCbhXg61iQ="
+ #支付宝公钥，支付宝生成的公钥，切勿与商户公钥混淆
+ ali_pay_public_key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnYXyZokXkeyj1NuZvCSP0jTKQ007wSvkqQPsZWtl4Z1xPof6t6Hva3Ua9KBiJplSXhUQHj4Dkknwr572tiGnbsZTEMHiMqnrVGL0SWakT3zrzU9u5E6feE0OVohtCw6jMDkFUuyXWX/eBNiFTVuraGhnl8iiB+KyTy1j5hMh1Dqd08ncpWQ9NTXJRXrcmlpUTggub3SOh9680SDtQfxILzzgWOGdRkO60tGZvSuFwhVipK5DEzW2qgxxY9b95kpc7cEqOi5s2pNu/0nppsFrXGukiuS1Ky9gt+1xfP/4E5d6DbIYiUjw5yjyLeIVXZM9yMvdt9GUbAIKRboP9BHbUwIDAQAB"
+ notify_url: "https://dev-app-api.hqzhixing.com/pay/ali/v1/callback"
+ url: "https://openapi.alipay.com/gateway.do"
+ charset: "UTF-8"
+ refund_charset: "GBK"
+ format: "json"
+ sign_type: "RSA2"
+ refund_notify_url: "https://dev-app-api.hqzhixing.com/pay/ali/v2/callback"

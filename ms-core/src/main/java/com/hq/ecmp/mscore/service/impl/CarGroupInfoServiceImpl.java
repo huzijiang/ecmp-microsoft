@@ -253,7 +253,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         if(parentCarGroupId == null){
             parentCarGroupId = 0L;
         }
-        carGroupInfo.setParentCarGroupId(carGroupDTO.getOwnerOrg());
+        carGroupInfo.setParentCarGroupId(parentCarGroupId);
         //所属城市编码
         carGroupInfo.setCity(carGroupDTO.getCity());
         //车队名称
@@ -813,10 +813,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     /**
      * 联系车队（通用）
      * ------1. 如果是用户不是司机，没订单： 查询用户所在公司所有车队座机               ----------- 多个车队座机
-     *          2.用户有订单： 查询调度员电话，调度员管理的（多个）车队电话      ----------- 一个调度员，多个车队
-     *          // TODO 有订单不一定有调度员 那么联系哪个车队呢
+     *          2.用户有订单，且不是自动调度： 查询调度员电话，调度员管理的（多个）车队电话      ----------- 一个调度员，多个车队
+     *            2.1 有订单，但是走的自动调度 查询用户所在公司所有车队座机             ----------- 多个车队座机
+     *
      * ------3. 如果是司机，没订单： 查询司机所在（一个）车队座机              -----------  一个车队电话
-     *          4.有订单： 查询调度员电话，司机所在（一个）车队电话            -----------   一个车队，一个调度员
+     *          4.有订单，且不是自动调度： 查询调度员电话，司机所在（一个）车队电话            -----------   一个车队，一个调度员
+     *           4.1 有订单，但是走的自动调度： 查询司机所在（一个）车队电话    -----------   一个车队电话
      * @param orderId
      * @return
      */
@@ -835,59 +837,48 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
             if(companyId == null){
                 throw new RuntimeException("员工无所属公司信息");
             }
-            //如果没传订单id，则查询所在公司所有车队座机
             if(orderId == null){
-                CarGroupInfo carGroupInfo = new CarGroupInfo();
-                    carGroupInfo.setCompanyId(Long.valueOf(companyId));
-                //查询公司所有车队（只查启用的）
-                List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectEnableCarGroupInfoList(carGroupInfo);
-                if(CollectionUtils.isEmpty(carGroupInfos)){
-                    //如果整个（分子)公司都没有车队，返回空
-                    return null;
-                }
-                //（1）查询车队所有座机电话
-                for (CarGroupInfo groupInfo : carGroupInfos) {
-                    contactCarGroupVO = ContactCarGroupVO.builder()
-                    .name(groupInfo.getCarGroupName())
-                    .phone(groupInfo.getTelephone())
-                    //0 表示车队  1表示调度员
-                    .type(0)
-                    .build();
-                    phones.add(contactCarGroupVO);
-                }
+                //如果没传订单id，则查询所在公司所有车队座机
+                getCompanyCarGroupPhones(phones, companyId);
 
             }else {
                 //如果传了订单id，则查询订单对应的调度员（如果有改派，改派和第一次调度员都是同一个人）及调度员所在车队电话
                 // TODO 有订单不一定有调度员 那么联系哪个车队呢
                 //根据订单id查询调度员的userId(调度员是有)
                 String userId  = orderStateTraceInfoMapper.selectDispatcherUserId(orderId);
-                //查询调度员所在车队及车队座机
-                CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
-                carGroupDispatcherInfo.setUserId(Long.valueOf(userId));
-                //调度员车队关系表查询（一个调度员可能管理多个车队）
-                List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
-                //获取车队id集合
-                List<Long> groupIds = carGroupDispatcherInfos.stream().map(CarGroupDispatcherInfo::getCarGroupId).collect(Collectors.toList());
-                //（2.2）查询车队电话
-                List<CarGroupFixedPhoneVO> groupPhones = carGroupInfoMapper.selectCarGroupPhones(groupIds);
-                for (CarGroupFixedPhoneVO groupPhone : groupPhones) {
+                if(userId == null || "1".equals(userId)){
+                    //如果订单没被调度 或者走的是自动调度 那么还是查询所在公司所有车队座机
+                    getCompanyCarGroupPhones(phones, companyId);
+                }else {
+                    //查询调度员所在车队及车队座机
+                    CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+                    carGroupDispatcherInfo.setUserId(Long.valueOf(userId));
+                    //调度员车队关系表查询（一个调度员可能管理多个车队）
+                    List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
+                    //获取车队id集合
+                    List<Long> groupIds = carGroupDispatcherInfos.stream().map(CarGroupDispatcherInfo::getCarGroupId).collect(Collectors.toList());
+                    //（2.2）查询车队电话
+                    List<CarGroupFixedPhoneVO> groupPhones = carGroupInfoMapper.selectCarGroupPhones(groupIds);
+                    for (CarGroupFixedPhoneVO groupPhone : groupPhones) {
+                        contactCarGroupVO = ContactCarGroupVO.builder()
+                                .name(groupPhone.getCarGroupName())
+                                .phone(groupPhone.getPhone())
+                                //0 表示车队  1表示调度员
+                                .type(0)
+                                .build();
+                        phones.add(contactCarGroupVO);
+                    }
+                    //（2.1）查询调度员信息
+                    UserVO userVO = ecmpUserMapper.selectUserVoById(Long.valueOf(userId));
                     contactCarGroupVO = ContactCarGroupVO.builder()
-                            .name(groupPhone.getCarGroupName())
-                            .phone(groupPhone.getPhone())
+                            .name(userVO.getUserName())
+                            .phone(userVO.getUserPhone())
                             //0 表示车队  1表示调度员
-                            .type(0)
+                            .type(1)
                             .build();
                     phones.add(contactCarGroupVO);
                 }
-                //（2.1）查询调度员信息
-                UserVO userVO = ecmpUserMapper.selectUserVoById(Long.valueOf(userId));
-                contactCarGroupVO = ContactCarGroupVO.builder()
-                        .name(userVO.getUserName())
-                        .phone(userVO.getUserPhone())
-                        //0 表示车队  1表示调度员
-                        .type(1)
-                        .build();
-                phones.add(contactCarGroupVO);
+
             }
         }else {
             //2.如果是司机  (司机可能不是公司员工) 则查询司机所在车队
@@ -901,25 +892,53 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     //0 表示车队  1表示调度员
                     .type(0)
                     .build();
-            phones.add(contactCarGroupVO);
             if(orderId != null){
-                //如果有订单，则添加一个调度员电话
-                //如果传了订单id，则查询订单对应的调度员（如果有改派，改派和第一次调度员都是同一个人）及调度员所在车队电话
+                //如果有订单，且有调度员则添加一个调度员电话。要是自动调度的就不查调度员了
+                //如果传了订单id， 且订单被调度员调度，则查询订单对应的调度员（如果有改派，改派和第一次调度员都是同一个人）及调度员所在车队电话
                 //根据订单id查询调度员的userId(调度员是有)
                 String userId  = orderStateTraceInfoMapper.selectDispatcherUserId(orderId);
-                //（4）查询调度员信息
-                UserVO userVO = ecmpUserMapper.selectUserVoById(Long.valueOf(userId));
-                contactCarGroupVO = ContactCarGroupVO.builder()
-                        .name(userVO.getUserName())
-                        .phone(userVO.getUserPhone())
-                        //0 表示车队  1表示调度员
-                        .type(1)
-                        .build();
-                phones.add(contactCarGroupVO);
+                if(userId != null && "1".equals(userId)){
+                    //（4）查询调度员信息
+                    UserVO userVO = ecmpUserMapper.selectUserVoById(Long.valueOf(userId));
+                    contactCarGroupVO = ContactCarGroupVO.builder()
+                            .name(userVO.getUserName())
+                            .phone(userVO.getUserPhone())
+                            //0 表示车队  1表示调度员
+                            .type(1)
+                            .build();
+                    phones.add(contactCarGroupVO);
+                }
             }
+            phones.add(contactCarGroupVO);
         }
-
         return phones;
+    }
+
+    /**
+     * 查询公司所有车队座机
+     * @param phones
+     * @param companyId
+     */
+    public void getCompanyCarGroupPhones(List<ContactCarGroupVO> phones, Long companyId) {
+        ContactCarGroupVO contactCarGroupVO;
+        CarGroupInfo carGroupInfo = new CarGroupInfo();
+        carGroupInfo.setCompanyId(Long.valueOf(companyId));
+        //查询公司所有车队（只查启用的）
+        List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.selectEnableCarGroupInfoList(carGroupInfo);
+        if(CollectionUtils.isEmpty(carGroupInfos)){
+            //如果整个（分子)公司都没有车队，返回空
+            throw new RuntimeException("所在公司没有车队");
+        }
+        //（1）查询车队所有座机电话
+        for (CarGroupInfo groupInfo : carGroupInfos) {
+            contactCarGroupVO = ContactCarGroupVO.builder()
+            .name(groupInfo.getCarGroupName())
+            .phone(groupInfo.getTelephone())
+            //0 表示车队  1表示调度员
+            .type(0)
+            .build();
+            phones.add(contactCarGroupVO);
+        }
     }
 
     /**
