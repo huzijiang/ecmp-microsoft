@@ -1083,6 +1083,12 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                         ecmpOrgVo.setStatus(EcmpOrgVo.statusEnum.OK.getCode());
                         ecmpOrgMapper.updateEcmpOrg(ecmpOrgVo);
                     }
+                    if("N111".equals(linkedTreeMap.get("state"))){
+                        EcmpOrgVo ecmpOrgVo = new EcmpOrgVo();
+                        ecmpOrgVo.setDeptId(x.getDeptId());
+                        ecmpOrgVo.setStatus(EcmpOrgVo.statusEnum.Fail.getCode());
+                        ecmpOrgMapper.updateEcmpOrg(ecmpOrgVo);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
