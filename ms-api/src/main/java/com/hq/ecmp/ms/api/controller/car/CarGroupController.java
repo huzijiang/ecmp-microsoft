@@ -50,7 +50,8 @@ public class CarGroupController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
-          carGroupInfoService.saveCarGroupAndDispatcher(carGroupDTO,userId);
+            log.info("新增车队,请求参数：{}，操作人：{}",carGroupDTO,loginUser.getUser().getPhonenumber());
+            carGroupInfoService.saveCarGroupAndDispatcher(carGroupDTO,userId);
         } catch (Exception e) {
             log.error("新增车队失败,请求参数：{}，操作人：{}",carGroupDTO,loginUser.getUser().getPhonenumber(),e);
             return ApiResponse.error("保存车队信息失败");
