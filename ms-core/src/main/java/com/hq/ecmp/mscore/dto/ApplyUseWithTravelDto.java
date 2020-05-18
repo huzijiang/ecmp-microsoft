@@ -45,4 +45,6 @@ public class ApplyUseWithTravelDto extends ParallelOrderDto {
     private String calculatePriceStartTime;
     @ApiModelProperty(value = "预估价格来源，isDispatch 为2 时传")
     private String source;
+    @ApiModelProperty(value = "公司id")
+    private Long companyId;
 }
