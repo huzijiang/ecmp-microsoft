@@ -232,7 +232,8 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         List<MessageDto> list = ecmpMessageDao.getMessagesForPassenger(user.getUserId(), categorys);
         if (CollectionUtils.isNotEmpty(list)){
             for (MessageDto messageDto:list){
-                messageDto.setMessageTypeStr(MsgConstant.getDespByType(messageDto.getMessageType()));
+                String despByType = getDespByType(messageDto.getMessageType());
+                messageDto.setMessageTypeStr(despByType.replaceFirst("1",messageDto.getMessageCount()+""));
                 if (MsgConstant.MESSAGE_T006.getType().equals(messageDto.getMessageType())||MsgConstant.MESSAGE_T015.getType().equals(messageDto.getMessageType())){
                     OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(messageDto.getMessageId());
                     messageDto.setUseCarMode(orderInfo.getUseCarMode());
@@ -250,22 +251,23 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         }
 //        DriverInfo driverInfo = driverInfoMapper.selectDriverInfoByUserId(user.getUserId());
         SysUser user = loginUser.getUser();
-        String categorys="M005,M004,M007";//申请人
+        String categorys=driverCategry();//司机
         List<MessageDto> runMessageForDrive = ecmpMessageDao.getRunMessageForDrive(driverInfo.getDriverId(), categorys);
         //判断当前司机是不是调度员
         if (user!=null&&"1".equals(user.getItIsDispatcher())){
-            List<MessageDto> runMessageForDispatcher = ecmpMessageDao.getRunMessageForDispatcher(user.getUserId(), "M003");
+            List<MessageDto> runMessageForDispatcher = ecmpMessageDao.getRunMessageForDispatcher(user.getUserId(), dispatchCategry());
             runMessageForDrive.addAll(runMessageForDispatcher);
         }
         if (CollectionUtils.isNotEmpty(runMessageForDrive)){
             for (MessageDto messageDto:runMessageForDrive){
-                messageDto.setMessageTypeStr(MsgConstant.getDespByType(messageDto.getMessageType()));
+                String despByType = getDespByType(messageDto.getMessageType());
+                messageDto.setMessageTypeStr(despByType.replaceFirst("1",messageDto.getMessageCount()+""));
             }
         }
         //获取即将任务开始的通知
         OrderInfo info=orderInfoMapper.selectDriverOrder(driverInfo.getDriverId(), OrderState.ALREADYSENDING.getState());
         if (info!=null){
-            runMessageForDrive.add(new MessageDto(info.getOrderId(),MsgConstant.MESSAGE_T008.getType(),MsgConstant.MESSAGE_T008.getDesp(),1));
+            runMessageForDrive.add(new MessageDto(info.getOrderId(),MsgConstant.MESSAGE_T008.getType(),MsgConstant.MESSAGE_T008.getDesc(),1));
         }
         return runMessageForDrive;
     }
@@ -544,9 +546,10 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
      */
     @Override
     @Async
-    public void saveMessageUnite(Long orderId, MsgConstant msgConstant) throws Exception {
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
+    @Transactional
+    public void saveMessageUnite(LoginUser loginUser,Long orderId, MsgConstant msgConstant) throws Exception {
+//        HttpServletRequest request = ServletUtils.getRequest();
+//        LoginUser loginUser = tokenService.getLoginUser(request);
         SysUser user = loginUser.getUser();
         Long userId=null;
         if (user!=null){

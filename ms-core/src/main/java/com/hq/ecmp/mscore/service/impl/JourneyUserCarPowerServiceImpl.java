@@ -124,16 +124,18 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 
 	@Override
 	public Map<String, Integer> selectStatusCount(Long journeyId) {
-		Map<String, Integer> map =new HashMap<>();
-		JourneyUserCarPower journeyUserCarPower = new JourneyUserCarPower();
 		//查询未使用的次数
-		journeyUserCarPower.setState(CarConstant.NOT_USER_USE_CAR);
-		journeyUserCarPower.setJourneyId(journeyId);;
-		List<JourneyUserCarPower> list = selectJourneyUserCarPowerList(journeyUserCarPower);
-		if(null !=list && list.size()>0){
-			//对三种类型的分组统计次数
-			for (JourneyUserCarPower j : list) {
-				String type = j.getType();
+		Map<String, Integer> map =new HashMap<>();
+		List<UserAuthorityGroupCity> userCarAuthorities = journeyInfoService.getUserCarAuthority(journeyId);
+		for (UserAuthorityGroupCity userAuthorityGroupCity:
+		userCarAuthorities) {
+			List<UserCarAuthority> userCarAuthorityList = userAuthorityGroupCity.getUserCarAuthorityList();
+			for (UserCarAuthority userCarAuthority:
+			userCarAuthorityList) {
+				String type = userCarAuthority.getType();
+				if (OrderState.noShowStateOfPower().contains(userCarAuthority.getState())){
+					continue;
+				}
 				Integer sum = map.get(type);
 				if(null ==sum){
 					sum=1;
@@ -450,6 +452,10 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 									}
 								}
 							}
+						}
+					}else{
+						if(powerNotAvailable(journeyUserCarPower.getApplyId(),journeyNodeInfo.getPlanBeginCityCode())){
+							return OrderState.POWERNOAVAILABLE.getState();
 						}
 					}
 
