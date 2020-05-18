@@ -2348,7 +2348,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 String duration = feeInfoBean.getString("min");//时长
                 JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
                 BigDecimal persionMoney = iOrderPayInfoService.checkOrderFeeOver(new BigDecimal(amount), journeyInfo.getRegimenId(), orderInfo.getUserId());
+                log.info("网约车订单:"+orderNo+"校验超额---"+persionMoney);
                 OrderPayInfo orderPayInfo = iOrderPayInfoService.insertOrderPayAndSetting(orderNo, new BigDecimal(amount),distance, duration, feeInfoBean.toJSONString(), Long.parseLong(CommonConstant.START), persionMoney);
+
                 int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
             if (orderConfirmStatus == ZERO) {
                 //自动确认
