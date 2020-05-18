@@ -216,7 +216,7 @@ public class DispatchController {
             dispatchService.noCarDenied(orderId, reason, loginUser.getUser().getUserId());
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("调度无车驳回失败");
+            return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("调度无车驳回通过");
     }

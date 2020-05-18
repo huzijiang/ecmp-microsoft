@@ -133,6 +133,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private CarGroupInfoMapper carGroupInfoMapper;
     @Resource
     private ApplyUseCarTypeMapper applyUseCarTypeMapper;
+    @Resource
+    private OrderAccountInfoMapper orderAccountInfoMapper;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -2333,6 +2335,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderSettlingInfo.setCreateBy(CommonConstant.START);
                 orderSettlingInfo.setCreateTime(new Date());
                 orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
+
+                //插入订单财务信息表
+                OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
+                orderAccountInfo.setBillId(orderSettlingInfo.getBillId());
+                orderAccountInfo.setOrderId(orderNo.toString());
+                orderAccountInfo.setAmount(new BigDecimal(amount).stripTrailingZeros());
+                orderAccountInfo.setCreateTime(new Date());
+                orderAccountInfo.setState(CommonConstant.NOT_INVOICED);
+                orderAccountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
                 //插入订单支付表
                 OrderPayInfo orderPayInfo = new OrderPayInfo();
                 String substring = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32);

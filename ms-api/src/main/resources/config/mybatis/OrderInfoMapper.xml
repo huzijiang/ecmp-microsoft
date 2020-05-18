@@ -1021,7 +1021,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             d.longitude endLongitude ,
             d.latitude endLatitude,
             g.charter_car_type charterCarType,
-            (select state from order_state_trace_info sti where sti.order_id=#{orderId} order by sti.trace_id desc limit 1) labelState,
+            (select state from order_state_trace_info sti where sti.order_id=a.order_id order by sti.trace_id desc limit 1) labelState,
             ai.apply_type applyType
         from order_info a
 	        left join journey_info g on g.journey_id=a.journey_id

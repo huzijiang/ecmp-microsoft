@@ -106,13 +106,18 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         if (useCarDate==null){
             throw new  Exception("用车时间不明确!");
         }
+        //修改权限标识
         boolean opType=true;
         int intState=Integer.parseInt(state.substring(1));
         //校验是否超过用车时间
         //未派车(无车无司机)
         if (intState < Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1))) {
             log.info("订单:"+orderId+"无车无司机取消订单-------> start,原因{}",cancelReason);
-            int i = this.ownerCarCancel(orderId, cancelReason, orderStateVO.getUserId());
+            if (CarConstant.USR_CARD_MODE_HAVE .equals(orderStateVO.getUseCarMode())){
+                int i = this.ownerCarCancel(orderId, cancelReason, orderStateVO.getUserId());
+            }else{
+                JSONObject jsonObject = thirdService.threeCancelServer(orderId, cancelReason);
+            }
         } else if (intState >= Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1)) &&
                 intState < Integer.parseInt(OrderState.INSERVICE.getState().substring(1))) {
             log.info("订单:"+orderId+"有车有司机取消订单------- start,原因{}",cancelReason);
@@ -160,9 +165,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
                 }
             }
         }
-        if (opType){
+        //修改权限为未使用
+//        if (opType){
             iJourneyUserCarPowerService.updatePowerSurplus(orderStateVO.getPowerId(),2);
-        }
+//        }
         vo.setIsPayFee(isPayFee);
         vo.setCancelAmount(cancelFee1.stripTrailingZeros().toPlainString());
         vo.setOwnerAmount(ownerAmount);
