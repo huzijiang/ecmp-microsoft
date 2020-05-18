@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.hq.api.system.mapper.SysUserMapper;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.TreeUtil;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.dto.ProjectUserDTO;
@@ -18,8 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.hq.ecmp.constant.CommonConstant.ONE;
 import static com.hq.ecmp.constant.CommonConstant.ZERO;
@@ -37,11 +38,13 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     private ProjectInfoMapper projectInfoMapper;
     @Autowired
     private ProjectUserRelationInfoMapper projectUserRelationInfoMapper;
-    @Autowired
-    private EcmpOrgMapper ecmpOrgMapper;
+    @Autowired(required = false)
+    private SysUserMapper userMapper;
 
     @Autowired
     private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private EcmpOrgMapper ecmpOrgMapper;
     @Autowired
     private RedisUtil redisUtil;
 
@@ -209,7 +212,8 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         return list;
     }
 
-    @Override
+
+        @Override
     public OrgTreeVo selectProjectUserTree(Long projectId,String search) {
         ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectId);
         Long orgId=null;
@@ -221,6 +225,27 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         OrgTreeVo childNode = getChildNode(orgTreeVo, userList);
 
         return childNode;
+    }
+    @Override
+    public List<Map> buildProjectUserTree(Long projectId, String search) {
+        List<Map> maps = new ArrayList<>();
+        ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectId);
+        Long orgId=null;
+        if (projectInfo!=null){
+            orgId=projectInfo.getOwnerCompany();
+        }
+        maps.addAll(ecmpUserMapper.selectUserListByProjectId(projectId,search,orgId));
+        List<String> deptIds = new ArrayList<>();
+        maps.stream().forEach(x->deptIds.add(x.get("pid").toString()));
+        while (deptIds.size()>0){
+            List<Map> list = userMapper.selectDeptInfoByIds(deptIds);
+            maps.addAll(list);
+            deptIds.clear();
+            list.stream().forEach(x->deptIds.add(x.get("pid").toString()));
+        }
+        Collections.reverse(maps);
+        List<Map> tree = TreeUtil.getTreeByList(maps);
+        return tree;
     }
 
     @Override
