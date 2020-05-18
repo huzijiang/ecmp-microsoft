@@ -66,11 +66,11 @@ public interface IApplyInfoService
      */
     public int deleteApplyInfoById(Long applyId);
 
-    /**
+   /* *//**
      * 提交行程申请
      * @param journeyCommitApplyDto
-     */
-    public void applyCommit(JourneyCommitApplyDto journeyCommitApplyDto);
+     *//*
+    public void applyCommit(JourneyCommitApplyDto journeyCommitApplyDto);*/
 
     /**
      * 提交公务行程申请
