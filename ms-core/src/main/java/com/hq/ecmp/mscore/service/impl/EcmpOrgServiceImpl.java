@@ -746,12 +746,12 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         Long deptId = ecmpUser.getDeptId();
         //查询公司信息
         //EcmpOrg companyInfo = ecmpOrgMapper.selectEcmpOrgById(ownerCompany);
-        //查询公司下的所有部门
+        //查询公司下的所有部门（包括本公司）
         EcmpOrg ecmpOrg = new EcmpOrg();
         ecmpOrg.setCompanyId(ownerCompany);
         ecmpOrg.setDeptName(name);
-        List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
-       // ecmpOrgs.add(companyInfo);
+       // List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
+        List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectCompanyDeptList(ecmpOrg);
         for (EcmpOrg org : ecmpOrgs) {
             if(org.getDeptId().equals(deptId)){
                 //如果是本部门，状态 为 1
