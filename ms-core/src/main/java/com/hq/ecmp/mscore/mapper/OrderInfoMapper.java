@@ -6,10 +6,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
-import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
-import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
-import com.hq.ecmp.mscore.vo.OrderStateVO;
-import com.hq.ecmp.mscore.vo.RunningOrderVo;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -294,5 +291,18 @@ public interface OrderInfoMapper {
      * @param powerId
      */
     List<Long> getAlreadyUsingOrderIdByPowerId(Long powerId);
+
+    /**
+     * 获取申请调度列表
+     * @param query
+     * @return
+     */
+    List<DispatchVo> queryDispatchList(ApplyDispatchQuery query);
+
+    /**
+     * 获取直接调度列表
+     * @return
+     */
+    List<DispatchVo> queryDispatchOrder(@Param("companyId") Long companyId);
 }
 

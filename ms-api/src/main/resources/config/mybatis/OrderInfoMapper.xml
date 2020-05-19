@@ -236,6 +236,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
         select
             o.order_id orderId,
             o.it_is_supplement  itIsSupplement,
+            opi.state payState,
             ecti.`level`,
             o.use_car_mode useCarMode,
             o.state,
@@ -247,6 +248,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
             from order_info o
             left join journey_info jn on o.journey_id=jn.journey_id
+            LEFT  join order_pay_info opi on o.order_id = opi.order_id
             left join journey_node_info jni on  jni.node_id=o.node_id
             left join car_info ci on ci.car_id=o.car_id
             left join enterprise_car_type_info ecti on ecti.car_type_id=ci.car_type_id
@@ -735,7 +737,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN china_city f  ON c.city_postal_code =f.CITY_CODE
 		WHERE
 		d.state NOT IN ('S270', 'S277', 'S279') AND a.state in ('S100','S199','S299','S500','S600','S616','S699','S900')
-		and (a.use_car_mode is null or a.use_car_mode='W100' or a.use_car_mode='' or a.use_car_mode='W200')
+		and (a.use_car_mode is null or a.use_car_mode='W100' or a.use_car_mode='' or a.use_car_mode='W200') and a.company_id=#{companyId}
 		<if test="null !=applyMobile and applyMobile !=''">
 			and b.user_name LIKE concat('%',#{applyMobile},'%')
 		</if>
@@ -1070,5 +1072,128 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     <select id="getCarMessage" resultType="com.hq.ecmp.mscore.domain.OrderInfoMessage" parameterType="java.lang.Long">
             select order_id orderId,car_model carModel,car_license carLicense,driver_name driverName,car_color carColor
              from  order_info where order_id = #{orderId}
+    </select>
+
+    <select id="queryDispatchList" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
+
+        SELECT DISTINCT
+                -- 订单id
+                oi.order_id orderId,
+                -- 部门名称
+                eo.dept_name AS deptName,
+                -- 公司名称
+                eor.dept_name AS companyName,
+                -- 申请人姓名
+                eu.nick_name  applyUserName,
+                -- 申请人手机号
+                eu.phonenumber applyUserTel,
+                -- 乘车人
+                eu.nick_name  useCarUserName,
+                -- 同行人数量
+                jpi.peer_number travelPartnerCount,
+                -- 开始时间
+                oai.action_time useCarDate,
+                -- 预计结束时间
+                oaitwo.action_time endDate,
+                -- 上车地址
+                oai.address startSite,
+                -- 下车地址
+                oaitwo.address endSite,
+                -- 是否往返
+                ji.it_is_return itIsReturn,
+                -- 预计等待时长
+                ji.wait_time_long waitMinute,
+                -- 用车城市
+                cc.SHORT_NAME useCarCity,
+                -- 用车场景
+                si.`name` userCarScene,
+                -- 用车制度
+                ri.`name` userCarRegime,
+                -- 服务类型
+                oi.service_type serverType,
+                -- 状态
+                oi.state state,
+                -- 操作时间
+              (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id order by trace_id desc limit 1) opDate
+                FROM
+                order_info oi
+                LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
+                LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
+                LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
+                LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
+                LEFT JOIN journey_info ji ON ji.journey_id = oi.journey_id
+                LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = oi.journey_id
+                LEFT JOIN regime_info ri ON ri.regimen_id = ji.regimen_id
+                LEFT JOIN scene_regime_relation srr ON srr.regimen_id = ri.regimen_id
+                LEFT JOIN scene_info si ON srr.scene_id = si.scene_id
+                LEFT JOIN order_address_info oai ON oai.order_id = oi.order_id and oai.type='A000'
+                LEFT JOIN order_address_info oaitwo ON oaitwo.order_id = oi.order_id and oaitwo.type='A999'
+                LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
+                WHERE 1 = 1
+                      <if test="companyId != null and  companyId!=''"> and  oi.company_id=#{companyId} </if>
+                      <if test="dispatchStatus != null  and dispatchStatus != ''"> and oi.state = #{dispatchStatus}</if>
+                ORDER BY
+                oi.order_id DESC
+    </select>
+    <select id="queryDispatchOrder" parameterType="com.hq.ecmp.mscore.vo.DispatchVo" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
+        SELECT DISTINCT
+        -- 订单id
+        oi.order_id orderId,
+        -- 部门名称
+        eo.dept_name AS deptName,
+        -- 公司名称
+        eor.dept_name AS companyName,
+        -- 申请人姓名
+        eu.nick_name  applyUserName,
+        -- 申请人手机号
+        eu.phonenumber applyUserTel,
+        -- 乘车人
+        eu.nick_name  useCarUserName,
+        -- 同行人数量
+        jpi.peer_number travelPartnerCount,
+        -- 开始时间
+        oai.action_time useCarDate,
+        -- 预计结束时间
+        oaitwo.action_time endDate,
+        -- 上车地址
+        oai.address startSite,
+        -- 下车地址
+        oaitwo.address endSite,
+        -- 是否往返
+        ji.it_is_return itIsReturn,
+        -- 预计等待时长
+        ji.wait_time_long waitMinute,
+        -- 用车城市
+        cc.SHORT_NAME useCarCity,
+        -- 用车场景
+        si.`name` userCarScene,
+        -- 用车制度
+        ri.`name` userCarRegime,
+        -- 服务类型
+        oi.service_type serverType,
+        -- 状态
+        oi.state state,
+        -- 操作时间
+        -- (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id order by trace_id desc limit 1) opDate
+        oi.update_time opDate
+        FROM
+        order_info oi
+        LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
+        LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
+        LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
+        LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
+        LEFT JOIN journey_info ji ON ji.journey_id = oi.journey_id
+        LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = oi.journey_id
+        LEFT JOIN regime_info ri ON ri.regimen_id = ji.regimen_id
+        LEFT JOIN scene_regime_relation srr ON srr.regimen_id = ri.regimen_id
+        LEFT JOIN scene_info si ON srr.scene_id = si.scene_id
+        LEFT JOIN order_address_info oai ON oai.order_id = oi.order_id and oai.type='A000'
+        LEFT JOIN order_address_info oaitwo ON oaitwo.order_id = oi.order_id and oaitwo.type='A999'
+        LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
+        WHERE 1 = 1
+        <if test="companyId != null and  companyId!=''"> and  oi.company_id=#{companyId} </if>
+        and oi.it_is_supplement = 'D000'
+        ORDER BY
+        oi.order_id DESC
     </select>
 </mapper>

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.hq.ecmp.constant.enumerate.DispatchExceptionEnum;
 import com.hq.ecmp.mscore.bo.WaitSelectedCarBo;
 import com.hq.ecmp.mscore.bo.WaitSelectedDriverBo;
+import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.dto.dispatch.*;
 import com.hq.ecmp.mscore.vo.*;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +67,7 @@ public class DispatchController {
     public ApiResponse<PageResult<ApplyDispatchVo>> getUserDispatchedOrder(@RequestBody ApplyDispatchQuery query){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        query.setCompanyId(loginUser.getUser().getOwnerCompany());
+        query.setCompanyId(loginUser.getUser().getDept().getCompanyId());
         List<ApplyDispatchVo> list = iOrderInfoService.queryApplyDispatchList(query);
     	Integer totalNum = iOrderInfoService.queryApplyDispatchListCount(query);
     	PageResult<ApplyDispatchVo> pageResult = new PageResult<ApplyDispatchVo>(Long.valueOf(totalNum), list);
@@ -221,5 +222,41 @@ public class DispatchController {
         return ApiResponse.success("调度无车驳回通过");
     }
 
+    /**
+     * 获取申请调度列表
+     * @param query
+     * @return
+     */
+    @ApiOperation(value = "queryDispatchList", notes = "获取申请调度列表 ", httpMethod = "POST")
+    @PostMapping("/queryDispatchList")
+    public ApiResponse<PageResult<DispatchVo>> queryDispatchList(@RequestBody ApplyDispatchQuery query){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            PageResult<DispatchVo> list = iOrderInfoService.queryDispatchList(query,loginUser);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("获取申请调度列表失败");
+        }
+    }
 
+    /**
+     *获取直接调度列表
+     * @param query
+     * @return
+     */
+    @ApiOperation(value = "queryStraightDispatchList", notes = "获取直接调度列表 ", httpMethod = "POST")
+    @PostMapping("/queryStraightDispatchList")
+    public ApiResponse<PageResult<DispatchVo>> queryStraightDispatchList(@RequestBody ApplyDispatchQuery query){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            PageResult<DispatchVo> list = iOrderInfoService.queryDispatchOrder(loginUser.getUser().getDept().getCompanyId());
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("获取申请调度列表失败");
+        }
+    }
 }
