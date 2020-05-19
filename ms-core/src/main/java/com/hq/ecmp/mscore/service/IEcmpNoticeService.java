@@ -110,4 +110,13 @@ public interface IEcmpNoticeService
      *
      */
     void addObtainScheduling();
+
+    /**
+     * 首页公告展示列表(最新5条并且发布中)
+     * @param pageNum
+     * @param pageSize
+     * @param companyId
+     * @return
+     */
+    PageResult<EcmpNotice> getNoticeFiveList(Integer pageNum, Integer pageSize, Long companyId);
 }
