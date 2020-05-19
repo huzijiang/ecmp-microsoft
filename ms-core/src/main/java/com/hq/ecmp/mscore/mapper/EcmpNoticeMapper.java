@@ -98,4 +98,11 @@ public interface EcmpNoticeMapper
     List<EcmpNotice> selectNoticeByStatus();
 
     void addObtainScheduling(Scheduling scheduling);
+
+    /**
+     * 首页公告展示列表(最新5条并且发布中)
+     * @param companyId
+     * @return
+     */
+    List<EcmpNotice> getNoticeFiveList(Long companyId);
 }

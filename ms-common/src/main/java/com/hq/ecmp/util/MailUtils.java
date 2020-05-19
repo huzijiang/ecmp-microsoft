@@ -157,7 +157,6 @@ public class MailUtils  {
             message.setFrom(new InternetAddress(USER));
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(emailAddredd));
             message.setSubject(subject);
-            //message.setContent(msg, "text/html;charset=UTF-8");
             BodyPart messageBodyPart = new MimeBodyPart();
             messageBodyPart.setText(msg);
             Multipart multipart = new MimeMultipart();
