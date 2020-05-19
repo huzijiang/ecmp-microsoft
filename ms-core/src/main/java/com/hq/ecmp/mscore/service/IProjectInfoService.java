@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.api.system.domain.SysUser;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.dto.ProjectUserDTO;
 import com.hq.ecmp.mscore.vo.OrgTreeVo;
@@ -98,5 +99,5 @@ public interface IProjectInfoService
      */
     List<ProjectInfoVO> selectProjects(Long ownerCompany);
 
-    List<Map> buildProjectUserTree(Long projectId, String search);
+    List<Map> buildProjectUserTree(Long projectId, String search, SysUser user);
 }

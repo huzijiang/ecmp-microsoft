@@ -6,6 +6,7 @@ import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
 import com.hq.api.system.domain.SysDriver;
+import com.hq.api.system.domain.SysRole;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
@@ -258,8 +259,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		//查询所有处于待派单(未改派)的订单及关联的信息
 		OrderInfo query = new OrderInfo();
 		query.setState(OrderState.WAITINGLIST.getState());
-		if (isAutoDis){
-		    query.setCompanyId(companyId);
+        if (isAutoDis){
+            query.setCompanyId(companyId);
         }
 		List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
 		if(null !=waitDispatchOrder && waitDispatchOrder.size()>0){
@@ -273,7 +274,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				if(iOrderAddressInfoService.checkOrderOverTime(dispatchOrderInfo.getOrderId())){
 					continue;
 				}
-				//正常申请的调度单取对应的用车申请单的通过时间来排序
+				//正常申请的调度单取对应的用车    申请单的通过时间来排序
 				dispatchOrderInfo.setUpdateDate(dispatchOrderInfo.getApplyPassDate());
 				dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
 				result.add(dispatchOrderInfo);
@@ -2706,5 +2707,232 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setCarPhoto(carPhoto);
         }
         return vo;
+    }
+
+    /**
+     * 获取申请调度列表
+     * @param query
+     * @return
+     */
+    @Override
+    public PageResult<DispatchVo> queryDispatchList(ApplyDispatchQuery query,LoginUser loginUser) {
+        List<DispatchVo> result=new ArrayList<DispatchVo>();
+        //判断登录人的身份来显示他看到的不同权限的数据
+        List<SysRole> role = loginUser.getUser().getRoles();
+        //<系统管理员身份>
+        List<DispatchVo> adminOrderList = new ArrayList<DispatchVo>();
+        //<调度员身份>
+        List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
+        List<DispatchOrderInfo> dispatcherOrder = new ArrayList<DispatchOrderInfo>();
+        if(!role.isEmpty()){
+            //登录人公司
+            query.setCompanyId(loginUser.getUser().getDept().getCompanyId());
+            //登录人Id
+            query.setUserId(loginUser.getUser().getUserId());
+            //循环判断登录人身份并获取他所看到的数据信息
+            for(SysRole sysRole : role){
+                //判断登陆人身份（系统管理员）
+                if(sysRole.getRoleKey().equals(RoleConstant.ADMIN) || sysRole.getRoleKey().equals(RoleConstant.SUB_ADMIN)){
+                    //待派单状态
+                    query.setDispatchStatus(OrderState.WAITINGLIST.getState());
+                    //本公司所有的订单
+                    adminOrderList= orderInfoMapper.queryDispatchList(query);
+                    if(!adminOrderList.isEmpty()){
+                        for(DispatchVo adminOrder:adminOrderList){
+                            adminOrder.setOperationPermission("1");
+                        }
+                    }
+                }
+                //判断登陆人身份（调度员）
+                if(sysRole.getRoleKey().equals(RoleConstant.DISPATCHER)){
+                    //待派单+待改派
+                    if(OrderState.WAITINGLIST.getState().equals(query.getDispatchType())){
+                        //待派单
+                        List<DispatchOrderInfo> waitingList = queryAllWaitingList(query.getUserId(),query.getCompanyId());
+                        dispatcherOrder= queryDispatchList(waitingList,loginUser.getUser().getUserId());
+                    }else{
+                        //待改派
+                        List<DispatchOrderInfo> waitingList = queryAllReformistList(query.getUserId(),query.getCompanyId());
+                        dispatcherOrder= queryDispatchList(waitingList,loginUser.getUser().getUserId());
+                    }
+                    for (DispatchOrderInfo dispatch :dispatcherOrder){
+                        DispatchVo dispatchVo = new DispatchVo();
+                        dispatchVo.setOperationPermission("0");
+                        dispatchVo.setOrderId(dispatch.getOrderId());
+                        dispatchVo.setCompanyName(dispatch.getCompanyName());
+                        dispatchVo.setDeptName(dispatch.getDeptName());
+                        dispatchVo.setApplyUserName(dispatch.getApplyUserName());
+                        dispatchVo.setApplyUserTel(dispatch.getApplyUserTel());
+                        dispatchVo.setUseCarUserName(dispatch.getUseCarUserName());
+                        dispatchVo.setTravelPartnerCount(Long.valueOf(dispatch.getPeerNum().toString()));
+                        dispatchVo.setUseCarDate(dispatch.getUseCarDate());
+                        dispatchVo.setEndDate(dispatch.getEndDate());
+                        dispatchVo.setStartSite(dispatch.getStartSite());
+                        dispatchVo.setEndSite(dispatch.getEndSite());
+                        dispatchVo.setItIsReturn(dispatch.getItIsReturn());
+                        dispatchVo.setWaitMinute(dispatch.getWaitMinute());
+                        dispatchVo.setUseCarCity(dispatch.getUseCarCity());
+                        dispatchVo.setUserCarScene(dispatch.getUserCarScene());
+                        dispatchVo.setUserCarRegime(dispatch.getUserCarRegime());
+                        dispatchVo.setServerType(dispatch.getServerType());
+                        dispatchVo.setState(dispatch.getState());
+                        dispatchVo.setOpDate(dispatch.getOpDate());
+                        dispatcherOrderList.add(dispatchVo);
+                    }
+                }
+            }
+        }
+        if(!adminOrderList.isEmpty()) {
+            for (int i = 0; i < adminOrderList.size(); i++) {
+                for (int j = 0; j <dispatcherOrderList.size(); j++){
+                    if(adminOrderList.get(i).getOrderId().equals(dispatcherOrderList.get(j).getOrderId())){
+                        i --;
+                        adminOrderList.add(dispatcherOrderList.get(j));
+                    }
+                }
+            }
+            result.addAll(adminOrderList);
+        }else {
+            result.addAll(dispatcherOrderList);
+        }
+        PageInfo<DispatchVo> info = new PageInfo<>(result);
+        return new PageResult<>(info.getTotal(),info.getPages(),result);
+    }
+
+    /**
+     * 获取直接调度列表
+     * @param
+     * @param
+     * @return
+     */
+    @Override
+    public PageResult<DispatchVo> queryDispatchOrder(Long companyId) {
+        List<DispatchVo> adminOrderList= orderInfoMapper.queryDispatchOrder(companyId);
+        PageInfo<DispatchVo> info = new PageInfo<>(adminOrderList);
+        return new PageResult<>(info.getTotal(),info.getPages(),adminOrderList);
+    }
+
+    /**
+     * 查询所有处于待派单(未改派)的订单及关联的信息
+     * @param userId
+     * @param companyId
+     * @return
+     */
+    public List<DispatchOrderInfo> queryAllWaitingList(Long userId,Long companyId) {
+        List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
+        //查询所有处于待派单(未改派)的订单及关联的信息
+        OrderInfo query = new OrderInfo();
+        query.setState(OrderState.WAITINGLIST.getState());
+        query.setCompanyId(companyId);
+        List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
+        if(!waitDispatchOrder.isEmpty()){
+            //对用的前端状态都为待派车 -S200
+            for (DispatchOrderInfo dispatchOrderInfo : waitDispatchOrder) {
+                //去除改派的单子
+                if(iOrderStateTraceInfoService.isReassignment(dispatchOrderInfo.getOrderId())){
+                    continue;
+                }
+                //去除超时的订单
+                /*if(iOrderAddressInfoService.checkOrderOverTime(dispatchOrderInfo.getOrderId())){
+                    continue;
+                }*/
+                //正常申请的调度单取对应的用车    申请单的通过时间来排序
+                dispatchOrderInfo.setUpdateDate(dispatchOrderInfo.getApplyPassDate());
+                dispatchOrderInfo.setState(OrderState.WAITINGLIST.getState());
+                result.add(dispatchOrderInfo);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 查询所有处于待改派(订单状态为已派车,已发起改派申请)的订单及关联的信息
+     * @param userId
+     * @param companyId
+     * @return
+     */
+    public List<DispatchOrderInfo> queryAllReformistList(Long userId,Long companyId) {
+        List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
+        //查询所有处于待改派(订单状态为已派车,已发起改派申请)的订单及关联的信息
+        OrderInfo query = new OrderInfo();
+        query.setState(OrderState.WAITINGLIST.getState());
+        query.setCompanyId(companyId);
+        List<DispatchOrderInfo> reassignmentOrder = orderInfoMapper.queryOrderRelateInfo(query);
+        if(null !=reassignmentOrder && reassignmentOrder.size()>0){
+            for (DispatchOrderInfo dispatchOrderInfo : reassignmentOrder) {
+                dispatchOrderInfo.setState(OrderState.APPLYREASSIGN.getState());
+                //去除超时的订单
+                if(iOrderAddressInfoService.checkOrderOverTime(dispatchOrderInfo.getOrderId())){
+                    continue;
+                }
+                //去除最新订单流转状态不是S270 申请改派的
+                OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.getLatestInfoByOrderId(dispatchOrderInfo.getOrderId());
+                if(!OrderStateTrace.APPLYREASSIGNMENT.getState().equals(orderStateTraceInfo.getState())){
+                    continue;
+                }
+                Long oldDispatcher = orderStateTraceInfoMapper.getOldDispatcher(dispatchOrderInfo.getOrderId());
+                if (oldDispatcher != null){
+                    if(oldDispatcher != 1){
+                        if(userId.longValue() != oldDispatcher.longValue()){
+                            continue;
+                        }
+                    }
+                }
+                result.add(dispatchOrderInfo);
+            }
+
+        }
+        return result;
+    }
+
+
+    /**
+     * 对用户进行订单可见校验
+     * 自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的调度员能看到该订单
+     * 只有自有车时，且上车地点不在车队的用车城市范围内，则所有车车队的所有调度员都能看到该订单
+     * @param userId
+     * @return
+     */
+    public List<DispatchOrderInfo> queryDispatchList(List<DispatchOrderInfo> result,Long userId) {
+		/*对用户进行订单可见校验
+		自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的调度员能看到该订单
+	      只有自有车时，且上车地点不在车队的用车城市范围内，则所有车车队的所有调度员都能看到该订单*/
+        List<DispatchOrderInfo> checkResult=new ArrayList<DispatchOrderInfo>();
+        if(!result.isEmpty()){
+            for (DispatchOrderInfo dispatchOrderInfo : result) {
+                //计算该订单的等待时长 分钟
+                if(null !=dispatchOrderInfo.getCreateTime()){
+                    dispatchOrderInfo.setWaitMinute(DateFormatUtils.getDateToWaitInterval(dispatchOrderInfo.getCreateTime()));
+                }
+                //查询订单对应的上车地点时间,下车地点时间
+                buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+                //查询订单对应制度的可用用车方式
+                Long regimenId = dispatchOrderInfo.getRegimenId();
+                if(null ==regimenId || ! regimeInfoService.findOwnCar(regimenId)){
+                    log.error("该订单相关的制度id是空，或者相关制度不包含自有车");
+                    continue;
+                }
+                //查询订单对应的上车地点时间,下车地点时间
+                buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
+                String cityId = dispatchOrderInfo.getCityId();
+                if(StringUtil.isEmpty(cityId)){
+                    log.error("该订单相关城市为空");
+                    continue;
+                }
+                //判断订单是否可以被当前调度员看到
+                if(!judgeOrderValid(userId,dispatchOrderInfo)){
+                    continue;
+                }
+                //计算该订单的等待时长 分钟
+                if(null !=dispatchOrderInfo.getCreateTime()){
+                    dispatchOrderInfo.setWaitMinute(DateFormatUtils.getDateToWaitInterval(dispatchOrderInfo.getCreateTime()));
+                }
+
+                //订单添加用车场景用车制度以及任务来源信息
+                DispatchOrderInfoPacking(dispatchOrderInfo);
+                checkResult.add(dispatchOrderInfo);
+            }
+        }
+        return checkResult;
     }
 }

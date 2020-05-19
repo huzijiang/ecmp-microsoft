@@ -208,5 +208,8 @@ public class DispatchOrderInfo {
 	 * 驳回原因
 	 */
 	String rejectReason;
-
+	/**
+	 *操作权限  0：有权限  1:没有权限
+	 */
+	String  operationPermission;
 }
