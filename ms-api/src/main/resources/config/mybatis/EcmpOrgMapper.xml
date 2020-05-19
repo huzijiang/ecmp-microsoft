@@ -62,7 +62,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="com.hq.ecmp.mscore.vo.OrgTreeVo" id="orgTreeVO">
         <id column="id" property="id"/>
-        <result property="parentId"    column="parentId"    />
+        <result property="pid"    column="pid"    />
         <result property="showname"    column="showname"    />
         <result property="type"    column="type"    />
         <collection property="children" ofType="OrgTreeVo" javaType="java.util.ArrayList" select="getOrgNodeList" column="id">
@@ -486,7 +486,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectDeptTree" parameterType="Object" resultMap="orgTreeVO">
-        select dept_id id, parent_id parentId,dept_name showname,'0' type from ecmp_org
+        select dept_id id, parent_id pid,dept_name showname,0 type from ecmp_org
         where status=0 and del_flag=0 and dept_type!=3
         <if test="deptId!=null">
             and dept_id=#{deptId}
@@ -500,7 +500,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     </select>
     <select id="getOrgNodeList" parameterType="Object" resultMap="orgTreeVO">
-         select dept_id id, parent_id parentId,dept_name showname,'0' type from ecmp_org
+         select dept_id id, parent_id pid,dept_name showname,0 type from ecmp_org
         where status=0 and del_flag=0 and parent_id=#{id} and dept_type!=3
     </select>
     <select id="selectCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
@@ -570,5 +570,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
             <if test="companyId != null "> and (company_id = #{companyId} and dept_type != 1 or dept_id = #{companyId})</if>
         </where>
+    </select>
+
+    <select id="selectOrgTreeByDeptId" resultType="java.util.Map">
+        select dept_id id,dept_name showname,parent_id pid,0 type,CONCAT(dept_id,'-','0') onlyId,CONCAT(dept_id,'-','0') onlyPid from ecmp_org a
+        where  find_in_set(dept_id,(select group_concat(distinct ancestors) from ecmp_org  where find_in_set(dept_id,#{orgIds})) ) OR
+            find_in_set(dept_id,#{orgIds})
     </select>
 </mapper>
