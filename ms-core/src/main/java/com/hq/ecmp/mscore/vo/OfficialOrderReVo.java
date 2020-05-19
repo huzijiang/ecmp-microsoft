@@ -2,7 +2,10 @@ package com.hq.ecmp.mscore.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @ClassName OfficialOrderReVo
@@ -12,6 +15,8 @@ import lombok.Data;
  * @Version 1.0
  */
 @Data
+@Builder
+@AllArgsConstructor
 @ApiModel("公务用车入参model")
 public class OfficialOrderReVo {
     @ApiModelProperty(value = "权限id",required = true)

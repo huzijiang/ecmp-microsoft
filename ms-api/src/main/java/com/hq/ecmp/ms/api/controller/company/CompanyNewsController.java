@@ -51,8 +51,11 @@ public class CompanyNewsController {
       HttpServletRequest request = ServletUtils.getRequest();
       LoginUser loginUser = tokenService.getLoginUser(request);
       Long companyId = loginUser.getUser().getOwnerCompany();
+      //统计公司员工  员工排除待审核（不在员工表，在ecmp_enterprise_register_info表）、已离职（当前时间大于离职时间）、删除员工
       int userCount = iEcmpUserService.queryCompanyEmpCunt(companyId);
+      //统计公司驾驶员   驾驶员排除待审核、已离职(当前时间大于离职时间)、删除员工
       int driverCount = iDriverInfoService.queryCompanyDriverCount(companyId);
+      //统计公司车辆   车辆排除已删除车辆
       int carCount = iCarInfoService.queryCompanyCarCount(companyId);
       newsVO.setUserCount(userCount);
       newsVO.setDriverCount(driverCount);

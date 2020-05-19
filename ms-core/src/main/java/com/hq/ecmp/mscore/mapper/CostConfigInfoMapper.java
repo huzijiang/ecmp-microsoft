@@ -100,4 +100,11 @@ public interface CostConfigInfoMapper
      * @return
      */
     int getTotalNum(CostConfigQueryDto costConfigQueryDto);
+
+    /**
+     * 查詢成本信息數據
+     * @param costConfigInfo
+     * @return
+     */
+    List<CostConfigInfo> selectCostConfigList(CostConfigInfo costConfigInfo);
 }

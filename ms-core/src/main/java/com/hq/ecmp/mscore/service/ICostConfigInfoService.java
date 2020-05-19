@@ -100,4 +100,11 @@ public interface ICostConfigInfoService
      * @return
      */
     String supplementAmountCalculation(SupplementVO supplementVO,Long companyId);
+
+    /**
+     * 成本名字判重
+     * @param configName
+     * @return
+     */
+    Boolean costConfigNameIsDouble(String configName);
 }

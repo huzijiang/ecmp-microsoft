@@ -233,6 +233,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<if test="null !=regimeName and regimeName !=''">
 		and a.NAME like CONCAT('%',#{regimeName},'%')
 	</if>
+    <if test="null != companyId and companyId !=''">
+        and a.company_id = #{companyId}
+    </if>
 	group by a.regimen_id
 	) m
 </select>

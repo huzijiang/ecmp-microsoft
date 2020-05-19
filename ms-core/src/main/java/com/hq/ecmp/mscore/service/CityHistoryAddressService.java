@@ -23,7 +23,7 @@ public interface CityHistoryAddressService {
      * @param cityHistoryAddress
      * @return
      */
-    public List<CityHistoryAddress> getCityAddress(Long userId, CityHistoryAddress cityHistoryAddress)throws Exception;
+    public List<CityHistoryAddress> getCityAddress(Long userId,String cityCode,String cityName,String shortAddress)throws Exception;
 
 
     /***
