@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.hq.api.system.domain.SysUser;
 import com.hq.api.system.mapper.SysUserMapper;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.TreeUtil;
@@ -227,12 +228,14 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         return childNode;
     }
     @Override
-    public List<Map> buildProjectUserTree(Long projectId, String search) {
+    public List<Map> buildProjectUserTree(Long projectId, String search, SysUser user) {
         List<Map> maps = new ArrayList<>();
         ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectId);
         Long orgId=null;
         if (projectInfo!=null){
             orgId=projectInfo.getOwnerCompany();
+        }else{
+            orgId=user.getOwnerCompany();
         }
         maps.addAll(ecmpUserMapper.selectUserListByProjectId(projectId,search,orgId));
         List<String> deptIds = new ArrayList<>();
