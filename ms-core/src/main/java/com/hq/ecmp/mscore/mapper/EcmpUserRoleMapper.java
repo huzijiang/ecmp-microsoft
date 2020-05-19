@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpUserRole;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -65,4 +66,11 @@ public interface EcmpUserRoleMapper
     String findUserIds(String roleId);
 
     int deleteUserRole(EcmpUserRole ecmpUserRole);
+
+    /**
+     * 根据角色key查询对应的用户id
+     * @param roleKey
+     * @return
+     */
+    String findUsersByRoleKey(@Param("roleKey") String roleKey, @Param("deptId") Long deptId);
 }

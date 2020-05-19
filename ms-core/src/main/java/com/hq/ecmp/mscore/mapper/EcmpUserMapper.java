@@ -4,10 +4,7 @@ import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpRoleDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.vo.EcmpUserVo;
-import com.hq.ecmp.mscore.vo.ProjectUserVO;
-import com.hq.ecmp.mscore.vo.UserTreeVo;
-import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -388,6 +385,7 @@ public interface EcmpUserMapper
     List<EcmpUserDto> queryUserListByCompanyIdsAndName(@Param("companyId") Long companyId,@Param("name") String name,@Param("itIsDispatcher") String itIsDispatcher);
 
     List<Map> selectUserListByProjectId(@Param("projectId") Long projectId, @Param("search") String search,@Param("companyId")  Long companyId);
+//    List<OrgTreeVo> selectUserListByProjectId(@Param("projectId") Long projectId, @Param("search") String search, @Param("companyId")  Long companyId);
 
     int selectCompanyUserCount(Long companyId);
 }
