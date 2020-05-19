@@ -70,7 +70,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectEcmpOrgVo">
-        select dept_id, parent_id,dept_code,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
+        select dept_id,company_id, parent_id,dept_code,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
     </sql>
     <sql id="selectEcmpOrg">
         select dept_id, parent_id,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
