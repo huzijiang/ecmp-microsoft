@@ -261,4 +261,23 @@
             </where>
         group by c.cost_id,c.company_id,c.cost_config_name,cc.city_name,c.service_type) d
     </select>
+
+
+    <select id="selectCostConfigList" parameterType="CostConfigInfo" resultMap="CostConfigInfoResult">
+        <include refid="selectCostConfigInfoVo"/>
+        <where>
+            <if test="companyId != null "> and company_id = #{companyId}</if>
+            <if test="costConfigName != null  and costConfigName != ''"> and cost_config_name like concat('%', #{costConfigName}, '%')</if>
+            <if test="serviceType != null  and serviceType != ''"> and service_type = #{serviceType}</if>
+            <if test="rentType != null  and rentType != ''"> and rent_type = #{rentType}</if>
+            <if test="startPrice != null "> and start_price = #{startPrice}</if>
+            <if test="combosPrice != null "> and combos_price = #{combosPrice}</if>
+            <if test="combosMileage != null "> and combos_mileage = #{combosMileage}</if>
+            <if test="combosTimes != null "> and combos_times = #{combosTimes}</if>
+            <if test="beyondPriceEveryKm != null "> and beyond_price_every_km = #{beyondPriceEveryKm}</if>
+            <if test="beyondPriceEveryMinute != null "> and beyond_price_every_minute = #{beyondPriceEveryMinute}</if>
+            <if test="waitPriceEreryMinute != null "> and wait_price_erery_minute = #{waitPriceEreryMinute}</if>
+            <if test="state != null  and state != ''"> and state = #{state}</if>
+        </where>
+    </select>
 </mapper>

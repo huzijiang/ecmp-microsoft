@@ -233,6 +233,10 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         for (Long regimenId : regimenIds) {
             Map<String, String> map = Maps.newHashMap();
             regimeInfo = regimeInfoMapper.selectRegimeInfoById(regimenId);
+            String state = regimeInfo.getState();
+            if ("N111".equals(state)){
+                continue;
+            }
             String name = regimeInfo.getName();
             String approvalProcess = regimeInfo.getNeedApprovalProcess();
             map.put("regimenId",regimeInfo.getRegimenId().toString());

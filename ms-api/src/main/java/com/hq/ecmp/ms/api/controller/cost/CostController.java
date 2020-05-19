@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.controller.cost;
 
+import com.google.gson.JsonObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
@@ -8,6 +9,7 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
+import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
 import com.hq.ecmp.mscore.vo.SupplementVO;
@@ -184,6 +186,25 @@ public class CostController {
             return apiResponse;
         }
         return apiResponse;
+    }
+
+    /**
+     *  成本名稱判重
+     */
+    @Log(value = "成本名称判重")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "成本名称判重",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
+    @PostMapping("/costConfigNameIsDouble")
+    public ApiResponse costConfigNameIsDouble(String configName){
+        try {
+            Boolean isDouble = costConfigInfoService.costConfigNameIsDouble(configName.trim());
+            if(isDouble){
+                return ApiResponse.success(isDouble);
+            }else{
+                return ApiResponse.success(Boolean.valueOf(false));
+            }
+        } catch (Exception e) {
+            return ApiResponse.error("判重失败");
+        }
     }
 
 }
