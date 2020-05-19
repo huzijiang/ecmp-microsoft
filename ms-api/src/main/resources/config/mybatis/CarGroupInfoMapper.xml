@@ -250,7 +250,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="findCarTypeByGroupIds" resultType="com.hq.ecmp.mscore.vo.CarLevelVO" parameterType="Object">
-        SELECT car_group_id ,level,name from (SELECT
+        SELECT car_group_id ,level groupId,name groupName from (SELECT
             a.car_group_id,
             b.NAME name ,
             b.LEVEL level,

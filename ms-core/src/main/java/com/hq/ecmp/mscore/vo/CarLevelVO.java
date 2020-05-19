@@ -14,13 +14,4 @@ public class CarLevelVO {
 
     private String groupId;
     private String groupName;
-
-    public CarLevelVO() {
-    }
-
-    public CarLevelVO(String groupName, String groupId) {
-        this.groupName = groupName;
-        this.groupId = groupId;
-
-    }
 }
