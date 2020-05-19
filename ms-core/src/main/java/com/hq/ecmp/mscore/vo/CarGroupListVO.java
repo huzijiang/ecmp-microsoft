@@ -68,4 +68,7 @@ public class CarGroupListVO {
 
     @ApiModelProperty(name = "ownerCompany", value = "所属公司id")
     private Long ownerCompany;
+
+    @ApiModelProperty(name = "cityName", value = "服务城市名字")
+    private String cityName;
 }

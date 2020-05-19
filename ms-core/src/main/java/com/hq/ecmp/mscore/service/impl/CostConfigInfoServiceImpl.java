@@ -278,4 +278,20 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         String json= JSON.toJSONString(map);
         return json;
     }
+
+    /**
+     * 成本名稱判重
+     * @param configName
+     * @return
+     */
+    @Override
+    public Boolean costConfigNameIsDouble(String configName) {
+        CostConfigInfo costConfigInfo = new CostConfigInfo();
+        costConfigInfo.setCostConfigName(configName);
+        List<CostConfigInfo> costConfigInfos = costConfigInfoMapper.selectCostConfigList(costConfigInfo);
+        if (costConfigInfos!=null && costConfigInfos.size()>0){
+            return true;
+        }
+        return false;
+    }
 }

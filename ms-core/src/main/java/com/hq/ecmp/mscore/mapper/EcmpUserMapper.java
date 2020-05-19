@@ -389,5 +389,6 @@ public interface EcmpUserMapper
 
     List<Map> selectUserListByProjectId(@Param("projectId") Long projectId, @Param("search") String search,@Param("companyId")  Long companyId);
 
+    int selectCompanyUserCount(Long companyId);
 }
 

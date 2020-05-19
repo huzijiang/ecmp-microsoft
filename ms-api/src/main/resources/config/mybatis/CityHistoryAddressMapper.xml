@@ -39,10 +39,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <select id="getCityAddressList" parameterType="com.hq.ecmp.mscore.bo.CityHistoryAddress" resultMap="CityHistoryAddress">
         <include refid="select"/>
-        <where>
-            <if test="userId != null "> and user_id = #{userId}</if>
-            <if test="cityCode != null "> and city_code = #{cityCode}</if>
-        </where>
+        where user_id = #{userId} and city_code = #{cityCode}
+        order by history_id desc
     </select>
     <insert id="addCityAddress" parameterType="java.util.List" >
         insert into ecmp_user_city_history_address( history_id, user_id, address, city_name,city_code,  full_name, lat, lng, poi, province, short_name)

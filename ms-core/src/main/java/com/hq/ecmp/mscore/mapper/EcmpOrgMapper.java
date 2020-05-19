@@ -285,4 +285,6 @@ public interface EcmpOrgMapper {
      * @return
      */
     List<CarGroupTreeVO> selectNewCompanyCarGroupTree(@Param("deptId")Long deptId,@Param("parentId") Long parentId);
+
+    List<EcmpOrg> selectCompanyDeptList(EcmpOrg ecmpOrg);
 }

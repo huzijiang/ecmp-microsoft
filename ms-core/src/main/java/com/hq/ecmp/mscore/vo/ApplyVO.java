@@ -25,4 +25,7 @@ public class ApplyVO {
 
     //订单ids
     private List<Long> orderIds;
+
+    //申请单编号
+    private String applyNumber;
 }
