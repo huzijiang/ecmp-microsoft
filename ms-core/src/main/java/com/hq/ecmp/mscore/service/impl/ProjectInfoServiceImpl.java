@@ -236,7 +236,9 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         }
         maps.addAll(ecmpUserMapper.selectUserListByProjectId(projectId,search,orgId));
         List<String> deptIds = new ArrayList<>();
-        maps.stream().forEach(x->deptIds.add(x.get("pid").toString()));
+        if (CollectionUtils.isNotEmpty(maps)){
+            maps.stream().forEach(x->deptIds.add(x.get("pid").toString()));
+        }
         while (deptIds.size()>0){
             List<Map> list = userMapper.selectDeptInfoByIds(deptIds);
             maps.addAll(list);

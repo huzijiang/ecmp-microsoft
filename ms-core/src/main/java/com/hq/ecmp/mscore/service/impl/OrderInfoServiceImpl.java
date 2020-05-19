@@ -796,34 +796,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setHint(HintEnum.CALLCARFAILD.join(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,nodeInfo.getPlanSetoutTime())));
             return vo;
         }
-        if (OrderState.ORDERCANCEL.getState().equals(orderInfo.getState())){
-            List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
-            if (!CollectionUtils.isEmpty(orderSettlingInfos)){
-                OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
-                CancelOrderCostVO cancelOrderCostVO=new CancelOrderCostVO();
-                cancelOrderCostVO.setCancelAmount(orderSettlingInfo.getAmount().toPlainString());
-                String amountDetail = orderSettlingInfo.getAmountDetail();
-                String ownerAmount="";
-                String personalAmount="";
-                if (StringUtils.isNotEmpty(amountDetail)){
-                    JSONObject parse = JSONObject.parseObject(amountDetail);
-                    String otherCost = parse.getString("otherCost");
-                    if (StringUtils.isNotEmpty(otherCost)){
-                        List<OtherCostBean> otherCostBeans = JSONObject.parseArray(otherCost, OtherCostBean.class);
-                        for (OtherCostBean bean:otherCostBeans){
-                            if ("personalAmount".equals(bean.getTypeName())){
-                                personalAmount=bean.getCost();
-                            }else if ("ownerAmount".equals(bean.getTypeName())){
-                                ownerAmount=bean.getCost();
-                            }
-                        }
-                    }
-                }
-                cancelOrderCostVO.setOwnerAmount(ownerAmount);
-                cancelOrderCostVO.setPersonalAmount(personalAmount);
-                vo.setCancelFee(cancelOrderCostVO);
-                this.checkIsOverMoney(orderInfo,vo,2);
-            }
+        if (OrderState.ORDERCANCEL.getState().equals(orderStateTraceInfo.getState())&&OrderState.ORDERCLOSE.getState().equals(orderInfo.getState())){
+            this.checkIsOverMoney(orderInfo, vo, 2);
             return vo;
         }
         String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
@@ -2678,8 +2652,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     private OrderVO checkIsOverMoney(OrderInfo orderInfo,OrderVO vo,int flag)throws Exception{
         List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderInfo.getOrderId()));
-        String personalAmount = "";
-        String ownerAmount = "";
         if (flag == 1) {//正常结单
             if (!CollectionUtils.isEmpty(orderSettlingInfos)) {
                 OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
@@ -2687,9 +2659,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         } else {//取消结单
             if (!CollectionUtils.isEmpty(orderSettlingInfos)) {
+                String personalAmount = "";
+                String ownerAmount = "";
                 OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
                 CancelOrderCostVO cancelOrderCostVO = new CancelOrderCostVO();
-                cancelOrderCostVO.setCancelAmount(orderSettlingInfo.getAmount().toPlainString());
+                int isPayFee=0;
+                cancelOrderCostVO.setCancelAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
                 String amountDetail = orderSettlingInfo.getAmountDetail();
                 if (StringUtils.isNotEmpty(amountDetail)) {
                     JSONObject parse = JSONObject.parseObject(amountDetail);
@@ -2706,6 +2681,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     }
                 }
                 cancelOrderCostVO.setOwnerAmount(ownerAmount);
+                if (StringUtils.isNotEmpty(personalAmount)&&new BigDecimal(personalAmount).compareTo(BigDecimal.ZERO)==1){
+                    isPayFee=1;
+                }
+                cancelOrderCostVO.setIsPayFee(isPayFee);
                 cancelOrderCostVO.setPersonalAmount(personalAmount);
                 vo.setCancelFee(cancelOrderCostVO);
             }
