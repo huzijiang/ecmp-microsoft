@@ -23,6 +23,11 @@ public final class CommonConstant {
     //关闭
     public static final String FINISH = "2";
 
+    /**总公司系统管理员角色**/
+    public static final String ADMIN_ROLE="admin";
+    /**分子公司管理员角色*/
+    public static final String SUB_ADMIN_ROLE="sub_admin";
+
     //联系乘客或者联系车队，对应的电话角色名
     public static final String PASSENGER_ROLE = "乘车人";
     public static final String DISPATCHER_ROLE = "调度员";
