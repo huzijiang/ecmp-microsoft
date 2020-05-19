@@ -761,7 +761,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <select id="selectUserByCompanyId" resultType="com.hq.ecmp.mscore.domain.EcmpUser"
             parameterType="java.lang.Long">
-        select * from ecmp_user where owner_company = #{ownerCompany}
+        select * from ecmp_user where `status`='0'  and del_flag='0' and  owner_company = #{ownerCompany}
     </select>
     <select id="queryUserListByCompanyIdsAndName" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
             select user_id as userId,nick_name as nickName,phonenumber as
