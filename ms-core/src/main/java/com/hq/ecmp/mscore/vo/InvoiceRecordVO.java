@@ -35,6 +35,7 @@ public class InvoiceRecordVO {
     @ApiModelProperty(value = "发票url")
     private String invoiceUrl;
 
+    String  createBy;
 
     String bankName;
 

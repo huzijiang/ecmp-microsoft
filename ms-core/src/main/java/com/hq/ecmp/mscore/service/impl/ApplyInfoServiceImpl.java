@@ -214,7 +214,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfoTravelCommit(travelCommitApply, journeyId, applyInfo);
         Long applyId = applyInfo.getApplyId();
 
-        ApplyVO applyVO = ApplyVO.builder().journeyId(journeyId).applyId(applyId).build();
+        ApplyVO applyVO = ApplyVO.builder().journeyId(journeyId).applyId(applyId).applyNumber(applyInfo.getApplyNumber()).build();
 
         //3.保存行程节点信息(差旅相关) journey_node_info表
         saveTravelJourneyNodeInfos(travelCommitApply, journeyId);
@@ -927,7 +927,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfoOfficialCommit(officialCommitApply, journeyId, applyInfo);
         Long applyId = applyInfo.getApplyId();
 
-        ApplyVO applyVO = ApplyVO.builder().applyId(applyId).journeyId(journeyId).build();
+        ApplyVO applyVO = ApplyVO.builder().applyId(applyId).journeyId(journeyId).applyNumber(applyInfo.getApplyNumber()).build();
 
         String json = GsonUtils.objectToJson(officialCommitApply);
         Type type = new TypeToken<ApplyOfficialRequest>() {
