@@ -2404,10 +2404,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }else
         if (OrderState.READYSERVICE.getState().equals(lableState)){
             //驾驶员已到达/准备服务
-            this.refreshRealAddr(longitude,latitude,OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT,orderInfo);
             ismsBusiness.driverArriveMessage(orderNo);
         }else
         if (OrderState.INSERVICE.getState().equals(lableState)){
+            this.refreshRealAddr(longitude,latitude,OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT,orderInfo);
             //开始服务 发送通知
             ismsBusiness.sendSmsDriverBeginService(orderNo);
             //司机开始服务发送消息给乘车人和申请人（行程通知）
