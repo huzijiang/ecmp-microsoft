@@ -107,7 +107,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
             throw new  Exception("用车时间不明确!");
         }
         //修改权限标识
-        boolean opType=true;
+//        boolean opType=true;
         int intState=Integer.parseInt(state.substring(1));
         //校验是否超过用车时间
         //未派车(无车无司机)
@@ -125,26 +125,16 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
                 //自由车带服务取消
                 log.info("订单:"+orderId+"自有车---有车有司机取消订单------- start,原因{}",cancelReason);
                 int i = this.ownerCarCancel(orderId, cancelReason, orderStateVO.getUserId());
-//                if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(orderStateVO.getApplyType())){//公务
-//                    if (DateFormatUtils.compareDayAndTime(useCarDate,DateUtils.getNowDate()) == 1) {
-//                        //公务自由车带服务取消超时后  权限消失
-//                        opType=false;
-//                    }
-//                }
             }else{//网约车带服务的取消
                 JSONObject jsonObject = thirdService.threeCancelServer(orderId, cancelReason);
                 cancelFee1 = jsonObject.getDouble("cancelFee")==null?BigDecimal.ZERO:BigDecimal.valueOf(jsonObject.getDouble("cancelFee"));
+//                cancelFee1 = new BigDecimal("30");
                 if (cancelFee1.compareTo(BigDecimal.ZERO)<=0){
                     //不需要支付取消费
                     log.info("订单:"+orderId+"网约车------不需要支付取消费---有车有司机取消订单------- start,原因{}",cancelReason);
                     this.onlineCarCancel(orderId, cancelReason, orderStateVO.getUserId(),BigDecimal.ZERO,BigDecimal.ZERO,BigDecimal.ZERO);
-//                    if (DateFormatUtils.compareDayAndTime(useCarDate,DateUtils.getNowDate()) == 1) {
-//                        //公务网约车待服务取消超时无需支付取消费后  权限消失
-//                        opType=false;
-//                    }
                 }else{
                     //需要支付取消费
-//                    cancelFee=cancelFee1.stripTrailingZeros().toPlainString();
                     BigDecimal personPay = iOrderPayInfoService.checkOrderFeeOver(cancelFee1, journeyInfo.getRegimenId(), orderStateVO.getUserId());
                     log.info("订单:"+orderId+"取消费超额"+personPay);
                     /*超额个人支付*/

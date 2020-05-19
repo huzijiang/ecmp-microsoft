@@ -177,7 +177,8 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
       //  return ecmpUserMapper.queryCompanyEmp();
 
 //        return userMapper.selectUserByRoleId(5L,null,companyId).size();
-        return ecmpUserMapper.selectUserByCompanyId(companyId).size();
+        //return ecmpUserMapper.selectUserByCompanyId(companyId).size();
+        return ecmpUserMapper.selectCompanyUserCount(companyId);
     }
 
 
