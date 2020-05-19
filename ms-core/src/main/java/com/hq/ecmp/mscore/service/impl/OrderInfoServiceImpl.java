@@ -2682,7 +2682,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (flag == 1) {//正常结单
             if (!CollectionUtils.isEmpty(orderSettlingInfos)) {
                 OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
-                vo.setAmount(orderSettlingInfo.getAmount().toPlainString());
+                vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
             }
         } else {//取消结单
             if (!CollectionUtils.isEmpty(orderSettlingInfos)) {
@@ -2714,7 +2714,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setPayId(orderPayInfo.getPayId());
             vo.setPayState(orderPayInfo.getState());
             vo.setIsExcess(ONE);
-            vo.setExcessMoney(orderPayInfo.getAmount().toPlainString());
+            vo.setExcessMoney(orderPayInfo.getAmount().stripTrailingZeros().toPlainString());
         } else {
             vo.setIsExcess(ZERO);
             vo.setExcessMoney(String.valueOf(ZERO));
