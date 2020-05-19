@@ -73,7 +73,7 @@ public class ApplyContoller {
      * @param  journeyCommitApplyDto  行程申请信息
      * @param
      * @return
-     */
+     *//*
     @Deprecated()
     @ApiOperation(value = "applyCommit",notes = "员工提交行程申请，行程信息必须全面 ",httpMethod ="POST")
     @PostMapping("/applyCommit")
@@ -81,7 +81,7 @@ public class ApplyContoller {
         //提交行程申请
         applyInfoService.applyCommit(journeyCommitApplyDto);
         return ApiResponse.success();
-    }
+    }*/
 
     /**
      * 员工提交公务行程申请
@@ -104,7 +104,7 @@ public class ApplyContoller {
             log.info("公务申请提交参数：{},申请人电话：{}",JSONArray.toJSON(officialCommitApply).toString(),loginUser.getUser().getPhonenumber());
             applyVO = applyInfoService.applyOfficialCommit(officialCommitApply);
             //初始化审批流和订单
-            List<Long> orderIds = applyInfoService.initialOfficialPowerAndApprovalFlow(officialCommitApply, applyVO.getJourneyId(), applyVO.getApplyId(), loginUser.getUser().getUserId());
+            List<Long> orderIds = applyInfoService.initialOfficialPowerAndApprovalFlow(loginUser,officialCommitApply, applyVO.getJourneyId(), applyVO.getApplyId(), loginUser.getUser().getUserId());
             applyVO.setOrderIds(orderIds);
 
         } catch (Exception e) {

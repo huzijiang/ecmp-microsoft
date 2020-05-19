@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.github.pagehelper.PageInfo;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
@@ -65,11 +66,11 @@ public interface IApplyInfoService
      */
     public int deleteApplyInfoById(Long applyId);
 
-    /**
+   /* *//**
      * 提交行程申请
      * @param journeyCommitApplyDto
-     */
-    public void applyCommit(JourneyCommitApplyDto journeyCommitApplyDto);
+     *//*
+    public void applyCommit(JourneyCommitApplyDto journeyCommitApplyDto);*/
 
     /**
      * 提交公务行程申请
@@ -77,7 +78,7 @@ public interface IApplyInfoService
      */
     ApplyVO applyOfficialCommit(ApplyOfficialRequest officialCommitApply) throws Exception;
 
-    public List<Long> initialOfficialPowerAndApprovalFlow(ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId);
+    public List<Long> initialOfficialPowerAndApprovalFlow(LoginUser loginUser,ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId) throws Exception;
 
     /**
      * 提交差旅行程申请
@@ -85,7 +86,7 @@ public interface IApplyInfoService
      */
    public ApplyVO applytravliCommit(ApplyTravelRequest travelCommitApply);
 
-    public void initialPowerAndApprovalFlow(ApplyTravelRequest travelCommitApply, Long journeyId, Long applyId);
+    public void initialPowerAndApprovalFlow(ApplyTravelRequest travelCommitApply, Long journeyId, Long applyId) throws Exception;
 
     /**
      *

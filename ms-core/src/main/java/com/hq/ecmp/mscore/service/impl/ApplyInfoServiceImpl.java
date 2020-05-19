@@ -185,16 +185,16 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         return applyInfoMapper.deleteApplyInfoById(applyId);
     }
 
-    /**
+   /* *//**
      * 提交行程申请单  弃用，公务申请，差旅申请下面分开实现
      * @param journeyCommitApplyDto
-     */
+     *//*
     @Deprecated
     @Override
     @Transactional
     public void applyCommit(JourneyCommitApplyDto journeyCommitApplyDto) {
 
-    }
+    }*/
 
     /**
      * 提交差旅行程申请
@@ -247,41 +247,36 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @return
      */
     @Override
-    public void initialPowerAndApprovalFlow(ApplyTravelRequest travelCommitApply, Long journeyId, Long applyId) {
+    public void initialPowerAndApprovalFlow(ApplyTravelRequest travelCommitApply, Long journeyId, Long applyId) throws Exception {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         Integer regimenId = travelCommitApply.getRegimenId();
-        //如果不需要审批 则初始化用车权限
         if(regimenId != null){
             RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(Long.valueOf(regimenId));
             if(regimenVO == null){
                 throw new RuntimeException("用车制度不存在");
             }
             String needApprovalProcess = regimenVO.getNeedApprovalProcess();
-            //差旅申请 初始化审批流  不管需要审批与否都需要初始化审批流
+            //1.差旅申请 初始化审批流  不管需要审批与否都需要初始化审批流
             initOfficialApproveFlow(applyId, userId, regimenId);
+            //2.给审批人和自己发通知
+            ecmpMessageService.saveMessageUnite(loginUser,applyId,MsgConstant.MESSAGE_T001);
             if(NeedApproveEnum.NEED_NOT_APPROVE.getKey().equals(needApprovalProcess)){
-                //如果不需要审批 则初始化生成用车权限  差旅申请不需要初始化订单
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
+                //3. 如果不需要审批 则初始化生成用车权限  差旅申请不需要初始化订单
+                executor.submit(()-> {
                         try {
                             boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
                             if(!optFlag){
                                 log.error("生成用车权限失败");
                             }
                         } catch (Exception e) {
-                            e.printStackTrace();
-                            log.error("生成用车权限失败");
+                            log.error("生成用车权限失败，参数 ",e);
                         }
-                    }
                 });
             }else {
-                //如果需要审批
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
+                //4. 如果需要审批 给审批人发短信
+                executor.submit(()->{
                         try {
                             String userName = travelCommitApply.getApplyUser().getUserName();
                             Date startDate = travelCommitApply.getStartDate();
@@ -292,9 +287,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                             String date = format + "-" + format1;
                             List<ApprovalVO> approvers = travelCommitApply.getApprovers();
                             String title = journeyInfoMapper.selectTitleById(journeyId);
-                            //给审批人发通知
-                            //sendNoticeToApprover(applyId,userId,approver);
-                            ecmpMessageService.saveMessageUnite(applyId,MsgConstant.MESSAGE_T001);
                             for (ApprovalVO approver : approvers) {
                                 //给审批人发短信  1.员工姓名 2.日期 3.城市
                                 // 员工陈超已提交“2019年08月20日-2019年08月23日，长春-上海-长春”的差旅用车申请，请登录红旗公务APP及时处理。（差旅申请）
@@ -305,12 +297,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                                 //给审批人发短信
                                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TRAVEL_APPLY_APPROVER,map,approver.getApprovalPhone());
                             }
-                            //给自己发通知
-                            //sendApplyNoticeToSelf(userId,applyId);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            log.error("差旅申请，给审批人发送短信失败，参数：{},applyId:{}",JSONArray.toJSON(travelCommitApply).toString(),applyId,e);
                         }
-                    }
                 });
             }
         }
@@ -975,28 +964,30 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param userId
      */
     @Override
-    public List<Long> initialOfficialPowerAndApprovalFlow(ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId){
+    public List<Long> initialOfficialPowerAndApprovalFlow(LoginUser loginUser,ApplyOfficialRequest officialCommitApply, Long journeyId,  Long applyId, Long userId) throws Exception {
         String applyType = officialCommitApply.getApplyType();
         Integer regimenId = officialCommitApply.getRegimenId();
         List<Long> orderIds = null;
-        //-------------------- 如果不经审批 则初始化权限和初始化订单 ------------------------
         if(regimenId != null){
             RegimenVO regimenVO = regimeInfoMapper.selectRegimenVOById(Long.valueOf(regimenId));
             String needApprovalProcess = regimenVO.getNeedApprovalProcess();
             //1.初始化审批流  不管需要审批与否，都需要初始化审批流
             initOfficialApproveFlow(applyId, userId, regimenId);
+            //2.发通知
+            ecmpMessageService.saveMessageUnite(loginUser,applyId,MsgConstant.MESSAGE_T001);
             if(NeedApproveEnum.NEED_NOT_APPROVE.getKey().equals(needApprovalProcess)){
-                // 初始化权限和初始化订单
+                //3.1 不需要审批 则初始化权限和初始化订单
                 orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply);
             }else {
-                //----------------- 如果需要审批   给审批人发送通知，给自己发送通知  给审批人发送短信
-                //2.给审批人和自己发通知 并给审批人发短信
+                //----------------- 如果需要审批     给审批人发送短信
+                //3.2  需要审批 给审批人发短信
                 if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
-                    //如果是直接调度，走直接调度流程
+                    //3.2.1如果是直接调度，走直接调度流程
                     applyApproveResultInfoMapper.updateApproveState(applyId, ApproveStateEnum.COMPLETE_APPROVE_STATE.getKey(),ApproveStateEnum.APPROVE_PASS.getKey());
                     orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply);
                 }else {
-                        sendNoticeAndMessage(officialCommitApply, applyId, userId);
+                    //3.2.2 不是直接调度 则给审批人发短信
+                        sendMessageToApproverForOfficial(officialCommitApply, applyId, userId);
                     }
                 }
             }
@@ -1144,20 +1135,14 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // 插入可用车型表
-                    if(!CollectionUtils.isEmpty(canUseCarTypes)){
-                        applyUseCarTypeMapper.insertApplyUseCarTypeBatch(canUseCarTypes,applyId,userId, DateUtils.getNowDate());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    log.info("插入可用车型表数据失败");
-                }
+        try {
+            // 插入可用车型表
+            if(!CollectionUtils.isEmpty(canUseCarTypes)){
+                applyUseCarTypeMapper.insertApplyUseCarTypeBatch(canUseCarTypes,applyId,userId, DateUtils.getNowDate());
             }
-        });
+        } catch (Exception e) {
+            log.error("插入可用车型表数据失败，用户：{}车型参数:{}",userId,JSONArray.toJSON(canUseCarTypes).toString(),e);
+        }
     }
 
     /**
@@ -1445,25 +1430,23 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             @Override
             public void run() {
                 try {
-                    //1.初始化审批流
-                    Thread.sleep(100);
+                    //初始化审批流
                     applyApproveResultInfoService.initApproveResultInfo(applyId, Long.valueOf(regimenId), userId);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("差旅申请，初始化审批流失败，用户：{}，用车制度：{}",userId,regimenId,e);
                 }
             }
         });
     }
 
     /**
-     * 公务申请 给审批人发短信和通知 给申请人自己发通知
+     * 公务申请 给审批人发短信
      * @param officialCommitApply
      * @param applyId
      * @param userId
      *
      */
-    private void sendNoticeAndMessage(ApplyOfficialRequest officialCommitApply, Long applyId, Long userId) {
-        Thread mainThread = Thread.currentThread();
+    private void sendMessageToApproverForOfficial(ApplyOfficialRequest officialCommitApply, Long applyId, Long userId) {
         List<ApprovalVO> approvers = officialCommitApply.getApprovers();
         executor.submit(new Runnable() {
             @Override
@@ -1481,18 +1464,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日HH:mm");
                     String useCarTime = simpleDateFormat.format(applyDate);
                     //短信 员工安宁已提交“2019年08月14日13:00”的公务用车申请，请登录红旗公务APP及时处理。（公务申请）
-                    //(1) 员工姓名 （2）日期 时间
-                    //给审批人发通知
-                    //sendNoticeToApprover(applyId, userId, approver);
-                    ecmpMessageService.saveMessageUnite(applyId,MsgConstant.MESSAGE_T001);
+                    //(1) 员工姓名 （2）日期 时
                     for (ApprovalVO approver : approvers) {
                         //给审批人发短信
                         sendMsgToApprover(SmsTemplateConstant.OFFICIAL_APPLY_APPROVER,userName,useCarTime,approver);
                     }
-                    //给自己发通知
-                    //sendApplyNoticeToSelf(userId, applyId);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("公务申请：给审批人发短信失败：applyId:{},userId:{}",applyId,userId,e);
                 }
             }
         });
@@ -1508,12 +1486,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private List<Long> initPowerAndOrder(Long journeyId, String applyType, Long applyId, Long userId,ApplyOfficialRequest officialCommitApply) {
          try {
            ArrayList<Long> orderIds = new ArrayList<>();
+           //1. 公务申请 初始化用车权限
            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
            if(!optFlag){
               log.error("生成用车权限失败");
            }
              ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
-           //初始化订单
+           //2.初始化订单
            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
                int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
@@ -1538,8 +1517,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
            }
            return orderIds;
          } catch (Exception e) {
-           e.printStackTrace();
-           return null;
+             log.error("公务申请，初始化权限和订单失败，用户：{}，请求参数：{}",userId,JSONArray.toJSON(officialCommitApply).toString(),e);
+             return null;
          }
     }
 

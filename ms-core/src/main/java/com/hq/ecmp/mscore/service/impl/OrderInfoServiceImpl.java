@@ -253,11 +253,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
 
     @Override
-	public List<DispatchOrderInfo> queryAllWaitDispatchList() {
+	public List<DispatchOrderInfo> queryAllWaitDispatchList(Long userId,Boolean isAutoDis,Long companyId) {
     	List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
 		//查询所有处于待派单(未改派)的订单及关联的信息
 		OrderInfo query = new OrderInfo();
 		query.setState(OrderState.WAITINGLIST.getState());
+		if (isAutoDis){
+		    query.setCompanyId(companyId);
+        }
 		List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
 		if(null !=waitDispatchOrder && waitDispatchOrder.size()>0){
 			//对用的前端状态都为待派车 -S200
@@ -277,8 +280,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			}
 		}
 		//查询所有处于待改派(订单状态为已派车,已发起改派申请)的订单及关联的信息
+
 		query.setState(OrderState.ALREADYSENDING.getState());
 		query.setOrderTraceState(OrderStateTrace.APPLYREASSIGNMENT.getState());
+        if (isAutoDis){
+            query.setCompanyId(companyId);
+        }
 		List<DispatchOrderInfo> reassignmentOrder = orderInfoMapper.queryOrderRelateInfo(query);
 		if(null !=reassignmentOrder && reassignmentOrder.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : reassignmentOrder) {
@@ -291,8 +298,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.getLatestInfoByOrderId(dispatchOrderInfo.getOrderId());
 				if(!OrderStateTrace.APPLYREASSIGNMENT.getState().equals(orderStateTraceInfo.getState())){
 					continue;
-					}
-				result.add(dispatchOrderInfo);
+				}
+				if (!isAutoDis){
+                    Long oldDispatcher = orderStateTraceInfoMapper.getOldDispatcher(dispatchOrderInfo.getOrderId());
+                    if (oldDispatcher != null){
+                        if(oldDispatcher != 1){
+                            if(userId.longValue() != oldDispatcher.longValue()){
+                                continue;
+                            }
+                        }
+                    }
+                }
+                result.add(dispatchOrderInfo);
 				}
 
 			}
@@ -307,7 +324,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
 	@Override
 	public List<DispatchOrderInfo> queryWaitDispatchList(Long userId) {
-		List<DispatchOrderInfo> result = queryAllWaitDispatchList();
+		List<DispatchOrderInfo> result = queryAllWaitDispatchList(userId,false,null);
 		/*对用户进行订单可见校验
 		自有车+网约车时，且上车地点在车队的用车城市范围内，只有该车队的调度员能看到该订单
 	      只有自有车时，且上车地点不在车队的用车城市范围内，则所有车车队的所有调度员都能看到该订单*/
@@ -1561,6 +1578,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfo.setJourneyId(journeyUserCarPower.getJourneyId());
         orderInfo.setNodeId(journeyUserCarPower.getNodeId());
         orderInfo.setUserId(journeyInfo.getUserId());
+        orderInfo.setCompanyId(applyUseWithTravelDto.getCompanyId());
         //直接约车，约车中。走调度，待派单
         if(applyUseWithTravelDto.getIsDispatch() == 2){
             orderInfo.setState(OrderState.SENDINGCARS.getState());
@@ -2330,7 +2348,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 String duration = feeInfoBean.getString("min");//时长
                 JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
                 BigDecimal persionMoney = iOrderPayInfoService.checkOrderFeeOver(new BigDecimal(amount), journeyInfo.getRegimenId(), orderInfo.getUserId());
+                log.info("网约车订单:"+orderNo+"校验超额---"+persionMoney);
                 OrderPayInfo orderPayInfo = iOrderPayInfoService.insertOrderPayAndSetting(orderNo, new BigDecimal(amount),distance, duration, feeInfoBean.toJSONString(), Long.parseLong(CommonConstant.START), persionMoney);
+
                 int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
             if (orderConfirmStatus == ZERO) {
                 //自动确认
@@ -2662,7 +2682,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (flag == 1) {//正常结单
             if (!CollectionUtils.isEmpty(orderSettlingInfos)) {
                 OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
-                vo.setAmount(orderSettlingInfo.getAmount().toPlainString());
+                vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
             }
         } else {//取消结单
             if (!CollectionUtils.isEmpty(orderSettlingInfos)) {
@@ -2694,7 +2714,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setPayId(orderPayInfo.getPayId());
             vo.setPayState(orderPayInfo.getState());
             vo.setIsExcess(ONE);
-            vo.setExcessMoney(orderPayInfo.getAmount().toPlainString());
+            vo.setExcessMoney(orderPayInfo.getAmount().stripTrailingZeros().toPlainString());
         } else {
             vo.setIsExcess(ZERO);
             vo.setExcessMoney(String.valueOf(ZERO));

@@ -141,7 +141,7 @@ public interface IEcmpConfigService
     int getOrderConfirmStatus(String key,String useCarMode);
 
 
-    public boolean checkAutoDispatch();
+    public boolean checkAutoDispatch(Long companyId);
 
     /**
      * 判断设置的等待时长是否超过预计等待时长

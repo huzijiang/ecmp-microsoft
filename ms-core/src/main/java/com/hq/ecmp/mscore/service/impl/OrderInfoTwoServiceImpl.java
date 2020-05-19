@@ -123,6 +123,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
             //待服务(有车有司机)
             if (CarConstant.USR_CARD_MODE_HAVE .equals(orderStateVO.getUseCarMode())){
                 //自由车带服务取消
+                log.info("订单:"+orderId+"自有车---有车有司机取消订单------- start,原因{}",cancelReason);
                 int i = this.ownerCarCancel(orderId, cancelReason, orderStateVO.getUserId());
 //                if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(orderStateVO.getApplyType())){//公务
 //                    if (DateFormatUtils.compareDayAndTime(useCarDate,DateUtils.getNowDate()) == 1) {
@@ -135,21 +136,24 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
                 cancelFee1 = jsonObject.getDouble("cancelFee")==null?BigDecimal.ZERO:BigDecimal.valueOf(jsonObject.getDouble("cancelFee"));
                 if (cancelFee1.compareTo(BigDecimal.ZERO)<=0){
                     //不需要支付取消费
-                    if (DateFormatUtils.compareDayAndTime(useCarDate,DateUtils.getNowDate()) == 1) {
-                        this.onlineCarCancel(orderId, cancelReason, orderStateVO.getUserId(),BigDecimal.ZERO,BigDecimal.ZERO,BigDecimal.ZERO);
-                        //公务网约车待服务取消超时无需支付取消费后  权限消失
-                        opType=false;
-                    }
+                    log.info("订单:"+orderId+"网约车------不需要支付取消费---有车有司机取消订单------- start,原因{}",cancelReason);
+                    this.onlineCarCancel(orderId, cancelReason, orderStateVO.getUserId(),BigDecimal.ZERO,BigDecimal.ZERO,BigDecimal.ZERO);
+//                    if (DateFormatUtils.compareDayAndTime(useCarDate,DateUtils.getNowDate()) == 1) {
+//                        //公务网约车待服务取消超时无需支付取消费后  权限消失
+//                        opType=false;
+//                    }
                 }else{
                     //需要支付取消费
 //                    cancelFee=cancelFee1.stripTrailingZeros().toPlainString();
                     BigDecimal personPay = iOrderPayInfoService.checkOrderFeeOver(cancelFee1, journeyInfo.getRegimenId(), orderStateVO.getUserId());
+                    log.info("订单:"+orderId+"取消费超额"+personPay);
                     /*超额个人支付*/
                     if (personPay.compareTo(BigDecimal.ZERO)==1){
                         BigDecimal ownerPay=cancelFee1.subtract(personPay);
                         ownerAmount=ownerPay.stripTrailingZeros().toPlainString();
                         isPayFee=1;
                         personalAmount=personPay.toPlainString();
+                        log.info("网约车订单:"+orderId+"取消参数企业支付:"+ownerPay+",个人支付:"+personPay+",总共取消费:"+cancelFee1);
                         OrderPayInfo orderPayInfo = this.onlineCarCancel(orderId, cancelReason, orderStateVO.getUserId(), cancelFee1, ownerPay, personPay);
                         payId=orderPayInfo.getPayId();
                         payState=orderPayInfo.getState();
@@ -166,14 +170,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         //修改权限为未使用
         iJourneyUserCarPowerService.updatePowerSurplus(orderStateVO.getPowerId(),2);
         //TODO 生产放开
-//        vo.setIsPayFee(isPayFee);
-//        vo.setCancelAmount(cancelFee1.stripTrailingZeros().toPlainString());
-//        vo.setOwnerAmount(ownerAmount);
-//        vo.setPersonalAmount(personalAmount);
-        vo.setIsPayFee(1);
-        vo.setCancelAmount("10.00");
-        vo.setOwnerAmount("9.99");
-        vo.setPersonalAmount("0.01");
+        vo.setIsPayFee(isPayFee);
+        vo.setCancelAmount(cancelFee1.stripTrailingZeros().toPlainString());
+        vo.setOwnerAmount(ownerAmount);
+        vo.setPersonalAmount(personalAmount);
         vo.setPayState(payState);
         vo.setPayId(payId);
         ismsBusiness.sendMessageCancelOrder(orderId,longinUserId);
