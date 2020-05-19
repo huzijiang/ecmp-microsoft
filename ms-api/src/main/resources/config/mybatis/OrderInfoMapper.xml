@@ -1018,7 +1018,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             DATE_FORMAT(e.action_time, '%m月%d日 %H:%i ') useCarTime,
             e.longitude startLongitude,
             e.latitude startLatitude,
-            UNIX_TIMESTAMP(e.action_time) useDate,
+            UNIX_TIMESTAMP(e.action_time)*1000 useDate,
             d.address endAddress,
             d.longitude endLongitude ,
             d.latitude endLatitude,

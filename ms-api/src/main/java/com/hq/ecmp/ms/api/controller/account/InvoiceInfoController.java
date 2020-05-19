@@ -89,6 +89,8 @@ public class InvoiceInfoController {
     @ApiOperation(value = "getInvoiceInfoList",notes = "发票记录列表查询",httpMethod = "POST")
     @PostMapping("/getInvoiceInfoList")
     public ApiResponse<PageResult<InvoiceRecordVO>> getInvoiceInfoList(@RequestBody InvoiceByTimeStateDTO invoiceByTimeStateDTO){
+        Long  userId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId();
+        invoiceByTimeStateDTO.setCreateBy(userId);
         PageResult<InvoiceRecordVO> invoiceInfoList = invoiceInfoService.queryAllByTimeState(invoiceByTimeStateDTO);
         return ApiResponse.success(invoiceInfoList);
     }
@@ -112,6 +114,7 @@ public class InvoiceInfoController {
         invoiceInsertDTO.setAmount(invoiceDTO.getAmount());
         invoiceInsertDTO.setAcceptAddress(invoiceDTO.getAcceptAddress());
         invoiceInsertDTO.setEmail(invoiceDTO.getEmail());
+        invoiceInsertDTO.setCreateBy(userId);
         try {
          invoiceInfoService.insertInvoiceInfo(invoiceInsertDTO);
          Long invoiceId = invoiceInsertDTO.getInvoiceId();
