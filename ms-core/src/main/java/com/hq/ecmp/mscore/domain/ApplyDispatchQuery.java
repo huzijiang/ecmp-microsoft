@@ -4,10 +4,13 @@ import java.util.Date;
 
 import com.hq.ecmp.mscore.dto.Page;
 
+import com.hq.ecmp.mscore.vo.PageResult;
 import lombok.Data;
 
 @Data
-public class ApplyDispatchQuery  {
+public class ApplyDispatchQuery  extends PageResult {
+        Long userId; //用户id
+
         String applyName;//申请人姓名
 
         String applyMobile;//申请人手机号
@@ -27,4 +30,5 @@ public class ApplyDispatchQuery  {
         String driverMobile;//驾驶员手机号
 
         Long companyId;
+        String dispatchType;
 }

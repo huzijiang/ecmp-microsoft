@@ -319,5 +319,20 @@ public interface IOrderInfoService {
      * @throws Exception
      */
     OrderInfoMessage getMessage(Long orderId)throws Exception;
+
+    /**
+     * 获取申请调度列表
+     * @param query
+     * @return
+     */
+    PageResult<DispatchVo> queryDispatchList(ApplyDispatchQuery query,LoginUser loginUser);
+
+    /**
+     * 获取直接调度列表
+     * @param
+     * @param
+     * @return
+     */
+    PageResult<DispatchVo> queryDispatchOrder(Long companyId);
 }
 
