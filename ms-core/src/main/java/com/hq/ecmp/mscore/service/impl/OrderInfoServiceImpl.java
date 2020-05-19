@@ -1473,10 +1473,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         vo.setUserName(ecmpUser.getNickName());
         vo.setUserPhone(ecmpUser.getPhonenumber());
         if (orderSettlingInfo!=null){
-            vo.setOrderAmount(orderSettlingInfo.getAmount().toPlainString());
-                String amountDetail = orderSettlingInfo.getAmountDetail();
-            if (StringUtils.isNotEmpty(amountDetail)){
-                JSONObject jsonObject=JSONObject.parseObject(amountDetail);
+            String amount = orderSettlingInfo.getAmount() == null ? null : orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString();
+            vo.setOrderAmount(amount);
+            String amountDetail = orderSettlingInfo.getAmountDetail();
+            if (StringUtils.isNotEmpty(amountDetail)) {
+                JSONObject jsonObject = JSONObject.parseObject(amountDetail);
                 String otherCostJson = jsonObject.getString("otherCost");
                 List<OtherCostBean> otherCostBeans = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
                 vo.setOrderFees(otherCostBeans);
@@ -2348,7 +2349,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 String duration = feeInfoBean.getString("min");//时长
                 JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
                 BigDecimal persionMoney = iOrderPayInfoService.checkOrderFeeOver(new BigDecimal(amount), journeyInfo.getRegimenId(), orderInfo.getUserId());
+                log.info("网约车订单:"+orderNo+"校验超额---"+persionMoney);
                 OrderPayInfo orderPayInfo = iOrderPayInfoService.insertOrderPayAndSetting(orderNo, new BigDecimal(amount),distance, duration, feeInfoBean.toJSONString(), Long.parseLong(CommonConstant.START), persionMoney);
+
                 int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
             if (orderConfirmStatus == ZERO) {
                 //自动确认
@@ -2680,7 +2683,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (flag == 1) {//正常结单
             if (!CollectionUtils.isEmpty(orderSettlingInfos)) {
                 OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
-                vo.setAmount(orderSettlingInfo.getAmount().toPlainString());
+                vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
             }
         } else {//取消结单
             if (!CollectionUtils.isEmpty(orderSettlingInfos)) {
@@ -2712,7 +2715,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             vo.setPayId(orderPayInfo.getPayId());
             vo.setPayState(orderPayInfo.getState());
             vo.setIsExcess(ONE);
-            vo.setExcessMoney(orderPayInfo.getAmount().toPlainString());
+            vo.setExcessMoney(orderPayInfo.getAmount().stripTrailingZeros().toPlainString());
         } else {
             vo.setIsExcess(ZERO);
             vo.setExcessMoney(String.valueOf(ZERO));

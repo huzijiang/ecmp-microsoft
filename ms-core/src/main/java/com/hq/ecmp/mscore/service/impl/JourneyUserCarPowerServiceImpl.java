@@ -445,10 +445,22 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 								if(journeyUserCarPower2.getPowerId().longValue() == powerId){
 								 	if(powerNotAvailable(journeyUserCarPower.getApplyId(),journeyNodeInfo.getPlanEndCityCode())){
 										return OrderState.POWERNOAVAILABLE.getState();
+									}else{
+								 		if(regimeInfoService.judgeNotDispatch(journeyUserCarPower.getApplyId(), journeyNodeInfo.getPlanEndCityCode())){
+								 			return OrderState.GETARIDE.getState();
+										}else{
+											return OrderState.INITIALIZING.getState();
+										}
 									}
 								}else{
 									if(powerNotAvailable(journeyUserCarPower.getApplyId(),journeyNodeInfo.getPlanBeginCityCode())){
 										return OrderState.POWERNOAVAILABLE.getState();
+									}else{
+										if(regimeInfoService.judgeNotDispatch(journeyUserCarPower.getApplyId(), journeyNodeInfo.getPlanBeginCityCode())){
+											return OrderState.GETARIDE.getState();
+										}else{
+											return OrderState.INITIALIZING.getState();
+										}
 									}
 								}
 							}

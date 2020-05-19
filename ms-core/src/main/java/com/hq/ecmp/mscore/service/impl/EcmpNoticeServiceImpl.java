@@ -143,10 +143,10 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
     }
 
     /**
-     * 分页查询总车队列表
+     * 分页查询列表
      * @param pageNum
      * @param pageSize
-     * @param search
+     * @param
      * @return
      */
     @Override
@@ -213,7 +213,7 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
                  ecmpNoticeMapper.updateEcmpNotice(ecmpNotice);
             }
         }
-
+    //test方法
     @Override
     public void addObtainScheduling(){
         List<String> list = new ArrayList<String>();
@@ -255,5 +255,24 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
             }
 
         }
+    }
+
+    /**
+     * 首页公告展示列表(最新5条并且发布中)
+     * @param pageNum
+     * @param pageSize
+     * @param companyId
+     * @return
+     */
+    @Override
+    public PageResult<EcmpNotice> getNoticeFiveList(Integer pageNum, Integer pageSize,Long companyId) {
+        //PageHelper.startPage(pageNum,pageSize);
+        List<EcmpNotice> list =  ecmpNoticeMapper.getNoticeFiveList(companyId);
+        for(EcmpNotice ecmpNotice: list){
+            List<Long> bucIds = ecmpNoticeMappingMapper.selectNoticeId(ecmpNotice.getNoticeId());
+            ecmpNotice.setBucIds(bucIds);
+        }
+        PageInfo<EcmpNotice> info = new PageInfo<>(list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
 }
