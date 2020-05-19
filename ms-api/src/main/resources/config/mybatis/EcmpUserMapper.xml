@@ -780,4 +780,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and (a.nick_name like concat('%', #{search}, '%') or a.phonenumber like concat('%', #{search}, '%') or a.job_number like concat('%', #{search}, '%') )
         </if>
     </select>
+    <select id="selectCompanyUserCount" resultType="int" parameterType="java.lang.Long">
+        select count(1) from ecmp_user where  del_flag !='2' and  owner_company = #{ownerCompany}
+    </select>
 </mapper>
