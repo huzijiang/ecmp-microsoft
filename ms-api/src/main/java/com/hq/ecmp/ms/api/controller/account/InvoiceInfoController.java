@@ -111,6 +111,7 @@ public class InvoiceInfoController {
         invoiceInsertDTO.setContent(invoiceDTO.getContent());
         invoiceInsertDTO.setAmount(invoiceDTO.getAmount());
         invoiceInsertDTO.setAcceptAddress(invoiceDTO.getAcceptAddress());
+        invoiceInsertDTO.setEmail(invoiceDTO.getEmail());
         try {
          invoiceInfoService.insertInvoiceInfo(invoiceInsertDTO);
          Long invoiceId = invoiceInsertDTO.getInvoiceId();

@@ -46,6 +46,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="acceptAddress != null  and acceptAddress != ''">accept_address,</if>
             <if test="status != null  and status != ''">status,</if>
             <if test="createTime != null ">create_time,</if>
+            <if test="bankName != null ">bank_name,</if>
+            <if test="bankCardNo != null ">bank_card_no,</if>
+            <if test="telephone != null ">telephone,</if>
+            <if test="registedAddress != null ">registed_address,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="email != null ">email,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="amount != null ">#{amount},</if>
@@ -85,6 +91,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
             <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="invoiceUrl != null ">invoice_url = #{invoiceUrl},</if>
         </trim>
         where invoice_id = #{invoiceId}
     </update>

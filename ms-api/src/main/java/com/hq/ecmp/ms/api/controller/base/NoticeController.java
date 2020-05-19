@@ -68,7 +68,7 @@ public class NoticeController {
     public ApiResponse<PageResult<EcmpNotice>> getNoticeSearchList(@RequestBody PageRequest pageRequest){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long companyId =Long.valueOf(loginUser.getUser().getDept().getCompanyId());
+        Long companyId =loginUser.getUser().getDept().getCompanyId();
         try {
             PageResult<EcmpNotice> list = iEcmpNoticeService.selectNoticeSearchList(pageRequest.getPageNum(),
                     pageRequest.getPageSize(),companyId);
@@ -79,6 +79,27 @@ public class NoticeController {
         }
     }
 
+    /**
+     * 首页公告展示列表(最新5条并且发布中)
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getNoticeFiveList",notes = "首页公告展示列表(最新5条并且发布中)",httpMethod ="POST")
+    @Log(title = "公告管理", content = "首页公告",businessType = BusinessType.OTHER)
+    @PostMapping("/getNoticeFiveList")
+    public ApiResponse<PageResult<EcmpNotice>> getNoticeFiveList(@RequestBody PageRequest pageRequest){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId =loginUser.getUser().getDept().getCompanyId();
+        try {
+            PageResult<EcmpNotice> list = iEcmpNoticeService.getNoticeFiveList(pageRequest.getPageNum(),
+                    pageRequest.getPageSize(),companyId);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("首页公告展示列表失败");
+        }
+    }
     /**
      * 查询公告列表详情（后台管理系统）
      * @param //carGroupId
