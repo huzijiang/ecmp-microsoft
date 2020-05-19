@@ -142,11 +142,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         c.company_id as companyId,
                 e1.dept_name as ownerCompanyName,
                 e1.dept_id as ownerOrg,
-        c.state,c.city
+        c.state,c.city,ch.SHORT_NAME as cityName
              from car_group_info c
             left join ecmp_org e1 on e1.dept_id = c.company_id
+            left join china_city ch on ch.CITY_CODE = c.city
         <where>
-            state != 'S444'
+            c.state != 'S444'
             <if test="search != null and search != '' ">
                 and (c.car_group_name like concat('%',#{search},'%')
                 or c.car_group_code like concat('%',#{search},'%'))
@@ -250,7 +251,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="findCarTypeByGroupIds" resultType="com.hq.ecmp.mscore.vo.CarLevelVO" parameterType="Object">
-        SELECT car_group_id ,level,name from (SELECT
+        SELECT car_group_id ,level groupId,name groupName from (SELECT
             a.car_group_id,
             b.NAME name ,
             b.LEVEL level,

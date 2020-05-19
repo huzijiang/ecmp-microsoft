@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CarServiceTypeVO {
 
-    private String ServiceTypeName;
-    private Integer ServiceTypeId;
+    private String serviceTypeName;
+    private Integer serviceTypeId;
 }

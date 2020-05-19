@@ -805,12 +805,6 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 
 					}
 				}
-//				List<String> realCitys = onLineCarTypeVOS.stream().map(OnLineCarTypeVO::getCityId).collect(Collectors.toList());
-//				cityCodes.removeAll(realCitys);
-//				if (CollectionUtils.isNotEmpty(cityCodes)){
-//					log.error(cityCodes.toString()+"城市所属公司网约车暂不支持服务");
-//					throw new CustomException("网约车暂未开通该城市服务");
-//				}
 				break;
 			default:
 				List<CarGroupServeScopeInfo>  ownerCity = checkTraveCompanyCar(orgComcany, loginUser.getUser().getDeptId(), cityCodes);
@@ -845,7 +839,8 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		if (StringUtils.isNotBlank(useCarMode)&&CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){
 			cityCarGroup = getOwnerCityCarGroup(user.getDeptId());
 		}else{
-			cityCarGroup=threeCityServer(regimeDto.getCityCodes());
+			String cityCode=StringUtils.isNotBlank(regimeDto.getCityCodes())?regimeDto.getCityCodes():"0";
+			cityCarGroup=threeCityServer(cityCode);
 		}
 		return cityCarGroup;
 	}
@@ -935,7 +930,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 				resultList.add(carTypeVO);
 			}
 		}
-		regimeCarLevel=regimeCarLevel.stream().distinct().collect(Collectors.toList());
+//		regimeCarLevel=regimeCarLevel.stream().distinct().collect(Collectors.toList());
 		regimeCarLevel.retainAll(groupIds);
 		List<String> result=regimeCarLevel;
 		String carTypeName="";
@@ -1292,7 +1287,9 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		}
 		String data = jsonObject.getString("data");
 		List<OnLineCarTypeVO> list = JSONObject.parseArray(data, OnLineCarTypeVO.class);
-
+		if (CollectionUtils.isNotEmpty(list)){
+			list=list.stream().filter(p->CollectionUtils.isNotEmpty(p.getCarTypes())).collect(Collectors.toList());
+		}
 		return list;
 	}
 
