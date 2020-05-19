@@ -333,7 +333,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!--查询分/子公司详情-->
     <select id="getSubDetail" parameterType="Long" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
-        SELECT dept_name as deptName,dept_id deptId,
+        SELECT dept_name as deptName,dept_id deptId,status,
        if(isnull(dept_code),'',dept_code) as deptCode,
       (SELECT dept_name from  ecmp_org where dept_id =
       (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
