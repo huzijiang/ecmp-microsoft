@@ -106,21 +106,21 @@ public class ProvinceCityController {
 
     /***
      *add by liuzb
-     * @param cityHistoryAddress
+     * @param
      * @return
      */
     @ApiOperation(value = "获取当前城市输入的历史地址", notes = "获取当前城市输入的历史地址 ", httpMethod = "POST")
     @PostMapping("/getCityAddress")
-    public ApiResponse<List<CityHistoryAddress>> getCityAddress(@RequestBody CityHistoryAddress cityHistoryAddress) {
+    public ApiResponse<List<CityHistoryAddress>> getCityAddress(String cityCode,String cityName,String shortAddress) {
         Long userId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId();
         try{
-            List<CityHistoryAddress> list = cityHistoryAddressService.getCityAddress(userId,cityHistoryAddress);
+            List<CityHistoryAddress> list = cityHistoryAddressService.getCityAddress(userId, cityCode, cityName, shortAddress);
             if(null!=list && list.size()>0){
                 return ApiResponse.success(list);
             }
             /***调用云端接口*/
             Map<String,Object> map = new HashMap<>();
-            map.put("cityCode",cityHistoryAddress.getCityCode());
+            map.put("cityCode",cityCode);
             map.put("enterpriseId",enterpriseId);map.put("licenseContent",licenseContent);map.put("mac", MacTools.getMacList().get(0));
             String postJson = OkHttpUtil.postForm(apiUrl+"/basic/hotScenicSpots", map);
             return GsonUtils.jsonToBean(postJson, new TypeToken<ApiResponse<List<CityHistoryAddress>>>() {}.getType());

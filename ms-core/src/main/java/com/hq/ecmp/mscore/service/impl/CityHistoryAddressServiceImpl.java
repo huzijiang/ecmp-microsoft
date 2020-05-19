@@ -65,9 +65,11 @@ public class CityHistoryAddressServiceImpl implements CityHistoryAddressService 
      * @throws Exception
      */
      @Override
-     public List<CityHistoryAddress> getCityAddress(Long userId,  CityHistoryAddress cityHistoryAddress) throws Exception{
-            if(null!= userId && userId > 0 && null!=cityHistoryAddress){
+     public List<CityHistoryAddress> getCityAddress(Long userId,String cityCode,String cityName,String shortAddress) throws Exception{
+            if(null!= userId && userId > 0 ){
+                CityHistoryAddress cityHistoryAddress = new CityHistoryAddress();
                 cityHistoryAddress.setUserId(userId);
+                cityHistoryAddress.setCityCode(cityCode);
                 List<CityHistoryAddress> list = cityHistoryAddressMapper.getCityAddressList(cityHistoryAddress);
                 if(null!=list && list.size()>0){
                     return list;
