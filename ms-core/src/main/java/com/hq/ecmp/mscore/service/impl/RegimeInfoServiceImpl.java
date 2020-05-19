@@ -935,7 +935,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 				resultList.add(carTypeVO);
 			}
 		}
-		regimeCarLevel=regimeCarLevel.stream().distinct().collect(Collectors.toList());
+//		regimeCarLevel=regimeCarLevel.stream().distinct().collect(Collectors.toList());
 		regimeCarLevel.retainAll(groupIds);
 		List<String> result=regimeCarLevel;
 		String carTypeName="";

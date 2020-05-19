@@ -1473,10 +1473,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         vo.setUserName(ecmpUser.getNickName());
         vo.setUserPhone(ecmpUser.getPhonenumber());
         if (orderSettlingInfo!=null){
-            vo.setOrderAmount(orderSettlingInfo.getAmount().toPlainString());
-                String amountDetail = orderSettlingInfo.getAmountDetail();
-            if (StringUtils.isNotEmpty(amountDetail)){
-                JSONObject jsonObject=JSONObject.parseObject(amountDetail);
+            String amount = orderSettlingInfo.getAmount() == null ? null : orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString();
+            vo.setOrderAmount(amount);
+            String amountDetail = orderSettlingInfo.getAmountDetail();
+            if (StringUtils.isNotEmpty(amountDetail)) {
+                JSONObject jsonObject = JSONObject.parseObject(amountDetail);
                 String otherCostJson = jsonObject.getString("otherCost");
                 List<OtherCostBean> otherCostBeans = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
                 vo.setOrderFees(otherCostBeans);
