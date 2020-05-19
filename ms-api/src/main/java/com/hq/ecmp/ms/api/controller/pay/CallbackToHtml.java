@@ -32,6 +32,7 @@ public class CallbackToHtml {
     private IOrderPayInfoService iOrderPayInfoService;
 
     @Autowired
+    @Lazy
     private IOrderInfoService iOrderInfoService;
 
     @Autowired
