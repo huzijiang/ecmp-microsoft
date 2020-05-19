@@ -562,4 +562,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
         and  dept_type = '1'
     </select>
+
+    <select id="selectCompanyDeptList" resultMap="EcmpOrgResult">
+        <include refid="selectEcmpOrgVo"/>
+        <where>
+            <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="companyId != null "> and (company_id = #{companyId} and dept_type != 1 or dept_id = #{companyId})</if>
+        </where>
+    </select>
 </mapper>
