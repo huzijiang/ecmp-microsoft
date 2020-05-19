@@ -89,7 +89,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
     </select>
     <select id="selectProjectUserBySearch" resultType="com.hq.ecmp.mscore.vo.OrgTreeVo" parameterType="Object">
-        select user_id id,dept_id parentId,nick_name showname, '1' type from ecmp_user where status='0' and del_flag='0'
+        select user_id id,dept_id pid,nick_name showname, 1 type from ecmp_user where status='0' and del_flag='0'
         <if test="name!=null and name!=''">
             and  (nick_name like concat('%', #{name}, '%') or   job_number like concat('%', #{name}, '%') or   phonenumber like concat('%', #{name}, '%'))
         </if>

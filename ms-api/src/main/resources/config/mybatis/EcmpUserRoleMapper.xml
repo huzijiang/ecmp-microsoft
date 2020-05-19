@@ -64,4 +64,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <delete id="deleteUserRole" parameterType="com.hq.ecmp.mscore.domain.EcmpUserRole">
         delete from ecmp_user_role where user_id = #{userId} and role_id = #{roleId}
     </delete>
+
+    <select id="findUsersByRoleKey" parameterType="Object" resultType="String">
+        select GROUP_CONCAT( DISTINCT user_id) from ecmp_user where user_id in
+        (select user_id from ecmp_user_role where role_id=
+        (select role_id from ecmp_role where role_key=#{roleKey})) and owner_company=#{deptId}
+    </select>
 </mapper>
