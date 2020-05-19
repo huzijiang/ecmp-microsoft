@@ -509,8 +509,14 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		if(OrderState.SENDINGCARS.getState().equals(vaildOrdetrState)){
 			//订单状态为约车中
 			if(checkOrderOverTime(powerId)){
-				//订单超时 前端状态变为去约车
-				return OrderState.GETARIDE.getState();
+                JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(powerId);
+                ApplyInfo applyInfo = applyInfoService.selectApplyInfoById(journeyUserCarPower.getApplyId());
+                if (applyInfo.getApplyType().equals(ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey())){
+                    return OrderState.TIMELIMIT.getState();
+                }else{
+                    //订单超时 前端状态变为去约车
+                    return OrderState.GETARIDE.getState();
+                }
 			}
 			  //未超时  对应前端状态为约车车中
 			return OrderState.SENDINGCARS.getState();

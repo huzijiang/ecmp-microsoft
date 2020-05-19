@@ -239,6 +239,7 @@ public class RegimeController {
 		HttpServletRequest request = ServletUtils.getRequest();
 		LoginUser loginUser = tokenService.getLoginUser(request);
 		regimePo.setOptId(loginUser.getUser().getUserId());
+        regimePo.setCompanyId(loginUser.getUser().getOwnerCompany());
 		boolean updateRegime = regimeInfoService.updateRegime(regimePo);
 		if (updateRegime) {
 			return ApiResponse.success();
