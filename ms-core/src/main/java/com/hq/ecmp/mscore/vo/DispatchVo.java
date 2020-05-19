@@ -73,4 +73,13 @@ public class DispatchVo {
 
     @ApiModelProperty(value="操作权限  0：有权限  1:没有权限")
     private String  operationPermission;
+
+    @ApiModelProperty(value="申请原因")
+    private String reason;
+
+    @ApiModelProperty(value="成本中心")
+    private String costCenter;
+
+    @ApiModelProperty(value="项目编号")
+    private String projectName;
 }

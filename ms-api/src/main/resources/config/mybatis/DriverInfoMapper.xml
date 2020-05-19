@@ -359,7 +359,10 @@ WHERE
     </select>
 
     <select id="queryCompanyDriver" parameterType="java.lang.Long" resultType="java.lang.Integer">
-          select count(*) from driver_info where company_id = #{companyId} and state != 'S444'
+          select count(*) from driver_info
+          where company_id = #{companyId}
+           <![CDATA[ AND SYSDATE() <= IFNULL(dimission_time,SYSDATE()) ]]>
+          and state != 'S444'
     </select>
 
     <!--根据deptId查询归属驾驶员数量-->
