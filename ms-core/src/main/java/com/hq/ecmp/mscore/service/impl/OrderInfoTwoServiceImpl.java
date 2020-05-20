@@ -235,7 +235,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         String state=OrderState.APPLYREASSIGN.getState()+","+OrderState.REASSIGNPASS.getState()+","+OrderState.REASSIGNREJECT.getState();
         List<RejectDispatcherUserVO> orderList=orderStateTraceInfoMapper.reassignOrderList(orderNo,state);
         if (CollectionUtils.isEmpty(orderList)){
-            return null;
+            return vo;
         }
         vo.setOrderId(orderList.get(0).getOrderId());
         vo.setApproveList(orderList);

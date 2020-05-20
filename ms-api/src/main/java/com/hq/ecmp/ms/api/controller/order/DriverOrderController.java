@@ -233,12 +233,12 @@ public class DriverOrderController {
     /**
      *查询改派记录
      */
-    @ApiOperation(value = "reassignDetail ",notes = "查询改派记录",httpMethod ="POST")
+    @ApiOperation(value = "reassignDetail",notes = "查询改派记录",httpMethod ="POST")
     @PostMapping("/reassignDetail")
-    public ApiResponse<OrderReassignVO> reassignDetail(Long orderNo){
+    public ApiResponse<OrderReassignVO> reassignDetail(@RequestParam("orderNo") Long orderNo){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long driverId = loginUser.getDriver().getDriverId();
-        return ApiResponse.success(orderInfoTwoService.reassignDetail(orderNo,driverId));
+//        Long driverId = loginUser.getDriver().getDriverId();
+        return ApiResponse.success(orderInfoTwoService.reassignDetail(orderNo,null));
     }
 }
