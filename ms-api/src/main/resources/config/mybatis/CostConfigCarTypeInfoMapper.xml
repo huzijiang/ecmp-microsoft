@@ -99,4 +99,7 @@
         delete from cost_config_car_type_info  where cost_id = #{costId}
     </delete>
 
+    <select id="selectCostConfigCarTypeInfo" resultType="java.lang.String">
+        select DISTINCT car_type_name carTypeName from cost_config_car_type_info where car_type_id=#{carTypeId}
+    </select>
 </mapper>

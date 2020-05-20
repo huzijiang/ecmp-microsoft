@@ -101,4 +101,7 @@
         and city_code!=#{cityCode}
     </select>
 
+    <select id="selectCostConfigCity" resultType="java.lang.String">
+        select DISTINCT city_name cityName from cost_config_city_info where city_code=#{cityCode}
+    </select>
 </mapper>

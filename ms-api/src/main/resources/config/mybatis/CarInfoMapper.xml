@@ -436,6 +436,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select
              o.order_id orderId,
              o.state,
+             o.order_number orderNumber,
              o.service_type serviceType,
              jn.it_is_return itIsReturn,
              jn.charter_car_type charterCarType,

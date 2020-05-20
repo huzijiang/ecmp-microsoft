@@ -668,6 +668,7 @@ WHERE
         select
              o.order_id orderId,
              o.state,
+             o.order_number orderNumber,
              o.service_type serviceType,
              jn.it_is_return itIsReturn,
              jn.charter_car_type charterCarType,
