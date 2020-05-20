@@ -286,4 +286,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select count(*)
             from order_invoice_info where invoice_id=#{invoiceId}
     </select>
+
+    <select id="invoiceTripList"  parameterType="Long" resultType="com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData" >
+               select oai.account_id accountId,
+               oai.state state,
+               oai.amount amount,
+               oaia.address address,
+               oaia.address_long addressLong,
+               oaia.action_time actionTime
+            from order_account_info oai
+            left join order_info oi on oai.order_id= oi.order_id
+            left join journey_info ji on ji.journey_id= oi.journey_id
+            left join order_address_info oaia on oai.order_id= oaia.order_id
+            where oai.account_id in
+             (select account_id from order_invoice_info where invoice_id=#{invoiceId}) order by action_time desc
+    </select>
 </mapper>

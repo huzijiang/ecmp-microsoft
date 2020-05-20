@@ -14,6 +14,7 @@ import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.constant.enumerate.DispatcherFrontState;
+import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
@@ -229,10 +230,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @return
      */
     @Override
-    public List<OrderListInfo>  getOrderList(Long userId, int pageNum, int pageSize) {
+    public PageResult<OrderListInfo>  getOrderList(Long userId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum,pageSize);
         List<OrderListInfo> orderList = orderInfoMapper.getOrderList(userId);
-        return orderList;
+        PageInfo<OrderListInfo> pageInfo = new PageInfo<>(orderList);
+        PageResult<OrderListInfo> pageResult = new PageResult<>(pageInfo.getTotal(),pageInfo.getPages(),orderList);
+        return pageResult;
     }
 
 
