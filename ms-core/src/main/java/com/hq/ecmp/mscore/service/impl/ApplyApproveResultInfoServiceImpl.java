@@ -296,6 +296,20 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                         case  APPROVE_T002://指定角色
                             resultInfo.setApproveRoleId(info.getRoleId());
                             String userIds=userRoleMapper.findUserIds(info.getRoleId());
+                            if (StringUtils.isEmpty(userIds)){
+                                ApproveTemplateInfo approveTemplateInfo = approveTemplateInfoMapper.selectApproveTemplateInfoById(Long.valueOf(regimeVo.getApproveTemplateId()));
+                                EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(approveTemplateInfo.getCompanyId());
+                                if (ecmpOrg!=null&&ecmpOrg.getParentId()!=0){
+                                    //分公司
+                                    userIds= userRoleMapper.findUsersByRoleKey(SUB_ADMIN_ROLE,ecmpOrg.getDeptId());
+                                    if (StringUtils.isEmpty(userIds)){
+                                        userIds= userRoleMapper.findUsersByRoleKey(ADMIN_ROLE,ecmpOrg.getDeptId());
+                                    }
+                                }else{
+                                    //总公司
+                                    userIds= userRoleMapper.findUsersByRoleKey(ADMIN_ROLE,ecmpOrg.getDeptId());
+                                }
+                            }
                             resultInfo.setApproveUserId(userIds);
                             break;
                         case  APPROVE_T003://指定多个员工

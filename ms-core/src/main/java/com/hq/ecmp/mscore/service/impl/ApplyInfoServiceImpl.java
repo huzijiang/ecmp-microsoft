@@ -1426,16 +1426,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param regimenId
      */
     private void initOfficialApproveFlow(Long applyId, Long userId, Integer regimenId) {
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
+        executor.submit(()-> {
                 try {
                     //初始化审批流
                     applyApproveResultInfoService.initApproveResultInfo(applyId, Long.valueOf(regimenId), userId);
                 } catch (Exception e) {
                     log.error("差旅申请，初始化审批流失败，用户：{}，用车制度：{}",userId,regimenId,e);
                 }
-            }
         });
     }
 
@@ -1499,7 +1496,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                ecmpMessageService.applyUserPassMessage(applyId,userId,userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
                for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
                    int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
-                   OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
+                   //OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
+                   OfficialOrderReVo officialOrderReVo = OfficialOrderReVo.builder().powerId(carAuthorityInfo.getTicketId())
+                           .isDispatch(isDispatch).carLevel(CarLeaveEnum.getAll()).companyId(officialCommitApply.getCompanyId()).build();
                    Long orderId=null;
                    if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyType)){
                        orderId = orderInfoService.officialOrder(officialOrderReVo, userId);

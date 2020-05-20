@@ -445,7 +445,7 @@ public class CarGroupController {
             @RequestBody CarGroupDTO carGroupDTO){
         try {
             //如果已经存在 返回true 不存在则返回false
-            Boolean exist = carGroupInfoService.judgeCarGroupName(carGroupDTO.getCarGroupName(),carGroupDTO.getCompanyId());
+            Boolean exist = carGroupInfoService.judgeCarGroupName(carGroupDTO.getCarGroupName(),carGroupDTO.getOwneCompany());
             return ApiResponse.success(exist);
         } catch (Exception e) {
             e.printStackTrace();
