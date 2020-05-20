@@ -243,8 +243,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
             if (OrderState.APPLYREASSIGN.getState().equals(dispatcherUserVO.getState())){
                 vo.setApplyReason(dispatcherUserVO.getContent());
             }
-            if (OrderState.REASSIGNREJECT.getState().equals(dispatcherUserVO.getState())||
-                    OrderState.REASSIGNPASS.getState().equals(dispatcherUserVO.getState())) {
+            if (OrderState.REASSIGNREJECT.getState().equals(dispatcherUserVO.getState())) {
                 vo.setRejectReason(dispatcherUserVO.getContent());
             }
         }
