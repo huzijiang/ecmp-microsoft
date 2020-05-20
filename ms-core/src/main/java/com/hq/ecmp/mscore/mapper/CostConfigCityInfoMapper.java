@@ -80,4 +80,11 @@ public interface CostConfigCityInfoMapper
      * @return
      */
     int queryOtherDataByCostIdAndCityCode(@Param("costId") Long costId,@Param("cityCode") int cityCode);
+
+    /**
+     * 城市名称
+     * @param cityCode
+     * @return
+     */
+    String selectCostConfigCity(@Param("cityCode") String cityCode);
 }

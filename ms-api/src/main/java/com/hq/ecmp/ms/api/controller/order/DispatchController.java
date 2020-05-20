@@ -246,6 +246,24 @@ public class DispatchController {
     }
 
     /**
+     * 获取改派调度列表
+     * @param query
+     * @return
+     */
+    @ApiOperation(value = "queryDispatchReassignmentList", notes = "获取申请调度列表 ", httpMethod = "POST")
+    @PostMapping("/queryDispatchReassignmentList")
+    public ApiResponse<PageResult<DispatchVo>> queryDispatchReassignmentList(@RequestBody ApplyDispatchQuery query){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            PageResult<DispatchVo> list = iOrderInfoService.queryDispatchReassignmentList(query,loginUser);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("获取申请调度列表失败");
+        }
+    }
+    /**
      *获取直接调度列表
      * @param query
      * @return
@@ -256,7 +274,7 @@ public class DispatchController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            PageResult<DispatchVo> list = iOrderInfoService.queryDispatchOrder(loginUser.getUser().getDept().getCompanyId());
+            PageResult<DispatchVo> list = iOrderInfoService.queryDispatchOrder(loginUser,query);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();

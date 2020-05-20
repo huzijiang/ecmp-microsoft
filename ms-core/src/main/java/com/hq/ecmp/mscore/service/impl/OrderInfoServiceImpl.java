@@ -7,6 +7,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
@@ -494,7 +495,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			dispatchOrderInfo.setStartSite(startOrderAddressInfo.getAddress());
 			dispatchOrderInfo.setUseCarDate(startOrderAddressInfo.getActionTime());
             dispatchOrderInfo.setCityId(startOrderAddressInfo.getCityPostalCode());
-		}
+            CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(startOrderAddressInfo.getCityPostalCode());
+            if(cityInfo != null){
+                dispatchOrderInfo.setUseCarCity(cityInfo.getCityName());
+            }
+        }
 		OrderAddressInfo endOrderAddressInfo = iOrderAddressInfoService
 				.queryOrderStartAndEndInfo(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId()));
 		if (null != endOrderAddressInfo) {
@@ -2791,6 +2796,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     if(adminOrderList.get(i).getOrderId().equals(dispatcherOrderList.get(j).getOrderId())){
                         i --;
                         adminOrderList.add(dispatcherOrderList.get(j));
+                        break;
                     }
                 }
             }
@@ -2809,10 +2815,78 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @return
      */
     @Override
-    public PageResult<DispatchVo> queryDispatchOrder(Long companyId) {
-        List<DispatchVo> adminOrderList= orderInfoMapper.queryDispatchOrder(companyId);
+    public PageResult<DispatchVo> queryDispatchOrder(LoginUser loginUser,ApplyDispatchQuery query) {
+        List<DispatchVo> result=new ArrayList<DispatchVo>();
+        //判断登录人的身份来显示他看到的不同权限的数据
+        List<SysRole> role = loginUser.getUser().getRoles();
+        //<系统管理员身份>
+        List<DispatchVo> adminOrderList = new ArrayList<DispatchVo>();
+        //<调度员身份>
+        List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
+        if(!role.isEmpty()){
+            //登录人公司
+            Long companyId = loginUser.getUser().getDept().getCompanyId();
+            //登录人Id
+            Long userId = loginUser.getUser().getUserId();
+            //循环判断登录人身份并获取他所看到的数据信息
+            for(SysRole sysRole : role){
+                //判断登陆人身份（系统管理员）
+                if(sysRole.getRoleKey().equals(RoleConstant.ADMIN) || sysRole.getRoleKey().equals(RoleConstant.SUB_ADMIN)){
+                    //本公司所有的订单
+                    query.setCompanyId(loginUser.getUser().getDept().getCompanyId());
+                    adminOrderList= orderInfoMapper.queryDispatchOrder(query);
+                }
+                //判断登陆人身份（调度员）
+                if(sysRole.getRoleKey().equals(RoleConstant.DISPATCHER)){
+                    //调度员所看到的订单
+                    query.setUserId(loginUser.getUser().getUserId());
+                    dispatcherOrderList = orderInfoMapper.queryDispatchOrder(query);
+                }
+            }
+        }
+        if(adminOrderList.isEmpty()){
+            adminOrderList.addAll(dispatcherOrderList);
+        }
         PageInfo<DispatchVo> info = new PageInfo<>(adminOrderList);
         return new PageResult<>(info.getTotal(),info.getPages(),adminOrderList);
+    }
+
+    /**
+     * 获取改派调度列表
+     * @param query
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public PageResult<DispatchVo> queryDispatchReassignmentList(ApplyDispatchQuery query, LoginUser loginUser) {
+        //判断登录人的身份来显示他看到的不同权限的数据
+        SysUser user = loginUser.getUser();
+        List<SysRole> role = loginUser.getUser().getRoles();
+        Long companyId=user.getOwnerCompany();
+        query.setCompanyId(companyId);
+        query.setUserId(user.getUserId());
+        //<系统管理员身份>
+        List<DispatchVo> adminOrderList = new ArrayList<DispatchVo>();
+        //<调度员身份>
+        List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
+        /**查寻该调度员可用查看的所有申请人*/
+        if ("1".equals(user.getItIsDispatcher())){//是调度员
+            dispatcherOrderList=orderInfoMapper.queryDispatchReassignmentList(query);
+        }
+        List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(collect)){//是管理员
+            if (!CollectionUtils.isEmpty(dispatcherOrderList)){
+                List<Long> orderIds = dispatcherOrderList.stream().map(p -> p.getOrderId()).collect(Collectors.toList());
+                query.setOrderIds(orderIds);
+            }
+            //本公司所有的订单
+            adminOrderList= orderInfoMapper.queryAdminDispatchReassignmentList(query);
+            if (!CollectionUtils.isEmpty(adminOrderList)){
+                dispatcherOrderList.addAll(adminOrderList);
+            }
+        }
+        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
+        return new PageResult<>(info.getTotal(),info.getPages(),dispatcherOrderList);
     }
 
     /**
