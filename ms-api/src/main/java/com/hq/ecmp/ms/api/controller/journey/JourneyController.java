@@ -15,14 +15,12 @@ import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.config.PowerDTO;
 import com.hq.ecmp.mscore.service.IApplyApproveResultInfoService;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
-import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
-import com.hq.ecmp.mscore.vo.JourneyDetailVO;
-import com.hq.ecmp.mscore.vo.JourneyVO;
-import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
@@ -269,14 +267,14 @@ public class JourneyController {
      */
     @ApiOperation(value = "getInvoiceAbleItinerary",notes = "当前可以开发票的行程",httpMethod ="POST")
     @PostMapping("/getInvoiceAbleItinerary")
-    public ApiResponse<List<InvoiceAbleItineraryData>> invoiceAbleItinerary(int pageNum, int pageSize){
+    public ApiResponse<PageResult<InvoiceAbleItineraryData>> invoiceAbleItinerary(int pageNum, int pageSize){
         try{
             Long userId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId();
             return ApiResponse.success(journeyInfoService.getInvoiceAbleItinerary(userId,pageNum,pageSize));
         }catch(Exception e){
             logger.error("当前可以开发票的行程异常",e);
         }
-        return ApiResponse.error("ApiResponse");
+        return null;
     }
 
     /***
@@ -287,16 +285,26 @@ public class JourneyController {
      */
     @ApiOperation(value = "历史发票",notes = "历史发票",httpMethod ="POST")
     @PostMapping("/getInvoiceAbleItineraryHistory")
-    public ApiResponse<List<InvoiceAbleItineraryData>> getInvoiceAbleItineraryHistory(int pageNum, int pageSize){
+    public ApiResponse<PageResult<InvoiceAbleItineraryData>> getInvoiceAbleItineraryHistory(int pageNum, int pageSize){
         try{
             Long userId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId();
-            return ApiResponse.success(journeyInfoService.getInvoiceAbleItineraryHistory(userId));
+            return ApiResponse.success(journeyInfoService.getInvoiceAbleItineraryHistory(userId,pageNum,pageSize));
         }catch(Exception e){
             logger.error("历史发票异常",e);
         }
         return ApiResponse.error("ApiResponse");
     }
 
+    @ApiOperation(value = "当前发票的所有行程",notes = "当前发票的所有行程",httpMethod ="POST")
+    @PostMapping("/invoiceTripList")
+    public ApiResponse<List<InvoiceAbleItineraryData>> invoiceTripList(Long invoiceId){
+        try{
+            return ApiResponse.success(journeyInfoService.invoiceTripList(invoiceId));
+        }catch(Exception e){
+            logger.error("当前发票的所有行程异常",e);
+        }
+        return ApiResponse.error("当前发票的所有行程异常");
+    }
 
     /***
      * 当前发票行程总数

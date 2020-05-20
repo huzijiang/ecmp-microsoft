@@ -72,7 +72,7 @@ public interface IOrderInfoService {
      * @param userId
      * @return
      */
-    public List<OrderListInfo> getOrderList(Long userId, int pageNum, int pageSize);
+    public PageResult<OrderListInfo> getOrderList(Long userId, int pageNum, int pageSize);
 
     /**
      * 订单轨迹表添加通用方法
@@ -333,6 +333,14 @@ public interface IOrderInfoService {
      * @param
      * @return
      */
-    PageResult<DispatchVo> queryDispatchOrder(Long companyId);
+    PageResult<DispatchVo> queryDispatchOrder(LoginUser loginUser,ApplyDispatchQuery query);
+
+    /**
+     * 获取调度改派列表
+     * @param query
+     * @param loginUser
+     * @return
+     */
+    PageResult<DispatchVo> queryDispatchReassignmentList(ApplyDispatchQuery query, LoginUser loginUser);
 }
 

@@ -160,10 +160,16 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             //包车类型
             costConfigQueryDto.setRentType(carType);
             List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
+            if(costConfigListResult.isEmpty()){
+                return -1;
+            }
             costConfigQueryDto.setCostId(costConfigListResult.get(0).getCostId());
             costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
         } else {
             List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
+            if(costConfigListResult.isEmpty()){
+                return -1;
+            }
             costConfigQueryDto.setCostId(costConfigListResult.get(0).getCostId());
             costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
         }

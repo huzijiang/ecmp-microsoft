@@ -490,7 +490,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             map.put("orgId",ecmpOrgVo.getDeptId());
             uploadIndependentCompanyApply(map);
         }
-        if (CommonConstant.DEPT_TYPE_ORG.equals(ecmpOrgVo.getDeptType())){//公司
+        if (CommonConstant.DEPT_TYPE_ORG.equals(ecmpOrgVo.getDeptType().toString())){//公司
             if (!flag){//公司主管不存在
                 //新建公司主管
                 EcmpUser companyUser=new EcmpUser();

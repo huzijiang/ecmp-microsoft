@@ -293,7 +293,7 @@ public interface OrderInfoMapper {
     List<Long> getAlreadyUsingOrderIdByPowerId(Long powerId);
 
     /**
-     * 获取申请调度列表
+     * 获取申请调度调度员列表
      * @param query
      * @return
      */
@@ -303,6 +303,27 @@ public interface OrderInfoMapper {
      * 获取直接调度列表
      * @return
      */
-    List<DispatchVo> queryDispatchOrder(@Param("companyId") Long companyId);
+    List<DispatchVo> queryDispatchOrder(ApplyDispatchQuery query);
+
+    /**
+     * 获取申请调度系统管理员
+     * @param query
+     * @return
+     */
+    List<DispatchVo> queryAdminDispatchList(ApplyDispatchQuery query);
+
+    /**
+     * 改派系统管理员数据
+     * @param query
+     * @return
+     */
+    List<DispatchVo> queryAdminDispatchReassignmentList(ApplyDispatchQuery query);
+
+    /**
+     * 改派调度员数据
+     * @param query
+     * @return
+     */
+    List<DispatchVo> queryDispatchReassignmentList(ApplyDispatchQuery query);
 }
 

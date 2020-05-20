@@ -422,18 +422,16 @@ public class OrderController {
     @Log(value = "我的行程列表")
     @ApiOperation(value = "我的行程订单列表", httpMethod = "POST")
     @RequestMapping("/getOrderList")
-    public ApiResponse<List<OrderListInfo>> getIncompleteOrderList(@RequestBody PageRequest orderPage) {
-        List<OrderListInfo> orderList;
+    public ApiResponse<PageResult<OrderListInfo>> getIncompleteOrderList(@RequestBody PageRequest orderPage) {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
-            orderList = iOrderInfoService.getOrderList(userId, orderPage.getPageNum(), orderPage.getPageSize());
+            return ApiResponse.success(iOrderInfoService.getOrderList(userId, orderPage.getPageNum(), orderPage.getPageSize()));
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("加载订单列表失败");
         }
-        return ApiResponse.success(orderList);
+        return ApiResponse.success("加载订单列表失败");
     }
 
     @com.hq.core.aspectj.lang.annotation.Log(title = "改派订单",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)
