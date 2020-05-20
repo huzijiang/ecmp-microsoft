@@ -2,23 +2,23 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.util.StringUtil;
 import com.google.common.collect.Maps;
+import com.hq.api.system.domain.SysRole;
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
-import com.hq.ecmp.constant.ApplyTypeEnum;
-import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.constant.OrderPayConstant;
-import com.hq.ecmp.constant.OrderState;
+import com.hq.core.security.LoginUser;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderSettlingInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.*;
-import com.hq.ecmp.mscore.vo.CancelOrderCostVO;
-import com.hq.ecmp.mscore.vo.OrderStateVO;
-import com.hq.ecmp.mscore.vo.RunningOrderVo;
+import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.MacTools;
 import lombok.extern.slf4j.Slf4j;
@@ -28,14 +28,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.hq.ecmp.constant.CommonConstant.*;
 import static com.hq.ecmp.constant.OrderState.WAITINGLIST;
@@ -188,6 +187,37 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         return orderInfoMapper.getRunningOrder(userId,states);
     }
 
+    /**
+     * 获取申请调度列表
+     * @param query
+     * @return
+     */
+    @Override
+    public PageResult<DispatchVo> queryDispatchList(ApplyDispatchQuery query, LoginUser loginUser) {
+        List<DispatchVo> result=new ArrayList<DispatchVo>();
+        //判断登录人的身份来显示他看到的不同权限的数据
+        SysUser user = loginUser.getUser();
+        List<SysRole> role = loginUser.getUser().getRoles();
+        //<系统管理员身份>
+        List<DispatchVo> adminOrderList = new ArrayList<DispatchVo>();
+        //<调度员身份>
+        List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
+        List<DispatchOrderInfo> dispatcherOrder = new ArrayList<DispatchOrderInfo>();
+
+        if ("1".equals(user.getItIsDispatcher())){//是调度员
+        }
+        List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(collect)){//是管理员
+            query.setDispatchStatus(OrderState.WAITINGLIST.getState());
+            //本公司所有的订单
+            adminOrderList= orderInfoMapper.queryDispatchList(query);
+        }
+        PageInfo<DispatchVo> info = new PageInfo<>(result);
+        return new PageResult<>(info.getTotal(),info.getPages(),result);
+    }
+
+
+
     /**自有车取消订单**/
     private int ownerCarCancel(Long orderId,String cancelReason,Long userId) throws Exception{
         OrderInfo orderInfo = new OrderInfo();
@@ -223,6 +253,22 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         orderStateTraceInfo.setCreateBy(userId+"");
         orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+    }
+
+    /**
+     * 查询所有处于待派单(未改派)的订单及关联的信息
+     * @param userId
+     * @param companyId
+     * @return
+     */
+    public List<DispatchOrderInfo> queryAllWaitingList(Long userId,Long companyId) {
+        List<DispatchOrderInfo> result=new ArrayList<DispatchOrderInfo>();
+        //查询所有处于待派单(未改派)的订单及关联的信息
+        OrderInfo query = new OrderInfo();
+        query.setState(OrderState.WAITINGLIST.getState());
+        query.setCompanyId(companyId);
+        List<DispatchOrderInfo> waitDispatchOrder= orderInfoMapper.queryOrderRelateInfo(query);
+        return result;
     }
 
 
