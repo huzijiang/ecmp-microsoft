@@ -581,6 +581,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         select
         -- 申请人姓名
         eu.nick_name applyName,
+        -- 申请人所属部门/公司
+        eo.dept_name deptName,
         -- 申请人手机号
         eu.phonenumber applyPhoneNumber,
         -- 乘车人
@@ -626,6 +628,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT join order_settling_info osi on osi.order_id=s.order_id
         left join order_address_info oai on oai.order_id=s.order_id and oai.type='A000'
         left join order_address_info oai2 on oai2.order_id=s.order_id and oai2.type='A999'
+        left join ecmp_org eo on eu.dept_id = eo.dept_id
             <where>
                 <if test="applyName != null and  applyName!=''"> and eu.nick_name like concat('%',#{applyName},'%') </if>
                 <if test="applyPhoneNumber != null and  applyPhoneNumber!='' "> and eu.phonenumber like concat('%',#{applyPhoneNumber},'%') </if>
@@ -655,6 +658,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="getOrderListDetail" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.OrderDetailBackDto">
         select
+        si.name sceneName,
+        srr.scene_id sceneId,
         s.order_id orderId,
         s.order_number orderNumber,
         eu.nick_name applyName,
@@ -702,6 +707,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join journey_node_info jni on jni.node_id=jucp.node_id
         left join enterprise_car_type_info ecti on ecti.car_type_id=ci.car_type_id
         left join regime_info ri on ri.regimen_id=ji.regimen_id
+        left join scene_regime_relation srr on srr.regimen_id = ri.regimen_id
+        left join scene_info si on si.scene_id = srr.scene_id
         left join order_address_info oai on oai.order_id=s.order_id and oai.type='A000'
         left join order_address_info oai2 on oai2.order_id=s.order_id and oai2.type='A999'
         left join (	select d1.* from driver_heartbeat_info d1,
