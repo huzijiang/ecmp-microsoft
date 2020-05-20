@@ -333,6 +333,14 @@ public interface IOrderInfoService {
      * @param
      * @return
      */
-    PageResult<DispatchVo> queryDispatchOrder(Long companyId);
+    PageResult<DispatchVo> queryDispatchOrder(LoginUser loginUser,ApplyDispatchQuery query);
+
+    /**
+     * 获取调度改派列表
+     * @param query
+     * @param loginUser
+     * @return
+     */
+    PageResult<DispatchVo> queryDispatchReassignmentList(ApplyDispatchQuery query, LoginUser loginUser);
 }
 
