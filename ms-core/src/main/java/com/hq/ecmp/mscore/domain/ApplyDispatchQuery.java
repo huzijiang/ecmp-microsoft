@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.domain;
 
 import java.util.Date;
+import java.util.List;
 
 import com.hq.ecmp.mscore.dto.Page;
 
@@ -31,4 +32,6 @@ public class ApplyDispatchQuery  extends PageResult {
 
         Long companyId;
         String dispatchType;
+        List<Long> orderIds;
+        String serverDepts;
 }

@@ -60,4 +60,10 @@ public class OrderDetailBackDto extends OrderListBackDto {
     private String passengerMobile;
     @ApiModelProperty(value = "轨迹状态")
     private String labelState;
+
+    @ApiModelProperty(value = "用车场景")
+    private String sceneName;
+
+    @ApiModelProperty(value = "用车场景id")
+    private Long sceneId;
 }

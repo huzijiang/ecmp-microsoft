@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
 import com.hq.ecmp.mscore.vo.JourneyVO;
 import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.mscore.vo.PageResult;
 import lombok.Data;
 
 /**
@@ -118,7 +119,7 @@ public interface IJourneyInfoService {
      * @return
      * @throws Exception
      */
-    List<InvoiceAbleItineraryData> getInvoiceAbleItinerary(Long userId,int pageNum, int pageSize)throws Exception;
+    PageResult<InvoiceAbleItineraryData> getInvoiceAbleItinerary(Long userId, int pageNum, int pageSize)throws Exception;
 
 
     /***
@@ -127,7 +128,15 @@ public interface IJourneyInfoService {
      * @return
      * @throws Exception
      */
-    List<InvoiceAbleItineraryData> getInvoiceAbleItineraryHistory(Long userId)throws Exception;
+    PageResult<InvoiceAbleItineraryData> getInvoiceAbleItineraryHistory(Long userId,int pageNum, int pageSize)throws Exception;
+
+    /***
+     * 一个发票对应的所有行程
+     * @param invoiceId
+     * @return
+     * @throws Exception
+     */
+    List<InvoiceAbleItineraryData> invoiceTripList(Long invoiceId)throws Exception;
 
 
     /***

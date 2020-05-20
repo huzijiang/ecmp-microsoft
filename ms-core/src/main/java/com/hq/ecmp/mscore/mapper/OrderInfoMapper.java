@@ -304,5 +304,7 @@ public interface OrderInfoMapper {
      * @return
      */
     List<DispatchVo> queryDispatchOrder(@Param("companyId") Long companyId);
+
+    List<DispatchVo> queryAdminDispatchList(ApplyDispatchQuery query);
 }
 

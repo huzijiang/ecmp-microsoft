@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.List;
 
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.domain.InvoiceInfo;
@@ -118,9 +119,10 @@ public class InvoiceInfoServiceImpl implements IInvoiceInfoService
 
     public PageResult<InvoiceRecordVO> queryAllByTimeState(InvoiceByTimeStateDTO invoiceByTimeStateDTO){
         PageHelper.startPage(invoiceByTimeStateDTO.getPageNum(),invoiceByTimeStateDTO.getPageSize());
-        List<InvoiceRecordVO> invoiceRecordVOS = invoiceInfoMapper.queryAllByTimeState(invoiceByTimeStateDTO);
-        Long count=invoiceInfoMapper.queryCountByTimeState(invoiceByTimeStateDTO);
-        return new PageResult<>(count,invoiceRecordVOS);
+        List<InvoiceRecordVO> list = invoiceInfoMapper.queryAllByTimeState(invoiceByTimeStateDTO);
+        PageInfo<InvoiceRecordVO> pageInfo = new PageInfo<>(list);
+        PageResult<InvoiceRecordVO> pageResult = new PageResult<>(pageInfo.getTotal(),pageInfo.getPages(),list);
+        return pageResult;
     }
     /**
      * 新增发票抬头
