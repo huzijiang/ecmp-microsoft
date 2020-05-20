@@ -123,6 +123,15 @@ public interface JourneyInfoMapper
      * @return
      * @throws Exception
      */
+    List<InvoiceAbleItineraryData>invoiceTripList(Long invoiceId)throws Exception;
+
+
+    /***
+     *
+     * @param invoiceId
+     * @return
+     * @throws Exception
+     */
     Integer getInvoiceItineraryCount(Long invoiceId)throws Exception;
 
     /***

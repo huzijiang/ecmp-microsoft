@@ -10,6 +10,7 @@ import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.bo.JourneyBeingEndDate;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
@@ -579,22 +580,32 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 	 * @throws Exception
 	 */
 	@Override
-	public List<InvoiceAbleItineraryData> getInvoiceAbleItinerary(Long userId,int pageNum, int pageSize) throws Exception {
+	public  PageResult<InvoiceAbleItineraryData>  getInvoiceAbleItinerary(Long userId,int pageNum, int pageSize) throws Exception {
 		if(null!=userId){
 			PageHelper.startPage(pageNum,pageSize);
-			List<InvoiceAbleItineraryData> list  = journeyInfoMapper.getInvoiceAbleItinerary(userId);
-			return list;
+			List<InvoiceAbleItineraryData> all = journeyInfoMapper.getInvoiceAbleItinerary(userId);
+			PageInfo<InvoiceAbleItineraryData> pageInfo = new PageInfo<>(all);
+			PageResult<InvoiceAbleItineraryData> pageResult = new PageResult<>(pageInfo.getTotal(),pageInfo.getPages(),all);
+			return pageResult;
 		}
 		return null;
 	}
 
 	@Override
-	public List<InvoiceAbleItineraryData> getInvoiceAbleItineraryHistory(Long userId) throws Exception {
+	public PageResult<InvoiceAbleItineraryData> getInvoiceAbleItineraryHistory(Long userId,int pageNum, int pageSize) throws Exception {
 		if(null!=userId){
-			List<InvoiceAbleItineraryData> list  = journeyInfoMapper.getInvoiceAbleItineraryHistory(userId);
-			return list;
+			PageHelper.startPage(pageNum,pageSize);
+			List<InvoiceAbleItineraryData> all = journeyInfoMapper.getInvoiceAbleItineraryHistory(userId);
+			PageInfo<InvoiceAbleItineraryData> pageInfo = new PageInfo<>(all);
+			PageResult<InvoiceAbleItineraryData> pageResult = new PageResult<>(pageInfo.getTotal(),pageInfo.getPages(),all);
+			return pageResult;
 		}
 		return null;
+	}
+
+	@Override
+	public List<InvoiceAbleItineraryData> invoiceTripList(Long invoiceId) throws Exception {
+		return journeyInfoMapper.invoiceTripList(invoiceId);
 	}
 
 	@Override
