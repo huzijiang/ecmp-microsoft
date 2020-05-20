@@ -311,4 +311,21 @@ AND a.state ='S270' order by a.create_time desc limit 1
          and s.order_id=#{orderId}
         limit 1
     </select>
+
+
+    <select id="reassignOrderList" resultType="com.hq.ecmp.mscore.vo.RejectDispatcherUserVO">
+        select trace_id traceId,order_id orderId,if(a.state='S270',1,2) type,
+        DATE_FORMAT(a.create_time, '%m月%d日 %H:%i') time,
+        a.state,a.content,
+        if(a.state='S270',c.driver_name,b.nick_name) userName,
+        if(a.state='S270',c.mobile,b.phonenumber) userPhone,
+        CASE state when 'S270' then '已提交申请'
+                   when 'S277' then '审批驳回'
+                   when 'S279' then '审批通过'
+                   else '' end result
+        from order_state_trace_info a
+        left join ecmp_user b on (b.user_id=a.create_by and state in ('S277','S279') )
+        left join driver_info c on (c.driver_id=a.create_by and state = 'S270' )
+        where find_in_set(state,#{state}) and order_id=#{orderId}
+    </select>
 </mapper>

@@ -1471,7 +1471,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
-        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId,applyInfo.getApplyType());
+        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
         orderState.setApplyType(applyInfo.getApplyType());
         orderState.setCharterCarType(CharterTypeEnum.format(orderState.getCharterCarType()));
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos = iJourneyPlanPriceInfoService.selectJourneyPlanPriceInfoList(new JourneyPlanPriceInfo(orderId));
