@@ -491,7 +491,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			dispatchOrderInfo.setStartSite(startOrderAddressInfo.getAddress());
 			dispatchOrderInfo.setUseCarDate(startOrderAddressInfo.getActionTime());
             dispatchOrderInfo.setCityId(startOrderAddressInfo.getCityPostalCode());
-		}
+            CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(startOrderAddressInfo.getCityPostalCode());
+            if(cityInfo != null){
+                dispatchOrderInfo.setUseCarCity(cityInfo.getCityName());
+            }
+        }
 		OrderAddressInfo endOrderAddressInfo = iOrderAddressInfoService
 				.queryOrderStartAndEndInfo(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId()));
 		if (null != endOrderAddressInfo) {
