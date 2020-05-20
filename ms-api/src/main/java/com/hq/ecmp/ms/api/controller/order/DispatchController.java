@@ -13,6 +13,7 @@ import com.hq.ecmp.mscore.bo.WaitSelectedCarBo;
 import com.hq.ecmp.mscore.bo.WaitSelectedDriverBo;
 import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.dto.dispatch.*;
+import com.hq.ecmp.mscore.service.OrderInfoTwoService;
 import com.hq.ecmp.mscore.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,9 @@ public class DispatchController {
     @Lazy
     private IOrderInfoService iOrderInfoService;
 
+    @Autowired
+    @Lazy
+    private OrderInfoTwoService orderInfoTwoService;
     @Autowired
     private IDispatchService dispatchService;
 
@@ -233,7 +237,7 @@ public class DispatchController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            PageResult<DispatchVo> list = iOrderInfoService.queryDispatchList(query,loginUser);
+            PageResult<DispatchVo> list = orderInfoTwoService.queryDispatchList(query,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();

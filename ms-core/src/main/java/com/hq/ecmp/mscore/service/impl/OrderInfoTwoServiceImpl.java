@@ -13,10 +13,7 @@ import com.hq.common.utils.OkHttpUtil;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderSettlingInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
@@ -59,6 +56,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
     private IJourneyUserCarPowerService iJourneyUserCarPowerService;
     @Autowired
     private IOrderInfoService orderInfoService;
+    @Resource
+    private CarGroupDispatcherInfoMapper groupDispatcherInfoMapper;
     @Resource
     private IOrderSettlingInfoService orderSettlingInfoService;
     @Resource
@@ -194,26 +193,34 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
      */
     @Override
     public PageResult<DispatchVo> queryDispatchList(ApplyDispatchQuery query, LoginUser loginUser) {
-        List<DispatchVo> result=new ArrayList<DispatchVo>();
         //判断登录人的身份来显示他看到的不同权限的数据
         SysUser user = loginUser.getUser();
         List<SysRole> role = loginUser.getUser().getRoles();
+        Long companyId=user.getOwnerCompany();
+        query.setCompanyId(companyId);
+        query.setUserId(user.getUserId());
         //<系统管理员身份>
         List<DispatchVo> adminOrderList = new ArrayList<DispatchVo>();
         //<调度员身份>
         List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
-        List<DispatchOrderInfo> dispatcherOrder = new ArrayList<DispatchOrderInfo>();
-
+        /**查寻该调度员可用查看的所有申请人*/
         if ("1".equals(user.getItIsDispatcher())){//是调度员
+            dispatcherOrderList=orderInfoMapper.queryDispatchList(query);
         }
         List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(collect)){//是管理员
-            query.setDispatchStatus(OrderState.WAITINGLIST.getState());
+            if (!CollectionUtils.isEmpty(dispatcherOrderList)){
+                List<Long> orderIds = dispatcherOrderList.stream().map(p -> p.getOrderId()).collect(Collectors.toList());
+                query.setOrderIds(orderIds);
+            }
             //本公司所有的订单
-            adminOrderList= orderInfoMapper.queryDispatchList(query);
+            adminOrderList= orderInfoMapper.queryAdminDispatchList(query);
+            if (!CollectionUtils.isEmpty(adminOrderList)){
+                dispatcherOrderList.addAll(adminOrderList);
+            }
         }
-        PageInfo<DispatchVo> info = new PageInfo<>(result);
-        return new PageResult<>(info.getTotal(),info.getPages(),result);
+        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
+        return new PageResult<>(info.getTotal(),info.getPages(),dispatcherOrderList);
     }
 
 
