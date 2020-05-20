@@ -265,20 +265,10 @@ public class ApproveTemplateNodeInfoServiceImpl implements IApproveTemplateNodeI
                 }
                 String userIds = userRoleMapper.findUserIds(flowList.get(i).getRoleIds());
                 nodeInfo.setUserId(userIds);
-//            } else if(ApproveTypeEnum.APPROVE_T001.getKey().equals(flowList.get(i).getType())){
-//                String deptId = flowList.get(i).getDeptProjectId();
-//                UserVO deptLeader = getDeptLeader(Long.parseLong(deptId));
-//                nodeInfo.setUserId(String.valueOf(deptLeader.getUserId()));
-//            }else if (ApproveTypeEnum.APPROVE_T004.getKey().equals(flowList.get(i).getType())){
-                //TODO 产品需求不明确以防万一更改
-//                String projectId = flowList.get(i).getDeptProjectId();
-//                ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(Long.parseLong(projectId));
-//                UserVO projectLeader = getProjectLeader(Long.parseLong(projectId));
-//                nodeInfo.setUserId(String.valueOf(projectLeader.getUserId()));
             }else{
                 if (ApproveTypeEnum.APPROVE_T003.getKey().equals(flowList.get(i).getType())){
                     if (StringUtils.isEmpty(flowList.get(i).getUserIds())){
-                        throw new Exception("角色审批未指定对应角色!");
+                        throw new Exception("未指定员工!");
                     }
                 }
                 nodeInfo.setUserId(flowList.get(i).getUserIds());

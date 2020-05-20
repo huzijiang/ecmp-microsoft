@@ -549,6 +549,9 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			//订单关闭了  判断是否是取消或超时了或无车驳回
 			OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(powerId);
 			if(null !=orderStateTraceInfo && OrderStateTrace.getCancelAndOverTime().contains(orderStateTraceInfo.getState())){
+				if (orderStateTraceInfo.getState().equals(OrderStateTrace.ORDERDENIED.getState())){
+					return OrderState.ORDERDENIED.getState();
+				}
 				//订单是取消或超时或无车驳回的订单
 				if(checkPowerOverTime(powerId)){
 					//已过期
@@ -557,9 +560,6 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				if (orderStateTraceInfo.getState().equals(OrderStateTrace.ORDEROVERTIME.getState())){
 					//差旅没超过行程时间，超过用车时间，此过期状态如果后面没有使用的权限，则此权限仍可约车（定时器会去判断超过用车时间则状态变为S921）
 					return OrderState.TRAVELOVERUSECARTIME.getState();
-				}
-				if (orderStateTraceInfo.getState().equals(OrderStateTrace.ORDERDENIED.getState())){
-					return OrderState.ORDERDENIED.getState();
 				}
 				if(flag || queryOrderDispathIsOline(orderStateTraceInfo.getOrderId())){
 					 //只有网约车  或者 调度的时候选择的是网约车   则状态改为去约车

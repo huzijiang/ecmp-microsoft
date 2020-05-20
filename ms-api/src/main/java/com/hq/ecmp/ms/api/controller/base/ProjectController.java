@@ -291,7 +291,6 @@ public class ProjectController {
     public ApiResponse<List<Map>> selectProjectUserTree(@RequestBody ProjectInfoDTO projectInfoDto){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long orgComcany=null;
         List<Map> lsit = iProjectInfoService.buildProjectUserTree(projectInfoDto.getProjectId(),projectInfoDto.getSearch(),loginUser.getUser());
         return ApiResponse.success(lsit);
 

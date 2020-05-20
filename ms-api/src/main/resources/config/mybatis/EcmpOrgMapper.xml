@@ -62,7 +62,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="com.hq.ecmp.mscore.vo.OrgTreeVo" id="orgTreeVO">
         <id column="id" property="id"/>
-        <result property="parentId"    column="parentId"    />
+        <result property="pid"    column="pid"    />
         <result property="showname"    column="showname"    />
         <result property="type"    column="type"    />
         <collection property="children" ofType="OrgTreeVo" javaType="java.util.ArrayList" select="getOrgNodeList" column="id">
@@ -70,7 +70,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectEcmpOrgVo">
-        select dept_id, parent_id,dept_code,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
+        select dept_id,company_id, parent_id,dept_code,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
     </sql>
     <sql id="selectEcmpOrg">
         select dept_id, parent_id,  ancestors, dept_name, dept_type, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time from ecmp_org
@@ -333,7 +333,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!--查询分/子公司详情-->
     <select id="getSubDetail" parameterType="Long" resultType="com.hq.ecmp.mscore.dto.EcmpOrgDto">
-        SELECT dept_name as deptName,dept_id deptId,
+        SELECT dept_name as deptName,dept_id deptId,status,
        if(isnull(dept_code),'',dept_code) as deptCode,
       (SELECT dept_name from  ecmp_org where dept_id =
       (SELECT parent_id from  ecmp_org where dept_id=#{deptId})) as supComName,
@@ -486,7 +486,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectDeptTree" parameterType="Object" resultMap="orgTreeVO">
-        select dept_id id, parent_id parentId,dept_name showname,'0' type from ecmp_org
+        select dept_id id, parent_id pid,dept_name showname,0 type from ecmp_org
         where status=0 and del_flag=0 and dept_type!=3
         <if test="deptId!=null">
             and dept_id=#{deptId}
@@ -500,7 +500,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     </select>
     <select id="getOrgNodeList" parameterType="Object" resultMap="orgTreeVO">
-         select dept_id id, parent_id parentId,dept_name showname,'0' type from ecmp_org
+         select dept_id id, parent_id pid,dept_name showname,0 type from ecmp_org
         where status=0 and del_flag=0 and parent_id=#{id} and dept_type!=3
     </select>
     <select id="selectCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
@@ -570,5 +570,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
             <if test="companyId != null "> and (company_id = #{companyId} and dept_type != 1 or dept_id = #{companyId})</if>
         </where>
+    </select>
+
+    <select id="selectOrgTreeByDeptId" resultType="java.util.Map">
+        select dept_id id,dept_name showname,parent_id pid,0 type,CONCAT(dept_id,'-','0') onlyId,CONCAT(dept_id,'-','0') onlyPid from ecmp_org a
+        where  find_in_set(dept_id,(select group_concat(distinct ancestors) from ecmp_org  where find_in_set(dept_id,#{orgIds})) ) OR
+            find_in_set(dept_id,#{orgIds})
     </select>
 </mapper>

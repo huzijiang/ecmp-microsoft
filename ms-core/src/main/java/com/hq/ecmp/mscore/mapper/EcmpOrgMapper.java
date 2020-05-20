@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 部门Mapper接口
@@ -287,4 +288,6 @@ public interface EcmpOrgMapper {
     List<CarGroupTreeVO> selectNewCompanyCarGroupTree(@Param("deptId")Long deptId,@Param("parentId") Long parentId);
 
     List<EcmpOrg> selectCompanyDeptList(EcmpOrg ecmpOrg);
+
+    List<Map> selectOrgTreeByDeptId(@Param("orgIds")String orgIds);
 }

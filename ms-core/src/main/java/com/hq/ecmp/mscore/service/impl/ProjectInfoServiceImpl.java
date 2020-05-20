@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.hq.api.system.domain.SysUser;
 import com.hq.api.system.mapper.SysUserMapper;
 import com.hq.common.utils.DateUtils;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.hq.ecmp.constant.CommonConstant.ONE;
 import static com.hq.ecmp.constant.CommonConstant.ZERO;
@@ -229,7 +232,6 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
     }
     @Override
     public List<Map> buildProjectUserTree(Long projectId, String search, SysUser user) {
-        List<Map> maps = new ArrayList<>();
         ProjectInfo projectInfo = projectInfoMapper.selectProjectInfoById(projectId);
         Long orgId=null;
         if (projectInfo!=null){
@@ -237,19 +239,19 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         }else{
             orgId=user.getOwnerCompany();
         }
-        maps.addAll(ecmpUserMapper.selectUserListByProjectId(projectId,search,orgId));
-        List<String> deptIds = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(maps)){
-            maps.stream().forEach(x->deptIds.add(x.get("pid").toString()));
+        //查询所有公司部门
+        List<Map> rootList = new ArrayList<>(); //根节点对象存放到这里
+        List<Map> bodyList = new ArrayList<>(); //其他节点存放到这里，可以包含根节点
+        List<Map> userTreeVos = ecmpUserMapper.selectUserListByProjectId(projectId, search, orgId);
+        bodyList.addAll(userTreeVos);
+        if (CollectionUtils.isNotEmpty(userTreeVos)){
+            List<String> collect = userTreeVos.stream().map(s -> s.get("pid").toString()).distinct().collect(Collectors.toList());
+            String orgIds=String.join(",",collect);
+            List<Map> orgTreeVos=ecmpOrgMapper.selectOrgTreeByDeptId(orgIds);
+            rootList.addAll(orgTreeVos.stream().filter(p-> String.valueOf(ZERO).equals(p.get("pid").toString())).collect(Collectors.toList()));
+            bodyList.addAll(orgTreeVos.stream().filter(p-> !String.valueOf(ZERO).equals(p.get("pid").toString())).collect(Collectors.toList()));
         }
-        while (deptIds.size()>0){
-            List<Map> list = userMapper.selectDeptInfoByIds(deptIds);
-            maps.addAll(list);
-            deptIds.clear();
-            list.stream().forEach(x->deptIds.add(x.get("pid").toString()));
-        }
-        Collections.reverse(maps);
-        List<Map> tree = TreeUtil.getTreeByList(maps);
+        List<Map> tree = TreeUtil.getTree(rootList, bodyList);
         return tree;
     }
 
@@ -305,10 +307,10 @@ public class ProjectInfoServiceImpl implements IProjectInfoService
         for (UserTreeVo vo:userList) {
             if (orgTreeVos.getId().equals(vo.getDeptId())&&String.valueOf(ZERO).equals(orgTreeVos.getType()) ){
                 OrgTreeVo userVo=new OrgTreeVo();
-                userVo.setParentId(vo.getDeptId());
+                userVo.setPid(vo.getDeptId());
                 userVo.setId(vo.getUserId());
                 userVo.setShowname(vo.getNickName());
-                userVo.setType(CommonConstant.SWITCH_OFF);
+                userVo.setType(ONE);
                 children.add(userVo);
             }
         }
