@@ -23,7 +23,7 @@ public enum DriverStateEnum {
     /**
      * 等待启用
      */
-    WAIT_EFFECTIVE("W009","启用"),
+    WAIT_EFFECTIVE("W009","待启用"),
 
     /**
      * 司机已经离职或者失效
