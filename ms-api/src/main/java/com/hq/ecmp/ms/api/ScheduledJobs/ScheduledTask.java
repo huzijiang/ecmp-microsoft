@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.hq.ecmp.constant.ConfigTypeEnum;
+import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.EcmpConfig;
 import com.hq.ecmp.mscore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,8 @@ public class ScheduledTask {
 	private ICarInfoService carInfoService;
     @Autowired
     private IEcmpNoticeService iEcmpNoticeService;
+    @Autowired
+	private IDriverInfoService iDriverInfoService;
 
     @Value("${schedule.confirmTimeout}")
     private int timeout;
@@ -290,5 +293,29 @@ public class ScheduledTask {
 			e.printStackTrace();
 		}
 		log.info("定时任务:SchedulingIndependentTask:定时查询独立审核结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
+
+	/**
+	 * 调度选车辆和司机后自动解锁,每十分钟执行一次
+	 */
+	@Scheduled(cron = "0 0/10 * * * ? ")
+	public void unlockCarOrDriver(){
+		log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			carInfoService.unlockCars();
+		} catch (Exception e) {
+			log.error("车辆自动解锁失败");
+			e.printStackTrace();
+		}
+		log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+
+		log.info("定时任务:SchedulingIndependentTask:司机自动解锁:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			iDriverInfoService.unlockDrivers();
+		} catch (Exception e) {
+			log.error("司机自动解锁失败");
+			e.printStackTrace();
+		}
+		log.info("定时任务:SchedulingIndependentTask:司机自动解锁:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 	}
 }

@@ -196,4 +196,9 @@ public interface CarInfoMapper
      * @return
      */
     List<CarInfo> supplementObtainCar(CarInfo carInfo);
+
+    /**
+     * 调度选车以后，未解锁车辆自动解锁
+     */
+    void unlockCars();
 }

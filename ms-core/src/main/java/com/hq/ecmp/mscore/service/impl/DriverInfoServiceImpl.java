@@ -611,5 +611,11 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	public List<DriverInfo> supplementObtainDriver(DriverInfo driverInfo) {
 		return driverInfoMapper.supplementObtainDriver(driverInfo);
 	}
-
+	/**
+	 * 调度选司机以后自动解锁未解锁司机
+	 */
+	@Override
+	public void unlockDrivers() {
+		driverInfoMapper.unlockDrivers();
+	}
 }
