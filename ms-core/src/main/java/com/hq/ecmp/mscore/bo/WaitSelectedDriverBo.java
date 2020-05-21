@@ -118,7 +118,7 @@ public class WaitSelectedDriverBo extends DriverInfo implements Comparable<WaitS
     /**
      * 综合状态： 根据各种状态综合判断
      */
-    private String status;
+    private String status="";
 
     /**
      * 司机电话

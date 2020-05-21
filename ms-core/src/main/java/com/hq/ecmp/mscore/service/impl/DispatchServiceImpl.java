@@ -443,12 +443,16 @@ public class DispatchServiceImpl implements IDispatchService {
             orderTaskClashBo.setCarId(carInfo.getCarId());
             orderTaskClashBo.setCarLicense(carInfo.getCarLicense());
 
-            EnterpriseCarTypeInfo enterpriseCarTypeInfoa=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
-            if(!allowCarModelLevel.contains(enterpriseCarTypeInfo.getLevel())){
+            if(StringUtils.isNotEmpty(allowCarModelLevel)){
+                if(allowCarModelLevel.contains(enterpriseCarTypeInfo.getLevel())){
+                    waitSelectedCarBo.setLevelIsMatch(CarLevelMatchEnum.MATCH.getCode());
+                }else{
+                    waitSelectedCarBo.setLevelIsMatch(CarLevelMatchEnum.UN_MATCH.getCode());
+                }
+            }else {
                 waitSelectedCarBo.setLevelIsMatch(CarLevelMatchEnum.UN_MATCH.getCode());
-            }else{
-                waitSelectedCarBo.setLevelIsMatch(CarLevelMatchEnum.MATCH.getCode());
             }
+
 
             List<OrderInfo> orderInfosSetOutClash=orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
             List<OrderInfo> orderInfosArrivalClash=orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
