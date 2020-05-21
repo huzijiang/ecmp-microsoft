@@ -34,6 +34,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="hireEndTime != null ">hire_end_time,</if>
             <if test="borrowBeginTime != null ">borrow_begin_time,</if>
             <if test="borrowEndTime != null ">borrow_end_time,</if>
+            <if test="createBy != null ">create_by,</if>
+            create_time
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="driverId != null ">#{driverId},</if>
@@ -42,6 +44,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="hireEndTime != null ">#{hireEndTime},</if>
             <if test="borrowBeginTime != null ">#{borrowBeginTime},</if>
             <if test="borrowEndTime != null ">#{borrowEndTime},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            now()
         </trim>
     </insert>
     <update id="updateDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">
