@@ -35,7 +35,7 @@ public interface CarConstant {
 	String START_CAR = "S000";  // 启用中
 	String DISABLE_CAR = "S001";  //禁用中
 	String MAINTENANCE_CAR = "S002"; //维护中
-	String TIME_OUT_CAR = "SOO3";  //已到期
+	String TIME_OUT_CAR = "S003";  //已到期
 	String WAIT_START_CAR = "S004"; //待启用
 	String BE_BORROWED_CAR = "S101"; // 被借调
 	String DELETE_CAR = "S444";    //被删除

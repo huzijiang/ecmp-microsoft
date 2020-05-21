@@ -211,7 +211,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <insert id="createDriver" parameterType="com.hq.ecmp.mscore.domain.DriverCreateInfo" useGeneratedKeys="true" keyProperty="driverId">
-      insert into driver_info
+        insert into driver_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
           <if test="driverName != null ">driver_name,</if>
            <if test="mobile != null ">mobile,</if>
@@ -226,6 +226,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="licenseExpireDate != null ">license_expire_date,</if>
             <if test="state != null ">state,</if>
             <if test="lockState != null ">lock_state,</if>
+            <if test="driverNature != null ">it_is_full_time,</if>
             <if test="userId != null ">user_id,</if>
             <if test="optUserId != null ">create_by,</if>
             create_time
@@ -244,6 +245,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
               <if test="licenseExpireDate != null ">#{licenseExpireDate},</if>
               <if test="state != null ">#{state},</if>
               <if test="lockState != null ">#{lockState},</if>
+              <if test="driverNature != null ">#{driverNature},</if>
               <if test="userId != null ">#{userId},</if>
               <if test="optUserId != null ">#{optUserId},</if>
           	NOW()
