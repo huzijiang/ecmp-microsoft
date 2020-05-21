@@ -224,6 +224,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			//2. 插入用户角色表
 			EcmpUserRole build = EcmpUserRole.builder().roleId(6L).userId(newUserId).build();
 			ecmpUserRoleMapper.insertEcmpUserRole(build);
+            driverCreateInfo.setUserId(newUserId);
 		}
     	//生成驾驶员记录  是否专职
 		//Z000   合同制  (自有驾驶员)
