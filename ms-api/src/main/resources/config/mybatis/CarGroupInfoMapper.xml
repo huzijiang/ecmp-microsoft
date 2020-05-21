@@ -236,7 +236,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="getCarGroupList" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO">
         select car_group_id carGroupId,car_group_name carGroupName,car_group_code carGroupCode,company_id ownerCompany from car_group_info
-        where car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+        <where>
+            state='Y000'
+            <if test="flag==1">
+            and car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+            </if>
+            <if test="flag==0">
+            anompany_id=#{companyId}
+            </if>
+        </where>
+
         or parent_car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
     </select>
 

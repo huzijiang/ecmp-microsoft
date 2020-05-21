@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
@@ -158,7 +159,7 @@ public interface ICarGroupInfoService
      */
     Boolean judgeCarGroupName(String carGroupName, Long owneCompany);
 
-    List<CarGroupListVO> getCarGroupList(Long userId);
+    List<CarGroupListVO> getCarGroupList(SysUser userId);
 
     /**
      * 联系车队（通用）
