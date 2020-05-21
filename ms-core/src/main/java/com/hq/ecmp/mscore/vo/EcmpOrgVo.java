@@ -19,6 +19,9 @@ public class EcmpOrgVo {
     @ApiModelProperty(value = "组织id")
     private Long deptId;
 
+    @ApiModelProperty(value = "查询集团树 为 1 则查询集团树")
+    private String allTree;
+
     @ApiModelProperty(value = "上级组织id")
     private Long parentId;
 
