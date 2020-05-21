@@ -580,6 +580,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </select>
 
     <select id="getOrderListBackDto" parameterType="com.hq.ecmp.mscore.dto.OrderListBackDto" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
+        select * from (
         select
         s.company_id companyId,
         -- 申请人姓名
@@ -657,6 +658,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             </where>
             group by s.order_id
             order by a.create_time desc
+        )cc1 where cc1.labelState not in ('S930','S921')
 
     </select>
 
