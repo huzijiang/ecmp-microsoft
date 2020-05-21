@@ -458,7 +458,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         boolean flag=false;
 
         this.checkOrgVo(ecmpOrgVo,1);//1新增,0编辑校验
-        if (CommonConstant.DEPT_TYPE_ORG.equals(ecmpOrgVo.getDeptType())){//公司
+        if (CommonConstant.DEPT_TYPE_ORG.equals(String.valueOf(ecmpOrgVo.getDeptType()))){//公司
             EcmpUser userByPhone = ecmpUserMapper.getUserByPhone(ecmpOrgVo.getPhone());
             if (userByPhone!=null){
                 log.info("新增公司:公司主管手机号:"+ecmpOrgVo.getPhone()+"信息"+userByPhone.getUserId()+userByPhone.getUserName());
