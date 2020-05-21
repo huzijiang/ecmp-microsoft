@@ -26,6 +26,7 @@ import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.OrderUtils;
+import com.hq.ecmp.util.Page;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
@@ -2847,8 +2848,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(adminOrderList.isEmpty()){
             adminOrderList.addAll(dispatcherOrderList);
         }
-        PageInfo<DispatchVo> info = new PageInfo<>(adminOrderList);
-        return new PageResult<>(info.getTotal(),info.getPages(),adminOrderList);
+        Page<DispatchVo> page = new Page<>(adminOrderList, query.getPageSize());
+        page.setCurrent_page(query.getPageNum());
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
 
     /**
@@ -2885,8 +2887,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 dispatcherOrderList.addAll(adminOrderList);
             }
         }
-        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
-        return new PageResult<>(info.getTotal(),info.getPages(),dispatcherOrderList);
+       com.hq.ecmp.util.Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+        page.setCurrent_page(query.getPageNum());
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
 
     /**

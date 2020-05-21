@@ -260,6 +260,8 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         orderInfo.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
         //订单状态
         orderInfo.setState(OrderState.ORDERCLOSE.getState());
+        //补单制度(特殊处理-用这个字段)
+        orderInfo.setDriverGrade(orderInfoDTO.getDriverGrade().toString());
         //创建时间
         orderInfo.setCreateTime(DateUtils.getNowDate());
         //创建人

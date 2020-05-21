@@ -242,7 +242,11 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         String carTypeName = costConfigCarTypeInfoMapper.selectCostConfigCarTypeInfo(supplementVO.getCarTypeId());
         List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
         if(costConfigListResult.isEmpty()){
-            return cityName+"-"+OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getStateName()+"-"+carTypeName+":暂无成本设置,前往配置";
+            String result=cityName+"-"+OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getStateName()+"-"+carTypeName+":暂无成本设置,前往配置";
+            Map map = new HashMap();
+            map.put("amount",result);
+            String json= JSON.toJSONString(map);
+            return json;
         }
         costConfigQueryDto.setCostId(costConfigListResult.get(0).getCostId());
         CostConfigInfo costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
