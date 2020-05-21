@@ -1,12 +1,13 @@
 package com.hq.ecmp.mscore.domain;
 
 
+import com.hq.core.web.domain.BaseEntity;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class DriverNatureInfo {
+public class DriverNatureInfo extends BaseEntity {
 
     Long driverId;
 

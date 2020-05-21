@@ -137,7 +137,7 @@ public interface OrderInfoMapper {
 
     DriverOrderInfoVO selectOrderDetail(Long orderId);
 
-    OrderStateVO getOrderState(@Param("orderId")Long orderId,@Param("regimenType")String regimenType);
+    OrderStateVO getOrderState(@Param("orderId")Long orderId);
 
     /**
      * pc端获取订单列表
@@ -325,5 +325,26 @@ public interface OrderInfoMapper {
      * @return
      */
     List<DispatchVo> queryDispatchReassignmentList(ApplyDispatchQuery query);
+
+    /**
+     * 补单关联的数据
+     * @param orderListBack
+     * @return
+     */
+    OrderListBackDto getReplentshmentOrder(OrderListBackDto orderListBack);
+
+    /**
+     * 订单数据
+     * @param orderNo
+     * @return
+     */
+    String getOrderById(@Param("orderNo") String orderNo);
+
+    /**
+     * 补单详情
+     * @param orderNo
+     * @return
+     */
+    OrderDetailBackDto getOrderListDetailById(@Param("orderNo") String orderNo);
 }
 

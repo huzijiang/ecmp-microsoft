@@ -45,6 +45,13 @@ public class DriverCreateInfo {
 	    Date createTime;
 	    Long createBy;
 
+	    /**
+	    * 驾驶员性质 （是否专职
+	    * Z000   合同制
+	    * Z001   在编
+	    * Z002   外聘
+	    * Z003   借调
+	    */
 	    String driverNature;
 
 	    Date hireBeginTime;

@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.util.StringUtil;
 import com.google.common.collect.Maps;
@@ -18,6 +19,7 @@ import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.MacTools;
+import com.hq.ecmp.util.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -205,6 +207,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
         /**查寻该调度员可用查看的所有申请人*/
         if ("1".equals(user.getItIsDispatcher())){//是调度员
+
             dispatcherOrderList=orderInfoMapper.queryDispatchList(query);
         }
         List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
@@ -219,10 +222,42 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
                 dispatcherOrderList.addAll(adminOrderList);
             }
         }
-        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
-        return new PageResult<>(info.getTotal(),info.getPages(),dispatcherOrderList);
+        Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+        if(dispatcherOrderList.isEmpty()){
+            Long total= 0L;
+            Integer pageSize=0;
+            return new PageResult<>(total, pageSize, page.getCurrentPageData());
+        }
+        page.setCurrent_page(query.getPageNum());
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
 
+    /**
+     * 司机端改派记录
+     * @param orderNo
+     * @param driverId
+     * @return
+     */
+    @Override
+    public OrderReassignVO reassignDetail(Long orderNo, Long driverId) {
+        OrderReassignVO vo=new OrderReassignVO();
+        String state=OrderState.APPLYREASSIGN.getState()+","+OrderState.REASSIGNPASS.getState()+","+OrderState.REASSIGNREJECT.getState();
+        List<RejectDispatcherUserVO> orderList=orderStateTraceInfoMapper.reassignOrderList(orderNo,state);
+        if (CollectionUtils.isEmpty(orderList)){
+            return vo;
+        }
+        vo.setOrderId(orderList.get(0).getOrderId());
+        vo.setApproveList(orderList);
+        for (RejectDispatcherUserVO dispatcherUserVO:orderList){
+            if (OrderState.APPLYREASSIGN.getState().equals(dispatcherUserVO.getState())){
+                vo.setApplyReason(dispatcherUserVO.getContent());
+            }
+            if (OrderState.REASSIGNREJECT.getState().equals(dispatcherUserVO.getState())) {
+                vo.setRejectReason(dispatcherUserVO.getContent());
+            }
+        }
+        return vo;
+    }
 
 
     /**自有车取消订单**/

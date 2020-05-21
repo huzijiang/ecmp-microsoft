@@ -299,23 +299,37 @@ public class ScheduledTask {
 	 * 调度选车辆和司机后自动解锁,每十分钟执行一次
 	 */
 	@Scheduled(cron = "0 0/10 * * * ? ")
-	public void unlockCarOrDriver(){
-		log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-		try {
-			carInfoService.unlockCars();
-		} catch (Exception e) {
-			log.error("车辆自动解锁失败");
-			e.printStackTrace();
-		}
-		log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	public void unlockCarOrDriver() {
+        log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+        try {
+            carInfoService.unlockCars();
+        } catch (Exception e) {
+            log.error("车辆自动解锁失败");
+            e.printStackTrace();
+        }
+        log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
 
-		log.info("定时任务:SchedulingIndependentTask:司机自动解锁:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+        log.info("定时任务:SchedulingIndependentTask:司机自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+        try {
+            iDriverInfoService.unlockDrivers();
+        } catch (Exception e) {
+            log.error("司机自动解锁失败");
+            e.printStackTrace();
+        }
+        log.info("定时任务:SchedulingIndependentTask:司机自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+    }
+	/***
+	 *定时更新外聘驾驶员，借调驾驶员状态
+	 * add by liuzb
+	 */
+	@Scheduled(cron = "0 0/1 * * * ? ")
+	public void  ScheduUpdateDriverStatusTask (){
+		log.info("定时任务:ScheduUpdateDriverStatusTask:定时更新外聘驾驶员，借调驾驶员状态开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		try {
-			iDriverInfoService.unlockDrivers();
-		} catch (Exception e) {
-			log.error("司机自动解锁失败");
-			e.printStackTrace();
+			iDriverInfoService.updateDriverStatusService();
+		}catch (Exception e) {
+			log.error("ScheduUpdateDriverStatusTask error",e);
 		}
-		log.info("定时任务:SchedulingIndependentTask:司机自动解锁:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:ScheduUpdateDriverStatusTask:定时更新外聘驾驶员，借调驾驶员状态结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 	}
 }

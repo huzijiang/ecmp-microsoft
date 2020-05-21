@@ -79,6 +79,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="stationCode != null  and stationCode != ''">station_code,</if>
             <if test="loginIp != null  and loginIp != ''">login_ip,</if>
             <if test="loginDate != null ">login_date,</if>
+            <if test="jobNumber != null and jobNumber != ''">job_number,</if>
             <if test="createBy != null  and createBy != ''">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="remark != null  and remark != ''">remark</if>
@@ -101,6 +102,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="stationCode != null  and stationCode != ''">#{stationCode},</if>
             <if test="loginIp != null  and loginIp != ''">#{loginIp},</if>
             <if test="loginDate != null ">#{loginDate},</if>
+            <if test="jobNumber != null and jobNumber != ''">#{jobNumber},</if>
             <if test="createBy != null  and createBy != ''">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="remark != null  and remark != ''">#{remark}</if>
@@ -714,7 +716,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 	<select id="queryUserListByDeptIdsAndName" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto">
 		select user_id as userId,nick_name as nickName,phonenumber as
-		phonenumber from ecmp_user
+		phonenumber, dept_id AS deptId from ecmp_user
 		where
 		 <if test="name != null  and name != ''"> (nick_name like concat('%', #{name}, '%') or phonenumber like concat('%', #{name}, '%')) and</if>
 		 dept_id in
@@ -741,7 +743,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <update id="updateEcmpUserjobNumber" parameterType="com.hq.ecmp.mscore.domain.EcmpUser">
-    update ecmp_user set job_number=#{jobNumber} where user_id=#{userId}
+    update ecmp_user set
+         <if test="jobNumber != null and jobNumber != ''">
+               job_number=#{jobNumber},
+          </if>
+        it_is_driver = #{itIsDriver},update_by = #{updateBy},update_time = #{updateTime} where user_id=#{userId}
     </update>
 
     <select id="getUsersByCompany" resultType="com.hq.ecmp.mscore.vo.ProjectUserVO">

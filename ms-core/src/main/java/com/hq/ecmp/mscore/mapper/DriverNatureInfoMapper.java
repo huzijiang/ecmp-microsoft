@@ -2,6 +2,8 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DriverNatureInfo;
 
+import java.util.List;
+
 public interface DriverNatureInfoMapper {
 
     /***
@@ -20,6 +22,12 @@ public interface DriverNatureInfoMapper {
      */
     DriverNatureInfo getDriverNatureInfo(Long driverId)throws Exception;
 
+    /***
+     *
+     * @return
+     * @throws Exception
+     */
+    List<DriverNatureInfo> getDriverNatureInfoList()throws Exception;
 
     /***
      *
