@@ -81,4 +81,6 @@ public class OrderListBackDto extends PageRequest {
     private String deptName;
 
     private Long companyId;
+
+    private String itIsSupplement;
 }
