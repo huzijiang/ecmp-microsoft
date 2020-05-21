@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -7,6 +8,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
@@ -25,6 +27,7 @@ import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.OrderUtils;
+import com.hq.ecmp.util.Page;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
@@ -494,7 +497,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			dispatchOrderInfo.setStartSite(startOrderAddressInfo.getAddress());
 			dispatchOrderInfo.setUseCarDate(startOrderAddressInfo.getActionTime());
             dispatchOrderInfo.setCityId(startOrderAddressInfo.getCityPostalCode());
-		}
+            CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(startOrderAddressInfo.getCityPostalCode());
+            if(cityInfo != null){
+                dispatchOrderInfo.setUseCarCity(cityInfo.getCityName());
+            }
+        }
 		OrderAddressInfo endOrderAddressInfo = iOrderAddressInfoService
 				.queryOrderStartAndEndInfo(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId()));
 		if (null != endOrderAddressInfo) {
@@ -1471,7 +1478,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
-        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId,applyInfo.getApplyType());
+        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
         orderState.setApplyType(applyInfo.getApplyType());
         orderState.setCharterCarType(CharterTypeEnum.format(orderState.getCharterCarType()));
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos = iJourneyPlanPriceInfoService.selectJourneyPlanPriceInfoList(new JourneyPlanPriceInfo(orderId));
@@ -1485,6 +1492,38 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
         //订单管理需要的状态 已取消  S911    已完成 S900  待确认 S699     服务中S616  待上车 S600   接驾中 S500  待服务 S299
         List<OrderListBackDto> list = orderInfoMapper.getOrderListBackDto(orderListBackDto);
+        for (OrderListBackDto orderListBack:list){
+            //补单数据单独处理
+            if(ItIsSupplementEnum.ORDER_REPLENISHMENT_STATUS.getValue().equals(orderListBack.getItIsSupplement())){
+                OrderListBackDto orderList = orderInfoMapper.getReplentshmentOrder(orderListBack);
+                //申请人姓名
+                orderListBack.setApplyName(orderList.getApplyName());
+                //申请人手机号
+                orderListBack.setApplyPhoneNumber(orderList.getApplyPhoneNumber());
+                //乘车人
+                orderListBack.setPassengerName(orderList.getPassengerName());
+                //实际用车时间
+                orderListBack.setBeginTime(orderList.getBeginTime());
+                //实际下车时间
+                orderListBack.setEndTime(orderList.getEndTime());
+                //实际上车地址
+                orderListBack.setBeginAddress(orderList.getBeginAddress());
+                //实际下车地址
+                orderListBack.setEndAddress(orderList.getEndAddress());
+                //服务类型
+                orderListBack.setServiceType(orderList.getServiceType());
+                //用车方式
+                orderListBack.setUseCarMode(orderList.getUseCarMode());
+                //费用合计
+                orderListBack.setAmount(orderList.getAmount());
+                //订单状态
+                orderListBack.setState(orderList.getState());
+                //订单编号
+                orderListBack.setOrderNumber(orderList.getOrderNumber());
+                //itIsSupplement订单标签
+                orderListBack.setItIsSupplement(orderList.getItIsSupplement());
+            }
+        }
         if(orderListBackDto.getOrderState()!=null && orderListBackDto.getLabelState()!=null) {
             List<OrderListBackDto> list1 = list.stream().filter(e -> orderListBackDto.getOrderState().contains(e.getOrderState())).collect(Collectors.toList());
             String labelState = orderListBackDto.getLabelState();
@@ -1502,7 +1541,38 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     public OrderDetailBackDto getOrderListDetail(String orderNo) {
-        return orderInfoMapper.getOrderListDetail(orderNo);
+        String itIsSupplement = orderInfoMapper.getOrderById(orderNo);
+        OrderDetailBackDto orderDetailBackDto=null;
+        if(ItIsSupplementEnum.ORDER_REPLENISHMENT_STATUS.getValue().equals(itIsSupplement)){
+            orderDetailBackDto = orderInfoMapper.getOrderListDetailById(orderNo);
+        }else{
+            orderDetailBackDto = orderInfoMapper.getOrderListDetail(orderNo);
+        }
+        OrderFeeDetailVO orderFeeDetailVO=null;
+        List list=new ArrayList<>();
+        if(CarConstant.USR_CARD_MODE_NET.equals(orderDetailBackDto.getUseCarMode())){
+            String amountDetail = orderDetailBackDto.getAmountDetail();
+            if(!amountDetail.isEmpty()){
+                orderFeeDetailVO=new Gson().fromJson(amountDetail,OrderFeeDetailVO.class);
+            }
+            if (orderFeeDetailVO==null){
+                return null;
+            }
+            //基础套餐费：包含基础时长和基础里程，超出另外计费
+            String basePrice = orderFeeDetailVO.getBasePrice();
+            list.add(new OtherCostVO("起步价",basePrice));
+            //超时长费：超出基础时长时计算，同时会区分高峰和平峰时段
+            String overTimeNumTotal = orderFeeDetailVO.getOverTimeNumTotal();//超时长费:高峰时长费+平超时长费
+            list.add(new OtherCostVO("超时长费",overTimeNumTotal));
+            //超里程费：超出基础里程时计算，同时会区分高峰和平峰时段
+            String overMilageNumTotal = orderFeeDetailVO.getOverMilageNumTotal();//超里程费用:高峰里程费+平超里程
+            list.add(new OtherCostVO("超里程费",overMilageNumTotal));
+            //等待费
+            String waitingFee = orderFeeDetailVO.getWaitingFee();
+            list.add(new OtherCostVO("等待费",waitingFee));
+            orderDetailBackDto.setAmountDetail(JSON.toJSONString(list));
+        }
+        return orderDetailBackDto;
     }
 
 
@@ -2791,6 +2861,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     if(adminOrderList.get(i).getOrderId().equals(dispatcherOrderList.get(j).getOrderId())){
                         i --;
                         adminOrderList.add(dispatcherOrderList.get(j));
+                        break;
                     }
                 }
             }
@@ -2809,10 +2880,80 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @return
      */
     @Override
-    public PageResult<DispatchVo> queryDispatchOrder(Long companyId) {
-        List<DispatchVo> adminOrderList= orderInfoMapper.queryDispatchOrder(companyId);
-        PageInfo<DispatchVo> info = new PageInfo<>(adminOrderList);
-        return new PageResult<>(info.getTotal(),info.getPages(),adminOrderList);
+    public PageResult<DispatchVo> queryDispatchOrder(LoginUser loginUser,ApplyDispatchQuery query) {
+        List<DispatchVo> result=new ArrayList<DispatchVo>();
+        //判断登录人的身份来显示他看到的不同权限的数据
+        List<SysRole> role = loginUser.getUser().getRoles();
+        //<系统管理员身份>
+        List<DispatchVo> adminOrderList = new ArrayList<DispatchVo>();
+        //<调度员身份>
+        List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
+        if(!role.isEmpty()){
+            //登录人公司
+            Long companyId = loginUser.getUser().getDept().getCompanyId();
+            //登录人Id
+            Long userId = loginUser.getUser().getUserId();
+            //循环判断登录人身份并获取他所看到的数据信息
+            for(SysRole sysRole : role){
+                //判断登陆人身份（系统管理员）
+                if(sysRole.getRoleKey().equals(RoleConstant.ADMIN) || sysRole.getRoleKey().equals(RoleConstant.SUB_ADMIN)){
+                    //本公司所有的订单
+                    query.setCompanyId(loginUser.getUser().getDept().getCompanyId());
+                    adminOrderList= orderInfoMapper.queryDispatchOrder(query);
+                }
+                //判断登陆人身份（调度员）
+                if(sysRole.getRoleKey().equals(RoleConstant.DISPATCHER)){
+                    //调度员所看到的订单
+                    query.setUserId(loginUser.getUser().getUserId());
+                    dispatcherOrderList = orderInfoMapper.queryDispatchOrder(query);
+                }
+            }
+        }
+        if(adminOrderList.isEmpty()){
+            adminOrderList.addAll(dispatcherOrderList);
+        }
+        Page<DispatchVo> page = new Page<>(adminOrderList, query.getPageSize());
+        page.setCurrent_page(query.getPageNum());
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
+    }
+
+    /**
+     * 获取改派调度列表
+     * @param query
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public PageResult<DispatchVo> queryDispatchReassignmentList(ApplyDispatchQuery query, LoginUser loginUser) {
+        //判断登录人的身份来显示他看到的不同权限的数据
+        SysUser user = loginUser.getUser();
+        List<SysRole> role = loginUser.getUser().getRoles();
+        Long companyId=user.getOwnerCompany();
+        query.setCompanyId(companyId);
+        query.setUserId(user.getUserId());
+        //<系统管理员身份>
+        List<DispatchVo> adminOrderList = new ArrayList<DispatchVo>();
+        //<调度员身份>
+        List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
+        /**查寻该调度员可用查看的所有申请人*/
+        if ("1".equals(user.getItIsDispatcher())){//是调度员
+            dispatcherOrderList=orderInfoMapper.queryDispatchReassignmentList(query);
+        }
+        List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(collect)){//是管理员
+            if (!CollectionUtils.isEmpty(dispatcherOrderList)){
+                List<Long> orderIds = dispatcherOrderList.stream().map(p -> p.getOrderId()).collect(Collectors.toList());
+                query.setOrderIds(orderIds);
+            }
+            //本公司所有的订单
+            adminOrderList= orderInfoMapper.queryAdminDispatchReassignmentList(query);
+            if (!CollectionUtils.isEmpty(adminOrderList)){
+                dispatcherOrderList.addAll(adminOrderList);
+            }
+        }
+       com.hq.ecmp.util.Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+        page.setCurrent_page(query.getPageNum());
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
 
     /**

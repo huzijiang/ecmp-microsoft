@@ -137,7 +137,7 @@ public interface OrderInfoMapper {
 
     DriverOrderInfoVO selectOrderDetail(Long orderId);
 
-    OrderStateVO getOrderState(@Param("orderId")Long orderId,@Param("regimenType")String regimenType);
+    OrderStateVO getOrderState(@Param("orderId")Long orderId);
 
     /**
      * pc端获取订单列表
@@ -293,7 +293,7 @@ public interface OrderInfoMapper {
     List<Long> getAlreadyUsingOrderIdByPowerId(Long powerId);
 
     /**
-     * 获取申请调度列表
+     * 获取申请调度调度员列表
      * @param query
      * @return
      */
@@ -303,8 +303,48 @@ public interface OrderInfoMapper {
      * 获取直接调度列表
      * @return
      */
-    List<DispatchVo> queryDispatchOrder(@Param("companyId") Long companyId);
+    List<DispatchVo> queryDispatchOrder(ApplyDispatchQuery query);
 
+    /**
+     * 获取申请调度系统管理员
+     * @param query
+     * @return
+     */
     List<DispatchVo> queryAdminDispatchList(ApplyDispatchQuery query);
+
+    /**
+     * 改派系统管理员数据
+     * @param query
+     * @return
+     */
+    List<DispatchVo> queryAdminDispatchReassignmentList(ApplyDispatchQuery query);
+
+    /**
+     * 改派调度员数据
+     * @param query
+     * @return
+     */
+    List<DispatchVo> queryDispatchReassignmentList(ApplyDispatchQuery query);
+
+    /**
+     * 补单关联的数据
+     * @param orderListBack
+     * @return
+     */
+    OrderListBackDto getReplentshmentOrder(OrderListBackDto orderListBack);
+
+    /**
+     * 订单数据
+     * @param orderNo
+     * @return
+     */
+    String getOrderById(@Param("orderNo") String orderNo);
+
+    /**
+     * 补单详情
+     * @param orderNo
+     * @return
+     */
+    OrderDetailBackDto getOrderListDetailById(@Param("orderNo") String orderNo);
 }
 

@@ -472,6 +472,7 @@ WHERE
             <if test="userId != null ">user_id= #{userId},</if>
             <if test="optUserId != null ">update_by= #{optUserId},</if>
             <if test="updateTime != null ">update_time= #{updateTime},</if>
+            <if test="state != null ">state= #{state},</if>
         </trim>
         where driver_id = #{driverId}
     </update>
@@ -670,6 +671,7 @@ WHERE
         select
              o.order_id orderId,
              o.state,
+             o.order_number orderNumber,
              o.service_type serviceType,
              jn.it_is_return itIsReturn,
              jn.charter_car_type charterCarType,

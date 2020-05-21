@@ -581,6 +581,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="getOrderListBackDto" parameterType="com.hq.ecmp.mscore.dto.OrderListBackDto" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
         select
+        s.company_id companyId,
         -- 申请人姓名
         eu.nick_name applyName,
         -- 申请人所属部门/公司
@@ -612,13 +613,14 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 订单状态
         s.state orderState,
         -- 费用合计
-        osi.amount  amount,
+        CONVERT(osi.amount,DECIMAL(10,2))  amount,
         -- 订单编号
         s.order_number orderNumber,
         -- 轨迹状态
         (select state from order_state_trace_info sti where sti.order_id=s.order_id order by trace_id desc limit 1) labelState,
         -- 用车制度
-        ri.name regimenName
+        ri.name regimenName,
+        s.it_is_supplement itIsSupplement
         from order_info s
         LEFT join journey_user_car_power jucp on jucp.power_id=s.power_id
         LEFT join apply_info a on a.apply_id=jucp.apply_id
@@ -689,10 +691,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         s.service_type serviceType,
         ji.charter_car_type,
         ifnull(ecti.name,s.demand_car_level) carLevel,
-        osi.total_mileage totalMileage,
+        CONVERT(osi.total_mileage,DECIMAL(10,2))  totalMileage,
         osi.total_time totalTime,
         osi.amount_detail amountDetail,
-        osi.amount,
+        CONVERT(osi.amount,DECIMAL(10,2))  amount,
         dhi.longitude  currentLongitude,
         dhi.latitude currentLatitude,
         (select state from order_state_trace_info sti where sti.order_id=s.order_id order by trace_id desc limit 1) labelState
@@ -1125,15 +1127,15 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 -- 状态
                 case
                     when right (oi.state,3)='100' then '待派车'
-                    when right (oi.state,3)='299' then '已处理'
-                    when right (oi.state,3)>='921' then '已过期'
-                    ELSE '--' END state,
+                    when right (oi.state,3)<![CDATA[ >= ]]>'299' and right (oi.state,3)!='900' then '已处理'
+                    when right (oi.state,3)='900' then '已过期'
+                    ELSE '' END state,
                 -- 操作时间
             case
                 when right (oi.state,3)='100' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S100'  limit 1)
                 when right (oi.state,3)='299' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S299' limit 1)
                 when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
-            ELSE '--' END opDate
+            ELSE now() END opDate
                 FROM
                 order_info oi
                 LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
@@ -1156,7 +1158,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                   and  oi.company_id=#{companyId}
               </if>
                 and  oi.it_is_supplement='N000'
-                and user_id in (select distinct user_id from ecmp_user where dept_id in
+                and oi.user_id in (select distinct user_id from ecmp_user where dept_id in
                 (select dept_id from car_group_serve_org_relation where car_group_id in
                 (select car_group_id from car_group_dispatcher_info where user_id=#{userId})))
                 ORDER BY
@@ -1205,15 +1207,15 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 状态
         case
         when right (oi.state,3)='100' then '待派车'
-        when right (oi.state,3)='299' then '已处理'
-        when right (oi.state,3)>='921' then '已过期'
-        ELSE '--' END state,
+        when right (oi.state,3)<![CDATA[ >= ]]>'299'and right (oi.state,3)!='900' then '已处理'
+        when right (oi.state,3)='900' then '已过期'
+        ELSE '' END state,
         -- 操作时间
         case
         when right (oi.state,3)='100' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S100'  limit 1)
         when right (oi.state,3)='299' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S299' limit 1)
         when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
-        ELSE '--' END opDate
+        ELSE now() END opDate
         FROM
         order_info oi
         LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
@@ -1237,7 +1239,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         </if>
         and  oi.it_is_supplement='N000'
         <if test="orderIds!=null">
-            and order_id not in
+            and oi.order_id not in
             <foreach collection="orderIds" open="(" separator="," close=")" item="orderId">
                 #{orderId}
             </foreach>
@@ -1246,8 +1248,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ORDER BY
         oi.order_id DESC
     </select>
-
-    <select id="queryDispatchOrder" parameterType="com.hq.ecmp.mscore.vo.DispatchVo" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
+    <select id="queryDispatchOrder" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
         SELECT DISTINCT
         -- 订单id
         oi.order_id orderId,
@@ -1286,7 +1287,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 状态
         oi.state state,
         -- 操作时间
-        -- (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id order by trace_id desc limit 1) opDate
         oi.update_time opDate,
         -- 申请原因
         ai.reason reason,
@@ -1311,9 +1311,305 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN order_address_info oaitwo ON oaitwo.order_id = oi.order_id and oaitwo.type='A999'
         LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
         LEFT JOIN project_info pi ON pi.project_id = ai.project_id
+        LEFT JOIN order_state_trace_info osti on oi.order_id = osti.order_id
         WHERE 1 = 1
         <if test="companyId != null and  companyId!=''"> and  oi.company_id=#{companyId} </if>
+        <if test="userId != null and  userId!=''"> and  osti.create_by=#{userId} </if>
         and oi.it_is_supplement = 'D000'
+        ORDER BY
+        oi.order_id DESC
+    </select>
+
+
+    <select id="queryDispatchReassignmentList" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
+
+        SELECT DISTINCT
+        -- 订单id
+        oi.order_id orderId,
+        -- 部门名称
+        eo.dept_name AS deptName,
+        -- 公司名称
+        eor.dept_name AS companyName,
+        -- 操作权限  0：有权限  1:没有权限
+        '0'  operationPermission,
+        -- 申请人姓名
+        eu.nick_name  applyUserName,
+        -- 申请人手机号
+        eu.phonenumber applyUserTel,
+        -- 乘车人
+        eu.nick_name  useCarUserName,
+        -- 同行人数量
+        jpi.peer_number travelPartnerCount,
+        -- 开始时间
+        oai.action_time useCarDate,
+        -- 预计结束时间
+        oaitwo.action_time endDate,
+        -- 上车地址
+        oai.address startSite,
+        -- 下车地址
+        oaitwo.address endSite,
+        -- 是否往返
+        ji.it_is_return itIsReturn,
+        -- 预计等待时长
+        ji.wait_time_long waitMinute,
+        -- 用车城市
+        cc.SHORT_NAME useCarCity,
+        -- 用车场景
+        si.`name` userCarScene,
+        -- 用车制度
+        ri.`name` userCarRegime,
+        -- 服务类型
+        oi.service_type serverType,
+        -- 状态
+        case
+        when right (oi.state,3)='270' then '待派车'
+        when right (oi.state,3)='279' then '已通过'
+        when right (oi.state,3)='277' then '以驳回'
+        when right (oi.state,3)='900' then '已过期'
+        ELSE '' END state,
+        -- 操作时间
+        case
+        when right (oi.state,3)='270' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S270'  limit 1)
+        when right (oi.state,3) IN ('279','277') then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state in ('S277','S279') limit 1)
+        when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
+        ELSE now() END opDate
+        FROM
+        order_info oi
+        LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
+        LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
+        LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
+        LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
+        LEFT JOIN journey_info ji ON ji.journey_id = oi.journey_id
+        LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = oi.journey_id
+        LEFT JOIN regime_info ri ON ri.regimen_id = ji.regimen_id
+        LEFT JOIN scene_regime_relation srr ON srr.regimen_id = ri.regimen_id
+        LEFT JOIN scene_info si ON srr.scene_id = si.scene_id
+        LEFT JOIN order_address_info oai ON (oai.order_id = oi.order_id and oai.type='A000')
+        LEFT JOIN order_address_info oaitwo ON (oaitwo.order_id = oi.order_id and oaitwo.type='A999')
+        LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
+        WHERE 1 = 1
+        and oi.order_id in (select distinct order_id from order_state_trace_info where state in ('S279', 'S277') and create_by=#{userId}
+        union (SELECT distinct order_id from order_state_trace_info where order_id in (select distinct order_id from order_state_trace_info where state='S299' and create_by=#{userId}) and state='S270')
+        union (SELECT distinct order_id from order_state_trace_info where state='S921')  )
+        <if test="companyId!=null">
+            and  oi.company_id=#{companyId}
+        </if>
+        and  oi.it_is_supplement='N000'
+        ORDER BY
+        oi.order_id DESC
+    </select>
+
+    <select id="queryAdminDispatchReassignmentList" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
+
+        SELECT DISTINCT
+        -- 订单id
+        oi.order_id orderId,
+        -- 部门名称
+        eo.dept_name AS deptName,
+        -- 公司名称
+        eor.dept_name AS companyName,
+        -- 操作权限  0：有权限  1:没有权限
+        '1'  operationPermission,
+        -- 申请人姓名
+        eu.nick_name  applyUserName,
+        -- 申请人手机号
+        eu.phonenumber applyUserTel,
+        -- 乘车人
+        eu.nick_name  useCarUserName,
+        -- 同行人数量
+        jpi.peer_number travelPartnerCount,
+        -- 开始时间
+        oai.action_time useCarDate,
+        -- 预计结束时间
+        oaitwo.action_time endDate,
+        -- 上车地址
+        oai.address startSite,
+        -- 下车地址
+        oaitwo.address endSite,
+        -- 是否往返
+        ji.it_is_return itIsReturn,
+        -- 预计等待时长
+        ji.wait_time_long waitMinute,
+        -- 用车城市
+        cc.SHORT_NAME useCarCity,
+        -- 用车场景
+        si.`name` userCarScene,
+        -- 用车制度
+        ri.`name` userCarRegime,
+        -- 服务类型
+        oi.service_type serverType,
+        -- 状态
+        case
+        when right (oi.state,3)='270' then '待派车'
+        when right (oi.state,3)='279' then '已通过'
+        when right (oi.state,3)='277' then '以驳回'
+        when right (oi.state,3)='900' then '已过期'
+        ELSE '' END state,
+        -- 操作时间
+        case
+        when right (oi.state,3)='100' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S270'  limit 1)
+        when right (oi.state,3) IN ('279','277') then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state in ('S277','S279') limit 1)
+        when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
+        ELSE now() END opDate
+        FROM
+        order_info oi
+        LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
+        LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
+        LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
+        LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
+        LEFT JOIN journey_info ji ON ji.journey_id = oi.journey_id
+        LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = oi.journey_id
+        LEFT JOIN regime_info ri ON ri.regimen_id = ji.regimen_id
+        LEFT JOIN scene_regime_relation srr ON srr.regimen_id = ri.regimen_id
+        LEFT JOIN scene_info si ON srr.scene_id = si.scene_id
+        LEFT JOIN order_address_info oai ON (oai.order_id = oi.order_id and oai.type='A000')
+        LEFT JOIN order_address_info oaitwo ON (oaitwo.order_id = oi.order_id and oaitwo.type='A999')
+        LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
+        WHERE 1 = 1
+        and oi.order_id in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277','S921'))
+        <if test="companyId!=null">
+            and  oi.company_id=#{companyId}
+        </if>
+        and  oi.it_is_supplement='N000'
+        <if test="orderIds!=null">
+            and oi.order_id not in
+            <foreach collection="orderIds" open="(" separator="," close=")" item="orderId">
+                #{orderId}
+            </foreach>
+        </if>
+
+        ORDER BY
+        oi.order_id DESC
+    </select>
+
+    <select id="getReplentshmentOrder" parameterType="com.hq.ecmp.mscore.dto.OrderListBackDto" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
+          SELECT DISTINCT
+        -- 订单id
+        oi.order_id orderId,
+        -- 部门名称
+        eo.dept_name AS deptName,
+        -- 公司名称
+        eor.dept_name AS companyName,
+        -- 申请人姓名
+        eu.nick_name  applyName,
+        -- 申请人手机号
+        eu.phonenumber applyPhoneNumber,
+        -- 乘车人
+        eu.nick_name  passengerName,
+        -- 开始时间
+        oai.action_time beginTime,
+        -- 预计结束时间
+        oaitwo.action_time endTime,
+        -- 上车地址
+        oai.address beginAddress,
+
+        oi.use_car_mode useCarMode,
+        -- 下车地址
+        oaitwo.address endAddress,
+        -- 用车城市
+        -- cc.SHORT_NAME useCarCity,
+        -- 用车场景
+        -- si.`name` userCarScene,
+        -- 用车制度
+        -- ri.`name` regimenName,
+        -- 服务类型
+        oi.service_type serviceType,
+        -- 状态
+        oi.state orderState,
+        oi.it_is_supplement itIsSupplement,
+        oi.order_number orderNumber,
+				CONVERT(osi.amount,DECIMAL(10,2))  amount
+        FROM
+        order_info oi
+				LEFT JOIN regime_info ri ON ri.regimen_id = oi.driver_grade
+        LEFT JOIN scene_regime_relation srr ON srr.regimen_id = ri.regimen_id
+        LEFT JOIN scene_info si ON srr.scene_id = si.scene_id
+        LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
+        LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
+        LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
+        LEFT JOIN order_address_info oai ON oai.order_id = oi.order_id and oai.type='A000'
+        LEFT JOIN order_address_info oaitwo ON oaitwo.order_id = oi.order_id and oaitwo.type='A999'
+        LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
+				LEFT join order_settling_info osi on osi.order_id=oi.order_id
+        WHERE 1 = 1
+        and  oi.company_id=#{companyId}
+         and oi.order_id=#{orderId}
+        ORDER BY
+        oi.order_id DESC
+    </select>
+
+    <select id="getOrderById" parameterType="java.lang.String" resultType="java.lang.String">
+          SELECT it_is_Supplement itIsSupplement  FROM  order_info WHERE  order_id=#{orderNo}
+    </select>
+
+    <select id="getOrderListDetailById" parameterType="java.lang.String" resultType="com.hq.ecmp.mscore.dto.OrderDetailBackDto">
+        SELECT DISTINCT
+        -- 订单id
+        oi.order_id orderId,
+        -- 部门名称
+        eo.dept_name AS deptName,
+        -- 公司名称
+        eor.dept_name AS companyName,
+        -- 申请人姓名
+        eu.nick_name  applyName,
+        -- 申请人手机号
+        eu.phonenumber applyPhoneNumber,
+        -- 乘车人
+        eu.nick_name  passengerName,
+        -- 申请人手机号
+        eu.phonenumber passengerMobile,
+        -- 开始时间
+        oai.action_time useCarTime,
+        -- 预计结束时间
+        oaitwo.action_time planningArriveTime,
+        -- 开始时间
+        oai.action_time beginTime,
+        -- 预计结束时间
+        oaitwo.action_time endTime,
+        -- 上车地址
+        oai.address planningSetOutAddress,
+        -- 下车地址
+        oaitwo.address planningArriveAddress,
+        oi.use_car_mode useCarMode,
+        -- 用车城市
+        -- cc.SHORT_NAME useCarCity,
+        -- 用车场景
+         si.`name` userCarScene,
+        -- 用车制度
+         ri.`name` regimenName,
+        -- 服务类型
+        oi.service_type serviceType,
+        -- 状态
+        oi.state orderState,
+        oi.it_is_supplement itIsSupplement,
+        oi.order_number orderNumber,
+        CONVERT(osi.amount,DECIMAL(10,2))  amount,
+        ci.car_type carType,
+        ci.car_color carColor,
+        ci.car_license  carlicense,
+        di.driver_name driverName,
+        di.mobile   driverPhone,
+        ecty.`name` carLevel,
+        osi.total_time totalTime,
+        CONVERT(osi.total_mileage,DECIMAL(10,2))  totalMileage,
+        osi.amount_detail amountDetail
+        FROM
+        order_info oi
+				LEFT JOIN regime_info ri ON ri.regimen_id = oi.driver_grade
+        LEFT JOIN scene_regime_relation srr ON srr.regimen_id = ri.regimen_id
+        LEFT JOIN scene_info si ON srr.scene_id = si.scene_id
+        LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
+        LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
+        LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
+        LEFT JOIN order_address_info oai ON oai.order_id = oi.order_id and oai.type='A000'
+        LEFT JOIN order_address_info oaitwo ON oaitwo.order_id = oi.order_id and oaitwo.type='A999'
+        LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
+				LEFT join order_settling_info osi on osi.order_id=oi.order_id
+				LEFT JOIN car_info ci ON ci.car_id = oi.car_id
+				LEFT JOIN enterprise_car_type_info ecty on ecty.car_type_id = ci.car_type_id
+				LEFT JOIN driver_info di ON di.driver_id = oi.driver_id
+        WHERE 1 = 1
+         and oi.order_id=#{orderNo}
         ORDER BY
         oi.order_id DESC
     </select>

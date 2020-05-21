@@ -458,7 +458,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         boolean flag=false;
 
         this.checkOrgVo(ecmpOrgVo,1);//1新增,0编辑校验
-        if (CommonConstant.DEPT_TYPE_ORG.equals(ecmpOrgVo.getDeptType())){//公司
+        if (CommonConstant.DEPT_TYPE_ORG.equals(String.valueOf(ecmpOrgVo.getDeptType()))){//公司
             EcmpUser userByPhone = ecmpUserMapper.getUserByPhone(ecmpOrgVo.getPhone());
             if (userByPhone!=null){
                 log.info("新增公司:公司主管手机号:"+ecmpOrgVo.getPhone()+"信息"+userByPhone.getUserId()+userByPhone.getUserName());
@@ -482,15 +482,21 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             // MAC地址
             List<String> macList = MacTools.getMacList();
             String macAdd = macList.get(0);
-            map.put("companyName",ecmpOrgVo.getDeptName());
-            map.put("enterpriseId",enterpriseId);
-            map.put("itIsIndependent","");
             map.put("licenseContent",licenseContent);
             map.put("mac",macAdd);
+            map.put("enterpriseId",enterpriseId);
+
             map.put("orgId",ecmpOrgVo.getDeptId());
+            map.put("companyName",ecmpOrgVo.getDeptName());
+            map.put("itIsIndependent","Y000");
+
+            map.put("leaderNames",ecmpOrgVo.getLeader());
+            map.put("leaderPhone",ecmpOrgVo.getPhone());
+            map.put("parentCompanyName",parentOrg.getDeptName());
+
             uploadIndependentCompanyApply(map);
         }
-        if (CommonConstant.DEPT_TYPE_ORG.equals(ecmpOrgVo.getDeptType())){//公司
+        if (CommonConstant.DEPT_TYPE_ORG.equals(ecmpOrgVo.getDeptType().toString())){//公司
             if (!flag){//公司主管不存在
                 //新建公司主管
                 EcmpUser companyUser=new EcmpUser();

@@ -174,4 +174,10 @@ public interface IDriverInfoService
      * @return
      */
     List<DriverInfo> supplementObtainDriver(DriverInfo driverInfo);
+
+    /***
+     *
+     * @throws Exception
+     */
+    void updateDriverStatusService()throws Exception;
 }

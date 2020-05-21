@@ -78,4 +78,11 @@ public interface CostConfigCarTypeInfoMapper
      * @param costId
      */
     void deleteCostConfigByCostId(Long costId);
+
+    /**
+     * 车型名称
+     * @param carTypeId
+     * @return
+     */
+    String selectCostConfigCarTypeInfo(@Param("carTypeId") Long carTypeId);
 }

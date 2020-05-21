@@ -54,4 +54,7 @@ public interface CarConstant {
 	String RENT_CAR = "S002"; //租来的车
 	String BORROW_CAR = "S003"; //借来的车
 
+	Integer RETURN_ONE_CODE = 1;
+	Integer RETURN_ZERO_CODE = 0;
+	Integer RETURN_TWO_CODE = 2;
 }

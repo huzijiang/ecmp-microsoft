@@ -2,10 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
-import com.hq.ecmp.mscore.vo.CancelOrderCostVO;
-import com.hq.ecmp.mscore.vo.DispatchVo;
-import com.hq.ecmp.mscore.vo.PageResult;
-import com.hq.ecmp.mscore.vo.RunningOrderVo;
+import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
 
@@ -22,4 +19,6 @@ public interface OrderInfoTwoService {
     List<RunningOrderVo> runningOrder(Long orderId);
 
     PageResult<DispatchVo> queryDispatchList(ApplyDispatchQuery query, LoginUser loginUser);
+
+    OrderReassignVO reassignDetail(Long orderNo, Long driverId);
 }

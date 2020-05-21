@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
 import com.hq.ecmp.mscore.dto.cost.*;
+import com.hq.ecmp.mscore.mapper.ChinaCityMapper;
 import com.hq.ecmp.mscore.mapper.CostConfigCarTypeInfoMapper;
 import com.hq.ecmp.mscore.mapper.CostConfigCityInfoMapper;
 import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
@@ -233,11 +234,20 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         costConfigQueryDto.setCompanyId(companyId);
         //城市
         costConfigQueryDto.setCityCode(Integer.valueOf(supplementVO.getCityCode()));
+        String cityName = costConfigCityInfoMapper.selectCostConfigCity(supplementVO.getCityCode());
         //服务类型
         costConfigQueryDto.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
         //车型级别
         costConfigQueryDto.setCarTypeId(supplementVO.getCarTypeId());
+        String carTypeName = costConfigCarTypeInfoMapper.selectCostConfigCarTypeInfo(supplementVO.getCarTypeId());
         List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
+        if(costConfigListResult.isEmpty()){
+            String result=cityName+"-"+OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getStateName()+"-"+carTypeName+":暂无成本设置,前往配置";
+            Map map = new HashMap();
+            map.put("amount",result);
+            String json= JSON.toJSONString(map);
+            return json;
+        }
         costConfigQueryDto.setCostId(costConfigListResult.get(0).getCostId());
         CostConfigInfo costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
         //计算成本的方法

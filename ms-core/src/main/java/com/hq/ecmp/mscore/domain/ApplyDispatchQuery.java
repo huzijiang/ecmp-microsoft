@@ -34,4 +34,6 @@ public class ApplyDispatchQuery  extends PageResult {
         String dispatchType;
         List<Long> orderIds;
         String serverDepts;
+
+        private Integer pageNum;
 }

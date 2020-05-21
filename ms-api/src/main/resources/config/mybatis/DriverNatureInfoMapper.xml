@@ -21,6 +21,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="driverId != null "> and driver_id = #{driverId}</if>
         </where>
     </select>
+    <select id="getDriverNatureInfoList" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo" resultMap="DriverNatureInfo">
+        <include refid="select"/>
+        where driver_nature in ('Z002','Z003')
+    </select>
     <insert id="addDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">
         insert into driver_nature_info
         <trim prefix="(" suffix=")" suffixOverrides=",">

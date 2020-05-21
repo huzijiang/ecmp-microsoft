@@ -11,11 +11,14 @@ import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
+import com.hq.ecmp.mscore.domain.ReassignInfo;
 import com.hq.ecmp.mscore.dto.ContactorDto;
 import com.hq.ecmp.mscore.dto.IsContinueReDto;
 import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
 import com.hq.ecmp.mscore.service.IDriverOrderService;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
+import com.hq.ecmp.mscore.service.OrderInfoTwoService;
+import com.hq.ecmp.mscore.vo.OrderReassignVO;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -43,6 +46,8 @@ public class DriverOrderController {
     IDriverOrderService iDriverOrderService;
     @Resource
     IOrderSettlingInfoService iOrderSettlingInfoService;
+    @Resource
+    OrderInfoTwoService orderInfoTwoService;
 
 
 
@@ -223,5 +228,17 @@ public class DriverOrderController {
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();
+    }
+
+    /**
+     *查询改派记录
+     */
+    @ApiOperation(value = "reassignDetail",notes = "查询改派记录",httpMethod ="POST")
+    @PostMapping("/reassignDetail")
+    public ApiResponse<OrderReassignVO> reassignDetail(@RequestParam("orderNo") Long orderNo){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+//        Long driverId = loginUser.getDriver().getDriverId();
+        return ApiResponse.success(orderInfoTwoService.reassignDetail(orderNo,null));
     }
 }

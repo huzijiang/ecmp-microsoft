@@ -5,6 +5,7 @@ import com.hq.ecmp.mscore.domain.DispatchOptRecord;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.domain.SendCarInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.RejectDispatcherUserVO;
 import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
@@ -134,4 +135,12 @@ public interface OrderStateTraceInfoMapper
      * @return
      */
     Long getOldDispatcher(Long orderId);
+
+    /***
+     * 查寻改派记录
+     * @param state
+     * @param orderId
+     * @return
+     */
+    List<RejectDispatcherUserVO> reassignOrderList(@Param("orderId") Long orderId,@Param("state") String state);
 }
