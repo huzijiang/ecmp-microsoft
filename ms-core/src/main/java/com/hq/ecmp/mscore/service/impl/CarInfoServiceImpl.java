@@ -279,16 +279,24 @@ public class CarInfoServiceImpl implements ICarInfoService
      */
     @Override
     public int startCar(Long carId, Long userId) throws Exception {
-        CarInfo carInfo = new CarInfo();
-        carInfo.setState(CarConstant.START_CAR);
-        carInfo.setUpdateBy(String.valueOf(userId));
-        carInfo.setUpdateTime(new Date());
-        carInfo.setCarId(carId);
-        int row = carInfoMapper.updateStartCar(carInfo);
-        if(row != 1){
-            throw new Exception("启用车辆失败，借调到期，租赁到期，或行驶证到期，或已删除");
+
+        CarInfo carInfo1 = carInfoMapper.selectCarInfoById(carId);
+        if(null != carInfo1 && new Date().compareTo(carInfo1.getRentStartDate())>0 && new Date().compareTo(carInfo1.getRentEndDate())<0){
+            CarInfo carInfo = new CarInfo();
+            carInfo.setState(CarConstant.START_CAR);
+            carInfo.setUpdateBy(String.valueOf(userId));
+            carInfo.setUpdateTime(new Date());
+            carInfo.setCarId(carId);
+            int row = carInfoMapper.updateStartCar(carInfo);
+            if(row != 1){
+                throw new Exception("启用车辆失败，借调到期，租赁到期，或行驶证到期，或已删除");
+            }
+            return row;
+        }else if(null != carInfo1 && new Date().compareTo(carInfo1.getRentEndDate())>0){
+            return CarConstant.RETURN_TWO_CODE;
+        }else{
+            return CarConstant.RETURN_ZERO_CODE;
         }
-        return row;
     }
 
     /**
