@@ -242,7 +242,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
             </if>
             <if test="flag==0">
-            and anompany_id=#{companyId}
+            and company_id=#{companyId}
             </if>
         </where>
 
