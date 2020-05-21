@@ -397,7 +397,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         if(isnull(dept_code),'',dept_code) as deptCode,
          (SELECT group_concat(nick_name) from  ecmp_user where find_in_set(user_id,leader)) leaderName,leader,
         (select count(1) from ecmp_user where dept_id=#{deptId}) as numOfSub,
-        (select count(1) from ecmp_org where parent_id=#{deptId} and dept_type='2') as numOfSonDept,status
+        (select count(1) from ecmp_org where parent_id=#{deptId} and dept_type='2' and del_flag = 0) as numOfSonDept,status
         from ecmp_org where
          del_flag = 0  and
          dept_id=#{deptId} and dept_type = #{deptType}

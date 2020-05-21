@@ -223,6 +223,32 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         return new PageResult<>(info.getTotal(),info.getPages(),dispatcherOrderList);
     }
 
+    /**
+     * 司机端改派记录
+     * @param orderNo
+     * @param driverId
+     * @return
+     */
+    @Override
+    public OrderReassignVO reassignDetail(Long orderNo, Long driverId) {
+        OrderReassignVO vo=new OrderReassignVO();
+        String state=OrderState.APPLYREASSIGN.getState()+","+OrderState.REASSIGNPASS.getState()+","+OrderState.REASSIGNREJECT.getState();
+        List<RejectDispatcherUserVO> orderList=orderStateTraceInfoMapper.reassignOrderList(orderNo,state);
+        if (CollectionUtils.isEmpty(orderList)){
+            return vo;
+        }
+        vo.setOrderId(orderList.get(0).getOrderId());
+        vo.setApproveList(orderList);
+        for (RejectDispatcherUserVO dispatcherUserVO:orderList){
+            if (OrderState.APPLYREASSIGN.getState().equals(dispatcherUserVO.getState())){
+                vo.setApplyReason(dispatcherUserVO.getContent());
+            }
+            if (OrderState.REASSIGNREJECT.getState().equals(dispatcherUserVO.getState())) {
+                vo.setRejectReason(dispatcherUserVO.getContent());
+            }
+        }
+        return vo;
+    }
 
 
     /**自有车取消订单**/

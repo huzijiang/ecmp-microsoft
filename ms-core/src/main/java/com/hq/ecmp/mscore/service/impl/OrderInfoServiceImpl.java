@@ -495,7 +495,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			dispatchOrderInfo.setStartSite(startOrderAddressInfo.getAddress());
 			dispatchOrderInfo.setUseCarDate(startOrderAddressInfo.getActionTime());
             dispatchOrderInfo.setCityId(startOrderAddressInfo.getCityPostalCode());
-		}
+            CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(startOrderAddressInfo.getCityPostalCode());
+            if(cityInfo != null){
+                dispatchOrderInfo.setUseCarCity(cityInfo.getCityName());
+            }
+        }
 		OrderAddressInfo endOrderAddressInfo = iOrderAddressInfoService
 				.queryOrderStartAndEndInfo(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId()));
 		if (null != endOrderAddressInfo) {
@@ -1472,7 +1476,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
-        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId,applyInfo.getApplyType());
+        OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
         orderState.setApplyType(applyInfo.getApplyType());
         orderState.setCharterCarType(CharterTypeEnum.format(orderState.getCharterCarType()));
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos = iJourneyPlanPriceInfoService.selectJourneyPlanPriceInfoList(new JourneyPlanPriceInfo(orderId));
