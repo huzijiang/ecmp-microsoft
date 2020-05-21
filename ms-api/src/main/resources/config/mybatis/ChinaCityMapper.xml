@@ -23,7 +23,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="null !=cityName and cityName != ''">
 			and SHORT_NAME like concat('%',#{cityName},'%')
 		</if>
-		<if test="flag=1">
+		<if test="flag==1">
 			<if test="citys!=null">
 				and CITY_CODE in
 				<foreach collection="citys" open="(" close=")" separator="," item="cityCode">
@@ -31,7 +31,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 				</foreach>
 			</if>
 		</if>
-		<if test="flag=0">
+		<if test="flag==0">
 			<if test="citys!=null">
 				and CITY_CODE not in
 				<foreach collection="citys" open="(" close=")" separator="," item="cityCode">

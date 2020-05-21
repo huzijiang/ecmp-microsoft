@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -1491,6 +1492,38 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
         //订单管理需要的状态 已取消  S911    已完成 S900  待确认 S699     服务中S616  待上车 S600   接驾中 S500  待服务 S299
         List<OrderListBackDto> list = orderInfoMapper.getOrderListBackDto(orderListBackDto);
+        for (OrderListBackDto orderListBack:list){
+            //补单数据单独处理
+            if(ItIsSupplementEnum.ORDER_REPLENISHMENT_STATUS.getValue().equals(orderListBack.getItIsSupplement())){
+                OrderListBackDto orderList = orderInfoMapper.getReplentshmentOrder(orderListBack);
+                //申请人姓名
+                orderListBack.setApplyName(orderList.getApplyName());
+                //申请人手机号
+                orderListBack.setApplyPhoneNumber(orderList.getApplyPhoneNumber());
+                //乘车人
+                orderListBack.setPassengerName(orderList.getPassengerName());
+                //实际用车时间
+                orderListBack.setBeginTime(orderList.getBeginTime());
+                //实际下车时间
+                orderListBack.setEndTime(orderList.getEndTime());
+                //实际上车地址
+                orderListBack.setBeginAddress(orderList.getBeginAddress());
+                //实际下车地址
+                orderListBack.setEndAddress(orderList.getEndAddress());
+                //服务类型
+                orderListBack.setServiceType(orderList.getServiceType());
+                //用车方式
+                orderListBack.setUseCarMode(orderList.getUseCarMode());
+                //费用合计
+                orderListBack.setAmount(orderList.getAmount());
+                //订单状态
+                orderListBack.setState(orderList.getState());
+                //订单编号
+                orderListBack.setOrderNumber(orderList.getOrderNumber());
+                //itIsSupplement订单标签
+                orderListBack.setItIsSupplement(orderList.getItIsSupplement());
+            }
+        }
         if(orderListBackDto.getOrderState()!=null && orderListBackDto.getLabelState()!=null) {
             List<OrderListBackDto> list1 = list.stream().filter(e -> orderListBackDto.getOrderState().contains(e.getOrderState())).collect(Collectors.toList());
             String labelState = orderListBackDto.getLabelState();
@@ -1508,7 +1541,38 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     public OrderDetailBackDto getOrderListDetail(String orderNo) {
-        return orderInfoMapper.getOrderListDetail(orderNo);
+        String itIsSupplement = orderInfoMapper.getOrderById(orderNo);
+        OrderDetailBackDto orderDetailBackDto=null;
+        if(ItIsSupplementEnum.ORDER_REPLENISHMENT_STATUS.getValue().equals(itIsSupplement)){
+            orderDetailBackDto = orderInfoMapper.getOrderListDetailById(orderNo);
+        }else{
+            orderDetailBackDto = orderInfoMapper.getOrderListDetail(orderNo);
+        }
+        OrderFeeDetailVO orderFeeDetailVO=null;
+        List list=new ArrayList<>();
+        if(CarConstant.USR_CARD_MODE_NET.equals(orderDetailBackDto.getUseCarMode())){
+            String amountDetail = orderDetailBackDto.getAmountDetail();
+            if(!amountDetail.isEmpty()){
+                orderFeeDetailVO=new Gson().fromJson(amountDetail,OrderFeeDetailVO.class);
+            }
+            if (orderFeeDetailVO==null){
+                return null;
+            }
+            //基础套餐费：包含基础时长和基础里程，超出另外计费
+            String basePrice = orderFeeDetailVO.getBasePrice();
+            list.add(new OtherCostVO("起步价",basePrice));
+            //超时长费：超出基础时长时计算，同时会区分高峰和平峰时段
+            String overTimeNumTotal = orderFeeDetailVO.getOverTimeNumTotal();//超时长费:高峰时长费+平超时长费
+            list.add(new OtherCostVO("超时长费",overTimeNumTotal));
+            //超里程费：超出基础里程时计算，同时会区分高峰和平峰时段
+            String overMilageNumTotal = orderFeeDetailVO.getOverMilageNumTotal();//超里程费用:高峰里程费+平超里程
+            list.add(new OtherCostVO("超里程费",overMilageNumTotal));
+            //等待费
+            String waitingFee = orderFeeDetailVO.getWaitingFee();
+            list.add(new OtherCostVO("等待费",waitingFee));
+            orderDetailBackDto.setAmountDetail(JSON.toJSONString(list));
+        }
+        return orderDetailBackDto;
     }
 
 
