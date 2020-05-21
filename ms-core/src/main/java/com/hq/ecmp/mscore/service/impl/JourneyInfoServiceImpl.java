@@ -240,7 +240,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 								}
 								carAuthorityInfo.setCarType(carType);
 								//查询公务用车的前端状态
-                                String state = journeyUserCarPowerService.buildUserAuthorityPowerStatus(judgeNotDispatch, carAuthorityInfo.getTicketId());
+                                String state = journeyUserCarPowerService.buildUserAuthorityPowerStatus(judgeNotDispatch, carAuthorityInfo.getTicketId(),regimeInfo.getCompanyId());
                                 carAuthorityInfo.setStatus(state);
                                 if(state.equals(OrderState.ORDERDENIED.getState())){
                                     OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(carAuthorityInfo.getTicketId());

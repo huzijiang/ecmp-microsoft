@@ -105,7 +105,7 @@ public interface IJourneyUserCarPowerService
      *        powerId   权限ID
      * @return
      */
-    public String buildUserAuthorityPowerStatus(boolean flag,Long powerId);
+    public String buildUserAuthorityPowerStatus(boolean flag,Long powerId,Long companyId);
     
     /**
      * 查询公务权限的用车城市

@@ -542,11 +542,11 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                 }
 
                 //默认将当前公司的企业配置信息给分子公司
-                String ownerCompanyId = ecmpUserMapper.selectEcmpUserById(userId).getOwnerCompany().toString();
+                Long ownerCompanyId = ecmpUserMapper.selectEcmpUserById(userId).getOwnerCompany();
                 EcmpConfig ecmpConfig = new EcmpConfig();
                 ecmpConfig.setCompanyId(ownerCompanyId);
                 List<EcmpConfig> ecmpConfigs = ecmpConfigMapper.selectEcmpConfigList(ecmpConfig);
-                String newCompanyId = ecmpOrgVo.getDeptId().toString();
+                Long newCompanyId = ecmpOrgVo.getDeptId();
                 for(EcmpConfig config:ecmpConfigs){
                     EcmpConfig newConfig = new EcmpConfig();
                     newConfig.setCompanyId(newCompanyId);

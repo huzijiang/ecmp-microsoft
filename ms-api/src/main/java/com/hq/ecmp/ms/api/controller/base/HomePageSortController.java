@@ -67,7 +67,7 @@ public class HomePageSortController {
     public ApiResponse backgroundImage(@RequestBody ConfigValueDTO configValueDTO,MultipartFile file) {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        String companyId =  loginUser.getUser().getOwnerCompany().toString();
+        Long companyId =  loginUser.getUser().getOwnerCompany();
         ApiResponse apiResponse =ecmpConfigService.setUpBackGroundImage(configValueDTO.getStatus(),configValueDTO.getValue(),file,companyId);
         return apiResponse;
     }
@@ -77,7 +77,7 @@ public class HomePageSortController {
     public ApiResponse screen(@RequestBody ConfigValueDTO configValueDTO,MultipartFile file) {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        String companyId =  loginUser.getUser().getOwnerCompany().toString();
+        Long companyId =  loginUser.getUser().getOwnerCompany();
         ecmpConfigService.setUpWelComeImage(configValueDTO.getStatus(),configValueDTO.getValue(),file,companyId);
         return ApiResponse.success();
     }

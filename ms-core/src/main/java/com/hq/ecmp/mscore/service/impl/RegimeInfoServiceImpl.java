@@ -760,6 +760,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			orgComcany=ecmpOrg.getDeptId();
 		}
 		String msg=null;
+		String serviceType = regimeDto.getServiceType();
 		RegimeVo regimeVo = regimeInfoMapper.queryRegimeDetail(regimeDto.getRegimeId());
 		String canUseCarMode = regimeVo.getCanUseCarMode();
 		List<String> cityCodes = Arrays.asList(regimeDto.getCityCodes().split(","));
@@ -779,6 +780,12 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 				}
 				break;
 			case CarConstant.USR_CARD_MODE_NET://网约车
+				if (CommonConstant.AFFICIAL_APPLY.equals(regimenType)) {
+					if (ServiceTypeConstant.CHARTERED.equals(serviceType)){
+						log.error(cityCodes+"城市所属公司网约车暂不支持服务");
+						throw new CustomException("网约车不支持包车服务");
+					}
+				}
 				List<OnLineCarTypeVO> onLineCarTypeVOS = this.threeCityServer(regimeDto.getCityCodes());
 				if (CollectionUtils.isEmpty(onLineCarTypeVOS)){
 					log.error(cityCodes+"城市所属公司网约车暂不支持服务");
@@ -815,12 +822,18 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 					/*公务*/
 				if (CommonConstant.AFFICIAL_APPLY.equals(regimenType)) {
 					if (CollectionUtils.isEmpty(ownerCity)) {
-						log.error(cityCodes.toString() + "城市所属公司网约车暂不支持服务");
-						msg = "该城市暂无企业车队";
+						if (ServiceTypeConstant.CHARTERED.equals(serviceType)) {
+							log.error(cityCodes + "城市所属公司网约车暂不支持包车服务");
+							throw new CustomException("网约车不支持包车服务");
+						} else {
+							log.error(cityCodes.toString() + "城市所属公司网约车暂不支持服务");
+							msg = "该城市暂无企业车队";
+						}
 					} else if (CollectionUtils.isEmpty(onLineCitys)) {
 						log.error(cityCodes.toString() + "网约车暂未开通该城市服务");
 						msg = "网约车暂未开通该城市服务";
 					}
+
 				}
 				break;
 		}
@@ -878,7 +891,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 		/**公务申请*/
 		if (CommonConstant.AFFICIAL_APPLY.equals(regimenType)) {
 			log.info("制度"+regimeDto.getRegimeId()+"-公务申请城市包括{}",regimeDto.getCityCodes());
-			voList = this.getBusinessCarTypes(regimeVo, regimeDto.getCityCodes(), useCarMode, user.getDeptId(), ownerCompany);
+			voList = this.getBusinessCarTypes(regimeVo, regimeDto.getServiceType(),regimeDto.getCityCodes(), useCarMode, user.getDeptId(), ownerCompany);
 		}else{
 			/**差旅申请*/
 			log.info("制度"+regimeDto.getRegimeId()+"-差旅申请城市包括{}",regimeDto.getCityCodes());
@@ -1339,7 +1352,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 	}
 
 	/**公务申请可用车型*/
-	private List<UseCarTypeVO> getBusinessCarTypes(RegimeVo regimeVo,String cityCodes,String useCarMode,Long deptId,Long ownerCompany)throws Exception{
+	private List<UseCarTypeVO> getBusinessCarTypes(RegimeVo regimeVo,String serviceType,String cityCodes,String useCarMode,Long deptId,Long ownerCompany)throws Exception{
 		List<UseCarTypeVO> voList=new ArrayList<>();
 		if (CarModeEnum.ORDER_MODE_HAVE.getKey().equals(useCarMode)){
 			/**不考虑往返*/
@@ -1348,16 +1361,21 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 				voList.add(vo);
 			}
 		}else if (CarModeEnum.ORDER_MODE_NET.getKey().equals(useCarMode)){
-			/*网约车*/
-			UseCarTypeVO carTypefor = getCarTypeForOnlie(regimeVo, cityCodes, new UseCarTypeVO());
-			if (carTypefor!=null){
-				voList.add(carTypefor);
+			if (!ServiceTypeConstant.CHARTERED.equals(serviceType)){
+				/*网约车*/
+				UseCarTypeVO carTypefor = getCarTypeForOnlie(regimeVo, cityCodes, new UseCarTypeVO());
+				if (carTypefor != null) {
+					voList.add(carTypefor);
+				}
 			}
 		}else{
 			/**自有车+网约车*/
 			/*自有车*/
 			UseCarTypeVO vo = getCarTypeForOwnerBusiness(regimeVo, cityCodes, new UseCarTypeVO(), ownerCompany,deptId);
-			UseCarTypeVO carTypefor = getCarTypeForOnlie(regimeVo, cityCodes, new UseCarTypeVO());
+			UseCarTypeVO carTypefor=null;
+			if (!ServiceTypeConstant.CHARTERED.equals(serviceType)) {
+				carTypefor = getCarTypeForOnlie(regimeVo, cityCodes, new UseCarTypeVO());
+			}
 			if (vo!=null&&carTypefor!=null){
 				vo.setRideHileCarType(carTypefor.getRideHileCarType());
 				vo.setOnlineCarType(carTypefor.getOnlineCarType());
