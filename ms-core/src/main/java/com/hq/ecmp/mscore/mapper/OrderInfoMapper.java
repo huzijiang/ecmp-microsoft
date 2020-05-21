@@ -346,5 +346,7 @@ public interface OrderInfoMapper {
      * @return
      */
     OrderDetailBackDto getOrderListDetailById(@Param("orderNo") String orderNo);
+
+    List<OrderInfo> selectUsingCarByCarId(Long carId);
 }
 

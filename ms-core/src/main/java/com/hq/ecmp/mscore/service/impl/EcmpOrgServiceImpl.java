@@ -85,8 +85,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     private String licenseContent;
     /**
      * 显示公司组织结构
-     *
-     * @param deptId 部门ID deptType组织类型 1公司 2部门
+     * deptId 部门ID deptType组织类型 1公司 2部门
+     * @param
      * @return deptList 部门列表
      */
     @Override
@@ -97,7 +97,13 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         Long companyId = ecmpOrgVo.getCompanyId();
         Long deptType =  ecmpOrgVo.getDeptType();
         if(deptId==null){
-            //默认查询所有公司列表
+            if("1".equals(ecmpOrgVo.getAllTree())){
+                //如果要查询集团树 则 companyId 赋值为集团公司id
+                EcmpOrg ecmpOrg = new EcmpOrg();
+                ecmpOrg.setParentId(0L);
+                List<EcmpOrg> ecmpOrgs = ecmpOrgMapper.selectEcmpOrgList(ecmpOrg);
+                companyId = ecmpOrgs.get(0).getDeptId();
+            }
             ecmpOrgList = ecmpOrgMapper.selectByEcmpOrgOwnerCompanyId(companyId);
         }else {
             ecmpOrgList = ecmpOrgMapper.selectByEcmpOrgParentId(deptId,deptType);

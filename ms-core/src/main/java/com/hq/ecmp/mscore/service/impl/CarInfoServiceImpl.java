@@ -47,6 +47,8 @@ public class CarInfoServiceImpl implements ICarInfoService
     private DriverInfoMapper driverInfoMapper;
     @Autowired
     private EcmpOrgMapper ecmpOrgMapper;
+    @Autowired
+    private OrderInfoMapper orderInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -308,13 +310,22 @@ public class CarInfoServiceImpl implements ICarInfoService
     }
 
     /**
-     * 禁用车辆
+     * 禁用车辆  (有任务的车辆不可禁用? 暂不考虑)
      * @param carId
      * @param userId
      * @return
      */
     @Override
     public int disableCar(Long carId, Long userId) throws Exception {
+        //查询车辆是否在使用中  两种情况  1. 车辆被锁定 2.车辆有未结束的订单  （暂不考虑 未作要求）
+       /* CarInfo car = carInfoMapper.selectCarInfoById(carId);
+        if("1111".equals(car.getLockState())){
+            return 0;
+        }
+        List<OrderInfo> orderInfos = orderInfoMapper.selectUsingCarByCarId(carId);
+        if(CollectionUtils.isNotEmpty(orderInfos)){
+            return 0;
+        }*/
         CarInfo carInfo = new CarInfo();
         carInfo.setState(CarConstant.DISABLE_CAR);
         carInfo.setUpdateBy(String.valueOf(userId));
@@ -335,6 +346,7 @@ public class CarInfoServiceImpl implements ICarInfoService
      */
     @Override
     public void maintainCar(Long carId, Long userId) throws Exception {
+
         CarInfo carInfo = new CarInfo();
         carInfo.setState(CarConstant.MAINTENANCE_CAR);
         carInfo.setUpdateTime(new Date());
@@ -721,5 +733,13 @@ public class CarInfoServiceImpl implements ICarInfoService
                 DateUtils.getMonthAndToday(),licenseTimeOutCars,
                 rentTimeOutCars,rentStartCars,
                 borrowStartCars,borrowTimeOutCars);
+    }
+
+    /**
+     *调度选车以后，未解锁车辆自动解锁
+     */
+    @Override
+    public void unlockCars(){
+        carInfoMapper.unlockCars();
     }
 }

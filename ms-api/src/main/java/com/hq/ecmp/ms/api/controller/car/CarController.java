@@ -273,7 +273,10 @@ public class CarController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
-            carInfoService.disableCar(carDto.getCarId(),userId);
+            int i = carInfoService.disableCar(carDto.getCarId(),userId);
+            /*if(i == 0){
+                return ApiResponse.error("车辆在使用中，无法禁用");
+            }*/
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());

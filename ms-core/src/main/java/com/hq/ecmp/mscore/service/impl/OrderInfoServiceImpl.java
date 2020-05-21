@@ -388,7 +388,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      *      4.总部在改城市没有能服务当前订单申请人所在部门的车队，分公司有能服务于当前订单申请人所在公司的车队
      *          （1.自有车：总部和分公司同时看到
      *          2.自有车+网约车：总部看不到此调度单，分公司在该城市的能服务于当前订单申请人所在公司的车队的所有调度员也可以看到，二者同时能看到）
-     *          --------》第4点修改为只有分公司能看到不管是自有车还是自有车+网约车（括号里的规则弃用）
+     *          --------》第4点修改为只有分公司先看到不管是自有车还是自有车+网约车，10分钟后总部的所有城市的所有调度员可以看到（括号里的规则弃用）
      * @param userId 当前登录人id
      *
      * @return
@@ -396,6 +396,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private boolean judgeOrderValid(Long userId, DispatchOrderInfo dispatchOrderInfo) {
 
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(dispatchOrderInfo.getOrderId());
+        if (dispatchOrderInfo.getOrderId() == 1553L){
+            System.out.println("1553");
+        }
         if (orderInfo == null){
             log.error("订单{}信息为空",dispatchOrderInfo.getOrderId());
             return false;
@@ -2913,6 +2916,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             adminOrderList.addAll(dispatcherOrderList);
         }
         Page<DispatchVo> page = new Page<>(adminOrderList, query.getPageSize());
+        if(dispatcherOrderList.isEmpty()){
+            Long total= 0L;
+            Integer pageSize=0;
+            return new PageResult<>(total, pageSize, page.getCurrentPageData());
+        }
         page.setCurrent_page(query.getPageNum());
         return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
@@ -2952,6 +2960,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
        com.hq.ecmp.util.Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+        if(dispatcherOrderList.isEmpty()){
+            Long total= 0L;
+            Integer pageSize=0;
+            return new PageResult<>(total, pageSize, page.getCurrentPageData());
+        }
         page.setCurrent_page(query.getPageNum());
         return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }

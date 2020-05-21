@@ -707,4 +707,8 @@ WHERE
             and driver_name like concat('%', #{search}, '%') or mobile like concat('%', #{search}, '%')
         </if>
     </select>
+
+    <update id="unlockDrivers">
+        update driver_info d set d.lock_state='0000' where d.lock_state='1111'
+    </update>
 </mapper>
