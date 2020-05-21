@@ -2913,6 +2913,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             adminOrderList.addAll(dispatcherOrderList);
         }
         Page<DispatchVo> page = new Page<>(adminOrderList, query.getPageSize());
+        if(dispatcherOrderList.isEmpty()){
+            Long total= 0L;
+            Integer pageSize=0;
+            return new PageResult<>(total, pageSize, page.getCurrentPageData());
+        }
         page.setCurrent_page(query.getPageNum());
         return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
@@ -2952,6 +2957,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
        com.hq.ecmp.util.Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+        if(dispatcherOrderList.isEmpty()){
+            Long total= 0L;
+            Integer pageSize=0;
+            return new PageResult<>(total, pageSize, page.getCurrentPageData());
+        }
         page.setCurrent_page(query.getPageNum());
         return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
