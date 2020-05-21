@@ -141,7 +141,7 @@ public class InvoiceInfoController {
             invoiceInfoService.addInvoice(list);
             String str = updateInvoiceUrl(invoiceId,invoiceDTO,list);
             if("发票税务接口返回失败".equals(str)){
-                return ApiResponse.error(str);
+                return ApiResponse.error("开票失败");
             }
           //  return ApiResponse.success("成功开发票");
            }

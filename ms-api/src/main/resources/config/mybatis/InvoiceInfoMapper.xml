@@ -127,7 +127,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryAllByTimeState" resultType="com.hq.ecmp.mscore.vo.InvoiceRecordVO"  parameterType="com.hq.ecmp.mscore.dto.InvoiceByTimeStateDTO">
         select invoice_id as invoiceId,create_time as createTime,header as header,amount as amount, content as content,
         accept_address as acceptAddress,
-        CASE status WHEN '11' THEN '未开票'
+        CASE status WHEN '11' THEN '已失败'
         WHEN '00' THEN '已开票'
         else '无开票状态' END as status
         from invoice_info
