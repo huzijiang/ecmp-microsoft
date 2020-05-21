@@ -217,8 +217,10 @@ public class SceneController {
 	@PostMapping("/getAllUseScene")
 	public ApiResponse<List<SceneInfo>> getAllUseScene() {
 		try {
+		    Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
 			SceneInfo sceneInfo = new SceneInfo();
 			sceneInfo.setEffectStatus("0");
+			sceneInfo.setCompanyId(companyId);
 			List<SceneInfo> selectSceneInfoList = sceneInfoService.selectSceneInfoList(sceneInfo);
 			return ApiResponse.success(selectSceneInfoList);
 		} catch (Exception e) {

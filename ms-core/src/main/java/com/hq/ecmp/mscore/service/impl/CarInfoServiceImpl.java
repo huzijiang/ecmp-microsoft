@@ -734,4 +734,12 @@ public class CarInfoServiceImpl implements ICarInfoService
                 rentTimeOutCars,rentStartCars,
                 borrowStartCars,borrowTimeOutCars);
     }
+
+    /**
+     *调度选车以后，未解锁车辆自动解锁
+     */
+    @Override
+    public void unlockCars(){
+        carInfoMapper.unlockCars();
+    }
 }

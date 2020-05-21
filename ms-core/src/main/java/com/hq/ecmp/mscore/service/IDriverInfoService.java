@@ -175,6 +175,11 @@ public interface IDriverInfoService
      */
     List<DriverInfo> supplementObtainDriver(DriverInfo driverInfo);
 
+    /**
+     * 调度选司机以后自动解锁未解锁司机
+     */
+    void unlockDrivers();
+
     /***
      *
      * @throws Exception

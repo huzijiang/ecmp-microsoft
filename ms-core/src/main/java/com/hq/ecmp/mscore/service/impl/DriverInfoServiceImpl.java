@@ -224,6 +224,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			//2. 插入用户角色表
 			EcmpUserRole build = EcmpUserRole.builder().roleId(6L).userId(newUserId).build();
 			ecmpUserRoleMapper.insertEcmpUserRole(build);
+            driverCreateInfo.setUserId(newUserId);
 		}
     	//生成驾驶员记录  是否专职
 		//Z000   合同制  (自有驾驶员)
@@ -709,6 +710,13 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	public List<DriverInfo> supplementObtainDriver(DriverInfo driverInfo) {
 		return driverInfoMapper.supplementObtainDriver(driverInfo);
 	}
+	/**
+	 * 调度选司机以后自动解锁未解锁司机
+	 */
+	@Override
+	public void unlockDrivers() {
+		driverInfoMapper.unlockDrivers();
+	}
 
 	/***
 	 * add by liuzb 根据驾驶员性质定时更新状态
@@ -773,7 +781,6 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		}
 		return null;
 	}
-
 }
 
 
