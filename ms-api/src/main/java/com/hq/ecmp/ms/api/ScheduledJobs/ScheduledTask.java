@@ -64,6 +64,8 @@ public class ScheduledTask {
 
 	@Autowired
 	private IDriverWorkInfoService driverWorkInfoService;
+	@Autowired
+	private IDriverInfoService iDriverInfoService;
 
     @Scheduled(cron = "5 * * * * ?")
     public void testJob(){
@@ -290,5 +292,21 @@ public class ScheduledTask {
 			e.printStackTrace();
 		}
 		log.info("定时任务:SchedulingIndependentTask:定时查询独立审核结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
+
+
+	/***
+	 *定时更新外聘驾驶员，借调驾驶员状态
+	 * add by liuzb
+	 */
+	@Scheduled(cron = "0 0/1 * * * ? ")
+	public void  ScheduUpdateDriverStatusTask (){
+		log.info("定时任务:ScheduUpdateDriverStatusTask:定时更新外聘驾驶员，借调驾驶员状态开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			iDriverInfoService.updateDriverStatusService();
+		}catch (Exception e) {
+			log.error("ScheduUpdateDriverStatusTask error",e);
+		}
+		log.info("定时任务:ScheduUpdateDriverStatusTask:定时更新外聘驾驶员，借调驾驶员状态结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 	}
 }

@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.annotation.Resource;
@@ -13,6 +14,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.vo.*;
+import org.omg.Messaging.SyncScopeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -612,4 +614,72 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		return driverInfoMapper.supplementObtainDriver(driverInfo);
 	}
 
+	/***
+	 * add by liuzb 根据驾驶员性质定时更新状态
+	 * @throws Exception
+	 */
+	@Override
+	public void updateDriverStatusService() throws Exception {
+		List<DriverNatureInfo> list = driverNatureInfoMapper.getDriverNatureInfoList();
+		if(null==list || list.size()<=0){
+			logger.info("updateDriverStatusService query DriverNatureInfo is null");
+			return;
+		}
+		for(DriverNatureInfo data : list ){
+			updateDriverInfo(data,compareDate(data));
+		}
+	}
+
+	/***
+	 * add by liuzb
+	 * 这里抓住异常需要保证定时任务当前数据异常下一个数据可继续执行
+	 * @param data
+	 * @param key
+	 */
+	private  void  updateDriverInfo(DriverNatureInfo data ,String key){
+		try{
+			if(null==key){
+				return;
+			}
+			DriverCreateInfo driverCreateInfo = new DriverCreateInfo();
+			driverCreateInfo.setDriverId(data.getDriverId());
+			driverCreateInfo.setState(key);
+			Integer sum = driverInfoMapper.updateDriver(driverCreateInfo);
+			logger.info(sum>0?"key:"+data.getDriverId()+"更新状态成功":"key:"+data.getDriverId()+"更新状态失败");
+		}catch(Exception e){
+			logger.error("key:"+data.getDriverId()+"----updateDriverStatusService error ",e);
+		}
+	}
+
+	/***
+	 *add by liuzb
+	 * 根据驾驶员性质获取状态
+	 * @param driverNatureInfo
+	 * @return
+	 * @throws Exception
+	 */
+	private String compareDate(DriverNatureInfo driverNatureInfo)throws Exception{
+		Date date = new Date();
+		if("Z002".equals(driverNatureInfo.getDriverNature())){/**外聘*/
+			if(-1==driverNatureInfo.getHireBeginTime().compareTo(date) && -1==date.compareTo(driverNatureInfo.getHireEndTime()) ){
+				return DriverStateEnum.EFFECTIVE.getCode();/**外聘时间到，生效*/
+			}
+			if(-1==driverNatureInfo.getHireEndTime().compareTo(date)){
+				return DriverStateEnum.DIMISSION.getCode();/**外聘时间结束，失效*/
+			}
+		}else if("Z003".equals(driverNatureInfo.getDriverNature())){/**借调*/
+			if(-1==driverNatureInfo.getBorrowBeginTime().compareTo(date) && -1==date.compareTo(driverNatureInfo.getBorrowEndTime())){
+				return DriverStateEnum.EFFECTIVE.getCode();/**借调时间到，实效*/
+			}
+			if(-1==driverNatureInfo.getBorrowEndTime().compareTo(date)){
+				return DriverStateEnum.DIMISSION.getCode();/**借调时间结束，失效*/
+			}
+		}
+		return null;
+	}
+
 }
+
+
+
+
