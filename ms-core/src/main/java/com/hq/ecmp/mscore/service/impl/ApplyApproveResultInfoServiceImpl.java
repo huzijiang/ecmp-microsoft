@@ -234,6 +234,7 @@ public class ApplyApproveResultInfoServiceImpl implements IApplyApproveResultInf
                 for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
                     int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
                     OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
+                    officialOrderReVo.setCompanyId(applyInfo.getCompanyId());
                     Long orderId=null;
                     if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){
                         orderId = orderInfoService.officialOrder(officialOrderReVo, loginUserId);
