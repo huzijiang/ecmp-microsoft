@@ -1722,4 +1722,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ORDER BY
         oi.order_id DESC
     </select>
+    <select id="selectUsingCarByCarId" resultMap="OrderInfoResult" parameterType="long">
+        select * from order_info where car_id = #{carId} and state not in ('S699','S900')
+    </select>
 </mapper>

@@ -145,16 +145,16 @@ public class ScheduledTask {
 	public void autoDispatch() {
 		log.info("定时任务:autoDispatch:自动调度" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
 
-		EcmpConfig ecmpConfig = new EcmpConfig(ConfigTypeEnum.DISPATCH_INFO.getConfigKey());
+		EcmpConfig ecmpConfig = new EcmpConfig(ConfigTypeEnum.DISPATCH_INFO.getConfigKey(),null);
 		List<EcmpConfig> ecmpConfigs = ecmpConfigService.selectEcmpConfigList(ecmpConfig);
 		for (EcmpConfig ecmpConfig1 :
 				ecmpConfigs) {
 			// 查询企业设置是否开启了自动调度
-			if (ecmpConfigService.checkAutoDispatch(Long.parseLong(ecmpConfig1.getCompanyId()))) {
+			if (ecmpConfigService.checkAutoDispatch(ecmpConfig1.getCompanyId())) {
 				// 虚拟一个调度员来处理自动调度 编号 1
 				Long autoDispatchUserId = new Long(1);
 				// 查询所有处于待调度订单
-				List<DispatchOrderInfo> queryAllWaitDispatchList = orderInfoService.queryAllWaitDispatchList(1L, true,Long.parseLong(ecmpConfig1.getCompanyId()));
+				List<DispatchOrderInfo> queryAllWaitDispatchList = orderInfoService.queryAllWaitDispatchList(1L, true,ecmpConfig1.getCompanyId());
 				if (null != queryAllWaitDispatchList && queryAllWaitDispatchList.size() > 0) {
 					for (DispatchOrderInfo dispatchOrderInfo : queryAllWaitDispatchList) {
 						Long orderId = dispatchOrderInfo.getOrderId();

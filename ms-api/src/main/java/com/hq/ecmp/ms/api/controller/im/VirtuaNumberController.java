@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.controller.im;
 
 import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.mscore.domain.EcmpConfig;
 import com.hq.ecmp.mscore.domain.ImVirtuaPhone;
@@ -44,7 +45,8 @@ public class VirtuaNumberController {
     @ApiOperation(value = "绑定虚拟小号", notes = "绑定虚拟小号", httpMethod = "POST")
     @PostMapping("/bind")
     public ApiResponse bind(String customPhone, String driverPhone, String cityCode, String companyId) throws Exception {
-        if (!checkCompanyVirtace(companyId)) {
+        Long companyIdLong= StringUtils.isEmpty(companyId)?null:Long.parseLong(companyId);
+        if (!checkCompanyVirtace(companyIdLong)) {
             return ApiResponse.error("该企业暂不支持虚拟小号");
         }
         Map<String, Object> param = new HashMap<>(8);
@@ -76,7 +78,7 @@ public class VirtuaNumberController {
      * @param companyId
      * @return
      */
-    private boolean checkCompanyVirtace(String companyId) {
+    private boolean checkCompanyVirtace(Long companyId) {
         EcmpConfig ecmpConfig = EcmpConfig.builder().companyId(companyId).configKey("virtualPhoneInfo").build();
         List<EcmpConfig> list = configService.selectEcmpConfigList(ecmpConfig);
         boolean flag = false;

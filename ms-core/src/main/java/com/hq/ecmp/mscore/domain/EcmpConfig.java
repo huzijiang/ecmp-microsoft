@@ -47,14 +47,15 @@ public class EcmpConfig extends BaseEntity {
     @Excel(name = "系统内置", readConverterExp = "Y=是,N=否")
     private String configType;
 
-    private String companyId;
+    private Long companyId;
 
     public EcmpConfig() {
 
     }
 
-    public EcmpConfig(String configKey) {
+    public EcmpConfig(String configKey,Long companyId) {
         this.configKey = configKey;
+        this.companyId = companyId;
     }
 
     public void setConfigId(Integer configId) {
@@ -97,7 +98,7 @@ public class EcmpConfig extends BaseEntity {
         return configType;
     }
 
-    public EcmpConfig(Integer configId, String configName, String configKey, String configValue, String configType,String companyId) {
+    public EcmpConfig(Integer configId, String configName, String configKey, String configValue, String configType,Long companyId) {
         this.configId = configId;
         this.configName = configName;
         this.configKey = configKey;
