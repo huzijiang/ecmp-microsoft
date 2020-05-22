@@ -16,7 +16,7 @@
     </resultMap>
 
     <sql id="selectCostConfigCarTypeInfoVo">
-        select id, cost_id, car_type_id, car_type_name, create_by, create_time, update_by, update_time from cost_config_car_type_info
+        select id, cost_id, car_type_id,  (select c.`name` from enterprise_car_type_info c where c.car_type_id=d.car_type_id) car_type_name, create_by, create_time, update_by, update_time from cost_config_car_type_info d
     </sql>
 
     <select id="selectCostConfigCarTypeInfoList" parameterType="CostConfigCarTypeInfo" resultMap="CostConfigCarTypeInfoResult">
