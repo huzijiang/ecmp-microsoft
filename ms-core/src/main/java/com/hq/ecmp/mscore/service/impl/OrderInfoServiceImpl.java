@@ -363,6 +363,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
                 //订单添加用车场景用车制度以及任务来源信息
                 DispatchOrderInfoPacking(dispatchOrderInfo);
+                //添加同行人
+                addPeerNum(dispatchOrderInfo);
                 checkResult.add(dispatchOrderInfo);
 			}
 		}
@@ -567,16 +569,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private void buildStateAndOtherInfoRelateState(DispatchOrderInfo dispatchOrderInfo) {
         Long orderId = dispatchOrderInfo.getOrderId();
         String useCarMode = dispatchOrderInfo.getUseCarMode();
-        //同行人数量
-        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
-        if(orderInfo != null){
-            JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
-            journeyPassengerInfo.setJourneyId(orderInfo.getJourneyId());
-            List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(journeyPassengerInfo);
-            if(!CollectionUtils.isEmpty(journeyPassengerInfos)){
-                dispatchOrderInfo.setPeerNum(journeyPassengerInfos.size());
-            }
-        }
+        addPeerNum(dispatchOrderInfo);
         List<String> states = orderStateTraceInfoMapper.queryOrderAllState(orderId);
         String ressaignLatestState = orderStateTraceInfoMapper.queryOrderLatestRessaignState(orderId);
        if(!StringUtils.isBlank(ressaignLatestState)){
@@ -663,7 +656,24 @@ public class OrderInfoServiceImpl implements IOrderInfoService
        }
     }
 
-	@Override
+    /**
+     * 添加同行人数量
+     * @param dispatchOrderInfo
+     */
+    private void addPeerNum(DispatchOrderInfo dispatchOrderInfo) {
+        //同行人数量
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(dispatchOrderInfo.getOrderId());
+        if(orderInfo != null){
+            JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
+            journeyPassengerInfo.setJourneyId(orderInfo.getJourneyId());
+            List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(journeyPassengerInfo);
+            if(!CollectionUtils.isEmpty(journeyPassengerInfos)){
+                dispatchOrderInfo.setPeerNum(journeyPassengerInfos.size());
+            }
+        }
+    }
+
+    @Override
 	public ApiResponse<DispatchOrderInfo> getWaitDispatchOrderDetailInfo(Long orderId,Long userId) {
         //查询是否存在调度员已经在进行操作
         Object o = redisUtil.get(CommonConstant.DISPATCH_LOCK_PREFIX + orderId);
