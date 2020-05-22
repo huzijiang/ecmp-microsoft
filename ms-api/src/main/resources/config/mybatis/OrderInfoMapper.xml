@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.hq.ecmp.mscore.domain.OrderInfo" id="OrderInfoResult">
         <result property="orderId"    column="order_id"    />
         <result property="journeyId"    column="journey_id"    />
+        <result property="companyId"    column="company_id"    />
         <result property="nodeId"    column="node_id"    />
         <result property="powerId"    column="power_id"    />
         <result property="driverId"    column="driver_id"    />
@@ -35,7 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectOrderInfoVo">
-        select order_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time,car_model,car_color,driver_grade ,flight_plan_take_off_time,it_is_supplement from order_info
+        select order_id,company_id, order_number,journey_id, node_id, power_id, driver_id, car_id, user_id, use_car_mode, service_type, state, tripartite_order_id, tripartite_platform_code, driver_name, driver_mobile, car_license, flight_number, demand_car_level, create_by, create_time, update_by, update_time,car_model,car_color,driver_grade ,flight_plan_take_off_time,it_is_supplement from order_info
     </sql>
 
     <sql id="queryDispatchAchieve">
@@ -72,6 +73,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
         <include refid="selectOrderInfoVo"/>
         <where>
             <if test="journeyId != null "> and journey_id = #{journeyId}</if>
+            <if test="companyId != null "> and company_id = #{companyId}</if>
             <if test="nodeId != null "> and node_id = #{nodeId}</if>
             <if test="powerId != null "> and power_id = #{powerId}</if>
             <if test="driverId != null "> and driver_id = #{driverId}</if>
@@ -233,6 +235,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
     </delete>
 
     <select id="getOrderList" parameterType="Long"  resultType="com.hq.ecmp.mscore.domain.OrderListInfo">
+        select * from (
         select
             o.order_id orderId,
             o.it_is_supplement  itIsSupplement,
@@ -257,6 +260,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             where jn.user_id=#{userId}
             and o.state in('S200','S299','S500','S600','S616','S699','S900')
         order by o.create_time  desc
+         )cc1 where cc1.labelState not in ('S930','S921')
     </select>
 
 
@@ -580,7 +584,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </select>
 
     <select id="getOrderListBackDto" parameterType="com.hq.ecmp.mscore.dto.OrderListBackDto" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
-        select * from (
         select
         s.company_id companyId,
         -- 申请人姓名
@@ -658,8 +661,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             </where>
             group by s.order_id
             order by a.create_time desc
-        )cc1 where cc1.labelState not in ('S930','S921')
-
     </select>
 
     <select id="getOrderListDetail" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.OrderDetailBackDto">

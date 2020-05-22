@@ -19,5 +19,5 @@ public class EnterPriseBaseInfoDTO {
     private String phone;
     private String industry;
     private String scale;
-    private String companyId;
+    private Long companyId;
 }

@@ -828,8 +828,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String isAddContact=CollectionUtils.isEmpty(contactInfos)?CommonConstant.SWITCH_ON:CommonConstant.SWITCH_OFF;
         vo.setIsAddContact(isAddContact);
         //TODO 查询企业配置是否自动行程确认/异议
-        int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderInfo.getUseCarMode());
-        int isVirtualPhone = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey(),null);//是否号码保护
+        int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderInfo.getUseCarMode(),orderInfo.getCompanyId());
+        int isVirtualPhone = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey(),null,orderInfo.getCompanyId());//是否号码保护
         vo.setIsDisagree(orderConfirmStatus);
         vo.setIsVirtualPhone(isVirtualPhone);
         DriverServiceAppraiseeInfo driverServiceAppraiseeInfos = driverServiceAppraiseeInfoMapper.queryByOrderId(orderId);
@@ -2403,7 +2403,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 log.info("网约车订单:"+orderNo+"校验超额---"+persionMoney);
                 OrderPayInfo orderPayInfo = iOrderPayInfoService.insertOrderPayAndSetting(orderNo, new BigDecimal(amount),distance, duration, feeInfoBean.toJSONString(), Long.parseLong(CommonConstant.START), persionMoney);
 
-                int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
+                int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode(),orderInfo.getCompanyId());
             if (orderConfirmStatus == ZERO) {
                 //自动确认
                 /**判断是否需要支付*/

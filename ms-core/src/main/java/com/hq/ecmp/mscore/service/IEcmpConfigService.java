@@ -69,7 +69,7 @@ public interface IEcmpConfigService
      * 查询企业配置信息
      * @return
      */
-    ConfigInfoDTO selectConfigInfo(String companyId);
+    ConfigInfoDTO selectConfigInfo(Long companyId);
 
     /**
      * 设置企业基本信息
@@ -83,7 +83,7 @@ public interface IEcmpConfigService
      * @param value
      * @param file
      */
-    void setUpWelComeImage(String status, String value, MultipartFile file,String companyId);
+    void setUpWelComeImage(String status, String value, MultipartFile file,Long companyId);
 
     /**
      * 设置背景图
@@ -91,25 +91,25 @@ public interface IEcmpConfigService
      * @param value
      * @param file
      */
-    ApiResponse setUpBackGroundImage(String status, String value, MultipartFile file,String companyId);
+    ApiResponse setUpBackGroundImage(String status, String value, MultipartFile file,Long companyId);
 
     /**
      * 设置企业公告
      * @param status
      */
-    void setUpMessageConfig(String status,String companyId);
+    void setUpMessageConfig(String status,Long companyId);
 
     /**
      * 设置短信开关
      * @param status
      */
-    void setUpSms(String status,String companyId);
+    void setUpSms(String status,Long companyId);
 
     /**
      * 设置虚拟小号开关
      * @param status
      */
-    void setUpVirtualPhone(String status,String companyId);
+    void setUpVirtualPhone(String status,Long companyId);
 
     /**
      * 设置订单确认开关
@@ -119,26 +119,26 @@ public interface IEcmpConfigService
      * @param owenType
      * @param rideHailing
      */
-    void setUpOrderConfirm(String status, String value, String owenType, String rideHailing,String companyId);
+    void setUpOrderConfirm(String status, String value, String owenType, String rideHailing,Long companyId);
 
     /**
      * 设置自动派单方式
      * @param status
      * @param value
      */
-    void setUpDispatchInfo(String status, String value,String companyId);
+    void setUpDispatchInfo(String status, String value,Long companyId);
 
     /**
      * 设置用车往返等时长（单位分钟）
      * @param status
      * @param value
      */
-    void setUpWaitMaxMinute(String status, String value,String companyId);
+    void setUpWaitMaxMinute(String status, String value,Long companyId);
 
     /**
      * 获取行程确认/异议 开关状态(0:自动,1手动)
      */
-    int getOrderConfirmStatus(String key,String useCarMode);
+    int getOrderConfirmStatus(String key,String useCarMode,Long companyId);
 
 
     public boolean checkAutoDispatch(Long companyId);
