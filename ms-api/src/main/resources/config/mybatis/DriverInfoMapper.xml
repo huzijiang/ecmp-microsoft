@@ -711,4 +711,12 @@ WHERE
     <update id="unlockDrivers">
         update driver_info d set d.lock_state='0000' where d.lock_state='1111'
     </update>
+    <select id="getDepartureDriver"  resultMap="DriverInfoResult">
+        <include refid="selectDriverInfoVo"/>
+        where state = 'NV00'
+    </select>
+    <select id="getDriverInvalid"  resultMap="DriverInfoResult">
+        <include refid="selectDriverInfoVo"/>
+        where state = 'V000'
+    </select>
 </mapper>
