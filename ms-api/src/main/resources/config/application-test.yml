@@ -125,7 +125,7 @@ app:
     server: http://10.117.1.232:4869
     access:
       #url: http://123.127.89.218:4869/
-      url: http://10.117.1.232:4869/
+      url: https://test-inside-service-image.hqzhixing.com/
   welcome: http://10.117.1.232:4869/7641d1dcf64d4d082e061d6e65f37a51
   background: http://10.117.1.232:4869/7641d1dcf64d4d082e061d6e65f37a51
 
