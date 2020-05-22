@@ -100,9 +100,8 @@ public class StatisticsCostServiceImpl implements StatisticsCostService {
         if(statisticsParam.getType()==1){
             statisticsParam.getDeptIds().stream().forEach(x->{
                 SysDept sysDept = new SysDept();
-                sysDept.setDeptId(statisticsParam.getDeptIds().get(0));
+                sysDept.setDeptId(x);
                 sysDept.setDeptType("1");
-                sysDept.setCompanyId(statisticsParam.getCompanyId());
                 List<SysDept> tempList = sysDeptService.selectDeptList(sysDept);
                 list.addAll(tempList);
                 while (tempList.size()>0){
@@ -123,7 +122,6 @@ public class StatisticsCostServiceImpl implements StatisticsCostService {
             SysDept sysDept = new SysDept();
             sysDept.setParentId(statisticsParam.getDeptIds().get(0));
             sysDept.setDeptType("2");
-            sysDept.setCompanyId(statisticsParam.getCompanyId());
             list.addAll(sysDeptMapper.selectDeptList(sysDept));
         }
         return list;
