@@ -435,6 +435,7 @@ public class DispatchServiceImpl implements IDispatchService {
 
             waitSelectedCarBo.setPowerType(carInfo.getPowerType());
             waitSelectedCarBo.setAssetTag(carInfo.getAssetTag());
+            waitSelectedCarBo.setLockState(carInfo.getLockState());
 
             EcmpOrg ecmpOrg=ecmpOrgMapper.selectEcmpOrgById(carInfo.getDeptId());
             waitSelectedCarBo.setDeptName(ecmpOrg.getDeptName());

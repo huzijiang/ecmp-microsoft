@@ -149,28 +149,34 @@ public class WaitSelectedDriverBo extends DriverInfo implements Comparable<WaitS
 
     public void   embellish(){
 
-        if(DriverStateEnum.EFFECTIVE.getCode().equals(this.getState())){
+        if(DriverStateEnum.EFFECTIVE.getCode().equals(this.getState()) && TaskConflictEnum.CONFLICT_FREE.equals(this.getTaskConflict())){
             this.status=DriverStateEnum.EFFECTIVE.getDesc();
+        }else{
+            this.status="不可用";
         }
-        if(DriverStateEnum.WAIT_CHECK.getCode().equals(this.getState())){
-            this.status=DriverStateEnum.WAIT_CHECK.getDesc();
-        }
-        if(DriverStateEnum.DIMISSION.getCode().equals(this.getState())){
-            this.status=DriverStateEnum.DIMISSION.getDesc();
-        }
+//        if(DriverStateEnum.WAIT_CHECK.getCode().equals(this.getState())){
+//            this.status=DriverStateEnum.WAIT_CHECK.getDesc();
+//        }
+//        if(DriverStateEnum.DIMISSION.getCode().equals(this.getState())){
+//            this.status=DriverStateEnum.DIMISSION.getDesc();
+//        }
 
-        if(TaskConflictEnum.BEFORE_TASK_CLASH.equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.BEFORE_TASK_CLASH.getDesc()+","+this.status;
-        }
-        if(TaskConflictEnum.AFTER_TASK_CLASH.equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.AFTER_TASK_CLASH.getDesc()+","+this.status;
-        }
-        if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc()+","+this.status;
-        }
-        if(TaskConflictEnum.CONFLICT_FREE.equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.CONFLICT_FREE.getDesc()+","+this.status;
-        }
+//        if(TaskConflictEnum.CONFLICT_FREE.equals(this.getTaskConflict())){
+//            this.status=TaskConflictEnum.CONFLICT_FREE.getDesc()+","+this.status;
+//        }else{
+//            this.status="不可用";
+//        }
+
+//        if(TaskConflictEnum.BEFORE_TASK_CLASH.equals(this.getTaskConflict())){
+//            this.status=TaskConflictEnum.BEFORE_TASK_CLASH.getDesc()+","+this.status;
+//        }
+//        if(TaskConflictEnum.AFTER_TASK_CLASH.equals(this.getTaskConflict())){
+//            this.status=TaskConflictEnum.AFTER_TASK_CLASH.getDesc()+","+this.status;
+//        }
+//        if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.equals(this.getTaskConflict())){
+//            this.status=TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc()+","+this.status;
+//        }
+
     }
 
 
