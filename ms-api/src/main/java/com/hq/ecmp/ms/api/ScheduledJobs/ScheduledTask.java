@@ -1,34 +1,28 @@
 package com.hq.ecmp.ms.api.ScheduledJobs;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
+import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.util.StringUtil;
+import com.hq.common.core.api.ApiResponse;
+import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.constant.ConfigTypeEnum;
-import com.hq.ecmp.mscore.domain.CarInfo;
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.EcmpConfig;
+import com.hq.ecmp.mscore.dto.dispatch.DispatchCountCarAndDriverDto;
 import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.DispatchResultVo;
+import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.util.StringUtil;
-import com.hq.common.core.api.ApiResponse;
-import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.dto.dispatch.DispatchCountCarAndDriverDto;
-import com.hq.ecmp.mscore.vo.DispatchResultVo;
-import com.hq.ecmp.util.DateFormatUtils;
-import com.hq.ecmp.util.RedisUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -47,6 +41,8 @@ public class ScheduledTask {
     private IApplyInfoService applyInfoService;
     @Autowired
     private IOrderInfoService orderInfoService;
+    @Autowired
+    private OrderInfoTwoService orderInfoTwoService;
     @Autowired
     private IEcmpConfigService ecmpConfigService;
     @Autowired
@@ -100,7 +96,7 @@ public class ScheduledTask {
     public void checkOrderIsExpired(){
         log.info("定时任务:checkOrderIsExpired:校验订单是否过期开始,{}",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		try {
-			orderInfoService.checkOrderIsExpired();
+			orderInfoTwoService.checkOrderIsExpired();
 		} catch (Exception e) {
 			log.error("校验订单是否过期定时任务执行异常");
 			e.printStackTrace();
