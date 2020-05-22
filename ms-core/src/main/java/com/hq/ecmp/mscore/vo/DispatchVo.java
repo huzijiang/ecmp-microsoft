@@ -82,4 +82,7 @@ public class DispatchVo {
 
     @ApiModelProperty(value="项目编号")
     private String projectName;
+
+    @ApiModelProperty(value="以等待时间")
+    private String waitingTime;
 }

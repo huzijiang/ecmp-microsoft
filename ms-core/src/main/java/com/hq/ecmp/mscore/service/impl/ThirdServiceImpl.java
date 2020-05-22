@@ -278,4 +278,20 @@ public class ThirdServiceImpl implements ThirdService {
         return JSONObject.parseArray(jsonObject.getString("data"),ThridCarTypeVo.class);
     }
 
+    @Override
+    public JSONObject getDriverLocation(String driverPhone)throws Exception{
+        Map<String,Object> queryOrderStateMap = new HashMap<>();
+        queryOrderStateMap.put("enterpriseId", enterpriseId);
+        queryOrderStateMap.put("licenseContent", licenseContent);
+        queryOrderStateMap.put("mac", MacTools.getMacList().get(0));
+        queryOrderStateMap.put("driverPhone",driverPhone);
+        String resultJson = OkHttpUtil.postForm(apiUrl + "/service/driverLocation", queryOrderStateMap);
+        JSONObject resultObject = JSONObject.parseObject(resultJson);
+        JSONObject data = resultObject.getJSONObject("data");
+        if (!"0".equals(resultObject.getString("code"))){
+            throw new Exception("获取网约车司机位置异常");
+        }
+        return data;
+    }
+
 }

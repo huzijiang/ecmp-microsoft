@@ -19,6 +19,7 @@ public class DriverCloudDto {
     private String driverRate;
     //车型 P001,P002
     private String groupName;
+    private String groupId;
     //车牌
     private String licensePlates;
     //车辆类型

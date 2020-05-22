@@ -187,7 +187,7 @@ class OrgControllerTest {
             SysDriver sysDriver=new SysDriver();
             sysDriver.setDriverId(3005l);
             loginUser.setDriver(sysDriver);
-            List<OrderDriverListInfo>  driverOrderList = orderInfoService.getDriverOrderList(loginUser,1, 20);
+            List<OrderDriverListInfo>  driverOrderList = orderInfoTwoService.getDriverOrderList(loginUser,1, 20);
             System.out.println(driverOrderList.toString());
         }catch (Exception e){
 

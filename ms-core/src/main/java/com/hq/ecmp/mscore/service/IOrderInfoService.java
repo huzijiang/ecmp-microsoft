@@ -102,11 +102,7 @@ public interface IOrderInfoService {
      */
     public List<DispatchOrderInfo> queryCompleteDispatchOrder(Long userId);
 
-    /**
-     *  通过用户id查询司机的任务列表
-     * @return
-     */
-    public  List<OrderDriverListInfo> getDriverOrderList(LoginUser loginUser,int pageNum, int pageSize)throws Exception;
+
 
     /**
      * 查询待调单的订单详情(包含待改派的)
@@ -130,14 +126,6 @@ public interface IOrderInfoService {
      */
     OrderVO orderBeServiceDetail(Long orderId)throws Exception;
 
-    /**
-     * 获取服务提示语
-     * @param orderId
-     * @return
-     */
-    String orderHint(Long orderId);
-
-    MessageDto getOrderMessage(Long userId,String states,Long driveId);
 
     /**
      * 网约车异步约车方法
@@ -182,7 +170,6 @@ public interface IOrderInfoService {
      */
     OrderDriverListInfo getNextTaskWithCar(Long carId);
 
-    MessageDto getCancelOrderMessage(Long userId, String states);
 
     List<OrderDriverListInfo> driverOrderUndoneList(LoginUser loginUser, Integer pageNum, Integer pageSize, int day)throws Exception;
 
@@ -207,16 +194,15 @@ public interface IOrderInfoService {
 
     //查询网约车状态
     JSONObject getThirdPartyOrderState(Long orderId)throws Exception;
-    JSONObject getDriverLocation(String driverPhone)throws Exception;
     OrderStateVO getTaxiState(OrderStateVO orderVO,Long orderNo)throws Exception;
 
-    public List<ApplyDispatchVo> queryApplyDispatchList(ApplyDispatchQuery query);
+    List<ApplyDispatchVo> queryApplyDispatchList(ApplyDispatchQuery query);
 
-    public Integer queryApplyDispatchListCount(ApplyDispatchQuery query);
+    Integer queryApplyDispatchListCount(ApplyDispatchQuery query);
 
-    public List<ApplyDispatchVo> queryReassignmentDispatchList(ApplyDispatchQuery query);
+    List<ApplyDispatchVo> queryReassignmentDispatchList(ApplyDispatchQuery query);
 
-    public Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query);
+    Integer queryReassignmentDispatchListCount(ApplyDispatchQuery query);
     /**
      * 驳回改派申请
      * @param orderId
@@ -224,14 +210,14 @@ public interface IOrderInfoService {
      * @param optUserId
      * @return
      */
-    public boolean rejectReassign(Long orderId,String rejectReason,Long optUserId);
+    boolean rejectReassign(Long orderId,String rejectReason,Long optUserId);
 
     /**
      * 差旅申请派车
      * @param applyUseWithTravelDto
      * @return
      */
-    public Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws Exception;
+    Long applyUseCarWithTravel(ApplyUseWithTravelDto applyUseWithTravelDto,Long userId) throws Exception;
 
 
     /**
@@ -239,7 +225,7 @@ public interface IOrderInfoService {
      * @param orderId
      * @return
      */
-    public List<OrderHistoryTraceDto> getOrderHistoryTrace(Long orderId) throws Exception;
+    List<OrderHistoryTraceDto> getOrderHistoryTrace(Long orderId) throws Exception;
 
 
     /**
@@ -249,7 +235,7 @@ public interface IOrderInfoService {
      * @param cancelReason
      * @throws Exception
      */
-    public void cancelOrder(Long orderId,Long userId,String cancelReason) throws Exception;
+    void cancelOrder(Long orderId,Long userId,String cancelReason) throws Exception;
 
 
     /**
@@ -262,9 +248,7 @@ public interface IOrderInfoService {
      * @param oldCarId 老车id
      * @throws Exception
      */
-    public void reassign( String orderNo,String rejectReason,String status,Long userId,Long oldDriverId,Long oldCarId) throws Exception;
-
-    Integer getDriverOrderListCount(LoginUser loginUser) throws Exception;
+    void reassign( String orderNo,String rejectReason,String status,Long userId,Long oldDriverId,Long oldCarId) throws Exception;
 
     /**
      * 网约车参数校验+调用
@@ -273,7 +257,7 @@ public interface IOrderInfoService {
      * @param carLevel
      * @throws Exception
      */
-    public void platCallTaxiParamValid(Long  orderId,String userId,String carLevel) throws Exception;
+    void platCallTaxiParamValid(Long  orderId,String userId,String carLevel) throws Exception;
 
     /**
      * 获取网约车服务结束费用
@@ -282,34 +266,26 @@ public interface IOrderInfoService {
      */
     OrderCostDetailVO getOrderCost(Long orderId);
 
-    public DispatchSendCarPageInfo  getDispatchSendCarPageInfo(Long orderId);
+    DispatchSendCarPageInfo  getDispatchSendCarPageInfo(Long orderId);
 
-    public DispatchSendCarPageInfo getUserDispatchedOrder(Long orderId);
-    //回调修改订单状态
-    void callBackOrderState(String jsonResult)throws Exception;
+    DispatchSendCarPageInfo getUserDispatchedOrder(Long orderId);
 
-    public boolean sendCarBeforeCreatePlanPrice(Long orderId,Long userId) throws Exception ;
+    boolean sendCarBeforeCreatePlanPrice(Long orderId,Long userId) throws Exception ;
 
-    /**
-     * 查询过期的订单,修改状态和添加轨迹表记录
-     * @return
-     */
-    public  void checkOrderIsExpired();
+
 
 
     /**
      * 公务调度后选择网约车 生成返程的权限 和订单
      * @param orderId
      */
-    public void checkCreateReturnAuthority(Long orderId,Long optUserId)throws Exception;
+    void checkCreateReturnAuthority(Long orderId,Long optUserId)throws Exception;
 
     /**
      * 过12小时自动确认行程
      * @param timeout 超时时间
      */
     void confirmOrderJourneyAuto(int timeout);
-
-    void replaceCar(OrderInfo orderInfo,Long userId) throws Exception;
 
 
     /***
@@ -320,27 +296,5 @@ public interface IOrderInfoService {
      */
     OrderInfoMessage getMessage(Long orderId)throws Exception;
 
-    /**
-     * 获取申请调度列表
-     * @param query
-     * @return
-     */
-    PageResult<DispatchVo> queryDispatchList(ApplyDispatchQuery query,LoginUser loginUser);
-
-    /**
-     * 获取直接调度列表
-     * @param
-     * @param
-     * @return
-     */
-    PageResult<DispatchVo> queryDispatchOrder(LoginUser loginUser,ApplyDispatchQuery query);
-
-    /**
-     * 获取调度改派列表
-     * @param query
-     * @param loginUser
-     * @return
-     */
-    PageResult<DispatchVo> queryDispatchReassignmentList(ApplyDispatchQuery query, LoginUser loginUser);
 }
 

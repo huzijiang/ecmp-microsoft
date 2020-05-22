@@ -78,5 +78,6 @@ public interface ThirdService {
 
     /***/
     List<ThridCarTypeVo>  getOnlienCarType()throws Exception;
+    JSONObject getDriverLocation(String driverPhone)throws Exception;
 
 }
