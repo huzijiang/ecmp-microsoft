@@ -216,7 +216,7 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
 
         //是否跨级调度
         if(CarLevelMatchEnum.UN_MATCH.getCode().equals(this.getLevelIsMatch())){
-            this.status.concat("跨级调度");
+            this.status=this.status.concat(",").concat(CarLevelMatchEnum.UN_MATCH.getDesc());
         }
 
 

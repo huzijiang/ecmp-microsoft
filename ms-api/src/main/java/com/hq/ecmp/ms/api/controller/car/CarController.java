@@ -6,15 +6,14 @@ import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
-import com.hq.ecmp.mscore.domain.CarGroupDriverInfo;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarDriverDTO;
-import com.hq.ecmp.mscore.dto.CarGroupDTO;
 import com.hq.ecmp.mscore.dto.CarSaveDTO;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.ICarInfoService;
@@ -247,7 +246,12 @@ public class CarController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
-            carInfoService.startCar(carDto.getCarId(),userId);
+            int i = carInfoService.startCar(carDto.getCarId(), userId);
+            if(CarConstant.RETURN_ZERO_CODE == i){
+                return ApiResponse.error("时间未到，不可更改状态");
+            }else if(CarConstant.RETURN_TWO_CODE == i){
+                return ApiResponse.error("已过期，");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -269,7 +273,10 @@ public class CarController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
-            carInfoService.disableCar(carDto.getCarId(),userId);
+            int i = carInfoService.disableCar(carDto.getCarId(),userId);
+            /*if(i == 0){
+                return ApiResponse.error("车辆在使用中，无法禁用");
+            }*/
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());

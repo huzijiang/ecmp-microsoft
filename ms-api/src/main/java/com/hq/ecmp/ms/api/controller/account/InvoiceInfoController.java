@@ -141,7 +141,7 @@ public class InvoiceInfoController {
             invoiceInfoService.addInvoice(list);
             String str = updateInvoiceUrl(invoiceId,invoiceDTO,list);
             if("发票税务接口返回失败".equals(str)){
-                return ApiResponse.error(str);
+                return ApiResponse.error("开票失败");
             }
           //  return ApiResponse.success("成功开发票");
            }
@@ -161,26 +161,57 @@ public class InvoiceInfoController {
     private String updateInvoiceUrl(Long invoiceId,InvoiceDTO invoiceDTO,List<OrderInvoiceInfo> list)throws Exception{
         String  userPhone = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getPhonenumber();
         /**接口获取发票税务并返回图片*/
-        String url="/service/v2/invoice/create";
-        Map<String,Object> map = new HashMap<>();
-        map.put("enterpriseId",enterpriseId);
-        map.put("licenseContent",licenseContent);
-        map.put("mac", MacTools.getMacList().get(0));
-        map.put("email",invoiceDTO.getEmail());
-        map.put("address",invoiceDTO.getAcceptAddress());
-        map.put("bankAccount","红旗智行开发票请求");
-        map.put("bankName",invoiceDTO.getBankName());
-        map.put("amount",invoiceDTO.getAmount());
-        map.put("phone",invoiceDTO.getTelephone());
-        map.put("taxNum",invoiceDTO.getTin());
-        map.put("title",invoiceDTO.getHeader());
-        map.put("userPhone",userPhone);
-        String json = OkHttpUtil.postForm(apiUrl+url, map);
+        String json = OkHttpUtil.postForm(apiUrl+"/service/v2/invoice/create", getMap(invoiceDTO,userPhone));
         JSONObject parseObject = JSONObject.parseObject(json);
         if(!"0".equals(parseObject.getString("code"))){
             logger.info("发票税务接口返回失败");
             return "发票税务接口返回失败";
         }
+        updateInvoiceInfoOrder(invoiceId,parseObject,list);
+        /**发送行程邮件*/
+        if("1".equals(invoiceDTO.getToResend())){
+            sendMail(invoiceId,invoiceDTO.getEmail());
+        }
+        return "开发票成功";
+    }
+
+    /***
+     *
+     * @param invoiceId
+     * @param email
+     * @throws Exception
+     */
+    private void sendMail(Long invoiceId,String email)throws Exception{
+        String message=" <div>\n" +
+                "         <span>您的行程单：感谢关注红旗智行</span>\n" +
+                "    </div><br>";
+        OrderInvoiceInfo orderInvoiceInfo = new OrderInvoiceInfo();
+        orderInvoiceInfo.setInvoiceId(invoiceId);
+        List<OrderInvoiceInfo> orderInvoiceInfoList  = orderInvoiceInfoMapper.selectOrderInvoiceInfoList(orderInvoiceInfo);
+        for(OrderInvoiceInfo data :orderInvoiceInfoList ){
+            List<InvoiceAbleItineraryData> key =  journeyInfoMapper.getInvoiceAbleItineraryHistoryKey(data.getAccountId());
+            message ="<div>\n" +
+                    "    <div>\n" +
+                    "         <span>"+message+key.get(0).getActionTime()+" &nbsp;&nbsp;&nbsp;&nbsp;订单金额"+key.get(0).getAmount()+"元</span>\n" +
+                    "    </div>\n" +
+                    "    <div>\n" +
+                    "         <span>"+ key.get(0).getAddress()+"</span>\n" +
+                    "    </div>\n" +
+                    "    <div>\n" +
+                    "         <span>"+key.get(1).getAddress()+"</span>\n" +
+                    "    </div>\n" +
+                    "<div><br><br>";
+        }
+        MailUtils.sendMail(email,message,"您有一张发票请查收");
+    }
+    /***
+     *
+     * @param invoiceId
+     * @param parseObject
+     * @param list
+     * @throws Exception
+     */
+    private void updateInvoiceInfoOrder(Long invoiceId,JSONObject parseObject,List<OrderInvoiceInfo> list)throws Exception{
         InvoiceInfo invoiceInfo = new InvoiceInfo();
         invoiceInfo.setInvoiceId(invoiceId);
         invoiceInfo.setInvoiceUrl(((JSONObject) parseObject.get("data")).get("pdfUrl").toString());
@@ -192,36 +223,39 @@ public class InvoiceInfoController {
             orderAccountInfo.setState("S009");
             orderAccountInfoMapper.updateOrderAccountInfo(orderAccountInfo);
         }
-        //发送行程邮件
-        if("1".equals(invoiceDTO.getToResend())){
-            String message=" <div>\n" +
-                    "         <span>您的行程单：感谢关注红旗智行</span>\n" +
-                    "    </div><br>";
-            OrderInvoiceInfo orderInvoiceInfo = new OrderInvoiceInfo();
-            orderInvoiceInfo.setInvoiceId(invoiceId);
-            List<OrderInvoiceInfo> orderInvoiceInfoList  = orderInvoiceInfoMapper.selectOrderInvoiceInfoList(orderInvoiceInfo);
-            for(OrderInvoiceInfo data :orderInvoiceInfoList ){
-                List<InvoiceAbleItineraryData> key =  journeyInfoMapper.getInvoiceAbleItineraryHistoryKey(data.getAccountId());
-                message ="<div>\n" +
-                        "    <div>\n" +
-                        "         <span>"+message+key.get(0).getActionTime()+" &nbsp;&nbsp;&nbsp;&nbsp;订单金额"+key.get(0).getAmount()+"元</span>\n" +
-                        "    </div>\n" +
-                        "    <div>\n" +
-                        "         <span>"+ key.get(0).getAddress()+"</span>\n" +
-                        "    </div>\n" +
-                        "    <div>\n" +
-                        "         <span>"+key.get(1).getAddress()+"</span>\n" +
-                        "    </div>\n" +
-                        "<div><br><br>";
-            }
-            MailUtils.sendMail(invoiceDTO.getEmail(),message,"您有一张发票请查收");
-        }
-        return "开发票成功";
     }
+
+
+
+
+    /***
+     *
+     * @param invoiceDTO
+     * @param userPhone
+     * @return
+     * @throws Exception
+     */
+    private Map<String,Object> getMap(InvoiceDTO invoiceDTO,String userPhone)throws Exception{
+        Map<String,Object> map = new HashMap<>();
+        map.put("enterpriseId",enterpriseId);
+        map.put("licenseContent",licenseContent);
+        map.put("mac", MacTools.getMacList().get(0));
+        map.put("email",invoiceDTO.getEmail());
+        map.put("address",null==invoiceDTO.getAcceptAddress() ||"".equals(invoiceDTO.getAcceptAddress())?"0":invoiceDTO.getAcceptAddress());
+        map.put("bankAccount",null==invoiceDTO.getContent()||"".equals(invoiceDTO.getContent())?"0":invoiceDTO.getContent());
+        map.put("bankName",null==invoiceDTO.getBankName()||"".equals(invoiceDTO.getBankName())?"0":invoiceDTO.getBankName());
+        map.put("amount",invoiceDTO.getAmount());
+        map.put("phone",null==invoiceDTO.getTelephone()||"".equals(invoiceDTO.getTelephone())?"0":invoiceDTO.getTelephone());
+        map.put("taxNum",null==invoiceDTO.getTin()||"".equals(invoiceDTO.getTin())?"0":invoiceDTO.getTin());
+        map.put("title",invoiceDTO.getHeader());
+        map.put("userPhone",null==userPhone ||"".equals(userPhone)? "0":userPhone);
+        return map;
+    }
+
 
     /**
      * 发票信息详情
-     * @param insertDTO
+     * @param
      * @return
      */
     @Log(title = "财务模块",content = "发票信息详情", businessType = BusinessType.OTHER)

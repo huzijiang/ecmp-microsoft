@@ -250,7 +250,7 @@ public class DispatchController {
      * @param query
      * @return
      */
-    @ApiOperation(value = "queryDispatchReassignmentList", notes = "获取申请调度列表 ", httpMethod = "POST")
+    @ApiOperation(value = "queryDispatchReassignmentList", notes = "获取改派调度列表 ", httpMethod = "POST")
     @PostMapping("/queryDispatchReassignmentList")
     public ApiResponse<PageResult<DispatchVo>> queryDispatchReassignmentList(@RequestBody ApplyDispatchQuery query){
         HttpServletRequest request = ServletUtils.getRequest();

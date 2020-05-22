@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -26,6 +27,7 @@ import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.OrderUtils;
+import com.hq.ecmp.util.Page;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
@@ -386,7 +388,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      *      4.总部在改城市没有能服务当前订单申请人所在部门的车队，分公司有能服务于当前订单申请人所在公司的车队
      *          （1.自有车：总部和分公司同时看到
      *          2.自有车+网约车：总部看不到此调度单，分公司在该城市的能服务于当前订单申请人所在公司的车队的所有调度员也可以看到，二者同时能看到）
-     *          --------》第4点修改为只有分公司能看到不管是自有车还是自有车+网约车（括号里的规则弃用）
+     *          --------》第4点修改为只有分公司先看到不管是自有车还是自有车+网约车，10分钟后总部的所有城市的所有调度员可以看到（括号里的规则弃用）
      * @param userId 当前登录人id
      *
      * @return
@@ -394,6 +396,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private boolean judgeOrderValid(Long userId, DispatchOrderInfo dispatchOrderInfo) {
 
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(dispatchOrderInfo.getOrderId());
+        if (dispatchOrderInfo.getOrderId() == 1553L){
+            System.out.println("1553");
+        }
         if (orderInfo == null){
             log.error("订单{}信息为空",dispatchOrderInfo.getOrderId());
             return false;
@@ -823,8 +828,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String isAddContact=CollectionUtils.isEmpty(contactInfos)?CommonConstant.SWITCH_ON:CommonConstant.SWITCH_OFF;
         vo.setIsAddContact(isAddContact);
         //TODO 查询企业配置是否自动行程确认/异议
-        int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderInfo.getUseCarMode());
-        int isVirtualPhone = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey(),null);//是否号码保护
+        int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderInfo.getUseCarMode(),orderInfo.getCompanyId());
+        int isVirtualPhone = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.VIRTUAL_PHONE_INFO.getConfigKey(),null,orderInfo.getCompanyId());//是否号码保护
         vo.setIsDisagree(orderConfirmStatus);
         vo.setIsVirtualPhone(isVirtualPhone);
         DriverServiceAppraiseeInfo driverServiceAppraiseeInfos = driverServiceAppraiseeInfoMapper.queryByOrderId(orderId);
@@ -1490,6 +1495,38 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
         //订单管理需要的状态 已取消  S911    已完成 S900  待确认 S699     服务中S616  待上车 S600   接驾中 S500  待服务 S299
         List<OrderListBackDto> list = orderInfoMapper.getOrderListBackDto(orderListBackDto);
+        for (OrderListBackDto orderListBack:list){
+            //补单数据单独处理
+            if(ItIsSupplementEnum.ORDER_REPLENISHMENT_STATUS.getValue().equals(orderListBack.getItIsSupplement())){
+                OrderListBackDto orderList = orderInfoMapper.getReplentshmentOrder(orderListBack);
+                //申请人姓名
+                orderListBack.setApplyName(orderList.getApplyName());
+                //申请人手机号
+                orderListBack.setApplyPhoneNumber(orderList.getApplyPhoneNumber());
+                //乘车人
+                orderListBack.setPassengerName(orderList.getPassengerName());
+                //实际用车时间
+                orderListBack.setBeginTime(orderList.getBeginTime());
+                //实际下车时间
+                orderListBack.setEndTime(orderList.getEndTime());
+                //实际上车地址
+                orderListBack.setBeginAddress(orderList.getBeginAddress());
+                //实际下车地址
+                orderListBack.setEndAddress(orderList.getEndAddress());
+                //服务类型
+                orderListBack.setServiceType(orderList.getServiceType());
+                //用车方式
+                orderListBack.setUseCarMode(orderList.getUseCarMode());
+                //费用合计
+                orderListBack.setAmount(orderList.getAmount());
+                //订单状态
+                orderListBack.setState(orderList.getState());
+                //订单编号
+                orderListBack.setOrderNumber(orderList.getOrderNumber());
+                //itIsSupplement订单标签
+                orderListBack.setItIsSupplement(orderList.getItIsSupplement());
+            }
+        }
         if(orderListBackDto.getOrderState()!=null && orderListBackDto.getLabelState()!=null) {
             List<OrderListBackDto> list1 = list.stream().filter(e -> orderListBackDto.getOrderState().contains(e.getOrderState())).collect(Collectors.toList());
             String labelState = orderListBackDto.getLabelState();
@@ -1507,7 +1544,38 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     @Override
     public OrderDetailBackDto getOrderListDetail(String orderNo) {
-        return orderInfoMapper.getOrderListDetail(orderNo);
+        String itIsSupplement = orderInfoMapper.getOrderById(orderNo);
+        OrderDetailBackDto orderDetailBackDto=null;
+        if(ItIsSupplementEnum.ORDER_REPLENISHMENT_STATUS.getValue().equals(itIsSupplement)){
+            orderDetailBackDto = orderInfoMapper.getOrderListDetailById(orderNo);
+        }else{
+            orderDetailBackDto = orderInfoMapper.getOrderListDetail(orderNo);
+        }
+        OrderFeeDetailVO orderFeeDetailVO=null;
+        List list=new ArrayList<>();
+        if(CarConstant.USR_CARD_MODE_NET.equals(orderDetailBackDto.getUseCarMode())){
+            String amountDetail = orderDetailBackDto.getAmountDetail();
+            if(!amountDetail.isEmpty()){
+                orderFeeDetailVO=new Gson().fromJson(amountDetail,OrderFeeDetailVO.class);
+            }
+            if (orderFeeDetailVO==null){
+                return null;
+            }
+            //基础套餐费：包含基础时长和基础里程，超出另外计费
+            String basePrice = orderFeeDetailVO.getBasePrice();
+            list.add(new OtherCostVO("起步价",basePrice));
+            //超时长费：超出基础时长时计算，同时会区分高峰和平峰时段
+            String overTimeNumTotal = orderFeeDetailVO.getOverTimeNumTotal();//超时长费:高峰时长费+平超时长费
+            list.add(new OtherCostVO("超时长费",overTimeNumTotal));
+            //超里程费：超出基础里程时计算，同时会区分高峰和平峰时段
+            String overMilageNumTotal = orderFeeDetailVO.getOverMilageNumTotal();//超里程费用:高峰里程费+平超里程
+            list.add(new OtherCostVO("超里程费",overMilageNumTotal));
+            //等待费
+            String waitingFee = orderFeeDetailVO.getWaitingFee();
+            list.add(new OtherCostVO("等待费",waitingFee));
+            orderDetailBackDto.setAmountDetail(JSON.toJSONString(list));
+        }
+        return orderDetailBackDto;
     }
 
 
@@ -2335,7 +2403,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 log.info("网约车订单:"+orderNo+"校验超额---"+persionMoney);
                 OrderPayInfo orderPayInfo = iOrderPayInfoService.insertOrderPayAndSetting(orderNo, new BigDecimal(amount),distance, duration, feeInfoBean.toJSONString(), Long.parseLong(CommonConstant.START), persionMoney);
 
-                int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode());
+                int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(), orderInfo.getUseCarMode(),orderInfo.getCompanyId());
             if (orderConfirmStatus == ZERO) {
                 //自动确认
                 /**判断是否需要支付*/
@@ -2847,8 +2915,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(adminOrderList.isEmpty()){
             adminOrderList.addAll(dispatcherOrderList);
         }
-        PageInfo<DispatchVo> info = new PageInfo<>(adminOrderList);
-        return new PageResult<>(info.getTotal(),info.getPages(),adminOrderList);
+        Page<DispatchVo> page = new Page<>(adminOrderList, query.getPageSize());
+        if(dispatcherOrderList.isEmpty()){
+            Long total= 0L;
+            Integer pageSize=0;
+            return new PageResult<>(total, pageSize, page.getCurrentPageData());
+        }
+        page.setCurrent_page(query.getPageNum());
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
 
     /**
@@ -2885,8 +2959,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 dispatcherOrderList.addAll(adminOrderList);
             }
         }
-        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
-        return new PageResult<>(info.getTotal(),info.getPages(),dispatcherOrderList);
+       com.hq.ecmp.util.Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+        if(dispatcherOrderList.isEmpty()){
+            Long total= 0L;
+            Integer pageSize=0;
+            return new PageResult<>(total, pageSize, page.getCurrentPageData());
+        }
+        page.setCurrent_page(query.getPageNum());
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
 
     /**

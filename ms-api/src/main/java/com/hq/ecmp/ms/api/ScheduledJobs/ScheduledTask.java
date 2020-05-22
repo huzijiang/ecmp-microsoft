@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.hq.ecmp.constant.ConfigTypeEnum;
+import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.EcmpConfig;
 import com.hq.ecmp.mscore.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,8 @@ public class ScheduledTask {
 	private ICarInfoService carInfoService;
     @Autowired
     private IEcmpNoticeService iEcmpNoticeService;
+    @Autowired
+	private IDriverInfoService iDriverInfoService;
 
     @Value("${schedule.confirmTimeout}")
     private int timeout;
@@ -142,16 +145,16 @@ public class ScheduledTask {
 	public void autoDispatch() {
 		log.info("定时任务:autoDispatch:自动调度" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
 
-		EcmpConfig ecmpConfig = new EcmpConfig(ConfigTypeEnum.DISPATCH_INFO.getConfigKey());
+		EcmpConfig ecmpConfig = new EcmpConfig(ConfigTypeEnum.DISPATCH_INFO.getConfigKey(),null);
 		List<EcmpConfig> ecmpConfigs = ecmpConfigService.selectEcmpConfigList(ecmpConfig);
 		for (EcmpConfig ecmpConfig1 :
 				ecmpConfigs) {
 			// 查询企业设置是否开启了自动调度
-			if (ecmpConfigService.checkAutoDispatch(Long.parseLong(ecmpConfig1.getCompanyId()))) {
+			if (ecmpConfigService.checkAutoDispatch(ecmpConfig1.getCompanyId())) {
 				// 虚拟一个调度员来处理自动调度 编号 1
 				Long autoDispatchUserId = new Long(1);
 				// 查询所有处于待调度订单
-				List<DispatchOrderInfo> queryAllWaitDispatchList = orderInfoService.queryAllWaitDispatchList(1L, true,Long.parseLong(ecmpConfig1.getCompanyId()));
+				List<DispatchOrderInfo> queryAllWaitDispatchList = orderInfoService.queryAllWaitDispatchList(1L, true,ecmpConfig1.getCompanyId());
 				if (null != queryAllWaitDispatchList && queryAllWaitDispatchList.size() > 0) {
 					for (DispatchOrderInfo dispatchOrderInfo : queryAllWaitDispatchList) {
 						Long orderId = dispatchOrderInfo.getOrderId();
@@ -290,5 +293,43 @@ public class ScheduledTask {
 			e.printStackTrace();
 		}
 		log.info("定时任务:SchedulingIndependentTask:定时查询独立审核结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
+
+	/**
+	 * 调度选车辆和司机后自动解锁,每十分钟执行一次
+	 */
+	@Scheduled(cron = "0 0/10 * * * ? ")
+	public void unlockCarOrDriver() {
+        log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+        try {
+            carInfoService.unlockCars();
+        } catch (Exception e) {
+            log.error("车辆自动解锁失败");
+            e.printStackTrace();
+        }
+        log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+
+        log.info("定时任务:SchedulingIndependentTask:司机自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+        try {
+            iDriverInfoService.unlockDrivers();
+        } catch (Exception e) {
+            log.error("司机自动解锁失败");
+            e.printStackTrace();
+        }
+        log.info("定时任务:SchedulingIndependentTask:司机自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+    }
+	/***
+	 *定时更新外聘驾驶员，借调驾驶员状态
+	 * add by liuzb
+	 */
+	@Scheduled(cron = "0 0/1 * * * ? ")
+	public void  ScheduUpdateDriverStatusTask (){
+		log.info("定时任务:ScheduUpdateDriverStatusTask:定时更新外聘驾驶员，借调驾驶员状态开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			iDriverInfoService.updateDriverStatusService();
+		}catch (Exception e) {
+			log.error("ScheduUpdateDriverStatusTask error",e);
+		}
+		log.info("定时任务:ScheduUpdateDriverStatusTask:定时更新外聘驾驶员，借调驾驶员状态结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 	}
 }

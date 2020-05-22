@@ -22,6 +22,9 @@ public class OrderInfoDTO {
         @ApiModelProperty(value = "公司id")
         private Long  companyId;
 
+        @ApiModelProperty(value = "制度id")
+        private Long  driverGrade;
+
         @ApiModelProperty(value = "服务类型")
         private String  serviceType;
 

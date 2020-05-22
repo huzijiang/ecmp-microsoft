@@ -22,6 +22,7 @@ public class RegimeCheckDto {
     private Long regimeId;
     private String startTime;
     private String useCarMode;
+    private String serviceType;
     private String endTime;
     private String cityCodes;
     private String startCityCode;

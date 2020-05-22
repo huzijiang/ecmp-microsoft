@@ -19,6 +19,12 @@ public enum DriverStateEnum {
      * 等待审核
      */
     WAIT_CHECK("W001","待审核"),
+
+    /**
+     * 等待启用
+     */
+    WAIT_EFFECTIVE("W009","待启用"),
+
     /**
      * 司机已经离职或者失效
      */

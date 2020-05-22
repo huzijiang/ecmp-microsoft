@@ -499,4 +499,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and  car_license like concat('%', #{searchValue}, '%')
         </if>
     </select>
+    <update id="unlockCars">
+        update car_info c set c.lock_state='0000' where c.lock_state='1111'
+    </update>
 </mapper>

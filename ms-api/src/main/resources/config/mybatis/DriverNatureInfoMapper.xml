@@ -21,6 +21,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="driverId != null "> and driver_id = #{driverId}</if>
         </where>
     </select>
+    <select id="getDriverNatureInfoList" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo" resultMap="DriverNatureInfo">
+        <include refid="select"/>
+        where driver_nature in ('Z002','Z003')
+    </select>
     <insert id="addDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">
         insert into driver_nature_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -30,6 +34,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="hireEndTime != null ">hire_end_time,</if>
             <if test="borrowBeginTime != null ">borrow_begin_time,</if>
             <if test="borrowEndTime != null ">borrow_end_time,</if>
+            <if test="createBy != null ">create_by,</if>
+            create_time
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="driverId != null ">#{driverId},</if>
@@ -38,6 +44,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="hireEndTime != null ">#{hireEndTime},</if>
             <if test="borrowBeginTime != null ">#{borrowBeginTime},</if>
             <if test="borrowEndTime != null ">#{borrowEndTime},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            now()
         </trim>
     </insert>
     <update id="updateDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">

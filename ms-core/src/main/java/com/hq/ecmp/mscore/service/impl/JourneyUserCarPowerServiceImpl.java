@@ -198,7 +198,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 					userCarAuthority.setSetoutEqualArrive(selectRegimeInfo.getAsSetoutEqualArrive());
 				}
 				// 生成用车权限对应的前端状态
-				String state = buildUserAuthorityPowerStatus(flag, userCarAuthority.getTicketId());
+				String state = buildUserAuthorityPowerStatus(flag, userCarAuthority.getTicketId(),selectRegimeInfo.getCompanyId());
 				userCarAuthority.setState(state);
 				if(state.equals(OrderState.ORDERDENIED.getState())){
 					OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(userCarAuthority.getTicketId());
@@ -247,7 +247,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 				boolean flag = regimeInfoService.judgeNotDispatch(journeyUserCarPowers.get(0).getApplyId(),
 						serviceTypeCarAuthority.getCityCode());
 				// 生成用车权限对应的前端状态
-				String state = buildUserAuthorityPowerStatus(flag, serviceTypeCarAuthority.getTicketId());
+				String state = buildUserAuthorityPowerStatus(flag, serviceTypeCarAuthority.getTicketId(),regimeInfo.getCompanyId());
 				serviceTypeCarAuthority.setState(state);
 				if(state.equals(OrderState.ORDERDENIED.getState())){
 					OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(serviceTypeCarAuthority.getTicketId());
@@ -421,7 +421,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 	}
 
 	@Override
-	public String  buildUserAuthorityPowerStatus(boolean flag, Long powerId) {
+	public String  buildUserAuthorityPowerStatus(boolean flag, Long powerId,Long companyId) {
 		String vaildOrdetrState = orderInfoMapper.queryVaildOrderStatusByPowerId(powerId);
 		if(StringUtil.isEmpty(vaildOrdetrState) ||OrderState.INITIALIZING.getState().equals(vaildOrdetrState)){
 			//权限不可用状态  S801 -权限不可用
@@ -535,7 +535,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 		if(OrderState.STOPSERVICE.getState().equals(vaildOrdetrState)){
 			//订单状态为服务结束  判断该订单是否需要确认
 			List<String> queryUseCarMode = orderInfoMapper.queryUseCarMode(powerId);
-			 int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),queryUseCarMode.get(0));
+			 int orderConfirmStatus = ecmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),queryUseCarMode.get(0),companyId);
 			if(orderConfirmStatus == 1){
 				//需要去确认   对应前端状态为待确认-S960 
 				return OrderState.WAITCONFIRMED.getState();

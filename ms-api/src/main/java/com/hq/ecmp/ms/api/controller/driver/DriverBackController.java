@@ -67,13 +67,12 @@ public class DriverBackController {
     public ApiResponse<List<CarGroupListVO>> getCarGroupList(){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
-        List<CarGroupListVO> list=carGroupInfoService.getCarGroupList(userId);
+        List<CarGroupListVO> list=carGroupInfoService.getCarGroupList(loginUser.getUser());
         return ApiResponse.success(list);
     }
 
     /**
-     *驾驶员调度看板(分页列表)
+     *车辆调度看板(分页列表)
      * @param pageRequest
      * @return
      */

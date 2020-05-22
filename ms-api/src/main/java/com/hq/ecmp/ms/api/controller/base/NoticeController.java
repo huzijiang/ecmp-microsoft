@@ -409,7 +409,7 @@ public class NoticeController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         if (loginUser.getUser().getOwnerCompany()!=null){
-            String companyId = loginUser.getUser().getOwnerCompany().toString();
+            Long companyId = loginUser.getUser().getOwnerCompany();
             System.out.println("==========="+companyId);
             ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
             return ApiResponse.success(configInfoDTO);
