@@ -12,9 +12,9 @@ import lombok.Setter;
 public enum DriverStateEnum {
 
     /**
-     * 可用
+     * 生效中
      */
-    EFFECTIVE("V000","生效中"),
+    EFFECTIVE("V000","可用"),
     /**
      * 等待审核
      */

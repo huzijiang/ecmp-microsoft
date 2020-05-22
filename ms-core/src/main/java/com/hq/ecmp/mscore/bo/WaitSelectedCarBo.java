@@ -154,36 +154,53 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
     public void   embellish(){
         if(CarStateEnum.EFFECTIVE.getCode().equals(this.getState())){
             this.status=CarStateEnum.EFFECTIVE.getDesc();
+        }else{
+            this.status="不可用";
         }
-        if(CarStateEnum.NONEFFECTIVE.getCode().equals(this.getState())){
-            this.status=CarStateEnum.NONEFFECTIVE.getDesc();
-        }
-        if(CarStateEnum.MAINTENANCE.getCode().equals(this.getState())){
-            this.status=CarStateEnum.MAINTENANCE.getDesc();
-        }
-        if(CarStateEnum.EXPIRE.getCode().equals(this.getState())){
-            this.status=CarStateEnum.EXPIRE.getDesc();
-        }
-        if(CarStateEnum.WAS_BORROWED.getCode().equals(this.getState())){
-            this.status=CarStateEnum.WAS_BORROWED.getDesc();
-        }
+//        if(CarStateEnum.NONEFFECTIVE.getCode().equals(this.getState())){
+//            this.status=CarStateEnum.NONEFFECTIVE.getDesc();
+//        }
+//        if(CarStateEnum.MAINTENANCE.getCode().equals(this.getState())){
+//            this.status=CarStateEnum.MAINTENANCE.getDesc();
+//        }
+//        if(CarStateEnum.EXPIRE.getCode().equals(this.getState())){
+//            this.status=CarStateEnum.EXPIRE.getDesc();
+//        }
+//        if(CarStateEnum.WAS_BORROWED.getCode().equals(this.getState())){
+//            this.status=CarStateEnum.WAS_BORROWED.getDesc();
+//        }
+
 
         if(CarLockStateEnum.UNLOCK.getCode().equals(this.lockState)){
-            this.status=CarLockStateEnum.UNLOCK.getDesc()+","+this.status;
+//            this.status=CarLockStateEnum.UNLOCK.getDesc()+","+this.status;
+        }else {
+            this.status="不可用";
         }
 
-        if(TaskConflictEnum.BEFORE_TASK_CLASH.equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.BEFORE_TASK_CLASH.getDesc()+","+this.status;
-        }
-        if(TaskConflictEnum.AFTER_TASK_CLASH.equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.AFTER_TASK_CLASH.getDesc()+","+this.status;
-        }
-        if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc()+","+this.status;
-        }
+
+
         if(TaskConflictEnum.CONFLICT_FREE.equals(this.getTaskConflict())){
-            this.status=TaskConflictEnum.CONFLICT_FREE.getDesc()+","+this.status;
+//            this.status=TaskConflictEnum.CONFLICT_FREE.getDesc()+","+this.status;
+        }else{
+            this.status="不可用";
         }
+//        if(TaskConflictEnum.BEFORE_TASK_CLASH.equals(this.getTaskConflict())){
+//            this.status=TaskConflictEnum.BEFORE_TASK_CLASH.getDesc()+","+this.status;
+//        }
+//        if(TaskConflictEnum.AFTER_TASK_CLASH.equals(this.getTaskConflict())){
+//            this.status=TaskConflictEnum.AFTER_TASK_CLASH.getDesc()+","+this.status;
+//        }
+//        if(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.equals(this.getTaskConflict())){
+//            this.status=TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH.getDesc()+","+this.status;
+//        }
+
+        //是否跨级调度
+        if(CarLevelMatchEnum.UN_MATCH.getCode().equals(this.getLevelIsMatch()) && "可派".equals( this.status)){
+            this.status=CarLevelMatchEnum.UN_MATCH.getDesc();
+        }
+
+
+
 
         //能源类型转换-枚举问题
         if(StringUtils.isNotEmpty(this.getPowerType())){
@@ -214,13 +231,8 @@ public class WaitSelectedCarBo extends CarInfo implements Comparable<WaitSelecte
             }
         }
 
-        //是否跨级调度
-        if(CarLevelMatchEnum.UN_MATCH.getCode().equals(this.getLevelIsMatch())){
-            this.status=this.status.concat(",").concat(CarLevelMatchEnum.UN_MATCH.getDesc());
-        }
+
 
 
     }
-
-
 }

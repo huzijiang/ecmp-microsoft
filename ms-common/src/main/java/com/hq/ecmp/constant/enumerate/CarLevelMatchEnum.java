@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 public enum CarLevelMatchEnum {
 
-    MATCH("0000",""),
+    MATCH("0000","匹配"),
     UN_MATCH("1111","跨级调度");
 
     @Setter

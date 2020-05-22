@@ -12,20 +12,20 @@ public enum TaskConflictEnum {
     /**
      * 前序任务冲突
      */
-    BEFORE_TASK_CLASH("100","前序任务冲突"),
+    BEFORE_TASK_CLASH("100","不可用"),
     /**
      * 后序任务冲突
      */
-    AFTER_TASK_CLASH("001","后序任务冲突"),
+    AFTER_TASK_CLASH("001","不可用"),
     /**
      * 前序后序任务皆冲突
      */
-    BEFORE_AND_AFTER_TASK_CLASH("101","前序后序任务皆冲突"),
+    BEFORE_AND_AFTER_TASK_CLASH("101","不可用"),
 
     /**
      * 无任务冲突
      */
-    CONFLICT_FREE("000","无任务冲突");
+    CONFLICT_FREE("000","可用");
 
     @Setter
     @Getter
