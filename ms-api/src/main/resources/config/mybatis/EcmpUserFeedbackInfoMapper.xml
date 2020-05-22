@@ -91,6 +91,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SELECT
         eufi.feedback_id feedbackId,
         eufi.order_id orderId,
+        oi.orderNumber orderNumber,
         oi.service_type serviceType,
         oi.use_car_mode useCarMode,
         eu.nick_name nickName,
@@ -110,7 +111,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="nickName != null  and nickName!='' "> and eu.nick_name like  CONCAT('%',#{nickName},'%')</if>
             <if test="feedbackId != null and feedbackId!='' "> and eufi.feedback_id = #{feedbackId}</if>
             <if test="phone != null and phone!='' "> and eu.phonenumber = #{phone}</if>
-            <if test="orderId != null and orderId!='' "> and eufi.order_id = #{orderId}</if>
+            <if test="orderNumber != null and orderNumber!='' "> and oi.orderNumber = #{orderNumber}</if>
             <if test="type != null  and type != '' "> and eufi.type = #{type}</if>
             and eufi.order_id is not null
         </where>

@@ -237,16 +237,20 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
     public void sortCarType(Long mainCarTypeId, Long targetCarTypeId,Long userId) throws Exception {
         EnterpriseCarTypeInfo mainCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(mainCarTypeId);
         String min=mainCarTypeInfo.getLevel();
+        String minImageUrl = mainCarTypeInfo.getImageUrl();
+        String minName = mainCarTypeInfo.getName();
         EnterpriseCarTypeInfo targetCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(targetCarTypeId);
         String target = targetCarTypeInfo.getLevel();
+        String targetImageUrl = targetCarTypeInfo.getImageUrl();
+        String targetName = targetCarTypeInfo.getName();
         mainCarTypeInfo.setLevel(target);
-        mainCarTypeInfo.setImageUrl(targetCarTypeInfo.getImageUrl());
-        mainCarTypeInfo.setName(targetCarTypeInfo.getName());
+        mainCarTypeInfo.setImageUrl(targetImageUrl);
+        mainCarTypeInfo.setName(targetName);
         mainCarTypeInfo.setUpdateTime(new Date());
         mainCarTypeInfo.setUpdateBy(String.valueOf(userId));
         targetCarTypeInfo.setLevel(min);
-        targetCarTypeInfo.setImageUrl(mainCarTypeInfo.getImageUrl());
-        targetCarTypeInfo.setName(mainCarTypeInfo.getName());
+        targetCarTypeInfo.setImageUrl(minImageUrl);
+        targetCarTypeInfo.setName(minName);
         targetCarTypeInfo.setUpdateBy(String.valueOf(userId));
         targetCarTypeInfo.setUpdateTime(new Date());
         int i = enterpriseCarTypeInfoMapper.updateEnterpriseCarTypeInfo(mainCarTypeInfo);
