@@ -97,7 +97,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <select id="queryCountCarByDriverId" resultType="java.lang.Integer">
-        select count(1)  from driver_car_relation_info where car_id=#{driverId}
+        select count(1)  from driver_car_relation_info where driver_id=#{driverId}
     </select>
 
     <select id="selectDriverInfo" parameterType="com.hq.ecmp.mscore.domain.DriverCarRelationInfo" resultMap="DriverCarRelationInfoResult">

@@ -529,6 +529,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 		List<DispatchOrderInfo> list = orderInfoMapper.queryCompleteDispatchOrder();
 		if(null !=list && list.size()>0){
 			for (DispatchOrderInfo dispatchOrderInfo : list) {
+                if (StringUtils.isBlank(dispatchOrderInfo.getUseCarMode())){
+                    log.error("已调度的订单{}，订单表没有用车方式", dispatchOrderInfo.getOrderId());
+                    continue;
+                }
                 //过滤掉未走调度自动约车的
                 boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(dispatchOrderInfo.getApplyId(), dispatchOrderInfo.getUseCarCityCode());
                 if(judgeNotDispatch){
