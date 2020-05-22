@@ -256,7 +256,7 @@ public class DispatchController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            PageResult<DispatchVo> list = iOrderInfoService.queryDispatchReassignmentList(query,loginUser);
+            PageResult<DispatchVo> list = orderInfoTwoService.queryDispatchReassignmentList(query,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
@@ -274,7 +274,7 @@ public class DispatchController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            PageResult<DispatchVo> list = iOrderInfoService.queryDispatchOrder(loginUser,query);
+            PageResult<DispatchVo> list = orderInfoTwoService.queryDispatchOrder(loginUser,query);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();

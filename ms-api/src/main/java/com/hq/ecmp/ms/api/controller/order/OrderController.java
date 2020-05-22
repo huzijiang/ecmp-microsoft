@@ -467,8 +467,8 @@ public class OrderController {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            driverOrderList = iOrderInfoService.getDriverOrderList(loginUser, driverListRequest.getPageNum(), driverListRequest.getPageSize());
-            Integer count=iOrderInfoService.getDriverOrderListCount(loginUser);
+            driverOrderList = orderInfoTwoService.getDriverOrderList(loginUser, driverListRequest.getPageNum(), driverListRequest.getPageSize());
+            Integer count=orderInfoTwoService.getDriverOrderListCount(loginUser);
             return ApiResponse.success(new PageResult<OrderDriverListInfo>(Long.valueOf(count),driverOrderList));
         } catch (Exception e) {
             e.printStackTrace();
@@ -637,24 +637,6 @@ public class OrderController {
         }
     }
 
-    /**
-     *   @author caobj
-     *   @Description 轮询获取提示语
-     *   @Date 10:11 2020/3/4
-     *   @Param  []
-     *   @return com.hq.common.core.api.ApiResponse
-     **/
-    @ApiOperation(value = "轮询获取提示语",httpMethod = "POST")
-    @RequestMapping("/getOrderHint")
-    public ApiResponse<String> getOrderHint(@RequestBody OrderDto orderDto){
-        try {
-            String res = iOrderInfoService.orderHint(orderDto.getOrderId());
-            return ApiResponse.success("获取成功",res);
-        }catch (Exception e){
-            e.printStackTrace();
-            return  ApiResponse.error("获取提示语异常!");
-        }
-    }
 
     /**
      *   @author caobj
@@ -688,7 +670,7 @@ public class OrderController {
             OrderInfo orderInfo = new OrderInfo();
             orderInfo.setOrderId(orderDto.getOrderId());
             orderInfo.setCarId(orderDto.getCarId());
-            iOrderInfoService.replaceCar(orderInfo,loginUser.getUser()==null?null:loginUser.getUser().getUserId());
+            orderInfoTwoService.replaceCar(orderInfo,loginUser.getUser()==null?null:loginUser.getUser().getUserId());
             return ApiResponse.success();
         }catch (Exception e){
             e.printStackTrace();
