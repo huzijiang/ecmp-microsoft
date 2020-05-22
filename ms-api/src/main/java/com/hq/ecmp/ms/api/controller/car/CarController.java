@@ -246,6 +246,7 @@ public class CarController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
+            //0 未开始 1 成功 2 已过期
             int i = carInfoService.startCar(carDto.getCarId(), userId);
             if(CarConstant.RETURN_ZERO_CODE == i){
                 return ApiResponse.error("时间未到，不可更改状态");
