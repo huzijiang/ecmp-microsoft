@@ -640,6 +640,7 @@ WHERE
         LEFT JOIN driver_info di on dcri.driver_id=di.driver_id
         left join driver_work_info dwi on dwi.driver_id=di.driver_id and dwi.caledar_date=DATE_FORMAT(now(),'%Y-%m-%d')
         <where>
+            di.state = 'V000'
             <if test="workState != null and workState != ''"> and dwi.leave_status = #{workState}</if>
             <if test="itIsFullTime != null and itIsFullTime != ''"> and  di.it_is_full_time = #{itIsFullTime}</if>
             <if test="businessFlag != null and businessFlag!='' "> and (di.driver_name like concat('%',#{businessFlag},'%') or di.mobile=#{businessFlag} or dcri.user_id=#{businessFlag} )</if>
