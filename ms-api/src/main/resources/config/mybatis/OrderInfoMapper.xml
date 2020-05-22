@@ -233,6 +233,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
     </delete>
 
     <select id="getOrderList" parameterType="Long"  resultType="com.hq.ecmp.mscore.domain.OrderListInfo">
+        select * from (
         select
             o.order_id orderId,
             o.it_is_supplement  itIsSupplement,
@@ -257,6 +258,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             where jn.user_id=#{userId}
             and o.state in('S200','S299','S500','S600','S616','S699','S900')
         order by o.create_time  desc
+         )cc1 where cc1.labelState not in ('S930','S921')
     </select>
 
 
@@ -580,7 +582,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </select>
 
     <select id="getOrderListBackDto" parameterType="com.hq.ecmp.mscore.dto.OrderListBackDto" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
-        select * from (
         select
         s.company_id companyId,
         -- 申请人姓名
@@ -658,8 +659,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             </where>
             group by s.order_id
             order by a.create_time desc
-        )cc1 where cc1.labelState not in ('S930','S921')
-
     </select>
 
     <select id="getOrderListDetail" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.OrderDetailBackDto">
