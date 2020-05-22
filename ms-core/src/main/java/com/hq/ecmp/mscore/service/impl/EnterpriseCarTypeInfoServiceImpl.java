@@ -240,9 +240,13 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
         EnterpriseCarTypeInfo targetCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(targetCarTypeId);
         String target = targetCarTypeInfo.getLevel();
         mainCarTypeInfo.setLevel(target);
+        mainCarTypeInfo.setImageUrl(targetCarTypeInfo.getImageUrl());
+        mainCarTypeInfo.setName(targetCarTypeInfo.getName());
         mainCarTypeInfo.setUpdateTime(new Date());
         mainCarTypeInfo.setUpdateBy(String.valueOf(userId));
         targetCarTypeInfo.setLevel(min);
+        targetCarTypeInfo.setImageUrl(mainCarTypeInfo.getImageUrl());
+        targetCarTypeInfo.setName(mainCarTypeInfo.getName());
         targetCarTypeInfo.setUpdateBy(String.valueOf(userId));
         targetCarTypeInfo.setUpdateTime(new Date());
         int i = enterpriseCarTypeInfoMapper.updateEnterpriseCarTypeInfo(mainCarTypeInfo);

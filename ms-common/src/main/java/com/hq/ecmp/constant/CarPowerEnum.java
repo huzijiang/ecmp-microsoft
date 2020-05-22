@@ -8,9 +8,21 @@ import java.util.Map;
  * 提示语模块
  */
 public enum CarPowerEnum {
+    /**
+     *汽油
+     */
     gasoline("P001","汽油"),
+    /**
+     *柴油
+     */
     Diesel("P002","柴油"),
+    /**
+     *电动
+     */
     ELECTRIC("P003","电动"),
+    /**
+     *混动
+     */
     Hybrid("P004","混动"),
     ;
     private String Key;//提示语

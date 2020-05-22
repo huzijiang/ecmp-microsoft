@@ -14,8 +14,17 @@ import java.util.Map;
  */
 public enum CarSourceEnum {
 
-    OWN("S001","车况良好"),
+    /**
+     *车况良好
+     */
+    OWN("S001","可用"),
+    /**
+     *禁用中
+     */
     RENT("S002","禁用中"),
+    /**
+     *维护中
+     */
     BORROWED("S003","维护中");
 
     @Setter

@@ -168,6 +168,7 @@
             </if>
             </where>
             group by c.cost_id,c.company_id,c.cost_config_name,cc.city_name,c.service_type
+        order by IFNULL(c.update_time,c.create_time) desc
 
     </select>
 
