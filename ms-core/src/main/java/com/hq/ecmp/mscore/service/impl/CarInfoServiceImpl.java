@@ -49,6 +49,8 @@ public class CarInfoServiceImpl implements ICarInfoService
     private EcmpOrgMapper ecmpOrgMapper;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
+    @Autowired
+    private EcmpDictDataMapper ecmpDictDataMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -448,6 +450,15 @@ public class CarInfoServiceImpl implements ICarInfoService
         //查询所属公司  TODO
         EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
         String deptName = ecmpOrg.getDeptName();
+        //查询能源类型
+        EcmpDictData ecmpDictData = new EcmpDictData();
+        ecmpDictData.setDictType("carPowerType");
+        ecmpDictData.setDictValue(carInfo.getPowerType());
+        List<EcmpDictData> ecmpDictDatas = ecmpDictDataMapper.selectEcmpDictDataList(ecmpDictData);
+        String powerTypeName = null;
+        if(CollectionUtils.isNotEmpty(ecmpDictDatas)){
+            powerTypeName = ecmpDictDatas.get(0).getDictLabel();
+        }
         //根据车辆id 查询可用驾驶员
         List<DriverVO> drivers = selectCarEffectiveDrivers(carId);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -464,7 +475,9 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .driverNum(drivers.size())
                 .assetTag(carInfo.getAssetTag())
                 .price(carInfo.getPrice())
+                .powerTypeName(powerTypeName)
                 .tax(carInfo.getTax())
+                .drivingLicense(carInfo.getDrivingLicense())
                 .licensePrice(carInfo.getLicensePrice())
                 .carImgaeUrl(carInfo.getCarImgaeUrl())
                 .carDrivingLicenseImagesUrl(carInfo.getCarDrivingLicenseImagesUrl())
