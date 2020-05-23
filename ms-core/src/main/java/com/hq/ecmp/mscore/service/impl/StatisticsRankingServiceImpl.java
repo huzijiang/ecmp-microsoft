@@ -5,17 +5,19 @@ import com.hq.api.system.mapper.SysDeptMapper;
 import com.hq.api.system.service.ISysDeptService;
 import com.hq.api.system.service.ISysUserService;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.ServletUtils;
+import com.hq.common.utils.StringUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.mscore.domain.CarInfo;
-import com.hq.ecmp.mscore.domain.DriverInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.statistics.StatisticsParam;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.StatisticsRankingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,13 +41,20 @@ public class StatisticsRankingServiceImpl implements StatisticsRankingService {
     private ISysUserService sysUserService;
     @Autowired
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
+    @Autowired
+    private TokenService tokenService;
 
     @Override
     public ApiResponse ranking(StatisticsParam statisticsParam) {
         //公司或部门列表
         SysDept sysDept = new SysDept();
         sysDept.setDeptType(String.valueOf(statisticsParam.getType()));
-        sysDept.setCompanyId(statisticsParam.getCompanyId());
+        /** -----xmy 添加获取公司id----*/
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        /** -----xmy ----*/
+        sysDept.setCompanyId(companyId);
         List<SysDept> list = sysDeptMapper.selectDeptList(sysDept);
         Map<String,Map<String,Integer>> map = list.stream().collect(Collectors.toMap(SysDept::getDeptName, x->{
             Map costData = new HashMap();
@@ -87,20 +96,31 @@ public class StatisticsRankingServiceImpl implements StatisticsRankingService {
         if(statisticsParam.getType()==1){
             //司机
             driverInfos.stream().forEach(x->{
-                SysDept temp =  sysDeptService.selectDeptById(carGroupInfoMapper.selectCarGroupInfoById(carGroupDriverRelationMapper.selectCarGroupDriverRelationById(x.getDriverId()).getCarGroupId()).getCompanyId());
-                map.get(temp.getDeptName()).put("driver",map.get(temp.getDeptName()).get("driver")+1);
+                CarGroupDriverRelation carGroupDriverRelation = carGroupDriverRelationMapper.selectCarGroupDriverRelationById(x.getDriverId());
+                if(null != carGroupDriverRelation){
+                    CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupDriverRelation.getCarGroupId());
+                    if(null != carGroupInfo) {
+                        SysDept temp = sysDeptService.selectDeptById(carGroupInfo.getCompanyId());
+                        map.get(temp.getDeptName()).put("driver", map.get(temp.getDeptName()).get("driver") + 1);
+                    }
+                }
             });
             //车辆
             carInfos.stream().forEach(x->{
-                SysDept temp =  sysDeptService.selectDeptById(carGroupInfoMapper.selectCarGroupInfoById(x.getCarGroupId()).getCompanyId());
-                map.get(temp.getDeptName()).put("car",map.get(temp.getDeptName()).get("car")+1);
+                CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(x.getCarGroupId());
+                if(null != carGroupInfo){
+                    SysDept temp =  sysDeptService.selectDeptById(carGroupInfo.getCompanyId());
+                    map.get(temp.getDeptName()).put("car",map.get(temp.getDeptName()).get("car")+1);
+                }
             });
         }else{
             //员工司机
             driverInfos.stream().forEach(x->{
-                if(x.getUserId()!=null){
+                if(null != x.getUserId()){
                     String name = getTopDept(statisticsParam.getType(),x.getUserId());
-                    map.get(name).put("driver",map.get(name).get("driver")+1);
+                    if(!StringUtils.isEmpty(name)){
+                        map.get(name).put("driver",map.get(name).get("driver")+1);
+                    }
                 }
             });
         }
