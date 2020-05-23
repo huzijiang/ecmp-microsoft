@@ -37,7 +37,7 @@ public class CostStatisticsController {
             List<Long> longs = new ArrayList<>();
             longs.add(tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany());
             statisticsParam.setDeptIds(longs);
-            /** -----xmy 添加过去公司id----*/
+            /** -----xmy 添加获取公司id----*/
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long companyId = loginUser.getUser().getOwnerCompany();
