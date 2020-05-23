@@ -420,6 +420,7 @@ public class EcmpConfigServiceImpl implements IEcmpConfigService {
      */
     @Override
     public int getOrderConfirmStatus(String key,String useCarMode,Long companyId) {
+        log.info("获取企业配置参数{}",key,useCarMode,companyId);
         if (key.contains(SYS_CONFIG_PREFIX)||ConfigTypeEnum.BASE_INFO.getConfigKey().equals(key)){
             return ZERO;
         }

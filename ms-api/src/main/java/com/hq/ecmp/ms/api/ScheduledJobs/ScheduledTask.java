@@ -319,13 +319,41 @@ public class ScheduledTask {
 	 * add by liuzb
 	 */
 	@Scheduled(cron = "0 0/1 * * * ? ")
-	public void  ScheduUpdateDriverStatusTask (){
-		log.info("定时任务:ScheduUpdateDriverStatusTask:定时更新外聘驾驶员，借调驾驶员状态开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	public void  scheduUpdateDriverStaeTask (){
+		log.info("定时任务:scheduUpdateDriverStaeTask:定时更新外聘驾驶员，借调驾驶员状态开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		try {
 			iDriverInfoService.updateDriverStatusService();
 		}catch (Exception e) {
-			log.error("ScheduUpdateDriverStatusTask error",e);
+			log.error("scheduUpdateDriverStaeTask error",e);
 		}
-		log.info("定时任务:ScheduUpdateDriverStatusTask:定时更新外聘驾驶员，借调驾驶员状态结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:scheduUpdateDriverStaeTask:定时更新外聘驾驶员，借调驾驶员状态结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
+	/***
+	 * 定时更新驾驶员失效
+	 * add by liuzb
+	 */
+	@Scheduled(cron = "0 0/1 * * * ? ")
+	public void  scheduUpdateDriverInvalidTask (){
+		log.info("定时任务:scheduUpdateDriverInvalidTask:定时更新离职失效驾驶员状态结果开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			iDriverInfoService.updateDriverInvalid();
+		}catch (Exception e) {
+			log.error("scheduUpdateDriverInvalidTask error",e);
+		}
+		log.info("定时任务:scheduUpdateDriverInvalidTask:定时更新离职失效驾驶员状态结果结束："+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
+	/***
+	 * 定时更新离职失效驾驶员接绑驾驶员的车队
+	 * add by liuzb
+	 */
+	@Scheduled(cron = "0 0/1 * * * ? ")
+	public void  scheduUpdateDepartureDriverTask (){
+		log.info("定时任务:scheduUpdateDepartureDriverTask:定时更新解绑驾驶员状态结果开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			iDriverInfoService.updateDepartureDriver();
+		}catch (Exception e) {
+			log.error("scheduUpdateDepartureDriverTask error",e);
+		}
+		log.info("定时任务:scheduUpdateDepartureDriverTask:定时更新解绑驾驶员状态结果结束："+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 	}
 }

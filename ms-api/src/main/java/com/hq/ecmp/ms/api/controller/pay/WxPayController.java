@@ -14,12 +14,14 @@ import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.hq.common.utils.DateUtils;
+import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.OrderPayConstant;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.ms.api.conf.WechatPayConfig;
 import com.hq.ecmp.ms.api.util.IpAddressUtil;
 import com.hq.ecmp.ms.api.util.PayUtil;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.mapper.OrderAccountInfoMapper;
 import com.hq.ecmp.mscore.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,8 +31,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,6 +62,9 @@ public class WxPayController {
     private IOrderPayInfoService iOrderPayInfoService;
 
     protected WxPayConfig config;
+
+    @Resource
+    private OrderAccountInfoMapper orderAccountInfoMapper;
 
     /**
      * @author ghb
@@ -157,6 +164,17 @@ public class WxPayController {
                 orderPayInfo.setArriveAmount(arriveAmount);
                 orderPayInfo.setCreateTime(DateUtils.getNowDate());
                 int k = iOrderPayInfoService.updateOrderPayInfo(orderPayInfo);
+                //插入订单财务信息表
+                OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
+                orderAccountInfo.setBillId(orderSettlingInfo.getBillId());
+                orderAccountInfo.setOrderId(orderPayInfoByPayId.getOrderId().toString());
+                orderAccountInfo.setAmount(totalFee);
+                orderAccountInfo.setCreateTime(new Date());
+                orderAccountInfo.setState(CommonConstant.NOT_INVOICED);
+                int i = orderAccountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
+                if(1 == i){
+                    log.info("订单财务信息表已更新!!!!!!!!!!!!!!!!!!");
+                }
                 if(1 == k){
                     log.info("订单信息已更新!!!!!!!!!!!!!!!!!!");
                 }

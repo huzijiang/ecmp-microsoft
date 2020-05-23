@@ -49,6 +49,8 @@ public class CarInfoServiceImpl implements ICarInfoService
     private EcmpOrgMapper ecmpOrgMapper;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
+    @Autowired
+    private EcmpDictDataMapper ecmpDictDataMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -274,7 +276,7 @@ public class CarInfoServiceImpl implements ICarInfoService
     }
 
     /**
-     * 启用车辆
+     * 启用车辆   租赁/借调车辆到期无法启用， 行驶证到期无法启用  0 未开始 1 成功 2 已过期
      * @param carId
      * @param userId
      * @return
@@ -282,23 +284,47 @@ public class CarInfoServiceImpl implements ICarInfoService
     @Override
     public int startCar(Long carId, Long userId) throws Exception {
 
+        Date nowDate = DateUtils.getNowDate();
         CarInfo carInfo1 = carInfoMapper.selectCarInfoById(carId);
-        if(null != carInfo1 && new Date().compareTo(carInfo1.getRentStartDate())>0 && new Date().compareTo(carInfo1.getRentEndDate())<0){
-            CarInfo carInfo = new CarInfo();
-            carInfo.setState(CarConstant.START_CAR);
-            carInfo.setUpdateBy(String.valueOf(userId));
-            carInfo.setUpdateTime(new Date());
-            carInfo.setCarId(carId);
-            int row = carInfoMapper.updateStartCar(carInfo);
-            if(row != 1){
-                throw new Exception("启用车辆失败，借调到期，租赁到期，或行驶证到期，或已删除");
-            }
-            return row;
-        }else if(null != carInfo1 && new Date().compareTo(carInfo1.getRentEndDate())>0){
+        Date drivingLicenseEndDate = carInfo1.getDrivingLicenseEndDate();
+        if(drivingLicenseEndDate != null && drivingLicenseEndDate.before(nowDate)){
+            //行驶证过期无法启用
+            log.info("车辆：{}，行驶证已过期，无法启用，操作人：{}",carId,userId);
             return CarConstant.RETURN_TWO_CODE;
-        }else{
+        }
+        Date rentStartDate = carInfo1.getRentStartDate();
+        Date rentEndDate = carInfo1.getRentEndDate();
+        if(rentStartDate != null && rentStartDate.after(nowDate)){
+            //租赁车辆开始时间未到 无法启用
+            log.info("租赁车辆：{}，开始时间未到，无法启用，操作人：{}",carId,userId);
             return CarConstant.RETURN_ZERO_CODE;
         }
+        if(rentEndDate != null && rentEndDate.before(nowDate)){
+            //租赁车辆 租用到期 无法启用
+            log.info("租赁车辆：{}，租用到期，无法启用，操作人：{}",carId,userId);
+            return CarConstant.RETURN_TWO_CODE;
+        }
+        Date borrowStartDate = carInfo1.getBorrowStartDate();
+        Date borrowEndDate = carInfo1.getBorrowEndDate();
+        if(borrowStartDate != null && borrowStartDate.after(nowDate)){
+            //借调车辆 开始时间未到 无法启用
+            log.info("借调车辆：{}，开始时间未到，无法启用，操作人：{}",carId,userId);
+            return CarConstant.RETURN_ZERO_CODE;
+        }
+        if(borrowEndDate != null && borrowEndDate.before(nowDate)){
+            //借调车辆 借调到期 无法启用
+            log.info("借调车辆：{}，借调到期，无法启用，操作人：{}",carId,userId);
+            return CarConstant.RETURN_TWO_CODE;
+        }
+
+        CarInfo carInfo = new CarInfo();
+        carInfo.setState(CarConstant.START_CAR);
+        carInfo.setUpdateBy(String.valueOf(userId));
+        carInfo.setUpdateTime(new Date());
+        carInfo.setCarId(carId);
+        int row = carInfoMapper.updateStartCar(carInfo);
+
+        return row;
     }
 
     /**
@@ -424,6 +450,15 @@ public class CarInfoServiceImpl implements ICarInfoService
         //查询所属公司  TODO
         EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(deptId);
         String deptName = ecmpOrg.getDeptName();
+        //查询能源类型
+        EcmpDictData ecmpDictData = new EcmpDictData();
+        ecmpDictData.setDictType("carPowerType");
+        ecmpDictData.setDictValue(carInfo.getPowerType());
+        List<EcmpDictData> ecmpDictDatas = ecmpDictDataMapper.selectEcmpDictDataList(ecmpDictData);
+        String powerTypeName = null;
+        if(CollectionUtils.isNotEmpty(ecmpDictDatas)){
+            powerTypeName = ecmpDictDatas.get(0).getDictLabel();
+        }
         //根据车辆id 查询可用驾驶员
         List<DriverVO> drivers = selectCarEffectiveDrivers(carId);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -440,7 +475,9 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .driverNum(drivers.size())
                 .assetTag(carInfo.getAssetTag())
                 .price(carInfo.getPrice())
+                .powerTypeName(powerTypeName)
                 .tax(carInfo.getTax())
+                .drivingLicense(carInfo.getDrivingLicense())
                 .licensePrice(carInfo.getLicensePrice())
                 .carImgaeUrl(carInfo.getCarImgaeUrl())
                 .carDrivingLicenseImagesUrl(carInfo.getCarDrivingLicenseImagesUrl())
