@@ -77,6 +77,9 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	private DriverNatureInfoMapper driverNatureInfoMapper;
 	@Autowired
 	private EcmpUserMapper ecmpUserMapper;
+	@Autowired
+	private CarGroupDriverRelationMapper carGroupDriverRelationMapper;
+
 
     /**
      * 查询【请填写功能名称】
@@ -780,6 +783,77 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			}
 		}
 		return null;
+	}
+
+	/***
+	 *获取所有生效驾驶员
+	 * @throws Exception
+	 */
+	@Override
+	public void updateDriverInvalid() throws Exception {
+		List<DriverInfo> list = driverInfoMapper.getDriverInvalid();
+		if(null==list || list.size()<=0){
+			logger.info("updateDriverInvalid query DriverInfo is null");
+			return;
+		}
+		for(DriverInfo data : list ){
+			if(compareDate(data.getLicenseExpireDate())){
+                 /**驾驶员失效日期到了，或者过了失效日期*/
+				int i = driverInfoMapper.updateDriverStatus(data.getDriverId(),DriverStateEnum.DIMISSION.getCode());
+				logger.info("key:"+data.getDriverId()+"updateDriverStatus----"+i);
+			}
+		}
+	}
+
+	/***
+	 *
+	 * @param licenseExpireDate
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean compareDate(Date licenseExpireDate)throws Exception{
+		Date date = new Date();
+		if(null!=licenseExpireDate){
+			if(1==date.compareTo(licenseExpireDate) ){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/***
+	 * add by liuzb
+	 *获取当前所有的失效离职驾驶员
+	 */
+	@Override
+	public void updateDepartureDriver(){
+		List<DriverInfo> list = driverInfoMapper.getDepartureDriver();
+		if(null==list || list.size()<=0){
+			logger.info("updateDriverInvalid query DriverInfo is null");
+			return;
+		}
+		for(DriverInfo data : list ){
+			unbindDepartureDriver(data);
+		}
+	}
+
+	/***
+	 * add liuzb
+	 * 接触绑定驾驶员
+	 * @param data
+	 */
+	private void unbindDepartureDriver(DriverInfo data){
+         try{
+			 int i = 0;
+             /***解绑驾驶员的车辆*/
+             i = carGroupDriverRelationMapper.deleteCarGroupDriverRelationById(data.getDriverId());
+             logger.info("key:"+data.getDriverId()+"驾驶员解绑车辆结束，解绑状态为："+i);
+             /**解绑驾驶员的车队*/
+			 i = driverCarRelationInfoMapper.deleteCarByDriverId(data.getDriverId());
+			 logger.info("key:"+data.getDriverId()+"驾驶员解绑车队结束，解绑状态为："+i);
+		 }catch(Exception e){
+            logger.error("key:"+data.getDriverId()+"unbindDepartureDriver error",e);
+		 }
 	}
 }
 

@@ -75,4 +75,9 @@ public class EcmpUserFeedbackInfoVo extends PageRequest {
     //回复时间
     @ApiModelProperty(value="回复时间")
     private Date updateTime;
+
+    //订单编号
+    @ApiModelProperty(value="订单编号")
+    private String orderNumber;
+
 }

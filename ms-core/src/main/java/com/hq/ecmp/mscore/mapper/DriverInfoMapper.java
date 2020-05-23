@@ -266,4 +266,18 @@ public interface DriverInfoMapper
      */
     void unlockDrivers();
 
+    /***
+     * add by liuzb 获取所有生效中的驾驶员
+     * @return
+     */
+    List<DriverInfo> getDriverInvalid();
+
+
+    /***
+     * add by liuzh
+     * 获取所有离职失效驾驶员
+     * @return
+     */
+    List<DriverInfo> getDepartureDriver();
+
 }

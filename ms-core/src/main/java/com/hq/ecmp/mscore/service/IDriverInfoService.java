@@ -185,4 +185,19 @@ public interface IDriverInfoService
      * @throws Exception
      */
     void updateDriverStatusService()throws Exception;
+
+
+    /***
+     *
+     * @throws Exception
+     */
+    void updateDepartureDriver()throws Exception;
+
+
+    /***
+     *
+     * @throws Exception
+     */
+    void updateDriverInvalid()throws Exception;
+
 }
