@@ -1458,6 +1458,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 orderListBack.setApplyPhoneNumber(orderList.getApplyPhoneNumber());
                 //乘车人
                 orderListBack.setPassengerName(orderList.getPassengerName());
+                //同行人数量
+                orderListBack.setPeerName(orderList.getPeerName());
                 //实际用车时间
                 orderListBack.setBeginTime(orderList.getBeginTime());
                 //实际下车时间
