@@ -15,4 +15,10 @@
         select image_id, record_id ,image_url,create_by,create_time,update_by,update_time
         from order_service_images_info
     </sql>
+    <select id="getList" parameterType="com.hq.ecmp.mscore.dto.ordercost.OrderServiceImagesInfo" resultMap="Result">
+        <include refid="key"/>
+        <where>
+            <if test="recordId != null "> and record_id = #{recordId}</if>
+        </where>
+    </select>
 </mapper>
