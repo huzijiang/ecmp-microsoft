@@ -82,4 +82,7 @@ public class UserApplySingleVo extends PageRequest {
 
     @ApiModelProperty(value = "驾驶员归属")
     private String driverCompany;
+
+    @ApiModelProperty(value = "用车时长")
+    private String useTime;
 }
