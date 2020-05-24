@@ -49,5 +49,6 @@ public class CarGroupDetailVO {
     @ApiModelProperty(name = "countDriver", value = "车队人数")
     private Integer countDriver;
 
-
+    @ApiModelProperty(name = "itIsInner", value = "是否是内部车队   C000   内部车队   C111   外部车队")
+    private String itIsInner;
 }

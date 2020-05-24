@@ -37,8 +37,8 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
     private RegimeInfoMapper regimeInfoMapper;
     @Resource
     private OrderInfoMapper orderInfoMapper;
-    @Resource
-    private OrderAccountInfoMapper orderAccountInfoMapper;
+//    @Resource
+//    private OrderAccountInfoMapper orderAccountInfoMapper;
 
     @Override
     public int insertOrderPayInfo(OrderPayInfo orderPayInfo) {
@@ -75,14 +75,14 @@ public class OrderPayInfoServiceImpl implements IOrderPayInfoService {
         orderSettlingInfo.setCreateBy(CommonConstant.START);
         orderSettlingInfo.setCreateTime(DateUtils.getNowDate());
         orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
-        //插入订单财务信息表
-        OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
-        orderAccountInfo.setBillId(orderSettlingInfo.getBillId());
-        orderAccountInfo.setOrderId(orderNo.toString());
-        orderAccountInfo.setAmount(amount.stripTrailingZeros());
-        orderAccountInfo.setCreateTime(new Date());
-        orderAccountInfo.setState(CommonConstant.NOT_INVOICED);
-        orderAccountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
+//        //插入订单财务信息表
+//        OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
+//        orderAccountInfo.setBillId(orderSettlingInfo.getBillId());
+//        orderAccountInfo.setOrderId(orderNo.toString());
+//        orderAccountInfo.setAmount(amount.stripTrailingZeros());
+//        orderAccountInfo.setCreateTime(new Date());
+//        orderAccountInfo.setState(CommonConstant.NOT_INVOICED);
+//        orderAccountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
         //插入订单支付表
         if (overMoney.compareTo(BigDecimal.ZERO)==1){
             OrderPayInfo orderPayInfo = new OrderPayInfo();

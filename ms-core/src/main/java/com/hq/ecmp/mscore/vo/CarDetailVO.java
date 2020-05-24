@@ -70,7 +70,7 @@ public class CarDetailVO {
     //5.车辆实照
     private String carImgaeUrl;
 
-    //6.行驶证号码
+
 
     //7.行驶证有效期 xxx -- xxx
     private String drivingLicenseStartDate;
@@ -85,6 +85,18 @@ public class CarDetailVO {
     private Long carId;
 
 
+    //.能源类型名字
+    private String powerTypeName;     //FIXME 动力类型:P001   汽油  P002   柴油  P003   电力   P004   混合
 
+    //6.行驶证号码
+    private String drivingLicense;  // FIXME
 
+    private String  icCard;  //IC卡
+    private String  fnNumber;  //档案号
+    private Date  registeTime;  //注册时间
+    private Date  annualVerificationTime;  //年度审核日期
+    private Date  lastMaintainTime;  //最后维修时间
+
+    private String engineNumber; //发动机编号
+    private String carNumber;  //车架号
 }
