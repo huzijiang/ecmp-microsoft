@@ -83,7 +83,14 @@ public class CarGroupInfo extends BaseEntity
     private Long companyId;   //TODO 新增 所属公司id
 
 
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String allowOuterDispatch;   //TODO 新增 是否允许外部调度
+
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String itIsInner;  // 是否是内部车队  C000   内部车队      C111   外部车队
+
+
+
 
 
     public CarGroupInfo(String city, Long companyId) {
