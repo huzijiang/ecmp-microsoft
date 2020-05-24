@@ -44,4 +44,32 @@
             <if test="orderId != null  and orderId != ''"> and order_id = #{orderId}</if>
         </where>
     </select>
+    <update id="updateData" parameterType="com.hq.ecmp.mscore.dto.ordercost.OrderServiceCostDetailRecordInfo">
+        update order_service_cost_detail_record_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="startLongitude != null and startLatitude != ''">start_longitude = #{startLongitude},</if>
+            <if test="startLatitude != null  and startLatitude != ''">start_latitude = #{startLatitude},</if>
+            <if test="endLongitude != null and endLongitude != '' ">end_longitude = #{endLongitude},</if>
+            <if test="endLatitude != null and endLatitude != ''">end_latitude = #{endLatitude},</if>
+            <if test="startTime != null and startTime != ''">start_time = #{startTime},</if>
+            <if test="endTime != null and endTime != ''">end_time = #{endTime},</if>
+            <if test="mileage != null and mileage != ''">mileage = #{mileage},</if>
+            <if test="setMealCost != null and setMealCost != ''">set_meal_cost = #{setMealCost},</if>
+            <if test="setMealMileage != null and setMealMileage != ''">set_meal_mileage = #{setMealMileage},</if>
+            <if test="setMealTimes != null and setMealTimes != ''">set_meal_times = #{setMealTimes},</if>
+            <if test="beyondMileage != null and beyondMileage != ''">beyond_mileage = #{beyondMileage},</if>
+            <if test="beyondTime != null and beyondTime != ''">beyond_time = #{beyondTime},</if>
+            <if test="roadAndBridgeFee != null and roadAndBridgeFee != ''">road_and_bridge_fee = #{roadAndBridgeFee},</if>
+            <if test="highwayTollFee != null and highwayTollFee != ''">highway_toll_fee = #{highwayTollFee},</if>
+            <if test="stopCarFee != null and stopCarFee != ''">stop_car_fee = #{stopCarFee},</if>
+            <if test="accommodationFee != null and accommodationFee != ''">accommodation_fee = #{accommodationFee},</if>
+            <if test="foodFee != null and foodFee != ''">food_fee = #{foodFee},</if>
+            <if test="othersFee != null and othersFee != ''">others_fee = #{othersFee},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null and createTime != ''">create_time = #{createTime},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null and updateTime != ''">update_time = #{updateTime},</if>
+        </trim>
+        where record_id = #{recordId}
+    </update>
 </mapper>

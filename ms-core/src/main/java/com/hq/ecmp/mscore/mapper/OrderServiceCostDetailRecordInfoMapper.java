@@ -18,5 +18,13 @@ public interface OrderServiceCostDetailRecordInfoMapper {
     List<OrderServiceCostDetailRecordInfo> getList(OrderServiceCostDetailRecordInfo data);
 
 
+    /***
+     *
+     * @param data
+     * @return
+     */
+    int updateData(OrderServiceCostDetailRecordInfo data);
+
+
 
 }
