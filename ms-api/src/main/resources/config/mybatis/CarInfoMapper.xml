@@ -60,7 +60,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         car_type_id, car_license,lock_state, state,license_price, car_type, seat_num,price, car_color,
         car_license_color,source, power_type, car_type, engine_number, engine_cc, engine_power, car_number,
         car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date,
-        rent_start_date, create_by, create_time, update_by, update_time
+        rent_start_date, create_by, create_time, update_by, update_time,
+        ic_card,fn_number,registe_time,annual_verification_time,last_maintain_time
         from car_info
 
     </sql>
@@ -143,6 +144,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="licensePrice != null ">license_price,</if>
             <if test="price != null ">price,</if>
             <if test="lockState != null ">lock_state,</if>
+            <if test="icCard != null ">ic_card,</if>
+            <if test="fnNumber != null ">fn_number,</if>
+            <if test="registeTime != null ">registe_time,</if>
+            <if test="annualVerificationTime != null ">annual_verification_time,</if>
+            <if test="lastMaintainTime != null ">last_maintain_time,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="carId != null ">#{carId},</if>
@@ -184,6 +190,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="licensePrice != null ">#{licensePrice},</if>
             <if test="price != null ">#{price},</if>
             <if test="lockState != null ">#{lockState},</if>
+            <if test="icCard != null ">#{icCard},</if>
+            <if test="fnNumber != null ">#{fnNumber},</if>
+            <if test="registeTime != null ">#{registeTime},</if>
+            <if test="annualVerificationTime != null ">#{annualVerificationTime},</if>
+            <if test="lastMaintainTime != null ">#{lastMaintainTime},</if>
         </trim>
     </insert>
 
@@ -227,6 +238,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rentStartDate != null ">rent_start_date = #{rentStartDate},</if>
             <if test="enterpriseCarTypeId != null ">enterprise_car_type_id = #{enterpriseCarTypeId},</if>
             <if test="lockState != null ">lock_state = #{lockState},</if>
+            <if test="icCard != null ">ic_card = #{icCard},</if>
+            <if test="fnNumber != null ">fn_number = #{fnNumber},</if>
+            <if test="registe_time != null ">registe_time = #{registeTime},</if>
+            <if test="annual_verification_time != null ">annual_verification_time = #{annualVerificationTime},</if>
+            <if test="last_maintain_time != null ">last_maintain_time = #{lastMaintainTime},</if>
         </trim>
         where car_id = #{carId}
     </update>

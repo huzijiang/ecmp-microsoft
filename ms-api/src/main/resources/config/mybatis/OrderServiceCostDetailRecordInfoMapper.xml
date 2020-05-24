@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.OrderServiceCostDetailRecordInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.dto.ordercost.OrderServiceCostDetailRecordInfo" id="Result">
+        <result property="recordId"               column="record_id"    />
+        <result property="orderId"                column="order_id"    />
+        <result property="startLongitude"         column="start_longitude"    />
+        <result property="startLatitude"          column="start_latitude"    />
+        <result property="endLongitude"           column="end_longitude"    />
+        <result property="endLatitude"            column="end_latitude"    />
+        <result property="startTime"              column="start_time"    />
+        <result property="endTime"                column="end_time"    />
+        <result property="mileage"                column="mileage"    />
+        <result property="setMealCost"            column="set_meal_cost"    />
+        <result property="setMealMileage"         column="set_meal_mileage"    />
+        <result property="setMealTimes"           column="set_meal_times"    />
+        <result property="beyondMileage"          column="beyond_mileage"    />
+        <result property="beyondTime"             column="beyond_time"    />
+        <result property="roadAndBridgeFee"       column="road_and_bridge_fee"    />
+        <result property="highwayTollFee"         column="highway_toll_fee"    />
+        <result property="stopCarFee"             column="stop_car_fee"    />
+        <result property="accommodationFee"       column="accommodation_fee"    />
+        <result property="foodFee"                column="food_fee"    />
+        <result property="othersFee"              column="others_fee"    />
+        <result property="createBy"               column="create_by"    />
+        <result property="createTime"             column="create_time"    />
+        <result property="updateBy"               column="update_by"    />
+        <result property="updateTime"             column="update_time"    />
+    </resultMap>
+    <sql id="key">
+        select record_id, order_id ,start_longitude,start_latitude,
+               end_longitude, end_latitude ,start_time,end_time,
+               mileage, set_meal_cost ,set_meal_mileage,set_meal_times,
+               beyond_mileage, beyond_time ,road_and_bridge_fee,highway_toll_fee,
+               stop_car_fee, accommodation_fee ,food_fee,others_fee,
+               create_by, create_time ,update_by,update_time
+        from order_service_cost_detail_record_info
+    </sql>
+</mapper>

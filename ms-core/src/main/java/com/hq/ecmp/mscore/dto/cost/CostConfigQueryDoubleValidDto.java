@@ -28,6 +28,8 @@ public class CostConfigQueryDoubleValidDto extends PageRequest {
 
     @ApiModelProperty(value = "服务类型")
     private String serviceType;
+    @ApiModelProperty(value = "车队id")
+    private Long carGroupId;
 
     @ApiModelProperty(value = "车型集合")
     private List<CostConfigCarTypeInfo> carTypes;
