@@ -413,6 +413,15 @@ public class CarInfoServiceImpl implements ICarInfoService
             Long carTypeId = carInfo.getCarTypeId();
             //查询fuelType
             String fuelType = selectFuelType(carId);
+            //查询能源类型
+            EcmpDictData ecmpDictData = new EcmpDictData();
+            ecmpDictData.setDictType("carPowerType");
+            ecmpDictData.setDictValue(carInfo.getPowerType());
+            List<EcmpDictData> ecmpDictDatas = ecmpDictDataMapper.selectEcmpDictDataList(ecmpDictData);
+            String powerTypeName = null;
+            if(CollectionUtils.isNotEmpty(ecmpDictDatas)){
+                powerTypeName = ecmpDictDatas.get(0).getDictLabel();
+            }
             //查询level
             EnterpriseCarTypeInfo enterpriseCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carTypeId);
             String level = null;
@@ -437,6 +446,7 @@ public class CarInfoServiceImpl implements ICarInfoService
                     .source(carInfo.getSource())
                     .state(carInfo.getState())
                     .carId(carId)
+                    .powerTypeName(powerTypeName)
                     .powerType(carInfo.getPowerType())
                     .build();
             list.add(carListVO);
@@ -475,7 +485,7 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .powerType(carInfo.getPowerType())
                 .seatNum(carInfo.getSeatNum())
                 .ownerOrg(deptName)
-                .deptName("车管部")  // TODO 车队 与 车辆都是有所属公司字段 但是没有所属部门字段
+                .deptName(deptName)
                 .source(carInfo.getSource())
                 .buyDate(carInfo.getBuyDate())
                 .drivers(drivers)
@@ -489,6 +499,13 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .carImgaeUrl(carInfo.getCarImgaeUrl())
                 .carDrivingLicenseImagesUrl(carInfo.getCarDrivingLicenseImagesUrl())
                 .carId(carId)
+                .icCard(carInfo.getIcCard())
+                .fnNumber(carInfo.getFnNumber())
+                .registeTime(carInfo.getRegisteTime())
+                .annualVerificationTime(carInfo.getAnnualVerificationTime())
+                .lastMaintainTime(carInfo.getLastMaintainTime())
+                .engineNumber(carInfo.getEngineNumber())
+                .carNumber(carInfo.getCarNumber())
                 .drivingLicenseStartDate(carInfo.getDrivingLicenseStartDate()==null?"":simpleDateFormat.format(carInfo.getDrivingLicenseStartDate()))
                 .drivingLicenseEndDate(carInfo.getDrivingLicenseStartDate()==null?"":simpleDateFormat.format(carInfo.getDrivingLicenseEndDate()))
                 .build();
@@ -624,6 +641,15 @@ public class CarInfoServiceImpl implements ICarInfoService
             carTypeName = enterpriseCarTypeInfo.getName();
         }
         //燃料类型
+        //查询能源类型
+        EcmpDictData ecmpDictData = new EcmpDictData();
+        ecmpDictData.setDictType("carPowerType");
+        ecmpDictData.setDictValue(carInfo.getPowerType());
+        List<EcmpDictData> ecmpDictDatas = ecmpDictDataMapper.selectEcmpDictDataList(ecmpDictData);
+        String powerTypeName = null;
+        if(CollectionUtils.isNotEmpty(ecmpDictDatas)){
+            powerTypeName = ecmpDictDatas.get(0).getDictLabel();
+        }
        // carRefuelInfoMapper.selectCarRefuelInfoById(carInfo.getPowerType())
         //查询所属公司
         Long deptId = carInfo.getDeptId();
@@ -652,7 +678,7 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .ownerOrgId(carInfo.getDeptId())
                 .ownerCompanyName(deptName)
                 .powerType(carInfo.getPowerType())
-                //.powerTypeName(null) //查的名字 暂不使用
+                .powerTypeName(powerTypeName)
                 .price(carInfo.getPrice())
                 .rentEndDate(carInfo.getRentEndDate())
                 .rentStartDate(carInfo.getRentStartDate())

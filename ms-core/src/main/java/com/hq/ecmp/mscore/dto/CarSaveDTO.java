@@ -105,4 +105,6 @@ public class CarSaveDTO {
 
     private String engineNumber; //发动机编号
     private String carNumber;  //车架号
+
+    private String powerTypeName;
 }
