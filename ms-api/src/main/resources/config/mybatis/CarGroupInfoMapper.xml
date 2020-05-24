@@ -18,6 +18,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="latitude"    column="latitude"    />
         <result property="longitude"    column="longitude"    />
         <result property="state"    column="state"    />
+        <result property="itIsInner"    column="it_is_inner"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -27,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="selectCarGroupInfoVo">
         select car_group_id,parent_car_group_id,car_group_name,car_group_code, city,full_address,short_address,company_id,
-         leader,telephone,create_by,province,latitude,longitude,state, create_time, update_by, update_time from car_group_info
+         leader,telephone,it_is_inner,create_by,province,latitude,longitude,state, create_time, update_by, update_time from car_group_info
     </sql>
 
     <select id="selectCarGroupInfoList" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo" resultMap="CarGroupInfoResult">
@@ -68,6 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fullAddress != null ">full_address,</if>
             <if test="state != null ">state,</if>
             <if test="allowOuterDispatch != null ">allow_outer_dispatch,</if>
+            <if test="itIsInner != null ">it_is_inner,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -90,6 +92,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fullAddress != null ">#{fullAddress},</if>
             <if test="state != null ">#{state},</if>
             <if test="allowOuterDispatch != null ">#{allowOuterDispatch},</if>
+            <if test="itIsInner != null ">#{itIsInner},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -139,6 +142,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAllByPage" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO">
             select c.car_group_id as carGroupId, c.car_group_name as carGroupName,
         c.car_group_code as carGroupCode,
+        c.it_is_inner as itIsInner,
         c.company_id as companyId,
                 e1.dept_name as ownerCompanyName,
                 e1.dept_id as ownerOrg,

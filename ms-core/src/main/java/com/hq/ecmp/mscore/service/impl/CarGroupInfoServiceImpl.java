@@ -279,6 +279,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         carGroupInfo.setCompanyId(carGroupDTO.getOwneCompany());
         //初始化可用
         carGroupInfo.setState("Y000");
+        carGroupInfo.setItIsInner(carGroupDTO.getItIsInner());
         //1.保存车队
         int i = insertCarGroupInfo(carGroupInfo);
         if(i != 1){
@@ -379,6 +380,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 .cityName(cityInfo.getCityName())
                 //详细地址
                 .fullAddress(carGroupInfo.getFullAddress())
+                .itIsInner(carGroupInfo.getItIsInner())
                 //短地址
                 .shortAddress(carGroupInfo.getShortAddress())
                 .build();
@@ -1236,6 +1238,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     .owneCompany(carGroupInfo.getCompanyId())
                     .telephone(carGroupInfo.getTelephone())
                     .dispatchers(dispatchers)
+                    .itIsInner(carGroupInfo.getItIsInner())
                     .shortAddress(carGroupInfo.getShortAddress())
                     .fullAddress(carGroupInfo.getFullAddress())
                     .companyIds(companyIds.toArray(new Long[]{}))
