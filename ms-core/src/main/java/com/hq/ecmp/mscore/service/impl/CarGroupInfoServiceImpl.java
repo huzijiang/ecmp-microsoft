@@ -963,6 +963,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         return apiResponse;
     }
 
+    @Override
+    public List<CostConfigCityInfo> getCitysBycarGroupId(Long carGroupId) {
+
+        return carGroupServeScopeInfoMapper.getCitysBycarGroupId(carGroupId);
+    }
+
     /**
      * 查询指定城市所有车队调度员及车队座机
      * @param

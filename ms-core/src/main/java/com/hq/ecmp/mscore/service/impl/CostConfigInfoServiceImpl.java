@@ -4,15 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.OrderServiceType;
-import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
-import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
-import com.hq.ecmp.mscore.domain.CostConfigInfo;
-import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.cost.*;
-import com.hq.ecmp.mscore.mapper.ChinaCityMapper;
-import com.hq.ecmp.mscore.mapper.CostConfigCarTypeInfoMapper;
-import com.hq.ecmp.mscore.mapper.CostConfigCityInfoMapper;
-import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.CostCalculation;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
 import com.hq.ecmp.mscore.vo.SupplementVO;
@@ -43,6 +37,8 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     private CostConfigCityInfoMapper costConfigCityInfoMapper;
     @Resource
     private CostConfigCarTypeInfoMapper costConfigCarTypeInfoMapper;
+    @Resource
+    private CostConfigCarGroupInfoMapper costConfigCarGroupInfoMapper;
 
     /**
      * 通过id查询成本配置信息
@@ -153,6 +149,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         }
         costConfigCityInfoMapper.insertCostConfigCityInfoBatch(costConfigDto.getCities(),costId,userId,DateUtils.getNowDate());
         costConfigCarTypeInfoMapper.insertCostConfigCarTypeInfoBatch(costConfigDto.getCarTypes(),costId,userId,DateUtils.getNowDate());
+        costConfigCarGroupInfoMapper.insertCostConfigCarGroupInfoBatch(costConfigDto.getCarGroupInfos(),costId,userId,DateUtils.getNowDate());
     }
 
     /**
@@ -200,11 +197,9 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     public List<ValidDoubleDtoResult> checkDoubleByServiceTypeCityCarType(CostConfigQueryDoubleValidDto costConfigQueryDto) {
         List<ValidDoubleDtoResult> result = new ArrayList<>();
         List<CostConfigCityInfo> cities = costConfigQueryDto.getCities();
-        for (CostConfigCityInfo costConfigCityInfo:
-        cities) {
+        for (CostConfigCityInfo costConfigCityInfo: cities) {
             int count = 0;
-            for (CostConfigCarTypeInfo costConfigCarTypeInfo:
-            costConfigQueryDto.getCarTypes()) {
+            for (CostConfigCarTypeInfo costConfigCarTypeInfo: costConfigQueryDto.getCarTypes()) {
                 count = costConfigInfoMapper.checkDoubleByServiceTypeCityCarType(
                         costConfigCarTypeInfo.getCarTypeId(),Integer.parseInt(costConfigCityInfo.getCityCode()),costConfigQueryDto.getServiceType(),
                         costConfigQueryDto.getRentType());
@@ -233,7 +228,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         //公司id
         costConfigQueryDto.setCompanyId(companyId);
         //城市
-        costConfigQueryDto.setCityCode(Integer.valueOf(supplementVO.getCityCode()));
+        costConfigQueryDto.setCityCode(supplementVO.getCityCode());
         String cityName = costConfigCityInfoMapper.selectCostConfigCity(supplementVO.getCityCode());
         //服务类型
         costConfigQueryDto.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
@@ -303,5 +298,17 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
             return true;
         }
         return false;
+    }
+
+    /**
+     * 校验包车服务模式服务类型判重
+     * @param costConfigQueryDto
+     * @return
+     */
+    @Override
+    public List<ValidDoubleDtoResult> checkCharteredCost(CostConfigQueryDoubleValidDto costConfigQueryDto) {
+
+
+        return null;
     }
 }
