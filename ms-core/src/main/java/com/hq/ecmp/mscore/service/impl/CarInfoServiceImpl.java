@@ -264,14 +264,21 @@ public class CarInfoServiceImpl implements ICarInfoService
         carInfo.setCarColor(carSaveDTO.getCarColor());
         carInfo.setPowerType(carSaveDTO.getPowerType());
         carInfo.setSeatNum(carSaveDTO.getSeatNum());
-        carInfo.setPrice(carSaveDTO.getPrice()); //TODO 新增
-        carInfo.setTax(carSaveDTO.getTax()); //TODO 新增
-        carInfo.setLicensePrice(carSaveDTO.getLicensePrice()); //TODO 新增
+        carInfo.setPrice(carSaveDTO.getPrice());
+        carInfo.setTax(carSaveDTO.getTax());
+        carInfo.setLicensePrice(carSaveDTO.getLicensePrice());
         carInfo.setCarImgaeUrl(carSaveDTO.getCarImgaeUrl());
-        carInfo.setDrivingLicense(carSaveDTO.getDrivingLicense());  //TODO 新增
-        carInfo.setDrivingLicenseStartDate(carSaveDTO.getDrivingLicenseStartDate());  //TODO 新增
+        carInfo.setDrivingLicense(carSaveDTO.getDrivingLicense());
+        carInfo.setDrivingLicenseStartDate(carSaveDTO.getDrivingLicenseStartDate());
         carInfo.setDrivingLicenseEndDate(carSaveDTO.getDrivingLicenseEndDate());
         carInfo.setCarDrivingLicenseImagesUrl(carSaveDTO.getCarDrivingLicenseImagesUrl());
+        carInfo.setIcCard(carSaveDTO.getIcCard());
+        carInfo.setFnNumber(carSaveDTO.getFnNumber());
+        carInfo.setRegisteTime(carSaveDTO.getRegisteTime());
+        carInfo.setAnnualVerificationTime(carSaveDTO.getAnnualVerificationTime());
+        carInfo.setLastMaintainTime(carSaveDTO.getLastMaintainTime());
+        carInfo.setEngineNumber(carSaveDTO.getEngineNumber());
+        carInfo.setCarNumber(carSaveDTO.getCarNumber());
         return carInfo;
     }
 

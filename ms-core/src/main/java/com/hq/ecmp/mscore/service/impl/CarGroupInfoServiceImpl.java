@@ -538,6 +538,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //所属城市编码
         carGroupInfo.setCity(city);
         carGroupInfo.setCarGroupId(carGroupDTO.getCarGroupId());
+        carGroupInfo.setItIsInner(carGroupDTO.getItIsInner());
         //车队编码
         carGroupInfo.setCarGroupCode(carGroupDTO.getCarGroupCode());
         //父id

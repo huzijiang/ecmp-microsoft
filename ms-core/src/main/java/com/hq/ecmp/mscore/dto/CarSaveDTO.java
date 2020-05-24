@@ -96,4 +96,13 @@ public class CarSaveDTO {
     private String ownerCompanyName; //所属公司名字
 
     private Long companyId;
+
+    private String  icCard;  //IC卡
+    private String  fnNumber;  //档案号
+    private Date  registeTime;  //注册时间
+    private Date  annualVerificationTime;  //年度审核日期
+    private Date  lastMaintainTime;  //最后维修时间
+
+    private String engineNumber; //发动机编号
+    private String carNumber;  //车架号
 }

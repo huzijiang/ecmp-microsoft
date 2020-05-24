@@ -116,6 +116,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="telephone != null and telephone != ''">telephone = #{telephone},</if>
             <if test="state != null ">state = #{state},</if>
             <if test="allowOuterDispatch != null ">allow_outer_dispatch = #{allowOuterDispatch},</if>
+            <if test="itIsInner != null ">it_is_inner = #{itIsInner},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
