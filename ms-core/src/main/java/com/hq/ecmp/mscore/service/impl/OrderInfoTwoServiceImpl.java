@@ -684,6 +684,21 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
 
+    /**
+     *
+     * @param userApplySingleVo
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public PageResult<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        userApplySingleVo.setCompanyId(companyId);
+        PageHelper.startPage(userApplySingleVo.getPageNum(),userApplySingleVo.getPageSize());
+        List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplySearchList(userApplySingleVo);
+        PageInfo<UserApplySingleVo> info = new PageInfo<>(useApplyList);
+        return new PageResult<>(info.getTotal(),info.getPages(),useApplyList);
+    }
 
 
     /**
