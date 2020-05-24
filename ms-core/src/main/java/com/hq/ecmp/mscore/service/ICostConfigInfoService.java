@@ -96,7 +96,7 @@ public interface ICostConfigInfoService
 
     /**
      * 补单成本计算
-     * @param SupplementVO
+     * @param supplementVO
      * @return
      */
     String supplementAmountCalculation(SupplementVO supplementVO,Long companyId);
@@ -107,4 +107,6 @@ public interface ICostConfigInfoService
      * @return
      */
     Boolean costConfigNameIsDouble(String configName);
+
+    List<ValidDoubleDtoResult> checkCharteredCost(CostConfigQueryDoubleValidDto costConfigQueryDto);
 }
