@@ -54,4 +54,12 @@ public interface OrderInfoTwoService {
      * @return
      */
     PageResult<DispatchVo> queryDispatchReassignmentList(ApplyDispatchQuery query, LoginUser loginUser);
+
+    /**
+     * 用车申请列表
+     * @param userApplySingleVo
+     * @param loginUser
+     * @return
+     */
+    PageResult<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
 }

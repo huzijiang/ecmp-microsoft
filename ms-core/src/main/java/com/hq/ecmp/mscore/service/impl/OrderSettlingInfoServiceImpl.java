@@ -144,7 +144,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //公司id
         costConfigQueryDto.setCompanyId(companyId);
         //城市
-        costConfigQueryDto.setCityCode(Integer.valueOf(cityCode));
+        costConfigQueryDto.setCityCode(cityCode);
         //服务类型
         costConfigQueryDto.setServiceType(orderInfo.getServiceType());
         //车型级别

@@ -348,5 +348,12 @@ public interface OrderInfoMapper {
     OrderDetailBackDto getOrderListDetailById(@Param("orderNo") String orderNo);
 
     List<OrderInfo> selectUsingCarByCarId(Long carId);
+
+    /**
+     * 用车申请单列表
+     * @param userApplySingleVo
+     * @return
+     */
+    List<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo);
 }
 

@@ -27,14 +27,21 @@ public class CostConfigListResult {
     @ApiModelProperty(value = "公司id")
     private Long companyId;
     private String state;
+
     @ApiModelProperty(value = "成本名称")
     private String costConfigName;
+    @ApiModelProperty(value = "车队id")
+    private Long carGroupId;
+    @ApiModelProperty(value = "车队名称")
+    private Long carGroupName;
     @ApiModelProperty(value = "城市名称")
     private String cityName;
     @ApiModelProperty(value = "城市code")
     private String cityCode;
     @ApiModelProperty(value = "服务类型")
     private String serviceType;
+    @ApiModelProperty(value = "服务模式")
+    private String carGroupUserMode;
     @ApiModelProperty(value = "包车类型，T001  半日租\n" +
             "T002  整日租 ")
     private String rentType;

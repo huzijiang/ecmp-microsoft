@@ -18,6 +18,8 @@
         <result property="beyondPriceEveryMinute"    column="beyond_price_every_minute"    />
         <result property="waitPriceEreryMinute"    column="wait_price_erery_minute"    />
         <result property="state"    column="state"    />
+        <result property="carGroupUserMode"    column="car_group_user_mode"    />
+
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -25,7 +27,7 @@
     </resultMap>
 
     <sql id="selectCostConfigInfoVo">
-        select cost_id, company_id, cost_config_name, service_type, rent_type, start_price, combos_price, combos_mileage, combos_times, beyond_price_every_km, beyond_price_every_minute, wait_price_erery_minute, state, create_by, create_time, update_by, update_time from cost_config_info
+        select cost_id, company_id, cost_config_name, service_type, rent_type, start_price, combos_price, combos_mileage, combos_times, beyond_price_every_km, beyond_price_every_minute, wait_price_erery_minute, state, car_group_user_mode,create_by, create_time, update_by, update_time from cost_config_info
     </sql>
 
     <select id="selectCostConfigInfoById" resultType="com.hq.ecmp.mscore.dto.cost.CostConfigListResult">
@@ -73,6 +75,7 @@
             <if test="beyondPriceEveryMinute != null ">beyond_price_every_minute,</if>
             <if test="waitPriceEreryMinute != null ">wait_price_erery_minute,</if>
             <if test="state != null  and state != ''">state,</if>
+            <if test="carGroupUserMode != null  and carGroupUserMode != ''">car_group_user_mode,</if>
             <if test="createBy != null and createBy != '' ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null and updateBy != ''">update_by,</if>
@@ -92,6 +95,7 @@
             <if test="beyondPriceEveryMinute != null ">#{beyondPriceEveryMinute},</if>
             <if test="waitPriceEreryMinute != null ">#{waitPriceEreryMinute},</if>
             <if test="state != null  and state != ''">#{state},</if>
+            <if test="carGroupUserMode != null  and carGroupUserMode != ''">#{carGroupUserMode},</if>
             <if test="createBy != null and createBy != '' ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null and updateBy != ''">#{updateBy},</if>
@@ -114,6 +118,7 @@
             <if test="beyondPriceEveryMinute != null ">beyond_price_every_minute = #{beyondPriceEveryMinute},</if>
             <if test="waitPriceEreryMinute != null ">wait_price_erery_minute = #{waitPriceEreryMinute},</if>
             <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="carGroupUserMode != null  and carGroupUserMode != ''">car_group_user_mode = #{carGroupUserMode},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -139,6 +144,7 @@
             c.company_id as companyId,
             c.cost_config_name as costConfigName,
             c.rent_type as rentType,
+            c.car_group_user_mode as carGroupUserMode,
             cc.city_name as cityName,
             cc.city_code as cityCode,
             c.service_type as serviceType,
@@ -191,6 +197,7 @@
             cc.city_code as cityCode,
             cc.city_name as cityName,
             c.service_type as serviceType,
+            c.car_group_user_mode as carGroupUserMode,
             c.rent_type as rentType,
             c.start_price as startPrice,
             c.combos_price as combosPrice,

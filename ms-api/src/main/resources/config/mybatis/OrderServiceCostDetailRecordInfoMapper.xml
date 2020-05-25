@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.OrderServiceCostDetailRecordInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo" id="OrderServiceCostDetailRecordInfoMap">
+        <result property="recordId" column="record_id" jdbcType="INTEGER"/>
+        <result property="orderId" column="order_id" jdbcType="INTEGER"/>
+        <result property="startLongitude" column="start_longitude" jdbcType="NUMERIC"/>
+        <result property="startLatitude" column="start_latitude" jdbcType="NUMERIC"/>
+        <result property="endLongitude" column="end_longitude" jdbcType="NUMERIC"/>
+        <result property="endLatitude" column="end_latitude" jdbcType="NUMERIC"/>
+        <result property="startTime" column="start_time" jdbcType="TIMESTAMP"/>
+        <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+        <result property="mileage" column="mileage" jdbcType="NUMERIC"/>
+        <result property="setMealCost" column="set_meal_cost" jdbcType="NUMERIC"/>
+        <result property="setMealMileage" column="set_meal_mileage" jdbcType="NUMERIC"/>
+        <result property="setMealTimes" column="set_meal_times" jdbcType="INTEGER"/>
+        <result property="beyondMileage" column="beyond_mileage" jdbcType="NUMERIC"/>
+        <result property="beyondTime" column="beyond_time" jdbcType="INTEGER"/>
+        <result property="roadAndBridgeFee" column="road_and_bridge_fee" jdbcType="NUMERIC"/>
+        <result property="highwayTollFee" column="highway_toll_fee" jdbcType="NUMERIC"/>
+        <result property="stopCarFee" column="stop_car_fee" jdbcType="NUMERIC"/>
+        <result property="accommodationFee" column="accommodation_fee" jdbcType="NUMERIC"/>
+        <result property="foodFee" column="food_fee" jdbcType="NUMERIC"/>
+        <result property="othersFee" column="others_fee" jdbcType="NUMERIC"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="key">
+        select record_id, order_id ,start_longitude,start_latitude,
+               end_longitude, end_latitude ,start_time,end_time,
+               mileage, set_meal_cost ,set_meal_mileage,set_meal_times,
+               beyond_mileage, beyond_time ,road_and_bridge_fee,highway_toll_fee,
+               stop_car_fee, accommodation_fee ,food_fee,others_fee,
+               create_by, create_time ,update_by,update_time
+        from order_service_cost_detail_record_info
+    </sql>
+    <!--查询单个-->
+    <select id="queryById" resultMap="OrderServiceCostDetailRecordInfoMap">
+        select
+          record_id, order_id, start_longitude, start_latitude, end_longitude, end_latitude, start_time, end_time, mileage, set_meal_cost, set_meal_mileage, set_meal_times, beyond_mileage, beyond_time, road_and_bridge_fee, highway_toll_fee, stop_car_fee, accommodation_fee, food_fee, others_fee, create_by, create_time, update_by, update_time
+        from ecmp.order_service_cost_detail_record_info
+        where record_id = #{recordId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="OrderServiceCostDetailRecordInfoMap">
+        select
+          record_id, order_id, start_longitude, start_latitude, end_longitude, end_latitude, start_time, end_time, mileage, set_meal_cost, set_meal_mileage, set_meal_times, beyond_mileage, beyond_time, road_and_bridge_fee, highway_toll_fee, stop_car_fee, accommodation_fee, food_fee, others_fee, create_by, create_time, update_by, update_time
+        from ecmp.order_service_cost_detail_record_info
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="OrderServiceCostDetailRecordInfoMap">
+        select
+          record_id, order_id, start_longitude, start_latitude, end_longitude, end_latitude, start_time, end_time, mileage, set_meal_cost, set_meal_mileage, set_meal_times, beyond_mileage, beyond_time, road_and_bridge_fee, highway_toll_fee, stop_car_fee, accommodation_fee, food_fee, others_fee, create_by, create_time, update_by, update_time
+        from ecmp.order_service_cost_detail_record_info
+        <where>
+            <if test="recordId != null">
+                and record_id = #{recordId}
+            </if>
+            <if test="orderId != null">
+                and order_id = #{orderId}
+            </if>
+            <if test="startLongitude != null">
+                and start_longitude = #{startLongitude}
+            </if>
+            <if test="startLatitude != null">
+                and start_latitude = #{startLatitude}
+            </if>
+            <if test="endLongitude != null">
+                and end_longitude = #{endLongitude}
+            </if>
+            <if test="endLatitude != null">
+                and end_latitude = #{endLatitude}
+            </if>
+            <if test="startTime != null">
+                and start_time = #{startTime}
+            </if>
+            <if test="endTime != null">
+                and end_time = #{endTime}
+            </if>
+            <if test="mileage != null">
+                and mileage = #{mileage}
+            </if>
+            <if test="setMealCost != null">
+                and set_meal_cost = #{setMealCost}
+            </if>
+            <if test="setMealMileage != null">
+                and set_meal_mileage = #{setMealMileage}
+            </if>
+            <if test="setMealTimes != null">
+                and set_meal_times = #{setMealTimes}
+            </if>
+            <if test="beyondMileage != null">
+                and beyond_mileage = #{beyondMileage}
+            </if>
+            <if test="beyondTime != null">
+                and beyond_time = #{beyondTime}
+            </if>
+            <if test="roadAndBridgeFee != null">
+                and road_and_bridge_fee = #{roadAndBridgeFee}
+            </if>
+            <if test="highwayTollFee != null">
+                and highway_toll_fee = #{highwayTollFee}
+            </if>
+            <if test="stopCarFee != null">
+                and stop_car_fee = #{stopCarFee}
+            </if>
+            <if test="accommodationFee != null">
+                and accommodation_fee = #{accommodationFee}
+            </if>
+            <if test="foodFee != null">
+                and food_fee = #{foodFee}
+            </if>
+            <if test="othersFee != null">
+                and others_fee = #{othersFee}
+            </if>
+            <if test="createBy != null">
+                and create_by = #{createBy}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateBy != null">
+                and update_by = #{updateBy}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="recordId" useGeneratedKeys="true">
+        insert into ecmp.order_service_cost_detail_record_info(order_id, start_longitude, start_latitude, end_longitude, end_latitude, start_time, end_time, mileage, set_meal_cost, set_meal_mileage, set_meal_times, beyond_mileage, beyond_time, road_and_bridge_fee, highway_toll_fee, stop_car_fee, accommodation_fee, food_fee, others_fee, create_by, create_time, update_by, update_time)
+        values (#{orderId}, #{startLongitude}, #{startLatitude}, #{endLongitude}, #{endLatitude}, #{startTime}, #{endTime}, #{mileage}, #{setMealCost}, #{setMealMileage}, #{setMealTimes}, #{beyondMileage}, #{beyondTime}, #{roadAndBridgeFee}, #{highwayTollFee}, #{stopCarFee}, #{accommodationFee}, #{foodFee}, #{othersFee}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update ecmp.order_service_cost_detail_record_info
+        <set>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+            <if test="startLongitude != null">
+                start_longitude = #{startLongitude},
+            </if>
+            <if test="startLatitude != null">
+                start_latitude = #{startLatitude},
+            </if>
+            <if test="endLongitude != null">
+                end_longitude = #{endLongitude},
+            </if>
+            <if test="endLatitude != null">
+                end_latitude = #{endLatitude},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime != null">
+                end_time = #{endTime},
+            </if>
+            <if test="mileage != null">
+                mileage = #{mileage},
+            </if>
+            <if test="setMealCost != null">
+                set_meal_cost = #{setMealCost},
+            </if>
+            <if test="setMealMileage != null">
+                set_meal_mileage = #{setMealMileage},
+            </if>
+            <if test="setMealTimes != null">
+                set_meal_times = #{setMealTimes},
+            </if>
+            <if test="beyondMileage != null">
+                beyond_mileage = #{beyondMileage},
+            </if>
+            <if test="beyondTime != null">
+                beyond_time = #{beyondTime},
+            </if>
+            <if test="roadAndBridgeFee != null">
+                road_and_bridge_fee = #{roadAndBridgeFee},
+            </if>
+            <if test="highwayTollFee != null">
+                highway_toll_fee = #{highwayTollFee},
+            </if>
+            <if test="stopCarFee != null">
+                stop_car_fee = #{stopCarFee},
+            </if>
+            <if test="accommodationFee != null">
+                accommodation_fee = #{accommodationFee},
+            </if>
+            <if test="foodFee != null">
+                food_fee = #{foodFee},
+            </if>
+            <if test="othersFee != null">
+                others_fee = #{othersFee},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where record_id = #{recordId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from ecmp.order_service_cost_detail_record_info where record_id = #{recordId}
+    </delete>
+
+    <select id="getList" parameterType="com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo" resultMap="OrderServiceCostDetailRecordInfoMap">
+        <include refid="key"/>
+        <where>
+            <if test="recordId != null "> and record_id = #{recordId}</if>
+            <if test="orderId != null  and orderId != ''"> and order_id = #{orderId}</if>
+        </where>
+    </select>
+    <update id="updateData" parameterType="com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo">
+        update order_service_cost_detail_record_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="startLongitude != null and startLatitude != ''">start_longitude = #{startLongitude},</if>
+            <if test="startLatitude != null  and startLatitude != ''">start_latitude = #{startLatitude},</if>
+            <if test="endLongitude != null and endLongitude != '' ">end_longitude = #{endLongitude},</if>
+            <if test="endLatitude != null and endLatitude != ''">end_latitude = #{endLatitude},</if>
+            <if test="startTime != null and startTime != ''">start_time = #{startTime},</if>
+            <if test="endTime != null and endTime != ''">end_time = #{endTime},</if>
+            <if test="mileage != null and mileage != ''">mileage = #{mileage},</if>
+            <if test="setMealCost != null and setMealCost != ''">set_meal_cost = #{setMealCost},</if>
+            <if test="setMealMileage != null and setMealMileage != ''">set_meal_mileage = #{setMealMileage},</if>
+            <if test="setMealTimes != null and setMealTimes != ''">set_meal_times = #{setMealTimes},</if>
+            <if test="beyondMileage != null and beyondMileage != ''">beyond_mileage = #{beyondMileage},</if>
+            <if test="beyondTime != null and beyondTime != ''">beyond_time = #{beyondTime},</if>
+            <if test="roadAndBridgeFee != null and roadAndBridgeFee != ''">road_and_bridge_fee = #{roadAndBridgeFee},</if>
+            <if test="highwayTollFee != null and highwayTollFee != ''">highway_toll_fee = #{highwayTollFee},</if>
+            <if test="stopCarFee != null and stopCarFee != ''">stop_car_fee = #{stopCarFee},</if>
+            <if test="accommodationFee != null and accommodationFee != ''">accommodation_fee = #{accommodationFee},</if>
+            <if test="foodFee != null and foodFee != ''">food_fee = #{foodFee},</if>
+            <if test="othersFee != null and othersFee != ''">others_fee = #{othersFee},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null and createTime != ''">create_time = #{createTime},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null and updateTime != ''">update_time = #{updateTime},</if>
+        </trim>
+        where record_id = #{recordId}
+    </update>
+</mapper>
