@@ -139,12 +139,16 @@ public class DriverController {
     @Log(title = "司机排班管理",content = "司机排班情况",businessType = BusinessType.OTHER)
     @ApiOperation(value = "loadScheduleInfo",notes = "加载司机排班/出勤信息",httpMethod ="POST")
     @PostMapping("/loadScheduleInfo")
-    public ApiResponse<DriverDutyPlanVO> loadScheduleInfo(@RequestBody(required = false) String scheduleDate){
+    public ApiResponse<DriverDutyPlanVO> loadScheduleInfo(@RequestBody(required = false) DriverScheduleDTO driverScheduleDTO){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long driverId = loginUser.getDriver().getDriverId();
         //Long userId = loginUser.getUser().getUserId();
         try {
+            String scheduleDate = null;
+            if(driverScheduleDTO != null){
+                scheduleDate = driverScheduleDTO.getScheduleDate();
+            }
             //查询司机当月排班日期对应的出勤情况列表
             DriverDutyPlanVO result = driverWorkInfoService.selectDriverScheduleByMonth(scheduleDate,driverId);
             return ApiResponse.success(result);

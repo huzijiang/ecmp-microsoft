@@ -62,4 +62,13 @@ public interface OrderInfoTwoService {
      * @return
      */
     PageResult<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
+
+    /**
+     *  佛山后管申请单调度列表
+     * @param query
+     * @param loginUser
+     * @param isIndex
+     * @return
+     */
+    PageResult<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser);
 }

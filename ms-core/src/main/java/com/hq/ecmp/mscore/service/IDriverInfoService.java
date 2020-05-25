@@ -71,6 +71,7 @@ public interface IDriverInfoService
 
     public int deleteDriverInfoById(Long driverId);
 
+    public boolean setDriverWorkInfo(Long driverId);
     public boolean createDriver(DriverCreateInfo driverCreateInfo);
     public boolean updateDriver(DriverCreateInfo driverCreateInfo);
 
