@@ -30,7 +30,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
         order by create_time
     </select>
-
+    <select id="getOrderDay" parameterType="com.hq.ecmp.mscore.domain.DriverHeartbeatInfo" resultMap="DriverHeartbeatInfoResult">
+        <include refid="selectDriverHeartbeatInfoVo"/>
+        <where>
+            <if test="orderId != null "> and order_id = #{orderId}</if>
+        </where>
+        <![CDATA[ and create_time >= #{beginDate}]]>
+        <![CDATA[ and create_time <= #{endDate}]]>
+        order by create_time
+    </select>
     <select id="selectDriverHeartbeatInfoById" parameterType="Long" resultMap="DriverHeartbeatInfoResult">
         <include refid="selectDriverHeartbeatInfoVo"/>
         where heart_id = #{heartId}

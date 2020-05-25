@@ -36,4 +36,12 @@ public class ApplyDispatchQuery  extends PageResult {
         String serverDepts;
 
         private Integer pageNum;
+        /**
+         * 是否是首页数据 1 是 2 否
+         */
+        private int isIndex ;
+        /**
+         * 订单id
+         */
+        private Long orderId;
 }

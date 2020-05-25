@@ -1,10 +1,12 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
+@Builder
 public class OrderServiceImagesInfo {
 
     Long imageId;
