@@ -451,7 +451,7 @@ public class CarInfoServiceImpl implements ICarInfoService
                     .driverNum(list2.size())
                     .source(carInfo.getSource())
                     .state(carInfo.getState())
-
+                    .companyName(companyName)
                     .carId(carId)
                     .powerTypeName(powerTypeName)
                     .powerType(carInfo.getPowerType())
