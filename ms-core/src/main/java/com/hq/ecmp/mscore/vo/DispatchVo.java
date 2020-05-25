@@ -107,6 +107,12 @@ public class DispatchVo {
     @ApiModelProperty(value = "用车备注")
     private String notes;
 
+    @ApiModelProperty(value = "服务模式")
+    private String carGroupUserMode;
+
+    @ApiModelProperty(value = "用车城市code")
+    private String useCarCityCode;
+
 
 
 }
