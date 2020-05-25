@@ -77,6 +77,30 @@ public class UserApplySingleController {
     }
 
     /**
+     * 待确认订单----去确认
+     * @param userApplySingleVo
+     * @return
+     */
+    @ApiOperation(value = "toSureToBeConfirmedOrder",notes = "待确认订单----去确认",httpMethod ="POST")
+    @Log(title = "用车申请", content = "待确认订单----去确认",businessType = BusinessType.OTHER)
+    @PostMapping("/toSureToBeConfirmedOrder")
+    public ApiResponse toSureToBeConfirmedOrder(@RequestBody UserApplySingleVo userApplySingleVo){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            int i = orderInfoTwoService.toSureToBeConfirmedOrder(userApplySingleVo,loginUser);
+            if(i == 1){
+                return ApiResponse.success("待确认订单----去确认成功");
+            }else{
+                return ApiResponse.error("待确认订单----去确认失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("待确认订单----去确认失败");
+        }
+    }
+
+    /**
      * 获取当前业务员的待派车，已派车，已过期数量
      * @param userApplySingleVo
      * @return

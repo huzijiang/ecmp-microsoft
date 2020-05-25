@@ -52,6 +52,9 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
 {
 
     @Autowired
+    private CarGroupInfoMapper carGroupInfoMapper;
+
+    @Autowired
     private OrderInfoMapper orderInfoMapper;
     @Autowired
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
@@ -81,6 +84,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
     private EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
     @Resource
     private IEcmpConfigService ecmpConfigService;
+    @Resource
+    private IOrderStateTraceInfoService iOrderStateTraceInfoService;
 
     @Resource
     private CarGroupInfoMapper carGroupInfoMapper;
@@ -800,5 +805,25 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
     public void dispatcherSendCar(DispatchSendCarDto dispatchSendCarDto) {
         String useCarGroupType = dispatchSendCarDto.getUseCarGroupType();
 
+    }
+
+
+    @Override
+    public int toSureToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
+//        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setOrderId(userApplySingleVo.getOrderId());
+        orderInfo.setState(userApplySingleVo.getHomePageToBeConfirmedState());
+        int i = orderInfoMapper.updateOrderInfo(orderInfo);
+        OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+        orderStateTraceInfo.setOrderId(userApplySingleVo.getOrderId());
+        orderStateTraceInfo.setState(userApplySingleVo.getHomePageToBeConfirmedState());
+        orderStateTraceInfo.setCreateTime(new Date());
+        int j = iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+        if( i == 1 && j == 1 ){
+            return 1;
+        }else{
+            return 0;
+        }
     }
 }
