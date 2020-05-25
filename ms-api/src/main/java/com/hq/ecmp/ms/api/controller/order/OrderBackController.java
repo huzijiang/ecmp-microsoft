@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.controller.order;
 
+import com.google.common.reflect.TypeToken;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
@@ -21,6 +22,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +32,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName OrderBackController
@@ -41,6 +48,8 @@ import java.util.List;
 @RequestMapping("/orderBack")
 @Api(value = "后台管理-订单模块")
 public class OrderBackController {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderBackController.class);
 
     @Autowired
     @Lazy
@@ -162,5 +171,39 @@ public class OrderBackController {
             e.printStackTrace();
             return ApiResponse.error();
         }
+    }
+
+    /**
+     * 订单管理改单功能
+     * add by liuzb
+     */
+    @ApiOperation(value = "订单管理改单功能")
+    @PostMapping(value = "/updateTheOrder")
+    public ApiResponse updateTheOrder(){
+        try {
+
+        } catch (Exception e) {
+            logger.error("updateTheOrder error",e);
+        }
+        return ApiResponse.error("订单改单失败");
+    }
+
+    /***
+     * 订单管理改单功能
+     * add by liuzb
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "订单管理确认功能")
+    @PostMapping(value = "/orderConfirm")
+    public ApiResponse orderConfirm(Long orderId){
+        try {
+            if(iOrderInfoService.orderConfirm(tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId(),orderId)>0){
+                return ApiResponse.success("订单确实成功");
+            }
+        } catch (Exception e) {
+            logger.error("orderConfirm error",e);
+        }
+        return ApiResponse.error("订单确实失败");
     }
 }
