@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 @ApiModel(description = "地址模型")
 public class CarGroupCostVO {
 
-    @ApiModelProperty(name = "amount",value = "车费预估-优惠后金额")
     private Long carGroupId;
     private Long costId;
     private String itIsInner;

@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CostConfigCarGroupInfo;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
+import com.hq.ecmp.mscore.vo.CarGroupCostVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -70,8 +71,10 @@ public interface CostConfigCarGroupInfoMapper
      * @param userId
      * @param createTime
      */
-    void insertCostConfigCarGroupInfoBatch(@Param("list") List<CostConfigCarGroupInfo> cities, @Param("costId") Long costId,
+    void insertCostConfigCarGroupInfoBatch(@Param("list") List<CostConfigCityInfo> cities, @Param("costId") Long costId,
                                        @Param("userId") Long userId, @Param("createTime") Date createTime);
 
     void deleteCostConfigCarGroupInfoByCostId(Long costId);
+
+    List<CarGroupCostVO> selectGroupByCityCode(@Param("cityCode") String cityCode,@Param("companyId") Long companyId);
 }

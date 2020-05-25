@@ -13,6 +13,7 @@ import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
+import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.vo.PriceOverviewVO;
 import com.hq.ecmp.mscore.vo.SupplementVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,6 +202,11 @@ public class CostController {
     public ApiResponse<List<ValidDoubleDtoResult>> checkCharteredCost(@RequestBody CostConfigQueryDoubleValidDto costConfigQueryDto){
         List<ValidDoubleDtoResult> res = null;
         try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            //获取当前登陆用户的信息Id
+            Long companyId = loginUser.getUser().getOwnerCompany();
+            costConfigQueryDto.setCompanyId(companyId);
             res = costConfigInfoService.checkCharteredCost(costConfigQueryDto);
         } catch (Exception e) {
             e.printStackTrace();
@@ -254,20 +260,39 @@ public class CostController {
     }
 
     /**
-     *  成本名稱判重
+     *  价格总览
      */
-    @Log(value = "成本名称判重")
-    @com.hq.core.aspectj.lang.annotation.Log(title = "成本名称判重",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
+    @Log(value = "价格总览")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "价格总览",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
     @PostMapping("/getGroupPrice")
-    public ApiResponse<List<PriceOverviewVO>> getGroupPrice(String cityCode){
+    public ApiResponse<List<PriceOverviewVO>> getGroupPrice(@RequestParam("cityCode") String cityCode){
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long companyId = loginUser.getUser().getOwnerCompany();
             List<PriceOverviewVO> list=costConfigInfoService.getGroupPrice(cityCode,companyId);
-                return ApiResponse.success();
+                return ApiResponse.success(list);
         } catch (Exception e) {
-            return ApiResponse.error("判重失败");
+            return ApiResponse.error("查询异常");
+        }
+    }
+
+
+    /**
+     *  获取配置成本中心的城市列表
+     */
+    @Log(value = "获取配置成本中心的城市列表")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "获取配置成本中心的城市列表",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
+    @PostMapping("/getCostCityList")
+    public ApiResponse<List<CityInfo>> getCostCityList(){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long companyId = loginUser.getUser().getOwnerCompany();
+            List<CityInfo> list=costConfigInfoService.getCostCityList(companyId);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            return ApiResponse.error("查询异常");
         }
     }
 

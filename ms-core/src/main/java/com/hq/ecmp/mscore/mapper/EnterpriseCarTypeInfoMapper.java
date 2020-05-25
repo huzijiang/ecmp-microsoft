@@ -99,4 +99,6 @@ public interface EnterpriseCarTypeInfoMapper
     List<CarTypeDTO> selectCarTypeById(CarTypeDTO carTypeDTO);
 
     String selectCarTypesByTypeIds(@Param("ownerCompany") Long ownerCompany, @Param("levels") String levels);
+
+    List<EnterpriseCarTypeInfo> selectEnterpriseCarTypeIds(@Param("list") List<String> carTypeId);
 }
