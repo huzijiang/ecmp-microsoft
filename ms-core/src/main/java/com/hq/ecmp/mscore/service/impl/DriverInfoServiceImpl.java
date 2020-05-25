@@ -263,7 +263,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	}
     	//4. 初始化驾驶员排班
 		boolean b = setDriverWorkInfo(driverId);
-    	if(b){
+    	if(!b){
     		throw new RuntimeException("驾驶员初始化排班失败");
 		}
 		//5. 插入驾驶员性质表数据
@@ -671,6 +671,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		return new PageResult(count,driverOrderVos);
 	}
 
+	@Override
 	public boolean setDriverWorkInfo(Long driverId) {
 
 		List<CloudWorkIDateVo> workDateList = driverWorkInfoMapper.getCloudWorkDateList();
