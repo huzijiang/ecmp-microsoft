@@ -85,4 +85,28 @@ public class DispatchVo {
 
     @ApiModelProperty(value="以等待时间")
     private String waitingTime;
+
+    @ApiModelProperty(value = "跳内部派车还是外部派车，1 内部  2 外部")
+    private int inOrOut;
+
+    @ApiModelProperty(value = "车队类型 C000   内部车队  C111   外部车队")
+    private String  carGroupType;
+
+    @ApiModelProperty(value = "乘车人电话")
+    private  String userCarUserMobile;
+
+    @ApiModelProperty(value = "包车总天数")
+    private Double charterCarDaysCount;
+
+    @ApiModelProperty(value = "所用车型id")
+    private Long carTypeId;
+
+    @ApiModelProperty(value = "所用车型名字")
+    private String carTypeName;
+
+    @ApiModelProperty(value = "用车备注")
+    private String notes;
+
+
+
 }

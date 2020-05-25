@@ -75,6 +75,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
 
+    <delete id="deleteCostConfigCarGroupInfoByCostId" parameterType="Long">
+        delete from cost_config_car_group_info where cost_id = #{costId}
+    </delete>
 
     <insert id="insertCostConfigCarGroupInfoBatch">
         INSERT INTO cost_config_car_group_info(cost_id, car_group_id, create_by, create_time)

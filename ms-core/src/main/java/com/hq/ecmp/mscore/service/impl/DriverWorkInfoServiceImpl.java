@@ -132,7 +132,7 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
        // Long driverId = driverInfoMapper.selectDriverIdByUserId(userId);
         //查询司机应出勤天数
         int shouldDutyDays = driverWorkInfoMapper.selectDriverShouldDutyDays(scheduleDate,driverId);
-        //查询司机已出勤天数
+        //查询司机已出勤天数  已出勤天数为 当月开始到 当天的应该出勤并且出勤的天使
         int alreadyDutyDays = driverWorkInfoMapper.selectDriverAlreadyDutyDays(scheduleDate,driverId);
         DriverDutySummaryVO build = DriverDutySummaryVO.builder().alreadyDuty(alreadyDutyDays)
                 .shouldDuty(shouldDutyDays).build();
@@ -152,7 +152,7 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
        // Long driverId = driverInfoMapper.selectDriverIdByUserId(userId);
         //查询司机上班时间
         List<String> dutyDate = driverWorkInfoMapper.selectDutyDateByMonth(scheduleDate,driverId);
-        //查询司机休假时间
+        //查询司机休假时间  只查询今天以前的假
         List<String> holidays = driverWorkInfoMapper.selectHolidaysByMonth(scheduleDate,driverId);
         driverDutyPlanVO.setHolidays(holidays);
         driverDutyPlanVO.setDutyDate(dutyDate);

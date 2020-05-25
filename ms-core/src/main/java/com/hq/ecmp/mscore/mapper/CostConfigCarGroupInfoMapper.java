@@ -72,4 +72,6 @@ public interface CostConfigCarGroupInfoMapper
      */
     void insertCostConfigCarGroupInfoBatch(@Param("list") List<CostConfigCarGroupInfo> cities, @Param("costId") Long costId,
                                        @Param("userId") Long userId, @Param("createTime") Date createTime);
+
+    void deleteCostConfigCarGroupInfoByCostId(Long costId);
 }
