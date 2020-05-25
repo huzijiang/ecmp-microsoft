@@ -348,5 +348,13 @@ public interface OrderInfoMapper {
     OrderDetailBackDto getOrderListDetailById(@Param("orderNo") String orderNo);
 
     List<OrderInfo> selectUsingCarByCarId(Long carId);
+
+    /**
+     * 获取申请调度调度员列表,佛山包车业务
+     * @param query
+     * @return
+     */
+    List<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query);
+
 }
 
