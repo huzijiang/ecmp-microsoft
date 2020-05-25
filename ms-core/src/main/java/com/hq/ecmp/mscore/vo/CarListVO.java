@@ -60,4 +60,6 @@ public class CarListVO {
     private Long carTypeId;
 
     private String powerTypeName;
+
+    private String companyName;
 }
