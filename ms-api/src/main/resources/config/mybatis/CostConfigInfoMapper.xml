@@ -35,24 +35,26 @@
             c.company_id as companyId,
             c.cost_config_name as costConfigName,
             cc.city_name as cityName,
-             cc.city_code as cityCode,
+            cc.city_code as cityCode,
             ct.id as  costConfigCityId,
             c.service_type as serviceType,
-						c.rent_type as rentType,
-						c.start_price as startPrice,
-						c.combos_price as combosPrice,
-						c.combos_mileage as combosMileage,
-						c.combos_times as combosTimes,
-						c.beyond_price_every_km as beyondPriceEveryKm,
-						c.beyond_price_every_minute as beyondPriceEveryMinute,
-						c.wait_price_erery_minute as waitPriceEreryMinute,
+            c.car_group_user_mode as carGroupUserMode,
+            c.rent_type as rentType,
+            cccgi.car_group_id carGroupId,
+            (select car_group_name from car_group_info cgi where cgi.car_group_id =cccgi.car_group_id ) carGroupName,
+            c.start_price as startPrice,
+            c.combos_price as combosPrice,
+            c.combos_mileage as combosMileage,
+            c.combos_times as combosTimes,
+            c.beyond_price_every_km as beyondPriceEveryKm,
+            c.beyond_price_every_minute as beyondPriceEveryMinute,
+            c.wait_price_erery_minute as waitPriceEreryMinute,
             c.create_time as createTime,
             c.update_time as updateTime
             from cost_config_info c
             left join cost_config_city_info  cc on cc.cost_id=c.cost_id
-            left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
+            left join cost_config_car_group_info  cccgi on cccgi.cost_id=c.cost_id
         where c.cost_id = #{costId}
-            and cc.city_code=#{cityCode}
          group by c.company_id,cc.city_name,c.service_type
     </select>
 
@@ -148,14 +150,16 @@
             cc.city_name as cityName,
             cc.city_code as cityCode,
             c.service_type as serviceType,
+            cccgi.car_group_id carGroupId,
+            (select car_group_name from car_group_info cgi where cgi.car_group_id =cccgi.car_group_id ) carGroupName,
             c.create_time as createTime,
             c.update_time as updateTime
             from cost_config_info c
             left join cost_config_city_info  cc on cc.cost_id=c.cost_id
-            left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
+            left join cost_config_car_group_info  cccgi on cccgi.cost_id=c.cost_id
             <where>
             <if test="costConfigName != null and costConfigName!=''">
-            c.cost_config_name like  CONCAT('%',#{costConfigName},'%')
+                and c.cost_config_name like  CONCAT('%',#{costConfigName},'%')
             </if>
             <if test="cityCode != null and cityCode!=''">
                 and cc.city_code=#{cityCode}
@@ -169,11 +173,8 @@
             <if test="rentType != null and rentType!=''">
                 and c.rent_type=#{rentType}
             </if>
-            <if test="carTypeId != null and carTypeId!=''">
-                and ct.car_type_id=#{carTypeId}
-            </if>
             </where>
-            group by c.cost_id,c.company_id,c.cost_config_name,cc.city_name,c.service_type
+            --  group by c.cost_id,c.company_id,c.cost_config_name,cc.city_name,c.service_type
         order by IFNULL(c.update_time,c.create_time) desc
 
     </select>

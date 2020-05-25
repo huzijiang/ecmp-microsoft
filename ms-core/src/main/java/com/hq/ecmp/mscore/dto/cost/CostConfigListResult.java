@@ -33,7 +33,7 @@ public class CostConfigListResult {
     @ApiModelProperty(value = "车队id")
     private Long carGroupId;
     @ApiModelProperty(value = "车队名称")
-    private Long carGroupName;
+    private String carGroupName;
     @ApiModelProperty(value = "城市名称")
     private String cityName;
     @ApiModelProperty(value = "城市code")

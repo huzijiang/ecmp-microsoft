@@ -968,8 +968,8 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
 
     @Override
     public List<CostConfigCityInfo> getCitysBycarGroupId(Long carGroupId) {
-
-        return carGroupServeScopeInfoMapper.getCitysBycarGroupId(carGroupId);
+        List<CostConfigCityInfo> citysBycarGroupId = carGroupServeScopeInfoMapper.getCitysBycarGroupId(carGroupId);
+        return citysBycarGroupId;
     }
 
     /**
