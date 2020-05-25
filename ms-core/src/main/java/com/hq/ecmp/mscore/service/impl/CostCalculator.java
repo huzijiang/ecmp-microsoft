@@ -14,6 +14,13 @@ import java.util.List;
  */
 public class CostCalculator implements CostCalculation {
 
+    private BigDecimal getBigDecimal(BigDecimal fee){
+        if(fee==null){
+            return BigDecimal.ZERO;
+        }else {
+            return fee;
+        }
+    }
     /**
      * 成本计算
      * @param costConfigInfo
@@ -27,7 +34,7 @@ public class CostCalculator implements CostCalculation {
         //实际行程时间= 总时长 - 等待时长
         BigDecimal  waitingTime = new BigDecimal(orderSettlingInfoVo.getTotalTime()).subtract(orderSettlingInfoVo.getWaitingTime());
         //所有的费用
-        BigDecimal amount= BigDecimal.ZERO;
+        BigDecimal amount ;
         //订单里程的总价格
         BigDecimal totalPrice = BigDecimal.ZERO;
         //起步价
@@ -41,41 +48,18 @@ public class CostCalculator implements CostCalculation {
         //等待费
         BigDecimal  waitingFee  =BigDecimal.ZERO;
         //路桥费
-        BigDecimal  roadBridgeFee  =BigDecimal.ZERO;
-        if(null == orderSettlingInfoVo.getRoadBridgeFee()){
-            roadBridgeFee=BigDecimal.ZERO;
-        }else{
-            roadBridgeFee=orderSettlingInfoVo.getRoadBridgeFee();
-        }
+        BigDecimal  roadBridgeFee  = getBigDecimal(orderSettlingInfoVo.getRoadBridgeFee());
+        //其他费用
+        BigDecimal otherFee = getBigDecimal(orderSettlingInfoVo.getOtherFee());
         //高速费
-        BigDecimal  highSpeedFee  =BigDecimal.ZERO;
-        if(null == orderSettlingInfoVo.getHighSpeedFee()){
-            highSpeedFee=BigDecimal.ZERO;
-        }else{
-            highSpeedFee=orderSettlingInfoVo.getHighSpeedFee();
-        }
-
+        BigDecimal  highSpeedFee  = getBigDecimal(orderSettlingInfoVo.getHighSpeedFee());
         //停车费
-        BigDecimal  parkingRateFee  =BigDecimal.ZERO;
-        if(null == orderSettlingInfoVo.getParkingRateFee()){
-            parkingRateFee=BigDecimal.ZERO;
-        }else{
-            parkingRateFee=orderSettlingInfoVo.getParkingRateFee();
-        }
+        BigDecimal  parkingRateFee  = getBigDecimal(orderSettlingInfoVo.getParkingRateFee());
         //住宿费
-        BigDecimal  hotelExpenseFee  =BigDecimal.ZERO;
-        if(null == orderSettlingInfoVo.getHotelExpenseFee()){
-            hotelExpenseFee=BigDecimal.ZERO;
-        }else{
-            hotelExpenseFee=orderSettlingInfoVo.getHotelExpenseFee();
-        }
+        BigDecimal  hotelExpenseFee  =getBigDecimal(orderSettlingInfoVo.getHotelExpenseFee());
         //餐饮费
-        BigDecimal  restaurantFee  =BigDecimal.ZERO;
-        if(null == orderSettlingInfoVo.getRestaurantFee()){
-            restaurantFee=BigDecimal.ZERO;
-        }else{
-            restaurantFee=orderSettlingInfoVo.getRestaurantFee();
-        }
+        BigDecimal  restaurantFee  = getBigDecimal(orderSettlingInfoVo.getRestaurantFee());
+
         if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState())){
             //包车的情况下
             //套餐价
@@ -184,14 +168,18 @@ public class CostCalculator implements CostCalculation {
             }
             //总价=（等待时长*等待单价）+(起步价)+(超里程价格)+(超时长价格)
             totalPrice=startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice);
+        }else if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_MORE_DAY.getBcState())){
+
         }
         //订单各项费用科目和对应费用
-        amount=totalPrice;
-                /*.add(roadBridgeFee)
+        amount=totalPrice
+                .add(roadBridgeFee)
                 .add(highSpeedFee)
                 .add(parkingRateFee
                 .add(hotelExpenseFee)
-                .add(restaurantFee));*/
+                .add(restaurantFee))
+                .add(otherFee);
+
         //返回所需要的详情
         orderSettlingInfoVo.setStartingPrice(startingPrice);
         orderSettlingInfoVo.setOverMileagePrice(overMileagePrice);

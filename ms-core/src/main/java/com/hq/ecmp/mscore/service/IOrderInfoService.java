@@ -303,5 +303,13 @@ public interface IOrderInfoService {
      * @throws Exception
      */
     int orderConfirm(Long userId ,Long orderId)throws Exception;
+
+
+    /***
+     *
+     * @param data
+     * @return
+     */
+    int updateTheOrder(Long userId,OrderServiceCostDetailRecordInfo data)throws Exception;
 }
 
