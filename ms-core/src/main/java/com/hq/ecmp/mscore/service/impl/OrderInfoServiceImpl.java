@@ -135,6 +135,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Resource
     private ApplyUseCarTypeMapper applyUseCarTypeMapper;
 
+    @Resource
+    private OrderServiceCostDetailRecordInfoMapper orderServiceCostDetailRecordInfoMapper;
+    @Resource
+    private OrderServiceImagesInfoMapper  orderServiceImagesInfoMapper;
+    @Resource
+    private OrderAccountInfoMapper orderAccountInfoMapper;
+
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
     @Value("${thirdService.licenseContent}") //企业证书信息
@@ -2575,5 +2582,66 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
         return checkResult;
+    }
+    /***
+     * 确认订单
+     * add by liuzb
+     * @param userId
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public int orderConfirm(Long userId ,Long orderId) throws Exception {
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setOrderId(orderId);
+        orderInfo.setState("S900");
+        orderInfo.setUpdateBy(String.valueOf(userId));
+        int a = orderInfoMapper.updateOrderInfo(orderInfo);/**更新订单状态*/
+        int b = addOrderStateTraceInfo(userId,orderId);/**添加订单轨迹*/
+        int c = addOrderAccountInfo(userId,orderId);/**添加订单财务信息*/
+        if(a>0 && b>0 && c>0){
+            return 1;
+        }
+        return 0;
+    }
+    /***
+     * 订单确认添加轨迹数据
+     * add by liuzb
+     * @param userId
+     * @param orderId
+     * @return
+     */
+    private int addOrderStateTraceInfo(Long userId ,Long orderId){
+        OrderStateTraceInfo data = new OrderStateTraceInfo();
+        data.setOrderId(orderId);
+        data.setState("S900");
+        data.setCreateBy(String.valueOf(userId));
+        data.setCreateTime(new Date());
+        return orderStateTraceInfoMapper.insertOrderStateTraceInfo(data);
+    }
+
+    /***
+     *添加账务信息
+     * add by liuzb
+     * @param userId
+     * @param orderId
+     * @return
+     */
+    private int addOrderAccountInfo(Long userId ,Long orderId){
+        OrderSettlingInfo data = new OrderSettlingInfo();
+        data.setOrderId(orderId);
+        List<OrderSettlingInfo> list = orderSettlingInfoMapper.selectOrderSettlingInfoList(data);
+        if(null!=list && list.size()>0){
+            OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
+            orderAccountInfo.setBillId(list.get(0).getBillId());
+            orderAccountInfo.setOrderId(String.valueOf(orderId));
+            orderAccountInfo.setAmount(list.get(0).getAmount());
+            orderAccountInfo.setState("S008");
+            orderAccountInfo.setCreateBy(String.valueOf(userId));
+            orderAccountInfo.setCreateTime(new Date());
+            return orderAccountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
+        }
+        return 0;
     }
 }
