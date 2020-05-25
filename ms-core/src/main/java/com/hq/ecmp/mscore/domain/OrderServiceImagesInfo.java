@@ -26,4 +26,5 @@ public class OrderServiceImagesInfo {
     Long updateBy;
 
     Date updateTime;
+
 }
