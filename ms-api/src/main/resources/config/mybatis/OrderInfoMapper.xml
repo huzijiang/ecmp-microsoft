@@ -2055,6 +2055,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 用车方式
         osi.amount amount,
         -- 费用合计
+        oi.order_id orderId,
         case
         when right (oi.state,3)='100' then '待派车'
         when right (oi.state,3)>='299' and right (oi.state,3)&lt;='900' then '已派车'
