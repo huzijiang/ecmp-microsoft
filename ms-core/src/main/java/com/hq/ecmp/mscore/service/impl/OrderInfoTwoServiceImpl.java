@@ -82,6 +82,9 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
     @Resource
     private IEcmpConfigService ecmpConfigService;
 
+    @Resource
+    private CarGroupInfoMapper carGroupInfoMapper;
+
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
     @Value("${thirdService.licenseContent}") //企业证书信息
