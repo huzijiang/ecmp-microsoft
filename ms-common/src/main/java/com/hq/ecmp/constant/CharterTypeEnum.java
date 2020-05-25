@@ -7,12 +7,10 @@ import java.util.Map;
 
 public enum CharterTypeEnum {
 
-
+	NON_CHARTER("T000","非包车"),
 	HALF_DAY_TYPE("T001","半日租(4小时)"),
 	OVERALL_RENT_TYPE("T002","整日租(8小时)"),
-	MORE_RENT_TYPE("T009","多日租")
-	;
-
+	MORE_RENT_TYPE("T009","多日租");
 	private String key;
 	private String desc;//描述
 
