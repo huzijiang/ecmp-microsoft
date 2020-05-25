@@ -59,4 +59,5 @@ public class ToBeConfirmedOrderDto extends PageRequest {
 
     @ApiModelProperty(value = "下车地点")
     private String endAddress;
+
 }

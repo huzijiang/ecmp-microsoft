@@ -81,4 +81,5 @@ public class HomePageSortController {
         ecmpConfigService.setUpWelComeImage(configValueDTO.getStatus(),configValueDTO.getValue(),file,companyId);
         return ApiResponse.success();
     }
+
 }

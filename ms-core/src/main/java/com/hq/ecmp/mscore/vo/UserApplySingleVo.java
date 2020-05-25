@@ -110,4 +110,5 @@ public class UserApplySingleVo extends PageRequest {
 
     @ApiModelProperty(value = "用车时长")
     private String useTime;
+
 }

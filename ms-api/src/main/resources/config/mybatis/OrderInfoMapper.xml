@@ -2135,4 +2135,5 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  ai.update_time &lt; #{homeDynamicEndTime}
         </if>
     </select>
+
 </mapper>

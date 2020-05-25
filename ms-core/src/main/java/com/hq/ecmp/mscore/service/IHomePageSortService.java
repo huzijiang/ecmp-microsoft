@@ -23,4 +23,5 @@ public interface IHomePageSortService {
      * @param userConsoleHomePageSortInfo
      */
     void updateHomeSorts(List<UserConsoleHomePageSortInfo> userConsoleHomePageSortInfo);
+
 }

@@ -371,5 +371,6 @@ public interface OrderInfoMapper {
      */
     List<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query);
 
+
 }
 

@@ -780,4 +780,5 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         page.setCurrent_page(query.getPageNum());
         return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
+
 }

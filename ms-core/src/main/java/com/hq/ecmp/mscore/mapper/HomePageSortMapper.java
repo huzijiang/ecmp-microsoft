@@ -25,4 +25,5 @@ public interface HomePageSortMapper {
     void addHomeSort(UserConsoleHomePageSortInfo userConsoleHomePageSortInfo);
 
     List<UserConsoleHomePageSortInfo> getHomeSortsById(Long userId, Long companyId);
+
 }

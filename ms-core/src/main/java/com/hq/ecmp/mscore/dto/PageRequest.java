@@ -62,4 +62,5 @@ public class PageRequest {
 
     private String homeDynamicBeginTime;
     private String homeDynamicEndTime;
+
 }

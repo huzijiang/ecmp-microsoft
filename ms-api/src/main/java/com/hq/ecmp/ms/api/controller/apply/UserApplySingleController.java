@@ -107,4 +107,5 @@ public class UserApplySingleController {
         }
         return jsonObject;
     }
+
 }

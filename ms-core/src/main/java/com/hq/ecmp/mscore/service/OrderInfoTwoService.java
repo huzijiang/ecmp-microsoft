@@ -87,4 +87,5 @@ public interface OrderInfoTwoService {
      * @return
      */
     PageResult<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser);
+
 }

@@ -78,4 +78,5 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         where panel_id = #{panelId} and user_id = #{userId} and company_id = #{companyId}
     </update>
+
 </mapper>
