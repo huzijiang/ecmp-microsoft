@@ -186,4 +186,11 @@ public interface CarGroupInfoMapper
      * @return
      */
     List<Long> queryAllDispatchersByCompanyId(Long companyId);
+
+    /**
+     * 获取调度员可调度的外部车队列表
+     * @param deptId
+     * @return
+     */
+     List<CarGroupInfo> dispatcherCarGroupList(@Param("depeId") Long deptId);
 }

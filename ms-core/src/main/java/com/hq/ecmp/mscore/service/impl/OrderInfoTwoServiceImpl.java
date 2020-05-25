@@ -16,6 +16,7 @@ import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.dto.DriverCloudDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
@@ -85,6 +86,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
     private EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
     @Resource
     private IEcmpConfigService ecmpConfigService;
+    @Resource
+    private CarGroupInfoMapper carGroupInfoMapper;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -762,5 +765,27 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         }
         page.setCurrent_page(query.getPageNum());
         return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
+    }
+
+    @Override
+    public List<CarGroupInfo> dispatcherCarGroupList(Long orderId,LoginUser loginUser) {
+        List<CarGroupInfo> carGroupInfos = new ArrayList<>();
+        SysUser user = loginUser.getUser();
+        Long userId = user.getUserId();
+        Long deptId = user.getDeptId();
+        if(deptId != null){
+            carGroupInfos = carGroupInfoMapper.dispatcherCarGroupList(deptId);
+        }
+        return carGroupInfos;
+    }
+
+    /**
+     * 佛山内外调度派车
+     * @param dispatchSendCarDto
+     */
+    @Override
+    public void dispatcherSendCar(DispatchSendCarDto dispatchSendCarDto) {
+        String useCarGroupType = dispatchSendCarDto.getUseCarGroupType();
+
     }
 }

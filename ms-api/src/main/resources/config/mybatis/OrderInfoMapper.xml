@@ -1873,7 +1873,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ri.`name` userCarRegime,
         round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
         -- 服务类型
-        oi.service_type serverType,
+        ji.charter_car_type serverType,
         -- 状态
         case
         when right (oi.state,3)='100' then '待派车'
@@ -1897,7 +1897,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 车型名字
         ecti.name carTypeName,
         -- 用车备注
-        ai.notes
+        ai.notes,
+        od.car_group_user_mode carGroupUserMode,
+        oai.city_postal_code useCarCityCode
         FROM
         order_info oi
         LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
@@ -1913,6 +1915,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN order_address_info oaitwo ON (oaitwo.order_id = oi.order_id and oaitwo.type='A999')
         LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
         LEFT JOIN order_dispatche_detail_info od on od.order_id=oi.order_id and od.next_car_group_id=cgi.car_group_id
+        left join journey_user_car_power jucp on jucp.node_id=oi.node_id
+        left join apply_info ai on ai.apply_id=jucp.node_id
+        left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
         WHERE 1 = 1
         <if test="isIndex == 1">
             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
@@ -1929,19 +1934,19 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="companyId!=null">
             and  oi.company_id=#{companyId}
         </if>
-        <if test="applyName!=null">
+        <if test="applyName!=null and applyName!=''">
             and  eu.nick_name=#{applyName}
         </if>
-        <if test="applyMobile!=null">
+        <if test="applyMobile!=null and applyMobile!=''">
             and  eu.phonenumber=#{applyMobile}
         </if>
-        <if test="cityCode!=null">
+        <if test="cityCode!=null and cityCode!=''">
             and  cc.SHORT_NAME=#{cityCode}
         </if>
-        <if test="useCarMode!=null">
+        <if test="useCarMode!=null and useCarMode!=''">
             and  oi.use_car_mode=#{useCarMode}
         </if>
-        <if test="dispatchStatus!=null">
+        <if test="dispatchStatus!=null and dispatchStatus!=''">
             and  oi.state=#{dispatchStatus}
         </if>
         <if test="optStartDate!=null  and  optStartDate!='' ">
@@ -1950,8 +1955,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="optEndDate!=null  and  optEndDate!='' ">
             and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
         </if>
-        <if test="">
-
+        <if test="orderId!=null">
+            and oi.order_id=#{orderId}
         </if>
         and  oi.it_is_supplement='N000'
         and oi.user_id in (select distinct user_id from ecmp_user where dept_id in
