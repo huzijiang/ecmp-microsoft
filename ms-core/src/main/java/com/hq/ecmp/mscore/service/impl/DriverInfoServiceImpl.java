@@ -262,7 +262,10 @@ public class DriverInfoServiceImpl implements IDriverInfoService
         	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
     	}
     	//4. 初始化驾驶员排班
-		setDriverWorkInfo(driverId);
+		boolean b = setDriverWorkInfo(driverId);
+    	if(!b){
+    		throw new RuntimeException("驾驶员初始化排班失败");
+		}
 		//5. 插入驾驶员性质表数据
 		addDriverNatureInfo(driverId,driverCreateInfo.getDriverNature(),driverCreateInfo.getHireBeginTime(),driverCreateInfo.getHireEndTime(),
 				driverCreateInfo.getBorrowBeginTime(),driverCreateInfo.getBorrowEndTime(),driverCreateInfo.getOptUserId());
@@ -668,38 +671,62 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		return new PageResult(count,driverOrderVos);
 	}
 
+	@Override
 	public boolean setDriverWorkInfo(Long driverId) {
 
 		List<CloudWorkIDateVo> workDateList = driverWorkInfoMapper.getCloudWorkDateList();
-
 		//获取调用接口的用户信息
 		HttpServletRequest request = ServletUtils.getRequest();
 		LoginUser loginUser = tokenService.getLoginUser(request);
 		Long userId = loginUser.getUser().getUserId();
 		List<DriverWorkInfoVo> list = new ArrayList<>();
+
+		Calendar todayStart = Calendar.getInstance();
+		todayStart.set(Calendar.HOUR, 0);
+		todayStart.set(Calendar.MINUTE, 0);
+		todayStart.set(Calendar.SECOND, 0);
+		todayStart.set(Calendar.MILLISECOND, 0);
+		//今天开始时间
+		long todayStartTime = todayStart.getTime().getTime();
+		//从今天开始到年末所有天拿过来  工作日默认都在上班 休息日默认都在休假
+		//以前的日期设置为空
 		if (workDateList != null && workDateList.size() > 0) {
 			for (int i = 0; i < workDateList.size(); i++) {
 				DriverWorkInfoVo driverWorkInfoVo = new DriverWorkInfoVo();
 				driverWorkInfoVo.setDriverId(driverId);
-				driverWorkInfoVo.setCalendarDate(workDateList.get(i).getCalendarDate());
+				//日历某一天
+				Date calendarDate = workDateList.get(i).getCalendarDate();
+				long calendarDateTime = calendarDate.getTime();
+				driverWorkInfoVo.setCalendarDate(calendarDate);
+				//当天计划上班时间
 				driverWorkInfoVo.setOnDutyRegisteTime(workDateList.get(i).getWorkStart());
+				//当天计划下班时间
 				driverWorkInfoVo.setOffDutyRegisteTime(workDateList.get(i).getWorkEnd());
-				driverWorkInfoVo.setTodayItIsOnDuty("1111");
-				String itIsDuty=workDateList.get(i).getItIsWork();
-				if("0000".equals(itIsDuty)){
-					driverWorkInfoVo.setLeaveStatus("X999");
-				}else if("1111".equals(itIsDuty)){
-					driverWorkInfoVo.setLeaveStatus("X003");
+				//今天实际是否上班:today_it_is_on_duty ;   0000   上班 , 1111    没上班
+				String itIsWork=workDateList.get(i).getItIsWork();
+				if(calendarDateTime >= todayStartTime){
+					//今天之后的 该上班的默认都上班，不该上班的默认都休假  当日默认上班
+					if("0000".equals(itIsWork)){
+						//itIsWork是否是工作日   0000    上班   1111    休假
+						driverWorkInfoVo.setTodayItIsOnDuty("0000");
+						//leave_status  休假状态: X000  病假,  X002  年假 ,  X003 公休, X999  正常排班工作
+						driverWorkInfoVo.setLeaveStatus("X999");
+					}else if("1111".equals(itIsWork)){
+						driverWorkInfoVo.setTodayItIsOnDuty("1111");
+						//该休假的默认都休假
+						driverWorkInfoVo.setLeaveStatus("X003");
+					}
+				}else {
+					//今天之前的设置为空  今天实际是否上班: TodayItIsOnDuty  休假状态LeaveStatus
+					driverWorkInfoVo.setTodayItIsOnDuty("");
+					driverWorkInfoVo.setLeaveStatus("");
 				}
 				driverWorkInfoVo.setCreatBy(userId);
 				driverWorkInfoVo.setCreatTime(DateUtils.getNowDate());
 				list.add(driverWorkInfoVo);
 			}
 			int m = driverWorkInfoMapper.insertDriverWorkInfo(list);
-			if (m > 0) {
-				int n = driverWorkInfoMapper.updateDriverWork(driverId);
-				return true;
-			}
+			return m > 0;
 		}
 		return false;
 	}

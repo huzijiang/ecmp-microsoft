@@ -54,6 +54,14 @@ public class CostConfigCarGroupInfo extends BaseEntity
         return carGroupId;
     }
 
+    public CostConfigCarGroupInfo() {
+    }
+
+    public CostConfigCarGroupInfo(Long costId, Long carGroupId) {
+        this.costId = costId;
+        this.carGroupId = carGroupId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

@@ -355,5 +355,13 @@ public interface OrderInfoMapper {
      * @return
      */
     List<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo);
+
+    /**
+     * 获取申请调度调度员列表,佛山包车业务
+     * @param query
+     * @return
+     */
+    List<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query);
+
 }
 

@@ -1,5 +1,6 @@
-package com.hq.ecmp.mscore.dto.ordercost;
+package com.hq.ecmp.mscore.domain;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -7,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
+@Builder
 public class OrderServiceCostDetailRecordInfo {
 
     Long recordId;

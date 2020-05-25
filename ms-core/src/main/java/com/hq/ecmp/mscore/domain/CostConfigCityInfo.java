@@ -67,6 +67,15 @@ public class CostConfigCityInfo extends BaseEntity
         return cityName;
     }
 
+    public CostConfigCityInfo() {
+    }
+
+    public CostConfigCityInfo(Long costId, String cityCode, String cityName) {
+        this.costId = costId;
+        this.cityCode = cityCode;
+        this.cityName = cityName;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
