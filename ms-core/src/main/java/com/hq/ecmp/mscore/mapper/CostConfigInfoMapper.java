@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
+import com.hq.ecmp.mscore.dto.cost.ValidDoubleDtoResult;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -107,4 +108,7 @@ public interface CostConfigInfoMapper
      * @return
      */
     List<CostConfigInfo> selectCostConfigList(CostConfigInfo costConfigInfo);
+
+    List<ValidDoubleDtoResult> checkCharteredCost(@Param("carGroupId") Long carGroupId,@Param("carGroupUserMode")  String carGroupUserMode
+            ,@Param("rentType")  String rentType,@Param("companyId") Long companyId);
 }

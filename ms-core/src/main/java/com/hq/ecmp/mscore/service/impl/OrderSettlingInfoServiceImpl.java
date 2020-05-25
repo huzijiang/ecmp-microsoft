@@ -1,10 +1,8 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.util.*;
 
 import com.alibaba.fastjson.JSON;
 import com.hq.common.utils.DateUtils;
@@ -12,6 +10,7 @@ import com.hq.ecmp.constant.OrderServiceType;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
+import com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.CostCalculation;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
@@ -30,6 +29,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
 {
     @Autowired
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
+
     @Autowired
     private OrderAddressInfoMapper OrderAddressInfoMapper;
     @Autowired
@@ -42,6 +42,10 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
     private CostConfigInfoMapper costConfigInfoMapper;
     @Autowired
     private OrderWaitTraceInfoMapper orderWaitTraceInfoMapper;
+    @Autowired
+    private OrderServiceCostDetailRecordInfoMapper costDetailRecordInfoMapper;
+    @Autowired
+    private OrderServiceImagesInfoMapper imagesInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -124,77 +128,102 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
      * @param companyId
      */
     @Override
-    public int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) {
-        //计算等待时长
-        BigDecimal waitingTime = orderWaitTraceInfoMapper.selectOrderWaitingTimeById(orderSettlingInfoVo.getOrderId());
-        orderSettlingInfoVo.setWaitingTime(waitingTime);
-        //查询该订单的记录  城市  服务类型  车型级别  包车类型 公司id
-        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderSettlingInfoVo.getOrderId());
-        //查询所在的城市
-        OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
-        orderAddressInfo.setOrderId(orderSettlingInfoVo.getOrderId());
-        OrderAddressInfo addressInfo = OrderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfo);
-        //城市
-        String cityCode = addressInfo.getCityPostalCode();
-        //车型级别
-        CarInfo carInfo = carInfoMapper.selectCarInfoById(orderInfo.getCarId());
-        Long carLevel = carInfo.getCarTypeId();
-        //筛选出成本数据model
-        CostConfigQueryDto costConfigQueryDto = new CostConfigQueryDto();
-        //公司id
-        costConfigQueryDto.setCompanyId(companyId);
-        //城市
-        costConfigQueryDto.setCityCode(cityCode);
-        //服务类型
-        costConfigQueryDto.setServiceType(orderInfo.getServiceType());
-        //车型级别
-        costConfigQueryDto.setCarTypeId(carLevel);
-        CostConfigInfo costConfigInfo =null;
-        //服务类型为包车
-        if (orderInfo.getServiceType().equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState())) {
-            //服务类型属于包车
-            //包车类型:半日租，整日租
-            JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
-            //T000  非包车 T001 半日租（4小时） T002 整日租（8小时）
-            String carType = journeyInfo.getCharterCarType();
-            //包车类型
-            costConfigQueryDto.setRentType(carType);
-            List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
-            if(costConfigListResult.isEmpty()){
-                return -1;
+    public int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) throws ParseException {
+        GetAllfee getAllfee = new GetAllfee(orderSettlingInfoVo, userId, companyId).invoke();
+        if (getAllfee.is()) return -1;
+        CostConfigInfo costConfigInfo = getAllfee.getCostConfigInfo();
+        boolean isInsertOrderConfing = getAllfee.isInsertOrderConfing();
+        boolean isMoreDay = getAllfee.isMoreDay();
+        OrderSettlingInfoVo orderSettlingInfo = getAllfee.getOrderSettlingInfo();
+
+        int i = 0;
+        //是否为多日组，如果为多日租，则记录费用子表
+        if(isMoreDay){
+            BigDecimal beyondMileage = orderSettlingInfoVo.getTotalMileage().subtract(costConfigInfo.getCombosMileage());
+            int beyondTime = (int) (orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes());
+            OrderServiceCostDetailRecordInfo lastRecordInfo =  OrderServiceCostDetailRecordInfo.builder().orderId(orderSettlingInfoVo.getOrderId()).build();
+            List<OrderServiceCostDetailRecordInfo> recordInfos = costDetailRecordInfoMapper.getList(lastRecordInfo);
+            lastRecordInfo = recordInfos.get(recordInfos.size()-1);
+            lastRecordInfo.setAccommodationFee(orderSettlingInfoVo.getHotelExpenseFee());
+            lastRecordInfo.setFoodFee(orderSettlingInfo.getRestaurantFee());
+            lastRecordInfo.setHighwayTollFee(orderSettlingInfoVo.getHighSpeedFee());
+            lastRecordInfo.setRoadAndBridgeFee(orderSettlingInfoVo.getRoadBridgeFee());
+            lastRecordInfo.setOthersFee(orderSettlingInfoVo.getOtherFee());
+            lastRecordInfo.setStopCarFee(orderSettlingInfoVo.getParkingRateFee());
+            lastRecordInfo.setOrderId(orderSettlingInfoVo.getOrderId());
+            lastRecordInfo.setMileage(orderSettlingInfoVo.getTotalMileage());
+            lastRecordInfo.setSetMealCost(costConfigInfo.getCombosPrice());
+            lastRecordInfo.setSetMealMileage(costConfigInfo.getCombosMileage());
+            lastRecordInfo.setSetMealTimes(costConfigInfo.getCombosTimes().intValue());
+            lastRecordInfo.setBeyondMileage(beyondMileage);
+            lastRecordInfo.setBeyondTime(beyondTime);
+            lastRecordInfo.setTotalFee(orderSettlingInfoVo.getAmount());
+            lastRecordInfo.setBeyondMileageFee(orderSettlingInfoVo.getOverMileagePrice());
+            lastRecordInfo.setBeyondTimeFee(orderSettlingInfoVo.getOvertimeLongPrice());
+            i = costDetailRecordInfoMapper.update(lastRecordInfo);
+            if(!orderSettlingInfoVo.getImageUrl().equals(null) && !orderSettlingInfoVo.getImageUrl().equals("")){
+                String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
+                OrderServiceImagesInfo imagesInfo = OrderServiceImagesInfo.builder()
+                        .recordId(lastRecordInfo.getRecordId()).build();
+                for (String url:imageUrl){
+                    imagesInfo.setImageurl(url);
+                    imagesInfoMapper.insert(imagesInfo);
+                }
             }
-            costConfigQueryDto.setCostId(costConfigListResult.get(0).getCostId());
-            costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
-        } else {
-            List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
-            if(costConfigListResult.isEmpty()){
-                return -1;
-            }
-            costConfigQueryDto.setCostId(costConfigListResult.get(0).getCostId());
-            costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
+            settlement(orderSettlingInfoVo, recordInfos);
         }
-        //计算成本的方法
-        CostCalculation calculator = new CostCalculator();
-        OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
-        //落库到订单结算信息表
-        String json = this.costPrice(orderSettlingInfoVo,orderInfo.getServiceType());//成本价详情
-        String extraPrice = this.extraPrice(orderSettlingInfoVo);//价外费详情
-        orderSettlingInfoVo.setCreateTime(DateUtils.getNowDate());
-        orderSettlingInfoVo.setCreateBy(userId.toString());
-        orderSettlingInfoVo.setAmountDetail(json);
-        orderSettlingInfoVo.setOutPrice(extraPrice);
-        orderSettlingInfoVo.setAmount(orderSettlingInfoVo.getAmount().setScale(2,BigDecimal.ROUND_HALF_UP));
-        int i = orderSettlingInfoMapper.insertOrderSettlingInfoOne(orderSettlingInfoVo);
-        if(!orderSettlingInfoVo.getImageUrl().equals(null) && !orderSettlingInfoVo.getImageUrl().equals("")){
-        String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
-            for (String url:imageUrl){
-                orderSettlingInfoVo.setImageUrl(url);
-                orderSettlingInfoMapper.insertOrderSettlingImageInfo(orderSettlingInfoVo);
+        //判断是否插入主表
+        if(isInsertOrderConfing){
+            i = orderSettlingInfoMapper.insertOrderSettlingInfoOne(orderSettlingInfoVo);
+            if(!orderSettlingInfoVo.getImageUrl().equals(null) && !orderSettlingInfoVo.getImageUrl().equals("")){
+                String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
+                for (String url:imageUrl){
+                    orderSettlingInfoVo.setImageUrl(url);
+                    orderSettlingInfoMapper.insertOrderSettlingImageInfo(orderSettlingInfoVo);
+                }
             }
         }
+
         return i;
     }
 
+    //订单总费用结算
+    private void settlement(OrderSettlingInfoVo orderSettlingInfoVo, List<OrderServiceCostDetailRecordInfo> recordInfos) {
+        BigDecimal amount = BigDecimal.ZERO;
+        BigDecimal otherFee = BigDecimal.ZERO;
+        BigDecimal highSpeedFee = BigDecimal.ZERO;
+        BigDecimal hotelExpenseFee = BigDecimal.ZERO;
+        BigDecimal parkingRateFee = BigDecimal.ZERO;
+        BigDecimal restaurantFee = BigDecimal.ZERO;
+        BigDecimal overMileagePrice = BigDecimal.ZERO;
+        BigDecimal overtimeLongPrice = BigDecimal.ZERO;
+        for (OrderServiceCostDetailRecordInfo recordInfo : recordInfos) {
+            amount.add(recordInfo.getTotalFee());
+            otherFee.add(recordInfo.getOthersFee());
+            highSpeedFee.add(recordInfo.getHighwayTollFee());
+            hotelExpenseFee.add(recordInfo.getAccommodationFee());
+            parkingRateFee.add(recordInfo.getStopCarFee());
+            restaurantFee.add(recordInfo.getFoodFee());
+            overMileagePrice.add(recordInfo.getRoadAndBridgeFee());
+            overtimeLongPrice.add(recordInfo.getBeyondTimeFee());
+        }
+        String json = costPrice(orderSettlingInfoVo);
+        //计算总费用
+        orderSettlingInfoVo.setAmountDetail(json);
+        orderSettlingInfoVo.setAmount(amount);
+        orderSettlingInfoVo.setOtherFee(otherFee);
+        orderSettlingInfoVo.setHighSpeedFee(highSpeedFee);
+        orderSettlingInfoVo.setHotelExpenseFee(hotelExpenseFee);
+        orderSettlingInfoVo.setParkingRateFee(parkingRateFee);
+        orderSettlingInfoVo.setRestaurantFee(restaurantFee);
+        orderSettlingInfoVo.setOverMileagePrice(overMileagePrice);
+        orderSettlingInfoVo.setOvertimeLongPrice(overtimeLongPrice);
+    }
+
+    @Override
+    public BigDecimal getAllFeeAmount(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) throws ParseException {
+        return  new GetAllfee(orderSettlingInfoVo, userId, companyId).invoke().getOrderSettlingInfo().getAmount();
+    }
     /**
      * 取消费格式化
      * @param orderSettlingInfoVo
@@ -227,15 +256,17 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         return json;
     }
 
+
+
     /**
      * 成本价详情
      * @param orderSettlingInfoVo
-     * @param serviceType
      * @return
      */
-    public String costPrice(OrderSettlingInfoVo orderSettlingInfoVo,String serviceType){
+    public String costPrice(OrderSettlingInfoVo orderSettlingInfoVo){
         Map map = new HashMap();
         List list= new ArrayList();
+        String serviceType = orderSettlingInfoVo.getServiceType();
         //默认个人取消费用为0
 //        BigDecimal personalCancellationFee = BigDecimal.ZERO;
         //默认个人取消费用为0
@@ -394,5 +425,126 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         map.put("otherCost",list);
         String json= JSON.toJSONString(map);
         return json;
+    }
+
+    //根据订单设置计算价格
+    private class GetAllfee {
+        private boolean myResult;
+        private OrderSettlingInfoVo orderSettlingInfoVo;
+        private Long userId;
+        private Long companyId;
+        private CostConfigInfo costConfigInfo;
+        private boolean isInsertOrderConfing;
+        private boolean isMoreDay;
+        private OrderSettlingInfoVo orderSettlingInfo;
+
+        public GetAllfee(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) {
+            this.orderSettlingInfoVo = orderSettlingInfoVo;
+            this.userId = userId;
+            this.companyId = companyId;
+        }
+
+        boolean is() {
+            return myResult;
+        }
+
+        public CostConfigInfo getCostConfigInfo() {
+            return costConfigInfo;
+        }
+
+        public boolean isInsertOrderConfing() {
+            return isInsertOrderConfing;
+        }
+
+        public boolean isMoreDay() {
+            return isMoreDay;
+        }
+
+        public OrderSettlingInfoVo getOrderSettlingInfo() {
+            return orderSettlingInfo;
+        }
+
+        public GetAllfee invoke() throws ParseException {
+            //计算等待时长
+            BigDecimal waitingTime = orderWaitTraceInfoMapper.selectOrderWaitingTimeById(orderSettlingInfoVo.getOrderId());
+            orderSettlingInfoVo.setWaitingTime(waitingTime);
+            //查询该订单的记录  城市  服务类型  车型级别  包车类型 公司id
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderSettlingInfoVo.getOrderId());
+            orderSettlingInfoVo.setServiceType(orderInfo.getServiceType());
+            //查询所在的城市
+            OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+            orderAddressInfo.setOrderId(orderSettlingInfoVo.getOrderId());
+            OrderAddressInfo addressStartInfo = OrderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfo);
+            //城市
+            String cityCode = addressStartInfo.getCityPostalCode();
+            //车型级别
+            CarInfo carInfo = carInfoMapper.selectCarInfoById(orderInfo.getCarId());
+            Long carLevel = carInfo.getCarTypeId();
+            //筛选出成本数据model
+            CostConfigQueryDto costConfigQueryDto = new CostConfigQueryDto();
+            //公司id
+            costConfigQueryDto.setCompanyId(companyId);
+            //城市
+            costConfigQueryDto.setCityCode(cityCode);
+            //服务类型
+            costConfigQueryDto.setServiceType(orderInfo.getServiceType());
+            //车型级别
+            costConfigQueryDto.setCarTypeId(carLevel);
+            costConfigInfo = null;
+            //是否插入总表
+            isInsertOrderConfing = true;
+            //是否为插入费用子表
+            isMoreDay = false;
+            //服务类型为包车
+            if (orderInfo.getServiceType().equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState())
+                    ||orderInfo.getServiceType().equals(OrderServiceType.ORDER_SERVICE_TYPE_MORE_DAY.getBcState())
+                    ||orderInfo.getServiceType().equals(OrderServiceType.ORDER_SERVICE_TYPE_ALL_DAY.getBcState())
+                    ||orderInfo.getServiceType().equals(OrderServiceType.ORDER_SERVICE_TYPE_HALF_DAY.getBcState())
+            ) {
+                //服务类型属于包车
+                //包车类型:半日租，整日租;多日租
+                JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+                //T000  非包车 T001 半日租（4小时） T002 整日租（8小时）
+                String carType = journeyInfo.getCharterCarType();
+                //包车类型
+                costConfigQueryDto.setRentType(carType);
+                List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
+                if(costConfigListResult.isEmpty()){
+                    myResult = true;
+                    return this;
+                }
+                costConfigQueryDto.setCostId(costConfigListResult.get(0).getCostId());
+                costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
+                //判断是否为多日组
+                if(OrderServiceType.ORDER_SERVICE_TYPE_MORE_DAY.getBcState().equals(orderInfo.getServiceType())){
+                    isMoreDay = true;
+                    //订单预计结束时间
+                    if(DateUtils.isBeforeNowDate(journeyInfo.getEndDate())){
+                        isInsertOrderConfing = false;
+                    }
+                }
+            } else {
+                List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
+                if(costConfigListResult.isEmpty()){
+                    myResult = true;
+                    return this;
+                }
+                costConfigQueryDto.setCostId(costConfigListResult.get(0).getCostId());
+                costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
+            }
+            //计算成本的方法
+            CostCalculation calculator = new CostCalculator();
+            orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
+            //落库到订单结算信息表
+            String json = OrderSettlingInfoServiceImpl.this.costPrice(orderSettlingInfoVo);//成本价详情
+            String extraPrice = OrderSettlingInfoServiceImpl.this.extraPrice(orderSettlingInfoVo);//价外费详情
+            orderSettlingInfoVo.setCreateTime(DateUtils.getNowDate());
+            orderSettlingInfoVo.setCreateBy(userId.toString());
+            orderSettlingInfoVo.setAmountDetail(json);
+            orderSettlingInfoVo.setOutPrice(extraPrice);
+            orderSettlingInfoVo.setAmount(orderSettlingInfoVo.getAmount().setScale(2,BigDecimal.ROUND_HALF_UP));
+            myResult = false;
+            return this;
+        }
     }
 }

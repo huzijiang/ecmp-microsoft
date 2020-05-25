@@ -90,5 +90,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             )
         </foreach>
     </insert>
+
+    <select id="selectGroupByCityCode" resultType="com.hq.ecmp.mscore.vo.CarGroupCostVO">
+        select distinct car_group_id carGroupId,car_group_name carGroupName,it_is_inner itIsInner,telephone
+        from car_group_info
+        where car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode})
+        and  company_id=#{companyId}
+    </select>
     
 </mapper>

@@ -91,5 +91,7 @@ public interface CostConfigCityInfoMapper
 
     void deleteCostConfigCityInfoByCostId(@Param("costId") Long costId);
 
-    List<CarGroupCostVO> findGroupByCity(String cityCode);
+    List<CarGroupCostVO> findGroupByCity(@Param("cityCode")String cityCode,@Param("companyId") Long companyId);
+
+    List<CityInfo> getCostCityList(@Param("companyId") Long companyId);
 }

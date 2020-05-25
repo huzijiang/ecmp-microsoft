@@ -57,4 +57,17 @@ public interface CarConstant {
 	Integer RETURN_ONE_CODE = 1;
 	Integer RETURN_ZERO_CODE = 0;
 	Integer RETURN_TWO_CODE = 2;
+
+	//交通工具
+
+	String TRAFFIC_AIRCRAFT ="T001";   //飞机
+	String TRAFFIC_TRAIN ="T101";   //火车
+	String TRAFFIC_AUTOMOBILE = "T201";   //汽车
+	String TRAFFIC_FERRY ="T301";   //轮渡
+	String TRAFFIC_OTHER ="T999";   //其他
+
+	//用于表示调度任务是否完成
+
+	String  DISPATCH_NOT_COMPLETED = "D000";   //调度未完成
+	String  DISPATCH_YES_COMPLETE  = "D111";      //调度完成
 }

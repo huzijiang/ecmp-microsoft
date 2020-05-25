@@ -2,10 +2,8 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
-import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
@@ -66,9 +64,26 @@ public interface OrderInfoTwoService {
     PageResult<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
 
     /**
+     * 获取当前业务员的待派车，已派车，已过期数量
+     * @param userApplySingleVo
+     * @param loginUser
+     * @return
+     */
+    List<UserApplySingleVo> getUseApplyCounts(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
+
+    /**
+     * 获取首页业务员待确认订单
+     * @param userApplySingleVo
+     * @param loginUser
+     * @return
+     */
+    PageResult<UserApplySingleVo> getToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
+
+    /**
      *  佛山后管申请单调度列表
      * @param query
      * @param loginUser
+     * @param isIndex
      * @return
      */
     PageResult<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser);
@@ -85,4 +100,5 @@ public interface OrderInfoTwoService {
      * @param dispatchSendCarDto
      */
     void dispatcherSendCar(DispatchSendCarDto dispatchSendCarDto);
+
 }

@@ -16,7 +16,6 @@ import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.dto.DriverCloudDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
@@ -86,8 +85,6 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
     private EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
     @Resource
     private IEcmpConfigService ecmpConfigService;
-    @Resource
-    private CarGroupInfoMapper carGroupInfoMapper;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -703,6 +700,23 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         return new PageResult<>(info.getTotal(),info.getPages(),useApplyList);
     }
 
+    @Override
+    public List<UserApplySingleVo> getUseApplyCounts(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        userApplySingleVo.setCompanyId(companyId);
+        List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplyCounts(userApplySingleVo);
+        return useApplyList;
+    }
+
+    @Override
+    public PageResult<UserApplySingleVo> getToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        userApplySingleVo.setCompanyId(companyId);
+        PageHelper.startPage(userApplySingleVo.getPageNum(),userApplySingleVo.getPageSize());
+        List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplyCounts(userApplySingleVo);
+        PageInfo<UserApplySingleVo> info = new PageInfo<>(useApplyList);
+        return new PageResult<>(info.getTotal(),info.getPages(),useApplyList);
+    }
 
     /**
      * 查询所有处于待派单(未改派)的订单及关联的信息

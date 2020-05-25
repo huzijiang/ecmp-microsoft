@@ -162,5 +162,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
         limit 1
     </select>
+    <select id="queryOrderStartAndEndInfo2" parameterType="com.hq.ecmp.mscore.domain.OrderAddressInfo" resultMap="OrderAddressInfoResult">
+        <include refid="selectOrderAddressInfoVo"/>
+        <where>
+            <if test="orderId != null "> and order_id = #{orderId}</if>
+            <if test="journeyId != null "> and journey_id = #{journeyId}</if>
+            <if test="nodeId != null "> and node_id = #{nodeId}</if>
+            <if test="powerId != null "> and power_id = #{powerId}</if>
+            <if test="driverId != null "> and driver_id = #{driverId}</if>
+            <if test="carId != null "> and car_id = #{carId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="cityPostalCode != null  and cityPostalCode != ''"> and city_postal_code = #{cityPostalCode}</if>
+            <if test="actionTime != null "> and action_time = #{actionTime}</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="addressLong != null  and addressLong != ''"> and address_long = #{addressLong}</if>
+            <if test="longitude != null "> and longitude = #{longitude}</if>
+            <if test="latitude != null "> and latitude = #{latitude}</if>
+            <if test="icaoCode != null  and icaoCode != ''"> and icao_code = #{icaoCode}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+        </where>
+        order by id desc
+    </select>
 
 </mapper>

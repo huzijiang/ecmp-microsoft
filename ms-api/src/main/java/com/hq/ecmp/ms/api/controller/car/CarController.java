@@ -249,9 +249,9 @@ public class CarController {
             //0 未开始 1 成功 2 已过期
             int i = carInfoService.startCar(carDto.getCarId(), userId);
             if(CarConstant.RETURN_ZERO_CODE == i){
-                return ApiResponse.error("时间未到，不可更改状态");
+                return ApiResponse.error("车辆未到可使用时间");
             }else if(CarConstant.RETURN_TWO_CODE == i){
-                return ApiResponse.error("已过期，");
+                return ApiResponse.error("已过期，不可更改状态");
             }
         } catch (Exception e) {
             e.printStackTrace();

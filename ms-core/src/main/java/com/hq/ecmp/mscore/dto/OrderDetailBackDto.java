@@ -1,10 +1,12 @@
 package com.hq.ecmp.mscore.dto;
 
+import com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @ClassName OrderDetailBackDto
@@ -68,4 +70,6 @@ public class OrderDetailBackDto extends OrderListBackDto {
 
     @ApiModelProperty(value = "用车场景id")
     private Long sceneId;
+    @ApiModelProperty(value = "费用，流转地址")
+    List<List<OrderServiceCostDetailRecordInfo>>  costList;
 }

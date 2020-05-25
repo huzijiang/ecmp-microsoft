@@ -17,4 +17,11 @@ public interface IHomePageSortService {
      * @param userConsoleHomePageSortInfo
      */
     void updateHomeSort(List<UserConsoleHomePageSortInfo> userConsoleHomePageSortInfo);
+
+    /**
+     * 修改后台首页顺序
+     * @param userConsoleHomePageSortInfo
+     */
+    void updateHomeSorts(List<UserConsoleHomePageSortInfo> userConsoleHomePageSortInfo);
+
 }

@@ -74,6 +74,8 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
     private ChinaCityMapper chinaCityMapper;
     @Autowired
     private CarGroupInfoMapper carGroupInfoMapper;
+    @Autowired
+    private JourneyPassengerInfoMapper journeyPassengerInfoMapper;
 
 
     /**
@@ -414,6 +416,12 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(ecmpId);
         if (ecmpUser==null){
             throw new Exception("申请人不存在");
+        }
+        String passengerPhone=null;
+        //获取乘车人信息
+        List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(new JourneyPassengerInfo(journeyInfo.getJourneyId()));
+        if (CollectionUtils.isNotEmpty(journeyPassengerInfos)){
+            passengerPhone=journeyPassengerInfos.get(0).getMobile();
         }
         String tempalte="";
         if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyInfo.getApplyType())){//公务
