@@ -160,4 +160,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select group_concat(distinct name) from enterprise_car_type_info a
         where find_in_set(a.level,#{levels})  and company_id =#{ownerCompany}
     </select>
+
+    <select id="selectEnterpriseCarTypeIds" resultMap="EnterpriseCarTypeInfoResult">
+        <include refid="selectEnterpriseCarTypeInfoVo"/>
+        where car_type_id in
+        <foreach collection="list" item="carTypeId" open="(" close=")" separator=",">
+            #{carTypeId}
+        </foreach>
+    </select>
 </mapper>

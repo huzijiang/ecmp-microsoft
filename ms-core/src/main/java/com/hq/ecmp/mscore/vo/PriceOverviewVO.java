@@ -34,4 +34,19 @@ public class PriceOverviewVO {
     private String carTypeName;
     private List<CarGroupCostVO> costList;
 
+    public PriceOverviewVO() {
+    }
+
+    public PriceOverviewVO(String rentType, List<CarGroupCostVO> costList) {
+        this.rentType = rentType;
+        this.costList = costList;
+    }
+
+    public PriceOverviewVO(String cityName, String cityCode, String rentType, List<CarGroupCostVO> costList) {
+        this.cityName = cityName;
+        this.cityCode = cityCode;
+        this.costList = costList;
+        this.rentType = rentType;
+
+    }
 }

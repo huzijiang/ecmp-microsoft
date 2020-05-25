@@ -60,4 +60,7 @@ public class PageRequest {
 
     private Long companyId;
 
+    private String homeDynamicBeginTime;
+    private String homeDynamicEndTime;
+
 }

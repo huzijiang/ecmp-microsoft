@@ -29,6 +29,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
 {
     @Autowired
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
+
     @Autowired
     private OrderAddressInfoMapper OrderAddressInfoMapper;
     @Autowired
@@ -43,6 +44,8 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
     private OrderWaitTraceInfoMapper orderWaitTraceInfoMapper;
     @Autowired
     private OrderServiceCostDetailRecordInfoMapper costDetailRecordInfoMapper;
+    @Autowired
+    private OrderServiceImagesInfoMapper imagesInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -158,7 +161,15 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             lastRecordInfo.setBeyondMileageFee(orderSettlingInfoVo.getOverMileagePrice());
             lastRecordInfo.setBeyondTimeFee(orderSettlingInfoVo.getOvertimeLongPrice());
             i = costDetailRecordInfoMapper.update(lastRecordInfo);
-
+            if(!orderSettlingInfoVo.getImageUrl().equals(null) && !orderSettlingInfoVo.getImageUrl().equals("")){
+                String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
+                OrderServiceImagesInfo imagesInfo = OrderServiceImagesInfo.builder()
+                        .recordId(lastRecordInfo.getRecordId()).build();
+                for (String url:imageUrl){
+                    imagesInfo.setImageurl(url);
+                    imagesInfoMapper.insert(imagesInfo);
+                }
+            }
             settlement(orderSettlingInfoVo, recordInfos);
         }
         //判断是否插入主表

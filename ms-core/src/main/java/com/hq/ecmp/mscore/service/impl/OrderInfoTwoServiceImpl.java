@@ -700,6 +700,23 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         return new PageResult<>(info.getTotal(),info.getPages(),useApplyList);
     }
 
+    @Override
+    public List<UserApplySingleVo> getUseApplyCounts(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        userApplySingleVo.setCompanyId(companyId);
+        List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplyCounts(userApplySingleVo);
+        return useApplyList;
+    }
+
+    @Override
+    public PageResult<UserApplySingleVo> getToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        userApplySingleVo.setCompanyId(companyId);
+        PageHelper.startPage(userApplySingleVo.getPageNum(),userApplySingleVo.getPageSize());
+        List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplyCounts(userApplySingleVo);
+        PageInfo<UserApplySingleVo> info = new PageInfo<>(useApplyList);
+        return new PageResult<>(info.getTotal(),info.getPages(),useApplyList);
+    }
 
     /**
      * 查询所有处于待派单(未改派)的订单及关联的信息
@@ -763,4 +780,5 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         page.setCurrent_page(query.getPageNum());
         return new PageResult<>(Long.valueOf(page.getTotal_sum()),page.getCurrent_page(),page.getCurrentPageData());
     }
+
 }

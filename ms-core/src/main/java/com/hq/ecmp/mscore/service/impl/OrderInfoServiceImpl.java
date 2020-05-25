@@ -1354,11 +1354,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
                 //终点
-                if(j==realSize-1 && !ServiceTypeConstant.CHARTERED.equals(serviceType)){
+                if(j==realSize-1){
                     orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanArriveTime());
-                    orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
-                    orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
+                    if (!ServiceTypeConstant.CHARTERED.equals(serviceType)) {
+                        orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
+                        orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
+                    }
                     orderAddressInfo.setAddress(journeyNodeInfoCh.getPlanEndAddress());
                     orderAddressInfo.setAddressLong(journeyNodeInfoCh.getPlanEndLongAddress());
                     orderAddressInfo.setCityPostalCode(journeyNodeInfoCh.getPlanEndCityCode());
@@ -1421,9 +1423,17 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
         vo.setCustomerServicePhone(serviceMobile);
         OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
-        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
-        vo.setUserName(ecmpUser.getNickName());
-        vo.setUserPhone(ecmpUser.getPhonenumber());
+//        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
+        String passengerPhone=null;
+        String passengerName=null;
+        //获取乘车人信息
+        List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(new JourneyPassengerInfo(vo.getJourneyId()));
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(journeyPassengerInfos)){
+            passengerPhone=journeyPassengerInfos.get(0).getMobile();
+            passengerName=journeyPassengerInfos.get(0).getName();
+        }
+        vo.setUserName(passengerName);
+        vo.setUserPhone(passengerPhone);
         if (orderSettlingInfo!=null){
             String amount = orderSettlingInfo.getAmount() == null ? null : orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString();
             vo.setOrderAmount(amount);

@@ -18,12 +18,15 @@ public class ValidDoubleDtoResult {
      * 城市名字
      */
     private String cityName;
+    private Long costId;
     /**
      * 车型名字
      */
     private String carTypeName;
+    private String carTypeIds;
     @ApiModelProperty(name = "carGroupName",value = "车队名称")
     private String carGroupName;
+    private String carGroupId;
     /**
      * 服务类型
      */
