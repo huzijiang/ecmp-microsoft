@@ -1,7 +1,9 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -9,6 +11,7 @@ import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class OrderServiceCostDetailRecordInfo {
 
     Long recordId;
@@ -66,4 +69,9 @@ public class OrderServiceCostDetailRecordInfo {
     Date updateTime;
 
     List<OrderServiceImagesInfo> imageList;
+
+    List<DriverHeartbeatInfo> heartbeatList;
+
+    public OrderServiceCostDetailRecordInfo() {
+    }
 }
