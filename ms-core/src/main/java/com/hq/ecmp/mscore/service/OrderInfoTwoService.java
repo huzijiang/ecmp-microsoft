@@ -102,4 +102,12 @@ public interface OrderInfoTwoService {
      */
     void dispatcherSendCar(DispatchSendCarDto dispatchSendCarDto);
 
+
+    /**
+     * 获取首页业务员待确认订单
+     * @param userApplySingleVo
+     * @param loginUser
+     * @return
+     */
+    int toSureToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
 }

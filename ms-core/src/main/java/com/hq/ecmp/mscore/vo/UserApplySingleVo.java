@@ -12,6 +12,9 @@ import lombok.Data;
 @ApiModel(value = "用车申请model")
 public class UserApplySingleVo extends PageRequest {
 
+    @ApiModelProperty(value = "订单id")
+    private Long orderId;
+
     @ApiModelProperty(value = "申请id")
     private Long applyId;
 
