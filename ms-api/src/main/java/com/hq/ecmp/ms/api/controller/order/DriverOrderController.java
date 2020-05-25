@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -228,6 +230,20 @@ public class DriverOrderController {
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();
+    }
+
+    /**
+     * 获区费用上报总价
+     */
+    @ApiOperation(value = "getAllFeeAmount", notes = "获区费用上报总价 ", httpMethod = "POST")
+    @PostMapping("/getAllFeeAmount")
+    public ApiResponse getAllFeeAmount(@RequestBody OrderSettlingInfoVo orderSettlingInfoVo) throws ParseException {
+        //获取登陆用户的信息
+        LoginUser loginUser = tokenService.getLoginUser();
+        Long userId = loginUser.getDriver().getDriverId();
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        BigDecimal amount = iOrderSettlingInfoService.getAllFeeAmount(orderSettlingInfoVo, userId, companyId);
+        return ApiResponse.success(amount.doubleValue());
     }
 
     /**

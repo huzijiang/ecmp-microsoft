@@ -89,6 +89,12 @@ public class OrderSettlingInfoVo {
     private BigDecimal restaurantFee;
 
     /**
+     * 其他费用
+     */
+    @ApiModelProperty(name = "otherFee", value = "其他费用")
+    private BigDecimal otherFee;
+
+    /**
      * 等待时长
      */
     @ApiModelProperty(name = "waitingTime", value = "等待时长")
@@ -133,8 +139,15 @@ public class OrderSettlingInfoVo {
     private Date updateTime;
 
     /**
-     * 发票照片
+     * 图片地址
      */
-    @ApiModelProperty(name = "imageUrl", value = "发票照片")
+    @ApiModelProperty(name = "imageUrl", value = "图片地址")
     private String imageUrl;
+
+    /**
+     * 服务类型
+     */
+    @ApiModelProperty(name = "serviceType", value = "服务类型")
+    private String serviceType;
+
 }

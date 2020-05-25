@@ -61,4 +61,12 @@ public interface DriverHeartbeatInfoMapper
     public int deleteDriverHeartbeatInfoByIds(Long[] heartIds);
 
     DriverHeartbeatInfo findNowLocation(Long driverId, Long orderId);
+
+    /**
+     * 一个订单多日租当前单的订单轨迹点
+     * add by liuzb
+     * @param driverHeartbeatInfo
+     * @return
+     */
+    List<DriverHeartbeatInfo> getOrderDay(DriverHeartbeatInfo driverHeartbeatInfo);
 }

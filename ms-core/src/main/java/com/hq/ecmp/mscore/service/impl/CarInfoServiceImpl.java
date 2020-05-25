@@ -411,6 +411,12 @@ public class CarInfoServiceImpl implements ICarInfoService
         for (CarInfo carInfo : carInfos) {
             Long carId = carInfo.getCarId();
             Long carTypeId = carInfo.getCarTypeId();
+            Long companyId = carInfo.getCompanyId();
+            EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(companyId);
+            String companyName = null;
+            if(ecmpOrg != null){
+                companyName = ecmpOrg.getDeptName();
+            }
             //查询fuelType
             String fuelType = selectFuelType(carId);
             //查询能源类型
@@ -445,6 +451,7 @@ public class CarInfoServiceImpl implements ICarInfoService
                     .driverNum(list2.size())
                     .source(carInfo.getSource())
                     .state(carInfo.getState())
+                    .companyName(companyName)
                     .carId(carId)
                     .powerTypeName(powerTypeName)
                     .powerType(carInfo.getPowerType())
@@ -685,6 +692,13 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .seatNum(carInfo.getSeatNum())
                 .source(carInfo.getSource())
                 .tax(carInfo.getTax())
+                .icCard(carInfo.getIcCard())
+                .fnNumber(carInfo.getFnNumber())
+                .annualVerificationTime(carInfo.getAnnualVerificationTime())
+                .registeTime(carInfo.getRegisteTime())
+                .lastMaintainTime(carInfo.getLastMaintainTime())
+                .engineNumber(carInfo.getEngineNumber())
+                .carNumber(carInfo.getCarNumber())
                 .build();
         return carSaveDTO;
 
