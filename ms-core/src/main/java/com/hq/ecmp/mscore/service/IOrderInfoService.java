@@ -296,5 +296,12 @@ public interface IOrderInfoService {
      */
     OrderInfoMessage getMessage(Long orderId)throws Exception;
 
+    /***
+     *
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    int orderConfirm(Long userId ,Long orderId)throws Exception;
 }
 

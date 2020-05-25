@@ -90,4 +90,13 @@ public class CarDetailVO {
 
     //6.行驶证号码
     private String drivingLicense;  // FIXME
+
+    private String  icCard;  //IC卡
+    private String  fnNumber;  //档案号
+    private Date  registeTime;  //注册时间
+    private Date  annualVerificationTime;  //年度审核日期
+    private Date  lastMaintainTime;  //最后维修时间
+
+    private String engineNumber; //发动机编号
+    private String carNumber;  //车架号
 }

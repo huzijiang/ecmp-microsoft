@@ -67,6 +67,9 @@ public class CostConfigInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String state;
+/** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String carGroupUserMode;
 
     public void setCostId(Long costId) 
     {
@@ -184,6 +187,14 @@ public class CostConfigInfo extends BaseEntity
     public String getState() 
     {
         return state;
+    }
+
+    public String getCarGroupUserMode() {
+        return carGroupUserMode;
+    }
+
+    public void setCarGroupUserMode(String carGroupUserMode) {
+        this.carGroupUserMode = carGroupUserMode;
     }
 
     @Override

@@ -11,8 +11,11 @@ import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.*;
+import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
+import com.hq.ecmp.mscore.vo.PriceOverviewVO;
 import com.hq.ecmp.mscore.vo.SupplementVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -34,6 +37,30 @@ public class CostController {
     private ICostConfigInfoService costConfigInfoService;
     @Resource
     private TokenService tokenService;
+    @Autowired
+    private ICarGroupInfoService carGroupInfoService;
+
+
+    /**
+     * 包车服务--根据车队获取适用城市
+     * @param  carGroupId 车队id
+     */
+    @PostMapping("/getCitysBycarGroupId")
+    @Log(value = "包车服务--根据车队获取适用城市")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "包车服务--根据车队获取适用城市",businessType = BusinessType.INSERT,operatorType = OperatorType.MANAGE)
+    public ApiResponse<List<CostConfigCityInfo>>  getCitysBycarGroupId(Long carGroupId){
+        try {
+            //获取当前登陆用户的信息
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            //获取当前登陆用户的信息Id
+            List<CostConfigCityInfo> citys=carGroupInfoService.getCitysBycarGroupId(carGroupId);
+            return ApiResponse.success(citys);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询失败");
+        }
+    }
 
     /**
      * 成本设置信息录入
@@ -90,10 +117,10 @@ public class CostController {
     @Log(value = "通过id查询成本设置信息 AND 成本设置详情以及修改的成本回显")
     @com.hq.core.aspectj.lang.annotation.Log(title = "通过id查询成本设置信息 AND 成本设置详情以及修改的成本回显",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
     @PostMapping("/queryCostConfigById")
-    public ApiResponse<CostConfigListResult> queryCostConfigById(@RequestParam("costId") Long costId,@RequestParam("cityCode")Integer cityCode){
+    public ApiResponse<CostConfigListResult> queryCostConfigById(@RequestParam("costId") Long costId){
         CostConfigListResult costConfigListResult;
         try {
-            costConfigListResult = costConfigInfoService.selectCostConfigInfoById(costId,cityCode);
+            costConfigListResult = costConfigInfoService.selectCostConfigInfoById(costId,null);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("通过id查询成本信息失败");
@@ -164,6 +191,25 @@ public class CostController {
     }
 
     /**
+     *
+     * @param costConfigQueryDto  车型，城市，服务类型
+     * @return ApiResponse
+     */
+    @Log(value = "车队,车型，服务类型,服务模式四者校验是否重复")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "车队,车型，服务类型,服务模式四者校验是否重复",businessType = BusinessType.DELETE,operatorType = OperatorType.MANAGE)
+    @PostMapping("/checkCharteredCost")
+    public ApiResponse<List<ValidDoubleDtoResult>> checkCharteredCost(@RequestBody CostConfigQueryDoubleValidDto costConfigQueryDto){
+        List<ValidDoubleDtoResult> res = null;
+        try {
+            res = costConfigInfoService.checkCharteredCost(costConfigQueryDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return  ApiResponse.error("判重失败");
+        }
+        return ApiResponse.success(res);
+    }
+
+    /**
      * 补单成本计算
      * @param
      * @return
@@ -177,7 +223,7 @@ public class CostController {
             //获取登陆用户的信息
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            Long companyId = loginUser.getUser().getDept().getCompanyId();
+            Long companyId = loginUser.getUser().getOwnerCompany();
             String json = costConfigInfoService.supplementAmountCalculation(supplement,companyId);
             apiResponse.setData(json);
         } catch (Exception e) {
@@ -202,6 +248,24 @@ public class CostController {
             }else{
                 return ApiResponse.success(Boolean.valueOf(false));
             }
+        } catch (Exception e) {
+            return ApiResponse.error("判重失败");
+        }
+    }
+
+    /**
+     *  成本名稱判重
+     */
+    @Log(value = "成本名称判重")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "成本名称判重",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
+    @PostMapping("/getGroupPrice")
+    public ApiResponse<List<PriceOverviewVO>> getGroupPrice(String cityCode){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long companyId = loginUser.getUser().getOwnerCompany();
+            List<PriceOverviewVO> list=costConfigInfoService.getGroupPrice(cityCode,companyId);
+                return ApiResponse.success();
         } catch (Exception e) {
             return ApiResponse.error("判重失败");
         }

@@ -166,4 +166,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 LEFT JOIN china_city cc ON cgssi.city = cc.CITY_CODE
                 where cpi.car_group_id in (#{carGroupId})
     </select>
+
+    <select id="getCitysBycarGroupId" resultType="com.hq.ecmp.mscore.domain.CostConfigCityInfo">
+         SELECT
+                cc.city_code cityCode,
+                cc.SHORT_NAME cityName
+            FROM  china_city cc
+            where CITY_CODE in (select DISTINCT city from car_group_serve_scope_info where car_group_id=#{carGroupId})
+
+    </select>
 </mapper>

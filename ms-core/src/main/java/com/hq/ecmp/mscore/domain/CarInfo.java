@@ -167,6 +167,12 @@ public class CarInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String  lockState;
 
+    private String  icCard;  //IC卡
+    private String  fnNumber;  //档案号
+    private Date  registeTime;  //注册时间
+    private Date  annualVerificationTime;  //年度审核日期
+    private Date  lastMaintainTime;  //最后维修时间
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)

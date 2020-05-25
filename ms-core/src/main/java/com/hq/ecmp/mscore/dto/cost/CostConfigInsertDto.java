@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.dto.cost;
 
+import com.hq.ecmp.mscore.domain.CostConfigCarGroupInfo;
 import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
@@ -23,5 +24,7 @@ public class CostConfigInsertDto extends CostConfigInfo {
     List<CostConfigCityInfo> cities;
     @ApiModelProperty(value = "车型集合")
     List<CostConfigCarTypeInfo> carTypes;
+    @ApiModelProperty(value = "车型集合")
+    List<CostConfigCarGroupInfo> carGroupInfos;
 
 }

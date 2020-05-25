@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.*;
+import com.hq.ecmp.mscore.vo.PriceOverviewVO;
 import com.hq.ecmp.mscore.vo.SupplementVO;
 
 import java.util.List;
@@ -96,7 +97,7 @@ public interface ICostConfigInfoService
 
     /**
      * 补单成本计算
-     * @param SupplementVO
+     * @param supplementVO
      * @return
      */
     String supplementAmountCalculation(SupplementVO supplementVO,Long companyId);
@@ -107,4 +108,8 @@ public interface ICostConfigInfoService
      * @return
      */
     Boolean costConfigNameIsDouble(String configName);
+
+    List<ValidDoubleDtoResult> checkCharteredCost(CostConfigQueryDoubleValidDto costConfigQueryDto);
+
+    List<PriceOverviewVO> getGroupPrice(String cityCode,Long companyId);
 }
