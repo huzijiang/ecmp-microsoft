@@ -692,6 +692,13 @@ public class CarInfoServiceImpl implements ICarInfoService
                 .seatNum(carInfo.getSeatNum())
                 .source(carInfo.getSource())
                 .tax(carInfo.getTax())
+                .icCard(carInfo.getIcCard())
+                .fnNumber(carInfo.getFnNumber())
+                .annualVerificationTime(carInfo.getAnnualVerificationTime())
+                .registeTime(carInfo.getRegisteTime())
+                .lastMaintainTime(carInfo.getLastMaintainTime())
+                .engineNumber(carInfo.getEngineNumber())
+                .carNumber(carInfo.getCarNumber())
                 .build();
         return carSaveDTO;
 
