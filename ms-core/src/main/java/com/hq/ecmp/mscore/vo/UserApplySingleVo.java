@@ -33,8 +33,15 @@ public class UserApplySingleVo extends PageRequest {
     @ApiModelProperty(value = "用车单位")
     private String vehicleUserCompany;
 
+    @ApiModelProperty(value = "订单编号")
+    private String useCarMode;
+
+    @ApiModelProperty(value = "费用合计")
+    private String amount;
+
     @ApiModelProperty(value = "包车类型")
     private String charterCarType;
+
     @ApiModelProperty(value = "服务车型")
     private String carLevel;
 
@@ -61,6 +68,24 @@ public class UserApplySingleVo extends PageRequest {
 
     @ApiModelProperty(value = "用车备注")
     private String  vehicleRemarks;
+
+    @ApiModelProperty(value = "用车方式")
+    private String  vehicleStyle;
+
+    @ApiModelProperty(value = "待确认状态")
+    private String  homePageToBeConfirmedState;
+
+    @ApiModelProperty(value = "待派车状态")
+    private String  homePageWaitingCarState;
+
+    @ApiModelProperty(value = "已派车状态")
+    private String  homePageUsingCarState;
+
+    @ApiModelProperty(value = "已过期状态")
+    private String  homePageExpireCarState;
+
+    @ApiModelProperty(value = "已驳回状态")
+    private String  homePageRejectState;
 
     @ApiModelProperty(name = "carColor",value = "车辆颜色")
     private String carColor;

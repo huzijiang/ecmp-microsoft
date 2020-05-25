@@ -1,7 +1,6 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +19,10 @@ public interface HomePageSortMapper {
      * @param userConsoleHomePageSortInfo
      */
     void updateHomeSort(UserConsoleHomePageSortInfo userConsoleHomePageSortInfo);
+
+    void updateHomeSorts(UserConsoleHomePageSortInfo userConsoleHomePageSortInfo);
+
+    void addHomeSort(UserConsoleHomePageSortInfo userConsoleHomePageSortInfo);
+
+    List<UserConsoleHomePageSortInfo> getHomeSortsById(Long userId, Long companyId);
 }

@@ -31,8 +31,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{Id}
     </select>
 
-
-
     <update id="updateHomeSort" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
         update user_console_home_page_sort_info
         <trim prefix="SET" suffixOverrides=",">
@@ -40,5 +38,44 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="sortNum != null ">sort_num = #{sortNum},</if>
         </trim>
         where panel_id = #{panelId}
+    </update>
+
+
+
+
+
+
+    <select id="getHomeSortsById" parameterType="Long" resultMap="HomePageSortInfoResult">
+        <include refid="selectHomePageSortInfoVo"/>
+        where user_id = #{userId} and company_id = #{companyId}
+    </select>
+
+    <insert id="addHomeSort" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
+        insert user_console_home_page_sort_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null ">user_id,</if>
+            <if test="companyId != null ">company_id,</if>
+            <if test="deptId != null ">dept_id,</if>
+            <if test="panelId != null ">panel_id,</if>
+            <if test="panelName != null ">panel_name,</if>
+            <if test="sortNum != null ">sort_num,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="userId != null ">#{userId},</if>
+        <if test="companyId != null ">#{companyId},</if>
+        <if test="deptId != null ">#{deptId},</if>
+        <if test="panelId != null ">#{panelId},</if>
+        <if test="panelName != null ">#{panelName},</if>
+        <if test="sortNum != null ">#{sortNum},</if>
+        </trim>
+    </insert>
+
+    <update id="updateHomeSorts" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
+        update user_console_home_page_sort_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="panelName != null ">panel_name = #{panelName},</if>
+            <if test="sortNum != null ">sort_num = #{sortNum},</if>
+        </trim>
+        where panel_id = #{panelId} and user_id = #{userId} and company_id = #{companyId}
     </update>
 </mapper>

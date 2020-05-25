@@ -54,7 +54,7 @@ public class HomePageSortController {
     @PostMapping("/updateHomeSort")
     public ApiResponse updateHomeSort(@RequestBody List<UserConsoleHomePageSortInfo> userConsoleHomePageSortInfo){
         try {
-            homePageSortService.updateHomeSort(userConsoleHomePageSortInfo);
+            homePageSortService.updateHomeSorts(userConsoleHomePageSortInfo);
             return ApiResponse.success();
         } catch (Exception e) {
             e.printStackTrace();

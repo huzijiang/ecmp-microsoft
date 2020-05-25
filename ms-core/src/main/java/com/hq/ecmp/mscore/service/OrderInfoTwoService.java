@@ -64,6 +64,22 @@ public interface OrderInfoTwoService {
     PageResult<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
 
     /**
+     * 获取当前业务员的待派车，已派车，已过期数量
+     * @param userApplySingleVo
+     * @param loginUser
+     * @return
+     */
+    List<UserApplySingleVo> getUseApplyCounts(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
+
+    /**
+     * 获取首页业务员待确认订单
+     * @param userApplySingleVo
+     * @param loginUser
+     * @return
+     */
+    PageResult<UserApplySingleVo> getToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
+
+    /**
      *  佛山后管申请单调度列表
      * @param query
      * @param loginUser
