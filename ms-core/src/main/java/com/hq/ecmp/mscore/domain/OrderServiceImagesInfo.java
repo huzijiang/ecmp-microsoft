@@ -1,4 +1,4 @@
-package com.hq.ecmp.mscore.dto.ordercost;
+package com.hq.ecmp.mscore.domain;
 
 import lombok.Data;
 

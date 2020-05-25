@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hq.ecmp.mscore.mapper.OrderServiceImagesInfoMapper">
 
-    <resultMap type="com.hq.ecmp.mscore.dto.ordercost.OrderServiceImagesInfo" id="Result">
+    <resultMap type="com.hq.ecmp.mscore.domain.OrderServiceImagesInfo" id="Result">
         <result property="imageId"          column="image_id"    />
         <result property="recordId"         column="record_id"    />
         <result property="imageurl"         column="image_url"    />
@@ -15,7 +15,7 @@
         select image_id, record_id ,image_url,create_by,create_time,update_by,update_time
         from order_service_images_info
     </sql>
-    <select id="getList" parameterType="com.hq.ecmp.mscore.dto.ordercost.OrderServiceImagesInfo" resultMap="Result">
+    <select id="getList" parameterType="com.hq.ecmp.mscore.domain.OrderServiceImagesInfo" resultMap="Result">
         <include refid="key"/>
         <where>
             <if test="recordId != null "> and record_id = #{recordId}</if>

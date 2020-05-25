@@ -1,6 +1,6 @@
 package com.hq.ecmp.mscore.mapper;
 
-import com.hq.ecmp.mscore.dto.ordercost.OrderServiceImagesInfo;
+import com.hq.ecmp.mscore.domain.OrderServiceImagesInfo;
 
 import java.util.List;
 
