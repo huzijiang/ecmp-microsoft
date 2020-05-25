@@ -1,27 +1,21 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.github.pagehelper.util.StringUtil;
-import com.google.common.collect.Maps;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
 import com.hq.api.system.domain.SysUser;
-import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
-import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.dto.DriverCloudDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.DateFormatUtils;
-import com.hq.ecmp.util.MacTools;
 import com.hq.ecmp.util.Page;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +30,14 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.hq.ecmp.constant.CommonConstant.*;
-import static com.hq.ecmp.constant.OrderState.WAITINGLIST;
+import static com.hq.ecmp.constant.CommonConstant.ONE;
+import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
 
 /**
