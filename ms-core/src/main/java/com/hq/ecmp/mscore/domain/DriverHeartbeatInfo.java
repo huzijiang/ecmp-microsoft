@@ -1,11 +1,13 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
 import com.hq.core.web.domain.BaseEntity;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 【请填写功能名称】对象 driver_heartbeat_info
@@ -13,6 +15,7 @@ import java.math.BigDecimal;
  * @author hqer
  * @date 2020-01-02
  */
+@Data
 public class DriverHeartbeatInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -35,6 +38,26 @@ public class DriverHeartbeatInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private BigDecimal latitude;
+
+    Date beginDate;
+
+    Date endDate;
+
+    public Date getBeginDate() {
+        return beginDate;
+    }
+
+    public void setBeginDate(Date beginDate) {
+        this.beginDate = beginDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
 
     public void setHeartId(Long heartId)
     {
