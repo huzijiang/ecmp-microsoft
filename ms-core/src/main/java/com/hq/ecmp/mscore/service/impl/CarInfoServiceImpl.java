@@ -299,31 +299,39 @@ public class CarInfoServiceImpl implements ICarInfoService
             log.info("车辆：{}，行驶证已过期，无法启用，操作人：{}",carId,userId);
             return CarConstant.RETURN_TWO_CODE;
         }
-        Date rentStartDate = carInfo1.getRentStartDate();
-        Date rentEndDate = carInfo1.getRentEndDate();
-        if(rentStartDate != null && rentStartDate.after(nowDate)){
-            //租赁车辆开始时间未到 无法启用
-            log.info("租赁车辆：{}，开始时间未到，无法启用，操作人：{}",carId,userId);
-            return CarConstant.RETURN_ZERO_CODE;
-        }
-        if(rentEndDate != null && rentEndDate.before(nowDate)){
-            //租赁车辆 租用到期 无法启用
-            log.info("租赁车辆：{}，租用到期，无法启用，操作人：{}",carId,userId);
-            return CarConstant.RETURN_TWO_CODE;
-        }
-        Date borrowStartDate = carInfo1.getBorrowStartDate();
-        Date borrowEndDate = carInfo1.getBorrowEndDate();
-        if(borrowStartDate != null && borrowStartDate.after(nowDate)){
-            //借调车辆 开始时间未到 无法启用
-            log.info("借调车辆：{}，开始时间未到，无法启用，操作人：{}",carId,userId);
-            return CarConstant.RETURN_ZERO_CODE;
-        }
-        if(borrowEndDate != null && borrowEndDate.before(nowDate)){
-            //借调车辆 借调到期 无法启用
-            log.info("借调车辆：{}，借调到期，无法启用，操作人：{}",carId,userId);
-            return CarConstant.RETURN_TWO_CODE;
-        }
 
+        //车辆性质
+        String source = carInfo1.getSource();
+        //如果是借来的车
+        if(CarConstant.BORROW_CAR.equals(source)){
+            Date borrowStartDate = carInfo1.getBorrowStartDate();
+            Date borrowEndDate = carInfo1.getBorrowEndDate();
+            if(borrowStartDate != null && borrowStartDate.after(nowDate)){
+                //借调车辆 开始时间未到 无法启用
+                log.info("借调车辆：{}，开始时间未到，无法启用，操作人：{}",carId,userId);
+                return CarConstant.RETURN_ZERO_CODE;
+            }
+            if(borrowEndDate != null && borrowEndDate.before(nowDate)){
+                //借调车辆 借调到期 无法启用
+                log.info("借调车辆：{}，借调到期，无法启用，操作人：{}",carId,userId);
+                return CarConstant.RETURN_TWO_CODE;
+            }
+        }
+        //如果是租来的车
+        if(CarConstant.RENT_CAR.equals(source)){
+            Date rentStartDate = carInfo1.getRentStartDate();
+            Date rentEndDate = carInfo1.getRentEndDate();
+            if(rentStartDate != null && rentStartDate.after(nowDate)){
+                //租赁车辆开始时间未到 无法启用
+                log.info("租赁车辆：{}，开始时间未到，无法启用，操作人：{}",carId,userId);
+                return CarConstant.RETURN_ZERO_CODE;
+            }
+            if(rentEndDate != null && rentEndDate.before(nowDate)){
+                //租赁车辆 租用到期 无法启用
+                log.info("租赁车辆：{}，租用到期，无法启用，操作人：{}",carId,userId);
+                return CarConstant.RETURN_TWO_CODE;
+            }
+        }
         CarInfo carInfo = new CarInfo();
         carInfo.setState(CarConstant.START_CAR);
         carInfo.setUpdateBy(String.valueOf(userId));
