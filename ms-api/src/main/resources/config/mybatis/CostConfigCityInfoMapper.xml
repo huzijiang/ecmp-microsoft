@@ -75,6 +75,7 @@
         delete from cost_config_city_info where id = #{id}
     </delete>
 
+
     <delete id="deleteCostConfigCityInfoByIds" parameterType="String">
         delete from cost_config_city_info where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
@@ -101,7 +102,37 @@
         and city_code!=#{cityCode}
     </select>
 
+    <delete id="deleteCostConfigCityInfoByCostId" parameterType="Long">
+        delete from cost_config_city_info where cost_id = #{costId}
+    </delete>
+
     <select id="selectCostConfigCity" resultType="java.lang.String">
         select DISTINCT city_name cityName from cost_config_city_info where city_code=#{cityCode}
+    </select>
+
+    <select id="findGroupByCity" resultType="com.hq.ecmp.mscore.vo.CarGroupCostVO">
+        select
+            cci.rent_type rentType,
+            cci.car_group_user_mode carGroupUserMode,
+            cccti.car_type_id carTypeId,
+            cccti.car_type_name carTypeName,
+            ccci.cost_id costId,
+            ccci.city_code cityCode,
+            ccci.city_name cityName,
+            cccgi.car_group_id carGroupId,
+            (select car_group_name from car_group_info z where z.car_group_id=cccgi.car_group_id) carGroupName,
+            (select telephone from car_group_info z where z.car_group_id=cccgi.car_group_id) telephone,
+            (select it_is_inner from car_group_info z where z.car_group_id=cccgi.car_group_id) itIsInner,
+            cci.combos_price combosPrice,
+            cci.combos_mileage combosMileage,
+            cci.combos_times combosTimes,
+            cci.beyond_price_every_km beyondPriceEveryKm,
+            cci.beyond_price_every_minute beyondPriceEveryMinute
+        from cost_config_city_info ccci
+        left join cost_config_car_group_info cccgi on cccgi.cost_id=ccci.cost_id
+        left join cost_config_car_type_info cccti on cccti.cost_id=ccci.cost_id
+        left join cost_config_info cci on cci.cost_id=ccci.cost_id
+        where
+         ccci.city_code=#{cityCode} and cci.service_type=5000
     </select>
 </mapper>

@@ -67,6 +67,13 @@ public class CostConfigCarTypeInfo extends BaseEntity
         return carTypeName;
     }
 
+    public CostConfigCarTypeInfo() {
+    }
+
+    public CostConfigCarTypeInfo(Long costId) {
+        this.costId = costId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
