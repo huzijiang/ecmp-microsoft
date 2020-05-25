@@ -139,9 +139,15 @@ public class OrderSettlingInfoVo {
     private Date updateTime;
 
     /**
-     * 发票照片
+     * 图片地址
      */
-    @ApiModelProperty(name = "imageUrl", value = "发票照片")
+    @ApiModelProperty(name = "imageUrl", value = "图片地址")
     private String imageUrl;
+
+    /**
+     * 服务类型
+     */
+    @ApiModelProperty(name = "serviceType", value = "服务类型")
+    private String serviceType;
 
 }

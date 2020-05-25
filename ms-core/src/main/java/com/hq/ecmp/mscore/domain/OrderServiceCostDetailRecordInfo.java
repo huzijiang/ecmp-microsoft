@@ -51,6 +51,12 @@ public class OrderServiceCostDetailRecordInfo {
 
     BigDecimal othersFee;
 
+    BigDecimal totalFee;
+
+    BigDecimal beyondMileageFee;
+
+    BigDecimal beyondTimeFee;
+
     Long createBy;
 
     Date createTime;

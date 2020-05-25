@@ -154,7 +154,12 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             lastRecordInfo.setSetMealTimes(costConfigInfo.getCombosTimes().intValue());
             lastRecordInfo.setBeyondMileage(beyondMileage);
             lastRecordInfo.setBeyondTime(beyondTime);
+            lastRecordInfo.setTotalFee(orderSettlingInfoVo.getAmount());
+            lastRecordInfo.setBeyondMileageFee(orderSettlingInfoVo.getOverMileagePrice());
+            lastRecordInfo.setBeyondTimeFee(orderSettlingInfoVo.getOvertimeLongPrice());
             i = costDetailRecordInfoMapper.update(lastRecordInfo);
+
+            settlement(orderSettlingInfoVo, recordInfos);
         }
         //判断是否插入主表
         if(isInsertOrderConfing){
@@ -169,6 +174,39 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         }
 
         return i;
+    }
+
+    //订单总费用结算
+    private void settlement(OrderSettlingInfoVo orderSettlingInfoVo, List<OrderServiceCostDetailRecordInfo> recordInfos) {
+        BigDecimal amount = BigDecimal.ZERO;
+        BigDecimal otherFee = BigDecimal.ZERO;
+        BigDecimal highSpeedFee = BigDecimal.ZERO;
+        BigDecimal hotelExpenseFee = BigDecimal.ZERO;
+        BigDecimal parkingRateFee = BigDecimal.ZERO;
+        BigDecimal restaurantFee = BigDecimal.ZERO;
+        BigDecimal overMileagePrice = BigDecimal.ZERO;
+        BigDecimal overtimeLongPrice = BigDecimal.ZERO;
+        for (OrderServiceCostDetailRecordInfo recordInfo : recordInfos) {
+            amount.add(recordInfo.getTotalFee());
+            otherFee.add(recordInfo.getOthersFee());
+            highSpeedFee.add(recordInfo.getHighwayTollFee());
+            hotelExpenseFee.add(recordInfo.getAccommodationFee());
+            parkingRateFee.add(recordInfo.getStopCarFee());
+            restaurantFee.add(recordInfo.getFoodFee());
+            overMileagePrice.add(recordInfo.getRoadAndBridgeFee());
+            overtimeLongPrice.add(recordInfo.getBeyondTimeFee());
+        }
+        String json = costPrice(orderSettlingInfoVo);
+        //计算总费用
+        orderSettlingInfoVo.setAmountDetail(json);
+        orderSettlingInfoVo.setAmount(amount);
+        orderSettlingInfoVo.setOtherFee(otherFee);
+        orderSettlingInfoVo.setHighSpeedFee(highSpeedFee);
+        orderSettlingInfoVo.setHotelExpenseFee(hotelExpenseFee);
+        orderSettlingInfoVo.setParkingRateFee(parkingRateFee);
+        orderSettlingInfoVo.setRestaurantFee(restaurantFee);
+        orderSettlingInfoVo.setOverMileagePrice(overMileagePrice);
+        orderSettlingInfoVo.setOvertimeLongPrice(overtimeLongPrice);
     }
 
     @Override
@@ -212,12 +250,12 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
     /**
      * 成本价详情
      * @param orderSettlingInfoVo
-     * @param serviceType
      * @return
      */
-    public String costPrice(OrderSettlingInfoVo orderSettlingInfoVo,String serviceType){
+    public String costPrice(OrderSettlingInfoVo orderSettlingInfoVo){
         Map map = new HashMap();
         List list= new ArrayList();
+        String serviceType = orderSettlingInfoVo.getServiceType();
         //默认个人取消费用为0
 //        BigDecimal personalCancellationFee = BigDecimal.ZERO;
         //默认个人取消费用为0
@@ -378,6 +416,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         return json;
     }
 
+    //根据订单设置计算价格
     private class GetAllfee {
         private boolean myResult;
         private OrderSettlingInfoVo orderSettlingInfoVo;
@@ -420,6 +459,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             orderSettlingInfoVo.setWaitingTime(waitingTime);
             //查询该订单的记录  城市  服务类型  车型级别  包车类型 公司id
             OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderSettlingInfoVo.getOrderId());
+            orderSettlingInfoVo.setServiceType(orderInfo.getServiceType());
             //查询所在的城市
             OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
             orderAddressInfo.setOrderId(orderSettlingInfoVo.getOrderId());
@@ -485,7 +525,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             CostCalculation calculator = new CostCalculator();
             orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
             //落库到订单结算信息表
-            String json = OrderSettlingInfoServiceImpl.this.costPrice(orderSettlingInfoVo,orderInfo.getServiceType());//成本价详情
+            String json = OrderSettlingInfoServiceImpl.this.costPrice(orderSettlingInfoVo);//成本价详情
             String extraPrice = OrderSettlingInfoServiceImpl.this.extraPrice(orderSettlingInfoVo);//价外费详情
             orderSettlingInfoVo.setCreateTime(DateUtils.getNowDate());
             orderSettlingInfoVo.setCreateBy(userId.toString());
