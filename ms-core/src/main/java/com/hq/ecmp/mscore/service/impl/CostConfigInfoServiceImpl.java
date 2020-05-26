@@ -3,30 +3,30 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
+import com.hq.ecmp.constant.CharterTypeEnum;
+import com.hq.ecmp.constant.CostConfigModeEnum;
 import com.hq.ecmp.constant.OrderServiceType;
-import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
-import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
-import com.hq.ecmp.mscore.domain.CostConfigInfo;
-import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.cost.*;
-import com.hq.ecmp.mscore.mapper.ChinaCityMapper;
-import com.hq.ecmp.mscore.mapper.CostConfigCarTypeInfoMapper;
-import com.hq.ecmp.mscore.mapper.CostConfigCityInfoMapper;
-import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.CostCalculation;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
+import com.hq.ecmp.mscore.vo.CarGroupCostVO;
+import com.hq.ecmp.mscore.vo.CityInfo;
+import com.hq.ecmp.mscore.vo.PriceOverviewVO;
 import com.hq.ecmp.mscore.vo.SupplementVO;
+import com.hq.ecmp.util.SortListUtil;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -43,6 +43,10 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     private CostConfigCityInfoMapper costConfigCityInfoMapper;
     @Resource
     private CostConfigCarTypeInfoMapper costConfigCarTypeInfoMapper;
+    @Resource
+    private CostConfigCarGroupInfoMapper costConfigCarGroupInfoMapper;
+    @Resource
+    private EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
 
     /**
      * 通过id查询成本配置信息
@@ -54,9 +58,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     public CostConfigListResult selectCostConfigInfoById(Long costId,Integer cityCode)
     {
         CostConfigListResult costConfigListResult = costConfigInfoMapper.selectCostConfigInfoById(costId,cityCode);
-        CostConfigCarTypeInfo costConfigCarTypeInfo = new CostConfigCarTypeInfo();
-        costConfigCarTypeInfo.setCostId(costConfigListResult.getCostId());
-        List<CostConfigCarTypeInfo> costConfigCarTypeInfos = costConfigCarTypeInfoMapper.selectCostConfigCarTypeInfoList(costConfigCarTypeInfo);
+        List<CostConfigCarTypeInfo> costConfigCarTypeInfos = costConfigCarTypeInfoMapper.selectCostConfigCarTypeInfoList( new CostConfigCarTypeInfo(costConfigListResult.getCostId()));
         costConfigListResult.setCarTypes(costConfigCarTypeInfos);
         return costConfigListResult;
     }
@@ -72,11 +74,8 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         CostConfigListResultPage costConfigListResultPage = new CostConfigListResultPage();
         PageHelper.startPage(costConfigQueryDto.getPageNum(), costConfigQueryDto.getPageSize());
         List<CostConfigListResult> costConfigListResults = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
-        for (CostConfigListResult costConfigListResult:
-             costConfigListResults) {
-            CostConfigCarTypeInfo costConfigCarTypeInfo = new CostConfigCarTypeInfo();
-            costConfigCarTypeInfo.setCostId(costConfigListResult.getCostId());
-            List<CostConfigCarTypeInfo> costConfigCarTypeInfos = costConfigCarTypeInfoMapper.selectCostConfigCarTypeInfoList(costConfigCarTypeInfo);
+        for (CostConfigListResult costConfigListResult: costConfigListResults) {
+            List<CostConfigCarTypeInfo> costConfigCarTypeInfos = costConfigCarTypeInfoMapper.selectCostConfigCarTypeInfoList(new CostConfigCarTypeInfo(costConfigListResult.getCostId()));
             costConfigListResult.setCarTypes(costConfigCarTypeInfos);
         }
         int totalNum = costConfigInfoMapper.getTotalNum(costConfigQueryDto);
@@ -143,16 +142,19 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     @Transactional(rollbackFor = Exception.class)
     public void createCostConfig(CostConfigInsertDto costConfigDto, Long userId) throws Exception {
         CostConfigInfo costConfigInfo = new CostConfigInfo();
-        BeanUtils.copyProperties(costConfigDto,costConfigInfo);
+        BeanUtils.copyProperties(costConfigDto, costConfigInfo);
         costConfigInfo.setCreateBy(String.valueOf(userId));
         costConfigInfo.setCostId(null);
-        ((ICostConfigInfoService)AopContext.currentProxy()).insertCostConfigInfo(costConfigInfo);
+        ((ICostConfigInfoService) AopContext.currentProxy()).insertCostConfigInfo(costConfigInfo);
         Long costId = costConfigInfo.getCostId();
-        if(costId == null){
-            throw new  Exception("新增失败");
+        if (costId == null) {
+            throw new Exception("新增失败");
         }
-        costConfigCityInfoMapper.insertCostConfigCityInfoBatch(costConfigDto.getCities(),costId,userId,DateUtils.getNowDate());
-        costConfigCarTypeInfoMapper.insertCostConfigCarTypeInfoBatch(costConfigDto.getCarTypes(),costId,userId,DateUtils.getNowDate());
+        costConfigCarTypeInfoMapper.insertCostConfigCarTypeInfoBatch(costConfigDto.getCarTypes(), costId, userId, DateUtils.getNowDate());
+        if (!CollectionUtils.isEmpty(costConfigDto.getCities())){
+            costConfigCityInfoMapper.insertCostConfigCityInfoBatch(costConfigDto.getCities(),costId,userId,DateUtils.getNowDate());
+            costConfigCarGroupInfoMapper.insertCostConfigCarGroupInfoBatch(costConfigDto.getCities(),costId,userId,DateUtils.getNowDate());
+        }
     }
 
     /**
@@ -173,6 +175,16 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         }
         Long costId = costConfigListResult.getCostId();
         costConfigCarTypeInfoMapper.deleteCostConfigByCostId(costId);
+        costConfigCarGroupInfoMapper.deleteCostConfigCarGroupInfoByCostId(costId);
+        costConfigCityInfoMapper.deleteCostConfigCityInfoByCostId(costId);
+        CostConfigCarGroupInfo configCarGroupInfo = new CostConfigCarGroupInfo(costId, costConfigListResult.getCarGroupId());
+        configCarGroupInfo.setCreateBy(String.valueOf(userId));
+        configCarGroupInfo.setCreateTime(DateUtils.getNowDate());
+        costConfigCarGroupInfoMapper.insertCostConfigCarGroupInfo(configCarGroupInfo);
+        CostConfigCityInfo costConfigCityInfo = new CostConfigCityInfo(costConfigListResult.getCostId(), costConfigListResult.getCityCode(),costConfigListResult.getCityName());
+        costConfigCityInfo.setCreateBy(String.valueOf(userId));
+        costConfigCityInfo.setCreateTime(DateUtils.getNowDate());
+        costConfigCityInfoMapper.insertCostConfigCityInfo(costConfigCityInfo);
         costConfigCarTypeInfoMapper.insertCostConfigCarTypeInfoBatch(costConfigListResult.getCarTypes(), costId,userId ,DateUtils.getNowDate() );
     }
 
@@ -200,11 +212,9 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     public List<ValidDoubleDtoResult> checkDoubleByServiceTypeCityCarType(CostConfigQueryDoubleValidDto costConfigQueryDto) {
         List<ValidDoubleDtoResult> result = new ArrayList<>();
         List<CostConfigCityInfo> cities = costConfigQueryDto.getCities();
-        for (CostConfigCityInfo costConfigCityInfo:
-        cities) {
+        for (CostConfigCityInfo costConfigCityInfo: cities) {
             int count = 0;
-            for (CostConfigCarTypeInfo costConfigCarTypeInfo:
-            costConfigQueryDto.getCarTypes()) {
+            for (CostConfigCarTypeInfo costConfigCarTypeInfo: costConfigQueryDto.getCarTypes()) {
                 count = costConfigInfoMapper.checkDoubleByServiceTypeCityCarType(
                         costConfigCarTypeInfo.getCarTypeId(),Integer.parseInt(costConfigCityInfo.getCityCode()),costConfigQueryDto.getServiceType(),
                         costConfigQueryDto.getRentType());
@@ -233,7 +243,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         //公司id
         costConfigQueryDto.setCompanyId(companyId);
         //城市
-        costConfigQueryDto.setCityCode(Integer.valueOf(supplementVO.getCityCode()));
+        costConfigQueryDto.setCityCode(supplementVO.getCityCode());
         String cityName = costConfigCityInfoMapper.selectCostConfigCity(supplementVO.getCityCode());
         //服务类型
         costConfigQueryDto.setServiceType(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState());
@@ -259,7 +269,10 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         orderSettlingInfoVo.setTotalMileage(supplementVO.getTotalMileage());
         //订单等待时间
         orderSettlingInfoVo.setWaitingTime(supplementVO.getWaitingTime());
-        OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
+        List<CostConfigInfo> costConfigInfos = new ArrayList<>();
+        orderSettlingInfoVo.setServiceType(costConfigInfo.getServiceType());
+        costConfigInfos.add(costConfigInfo);
+        OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfos, orderSettlingInfoVo);
         Map map = new HashMap();
         List list= new ArrayList();
         //超里程价格
@@ -304,4 +317,81 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         }
         return false;
     }
+
+    /**
+     * 校验包车服务模式服务类型判重
+     * @param costConfigQueryDto
+     * @return
+     */
+    @Override
+    public List<ValidDoubleDtoResult> checkCharteredCost(CostConfigQueryDoubleValidDto costConfigQueryDto) {
+        List<CostConfigCarTypeInfo> carTypes = costConfigQueryDto.getCarTypes();
+        List<String> carTypeId=null;
+        if (!CollectionUtils.isEmpty(carTypes)){
+            carTypeId = carTypes.stream().map(p -> p.getCarTypeId().toString()).collect(Collectors.toList());
+        }
+        List<ValidDoubleDtoResult> list=costConfigInfoMapper.checkCharteredCost(costConfigQueryDto.getCarGroupId(),costConfigQueryDto.getCarGroupUserMode()
+                ,costConfigQueryDto.getRentType(),costConfigQueryDto.getCompanyId());
+        if (CollectionUtils.isEmpty(list)){
+            return null;
+        }
+        for (ValidDoubleDtoResult result:list){
+            List<String> newCarTypeId=carTypeId;
+            result.setCarGroupUserMode(CostConfigModeEnum.format(result.getCarGroupUserMode()));
+            result.setCharterCarType(CharterTypeEnum.format(result.getCharterCarType()));
+            if (StringUtils.isNotEmpty(result.getCarTypeIds())){
+                List<String> canUseType= Arrays.asList(result.getCarTypeIds().split(","));
+                newCarTypeId.retainAll(canUseType);
+                if (!CollectionUtils.isEmpty(newCarTypeId)){
+                    List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeIds(carTypeId);
+                    String collect = enterpriseCarTypeInfos.stream().map(p -> p.getName()).collect(Collectors.joining(",", "", ""));
+                    result.setCarTypeName(collect);
+                }
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public List<PriceOverviewVO> getGroupPrice(String cityCode,Long companyId) {
+        List<PriceOverviewVO> result=new ArrayList<>();
+        List<CarGroupCostVO> list=costConfigCityInfoMapper.findGroupByCity(cityCode,companyId);
+        List<CarGroupCostVO> grouplist=costConfigCarGroupInfoMapper.selectGroupByCityCode(cityCode,companyId);
+        result.add(new PriceOverviewVO("0",grouplist));
+        result.add(new PriceOverviewVO("1",grouplist));
+        if (!CollectionUtils.isEmpty(list)){
+            result.add(new PriceOverviewVO());
+            Map<String, List<CarGroupCostVO>> collect = list.stream().collect(Collectors.groupingBy(o -> o.getRentType() + "_" + o.getCarGroupUserMode() + "_" + o.getCarTypeId(), Collectors.toList()));
+            if (!CollectionUtils.isEmpty(collect)){
+                for(Map.Entry<String,List<CarGroupCostVO>> map:collect.entrySet()){
+                    String key = map.getKey();
+                    String[] s = key.split("_");
+                    if (StringUtils.isEmpty(s[0])&&StringUtils.isEmpty(s[1])&&StringUtils.isEmpty(s[2])){
+                        continue;
+                    }
+                    List<CarGroupCostVO> value = map.getValue();
+                    PriceOverviewVO vo=new PriceOverviewVO();
+                    vo.setRentType(s[0]);
+                    vo.setRentTypeStr(CharterTypeEnum.format(s[0]));
+                    vo.setCityCode(cityCode);
+                    vo.setCityName(value.get(0).getCityName());
+                    vo.setCarGroupUserMode(s[1]);
+                    vo.setCarGroupUserModeStr(CostConfigModeEnum.format(s[1]));
+                    vo.setCarTypeId(s[2]);
+                    vo.setCarTypeName(value.get(0).getCarTypeName());
+                    SortListUtil.sort(value,"itIsInner",SortListUtil.ASC);
+                    vo.setCostList(value);
+                    result.add(vo);
+                }
+                SortListUtil.sort(result,"rentType",SortListUtil.ASC);
+            }
+        }
+       return result;
+    }
+
+    @Override
+    public List<CityInfo> getCostCityList(Long companyId) {
+        return costConfigCityInfoMapper.getCostCityList(companyId);
+    }
+
 }

@@ -64,4 +64,6 @@ public interface OrderAddressInfoMapper
 
 
     public OrderAddressInfo queryOrderStartAndEndInfo(OrderAddressInfo orderAddressInfo);
+
+    List<OrderAddressInfo> queryOrderStartAndEndInfo2(OrderAddressInfo orderAddressInfo);
 }

@@ -29,6 +29,7 @@ public class CostConfigCityInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String cityName;
+    private Long carGroupId;
 
     public void setId(String id) 
     {
@@ -65,6 +66,23 @@ public class CostConfigCityInfo extends BaseEntity
     public String getCityName() 
     {
         return cityName;
+    }
+
+    public Long getCarGroupId() {
+        return carGroupId;
+    }
+
+    public void setCarGroupId(Long carGroupId) {
+        this.carGroupId = carGroupId;
+    }
+
+    public CostConfigCityInfo() {
+    }
+
+    public CostConfigCityInfo(Long costId, String cityCode, String cityName) {
+        this.costId = costId;
+        this.cityCode = cityCode;
+        this.cityName = cityName;
     }
 
     @Override

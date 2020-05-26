@@ -24,13 +24,12 @@ import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.DateFormatUtils;
-import com.hq.ecmp.util.MacTools;
-import com.hq.ecmp.util.OrderUtils;
+import com.hq.ecmp.util.*;
 import com.hq.ecmp.util.Page;
-import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +63,8 @@ import static com.hq.ecmp.constant.CommonConstant.ZERO;
 @Slf4j
 public class OrderInfoServiceImpl implements IOrderInfoService
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderInfoServiceImpl.class);
     @Autowired
     private OrderInfoMapper orderInfoMapper;
     @Resource
@@ -134,6 +135,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private CarGroupInfoMapper carGroupInfoMapper;
     @Resource
     private ApplyUseCarTypeMapper applyUseCarTypeMapper;
+
+    @Resource
+    private OrderServiceCostDetailRecordInfoMapper orderServiceCostDetailRecordInfoMapper;
+    @Resource
+    private OrderServiceImagesInfoMapper  orderServiceImagesInfoMapper;
+    @Resource
+    private OrderAccountInfoMapper orderAccountInfoMapper;
+    @Resource
+    private OrderDispatcheDetailInfoMapper orderDispatcheDetailInfoMapper;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -1343,11 +1353,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
                 //终点
-                if(j==realSize-1 && !ServiceTypeConstant.CHARTERED.equals(serviceType)){
+                if(j==realSize-1){
                     orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanArriveTime());
-                    orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
-                    orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
+                    if (!ServiceTypeConstant.CHARTERED.equals(serviceType)) {
+                        orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
+                        orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
+                    }
                     orderAddressInfo.setAddress(journeyNodeInfoCh.getPlanEndAddress());
                     orderAddressInfo.setAddressLong(journeyNodeInfoCh.getPlanEndLongAddress());
                     orderAddressInfo.setCityPostalCode(journeyNodeInfoCh.getPlanEndCityCode());
@@ -1406,13 +1418,22 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     //获取司机任务详情
     @Override
-    public DriverOrderInfoVO driverOrderDetail(Long orderId) {
+    public DriverOrderInfoVO driverOrderDetail(Long orderId) throws Exception{
         DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
+        vo.setCustomerServicePhone(thirdService.getCustomerPhone());
         vo.setCustomerServicePhone(serviceMobile);
         OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
-        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
-        vo.setUserName(ecmpUser.getNickName());
-        vo.setUserPhone(ecmpUser.getPhonenumber());
+//        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
+        String passengerPhone=null;
+        String passengerName=null;
+        //获取乘车人信息
+        List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(new JourneyPassengerInfo(vo.getJourneyId()));
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(journeyPassengerInfos)){
+            passengerPhone=journeyPassengerInfos.get(0).getMobile();
+            passengerName=journeyPassengerInfos.get(0).getName();
+        }
+        vo.setUserName(passengerName);
+        vo.setUserPhone(passengerPhone);
         if (orderSettlingInfo!=null){
             String amount = orderSettlingInfo.getAmount() == null ? null : orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString();
             vo.setOrderAmount(amount);
@@ -1435,6 +1456,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
         OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
+        //判断是否是多日租车
+        if(null != orderState &&
+                orderState.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){
+            Date startDate = DateUtils.parseDate(orderState.getStartDate());//租车开始时间
+            Date endDate = DateUtils.parseDate(orderState.getEndDate());//租车结束时间
+            //判断是否半日租
+            String carType = CommonUtils.getCarType(startDate, endDate, orderState.getUseTime());
+            orderState.setWhole(carType);
+        }
         orderState.setApplyType(applyInfo.getApplyType());
         orderState.setCharterCarType(CharterTypeEnum.format(orderState.getCharterCarType()));
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos = journeyPlanPriceInfoMapper.selectJourneyPlanPriceInfoList(new JourneyPlanPriceInfo(orderId));
@@ -1445,7 +1475,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
+    public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto,LoginUser user) {
+        String key = isDispatcher(user);
+        if(null==key){
+            orderListBackDto.setUserId(user.getUser().getUserId());
+        }else{
+            orderListBackDto.setUpdateBy("C000".equals(key)?null:user.getUser().getUserId());
+        }
         //订单管理需要的状态 已取消  S911    已完成 S900  待确认 S699     服务中S616  待上车 S600   接驾中 S500  待服务 S299
         List<OrderListBackDto> list = orderInfoMapper.getOrderListBackDto(orderListBackDto);
         for (OrderListBackDto orderListBack:list){
@@ -1486,13 +1522,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             List<OrderListBackDto> list1 = list.stream().filter(e -> orderListBackDto.getOrderState().contains(e.getOrderState())).collect(Collectors.toList());
             String labelState = orderListBackDto.getLabelState();
             List<OrderListBackDto> list2 = list1.stream().filter(e -> !labelState.contains(e.getLabelState())).collect(Collectors.toList());
+            list2 =  addState(list2,user);
             PageInfo<OrderListBackDto> info = new PageInfo<>(list2);
             return new PageResult<>(info.getTotal(),info.getPages(),list2);
         }else if(orderListBackDto.getLabelState()!=null){
             List<OrderListBackDto> list1 = list.stream().filter(e -> orderListBackDto.getLabelState().contains(e.getLabelState())).collect(Collectors.toList());
+            list1 =  addState(list1,user);
             PageInfo<OrderListBackDto> info = new PageInfo<>(list1);
             return new PageResult<>(info.getTotal(),info.getPages(),list1);
         }
+        list =addState(list,user);
         PageInfo<OrderListBackDto> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
@@ -1530,6 +1569,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             list.add(new OtherCostVO("等待费",waitingFee));
             orderDetailBackDto.setAmountDetail(JSON.toJSONString(list));
         }
+        orderDetailBackDto.setCostList(getOrderCostGroup(Long.valueOf(orderNo)));
         return orderDetailBackDto;
     }
 
@@ -2575,5 +2615,273 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
         return checkResult;
+    }
+
+    /***
+     * 处理是否当前自己调度的订单
+     * add by liuzb
+     * @param list
+     * @param user
+     * @return
+     */
+    private List<OrderListBackDto> addState(List<OrderListBackDto> list,LoginUser user){
+        if(null!= list && list.size()>0){
+            for(OrderListBackDto data : list ){
+                data.setFlag(false);
+                List<String> tList = carGroupInfoMapper.getTakeBack(user.getUser().getUserId(),Long.valueOf(data.getOrderId()));
+                data.setTakeBack(null!=tList && tList.size()>0?true:false);
+                OrderServiceCostDetailRecordInfo orderData = new OrderServiceCostDetailRecordInfo();
+                orderData.setOrderId(Long.valueOf(data.getOrderId()));
+                List<OrderServiceCostDetailRecordInfo> orderList = orderServiceCostDetailRecordInfoMapper.queryAll(orderData);
+                if(null!=orderList && orderList.size()>0){
+                    for(OrderServiceCostDetailRecordInfo key : orderList){
+                        if(String.valueOf(user.getUser().getUserId()).equals(String.valueOf(key.getCreateBy()))){
+                            data.setFlag(true);
+                            continue;
+                        }
+                    }
+
+                }
+            }
+        }
+        return list;
+    }
+
+
+    /***
+     * 区分角色（内部调度员，外部调度员，员工）
+     * add by liuzb
+     * @param user
+     * @return
+     */
+    private String isDispatcher(LoginUser user){
+        List<SysRole> roleList = user.getUser().getRoles();
+        for(SysRole data : roleList ){
+            /**调度员（区分内部调度，外部调度）*/
+            if("dispatcher".equals(data.getRoleKey())){
+                List<String> list = carGroupInfoMapper.selectIsDispatcher(user.getUser().getUserId());
+                for(String str :list){
+                    if("C000".equals(str)){
+                        return "C000";
+                    }
+                    if("C111".equals(str)){
+                        return "C111";
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /***
+     * 确认订单
+     * add by liuzb
+     * @param userId
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public int orderConfirm(Long userId ,Long orderId) throws Exception {
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setOrderId(orderId);
+        orderInfo.setState("S900");
+        orderInfo.setUpdateBy(String.valueOf(userId));
+        int a = orderInfoMapper.updateOrderInfo(orderInfo);/**更新订单状态*/
+        int b = addOrderStateTraceInfo(userId,orderId);/**添加订单轨迹*/
+        int c = addOrderAccountInfo(userId,orderId);/**添加订单财务信息*/
+        if(a>0 && b>0 && c>0){
+            return 1;
+        }
+        return 0;
+    }
+
+
+    /***
+     * 订单改单逻辑
+     * add bu liuzb
+     * @param userId
+     * @param data
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public int updateTheOrder(Long userId,OrderServiceCostDetailRecordInfo data)throws Exception{
+        data.setUpdateBy(userId);
+        data.setUpdateTime(new Date());
+        return orderServiceCostDetailRecordInfoMapper.update(data);
+    }
+
+
+    /***
+     * 订单确认添加轨迹数据
+     * add by liuzb
+     * @param userId
+     * @param orderId
+     * @return
+     */
+    private int addOrderStateTraceInfo(Long userId ,Long orderId){
+        OrderStateTraceInfo data = new OrderStateTraceInfo();
+        data.setOrderId(orderId);
+        data.setState("S900");
+        data.setCreateBy(String.valueOf(userId));
+        data.setCreateTime(new Date());
+        return orderStateTraceInfoMapper.insertOrderStateTraceInfo(data);
+    }
+
+    /***
+     *添加账务信息
+     * add by liuzb
+     * @param userId
+     * @param orderId
+     * @return
+     */
+    private int addOrderAccountInfo(Long userId ,Long orderId){
+        OrderSettlingInfo data = new OrderSettlingInfo();
+        data.setOrderId(orderId);
+        List<OrderSettlingInfo> list = orderSettlingInfoMapper.selectOrderSettlingInfoList(data);
+        if(null!=list && list.size()>0){
+            OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
+            orderAccountInfo.setBillId(list.get(0).getBillId());
+            orderAccountInfo.setOrderId(String.valueOf(orderId));
+            orderAccountInfo.setAmount(list.get(0).getAmount());
+            orderAccountInfo.setState("S008");
+            orderAccountInfo.setCreateBy(String.valueOf(userId));
+            orderAccountInfo.setCreateTime(new Date());
+            return orderAccountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
+        }
+        return 1;
+    }
+
+
+    /***
+     * 当前订单的所有费用
+     * add by liuzb
+     * @param orderId
+     * @return
+     */
+    private List<List<OrderServiceCostDetailRecordInfo>> getOrderCostGroup(Long orderId){
+        try{
+            OrderServiceCostDetailRecordInfo data = new OrderServiceCostDetailRecordInfo();
+            data.setOrderId(orderId);
+            List<OrderServiceCostDetailRecordInfo> list = orderServiceCostDetailRecordInfoMapper.getList(data);
+            if(null!= list && list.size()>0){
+                return returnResult(list);
+            }
+        }catch(Exception e){
+            logger.error("getOrderCostGroup error",e);
+        }
+
+        return null;
+    }
+
+    /***
+     *多天多单，一天多单处理逻辑
+     * add by liuzb
+     * @param list
+     * @return
+     * @throws Exception
+     */
+    private List<List<OrderServiceCostDetailRecordInfo>> returnResult(List<OrderServiceCostDetailRecordInfo> list)throws Exception{
+        List<List<OrderServiceCostDetailRecordInfo>>  result = new ArrayList<>();
+        List<OrderServiceCostDetailRecordInfo> groupList = new ArrayList<>();
+        for(int i=0;i<list.size();i++){
+            list.get(i).setImageList(getOrderServiceImagesInfoList(list.get(i).getRecordId()));
+            list.get(i).setHeartbeatList(getOrderDay(list.get(i)));
+       /*     Map<String,String> map = thirdService.locationByLongitudeAndLatitude(list.get(i).getStartLatitude().toString(),list.get(i).getEndLatitude().toString());
+            list.get(i).setStartLatitudeAddress(map.get("longAddr").toString());
+            list.get(i).setEndLatitudeAddress(map.get("shortAddr").toString());
+            map = thirdService.locationByLongitudeAndLatitude(list.get(i).getStartLongitude().toString(),list.get(i).getEndLongitude().toString());
+            list.get(i).setStartLongitudeAddress(map.get("longAddr").toString());
+            list.get(i).setEndLongitudeAddress(map.get("shortAddr").toString());*/
+            if(i==0?dataGrouping(list.get(i).getEndTime(),list.get(i)):dataGrouping(list.get(i-1).getEndTime(),list.get(i))){
+                groupList.add(list.get(i));
+            }else{
+                result.add(groupList);groupList= new ArrayList<>();
+                groupList.add(list.get(i));
+            }
+        }
+        result.add(groupList);
+        return result;
+    }
+
+
+    /***
+     *当前订单是否还存在同一天
+     * add by liuzb
+     * @param date
+     * @param data
+     * @return
+     */
+    private boolean dataGrouping(Date date,OrderServiceCostDetailRecordInfo data)throws Exception{
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        if(null!=date && null!= data.getStartTime()){
+            if(sdf.format(data.getStartTime()).toString().equals(sdf.format(date).toString())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /***
+     *一个服务订单的费用图片集合
+     * add by liuzb
+     * @param recordId
+     * @return
+     * @throws Exception
+     */
+    private List<OrderServiceImagesInfo> getOrderServiceImagesInfoList(Long recordId)throws Exception{
+        OrderServiceImagesInfo orderServiceImagesInfo = new OrderServiceImagesInfo();
+        orderServiceImagesInfo.setRecordId(recordId);
+        return orderServiceImagesInfoMapper.getList(orderServiceImagesInfo);
+    }
+
+    /***
+     *当前订单一单的轨迹
+     * add by liuzb
+     * @param data
+     * @return
+     */
+    private List<DriverHeartbeatInfo> getOrderDay(OrderServiceCostDetailRecordInfo data){
+        DriverHeartbeatInfo toData = new DriverHeartbeatInfo();
+        toData.setOrderId(data.getOrderId());
+        toData.setBeginDate(data.getStartTime());
+        toData.setEndDate(data.getEndTime());
+        return driverHeartbeatInfoMapper.getOrderDay(toData);
+    }
+
+    /***
+     *
+     * @param userId
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public String orderReassignment(Long userId, Long orderId) throws Exception {
+        int a = orderInfoMapper.changeOrder(orderId,userId,new Date());
+        int b = orderStateTraceInfoMapper.deleteOrderStateTrace(orderId);
+        int c = orderDispatcheDetailInfoMapper.deleteOrderId(orderId);
+        if(a>0 && b>0 && c>0){
+            return "改派成功";
+        }
+        return "改派失败";
+    }
+
+
+    /***
+     *add by liuzb
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public String dispatcherPhone(Long orderId) throws Exception {
+        EcmpUserDto data = ecmpUserMapper.dispatcherPhone(orderId);
+        if(null!=data){
+            return data.getNickName()+":"+data.getUserName();
+        }
+        return null;
     }
 }

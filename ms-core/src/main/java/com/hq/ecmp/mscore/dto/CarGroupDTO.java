@@ -87,9 +87,13 @@ public class CarGroupDTO {
     private String cityName;
 
     @ApiModelProperty(name = "deptIds", value = "服务部门id集合")
-    private Long[] deptIds;  //TODO 新增
+    private Long[] deptIds;
 
     @ApiModelProperty(name = "companyIds", value = "允许调度的外部公司id集合")
-    private Long[] companyIds;  //TODO 新增
+    private Long[] companyIds;
+
+    @ApiModelProperty(name = "itIsInner", value = "是否是内部车队   C000   内部车队   C111   外部车队")
+    private String itIsInner;
+
 
 }

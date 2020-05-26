@@ -11,10 +11,7 @@ import com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarTypeDTO;
-import com.hq.ecmp.mscore.mapper.CarInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpEnterpriseInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
-import com.hq.ecmp.mscore.mapper.EnterpriseCarTypeInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
 import com.hq.ecmp.mscore.vo.CarTypeVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +34,8 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
     private EcmpEnterpriseInfoMapper ecmpEnterpriseInfoMapper;
     @Autowired
     private CarInfoMapper carInfoMapper;
+    @Autowired
+    private RegimeInfoMapper regimeInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -281,5 +280,20 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
     @Override
     public List<CarTypeDTO> selectCarTypeById(CarTypeDTO carTypeDTO) {
         return enterpriseCarTypeInfoMapper.selectCarTypeById(carTypeDTO);
+    }
+
+    /**
+     * 查询制度中可用车型
+     * @param companyId
+     * @return
+     */
+    @Override
+    public List<CarTypeVO> queryCarTypeList(Long companyId) {
+        String useCarModeOwnerLevel = regimeInfoMapper.queryRegimeLevelByCompanyId(companyId);
+        if(!useCarModeOwnerLevel.isEmpty()){
+            List<CarTypeVO> list = enterpriseCarTypeInfoMapper.queryCarTypeList(useCarModeOwnerLevel,companyId);
+            return list;
+        }
+       return  null;
     }
 }

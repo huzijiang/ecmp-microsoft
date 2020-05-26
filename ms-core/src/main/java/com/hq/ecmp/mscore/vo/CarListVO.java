@@ -58,4 +58,8 @@ public class CarListVO {
 
     //13.车型 行政级(id)
     private Long carTypeId;
+
+    private String powerTypeName;
+
+    private String companyName;
 }

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.api.system.domain.SysDept;
+import com.hq.api.system.domain.SysUser;
 import com.hq.api.system.mapper.SysDeptMapper;
 import com.hq.api.system.service.ISysDeptService;
 import com.hq.api.system.service.ISysUserService;
@@ -43,6 +44,7 @@ public class StatisticsCostServiceImpl implements StatisticsCostService {
             costData.put("net",0.0);
             return costData;
         },(k1,k2)->k2,LinkedHashMap::new));
+
         //订单数据
         List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoList(null);
         List<String> listDate = DateFormatUtils.sliceUpDateRange(statisticsParam.getBeginDate(),statisticsParam.getEndDate());
@@ -102,6 +104,7 @@ public class StatisticsCostServiceImpl implements StatisticsCostService {
                 SysDept sysDept = new SysDept();
                 sysDept.setDeptId(x);
                 sysDept.setDeptType("1");
+                sysDept.setCompanyId(statisticsParam.getCompanyId());
                 List<SysDept> tempList = sysDeptService.selectDeptList(sysDept);
                 list.addAll(tempList);
                 while (tempList.size()>0){
@@ -122,6 +125,7 @@ public class StatisticsCostServiceImpl implements StatisticsCostService {
             SysDept sysDept = new SysDept();
             sysDept.setParentId(statisticsParam.getDeptIds().get(0));
             sysDept.setDeptType("2");
+            sysDept.setCompanyId(statisticsParam.getCompanyId());
             list.addAll(sysDeptMapper.selectDeptList(sysDept));
         }
         return list;

@@ -28,7 +28,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName DriverOrderController
@@ -64,11 +67,11 @@ public class DriverOrderController {
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = true, paramType = "query", dataType = "String")
     })
     @RequestMapping(value = "/handleStatus", method = RequestMethod.POST)
-    public ApiResponse handleStatus(@RequestParam("type") String type,
-                                    @RequestParam("currentPoint") String currentPoint,
-                                    @RequestParam("orderNo") String orderNo,
-                                    @RequestParam("mileage") String mileage,
-                                    @RequestParam("travelTime") String travelTime) {
+    public ApiResponse<Map> handleStatus(@RequestParam("type") String type,
+                                         @RequestParam("currentPoint") String currentPoint,
+                                         @RequestParam("orderNo") String orderNo,
+                                         @RequestParam("mileage") String mileage,
+                                         @RequestParam("travelTime") String travelTime) {
         //需要处理4种情况 | 司机出发、司机到达、开始服务、服务完成
         //记录订单的状态跟踪表
         try {
@@ -228,6 +231,20 @@ public class DriverOrderController {
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();
+    }
+
+    /**
+     * 获区费用上报总价
+     */
+    @ApiOperation(value = "getAllFeeAmount", notes = "获区费用上报总价 ", httpMethod = "POST")
+    @PostMapping("/getAllFeeAmount")
+    public ApiResponse getAllFeeAmount(@RequestBody OrderSettlingInfoVo orderSettlingInfoVo) throws ParseException {
+        //获取登陆用户的信息
+        LoginUser loginUser = tokenService.getLoginUser();
+        Long userId = loginUser.getDriver().getDriverId();
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        BigDecimal amount = iOrderSettlingInfoService.getAllFeeAmount(orderSettlingInfoVo, userId, companyId);
+        return ApiResponse.success(amount.doubleValue());
     }
 
     /**

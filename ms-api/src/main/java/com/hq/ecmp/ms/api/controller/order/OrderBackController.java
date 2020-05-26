@@ -1,6 +1,9 @@
 package com.hq.ecmp.ms.api.controller.order;
 
+import com.google.common.reflect.TypeToken;
+import com.hq.api.system.domain.SysRole;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.exception.BaseException;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
@@ -10,17 +13,24 @@ import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
 import com.hq.ecmp.mscore.dto.OrderInfoDTO;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.service.OrderInfoTwoService;
+import com.hq.ecmp.mscore.vo.CarGroupListVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +38,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName OrderBackController
@@ -42,13 +55,19 @@ import java.util.List;
 @Api(value = "后台管理-订单模块")
 public class OrderBackController {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrderBackController.class);
+
     @Autowired
     @Lazy
     private IOrderInfoService iOrderInfoService;
+    @Autowired
+    @Lazy
+    private OrderInfoTwoService orderInfoTwoService;
     @Resource
     private IEcmpUserFeedbackInfoService iEcmpUserFeedbackInfoService;
     @Autowired
     TokenService tokenService;
+
 
 
     @ApiOperation(value = "订单列表查询")
@@ -65,7 +84,7 @@ public class OrderBackController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             orderListBackDto.setCompanyId(loginUser.getUser().getOwnerCompany());
             //获取订单列表
-            PageResult<OrderListBackDto> orderListBackDtos  = iOrderInfoService.getOrderListBackDto(orderListBackDto);
+            PageResult<OrderListBackDto> orderListBackDtos  = iOrderInfoService.getOrderListBackDto(orderListBackDto,loginUser);
             return ApiResponse.success(orderListBackDtos);
         } catch (Exception e) {
             e.printStackTrace();
@@ -163,4 +182,120 @@ public class OrderBackController {
             return ApiResponse.error();
         }
     }
+
+    /**
+     * 订单管理改单功能
+     * add by liuzb
+     */
+    @ApiOperation(value = "订单管理改单功能")
+    @PostMapping(value = "/updateTheOrder")
+    public ApiResponse updateTheOrder(@RequestBody  OrderServiceCostDetailRecordInfo orderServiceCostDetailRecordInfo){
+        try {
+            if(iOrderInfoService.updateTheOrder(tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId(),orderServiceCostDetailRecordInfo)>0){
+                return ApiResponse.success("订单管理改单成功");
+            }
+        } catch (Exception e) {
+            logger.error("updateTheOrder error",e);
+        }
+        return ApiResponse.error("订单管理改单失败");
+    }
+
+    /***
+     * 订单管理改单功能
+     * add by liuzb
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "订单管理确认功能", notes = "订单管理确认功能 ", httpMethod = "POST")
+    @PostMapping(value = "/orderConfirm")
+    public ApiResponse orderConfirm(Long orderId){
+        try {
+            if(iOrderInfoService.orderConfirm(tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId(),orderId)>0){
+                return ApiResponse.success("订单确认成功");
+            }
+        } catch (Exception e) {
+            logger.error("orderConfirm error",e);
+        }
+        return ApiResponse.error("订单确认失败");
+    }
+
+    /***
+     * 订单管理获取内部调度员电话
+     * add by liuzb
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "获取内部调度员电话", notes = "获取内部调度员电话 ", httpMethod = "POST")
+    @PostMapping(value = "/dispatcherPhone")
+    public ApiResponse dispatcherPhone(Long orderId){
+        try {
+            return ApiResponse.success(iOrderInfoService.dispatcherPhone(orderId));
+        } catch (Exception e) {
+            logger.error("selectOrderList error",e);
+        }
+        return ApiResponse.error("获取内部调度员电话失败");
+    }
+
+    /***
+     * 订单管理订单改派
+     * add by liuzb
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "订单管理订单改派", notes = "订单管理订单改派 ", httpMethod = "POST")
+    @PostMapping(value = "/orderReassignment")
+    public ApiResponse orderReassignment(Long orderId){
+        try {
+            return ApiResponse.success(iOrderInfoService.orderReassignment(tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId(),orderId));
+        } catch (Exception e) {
+            logger.error("orderReassignment error",e);
+        }
+        return ApiResponse.error("订单管理订单改派失败");
+    }
+
+
+    /***
+     * 取车
+     * add by liuzb
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "取车", notes = "取车 ", httpMethod = "POST")
+    @PostMapping(value = "/pickUpTheCar")
+    public ApiResponse pickUpTheCar(@RequestParam("orderId") Long orderId){
+        try {
+            LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+            orderInfoTwoService.pickUpTheCar(loginUser.getUser().getUserId(),orderId);
+            return ApiResponse.success("取车成功!");
+        } catch (Exception e) {
+            logger.error("pickUpTheCar error",e);
+            if (e instanceof BaseException){
+                return ApiResponse.error(e.getMessage());
+            }
+            return ApiResponse.error("取车失败");
+        }
+    }
+
+    /***
+     * 还车
+     * add by liuzb
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "还车", notes = "还车 ", httpMethod = "POST")
+    @PostMapping(value = "/returnCar")
+    public ApiResponse returnCar(@RequestParam("orderId") Long orderId){
+        try {
+            LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+            orderInfoTwoService.returnCar(loginUser.getUser().getUserId(),orderId);
+            return ApiResponse.success("还车成功!");
+        } catch (Exception e) {
+            logger.error("returnCar error", e);
+            if (e instanceof BaseException) {
+                return ApiResponse.error(e.getMessage());
+            }
+            return ApiResponse.error("还车失败");
+        }
+    }
+
 }

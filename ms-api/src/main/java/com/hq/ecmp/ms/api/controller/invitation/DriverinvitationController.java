@@ -65,7 +65,12 @@ public class DriverinvitationController {
     @PostMapping("/interInvitationDriverCommit")
     public ApiResponse interInvitationDriverCommit(@RequestBody DriverInvitationDTO driverInvitationDTO){
         try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long companyId = loginUser.getUser().getOwnerCompany();
             String urlApi=driverInvitationDTO.getApiUrl();
+            driverInvitationDTO.setCompanyId(companyId);
+            //1.新增企业邀请信息表信息
             ecmpEnterpriseInvitationInfoService.insertDriverInvitation(driverInvitationDTO);
             Long invitationId = driverInvitationDTO.getInvitationId();
             System.out.println("新增邀请链接返回ID："+ invitationId);
@@ -75,7 +80,9 @@ public class DriverinvitationController {
             UserInvitationUrlDTO userUrl= new UserInvitationUrlDTO();
             userUrl.setUrl(url);
             userUrl.setInvitationId(invitationId);
+            //2.拿到邀请id生成邀请链接后修改新邀请链接
             ecmpEnterpriseInvitationInfoService.updateInvitationUrl(userUrl);
+            //3.插入邀请驾驶员性质表信息
             addDriverNatureInfo(invitationId,driverInvitationDTO.getDriverNature(),
                     driverInvitationDTO.getHireBeginTime(),
                     driverInvitationDTO.getHireBeginTime(),
@@ -94,7 +101,7 @@ public class DriverinvitationController {
 
     /***
      *
-     * @param driverId
+     * @param
      * @param driverNature
      * @param hireBeginTime
      * @param hireEndTime
@@ -102,11 +109,13 @@ public class DriverinvitationController {
      * @param borrowEndTime
      * @return
      */
-    private int addDriverNatureInfo(Long driverId, String  driverNature, Date hireBeginTime,
+    private int addDriverNatureInfo(Long invitationId, String  driverNature, Date hireBeginTime,
                                     Date hireEndTime, Date borrowBeginTime, Date borrowEndTime){
         try{
             DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
-            driverNatureInfo.setDriverId(driverId);
+            driverNatureInfo.setInvitationId(invitationId);
+            //生成邀请链接时候驾驶员还没生成，没有driver_id,只有邀请id
+            driverNatureInfo.setDriverId(null);
             driverNatureInfo.setDriverNature(driverNature);
             driverNatureInfo.setHireBeginTime(hireBeginTime);
             driverNatureInfo.setHireEndTime(hireEndTime);
@@ -130,11 +139,11 @@ public class DriverinvitationController {
     public ApiResponse interInvitationDriverZCCommit(DriverRegisterDTO driverRegisterDTO){
         try {
 
-            //校验手机号的用户是否已经是企业用户
+            //校验手机号的用户是否已经是该企业驾驶员
             int  itIsDriver = iDriverInfoService.driverItisExist(driverRegisterDTO);
 
            if(itIsDriver > 0){
-                return ApiResponse.error("员工已经是该企业用户");
+                return ApiResponse.error("员工已经是该企业驾驶员");
             }
             //校验手机号是否已经申请注册，正在等待审批过程中
             String state="S000";
@@ -291,7 +300,8 @@ public class DriverinvitationController {
             //S000 申请中,S001 申请通过,S002 申请拒绝
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            int i=ecmpEnterpriseRegisterInfoService.updateRegisterDriverApprove(registerId,loginUser.getUser().getUserId(),null, InvitionStateEnum.APPROVEPASS.getKey());
+            Long companyId = loginUser.getUser().getOwnerCompany();
+            int i=ecmpEnterpriseRegisterInfoService.updateRegisterDriverApprove(companyId,registerId,loginUser.getUser().getUserId(),null, InvitionStateEnum.APPROVEPASS.getKey());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
@@ -310,7 +320,7 @@ public class DriverinvitationController {
             //registerDTO.setState("S002");//S000 申请中,S001 申请通过,S002 申请拒绝
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            int i=ecmpEnterpriseRegisterInfoService.updateRegisterDriverApprove(registerId,loginUser.getUser().getUserId(),reason, InvitionStateEnum.APPROVEREJECT.getKey());
+            int i=ecmpEnterpriseRegisterInfoService.updateRegisterDriverApprove(null,registerId,loginUser.getUser().getUserId(),reason, InvitionStateEnum.APPROVEREJECT.getKey());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("申请拒绝失败");

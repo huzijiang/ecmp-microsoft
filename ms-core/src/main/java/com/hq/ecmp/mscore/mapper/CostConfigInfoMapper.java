@@ -1,12 +1,16 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.bo.CarGroupPricePlanInfoBo;
 import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
+import com.hq.ecmp.mscore.dto.cost.ValidDoubleDtoResult;
+import com.hq.ecmp.mscore.vo.CostConfigDetailInfoVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -107,4 +111,20 @@ public interface CostConfigInfoMapper
      * @return
      */
     List<CostConfigInfo> selectCostConfigList(CostConfigInfo costConfigInfo);
+
+    List<ValidDoubleDtoResult> checkCharteredCost(@Param("carGroupId") Long carGroupId,@Param("carGroupUserMode")  String carGroupUserMode
+            ,@Param("rentType")  String rentType,@Param("companyId") Long companyId);
+
+    Map<String,String> getDriverInfo(long driverId);
+    Map<String,String> getCarInfo(long carId);
+
+    /**
+     * 查询指定车队、城市、公司 下的 价格计划详细信息
+     * @param carGroupPricePlanInfoBo
+     * @return
+     */
+    List<CostConfigDetailInfoVo> selectCostConfigDetailInfo(CarGroupPricePlanInfoBo carGroupPricePlanInfoBo);
+
+
+
 }

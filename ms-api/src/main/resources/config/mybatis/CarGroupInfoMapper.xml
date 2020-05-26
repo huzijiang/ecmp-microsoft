@@ -18,6 +18,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="latitude"    column="latitude"    />
         <result property="longitude"    column="longitude"    />
         <result property="state"    column="state"    />
+        <result property="itIsInner"    column="it_is_inner"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -27,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="selectCarGroupInfoVo">
         select car_group_id,parent_car_group_id,car_group_name,car_group_code, city,full_address,short_address,company_id,
-         leader,telephone,create_by,province,latitude,longitude,state, create_time, update_by, update_time from car_group_info
+         leader,telephone,it_is_inner,create_by,province,latitude,longitude,state, create_time, update_by, update_time from car_group_info
     </sql>
 
     <select id="selectCarGroupInfoList" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo" resultMap="CarGroupInfoResult">
@@ -68,6 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fullAddress != null ">full_address,</if>
             <if test="state != null ">state,</if>
             <if test="allowOuterDispatch != null ">allow_outer_dispatch,</if>
+            <if test="itIsInner != null ">it_is_inner,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -90,6 +92,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fullAddress != null ">#{fullAddress},</if>
             <if test="state != null ">#{state},</if>
             <if test="allowOuterDispatch != null ">#{allowOuterDispatch},</if>
+            <if test="itIsInner != null ">#{itIsInner},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -113,6 +116,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="telephone != null and telephone != ''">telephone = #{telephone},</if>
             <if test="state != null ">state = #{state},</if>
             <if test="allowOuterDispatch != null ">allow_outer_dispatch = #{allowOuterDispatch},</if>
+            <if test="itIsInner != null ">it_is_inner = #{itIsInner},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -139,6 +143,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAllByPage" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO">
             select c.car_group_id as carGroupId, c.car_group_name as carGroupName,
         c.car_group_code as carGroupCode,
+        c.it_is_inner as itIsInner,
         c.company_id as companyId,
                 e1.dept_name as ownerCompanyName,
                 e1.dept_id as ownerOrg,
@@ -235,18 +240,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="getCarGroupList" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO">
-        select car_group_id carGroupId,car_group_name carGroupName,car_group_code carGroupCode,company_id ownerCompany from car_group_info
+        select distinct a.car_group_id carGroupId,a.car_group_name carGroupName,
+        a.car_group_code carGroupCode,a.company_id ownerCompany ,
+        (select SHORT_NAME from china_city where CITY_CODE=b.city) cityName,
+        b.city cityCode
+        from car_group_info a
+        left join car_group_serve_scope_info b on b.car_group_id=a.car_group_id
         <where>
             state='Y000'
             <if test="flag==1">
-            and car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+            and a.car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
             </if>
             <if test="flag==0">
-            and company_id=#{companyId}
+            and a.company_id=#{companyId}
             </if>
         </where>
 
-        or parent_car_group_id in (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
     </select>
 
     <select id="selectCarGroupInfoByDeptId" resultMap="CarGroupInfoResult">
@@ -316,5 +325,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join car_group_dispatcher_info s on c.car_group_id=s.car_group_id
         where c.company_id=#{companyId}
         and c.state='Y000'
+    </select>
+    <select id="dispatcherCarGroupList" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+        select s.car_group_id carGroupId,
+        s.car_group_name carGroupName
+        from car_group_info  s
+        left join car_group_serve_org_relation a on a.car_group_id=s.car_group_id
+        where s.it_is_inner='C111'
+        and  a.dept_id=#{depeId}
+        and s.state='Y000'
+    </select>
+    <select id="selectIsDispatcher" resultType="java.lang.String">
+       select it_is_inner from car_group_info
+        where car_group_id in(select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+    </select>
+    <select id="getTakeBack" resultType="java.lang.String">
+        select car_group_id from car_info
+        where car_id in
+                     (select car_id from order_info where order_id =#{orderId})
+              and
+              car_group_id in
+              (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
     </select>
 </mapper>

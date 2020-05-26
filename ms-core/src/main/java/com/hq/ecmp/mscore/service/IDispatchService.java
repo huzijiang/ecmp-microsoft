@@ -78,4 +78,5 @@ public interface IDispatchService {
      * @param userId  创建人
      */
     void  noCarDenied(Long orderId,String reason,Long userId) throws Exception;
+
 }

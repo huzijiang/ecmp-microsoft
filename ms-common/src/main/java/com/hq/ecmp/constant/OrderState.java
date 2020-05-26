@@ -5,14 +5,28 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum OrderState {
-    INITIALIZING("S000","订单已生成"),WAITINGLIST("S100","待派单"),
-    GETARIDE("S101","去约车"),SENDINGCARS("S200","约车中"),
-    APPLYREASSIGN("S270","司机申请改派"),REASSIGNREJECT("S277","改派驳回"),
+    INITIALIZING("S000","订单已生成"),
+    WAITINGLIST("S100","待派单"),
+    GETARIDE("S101","去约车"),
+    SENDINGCARS("S200","约车中"),
+    APPLYREASSIGN("S270","司机申请改派"),
+    REASSIGNREJECT("S277","改派驳回"),
     REASSIGNPASS("S279","改派通过"),
-    ALREADYSENDING("S299","已派车"),REASSIGNMENT("S500","前往出发地"),
-    READYSERVICE("S600","准备服务"),INSERVICE("S616","服务中"),
-    STOPSERVICE("S699","服务结束"),ORDERCLOSE("S900","订单关闭"),
-    DISSENT("S901","订单异议"),ORDERCANCEL("S911","订单取消"),
+    ALREADYSENDING("S299","已派车"),
+    REASSIGNMENT("S500","前往出发地"),
+    READYSERVICE("S600","准备服务"),
+    INSERVICE("S616","服务中"),
+
+    DRIVER_CONTINUED_SERVICE("S639","司机继续服务"),
+    SERVICE_SUSPEND("S635","订单服务中止"),
+    //
+
+
+
+    STOPSERVICE("S699","服务结束"),
+    ORDERCLOSE("S900","订单关闭"),
+    DISSENT("S901","订单异议"),
+    ORDERCANCEL("S911","订单取消"),
     WAITCONFIRMED("S960","待确认"),
     REPLACECAR("S301","换车通知"),
     ORDEROVERTIME("S921","订单超时"),

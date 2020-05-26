@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.ecmp.mscore.domain.OrderInfo;
+
 public interface IsmsBusiness {
 
     /**
@@ -109,4 +111,8 @@ public interface IsmsBusiness {
      * @param orderId
      */
     public void sendSmsReplaceCar(Long orderId) throws Exception;
+
+    void sendSmsDispatchReject(OrderInfo orderInfo,String rejectReason)throws Exception;
+
+    void sendSmsInnerDispatcherReject(OrderInfo orderInfo, String rejectReason)throws Exception;
 }

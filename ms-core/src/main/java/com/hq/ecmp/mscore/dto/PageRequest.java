@@ -58,4 +58,9 @@ public class PageRequest {
     private String itIsFullTime;
     private String businessFlag;
 
+    private Long companyId;
+
+    private String homeDynamicBeginTime;
+    private String homeDynamicEndTime;
+
 }

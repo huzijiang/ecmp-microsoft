@@ -10,7 +10,9 @@ import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -348,5 +350,45 @@ public interface OrderInfoMapper {
     OrderDetailBackDto getOrderListDetailById(@Param("orderNo") String orderNo);
 
     List<OrderInfo> selectUsingCarByCarId(Long carId);
+
+    /**
+     * 用车申请单列表
+     * @param userApplySingleVo
+     * @return
+     */
+    List<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo);
+
+
+    /**
+     * 获取当前业务员的待派车，已派车，已过期数量
+     * @param userApplySingleVo
+     * @return
+     */
+    List<UserApplySingleVo> getUseApplyCounts(UserApplySingleVo userApplySingleVo);
+
+    /**
+     * 获取申请调度调度员列表,佛山包车业务
+     * @param query
+     * @return
+     */
+    List<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query);
+
+    /**
+     * 获取用车总时长 和 开始用车时间
+     * @param
+     * @return
+     */
+    OrderInfoDate getUserTimeAndActionTime(long orderNo);
+    /***
+     * 当前订单改派订单
+     * add by liuzb
+     * @param orderId
+     * @param updateBy
+     * @param updateTime
+     * @return
+     */
+    int changeOrder(@Param("orderId")Long orderId,@Param("updateBy")Long updateBy,@Param("updateTime") Date updateTime);
+
+
 }
 

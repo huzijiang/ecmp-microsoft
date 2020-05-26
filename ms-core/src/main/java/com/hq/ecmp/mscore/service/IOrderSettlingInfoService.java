@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -68,7 +69,7 @@ public interface IOrderSettlingInfoService
      * @param userId
      * @param companyId
      */
-    int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId,Long companyId);
+    int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId,Long companyId) throws ParseException;
 
     /**
      * 格式化自有车费用
@@ -78,4 +79,6 @@ public interface IOrderSettlingInfoService
      * @return
      */
     String formatCostFee(OrderSettlingInfoVo orderSettlingInfoVo, BigDecimal personalCancellationFee, BigDecimal enterpriseCancellationFee);
+
+    BigDecimal getAllFeeAmount(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) throws ParseException;
 }

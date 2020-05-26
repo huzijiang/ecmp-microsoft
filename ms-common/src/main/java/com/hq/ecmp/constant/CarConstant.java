@@ -57,4 +57,44 @@ public interface CarConstant {
 	Integer RETURN_ONE_CODE = 1;
 	Integer RETURN_ZERO_CODE = 0;
 	Integer RETURN_TWO_CODE = 2;
+
+	//交通工具
+
+	String TRAFFIC_AIRCRAFT ="T001";   //飞机
+	String TRAFFIC_TRAIN ="T101";   //火车
+	String TRAFFIC_AUTOMOBILE = "T201";   //汽车
+	String TRAFFIC_FERRY ="T301";   //轮渡
+	String TRAFFIC_OTHER ="T999";   //其他
+
+	//订单调度信息表用于表示调度任务是否完成
+
+	String  DISPATCH_NOT_COMPLETED = "D000";   //调度未完成
+	String  DISPATCH_YES_COMPLETE  = "D111";      //调度完成
+	/**
+	 * 内部车队
+	 */
+	String IT_IS_USE_INNER_CAR_GROUP_IN = "C000";
+	/**
+	 * 外部车队
+	 */
+	String IT_IS_USE_INNER_CAR_GROUP_OUT = "C111";
+	/**
+	 * 自有车使用模式 车和驾驶员都用
+	 */
+	String CAR_GROUP_USER_MODE_CAR_DRIVER = "CA00";
+	/**
+	 * 自有车使用模式 仅用车
+	 */
+	String CAR_GROUP_USER_MODE_CAR = "CA01";
+	/**
+	 * 自有车使用模式 仅用驾驶员
+	 */
+	String CAR_GROUP_USER_MODE_DRIVER = "CA10";
+	/**
+	 * 自有车使用模式 车和驾驶员都不用
+	 */
+	String CAR_GROUP_USER_MODE_NO = "CA11";
+
+	String SELFDRIVER_YES = "Y000";
+	String SELFDRIVER_NO= "N111";
 }

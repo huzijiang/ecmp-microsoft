@@ -22,8 +22,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select id, user_id, dept_id, company_id,panel_id, panel_name, sort_num, create_by, create_time, update_by, update_time from user_console_home_page_sort_info
     </sql>
 
+    <select id="getPanelByRoleId" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo" resultType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
+        select a.panel_id AS panelId, a.panel_name AS panelName from homepage_panel_info a,homepage_panel_role_relation_info b where b.panel_id = a.panel_id  and find_in_set(b.role_id ,#{roleIds})
+    </select>
+
     <select id="getHomeSort" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo" resultType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
         select panel_id AS panelId, panel_name AS panelName, sort_num AS sortNum from user_console_home_page_sort_info
+    </select>
+
+    <select id="getRoleIds" resultType="String" parameterType="Long">
+        SELECT GROUP_CONCAT(DISTINCT role_id) roleIds from ecmp_user_role
+        where user_id = #{userId}
+    </select>
+
+    <select id="getHomePageSort" resultType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo" parameterType="Long">
+        select id , user_id as userId, dept_id as deptId, company_id as companyId,panel_id as panelId, panel_name as panelName, sort_num as sortNum, create_by as createBy, create_time as createTime, update_by as updateBy, update_time as updateTime from user_console_home_page_sort_info
+        where user_id = #{userId}
     </select>
 
     <select id="getHomeSortById" parameterType="Long" resultMap="HomePageSortInfoResult">
@@ -31,7 +45,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{Id}
     </select>
 
-
+    <select id="getHomeSortsByPanelId" parameterType="Long" resultMap="HomePageSortInfoResult">
+        <include refid="selectHomePageSortInfoVo"/>
+        where panel_id = #{panelId}
+    </select>
 
     <update id="updateHomeSort" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
         update user_console_home_page_sort_info
@@ -41,4 +58,44 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         where panel_id = #{panelId}
     </update>
+
+
+
+
+
+
+    <select id="getHomeSortsById" parameterType="Long" resultMap="HomePageSortInfoResult">
+        <include refid="selectHomePageSortInfoVo"/>
+        where user_id = #{userId} and company_id = #{companyId} and panel_id = #{panelId}
+    </select>
+
+    <insert id="addHomeSort" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
+        insert user_console_home_page_sort_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null ">user_id,</if>
+            <if test="companyId != null ">company_id,</if>
+            <if test="deptId != null ">dept_id,</if>
+            <if test="panelId != null ">panel_id,</if>
+            <if test="panelName != null ">panel_name,</if>
+            <if test="sortNum != null ">sort_num,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="userId != null ">#{userId},</if>
+        <if test="companyId != null ">#{companyId},</if>
+        <if test="deptId != null ">#{deptId},</if>
+        <if test="panelId != null ">#{panelId},</if>
+        <if test="panelName != null ">#{panelName},</if>
+        <if test="sortNum != null ">#{sortNum},</if>
+        </trim>
+    </insert>
+
+    <update id="updateHomeSorts" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
+        update user_console_home_page_sort_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="panelName != null ">panel_name = #{panelName},</if>
+            <if test="sortNum != null ">sort_num = #{sortNum},</if>
+        </trim>
+        where panel_id = #{panelId} and user_id = #{userId} and company_id = #{companyId}
+    </update>
+
 </mapper>

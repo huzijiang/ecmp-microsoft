@@ -13,6 +13,7 @@ public enum OrderServiceType {
     ORDER_SERVICE_TYPE_SEND("5","4000","送机");
 
 
+
     private String prState;
     private String bcState;
     private String stateName;

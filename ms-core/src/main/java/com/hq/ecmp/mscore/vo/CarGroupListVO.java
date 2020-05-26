@@ -71,4 +71,9 @@ public class CarGroupListVO {
 
     @ApiModelProperty(name = "cityName", value = "服务城市名字")
     private String cityName;
+    @ApiModelProperty(name = "cityName", value = "服务城市名字")
+    private String cityCode;
+
+    @ApiModelProperty(name = "itIsInner", value = "是否是内部车队   C000   内部车队   C111   外部车队")
+    private String itIsInner;
 }
