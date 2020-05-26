@@ -134,6 +134,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 orderStateTraceInfo.setState(OrderStateTrace.DRIVER_CONTINUED_SERVICE.getState());
                 iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
                 //4轨迹插入--"S500","前往出发地"
+                orderStateTraceInfo.setTraceId(orderStateTraceInfo.getTraceId() +1);
                 orderStateTraceInfo.setState(OrderStateTrace.ALREADY_SET_OUT.getState());
                 iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
             /** xmy2*/
@@ -217,7 +218,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             ismsBusiness.sendSmsDriverBeginService(orderId);
             //司机开始服务发送消息给乘车人和申请人（行程通知）
             ismsBusiness.sendMessageServiceStart(orderId, userId);
-        }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){//服务完成
+        }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){//服务完成4
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             String longAddr = "";
             String shortAddr ="";
@@ -295,30 +296,29 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
             }else {//false的话说明是多日服务 还没有到租车结束当天
                 /**xmy1*/
-            orderInfo.setState(OrderState.SERVICE_SUSPEND.getState());//订单状态
-            iOrderInfoService.updateOrderInfo(orderInfo);//更新订单状态
-            orderStateTraceInfo.setState(OrderStateTrace.DRIVER_SERVICE_SUSPEND.getState());//轨迹状态
+                orderInfo.setState(OrderState.SERVICE_SUSPEND.getState());//订单状态
+                iOrderInfoService.updateOrderInfo(orderInfo);//更新订单状态
+                orderStateTraceInfo.setState(OrderStateTrace.DRIVER_SERVICE_SUSPEND.getState());//轨迹状态
 
-            //插入轨迹
-            iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-            orderStateTraceInfo.setTraceId(orderStateTraceInfo.getTraceId()+1);
-            orderStateTraceInfo.setState(OrderStateTrace.SERVICE_SUSPEND.getState());//轨迹状态
-            //插入轨迹
-            iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+                //插入轨迹
+                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+                orderStateTraceInfo.setTraceId(orderStateTraceInfo.getTraceId()+1);
+                orderStateTraceInfo.setState(OrderStateTrace.SERVICE_SUSPEND.getState());//轨迹状态
+                //插入轨迹
+                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            }
+            //存储行车结束经纬度
+            OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
 
-        }
-        //存储行车结束经纬度
-        OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
+            long recorId = orderServiceCostDetailRecordInfoMapper.selsctRecordIdByOrderId(orderId);
+            recordInfo.setEndLongitude(BigDecimal.valueOf(longitude));//精度
+            recordInfo.setEndLatitude(BigDecimal.valueOf(latitude));//维度
+            recordInfo.setOrderId(orderId);
+            recordInfo.setRecordId(recorId);
 
-        long recorId = orderServiceCostDetailRecordInfoMapper.selsctRecordIdByOrderId(orderId);
-        recordInfo.setEndLongitude(BigDecimal.valueOf(longitude));//精度
-        recordInfo.setEndLatitude(BigDecimal.valueOf(latitude));//维度
-        recordInfo.setOrderId(orderId);
-        recordInfo.setRecordId(recorId);
+            orderServiceCostDetailRecordInfoMapper.update(recordInfo);
 
-        orderServiceCostDetailRecordInfoMapper.update(recordInfo);
-
-        /**xmy2*/
+            /**xmy2*/
             //添加里程数和总时长
             OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
             orderSettlingInfo.setOrderId(orderId);
