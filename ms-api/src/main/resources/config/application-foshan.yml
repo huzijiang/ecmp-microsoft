@@ -93,7 +93,7 @@ token:
 thirdService:
   enterpriseId: 100000
   licenseContent: AAAAAAAA
-  apiUrl: https://inside-serivce-enterprise.hqzhixing.com/
+  apiUrl: https://pub-serivce-enterprise.hqzhixing.com
 
 #行程分享路径
 order:
