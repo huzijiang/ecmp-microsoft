@@ -49,4 +49,10 @@ public enum CharterTypeEnum {
 		Map<String, String> param = CharterTypeEnum.getParam();
 		return param.get(key);
 	}
+
+
+
+
+
+
 }

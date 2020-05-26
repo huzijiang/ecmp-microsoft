@@ -2,9 +2,6 @@ package com.hq.ecmp.ms.api.controller.apply;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
@@ -159,8 +156,8 @@ public class UserApplySingleController {
      * @param userApplySingleVo
      * @return
      */
-    @ApiOperation(value = "getToBeConfirmedOrderList",notes = "分页查询用车申请列表",httpMethod ="POST")
-    @Log(title = "用车申请", content = "用车申请列表",businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getToBeConfirmedOrderList",notes = "分页查询待确认订单",httpMethod ="POST")
+    @Log(title = "用车申请", content = "分页查询待确认订单",businessType = BusinessType.OTHER)
     @PostMapping("/getToBeConfirmedOrderList")
     public ApiResponse<PageResult<UserApplySingleVo>> getToBeConfirmedOrderList(@RequestBody UserApplySingleVo userApplySingleVo){
         HttpServletRequest request = ServletUtils.getRequest();

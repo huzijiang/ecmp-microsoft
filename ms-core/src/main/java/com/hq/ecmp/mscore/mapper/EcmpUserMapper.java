@@ -388,5 +388,13 @@ public interface EcmpUserMapper
 //    List<OrgTreeVo> selectUserListByProjectId(@Param("projectId") Long projectId, @Param("search") String search, @Param("companyId")  Long companyId);
 
     int selectCompanyUserCount(Long companyId);
+
+    /**
+     * 获取内部调度员电话
+     * add by liuzb
+     * @param orderId
+     * @return
+     */
+    EcmpUserDto dispatcherPhone(Long orderId);
 }
 

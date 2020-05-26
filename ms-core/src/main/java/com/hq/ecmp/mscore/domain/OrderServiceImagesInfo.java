@@ -17,7 +17,7 @@ public class OrderServiceImagesInfo {
 
     Long recordId;
 
-    String imageurl;
+    String imageUrl;
 
     Long createBy;
 

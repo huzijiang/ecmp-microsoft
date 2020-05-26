@@ -68,4 +68,24 @@ public class DriverOrderInfoVO {
     private List<OtherCostBean> orderFees;
     private List<String> feeImageUrls;
 
+
+
+    @ApiModelProperty(name = "useTime",value = "用车总天数xmy")
+    private String useTime;
+    @ApiModelProperty(name = "StartDate",value = "用车开始时间xmy")
+    private String startDate;
+    @ApiModelProperty(name = "endDate",value = "用车结束时间xmy")
+    private String endDate;
+    @ApiModelProperty(name = "deptName",value = "车辆归属公司xmy")
+    private String deptName;
+    @ApiModelProperty(name = "groupPhone",value = "车辆队电话xmy")
+    private String groupPhone;
+    @ApiModelProperty(name = "driverPhone",value = "司机电话xmy")
+    private String driverPhone;
+    @ApiModelProperty(name = "peerNumber",value = "同乘人数")
+    private String peerNumber;
+    @ApiModelProperty(name = "imageUrl",value = "车辆信息图")
+    private String imageUrl;
+
+
 }

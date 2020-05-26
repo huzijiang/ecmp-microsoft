@@ -143,4 +143,14 @@ public interface OrderStateTraceInfoMapper
      * @return
      */
     List<RejectDispatcherUserVO> reassignOrderList(@Param("orderId") Long orderId,@Param("state") String state);
+
+
+    /***
+     * 改派删除订单轨迹
+     * add by liuzb
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    int deleteOrderStateTrace(@Param("orderId") Long orderId)throws Exception;
 }

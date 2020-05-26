@@ -30,7 +30,7 @@
         select dispatch_id, order_id, it_is_use_inner_car_group, car_group_user_mode, it_is_self_driver, next_car_group_id, charter_car_type, car_id, car_cg_id, driver_id, driver_cg_id, dispatch_state, create_by, create_time, update_by, update_time,outer_car_group_refuse_info,inner_dispatcher,outer_dispatcher from order_dispatche_detail_info
     </sql>
 
-    <select id="selectOrderDispatcheDetailInfoList" parameterType="OrderDispatcheDetailInfo" resultMap="OrderDispatcheDetailInfoResult">
+    <select id="selectOrderDispatcheDetailInfoList" parameterType="com.hq.ecmp.mscore.domain.OrderDispatcheDetailInfo" resultMap="OrderDispatcheDetailInfoResult">
         <include refid="selectOrderDispatcheDetailInfoVo"/>
         <where>
             <if test="orderId != null "> and order_id = #{orderId}</if>
@@ -52,7 +52,7 @@
         where dispatch_id = #{dispatchId}
     </select>
 
-    <insert id="insertOrderDispatcheDetailInfo" parameterType="OrderDispatcheDetailInfo" useGeneratedKeys="true" keyProperty="dispatchId">
+    <insert id="insertOrderDispatcheDetailInfo" parameterType="com.hq.ecmp.mscore.domain.OrderDispatcheDetailInfo" useGeneratedKeys="true" keyProperty="dispatchId">
         insert into order_dispatche_detail_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="orderId != null ">order_id,</if>
@@ -96,7 +96,7 @@
         </trim>
     </insert>
 
-    <update id="updateOrderDispatcheDetailInfo" parameterType="OrderDispatcheDetailInfo">
+    <update id="updateOrderDispatcheDetailInfo" parameterType="com.hq.ecmp.mscore.domain.OrderDispatcheDetailInfo">
         update order_dispatche_detail_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="orderId != null ">order_id = #{orderId},</if>
@@ -130,6 +130,9 @@
         <foreach item="dispatchId" collection="array" open="(" separator="," close=")">
             #{dispatchId}
         </foreach>
+    </delete>
+    <delete id="deleteOrderId" parameterType="Integer">
+        delete from order_dispatche_detail_info where  = #{orderId}
     </delete>
 
     <update id="updateOrderDispatcheDetailInfoByOrderId" parameterType="OrderDispatcheDetailInfo">

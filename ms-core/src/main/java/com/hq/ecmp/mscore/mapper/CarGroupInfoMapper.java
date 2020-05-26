@@ -193,4 +193,19 @@ public interface CarGroupInfoMapper
      * @return
      */
      List<CarGroupInfo> dispatcherCarGroupList(@Param("depeId") Long deptId);
+
+    /***
+     *
+     * @param userId
+     * @return
+     */
+     List<String> selectIsDispatcher(@Param("userId")Long userId);
+
+    /***
+     *
+     * @param userId
+     * @param orderId
+     * @return
+     */
+     List<String> getTakeBack(@Param("userId")Long userId,@Param("orderId")Long orderId);
 }

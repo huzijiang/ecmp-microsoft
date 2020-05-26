@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName DriverOrderController
@@ -66,24 +67,26 @@ public class DriverOrderController {
             @ApiImplicitParam(name = "orderNo", value = "订单号", required = true, paramType = "query", dataType = "String")
     })
     @RequestMapping(value = "/handleStatus", method = RequestMethod.POST)
-    public ApiResponse handleStatus(@RequestParam("type") String type,
-                                    @RequestParam("currentPoint") String currentPoint,
-                                    @RequestParam("orderNo") String orderNo,
-                                    @RequestParam("mileage") String mileage,
-                                    @RequestParam("travelTime") String travelTime) {
+    public ApiResponse<Map> handleStatus(@RequestParam("type") String type,
+                                         @RequestParam("currentPoint") String currentPoint,
+                                         @RequestParam("orderNo") String orderNo,
+                                         @RequestParam("mileage") String mileage,
+                                         @RequestParam("travelTime") String travelTime,
+                                         @RequestParam("recordId") String recordId) {
         //需要处理4种情况 | 司机出发、司机到达、开始服务、服务完成
         //记录订单的状态跟踪表
+        Map map = null;
         try {
             //获取调用接口的用户信息
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getDriver().getDriverId();
-            iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId,mileage,travelTime);
+            map = iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId,mileage,travelTime,recordId);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());
         }
-        return ApiResponse.success();
+        return ApiResponse.success(map);
     }
 
     @com.hq.core.aspectj.lang.annotation.Log(title = "司机完成订单接口",businessType = BusinessType.UPDATE,operatorType = OperatorType.MOBILE)

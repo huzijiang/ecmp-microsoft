@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="com.hq.ecmp.mscore.domain.DriverNatureInfo" id="DriverNatureInfo">
         <result property="driverId"      jdbcType="BIGINT"   column="driver_id"    />
+        <result property="invitationId"      jdbcType="BIGINT"   column="invitation_id"    />
         <result property="driverNature"    jdbcType="VARCHAR"  column="driver_nature"    />
         <result property="hireBeginTime" jdbcType="VARCHAR" column="hire_begin_time"    />
         <result property="hireEndTime" jdbcType="VARCHAR" column="hire_end_time"    />
@@ -13,7 +14,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="borrowEndTime" jdbcType="VARCHAR" column="borrow_end_time"    />
     </resultMap>
     <sql id="select">
-        select driver_id, driver_nature, hire_begin_time, hire_end_time, borrow_begin_time, borrow_end_time from driver_nature_info
+        select driver_id,invitation_id, driver_nature, hire_begin_time, hire_end_time, borrow_begin_time, borrow_end_time
+        from driver_nature_info
     </sql>
     <select id="getDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo" resultMap="DriverNatureInfo">
         <include refid="select"/>
@@ -29,6 +31,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into driver_nature_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="driverId != null ">driver_id,</if>
+            <if test="invitationId != null ">invitation_id,</if>
             <if test="driverNature != null ">driver_nature,</if>
             <if test="hireBeginTime != null ">hire_begin_time,</if>
             <if test="hireEndTime != null ">hire_end_time,</if>
@@ -51,12 +54,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">
         update driver_nature_info
         <trim prefix="SET" suffixOverrides=",">
+            <if test="driverId != null  '">driver_id = #{driverId},</if>
+            <if test="invitationId != null  '">invitation_id = #{invitationId},</if>
             <if test="driverNature != null  and driverName != ''">driver_iddriver_id = #{driverNature},</if>
             <if test="hireBeginTime != null  and country != ''">hire_begin_time = #{hireBeginTime},</if>
             <if test="hireEndTime != null  and nation != ''">hire_end_time = #{hireEndTime},</if>
             <if test="borrowBeginTime != null  and idCard != ''">borrow_begin_time = #{borrowBeginTime},</if>
             <if test="borrowEndTime != null ">borrow_end_time = #{borrowEndTime},</if>
+            update_time = now()
         </trim>
         where driver_id = #{driverId}
     </update>
+    <select id="selectDriverNatureInfoByIncitationId" resultMap="DriverNatureInfo" parameterType="long">
+        <include refid="select"/>
+        where invitation_id = #{invitationId}
+    </select>
 </mapper>

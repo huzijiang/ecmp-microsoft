@@ -12,6 +12,11 @@ public enum OrderStateTrace {
     ALREADY_SET_OUT("S500","司机已出发"),
     PRESERVICE("S600","准备服务"),
     SERVICE("S616","服务中"),
+
+    DRIVER_SERVICE_SUSPEND("S630","司机中止服务"),
+    DRIVER_CONTINUED_SERVICE("S639","司机继续服务"),
+    SERVICE_SUSPEND("S635","订单服务中止"),
+
     SERVICEOVER("S699","服务结束"),
     ORDERCLOSE("S900","订单关闭"),
     OBJECTION("S901","订单异议"),
