@@ -334,11 +334,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                  o.order_id IN ( SELECT order_id FROM order_state_trace_info st WHERE st.create_by =#{driverId} AND st.state = 'S270'
         ))
         <if test="flag==1">
-            and (o.state='S299' or o.state='S500' or o.state='S600' or o.state='S616' )
+            and (o.state='S299' or o.state='S500' or o.state='S600' or o.state='S616' or o.state='S635'  )
             order by useCarTime asc
         </if>
         <if test="flag==0">
-            and (o.state='S299' or o.state='S500' or o.state='S600' or o.state='S616' or o.state='S699' or
+            and (o.state='S299' or o.state='S500' or o.state='S600' or o.state='S616' or o.state='S699' or o.state='S635' or
             o.state='S900' )
             ORDER BY
             o.state = 'S900' asc, labelState = 'S279' asc,
