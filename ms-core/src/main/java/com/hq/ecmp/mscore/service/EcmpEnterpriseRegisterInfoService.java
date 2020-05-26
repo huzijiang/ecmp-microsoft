@@ -102,7 +102,7 @@ public interface EcmpEnterpriseRegisterInfoService {
 
     int updateRegisterApprove(Long registerId,Long userId,String reason,String state) throws Exception;
 
-    int updateRegisterDriverApprove(Long registerId,Long userId,String reason,String state) throws Exception;
+    int updateRegisterDriverApprove(Long companyId,Long registerId,Long userId,String reason,String state) throws Exception;
 
     void updateRegisterRefuse(Long registerId, String reason)throws Exception;;
     RegisterDriverDetailVO queryDriverRegDetail(Long registerId);

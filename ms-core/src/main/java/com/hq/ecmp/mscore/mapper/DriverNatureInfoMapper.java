@@ -37,4 +37,5 @@ public interface DriverNatureInfoMapper {
      */
     int updateDriverNatureInfo(DriverNatureInfo driverNatureInfo)throws Exception;
 
+    DriverNatureInfo selectDriverNatureInfoByIncitationId(Long invitationId);
 }

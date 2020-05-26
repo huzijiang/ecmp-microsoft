@@ -11,6 +11,9 @@ public class DriverNatureInfo extends BaseEntity {
 
     Long driverId;
 
+    //邀请id
+    Long invitationId;
+
     String driverNature;
 
     Date hireBeginTime;
