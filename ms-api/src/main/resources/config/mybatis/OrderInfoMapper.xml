@@ -1853,19 +1853,18 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 --             (select distinct order_id from order_state_trace_info where state in ('S100'))
 --             and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
             and oi.order_id in (
-            select a.orderId,a.mstate from (select order_id orderId,max(state) mstate from order_state_trace_info GROUP BY order_id ) a where a.mstate = 'S100'
+            select a.orderId from (select order_id orderId,max(state) mstate from order_state_trace_info GROUP BY order_id ) a where a.mstate = 'S100'
             )
-            <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
-                and  oi.state = #{homePageWaitingCarState}
-            </if>
-            <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
-                and  oi.state >= 'S299' and  oi.state != 'S900'
-            </if>
-            <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
-                and  oi.state = #{homePageExpireCarState}
-            </if>
         </if>
-
+        <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
+            and  oi.state = #{homePageWaitingCarState}
+        </if>
+        <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
+            and  oi.state = #{homePageExpireCarState}
+        </if>
+        <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
+            and  oi.state >= 'S299' and  oi.state != 'S900'
+        </if>
         <if test="isIndex == 2">
             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
             (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100','S930'))
