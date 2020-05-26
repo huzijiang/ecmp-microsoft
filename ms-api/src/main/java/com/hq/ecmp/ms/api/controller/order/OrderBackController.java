@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.order;
 
 import com.google.common.reflect.TypeToken;
+import com.hq.api.system.domain.SysRole;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.ServletUtils;
@@ -17,9 +18,11 @@ import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
 import com.hq.ecmp.mscore.dto.OrderInfoDTO;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.service.OrderInfoTwoService;
+import com.hq.ecmp.mscore.vo.CarGroupListVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -66,6 +69,7 @@ public class OrderBackController {
     TokenService tokenService;
 
 
+
     @ApiOperation(value = "订单列表查询")
     @PostMapping(value = "/getOrderList")
     @Log(title = "订单管理", content = "订单列表", businessType = BusinessType.OTHER)
@@ -80,7 +84,7 @@ public class OrderBackController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             orderListBackDto.setCompanyId(loginUser.getUser().getOwnerCompany());
             //获取订单列表
-            PageResult<OrderListBackDto> orderListBackDtos  = iOrderInfoService.getOrderListBackDto(orderListBackDto);
+            PageResult<OrderListBackDto> orderListBackDtos  = iOrderInfoService.getOrderListBackDto(orderListBackDto,loginUser);
             return ApiResponse.success(orderListBackDtos);
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,6 +218,41 @@ public class OrderBackController {
         }
         return ApiResponse.error("订单确认失败");
     }
+
+    /***
+     * 订单管理获取内部调度员电话
+     * add by liuzb
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "获取内部调度员电话", notes = "获取内部调度员电话 ", httpMethod = "POST")
+    @PostMapping(value = "/dispatcherPhone")
+    public ApiResponse dispatcherPhone(Long orderId){
+        try {
+            return ApiResponse.success(iOrderInfoService.dispatcherPhone(orderId));
+        } catch (Exception e) {
+            logger.error("selectOrderList error",e);
+        }
+        return ApiResponse.error("获取内部调度员电话失败");
+    }
+
+    /***
+     * 订单管理订单改派
+     * add by liuzb
+     * @param orderId
+     * @return
+     */
+    @ApiOperation(value = "订单管理订单改派", notes = "订单管理订单改派 ", httpMethod = "POST")
+    @PostMapping(value = "/orderReassignment")
+    public ApiResponse orderReassignment(Long orderId){
+        try {
+            return ApiResponse.success(iOrderInfoService.orderReassignment(tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId(),orderId));
+        } catch (Exception e) {
+            logger.error("orderReassignment error",e);
+        }
+        return ApiResponse.error("订单管理订单改派失败");
+    }
+
 
     /***
      * 取车

@@ -184,7 +184,7 @@ public interface IOrderInfoService {
      * @param orderListBackDto
      * @return
      */
-    PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto);
+    PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto,LoginUser user);
 
     /**
      * PC端查询订单详情
@@ -311,5 +311,26 @@ public interface IOrderInfoService {
      * @return
      */
     int updateTheOrder(Long userId,OrderServiceCostDetailRecordInfo data)throws Exception;
+
+    /**
+     * 订单改派
+     * add by liuzb
+     * @param userId
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    String orderReassignment(Long userId,Long orderId)throws Exception;
+
+
+    /***
+     * 根据订单获取内部调度员的电话
+     * add by liuzb
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    String dispatcherPhone(Long orderId)throws Exception;
+
 }
 

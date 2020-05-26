@@ -83,4 +83,16 @@ public class OrderListBackDto extends PageRequest {
     private Long companyId;
 
     private String itIsSupplement;
+    @ApiModelProperty(value = "业务员")
+    private Long userId;
+    @ApiModelProperty(value = "外部调度员")
+    private Long updateBy;
+    @ApiModelProperty(value = "是否当前内部调度员改派")
+    private boolean flag;
+
+    private Long createBy;
+
+    private String itIsSelfDriver;
+
+    private boolean takeBack;//是 否
 }

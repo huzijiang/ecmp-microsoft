@@ -142,6 +142,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private OrderServiceImagesInfoMapper  orderServiceImagesInfoMapper;
     @Resource
     private OrderAccountInfoMapper orderAccountInfoMapper;
+    @Resource
+    private OrderDispatcheDetailInfoMapper orderDispatcheDetailInfoMapper;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -1473,7 +1475,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto) {
+    public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto,LoginUser user) {
+        String key = isDispatcher(user);
+        if(null==key){
+            orderListBackDto.setUserId(user.getUser().getUserId());
+        }else{
+            orderListBackDto.setUpdateBy("C000".equals(key)?null:user.getUser().getUserId());
+        }
         //订单管理需要的状态 已取消  S911    已完成 S900  待确认 S699     服务中S616  待上车 S600   接驾中 S500  待服务 S299
         List<OrderListBackDto> list = orderInfoMapper.getOrderListBackDto(orderListBackDto);
         for (OrderListBackDto orderListBack:list){
@@ -1514,13 +1522,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             List<OrderListBackDto> list1 = list.stream().filter(e -> orderListBackDto.getOrderState().contains(e.getOrderState())).collect(Collectors.toList());
             String labelState = orderListBackDto.getLabelState();
             List<OrderListBackDto> list2 = list1.stream().filter(e -> !labelState.contains(e.getLabelState())).collect(Collectors.toList());
+            list2 =  addState(list2,user);
             PageInfo<OrderListBackDto> info = new PageInfo<>(list2);
             return new PageResult<>(info.getTotal(),info.getPages(),list2);
         }else if(orderListBackDto.getLabelState()!=null){
             List<OrderListBackDto> list1 = list.stream().filter(e -> orderListBackDto.getLabelState().contains(e.getLabelState())).collect(Collectors.toList());
+            list1 =  addState(list1,user);
             PageInfo<OrderListBackDto> info = new PageInfo<>(list1);
             return new PageResult<>(info.getTotal(),info.getPages(),list1);
         }
+        list =addState(list,user);
         PageInfo<OrderListBackDto> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
@@ -2605,6 +2616,64 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         return checkResult;
     }
+
+    /***
+     * 处理是否当前自己调度的订单
+     * add by liuzb
+     * @param list
+     * @param user
+     * @return
+     */
+    private List<OrderListBackDto> addState(List<OrderListBackDto> list,LoginUser user){
+        if(null!= list && list.size()>0){
+            for(OrderListBackDto data : list ){
+                data.setFlag(false);
+                List<String> tList = carGroupInfoMapper.getTakeBack(user.getUser().getUserId(),Long.valueOf(data.getOrderId()));
+                data.setTakeBack(null!=tList && tList.size()>0?true:false);
+                OrderServiceCostDetailRecordInfo orderData = new OrderServiceCostDetailRecordInfo();
+                orderData.setOrderId(Long.valueOf(data.getOrderId()));
+                List<OrderServiceCostDetailRecordInfo> orderList = orderServiceCostDetailRecordInfoMapper.queryAll(orderData);
+                if(null!=orderList && orderList.size()>0){
+                    for(OrderServiceCostDetailRecordInfo key : orderList){
+                        if(String.valueOf(user.getUser().getUserId()).equals(String.valueOf(key.getCreateBy()))){
+                            data.setFlag(true);
+                            continue;
+                        }
+                    }
+
+                }
+            }
+        }
+        return list;
+    }
+
+
+    /***
+     * 区分角色（内部调度员，外部调度员，员工）
+     * add by liuzb
+     * @param user
+     * @return
+     */
+    private String isDispatcher(LoginUser user){
+        List<SysRole> roleList = user.getUser().getRoles();
+        for(SysRole data : roleList ){
+            /**调度员（区分内部调度，外部调度）*/
+            if("dispatcher".equals(data.getRoleKey())){
+                List<String> list = carGroupInfoMapper.selectIsDispatcher(user.getUser().getUserId());
+                for(String str :list){
+                    if("C000".equals(str)){
+                        return "C000";
+                    }
+                    if("C111".equals(str)){
+                        return "C111";
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
     /***
      * 确认订单
      * add by liuzb
@@ -2645,8 +2714,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
 
-
-
     /***
      * 订单确认添加轨迹数据
      * add by liuzb
@@ -2684,7 +2751,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             orderAccountInfo.setCreateTime(new Date());
             return orderAccountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
         }
-        return 0;
+        return 1;
     }
 
 
@@ -2722,12 +2789,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         for(int i=0;i<list.size();i++){
             list.get(i).setImageList(getOrderServiceImagesInfoList(list.get(i).getRecordId()));
             list.get(i).setHeartbeatList(getOrderDay(list.get(i)));
-            Map<String,String> map = thirdService.locationByLongitudeAndLatitude(list.get(i).getStartLatitude().toString(),list.get(i).getEndLatitude().toString());
+       /*     Map<String,String> map = thirdService.locationByLongitudeAndLatitude(list.get(i).getStartLatitude().toString(),list.get(i).getEndLatitude().toString());
             list.get(i).setStartLatitudeAddress(map.get("longAddr").toString());
             list.get(i).setEndLatitudeAddress(map.get("shortAddr").toString());
             map = thirdService.locationByLongitudeAndLatitude(list.get(i).getStartLongitude().toString(),list.get(i).getEndLongitude().toString());
             list.get(i).setStartLongitudeAddress(map.get("longAddr").toString());
-            list.get(i).setEndLongitudeAddress(map.get("shortAddr").toString());
+            list.get(i).setEndLongitudeAddress(map.get("shortAddr").toString());*/
             if(i==0?dataGrouping(list.get(i).getEndTime(),list.get(i)):dataGrouping(list.get(i-1).getEndTime(),list.get(i))){
                 groupList.add(list.get(i));
             }else{
@@ -2749,8 +2816,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     private boolean dataGrouping(Date date,OrderServiceCostDetailRecordInfo data)throws Exception{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        if(sdf.format(data.getStartTime()).toString().equals(sdf.format(date).toString())){
-            return true;
+        if(null!=date && null!= data.getStartTime()){
+            if(sdf.format(data.getStartTime()).toString().equals(sdf.format(date).toString())){
+                return true;
+            }
         }
         return false;
     }
@@ -2782,4 +2851,40 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return driverHeartbeatInfoMapper.getOrderDay(toData);
     }
 
+    /***
+     *
+     * @param userId
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public String orderReassignment(Long userId, Long orderId) throws Exception {
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setOrderId(orderId);
+        orderInfo.setState("S270");
+        int a = orderInfoMapper.changeOrder(orderId,userId,new Date());
+        int b = orderStateTraceInfoMapper.deleteOrderStateTrace(orderId);
+        int c = orderDispatcheDetailInfoMapper.deleteOrderId(orderId);
+        if(a>0 && b>0 && c>0){
+            return "改派成功";
+        }
+        return "改派失败";
+    }
+
+
+    /***
+     *add by liuzb
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public String dispatcherPhone(Long orderId) throws Exception {
+        EcmpUserDto data = ecmpUserMapper.dispatcherPhone(orderId);
+        if(null!=data){
+            return data.getNickName()+":"+data.getUserName();
+        }
+        return null;
+    }
 }

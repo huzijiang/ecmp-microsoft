@@ -72,4 +72,12 @@ public class OrderDetailBackDto extends OrderListBackDto {
     private Long sceneId;
     @ApiModelProperty(value = "费用，流转地址")
     List<List<OrderServiceCostDetailRecordInfo>>  costList;
+    @ApiModelProperty(value = "用车事由")
+    String reason;
+    @ApiModelProperty(value = "用车备注")
+    String notes;
+    @ApiModelProperty(value = "车辆所属")
+    String carGroupName;
+    @ApiModelProperty(value = "驾驶员所属")
+    String driverGroupName;
 }

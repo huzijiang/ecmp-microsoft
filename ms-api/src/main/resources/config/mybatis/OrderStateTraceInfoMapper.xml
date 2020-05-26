@@ -329,4 +329,7 @@ AND a.state ='S270' order by a.create_time desc limit 1
         where find_in_set(a.state,#{state}) and a.order_id=#{orderId}
         ORDER BY trace_id asc
     </select>
+    <delete id="deleteOrderStateTrace" parameterType="Long">
+        delete from order_state_trace_info where order_id=#{orderId} and state not in ('S000','S100')
+    </delete>
 </mapper>
