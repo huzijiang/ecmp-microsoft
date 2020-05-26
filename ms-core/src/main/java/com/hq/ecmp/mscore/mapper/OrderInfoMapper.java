@@ -375,10 +375,10 @@ public interface OrderInfoMapper {
 
     /**
      * 获取用车总时长 和 开始用车时间
-     * @param query
+     * @param
      * @return
      */
-    Map<String,String> getUserTimeAndActionTime(long orderNo);
+    OrderInfoDate getUserTimeAndActionTime(long orderNo);
     /***
      * 当前订单改派订单
      * add by liuzb
