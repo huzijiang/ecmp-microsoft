@@ -14,9 +14,9 @@ public class CommonUtils {
 
     /**
      * 获取多日组中的当天是否为半日租或者整日租
-     * @param startDate
-     * @param endDate
-     * @param userTime
+     * @param startDate 行程开始时间
+     * @param endDate 行程结束时间
+     * @param userTime 用车时间，单位天
      * @return
      */
     public static String getCarType(Date startDate, Date endDate, double userTime) {
