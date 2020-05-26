@@ -72,20 +72,16 @@ public class DriverOrderController {
                                          @RequestParam("orderNo") String orderNo,
                                          @RequestParam("mileage") String mileage,
                                          @RequestParam("travelTime") String travelTime,
-                                         @RequestParam("recordId") String recordId
-
-    ) {
+                                         @RequestParam("recordId") String recordId) {
         //需要处理4种情况 | 司机出发、司机到达、开始服务、服务完成
         //记录订单的状态跟踪表
         Map map = null;
         try {
             //获取调用接口的用户信息
-
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getDriver().getDriverId();
             map = iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId,mileage,travelTime,recordId);
-
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error(e.getMessage());

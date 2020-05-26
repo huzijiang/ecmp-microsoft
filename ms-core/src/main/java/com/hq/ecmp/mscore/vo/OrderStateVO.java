@@ -62,9 +62,9 @@ public class OrderStateVO {
     /**
      * 0是半天，1是整天
      */
-    private int whole;
+    private String whole;
     private String startDate;
     private String endDate;
-    private String useTime;//用车天数
+    private Double useTime;//用车天数
 
 }

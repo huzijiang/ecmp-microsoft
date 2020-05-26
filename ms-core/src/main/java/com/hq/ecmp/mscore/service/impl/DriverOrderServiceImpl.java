@@ -129,11 +129,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             recordInfo.setStartLongitude(BigDecimal.valueOf(longitude));//精度
             recordInfo.setStartLatitude(BigDecimal.valueOf(latitude));//维度
             recordInfo.setOrderId(orderId);
-
             int insert = orderServiceCostDetailRecordInfoMapper.insert(recordInfo);
             map.put("recordId",insert);
-
-
             //1判断当前服务是不是暂停状态
             if(null != orderInfoOld && OrderState.SERVICE_SUSPEND.getState().equals(orderInfoOld.getState())){
                 //2改变 服务状态
@@ -155,11 +152,6 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 orderStateTraceInfo.setState(OrderStateTrace.ALREADY_SET_OUT.getState());
                 iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
             }
-
-
-
-
-
         }else if(DriverBehavior.ARRIVE.getType().equals(type)){
             //订单状态
             orderInfo.setState(OrderState.READYSERVICE.getState());
@@ -187,7 +179,6 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfoOld);
             OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
             setOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
-
             OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
             orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
             orderAddressInfo.setOrderId(orderId);
