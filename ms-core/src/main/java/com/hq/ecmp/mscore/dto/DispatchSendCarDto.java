@@ -15,6 +15,9 @@ import lombok.Data;
 @Data
 @ApiModel(value = "派车接口入参")
 public class DispatchSendCarDto {
+
+    @ApiModelProperty(value = "订单id")
+    private Long orderId;
     @ApiModelProperty(value = "派车车队类型，C000 内部  C111 外部")
     private String useCarGroupType;
 
@@ -49,5 +52,13 @@ public class DispatchSendCarDto {
 
     @ApiModelProperty(value = "用车车型id")
     private String carTypeId;
+    @ApiModelProperty(value = "内部调度员操作或者是外部调度员操作 1 内部  2 外部")
+    private int inOrOut;
+
+    @ApiModelProperty(value = "是否完成调度 1 是 2 否",hidden = true)
+    private int isFinishDispatch;
+
+    @ApiModelProperty(value = "操作用id",hidden = true)
+   private Long userId;
 
 }

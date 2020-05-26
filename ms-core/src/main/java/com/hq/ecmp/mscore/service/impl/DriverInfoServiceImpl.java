@@ -3,11 +3,13 @@ package com.hq.ecmp.mscore.service.impl;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.DriverNatureEnum;
 import com.hq.ecmp.constant.InvitionTypeEnum;
@@ -156,25 +158,15 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     }
 
 
-    @Transactional(propagation=Propagation.REQUIRED)
+	/**
+	 * 新增驾驶员 （新增页面走过来 或者 审核驾驶员注册通过走过来）
+	 * @param driverCreateInfo
+	 * @return
+	 */
+	@Transactional(propagation=Propagation.REQUIRED)
 	@Override
-	public boolean createDriver(DriverCreateInfo driverCreateInfo) {
+	public boolean createDriver(DriverCreateInfo driverCreateInfo) throws Exception {
 
-/*       	//生成用户记录
-    	EcmpUser ecmpUser = new EcmpUser();
-    	ecmpUser.setUserName(driverCreateInfo.getMobile());
-    	ecmpUser.setNickName(driverCreateInfo.getDriverName());
-    	ecmpUser.setItIsDriver("0");
-    	ecmpUser.setPhonenumber(driverCreateInfo.getMobile());
-    	ecmpUser.setCreateBy(driverCreateInfo.getOptUserId().toString());
-    	ecmpUser.setCreateTime(new Date());;
-    	//查询归属车队所在的部门
-    	CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(driverCreateInfo.getCarGroupId());
-    	if(null !=carGroupInfo){
-    		ecmpUser.setDeptId(carGroupInfo.getOwnerOrg());
-    	}
-    	ecmpUserService.insertEcmpUser(ecmpUser);
-    	driverCreateInfo.setUserId(ecmpUser.getUserId());*/
     	//通过手机号和姓名去user表中查询  (只能用手机号区校验，用姓名+加手机号会出问题)
     	EcmpUser query = new EcmpUser();
 		//query.setNickName(driverCreateInfo.getDriverName());
@@ -250,7 +242,14 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	//2. 绑定驾驶员车队关系
     	carGroupDriverRelationService.insertCarGroupDriverRelation(carGroupDriverRelation);
     	//生成驾驶员-车辆记录
-    	List<Long> carIdList = driverCreateInfo.getCarId();
+		String regimenIds = driverCreateInfo.getRegimenIds();
+		if(StringUtils.isNotEmpty(regimenIds)){
+			//如果regimenIds不为空 ，表示由邀请通过的流程  regimenIds表示驾驶员可用车辆Id集合
+			List<String> list = Arrays.asList(regimenIds.split(","));
+			List<Long> carIds = list.stream().map(a -> Long.valueOf(a)).collect(Collectors.toList());
+			driverCreateInfo.setCarId(carIds);
+		}
+		List<Long> carIdList = driverCreateInfo.getCarId();
     	if(null !=carIdList && carIdList.size()>0){
     		DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
         	if(null !=userId){
@@ -261,14 +260,25 @@ public class DriverInfoServiceImpl implements IDriverInfoService
         	//3. 绑定驾驶员车辆关系
         	driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
     	}
-    	//4. 初始化驾驶员排班
-		boolean b = setDriverWorkInfo(driverId);
+    	//4. 初始化驾驶员排班  自有驾驶员当天开始排班   借调/外聘的从开始日期开始排班
+		boolean b = setDriverWorkInfo(driverId,driverCreateInfo.getDriverNature(),driverCreateInfo.getHireBeginTime(),driverCreateInfo.getBorrowBeginTime());
     	if(!b){
     		throw new RuntimeException("驾驶员初始化排班失败");
 		}
 		//5. 插入驾驶员性质表数据
-		addDriverNatureInfo(driverId,driverCreateInfo.getDriverNature(),driverCreateInfo.getHireBeginTime(),driverCreateInfo.getHireEndTime(),
-				driverCreateInfo.getBorrowBeginTime(),driverCreateInfo.getBorrowEndTime(),driverCreateInfo.getOptUserId());
+		Long invitationId = driverCreateInfo.getInvitationId();
+    	if (invitationId != null){
+			//如果是邀请的驾驶员，则在DriverNatureInfo表插入 driverId即可
+			DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
+			driverNatureInfo.setDriverId(driverId);
+			driverNatureInfo.setInvitationId(driverCreateInfo.getInvitationId());
+			driverNatureInfoMapper.updateDriverNatureInfo(driverNatureInfo);
+		}else {
+			//如果是新增驾驶员，则在驾驶员性质表插入数据
+			addDriverNatureInfo(driverId,driverCreateInfo.getDriverNature(),driverCreateInfo.getHireBeginTime(),driverCreateInfo.getHireEndTime(),
+					driverCreateInfo.getBorrowBeginTime(),driverCreateInfo.getBorrowEndTime(),driverCreateInfo.getOptUserId());
+		}
+
 		return true;
 	}
 
@@ -672,7 +682,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	}
 
 	@Override
-	public boolean setDriverWorkInfo(Long driverId) {
+	public boolean setDriverWorkInfo(Long driverId,String driverNature,Date hireBeginTime,Date borrowBeginTime) {
 
 		List<CloudWorkIDateVo> workDateList = driverWorkInfoMapper.getCloudWorkDateList();
 		//获取调用接口的用户信息
@@ -680,8 +690,15 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		LoginUser loginUser = tokenService.getLoginUser(request);
 		Long userId = loginUser.getUser().getUserId();
 		List<DriverWorkInfoVo> list = new ArrayList<>();
-
 		Calendar todayStart = Calendar.getInstance();
+		if(DriverNatureEnum.BORROWED_DRIVER.equals(driverNature)){
+			//如果是外聘驾驶员 排班从外聘开始时间开始
+			todayStart.setTime(hireBeginTime);
+		}
+		if(DriverNatureEnum.HIRED_DRIVER.equals(driverNature)){
+			//如果是戒掉驾驶员 排班从借调开始日期开始
+			todayStart.setTime(borrowBeginTime);
+		}
 		todayStart.set(Calendar.HOUR, 0);
 		todayStart.set(Calendar.MINUTE, 0);
 		todayStart.set(Calendar.SECOND, 0);

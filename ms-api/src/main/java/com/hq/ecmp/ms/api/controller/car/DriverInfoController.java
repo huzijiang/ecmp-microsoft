@@ -5,7 +5,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.alibaba.fastjson.JSONArray;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +31,7 @@ import com.hq.ecmp.mscore.vo.PageResult;
 
 import io.swagger.annotations.ApiOperation;
 
+@Slf4j
 @RestController
 @RequestMapping("/driverInfo")
 public class DriverInfoController {
@@ -40,15 +44,21 @@ public class DriverInfoController {
 	@ApiOperation(value = "create", notes = "新增驾驶员", httpMethod = "POST")
 	@PostMapping("/create")
 	public ApiResponse create(@RequestBody DriverCreateInfo driverCreateInfo) {
-		 HttpServletRequest request = ServletUtils.getRequest();
-	      LoginUser loginUser = tokenService.getLoginUser(request);
-	      driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
-	      driverCreateInfo.setCompanyId(loginUser.getUser().getOwnerCompany());
-		boolean createDriver = driverInfoService.createDriver(driverCreateInfo);
-		if(createDriver){
-			return ApiResponse.success();
-		}else{
-			return ApiResponse.error();
+		HttpServletRequest request = ServletUtils.getRequest();
+		LoginUser loginUser = tokenService.getLoginUser(request);
+		try {
+			log.info("新增驾驶员请求参数：{}，操作人：{}", JSONArray.toJSON(driverCreateInfo).toString(),loginUser.getUser().getPhonenumber());
+			driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
+			driverCreateInfo.setCompanyId(loginUser.getUser().getOwnerCompany());
+			boolean createDriver = driverInfoService.createDriver(driverCreateInfo);
+			if(createDriver){
+				return ApiResponse.success();
+			}else{
+				return ApiResponse.error();
+			}
+		} catch (Exception e) {
+			log.info("新增驾驶员请求参数：{}，操作人：{}", JSONArray.toJSON(driverCreateInfo).toString(),loginUser.getUser().getPhonenumber(),e);
+			return ApiResponse.error("新增驾驶员失败");
 		}
 	}
 
