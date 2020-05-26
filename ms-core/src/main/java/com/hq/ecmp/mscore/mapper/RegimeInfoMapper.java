@@ -121,4 +121,18 @@ public interface RegimeInfoMapper
     int updateExpiredRegimeInfo(RegimeInfo regimeInfo);
 
     List<Long> selectEnableRegimenIdByUserId(Long userId);
+
+    /**
+     * 申请单提交根据名称搜索城市
+     * @param companyId
+     * @return
+     */
+    Long queryRegimeInfoByCompanyId(@Param("companyId") Long companyId);
+
+    /**
+     * 查询制度中可用车型
+     * @param companyId
+     * @return
+     */
+    String queryRegimeLevelByCompanyId(@Param("companyId") Long companyId);
 }
