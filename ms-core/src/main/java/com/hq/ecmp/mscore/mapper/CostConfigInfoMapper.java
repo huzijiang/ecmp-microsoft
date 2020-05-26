@@ -1,10 +1,12 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.bo.CarGroupPricePlanInfoBo;
 import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.dto.cost.ValidDoubleDtoResult;
+import com.hq.ecmp.mscore.vo.CostConfigDetailInfoVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -115,4 +117,14 @@ public interface CostConfigInfoMapper
 
     Map<String,String> getDriverInfo(long driverId);
     Map<String,String> getCarInfo(long carId);
+
+    /**
+     * 查询指定车队、城市、公司 下的 价格计划详细信息
+     * @param carGroupPricePlanInfoBo
+     * @return
+     */
+    List<CostConfigDetailInfoVo> selectCostConfigDetailInfo(CarGroupPricePlanInfoBo carGroupPricePlanInfoBo);
+
+
+
 }

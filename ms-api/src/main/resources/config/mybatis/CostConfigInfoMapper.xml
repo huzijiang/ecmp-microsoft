@@ -4,7 +4,29 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hq.ecmp.mscore.mapper.CostConfigInfoMapper">
 
-    <resultMap type="CostConfigInfo" id="CostConfigInfoResult">
+    <resultMap type="com.hq.ecmp.mscore.domain.CostConfigInfo" id="CostConfigInfoResult">
+        <result property="costId"    column="cost_id"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="costConfigName"    column="cost_config_name"    />
+        <result property="serviceType"    column="service_type"    />
+        <result property="rentType"    column="rent_type"    />
+        <result property="startPrice"    column="start_price"    />
+        <result property="combosPrice"    column="combos_price"    />
+        <result property="combosMileage"    column="combos_mileage"    />
+        <result property="combosTimes"    column="combos_times"    />
+        <result property="beyondPriceEveryKm"    column="beyond_price_every_km"    />
+        <result property="beyondPriceEveryMinute"    column="beyond_price_every_minute"    />
+        <result property="waitPriceEreryMinute"    column="wait_price_erery_minute"    />
+        <result property="state"    column="state"    />
+        <result property="carGroupUserMode"    column="car_group_user_mode"    />
+
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <resultMap type="com.hq.ecmp.mscore.domain.CostConfigInfo" id="CostConfigInfoDetailResult">
         <result property="costId"    column="cost_id"    />
         <result property="companyId"    column="company_id"    />
         <result property="costConfigName"    column="cost_config_name"    />
@@ -57,7 +79,7 @@
          group by c.company_id,cc.city_name,c.service_type
     </select>
 
-    <insert id="insertCostConfigInfo" parameterType="CostConfigInfo">
+    <insert id="insertCostConfigInfo" parameterType="com.hq.ecmp.mscore.domain.CostConfigInfo">
         <selectKey keyColumn="cost_id" keyProperty="costId" resultType="long" order="AFTER">
             select last_insert_id();
         </selectKey>
@@ -104,7 +126,7 @@
         </trim>
     </insert>
 
-    <update id="updateCostConfigInfo" parameterType="CostConfigInfo">
+    <update id="updateCostConfigInfo" parameterType="com.hq.ecmp.mscore.domain.CostConfigInfo">
         update cost_config_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="companyId != null ">company_id = #{companyId},</if>
@@ -278,7 +300,7 @@
     </select>
 
 
-    <select id="selectCostConfigList" parameterType="CostConfigInfo" resultMap="CostConfigInfoResult">
+    <select id="selectCostConfigList" parameterType="com.hq.ecmp.mscore.domain.CostConfigInfo" resultMap="CostConfigInfoResult">
         <include refid="selectCostConfigInfoVo"/>
         <where>
             <if test="companyId != null "> and company_id = #{companyId}</if>
@@ -321,4 +343,43 @@
                  left join car_group_info g on c.car_group_id = g.car_group_id
         where c.car_id = #{car_id};
     </select>
+
+    <select id="selectCostConfigDetailInfo" resultType="com.hq.ecmp.mscore.vo.CostConfigDetailInfoVo"  parameterType="com.hq.ecmp.mscore.bo.CarGroupPricePlanInfoBo">
+
+        SELECT  cci.*
+                cccg.car_group_id,
+                chc.city_code,
+                chc.city_name,
+                ecti.`level`
+        FROM cost_config_info cci
+        LEFT JOIN  cost_config_car_group_info cccg ON cccg.cost_id=cci.cost_id
+        LEFT JOIN  cost_config_city_info ccci ON ccci.cost_id=cci.cost_id
+        LEFT JOIN  cost_config_car_type_info cccti ON  cccti.cost_id=cci.cost_id
+        LEFT JOIN  china_city chc ON chc.city_code=ccci.city_code
+        LEFT JOIN  enterprise_car_type_info ecti ON ecti.car_type_id=cccti.car_type_id
+        LEFT JOIN  car_group_info cgi ON  cgi.car_group_id=cccg.car_group_id
+        <where>
+            1=1
+            AND cci.state='Y000'
+            AND cci.rent_type IS NOT NULL
+            AND cci.start_price IS NOT NULL
+            AND cci.combos_price IS NOT NULL
+            AND cci.combos_times IS NOT NULL
+            AND cci.beyond_price_every_km IS NOT NULL
+            AND cci.beyond_price_every_minute IS NOT NULL
+            AND cci.wait_price_erery_minute  IS NOT NULL
+            AND cccg.car_group_id IS NOT NULl
+            AND ecti.`status`='S000'
+            <if test="carGroupId != null and carGroupId !=0L">
+                AND cccg.car_group_id = #{carGroupId}
+            </if>
+            <if test="cityCode != null and cityCode != '' ">
+                AND chc.city_code=#{cityCode}
+             </if>
+            <if test="companyId != null  and companyId !=0L ">
+                AND cci.company_id=#{companyId}
+             </if>
+        </where>
+    </select>
+
 </mapper>
