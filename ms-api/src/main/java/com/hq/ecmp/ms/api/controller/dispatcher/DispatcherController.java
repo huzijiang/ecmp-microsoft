@@ -163,17 +163,17 @@ public class DispatcherController {
         JSONObject jsonObject = new JSONObject();
         try {
             applyDispatchQuery.setHomePageWaitingCarState("S100");
-            PageResult<DispatchVo> waitingCarList = orderInfoTwoService.queryDispatchListCharterCar(applyDispatchQuery,loginUser);
-            jsonObject.put("waitingCarCount",waitingCarList.getItems().size());
+            List<DispatchVo> waitingCarList = orderInfoTwoService.queryDispatchListCharterCars(applyDispatchQuery,loginUser);
+            jsonObject.put("waitingCarCount",waitingCarList.size());
             applyDispatchQuery.setHomePageUsingCarState("S299");
             applyDispatchQuery.setHomePageWaitingCarState("");
-            PageResult<DispatchVo> usingCarList = orderInfoTwoService.queryDispatchListCharterCar(applyDispatchQuery,loginUser);
-            jsonObject.put("usingCarCount",usingCarList.getItems().size());
-            applyDispatchQuery.setHomePageExpireCarState("900");
+            List<DispatchVo> usingCarList = orderInfoTwoService.queryDispatchListCharterCars(applyDispatchQuery,loginUser);
+            jsonObject.put("usingCarCount",usingCarList.size());
+            applyDispatchQuery.setHomePageExpireCarState("S900");
             applyDispatchQuery.setHomePageUsingCarState("");
             applyDispatchQuery.setHomePageWaitingCarState("");
-            PageResult<DispatchVo> expireCarList = orderInfoTwoService.queryDispatchListCharterCar(applyDispatchQuery,loginUser);
-            jsonObject.put("expireCarCount",expireCarList.getItems().size());
+            List<DispatchVo> expireCarList = orderInfoTwoService.queryDispatchListCharterCars(applyDispatchQuery,loginUser);
+            jsonObject.put("expireCarCount",expireCarList.size());
         } catch (Exception e) {
             e.printStackTrace();
             ApiResponse.error("分页查询公告列表失败");
