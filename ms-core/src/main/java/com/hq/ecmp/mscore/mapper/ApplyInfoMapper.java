@@ -83,4 +83,11 @@ public interface ApplyInfoMapper
     List<ApplyInfo> checkApplyExpiredList(@Param("state") String state);
     
     Integer queryApplyNumByRegimeId(Long regimeId);
+
+    /**
+     * 通过申请id查询订单id
+     * @param applyId
+     * @return
+     */
+    Long selectOrderInfoById(@Param("applyId") Long applyId);
 }

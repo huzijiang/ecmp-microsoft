@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 import java.util.List;
 
 import com.hq.ecmp.mscore.vo.RegimenVO;
+import com.hq.ecmp.mscore.vo.UseCarTypeVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -121,4 +122,25 @@ public interface RegimeInfoMapper
     int updateExpiredRegimeInfo(RegimeInfo regimeInfo);
 
     List<Long> selectEnableRegimenIdByUserId(Long userId);
+
+    /**
+     * 申请单提交根据名称搜索城市
+     * @param companyId
+     * @return
+     */
+    Long queryRegimeInfoByCompanyId(@Param("companyId") Long companyId);
+
+    /**
+     * 查询制度中可用车型
+     * @param companyId
+     * @return
+     */
+    String queryRegimeLevelByCompanyId(@Param("companyId") Long companyId);
+
+    /**
+     * 获得制度中可用车型
+     * @param regimenId
+     * @return
+     */
+    List<UseCarTypeVO> getCanUseCarTypes(@Param("regimenId") Long regimenId,@Param("companyId") Long companyId);
 }

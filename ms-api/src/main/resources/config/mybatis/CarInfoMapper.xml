@@ -517,7 +517,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </select>
     <select id="getMileageSumById" resultType="int">
-        select total_mileage from order_settling_info where order_id=#{orderId}
+        select IFNULL(max(total_mileage),0) from order_settling_info where order_id=#{orderId}
     </select>
 
     <select id="supplementObtainCar" parameterType="com.hq.ecmp.mscore.domain.CarInfo" resultType="com.hq.ecmp.mscore.domain.CarInfo">

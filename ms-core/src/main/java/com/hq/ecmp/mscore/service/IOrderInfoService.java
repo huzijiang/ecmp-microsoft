@@ -175,7 +175,7 @@ public interface IOrderInfoService {
 
     int driverOrderCount(LoginUser loginUser)throws Exception;
 
-    DriverOrderInfoVO driverOrderDetail(Long orderId);
+    DriverOrderInfoVO driverOrderDetail(Long orderId) throws Exception;
 
     OrderStateVO getOrderState(Long orderId);
 

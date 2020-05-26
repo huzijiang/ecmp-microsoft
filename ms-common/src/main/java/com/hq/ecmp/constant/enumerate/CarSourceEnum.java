@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.util.Map;
 
 /**
- * 车辆来演（车辆性质） 枚举类
+ * 车辆来来源（车辆性质） 枚举类
  * @Author: zj.hu
  * @Date: 2020-04-07 14:52
  */

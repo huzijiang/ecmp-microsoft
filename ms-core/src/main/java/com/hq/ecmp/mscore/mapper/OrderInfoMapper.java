@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -372,6 +373,12 @@ public interface OrderInfoMapper {
      */
     List<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query);
 
+    /**
+     * 获取用车总时长 和 开始用车时间
+     * @param query
+     * @return
+     */
+    Map<String,String> getUserTimeAndActionTime(long orderNo);
     /***
      * 当前订单改派订单
      * add by liuzb

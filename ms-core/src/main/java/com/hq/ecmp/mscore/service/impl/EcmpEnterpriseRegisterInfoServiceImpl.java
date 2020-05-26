@@ -14,6 +14,7 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
+import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,10 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
     private DriverWorkInfoMapper driverWorkInfoMapper;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private IDriverInfoService driverInfoService;
+    @Autowired
+    private DriverNatureInfoMapper driverNatureInfoMapper;
 
     /**
      * 通过ID查询单条数据
@@ -253,21 +258,27 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         driver.setLicenseImages(driverRegisterDTO.getLicenseImages());
         driver.setName(driverRegisterDTO.getName());
         driver.setMobile(driverRegisterDTO.getMobile());
+        //T001:  注册员工   T002： 注册驾驶员
         driver.setType("T002");
+        //审核状态  S000 申请中  S001 申请通过  S002 申请拒绝
         driver.setState("S000");
         driver.setReason(driverRegisterDTO.getReason());
         driver.setCreateTime(DateUtils.getNowDate());
         driver.setLicenseNumber(driverRegisterDTO.getLicenseNumber());
         driver.setLicenseType(driverRegisterDTO.getLicenseType());
+        //新增驾驶员注册信息
         int i = ecmpEnterpriseRegisterInfoMapper.insertDriverRegister(driver);
         return i;
     }
     @Override
-    public int updateRegisterDriverApprove(Long registerId,Long userId,String reason,String state) throws Exception {
+    public int updateRegisterDriverApprove(Long companyId,Long registerId,Long userId,String reason,String state) throws Exception {
+        //1.根据注册id查询用户注册信息
         EcmpEnterpriseRegisterInfo registerInfo = ecmpEnterpriseRegisterInfoMapper.queryById(registerId);
+
         if (registerInfo==null){
             throw new Exception("该注册驾驶员id:"+registerId+"不存在");
         }
+        //2.根据邀请id查询邀请信息
         EcmpEnterpriseInvitationInfo ecmpEnterpriseInvitationInfo = invitationInfoMapper.queryById(registerInfo.getInvitationId());
         if (ecmpEnterpriseInvitationInfo==null){
             throw new Exception("该注册驾驶员来源不明");
@@ -281,13 +292,24 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         registerInfo.setUpdateTime(new Date());
         registerInfo.setState(state);
         registerInfo.setRejectReason(reason);
+        //3.修改注册信息状态为通过或者拒绝
         int count = ecmpEnterpriseRegisterInfoMapper.update(registerInfo);
         log.info(registerId+"邀请注册被员工"+userId+"审核通过");
         if (InvitionStateEnum.APPROVEREJECT.getKey().equals(state)){
+            //如果是拒绝通过，则直接返回
             return count;
         }
+        //4.查询驾驶员性质
         if (count>0){
+            DriverNatureInfo driverNatureInfo = driverNatureInfoMapper.selectDriverNatureInfoByIncitationId(ecmpEnterpriseInvitationInfo.getInvitationId());
             DriverCreateInfo driverCreate = new DriverCreateInfo();
+            if(driverNatureInfo != null){
+               driverCreate.setDriverNature(driverNatureInfo.getDriverNature());
+               driverCreate.setHireBeginTime(driverNatureInfo.getHireBeginTime());
+               driverCreate.setHireEndTime(driverNatureInfo.getHireEndTime());
+               driverCreate.setBorrowBeginTime(driverCreate.getHireBeginTime());
+               driverCreate.setBorrowEndTime(driverCreate.getHireEndTime());
+            }
             driverCreate.setMobile(registerInfo.getMobile());
             driverCreate.setDriverName(registerInfo.getName());
            // driverCreate.setCarGroupId(registerInfo.getCarGroupId());
@@ -305,7 +327,14 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
             driverCreate.setGender(registerInfo.getGender());
             driverCreate.setCreateTime(new Date());
             driverCreate.setCreateBy(userId);
-            int i= driverInfoMapper.createDriver(driverCreate);
+            driverCreate.setInvitationId(ecmpEnterpriseInvitationInfo.getInvitationId());
+            driverCreate.setRegimenIds(ecmpEnterpriseInvitationInfo.getRegimeIds());
+            driverCreate.setCompanyId(companyId);
+            driverCreate.setOptUserId(userId);
+            driverCreate.setCarGroupId(registerInfo.getCarGroupId());
+            //5.审核通过驾驶员注册后，新增驾驶员表数据  此处应该走 DriverInfoServiceImpl.createDriver()创建驾驶员逻辑 TODO
+           driverInfoService.createDriver(driverCreate);
+            /*int i= driverInfoMapper.createDriver(driverCreate);
             if(i!=0){
                 Long driverId = driverCreate.getDriverId();
                 log.info("新增驾驶员ID:"+driverId);
@@ -324,12 +353,9 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
                         log.info("驾驶员"+registerInfo.getMobile()+"排班初始化成功");
                     }
 
-
-
-
                 }
 
-            }
+            }*/
 
         }
         return count;

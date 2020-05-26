@@ -24,11 +24,8 @@ import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.DateFormatUtils;
-import com.hq.ecmp.util.MacTools;
-import com.hq.ecmp.util.OrderUtils;
+import com.hq.ecmp.util.*;
 import com.hq.ecmp.util.Page;
-import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
@@ -1421,8 +1418,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     //获取司机任务详情
     @Override
-    public DriverOrderInfoVO driverOrderDetail(Long orderId) {
+    public DriverOrderInfoVO driverOrderDetail(Long orderId) throws Exception{
         DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
+        vo.setCustomerServicePhone(thirdService.getCustomerPhone());
         vo.setCustomerServicePhone(serviceMobile);
         OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
 //        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
@@ -1458,6 +1456,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
         OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
+        //判断是否是多日租车
+        if(null != orderState &&
+                orderState.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){
+            Date startDate = DateUtils.parseDate(orderState.getStartDate());//租车开始时间
+            Date endDate = DateUtils.parseDate(orderState.getEndDate());//租车结束时间
+            //判断是否半日租
+            String carType = CommonUtils.getCarType(startDate, endDate, orderState.getUseTime());
+            orderState.setWhole(carType);
+        }
         orderState.setApplyType(applyInfo.getApplyType());
         orderState.setCharterCarType(CharterTypeEnum.format(orderState.getCharterCarType()));
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos = journeyPlanPriceInfoMapper.selectJourneyPlanPriceInfoList(new JourneyPlanPriceInfo(orderId));

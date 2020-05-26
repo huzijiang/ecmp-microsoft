@@ -70,4 +70,12 @@ public class SmsTemplateConstant {
     public static final String REPLACE_CAR_RIDER_ENTERPRICE_NOTICE = "replace_car_rider_enterprice_notice";
     public static final String REPLACE_CAR_RIDER_NO_ENTERPRICE_NOTICE = "replace_car_rider_no_enterprice_notice";
 
+
+    /**佛山短信模板集合--------------------**/
+    /**调度驳回短信集合模块---start*/
+    public static final String INNER_DISPATCH_REJECT_SALESMAN = "inner_dispatch_reject_salesman";
+    public static final String INNER_DISPATCH_REJECT_USECARPEOPLE = "inner_dispatch_reject_useCarPeople";
+    public static final String OUT_DISPATCH_REJECT_USECARPEOPLE = "out_dispatch_reject_useCarPeople";
+
+
 }
