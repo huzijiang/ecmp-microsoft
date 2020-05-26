@@ -20,7 +20,7 @@ public class CommonUtils {
      * @return
      */
     public static String getCarType(Date startDate, Date endDate, double userTime) {
-        String carType = "";
+        String carType ;
         Date nowDate = new Date();
         //判断用车时间是包含0.5天
         if (userTime % 1 > 0) {
@@ -38,6 +38,8 @@ public class CommonUtils {
                 } else {
                     if(DateUtils.isSameDay(endDate,nowDate)){
                         carType = CharterTypeEnum.HALF_DAY_TYPE.getKey();
+                    }else{
+                        carType = CharterTypeEnum.OVERALL_RENT_TYPE.getKey();
                     }
                 }
             }
