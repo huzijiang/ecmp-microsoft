@@ -18,6 +18,7 @@ import com.hq.ecmp.mscore.dto.DriverCloudDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.Page;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import oshi.jna.platform.mac.SystemB;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -842,7 +844,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void dismissedDispatch(ApplyDispatchQuery query, LoginUser loginUser) throws BaseException {
+    public void dismissedDispatch(ApplyDispatchQuery query, LoginUser loginUser) throws Exception {
         SysUser user = loginUser.getUser();
         if (!String.valueOf(CommonConstant.ONE).equals(user.getItIsDispatcher())) {
             throw new BaseException("只有调度员身份才可驳回!");
@@ -863,6 +865,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
             orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
             orderStateTraceInfo.setContent(query.getRejectReason());
             orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+            ismsBusiness.sendSmsInnerDispatcherReject(orderInfo,query.getRejectReason());
         } else {
             /**订单状态不变,给内部调度员发短信通知**/
             List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(query.getOrderId()));
@@ -875,30 +878,90 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 dispatcheDetailInfoMapper.updateOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
             }
             //给内部调度员发短信
-            Long innerDispatcher = orderDispatcheDetailInfo.getInnerDispatcher();
-            if (innerDispatcher!=null){
-                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(innerDispatcher);
-                if (ecmpUser!=null){
-
-                }
-            }
+            ismsBusiness.sendSmsDispatchReject(orderInfo,query.getRejectReason());
 
         }
 
     }
 
-    /**
-     * 内部驳回
-     */
-    private void innerDispatcherDismiss() {
+    /**取车*/
+    @Override
+    public void pickUpTheCar(Long userId, Long orderId) throws Exception {
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        if (orderInfo==null){
+            throw new BaseException("订单不存在");
+        }
+        List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(orderId));
+        if (CollectionUtils.isEmpty(orderDispatcheDetailInfos)){
+            log.error("订单:"+orderId+"的调度详情不存在!");
+            throw new BaseException("订单异常");
+        }
+        OrderDispatcheDetailInfo orderDispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
+        if (!CommonConstant.PASS.equals(orderDispatcheDetailInfo.getItIsSelfDriver())){
+            log.error("订单:"+orderId+"的服务模式不是自驾");
+            throw new BaseException("此订单非自驾");
+        }
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+        if (journeyInfo==null){
+            throw new BaseException("该行程不存在");
+        }
+        if (!OrderState.ALREADYSENDING.getState().equals(orderInfo.getState())){
+            log.error("订单:"+orderId+"的状态为"+orderInfo.getState()+",服务模式不是自驾");
+            throw new BaseException("当前状态不可取车");
+        }
+        orderInfo.setState(OrderState.INSERVICE.getState());
+        orderInfo.setUpdateBy(userId.toString());
+        orderInfo.setUpdateTime(DateUtils.getNowDate());
+        orderInfoMapper.updateOrderInfo(orderInfo);
+        OrderStateTraceInfo stateTraceInfo=new OrderStateTraceInfo();
+        stateTraceInfo.setOrderId(orderId);
+        stateTraceInfo.setContent("用车人已取车");
+        stateTraceInfo.setCreateBy(String.valueOf(userId));
+        stateTraceInfo.setCreateTime(new Date());
+        stateTraceInfo.setState(OrderStateTrace.SERVICE.getState());
+        orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
 
     }
 
-    /**
-     * 外部调度员驳回
-     */
-    private void externalDispatcherDismiss() {
-
+    /**还车*/
+    @Override
+    public void returnCar(Long userId, Long orderId) throws Exception {
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        if (orderInfo==null){
+            throw new BaseException("订单不存在");
+        }
+        List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(orderId));
+        if (CollectionUtils.isEmpty(orderDispatcheDetailInfos)){
+            log.error("订单:"+orderId+"的调度详情不存在!");
+            throw new BaseException("订单异常");
+        }
+        OrderDispatcheDetailInfo orderDispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
+        if (!CommonConstant.PASS.equals(orderDispatcheDetailInfo.getItIsSelfDriver())){
+            log.error("订单:"+orderId+"的服务模式不是自驾");
+            throw new BaseException("此订单非自驾");
+        }
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+        if (journeyInfo==null){
+            throw new BaseException("该行程不存在");
+        }
+        int day = DateFormatUtils.compareDay(journeyInfo.getEndDate(), new Date());
+        if (day==-1){
+            throw new BaseException("当前时间不可还车");
+        }
+        if (!OrderState.STOPSERVICE.getState().equals(orderInfo.getState())&&!OrderState.ORDERCLOSE.getState().equals(orderInfo.getState())){
+            throw new BaseException("当前状态不可还车");
+        }
+        orderInfo.setState(OrderState.ORDERCLOSE.getState());
+        orderInfo.setUpdateBy(userId.toString());
+        orderInfo.setUpdateTime(DateUtils.getNowDate());
+        orderInfoMapper.updateOrderInfo(orderInfo);
+        OrderStateTraceInfo stateTraceInfo=new OrderStateTraceInfo();
+        stateTraceInfo.setOrderId(orderId);
+        stateTraceInfo.setContent("用车人已还车");
+        stateTraceInfo.setCreateBy(String.valueOf(userId));
+        stateTraceInfo.setCreateTime(new Date());
+        stateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
+        orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
     }
 
 }

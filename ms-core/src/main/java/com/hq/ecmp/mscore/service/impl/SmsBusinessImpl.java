@@ -8,12 +8,14 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import com.alibaba.fastjson.JSON;
 import com.hq.api.system.domain.SysUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.EcmpMessageDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.vo.UserVO;
+import com.hq.ecmp.util.DateFormatUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -65,6 +67,9 @@ public class SmsBusinessImpl implements IsmsBusiness{
     private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
     @Resource
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
+    @Resource
+    private OrderDispatcheDetailInfoMapper dispatcheDetailInfoMapper;
+
 
 
 
@@ -166,7 +171,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             }else{//乘车人和申请人是一个人
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_SUCC_RIDER_ENTER,paramsMap,riderMobile );
             }
-            
+
             //司机手机号不为空  则给司机发送短信
             if(StringUtil.isNotEmpty(driverMobile) && StringUtil.isNotEmpty(driverId)){
             	 Map<String,String> driverMap = new HashMap<>();
@@ -883,6 +888,135 @@ public class SmsBusinessImpl implements IsmsBusiness{
         mapApply.put("carLicense",carInfo.getCarLicense());
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.REPLACE_CAR_APPLY_NOTICE, mapApply, applyMobile);
         log.info("短信结束-订单{},换车成功", orderId);
+    }
+
+    /**
+     * 外部调度员驳回给内部调度元发短信
+     * @param orderInfo
+     * @param rejectReason
+     * @throws Exception
+     */
+    @Override
+    @Async
+    public void sendSmsDispatchReject( OrderInfo orderInfo,String rejectReason) throws Exception {
+        log.info("短信开始-订单{},外部调度员驳回成功", orderInfo.getOrderId());
+        String useCarPeople="";
+        String carGroup="";
+        String day="";
+        String startDate="";
+        String content="";
+        String dispatcher="";
+        List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(orderInfo.getOrderId()));
+        if (CollectionUtils.isEmpty(orderDispatcheDetailInfos)) {
+            return;
+        }
+        OrderDispatcheDetailInfo orderDispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
+        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(Long.parseLong(orderDispatcheDetailInfo.getNextCarGroupId()));
+        if (carGroupInfo != null) {
+            carGroup = carGroupInfo.getCarGroupName();
+        }
+        List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(new JourneyPassengerInfo(orderInfo.getJourneyId()));
+        if (CollectionUtils.isEmpty(journeyPassengerInfos)) {
+            return;
+        }
+        JourneyPassengerInfo journeyPassengerInfo = journeyPassengerInfos.get(0);
+        useCarPeople = journeyPassengerInfo.getName() + " " + journeyPassengerInfo.getMobile();
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+        if (journeyInfo == null) {
+            return;
+        }
+        EcmpUser outDispather = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
+        EcmpUser innerDispather = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getInnerDispatcher());
+        if (outDispather==null||innerDispather==null){
+            return;
+        }
+        dispatcher=outDispather.getNickName()+" "+outDispather.getPhonenumber();
+        List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
+        if (CollectionUtils.isEmpty(applyInfos)){
+            return;
+        }
+        ApplyInfo applyInfo = applyInfos.get(0);
+        content= applyInfo.getNotes();
+        day = journeyInfo.getUseTime();
+        startDate= DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,journeyInfo.getStartDate());
+        Map<String,String> map=Maps.newHashMap();
+        map.put("carGroup",carGroup);
+        map.put("useCarPeople",useCarPeople);
+        map.put("day",day);
+        map.put("startDate",startDate);
+        map.put("content",content);
+        map.put("rejectReason",rejectReason);
+        map.put("dispatcher",dispatcher);
+        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.OUT_DISPATCH_REJECT_USECARPEOPLE, map, innerDispather.getPhonenumber());
+        log.info("短信结束-订单{},外部调度员驳回成功", orderInfo.getOrderId(), JSON.toJSON(map));
+    }
+
+    /***
+     * 内部调度员驳回给用车人/业务员发短信
+     * @param orderInfo
+     * @param rejectReason
+     * @throws Exception
+     */
+    @Override
+    public void sendSmsInnerDispatcherReject(OrderInfo orderInfo, String rejectReason) throws Exception {
+        log.info("短信开始-订单{},外部调度员驳回成功", orderInfo.getOrderId());
+        String useCarPeople="";
+        String carGroupPhone="";
+        String day="";
+        String startDate="";
+        String content="";
+        String dispatcher="";//调度员
+        String salesman="";//业务员
+        List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(orderInfo.getOrderId()));
+        if (CollectionUtils.isEmpty(orderDispatcheDetailInfos)) {
+            return;
+        }
+        OrderDispatcheDetailInfo orderDispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
+        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(Long.parseLong(orderDispatcheDetailInfo.getNextCarGroupId()));
+        if (carGroupInfo != null) {
+            carGroupPhone = carGroupInfo.getTelephone();
+        }
+        List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(new JourneyPassengerInfo(orderInfo.getJourneyId()));
+        if (CollectionUtils.isEmpty(journeyPassengerInfos)) {
+            return;
+        }
+        JourneyPassengerInfo journeyPassengerInfo = journeyPassengerInfos.get(0);
+        useCarPeople = journeyPassengerInfo.getName() + " " + journeyPassengerInfo.getMobile();
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+        if (journeyInfo == null) {
+            return;
+        }
+        day = journeyInfo.getUseTime();
+        EcmpUser innerDispather = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getInnerDispatcher());
+        if (innerDispather==null){
+            return;
+        }
+        dispatcher=innerDispather.getNickName()+" "+innerDispather.getPhonenumber();
+        List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
+        if (CollectionUtils.isEmpty(applyInfos)){
+            return;
+        }
+        ApplyInfo applyInfo = applyInfos.get(0);
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(applyInfo.getCreateBy()));
+        if (ecmpUser==null){
+            return;
+        }
+        salesman=ecmpUser.getNickName()+" "+ecmpUser.getPhonenumber();
+        content= applyInfo.getNotes();
+        /**给业务员发短信*/
+        Map<String,String> map=Maps.newHashMap();
+        map.put("useCarPeople",useCarPeople);
+        map.put("day",day);
+        map.put("startDate",startDate);
+        map.put("content",content);
+        map.put("rejectReason",rejectReason);
+        map.put("carGroupPhone",carGroupPhone);
+        map.put("dispatcher",dispatcher);
+        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.INNER_DISPATCH_REJECT_SALESMAN, map, ecmpUser.getPhonenumber());
+        /**给用车人发短信*/
+        map.put("salesman",salesman);
+        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.INNER_DISPATCH_REJECT_USECARPEOPLE, map, journeyPassengerInfo.getMobile());
+        log.info("驳回短信结束-订单{},内部调度员驳回成功", orderInfo.getOrderId(), JSON.toJSON(map));
     }
 
     private Long getApplyIdByOrderId(Long orderId,Long journeryId){
