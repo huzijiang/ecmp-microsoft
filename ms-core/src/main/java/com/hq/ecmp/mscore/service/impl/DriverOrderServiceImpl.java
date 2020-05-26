@@ -446,20 +446,22 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         orderStateTraceInfo.setOrderId(Long.parseLong(orderId));
         orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
         List<OrderStateTraceInfo> orderStateTraceInfos = iOrderStateTraceInfoService.selectOrderStateTraceInfoList(orderStateTraceInfo);
-        OrderStateTraceInfo orderStateTraceInfoSc = orderStateTraceInfos.get(0);
-        String createBy = orderStateTraceInfoSc.getCreateBy();
-        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(createBy));
-        if(null == ecmpUser){
-            log.info("方法名：getInfoWithCarGroup 参数createBy：{}",createBy);
-            return result;
+        if (CollectionUtils.isNotEmpty(orderStateTraceInfos)){
+            OrderStateTraceInfo orderStateTraceInfoSc = orderStateTraceInfos.get(0);
+            String createBy = orderStateTraceInfoSc.getCreateBy();
+            EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.parseLong(createBy));
+            if (null == ecmpUser) {
+                log.info("方法名：getInfoWithCarGroup 参数createBy：{}", createBy);
+                return result;
+            }
+            String mobile = ecmpUser.getPhonenumber();
+            String driverName = ecmpUser.getNickName();
+            ContactorDto contactorDto = new ContactorDto();
+            contactorDto.setRoleName(CommonConstant.DISPATCHER_ROLE);
+            contactorDto.setPhone(mobile);
+            contactorDto.setName(driverName);
+            result.add(contactorDto);
         }
-        String mobile = ecmpUser.getPhonenumber();
-        String driverName = ecmpUser.getNickName();
-        ContactorDto contactorDto = new ContactorDto();
-        contactorDto.setRoleName(CommonConstant.DISPATCHER_ROLE);
-        contactorDto.setPhone(mobile);
-        contactorDto.setName(driverName);
-        result.add(contactorDto);
         return result;
     }
 
