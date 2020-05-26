@@ -57,4 +57,14 @@ public class OrderStateVO {
     @ApiModelProperty(name = "excessMoney",value = "是否支付")
     private String payState;
     private Date useCarDate;
+
+
+    /**
+     * 0是半天，1是整天
+     */
+    private String whole;
+    private String startDate;
+    private String endDate;
+    private Double useTime;//用车天数
+
 }

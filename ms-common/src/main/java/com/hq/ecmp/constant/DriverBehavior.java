@@ -11,7 +11,7 @@ public enum  DriverBehavior {
     PICKUP_PASSENGER("1","出发去接乘客"),
     ARRIVE("2","司机到达"),
     START_SERVICE("3","开始服务"),
-    SERVICE_COMPLETION("4","服务完成")
+    SERVICE_COMPLETION("4","服务完成"),
     ;
 
     private String type;

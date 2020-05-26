@@ -495,4 +495,10 @@ LIMIT 1
         select use_car_mode_owner_level useCarModeOwnerLevel  from regime_info where company_id =#{companyId} ORDER BY regimen_id ASC   limit 1
 
     </select>
+
+    <select id="getCanUseCarTypes" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.UseCarTypeVO">
+
+        select  use_car_mode_owner_level ownerCarType from regime_info where company_id =#{companyId}  and regimen_id = #{regimenId}  ORDER BY regimen_id ASC   limit 1
+
+    </select>
 </mapper>

@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
 import com.hq.ecmp.mscore.domain.OrderViaInfo;
 import com.hq.ecmp.mscore.dto.ContactorDto;
@@ -7,6 +8,7 @@ import com.hq.ecmp.mscore.dto.IsContinueReDto;
 import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IDriverOrderService {
 
@@ -18,7 +20,7 @@ public interface IDriverOrderService {
      * @param userId
      * @throws Exception
      */
-    public void  handleDriverOrderStatus(String type,String currentPoint,String orderNo,Long userId,String mileage,String travelTime) throws Exception;
+    public Map handleDriverOrderStatus(String type, String currentPoint, String orderNo, Long userId, String mileage, String travelTime, String recordId) throws Exception;
 
     /**
      * 司机是否继续用车，或者还车

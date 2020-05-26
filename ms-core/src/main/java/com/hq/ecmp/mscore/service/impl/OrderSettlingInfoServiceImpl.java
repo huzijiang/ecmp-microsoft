@@ -16,6 +16,7 @@ import com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.CostCalculation;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
+import com.hq.ecmp.util.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -508,24 +509,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                 if(CharterTypeEnum.MORE_RENT_TYPE.equals(carType)){
                     Date startDate = journeyInfo.getStartDate();
                     Date endDate = journeyInfo.getEndDate();
-                    Date nowDate = new Date();
-                    //判断当天是否为起始时间
-                    if(DateUtils.isSameDay(startDate,nowDate)){
-                        if(startDate.compareTo(DateUtils.parseDate(DateUtils.formatDate(startDate,DateUtils.YYYY_MM_DD)+" 12:00:00"))>-1){
-                            carType = CharterTypeEnum.OVERALL_RENT_TYPE.getKey();
-                        }else{
-                            carType = CharterTypeEnum.HALF_DAY_TYPE.getKey();
-                        }
-                    }
-                    //判断是当天是否为结束时间
-                    if(DateUtils.isSameDay(endDate,nowDate)){
-                        if(endDate.compareTo(DateUtils.parseDate(DateUtils.formatDate(startDate,DateUtils.YYYY_MM_DD)+" 12:00:00"))>-1){
-                            carType = CharterTypeEnum.OVERALL_RENT_TYPE.getKey();
-                        }else{
-                            carType = CharterTypeEnum.HALF_DAY_TYPE.getKey();
-                        }
-                    }
-
+                    carType = CommonUtils.getCarType(startDate,endDate,Double.parseDouble(journeyInfo.getUseTime()));
                 }
                 //包车类型
                 costConfigQueryDto.setRentType(carType);
@@ -557,7 +541,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                         costConfigInfoList.add(costConfigInfo2);
                     }
                 }
-                //判断是否为包车业务
+                //判断是需要插入订单信息子表
                 if("T001".equals(carType) ||"T002".equals(carType)||"T009".equals(carType)){
                     isChartered = true;
                     //订单预计结束时间

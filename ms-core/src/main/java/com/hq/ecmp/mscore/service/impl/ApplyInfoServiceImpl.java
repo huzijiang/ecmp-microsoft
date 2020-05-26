@@ -2052,6 +2052,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @return
      */
     @Override
+    //@Transactional
     public int submitApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) {
         //申请人id
         applySingleVO.setUserId(loginUser.getUser().getUserId());
@@ -2073,7 +2074,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
         submitJourneyPassengerInfoCommit(applySingleVO, journeyInfo.getJourneyId(), journeyPassengerInfo);
         //5.新增可用车型表信息
-        List<UseCarTypeVO> canUseCarTypes = applySingleVO.getCanUseCarTypes();
+        List<UseCarTypeVO> canUseCarTypes = regimeInfoMapper.getCanUseCarTypes(regimenId,loginUser.getUser().getDept().getCompanyId());
+        for (UseCarTypeVO useCarTypeVO :canUseCarTypes){
+            useCarTypeVO.setCityCode(applySingleVO.getStartAddr().getCityCode());
+        }
         saveCanUseCarTypeInfo(applyInfo.getApplyId(), canUseCarTypes);
         //公务申请不需要审批情况下初始化权限和初始化订单
         ApplyOfficialRequest officialCommitApply = new ApplyOfficialRequest();
@@ -2157,9 +2161,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //行程开始时间
         journeyInfo.setStartDate(applySingleVO.getApplyDate());
         //行程结束时间
+        Long day = Math.round(Double.valueOf(applySingleVO.getApplyDays()));
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(applySingleVO.getApplyDate());
-        calendar.add(Calendar.DATE, Integer.parseInt(applySingleVO.getApplyDays()));
+        calendar.add(Calendar.DATE, day.intValue()-1);
         journeyInfo.setEndDate(calendar.getTime());
         //行程标题
         journeyInfo.setTitle("包车申请单");
@@ -2228,12 +2233,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //计划出发时间
         journeyNodeInfo.setPlanSetoutTime(applySingleVO.getApplyDate());
         //计划到达时间
+        Long day = Math.round(Double.valueOf(applySingleVO.getApplyDays()));
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(applySingleVO.getApplyDate());
-        calendar.add(Calendar.DATE, Integer.parseInt(applySingleVO.getApplyDays()));
+        calendar.add(Calendar.DATE, day.intValue()-1);
         journeyNodeInfo.setPlanArriveTime(calendar.getTime());
         //是否是途经点
-        journeyNodeInfo.setItIsViaPoint(CarConstant.ALLOW_USE);
+        journeyNodeInfo.setItIsViaPoint(CarConstant.NOT_ALLOW_USE);
         //交通工具 T001  飞机 T101  火车 T201  汽车 T301  轮渡 T999  其他   差旅申请才有
         journeyNodeInfo.setVehicle(CarConstant.TRAFFIC_AUTOMOBILE);
         //行程节点 （天）

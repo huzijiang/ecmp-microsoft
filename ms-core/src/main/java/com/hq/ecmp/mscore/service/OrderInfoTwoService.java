@@ -111,5 +111,9 @@ public interface OrderInfoTwoService {
      * @return
      */
     int toSureToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
-    void dismissedDispatch(ApplyDispatchQuery query, LoginUser loginUser)throws BaseException;
+    void dismissedDispatch(ApplyDispatchQuery query, LoginUser loginUser)throws Exception;
+
+    void pickUpTheCar(Long userId, Long orderId)throws Exception;
+
+    void returnCar(Long userId, Long orderId)throws Exception;
 }
