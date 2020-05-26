@@ -131,8 +131,8 @@
             #{dispatchId}
         </foreach>
     </delete>
-    <delete id="deleteOrderId" parameterType="Integer">
-        delete from order_dispatche_detail_info where  = #{orderId}
+    <delete id="deleteOrderId" >
+        delete from order_dispatche_detail_info where  order_id= #{orderId}
     </delete>
 
     <update id="updateOrderDispatcheDetailInfoByOrderId" parameterType="OrderDispatcheDetailInfo">

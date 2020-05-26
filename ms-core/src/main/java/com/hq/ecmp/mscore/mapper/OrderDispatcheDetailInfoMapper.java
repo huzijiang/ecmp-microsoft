@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.OrderDispatcheDetailInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -73,5 +74,5 @@ public interface OrderDispatcheDetailInfoMapper
      * @param orderId
      * @return
      */
-    int deleteOrderId(Long orderId);
+    int deleteOrderId(@Param("orderId")Long orderId);
 }
