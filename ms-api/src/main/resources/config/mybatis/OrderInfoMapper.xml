@@ -662,7 +662,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         s.order_number orderNumber,
         -- 轨迹状态
         (select state from order_state_trace_info sti where sti.order_id=s.order_id order by trace_id desc limit 1) labelState,
-        (select  oddi.it_is_self_driver as itIsSelfDriver from order_dispatche_detail_info oddi where  oddi.order_id=s.order_id),
+        (select  oddi.it_is_self_driver from order_dispatche_detail_info oddi where  oddi.order_id=s.order_id) itIsSelfDriver,
         -- 用车制度
         ri.name regimenName,
 
@@ -1862,7 +1862,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 1内部 2 外部
         if(ISNULL(od.next_car_group_id),1,2) inOrOut,
         -- 车队类型 C000   内部车队  C111   外部车队
-        cgi.it_is_inner carGroupType,
+        -- cgi.it_is_inner carGroupType,
         -- 包车的总天数
         ji.use_time  charterCarDaysCount,
         -- 车型id
@@ -1872,10 +1872,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 用车备注
         ai.notes,
         od.car_group_user_mode carGroupUserMode,
-        oai.city_postal_code useCarCityCode
+        od.it_is_self_driver selfDriver,
+        oai.city_postal_code useCarCityCode,
+        od.it_is_use_inner_car_group useCarGroupType,
+        ai.reason
         FROM
         order_info oi
-        LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
         LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
         LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
         LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
@@ -1887,9 +1889,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN order_address_info oai ON (oai.order_id = oi.order_id and oai.type='A000')
         LEFT JOIN order_address_info oaitwo ON (oaitwo.order_id = oi.order_id and oaitwo.type='A999')
         LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
-        LEFT JOIN order_dispatche_detail_info od on od.order_id=oi.order_id and od.next_car_group_id=cgi.car_group_id
+        LEFT JOIN order_dispatche_detail_info od ON od.order_id = oi.order_id
+        LEFT JOIN car_group_info cgi on od.next_car_group_id = cgi.car_group_id
         left join journey_user_car_power jucp on jucp.node_id=oi.node_id
-        left join apply_info ai on ai.apply_id=jucp.node_id
+        left join apply_info ai on ai.apply_id=jucp.apply_id
         left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
         WHERE 1 = 1
         <if test="isIndex == 1">

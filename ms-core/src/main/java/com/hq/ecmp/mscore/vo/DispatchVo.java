@@ -90,7 +90,7 @@ public class DispatchVo {
     private int inOrOut;
 
     @ApiModelProperty(value = "车队类型 C000   内部车队  C111   外部车队")
-    private String  carGroupType;
+    private String  useCarGroupType;
 
     @ApiModelProperty(value = "乘车人电话")
     private  String userCarUserMobile;
@@ -113,6 +113,8 @@ public class DispatchVo {
     @ApiModelProperty(value = "用车城市code")
     private String useCarCityCode;
 
+    @ApiModelProperty(value = "是否自驾 Y000 是  N111 否")
+    private String selfDriver;
 
 
 }

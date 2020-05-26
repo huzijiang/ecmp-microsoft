@@ -947,7 +947,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         if (day==-1){
             throw new BaseException("当前时间不可还车");
         }
-        if (!OrderState.STOPSERVICE.getState().equals(orderInfo.getState())&&!OrderState.ORDERCLOSE.getState().equals(orderInfo.getState())){
+        if (!OrderState.INSERVICE.getState().equals(orderInfo.getState())){
             throw new BaseException("当前状态不可还车");
         }
         orderInfo.setState(OrderState.ORDERCLOSE.getState());
