@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service;
  * @Date 2020/5/25 17:53
  * @Version 1.0
  */
-@Service("/outCarAndSelfDriverStrategy")
+@Service("outCarAndSelfDriverStrategy")
 public class OutCarAndSelfDriverStrategy extends TopDispatchService implements DispatchStrategy {
 
     @Override
-    public void dispatch(DispatchSendCarDto dispatchSendCarDto) {
+    public void dispatch(DispatchSendCarDto dispatchSendCarDto) throws Exception {
         this.disBusiness(dispatchSendCarDto);
     }
 

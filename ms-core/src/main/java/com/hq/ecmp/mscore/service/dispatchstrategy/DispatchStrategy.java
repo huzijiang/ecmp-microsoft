@@ -13,6 +13,7 @@ public interface DispatchStrategy {
     /**
      * 调度策略接口
      * @param dispatchSendCarDto
+     * @exception
      */
-     void dispatch(DispatchSendCarDto dispatchSendCarDto);
+     void dispatch(DispatchSendCarDto dispatchSendCarDto) throws Exception;
 }
