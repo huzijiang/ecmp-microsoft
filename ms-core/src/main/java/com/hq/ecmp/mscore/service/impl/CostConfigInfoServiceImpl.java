@@ -363,6 +363,9 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
                 for(Map.Entry<String,List<CarGroupCostVO>> map:collect.entrySet()){
                     String key = map.getKey();
                     String[] s = key.split("_");
+                    if (StringUtils.isEmpty(s[0])&&StringUtils.isEmpty(s[1])&&StringUtils.isEmpty(s[2])){
+                        continue;
+                    }
                     List<CarGroupCostVO> value = map.getValue();
                     PriceOverviewVO vo=new PriceOverviewVO();
                     vo.setRentType(s[0]);

@@ -7,6 +7,8 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.vo.*;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -120,4 +122,22 @@ public interface IApplyInfoService
    void updateApproveResult(Long applyId,String state,Long userId) throws Exception;
 
     void checkApplyExpired();
+
+    /**
+     * 撤消申请单
+     * @param applyId
+     * @param applyState
+     * @param approveState
+     * @param userId
+     * @return
+     */
+    int updateApplyOrderState(Long applyId, String applyState, String approveState, Long userId) throws Exception;
+
+    /**
+     * 提交申请单
+     * @param loginUser
+     * @param applySingleVO
+     * @return
+     */
+    int submitApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO);
 }

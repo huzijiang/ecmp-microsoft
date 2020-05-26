@@ -6,6 +6,7 @@ import java.util.List;
 import com.hq.ecmp.mscore.dto.Page;
 
 import com.hq.ecmp.mscore.vo.PageResult;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
@@ -30,6 +31,15 @@ public class ApplyDispatchQuery  extends PageResult {
 
         String driverMobile;//驾驶员手机号
 
+        @ApiModelProperty(value = "待派车状态")
+        private String  homePageWaitingCarState;
+
+        @ApiModelProperty(value = "已派车状态")
+        private String  homePageUsingCarState;
+
+        @ApiModelProperty(value = "已过期状态")
+        private String  homePageExpireCarState;
+
         Long companyId;
         String dispatchType;
         List<Long> orderIds;
@@ -44,4 +54,6 @@ public class ApplyDispatchQuery  extends PageResult {
          * 订单id
          */
         private Long orderId;
+        private int inOrOut;
+        private String rejectReason;
 }
