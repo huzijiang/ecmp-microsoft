@@ -48,6 +48,7 @@ public class OrderDriverListInfo {
     private Long driverId;
     //订单id
     private Long orderId;
+    private Long journeyId;
 
     //订单标签
     private String labelState;
@@ -55,5 +56,11 @@ public class OrderDriverListInfo {
     private String stateType;
     private String itIsSupplement;
 
+    /**包车天数 */
+    private String charteredDays;
+    /**包车用车开始时间*/
+    private String startDate;
+    /**包车用车结束时间*/
+    private String endDate;
 
 }

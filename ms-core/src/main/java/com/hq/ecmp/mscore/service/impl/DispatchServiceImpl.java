@@ -16,6 +16,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.dispatch.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IDispatchService;
+import com.hq.ecmp.mscore.vo.CostConfigDetailInfoVo;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
 import com.hq.ecmp.mscore.vo.OrderStateCountVO;
 import com.hq.ecmp.util.RedisUtil;
@@ -103,6 +104,9 @@ public class DispatchServiceImpl implements IDispatchService {
     @Resource
     OrderStateTraceInfoMapper orderStateTraceInfoMapper;
 
+    @Resource
+    CostConfigInfoMapper costConfigInfoMapper;
+
     /**
      *
      * 调度-获取可选择的车辆
@@ -167,6 +171,11 @@ public class DispatchServiceImpl implements IDispatchService {
             return  ApiResponse.error(DispatchExceptionEnum.LOCK_CAR_NOT_EXIST.getDesc());
         }
 
+        ApiResponse  apiResponse=checkCarOwnCarGroupPricePlanInfo(dispatchInfoDto);
+        if(!apiResponse.isSuccess()){
+            return apiResponse;
+        }
+
         int i=carInfoMapper.lockCar(Long.parseLong(dispatchInfoDto.getCarId()));
         if(i<=0){
             return ApiResponse.error(DispatchExceptionEnum.LOCK_CAR_HAS_LOCKED.getDesc());
@@ -197,7 +206,8 @@ public class DispatchServiceImpl implements IDispatchService {
      * @return ApiResponse<DispatchResultVo>
      */
     @Override
-    public ApiResponse<DispatchResultVo> getWaitSelectedDrivers(DispatchSelectDriverDto dispatchSelectDriverDto) { Long orderId=Long.parseLong(dispatchSelectDriverDto.getOrderNo());
+    public ApiResponse<DispatchResultVo> getWaitSelectedDrivers(DispatchSelectDriverDto dispatchSelectDriverDto) {
+        Long orderId=Long.parseLong(dispatchSelectDriverDto.getOrderNo());
         LoginUser loginUser=new LoginUser();
         if(StringUtils.isNotEmpty(dispatchSelectDriverDto.getDispatcherId())){
             loginUser=tokenService.getLoginUser(dispatchSelectDriverDto.getDispatcherId());
@@ -238,6 +248,11 @@ public class DispatchServiceImpl implements IDispatchService {
         if(StringUtils.isEmpty(dispatchLockDriverDto.getDriverId())){
             return  ApiResponse.error(DispatchExceptionEnum.LOCK_DRIVER_NOT_EXIST.getDesc());
         }
+        ApiResponse apiResponse=checkDriverOwnCarGroupPricePlanInfo(dispatchLockDriverDto);
+        if(!apiResponse.isSuccess()){
+            return apiResponse;
+        }
+
         int i=driverInfoMapper.lockDriver(Long.parseLong(dispatchLockDriverDto.getDriverId()));
 
         if(i<=0){
@@ -681,6 +696,12 @@ public class DispatchServiceImpl implements IDispatchService {
         return ApiResponse.success(orderTaskClashBo);
     }
 
+
+
+
+
+
+
     /**
      * 根据 调度员信息 查询 调度员归属的车队是否符合服务范围要求
      * @param cityCode cityCode
@@ -786,6 +807,167 @@ public class DispatchServiceImpl implements IDispatchService {
         orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
         orderStateTraceInfo.setCreateBy(String.valueOf(userId));
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+    }
+
+
+    /**
+     * 检查 车辆所属车队的价格计划信息
+     *
+     * @return ApiResponse ApiResponse
+     */
+    public ApiResponse checkCarOwnCarGroupPricePlanInfo(DispatchLockCarDto dispatchLockCarDto){
+        //包车时长  半日 整日  多日
+        String rentTime=dispatchLockCarDto.getRentTime();
+        if(Double.parseDouble(rentTime)>=1){
+            rentTime="T002";
+        }else{
+            rentTime="T001";
+        }
+
+        //车队服务模式
+        String  carGroupServiceMode=dispatchLockCarDto.getCarGroupServiceMode();
+        //内外车队
+        String  carGroupSource=dispatchLockCarDto.getCarGroupSource();
+        //是否自驾
+        String  itIsSelfDriver=dispatchLockCarDto.getItIsSelfDriver();
+
+        //查询车辆车型级别
+        CarInfo carInfo=carInfoMapper.selectCarInfoById(Long.parseLong(dispatchLockCarDto.getCarId()));
+        EnterpriseCarTypeInfo carTypeInfo=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
+
+
+
+        //查询司机归属车队
+        List<CarGroupInfo> carGroupInfoList=carGroupInfoMapper.selectCarGroupsByDriverId(Long.parseLong(dispatchLockCarDto.getDriverId()));
+        //一个司机只属于一个车队
+        CarGroupInfo carGroupInfo=carGroupInfoList.get(0);
+
+        //查询订单出发城市
+        OrderAddressInfo orderAddressInfo=new OrderAddressInfo();
+        orderAddressInfo.setOrderId(Long.parseLong(dispatchLockCarDto.getOrderNo()));
+        orderAddressInfo.setType("A000");
+
+        List<OrderAddressInfo> orderAddressInfoList=orderAddressInfoMapper.selectOrderAddressInfoList(orderAddressInfo);
+        //只有一个出发地址
+        orderAddressInfo=orderAddressInfoList.get(0);
+
+        //查询用车人所在公司编号
+        OrderInfo orderInfo=orderInfoMapper.selectOrderInfoById(Long.parseLong(dispatchLockCarDto.getOrderNo()));
+
+        //查询车队归价格计划视图对象
+        CarGroupPricePlanInfoBo carGroupPricePlanInfoBo=new CarGroupPricePlanInfoBo();
+        carGroupPricePlanInfoBo.setCarGroupId(carGroupInfo.getCarGroupId());
+        carGroupPricePlanInfoBo.setCityCode(orderAddressInfo.getCityPostalCode());
+        carGroupPricePlanInfoBo.setCompanyId(orderInfo.getCompanyId());
+
+        List<CostConfigDetailInfoVo> costConfigDetailInfoVoList=costConfigInfoMapper.selectCostConfigDetailInfo(carGroupPricePlanInfoBo);
+        Iterator<CostConfigDetailInfoVo> costConfigDetailInfoVoIterator=costConfigDetailInfoVoList.iterator();
+
+        while (costConfigDetailInfoVoIterator.hasNext()){
+            CostConfigDetailInfoVo costConfigDetailInfoVo=costConfigDetailInfoVoIterator.next();
+            //包车时长是否匹配（日租、半日租）
+            if(rentTime.equals(costConfigDetailInfoVo.getRentType()) &&
+                    //车队
+                    (carGroupInfo.getCarGroupId()==costConfigDetailInfoVo.getCarGroupId()) &&
+                    //城市
+                    (orderAddressInfo.getCityPostalCode().equals(costConfigDetailInfoVo.getCityCode())) &&
+                    //车型级别
+                    (carTypeInfo.getLevel().equals(costConfigDetailInfoVo.getCarTypeLevel())) &&
+                    //车队服务模式
+                    carGroupServiceMode.equals(costConfigDetailInfoVo.getCarGroupUserMode())
+            ){
+                return  ApiResponse.success();
+            }else {
+                costConfigDetailInfoVoIterator.remove();
+                continue;
+            }
+        }
+
+        if(costConfigDetailInfoVoList.isEmpty()){
+            return ApiResponse.error("");
+        }
+
+        return  ApiResponse.success();
+    }
+
+    /**
+     * 检查 司机所属车队的价格计划信息
+     *
+     * @return ApiResponse ApiResponse
+     */
+    public ApiResponse checkDriverOwnCarGroupPricePlanInfo(DispatchLockDriverDto dispatchLockDriverDto){
+        //包车时长  半日 整日  多日
+        String rentTime=dispatchLockDriverDto.getRentTime();
+        if(Double.parseDouble(rentTime)>=1){
+            rentTime="T002";
+        }else{
+            rentTime="T001";
+        }
+
+        //车队服务模式
+        String  carGroupServiceMode=dispatchLockDriverDto.getCarGroupServiceMode();
+        //内外车队
+        String  carGroupSource=dispatchLockDriverDto.getCarGroupSource();
+        //是否自驾
+        String  itIsSelfDriver=dispatchLockDriverDto.getItIsSelfDriver();
+
+        //查询车辆车型级别
+        CarInfo carInfo=carInfoMapper.selectCarInfoById(Long.parseLong(dispatchLockDriverDto.getCarId()));
+        EnterpriseCarTypeInfo carTypeInfo=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
+
+
+
+        //查询司机归属车队
+        List<CarGroupInfo> carGroupInfoList=carGroupInfoMapper.selectCarGroupsByDriverId(Long.parseLong(dispatchLockDriverDto.getDriverId()));
+        //一个司机只属于一个车队
+        CarGroupInfo carGroupInfo=carGroupInfoList.get(0);
+
+        //查询订单出发城市
+        OrderAddressInfo orderAddressInfo=new OrderAddressInfo();
+        orderAddressInfo.setOrderId(Long.parseLong(dispatchLockDriverDto.getOrderNo()));
+        orderAddressInfo.setType("A000");
+
+        List<OrderAddressInfo> orderAddressInfoList=orderAddressInfoMapper.selectOrderAddressInfoList(orderAddressInfo);
+        //只有一个出发地址
+        orderAddressInfo=orderAddressInfoList.get(0);
+
+        //查询用车人所在公司编号
+        OrderInfo orderInfo=orderInfoMapper.selectOrderInfoById(Long.parseLong(dispatchLockDriverDto.getOrderNo()));
+
+        //查询车队归价格计划视图对象
+        CarGroupPricePlanInfoBo carGroupPricePlanInfoBo=new CarGroupPricePlanInfoBo();
+        carGroupPricePlanInfoBo.setCarGroupId(carGroupInfo.getCarGroupId());
+        carGroupPricePlanInfoBo.setCityCode(orderAddressInfo.getCityPostalCode());
+        carGroupPricePlanInfoBo.setCompanyId(orderInfo.getCompanyId());
+
+        List<CostConfigDetailInfoVo> costConfigDetailInfoVoList=costConfigInfoMapper.selectCostConfigDetailInfo(carGroupPricePlanInfoBo);
+        Iterator<CostConfigDetailInfoVo> costConfigDetailInfoVoIterator=costConfigDetailInfoVoList.iterator();
+
+        while (costConfigDetailInfoVoIterator.hasNext()){
+            CostConfigDetailInfoVo costConfigDetailInfoVo=costConfigDetailInfoVoIterator.next();
+            //包车时长是否匹配（日租、半日租）
+            if(rentTime.equals(costConfigDetailInfoVo.getRentType()) &&
+                    //车队
+                    (carGroupInfo.getCarGroupId()==costConfigDetailInfoVo.getCarGroupId()) &&
+                    //城市
+                    (orderAddressInfo.getCityPostalCode().equals(costConfigDetailInfoVo.getCityCode())) &&
+                    //车型级别
+                    (carTypeInfo.getLevel().equals(costConfigDetailInfoVo.getCarTypeLevel())) &&
+                    //车队服务模式
+                    carGroupServiceMode.equals(costConfigDetailInfoVo.getCarGroupUserMode())
+            ){
+                return  ApiResponse.success();
+            }else {
+                costConfigDetailInfoVoIterator.remove();
+                continue;
+            }
+        }
+
+        if(costConfigDetailInfoVoList.isEmpty()){
+           return ApiResponse.error("");
+        }
+
+        return  ApiResponse.success();
     }
 
 }

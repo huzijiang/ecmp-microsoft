@@ -523,6 +523,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     <select id="getNextTaskWithDriver" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">
        select
         o.order_id orderId,
+        o.journey_id journeyId,
         o.state,
         o.car_id carId,
         o.driver_id driverId,
@@ -548,6 +549,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     <select id="getNextTaskWithCar" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.OrderDriverListInfo">
      	 select
         o.order_id orderId,
+        o.journey_id journeyId,
         o.state,
         o.car_id carId,
         o.driver_id driverId,
