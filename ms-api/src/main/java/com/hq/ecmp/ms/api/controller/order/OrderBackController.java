@@ -84,7 +84,7 @@ public class OrderBackController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             orderListBackDto.setCompanyId(loginUser.getUser().getOwnerCompany());
             //获取订单列表
-            PageResult<OrderListBackDto> orderListBackDtos  = iOrderInfoService.getOrderListBackDto(orderListBackDto);
+            PageResult<OrderListBackDto> orderListBackDtos  = iOrderInfoService.getOrderListBackDto(orderListBackDto,loginUser);
             return ApiResponse.success(orderListBackDtos);
         } catch (Exception e) {
             e.printStackTrace();
