@@ -269,7 +269,10 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         orderSettlingInfoVo.setTotalMileage(supplementVO.getTotalMileage());
         //订单等待时间
         orderSettlingInfoVo.setWaitingTime(supplementVO.getWaitingTime());
-        OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfo, orderSettlingInfoVo);
+        List<CostConfigInfo> costConfigInfos = new ArrayList<>();
+        orderSettlingInfoVo.setServiceType(costConfigInfo.getServiceType());
+        costConfigInfos.add(costConfigInfo);
+        OrderSettlingInfoVo orderSettlingInfo = calculator.calculator(costConfigInfos, orderSettlingInfoVo);
         Map map = new HashMap();
         List list= new ArrayList();
         //超里程价格

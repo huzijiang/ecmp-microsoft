@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.dto.cost.ValidDoubleDtoResult;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -111,4 +112,7 @@ public interface CostConfigInfoMapper
 
     List<ValidDoubleDtoResult> checkCharteredCost(@Param("carGroupId") Long carGroupId,@Param("carGroupUserMode")  String carGroupUserMode
             ,@Param("rentType")  String rentType,@Param("companyId") Long companyId);
+
+    Map<String,String> getDriverInfo(long driverId);
+    Map<String,String> getCarInfo(long carId);
 }
