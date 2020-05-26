@@ -116,4 +116,6 @@ public interface OrderInfoTwoService {
     void pickUpTheCar(Long userId, Long orderId)throws Exception;
 
     void returnCar(Long userId, Long orderId)throws Exception;
+
+    List<DispatchVo> queryDispatchListCharterCars(ApplyDispatchQuery applyDispatchQuery,LoginUser loginUser);
 }
