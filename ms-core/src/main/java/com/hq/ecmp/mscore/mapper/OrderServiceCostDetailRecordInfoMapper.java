@@ -80,5 +80,5 @@ public interface OrderServiceCostDetailRecordInfoMapper {
     int deleteById(Long recordId);
 
 
-
+    long selsctRecordIdByOrderId(long orderId);
 }

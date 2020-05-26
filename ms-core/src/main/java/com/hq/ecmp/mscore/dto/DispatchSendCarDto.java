@@ -36,22 +36,14 @@ public class DispatchSendCarDto {
     @ApiModelProperty(value = "调度车辆id")
     private Long  carId;
 
-    @ApiModelProperty(value = "调度车辆所在车队id")
-    private Long  carGroupId;
-
     @ApiModelProperty(value = "调度司机id")
     private Long driverId;
-
-    @ApiModelProperty(value = "调度司机所选的司机所在车队id")
-    private Long driverCarGroupId;
 
     @ApiModelProperty(value = "包车类型 T001 半日租（4小时）\n" +
             "T002 整日租（8小时）\n" +
             "T009 多日租 ( 多日租)")
     private String charterType;
 
-    @ApiModelProperty(value = "用车车型id")
-    private String carTypeId;
     @ApiModelProperty(value = "内部调度员操作或者是外部调度员操作 1 内部  2 外部")
     private int inOrOut;
 

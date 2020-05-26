@@ -20,7 +20,7 @@ public interface IDriverOrderService {
      * @param userId
      * @throws Exception
      */
-    public Map handleDriverOrderStatus(String type, String currentPoint, String orderNo, Long userId, String mileage, String travelTime, String recordId) throws Exception;
+    public void handleDriverOrderStatus(String type, String currentPoint, String orderNo, Long userId, String mileage, String travelTime) throws Exception;
 
     /**
      * 司机是否继续用车，或者还车

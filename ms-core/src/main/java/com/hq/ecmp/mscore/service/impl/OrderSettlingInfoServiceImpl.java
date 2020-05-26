@@ -167,7 +167,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                 OrderServiceImagesInfo imagesInfo = OrderServiceImagesInfo.builder()
                         .recordId(lastRecordInfo.getRecordId()).build();
                 for (String url:imageUrl){
-                    imagesInfo.setImageurl(url);
+                    imagesInfo.setImageUrl(url);
                     imagesInfoMapper.insert(imagesInfo);
                 }
             }
@@ -462,7 +462,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         }
 
         public OrderSettlingInfoVo getOrderSettlingInfo() {
-            return orderSettlingInfo;
+            return orderSettlingInfoVo;
         }
 
         public GetAllfee invoke() throws ParseException {
@@ -506,7 +506,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                 //T000  非包车 T001 半日租（4小时） T002 整日租（8小时） T009多日租
                 String carType = journeyInfo.getCharterCarType();
                 //判断多日租中当天是为半日组还是整日租
-                if(CharterTypeEnum.MORE_RENT_TYPE.equals(carType)){
+                if(CharterTypeEnum.MORE_RENT_TYPE.getKey().equals(carType)){
                     Date startDate = journeyInfo.getStartDate();
                     Date endDate = journeyInfo.getEndDate();
                     carType = CommonUtils.getCarType(startDate,endDate,Double.parseDouble(journeyInfo.getUseTime()));
@@ -514,11 +514,10 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                 //包车类型
                 costConfigQueryDto.setRentType(carType);
                 //是否为同一车队
-                Map<String,String> driverCostInfo = costConfigInfoMapper.getDriverInfo(orderInfo.getDriverId());
-                Map<String,String> carCostInfo = costConfigInfoMapper.getCarInfo(orderInfo.getCarId());
-
+                Map driverCostInfo = costConfigInfoMapper.getDriverInfo(orderInfo.getDriverId());
+                Map carCostInfo = costConfigInfoMapper.getCarInfo(orderInfo.getCarId());
                 //判断是否为
-                if(driverCostInfo.get("driverCarGroupId").equals(carCostInfo.equals("carCarGroupId"))){
+                if(String.valueOf(driverCostInfo.get("driverCarGroupId")).equals(String.valueOf(carCostInfo.get("carCarGroupId")))){
                     //车队使用模式
                     costConfigQueryDto.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA00.getKey());
                     //车队id
@@ -529,14 +528,14 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                     //仅用车
                     costConfigQueryDto.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA01.getKey());
                     //车队id
-                    costConfigQueryDto.setCarGroupId(Long.parseLong(carCostInfo.get("carCarGroupId")));
+                    costConfigQueryDto.setCarGroupId(Long.parseLong(String.valueOf(carCostInfo.get("carCarGroupId"))));
                     CostConfigInfo costConfigInfo1 = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
                     costConfigInfoList.add(costConfigInfo1);
                     if(driverCostInfo!=null){
                         //仅用驾驶员
                         costConfigQueryDto.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA10.getKey());
                         //车队id
-                        costConfigQueryDto.setCarGroupId(Long.parseLong(driverCostInfo.get("carCarGroupId")));
+                        costConfigQueryDto.setCarGroupId(Long.parseLong(String.valueOf(driverCostInfo.get("driverCarGroupId"))));
                         CostConfigInfo costConfigInfo2 = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
                         costConfigInfoList.add(costConfigInfo2);
                     }

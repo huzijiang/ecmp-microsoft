@@ -26,7 +26,7 @@
     <select id="queryById" resultMap="OrderServiceImagesInfoMap">
         select
             image_id, record_id, image_url, create_by, create_time, update_by, update_time
-        from ecmp.order_service_images_info
+        from order_service_images_info
         where image_id = #{imageId}
     </select>
 
@@ -34,7 +34,7 @@
     <select id="queryAllByLimit" resultMap="OrderServiceImagesInfoMap">
         select
             image_id, record_id, image_url, create_by, create_time, update_by, update_time
-        from ecmp.order_service_images_info
+        from order_service_images_info
         limit #{offset}, #{limit}
     </select>
 
@@ -42,7 +42,7 @@
     <select id="queryAll" resultMap="OrderServiceImagesInfoMap">
         select
         image_id, record_id, image_url, create_by, create_time, update_by, update_time
-        from ecmp.order_service_images_info
+        from order_service_images_info
         <where>
             <if test="imageId != null">
                 and image_id = #{imageId}
@@ -70,13 +70,13 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="imageId" useGeneratedKeys="true">
-        insert into ecmp.order_service_images_info(record_id, image_url, create_by, create_time, update_by, update_time)
+        insert into order_service_images_info(record_id, image_url, create_by, create_time, update_by, update_time)
         values (#{recordId}, #{imageUrl}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
     </insert>
 
     <!--通过主键修改数据-->
     <update id="update">
-        update ecmp.order_service_images_info
+        update order_service_images_info
         <set>
             <if test="recordId != null">
                 record_id = #{recordId},
@@ -102,6 +102,6 @@
 
     <!--通过主键删除-->
     <delete id="deleteById">
-        delete from ecmp.order_service_images_info where image_id = #{imageId}
+        delete from order_service_images_info where image_id = #{imageId}
     </delete>
 </mapper>
