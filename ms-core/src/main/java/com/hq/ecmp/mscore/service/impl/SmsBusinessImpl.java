@@ -911,7 +911,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             return;
         }
         OrderDispatcheDetailInfo orderDispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
-        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(Long.parseLong(orderDispatcheDetailInfo.getNextCarGroupId()));
+        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
         if (carGroupInfo != null) {
             carGroup = carGroupInfo.getCarGroupName();
         }
@@ -972,7 +972,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             return;
         }
         OrderDispatcheDetailInfo orderDispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
-        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(Long.parseLong(orderDispatcheDetailInfo.getNextCarGroupId()));
+        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
         if (carGroupInfo != null) {
             carGroupPhone = carGroupInfo.getTelephone();
         }
