@@ -62,5 +62,11 @@ public class DriverCreateInfo {
 
 	    Date borrowEndTime;
 
+	    //邀请id
+	    Long invitationId;
+
+	    //邀请信息表里的 regimen_ids 驾驶员邀请 存的是可用车辆集id合
+	    String regimenIds;
+
 
 }

@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.common.exception.BaseException;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
@@ -110,4 +111,9 @@ public interface OrderInfoTwoService {
      * @return
      */
     int toSureToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
+    void dismissedDispatch(ApplyDispatchQuery query, LoginUser loginUser)throws Exception;
+
+    void pickUpTheCar(Long userId, Long orderId)throws Exception;
+
+    void returnCar(Long userId, Long orderId)throws Exception;
 }

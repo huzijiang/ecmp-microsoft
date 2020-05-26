@@ -1,19 +1,20 @@
 package com.hq.ecmp.ms.api.controller.dispatcher;
 
-import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.enumerate.DispatchStrategyEnum;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
 import com.hq.ecmp.mscore.service.OrderInfoTwoService;
+import com.hq.ecmp.mscore.service.dispatchstrategy.DispatchStrategyEngineFactory;
 import com.hq.ecmp.mscore.vo.DispatchVo;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
@@ -44,6 +45,8 @@ public class DispatcherController {
     private TokenService tokenService;
     @Resource
     private CostConfigInfoMapper costConfigInfoMapper;
+    @Resource
+    private DispatchStrategyEngineFactory dispatchStrategyEngineFactory;
 
     /**
      * 获取调度列表数据
@@ -59,38 +62,6 @@ public class DispatcherController {
             e.printStackTrace();
             return ApiResponse.error("获取申请调度列表失败");
         }
-    }
-
-    /**
-     * 获取当前业务员的待派车，已派车，已过期数量
-     * @param
-     * @return
-     */
-    @ApiOperation(value = "getOrderSituationDispatchCount",notes = "获取当前业务员的待派车，已派车，已过期数量",httpMethod ="POST")
-    @com.hq.core.aspectj.lang.annotation.Log(title = "用车申请", content = "获取当前业务员的待派车，已派车，已过期数量",businessType = BusinessType.OTHER)
-    @PostMapping("/getOrderSituationDispatchCount")
-    public JSONObject getUseApplyCounts(@RequestBody ApplyDispatchQuery applyDispatchQuery){
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        JSONObject jsonObject = new JSONObject();
-        try {
-            applyDispatchQuery.setHomePageWaitingCarState("S100");
-            PageResult<DispatchVo> waitingCarList = orderInfoTwoService.queryDispatchListCharterCar(applyDispatchQuery,loginUser);
-            jsonObject.put("waitingCarCount",waitingCarList.getItems().size());
-            applyDispatchQuery.setHomePageUsingCarState("S299");
-            applyDispatchQuery.setHomePageWaitingCarState("");
-            PageResult<DispatchVo> usingCarList = orderInfoTwoService.queryDispatchListCharterCar(applyDispatchQuery,loginUser);
-            jsonObject.put("usingCarCount",usingCarList.getItems().size());
-            applyDispatchQuery.setHomePageExpireCarState("900");
-            applyDispatchQuery.setHomePageUsingCarState("");
-            applyDispatchQuery.setHomePageWaitingCarState("");
-            PageResult<DispatchVo> expireCarList = orderInfoTwoService.queryDispatchListCharterCar(applyDispatchQuery,loginUser);
-            jsonObject.put("expireCarCount",expireCarList.getItems().size());
-        } catch (Exception e) {
-            e.printStackTrace();
-            ApiResponse.error("分页查询公告列表失败");
-        }
-        return jsonObject;
     }
 
     /**
@@ -121,19 +92,52 @@ public class DispatcherController {
     @ApiOperation(value = "佛山内外调度派车接口")
     @Log(value = "佛山内外调度派车接口")
     @com.hq.core.aspectj.lang.annotation.Log(title = "佛山内外调度派车接口",businessType = BusinessType.UPDATE,operatorType = OperatorType.MANAGE)
-    public ApiResponse dispatcherSendCar(DispatchSendCarDto dispatchSendCarDto){
+    public ApiResponse dispatcherSendCar(DispatchSendCarDto dispatchSendCarDto) throws Exception {
+        if(dispatchSendCarDto.getUseCarGroupType().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
+            if(dispatchSendCarDto.getCarGroupUseMode().equals(CarConstant.CAR_GROUP_USER_MODE_CAR_DRIVER)){
+                    dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.InCarAndDriverStrategy.getStrategyServiceName())
+                            .dispatch(dispatchSendCarDto);
+            }else if(dispatchSendCarDto.getCarGroupUseMode().equals(CarConstant.CAR_GROUP_USER_MODE_CAR)){
+                if(dispatchSendCarDto.getSelfDrive().equals(CarConstant.SELFDRIVER_YES)){
+                    dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.InCarAndSelfDriverStrategy.getStrategyServiceName())
+                            .dispatch(dispatchSendCarDto);
+                }else if(dispatchSendCarDto.getSelfDrive().equals(CarConstant.SELFDRIVER_NO)){
+                    dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.InCarAndOutDriverStrategy.getStrategyServiceName())
+                            .dispatch(dispatchSendCarDto);
+                }
 
+            }else if(dispatchSendCarDto.getCarGroupUseMode().equals(CarConstant.CAR_GROUP_USER_MODE_DRIVER)){
+                dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.InDriverAndOutCarStrategy.getStrategyServiceName())
+                        .dispatch(dispatchSendCarDto);
+            }
+        }else if(dispatchSendCarDto.getUseCarGroupType().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_OUT)){
+            if(dispatchSendCarDto.getSelfDrive().equals(CarConstant.SELFDRIVER_YES)){
+                dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.OutCarAndSelfDriverStrategy.getStrategyServiceName())
+                        .dispatch(dispatchSendCarDto);
+            }else if(dispatchSendCarDto.getSelfDrive().equals(CarConstant.SELFDRIVER_NO)){
+                dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.OutCarAndOutDriverStrategy.getStrategyServiceName())
+                        .dispatch(dispatchSendCarDto);
+            }
+        }
         return null;
     }
 
-    /**
-     * 是否有对应的用车计划验证
-     * @param dispatchSendCarDto
-     * @return
-     */
-    private Boolean validUserCarPlan(DispatchSendCarDto dispatchSendCarDto){
 
-        return false;
+    /**
+     * 调度员驳回
+     */
+    @PostMapping("/dismissedDispatch")
+    public ApiResponse  dismissedDispatch(@RequestBody ApplyDispatchQuery query){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            orderInfoTwoService.dismissedDispatch(query,loginUser);
+            return ApiResponse.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("调度驳回失败");
+        }
     }
+
 
 }

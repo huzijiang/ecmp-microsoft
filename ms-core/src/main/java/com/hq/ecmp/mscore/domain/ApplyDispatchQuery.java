@@ -54,4 +54,6 @@ public class ApplyDispatchQuery  extends PageResult {
          * 订单id
          */
         private Long orderId;
+        private int inOrOut;
+        private String rejectReason;
 }

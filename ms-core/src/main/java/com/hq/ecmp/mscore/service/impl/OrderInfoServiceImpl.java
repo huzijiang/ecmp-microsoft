@@ -1437,8 +1437,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     //获取司机任务详情
     @Override
-    public DriverOrderInfoVO driverOrderDetail(Long orderId) {
+    public DriverOrderInfoVO driverOrderDetail(Long orderId) throws Exception{
         DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
+        vo.setCustomerServicePhone(thirdService.getCustomerPhone());
 
         /**xmy*/
         /*String useTime = vo.getUseTime();//用车总天数

@@ -326,7 +326,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where c.company_id=#{companyId}
         and c.state='Y000'
     </select>
-    <select id="dispatcherCarGroupList">
+    <select id="dispatcherCarGroupList" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
         select s.car_group_id carGroupId,
         s.car_group_name carGroupName
         from car_group_info  s

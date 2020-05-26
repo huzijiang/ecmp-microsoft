@@ -45,6 +45,14 @@ public interface OrderDispatcheDetailInfoMapper
     public int updateOrderDispatcheDetailInfo(OrderDispatcheDetailInfo orderDispatcheDetailInfo);
 
     /**
+     * 修改【请填写功能名称】
+     *
+     * @param orderDispatcheDetailInfo 【请填写功能名称】
+     * @return 结果
+     */
+    public int updateOrderDispatcheDetailInfoByOrderId(OrderDispatcheDetailInfo orderDispatcheDetailInfo);
+
+    /**
      * 删除【请填写功能名称】
      * 
      * @param dispatchId 【请填写功能名称】ID

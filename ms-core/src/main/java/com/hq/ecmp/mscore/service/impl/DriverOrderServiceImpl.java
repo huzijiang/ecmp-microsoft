@@ -10,7 +10,9 @@ import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
 import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderServiceCostDetailRecordInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.util.DateFormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -75,6 +77,9 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     IsmsBusiness ismsBusiness;
     @Resource
     EcmpUserMapper ecmpUserMapper;
+    @Resource
+    JourneyInfoMapper journeyInfoMapper;
+
 
     @Resource
     private OrderServiceCostDetailRecordInfoMapper orderServiceCostDetailRecordInfoMapper;
@@ -358,8 +363,14 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             }
         }
         //继续用车
-        if(nextTaskWithDriver!=null && nextTaskWithCar!=null && nextTaskWithDriver.getCarId()==carId
-        && nextTaskWithCar.getDriverId()==driverId){
+        if(nextTaskWithDriver!=null && nextTaskWithCar!=null && carId.equals(nextTaskWithDriver.getCarId())
+        && driverId.equals(nextTaskWithCar.getDriverId())){
+            JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(nextTaskWithDriver.getJourneyId());
+            if (journeyInfo!=null){
+                nextTaskWithDriver.setCharteredDays(journeyInfo.getUseTime());
+                nextTaskWithDriver.setEndDate(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,journeyInfo.getEndDate()));
+                nextTaskWithDriver.setStartDate(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,journeyInfo.getStartDate()));
+            }
             isContinueReDto.setNextTaskDetailWithDriver(nextTaskWithDriver);
         }
         return isContinueReDto;
