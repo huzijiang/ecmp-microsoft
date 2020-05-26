@@ -57,7 +57,7 @@ spring:
             multi-statement-allow: true
   redis:
     cluster:
-      nodes: 10.32.10.50:6379,10.32.10.50:6380,10.32.10.51:6379,10.32.10.51:6380,10.32.10.52:6379,10.32.10.52:6380
+      nodes: redis1.hqzhxing.com:6379,redis1.hqzhxing.com:6380,redis2.hqzhxing.com:6379,redis2.hqzhxing.com:6380,redis3.hqzhxing.com:6379,redis3.hqzhxing.com:6380
       max-redirects: 5
       timeout: 6000ms
     lettuce:
