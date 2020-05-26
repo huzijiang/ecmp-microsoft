@@ -622,8 +622,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         s.order_number orderNumber,
         -- 轨迹状态
         (select state from order_state_trace_info sti where sti.order_id=s.order_id order by trace_id desc limit 1) labelState,
+        (select  oddi.it_is_self_driver as itIsSelfDriver from order_dispatche_detail_info oddi where  oddi.order_id=s.order_id),
         -- 用车制度
         ri.name regimenName,
+
+        s.create_by createBy,
         s.it_is_supplement itIsSupplement
         from order_info s
         LEFT join journey_user_car_power jucp on jucp.power_id=s.power_id
@@ -657,6 +660,15 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 </if>
                 <if test="null != companyId and companyId !=''">
                     and s.company_id = #{companyId}
+                </if>
+                <if test="null != userId and userId !=''">
+                    and s.create_by = #{userId}
+                </if>
+                <if test="null != updateBy and updateBy !=''">
+                    and s.car_id in (
+                        select car_id  from car_info where car_group_id in
+                        (select car_group_id from car_group_dispatcher_info where user_id=#{updateBy})
+                    )
                 </if>
             </where>
             group by s.order_id
@@ -692,15 +704,14 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oai.address beginAddress,
         oai2.address endAddress,
         s.service_type serviceType,
-        ji.charter_car_type,
+        ji.charter_car_type charterCarType,
         ifnull(ecti.name,s.demand_car_level) carLevel,
         CONVERT(osi.total_mileage,DECIMAL(10,2))  totalMileage,
         osi.total_time totalTime,
         osi.amount_detail amountDetail,
         CONVERT(osi.amount,DECIMAL(10,2))  amount,
         dhi.longitude  currentLongitude,
-        dhi.latitude currentLatitude,
-        (select state from order_state_trace_info sti where sti.order_id=s.order_id order by trace_id desc limit 1) labelState
+        dhi.latitude currentLatitude
         from order_info s
         left join journey_user_car_power jucp on jucp.power_id=s.power_id
         left join apply_info a on a.apply_id=jucp.apply_id
@@ -1706,6 +1717,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         di.mobile   driverPhone,
         ecty.`name` carLevel,
         osi.total_time totalTime,
+        ji.charter_car_type charterCarType,
+        (select notes   from apply_info where journey_id=ji.journey_id),
+        (select reason  from apply_info where journey_id=ji.journey_id),
+        (select car_group_name as carGroupName from car_group_info where car_group_id= ci.car_group_id),
+        (select car_group_name as driverGroupName from car_group_info where car_group_id=
+              select car_group_id from car_group_driver_relation where driver_id=oi.driver_id),
         CONVERT(osi.total_mileage,DECIMAL(10,2))  totalMileage,
         osi.amount_detail amountDetail
         FROM
@@ -1723,6 +1740,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 				LEFT JOIN car_info ci ON ci.car_id = oi.car_id
 				LEFT JOIN enterprise_car_type_info ecty on ecty.car_type_id = ci.car_type_id
 				LEFT JOIN driver_info di ON di.driver_id = oi.driver_id
+				LEFT JOIN journey_info ji ON ji.journey_id = oi.journey_id
         WHERE 1 = 1
          and oi.order_id=#{orderNo}
         ORDER BY
@@ -2142,4 +2160,21 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         </if>
     </select>
 
+    <update id="changeOrder" parameterType="com.hq.ecmp.mscore.domain.OrderInfo">
+        update order_info set
+             driver_id = null,
+             car_id = null,
+             use_car_mode = null,
+             state ='S100',
+             driver_name =null,
+             driver_mobile =null,
+             car_license =null,
+             demand_car_level=null,
+             update_by =#{updateBy},
+             update_time = #{updateTime},,
+             car_model=null,
+             car_color=null,
+             driver_grade=null
+       where order_id=#{orderId}
+    </update>
 </mapper>

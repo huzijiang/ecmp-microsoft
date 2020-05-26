@@ -793,4 +793,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <![CDATA[  SYSDATE() <= IFNULL(dimission_time,SYSDATE()) ]]>
          and owner_company = #{ownerCompany}
     </select>
+    <select id="dispatcherPhone" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="Long">
+        select eu.user_name as userName, eu.nick_name as nickName from ecmp_user eu,order_dispatche_detail_info od
+        where eu.user_id =od.create_by and od.order_id=#{orderId}
+    </select>
 </mapper>

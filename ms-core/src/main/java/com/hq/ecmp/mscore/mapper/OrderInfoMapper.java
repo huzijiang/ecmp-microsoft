@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -370,6 +371,16 @@ public interface OrderInfoMapper {
      * @return
      */
     List<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query);
+
+    /***
+     * 当前订单改派订单
+     * add by liuzb
+     * @param orderId
+     * @param updateBy
+     * @param updateTime
+     * @return
+     */
+    int changeOrder(@Param("orderId")Long orderId,@Param("updateBy")Long updateBy,@Param("updateTime") Date updateTime);
 
 
 }

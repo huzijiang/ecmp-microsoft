@@ -59,4 +59,11 @@ public interface OrderDispatcheDetailInfoMapper
      * @return 结果
      */
     public int deleteOrderDispatcheDetailInfoByIds(Integer[] dispatchIds);
+
+    /***
+     *
+     * @param orderId
+     * @return
+     */
+    int deleteOrderId(Long orderId);
 }

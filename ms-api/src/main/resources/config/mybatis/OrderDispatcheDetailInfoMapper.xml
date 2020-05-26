@@ -119,5 +119,7 @@
             #{dispatchId}
         </foreach>
     </delete>
-
+    <delete id="deleteOrderId" parameterType="Integer">
+        delete from order_dispatche_detail_info where  = #{orderId}
+    </delete>
 </mapper>
