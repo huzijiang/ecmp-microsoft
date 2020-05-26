@@ -6,6 +6,8 @@ import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.enumerate.DispatchStrategyEnum;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
@@ -13,6 +15,7 @@ import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
 import com.hq.ecmp.mscore.service.OrderInfoTwoService;
+import com.hq.ecmp.mscore.service.dispatchstrategy.DispatchStrategyEngineFactory;
 import com.hq.ecmp.mscore.vo.DispatchVo;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
@@ -43,6 +46,8 @@ public class DispatcherController {
     private TokenService tokenService;
     @Resource
     private CostConfigInfoMapper costConfigInfoMapper;
+    @Resource
+    private DispatchStrategyEngineFactory dispatchStrategyEngineFactory;
 
     /**
      * 获取调度列表数据
@@ -88,19 +93,33 @@ public class DispatcherController {
     @ApiOperation(value = "佛山内外调度派车接口")
     @Log(value = "佛山内外调度派车接口")
     @com.hq.core.aspectj.lang.annotation.Log(title = "佛山内外调度派车接口",businessType = BusinessType.UPDATE,operatorType = OperatorType.MANAGE)
-    public ApiResponse dispatcherSendCar(DispatchSendCarDto dispatchSendCarDto){
+    public ApiResponse dispatcherSendCar(DispatchSendCarDto dispatchSendCarDto) throws Exception {
+        if(dispatchSendCarDto.getUseCarGroupType().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
+            if(dispatchSendCarDto.getCarGroupUseMode().equals(CarConstant.CAR_GROUP_USER_MODE_CAR_DRIVER)){
+                    dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.InCarAndDriverStrategy.getStrategyServiceName())
+                            .dispatch(dispatchSendCarDto);
+            }else if(dispatchSendCarDto.getCarGroupUseMode().equals(CarConstant.CAR_GROUP_USER_MODE_CAR)){
+                if(dispatchSendCarDto.getSelfDrive().equals(CarConstant.SELFDRIVER_YES)){
+                    dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.InCarAndSelfDriverStrategy.getStrategyServiceName())
+                            .dispatch(dispatchSendCarDto);
+                }else if(dispatchSendCarDto.getSelfDrive().equals(CarConstant.SELFDRIVER_NO)){
+                    dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.InCarAndOutDriverStrategy.getStrategyServiceName())
+                            .dispatch(dispatchSendCarDto);
+                }
 
+            }else if(dispatchSendCarDto.getCarGroupUseMode().equals(CarConstant.CAR_GROUP_USER_MODE_DRIVER)){
+                dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.InDriverAndOutCarStrategy.getStrategyServiceName())
+                        .dispatch(dispatchSendCarDto);
+            }
+        }else if(dispatchSendCarDto.getUseCarGroupType().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_OUT)){
+            if(dispatchSendCarDto.getSelfDrive().equals(CarConstant.SELFDRIVER_YES)){
+                dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.OutCarAndSelfDriverStrategy.getStrategyServiceName())
+                        .dispatch(dispatchSendCarDto);
+            }else if(dispatchSendCarDto.getSelfDrive().equals(CarConstant.SELFDRIVER_NO)){
+                dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.OutCarAndOutDriverStrategy.getStrategyServiceName())
+                        .dispatch(dispatchSendCarDto);
+            }
+        }
         return null;
     }
-
-    /**
-     * 是否有对应的用车计划验证
-     * @param dispatchSendCarDto
-     * @return
-     */
-    private Boolean validUserCarPlan(DispatchSendCarDto dispatchSendCarDto){
-
-        return false;
-    }
-
 }

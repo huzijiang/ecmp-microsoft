@@ -36,7 +36,7 @@ public class OrderDispatcheDetailInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String nextCarGroupId;
+    private Long nextCarGroupId;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -107,12 +107,12 @@ public class OrderDispatcheDetailInfo extends BaseEntity
     {
         return itIsSelfDriver;
     }
-    public void setNextCarGroupId(String nextCarGroupId) 
+    public void setNextCarGroupId(Long nextCarGroupId)
     {
         this.nextCarGroupId = nextCarGroupId;
     }
 
-    public String getNextCarGroupId() 
+    public Long getNextCarGroupId()
     {
         return nextCarGroupId;
     }
