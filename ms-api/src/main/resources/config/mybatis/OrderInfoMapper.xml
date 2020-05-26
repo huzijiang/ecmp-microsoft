@@ -1820,9 +1820,21 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
         WHERE 1 = 1
         <if test="isIndex == 1">
-            and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
-            (select distinct order_id from order_state_trace_info where state in ('S100'))
-            and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
+--             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
+--             (select distinct order_id from order_state_trace_info where state in ('S100'))
+--             and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
+            and oi.order_id in (
+            select a.orderId,a.mstate from (select order_id orderId,max(state) mstate from order_state_trace_info GROUP BY order_id ) a where a.mstate = 'S100'
+            )
+            <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
+                and  oi.state = #{homePageWaitingCarState}
+            </if>
+            <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
+                and  oi.state >= 'S299' and  oi.state != 'S900'
+            </if>
+            <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
+                and  oi.state = #{homePageExpireCarState}
+            </if>
         </if>
 
         <if test="isIndex == 2">
@@ -1831,7 +1843,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
         </if>
 
-        <if test="companyId!=null">
+        <if test="companyId!=null and companyId!=''">
             and  oi.company_id=#{companyId}
         </if>
         <if test="applyName!=null and applyName!=''">
@@ -1855,7 +1867,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="optEndDate!=null  and  optEndDate!='' ">
             and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
         </if>
-        <if test="orderId!=null">
+        <if test="orderId!=null and orderId != ''">
             and oi.order_id=#{orderId}
         </if>
         and  oi.it_is_supplement='N000'
@@ -1925,7 +1937,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 费用合计
         case
         when right (oi.state,3)='100' then '待派车'
-        when right (oi.state,3)>='299' and right (oi.state,3)&lt;='900' then '已派车'
+        when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已派车'
         when right (ai.state,3)='004' then '已撤销'
         when right (ai.state,3)='005' then '已过期'
         ELSE '' END orderState
@@ -1984,10 +1996,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.state = #{homePageWaitingCarState}
         </if>
         <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
-            and  oi.state >= 'S299' and  oi.state &lt;= 'S900'
+            and  oi.state >= 'S299' and  oi.state != 'S900'
         </if>
         <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
-            and  oi.state = #{homePageExpireCarState}
+            and  ai.state = #{homePageExpireCarState}
         </if>
         <if test="homePageRejectState!=null and homePageRejectState != ''">
             or  (ai.state = #{homePageRejectState} and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.update_time))
@@ -2126,7 +2138,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.state >= 'S299' and  oi.state &lt;= 'S900'
         </if>
         <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
-            and  oi.state = #{homePageExpireCarState}
+            and  ai.state = #{homePageExpireCarState}
         </if>
         <if test="homePageRejectState!=null and homePageRejectState != ''">
             or  (ai.state = #{homePageRejectState} and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.update_time))
