@@ -62,8 +62,8 @@ public class CostCalculator implements CostCalculation {
         BigDecimal  restaurantFee  = getBigDecimal(orderSettlingInfoVo.getRestaurantFee());
         if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState())){
             //包车的情况下
-            //套餐价
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
+                //套餐价
                 packagePrice = costConfigInfo.getCombosPrice();
                 //超里程数小于&&等于1  则不计算他的超里程费用
                 if(orderSettlingInfoVo.getTotalMileage().compareTo(costConfigInfo.getCombosMileage())==1){
@@ -82,10 +82,9 @@ public class CostCalculator implements CostCalculation {
                 //总价=（等待时长*等待单价）+(起步价)+(超里程价格)+(超时长价格)
                 totalPrice = totalPrice.add(packagePrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
             }
-
         }else if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState())){
+            //预约
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
-                //预约
                 //起步价
                 startingPrice=costConfigInfo.getStartPrice();
                 // 等待费=（等待时长*等待单价）
@@ -106,10 +105,9 @@ public class CostCalculator implements CostCalculation {
                 }
                 totalPrice = totalPrice.add(startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
             }
-
         }else if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState())){
+            //接机
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
-                //接机
                 //起步价
                 startingPrice=costConfigInfo.getStartPrice();
                 // 等待费=（等待时长*等待单价）
@@ -131,8 +129,8 @@ public class CostCalculator implements CostCalculation {
                 totalPrice = totalPrice.add(startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
             }
         }else if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState())){
+            //送机
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
-                //送机
                 //起步价
                 startingPrice=costConfigInfo.getStartPrice();
                 // 等待费=（等待时长*等待单价）
@@ -150,8 +148,8 @@ public class CostCalculator implements CostCalculation {
                 totalPrice = totalPrice.add(startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
             }
         }else if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_NOW.getBcState())){
+            //即时用车
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
-                //即时用车
                 //起步价
                 startingPrice=costConfigInfo.getStartPrice();
                 // 等待费=（等待时长*等待单价）

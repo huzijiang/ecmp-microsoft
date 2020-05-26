@@ -141,7 +141,6 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         int i = 0;
         //是否为多日组，如果为多日租，则记录费用子表
         if(isMoreDay){
-
             OrderServiceCostDetailRecordInfo lastRecordInfo =  OrderServiceCostDetailRecordInfo.builder().orderId(orderSettlingInfoVo.getOrderId()).build();
             List<OrderServiceCostDetailRecordInfo> recordInfos = costDetailRecordInfoMapper.getList(lastRecordInfo);
             lastRecordInfo = recordInfos.get(recordInfos.size()-1);
@@ -469,6 +468,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             //计算等待时长
             BigDecimal waitingTime = orderWaitTraceInfoMapper.selectOrderWaitingTimeById(orderSettlingInfoVo.getOrderId());
             orderSettlingInfoVo.setWaitingTime(waitingTime);
+
             //查询该订单的记录  城市  服务类型  车型级别  包车类型 公司id
             OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderSettlingInfoVo.getOrderId());
             orderSettlingInfoVo.setServiceType(orderInfo.getServiceType());
@@ -477,23 +477,21 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
             orderAddressInfo.setOrderId(orderSettlingInfoVo.getOrderId());
             OrderAddressInfo addressStartInfo = OrderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfo);
-            //城市
-            String cityCode = addressStartInfo.getCityPostalCode();
+
             //车型级别
             CarInfo carInfo = carInfoMapper.selectCarInfoById(orderInfo.getCarId());
-            Long carLevel = carInfo.getCarTypeId();
             //筛选出成本数据model
             CostConfigQueryDto costConfigQueryDto = new CostConfigQueryDto();
             //公司id
             costConfigQueryDto.setCompanyId(companyId);
             //城市
-            costConfigQueryDto.setCityCode(cityCode);
+            costConfigQueryDto.setCityCode(addressStartInfo.getCityPostalCode());
             //服务类型
             costConfigQueryDto.setServiceType(orderInfo.getServiceType());
             //车型级别
-            costConfigQueryDto.setCarTypeId(carLevel);
+            costConfigQueryDto.setCarTypeId(carInfo.getCarTypeId());
 
-            costConfigInfoList = null;
+            costConfigInfoList = new ArrayList<>();
             //是否插入总表
             isInsertOrderConfing = true;
             //是否为插入费用子表
@@ -550,13 +548,14 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                     costConfigQueryDto.setCarGroupId(Long.parseLong(carCostInfo.get("carCarGroupId")));
                     CostConfigInfo costConfigInfo1 = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
                     costConfigInfoList.add(costConfigInfo1);
-
-                    //仅用驾驶员
-                    costConfigQueryDto.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA10.getKey());
-                    //车队id
-                    costConfigQueryDto.setCarGroupId(Long.parseLong(carCostInfo.get("carCarGroupId")));
-                    CostConfigInfo costConfigInfo2 = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
-                    costConfigInfoList.add(costConfigInfo2);
+                    if(driverCostInfo!=null){
+                        //仅用驾驶员
+                        costConfigQueryDto.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA10.getKey());
+                        //车队id
+                        costConfigQueryDto.setCarGroupId(Long.parseLong(driverCostInfo.get("carCarGroupId")));
+                        CostConfigInfo costConfigInfo2 = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
+                        costConfigInfoList.add(costConfigInfo2);
+                    }
                 }
                 //判断是否为包车业务
                 if("T001".equals(carType) ||"T002".equals(carType)||"T009".equals(carType)){
