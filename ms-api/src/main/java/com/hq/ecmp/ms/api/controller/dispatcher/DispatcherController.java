@@ -10,7 +10,6 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
 import com.hq.ecmp.mscore.service.OrderInfoTwoService;
@@ -135,5 +134,23 @@ public class DispatcherController {
 
         return false;
     }
+
+
+    /**
+     * 调度员驳回
+     */
+    @PostMapping("/dismissedDispatch")
+    public ApiResponse  dismissedDispatch(@RequestBody ApplyDispatchQuery query){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            orderInfoTwoService.dismissedDispatch(query,loginUser);
+            return ApiResponse.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("调度驳回失败");
+        }
+    }
+
 
 }
