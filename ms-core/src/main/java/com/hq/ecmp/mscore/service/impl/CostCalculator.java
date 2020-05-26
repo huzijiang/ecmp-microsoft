@@ -182,6 +182,11 @@ public class CostCalculator implements CostCalculation {
         orderSettlingInfoVo.setOverMileagePrice(overMileagePrice);
         orderSettlingInfoVo.setOvertimeLongPrice(overtimeLongPrice);
         orderSettlingInfoVo.setWaitingFee(waitingFee);
+        orderSettlingInfoVo.setRoadBridgeFee(roadBridgeFee);
+        orderSettlingInfoVo.setHighSpeedFee(highSpeedFee);
+        orderSettlingInfoVo.setParkingRateFee(parkingRateFee);
+        orderSettlingInfoVo.setHotelExpenseFee(hotelExpenseFee);
+        orderSettlingInfoVo.setRestaurantFee(restaurantFee);
         orderSettlingInfoVo.setAmount(amount);
         return orderSettlingInfo;
     }
