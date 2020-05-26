@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.controller.dispatcher;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
@@ -9,7 +10,6 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
 import com.hq.ecmp.mscore.service.OrderInfoTwoService;
@@ -61,6 +61,38 @@ public class DispatcherController {
     }
 
     /**
+     * 获取当前业务员的待派车，已派车，已过期数量
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "getOrderSituationDispatchCount",notes = "获取当前业务员的待派车，已派车，已过期数量",httpMethod ="POST")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "用车申请", content = "获取当前业务员的待派车，已派车，已过期数量",businessType = BusinessType.OTHER)
+    @PostMapping("/getOrderSituationDispatchCount")
+    public JSONObject getUseApplyCounts(@RequestBody ApplyDispatchQuery applyDispatchQuery){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            applyDispatchQuery.setHomePageWaitingCarState("S100");
+            PageResult<DispatchVo> waitingCarList = orderInfoTwoService.queryDispatchListCharterCar(applyDispatchQuery,loginUser);
+            jsonObject.put("waitingCarCount",waitingCarList.getItems().size());
+            applyDispatchQuery.setHomePageUsingCarState("S299");
+            applyDispatchQuery.setHomePageWaitingCarState("");
+            PageResult<DispatchVo> usingCarList = orderInfoTwoService.queryDispatchListCharterCar(applyDispatchQuery,loginUser);
+            jsonObject.put("usingCarCount",usingCarList.getItems().size());
+            applyDispatchQuery.setHomePageExpireCarState("900");
+            applyDispatchQuery.setHomePageUsingCarState("");
+            applyDispatchQuery.setHomePageWaitingCarState("");
+            PageResult<DispatchVo> expireCarList = orderInfoTwoService.queryDispatchListCharterCar(applyDispatchQuery,loginUser);
+            jsonObject.put("expireCarCount",expireCarList.getItems().size());
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse.error("分页查询公告列表失败");
+        }
+        return jsonObject;
+    }
+
+    /**
      * 佛山调度可用外部车队列表
      */
     @PostMapping("/dispatcherCarGroupList")
@@ -102,5 +134,23 @@ public class DispatcherController {
 
         return false;
     }
+
+
+    /**
+     * 调度员驳回
+     */
+    @PostMapping("/dismissedDispatch")
+    public ApiResponse  dismissedDispatch(@RequestBody ApplyDispatchQuery query){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            orderInfoTwoService.dismissedDispatch(query,loginUser);
+            return ApiResponse.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("调度驳回失败");
+        }
+    }
+
 
 }

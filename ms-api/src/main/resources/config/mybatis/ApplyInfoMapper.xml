@@ -174,4 +174,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		resultType="java.lang.Integer">
 		select count(1) from apply_info where regimen_id=#{regimeId}
 	</select>
+    
+    <select id="selectOrderInfoById" parameterType="java.lang.Long" resultType="java.lang.Long">
+
+      SELECT DISTINCT
+                        oi.order_id orderId
+                    FROM
+                        apply_info ai
+                        LEFT JOIN journey_info ji ON ai.journey_id = ji.journey_id
+                        LEFT JOIN order_info oi ON oi.journey_id = ji.journey_id
+                    WHERE
+                        ai.apply_id = #{applyId}
+
+    </select>
 </mapper>

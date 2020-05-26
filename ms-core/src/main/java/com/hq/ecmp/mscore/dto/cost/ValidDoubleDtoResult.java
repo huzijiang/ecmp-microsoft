@@ -1,8 +1,10 @@
 package com.hq.ecmp.mscore.dto.cost;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @ClassName
@@ -13,6 +15,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ValidDoubleDtoResult {
     /**
      * 城市名字

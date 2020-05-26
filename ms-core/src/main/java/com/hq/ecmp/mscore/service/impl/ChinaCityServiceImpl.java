@@ -60,4 +60,18 @@ public class ChinaCityServiceImpl implements ChinaCityService {
 		return chinaCityMapper.queryCityByCityCode(cityCode);
 	}
 
+	/**
+	 * 申请单提交根据名称搜索城市
+	 * @return
+	 */
+	@Override
+	public List<CityInfo> queryCityByName(Long companyId) {
+		Long regimenId = regimeInfoMapper.queryRegimeInfoByCompanyId(companyId);
+		List<CityInfo>  list = queryCityInfoListByCityName(null,regimenId);
+		if(list.isEmpty()){
+			return  null;
+		}
+		return list;
+	}
+
 }

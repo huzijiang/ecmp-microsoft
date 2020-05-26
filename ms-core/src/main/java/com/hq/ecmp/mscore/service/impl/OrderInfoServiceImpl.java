@@ -2756,8 +2756,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @throws Exception
      */
     private List<OrderServiceImagesInfo> getOrderServiceImagesInfoList(Long recordId)throws Exception{
-        OrderServiceImagesInfo orderServiceImagesInfo = new OrderServiceImagesInfo();
-        orderServiceImagesInfo.setRecordId(recordId);
+        OrderServiceImagesInfo orderServiceImagesInfo = OrderServiceImagesInfo.builder().recordId(recordId).build();
         return orderServiceImagesInfoMapper.getList(orderServiceImagesInfo);
     }
 
