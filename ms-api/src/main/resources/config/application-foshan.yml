@@ -13,7 +13,7 @@ spring:
       slave:
         # 从数据源开关/默认关闭
         enabled: false
-        url: jdbc:mysql://1mysql-s1.hqzhixing.com:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+        url: jdbc:mysql://mysql-s1.hqzhixing.com:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
         username: dbop
         password: Byh8U6UdOmg
       # 初始连接数
@@ -91,7 +91,7 @@ token:
   expireTime: 30
 
 thirdService:
-  enterpriseId: 100000
+  enterpriseId: 200000
   licenseContent: AAAAAAAA
   apiUrl: https://pub-serivce-enterprise.hqzhixing.com
 
@@ -122,11 +122,11 @@ schedule:
 #/upload
 app:
   zimg:
-    server: http://10.117.1.232:4869
+    server: http://zimg.hqzhixing.com
     access:
-      url: http://123.127.89.218:4869/
-  welcome: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
-  background: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
+      url: http://zimg.hqzhixing.com/
+  welcome: http://zimg.hqzhixing.com/a866e23b46c351da88e87ede49bce0de
+  background: http://zimg.hqzhixing.com/a866e23b46c351da88e87ede49bce0de
 
 wx:
 #应用ID
