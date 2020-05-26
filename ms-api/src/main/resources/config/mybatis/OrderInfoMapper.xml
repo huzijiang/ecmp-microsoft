@@ -312,10 +312,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             if (o.state='S900','已完成','未完成') stateType,
             o.service_type serviceType,
             o.flight_number flightNumber,
-
-            jn.start_date startDate,
-            jn.end_date endDate,
-
             jn.use_time useTime,
             jn.it_is_return itIsReturn,
             jn.charter_car_type charterCarType,
