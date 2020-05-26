@@ -36,4 +36,10 @@ public class CostConfigQueryDto extends PageRequest {
 
     @ApiModelProperty(value = "包车类型")
     private String rentType;
+
+    @ApiModelProperty(value = "车队使用模式")
+    private String carGroupUserMode;
+
+    @ApiModelProperty(value = "车队")
+    private Long carGroupId;
 }
