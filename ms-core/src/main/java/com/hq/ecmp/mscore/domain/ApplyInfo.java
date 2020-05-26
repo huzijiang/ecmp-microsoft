@@ -66,6 +66,12 @@ public class ApplyInfo extends BaseEntity
 
     private Long companyId;
 
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Long carTypeId;
+
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String notes;
+
     public ApplyInfo(Long applyId, String state) {
         this.applyId = applyId;
         this.state = state;

@@ -1076,8 +1076,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         select GROUP_CONCAT(order_state_trace_info.state) from order_state_trace_info where order_id=#{orderId}
     </select>
     <select id="getdispatchDurationById" resultType="int">
-        select TIMESTAMPDIFF(MINUTE,(select create_time from order_state_trace_info where order_id=#{orderId} and state='S100'),
-        (select create_time from order_state_trace_info where order_id=#{orderId} and state='S299'))
+        select ifnull(TIMESTAMPDIFF(MINUTE,(select create_time from order_state_trace_info where order_id=#{orderId} and state='S100'),
+        (select create_time from order_state_trace_info where order_id=#{orderId} and state='S299')),0)
     </select>
     <select id="selectOrderInfoByIdAllDay" parameterType="java.lang.Long" resultMap="OrderInfoResult">
         <include refid="selectOrderInfoVo"/>
@@ -1732,6 +1732,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         select * from order_info where car_id = #{carId} and state not in ('S699','S900')
     </select>
 
+
     <select id="queryDispatchListCharterCar" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
 
         SELECT DISTINCT
@@ -1773,7 +1774,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ri.`name` userCarRegime,
         round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
         -- 服务类型
-        oi.service_type serverType,
+        ji.charter_car_type serverType,
         -- 状态
         case
         when right (oi.state,3)='100' then '待派车'
@@ -1797,7 +1798,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 车型名字
         ecti.name carTypeName,
         -- 用车备注
-        ai.notes
+        ai.notes,
+        od.car_group_user_mode carGroupUserMode,
+        oai.city_postal_code useCarCityCode
         FROM
         order_info oi
         LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
@@ -1813,11 +1816,26 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN order_address_info oaitwo ON (oaitwo.order_id = oi.order_id and oaitwo.type='A999')
         LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
         LEFT JOIN order_dispatche_detail_info od on od.order_id=oi.order_id and od.next_car_group_id=cgi.car_group_id
+        left join journey_user_car_power jucp on jucp.node_id=oi.node_id
+        left join apply_info ai on ai.apply_id=jucp.node_id
+        left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
         WHERE 1 = 1
         <if test="isIndex == 1">
-            and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
-            (select distinct order_id from order_state_trace_info where state in ('S100'))
-            and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
+--             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
+--             (select distinct order_id from order_state_trace_info where state in ('S100'))
+--             and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
+            and oi.order_id in (
+            select a.orderId,a.mstate from (select order_id orderId,max(state) mstate from order_state_trace_info GROUP BY order_id ) a where a.mstate = 'S100'
+            )
+            <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
+                and  oi.state = #{homePageWaitingCarState}
+            </if>
+            <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
+                and  oi.state >= 'S299' and  oi.state != 'S900'
+            </if>
+            <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
+                and  oi.state = #{homePageExpireCarState}
+            </if>
         </if>
 
         <if test="isIndex == 2">
@@ -1826,22 +1844,22 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
         </if>
 
-        <if test="companyId!=null">
+        <if test="companyId!=null and companyId!=''">
             and  oi.company_id=#{companyId}
         </if>
-        <if test="applyName!=null">
+        <if test="applyName!=null and applyName!=''">
             and  eu.nick_name=#{applyName}
         </if>
-        <if test="applyMobile!=null">
+        <if test="applyMobile!=null and applyMobile!=''">
             and  eu.phonenumber=#{applyMobile}
         </if>
-        <if test="cityCode!=null">
+        <if test="cityCode!=null and cityCode!=''">
             and  cc.SHORT_NAME=#{cityCode}
         </if>
-        <if test="useCarMode!=null">
+        <if test="useCarMode!=null and useCarMode!=''">
             and  oi.use_car_mode=#{useCarMode}
         </if>
-        <if test="dispatchStatus!=null">
+        <if test="dispatchStatus!=null and dispatchStatus!=''">
             and  oi.state=#{dispatchStatus}
         </if>
         <if test="optStartDate!=null  and  optStartDate!='' ">
@@ -1850,8 +1868,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="optEndDate!=null  and  optEndDate!='' ">
             and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
         </if>
-        <if test="">
-
+        <if test="orderId!=null and orderId != ''">
+            and oi.order_id=#{orderId}
         </if>
         and  oi.it_is_supplement='N000'
         and oi.user_id in (select distinct user_id from ecmp_user where dept_id in
@@ -1903,6 +1921,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         cgi.car_group_name carCompany,
         -- 驾驶员姓名
         di.driver_name driverName,
+        -- 等待时长
+        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
         -- 驾驶员手机号
         di.mobile driverPhone,
         -- 驾驶员归属
@@ -1920,7 +1940,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 费用合计
         case
         when right (oi.state,3)='100' then '待派车'
-        when right (oi.state,3)>='299' and right (oi.state,3)&lt;='900' then '已派车'
+        when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已派车'
         when right (ai.state,3)='004' then '已撤销'
         when right (ai.state,3)='005' then '已过期'
         ELSE '' END orderState
@@ -1979,10 +1999,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.state = #{homePageWaitingCarState}
         </if>
         <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
-            and  oi.state >= 'S299' and  oi.state &lt;= 'S900'
+            and  oi.state >= 'S299' and  oi.state != 'S900'
         </if>
         <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
-            and  oi.state = #{homePageExpireCarState}
+            and  ai.state = #{homePageExpireCarState}
         </if>
         <if test="homePageRejectState!=null and homePageRejectState != ''">
             or  (ai.state = #{homePageRejectState} and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.update_time))
@@ -2121,7 +2141,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.state >= 'S299' and  oi.state &lt;= 'S900'
         </if>
         <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
-            and  oi.state = #{homePageExpireCarState}
+            and  ai.state = #{homePageExpireCarState}
         </if>
         <if test="homePageRejectState!=null and homePageRejectState != ''">
             or  (ai.state = #{homePageRejectState} and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.update_time))

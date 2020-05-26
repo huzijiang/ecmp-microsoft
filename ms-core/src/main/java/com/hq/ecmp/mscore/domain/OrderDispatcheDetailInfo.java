@@ -36,7 +36,7 @@ public class OrderDispatcheDetailInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String nextCarGroupId;
+    private Long nextCarGroupId;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
@@ -61,6 +61,9 @@ public class OrderDispatcheDetailInfo extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String dispatchState;
+    private String outerCarGroupRefuseInfo;
+    private Long innerDispatcher;
+    private Long outerDispatcher;
 
     public void setDispatchId(Integer dispatchId) 
     {
@@ -107,12 +110,12 @@ public class OrderDispatcheDetailInfo extends BaseEntity
     {
         return itIsSelfDriver;
     }
-    public void setNextCarGroupId(String nextCarGroupId) 
+    public void setNextCarGroupId(Long nextCarGroupId)
     {
         this.nextCarGroupId = nextCarGroupId;
     }
 
-    public String getNextCarGroupId() 
+    public Long getNextCarGroupId()
     {
         return nextCarGroupId;
     }
@@ -169,6 +172,37 @@ public class OrderDispatcheDetailInfo extends BaseEntity
     public String getDispatchState() 
     {
         return dispatchState;
+    }
+
+    public String getOuterCarGroupRefuseInfo() {
+        return outerCarGroupRefuseInfo;
+    }
+
+    public void setOuterCarGroupRefuseInfo(String outerCarGroupRefuseInfo) {
+        this.outerCarGroupRefuseInfo = outerCarGroupRefuseInfo;
+    }
+
+    public Long getInnerDispatcher() {
+        return innerDispatcher;
+    }
+
+    public void setInnerDispatcher(Long innerDispatcher) {
+        this.innerDispatcher = innerDispatcher;
+    }
+
+    public Long getOuterDispatcher() {
+        return outerDispatcher;
+    }
+
+    public void setOuterDispatcher(Long outerDispatcher) {
+        this.outerDispatcher = outerDispatcher;
+    }
+
+    public OrderDispatcheDetailInfo() {
+    }
+
+    public OrderDispatcheDetailInfo(Long orderId) {
+        this.orderId = orderId;
     }
 
     @Override

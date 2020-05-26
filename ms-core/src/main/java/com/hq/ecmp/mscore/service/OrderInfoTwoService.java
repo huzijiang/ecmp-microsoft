@@ -1,9 +1,12 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.common.exception.BaseException;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
+import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
@@ -83,9 +86,30 @@ public interface OrderInfoTwoService {
      *  佛山后管申请单调度列表
      * @param query
      * @param loginUser
-     * @param isIndex
      * @return
      */
     PageResult<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser);
 
+    /**
+     * 佛山调度可用外部车队列表
+     *      * @param orderId
+     * @return
+     */
+    public List<CarGroupInfo> dispatcherCarGroupList(Long orderId, LoginUser loginUser);
+
+    /**
+     * 佛山内外调度派车
+     * @param dispatchSendCarDto
+     */
+    void dispatcherSendCar(DispatchSendCarDto dispatchSendCarDto);
+
+
+    /**
+     * 获取首页业务员待确认订单
+     * @param userApplySingleVo
+     * @param loginUser
+     * @return
+     */
+    int toSureToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
+    void dismissedDispatch(ApplyDispatchQuery query, LoginUser loginUser)throws BaseException;
 }

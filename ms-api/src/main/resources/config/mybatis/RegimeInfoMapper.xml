@@ -484,4 +484,15 @@ LIMIT 1
         where u.user_id = #{userId} and r.state = 'Y000'
     </select>
 
+    <select id="queryRegimeInfoByCompanyId" parameterType="java.lang.Long" resultType="java.lang.Long">
+
+        select regimen_id regimenId  from regime_info where company_id =#{companyId} ORDER BY regimen_id ASC   limit 1
+
+    </select>
+
+    <select id="queryRegimeLevelByCompanyId" parameterType="java.lang.Long" resultType="java.lang.String">
+
+        select use_car_mode_owner_level useCarModeOwnerLevel  from regime_info where company_id =#{companyId} ORDER BY regimen_id ASC   limit 1
+
+    </select>
 </mapper>

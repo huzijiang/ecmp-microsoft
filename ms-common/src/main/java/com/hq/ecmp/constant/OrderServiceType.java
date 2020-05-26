@@ -10,10 +10,8 @@ public enum OrderServiceType {
     ORDER_SERVICE_TYPE_APPOINTMENT("2","2000","预约"),
     ORDER_SERVICE_TYPE_PICK_UP("3","3000","接机"),
     ORDER_SERVICE_TYPE_CHARTERED("4","5000","包车"),
-    ORDER_SERVICE_TYPE_SEND("5","4000","送机"),
-    ORDER_SERVICE_TYPE_HALF_DAY("6","6000","半日租"),
-    ORDER_SERVICE_TYPE_ALL_DAY("7","7000","整日租"),
-    ORDER_SERVICE_TYPE_MORE_DAY("8","8000","多日租");
+    ORDER_SERVICE_TYPE_SEND("5","4000","送机");
+
 
 
     private String prState;
