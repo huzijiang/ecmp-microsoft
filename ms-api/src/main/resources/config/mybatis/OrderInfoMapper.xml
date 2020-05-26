@@ -312,6 +312,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             if (o.state='S900','已完成','未完成') stateType,
             o.service_type serviceType,
             o.flight_number flightNumber,
+
+            jn.start_date startDate,
+            jn.end_date endDate,
+
+            jn.use_time useTime,
             jn.it_is_return itIsReturn,
             jn.charter_car_type charterCarType,
             s.action_time useCarTime,
@@ -361,6 +366,17 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              jn.flight_number flightNumber,
              jn.it_is_return itIsReturn,
              jn.charter_car_type charterCarType,
+
+             jn.start_date startDate,
+             jn.end_date endDate,
+
+             jn.use_time useTime,
+             org.dept_name deptName,
+             g.telephone groupPhone,
+             u.mobile driverPhone,
+             p.peer_number peerNumber,
+			 e.image_url imageUrl,
+
              s.action_time useCarTime,
              s.address startAddr,
              t.address endAddr,
@@ -373,10 +389,17 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              (select group_concat(short_address) from order_via_info f where f.order_id=o.order_id) halfway,
              (select count(*) from journey_passenger_info where journey_id=o.journey_id) peopleCount
             from order_info o
+
             left join journey_info jn on o.journey_id=jn.journey_id
             left join order_address_info s on  s.order_id=o.order_id and s.type='A000'
             left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
             left join car_info c on c.car_id=o.car_id
+            left join ecmp_org org on c.dept_id = org.dept_id
+            left join car_group_info g on c.car_group_id = g.car_group_id
+            left join driver_info u  on o.driver_id = u.driver_id
+
+            left join journey_passenger_info p on jn.journey_id = p.journey_id
+			left join enterprise_car_type_info e on  c.state = e.`status`
             where o.order_id=#{orderId}
     </select>
 
@@ -388,6 +411,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                      o.service_type serviceType,
 					 o.flight_number flightNumber,
 					 jn.it_is_return itIsReturn,
+
+                     jn.use_time useTime,
+                     jn.start_date startDate,
+                     jn.end_date endDate,
+
 					 jn.charter_car_type charterCarType,
 					 s.action_time useCarTime,
 					 s.address startAddr,
@@ -399,7 +427,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
 				where o.driver_id=#{driverId} and  (o.state="S299" or o.state="S600" or o.state="S616" )
                 <if test="day!=-1">
-                    <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') = DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
+                    <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d')  <= DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
+                    and jn.end_date  >= now()
                 </if>
                 order by s.action_time asc
     </select>
@@ -456,6 +485,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         d.longitude endLongitude ,
         d.latitude endLatitude,
         g.charter_car_type charterCarType,
+
+        g.use_time useTime,
+        g.start_date startDate,
+        g.end_date endDate,
+
         (select state from order_state_trace_info sti where sti.order_id=#{orderId} order by SUBSTRING(sti.state,1) desc limit 1) labelState
 	    from order_info a
 	        left join journey_info g on g.journey_id=a.journey_id
@@ -1732,6 +1766,120 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         select * from order_info where car_id = #{carId} and state not in ('S699','S900')
     </select>
 
+    <select id="getUseApplySearchList" parameterType="com.hq.ecmp.mscore.vo.UserApplySingleVo" resultType="com.hq.ecmp.mscore.vo.UserApplySingleVo">
+
+        SELECT DISTINCT
+								-- 申请id
+								ai.apply_id applyId,
+								-- 申请人姓名
+								eu.nick_name applyName,
+								-- 申请人手机号
+								eu.phonenumber applyPhoneNumber,
+								-- 用车人姓名
+								jpi.name			  vehicleUserName,
+								-- 用车人手机号
+								jpi.mobile	vehicleUserPhoneNumber,
+								-- 同行人数
+								jpi.peer_number  peerNumber,
+								-- 用车单位
+								eo.dept_name vehicleUserCompany,
+								-- 服务类型
+								ji.charter_car_type charterCarType,
+								-- 服务车型
+								ecty.name carLevel,
+								-- 车辆类型
+								ci.car_type carType,
+								-- 车辆车牌号
+								ci.car_license carLicense,
+								-- 车辆颜色
+								ci.car_color  carColor,
+                                -- 用车时间
+                                ji.use_time useTime,
+								-- 用车开始时间
+								ji.start_date beginTime,
+								-- 用车结束时间
+								ji.end_date endTime,
+								-- 申请事由
+								ai.reason vehicleUseReason,
+								-- 用车备注
+								ai.notes vehicleRemarks,
+								-- 车辆归属
+								cgi.car_group_name carCompany,
+								-- 驾驶员姓名
+								di.driver_name driverName,
+								-- 驾驶员手机号
+								di.mobile driverPhone,
+								-- 驾驶员归属
+								cgiTwo.car_group_name driverCompany,
+								-- 状态
+							 case
+									when right (oi.state,3)='100' then '待派车'
+									when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已派车'
+									when right (ai.state,3)='004' then '已撤销'
+									when right (ai.state,3)='005' then '已过期'
+							 ELSE '' END orderState
+							 FROM
+								apply_info ai  LEFT JOIN  journey_info ji ON ai.journey_id = ji.journey_id
+															 LEFT JOIN  ecmp_user eu    ON eu.user_id = ji.user_id
+															 LEFT JOIN  journey_passenger_info jpi ON jpi.journey_id = ji.journey_id and jpi.it_is_peer = '00'
+															 LEFT JOIN  ecmp_org eo     ON eo.dept_id  = eu.dept_id
+															 LEFT JOIN  order_info  oi  ON oi.journey_id = ji.journey_id
+															 LEFT JOIN  car_info    ci  ON ci.car_id = oi.car_id
+															 LEFT JOIN  enterprise_car_type_info  ecty ON ecty.car_type_id = ci.car_type_id
+															 LEFT JOIN  car_group_info cgi ON cgi.car_group_id = ci.car_group_id
+															 LEFT JOIN  driver_info di  ON di.driver_id = oi.driver_id
+														     LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = di.driver_id
+															 LEFT JOIN  car_group_info cgiTwo ON cgiTwo.car_group_id = cgdr.car_group_id
+                              where  oi.service_type='5000'
+                                    <if test="companyId!=null">
+                                        and  ai.company_id = #{companyId}
+                                    </if>
+                                    <if test="applyName!=null">
+                                        and  eu.nick_name = #{applyName}
+                                    </if>
+                                    <if test="applyPhoneNumber!=null">
+                                        and  eu.phonenumber = #{applyPhoneNumber}
+                                    </if>
+                                    <if test="vehicleUserName!=null">
+                                        and  jpi.name=#{vehicleUserName}
+                                    </if>
+                                    <if test="vehicleUserPhoneNumber!=null">
+                                        and  jpi.mobile=#{vehicleUserPhoneNumber}
+                                    </if>
+                                    <if test="vehicleUserCompany!=null">
+                                        and  eo.dept_name=#{vehicleUserCompany}
+                                    </if>
+                                    <if test="charterCarType!=null">
+                                        and  ji.charter_car_type=#{charterCarType}
+                                    </if>
+                                    <if test="peerNumber!=null">
+                                        and  jpi.peer_number=#{peerNumber}
+                                    </if>
+                                    <if test="carLevel!=null">
+                                        and  ecty.name=#{carLevel}
+                                    </if>
+                                    <if test="beginTime!=null  and  beginTime!='' ">
+                                        and DATE_FORMAT(ji.start_date,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{beginTime},'%Y-%m-%d %H:%i:%S')
+                                    </if>
+                                    <if test="endTime!=null  and  endTime!='' ">
+                                        and DATE_FORMAT(ji.end_date,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%S')
+                                    </if>
+    </select>
+
+
+    <select id="getUserTimeAndActionTime" resultType="java.util.Map" parameterType="long">
+        SELECT
+        s.action_time useCarTime,
+        jn.use_time useTime
+        FROM
+        order_info o
+        LEFT JOIN journey_info jn ON o.journey_id = jn.journey_id
+        LEFT JOIN order_address_info s ON s.order_id = o.order_id
+        AND s.type = 'A000'
+
+        WHERE
+        o.order_id = #{orderNo}
+    </select>
 
     <select id="queryDispatchListCharterCar" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
 

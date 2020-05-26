@@ -55,5 +55,13 @@ public class OrderDriverListInfo {
     private String stateType;
     private String itIsSupplement;
 
+    /** xmy用车申请总时长例如4天 2.5天*/
+    private String useTime;
+    /** 用车开始时间*/
+    private String startDate;
+    /** 用车结束时间*/
+    private String endDate;
+
+
 
 }

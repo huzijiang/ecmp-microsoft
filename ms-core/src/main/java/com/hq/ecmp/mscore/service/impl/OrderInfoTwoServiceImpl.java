@@ -525,6 +525,20 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService
         }
         PageHelper.startPage(pageNum,pageSize);
         List<OrderDriverListInfo> driverOrderList = orderInfoMapper.getDriverOrderList(driverId,flag);
+        //用车天数 和 用车开始-结束时间计算
+       /* if(null != driverOrderList && driverOrderList.size() > 0){
+            for(OrderDriverListInfo info : driverOrderList){
+                String useTime = info.getUseTime();//用车总天数
+                String useCarTime = info.getUseCarTime();//用车开始时间
+                info.setStartDate(useCarTime);
+                String dateNum = String.valueOf(Math.floor(Double.parseDouble(useTime)));
+                Date date = DateUtils.parseDate(useCarTime);//用车开始时间
+                Date futureDate = DateUtils.getFutureDate(date, Integer.parseInt(dateNum));
+                String dateStr= DateUtils.parseDateToStr(DateUtils.YYYYMMDD, futureDate);
+                info.setEndDate(dateStr);
+            }
+        }*/
+
         return driverOrderList;
     }
 

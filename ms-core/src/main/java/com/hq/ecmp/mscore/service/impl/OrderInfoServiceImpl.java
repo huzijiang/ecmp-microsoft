@@ -1403,6 +1403,24 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 //        DriverInfo driverInfo = driverInfos.get(0);
         Long driverId = driver.getDriverId();
         List<OrderDriverListInfo> lsit=orderInfoMapper.driverOrderUndoneList(driverId,day);
+        /**xmy*/
+        /*if(null != lsit && lsit.size() > 0){
+            for(OrderDriverListInfo info : lsit){
+                String useTime = info.getUseTime();//用车总天数
+                if(null != useTime && StringUtils.isEmpty(useTime)){
+                    String useCarTime = info.getUseCarTime();//用车开始时间
+                    info.setStartDate(useCarTime);
+                    //用车天数3.5转成4天
+                    Date date = DateUtils.parseDate(useCarTime);//用车开始时间
+                    String dateNum = String.valueOf(Math.floor(Double.parseDouble(useTime)));
+                    Date futureDate = DateUtils.getFutureDate(date, Integer.parseInt(dateNum));
+                    String dateStr= DateUtils.parseDateToStr(DateUtils.YYYYMMDD, futureDate);
+                    info.setEndDate(dateStr);
+                }
+            }
+        }*/
+        /**xmy*/
+
         return lsit;
     }
 
@@ -1421,6 +1439,19 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     @Override
     public DriverOrderInfoVO driverOrderDetail(Long orderId) {
         DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
+
+        /**xmy*/
+        /*String useTime = vo.getUseTime();//用车总天数
+        if(null != useTime && StringUtils.isEmpty(useTime)){
+            String useCarTime = DateUtils.parseDateToStr("yyyy-MM-dd HH:mm",vo.getUseCarTime());//用车开始时间
+            vo.setStartDate(useCarTime);
+            String dateNum =String.valueOf(Math.floor(Double.parseDouble(useTime)));//用车总天数
+            Date date = DateUtils.parseDate(useCarTime);//用车开始时间
+            Date futureDate = DateUtils.getFutureDate(date, Integer.parseInt(dateNum));
+            String dateStr= DateUtils.parseDateToStr(DateUtils.YYYYMMDD, futureDate);
+            vo.setEndDate(dateStr);
+        }*/
+        /**xmy*/
         vo.setCustomerServicePhone(serviceMobile);
         OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
 //        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
@@ -1456,6 +1487,60 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
         OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
+        //判断是否是多日租车
+        if(null != orderState && orderState.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){
+
+
+
+
+            Date startDate = DateUtils.parseDate(orderState.getStartDate());//租车开始时间
+            Date endDate = DateUtils.parseDate(orderState.getEndDate());//租车结束时间
+            String sdate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD,startDate);
+            String edate = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD,endDate);
+            String date = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD,new Date());
+            Date sd = DateUtils.parseDate(sdate);
+            Date ed = DateUtils.parseDate(edate);
+            Date d = DateUtils.parseDate(date);
+
+            if(!StringUtils.isEmpty(orderState.getUseTime()) && orderState.getUseTime().length() > 1){
+                if(sd.getTime() == d.getTime()){
+                    if(DateUtils.NOON <= startDate.getHours()){
+                        orderState.setWhole(0);//返回半天
+                    }else {
+                        orderState.setWhole(1);//返回1天
+                    }
+                }else if(ed.getTime() == d.getTime()){
+                    if(DateUtils.NOON <= endDate.getHours()){
+                        orderState.setWhole(0);//返回半天
+                    }else {
+                        orderState.setWhole(1);//返回1天
+                    }
+                }else {
+                    orderState.setWhole(1);//返回1天
+                }
+            }else {
+                if(sd.getTime() == d.getTime()){
+                    if(DateUtils.NOON <= startDate.getHours()){
+                        orderState.setWhole(0);//返回半天
+                    }else {
+                        orderState.setWhole(1);//返回1天
+                    }
+                } else if(ed.getTime() == d.getTime() && DateUtils.NOON <= startDate.getHours()){
+                    orderState.setWhole(0);//返回半天
+                } else {
+                    orderState.setWhole(1);//返回1天
+                }
+            }
+
+
+
+
+
+
+
+        }
+
+
         orderState.setApplyType(applyInfo.getApplyType());
         orderState.setCharterCarType(CharterTypeEnum.format(orderState.getCharterCarType()));
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos = journeyPlanPriceInfoMapper.selectJourneyPlanPriceInfoList(new JourneyPlanPriceInfo(orderId));
