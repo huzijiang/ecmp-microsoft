@@ -61,7 +61,7 @@
     <select id="queryAll" resultMap="OrderServiceCostDetailRecordInfoMap">
         select
         beyond_mileage_fee,beyond_time_fee,total_fee,record_id, order_id, start_longitude, start_latitude, end_longitude, end_latitude, start_time, end_time, mileage, set_meal_cost, set_meal_mileage, set_meal_times, beyond_mileage, beyond_time, road_and_bridge_fee, highway_toll_fee, stop_car_fee, accommodation_fee, food_fee, others_fee, create_by, create_time, update_by, update_time
-        from ecmp.order_service_cost_detail_record_info
+        from order_service_cost_detail_record_info
         <where>
             <if test="recordId != null">
                 and record_id = #{recordId}
@@ -146,7 +146,7 @@
 
     <!--通过主键修改数据-->
     <update id="update">
-        update ecmp.order_service_cost_detail_record_info
+        update order_service_cost_detail_record_info
         <set>
             <if test="orderId != null">
                 order_id = #{orderId},
