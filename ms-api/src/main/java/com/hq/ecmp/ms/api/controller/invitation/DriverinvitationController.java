@@ -65,7 +65,11 @@ public class DriverinvitationController {
     @PostMapping("/interInvitationDriverCommit")
     public ApiResponse interInvitationDriverCommit(@RequestBody DriverInvitationDTO driverInvitationDTO){
         try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long companyId = loginUser.getUser().getOwnerCompany();
             String urlApi=driverInvitationDTO.getApiUrl();
+            driverInvitationDTO.setCompanyId(companyId);
             //1.新增企业邀请信息表信息
             ecmpEnterpriseInvitationInfoService.insertDriverInvitation(driverInvitationDTO);
             Long invitationId = driverInvitationDTO.getInvitationId();

@@ -45,4 +45,6 @@ public class DriverInvitationDTO {
     Date borrowBeginTime;
     @ApiParam(name = "borrowEndTime", value = "借调结束日期")
     Date borrowEndTime;
+    @ApiParam(name = "companyId", value = "公司id")
+    Long companyId;
 }

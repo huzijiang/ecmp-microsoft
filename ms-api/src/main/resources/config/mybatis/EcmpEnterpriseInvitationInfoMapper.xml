@@ -305,6 +305,7 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
             <if test="state != null  and state != ''">state,</if>
             <if test="url != null  and url != ''">url,</if>
             <if test="createTime != null ">create_time,</if>
+            <if test="companyId != null ">company_id,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="name != null ">#{name},</if>
@@ -316,6 +317,7 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
             <if test="state != null  and state != ''">#{state},</if>
             <if test="url != null  and url != ''">#{url},</if>
             <if test="createTime != null ">#{createTime},</if>
+            <if test="companyId != null ">#{companyId},</if>
         </trim>
 
     </insert>
