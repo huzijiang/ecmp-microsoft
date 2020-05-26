@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -97,7 +98,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map handleDriverOrderStatus(String type, String currentPoint, String orderNo, Long userId, String mileage, String travelTime, String recordId) throws Exception {
+    public void handleDriverOrderStatus(String type, String currentPoint, String orderNo, Long userId, String mileage, String travelTime) throws Exception {
 
         ApiResponse<Map> apiResponse = new ApiResponse();
         Double longitude = null;
@@ -120,17 +121,10 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         orderStateTraceInfo.setDriverLongitude(longitude);
         orderStateTraceInfo.setDriverLatitude(latitude);
         orderStateTraceInfo.setCreateBy(String.valueOf(userId));
-        Map<String,Integer> map = new HashMap();
+
         if(DriverBehavior.PICKUP_PASSENGER.getType().equals(type)){
 
             /** xmy1*/
-            //存储出发点行车经纬度
-            OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
-            recordInfo.setStartLongitude(BigDecimal.valueOf(longitude));//精度
-            recordInfo.setStartLatitude(BigDecimal.valueOf(latitude));//维度
-            recordInfo.setOrderId(orderId);
-            int insert = orderServiceCostDetailRecordInfoMapper.insert(recordInfo);
-            map.put("recordId",insert);
             //1判断当前服务是不是暂停状态
             if(null != orderInfoOld && OrderState.SERVICE_SUSPEND.getState().equals(orderInfoOld.getState())){
                 //2改变 服务状态
@@ -162,6 +156,18 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             //司机到达发送短信
             ismsBusiness.sendSmsDriverArrivePrivate(orderId);
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
+
+
+
+            //存储出发点行车经纬度
+            OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
+            recordInfo.setStartLongitude(BigDecimal.valueOf(longitude));//精度
+            recordInfo.setStartLatitude(BigDecimal.valueOf(latitude));//维度
+            recordInfo.setStartTime(new Date());
+            recordInfo.setOrderId(orderId);
+            int insert = orderServiceCostDetailRecordInfoMapper.insert(recordInfo);
+
+
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             String longAddr = "";
             String shortAddr ="";
@@ -258,12 +264,16 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             //确认行程展示
 
             /**xmy1*/
-            Map<String,String> userAndActionTime = orderInfoMapper.getUserTimeAndActionTime(Long.parseLong(orderNo));
-            String useTime = userAndActionTime.get("useTime");//用车总天数
-            String useCarTime = userAndActionTime.get("useCarTime");//用车开始时间
+            OrderInfoDate userAndActionTime = orderInfoMapper.getUserTimeAndActionTime(Long.parseLong(orderNo));
+            String useTime = userAndActionTime.getUseTime();//用车总天数
+            Date useCarTime = userAndActionTime.getUseCarTime();
+            String s = DateUtils.formatDate(useCarTime, DateUtils.YYYY_MM_DD_HH_MM_SS);
+            Date startDate = DateUtils.parseDate(s);//用车开始时间
             //用车天数3.5转成4天
-            String dateNum = String.valueOf(Math.floor(Double.parseDouble(useTime)));
-            Date startDate = DateUtils.parseDate(useCarTime);//用车开始时间
+            double floor = Math.floor(Double.parseDouble(useTime));
+            int tmp = Integer.parseInt(new DecimalFormat("0").format(floor));
+            String dateNum = String.valueOf(tmp);
+            //Date startDate = DateUtils.parseDate(useCarTime);//用车开始时间
             //结束用车时间
             Date futureDate = DateUtils.getFutureDate(startDate, Integer.parseInt(dateNum));
             String dateStr= DateUtils.parseDateToStr(DateUtils.YYYYMMDD, futureDate);
@@ -285,24 +295,30 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
             }else {//false的话说明是多日服务 还没有到租车结束当天
                 /**xmy1*/
-                orderInfo.setState(OrderState.SERVICE_SUSPEND.getState());//订单状态
-                iOrderInfoService.updateOrderInfo(orderInfo);//更新订单状态
-                orderStateTraceInfo.setState(OrderStateTrace.DRIVER_SERVICE_SUSPEND.getState());//轨迹状态
-                //插入轨迹
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-                orderStateTraceInfo.setState(OrderStateTrace.SERVICE_SUSPEND.getState());//轨迹状态
-                //插入轨迹
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            orderInfo.setState(OrderState.SERVICE_SUSPEND.getState());//订单状态
+            iOrderInfoService.updateOrderInfo(orderInfo);//更新订单状态
+            orderStateTraceInfo.setState(OrderStateTrace.DRIVER_SERVICE_SUSPEND.getState());//轨迹状态
 
-            }
-            //存储行车结束经纬度
-            OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
-            recordInfo.setEndLongitude(BigDecimal.valueOf(longitude));//精度
-            recordInfo.setEndLatitude(BigDecimal.valueOf(latitude));//维度
-            recordInfo.setOrderId(orderId);
-            recordInfo.setRecordId(Long.parseLong(recordId));
-            orderServiceCostDetailRecordInfoMapper.update(recordInfo);
-            /**xmy2*/
+            //插入轨迹
+            iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            orderStateTraceInfo.setTraceId(orderStateTraceInfo.getTraceId()+1);
+            orderStateTraceInfo.setState(OrderStateTrace.SERVICE_SUSPEND.getState());//轨迹状态
+            //插入轨迹
+            iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+
+        }
+        //存储行车结束经纬度
+        OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
+
+        long recorId = orderServiceCostDetailRecordInfoMapper.selsctRecordIdByOrderId(orderId);
+        recordInfo.setEndLongitude(BigDecimal.valueOf(longitude));//精度
+        recordInfo.setEndLatitude(BigDecimal.valueOf(latitude));//维度
+        recordInfo.setOrderId(orderId);
+        recordInfo.setRecordId(recorId);
+
+        orderServiceCostDetailRecordInfoMapper.update(recordInfo);
+
+        /**xmy2*/
             //添加里程数和总时长
             OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
             orderSettlingInfo.setOrderId(orderId);
@@ -324,8 +340,6 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         }else{
             throw new Exception("操作类型有误");
         }
-
-        return map;
     }
 
     @Override
