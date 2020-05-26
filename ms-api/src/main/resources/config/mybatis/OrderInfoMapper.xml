@@ -1732,6 +1732,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         select * from order_info where car_id = #{carId} and state not in ('S699','S900')
     </select>
 
+
     <select id="queryDispatchListCharterCar" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
 
         SELECT DISTINCT
@@ -1920,6 +1921,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         cgi.car_group_name carCompany,
         -- 驾驶员姓名
         di.driver_name driverName,
+        -- 等待时长
+        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
         -- 驾驶员手机号
         di.mobile driverPhone,
         -- 驾驶员归属

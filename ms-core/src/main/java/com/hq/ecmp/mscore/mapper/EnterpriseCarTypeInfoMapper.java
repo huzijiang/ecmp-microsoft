@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
 import com.hq.ecmp.mscore.dto.CarTypeDTO;
+import com.hq.ecmp.mscore.vo.CarTypeVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -101,4 +102,12 @@ public interface EnterpriseCarTypeInfoMapper
     String selectCarTypesByTypeIds(@Param("ownerCompany") Long ownerCompany, @Param("levels") String levels);
 
     List<EnterpriseCarTypeInfo> selectEnterpriseCarTypeIds(@Param("list") List<String> carTypeId);
+
+    /**
+     * 查询制度中可用车型
+     * @param useCarModeOwnerLevel
+     * @param companyId
+     * @return
+     */
+    List<CarTypeVO> queryCarTypeList(@Param("useCarModeOwnerLevel") String useCarModeOwnerLevel,@Param("companyId") Long companyId);
 }

@@ -21,10 +21,7 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.DateFormatUtils;
-import com.hq.ecmp.util.GsonUtils;
-import com.hq.ecmp.util.RandomUtil;
-import com.hq.ecmp.util.SortListUtil;
+import com.hq.ecmp.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +92,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private JourneyPlanPriceInfoMapper journeyPlanPriceInfoMapper;
     @Autowired
     private ApplyUseCarTypeMapper applyUseCarTypeMapper;
-
+    @Autowired
+    private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
+    @Autowired
+    private OrderDispatcheDetailInfoMapper orderDispatcheDetailInfoMapper;
     @Resource
     private ThirdService thirdService;
     @Autowired
@@ -185,10 +185,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         return applyInfoMapper.deleteApplyInfoById(applyId);
     }
 
-   /* *//**
-     * 提交行程申请单  弃用，公务申请，差旅申请下面分开实现
-     * @param journeyCommitApplyDto
-     *//*
+    /* *//**
+ * 提交行程申请单  弃用，公务申请，差旅申请下面分开实现
+ * @param journeyCommitApplyDto
+ *//*
     @Deprecated
     @Override
     @Transactional
@@ -265,41 +265,41 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             if(NeedApproveEnum.NEED_NOT_APPROVE.getKey().equals(needApprovalProcess)){
                 //3. 如果不需要审批 则初始化生成用车权限  差旅申请不需要初始化订单
                 executor.submit(()-> {
-                        try {
-                            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
-                            if(!optFlag){
-                                log.error("生成用车权限失败");
-                            }
-                        } catch (Exception e) {
-                            log.error("生成用车权限失败，参数 ",e);
+                    try {
+                        boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
+                        if(!optFlag){
+                            log.error("生成用车权限失败");
                         }
+                    } catch (Exception e) {
+                        log.error("生成用车权限失败，参数 ",e);
+                    }
                 });
             }else {
                 //4. 如果需要审批 给审批人发短信
                 executor.submit(()->{
-                        try {
-                            String userName = travelCommitApply.getApplyUser().getUserName();
-                            Date startDate = travelCommitApply.getStartDate();
-                            Date endDate = travelCommitApply.getEndDate();
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
-                            String format = simpleDateFormat.format(startDate);
-                            String format1 = simpleDateFormat.format(endDate);
-                            String date = format + "-" + format1;
-                            List<ApprovalVO> approvers = travelCommitApply.getApprovers();
-                            String title = journeyInfoMapper.selectTitleById(journeyId);
-                            for (ApprovalVO approver : approvers) {
-                                //给审批人发短信  1.员工姓名 2.日期 3.城市
-                                // 员工陈超已提交“2019年08月20日-2019年08月23日，长春-上海-长春”的差旅用车申请，请登录红旗公务APP及时处理。（差旅申请）
-                                Map<String,String> map = new HashMap<>();
-                                map.put("userName",userName);
-                                map.put("date",date);
-                                map.put("city",title);
-                                //给审批人发短信
-                                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TRAVEL_APPLY_APPROVER,map,approver.getApprovalPhone());
-                            }
-                        } catch (Exception e) {
-                            log.error("差旅申请，给审批人发送短信失败，参数：{},applyId:{}",JSONArray.toJSON(travelCommitApply).toString(),applyId,e);
+                    try {
+                        String userName = travelCommitApply.getApplyUser().getUserName();
+                        Date startDate = travelCommitApply.getStartDate();
+                        Date endDate = travelCommitApply.getEndDate();
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
+                        String format = simpleDateFormat.format(startDate);
+                        String format1 = simpleDateFormat.format(endDate);
+                        String date = format + "-" + format1;
+                        List<ApprovalVO> approvers = travelCommitApply.getApprovers();
+                        String title = journeyInfoMapper.selectTitleById(journeyId);
+                        for (ApprovalVO approver : approvers) {
+                            //给审批人发短信  1.员工姓名 2.日期 3.城市
+                            // 员工陈超已提交“2019年08月20日-2019年08月23日，长春-上海-长春”的差旅用车申请，请登录红旗公务APP及时处理。（差旅申请）
+                            Map<String,String> map = new HashMap<>();
+                            map.put("userName",userName);
+                            map.put("date",date);
+                            map.put("city",title);
+                            //给审批人发短信
+                            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.TRAVEL_APPLY_APPROVER,map,approver.getApprovalPhone());
                         }
+                    } catch (Exception e) {
+                        log.error("差旅申请，给审批人发送短信失败，参数：{},applyId:{}",JSONArray.toJSON(travelCommitApply).toString(),applyId,e);
+                    }
                 });
             }
         }
@@ -987,10 +987,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                     orderIds = initPowerAndOrder(journeyId, applyType, applyId, userId,officialCommitApply);
                 }else {
                     //3.2.2 不是直接调度 则给审批人发短信
-                        sendMessageToApproverForOfficial(officialCommitApply, applyId, userId);
-                    }
+                    sendMessageToApproverForOfficial(officialCommitApply, applyId, userId);
                 }
             }
+        }
         return orderIds;
     }
 
@@ -1427,12 +1427,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      */
     private void initOfficialApproveFlow(Long applyId, Long userId, Integer regimenId) {
         executor.submit(()-> {
-                try {
-                    //初始化审批流
-                    applyApproveResultInfoService.initApproveResultInfo(applyId, Long.valueOf(regimenId), userId);
-                } catch (Exception e) {
-                    log.error("差旅申请，初始化审批流失败，用户：{}，用车制度：{}",userId,regimenId,e);
-                }
+            try {
+                //初始化审批流
+                applyApproveResultInfoService.initApproveResultInfo(applyId, Long.valueOf(regimenId), userId);
+            } catch (Exception e) {
+                log.error("差旅申请，初始化审批流失败，用户：{}，用车制度：{}",userId,regimenId,e);
+            }
         });
     }
 
@@ -1481,44 +1481,44 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param userId
      */
     private List<Long> initPowerAndOrder(Long journeyId, String applyType, Long applyId, Long userId,ApplyOfficialRequest officialCommitApply) {
-         try {
-           ArrayList<Long> orderIds = new ArrayList<>();
-           //1. 公务申请 初始化用车权限
-           boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
-           if(!optFlag){
-              log.error("生成用车权限失败");
-           }
-             ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
-           //2.初始化订单
-           List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
-           if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
-               int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
-               ecmpMessageService.applyUserPassMessage(applyId,userId,userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
-               for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
-                   int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
-                   //OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
-                   OfficialOrderReVo officialOrderReVo = OfficialOrderReVo.builder().powerId(carAuthorityInfo.getTicketId())
-                           .isDispatch(isDispatch).carLevel(CarLeaveEnum.getAll()).companyId(officialCommitApply.getCompanyId()).build();
-                   Long orderId=null;
-                   if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyType)){
-                       orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
-                       if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
-                           OrderInfo orderInfo = new OrderInfo();
-                           orderInfo.setItIsSupplement(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue());
-                           orderInfo.setUseCarMode(officialCommitApply.getUseType());
-                           orderInfo.setOrderId(orderId);
-                           orderInfoService.updateOrderInfo(orderInfo);
-                       }
-                       orderIds.add(orderId);
-                   }
-                   ecmpMessageService.saveApplyMessagePass(applyInfo,userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
-               }
-           }
-           return orderIds;
-         } catch (Exception e) {
-             log.error("公务申请，初始化权限和订单失败，用户：{}，请求参数：{}",userId,JSONArray.toJSON(officialCommitApply).toString(),e);
-             return null;
-         }
+        try {
+            ArrayList<Long> orderIds = new ArrayList<>();
+            //1. 公务申请 初始化用车权限
+            boolean optFlag = journeyUserCarPowerService.createUseCarAuthority(applyId, userId);
+            if(!optFlag){
+                log.error("生成用车权限失败");
+            }
+            ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(applyId);
+            //2.初始化订单
+            List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
+                int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
+                ecmpMessageService.applyUserPassMessage(applyId,userId,userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
+                for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
+                    int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
+                    //OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
+                    OfficialOrderReVo officialOrderReVo = OfficialOrderReVo.builder().powerId(carAuthorityInfo.getTicketId())
+                            .isDispatch(isDispatch).carLevel(CarLeaveEnum.getAll()).companyId(officialCommitApply.getCompanyId()).build();
+                    Long orderId=null;
+                    if (ApplyTypeEnum.APPLY_BUSINESS_TYPE.getKey().equals(applyType)){
+                        orderId = orderInfoService.officialOrder(officialOrderReVo, userId);
+                        if(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue().equals(officialCommitApply.getDistinguish())){
+                            OrderInfo orderInfo = new OrderInfo();
+                            orderInfo.setItIsSupplement(ItIsSupplementEnum.ORDER_DIRECT_SCHEDULING_STATUS.getValue());
+                            orderInfo.setUseCarMode(officialCommitApply.getUseType());
+                            orderInfo.setOrderId(orderId);
+                            orderInfoService.updateOrderInfo(orderInfo);
+                        }
+                        orderIds.add(orderId);
+                    }
+                    ecmpMessageService.saveApplyMessagePass(applyInfo,userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
+                }
+            }
+            return orderIds;
+        } catch (Exception e) {
+            log.error("公务申请，初始化权限和订单失败，用户：{}，请求参数：{}",userId,JSONArray.toJSON(officialCommitApply).toString(),e);
+            return null;
+        }
     }
 
     private Long getLoginUserId() {
@@ -1813,7 +1813,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                 if("N444".equals(isGoBack)){
                     journeyInfo.setEndDate(new Date(applyDate.getTime() + driveTime*1000));
                 }else {
-                   //如果有往返 则要算上 往返等待时间 和 返程行驶时间
+                    //如果有往返 则要算上 往返等待时间 和 返程行驶时间
                     if(returnWaitTime != null){
                         journeyInfo.setEndDate(new Date(applyDate.getTime() + 2*driveTime*1000 + Long.valueOf(returnWaitTime)));
                     }
@@ -1927,7 +1927,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                     approveTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN_3,resultInfo.getUpdateTime());
                 }
                 if (StringUtils.isNotBlank(resultInfo.getUpdateBy())){
-                     approveUserId=resultInfo.getUpdateBy();
+                    approveUserId=resultInfo.getUpdateBy();
                 }
             }
             //撤销
@@ -1984,7 +1984,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setUpdateTime(new Date());
         int i=0;
         if (StringUtils.isNotBlank(applyState)){
-           i = applyInfoMapper.updateApplyInfo(applyInfo);
+            i = applyInfoMapper.updateApplyInfo(applyInfo);
         }
         this.updateApproveResult(applyId,approveState,userId);
         return i;
@@ -1995,12 +1995,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         List<ApplyApproveResultInfo> resultInfos = resultInfoMapper.selectApplyApproveResultInfoList(new ApplyApproveResultInfo(applyId));
         List<ApplyApproveResultInfo> collect = resultInfos.stream().filter(p -> ApproveStateEnum.NOT_ARRIVED_STATE.getKey().equals(p.getState()) || ApproveStateEnum.WAIT_APPROVE_STATE.getKey().equals(p.getState())).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(collect)){
-           for (ApplyApproveResultInfo approveResultInfo:collect){
-               approveResultInfo.setUpdateTime(new Date());
-               approveResultInfo.setUpdateBy(String.valueOf(userId));
-               approveResultInfo.setState(state);
-               resultInfoMapper.updateApplyApproveResultInfo(approveResultInfo);
-           }
+            for (ApplyApproveResultInfo approveResultInfo:collect){
+                approveResultInfo.setUpdateTime(new Date());
+                approveResultInfo.setUpdateBy(String.valueOf(userId));
+                approveResultInfo.setState(state);
+                resultInfoMapper.updateApplyApproveResultInfo(approveResultInfo);
+            }
         }
     }
 
@@ -2022,5 +2022,254 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         }
     }
 
+    /**
+     *
+     * @param applyId
+     * @param applyState
+     * @param approveState
+     * @param userId
+     * @return
+     */
+    @Override
+    @Transactional
+    public int updateApplyOrderState(Long applyId, String applyState, String approveState, Long userId)throws Exception {
+        ApplyInfo applyInfo = new ApplyInfo(applyId,applyState);
+        applyInfo.setUpdateBy(String.valueOf(userId));
+        applyInfo.setUpdateTime(new Date());
+        int i=0;
+        if (StringUtils.isNotBlank(applyState)){
+            i = applyInfoMapper.updateApplyInfo(applyInfo);
+        }
+        this.updateApproveResult(applyId,approveState,userId);
+        this.updateOrderResult(applyId,userId);
+        return i;
+    }
 
+    /**
+     *
+     * @param loginUser
+     * @param applySingleVO
+     * @return
+     */
+    @Override
+    public int submitApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) {
+        //申请人id
+        applySingleVO.setUserId(loginUser.getUser().getUserId());
+        //申请人公司
+        applySingleVO.setCompanyId(loginUser.getUser().getDept().getCompanyId());
+        //获取当前申请单的制度Id
+        Long regimenId = regimeInfoMapper.queryRegimeInfoByCompanyId(loginUser.getUser().getDept().getCompanyId());
+        applySingleVO.setRegimenId(regimenId);
+        //1.保存乘客行程信息 journey_info表
+        JourneyInfo journeyInfo = new JourneyInfo();
+        submitJourneyInfoCommit(applySingleVO,journeyInfo);
+        //2.保存申请信息 apply_info表
+        ApplyInfo applyInfo = new ApplyInfo();
+        submitApplyInfoCommit(applySingleVO, journeyInfo.getJourneyId(), applyInfo);
+        //3.保存行程节点信息 journey_node_info表
+        JourneyNodeInfo journeyNodeInfo = new JourneyNodeInfo();
+        submitJourneyNodeInfoCommit(applySingleVO, journeyInfo.getJourneyId(), journeyNodeInfo);
+        //4.保存行程乘客信息 journey_passenger_info表
+        JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
+        submitJourneyPassengerInfoCommit(applySingleVO, journeyInfo.getJourneyId(), journeyPassengerInfo);
+        //5.新增可用车型表信息
+        List<UseCarTypeVO> canUseCarTypes = applySingleVO.getCanUseCarTypes();
+        saveCanUseCarTypeInfo(applyInfo.getApplyId(), canUseCarTypes);
+        //公务申请不需要审批情况下初始化权限和初始化订单
+        ApplyOfficialRequest officialCommitApply = new ApplyOfficialRequest();
+        officialCommitApply.setCompanyId(applySingleVO.getCompanyId());
+        List<Long> orderIds = initPowerAndOrder(journeyInfo.getJourneyId(),applyInfo.getApplyType(), applyInfo.getApplyId(), applySingleVO.getUserId(),officialCommitApply);
+        //6.包车调度详情  order_dispatche_detail_info
+        OrderDispatcheDetailInfo orderDispatcheDetailInfo = new OrderDispatcheDetailInfo();
+        orderDispatcheDetailInfo.setOrderId(orderIds.get(0));
+        orderDispatcheDetailInfo.setCharterCarType(journeyInfo.getCharterCarType());
+        orderDispatcheDetailInfo.setDispatchState(CarConstant.DISPATCH_NOT_COMPLETED);
+        orderDispatcheDetailInfo.setCreateBy(String.valueOf(applySingleVO.getUserId()));
+        orderDispatcheDetailInfo.setCreateTime(DateUtils.getNowDate());
+         int i = orderDispatcheDetailInfoMapper.insertOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
+        return i;
+    }
+
+    /**
+     * 修改订单表状态与轨迹表的状态
+     * @param applyId
+     */
+    private void updateOrderResult(Long applyId,Long userId) {
+        //订单id
+        Long orderId = applyInfoMapper.selectOrderInfoById(applyId);
+        if(null != orderId){
+            //修改订单表状态
+            OrderInfo orderInfo =new OrderInfo();
+            orderInfo.setOrderId(orderId);
+            orderInfo.setState(OrderState.ORDERCLOSE.getState());
+            orderInfo.setUpdateBy(String.valueOf(userId));
+            orderInfo.setUpdateTime(DateUtils.getNowDate());
+            int i = orderInfoService.updateOrderInfo(orderInfo);
+            if(i==1){
+                //修改轨迹表状态
+                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
+                orderStateTraceInfo.setOrderId(orderId);
+                orderStateTraceInfo.setState(OrderState.ORDERCANCEL.getState());
+                //先写死后期做统一常量处理
+                orderStateTraceInfo.setContent("申请单撤销");
+                orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+                orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
+                int j= orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+            }
+        }
+    }
+
+    /**
+     * 保存乘客行程信息 journey_info表
+     * @param applySingleVO
+     * @param journeyInfo
+     */
+    private void submitJourneyInfoCommit(ApplySingleVO applySingleVO,JourneyInfo journeyInfo) {
+        //用车制度Id
+        journeyInfo.setRegimenId(applySingleVO.getRegimenId());
+        //申请人Id
+        journeyInfo.setUserId(applySingleVO.getUserId());
+        //公司Id
+        journeyInfo.setCompanyId(applySingleVO.getCompanyId());
+        // service_type 包车
+        journeyInfo.setServiceType(OrderServiceType .ORDER_SERVICE_TYPE_CHARTERED.getBcState());
+        //use_car_mode 自有车
+        journeyInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
+        //是否往返
+        journeyInfo.setItIsReturn(JourneyConstant.IT_IS_NOT_RETURN);
+        //用车时间
+        journeyInfo.setUseCarTime(applySingleVO.getApplyDate());
+        //行程总时长
+        journeyInfo.setUseTime(applySingleVO.getApplyDays());
+        //包车类型
+        String  halfDayRent = "0.5";  //半日租
+        String  fullDayRent = "1";    //整日租
+        if(CarConstant.RETURN_ZERO_CODE.equals(applySingleVO.getApplyDays().compareTo(halfDayRent))){
+            //半日
+            journeyInfo.setCharterCarType(CharterTypeEnum.HALF_DAY_TYPE.getKey());
+        }else if(CarConstant.RETURN_ZERO_CODE.equals(applySingleVO.getApplyDays().compareTo(fullDayRent))){
+            //整日
+            journeyInfo.setCharterCarType(CharterTypeEnum.OVERALL_RENT_TYPE.getKey());
+        }else{
+            //多日
+            journeyInfo.setCharterCarType(CharterTypeEnum.MORE_RENT_TYPE.getKey());
+        }
+        //行程开始时间
+        journeyInfo.setStartDate(applySingleVO.getApplyDate());
+        //行程结束时间
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(applySingleVO.getApplyDate());
+        calendar.add(Calendar.DATE, Integer.parseInt(applySingleVO.getApplyDays()));
+        journeyInfo.setEndDate(calendar.getTime());
+        //行程标题
+        journeyInfo.setTitle("包车申请单");
+        //创建者
+        journeyInfo.setCreateBy(applySingleVO.getUserId().toString());
+        //创建时间
+        journeyInfo.setCreateTime(DateUtils.getNowDate());
+        journeyInfoMapper.insertJourneyInfo(journeyInfo);
+    }
+
+    /**
+     * 提交差旅申请信息 apply_info
+     * @param applySingleVO
+     * @param journeyId
+     * @param applyInfo
+     */
+    private void submitApplyInfoCommit(ApplySingleVO applySingleVO, Long journeyId, ApplyInfo applyInfo) {
+        //乘客行程journey_id
+        applyInfo.setJourneyId(journeyId);
+        //制度Id regimen_id
+        applyInfo.setRegimenId(applySingleVO.getRegimenId());
+        //所属公司
+        applyInfo.setCompanyId(applySingleVO.getCompanyId());
+        //申请单编号
+        applyInfo.setApplyNumber(RandomUtil.getRandomNumber());
+        //用车申请类型
+        applyInfo.setApplyType(CarConstant.USE_CAR_TYPE_OFFICIAL);
+        //state 申请审批状态 S001  申请中 S002  通过 S003  驳回 S004  已撤销
+        applyInfo.setState(ApplyStateConstant.APPLY_PASS);
+        //车型级别编号
+        applyInfo.setCarTypeId(applySingleVO.getCarTypeId());
+        //reason 行程原因
+        applyInfo.setReason(applySingleVO.getReason());
+        //notes  用车注意事项
+        applyInfo.setNotes(applySingleVO.getNotes());
+        // create_by 创建者
+        applyInfo.setCreateBy(applySingleVO.getUserId().toString());
+        //create_time 创建时间
+        applyInfo.setCreateTime(DateUtils.getNowDate());
+        applyInfoMapper.insertApplyInfo(applyInfo);
+    }
+
+    /**
+     * 申请行程节点信息 journey_node_info
+     * @param applySingleVO
+     * @param journeyId
+     * @param journeyNodeInfo
+     */
+    private void submitJourneyNodeInfoCommit(ApplySingleVO applySingleVO, Long journeyId,JourneyNodeInfo journeyNodeInfo) {
+        //journey_id 非空
+        journeyNodeInfo.setJourneyId(journeyId);
+        //user_id 行程申请人 编号
+        journeyNodeInfo.setUserId(applySingleVO.getUserId());
+        //计划上车地址
+        journeyNodeInfo.setPlanBeginAddress(applySingleVO.getStartAddr().getAddress()); //上车地址
+        journeyNodeInfo.setPlanBeginLongAddress(applySingleVO.getStartAddr().getLongAddress()); //上车长地址
+        journeyNodeInfo.setPlanBeginCityCode(applySingleVO.getStartAddr().getCityCode()); //上车城市
+        journeyNodeInfo.setPlanBeginLongitude(applySingleVO.getStartAddr().getLongitude()); //上车长经度
+        journeyNodeInfo.setPlanBeginLatitude(applySingleVO.getStartAddr().getLatitude()); //上车短纬度
+        //计划下车地址
+        journeyNodeInfo.setPlanEndAddress(applySingleVO.getEndAddr().getAddress()); //下车地址
+        journeyNodeInfo.setPlanEndLongAddress(applySingleVO.getEndAddr().getLongAddress()); //下车长地址
+        journeyNodeInfo.setPlanEndCityCode(applySingleVO.getEndAddr().getCityCode()); //下车城市
+        journeyNodeInfo.setPlanEndLongitude(applySingleVO.getEndAddr().getLongitude()); //下车长经度
+        journeyNodeInfo.setPlanEndLatitude(applySingleVO.getEndAddr().getLatitude()); //下车短纬度
+        //计划出发时间
+        journeyNodeInfo.setPlanSetoutTime(applySingleVO.getApplyDate());
+        //计划到达时间
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(applySingleVO.getApplyDate());
+        calendar.add(Calendar.DATE, Integer.parseInt(applySingleVO.getApplyDays()));
+        journeyNodeInfo.setPlanArriveTime(calendar.getTime());
+        //是否是途经点
+        journeyNodeInfo.setItIsViaPoint(CarConstant.ALLOW_USE);
+        //交通工具 T001  飞机 T101  火车 T201  汽车 T301  轮渡 T999  其他   差旅申请才有
+        journeyNodeInfo.setVehicle(CarConstant.TRAFFIC_AUTOMOBILE);
+        //行程节点 （天）
+        journeyNodeInfo.setDuration(applySingleVO.getApplyDays());
+        //P000   有效中  P444   已失效
+        journeyNodeInfo.setNodeState(CommonConstant.VALID_NODE);
+        ///节点在 在整个行程 中的顺序编号 从  1  开始   节点编号单独判断
+        journeyNodeInfo.setNumber(CarConstant.RETURN_ONE_CODE);
+        //创建者
+        journeyNodeInfo.setCreateBy(applySingleVO.getUserId().toString());
+        //创建时间
+        journeyNodeInfo.setCreateTime(DateUtils.getNowDate());
+        journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
+        }
+
+    /**
+     * 提交乘客信息表
+     * @param applySingleVO
+     * @param journeyId
+     * @param journeyPassengerInfo
+     */
+    private void submitJourneyPassengerInfoCommit(ApplySingleVO applySingleVO, Long journeyId, JourneyPassengerInfo journeyPassengerInfo) {
+        //journey_id 非空
+        journeyPassengerInfo.setJourneyId(journeyId);
+        //乘车人姓名
+        journeyPassengerInfo.setName(applySingleVO.getPassenger().getUserName());
+        //乘车人手机号
+        journeyPassengerInfo.setMobile(applySingleVO.getPassenger().getUserPhone());
+        // 是否是同行者 00   是   01   否
+        journeyPassengerInfo.setItIsPeer(CommonConstant.IS_PEER);
+        //同行人数
+        journeyPassengerInfo.setPeerNumber(applySingleVO.getPeerNumber());
+        //创建者
+        journeyPassengerInfo.setCreateBy(applySingleVO.getUserId().toString());
+        //创建时间
+        journeyPassengerInfo.setCreateTime(DateUtils.getNowDate());
+        journeyPassengerInfoMapper.insertJourneyPassengerInfo(journeyPassengerInfo);
+    }
 }

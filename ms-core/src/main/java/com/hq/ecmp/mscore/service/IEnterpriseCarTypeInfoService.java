@@ -111,4 +111,11 @@ public interface IEnterpriseCarTypeInfoService
      * @return
      */
     List<CarTypeDTO> selectCarTypeById(CarTypeDTO carTypeDTO);
+
+    /**
+     * 查询制度中可用车型
+     * @param companyId
+     * @return
+     */
+    List<CarTypeVO> queryCarTypeList(Long companyId);
 }
