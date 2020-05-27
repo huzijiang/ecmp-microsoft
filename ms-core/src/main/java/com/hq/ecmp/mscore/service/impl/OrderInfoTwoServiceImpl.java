@@ -788,15 +788,24 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 }
             }
         }
+
         Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
-        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
         if (dispatcherOrderList.isEmpty()) {
-            info.setTotal(0);
-            info.setPages(0);
-            return new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
+            Long total = 0L;
+            Integer pageSize = 0;
+            return new PageResult<>(total, pageSize, page.getCurrentPageData());
         }
         page.setCurrent_page(query.getPageNum());
-        return new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());
+//        Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+//        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
+//        if (dispatcherOrderList.isEmpty()) {
+//            info.setTotal(0);
+//            info.setPages(0);
+//            return new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
+//        }
+//        page.setCurrent_page(query.getPageNum());
+//        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getTotal_page(), dispatcherOrderList);
     }
 
     /**

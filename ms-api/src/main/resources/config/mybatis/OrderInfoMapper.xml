@@ -397,9 +397,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             left join ecmp_org org on c.dept_id = org.dept_id
             left join car_group_info g on c.car_group_id = g.car_group_id
             left join driver_info u  on o.driver_id = u.driver_id
-
             left join journey_passenger_info p on jn.journey_id = p.journey_id
-			left join enterprise_car_type_info e on  c.state = e.`status`
+			left join enterprise_car_type_info e on  c.car_type_id = e.car_type_id
             where o.order_id=#{orderId}
     </select>
 
@@ -1311,19 +1310,19 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="companyId!=null">
             and  oi.company_id=#{companyId}
         </if>
-        <if test="applyName!=null">
+        <if test="applyName!=null and applyName!=''">
             and  eu.nick_name=#{applyName}
         </if>
-        <if test="applyMobile!=null">
+        <if test="applyMobile!=null and applyMobile!=''">
             and  eu.phonenumber=#{applyMobile}
         </if>
-        <if test="cityCode!=null">
+        <if test="cityCode!=null and cityCode!= ''">
             and  cc.SHORT_NAME=#{cityCode}
         </if>
-        <if test="useCarMode!=null">
+        <if test="useCarMode!=null and useCarMode!=''">
             and  oi.use_car_mode=#{useCarMode}
         </if>
-        <if test="dispatchStatus!=null">
+        <if test="dispatchStatus!=null and dispatchStatus!=''">
             and  oi.state=#{dispatchStatus}
         </if>
         <if test="optStartDate!=null  and  optStartDate!='' ">
@@ -1946,12 +1945,21 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and oi.order_id=#{orderId}
         </if>
         and  oi.it_is_supplement='N000'
-        and oi.user_id in (select distinct user_id from ecmp_user where dept_id in
+        and ((oi.user_id in (select distinct user_id from ecmp_user where dept_id in
         (select dept_id from car_group_serve_org_relation where car_group_id in
         (select car_group_id from car_group_dispatcher_info where user_id=#{userId})))
         and cgi.car_group_id in(
         SELECT car_group_id FROM car_group_dispatcher_info WHERE user_id =#{userId}
-        )
+        )) or (
+        oi.user_id IN (
+        SELECT DISTINCT
+        user_id
+        FROM
+        ecmp_user
+        WHERE
+        dept_id IN ( SELECT dept_id FROM car_group_serve_org_relation WHERE car_group_id IN ( SELECT car_group_id FROM car_group_dispatcher_info WHERE user_id =200557)
+        and car_group_id in (
+        select i.car_group_id from car_group_info i where i.it_is_inner='C000')))))
         ORDER BY
         oi.state,oai.action_time ASC
     </select>
