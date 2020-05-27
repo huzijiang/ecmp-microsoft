@@ -2860,13 +2860,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     @Override
     public String orderReassignment(Long userId, Long orderId) throws Exception {
-        int a = orderInfoMapper.changeOrder(orderId,userId,new Date());
-        int b = orderStateTraceInfoMapper.deleteOrderStateTrace(orderId);
-        int c = orderDispatcheDetailInfoMapper.deleteOrderId(orderId);
-        if(a>0 && b>0 && c>0){
-            return "改派成功";
-        }
-        return "改派失败";
+        orderInfoMapper.changeOrder(orderId,userId,new Date());
+        orderStateTraceInfoMapper.deleteOrderStateTrace(orderId);
+        orderDispatcheDetailInfoMapper.deleteOrderId(orderId);
+        return "改派成功";
     }
 
 
