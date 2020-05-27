@@ -77,7 +77,7 @@ public class CostCalculator implements CostCalculation {
                     overtimeLongPrice= overtimeLongPrice.add(BigDecimal.ZERO);
                 }else{
                     //超时长价格=(总时长-包含时长)* 超时长单价
-                    overtimeLongPrice= overtimeLongPrice.add(new BigDecimal(orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue()).multiply(costConfigInfo.getBeyondPriceEveryMinute()));
+                    overtimeLongPrice= overtimeLongPrice.add(new BigDecimal(orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue()).multiply(costConfigInfo.getBeyondPriceEveryMinute().divide(new BigDecimal("60"),2,BigDecimal.ROUND_HALF_UP)));
                 }
                 //总价=（等待时长*等待单价）+(起步价)+(超里程价格)+(超时长价格)
                 totalPrice = totalPrice.add(packagePrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
