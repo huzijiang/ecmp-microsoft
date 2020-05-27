@@ -716,8 +716,20 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     }
 
     @Override
+    public PageResult<UserApplySingleVo> getUseApplyList(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+        userApplySingleVo.setCompanyId(companyId);
+        PageHelper.startPage(userApplySingleVo.getPageNum(), userApplySingleVo.getPageSize());
+        List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplySearchList(userApplySingleVo);
+        PageInfo<UserApplySingleVo> info = new PageInfo<>(useApplyList);
+        return new PageResult<>(info.getTotal(), info.getPages(), useApplyList);
+    }
+
+    @Override
     public List<UserApplySingleVo> getUseApplyCounts(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
+        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
         userApplySingleVo.setCompanyId(companyId);
         List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplyCounts(userApplySingleVo);
         return useApplyList;
@@ -727,6 +739,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     public PageResult<UserApplySingleVo> getToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
         userApplySingleVo.setCompanyId(companyId);
+        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
         PageHelper.startPage(userApplySingleVo.getPageNum(), userApplySingleVo.getPageSize());
         List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplyCounts(userApplySingleVo);
         PageInfo<UserApplySingleVo> info = new PageInfo<>(useApplyList);
