@@ -360,7 +360,6 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         result.add(new PriceOverviewVO("0",grouplist));
         result.add(new PriceOverviewVO("1",grouplist));
         if (!CollectionUtils.isEmpty(list)){
-            result.add(new PriceOverviewVO());
             Map<String, List<CarGroupCostVO>> collect = list.stream().collect(Collectors.groupingBy(o -> o.getRentType() + "_" + o.getCarGroupUserMode() + "_" + o.getCarTypeId(), Collectors.toList()));
             if (!CollectionUtils.isEmpty(collect)){
                 for(Map.Entry<String,List<CarGroupCostVO>> map:collect.entrySet()){
