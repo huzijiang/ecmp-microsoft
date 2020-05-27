@@ -189,7 +189,7 @@ public class OrderBackController {
      */
     @ApiOperation(value = "订单管理改单功能")
     @PostMapping(value = "/updateTheOrder")
-    public ApiResponse updateTheOrder(OrderServiceCostDetailRecordInfo orderServiceCostDetailRecordInfo){
+    public ApiResponse updateTheOrder(@RequestBody  OrderServiceCostDetailRecordInfo orderServiceCostDetailRecordInfo){
         try {
             if(iOrderInfoService.updateTheOrder(tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId(),orderServiceCostDetailRecordInfo)>0){
                 return ApiResponse.success("订单管理改单成功");
