@@ -106,6 +106,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Lazy
     private IOrderInfoService orderInfoService;
 
+    @Resource
+    private IsmsBusiness ismsBusiness;
+
     private ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("apply-pool-%d").build();
     private ExecutorService executor = new ThreadPoolExecutor(5, 200,
             0L, TimeUnit.MILLISECONDS,
@@ -1493,7 +1496,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             List<CarAuthorityInfo> carAuthorityInfos = journeyUserCarPowerService.queryOfficialOrderNeedPower(journeyId);
             if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
                 int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
-                ecmpMessageService.applyUserPassMessage(applyId,userId,userId,null,carAuthorityInfos.get(0).getTicketId(),flag);
+                if("F001".equals(officialCommitApply.getSmsDifference())){
+                    //佛山用户申请短信
+                    ismsBusiness.sendVehicleUserApply(journeyId,applyId,officialCommitApply);
+                }else {
+                    ecmpMessageService.applyUserPassMessage(applyId, userId, userId, null, carAuthorityInfos.get(0).getTicketId(), flag);
+                }
                 for (CarAuthorityInfo carAuthorityInfo:carAuthorityInfos){
                     int isDispatch=carAuthorityInfo.getDispatchOrder()?ONE:TWO;
                     //OfficialOrderReVo officialOrderReVo = new OfficialOrderReVo(carAuthorityInfo.getTicketId(),isDispatch, CarLeaveEnum.getAll());
@@ -1511,7 +1519,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                         }
                         orderIds.add(orderId);
                     }
-                    ecmpMessageService.saveApplyMessagePass(applyInfo,userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
+                    if("F001".equals(officialCommitApply.getSmsDifference())){
+                        //佛山调度员申请短信
+                        ismsBusiness.sendDispatcherApply(journeyId,applyId,officialCommitApply);
+                    }else {
+                        ecmpMessageService.saveApplyMessagePass(applyInfo,userId,orderId,carAuthorityInfos.get(0).getTicketId(),isDispatch);
+                    }
                 }
             }
             return orderIds;
@@ -2042,6 +2055,18 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         }
         this.updateApproveResult(applyId,approveState,userId);
         this.updateOrderResult(applyId,userId);
+        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
+        if(OrderState.WAITINGLIST.getState().equals(undoSMSTemplate.getState())){
+            //未派单
+            ismsBusiness.sendRevokeUndelivered(undoSMSTemplate);
+        }else if(OrderState.ALREADYSENDING.getState().equals(undoSMSTemplate.getState())){
+            // 已派单
+            ismsBusiness.sendRevokealSentList(undoSMSTemplate);
+        }else if(OrderState.READYSERVICE.getState().equals(undoSMSTemplate.getState())){
+            //待服务
+            ismsBusiness.sendRevokeToBeServed (undoSMSTemplate);
+        }
+
         return i;
     }
 
@@ -2082,8 +2107,17 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         //公务申请不需要审批情况下初始化权限和初始化订单
         ApplyOfficialRequest officialCommitApply = new ApplyOfficialRequest();
         officialCommitApply.setCompanyId(applySingleVO.getCompanyId());
+        officialCommitApply.setSmsDifference("F001");//红旗公务=H001   佛山公务 = F001
+        officialCommitApply.setApplyDate(applySingleVO.getApplyDate()); //用车时间
+        officialCommitApply.setPassenger(applySingleVO.getPassenger());
+        officialCommitApply.setApplyUser(applySingleVO.getApplyUser());
+        officialCommitApply.setApplyDays(applySingleVO.getApplyDays());
+        officialCommitApply.setReason(applySingleVO.getNotes());
         List<Long> orderIds = initPowerAndOrder(journeyInfo.getJourneyId(),applyInfo.getApplyType(), applyInfo.getApplyId(), applySingleVO.getUserId(),officialCommitApply);
-        //6.包车调度详情  order_dispatche_detail_info
+        // 6.行程预算价表
+        JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+        submitJourneyPlanPriceInfoCommit(applySingleVO,journeyInfo.getJourneyId(),journeyNodeInfo.getNodeId(),journeyPlanPriceInfo,orderIds.get(0));
+        //7.包车调度详情  order_dispatche_detail_info
         OrderDispatcheDetailInfo orderDispatcheDetailInfo = new OrderDispatcheDetailInfo();
         orderDispatcheDetailInfo.setOrderId(orderIds.get(0));
         orderDispatcheDetailInfo.setCharterCarType(journeyInfo.getCharterCarType());
@@ -2092,6 +2126,45 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         orderDispatcheDetailInfo.setCreateTime(DateUtils.getNowDate());
          int i = orderDispatcheDetailInfoMapper.insertOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
         return i;
+    }
+
+    /**
+     *  申请单行程预算价表
+     * @param applySingleVO
+     * @param journeyId
+     * @param nodeId
+     */
+    private void submitJourneyPlanPriceInfoCommit(ApplySingleVO applySingleVO, Long journeyId, Long nodeId,JourneyPlanPriceInfo journeyPlanPriceInfo,Long orderId) {
+        journeyPlanPriceInfo.setJourneyId(journeyId);
+        journeyPlanPriceInfo.setNodeId(nodeId);
+        //车型
+        journeyPlanPriceInfo.setCarTypeId(applySingleVO.getCarTypeId());
+        //订单类型
+        journeyPlanPriceInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);
+        //订单id
+        journeyPlanPriceInfo.setOrderId(orderId);
+        //预算价格
+        journeyPlanPriceInfo.setPrice(BigDecimal.ZERO);
+        //计划启程时间
+        journeyPlanPriceInfo.setPlannedDepartureTime(applySingleVO.getApplyDate());
+        //计划到达时间
+        Long day = Math.round(Double.valueOf(applySingleVO.getApplyDays()));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(applySingleVO.getApplyDate());
+        calendar.add(Calendar.DATE, day.intValue()-1);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        journeyPlanPriceInfo.setPlannedArrivalTime(calendar.getTime());
+        //预计用时-分钟
+        journeyPlanPriceInfo.setDuration((day.intValue()-1)*24*60);
+        //预算价来源平台
+        journeyPlanPriceInfo.setSource("无");
+        //创建者
+        journeyPlanPriceInfo.setCreateBy(applySingleVO.getUserId().toString());
+        //创建时间
+        journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
+        journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
     }
 
     /**
@@ -2165,6 +2238,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(applySingleVO.getApplyDate());
         calendar.add(Calendar.DATE, day.intValue()-1);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
         journeyInfo.setEndDate(calendar.getTime());
         //行程标题
         journeyInfo.setTitle("包车申请单");
@@ -2237,6 +2313,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(applySingleVO.getApplyDate());
         calendar.add(Calendar.DATE, day.intValue()-1);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
         journeyNodeInfo.setPlanArriveTime(calendar.getTime());
         //是否是途经点
         journeyNodeInfo.setItIsViaPoint(CarConstant.NOT_ALLOW_USE);

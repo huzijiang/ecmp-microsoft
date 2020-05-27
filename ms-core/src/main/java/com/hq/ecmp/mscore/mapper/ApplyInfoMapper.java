@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.domain.UndoSMSTemplate;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import org.apache.ibatis.annotations.Param;
@@ -90,4 +91,11 @@ public interface ApplyInfoMapper
      * @return
      */
     Long selectOrderInfoById(@Param("applyId") Long applyId);
+
+    /**
+     * 撤销数据列表
+     * @param applyId
+     * @return
+     */
+    UndoSMSTemplate queryApplyUndoList(@Param("applyId") Long applyId);
 }

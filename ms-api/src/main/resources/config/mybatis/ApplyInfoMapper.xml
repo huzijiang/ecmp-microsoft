@@ -191,4 +191,34 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                         ai.apply_id = #{applyId}
 
     </select>
+
+    <select id="queryApplyUndoList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.UndoSMSTemplate">
+
+            SELECT
+                          eu.nick_name nickName,
+                          eu.phonenumber phonenumber,
+                          jpi.name   vehicleUser ,
+                          jpi.mobile   vehicleUserMobile,
+                          ai.notes notes,
+                          ji.use_time  useTime,
+                          ji.start_date startDate,
+                          oi.state  state,
+                          euOne.phonenumber  innerPhonenumber,
+                          euTwo.phonenumber outerPhonenumber,
+                          di.mobile  driverMobile,
+	                      oi.order_number orderNumber
+                        FROM
+                          apply_info ai
+                          LEFT JOIN journey_info ji ON ai.journey_id = ji.journey_id
+                          LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = ji.journey_id
+                          LEFT JOIN ecmp_user eu ON ai.create_by = eu.user_id
+                          LEFT JOIN order_info oi ON oi.journey_id = ai.journey_id
+                          LEFT JOIN order_dispatche_detail_info oddi ON  oi.order_id = oddi.order_id
+                          LEFT JOIN ecmp_user euOne ON oddi.inner_dispatcher = euOne.user_id
+                          LEFT JOIN ecmp_user euTwo ON oddi.outer_dispatcher = euTwo.user_id
+                          LEFT JOIN driver_info di ON di.driver_id = oi.driver_id
+                        WHERE
+                            apply_id = #{applyId}
+
+    </select>
 </mapper>

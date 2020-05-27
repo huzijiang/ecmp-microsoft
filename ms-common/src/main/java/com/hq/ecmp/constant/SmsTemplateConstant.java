@@ -77,5 +77,15 @@ public class SmsTemplateConstant {
     public static final String INNER_DISPATCH_REJECT_USECARPEOPLE = "inner_dispatch_reject_useCarPeople";
     public static final String OUT_DISPATCH_REJECT_USECARPEOPLE = "out_dispatch_reject_useCarPeople";
 
+    /**用车申请短信集合模块---start*/
+    public static final String SMS_FOSHAN_VEHICLE_APPLICANT = "sms_foshan_vehicle_applicant";
+    public static final String SMS_FOSHAN_INTERNAL_DISPATCHER = "sms_foshan_Internal_dispatcher";
+    public static final String SMS_FOSHAN_VEHICLE_APPLICANT_NOT  = "sms_foshan_vehicle_applicant_not";
+    public static final String SMS_FOSHAN_INTERNAL_DISPATCHER_NOT = "sms_foshan_Internal_dispatcher_not";
+    public static final String SMS_FOSHAN_EXTERNAL_VEHICLE_USER_YES = "sms_foshan_external_vehicle_user_yes";
+    public static final String SMS_FOSHAN_EXTERNAL_DISPATCHER_YES = "sms_foshan_external_dispatcher_yes";
+    public static final String SMS_FOSHAN_REVOKE_DRIVER = "sms_foshan_revoke_driver";
+    public static final String SMS_FOSHAN_REVOKE_VEHICLE_USER = "sms_foshan_revoke_vehicle_user";
+    public static final String SMS_FOSHAN_REVOKE_DISPATCHER = "sms_foshan_revoke_dispatcher";
 
 }

@@ -4,6 +4,8 @@ import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
 
 import java.util.List;
 
+import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -98,4 +100,18 @@ public interface CarGroupDispatcherInfoMapper
     String selectCarGroupDispatcherAllId(@Param("userId") Long userId);
 
     List<Long> findDispatchByCarGroupIds(@Param("carGroupIds") List<Long> carGroupIds);
+
+    /**
+     * 发给内部车队所有调度员
+     * @param officialCommitApply
+     * @return
+     */
+    List<EcmpUser> getCarGroupDispatcherList(ApplyOfficialRequest officialCommitApply);
+
+    /**
+     * 发给外部车队所有调度员
+     * @param applyOfficialRequest
+     * @return
+     */
+    List<EcmpUser> getCarGroupDispatcherExternalList(ApplyOfficialRequest applyOfficialRequest);
 }
