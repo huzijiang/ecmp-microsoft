@@ -1957,7 +1957,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         FROM
         ecmp_user
         WHERE
-        dept_id IN ( SELECT dept_id FROM car_group_serve_org_relation WHERE car_group_id IN ( SELECT car_group_id FROM car_group_dispatcher_info WHERE user_id =200557)
+        dept_id IN ( SELECT dept_id FROM car_group_serve_org_relation WHERE car_group_id IN ( SELECT car_group_id FROM car_group_dispatcher_info WHERE user_id =#{userId})
         and car_group_id in (
         select i.car_group_id from car_group_info i where i.it_is_inner='C000')))))
         ORDER BY
