@@ -17,6 +17,7 @@ import com.hq.ecmp.mscore.dto.EcmpMessageDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.vo.UserVO;
 import com.hq.ecmp.util.DateFormatUtils;
+import com.sun.org.apache.regexp.internal.RE;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -1222,4 +1223,43 @@ public class SmsBusinessImpl implements IsmsBusiness{
             ecmpMessageMapper.updateList(ecmpMessages);
         }
     }
+
+
+    @Async
+    @Override
+    public void sendSmsServiceStart(long orderId) {
+        log.info("短信开始-订单{},司机开始服务", orderId);
+        try {
+            Map<String, String> orderCommonInfo = getOrderinfo(orderId);
+            //用车人
+            String applyMobile = orderCommonInfo.get("applyMobile");
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_START_SERVICE,orderCommonInfo,applyMobile);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        log.info("短信结束-订单{},司机开始服务", orderId);
+    }
+
+
+
+
+    @Async
+    @Override//司机结束服务
+    public void sendSmsDriverServiceEnd(long orderId) {
+        log.info("短信开始-订单{},司机结束服务", orderId);
+        try {
+            Map<String, String> orderCommonInfo = getOrderinfo(orderId);
+            //用车人
+            String applyMobile = orderCommonInfo.get("applyMobile");
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END,orderCommonInfo,applyMobile);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        log.info("短信结束-订单{},司机结束服务", orderId);
+    }
+
+
+
 }

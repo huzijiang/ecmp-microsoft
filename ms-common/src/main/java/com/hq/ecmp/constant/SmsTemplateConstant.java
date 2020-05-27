@@ -42,6 +42,14 @@ public class SmsTemplateConstant {
     public static final String NETCAR_FAIL_RIDER = "netcar_fail_rider";
     //自有车司机到达给发短信-申请人
     public static final String PRICAR_DRIVER_READY_APPLICANT = "pricar_driver_ready_applicant";
+
+    //司机开始服务-申请人
+    public static final String PRICAR_DRIVER_START_SERVICE = "pricar_driver_start_service";
+    //司机结束服务-
+    public static final String PRICAR_DRIVER_SERVICE_END = "pricar_driver_service_end";
+
+
+
     //自有车司机到达给发短信-乘车人（企业员）
     public static final String PRICAR_DRIVER_ARR_RIDER_ENTER = "pricar_driver_arr_rider_enter";
     //自有车司机到达给发短信-乘车人（非企业员）
@@ -87,5 +95,6 @@ public class SmsTemplateConstant {
     public static final String SMS_FOSHAN_REVOKE_DRIVER = "sms_foshan_revoke_driver";
     public static final String SMS_FOSHAN_REVOKE_VEHICLE_USER = "sms_foshan_revoke_vehicle_user";
     public static final String SMS_FOSHAN_REVOKE_DISPATCHER = "sms_foshan_revoke_dispatcher";
+
 
 }
