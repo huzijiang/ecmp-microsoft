@@ -1480,21 +1480,21 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oi.service_type serverType,
         -- 状态
         case
-        when right (oi.state,3)='270' then '待改派'
-        when right (oi.state,3)='279' then '已通过'
-        when right (oi.state,3)='277' then '以驳回'
-        when right (oi.state,3)='900' then '已过期'
+        when right (z.state,3)='270' then '待改派'
+        when right (z.state,3)='279' then '已通过'
+        when right (z.state,3)='277' then '以驳回'
+        when right (z.state,3)='921' then '已过期'
         ELSE '' END state,
         -- 操作时间
         case
-        when right (oi.state,3)='270' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S270'  limit 1)
-        when right (oi.state,3) IN ('279','277') then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state in ('S277','S279') limit 1)
-        when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
+        when right (z.state,3)='270' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S270'  limit 1)
+        when right (z.state,3) IN ('279','277') then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state in ('S277','S279') limit 1)
+        when right (z.state,3)= '921' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
         ELSE now() END opDate
         FROM
         order_info oi
-        LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
         LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
+        LEFT JOIN (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=oi.order_id
         LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
         LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
         LEFT JOIN journey_info ji ON ji.journey_id = oi.journey_id
@@ -1580,21 +1580,21 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oi.service_type serverType,
         -- 状态
         case
-        when right (oi.state,3)='270' then '待改派'
-        when right (oi.state,3)='279' then '已通过'
-        when right (oi.state,3)='277' then '以驳回'
-        when right (oi.state,3)='900' then '已过期'
+        when right (z.state,3)='270' then '待改派'
+        when right (z.state,3)='279' then '已通过'
+        when right (z.state,3)='277' then '以驳回'
+        when right (z.state,3)='921' then '已过期'
         ELSE '' END state,
         -- 操作时间
         case
-        when right (oi.state,3)='100' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S270'  limit 1)
-        when right (oi.state,3) IN ('279','277') then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state in ('S277','S279') limit 1)
-        when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
+        when right (z.state,3)='100' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S270'  limit 1)
+        when right (z.state,3) IN ('279','277') then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state in ('S277','S279') limit 1)
+        when right (z.state,3)= '921' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
         ELSE now() END opDate
         FROM
         order_info oi
-        LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
         LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
+        LEFT JOIN (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=oi.order_id
         LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
         LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
         LEFT JOIN journey_info ji ON ji.journey_id = oi.journey_id
