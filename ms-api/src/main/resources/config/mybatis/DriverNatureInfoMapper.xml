@@ -54,8 +54,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">
         update driver_nature_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="driverId != null  '">driver_id = #{driverId},</if>
-            <if test="invitationId != null  '">invitation_id = #{invitationId},</if>
+            <if test="driverId != null  ">driver_id = #{driverId},</if>
+            <if test="invitationId != null  ">invitation_id = #{invitationId},</if>
             <if test="driverNature != null  and driverName != ''">driver_iddriver_id = #{driverNature},</if>
             <if test="hireBeginTime != null  and country != ''">hire_begin_time = #{hireBeginTime},</if>
             <if test="hireEndTime != null  and nation != ''">hire_end_time = #{hireEndTime},</if>
