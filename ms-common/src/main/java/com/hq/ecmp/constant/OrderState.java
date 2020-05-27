@@ -6,7 +6,7 @@ import java.util.List;
 
 public enum OrderState {
     INITIALIZING("S000","订单已生成"),
-    WAITINGLIST("S100","待派单"),
+     WAITINGLIST("S100","待派单"),
     GETARIDE("S101","去约车"),
     SENDINGCARS("S200","约车中"),
     APPLYREASSIGN("S270","司机申请改派"),

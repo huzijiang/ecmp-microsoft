@@ -178,4 +178,12 @@ public class ApplyOfficialRequest {
     @ApiModelProperty(name = "useCarTypes", value = "用车城市可用车型", required = false, position = 25)
     private List<UseCarTypeVO> canUseCarTypes;
 
+    /**
+     *  红旗公务=H001   佛山公务 = F001
+     */
+    @ApiModelProperty(name = "smsDifference", value = "短信发送区分")
+    private String  smsDifference;
+
+    @ApiModelProperty(name = "applyDays", value = "用车天数")
+    private String applyDays;
 }

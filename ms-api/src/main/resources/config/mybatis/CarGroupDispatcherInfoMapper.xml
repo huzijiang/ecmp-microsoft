@@ -123,4 +123,32 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	  select GROUP_CONCAT(car_group_id) carGroupId  from car_group_dispatcher_info where user_id = #{userId}
 
     </select>
+
+    <select id="getCarGroupDispatcherList" parameterType="com.hq.ecmp.mscore.dto.ApplyOfficialRequest" resultType="com.hq.ecmp.mscore.domain.EcmpUser">
+
+          SELECT DISTINCT cgdi.user_id,
+                        cgdi.`name`,
+                        eu.phonenumber  as phonenumber
+                    FROM
+                    car_group_dispatcher_info cgdi
+                        LEFT JOIN car_group_info cgi ON cgi.car_group_id = cgdi.car_group_id
+                        LEFT JOIN ecmp_user eu ON eu.user_id = cgdi.user_id
+                    WHERE
+                        company_id = #{companyId}
+                        AND it_is_inner = 'C000'
+    </select>
+
+    <select id="getCarGroupDispatcherExternalList" parameterType="com.hq.ecmp.mscore.dto.ApplyOfficialRequest" resultType="com.hq.ecmp.mscore.domain.EcmpUser">
+
+        SELECT DISTINCT cgdi.user_id,
+        cgdi.`name`,
+        eu.phonenumber  as phonenumber
+        FROM
+        car_group_dispatcher_info cgdi
+        LEFT JOIN car_group_info cgi ON cgi.car_group_id = cgdi.car_group_id
+        LEFT JOIN ecmp_user eu ON eu.user_id = cgdi.user_id
+        WHERE
+        company_id = #{companyId}
+        AND it_is_inner = 'C111'
+    </select>
 </mapper>
