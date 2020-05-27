@@ -365,6 +365,9 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
             if (!CollectionUtils.isEmpty(collect)){
                 for(Map.Entry<String,List<CarGroupCostVO>> map:collect.entrySet()){
                     String key = map.getKey();
+                    if (StringUtils.isEmpty(key)){
+                        continue;
+                    }
                     String[] s = key.split("_");
                     if (StringUtils.isEmpty(s[0])&&StringUtils.isEmpty(s[1])&&StringUtils.isEmpty(s[2])){
                         continue;

@@ -390,5 +390,6 @@ public interface OrderInfoMapper {
     int changeOrder(@Param("orderId")Long orderId,@Param("updateBy")Long updateBy,@Param("updateTime") Date updateTime);
 
 
+    Map getOrderInfo(Long orderId);
 }
 

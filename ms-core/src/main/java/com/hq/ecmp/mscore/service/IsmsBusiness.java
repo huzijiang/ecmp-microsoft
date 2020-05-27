@@ -146,6 +146,11 @@ public interface IsmsBusiness {
      */
     void sendRevokealSentList(UndoSMSTemplate undoSMSTemplate) throws Exception;
 
+
+    void sendSmsServiceStart(long orderId);
+
+    void sendSmsDriverServiceEnd(long orderId);
+
     /**
      * 撤销待服务短信
      * @param undoSMSTemplate
