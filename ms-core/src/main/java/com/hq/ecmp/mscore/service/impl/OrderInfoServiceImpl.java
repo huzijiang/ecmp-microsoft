@@ -756,7 +756,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public OrderVO orderBeServiceDetail(Long orderId) throws Exception{
         OrderVO vo=new OrderVO();
         OrderInfo orderInfo = this.selectOrderInfoById(orderId);
-        if (orderInfo==null){
+        if (null==orderInfo){
             throw new Exception("该订单不存在");
         }
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());

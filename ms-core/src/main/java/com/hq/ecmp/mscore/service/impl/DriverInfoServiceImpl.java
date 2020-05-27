@@ -699,7 +699,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			//如果是戒掉驾驶员 排班从借调开始日期开始
 			todayStart.setTime(borrowBeginTime);
 		}
-		todayStart.set(Calendar.HOUR, 0);
+		todayStart.set(Calendar.HOUR_OF_DAY, 0);
 		todayStart.set(Calendar.MINUTE, 0);
 		todayStart.set(Calendar.SECOND, 0);
 		todayStart.set(Calendar.MILLISECOND, 0);

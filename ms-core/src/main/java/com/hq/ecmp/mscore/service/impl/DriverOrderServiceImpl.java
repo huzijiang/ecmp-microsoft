@@ -157,9 +157,6 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             //司机到达发送短信
             ismsBusiness.sendSmsDriverArrivePrivate(orderId);
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
-
-
-
             //存储出发点行车经纬度
             OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
             recordInfo.setStartLongitude(BigDecimal.valueOf(longitude));//精度

@@ -788,15 +788,24 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 }
             }
         }
+
         Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
-        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
         if (dispatcherOrderList.isEmpty()) {
-            info.setTotal(0);
-            info.setPages(0);
-            return new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
+            Long total = 0L;
+            Integer pageSize = 0;
+            return new PageResult<>(total, pageSize, page.getCurrentPageData());
         }
         page.setCurrent_page(query.getPageNum());
-        return new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());
+//        Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+//        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
+//        if (dispatcherOrderList.isEmpty()) {
+//            info.setTotal(0);
+//            info.setPages(0);
+//            return new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
+//        }
+//        page.setCurrent_page(query.getPageNum());
+//        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getTotal_page(), dispatcherOrderList);
     }
 
     /**
@@ -820,22 +829,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
         /**查寻该调度员可用查看的所有申请人*/
         if ("1".equals(user.getItIsDispatcher())) {//是调度员
-
             dispatcherOrderList = orderInfoMapper.queryDispatchListCharterCar(query);
-        }
-        if (query.getIsIndex() == 1) {
-            List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(collect)) {//是管理员
-                if (!CollectionUtils.isEmpty(dispatcherOrderList)) {
-                    List<Long> orderIds = dispatcherOrderList.stream().map(p -> p.getOrderId()).collect(Collectors.toList());
-                    query.setOrderIds(orderIds);
-                }
-                //本公司所有的订单
-                adminOrderList = orderInfoMapper.queryAdminDispatchList(query);
-                if (!CollectionUtils.isEmpty(adminOrderList)) {
-                    dispatcherOrderList.addAll(adminOrderList);
-                }
-            }
         }
         return dispatcherOrderList;
     }
