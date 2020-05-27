@@ -774,7 +774,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
 
             dispatcherOrderList = orderInfoMapper.queryDispatchListCharterCar(query);
         }
-        if (query.getIsIndex() == 1) {
+        if (query.getIsIndex() == 2) {
             List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(collect)) {//是管理员
                 if (!CollectionUtils.isEmpty(dispatcherOrderList)) {
@@ -789,13 +789,55 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
             }
         }
         Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
         if (dispatcherOrderList.isEmpty()) {
-            Long total = 0L;
-            Integer pageSize = 0;
-            return new PageResult<>(total, pageSize, page.getCurrentPageData());
+            info.setTotal(0);
+            info.setPages(0);
+            return new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
         }
         page.setCurrent_page(query.getPageNum());
-        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());
+        return new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
+    }
+
+    /**
+     * 佛山包车后管首页动态
+     *
+     * @param query
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public List<DispatchVo> queryDispatchListCharterCars(ApplyDispatchQuery query, LoginUser loginUser) {
+        //判断登录人的身份来显示他看到的不同权限的数据
+        SysUser user = loginUser.getUser();
+        List<SysRole> role = loginUser.getUser().getRoles();
+        Long companyId = user.getOwnerCompany();
+        query.setCompanyId(companyId);
+        query.setUserId(user.getUserId());
+        //<系统管理员身份>
+        List<DispatchVo> adminOrderList = new ArrayList<DispatchVo>();
+        //<调度员身份>
+        List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
+        /**查寻该调度员可用查看的所有申请人*/
+        if ("1".equals(user.getItIsDispatcher())) {//是调度员
+
+            dispatcherOrderList = orderInfoMapper.queryDispatchListCharterCar(query);
+        }
+        if (query.getIsIndex() == 1) {
+            List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(collect)) {//是管理员
+                if (!CollectionUtils.isEmpty(dispatcherOrderList)) {
+                    List<Long> orderIds = dispatcherOrderList.stream().map(p -> p.getOrderId()).collect(Collectors.toList());
+                    query.setOrderIds(orderIds);
+                }
+                //本公司所有的订单
+                adminOrderList = orderInfoMapper.queryAdminDispatchList(query);
+                if (!CollectionUtils.isEmpty(adminOrderList)) {
+                    dispatcherOrderList.addAll(adminOrderList);
+                }
+            }
+        }
+        return dispatcherOrderList;
     }
 
     @Override

@@ -1874,7 +1874,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         od.it_is_self_driver selfDriver,
         oai.city_postal_code useCarCityCode,
         od.it_is_use_inner_car_group useCarGroupType,
-        ai.reason
+        ai.reason reason
         FROM
         order_info oi
         LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
@@ -1895,21 +1895,21 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
         WHERE 1 = 1
         <if test="isIndex == 1">
---             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
---             (select distinct order_id from order_state_trace_info where state in ('S100'))
---             and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
+            --             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
+            --             (select distinct order_id from order_state_trace_info where state in ('S100'))
+            --             and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
             and oi.order_id in (
-            select a.orderId,a.mstate from (select order_id orderId,max(state) mstate from order_state_trace_info GROUP BY order_id ) a where a.mstate = 'S100'
+            select a.orderId from (select order_id orderId,max(state) mstate from order_state_trace_info GROUP BY order_id ) a where a.mstate = 'S100'
             )
-            <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
-                and  oi.state = #{homePageWaitingCarState}
-            </if>
-            <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
-                and  oi.state >= 'S299' and  oi.state != 'S900'
-            </if>
-            <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
-                and  oi.state = #{homePageExpireCarState}
-            </if>
+        </if>
+        <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
+            and  oi.state = #{homePageWaitingCarState}
+        </if>
+        <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
+            and  oi.state = #{homePageExpireCarState}
+        </if>
+        <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
+            and  oi.state >= 'S299' and  oi.state != 'S900'
         </if>
 
         <if test="isIndex == 2">
@@ -2014,10 +2014,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oai2.address endAddress,
         -- 到达地址
         oi.order_number order_number,
-        -- 订单号
+        -- 订单编号
         oi.use_car_mode useCarMode,
         -- 用车方式
-        osi.amount amount,
+        oscdrio.amount amount,
+        oi.order_id orderId,
         -- 费用合计
         case
         when right (oi.state,3)='100' then '待派车'
@@ -2042,6 +2043,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join
         (select order_id,type,address,address_long from order_address_info where type = 'A999') oai2 on  oai2.order_id = oi.order_id
         left join  order_settling_info osi on osi.order_id = oi.order_id
+        left join
+        (select sum(total_fee) amount,order_id orderId from order_service_cost_detail_record_info group by order_id) oscdrio on oscdrio.orderId = oi.order_id
         where  oi.service_type='5000'
         <if test="companyId!=null">
             and  ai.company_id = #{companyId}
@@ -2118,7 +2121,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 用车单位
         eo.dept_name vehicleUserCompany,
         -- 服务类型
-        ji.charter_car_type charterCarType,
+        case
+        when right (ji.charter_car_type,3)='001' then '半日租(4小时)'
+        when right (ji.charter_car_type,3)='002' then '整日租(8小时)'
+        when right (ji.charter_car_type,3)='009' then  CONCAT('多日租','(',ji.use_time,')','日')
+        ELSE '' END charterCarType,
         -- 服务车型
         ecty.name carLevel,
         -- 车辆类型
@@ -2150,11 +2157,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 出发地址
         oai2.address endAddress,
         -- 到达地址
-        oi.order_number order_number,
+        oi.order_number orderNumber,
         -- 订单号
         oi.use_car_mode useCarMode,
         -- 用车方式
-        osi.amount amount,
+        oscdrio.amount amount,
         -- 费用合计
         oi.order_id orderId,
         case
@@ -2181,6 +2188,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join
         (select order_id,type,address,address_long from order_address_info where type = 'A999') oai2 on  oai2.order_id = oi.order_id
         left join  order_settling_info osi on osi.order_id = oi.order_id
+        left join
+        (select sum(total_fee) amount,order_id orderId from order_service_cost_detail_record_info group by order_id) oscdrio on oscdrio.orderId = oi.order_id
         where  oi.service_type='5000'
         <if test="companyId!=null">
             and  ai.company_id = #{companyId}

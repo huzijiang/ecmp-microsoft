@@ -36,8 +36,10 @@ public class UserApplySingleVo extends PageRequest {
     @ApiModelProperty(value = "用车单位")
     private String vehicleUserCompany;
 
-    @ApiModelProperty(value = "订单编号")
     private String useCarMode;
+
+    @ApiModelProperty(value = "订单编号")
+    private String orderNumber;
 
     @ApiModelProperty(value = "费用合计")
     private String amount;
