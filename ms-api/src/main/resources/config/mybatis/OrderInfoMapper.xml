@@ -2174,10 +2174,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oi.order_id orderId,
         case
         when right (oi.state,3)='100' then '待派车'
-        when right (oi.state,3)>='299' and right (oi.state,3)&lt;='900' then '已派车'
+        when right (oi.state,3)='699' then '待确认'
+--        when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已派车'
         when right (ai.state,3)='004' then '已撤销'
         when right (ai.state,3)='005' then '已过期'
-        when right (ai.state,3)='960' then '待确认'
         ELSE '' END orderState
         FROM
         apply_info ai  LEFT JOIN  journey_info ji ON ai.journey_id = ji.journey_id
