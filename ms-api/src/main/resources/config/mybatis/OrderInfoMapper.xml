@@ -2103,10 +2103,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.state = #{homePageToBeConfirmedState}
         </if>
         <if test="homeDynamicBeginTime!=null and '' != homeDynamicBeginTime">
-            and  ai.update_time &gt; #{homeDynamicBeginTime}
+            and  ai.create_time &gt;= #{homeDynamicBeginTime}
         </if>
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
-            and  ai.update_time &lt; #{homeDynamicEndTime}
+            and  ai.create_time &lt;= #{homeDynamicEndTime}
         </if>
     </select>
 
@@ -2248,10 +2248,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.state = #{homePageToBeConfirmedState}
         </if>
         <if test="homeDynamicBeginTime!=null and '' != homeDynamicBeginTime">
-            and  ai.update_time &gt; #{homeDynamicBeginTime}
+            and  ai.create_time &gt;= #{homeDynamicBeginTime}
         </if>
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
-            and  ai.update_time &lt; #{homeDynamicEndTime}
+            and  ai.create_time &lt;= #{homeDynamicEndTime}
         </if>
     </select>
 

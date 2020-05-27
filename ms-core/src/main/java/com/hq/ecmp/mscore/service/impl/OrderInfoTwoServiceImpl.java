@@ -829,22 +829,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
         /**查寻该调度员可用查看的所有申请人*/
         if ("1".equals(user.getItIsDispatcher())) {//是调度员
-
             dispatcherOrderList = orderInfoMapper.queryDispatchListCharterCar(query);
-        }
-        if (query.getIsIndex() == 1) {
-            List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(collect)) {//是管理员
-                if (!CollectionUtils.isEmpty(dispatcherOrderList)) {
-                    List<Long> orderIds = dispatcherOrderList.stream().map(p -> p.getOrderId()).collect(Collectors.toList());
-                    query.setOrderIds(orderIds);
-                }
-                //本公司所有的订单
-                adminOrderList = orderInfoMapper.queryAdminDispatchList(query);
-                if (!CollectionUtils.isEmpty(adminOrderList)) {
-                    dispatcherOrderList.addAll(adminOrderList);
-                }
-            }
         }
         return dispatcherOrderList;
     }
