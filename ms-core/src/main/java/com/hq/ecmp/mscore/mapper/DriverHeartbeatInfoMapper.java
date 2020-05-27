@@ -69,4 +69,13 @@ public interface DriverHeartbeatInfoMapper
      * @return
      */
     List<DriverHeartbeatInfo> getOrderDay(DriverHeartbeatInfo driverHeartbeatInfo);
+
+
+    /**
+     *
+     * @param driverHeartbeatInfo
+     * @return
+     * @throws Exception
+     */
+    List<DriverHeartbeatInfo> equipmentTrajectory(DriverHeartbeatInfo driverHeartbeatInfo)throws Exception;
 }

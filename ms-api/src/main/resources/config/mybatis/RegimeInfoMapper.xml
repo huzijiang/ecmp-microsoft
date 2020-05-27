@@ -486,7 +486,7 @@ LIMIT 1
 
     <select id="queryRegimeInfoByCompanyId" parameterType="java.lang.Long" resultType="java.lang.Long">
 
-        select regimen_id regimenId  from regime_info where company_id =#{companyId} ORDER BY regimen_id ASC   limit 1
+        select regimen_id regimenId  from regime_info where company_id =#{companyId} and state = 'Y000' ORDER BY regimen_id DESC   limit 1
 
     </select>
 

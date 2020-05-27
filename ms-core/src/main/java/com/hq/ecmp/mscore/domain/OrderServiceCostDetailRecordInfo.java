@@ -20,19 +20,11 @@ public class OrderServiceCostDetailRecordInfo {
 
     BigDecimal startLongitude;
 
-    String startLongitudeAddress;
-
     BigDecimal startLatitude;
-
-    String startLatitudeAddress;
 
     BigDecimal endLongitude;
 
-    String endLongitudeAddress;
-
     BigDecimal endLatitude;
-
-    String endLatitudeAddress;
 
     Date startTime;
 
@@ -75,6 +67,10 @@ public class OrderServiceCostDetailRecordInfo {
     Long updateBy;
 
     Date updateTime;
+
+    String startAddress;
+
+    String endAddress;
 
     List<OrderServiceImagesInfo> imageList;
 

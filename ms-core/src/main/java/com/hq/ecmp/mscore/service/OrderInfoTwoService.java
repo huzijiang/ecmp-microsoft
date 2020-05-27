@@ -67,6 +67,14 @@ public interface OrderInfoTwoService {
     PageResult<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
 
     /**
+     * 用车申请列表
+     * @param userApplySingleVo
+     * @param loginUser
+     * @return
+     */
+    PageResult<UserApplySingleVo> getUseApplyList(UserApplySingleVo userApplySingleVo, LoginUser loginUser);
+
+    /**
      * 获取当前业务员的待派车，已派车，已过期数量
      * @param userApplySingleVo
      * @param loginUser

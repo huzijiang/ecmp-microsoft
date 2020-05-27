@@ -34,7 +34,7 @@
 
     <sql id="key">
         select beyond_mileage_fee,beyond_time_fee,record_id, order_id ,start_longitude,start_latitude,
-               end_longitude, end_latitude ,start_time,end_time,
+               end_longitude, end_latitude ,start_time,end_time,start_address,end_address,
                mileage, set_meal_cost ,set_meal_mileage,set_meal_times,
                beyond_mileage, beyond_time ,road_and_bridge_fee,highway_toll_fee,
                stop_car_fee, accommodation_fee ,food_fee,others_fee,total_fee,
@@ -44,7 +44,11 @@
     <!--查询单个-->
     <select id="queryById" resultMap="OrderServiceCostDetailRecordInfoMap">
         select
-            beyond_mileage_fee,beyond_time_fee,total_fee,record_id, order_id, start_longitude, start_latitude, end_longitude, end_latitude, start_time, end_time, mileage, set_meal_cost, set_meal_mileage, set_meal_times, beyond_mileage, beyond_time, road_and_bridge_fee, highway_toll_fee, stop_car_fee, accommodation_fee, food_fee, others_fee, create_by, create_time, update_by, update_time
+            beyond_mileage_fee,beyond_time_fee,total_fee,record_id, order_id, start_longitude, start_latitude,
+             end_longitude, end_latitude, start_time, end_time, mileage, set_meal_cost,
+             set_meal_mileage, set_meal_times, beyond_mileage, beyond_time, road_and_bridge_fee,
+             highway_toll_fee, stop_car_fee, accommodation_fee, food_fee, others_fee, create_by,
+              create_time, update_by, update_time,end_address ,start_address
         from order_service_cost_detail_record_info
         where record_id = #{recordId}
     </select>
@@ -141,7 +145,7 @@
     <!--新增所有列-->
     <insert id="insert" keyProperty="recordId" useGeneratedKeys="true">
         insert into order_service_cost_detail_record_info(beyond_mileage_fee,beyond_time_fee,total_fee,order_id, start_longitude, start_latitude, end_longitude, end_latitude, start_time, end_time, mileage, set_meal_cost, set_meal_mileage, set_meal_times, beyond_mileage, beyond_time, road_and_bridge_fee, highway_toll_fee, stop_car_fee, accommodation_fee, food_fee, others_fee, create_by, create_time, update_by, update_time)
-        values (#{beyondMileageGee},#{beyondTimeFee},#{total_fee},#{orderId}, #{startLongitude}, #{startLatitude}, #{endLongitude}, #{endLatitude}, #{startTime}, #{endTime}, #{mileage}, #{setMealCost}, #{setMealMileage}, #{setMealTimes}, #{beyondMileage}, #{beyondTime}, #{roadAndBridgeFee}, #{highwayTollFee}, #{stopCarFee}, #{accommodationFee}, #{foodFee}, #{othersFee}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
+        values (#{beyondMileageFee},#{beyondTimeFee},#{totalFee},#{orderId}, #{startLongitude}, #{startLatitude}, #{endLongitude}, #{endLatitude}, #{startTime}, #{endTime}, #{mileage}, #{setMealCost}, #{setMealMileage}, #{setMealTimes}, #{beyondMileage}, #{beyondTime}, #{roadAndBridgeFee}, #{highwayTollFee}, #{stopCarFee}, #{accommodationFee}, #{foodFee}, #{othersFee}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
     </insert>
 
     <!--通过主键修改数据-->
@@ -226,6 +230,12 @@
             <if test="beyondTimeFee != null">
                 beyond_time_fee = #{beyondTimeFee},
             </if>
+            <if test="startAddress != null">
+                start_address = #{startAddress},
+            </if>
+            <if test="endAddress != null">
+                end_address = #{endAddress},
+            </if>
         </set>
         where record_id = #{recordId}
     </update>
@@ -270,6 +280,8 @@
             <if test="createTime != null and createTime != ''">create_time = #{createTime},</if>
             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
             <if test="updateTime != null and updateTime != ''">update_time = #{updateTime},</if>
+            <if test="startAddress != null and startAddress != ''">start_address = #{startAddress},</if>
+            <if test="endAddress != null and endAddress != ''">end_address = #{endAddress},</if>
         </trim>
         where record_id = #{recordId}
     </update>
