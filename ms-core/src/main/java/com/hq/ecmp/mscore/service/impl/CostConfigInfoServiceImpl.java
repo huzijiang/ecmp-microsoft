@@ -346,6 +346,8 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
                     List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeIds(carTypeId);
                     String collect = enterpriseCarTypeInfos.stream().map(p -> p.getName()).collect(Collectors.joining(",", "", ""));
                     result.setCarTypeName(collect);
+                }else{
+                    return null;
                 }
             }
         }
