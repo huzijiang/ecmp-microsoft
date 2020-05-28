@@ -143,6 +143,8 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     public void createCostConfig(CostConfigInsertDto costConfigDto, Long userId) throws Exception {
         CostConfigInfo costConfigInfo = new CostConfigInfo();
         BeanUtils.copyProperties(costConfigDto, costConfigInfo);
+        costConfigInfo.setStartPrice(costConfigInfo.getStartPrice()==null?BigDecimal.ZERO:costConfigInfo.getStartPrice());
+        costConfigInfo.setWaitPriceEreryMinute(costConfigInfo.getWaitPriceEreryMinute()==null?BigDecimal.ZERO:costConfigInfo.getWaitPriceEreryMinute());
         costConfigInfo.setCreateBy(String.valueOf(userId));
         costConfigInfo.setCostId(null);
         ((ICostConfigInfoService) AopContext.currentProxy()).insertCostConfigInfo(costConfigInfo);
