@@ -1241,7 +1241,12 @@ public class SmsBusinessImpl implements IsmsBusiness{
         log.info("短信结束-订单{},司机开始服务", orderId);
     }
 
-
+    private Map<String,String> getOrderinfo(Long orderId) {
+        Map map = orderInfoMapper.getOrderInfo(orderId);
+        //获取开始结束时间 加金额
+    ///order_service_cost_detail_record_info表--start_time--end_time---total_fee
+        return  map;
+    }
 
 
     @Async
