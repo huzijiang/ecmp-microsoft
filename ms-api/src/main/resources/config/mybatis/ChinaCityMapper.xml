@@ -6,20 +6,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 	<select id="queryCityCodeByCityName" parameterType="string"
 		resultType="string">
-		select CITY_CODE from china_city where CITY_NAME= #{cityName} or SHORT_NAME
-		= #{cityName} limit 1
+		select CITY_CODE from china_city where (CITY_NAME= #{cityName} or SHORT_NAME
+		= #{cityName}) and data_state = 1 limit 1
 	</select>
 	<select id="findByCityCode" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.CityInfo">
 		select CITY_ID cityId,CITY_CODE cityCode,CITY_NAME cityName from china_city where find_in_set(CITY_CODE,#{cityCode})
 	</select>
 
-	<select id="queryCityInfoListByCityName" 
+	<select id="queryCityInfoListByCityName"
 	resultType="com.hq.ecmp.mscore.vo.CityInfo">
 	select CITY_ID as cityId, CITY_CODE as cityCode,SHORT_NAME as cityName
 	from
 	china_city
 	<where>
-		1=1
+		1=1 and data_state = 1
 		<if test="null !=cityName and cityName != ''">
 			and SHORT_NAME like concat('%',#{cityName},'%')
 		</if>
@@ -45,6 +45,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="queryCityByCityCode" resultType="com.hq.ecmp.mscore.vo.CityInfo">
 		select CITY_ID as cityId, CITY_CODE as cityCode,SHORT_NAME as cityName,PROVINCE_CODE as provinceCode
 	from
-	china_city where CITY_CODE=#{cityCode}
+	china_city where CITY_CODE=#{cityCode} and data_state = 1
 	</select>
 </mapper>

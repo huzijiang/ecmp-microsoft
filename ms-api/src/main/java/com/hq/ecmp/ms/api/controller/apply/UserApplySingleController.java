@@ -61,7 +61,7 @@ public class UserApplySingleController {
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("分页查询公告列表失败");
+            return ApiResponse.error("分页查询用车申请列表失败");
         }
     }
 
@@ -81,7 +81,7 @@ public class UserApplySingleController {
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("分页查询公告列表失败");
+            return ApiResponse.error("首页查询用车申请列表失败");
         }
     }
 
