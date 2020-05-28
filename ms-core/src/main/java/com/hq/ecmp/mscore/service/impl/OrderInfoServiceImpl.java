@@ -1432,6 +1432,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             passengerPhone=journeyPassengerInfos.get(0).getMobile();
             passengerName=journeyPassengerInfos.get(0).getName();
         }
+
         vo.setUserName(passengerName);
         vo.setUserPhone(passengerPhone);
         if (orderSettlingInfo!=null){

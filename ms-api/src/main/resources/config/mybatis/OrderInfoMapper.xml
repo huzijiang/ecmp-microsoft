@@ -424,9 +424,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 left join journey_info jn on o.journey_id=jn.journey_id
                 left join order_address_info s on  s.order_id=o.order_id and s.type='A000'
                 left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
-				where o.driver_id=#{driverId} and  (o.state="S299" or o.state="S600" or o.state="S616" )
+				where o.driver_id=#{driverId} and
+                (o.state="S299" or o.state="S600" or o.state="S616" )
                 <if test="day!=-1">
-                    <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d')  <= DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
+                    <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d')  >= DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
                     <![CDATA[AND DATE_FORMAT(t.action_time, '%Y-%m-%d') >= DATE_FORMAT(now(), '%Y-%m-%d') ]]>
                 </if>
                 order by s.action_time asc
