@@ -99,12 +99,8 @@ public class UserApplySingleController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-            int i = applyInfoService.updateApplyOrderState(journeyApplyDto.getApplyId(), ApplyStateConstant.CANCEL_APPLY, ApproveStateEnum.CANCEL_APPROVE_STATE.getKey(),userId);
-            if(i == 1){
-                return ApiResponse.success("撤销成功");
-            }else {
-                return ApiResponse.error("撤销申请失败，请重试");
-            }
+            ApiResponse apiResponse = applyInfoService.updateApplyOrderState(journeyApplyDto.getApplyId(), ApplyStateConstant.CANCEL_APPLY, ApproveStateEnum.CANCEL_APPROVE_STATE.getKey(),userId);
+            return apiResponse;
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("撤销申请失败，请重试");

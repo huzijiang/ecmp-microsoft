@@ -2047,17 +2047,24 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      */
     @Override
     @Transactional
-    public int updateApplyOrderState(Long applyId, String applyState, String approveState, Long userId)throws Exception {
+    public ApiResponse updateApplyOrderState(Long applyId, String applyState, String approveState, Long userId)throws Exception {
+        ApiResponse  apiResponse = new ApiResponse();
         ApplyInfo applyInfo = new ApplyInfo(applyId,applyState);
         applyInfo.setUpdateBy(String.valueOf(userId));
         applyInfo.setUpdateTime(new Date());
+        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
+        if(Integer.valueOf(undoSMSTemplate.getState().substring(1))>=Integer.valueOf(OrderState.INSERVICE.getState().substring(1))){
+            apiResponse.setCode(1);
+            apiResponse.setMsg("您所撤销的订单已经属于服务中或完成状态，不可以撤销了");
+            return  apiResponse;
+        }
         int i=0;
         if (StringUtils.isNotBlank(applyState)){
             i = applyInfoMapper.updateApplyInfo(applyInfo);
         }
         this.updateApproveResult(applyId,approveState,userId);
         this.updateOrderResult(applyId,userId);
-        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
+        //UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
         if(OrderState.WAITINGLIST.getState().equals(undoSMSTemplate.getState())){
             //未派单
             ismsBusiness.sendRevokeUndelivered(undoSMSTemplate);
@@ -2069,7 +2076,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             ismsBusiness.sendRevokeToBeServed (undoSMSTemplate);
         }
 
-        return i;
+        return apiResponse;
     }
 
     /**

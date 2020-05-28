@@ -3,6 +3,7 @@ package com.hq.ecmp.util;
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.CharterTypeEnum;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -51,4 +52,7 @@ public class CommonUtils {
         return carType;
     }
 
+    public static BigDecimal getBigDecimal(BigDecimal num){
+        return num==null?BigDecimal.ZERO:num;
+    }
 }

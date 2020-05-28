@@ -143,7 +143,6 @@ public class SceneInfoServiceImpl implements ISceneInfoService
         sceneInfo.setIcon(sceneDTO.getIcon());
         //场景名称
         sceneInfo.setName(sceneDTO.getName());
-
         //所属公司
         sceneInfo.setCompanyId(ownerCompany);
         //创建人
