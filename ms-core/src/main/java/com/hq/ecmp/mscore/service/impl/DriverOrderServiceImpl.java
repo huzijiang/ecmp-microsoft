@@ -165,8 +165,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
             //存储出发点行车经纬度
             OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
-            recordInfo.setStartLongitude(BigDecimal.valueOf(longitude));//精度
-            recordInfo.setStartLatitude(BigDecimal.valueOf(latitude));//维度
+            recordInfo.setStartLongitude(BigDecimal.valueOf(null==longitude?00:longitude));//精度
+            recordInfo.setStartLatitude(BigDecimal.valueOf(null==latitude?00:latitude));//维度
             recordInfo.setStartTime(new Date());
             recordInfo.setOrderId(orderId);
             int insert = orderServiceCostDetailRecordInfoMapper.insert(recordInfo);
