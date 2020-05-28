@@ -784,9 +784,15 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         //<调度员身份>
         List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
         /**查寻该调度员可用查看的所有申请人*/
-        if ("1".equals(user.getItIsDispatcher())) {//是调度员
-
-            dispatcherOrderList = orderInfoMapper.queryDispatchListCharterCar(query);
+        if(query.getIsIndex() == 1){
+            PageHelper.startPage(query.getPageNum(), query.getPageSize());
+            if ("1".equals(user.getItIsDispatcher())) {//是调度员
+                dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCar(query);
+            }
+            PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
+            PageResult<DispatchVo> dispatchVoPageResult = new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
+            log.info("首页查询出来的调度列表数据为---------------------------------"+dispatchVoPageResult);
+            return dispatchVoPageResult;
         }
         if (query.getIsIndex() == 2) {
             List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
@@ -837,6 +843,9 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         Long companyId = user.getOwnerCompany();
         query.setCompanyId(companyId);
         query.setUserId(user.getUserId());
+        query.setHomeDynamicBeginTime(query.getHomeDynamicBeginTime()+" 00:00:00");
+        query.setHomeDynamicEndTime(query.getHomeDynamicEndTime()+ " 23:59:59");
+        query.setIsIndex(2);
         //<系统管理员身份>
         List<DispatchVo> adminOrderList = new ArrayList<DispatchVo>();
         //<调度员身份>

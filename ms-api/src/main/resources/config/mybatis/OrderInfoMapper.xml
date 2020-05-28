@@ -1976,6 +1976,175 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oi.state,oai.action_time ASC
     </select>
 
+    <select id="queryHomePageDispatchListCharterCar" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
+
+        SELECT DISTINCT
+        -- 订单id
+        oi.order_id orderId,
+        -- 部门名称
+        eo.dept_name AS deptName,
+        -- 公司名称
+        eor.dept_name AS companyName,
+        -- 操作权限  0：有权限  1:没有权限
+        '0'  operationPermission,
+        -- 申请人姓名
+        eu.nick_name  applyUserName,
+        -- 申请人手机号
+        eu.phonenumber applyUserTel,
+        -- 乘车人
+        jpi.name  useCarUserName,
+        -- 乘车人电话
+        jpi.mobile userCarUserMobile,
+        -- 同行人数量
+        jpi.peer_number travelPartnerCount,
+        -- 开始时间
+        oai.action_time useCarDate,
+        -- 预计结束时间
+        oaitwo.action_time endDate,
+        -- 上车地址
+        oai.address startSite,
+        -- 下车地址
+        oaitwo.address endSite,
+        -- 是否往返
+        ji.it_is_return itIsReturn,
+        -- 预计等待时长
+        ji.wait_time_long waitMinute,
+        -- 用车城市
+        cc.SHORT_NAME useCarCity,
+        -- 用车场景
+        si.`name` userCarScene,
+        -- 用车制度
+        ri.`name` userCarRegime,
+        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
+        -- 服务类型
+        ji.charter_car_type serverType,
+        -- 状态
+        case
+        when right (oi.state,3)='100' then '待派车'
+        when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已处理'
+        when right (oi.state,3)='900' then '已过期'
+        ELSE '' END state,
+        -- 操作时间
+        case
+        when right (oi.state,3)='100' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S100'  limit 1)
+        when right (oi.state,3)='299' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S299' limit 1)
+        when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
+        ELSE now() END opDate,
+        -- 1内部 2 外部
+        case when cgi.it_is_inner='C000' then 1
+        when cgi.it_is_inner='C111'	then 2
+        else 1 end inOrOut,
+        -- if(ISNULL(od.next_car_group_id),1,2) inOrOut,
+        -- 车队类型 C000   内部车队  C111   外部车队
+        -- cgi.it_is_inner carGroupType,
+        -- 包车的总天数
+        ji.use_time  charterCarDaysCount,
+        -- 车型id
+        ai.car_type_id carTypeId,
+        -- 车型名字
+        ecti.name carTypeName,
+        -- 用车备注
+        ai.notes,
+        od.car_group_user_mode carGroupUserMode,
+        od.it_is_self_driver selfDriver,
+        oai.city_postal_code useCarCityCode,
+        od.it_is_use_inner_car_group useCarGroupType,
+        ai.reason reason
+        FROM
+        order_info oi
+        LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
+        LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
+        LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
+        LEFT JOIN journey_info ji ON ji.journey_id = oi.journey_id
+        LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = oi.journey_id
+        LEFT JOIN regime_info ri ON ri.regimen_id = ji.regimen_id
+        LEFT JOIN scene_regime_relation srr ON srr.regimen_id = ri.regimen_id
+        LEFT JOIN scene_info si ON srr.scene_id = si.scene_id
+        LEFT JOIN order_address_info oai ON (oai.order_id = oi.order_id and oai.type='A000')
+        LEFT JOIN order_address_info oaitwo ON (oaitwo.order_id = oi.order_id and oaitwo.type='A999')
+        LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
+        LEFT JOIN order_dispatche_detail_info od ON od.order_id = oi.order_id
+--         LEFT JOIN car_group_info cgi on (cgi.car_group_id = od.car_cg_id or cgi.car_group_id=od.driver_cg_id)
+        LEFT JOIN car_group_info cgi on (cgi.car_group_id = od.car_cg_id or cgi.car_group_id=od.driver_cg_id or od.next_car_group_id = cgi.car_group_id)
+        left join journey_user_car_power jucp on jucp.node_id=oi.node_id
+        left join apply_info ai on ai.apply_id=jucp.apply_id
+        left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
+        WHERE 1 = 1
+        <if test="isIndex == 1">
+            --             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
+            --             (select distinct order_id from order_state_trace_info where state in ('S100'))
+            --             and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
+            and oi.order_id in (
+            select a.orderId from (select order_id orderId,max(state) mstate from order_state_trace_info GROUP BY order_id ) a where a.mstate = 'S100'
+            )
+        </if>
+        <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
+            and  oi.state = #{homePageWaitingCarState}
+        </if>
+        <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
+            and  oi.state = #{homePageExpireCarState}
+        </if>
+        <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
+            and  oi.state >= 'S299' and  oi.state != 'S900'
+        </if>
+        <if test="homeDynamicBeginTime!=null and '' != homeDynamicBeginTime">
+            and  oi.create_time &gt;= #{homeDynamicBeginTime}
+        </if>
+        <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
+            and  oi.create_time &lt;= #{homeDynamicEndTime}
+        </if>
+        <if test="isIndex == 2">
+            and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
+            (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100','S930'))
+            and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
+        </if>
+
+        <if test="companyId!=null and companyId!=''">
+            and  oi.company_id=#{companyId}
+        </if>
+        <if test="applyName!=null and applyName!=''">
+            and  eu.nick_name=#{applyName}
+        </if>
+        <if test="applyMobile!=null and applyMobile!=''">
+            and  eu.phonenumber=#{applyMobile}
+        </if>
+        <if test="cityCode!=null and cityCode!=''">
+            and  cc.SHORT_NAME=#{cityCode}
+        </if>
+        <if test="useCarMode!=null and useCarMode!=''">
+            and  oi.use_car_mode=#{useCarMode}
+        </if>
+        <if test="dispatchStatus!=null and dispatchStatus!=''">
+            and  oi.state=#{dispatchStatus}
+        </if>
+        <if test="optStartDate!=null  and  optStartDate!='' ">
+            and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{optStartDate},'%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test="optEndDate!=null  and  optEndDate!='' ">
+            and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test="orderId!=null and orderId != ''">
+            and oi.order_id=#{orderId}
+        </if>
+        and  oi.it_is_supplement='N000'
+        and ((oi.user_id in (select distinct user_id from ecmp_user where dept_id in
+        (select dept_id from car_group_serve_org_relation where car_group_id in
+        (select car_group_id from car_group_dispatcher_info where user_id=#{userId})))
+        and cgi.car_group_id in(
+        SELECT car_group_id FROM car_group_dispatcher_info WHERE user_id =#{userId}
+        )) or (
+        oi.user_id IN (
+        SELECT DISTINCT
+        user_id
+        FROM
+        ecmp_user
+        WHERE
+        dept_id IN ( SELECT dept_id FROM car_group_serve_org_relation WHERE car_group_id IN ( SELECT car_group_id FROM car_group_dispatcher_info WHERE user_id =#{userId})
+        and car_group_id in (
+        select i.car_group_id from car_group_info i where i.it_is_inner='C000')))))
+        ORDER BY
+        oi.state,oai.action_time ASC
+    </select>
 
     <select id="getUseApplySearchList" parameterType="com.hq.ecmp.mscore.vo.UserApplySingleVo" resultType="com.hq.ecmp.mscore.vo.UserApplySingleVo">
 
