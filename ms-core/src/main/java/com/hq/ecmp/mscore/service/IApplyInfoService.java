@@ -132,7 +132,7 @@ public interface IApplyInfoService
      * @param userId
      * @return
      */
-    int updateApplyOrderState(Long applyId, String applyState, String approveState, Long userId) throws Exception;
+    ApiResponse updateApplyOrderState(Long applyId, String applyState, String approveState, Long userId) throws Exception;
 
     /**
      * 提交申请单
