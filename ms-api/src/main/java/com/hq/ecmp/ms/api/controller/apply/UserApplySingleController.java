@@ -234,7 +234,7 @@ public class UserApplySingleController {
             jsonObject.put("expireCarCount",expireCarList.size());
         } catch (Exception e) {
             e.printStackTrace();
-            ApiResponse.error("分页查询公告列表失败");
+            ApiResponse.error("分页查询员工订单动态失败");
         }
         return jsonObject;
     }

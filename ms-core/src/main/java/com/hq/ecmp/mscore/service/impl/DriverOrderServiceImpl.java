@@ -2,6 +2,9 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ContactorDto;
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -55,6 +59,9 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     @Resource
     IJourneyPassengerInfoService iJourneyPassengerInfoService;
 
+    @Autowired
+    private TokenService tokenService;
+
     @Resource
     ICarInfoService iCarInfoService;
 
@@ -80,6 +87,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     EcmpUserMapper ecmpUserMapper;
     @Resource
     JourneyInfoMapper journeyInfoMapper;
+    @Resource
+    IOrderSettlingInfoService iorderSettlingInfoService;
 
 
     @Resource
@@ -228,6 +237,17 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             }
 
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){//服务完成4
+            /*
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long uid = loginUser.getUser().getUserId();*/
+            OrderSettlingInfoVo vo = new OrderSettlingInfoVo();
+            vo.setOrderId(orderId);//订单Id
+            vo.setTotalMileage(BigDecimal.valueOf(Long.parseLong(mileage)));//订单总里程
+            vo.setTotalTime(Integer.parseInt(travelTime));//订单总时长
+
+            iorderSettlingInfoService.addExpenseReport(vo, userId,orderInfoOld.getCompanyId());
+
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             String longAddr = "";
             String shortAddr ="";
