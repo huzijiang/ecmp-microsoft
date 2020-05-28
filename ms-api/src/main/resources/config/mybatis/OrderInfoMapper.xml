@@ -734,19 +734,25 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         jni.plan_begin_address planningSetOutAddress,
         jni.plan_arrive_time planningArriveTime,
         jni.plan_end_address planningArriveAddress,
-        oai.action_time  beginTime,
+        oai.action_time beginTime,
         oai2.action_time endTime,
         oai.address beginAddress,
         oai2.address endAddress,
         s.service_type serviceType,
         ji.charter_car_type charterCarType,
         ifnull(ecti.name,s.demand_car_level) carLevel,
-        CONVERT(osi.total_mileage,DECIMAL(10,2))  totalMileage,
+        CONVERT(osi.total_mileage,DECIMAL(10,2)) totalMileage,
         osi.total_time totalTime,
         osi.amount_detail amountDetail,
-        CONVERT(osi.amount,DECIMAL(10,2))  amount,
-        dhi.longitude  currentLongitude,
+        CONVERT(osi.amount,DECIMAL(10,2)) amount,
+        dhi.longitude currentLongitude,
         dhi.latitude currentLatitude,
+        (select notes from apply_info where journey_id=ji.journey_id)notes,
+        (select reason from apply_info where journey_id=ji.journey_id)reason,
+        (select car_group_name   from car_group_info where car_group_id= ci.car_group_id)carGroupName,
+        (select car_group_name   from car_group_info where car_group_id in
+                    (select car_group_id from car_group_driver_relation where driver_id=s.driver_id)
+        )driverGroupName,
         (select state from order_state_trace_info sti where sti.order_id=s.order_id order by trace_id desc limit 1) labelState
         from order_info s
         left join journey_user_car_power jucp on jucp.power_id=s.power_id
@@ -765,7 +771,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join scene_info si on si.scene_id = srr.scene_id
         left join order_address_info oai on oai.order_id=s.order_id and oai.type='A000'
         left join order_address_info oai2 on oai2.order_id=s.order_id and oai2.type='A999'
-        left join (	select d1.* from driver_heartbeat_info d1,
+        left join ( select d1.* from driver_heartbeat_info d1,
         (select dd.driver_id,dd.order_id,max(dd.create_time) mtime from driver_heartbeat_info dd
         group by dd.driver_id,dd.order_id) d2
         where d1.driver_id=d2.driver_id and d1.order_id=d2.order_id and d1.create_time=d2.mtime ) dhi
@@ -1754,11 +1760,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ecty.`name` carLevel,
         osi.total_time totalTime,
         ji.charter_car_type charterCarType,
-        (select notes   from apply_info where journey_id=ji.journey_id),
-        (select reason  from apply_info where journey_id=ji.journey_id),
-        (select car_group_name as carGroupName from car_group_info where car_group_id= ci.car_group_id),
-        (select car_group_name as driverGroupName from car_group_info where car_group_id=
-              select car_group_id from car_group_driver_relation where driver_id=oi.driver_id),
+        (select notes   from apply_info where journey_id=ji.journey_id)notes,
+        (select reason  from apply_info where journey_id=ji.journey_id)reason,
+        (select car_group_name  from car_group_info where car_group_id= ci.car_group_id)carGroupName,
+        (select car_group_name  from car_group_info where car_group_id in
+              (select car_group_id from car_group_driver_relation where driver_id=s.driver_id)
+        )driverGroupName,
         CONVERT(osi.total_mileage,DECIMAL(10,2))  totalMileage,
         osi.amount_detail amountDetail
         FROM
