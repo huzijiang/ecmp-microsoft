@@ -30,6 +30,8 @@
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="startAddress" column="start_address" jdbcType="VARCHAR"/>
+        <result property="endAddress" column="end_address" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="key">
