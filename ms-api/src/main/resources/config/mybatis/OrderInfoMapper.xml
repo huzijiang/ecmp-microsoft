@@ -2481,7 +2481,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         SELECT DISTINCT
             cost.start_time startDate,
             cost.end_time endDate,
-            cost.total_fee totalFee,--行程单价
+            cost.total_fee totalFee,
             oi.order_number orderNumber,
             ci.car_license carLicense,
             ci.car_type carType,
