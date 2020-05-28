@@ -121,4 +121,10 @@ public class UserApplySingleVo extends PageRequest {
 
     @ApiModelProperty(value = "等待时长")
     private String waitingTime;
+
+    @ApiModelProperty(value = "首页订单动态开始时间")
+    private String  homeDynamicBeginTime;
+
+    @ApiModelProperty(value = "首页订单动态结束时间")
+    private String  homeDynamicEndTime;
 }

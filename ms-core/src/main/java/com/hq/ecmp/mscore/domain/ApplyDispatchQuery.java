@@ -40,6 +40,12 @@ public class ApplyDispatchQuery  extends PageResult {
         @ApiModelProperty(value = "已过期状态")
         private String  homePageExpireCarState;
 
+        @ApiModelProperty(value = "首页订单动态开始时间")
+        private String  homeDynamicBeginTime;
+
+        @ApiModelProperty(value = "首页订单动态结束时间")
+        private String  homeDynamicEndTime;
+
         Long companyId;
         String dispatchType;
         List<Long> orderIds;
