@@ -107,5 +107,5 @@ public interface CarGroupServeScopeInfoMapper
 
     List<CostConfigCityInfo> getCitysBycarGroupId(@Param("carGroupId") Long carGroupId);
 
-    List<CarGroupInfo> getGroupIdByCode(@Param("code") String code, @Param("companyId")Long companyId);
+    List<CarGroupInfo> getGroupIdByCode(@Param("startCode") String startCode, @Param("endCode") String endCode,@Param("companyId")Long companyId);
 }

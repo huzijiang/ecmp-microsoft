@@ -180,8 +180,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
         select car_group_id carGroupId from car_group_info where company_id =#{companyId} and car_group_id in
                 (
-
-                SELECT  car_group_id carGroupId FROM car_group_serve_scope_info WHERE  city  IN (#{code}))
+                SELECT  car_group_id carGroupId FROM car_group_serve_scope_info WHERE  city  IN (#{startCode},#{endCode}))
 
     </select>
 </mapper>

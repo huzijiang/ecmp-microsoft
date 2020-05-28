@@ -2083,9 +2083,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     public ApiResponse submitApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) {
         ApiResponse apiResponse = new ApiResponse();
         //判断上下车地点的城市是否至少有一个在服务城市集范围内
-        String code = applySingleVO.getStartAddr().getCityCode()+','+applySingleVO.getEndAddr().getCityCode();
-        List<CarGroupInfo> list = carGroupServeScopeInfoMapper.getGroupIdByCode(code,loginUser.getUser().getDept().getCompanyId());
+        String startCode = applySingleVO.getStartAddr().getCityCode();
+        String endCode = applySingleVO.getEndAddr().getCityCode();
+        List<CarGroupInfo> list = carGroupServeScopeInfoMapper.getGroupIdByCode(startCode,endCode,loginUser.getUser().getDept().getCompanyId());
         if(list.isEmpty()){
+            apiResponse.setCode(1);
             apiResponse.setMsg("非常抱歉，您的用车申请无可服务车队，申请失败，如有问题，请联系管理员！");
             return apiResponse;
         }
