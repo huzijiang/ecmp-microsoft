@@ -905,7 +905,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         }
         if (query.getInOrOut() == ONE) {//内部调度员
             /**修改订单状态,插入轨迹*/
-            orderInfo.setState(OrderState.ORDERDENIED.getState());
+            orderInfo.setState(OrderState.ORDERCLOSE.getState());
             orderInfo.setUpdateBy(user.getUserId().toString());
             orderInfo.setUpdateTime(DateUtils.getNowDate());
             orderInfoMapper.updateOrderInfo(orderInfo);

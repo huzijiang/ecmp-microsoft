@@ -1335,6 +1335,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             Map<String, String> orderCommonInfo = getOrderinfo(orderId);
            //用车人
             String applyMobile = orderCommonInfo.get("applyMobile");
+            log.info("短信已发送用车人电话：{}",applyMobile);
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END,orderCommonInfo,applyMobile);
 
         } catch (Exception e) {
