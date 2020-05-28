@@ -40,4 +40,6 @@ public interface HomePageSortMapper {
     List<UserConsoleHomePageSortInfo> getHomeSortsByPanelId(@Param("panelId")Long panelId);
 
     List<UserConsoleHomePageSortInfo> getHomePageSort(@Param("userId")Long userId);
+
+    int deleteHomeSorts(UserConsoleHomePageSortInfo userConsoleHomePageSortInfo);
 }
