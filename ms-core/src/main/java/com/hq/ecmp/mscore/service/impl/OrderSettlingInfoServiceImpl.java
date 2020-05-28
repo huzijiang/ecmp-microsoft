@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.alibaba.fastjson.JSON;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CharterTypeEnum;
 import com.hq.ecmp.constant.CostConfigModeEnum;
 import com.hq.ecmp.constant.OrderServiceType;
@@ -171,7 +172,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             lastRecordInfo.setBeyondMileageFee(orderSettlingInfoVo.getOverMileagePrice());
             lastRecordInfo.setBeyondTimeFee(orderSettlingInfoVo.getOvertimeLongPrice());
             i = costDetailRecordInfoMapper.update(lastRecordInfo);
-            if(!orderSettlingInfoVo.getImageUrl().equals(null) && !orderSettlingInfoVo.getImageUrl().equals("")){
+            if(StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())){
                 String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
                 OrderServiceImagesInfo imagesInfo = OrderServiceImagesInfo.builder()
                         .recordId(lastRecordInfo.getRecordId()).build();
