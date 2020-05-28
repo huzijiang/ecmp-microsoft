@@ -10,6 +10,7 @@ import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
@@ -1868,6 +1869,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Transactional(propagation=Propagation.REQUIRED)
 	@Override
 	public boolean rejectReassign(Long orderId, String rejectReason, Long optUserId) {
+
+        OrderInfo order = orderInfoMapper.selectOrderInfoById(orderId);
+        int state = Integer.parseInt(order.getState().substring(1));
+        if (state >= Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1))) {
+            throw new BaseException("此订单已派车不可驳回!");
+        }
 		// 生成订单状态流转记录
 		OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
 		orderStateTraceInfo.setCreateBy(String.valueOf(optUserId));
