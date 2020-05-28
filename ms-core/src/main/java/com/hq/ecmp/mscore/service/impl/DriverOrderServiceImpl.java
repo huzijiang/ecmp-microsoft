@@ -165,8 +165,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
             //存储出发点行车经纬度
             OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
-            recordInfo.setStartLongitude(BigDecimal.valueOf(longitude));//精度
-            recordInfo.setStartLatitude(BigDecimal.valueOf(latitude));//维度
+            recordInfo.setStartLongitude(BigDecimal.valueOf(null==longitude?00:longitude));//精度
+            recordInfo.setStartLatitude(BigDecimal.valueOf(null==latitude?00:latitude));//维度
             recordInfo.setStartTime(new Date());
             recordInfo.setOrderId(orderId);
             int insert = orderServiceCostDetailRecordInfoMapper.insert(recordInfo);
@@ -320,8 +320,9 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
 
             long recorId = orderServiceCostDetailRecordInfoMapper.selsctRecordIdByOrderId(orderId);
-            recordInfo.setEndLongitude(BigDecimal.valueOf(longitude));//精度
-            recordInfo.setEndLatitude(BigDecimal.valueOf(latitude));//维度
+
+            recordInfo.setEndLongitude(BigDecimal.valueOf(null==longitude?00:longitude));//精度
+            recordInfo.setEndLatitude(BigDecimal.valueOf(null==latitude?00:latitude));//维度
             recordInfo.setOrderId(orderId);
             recordInfo.setRecordId(recorId);
             recordInfo.setEndTime(new Date());
