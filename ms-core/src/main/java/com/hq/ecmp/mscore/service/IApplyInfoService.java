@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.github.pagehelper.PageInfo;
+import com.hq.common.core.api.ApiResponse;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.dto.*;
@@ -131,7 +132,7 @@ public interface IApplyInfoService
      * @param userId
      * @return
      */
-    int updateApplyOrderState(Long applyId, String applyState, String approveState, Long userId) throws Exception;
+    ApiResponse updateApplyOrderState(Long applyId, String applyState, String approveState, Long userId) throws Exception;
 
     /**
      * 提交申请单
@@ -139,5 +140,5 @@ public interface IApplyInfoService
      * @param applySingleVO
      * @return
      */
-    int submitApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO);
+    ApiResponse submitApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO);
 }

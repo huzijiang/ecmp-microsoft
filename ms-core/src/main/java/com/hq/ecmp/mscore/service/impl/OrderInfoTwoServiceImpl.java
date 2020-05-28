@@ -732,6 +732,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
         userApplySingleVo.setUserId(loginUser.getUser().getUserId());
         userApplySingleVo.setCompanyId(companyId);
+        userApplySingleVo.setHomeDynamicBeginTime(userApplySingleVo.getHomeDynamicBeginTime().substring(0, 10)+" 00:00:00");
+        userApplySingleVo.setHomeDynamicEndTime(userApplySingleVo.getHomeDynamicEndTime().substring(0, 10)+ " 23:59:59");
         List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplyCounts(userApplySingleVo);
         return useApplyList;
     }
@@ -800,7 +802,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         //不是首页
         if (query.getIsIndex() == 2) {
             if ("1".equals(user.getItIsDispatcher())) {//是调度员
-                dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCar(query);
+                dispatcherOrderList = orderInfoMapper.queryDispatchListCharterCar(query);
             }
             List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(collect)) {//是管理员

@@ -96,6 +96,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Autowired
     private OrderDispatcheDetailInfoMapper orderDispatcheDetailInfoMapper;
+    @Autowired
+    private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Resource
     private ThirdService thirdService;
     @Autowired
@@ -2045,17 +2047,24 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      */
     @Override
     @Transactional
-    public int updateApplyOrderState(Long applyId, String applyState, String approveState, Long userId)throws Exception {
+    public ApiResponse updateApplyOrderState(Long applyId, String applyState, String approveState, Long userId)throws Exception {
+        ApiResponse  apiResponse = new ApiResponse();
         ApplyInfo applyInfo = new ApplyInfo(applyId,applyState);
         applyInfo.setUpdateBy(String.valueOf(userId));
         applyInfo.setUpdateTime(new Date());
+        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
+        if(Integer.valueOf(undoSMSTemplate.getState().substring(1))>=Integer.valueOf(OrderState.INSERVICE.getState().substring(1))){
+            apiResponse.setCode(1);
+            apiResponse.setMsg("您所撤销的订单已经属于服务中或完成状态，不可以撤销了");
+            return  apiResponse;
+        }
         int i=0;
         if (StringUtils.isNotBlank(applyState)){
             i = applyInfoMapper.updateApplyInfo(applyInfo);
         }
         this.updateApproveResult(applyId,approveState,userId);
         this.updateOrderResult(applyId,userId);
-        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
+        //UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
         if(OrderState.WAITINGLIST.getState().equals(undoSMSTemplate.getState())){
             //未派单
             ismsBusiness.sendRevokeUndelivered(undoSMSTemplate);
@@ -2067,7 +2076,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             ismsBusiness.sendRevokeToBeServed (undoSMSTemplate);
         }
 
-        return i;
+        return apiResponse;
     }
 
     /**
@@ -2078,7 +2087,17 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      */
     @Override
     //@Transactional
-    public int submitApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) {
+    public ApiResponse submitApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) {
+        ApiResponse apiResponse = new ApiResponse();
+        //判断上下车地点的城市是否至少有一个在服务城市集范围内
+        String startCode = applySingleVO.getStartAddr().getCityCode();
+        String endCode = applySingleVO.getEndAddr().getCityCode();
+        List<CarGroupInfo> list = carGroupServeScopeInfoMapper.getGroupIdByCode(startCode,endCode,loginUser.getUser().getDept().getCompanyId());
+        if(list.isEmpty()){
+            apiResponse.setCode(1);
+            apiResponse.setMsg("非常抱歉，您的用车申请无可服务车队，申请失败，如有问题，请联系管理员！");
+            return apiResponse;
+        }
         //申请人id
         applySingleVO.setUserId(loginUser.getUser().getUserId());
         //申请人公司
@@ -2125,7 +2144,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         orderDispatcheDetailInfo.setCreateBy(String.valueOf(applySingleVO.getUserId()));
         orderDispatcheDetailInfo.setCreateTime(DateUtils.getNowDate());
          int i = orderDispatcheDetailInfoMapper.insertOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
-        return i;
+        if(i == 1){
+            apiResponse.setMsg("提交申请单成功");
+        }else {
+            apiResponse.setMsg("提交申请单失败");
+        }
+        return apiResponse;
     }
 
     /**

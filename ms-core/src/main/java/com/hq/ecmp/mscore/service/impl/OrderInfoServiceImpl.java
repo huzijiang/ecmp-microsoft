@@ -10,6 +10,7 @@ import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
@@ -1432,6 +1433,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             passengerPhone=journeyPassengerInfos.get(0).getMobile();
             passengerName=journeyPassengerInfos.get(0).getName();
         }
+
         vo.setUserName(passengerName);
         vo.setUserPhone(passengerPhone);
         if (orderSettlingInfo!=null){
@@ -1867,6 +1869,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 	@Transactional(propagation=Propagation.REQUIRED)
 	@Override
 	public boolean rejectReassign(Long orderId, String rejectReason, Long optUserId) {
+
+        OrderInfo order = orderInfoMapper.selectOrderInfoById(orderId);
+        int state = Integer.parseInt(order.getState().substring(1));
+        if (state >= Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1))) {
+            throw new BaseException("此订单已派车不可驳回!");
+        }
 		// 生成订单状态流转记录
 		OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
 		orderStateTraceInfo.setCreateBy(String.valueOf(optUserId));
@@ -2260,11 +2268,19 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				//派车或者改派通过
 				OrderInfo currentOrder = orderInfoMapper.selectOrderInfoById(orderId);
 				if(null !=currentOrder){
-					currentDispatchOptRecord.setUseCarModel(currentOrder.getUseCarMode());
-					currentDispatchOptRecord.setDriverMobile(currentOrder.getDriverMobile());
-					currentDispatchOptRecord.setDriverName(currentOrder.getDriverName());
-					currentDispatchOptRecord.setCarType(currentOrder.getCarModel());
-					currentDispatchOptRecord.setCarLicense(currentOrder.getCarLicense());
+				    if (CarConstant.USR_CARD_MODE_HAVE.equals(currentOrder.getUseCarMode())){
+                        DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(currentOrder.getDriverId());
+                        if (driverInfo!=null){
+                        currentDispatchOptRecord.setDriverMobile(driverInfo.getMobile());
+                        currentDispatchOptRecord.setDriverName(driverInfo.getDriverName());
+                        }
+                        CarInfo carInfo = carInfoMapper.selectCarInfoById(currentOrder.getCarId());
+                        if (carInfo!=null){
+                            currentDispatchOptRecord.setCarType(carInfo.getCarType());
+                            currentDispatchOptRecord.setCarLicense(carInfo.getCarLicense());
+                        }
+                    }
+                    currentDispatchOptRecord.setUseCarModel(currentOrder.getUseCarMode());
 				}
 			}
 		}
@@ -2858,7 +2874,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     @Override
     public String orderReassignment(Long userId, Long orderId) throws Exception {
-        orderInfoMapper.changeOrder(orderId,userId,new Date());
+        OrderInfo data = new OrderInfo();
+        data.setOrderId(orderId);
+        data.setUpdateBy(String.valueOf(userId));
+        data.setUpdateTime(new Date());
+        orderInfoMapper.changeOrder(data);
         orderStateTraceInfoMapper.deleteOrderStateTrace(orderId);
         orderDispatcheDetailInfoMapper.deleteOrderId(orderId);
         return "改派成功";
