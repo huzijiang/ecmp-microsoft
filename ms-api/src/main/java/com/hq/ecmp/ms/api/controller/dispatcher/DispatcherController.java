@@ -53,6 +53,7 @@ public class DispatcherController {
      * 获取调度列表数据
      */
     @PostMapping("/getDispatcherList")
+    @ApiOperation(value = "佛山调度列表")
     public ApiResponse<PageResult<DispatchVo>>  getDispatcherList(@RequestBody ApplyDispatchQuery query){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
@@ -93,7 +94,7 @@ public class DispatcherController {
     @ApiOperation(value = "佛山内外调度派车接口")
     @Log(value = "佛山内外调度派车接口")
     @com.hq.core.aspectj.lang.annotation.Log(title = "佛山内外调度派车接口",businessType = BusinessType.UPDATE,operatorType = OperatorType.MANAGE)
-    public ApiResponse dispatcherSendCar(@RequestBody DispatchSendCarDto dispatchSendCarDto) throws Exception {
+    public ApiResponse dispatcherSendCar(@RequestBody DispatchSendCarDto dispatchSendCarDto){
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);

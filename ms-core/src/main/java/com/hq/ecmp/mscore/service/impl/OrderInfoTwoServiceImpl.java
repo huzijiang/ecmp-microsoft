@@ -15,6 +15,7 @@ import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.dto.DriverCloudDto;
+import com.hq.ecmp.mscore.dto.PageModel;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
@@ -34,10 +35,7 @@ import oshi.jna.platform.mac.SystemB;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hq.ecmp.constant.CommonConstant.ONE;
@@ -803,14 +801,22 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
             }
         }
 
-        Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
-        if (dispatcherOrderList.isEmpty()) {
-            Long total = 0L;
-            Integer pageSize = 0;
-            return new PageResult<>(total, pageSize, page.getCurrentPageData());
-        }
-        page.setCurrent_page(query.getPageNum());
-        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());
+        //手动分页
+        PageModel<DispatchVo> pm = new PageModel(dispatcherOrderList, query.getPageSize());
+        //pm.setTotalRows(pm.getTotalRows());
+        List<DispatchVo> pageList = pm.getObjects(Integer.valueOf(query.getPageNum()));
+        //List<DispatchOrderInfoVo> pageList = pm.getTotalRows();
+        //List<DispatchOrderInfoVo> pageList = pm.getObjects(Integer.valueOf(pageNum));
+        return new PageResult<>(Long.valueOf(pm.getTotalRows()), query.getPageNum(), pageList);
+
+//        Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+//        if (dispatcherOrderList.isEmpty()) {
+//            Long total = 0L;
+//            Integer pageSize = 0;
+//            return new PageResult<>(total, pageSize, page.getCurrentPageData());
+//        }
+//        page.setCurrent_page(query.getPageNum());
+//        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());
 //        Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
 //        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
 //        if (dispatcherOrderList.isEmpty()) {
