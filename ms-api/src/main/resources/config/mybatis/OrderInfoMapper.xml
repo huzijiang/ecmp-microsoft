@@ -1917,7 +1917,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
             and  oi.state >= 'S299' and  oi.state != 'S900'
         </if>
-
+        <if test="homeDynamicBeginTime!=null and '' != homeDynamicBeginTime">
+            and  oi.create_time &gt;= #{homeDynamicBeginTime}
+        </if>
+        <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
+            and  oi.create_time &lt;= #{homeDynamicEndTime}
+        </if>
         <if test="isIndex == 2">
             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
             (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100','S930'))
