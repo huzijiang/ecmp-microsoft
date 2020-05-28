@@ -1183,15 +1183,17 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 oi.service_type serverType,
                 -- 状态
                 case
-                    when right (oi.state,3)='100' then '待派车'
-                    when right (oi.state,3)<![CDATA[ >= ]]>'299' and right (oi.state,3)!='900' then '已处理'
-                    when right (oi.state,3)='900' then '已过期'
+                    when right (z.state,3)='100' then '待派车'
+                    when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已处理'
+                    when right (z.state,3)='921' then '已过期'
+                    when right (z.state,3)='930' then '已驳回'
+                    when right (z.state,3)='911' then '已取消'
                     ELSE '' END state,
                 -- 操作时间
             case
                 when right (oi.state,3)='100' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S100'  limit 1)
-                when right (oi.state,3)='299' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S299' limit 1)
-                when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
+                when right (oi.state,3)='299' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state ='S299' limit 1)
+                when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state in ('S921','S930') limit 1)
             ELSE now() END opDate
                 FROM
                 order_info oi
@@ -1207,7 +1209,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 LEFT JOIN order_address_info oai ON (oai.order_id = oi.order_id and oai.type='A000')
                 LEFT JOIN order_address_info oaitwo ON (oaitwo.order_id = oi.order_id and oaitwo.type='A999')
                 LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
-            WHERE 1 = 1
+                LEFT JOIN (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=oi.order_id
+        WHERE 1 = 1
                 and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
                 (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100'))
                 and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
@@ -1285,15 +1288,17 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oi.service_type serverType,
         -- 状态
         case
-        when right (oi.state,3)='100' then '待派车'
-        when right (oi.state,3)<![CDATA[ >= ]]>'299'and right (oi.state,3)!='900' then '已处理'
-        when right (oi.state,3)='900' then '已过期'
+        when right (z.state,3)='100' then '待派车'
+        when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已处理'
+        when right (z.state,3)='921' then '已过期'
+        when right (z.state,3)='930' then '已驳回'
+        when right (z.state,3)='911' then '已取消'
         ELSE '' END state,
         -- 操作时间
         case
         when right (oi.state,3)='100' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S100'  limit 1)
-        when right (oi.state,3)='299' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S299' limit 1)
-        when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
+        when right (oi.state,3)='299' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state ='S299' limit 1)
+        when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state in ('S921','S930') limit 1)
         ELSE now() END opDate
         FROM
         order_info oi
@@ -1309,6 +1314,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN order_address_info oai ON (oai.order_id = oi.order_id and oai.type='A000')
         LEFT JOIN order_address_info oaitwo ON (oaitwo.order_id = oi.order_id and oaitwo.type='A999')
         LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
+        LEFT JOIN (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=oi.order_id
         WHERE 1 = 1
         and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
         (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100'))
@@ -2210,10 +2216,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oi.order_id orderId,
         -- 费用合计
         case
-        when right (oi.state,3)='100' then '待派车'
-        when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已派车'
-        when right (ai.state,3)='004' then '已撤销'
-        when right (ai.state,3)='005' then '已过期'
+        when right (z.state,3)='100' then '待派车'
+        when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已派车'
+        when right (ai.state,3)='004' OR right (z.state,3)='911' then '已撤销'
+        when right (ai.state,3)='005' OR right (z.state,3)='921' then '已过期'
+        when right (z.state,3)='930' then '已驳回'
         ELSE '' END orderState
         FROM
         apply_info ai  LEFT JOIN  journey_info ji ON ai.journey_id = ji.journey_id
@@ -2227,6 +2234,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN  driver_info di  ON di.driver_id = oi.driver_id
         LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = di.driver_id
         LEFT JOIN  car_group_info cgiTwo ON cgiTwo.car_group_id = cgdr.car_group_id
+        LEFT JOIN (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=oi.order_id
         left join
         (select order_id,type,address,address_long from order_address_info where type = 'A000') oai1 on  oai1.order_id = oi.order_id
         left join

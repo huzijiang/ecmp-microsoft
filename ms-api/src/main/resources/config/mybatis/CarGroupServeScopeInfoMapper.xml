@@ -175,4 +175,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             where CITY_CODE in (select DISTINCT city from car_group_serve_scope_info where car_group_id=#{carGroupId})
 
     </select>
+
+    <select id="getGroupIdByCode"  resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+
+        select car_group_id carGroupId from car_group_info where company_id =#{companyId} and car_group_id in
+                (
+
+                SELECT  car_group_id carGroupId FROM car_group_serve_scope_info WHERE  city  IN (#{code}))
+
+    </select>
 </mapper>
