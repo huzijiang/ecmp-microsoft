@@ -141,12 +141,8 @@ public class UserApplySingleController {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            int i = applyInfoService.submitApplySingle(loginUser,applySingleVO);
-            if(i == 1){
-                return ApiResponse.success("提交申请单成功");
-            }else {
-                return ApiResponse.error("提交申请单失败，请重试");
-            }
+            ApiResponse apiResponse = applyInfoService.submitApplySingle(loginUser,applySingleVO);
+            return apiResponse;
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("提交申请单失败，请重试");

@@ -125,6 +125,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateBy != null ">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
         </trim>
+        ON DUPLICATE KEY UPDATE
+            order_id=#{orderId}
     </insert>
 
     <select id="selectSettingInfoByOrderIds" parameterType="Object" resultMap="OrderSettlingInfoResult">

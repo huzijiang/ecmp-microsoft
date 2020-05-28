@@ -150,4 +150,10 @@ public class OrderSettlingInfoVo {
     @ApiModelProperty(name = "serviceType", value = "服务类型")
     private String serviceType;
 
+    /**
+     * 服务子表的主键
+     */
+    @ApiModelProperty(name = "recordId", value = "服务子表的主键")
+    private Long recordId;
+
 }

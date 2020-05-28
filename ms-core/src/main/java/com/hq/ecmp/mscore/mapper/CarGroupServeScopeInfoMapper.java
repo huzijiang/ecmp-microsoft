@@ -6,6 +6,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import java.util.List;
 
+import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.CarGroupServeScopeInfo;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.vo.CityInfo;
@@ -105,4 +106,6 @@ public interface CarGroupServeScopeInfoMapper
 	List<CityInfo> selectObtainDispatcherCity(@Param("carGroupId") String carGroupId);
 
     List<CostConfigCityInfo> getCitysBycarGroupId(@Param("carGroupId") Long carGroupId);
+
+    List<CarGroupInfo> getGroupIdByCode(@Param("startCode") String startCode, @Param("endCode") String endCode,@Param("companyId")Long companyId);
 }
