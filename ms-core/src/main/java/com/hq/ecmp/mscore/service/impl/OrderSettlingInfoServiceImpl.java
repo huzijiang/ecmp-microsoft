@@ -186,7 +186,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //判断是否插入主表
         if(isInsertOrderConfing){
             i = orderSettlingInfoMapper.insertOrderSettlingInfoOne(orderSettlingInfoVo);
-            if(!orderSettlingInfoVo.getImageUrl().equals(null) && !orderSettlingInfoVo.getImageUrl().equals("")){
+            if(StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())){
                 String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
                 for (String url:imageUrl){
                     orderSettlingInfoVo.setImageUrl(url);
