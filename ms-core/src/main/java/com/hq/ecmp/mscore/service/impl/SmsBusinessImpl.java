@@ -1309,12 +1309,12 @@ public class SmsBusinessImpl implements IsmsBusiness{
 
     private Map<String,String> getOrderinfo(Long orderId) {
         Map<String,String> map = orderInfoMapper.getOrderInfo(orderId);
-        String startDate = map.get("startDate");
-        String endDate = map.get("endDate");
-        String sdate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(startDate).getTime());
-        String edate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(endDate).getTime());
-        map.put("startDate",sdate);
-        map.put("endDate",edate);
+//        String startDate = map.get("startDate");
+//        String endDate = map.get("endDate");
+//        String sdate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(startDate).getTime());
+//        String edate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(endDate).getTime());
+//        map.put("startDate",sdate);
+//        map.put("endDate",edate);
         //获取开始结束时间 加金额
     ///order_service_cost_detail_record_info表--start_time--end_time---total_fee
         return  map;
