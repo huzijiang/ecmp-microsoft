@@ -41,7 +41,7 @@ public class CostCalculator implements CostCalculation {
         //起步价
         BigDecimal startingPrice = BigDecimal.ZERO;
         //套餐价
-        BigDecimal  packagePrice  = BigDecimal.ZERO;
+        BigDecimal  packagePrice ;
         //超里程价格
         BigDecimal  overMileagePrice  = BigDecimal.ZERO;
         //超时长价格
@@ -60,15 +60,36 @@ public class CostCalculator implements CostCalculation {
         BigDecimal  hotelExpenseFee  =getBigDecimal(orderSettlingInfoVo.getHotelExpenseFee());
         //餐饮费
         BigDecimal  restaurantFee  = getBigDecimal(orderSettlingInfoVo.getRestaurantFee());
+
+        //套餐价
+        BigDecimal setMealCost = BigDecimal.ZERO;
+        //套餐里程数
+        BigDecimal setMealMileage = BigDecimal.ZERO;
+        //套餐时长
+        long setMealTimes =0l;
+        //超里程数
+        BigDecimal beyondMileage = BigDecimal.ZERO;
+        //超里程时长
+        long beyondTime = 0l;
+
+
+
+
         if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState())){
             //包车的情况下
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
                 //套餐价
                 packagePrice = costConfigInfo.getCombosPrice();
+
+                setMealCost = setMealCost.add(packagePrice);
+                setMealMileage = setMealMileage.add(costConfigInfo.getCombosMileage());
+                setMealTimes += (orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue());
+
                 //超里程数小于&&等于1  则不计算他的超里程费用
                 if(orderSettlingInfoVo.getTotalMileage().compareTo(costConfigInfo.getCombosMileage())==1){
                     //超里程价格=（总里程-包含里程）* 超里程单价
-                    overMileagePrice = overMileagePrice.add((orderSettlingInfoVo.getTotalMileage().subtract(costConfigInfo.getCombosMileage())).multiply(costConfigInfo.getBeyondPriceEveryKm()));
+                    beyondMileage = beyondMileage.add(orderSettlingInfoVo.getTotalMileage().subtract(costConfigInfo.getCombosMileage()));
+                    overMileagePrice = overMileagePrice.add(orderSettlingInfoVo.getTotalMileage().subtract(costConfigInfo.getCombosMileage()).multiply(costConfigInfo.getBeyondPriceEveryKm()));
                 }else {
                     overMileagePrice=overMileagePrice.add(BigDecimal.ZERO);
                 }
@@ -77,11 +98,16 @@ public class CostCalculator implements CostCalculation {
                     overtimeLongPrice= overtimeLongPrice.add(BigDecimal.ZERO);
                 }else{
                     //超时长价格=(总时长-包含时长)* 超时长单价
+                    beyondTime = beyondTime+orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue();
                     overtimeLongPrice= overtimeLongPrice.add(new BigDecimal(orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue()).multiply(costConfigInfo.getBeyondPriceEveryMinute().divide(new BigDecimal("60"),2,BigDecimal.ROUND_HALF_UP)));
                 }
                 //总价=（等待时长*等待单价）+(起步价)+(超里程价格)+(超时长价格)
                 totalPrice = totalPrice.add(packagePrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
             }
+            setMealMileage = setMealMileage.divide(new BigDecimal(costConfigInfoList.size()));
+            setMealTimes = setMealTimes/costConfigInfoList.size();
+            beyondMileage = beyondMileage.divide(new BigDecimal(costConfigInfoList.size()));
+            beyondTime = beyondTime/costConfigInfoList.size();
         }else if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_APPOINTMENT.getBcState())){
             //预约
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
@@ -188,6 +214,12 @@ public class CostCalculator implements CostCalculation {
         orderSettlingInfoVo.setHotelExpenseFee(hotelExpenseFee);
         orderSettlingInfoVo.setRestaurantFee(restaurantFee);
         orderSettlingInfoVo.setAmount(amount);
+
+        orderSettlingInfoVo.setSetMealCost(setMealCost);
+        orderSettlingInfoVo.setSetMealMileage(setMealMileage);
+        orderSettlingInfoVo.setSetMealTimes(setMealTimes);
+        orderSettlingInfoVo.setBeyondMileage(beyondMileage);
+        orderSettlingInfoVo.setBeyondTime(beyondTime);
         return orderSettlingInfo;
     }
 }

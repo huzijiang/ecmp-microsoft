@@ -156,4 +156,11 @@ public class OrderSettlingInfoVo {
     @ApiModelProperty(name = "recordId", value = "服务子表的主键")
     private Long recordId;
 
+
+    private BigDecimal setMealCost;
+    private BigDecimal setMealMileage;
+    private long setMealTimes;
+    private BigDecimal beyondMileage;
+    private long beyondTime;
+
 }
