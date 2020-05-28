@@ -56,6 +56,7 @@ public abstract class TopDispatchService {
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderId(dispatchSendCarDto.getOrderId());
         orderInfo.setCarId(dispatchSendCarDto.getCarId());
+        orderInfo.setUseCarMode(CarConstant.USR_CARD_MODE_HAVE);//佛山默认自有车
         orderInfo.setDriverId(dispatchSendCarDto.getDriverId());
         orderInfo.setUpdateBy(String.valueOf(dispatchSendCarDto.getUserId()));
         orderInfo.setUpdateTime(DateUtils.getNowDate());
