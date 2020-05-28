@@ -2283,6 +2283,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="getOrderInfo" parameterType="java.lang.Long" resultType="java.util.Map">
         SELECT DISTINCT
+            cost.start_time startDate,
+            cost.end_time endDate,
+            cost.total_fee totalFee,--行程单价
             oi.order_number orderNumber,
             ci.car_license carLicense,
             ci.car_type carType,
@@ -2306,7 +2309,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 LEFT JOIN order_dispatche_detail_info det ON oi.order_id = det.order_id
                 LEFT JOIN ecmp_user us ON det.inner_dispatcher = us.user_id
                 LEFT JOIN journey_passenger_info jo on oi.journey_id = jo.journey_id
-            WHERE
-                oi.order_id = #{orderId}
+				left join (
+				    SELECT * FROM
+				    order_service_cost_detail_record_info
+				    WHERE order_id = 2023 ORDER BY create_time DESC LIMIT 1
+				    ) cost on oi.order_id = cost.order_id
+				WHERE oi.order_id =  #{orderId}
     </select>
 </mapper>
