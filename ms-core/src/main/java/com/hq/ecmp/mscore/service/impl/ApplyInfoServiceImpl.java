@@ -96,6 +96,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
     @Autowired
     private OrderDispatcheDetailInfoMapper orderDispatcheDetailInfoMapper;
+    @Autowired
+    private CarGroupServeScopeInfoMapper carGroupServeScopeInfoMapper;
     @Resource
     private ThirdService thirdService;
     @Autowired
@@ -2078,7 +2080,15 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      */
     @Override
     //@Transactional
-    public int submitApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) {
+    public ApiResponse submitApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) {
+        ApiResponse apiResponse = new ApiResponse();
+        //判断上下车地点的城市是否至少有一个在服务城市集范围内
+        String code = applySingleVO.getStartAddr().getCityCode()+','+applySingleVO.getEndAddr().getCityCode();
+        List<CarGroupInfo> list = carGroupServeScopeInfoMapper.getGroupIdByCode(code,loginUser.getUser().getDept().getCompanyId());
+        if(list.isEmpty()){
+            apiResponse.setMsg("非常抱歉，您的用车申请无可服务车队，申请失败，如有问题，请联系管理员！");
+            return apiResponse;
+        }
         //申请人id
         applySingleVO.setUserId(loginUser.getUser().getUserId());
         //申请人公司
@@ -2125,7 +2135,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         orderDispatcheDetailInfo.setCreateBy(String.valueOf(applySingleVO.getUserId()));
         orderDispatcheDetailInfo.setCreateTime(DateUtils.getNowDate());
          int i = orderDispatcheDetailInfoMapper.insertOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
-        return i;
+        if(i == 1){
+            apiResponse.setMsg("提交申请单成功");
+        }else {
+            apiResponse.setMsg("提交申请单失败");
+        }
+        return apiResponse;
     }
 
     /**
