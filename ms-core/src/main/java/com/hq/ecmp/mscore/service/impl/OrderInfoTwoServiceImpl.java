@@ -732,8 +732,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
         userApplySingleVo.setUserId(loginUser.getUser().getUserId());
         userApplySingleVo.setCompanyId(companyId);
-        userApplySingleVo.setHomeDynamicBeginTime(userApplySingleVo.getHomeDynamicBeginTime()+" 00:00:00");
-        userApplySingleVo.setHomeDynamicEndTime(userApplySingleVo.getHomeDynamicEndTime()+ " 23:59:59");
+        userApplySingleVo.setHomeDynamicBeginTime(userApplySingleVo.getHomeDynamicBeginTime().substring(0, 10)+" 00:00:00");
+        userApplySingleVo.setHomeDynamicEndTime(userApplySingleVo.getHomeDynamicEndTime().substring(0, 10)+ " 23:59:59");
         List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplyCounts(userApplySingleVo);
         return useApplyList;
     }
