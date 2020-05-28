@@ -344,6 +344,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 orderSettlingInfo.setTotalTime(new BigDecimal("0"));
             }
             orderSettlingInfo.setCreateBy(String.valueOf(userId));
+
+
             iOrderSettlingInfoService.insertOrderSettlingInfo(orderSettlingInfo);
 
             //司机服务-结束发送短信
