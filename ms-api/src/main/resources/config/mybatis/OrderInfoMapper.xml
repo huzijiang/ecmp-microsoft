@@ -2439,7 +2439,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.state = #{homePageWaitingCarState}
         </if>
         <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
-            and  oi.state >= 'S299' and  oi.state &lt;= 'S900'
+            and  right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'
         </if>
         <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
             and ( oi.service_type='5000' and  eu.user_id = #{userId} and ai.state = #{homePageExpireCarState} OR right (z.state,3)='921')
