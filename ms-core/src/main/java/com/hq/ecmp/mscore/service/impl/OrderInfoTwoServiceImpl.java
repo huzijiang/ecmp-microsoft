@@ -802,7 +802,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         //不是首页
         if (query.getIsIndex() == 2) {
             if ("1".equals(user.getItIsDispatcher())) {//是调度员
-                dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCar(query);
+                dispatcherOrderList = orderInfoMapper.queryDispatchListCharterCar(query);
             }
             List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(collect)) {//是管理员
