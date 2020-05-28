@@ -80,6 +80,20 @@ public class HomePageSortServiceImpl implements IHomePageSortService {
         }
     }
 
+
+    @Override
+    public void deleteHomeSorts(List<UserConsoleHomePageSortInfo> userConsoleHomePageSortInfo) {
+        for (UserConsoleHomePageSortInfo homePageSort:userConsoleHomePageSortInfo){
+                UserConsoleHomePageSortInfo  home = new UserConsoleHomePageSortInfo();
+                home.setSortNum(homePageSort.getSortNum());
+                home.setPanelId(homePageSort.getPanelId());
+                home.setPanelName(homePageSort.getPanelName());
+                home.setUserId(homePageSort.getUserId());
+                home.setCompanyId(homePageSort.getCompanyId());
+            int i = homePageSortMapper.deleteHomeSorts(home);
+        }
+    }
+
     @Override
     public String getRoleIds(Long userId) {
         return homePageSortMapper.getRoleIds(userId);

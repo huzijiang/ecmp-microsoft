@@ -31,6 +31,7 @@ public interface IHomePageSortService {
      * @param userConsoleHomePageSortInfo
      */
     void updateHomeSorts(List<UserConsoleHomePageSortInfo> userConsoleHomePageSortInfo);
+    void deleteHomeSorts(List<UserConsoleHomePageSortInfo> userConsoleHomePageSortInfo);
 
 
     String getRoleIds(Long userId);

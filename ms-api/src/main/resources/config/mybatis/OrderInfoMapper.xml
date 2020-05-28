@@ -2280,29 +2280,21 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </update>
 
     <select id="getOrderInfo" parameterType="java.lang.Long" resultType="java.util.Map">
---LEFT JOIN order_service_cost_detail_record_info cost ON
-
         SELECT DISTINCT
-            ji.start_date startDate,--用车时间
-            ji.end_date endDate,--结束时间
-            oi.order_number orderNumber,--订单号
-            ci.car_license carLicense,--车牌
-            ci.car_type carType,--车型
-            di.driver_name driverName,--司机名称
-            di.mobile mobile,--司机电话
-            cgi.car_group_name carGroupName,--车队名称
-            cgi.telephone telephone,--车队座机
-            us.nick_name dispatcherNickName,--调度员
-            us.phonenumber dispatcherPhoneNumber,--调度员电话
-            jo.mobile riderMobile,--乘车人
-            eu.phonenumber applyMobile--申请人
-
-
-
+            oi.order_number orderNumber,
+            ci.car_license carLicense,
+            ci.car_type carType,
+            di.driver_name driverName,
+            di.mobile mobile,
+            cgi.car_group_name carGroupName,
+            cgi.telephone telephone,
+            us.nick_name dispatcherNickName,
+            us.phonenumber dispatcherPhoneNumber,
+            jo.mobile riderMobile,
+            eu.phonenumber applyMobile
             FROM
                 order_info oi
                 LEFT JOIN journey_info ji ON oi.journey_id = ji.journey_id
-                LEFT JOIN order_service_cost_detail_record_info cost ON
                 LEFT JOIN ecmp_user eu ON eu.user_id = ji.user_id
                 LEFT JOIN ecmp_org eo ON eo.dept_id = eu.dept_id
                 LEFT JOIN car_info ci ON ci.car_id = oi.car_id
@@ -2311,7 +2303,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 LEFT JOIN car_group_info cgiTwo ON cgiTwo.car_group_id = ci.car_group_id
                 LEFT JOIN order_dispatche_detail_info det ON oi.order_id = det.order_id
                 LEFT JOIN ecmp_user us ON det.inner_dispatcher = us.user_id
-                --LEFT JOIN journey_passenger_info
+                LEFT JOIN journey_passenger_info jo on oi.journey_id = jo.journey_id
             WHERE
                 oi.order_id = #{orderId}
     </select>
