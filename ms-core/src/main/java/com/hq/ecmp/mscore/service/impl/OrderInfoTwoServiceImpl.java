@@ -20,6 +20,7 @@ import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.Page;
+import com.hq.ecmp.util.PageUtil;
 import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
@@ -34,10 +35,7 @@ import oshi.jna.platform.mac.SystemB;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hq.ecmp.constant.CommonConstant.ONE;
@@ -220,7 +218,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      * @return
      */
     @Override
-    public PageResult<DispatchVo> queryDispatchList(ApplyDispatchQuery query, LoginUser loginUser) {
+    public Map<String,Object> queryDispatchList(ApplyDispatchQuery query, LoginUser loginUser) {
         //判断登录人的身份来显示他看到的不同权限的数据
         SysUser user = loginUser.getUser();
         List<SysRole> role = loginUser.getUser().getRoles();
@@ -248,14 +246,22 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 dispatcherOrderList.addAll(adminOrderList);
             }
         }
-        Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+        /*Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
         if (dispatcherOrderList.isEmpty()) {
             Long total = 0L;
             Integer pageSize = 0;
             return new PageResult<>(total, pageSize, page.getCurrentPageData());
-        }
-        page.setCurrent_page(query.getPageNum());
-        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());
+        }*/
+        /*page.setCurrent_page(query.getPageNum());
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());*/
+        Map<String,Object> map = new HashMap();
+        List<DispatchVo> page = PageUtil.startPage(dispatcherOrderList,query.getPageNum(),query.getPageSize());
+        Integer count = dispatcherOrderList.size();
+        Integer totalPage = count % query.getPageNum() == 0 ? count / query.getPageNum() : count / query.getPageNum() + 1;
+        map.put("totalPage", count);
+        map.put("page", page);
+        map.put("list", totalPage);
+        return map;
     }
 
     /**
@@ -613,7 +619,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      * @return
      */
     @Override
-    public PageResult<DispatchVo> queryDispatchOrder(LoginUser loginUser, ApplyDispatchQuery query) {
+    public Map<String,Object> queryDispatchOrder(LoginUser loginUser, ApplyDispatchQuery query) {
         List<DispatchVo> result = new ArrayList<DispatchVo>();
         //判断登录人的身份来显示他看到的不同权限的数据
         List<SysRole> role = loginUser.getUser().getRoles();
@@ -645,14 +651,22 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         if (adminOrderList.isEmpty()) {
             adminOrderList.addAll(dispatcherOrderList);
         }
-        Page<DispatchVo> page = new Page<>(adminOrderList, query.getPageSize());
+       /* Page<DispatchVo> page = new Page<>(adminOrderList, query.getPageSize());
         if (dispatcherOrderList.isEmpty()) {
             Long total = 0L;
             Integer pageSize = 0;
             return new PageResult<>(total, pageSize, page.getCurrentPageData());
         }
         page.setCurrent_page(query.getPageNum());
-        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());*/
+        Map<String,Object> map = new HashMap();
+        List<DispatchVo> page = PageUtil.startPage(adminOrderList,query.getPageNum(),query.getPageSize());
+        Integer count = adminOrderList.size();
+        Integer totalPage = count % query.getPageNum() == 0 ? count / query.getPageNum() : count / query.getPageNum() + 1;
+        map.put("totalPage", count);
+        map.put("page", page);
+        map.put("list", totalPage);
+        return map;
     }
 
     /**
@@ -662,7 +676,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      * @return
      */
     @Override
-    public PageResult<DispatchVo> queryDispatchReassignmentList(ApplyDispatchQuery query, LoginUser loginUser) {
+    public Map<String,Object> queryDispatchReassignmentList(ApplyDispatchQuery query, LoginUser loginUser) {
         //判断登录人的身份来显示他看到的不同权限的数据
         SysUser user = loginUser.getUser();
         List<SysRole> role = loginUser.getUser().getRoles();
@@ -689,14 +703,22 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 dispatcherOrderList.addAll(adminOrderList);
             }
         }
-        com.hq.ecmp.util.Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
+        /*com.hq.ecmp.util.Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
         if (dispatcherOrderList.isEmpty()) {
             Long total = 0L;
             Integer pageSize = 0;
             return new PageResult<>(total, pageSize, page.getCurrentPageData());
         }
         page.setCurrent_page(query.getPageNum());
-        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());
+        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());*/
+        Map<String,Object> map = new HashMap();
+        List<DispatchVo> page = PageUtil.startPage(dispatcherOrderList,query.getPageNum(),query.getPageSize());
+        Integer count = dispatcherOrderList.size();
+        Integer totalPage = count % query.getPageNum() == 0 ? count / query.getPageNum() : count / query.getPageNum() + 1;
+        map.put("totalPage", count);
+        map.put("page", page);
+        map.put("list", totalPage);
+        return map;
     }
 
     /**
