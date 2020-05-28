@@ -2261,11 +2261,19 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				//派车或者改派通过
 				OrderInfo currentOrder = orderInfoMapper.selectOrderInfoById(orderId);
 				if(null !=currentOrder){
-					currentDispatchOptRecord.setUseCarModel(currentOrder.getUseCarMode());
-					currentDispatchOptRecord.setDriverMobile(currentOrder.getDriverMobile());
-					currentDispatchOptRecord.setDriverName(currentOrder.getDriverName());
-					currentDispatchOptRecord.setCarType(currentOrder.getCarModel());
-					currentDispatchOptRecord.setCarLicense(currentOrder.getCarLicense());
+				    if (CarConstant.USR_CARD_MODE_HAVE.equals(currentOrder.getUseCarMode())){
+                        DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(currentOrder.getDriverId());
+                        if (driverInfo!=null){
+                        currentDispatchOptRecord.setDriverMobile(driverInfo.getMobile());
+                        currentDispatchOptRecord.setDriverName(driverInfo.getDriverName());
+                        }
+                        CarInfo carInfo = carInfoMapper.selectCarInfoById(currentOrder.getCarId());
+                        if (carInfo!=null){
+                            currentDispatchOptRecord.setCarType(carInfo.getCarType());
+                            currentDispatchOptRecord.setCarLicense(carInfo.getCarLicense());
+                        }
+                    }
+                    currentDispatchOptRecord.setUseCarModel(currentOrder.getUseCarMode());
 				}
 			}
 		}
