@@ -128,10 +128,13 @@ public final class CommonConstant {
 
     public static final String NOT_INVOICED = "S008";  //订单财务信息表 S008未开票
 
-    public static final String ADMIN = "%管理%";
+//    public static final String ADMIN = "%管理%";
+    public static final String ADMIN = "%admin%";
 
-    public static final String EMPLOYEE = "%员工%";
+//    public static final String EMPLOYEE = "%员工%";
+    public static final String EMPLOYEE = "%employee%";
 
-    public static final String DISPATCHER = "%调度%";
+//    public static final String DISPATCHER = "%调度%";
+    public static final String DISPATCHER = "%dispatcher%";
 
 }
