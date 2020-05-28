@@ -2281,7 +2281,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              car_license =null,
              demand_car_level=null,
              update_by =#{updateBy},
-             update_time = #{updateTime},,
+             update_time = #{updateTime},
              car_model=null,
              car_color=null,
              driver_grade=null
@@ -2319,7 +2319,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 				left join (
 				    SELECT * FROM
 				    order_service_cost_detail_record_info
-				    WHERE order_id = 2023 ORDER BY create_time DESC LIMIT 1
+				    WHERE order_id = #{orderId} ORDER BY create_time DESC LIMIT 1
 				    ) cost on oi.order_id = cost.order_id
 				WHERE oi.order_id =  #{orderId}
     </select>

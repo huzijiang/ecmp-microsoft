@@ -147,6 +147,11 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 orderStateTraceInfo.setState(OrderStateTrace.ALREADY_SET_OUT.getState());
                 iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
             }
+
+            //司机--出发去接乘客--短信-给乘车人和申请人（行程通知）
+            ismsBusiness.sendSmsServiceStart(orderId);
+            log.info("司机--出发去接乘客--短信-给乘车人和申请人orderId：{}",orderId);
+
         }else if(DriverBehavior.ARRIVE.getType().equals(type)){
             //订单状态
             orderInfo.setState(OrderState.READYSERVICE.getState());
@@ -154,8 +159,9 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             //订单轨迹状态
             orderStateTraceInfo.setState(OrderStateTrace.PRESERVICE.getState());
             iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-            //司机到达发送短信
+            //司机到-达发上车地点-送短信
             ismsBusiness.sendSmsDriverArrivePrivate(orderId);
+            log.info("司机到-达发上车地点-送短信orderId：{}",orderId);
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
             //存储出发点行车经纬度
             OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
@@ -215,11 +221,10 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 //司机开始服务发送短信
                 //ismsBusiness.sendSmsDriverBeginService(orderId);
                 //司机开始服务发送消息给乘车人和申请人（行程通知）
-                //ismsBusiness.sendMessageServiceStart(orderId, userId);
+                ismsBusiness.sendMessageServiceStart(orderId, userId);
 
 
-                //司机开始服务发送-短信-给乘车人和申请人（行程通知）
-                ismsBusiness.sendSmsServiceStart(orderId);
+
             }
 
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){//服务完成4
@@ -339,9 +344,11 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             }
             orderSettlingInfo.setCreateBy(String.valueOf(userId));
             iOrderSettlingInfoService.insertOrderSettlingInfo(orderSettlingInfo);
-            //司机服务结束发送短信
+
+            //司机服务-结束发送短信
             //ismsBusiness.sendSmsDriverServiceComplete(orderId);
             ismsBusiness.sendSmsDriverServiceEnd(orderId);
+            log.info("司机服务-结束发送短信已发送orderId：{}",orderId);
 
         }else{
             throw new Exception("操作类型有误");
