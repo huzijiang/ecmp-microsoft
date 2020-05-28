@@ -1859,7 +1859,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 状态
         case
         when right (oi.state,3)='100' then '待派车'
-        when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已处理'
+        when right (oi.state,3)<![CDATA[ >= ]]>'299' and right (oi.state,3)<![CDATA[ <= ]]>'900' then '已处理'
         when right (oi.state,3)='900' then '已过期'
         ELSE '' END state,
         -- 操作时间
