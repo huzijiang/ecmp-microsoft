@@ -320,8 +320,9 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
 
             long recorId = orderServiceCostDetailRecordInfoMapper.selsctRecordIdByOrderId(orderId);
-            recordInfo.setEndLongitude(BigDecimal.valueOf(longitude));//精度
-            recordInfo.setEndLatitude(BigDecimal.valueOf(latitude));//维度
+
+            recordInfo.setEndLongitude(BigDecimal.valueOf(null==longitude?00:longitude));//精度
+            recordInfo.setEndLatitude(BigDecimal.valueOf(null==latitude?00:latitude));//维度
             recordInfo.setOrderId(orderId);
             recordInfo.setRecordId(recorId);
             recordInfo.setEndTime(new Date());
