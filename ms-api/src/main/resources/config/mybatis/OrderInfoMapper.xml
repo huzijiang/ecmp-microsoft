@@ -2111,6 +2111,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
             and  ai.create_time &lt;= #{homeDynamicEndTime}
         </if>
+        order by orderState desc
     </select>
 
 
@@ -2259,6 +2260,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
             and  ai.create_time &lt;= #{homeDynamicEndTime}
         </if>
+        order by orderState desc
     </select>
 
     <update id="changeOrder" parameterType="com.hq.ecmp.mscore.domain.OrderInfo">
