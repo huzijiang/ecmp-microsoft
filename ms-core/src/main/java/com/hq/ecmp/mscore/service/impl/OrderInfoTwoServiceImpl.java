@@ -784,6 +784,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         //<调度员身份>
         List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
         /**查寻该调度员可用查看的所有申请人*/
+
+        //是首页
         if(query.getIsIndex() == 1){
             PageHelper.startPage(query.getPageNum(), query.getPageSize());
             if ("1".equals(user.getItIsDispatcher())) {//是调度员
@@ -794,7 +796,12 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
             log.info("首页查询出来的调度列表数据为---------------------------------"+dispatchVoPageResult);
             return dispatchVoPageResult;
         }
+        //为了区别分页情况
+        //不是首页
         if (query.getIsIndex() == 2) {
+            if ("1".equals(user.getItIsDispatcher())) {//是调度员
+                dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCar(query);
+            }
             List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(collect)) {//是管理员
                 if (!CollectionUtils.isEmpty(dispatcherOrderList)) {
@@ -808,7 +815,6 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 }
             }
         }
-
         Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
         if (dispatcherOrderList.isEmpty()) {
             Long total = 0L;
@@ -817,15 +823,6 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         }
         page.setCurrent_page(query.getPageNum());
         return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());
-//        Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
-//        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
-//        if (dispatcherOrderList.isEmpty()) {
-//            info.setTotal(0);
-//            info.setPages(0);
-//            return new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
-//        }
-//        page.setCurrent_page(query.getPageNum());
-//        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getTotal_page(), dispatcherOrderList);
     }
 
     /**
