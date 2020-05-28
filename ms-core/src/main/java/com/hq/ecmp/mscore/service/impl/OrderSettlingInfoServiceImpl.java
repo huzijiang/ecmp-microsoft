@@ -468,7 +468,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         public GetAllfee invoke() throws ParseException {
             //计算等待时长
             BigDecimal waitingTime = orderWaitTraceInfoMapper.selectOrderWaitingTimeById(orderSettlingInfoVo.getOrderId());
-            orderSettlingInfoVo.setWaitingTime(waitingTime);
+            orderSettlingInfoVo.setWaitingTime(waitingTime == null?BigDecimal.ZERO:waitingTime);
 
             //查询该订单的记录  城市  服务类型  车型级别  包车类型 公司id
             OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderSettlingInfoVo.getOrderId());
