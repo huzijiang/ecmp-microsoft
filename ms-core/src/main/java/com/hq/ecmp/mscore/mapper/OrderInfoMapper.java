@@ -394,7 +394,7 @@ public interface OrderInfoMapper {
      * @param updateTime
      * @return
      */
-    int changeOrder(@Param("orderId")Long orderId,@Param("updateBy")Long updateBy,@Param("updateTime") Date updateTime);
+    int changeOrder(OrderInfo orderInfo);
 
 
     Map getOrderInfo(Long orderId);
