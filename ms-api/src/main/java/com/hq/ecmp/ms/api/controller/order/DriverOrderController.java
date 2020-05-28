@@ -10,11 +10,13 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
 import com.hq.ecmp.mscore.domain.ReassignInfo;
 import com.hq.ecmp.mscore.dto.ContactorDto;
 import com.hq.ecmp.mscore.dto.IsContinueReDto;
 import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
+import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.service.IDriverOrderService;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
 import com.hq.ecmp.mscore.service.OrderInfoTwoService;
@@ -22,6 +24,8 @@ import com.hq.ecmp.mscore.vo.OrderReassignVO;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +48,8 @@ import java.util.Map;
 @RequestMapping("/driverOrder")
 public class DriverOrderController {
 
+    private static final Logger logger = LoggerFactory.getLogger(DriverOrderController.class);
+
     @Autowired
     @Lazy
     IDriverOrderService iDriverOrderService;
@@ -51,6 +57,8 @@ public class DriverOrderController {
     IOrderSettlingInfoService iOrderSettlingInfoService;
     @Resource
     OrderInfoTwoService orderInfoTwoService;
+    @Resource
+    OrderInfoMapper orderInfoMapper;
 
 
 
@@ -231,6 +239,27 @@ public class DriverOrderController {
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();
+    }
+
+    /***
+     * add by liuzb
+     * @param orderSettlingInfoVo
+     * @return
+     */
+    @ApiOperation(value = "内部调度员费用上报提交", notes = "内部调度员费用上报提交 ", httpMethod = "POST")
+    @PostMapping("/expenseReport")
+    public ApiResponse expenseReport(@RequestBody OrderSettlingInfoVo orderSettlingInfoVo){
+        try {
+            OrderInfo data = orderInfoMapper.selectOrderInfoById(orderSettlingInfoVo.getOrderId());
+            if(null!=data){
+                if(iOrderSettlingInfoService.addExpenseReport(orderSettlingInfoVo,data.getDriverId(),tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getDept().getCompanyId())>0){
+                    return ApiResponse.success();
+                }
+            }
+        } catch (Exception e) {
+            logger.error("expenseReport error",e);
+        }
+        return ApiResponse.error();
     }
 
     /**

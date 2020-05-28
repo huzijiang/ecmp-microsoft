@@ -370,33 +370,72 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * @return
      */
     @Override
-    public boolean updateDriver(DriverCreateInfo driverCreateInfo){
-        //修改驾驶员
+    public boolean updateDriver(DriverCreateInfo driverCreateInfo) throws Exception {
+        //培铭说编辑驾驶员 目前就所属车队 和 驾驶员性质（自有，外聘，借调）不可更改，外聘和借调时间可编辑
+		//其余的都可编辑   但是自有驾驶员 姓名和电话修改了，不对员工表做修改
+    	//1.驾驶员姓名
+		//2.驾驶员手机号
+		//3.驾驶员性别
+		//4.身份证号码
+		//5.驾驶证类型
+		//6.驾驶证号码
+		//7.驾驶证照片
+		//8.初次领证日期
+		//9.驾驶证有效期:开始时间，结束时间
+		//10如果是外聘 ： 外聘开始时间，
+		// 11.外聘结束时间
+		//如果是借调： 12.借调开始时间
+		// 13.借调结束时间
+		//14.工号
+		//15.可用车辆
+
+    	//1.修改驾驶员
         driverCreateInfo.setUpdateTime(DateUtils.getNowDate());
         Integer createDriver = driverInfoMapper.updateDriver(driverCreateInfo);
         Long driverId = driverCreateInfo.getDriverId();
-        //修改驾驶员-车队关系记录
-        CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
+        //修改驾驶员-车队关系记录  此处所属车队不可编辑
+       /* CarGroupDriverRelation carGroupDriverRelation = new CarGroupDriverRelation();
         carGroupDriverRelation.setCarGroupId(driverCreateInfo.getCarGroupId());
         carGroupDriverRelation.setDriverId(driverCreateInfo.getDriverId());
         carGroupDriverRelation.setCreateBy(driverCreateInfo.getOptUserId().toString());
         carGroupDriverRelation.setCreateTime(new Date());
-        carGroupDriverRelationService.updateCarGroupDriverRelation(carGroupDriverRelation);
+        carGroupDriverRelationService.updateCarGroupDriverRelation(carGroupDriverRelation);*/
         //修改驾驶员-车辆记录
        /* DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
         driverCarRelationInfo.setUserId(driverCreateInfo.getUserId());
         driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
         driverCarRelationInfo.setCarIdList(driverCreateInfo.getCarId());
         driverCarRelationInfoService.updateBatchDriverCarList(driverCarRelationInfo);*/
-
+        //2.删除驾驶员绑定的车辆
         driverCarRelationInfoService.deleteCarByDriverId(driverId);
-        //生成驾驶员-车辆记录
-        DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
-        driverCarRelationInfo.setUserId(driverCreateInfo.getUserId());
-        driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
-        driverCarRelationInfo.setCarIdList(driverCreateInfo.getCarId());
-        driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
-
+        //3.生成驾驶员-车辆记录
+		List<Long> carId = driverCreateInfo.getCarId();
+		if(CollectionUtils.isNotEmpty(carId)){
+			DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+			driverCarRelationInfo.setUserId(driverCreateInfo.getUserId());
+			driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
+			driverCarRelationInfo.setCarIdList(carId);
+			driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
+		}
+        //4.修改车辆性质表信息  如果是外聘车或者借调车才可能更改此表
+		if(DriverNatureEnum.HIRED_DRIVER.getKey().equals(driverCreateInfo.getDriverNature())){
+			//如果是外聘驾驶员
+			DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
+			driverNatureInfo.setDriverId(driverCreateInfo.getDriverId());
+			driverNatureInfo.setUpdateBy(String.valueOf(driverCreateInfo.getOptUserId()));
+			driverCreateInfo.setHireBeginTime(driverNatureInfo.getHireBeginTime());
+			driverNatureInfo.setHireEndTime(driverCreateInfo.getHireEndTime());
+			driverNatureInfoMapper.updateDriverNatureInfo(driverNatureInfo);
+		}
+		if(DriverNatureEnum.BORROWED_DRIVER.getKey().equals(driverCreateInfo.getDriverNature())){
+			//如果是借调驾驶员
+			DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
+			driverNatureInfo.setDriverId(driverCreateInfo.getDriverId());
+			driverNatureInfo.setBorrowBeginTime(driverCreateInfo.getHireBeginTime());
+			driverCreateInfo.setBorrowEndTime(driverNatureInfo.getBorrowEndTime());
+			driverNatureInfo.setUpdateBy(String.valueOf(driverCreateInfo.getOptUserId()));
+			driverNatureInfoMapper.updateDriverNatureInfo(driverNatureInfo);
+		}
         return true;
     }
 	@Override
@@ -426,7 +465,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	}
 
 	@Override
-	public DriverQueryResult queryDriverDetail(Long driverId) {
+	public DriverQueryResult queryDriverDetail(Long driverId) throws Exception {
 		DriverQueryResult queryDriverDetail = driverInfoMapper.queryDriverDetail(driverId);
 		//查询该驾驶员可使用的车辆
 		List<Long> carId=new ArrayList<>();
@@ -440,6 +479,14 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		}
 		queryDriverDetail.setOwnCarCount(driverCarRelationInfoService.queryDriverUseCarCount(driverId));
 		queryDriverDetail.setCarId(carId);
+		//查询驾驶员性质
+		DriverNatureInfo driverNatureInfo = driverNatureInfoMapper.getDriverNatureInfo(driverId);
+		if(driverNatureInfo != null){
+			queryDriverDetail.setHireBeginTime(driverNatureInfo.getHireBeginTime());
+			queryDriverDetail.setHireEndTime(driverNatureInfo.getHireEndTime());
+			queryDriverDetail.setBorrowBeginTime(driverNatureInfo.getBorrowBeginTime());
+			queryDriverDetail.setBorrowEndTime(driverNatureInfo.getBorrowEndTime());
+		}
 		return queryDriverDetail;
 	}
     /**

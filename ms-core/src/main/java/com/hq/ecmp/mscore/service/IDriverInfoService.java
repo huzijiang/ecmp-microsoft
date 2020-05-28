@@ -73,13 +73,13 @@ public interface IDriverInfoService
 
     public boolean setDriverWorkInfo(Long driverId,String driverNature,Date hireBeginTime,Date borrowBeginTime);
     public boolean createDriver(DriverCreateInfo driverCreateInfo) throws Exception;
-    public boolean updateDriver(DriverCreateInfo driverCreateInfo);
+    public boolean updateDriver(DriverCreateInfo driverCreateInfo) throws Exception;
 
     public List<DriverQueryResult> queryDriverList(DriverQuery query);
 
     public Integer queryDriverListCount(DriverQuery query);
 
-    public DriverQueryResult  queryDriverDetail(Long driverId);
+    public DriverQueryResult  queryDriverDetail(Long driverId) throws Exception;
     /**
      *驾驶员总数
      */

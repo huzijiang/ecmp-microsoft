@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DriverNatureInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public interface DriverNatureInfoMapper {
      * @return
      * @throws Exception
      */
-    DriverNatureInfo getDriverNatureInfo(Long driverId)throws Exception;
+    DriverNatureInfo getDriverNatureInfo(@Param("driverId") Long driverId)throws Exception;
 
     /***
      *
