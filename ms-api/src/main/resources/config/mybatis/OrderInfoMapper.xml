@@ -2326,7 +2326,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         case
         when right (ji.charter_car_type,3)='001' then '半日租(4小时)'
         when right (ji.charter_car_type,3)='002' then '整日租(8小时)'
-        when right (ji.charter_car_type,3)='009' then  CONCAT('多日租','(',ji.use_time,')','日')
+        when right (ji.charter_car_type,3)='009' then  CONCAT('多日租','(',ji.use_time,'日',')')
         ELSE '' END charterCarType,
         -- 服务车型
         ecty.name carLevel,
@@ -2350,6 +2350,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         cgi.car_group_name carCompany,
         -- 驾驶员姓名
         di.driver_name driverName,
+        -- 等待时长
+        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
         -- 驾驶员手机号
         di.mobile driverPhone,
         -- 驾驶员归属
@@ -2369,7 +2371,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         case
         when right (oi.state,3)='100' then '待派车'
         when right (oi.state,3)='699' then '待确认'
---        when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已派车'
+        --        when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已派车'
         when right (ai.state,3)='004' then '已撤销'
         when right (ai.state,3)='005' then '已过期'
         ELSE '' END orderState
@@ -2380,11 +2382,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN  ecmp_org eo     ON eo.dept_id  = eu.dept_id
         LEFT JOIN  order_info  oi  ON oi.journey_id = ji.journey_id
         LEFT JOIN  car_info    ci  ON ci.car_id = oi.car_id
-        LEFT JOIN  enterprise_car_type_info  ecty ON ecty.car_type_id = ci.car_type_id
+        LEFT JOIN  enterprise_car_type_info  ecty ON ecty.car_type_id = ai.car_type_id
         LEFT JOIN  car_group_info cgi ON cgi.car_group_id = ci.car_group_id
         LEFT JOIN  driver_info di  ON di.driver_id = oi.driver_id
         LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = di.driver_id
         LEFT JOIN  car_group_info cgiTwo ON cgiTwo.car_group_id = cgdr.car_group_id
+        LEFT JOIN (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=oi.order_id
         left join
         (select order_id,type,address,address_long from order_address_info where type = 'A000') oai1 on  oai1.order_id = oi.order_id
         left join
