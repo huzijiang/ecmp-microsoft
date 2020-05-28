@@ -346,6 +346,8 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
                     List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeIds(carTypeId);
                     String collect = enterpriseCarTypeInfos.stream().map(p -> p.getName()).collect(Collectors.joining(",", "", ""));
                     result.setCarTypeName(collect);
+                }else{
+                    return null;
                 }
             }
         }
@@ -360,11 +362,13 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         result.add(new PriceOverviewVO("0",grouplist));
         result.add(new PriceOverviewVO("1",grouplist));
         if (!CollectionUtils.isEmpty(list)){
-            result.add(new PriceOverviewVO());
             Map<String, List<CarGroupCostVO>> collect = list.stream().collect(Collectors.groupingBy(o -> o.getRentType() + "_" + o.getCarGroupUserMode() + "_" + o.getCarTypeId(), Collectors.toList()));
             if (!CollectionUtils.isEmpty(collect)){
                 for(Map.Entry<String,List<CarGroupCostVO>> map:collect.entrySet()){
                     String key = map.getKey();
+                    if (StringUtils.isEmpty(key)){
+                        continue;
+                    }
                     String[] s = key.split("_");
                     if (StringUtils.isEmpty(s[0])&&StringUtils.isEmpty(s[1])&&StringUtils.isEmpty(s[2])){
                         continue;

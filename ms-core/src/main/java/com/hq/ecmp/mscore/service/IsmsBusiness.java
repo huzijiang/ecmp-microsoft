@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.UndoSMSTemplate;
+import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 
 public interface IsmsBusiness {
 
@@ -115,4 +117,43 @@ public interface IsmsBusiness {
     void sendSmsDispatchReject(OrderInfo orderInfo,String rejectReason)throws Exception;
 
     void sendSmsInnerDispatcherReject(OrderInfo orderInfo, String rejectReason)throws Exception;
+
+    /**
+     * 用车申请---用车人短信
+     * @param journeyId
+     * @param applyId
+     * @param officialCommitApply
+     */
+    void sendVehicleUserApply(Long journeyId, Long applyId, ApplyOfficialRequest officialCommitApply) throws Exception;
+
+    /**
+     * 用车申请---用车人短信
+     * @param journeyId
+     * @param applyId
+     * @param officialCommitApply
+     */
+    void sendDispatcherApply(Long journeyId, Long applyId, ApplyOfficialRequest officialCommitApply) throws Exception;
+
+    /**
+     * 撤销未派单短信
+     * @param undoSMSTemplate
+     */
+    void sendRevokeUndelivered(UndoSMSTemplate undoSMSTemplate) throws Exception;
+
+    /**
+     * 撤销已派单短信
+     * @param undoSMSTemplate
+     */
+    void sendRevokealSentList(UndoSMSTemplate undoSMSTemplate) throws Exception;
+
+
+    void sendSmsServiceStart(long orderId);
+
+    void sendSmsDriverServiceEnd(long orderId);
+
+    /**
+     * 撤销待服务短信
+     * @param undoSMSTemplate
+     */
+    void sendRevokeToBeServed(UndoSMSTemplate undoSMSTemplate) throws Exception;
 }

@@ -61,7 +61,27 @@ public class UserApplySingleController {
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.error("分页查询公告列表失败");
+            return ApiResponse.error("分页查询用车申请列表失败");
+        }
+    }
+
+    /**
+     * 首页查询用车申请列表
+     * @param userApplySingleVo
+     * @return
+     */
+    @ApiOperation(value = "getUseApplyList",notes = "首页查询用车申请列表",httpMethod ="POST")
+    @Log(title = "用车申请", content = "用车申请列表",businessType = BusinessType.OTHER)
+    @PostMapping("/getUseApplyList")
+    public ApiResponse<PageResult<UserApplySingleVo>> getUseApplyList(@RequestBody UserApplySingleVo userApplySingleVo){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            PageResult<UserApplySingleVo> list = orderInfoTwoService.getUseApplyList(userApplySingleVo,loginUser);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("首页查询用车申请列表失败");
         }
     }
 

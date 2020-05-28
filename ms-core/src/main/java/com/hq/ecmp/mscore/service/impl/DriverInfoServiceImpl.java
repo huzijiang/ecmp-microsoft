@@ -216,10 +216,13 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			newDriverUser.setCreateTime(new Date());
 			ecmpUserMapper.insertEcmpUser(newDriverUser);
 			Long newUserId = newDriverUser.getUserId();
-			//2. 插入用户角色表
+			//2. 插入用户驾驶员角色表
 			EcmpUserRole build = EcmpUserRole.builder().roleId(6L).userId(newUserId).build();
 			ecmpUserRoleMapper.insertEcmpUserRole(build);
-            driverCreateInfo.setUserId(newUserId);
+			//3. 插入用户员工角色表
+			EcmpUserRole employee = EcmpUserRole.builder().roleId(5L).userId(newUserId).build();
+			ecmpUserRoleMapper.insertEcmpUserRole(employee);
+			driverCreateInfo.setUserId(newUserId);
 		}
     	//生成驾驶员记录  是否专职
 		//Z000   合同制  (自有驾驶员)
@@ -699,7 +702,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			//如果是戒掉驾驶员 排班从借调开始日期开始
 			todayStart.setTime(borrowBeginTime);
 		}
-		todayStart.set(Calendar.HOUR, 0);
+		todayStart.set(Calendar.HOUR_OF_DAY, 0);
 		todayStart.set(Calendar.MINUTE, 0);
 		todayStart.set(Calendar.SECOND, 0);
 		todayStart.set(Calendar.MILLISECOND, 0);
