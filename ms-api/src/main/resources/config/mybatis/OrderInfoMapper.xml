@@ -2479,8 +2479,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="getOrderInfo" parameterType="java.lang.Long" resultType="java.util.Map">
         SELECT DISTINCT
-            cost.start_time startDate,
-            cost.end_time endDate,
+            DATE_FORMAT(cost.start_time, '%Y-%m-%d %H:%i')  startDate,
+            DATE_FORMAT(cost.end_time, '%Y-%m-%d')  endDate,
             cost.total_fee totalFee,
             oi.order_number orderNumber,
             ci.car_license carLicense,
