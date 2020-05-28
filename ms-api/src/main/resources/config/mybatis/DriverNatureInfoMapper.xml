@@ -17,7 +17,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select driver_id,invitation_id, driver_nature, hire_begin_time, hire_end_time, borrow_begin_time, borrow_end_time
         from driver_nature_info
     </sql>
-    <select id="getDriverNatureInfo" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo" resultMap="DriverNatureInfo">
+    <select id="getDriverNatureInfo"  resultMap="DriverNatureInfo">
         <include refid="select"/>
         <where>
             <if test="driverId != null "> and driver_id = #{driverId}</if>
@@ -42,6 +42,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="driverId != null ">#{driverId},</if>
+            <if test="invitationId != null ">#{invitationId},</if>
             <if test="driverNature != null ">#{driverNature},</if>
             <if test="hireBeginTime != null ">#{hireBeginTime},</if>
             <if test="hireEndTime != null ">#{hireEndTime},</if>
@@ -56,10 +57,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="SET" suffixOverrides=",">
             <if test="driverId != null  ">driver_id = #{driverId},</if>
             <if test="invitationId != null  ">invitation_id = #{invitationId},</if>
-            <if test="driverNature != null  and driverName != ''">driver_iddriver_id = #{driverNature},</if>
-            <if test="hireBeginTime != null  and country != ''">hire_begin_time = #{hireBeginTime},</if>
-            <if test="hireEndTime != null  and nation != ''">hire_end_time = #{hireEndTime},</if>
-            <if test="borrowBeginTime != null  and idCard != ''">borrow_begin_time = #{borrowBeginTime},</if>
+            <if test="driverNature != null  and driverNature != ''">driver_nature = #{driverNature},</if>
+            <if test="hireBeginTime != null ">hire_begin_time = #{hireBeginTime},</if>
+            <if test="hireEndTime != null  ">hire_end_time = #{hireEndTime},</if>
+            <if test="borrowBeginTime != null ">borrow_begin_time = #{borrowBeginTime},</if>
             <if test="borrowEndTime != null ">borrow_end_time = #{borrowEndTime},</if>
             update_time = now()
         </trim>

@@ -338,9 +338,9 @@ SELECT
 	c.car_group_name AS carGroupName,
 	c.car_group_id AS carGroupId,
 d.job_number as jobNumber,
-o.dept_name subName,
+o.dept_name company,
 o.dept_id subId,
-p.dept_name company,
+-- p.dept_name company,
 p.dept_Id companyId
 FROM
 	driver_info a

@@ -111,15 +111,20 @@ public class DriverNewsController {
     @PostMapping("/getDriverUpdate")
     public ApiResponse  getDriverUpdate(@RequestBody DriverCreateInfo driverCreateInfo){
 
-            HttpServletRequest request = ServletUtils.getRequest();
-            LoginUser loginUser = tokenService.getLoginUser(request);
-            driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
-      		boolean createDriver = driverInfoService.updateDriver(driverCreateInfo);
-      		if(createDriver){
-      			return ApiResponse.success();
-             }else{
-      			return ApiResponse.error();
-             }
+           try{
+               HttpServletRequest request = ServletUtils.getRequest();
+               LoginUser loginUser = tokenService.getLoginUser(request);
+               driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
+               boolean createDriver = driverInfoService.updateDriver(driverCreateInfo);
+               if(createDriver){
+                   return ApiResponse.success();
+               }else{
+                   return ApiResponse.error();
+               }
+           }catch (Exception e){
+               e.printStackTrace();
+               return ApiResponse.error("修改驾驶员信息失败");
+           }
     }
 
     /**
@@ -283,7 +288,7 @@ public class DriverNewsController {
 
     /**
      * 补单驾驶员列表
-     * @param pageRequest
+     * @param
      * @return
      */
     @Log(title = "补单驾驶员列表",content = "查询补单驾驶员列表", businessType = BusinessType.OTHER)

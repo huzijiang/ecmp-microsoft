@@ -251,8 +251,11 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         String expire = driverRegisterDTO.getLicenseExpireDate();
         String issue = driverRegisterDTO.getLicenseIssueDate();
         String initIssue = driverRegisterDTO.getLicenseInitIssueDate();
+        //驾驶证有效截止日期
         driver.setLicenseExpireDate(DateUtils.parseDate(expire));
+        //初次领驾驶证日期
         driver.setLicenseInitIssueDate(DateUtils.parseDate(issue));
+        //驾驶证发证日期
         driver.setLicenseIssueDate(DateUtils.parseDate(initIssue));
         driver.setInvitationId(driverRegisterDTO.getInvitationId());
         driver.setLicenseImages(driverRegisterDTO.getLicenseImages());
@@ -264,6 +267,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         driver.setState("S000");
         driver.setReason(driverRegisterDTO.getReason());
         driver.setCreateTime(DateUtils.getNowDate());
+        //驾驶证号码
         driver.setLicenseNumber(driverRegisterDTO.getLicenseNumber());
         driver.setLicenseType(driverRegisterDTO.getLicenseType());
         //新增驾驶员注册信息
