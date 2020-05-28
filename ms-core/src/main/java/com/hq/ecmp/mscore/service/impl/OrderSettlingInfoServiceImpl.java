@@ -134,7 +134,6 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
     public int addExpenseReport(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) throws ParseException {
         GetAllfee getAllfee = new GetAllfee(orderSettlingInfoVo, userId, companyId).invoke();
         if (getAllfee.is()) return -1;
-        List<CostConfigInfo> costConfigInfoMap = getAllfee.getCostConfigInfo();
         boolean isInsertOrderConfing = getAllfee.isInsertOrderConfing();
         boolean isMoreDay = getAllfee.isChartered();
         OrderSettlingInfoVo orderSettlingInfo = getAllfee.getOrderSettlingInfo();
@@ -145,14 +144,24 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             OrderServiceCostDetailRecordInfo lastRecordInfo =  OrderServiceCostDetailRecordInfo.builder().orderId(orderSettlingInfoVo.getOrderId()).build();
             List<OrderServiceCostDetailRecordInfo> recordInfos = costDetailRecordInfoMapper.getList(lastRecordInfo);
             lastRecordInfo = recordInfos.get(recordInfos.size()-1);
-            lastRecordInfo.setAccommodationFee(orderSettlingInfoVo.getHotelExpenseFee());
-            lastRecordInfo.setFoodFee(orderSettlingInfo.getRestaurantFee());
-            lastRecordInfo.setHighwayTollFee(orderSettlingInfoVo.getHighSpeedFee());
-            lastRecordInfo.setRoadAndBridgeFee(orderSettlingInfoVo.getRoadBridgeFee());
-            lastRecordInfo.setOthersFee(orderSettlingInfoVo.getOtherFee());
-            lastRecordInfo.setStopCarFee(orderSettlingInfoVo.getParkingRateFee());
+
+            if(orderSettlingInfoVo.getRecordId()!=null){
+                //如果为更改子订单数据
+                isInsertOrderConfing = true;
+                for (OrderServiceCostDetailRecordInfo recordInfo : recordInfos) {
+                    if(recordInfo.getRecordId().equals(orderSettlingInfoVo.getRecordId()))
+                    lastRecordInfo = recordInfo;
+                    break;
+                }
+            }
+            lastRecordInfo.setAccommodationFee(CommonUtils.getBigDecimal(orderSettlingInfoVo.getHotelExpenseFee()));
+            lastRecordInfo.setFoodFee(CommonUtils.getBigDecimal(orderSettlingInfo.getRestaurantFee()));
+            lastRecordInfo.setHighwayTollFee(CommonUtils.getBigDecimal(orderSettlingInfoVo.getHighSpeedFee()));
+            lastRecordInfo.setRoadAndBridgeFee(CommonUtils.getBigDecimal(orderSettlingInfoVo.getRoadBridgeFee()));
+            lastRecordInfo.setOthersFee(CommonUtils.getBigDecimal(orderSettlingInfoVo.getOtherFee()));
+            lastRecordInfo.setStopCarFee(CommonUtils.getBigDecimal(orderSettlingInfoVo.getParkingRateFee()));
             lastRecordInfo.setOrderId(orderSettlingInfoVo.getOrderId());
-            lastRecordInfo.setMileage(orderSettlingInfoVo.getTotalMileage());
+            lastRecordInfo.setMileage(CommonUtils.getBigDecimal(orderSettlingInfoVo.getTotalMileage()));
 //            lastRecordInfo.setSetMealCost(costConfigInfo.getCombosPrice());
 //            lastRecordInfo.setSetMealMileage(costConfigInfo.getCombosMileage());
 //            lastRecordInfo.setSetMealTimes(costConfigInfo.getCombosTimes().intValue());
