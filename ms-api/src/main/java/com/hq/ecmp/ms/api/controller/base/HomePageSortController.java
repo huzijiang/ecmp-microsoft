@@ -70,9 +70,11 @@ public class HomePageSortController {
 //            if(list2.size() == 0){
                 String roleIds = homePageSortService.getRoleIds(loginUser.getUser().getUserId());
                 List<UserConsoleHomePageSortInfo> homeSort;
-                if(roleIds.contains("管理")){
+//                if(roleIds.contains("管理")){
+                if(roleIds.contains("admin")){
                     homeSort = homePageSortService.getPanelByRoleId(CommonConstant.ADMIN);
-                }else if(roleIds.contains("调度")){
+//                }else if(roleIds.contains("调度")){
+                }else if(roleIds.contains("dispatcher")){
                     homeSort = homePageSortService.getPanelByRoleId(CommonConstant.DISPATCHER);
                 }else{
                     homeSort = homePageSortService.getPanelByRoleId(CommonConstant.EMPLOYEE);
@@ -118,6 +120,7 @@ public class HomePageSortController {
     @PostMapping("/updateHomeSort")
     public ApiResponse updateHomeSort(@RequestBody List<UserConsoleHomePageSortInfo> userConsoleHomePageSortInfo){
         try {
+            homePageSortService.deleteHomeSorts(userConsoleHomePageSortInfo);
             homePageSortService.updateHomeSorts(userConsoleHomePageSortInfo);
             return ApiResponse.success();
         } catch (Exception e) {

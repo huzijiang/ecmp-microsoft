@@ -171,10 +171,10 @@ public class DispatchServiceImpl implements IDispatchService {
             return  ApiResponse.error(DispatchExceptionEnum.LOCK_CAR_NOT_EXIST.getDesc());
         }
 
-        ApiResponse  apiResponse=checkCarOwnCarGroupPricePlanInfo(dispatchInfoDto);
-        if(!apiResponse.isSuccess()){
-            return apiResponse;
-        }
+//        ApiResponse  apiResponse=checkCarOwnCarGroupPricePlanInfo(dispatchInfoDto);
+//        if(!apiResponse.isSuccess()){
+//            return apiResponse;
+//        }
 
         int i=carInfoMapper.lockCar(Long.parseLong(dispatchInfoDto.getCarId()));
         if(i<=0){
@@ -248,10 +248,10 @@ public class DispatchServiceImpl implements IDispatchService {
         if(StringUtils.isEmpty(dispatchLockDriverDto.getDriverId())){
             return  ApiResponse.error(DispatchExceptionEnum.LOCK_DRIVER_NOT_EXIST.getDesc());
         }
-        ApiResponse apiResponse=checkDriverOwnCarGroupPricePlanInfo(dispatchLockDriverDto);
-        if(!apiResponse.isSuccess()){
-            return apiResponse;
-        }
+//        ApiResponse apiResponse=checkDriverOwnCarGroupPricePlanInfo(dispatchLockDriverDto);
+//        if(!apiResponse.isSuccess()){
+//            return apiResponse;
+//        }
 
         int i=driverInfoMapper.lockDriver(Long.parseLong(dispatchLockDriverDto.getDriverId()));
 
@@ -835,21 +835,30 @@ public class DispatchServiceImpl implements IDispatchService {
         CarInfo carInfo=carInfoMapper.selectCarInfoById(Long.parseLong(dispatchLockCarDto.getCarId()));
         EnterpriseCarTypeInfo carTypeInfo=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
 
-
-
-        //查询司机归属车队
-        List<CarGroupInfo> carGroupInfoList=carGroupInfoMapper.selectCarGroupsByDriverId(Long.parseLong(dispatchLockCarDto.getDriverId()));
-        //一个司机只属于一个车队
-        CarGroupInfo carGroupInfo=carGroupInfoList.get(0);
-
         //查询订单出发城市
         OrderAddressInfo orderAddressInfo=new OrderAddressInfo();
         orderAddressInfo.setOrderId(Long.parseLong(dispatchLockCarDto.getOrderNo()));
         orderAddressInfo.setType("A000");
 
         List<OrderAddressInfo> orderAddressInfoList=orderAddressInfoMapper.selectOrderAddressInfoList(orderAddressInfo);
-        //只有一个出发地址
         orderAddressInfo=orderAddressInfoList.get(0);
+
+        //查询司机归属车队
+        LoginUser loginUser=new LoginUser();
+        if(StringUtils.isNotEmpty(dispatchLockCarDto.getDispatcherId())){
+            loginUser=tokenService.getLoginUser(dispatchLockCarDto.getDispatcherId());
+        }
+        ApiResponse<List<CarGroupServeScopeInfo>>  carGroupServiceScopesApiResponse=selectCarGroupServiceScope(orderAddressInfo.getCityPostalCode(),Long.parseLong(dispatchLockCarDto.getDispatcherId()));
+
+        if(!carGroupServiceScopesApiResponse.isSuccess()){
+            return ApiResponse.error(carGroupServiceScopesApiResponse.getMsg());
+        }
+
+        List<CarGroupInfo> carGroupInfoList=carGroupInfoMapper.selectCarGroupsByDriverId(Long.parseLong(dispatchLockCarDto.getDriverId()));
+        //一个司机只属于一个车队
+        CarGroupInfo carGroupInfo=carGroupInfoList.get(0);
+
+
 
         //查询用车人所在公司编号
         OrderInfo orderInfo=orderInfoMapper.selectOrderInfoById(Long.parseLong(dispatchLockCarDto.getOrderNo()));

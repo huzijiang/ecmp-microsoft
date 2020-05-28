@@ -26,16 +26,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <!--select a.panel_id AS panelId, a.panel_name AS panelName from homepage_panel_info a,homepage_panel_role_relation_info b where b.panel_id = a.panel_id  and find_in_set(b.role_id ,#{roleIds})-->
     <!--</select>-->
 
+    <!--<select id="getPanelByRoleId" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo" resultType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">-->
+        <!--SELECT DISTINCT-->
+            <!--a.panel_id AS panelId,-->
+            <!--a.panel_name AS panelName-->
+        <!--FROM-->
+            <!--homepage_panel_info a,-->
+            <!--homepage_panel_role_relation_info b-->
+        <!--WHERE-->
+	        <!--b.panel_id = a.panel_id-->
+	    <!--AND b.role_name like #{roleIds} order by a.panel_id asc-->
+    <!--</select>-->
+
     <select id="getPanelByRoleId" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo" resultType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
-        SELECT DISTINCT
+         SELECT DISTINCT
             a.panel_id AS panelId,
             a.panel_name AS panelName
         FROM
             homepage_panel_info a,
-            homepage_panel_role_relation_info b
+            homepage_panel_role_relation_info b,
+						ecmp_role c
         WHERE
-	        b.panel_id = a.panel_id
-	    AND b.role_name like #{roleIds} order by a.panel_id asc
+	        b.panel_id = a.panel_id and
+					c.role_id = b.role_id
+	    AND c.role_key like #{roleIds} order by a.panel_id asc
     </select>
 
     <select id="getHomeSort" parameterType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo" resultType="com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo">
@@ -47,8 +61,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <!--where user_id = #{userId}-->
     <!--</select>-->
 
+    <!--<select id="getRoleIds" resultType="String" parameterType="Long">-->
+        <!--SELECT GROUP_CONCAT(DISTINCT er.role_name) roleIds from ecmp_user_role eur, ecmp_role er-->
+        <!--where eur.role_id = er.role_id and user_id = #{userId}-->
+    <!--</select>-->
+
     <select id="getRoleIds" resultType="String" parameterType="Long">
-        SELECT GROUP_CONCAT(DISTINCT er.role_name) roleIds from ecmp_user_role eur, ecmp_role er
+        SELECT GROUP_CONCAT(DISTINCT er.role_key) roleIds from ecmp_user_role eur, ecmp_role er
         where eur.role_id = er.role_id and user_id = #{userId}
     </select>
 
