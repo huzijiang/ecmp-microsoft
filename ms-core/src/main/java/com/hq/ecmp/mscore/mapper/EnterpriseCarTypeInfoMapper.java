@@ -110,4 +110,11 @@ public interface EnterpriseCarTypeInfoMapper
      * @return
      */
     List<CarTypeVO> queryCarTypeList(@Param("useCarModeOwnerLevel") String useCarModeOwnerLevel,@Param("companyId") Long companyId);
+
+    /**
+     * 获取车型中最大的排序 序号
+     * @param companyId
+     * @return
+     */
+    String getCarTypeDTOSortById(Long companyId);
 }

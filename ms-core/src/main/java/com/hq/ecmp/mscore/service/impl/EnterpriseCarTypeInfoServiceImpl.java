@@ -159,13 +159,17 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
         enterpriseCarTypeInfo.setName(carDto.getName());
         //增加車型級別
         String Level = enterpriseCarTypeInfoMapper.getCarTypeDTOById(carDto.getCompanyId());
+        String sort = enterpriseCarTypeInfoMapper.getCarTypeDTOSortById(carDto.getCompanyId());
         String carLevelType= "P001";
+        String defaultSort= "1";
         if(Level!=null && Level !=""){
             String carLevel = Level.substring(1);
             String newEquipmentNo = String.format("P" + "%03d", Integer.parseInt(carLevel.substring(1))+1);
+            enterpriseCarTypeInfo.setSort(sort+1);
             enterpriseCarTypeInfo.setLevel(newEquipmentNo);
         }else{
             enterpriseCarTypeInfo.setLevel(carLevelType);
+            enterpriseCarTypeInfo.setSort(defaultSort);
         }
 
         // 初始化状态为生效  状态   S000   生效中    S444   失效中
@@ -221,6 +225,7 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
                     .carType(carTypeInfo.getCarType())
                     .carNum(carTypeInfo.getCarNum())
                     .imageUrl(carTypeInfo.getImageUrl())
+                    .sort(carTypeInfo.getSort())
                     .build();
             list.add(carTypeVO);
         }
@@ -235,21 +240,13 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
     @Override
     public void sortCarType(Long mainCarTypeId, Long targetCarTypeId,Long userId) throws Exception {
         EnterpriseCarTypeInfo mainCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(mainCarTypeId);
-        String min=mainCarTypeInfo.getLevel();
-        String minImageUrl = mainCarTypeInfo.getImageUrl();
-        String minName = mainCarTypeInfo.getName();
+        String minSort = mainCarTypeInfo.getSort();
         EnterpriseCarTypeInfo targetCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(targetCarTypeId);
-        String target = targetCarTypeInfo.getLevel();
-        String targetImageUrl = targetCarTypeInfo.getImageUrl();
-        String targetName = targetCarTypeInfo.getName();
-        mainCarTypeInfo.setLevel(target);
-        mainCarTypeInfo.setImageUrl(targetImageUrl);
-        mainCarTypeInfo.setName(targetName);
+        String targetSort = targetCarTypeInfo.getSort();
+        mainCarTypeInfo.setSort(targetSort);
         mainCarTypeInfo.setUpdateTime(new Date());
         mainCarTypeInfo.setUpdateBy(String.valueOf(userId));
-        targetCarTypeInfo.setLevel(min);
-        targetCarTypeInfo.setImageUrl(minImageUrl);
-        targetCarTypeInfo.setName(minName);
+        targetCarTypeInfo.setSort(minSort);
         targetCarTypeInfo.setUpdateBy(String.valueOf(userId));
         targetCarTypeInfo.setUpdateTime(new Date());
         int i = enterpriseCarTypeInfoMapper.updateEnterpriseCarTypeInfo(mainCarTypeInfo);

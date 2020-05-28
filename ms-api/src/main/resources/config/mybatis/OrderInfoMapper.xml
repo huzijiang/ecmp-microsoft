@@ -424,10 +424,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 left join journey_info jn on o.journey_id=jn.journey_id
                 left join order_address_info s on  s.order_id=o.order_id and s.type='A000'
                 left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
-				where o.driver_id=#{driverId} and  (o.state="S299" or o.state="S600" or o.state="S616" )
-                <if test="day!=-1">
-                    <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d')  <= DATE_FORMAT(DATE_ADD(now() ,INTERVAL #{day} DAY), '%Y-%m-%d') ]]>
-                    <![CDATA[AND DATE_FORMAT(t.action_time, '%Y-%m-%d') >= DATE_FORMAT(now(), '%Y-%m-%d') ]]>
+				where o.driver_id=#{driverId} and
+                (o.state="S299" or o.state="S600" or o.state="S616" )
+                <if test="day!=-1">--
+                    <![CDATA[DATE_FORMAT( jn.start_date, '%Y-%m-%d' ) <= DATE_FORMAT( DATE_ADD( now( ), INTERVAL #{day} DAY ), '%Y-%m-%d' )]]>
+                    and
+                    <![CDATA[DATE_FORMAT( DATE_ADD( now( ), INTERVAL #{day} DAY ), '%Y-%m-%d' ) <=  DATE_FORMAT( jn.end_date, '%Y-%m-%d' )]]>
                 </if>
                 order by s.action_time asc
     </select>
@@ -2290,7 +2292,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  ai.state = #{homePageExpireCarState}
         </if>
         <if test="homePageRejectState!=null and homePageRejectState != ''">
-            or ( eu.user_id = #{userId} and oi.service_type='5000' and ai.state = #{homePageRejectState} and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.create_time))
+            or ( eu.user_id = #{userId} and oi.service_type='5000' and right (z.state,3)='930' and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.create_time))
         </if>
         <if test="homePageToBeConfirmedState!=null and '' != homePageToBeConfirmedState">
             and  oi.state = #{homePageToBeConfirmedState}
@@ -2439,7 +2441,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.state >= 'S299' and  oi.state &lt;= 'S900'
         </if>
         <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
-            and  ai.state = #{homePageExpireCarState}
+            and ( oi.service_type='5000' and  eu.user_id = #{userId} and ai.state = #{homePageExpireCarState} OR right (z.state,3)='921')
         </if>
         <if test="homePageRejectState!=null and homePageRejectState != ''">
             or  (ai.state = #{homePageRejectState} and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.create_time))
