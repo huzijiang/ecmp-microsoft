@@ -629,8 +629,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         eu.phonenumber applyPhoneNumber,
         -- 乘车人
         jpi.name passengerName,
+        -- 乘车人电话
+        jpi.mobile passengerMobile,
         -- 同行人
-        jpi1.peer_number peerName,
+        jpi.peer_number peerName,
         -- 实际用车时间
         oai.action_time beginTime,
         -- 实际下车时间
@@ -669,8 +671,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT join ecmp_user eu on eu.user_id=a.create_by
         LEFT join journey_info ji on ji.journey_id=s.journey_id
         LEFT join regime_info ri on ri.regimen_id=ji.regimen_id
-        LEFT join journey_passenger_info jpi on jpi.journey_id=ji.journey_id and jpi.it_is_peer='01'
-        LEFT join journey_passenger_info jpi1 on jpi1.journey_id=ji.journey_id and jpi1.it_is_peer='00'
+        LEFT join journey_passenger_info jpi on jpi.journey_id=s.journey_id
         LEFT join order_settling_info osi on osi.order_id=s.order_id
         left join order_address_info oai on oai.order_id=s.order_id and oai.type='A000'
         left join order_address_info oai2 on oai2.order_id=s.order_id and oai2.type='A999'
@@ -722,10 +723,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ri.name regimenName,
         jpi.name passengerName,
         jpi.mobile passengerMobile,
-        GROUP_CONCAT(jpi1.name) peerName,
+        jpi.peer_number peerName,
         s.use_car_mode useCarMode,
-        s.driver_name driverName,
-        s.driver_mobile driverPhone,
+        dif.driver_name driverName,
+        dif.mobile driverPhone,
         ifnull(s.car_model,ci.car_type) carType,
         ifnull(s.car_color,ci.car_color) carColor,
         ifnull(s.car_license,ci.car_license) carLicense,
@@ -757,10 +758,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         from order_info s
         left join journey_user_car_power jucp on jucp.power_id=s.power_id
         left join apply_info a on a.apply_id=jucp.apply_id
+        left join driver_info dif on dif.driver_id=s.driver_id
         left join ecmp_user eu on eu.user_id=a.create_by
         left join journey_info ji on ji.journey_id=s.journey_id
-        left join journey_passenger_info jpi on jpi.journey_id=ji.journey_id and jpi.it_is_peer='01'
-        left join journey_passenger_info jpi1 on jpi1.journey_id=ji.journey_id and jpi1.it_is_peer='00'
+        left join journey_passenger_info jpi on jpi.journey_id=s.journey_id
         left join order_settling_info osi on osi.order_id=s.order_id
         left join ecmp_org eo on eo.dept_id=eu.dept_id
         left join car_info ci on ci.car_id=s.car_id
@@ -1858,7 +1859,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 状态
         case
         when right (oi.state,3)='100' then '待派车'
-        when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已处理'
+        when right (oi.state,3)<![CDATA[ >= ]]>'299' and right (oi.state,3)<![CDATA[ <= ]]>'900' then '已处理'
         when right (oi.state,3)='900' then '已过期'
         ELSE '' END state,
         -- 操作时间
@@ -2325,7 +2326,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         case
         when right (ji.charter_car_type,3)='001' then '半日租(4小时)'
         when right (ji.charter_car_type,3)='002' then '整日租(8小时)'
-        when right (ji.charter_car_type,3)='009' then  CONCAT('多日租','(',ji.use_time,')','日')
+        when right (ji.charter_car_type,3)='009' then  CONCAT('多日租','(',ji.use_time,'日',')')
         ELSE '' END charterCarType,
         -- 服务车型
         ecty.name carLevel,
@@ -2349,6 +2350,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         cgi.car_group_name carCompany,
         -- 驾驶员姓名
         di.driver_name driverName,
+        -- 等待时长
+        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
         -- 驾驶员手机号
         di.mobile driverPhone,
         -- 驾驶员归属
@@ -2368,7 +2371,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         case
         when right (oi.state,3)='100' then '待派车'
         when right (oi.state,3)='699' then '待确认'
---        when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已派车'
+        --        when right (oi.state,3)>='299' and right (oi.state,3)!='900' then '已派车'
         when right (ai.state,3)='004' then '已撤销'
         when right (ai.state,3)='005' then '已过期'
         ELSE '' END orderState
@@ -2379,11 +2382,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN  ecmp_org eo     ON eo.dept_id  = eu.dept_id
         LEFT JOIN  order_info  oi  ON oi.journey_id = ji.journey_id
         LEFT JOIN  car_info    ci  ON ci.car_id = oi.car_id
-        LEFT JOIN  enterprise_car_type_info  ecty ON ecty.car_type_id = ci.car_type_id
+        LEFT JOIN  enterprise_car_type_info  ecty ON ecty.car_type_id = ai.car_type_id
         LEFT JOIN  car_group_info cgi ON cgi.car_group_id = ci.car_group_id
         LEFT JOIN  driver_info di  ON di.driver_id = oi.driver_id
         LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = di.driver_id
         LEFT JOIN  car_group_info cgiTwo ON cgiTwo.car_group_id = cgdr.car_group_id
+        LEFT JOIN (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=oi.order_id
         left join
         (select order_id,type,address,address_long from order_address_info where type = 'A000') oai1 on  oai1.order_id = oi.order_id
         left join
