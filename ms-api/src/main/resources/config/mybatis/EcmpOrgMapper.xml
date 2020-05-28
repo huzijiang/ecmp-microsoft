@@ -128,7 +128,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from
         ecmp_org
         where
-        del_flag = '0' and `status`='0'
+        del_flag = '0' and `status`='00'
         and dept_type='2'
         <if test="deptId != null "> and dept_id = #{deptId}</if>
     </select>

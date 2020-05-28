@@ -30,7 +30,4 @@ public class PageResult<T> {
         this.items = items;
     }
 
-    private String homeDynamicBeginTime;
-    private String homeDynamicEndTime;
-
 }
