@@ -894,6 +894,35 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     }
 
     /**
+     * 佛山包车后管直接调度列表
+     *
+     * @param query
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public PageResult<DispatchVo> queryHomePageDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser) {
+        //判断登录人的身份来显示他看到的不同权限的数据
+        SysUser user = loginUser.getUser();
+        List<SysRole> role = loginUser.getUser().getRoles();
+        Long companyId = user.getOwnerCompany();
+        query.setCompanyId(companyId);
+        query.setUserId(user.getUserId());
+        //<调度员身份>
+        List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
+        /**查寻该调度员可用查看的所有申请人*/
+        //是首页
+        PageHelper.startPage(query.getPageNum(), query.getPageSize());
+        if ("1".equals(user.getItIsDispatcher())) {//是调度员
+            dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCar(query);
+        }
+        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
+        PageResult<DispatchVo> dispatchVoPageResult = new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
+        log.info("首页查询出来的调度列表数据为---------------------------------"+dispatchVoPageResult);
+        return dispatchVoPageResult;
+    }
+
+    /**
      * 佛山包车后管首页动态
      *
      * @param query
@@ -917,7 +946,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
         /**查寻该调度员可用查看的所有申请人*/
         if ("1".equals(user.getItIsDispatcher())) {//是调度员
-            dispatcherOrderList = orderInfoMapper.queryDispatchListCharterCar(query);
+            dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCarCounts(query);
         }
         return dispatcherOrderList;
     }

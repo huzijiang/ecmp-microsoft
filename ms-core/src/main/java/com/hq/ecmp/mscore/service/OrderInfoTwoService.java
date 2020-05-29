@@ -100,6 +100,14 @@ public interface OrderInfoTwoService {
     PageResult<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser);
 
     /**
+     *  佛山后管首页申请单调度列表
+     * @param query
+     * @param loginUser
+     * @return
+     */
+    PageResult<DispatchVo> queryHomePageDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser);
+
+    /**
      * 佛山调度可用外部车队列表
      *      * @param orderId
      * @return

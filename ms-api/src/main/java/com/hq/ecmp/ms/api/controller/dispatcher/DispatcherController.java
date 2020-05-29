@@ -67,6 +67,22 @@ public class DispatcherController {
     }
 
     /**
+     * 获取首页调度列表数据
+     */
+    @PostMapping("/queryHomePageDispatchList")
+    public ApiResponse<PageResult<DispatchVo>>  queryHomePageDispatchList(@RequestBody ApplyDispatchQuery query){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            PageResult<DispatchVo> list = orderInfoTwoService.queryHomePageDispatchListCharterCar(query,loginUser);
+            return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("获取申请调度列表失败");
+        }
+    }
+
+    /**
      * 佛山调度可用外部车队列表
      */
     @PostMapping("/dispatcherCarGroupList")
