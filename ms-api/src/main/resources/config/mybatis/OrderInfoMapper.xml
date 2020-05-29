@@ -1862,9 +1862,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ji.charter_car_type serverType,
         -- 状态
         case
-        when right (oi.state,3)='100' then '待派车'
-        when right (oi.state,3)<![CDATA[ >= ]]>'299' and right (oi.state,3)<![CDATA[ <= ]]>'900' then '已处理'
-        when right (oi.state,3)='900' then '已过期'
+        when right (osti.state,3)='100' then '待派车'
+        when right (osti.state,3)<![CDATA[ >= ]]>'299' and right (oi.state,3)<![CDATA[ <= ]]>'900' then '已处理'
+        when right (osti.state,3)='921' then '已过期'
+        when right (osti.state,3)='930' then '已驳回'
+        ELSE '' END state,
         ELSE '' END state,
         -- 操作时间
         case
@@ -1887,6 +1889,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ai.reason reason
         FROM
         order_info oi
+        left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
         LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
         LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
         LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
@@ -1930,7 +1933,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="isIndex == 2">
             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
             (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100','S930'))
-            and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
+            and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277','S911'))  )
         </if>
 
         <if test="companyId!=null and companyId!=''">

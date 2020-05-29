@@ -68,7 +68,7 @@ public abstract class TopDispatchService {
     public void disBusiness(DispatchSendCarDto dispatchSendCarDto) throws Exception {
         judgeIsFinish(dispatchSendCarDto);
         ((TopDispatchService)AopContext.currentProxy()).dispatchCommonBusiness(dispatchSendCarDto);
-        ((TopDispatchService)AopContext.currentProxy()).sendSms(dispatchSendCarDto);
+         sendSms(dispatchSendCarDto);
     }
 
 
@@ -179,19 +179,9 @@ public abstract class TopDispatchService {
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
         //用车备注
         String notes = applyInfo.getNotes();
-
-        //驾驶员发短信
-        if (dispatchSendCarDto.getSelfDrive().equals(CarConstant.SELFDRIVER_NO)){
-            Map<String,String> stringStringMapDriver = new HashMap<>(10);
-            stringStringMapDriver.put("orderNumber", orderNumber);
-            stringStringMapDriver.put("useCarTime", useCarTime);
-            stringStringMapDriver.put("name", name);
-            stringStringMapDriver.put("mobile", mobile);
-            stringStringMapDriver.put("notes", notes);
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,mobile );
+        if (notes == null){
+            notes = "无";
         }
-
-
 
         if(dispatchSendCarDto.getInOrOut() == 1){
             EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(dispatchSendCarDto.getUserId());
@@ -268,7 +258,14 @@ public abstract class TopDispatchService {
                     stringStringMap.put("dispatchMobile", phoneNumber);
                     //用车人发短信
                     iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_USER_CAR, stringStringMap, mobile);
-                    return;
+                    Map<String,String> stringStringMapDriver = new HashMap<>(10);
+                    stringStringMapDriver.put("orderNumber", orderNumber);
+                    stringStringMapDriver.put("useCarTime", useCarTime);
+                    stringStringMapDriver.put("name", name);
+                    stringStringMapDriver.put("mobile", mobile);
+                    stringStringMapDriver.put("notes", notes);
+                    //司机发短信
+                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,driverMobile );
 
                 }
             }else if (dispatchSendCarDto.getUseCarGroupType().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_OUT)){
@@ -281,19 +278,21 @@ public abstract class TopDispatchService {
                     carGroupName = carGroupInfo.getCarGroupName();
                 }
             }
-            Map<String,String> stringStringMap = new HashMap<>(8);
-            stringStringMap.put("carGroup", carGroupName);
-            stringStringMap.put("innerDisName", userName);
-            stringStringMap.put("innerDisMobile", phoneNumber);
-            stringStringMap.put("useCarName", name);
-            stringStringMap.put("useCarMobile", mobile);
-            stringStringMap.put("useCarCount", useTime);
-            stringStringMap.put("useCarTime", useCarTime);
-            stringStringMap.put("notes", notes);
+            if(!dispatchSendCarDto.getCarGroupUseMode().equals(CarConstant.CAR_GROUP_USER_MODE_CAR_DRIVER)){
+                Map<String,String> stringStringMap = new HashMap<>(8);
+                stringStringMap.put("carGroupName", carGroupName);
+                stringStringMap.put("userName", userName);
+                stringStringMap.put("phoneNumber", phoneNumber);
+                stringStringMap.put("name", name);
+                stringStringMap.put("mobile", mobile);
+                stringStringMap.put("useTime", useTime);
+                stringStringMap.put("useCarTime", useCarTime);
+                stringStringMap.put("notes", notes);
 
-            Long outCarGroupId = dispatchSendCarDto.getOutCarGroupId();
-            //给外部调度员发短信
-            sendSmsReal(SmsTemplateConstant.SMS_FOSHAN_SEND_CAR_TO_OUT_DISPATCHER, stringStringMap, outCarGroupId);
+                Long outCarGroupId = dispatchSendCarDto.getOutCarGroupId();
+                //给外部调度员发短信
+                sendSmsReal(SmsTemplateConstant.SMS_FOSHAN_SEND_CAR_TO_OUT_DISPATCHER, stringStringMap, outCarGroupId);
+            }
 
         }else if(dispatchSendCarDto.getInOrOut() == 2){
 
@@ -338,6 +337,14 @@ public abstract class TopDispatchService {
                     stringStringMap.put("dispatchMobile", phoneNumber);
                     //用车人发短信
                     iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_USER_CAR, stringStringMap, mobile);
+                    Map<String,String> stringStringMapDriver = new HashMap<>(10);
+                    stringStringMapDriver.put("orderNumber", orderNumber);
+                    stringStringMapDriver.put("useCarTime", useCarTime);
+                    stringStringMapDriver.put("name", name);
+                    stringStringMapDriver.put("mobile", mobile);
+                    stringStringMapDriver.put("notes", notes);
+                    //司机发短信
+                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,driverMobile );
                 }else if(dispatchSendCarDto.getSelfDrive().equals(CarConstant.SELFDRIVER_YES)){
 
                     CarInfo carInfo = carInfoMapper.selectCarInfoById(dispatchSendCarDto.getCarId());
@@ -428,6 +435,14 @@ public abstract class TopDispatchService {
                 stringStringMap.put("dispatchMobile", phoneNumber);
                 //用车人发短信
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_USER_CAR, stringStringMap, mobile);
+                Map<String,String> stringStringMapDriver = new HashMap<>(10);
+                stringStringMapDriver.put("orderNumber", orderNumber);
+                stringStringMapDriver.put("useCarTime", useCarTime);
+                stringStringMapDriver.put("name", name);
+                stringStringMapDriver.put("mobile", mobile);
+                stringStringMapDriver.put("notes", notes);
+                //司机发短信
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,driverMobile );
             }
         }
     }
