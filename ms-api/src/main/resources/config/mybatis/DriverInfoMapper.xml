@@ -38,7 +38,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="driverName"    column="driver_name"    />
         <result property="driverPhone"    column="mobile"   />
         <result property="date"    column="date" />
-        <collection property="orderDetailVOS" select="getOrderList" column="{driverId=driver_id,date=date}" ofType="OrderDetailVO" javaType="java.util.ArrayList">
+        <collection property="orderDetailVOS" select="getOrderList" column="{driverId=driver_id,date=date}" ofType="com.hq.ecmp.mscore.vo.OrderDetailVO" javaType="java.util.ArrayList">
         </collection>
     </resultMap>
 
@@ -676,10 +676,10 @@ WHERE
              o.service_type serviceType,
              jn.it_is_return itIsReturn,
              jn.charter_car_type charterCarType,
-             DATE_FORMAT(s.action_time, '%Y-%m-%d %H:%i') orderStartTime,
+             if(o.service_type='5000',DATE_FORMAT(jn.start_date, '%Y-%m-%d %H:%i'),DATE_FORMAT(s.action_time, '%Y-%m-%d %H:%i')) orderStartTime,
+             if(o.service_type='5000',DATE_FORMAT(jn.end_date, '%Y-%m-%d %H:%i'),DATE_FORMAT(t.action_time, '%Y-%m-%d %H:%i')) orderEndTime,
              s.address startAddress,
              t.address endAddress,
-             DATE_FORMAT(t.action_time, '%Y-%m-%d %H:%i') orderEndTime,
              eu.nick_name passengerName,
              eu.phonenumber passengerPhone,
              ci.car_color carColor,
