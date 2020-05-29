@@ -23,7 +23,7 @@
     <select id="queryById" resultMap="EcmpEnterpriseInvitationInfoMap">
         select
           invitation_id, name, company_id, department_id, car_group_id, type, rose_id, regime_ids, url, state, create_by, create_time, update_by, update_time
-        from ecmp.ecmp_enterprise_invitation_info
+        from ecmp_enterprise_invitation_info
         where invitation_id = #{invitationId}
     </select>
 
