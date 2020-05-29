@@ -29,11 +29,11 @@ public class DriverRegisterDTO {
     @ApiParam(name = "licenseNumber", value = "驾驶证号码", required = true )
     private String licenseNumber;
     @ApiParam(name = "licenseInitIssueDate", value = "初次领证日期", required = false)
-    private String licenseInitIssueDate;
+    private Date licenseInitIssueDate;
     @ApiParam(name = "licenseIssueDate", value = "证照有效期启期", required = false )
-    private String licenseIssueDate;
+    private Date licenseIssueDate;
     @ApiParam(name = "licenseExpireDate", value = "证照有效期止期", required = false )
-    private String licenseExpireDate;
+    private Date licenseExpireDate;
     @ApiParam(name = "licenseImages", value = "证照图片地址", required = false )
     private String licenseImages;
     @ApiParam(name = "mobile", value = "手机号", required = true )

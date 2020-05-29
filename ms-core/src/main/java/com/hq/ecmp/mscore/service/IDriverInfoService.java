@@ -75,6 +75,8 @@ public interface IDriverInfoService
     public boolean createDriver(DriverCreateInfo driverCreateInfo) throws Exception;
     public boolean updateDriver(DriverCreateInfo driverCreateInfo) throws Exception;
 
+    public void initDriverState(DriverCreateInfo driverCreateInfo);
+
     public List<DriverQueryResult> queryDriverList(DriverQuery query);
 
     public Integer queryDriverListCount(DriverQuery query);
