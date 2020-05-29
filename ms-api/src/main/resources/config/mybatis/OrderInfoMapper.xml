@@ -757,6 +757,24 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         (select car_group_name   from car_group_info where car_group_id in
                     (select car_group_id from car_group_driver_relation where driver_id=s.driver_id)
         )driverGroupName,
+        (select cci.beyond_price_every_minute from  cost_config_info cci
+            where cci.cost_id in
+               (
+                select cost_id from cost_config_car_group_info where car_group_id in
+                   (
+                      select car_group_id from car_group_driver_relation where driver_id=s.driver_id
+                   )
+               )
+        )beyondPriceEveryMinute,
+        (select cci.beyond_price_every_km from  cost_config_info cci
+        where cci.cost_id in
+        (
+        select cost_id from cost_config_car_group_info where car_group_id in
+        (
+        select car_group_id from car_group_driver_relation where driver_id=s.driver_id
+        )
+        )
+        )beyondPriceEveryKm,
         (select state from order_state_trace_info sti where sti.order_id=s.order_id order by trace_id desc limit 1) labelState
         from order_info s
         left join journey_user_car_power jucp on jucp.power_id=s.power_id
