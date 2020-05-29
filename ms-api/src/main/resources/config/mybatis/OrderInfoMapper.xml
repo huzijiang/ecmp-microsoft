@@ -685,6 +685,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="passengerName != null and  passengerName!='' "> and  jpi.name = #{passengerName}</if>
                 <if test="orderNumber != null and  orderNumber!='' "> and  s.order_number = #{orderNumber}</if>
                 <if test="serviceType != null and  serviceType!='' "> and ji.service_type = #{serviceType}</if>
+                <if test="charterCarType != null and  charterCarType!='' "> and ji.charter_car_type = #{charterCarType}</if>
                 <if test="useCarMode != null and  useCarMode!=''"> and s.use_car_mode = #{useCarMode}</if>
                 <if test="charterCarType != null and  charterCarType!='' "> and  ji.charter_car_type = #{charterCarType}</if>
                 <if test="useCarTimeBegin != null and  useCarTimeBegin!='' "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{useCarTimeBegin},'%Y-%m-%d %H:%i:%S')</if>
