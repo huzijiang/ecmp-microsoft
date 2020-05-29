@@ -86,6 +86,11 @@ public class DriverOrderInfoVO {
     private String peerNumber;
     @ApiModelProperty(name = "imageUrl",value = "车辆信息图")
     private String imageUrl;
+    @ApiModelProperty(name = "totalMileage",value = "总里程")
+    private String totalMileage;
+    @ApiModelProperty(name = "totalTime",value = "总时长")
+    private String totalTime;
+
 
 
 }
