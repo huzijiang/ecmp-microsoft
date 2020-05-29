@@ -1,6 +1,9 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.hq.core.aspectj.lang.annotation.Excel;
@@ -15,6 +18,9 @@ import java.math.BigDecimal;
  * @date 2020-01-02
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderAccountInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -28,7 +34,7 @@ public class OrderAccountInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String orderId;
+    private Long orderId;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
