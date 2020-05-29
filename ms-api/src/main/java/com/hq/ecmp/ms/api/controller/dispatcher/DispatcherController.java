@@ -28,6 +28,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName
@@ -54,11 +55,11 @@ public class DispatcherController {
      */
     @PostMapping("/getDispatcherList")
     @ApiOperation(value = "佛山调度列表")
-    public ApiResponse<PageResult<DispatchVo>>  getDispatcherList(@RequestBody ApplyDispatchQuery query){
+    public ApiResponse<Map<String, Object>>  getDispatcherList(@RequestBody ApplyDispatchQuery query){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            PageResult<DispatchVo> list = orderInfoTwoService.queryDispatchListCharterCar(query,loginUser);
+            Map<String, Object> list = orderInfoTwoService.queryDispatchListCharterCar(query, loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();

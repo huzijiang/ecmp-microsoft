@@ -97,7 +97,7 @@ public interface OrderInfoTwoService {
      * @param loginUser
      * @return
      */
-    PageResult<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser);
+    Map<String,Object>  queryDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser);
 
     /**
      *  佛山后管首页申请单调度列表

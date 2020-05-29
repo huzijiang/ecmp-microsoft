@@ -799,7 +799,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      * @return
      */
     @Override
-    public PageResult<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser) {
+    public Map<String,Object> queryDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser) {
         //判断登录人的身份来显示他看到的不同权限的数据
         SysUser user = loginUser.getUser();
         List<SysRole> role = loginUser.getUser().getRoles();
@@ -812,85 +812,53 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
         /**查寻该调度员可用查看的所有申请人*/
 
-        //是首页
-        if(query.getIsIndex() == 1){
-            PageHelper.startPage(query.getPageNum(), query.getPageSize());
-            if ("1".equals(user.getItIsDispatcher())) {//是调度员
-                dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCar(query);
+        if ("1".equals(user.getItIsDispatcher())) {//是调度员
+            dispatcherOrderList = orderInfoMapper.queryDispatchListCharterCar(query);
+            CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+            CarGroupDispatcherInfo carGroupDispatcherInfo1 = carGroupDispatcherInfo;
+            carGroupDispatcherInfo1.setUserId(query.getUserId());
+            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo1);
+            List<Long> dispatcheers = carGroupDispatcherInfos.stream().map(p ->p.getCarGroupId()).collect(Collectors.toList());
+            Long carGroupId = carGroupDispatcherInfos.get(0).getCarGroupId();
+            CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+            if (carGroupInfo.getItIsInner().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
+                for (DispatchVo dispatchVo:
+                        dispatcherOrderList) {
+                    dispatchVo.setInOrOut(1);
+                }
+            }else{
+                Iterator<DispatchVo> iterator = dispatcherOrderList.iterator();
+                while(iterator.hasNext()){
+                    DispatchVo next = iterator.next();
+                    next.setInOrOut(2);
+                    if(next.getNextCarGroupId() == null || !dispatcheers.contains(next.getNextCarGroupId())){
+                        iterator.remove();
+                    }
+                }
             }
-            PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
-            PageResult<DispatchVo> dispatchVoPageResult = new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
-            log.info("首页查询出来的调度列表数据为---------------------------------"+dispatchVoPageResult);
-            return dispatchVoPageResult;
         }
-        //为了区别分页情况
-        //不是首页
-        if (query.getIsIndex() == 2) {
-
-            if ("1".equals(user.getItIsDispatcher())) {//是调度员
-                dispatcherOrderList = orderInfoMapper.queryDispatchListCharterCar(query);
-                CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
-                CarGroupDispatcherInfo carGroupDispatcherInfo1 = carGroupDispatcherInfo;
-                carGroupDispatcherInfo1.setUserId(query.getUserId());
-                List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo1);
-                List<Long> dispatcheers = carGroupDispatcherInfos.stream().map(p ->p.getCarGroupId()).collect(Collectors.toList());
-                Long carGroupId = carGroupDispatcherInfos.get(0).getCarGroupId();
-                CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
-                if (carGroupInfo.getItIsInner().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
-                    for (DispatchVo dispatchVo:
-                            dispatcherOrderList) {
-                        dispatchVo.setInOrOut(1);
-                    }
-                }else{
-                    Iterator<DispatchVo> iterator = dispatcherOrderList.iterator();
-                    while(iterator.hasNext()){
-                        DispatchVo next = iterator.next();
-                        next.setInOrOut(2);
-                        if(next.getNextCarGroupId() == null || !dispatcheers.contains(next.getNextCarGroupId())){
-                            iterator.remove();
-                        }
-                    }
-                }
+        List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(collect)) {//是管理员
+            if (!CollectionUtils.isEmpty(dispatcherOrderList)) {
+                List<Long> orderIds = dispatcherOrderList.stream().map(p -> p.getOrderId()).collect(Collectors.toList());
+                query.setOrderIds(orderIds);
             }
-            List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(collect)) {//是管理员
-                if (!CollectionUtils.isEmpty(dispatcherOrderList)) {
-                    List<Long> orderIds = dispatcherOrderList.stream().map(p -> p.getOrderId()).collect(Collectors.toList());
-                    query.setOrderIds(orderIds);
-                }
-                //本公司所有的订单
-                adminOrderList = orderInfoMapper.queryAdminDispatchList(query);
-                if (!CollectionUtils.isEmpty(adminOrderList)) {
-                    dispatcherOrderList.addAll(adminOrderList);
-                }
+            //本公司所有的订单
+            adminOrderList = orderInfoMapper.queryAdminDispatchList(query);
+            if (!CollectionUtils.isEmpty(adminOrderList)) {
+                dispatcherOrderList.addAll(adminOrderList);
             }
         }
 
         //手动分页
-        PageModel<DispatchVo> pm = new PageModel(dispatcherOrderList, query.getPageSize());
-        //pm.setTotalRows(pm.getTotalRows());
-        List<DispatchVo> pageList = pm.getObjects(Integer.valueOf(query.getPageNum()));
-        //List<DispatchOrderInfoVo> pageList = pm.getTotalRows();
-        //List<DispatchOrderInfoVo> pageList = pm.getObjects(Integer.valueOf(pageNum));
-        return new PageResult<>(Long.valueOf(pm.getTotalRows()), query.getPageNum(), pageList);
-
-//        Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
-//        if (dispatcherOrderList.isEmpty()) {
-//            Long total = 0L;
-//            Integer pageSize = 0;
-//            return new PageResult<>(total, pageSize, page.getCurrentPageData());
-//        }
-//        page.setCurrent_page(query.getPageNum());
-//        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getCurrent_page(), page.getCurrentPageData());
-//        Page<DispatchVo> page = new Page<>(dispatcherOrderList, query.getPageSize());
-//        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
-//        if (dispatcherOrderList.isEmpty()) {
-//            info.setTotal(0);
-//            info.setPages(0);
-//            return new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
-//        }
-//        page.setCurrent_page(query.getPageNum());
-//        return new PageResult<>(Long.valueOf(page.getTotal_sum()), page.getTotal_page(), dispatcherOrderList);
+        Map<String,Object> map = new HashMap();
+        List<DispatchVo> page = PageUtil.startPage(dispatcherOrderList,query.getPageNum(),query.getPageSize());
+        Integer count = dispatcherOrderList.size();
+        Integer totalPage = count % query.getPageNum() == 0 ? count / query.getPageNum() : count / query.getPageNum() + 1;
+        map.put("totalPage", count);
+        map.put("page", page);
+        map.put("list", totalPage);
+        return map;
     }
 
     /**
