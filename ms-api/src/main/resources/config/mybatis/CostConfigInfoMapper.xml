@@ -191,6 +191,9 @@
             <if test="companyId != null and companyId!=''">
                 and c.company_id=#{companyId}
             </if>
+            <if test="carGroupId!=null">
+                and cccgi.car_group_id=#{carGroupId}
+            </if>
             <if test="rentType != null and rentType!=''">
                 and c.rent_type=#{rentType}
             </if>

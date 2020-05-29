@@ -62,6 +62,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="hireEndTime != null  ">hire_end_time = #{hireEndTime},</if>
             <if test="borrowBeginTime != null ">borrow_begin_time = #{borrowBeginTime},</if>
             <if test="borrowEndTime != null ">borrow_end_time = #{borrowEndTime},</if>
+            update_by = #{updateBy},
             update_time = now()
         </trim>
         where driver_id = #{driverId}

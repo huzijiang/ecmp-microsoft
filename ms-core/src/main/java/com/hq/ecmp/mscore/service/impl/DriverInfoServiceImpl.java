@@ -173,6 +173,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		query.setPhonenumber(driverCreateInfo.getMobile());
 		List<EcmpUser> selectEcmpUserList = ecmpUserService.selectEcmpUserList(query);
 		Long userId=null;
+        Long newUserId = null;
 		if(null !=selectEcmpUserList && selectEcmpUserList.size()>0){
 			//新增驾驶员如果已经是公司员工  那么 1. 绑定用户角色表 2.用户表update驾驶员角色、没工号可以加工号
 			userId=selectEcmpUserList.get(0).getUserId();
@@ -215,7 +216,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			newDriverUser.setCreateBy(String.valueOf(driverCreateInfo.getOptUserId()));
 			newDriverUser.setCreateTime(new Date());
 			ecmpUserMapper.insertEcmpUser(newDriverUser);
-			Long newUserId = newDriverUser.getUserId();
+			newUserId = newDriverUser.getUserId();
 			//2. 插入用户驾驶员角色表
 			EcmpUserRole build = EcmpUserRole.builder().roleId(6L).userId(newUserId).build();
 			ecmpUserRoleMapper.insertEcmpUserRole(build);
@@ -258,6 +259,9 @@ public class DriverInfoServiceImpl implements IDriverInfoService
         	if(null !=userId){
         		driverCarRelationInfo.setUserId(userId);
         	}
+        	if(newUserId != null){
+                driverCarRelationInfo.setUserId(newUserId);
+            }
         	driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
         	driverCarRelationInfo.setCarIdList(carIdList);
         	//3. 绑定驾驶员车辆关系
@@ -423,7 +427,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
 			driverNatureInfo.setDriverId(driverCreateInfo.getDriverId());
 			driverNatureInfo.setUpdateBy(String.valueOf(driverCreateInfo.getOptUserId()));
-			driverCreateInfo.setHireBeginTime(driverNatureInfo.getHireBeginTime());
+			driverNatureInfo.setHireBeginTime(driverCreateInfo.getHireBeginTime());
 			driverNatureInfo.setHireEndTime(driverCreateInfo.getHireEndTime());
 			driverNatureInfoMapper.updateDriverNatureInfo(driverNatureInfo);
 		}
@@ -431,8 +435,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			//如果是借调驾驶员
 			DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
 			driverNatureInfo.setDriverId(driverCreateInfo.getDriverId());
-			driverNatureInfo.setBorrowBeginTime(driverCreateInfo.getHireBeginTime());
-			driverCreateInfo.setBorrowEndTime(driverNatureInfo.getBorrowEndTime());
+			driverNatureInfo.setBorrowBeginTime(driverCreateInfo.getBorrowBeginTime());
+			driverNatureInfo.setBorrowEndTime(driverCreateInfo.getBorrowEndTime());
 			driverNatureInfo.setUpdateBy(String.valueOf(driverCreateInfo.getOptUserId()));
 			driverNatureInfoMapper.updateDriverNatureInfo(driverNatureInfo);
 		}
