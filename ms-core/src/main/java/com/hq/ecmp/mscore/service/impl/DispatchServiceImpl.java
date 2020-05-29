@@ -648,7 +648,7 @@ public class DispatchServiceImpl implements IDispatchService {
         });
 
         //姓名或手机 信息为空时，不展示 冲突的司机
-        if(StringUtils.isEmpty(selectDriverConditionBo.getDriverNameOrPhone())) {
+            if(StringUtils.isEmpty(selectDriverConditionBo.getDriverNameOrPhone())) {
             Iterator<WaitSelectedDriverBo> iterator=waitSelectedDriverBoList.iterator();
             while (iterator.hasNext()){
                 WaitSelectedDriverBo waitSelectedDriverBo=iterator.next();
@@ -1087,7 +1087,7 @@ public class DispatchServiceImpl implements IDispatchService {
             //多日租 联合判断
             if(rentTime.equals(CarRentTypeEnum.MORE_HOURS.getCode())){
                 //包车时长是否匹配（日租、半日租）
-                if(     rentTime.equals(costConfigDetailInfoVo.getRentType()) &&
+                if(     CarRentTypeEnum.FOUR_HOURS.getCode().equals(costConfigDetailInfoVo.getRentType()) &&
                         //车队
                         (carGroupInfo_driver.getCarGroupId().equals(costConfigDetailInfoVo.getCarGroupId())) &&
                         //城市
@@ -1099,7 +1099,7 @@ public class DispatchServiceImpl implements IDispatchService {
                 }
 
                 //包车时长是否匹配（日租、半日租）
-                if(     rentTime.equals(costConfigDetailInfoVo.getRentType()) &&
+                if(     CarRentTypeEnum.EIGHT_HOURS.getCode().equals(costConfigDetailInfoVo.getRentType()) &&
                         //车队
                         (carGroupInfo_driver.getCarGroupId().equals(costConfigDetailInfoVo.getCarGroupId())) &&
                         //城市
