@@ -799,7 +799,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      * @return
      */
     @Override
-    public Map<String,Object> queryDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser) {
+    public Map<String,Object> queryDispatchListCharterCar(ApplyDispatch query, LoginUser loginUser) {
         //判断登录人的身份来显示他看到的不同权限的数据
         SysUser user = loginUser.getUser();
         List<SysRole> role = loginUser.getUser().getRoles();
@@ -843,8 +843,9 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 List<Long> orderIds = dispatcherOrderList.stream().map(p -> p.getOrderId()).collect(Collectors.toList());
                 query.setOrderIds(orderIds);
             }
+
             //本公司所有的订单
-            adminOrderList = orderInfoMapper.queryAdminDispatchList(query);
+            adminOrderList = orderInfoMapper.queryAdminDispatchList2(query);
             if (!CollectionUtils.isEmpty(adminOrderList)) {
                 dispatcherOrderList.addAll(adminOrderList);
             }
@@ -852,9 +853,9 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
 
         //手动分页
         Map<String,Object> map = new HashMap();
-        List<DispatchVo> page = PageUtil.startPage(dispatcherOrderList,query.getPageNum(),query.getPageSize());
+        List<DispatchVo> page = PageUtil.startPage(dispatcherOrderList,query.getPageN(),query.getPageS());
         Integer count = dispatcherOrderList.size();
-        Integer totalPage = count % query.getPageNum() == 0 ? count / query.getPageNum() : count / query.getPageNum() + 1;
+        Integer totalPage = count % query.getPageN() == 0 ? count / query.getPageN() : count / query.getPageN() + 1;
         map.put("totalPage", count);
         map.put("page", page);
         map.put("list", totalPage);

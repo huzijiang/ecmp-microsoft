@@ -1376,6 +1376,115 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ORDER BY
         oi.state,oai.action_time ASC
     </select>
+    <select id="queryAdminDispatchList2" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatch" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
+
+        SELECT DISTINCT
+        -- 订单id
+        oi.order_id orderId,
+        -- 部门名称
+        eo.dept_name AS deptName,
+        -- 公司名称
+        eor.dept_name AS companyName,
+        -- 操作权限  0：有权限  1:没有权限
+        '1'  operationPermission,
+        -- 申请人姓名
+        eu.nick_name  applyUserName,
+        -- 申请人手机号
+        eu.phonenumber applyUserTel,
+        -- 乘车人
+        eu.nick_name  useCarUserName,
+        -- 同行人数量
+        jpi.peer_number travelPartnerCount,
+        -- 开始时间
+        oai.action_time useCarDate,
+        -- 预计结束时间
+        oaitwo.action_time endDate,
+        -- 上车地址
+        oai.address startSite,
+        -- 下车地址
+        oaitwo.address endSite,
+        -- 是否往返
+        ji.it_is_return itIsReturn,
+        -- 预计等待时长
+        ji.wait_time_long waitMinute,
+        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
+        -- 用车城市
+        cc.SHORT_NAME useCarCity,
+        -- 用车场景
+        si.`name` userCarScene,
+        -- 用车制度
+        ri.`name` userCarRegime,
+        -- 服务类型
+        oi.service_type serverType,
+        -- 状态
+        case
+        when right (z.state,3)='100' then '待派车'
+        when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已处理'
+        when right (z.state,3)='921' then '已过期'
+        when right (z.state,3)='930' then '已驳回'
+        when right (z.state,3)='911' then '已取消'
+        ELSE '' END state,
+        -- 操作时间
+        case
+        when right (oi.state,3)='100' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S100'  limit 1)
+        when right (oi.state,3)='299' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state ='S299' limit 1)
+        when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state in ('S921','S930') limit 1)
+        ELSE now() END opDate
+        FROM
+        order_info oi
+        LEFT JOIN car_group_info cgi ON oi.company_id = cgi.company_id
+        LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
+        LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
+        LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
+        LEFT JOIN journey_info ji ON ji.journey_id = oi.journey_id
+        LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = oi.journey_id
+        LEFT JOIN regime_info ri ON ri.regimen_id = ji.regimen_id
+        LEFT JOIN scene_regime_relation srr ON srr.regimen_id = ri.regimen_id
+        LEFT JOIN scene_info si ON srr.scene_id = si.scene_id
+        LEFT JOIN order_address_info oai ON (oai.order_id = oi.order_id and oai.type='A000')
+        LEFT JOIN order_address_info oaitwo ON (oaitwo.order_id = oi.order_id and oaitwo.type='A999')
+        LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
+        LEFT JOIN (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=oi.order_id
+        WHERE 1 = 1
+        and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
+        (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100'))
+        and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
+        <if test="companyId!=null">
+            and  oi.company_id=#{companyId}
+        </if>
+        <if test="applyName!=null and applyName!=''">
+            and  eu.nick_name  like concat('%',#{applyName},'%')
+        </if>
+        <if test="applyMobile!=null and applyMobile!=''">
+            and  eu.phonenumber  like concat('%',#{applyMobile},'%')
+        </if>
+        <if test="cityCode!=null and cityCode!= ''">
+            and  cc.SHORT_NAME=#{cityCode}
+        </if>
+        <if test="useCarMode!=null and useCarMode!=''">
+            and  oi.use_car_mode=#{useCarMode}
+        </if>
+        <if test="dispatchStatus!=null and dispatchStatus!=''">
+            and  oi.state=#{dispatchStatus}
+        </if>
+        <if test="optStartDate!=null  and  optStartDate!='' ">
+            and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{optStartDate},'%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test="optEndDate!=null  and  optEndDate!='' ">
+            and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
+        </if>
+        and  oi.it_is_supplement='N000'
+        <if test="orderIds!=null">
+            and oi.order_id not in
+            <foreach collection="orderIds" open="(" separator="," close=")" item="orderId">
+                #{orderId}
+            </foreach>
+        </if>
+
+        ORDER BY
+        oi.state,oai.action_time ASC
+    </select>
+
     <select id="queryDispatchOrder" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
         SELECT DISTINCT
         -- 订单id
@@ -1835,8 +1944,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         o.order_id = #{orderNo}
     </select>
 
-    <select id="queryDispatchListCharterCar" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
-
+    <select id="queryDispatchListCharterCar" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatch" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
+        select * from (
         SELECT DISTINCT
         od.next_car_group_id nextCarGroupId,
         -- 订单id
@@ -1845,14 +1954,14 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         eo.dept_name AS deptName,
         -- 公司名称
         eor.dept_name AS companyName,
-        -- 操作权限  0：有权限  1:没有权限
-        '0'  operationPermission,
+        -- 操作权限 0：有权限 1:没有权限
+        '0' operationPermission,
         -- 申请人姓名
-        eu.nick_name  applyUserName,
+        eu.nick_name applyUserName,
         -- 申请人手机号
         eu.phonenumber applyUserTel,
         -- 乘车人
-        jpi.name  useCarUserName,
+        jpi.name useCarUserName,
         -- 乘车人电话
         jpi.mobile userCarUserMobile,
         -- 同行人数量
@@ -1875,24 +1984,27 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         si.`name` userCarScene,
         -- 用车制度
         ri.`name` userCarRegime,
-        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
+        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60) waitingTime,
         -- 服务类型
         ji.charter_car_type serverType,
         -- 状态
         case
         when right (osti.state,3)='100' then '待派车'
-        when right (osti.state,3)<![CDATA[ >= ]]>'299' and right (oi.state,3)<![CDATA[ <= ]]>'900' then '已处理'
+        when right (osti.state,3)<![CDATA[ >= ]]>'299' and right (osti.state,3)<![CDATA[ <= ]]>'900' then '已处理'
         when right (osti.state,3)='921' then '已过期'
         when right (osti.state,3)='930' then '已驳回'
         ELSE '' END state,
         -- 操作时间
         case
-        when right (oi.state,3)='100' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S100'  limit 1)
-        when right (oi.state,3)='299' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S299' limit 1)
-        when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S921' limit 1)
+        when right (oi.state,3)='100' then (select create_time from order_state_trace_info sti where
+        sti.order_id=oi.order_id and sti.state='S100' limit 1)
+        when right (oi.state,3)='299' then (select create_time from order_state_trace_info sti where
+        sti.order_id=oi.order_id and sti.state='S299' limit 1)
+        when right (oi.state,3)= '900' then (select create_time from order_state_trace_info sti where
+        sti.order_id=oi.order_id and sti.state='S921' limit 1)
         ELSE now() END opDate,
         -- 包车的总天数
-        ji.use_time  charterCarDaysCount,
+        ji.use_time charterCarDaysCount,
         -- 车型id
         ai.car_type_id carTypeId,
         -- 车型名字
@@ -1906,7 +2018,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ai.reason reason
         FROM
         order_info oi
-        left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
+        left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+        order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
         LEFT JOIN ecmp_user eu ON oi.user_id = eu.user_id
         LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
         LEFT JOIN ecmp_org eor ON eo.company_id= eor.dept_id
@@ -1919,19 +2032,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN order_address_info oaitwo ON (oaitwo.order_id = oi.order_id and oaitwo.type='A999')
         LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
         LEFT JOIN order_dispatche_detail_info od ON od.order_id = oi.order_id
-       --  LEFT JOIN car_group_info cgi on (cgi.car_group_id = od.car_cg_id or cgi.car_group_id=od.driver_cg_id or od.next_car_group_id = cgi.car_group_id)
         left join journey_user_car_power jucp on jucp.node_id=oi.node_id
         left join apply_info ai on ai.apply_id=jucp.apply_id
         left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
         WHERE 1 = 1
-        <if test="isIndex == 1">
-            --             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
-            --             (select distinct order_id from order_state_trace_info where state in ('S100'))
-            --             and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
-            and oi.order_id in (
-            select a.orderId from (select order_id orderId,max(state) mstate from order_state_trace_info GROUP BY order_id ) a where a.mstate = 'S100'
-            )
-        </if>
+
         <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
             and  oi.state = #{homePageWaitingCarState}
         </if>
@@ -1939,46 +2044,43 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.state = #{homePageExpireCarState}
         </if>
         <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
-            and  right (oi.state,3)<![CDATA[ >= ]]>'299' and right (oi.state,3)<![CDATA[ <= ]]>'900'
+            and right ( oi.state,3)<![CDATA[ >= ]]>'299' and right (oi.state,3)<![CDATA[ <= ]]>'900'
         </if>
         <if test="homeDynamicBeginTime!=null and '' != homeDynamicBeginTime">
-            and  oi.create_time &gt;= #{homeDynamicBeginTime}
+            and oi. create_time &gt;= #{homeDynamicBeginTime}
         </if>
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
-            and  oi.create_time &lt;= #{homeDynamicEndTime}
+            and oi. create_time &lt;= #{homeDynamicEndTime}
         </if>
         <if test="isIndex == 2">
             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
             (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100','S930'))
-            and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277','S911'))  )
+            and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279',
+            'S277','S911')) )
         </if>
 
         <if test="companyId!=null and companyId!=''">
-            and  oi.company_id=#{companyId}
+            and oi .company_id=#{companyId}
         </if>
         <if test="applyName!=null and applyName!=''">
-            and  eu.nick_name  like concat('%',#{applyName},'%')
+            and eu.nick_name like concat('%',#{applyName},'%')
         </if>
         <if test="applyMobile!=null and applyMobile!=''">
-            and  eu.phonenumber  like concat('%',#{applyMobile},'%')
+            and eu.phonenumber like concat('%',#{applyMobile},'%')
         </if>
-        <if test="cityCode!=null and cityCode!=''">
-            and  cc.SHORT_NAME=#{cityCode}
-        </if>
+
         <if test="useCarMode!=null and useCarMode!=''">
-            and  oi.use_car_mode=#{useCarMode}
+            and oi.use_car_mode=#{useCarMode}
         </if>
         <if test="dispatchStatus!=null and dispatchStatus!=''">
-            and  oi.state=#{dispatchStatus}
+            and oi.state=#{dispatchStatus}
         </if>
-        <if test="optStartDate!=null  and  optStartDate!='' ">
-            and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{optStartDate},'%Y-%m-%d %H:%i:%S')
-        </if>
-        <if test="optEndDate!=null  and  optEndDate!='' ">
-            and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
-        </if>
+
         <if test="orderId!=null and orderId != ''">
             and oi.order_id=#{orderId}
+        </if>
+        <if test="cityCode!=null and cityCode != ''">
+            and oai.city_postal_code=#{cityCode}
         </if>
         and oi.it_is_supplement='N000'
         and (oi.user_id in (select distinct user_id from ecmp_user where dept_id in
@@ -1991,6 +2093,14 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         )
         ORDER BY
         oi.state,oai.action_time ASC
+        ) t
+        where 1=1
+        <if test="optStartDate!=null ">
+            and DATE_FORMAT(t.opDate,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{optStartDate},'%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test="optEndDate!=null  ">
+            and DATE_FORMAT(t.opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
+        </if>
     </select>
 
     <select id="queryHomePageDispatchListCharterCarCounts" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">

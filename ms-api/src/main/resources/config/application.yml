@@ -58,8 +58,8 @@ mybatis:
 # PageHelper分页插件
 pagehelper:
   helperDialect: mysql
-  reasonable: false
-  supportMethodsArguments: false
+  reasonable: true
+  supportMethodsArguments: true
   params: count=countSql
 
 # 防止XSS攻击
