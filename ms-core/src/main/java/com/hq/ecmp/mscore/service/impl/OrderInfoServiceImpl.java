@@ -1461,8 +1461,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
         OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
         //判断是否是多日租车
-        if(null != orderState &&
-                orderState.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){
+        if(null != orderState &&CharterTypeEnum.MORE_RENT_TYPE.getKey().equals(orderState.getCharterCarType())){
             Date startDate = DateUtils.parseDate(orderState.getStartDate());//租车开始时间
             Date endDate = DateUtils.parseDate(orderState.getEndDate());//租车结束时间
             //判断是否半日租

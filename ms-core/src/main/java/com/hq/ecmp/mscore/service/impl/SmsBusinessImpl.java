@@ -12,6 +12,7 @@ import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import com.hq.ecmp.mscore.dto.EcmpMessageDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IsmsBusiness;
+import com.hq.ecmp.mscore.vo.DriverSmsInfo;
 import com.hq.ecmp.mscore.vo.UserVO;
 import com.hq.ecmp.util.DateFormatUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -369,11 +371,14 @@ public class SmsBusinessImpl implements IsmsBusiness{
     public void sendSmsDriverArrivePrivate(Long orderId) {
         log.info("短信开始-订单{},司机开始服务", orderId);
         try {
-            Map<String, String> orderCommonInfo = getOrderinfo(orderId);
+            DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
             //用车人
-            String applyMobile = orderCommonInfo.get("applyMobile");
+            String applyMobile = orderCommonInfo.getApplyMobile();
+
+            Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
+
             //乘车人
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_READY_APPLICANT,orderCommonInfo,applyMobile);
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_READY_APPLICANT,orderCommonInfoMap,applyMobile);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1134,14 +1139,16 @@ public class SmsBusinessImpl implements IsmsBusiness{
         map.put("vehicleUser", vehicleUser );//用车人
         map.put("salesman", salesman ); //业务员
         map.put("applyDays", applyDays ); //预约天数
-        if(!officialCommitApply.getReason().isEmpty()){
+        if(StringUtils.isNotBlank(officialCommitApply.getReason())){
             String reason= officialCommitApply.getReason();
             map.put("reason", "预约备注："+reason ); // 预约备注
         }
         //发给内部车队所有调度员
         List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherList(officialCommitApply);
-        for(EcmpUser user :ecmpUser){
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_INTERNAL_DISPATCHER, map, user.getPhonenumber());
+        if(!ecmpUser.isEmpty()) {
+            for (EcmpUser user : ecmpUser) {
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_INTERNAL_DISPATCHER, map, user.getPhonenumber());
+            }
         }
         log.info("业务员提交申请单短信结束 -调度员", JSON.toJSON(map));
     }
@@ -1166,7 +1173,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         mapTwo.put("salesman", salesman ); //业务员
         mapTwo.put("vehicleUser", vehicleUser );//用车人
         mapTwo.put("applyDays", applyDays ); //预约天数
-        if (!undoSMSTemplate.getNotes().isEmpty()){
+        if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapTwo.put("reason", "预约备注："+reason ); // 预约备注
         }
@@ -1174,8 +1181,10 @@ public class SmsBusinessImpl implements IsmsBusiness{
         ApplyOfficialRequest applyOfficialRequest  = new ApplyOfficialRequest();
         applyOfficialRequest.setCompanyId(undoSMSTemplate.getCompanyId());
         List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherList(applyOfficialRequest);
-        for(EcmpUser user :ecmpUser){
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_INTERNAL_DISPATCHER_NOT, map, user.getPhonenumber());
+        if(!ecmpUser.isEmpty()) {
+            for (EcmpUser user : ecmpUser) {
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_INTERNAL_DISPATCHER_NOT, map, user.getPhonenumber());
+            }
         }
         log.info("短信结束-撤销未派单短信", JSON.toJSON(map));
     }
@@ -1200,7 +1209,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         mapTwo.put("salesman", salesman ); //业务员
         mapTwo.put("vehicleUser", vehicleUser );//用车人
         mapTwo.put("applyDays", applyDays ); //预约天数
-        if (!undoSMSTemplate.getNotes().isEmpty()){
+        if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapTwo.put("reason", "预约备注："+reason ); // 预约备注
         }
@@ -1208,8 +1217,10 @@ public class SmsBusinessImpl implements IsmsBusiness{
         ApplyOfficialRequest applyOfficialRequest  = new ApplyOfficialRequest();
         applyOfficialRequest.setCompanyId(undoSMSTemplate.getCompanyId());
         List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherExternalList(applyOfficialRequest);
-        for(EcmpUser user :ecmpUser){
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_EXTERNAL_DISPATCHER_YES, map, user.getPhonenumber());
+        if(!ecmpUser.isEmpty()) {
+            for (EcmpUser user : ecmpUser) {
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_EXTERNAL_DISPATCHER_YES, map, user.getPhonenumber());
+            }
         }
         log.info("短信结束-撤销已派单短信", JSON.toJSON(map));
     }
@@ -1234,7 +1245,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         map.put("subscribeTime", subscribeTime );//用车时间
         map.put("vehicleUser", vehicleUser ); //业务员
         map.put("orderNumber", orderNumber ); //订单号
-        if (!undoSMSTemplate.getNotes().isEmpty()){
+        if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             map.put("reason", "预约备注："+reason ); //用车备注
         }
@@ -1252,14 +1263,14 @@ public class SmsBusinessImpl implements IsmsBusiness{
         mapThree.put("salesman", salesman ); //业务员
         mapThree.put("vehicleUser", vehicleUser );//用车人
         mapThree.put("applyDays", applyDays ); //预约天数
-        if (!undoSMSTemplate.getNotes().isEmpty()){
+        if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapThree.put("reason", "预约备注："+reason ); //预约备注
         }
-        if(!innerPhonenumber.isEmpty()) {
+        if(StringUtils.isNotBlank(innerPhonenumber)) {
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DISPATCHER, map, innerPhonenumber);
         }
-        if(!outerPhonenumber.isEmpty()) {
+        if(StringUtils.isNotBlank(outerPhonenumber)) {
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DISPATCHER, map, outerPhonenumber);
         }
         log.info("短信开始-撤销待服务短信:调度员短信结束");
@@ -1296,10 +1307,12 @@ public class SmsBusinessImpl implements IsmsBusiness{
     public void sendSmsServiceStart(long orderId) {
         log.info("短信开始-订单{},司机开始服务", orderId);
         try {
-            Map<String, String> orderCommonInfo = getOrderinfo(orderId);
+            DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
             //用车人
-            String applyMobile = orderCommonInfo.get("applyMobile");
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_START_SERVICE,orderCommonInfo,applyMobile);
+            String applyMobile = orderCommonInfo.getApplyMobile();
+
+            Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_START_SERVICE,orderCommonInfoMap,applyMobile);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1307,8 +1320,9 @@ public class SmsBusinessImpl implements IsmsBusiness{
         log.info("短信结束-订单{},司机开始服务", orderId);
     }
 
-    private Map<String,String> getOrderinfo(Long orderId) {
-        Map<String,String> map = orderInfoMapper.getOrderInfo(orderId);
+    private DriverSmsInfo getOrderinfo(Long orderId) {
+        DriverSmsInfo  smsInfo = orderInfoMapper.getOrderInfo(orderId);
+        log.info(smsInfo.toString());
 //        String startDate = map.get("startDate");
 //        String endDate = map.get("endDate");
 //        String sdate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(startDate).getTime());
@@ -1317,7 +1331,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
 //        map.put("endDate",edate);
         //获取开始结束时间 加金额
     ///order_service_cost_detail_record_info表--start_time--end_time---total_fee
-        return  map;
+        return  smsInfo;
     }
 
 
@@ -1326,11 +1340,17 @@ public class SmsBusinessImpl implements IsmsBusiness{
     public void sendSmsDriverServiceEnd(long orderId) {
         log.info("短信开始-订单{},司机结束服务", orderId);
         try {
-            Map<String, String> orderCommonInfo = getOrderinfo(orderId);
+            DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
+
+            Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
+
            //用车人
-            String applyMobile = orderCommonInfo.get("applyMobile");
+            String applyMobile = orderCommonInfo.getApplyMobile();
+
+
+
             log.info("短信已发送用车人电话：{}",applyMobile);
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END,orderCommonInfo,applyMobile);
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END,orderCommonInfoMap,applyMobile);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1338,6 +1358,21 @@ public class SmsBusinessImpl implements IsmsBusiness{
         log.info("短信结束-订单{},司机结束服务", orderId);
     }
 
+    private Map<String, String> objToMap(DriverSmsInfo orderCommonInfo) throws IllegalAccessException {
+        Map<String, String> orderCommonInfoMap = new HashMap();
+        Class<?> clazz = orderCommonInfo.getClass();
+        System.out.println(clazz);
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            String fieldName = field.getName();
+            String value = String.valueOf(field.get(orderCommonInfo));
+            if (value == null){
+                value = "";
+            }
+            orderCommonInfoMap.put(fieldName, value);
+        }
+        return orderCommonInfoMap;
+    }
 
 
 }

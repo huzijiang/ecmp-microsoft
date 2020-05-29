@@ -9,6 +9,7 @@ import com.hq.ecmp.constant.SmsTemplateConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.mapper.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.scheduling.annotation.Async;
@@ -30,6 +31,7 @@ import java.util.Map;
  * @Version 1.0
  */
 @Service
+@Slf4j
 public abstract class TopDispatchService {
 
     @Resource
@@ -68,7 +70,7 @@ public abstract class TopDispatchService {
     public void disBusiness(DispatchSendCarDto dispatchSendCarDto) throws Exception {
         judgeIsFinish(dispatchSendCarDto);
         ((TopDispatchService)AopContext.currentProxy()).dispatchCommonBusiness(dispatchSendCarDto);
-         sendSms(dispatchSendCarDto);
+        ((TopDispatchService)AopContext.currentProxy()).sendSms(dispatchSendCarDto);
     }
 
 
@@ -158,6 +160,7 @@ public abstract class TopDispatchService {
      */
     @Async
     public  void  sendSms(DispatchSendCarDto dispatchSendCarDto) throws Exception {
+        log.info("调度短信发送开发------------------------------");
         String carGroupName = "";
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(dispatchSendCarDto.getOrderId());
         //订单编号
@@ -186,7 +189,7 @@ public abstract class TopDispatchService {
         if(dispatchSendCarDto.getInOrOut() == 1){
             EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(dispatchSendCarDto.getUserId());
             //内部调度员姓名和电话
-            String userName = ecmpUser.getUserName();
+            String userName = ecmpUser.getNickName();
             String phoneNumber = ecmpUser.getPhonenumber();
             if(dispatchSendCarDto.getUseCarGroupType().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
                 if(dispatchSendCarDto.getCarGroupUseMode().equals(CarConstant.CAR_GROUP_USER_MODE_CAR)){
@@ -278,7 +281,7 @@ public abstract class TopDispatchService {
                     carGroupName = carGroupInfo.getCarGroupName();
                 }
             }
-            if(!dispatchSendCarDto.getCarGroupUseMode().equals(CarConstant.CAR_GROUP_USER_MODE_CAR_DRIVER)){
+            if(dispatchSendCarDto.getOutCarGroupId() != null){
                 Map<String,String> stringStringMap = new HashMap<>(8);
                 stringStringMap.put("carGroupName", carGroupName);
                 stringStringMap.put("userName", userName);
@@ -306,7 +309,7 @@ public abstract class TopDispatchService {
 
                     EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(outerDispatcher);
                     //外部调度员姓名和电话
-                    String userName = ecmpUser.getUserName();
+                    String userName = ecmpUser.getNickName();
                     String phoneNumber = ecmpUser.getPhonenumber();
                     CarInfo carInfo = carInfoMapper.selectCarInfoById(dispatchSendCarDto.getCarId());
                     DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(dispatchSendCarDto.getDriverId());
@@ -360,7 +363,7 @@ public abstract class TopDispatchService {
                     CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo2.getCarCgId());
                     EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(dispatchSendCarDto.getUserId());
                     //外部调度员姓名和电话
-                    String userName = ecmpUser.getUserName();
+                    String userName = ecmpUser.getNickName();
                     String phoneNumber = ecmpUser.getPhonenumber();
                     //车队名字
                     carGroupName = carGroupInfo.getCarGroupName();
@@ -388,7 +391,7 @@ public abstract class TopDispatchService {
                 Long innerDispatcher = orderDispatcheDetailInfo2.getInnerDispatcher();
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(innerDispatcher);
                 //内部调度员姓名和电话
-                String userName = ecmpUser.getUserName();
+                String userName = ecmpUser.getNickName();
                 String phoneNumber = ecmpUser.getPhonenumber();
 
                 CarInfo carInfo = carInfoMapper.selectCarInfoById(orderDispatcheDetailInfo2.getCarId());
@@ -445,6 +448,7 @@ public abstract class TopDispatchService {
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,driverMobile );
             }
         }
+        log.info("调度短信发送结束------------------------------");
     }
 
     /**

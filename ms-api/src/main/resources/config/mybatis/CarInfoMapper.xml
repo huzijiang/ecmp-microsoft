@@ -469,10 +469,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              o.service_type serviceType,
              jn.it_is_return itIsReturn,
              jn.charter_car_type charterCarType,
-             DATE_FORMAT(s.action_time, '%Y-%m-%d %H:%i') orderStartTime,
+             if(o.service_type='5000',DATE_FORMAT(jn.start_date, '%Y-%m-%d %H:%i'),DATE_FORMAT(s.action_time, '%Y-%m-%d %H:%i')) orderStartTime,
+             if(o.service_type='5000',DATE_FORMAT(jn.end_date, '%Y-%m-%d %H:%i'),DATE_FORMAT(t.action_time, '%Y-%m-%d %H:%i')) orderEndTime,
              s.address startAddress,
              t.address endAddress,
-             DATE_FORMAT(t.action_time, '%Y-%m-%d %H:%i') orderEndTime,
              eu.nick_name passengerName,
              eu.phonenumber passengerPhone,
              ci.car_color carColor,
@@ -488,7 +488,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join order_address_info s on  s.order_id=o.order_id and s.type='A000'
         left join order_address_info t on  t.order_id=o.order_id and t.type='A999'
         where o.car_id=#{carId}
-        <![CDATA[AND DATE_FORMAT(o.create_time, '%Y-%m-%d') = DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>
+        <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') <= DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>
+        <![CDATA[AND DATE_FORMAT(t.action_time, '%Y-%m-%d') >= DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>
     </select>
 
     <select id="findByGroupIds" resultType="com.hq.ecmp.mscore.vo.OnLineCarTypeVO">

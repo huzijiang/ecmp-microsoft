@@ -409,6 +409,6 @@ public interface OrderInfoMapper {
     int changeOrder(OrderInfo orderInfo);
 
 
-    Map getOrderInfo(Long orderId);
+    DriverSmsInfo getOrderInfo(@Param("orderId") Long orderId);
 }
 

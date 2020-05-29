@@ -648,7 +648,7 @@ public class DispatchServiceImpl implements IDispatchService {
         });
 
         //姓名或手机 信息为空时，不展示 冲突的司机
-        if(StringUtils.isEmpty(selectDriverConditionBo.getDriverNameOrPhone())) {
+            if(StringUtils.isEmpty(selectDriverConditionBo.getDriverNameOrPhone())) {
             Iterator<WaitSelectedDriverBo> iterator=waitSelectedDriverBoList.iterator();
             while (iterator.hasNext()){
                 WaitSelectedDriverBo waitSelectedDriverBo=iterator.next();
@@ -820,9 +820,11 @@ public class DispatchServiceImpl implements IDispatchService {
         //包车时长  半日 整日  多日
         String rentTime=dispatchLockCarDto.getRentTime();
         if(Double.parseDouble(rentTime)>=1){
-            rentTime="T002";
+
             if(((int)(Double.parseDouble(rentTime)*10)/10) !=0){
                 rentTime="T009";
+            }else {
+                rentTime="T002";
             }
         }else{
             rentTime="T001";
@@ -855,7 +857,7 @@ public class DispatchServiceImpl implements IDispatchService {
             carTypeInfo=enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
 
             if(carTypeInfo==null){
-                return  ApiResponse.error("车辆未找到");
+                return  ApiResponse.error("车辆对应车型未找到");
             }
         }else {
             return  ApiResponse.error("车辆未正确传递");
@@ -877,20 +879,11 @@ public class DispatchServiceImpl implements IDispatchService {
         //查询车辆归属车队
         CarGroupInfo carGroupInfo_car=null;
 
-        if(StringUtils.isNotEmpty(dispatchLockCarDto.getDriverId())){
-            CarGroupDriverRelation  carGroupDriverRelation=new CarGroupDriverRelation();
-                                    carGroupDriverRelation.setDriverId(Long.parseLong(dispatchLockCarDto.getDriverId()));
-            //查找车辆所在车队
-            List<CarGroupDriverRelation> carGroupDriverRelationList=carGroupDriverRelationMapper.selectCarGroupDriverRelationList(carGroupDriverRelation);
-            if(carGroupDriverRelationList.isEmpty()){
-                return ApiResponse.error("未找到司机所在的车队");
-            }
-            if(carGroupDriverRelationList.size()>1) {
-                return ApiResponse.error("司机归属于多个车队，请确保司机属于一个车队");
-            }
-            carGroupInfo_car=carGroupInfoMapper.selectCarGroupInfoById(carGroupDriverRelationList.get(0).getCarGroupId());
-            if(carGroupInfo_car==null){
-                return ApiResponse.error("司机归属车队未找到");
+        if(StringUtils.isNotEmpty(dispatchLockCarDto.getCarId())){
+            CarInfo carInfo_ac=carInfoMapper.selectCarInfoById(Long.parseLong(dispatchLockCarDto.getCarId()));
+            carGroupInfo_car=carGroupInfoMapper.selectCarGroupInfoById(carInfo_ac.getCarGroupId());
+            if(carGroupInfo_car== null){
+                return ApiResponse.error("未找到车辆所在的车队");
             }
         }
 
@@ -907,7 +900,9 @@ public class DispatchServiceImpl implements IDispatchService {
         Iterator<CostConfigDetailInfoVo> costConfigDetailInfoVoIterator=costConfigDetailInfoVoList.iterator();
 
         //价格计划是否存在
-        int pricePlanExist=0;
+        Boolean fourExist=false;
+        Boolean eightExist=false;
+
         while (costConfigDetailInfoVoIterator.hasNext()){
             CostConfigDetailInfoVo costConfigDetailInfoVo=costConfigDetailInfoVoIterator.next();
             if(rentTime.equals(CarRentTypeEnum.FOUR_HOURS.getCode())){
@@ -920,7 +915,7 @@ public class DispatchServiceImpl implements IDispatchService {
                         //车队服务模式
                         carGroupServiceMode.equals(costConfigDetailInfoVo.getCarGroupUserMode())
                 ){
-                    pricePlanExist=2;
+                    fourExist=true;
                 }
             }
 
@@ -934,13 +929,13 @@ public class DispatchServiceImpl implements IDispatchService {
                         //车队服务模式
                         carGroupServiceMode.equals(costConfigDetailInfoVo.getCarGroupUserMode())
                 ){
-                    pricePlanExist=2;
+                    eightExist=true;
                 }
             }
             //多日租 联合判断
             if(rentTime.equals(CarRentTypeEnum.MORE_HOURS.getCode())){
                 //包车时长是否匹配（日租、半日租）
-                if(     rentTime.equals(costConfigDetailInfoVo.getRentType()) &&
+                if(     CarRentTypeEnum.FOUR_HOURS.getCode().equals(costConfigDetailInfoVo.getRentType()) &&
                         //车队
                         (carGroupInfo_car.getCarGroupId().equals(costConfigDetailInfoVo.getCarGroupId())) &&
                         //城市
@@ -948,11 +943,11 @@ public class DispatchServiceImpl implements IDispatchService {
                         //车队服务模式
                         carGroupServiceMode.equals(costConfigDetailInfoVo.getCarGroupUserMode())
                 ){
-                    pricePlanExist=pricePlanExist+1;
+                    fourExist=true;
                 }
 
                 //包车时长是否匹配（日租、半日租）
-                if(     rentTime.equals(costConfigDetailInfoVo.getRentType()) &&
+                if(     CarRentTypeEnum.EIGHT_HOURS.getCode().equals(costConfigDetailInfoVo.getRentType()) &&
                         //车队
                         (carGroupInfo_car.getCarGroupId().equals(costConfigDetailInfoVo.getCarGroupId())) &&
                         //城市
@@ -960,13 +955,26 @@ public class DispatchServiceImpl implements IDispatchService {
                         //车队服务模式
                         carGroupServiceMode.equals(costConfigDetailInfoVo.getCarGroupUserMode())
                 ){
-                    pricePlanExist=pricePlanExist+1;
+                    eightExist=true;
                 }
             }
         }
 
-        if(pricePlanExist!=2){
-            return ApiResponse.error("未找到匹配的价格计划。");
+        if(rentTime.equals(CarRentTypeEnum.FOUR_HOURS.getCode())){
+            if(!fourExist){
+                return ApiResponse.error("未找到匹配的价格计划。");
+            }
+
+        }
+        if(rentTime.equals(CarRentTypeEnum.EIGHT_HOURS.getCode())){
+            if(!eightExist){
+                return ApiResponse.error("未找到匹配的价格计划。");
+            }
+        }
+        if(rentTime.equals(CarRentTypeEnum.MORE_HOURS.getCode())){
+            if(!(fourExist || eightExist)){
+                return ApiResponse.error("未找到匹配的价格计划。");
+            }
         }
 
         return  ApiResponse.success();
@@ -981,9 +989,10 @@ public class DispatchServiceImpl implements IDispatchService {
         //包车时长  半日 整日  多日
         String rentTime=dispatchLockDriverDto.getRentTime();
         if(Double.parseDouble(rentTime) >1.0){
-            rentTime="T002";
             if(((int)(Double.parseDouble(rentTime)*10)/10) !=0){
                 rentTime="T009";
+            }else {
+                rentTime="T002";
             }
         }else{
             rentTime="T001";
@@ -1042,7 +1051,9 @@ public class DispatchServiceImpl implements IDispatchService {
         Iterator<CostConfigDetailInfoVo> costConfigDetailInfoVoIterator=costConfigDetailInfoVoList.iterator();
 
         //价格计划是否存在
-        int pricePlanExist=0;
+        Boolean fourExist=false;
+        Boolean eightExist=false;
+
         while (costConfigDetailInfoVoIterator.hasNext()){
             CostConfigDetailInfoVo costConfigDetailInfoVo=costConfigDetailInfoVoIterator.next();
 
@@ -1056,7 +1067,7 @@ public class DispatchServiceImpl implements IDispatchService {
                         //车队服务模式
                         carGroupServiceMode.equals(costConfigDetailInfoVo.getCarGroupUserMode())
                 ){
-                    pricePlanExist=2;
+                    fourExist=true;
                 }
             }
 
@@ -1070,13 +1081,13 @@ public class DispatchServiceImpl implements IDispatchService {
                         //车队服务模式
                         carGroupServiceMode.equals(costConfigDetailInfoVo.getCarGroupUserMode())
                 ){
-                    pricePlanExist=2;
+                    eightExist=true;
                 }
             }
             //多日租 联合判断
             if(rentTime.equals(CarRentTypeEnum.MORE_HOURS.getCode())){
                 //包车时长是否匹配（日租、半日租）
-                if(     rentTime.equals(costConfigDetailInfoVo.getRentType()) &&
+                if(     CarRentTypeEnum.FOUR_HOURS.getCode().equals(costConfigDetailInfoVo.getRentType()) &&
                         //车队
                         (carGroupInfo_driver.getCarGroupId().equals(costConfigDetailInfoVo.getCarGroupId())) &&
                         //城市
@@ -1084,11 +1095,11 @@ public class DispatchServiceImpl implements IDispatchService {
                         //车队服务模式
                         carGroupServiceMode.equals(costConfigDetailInfoVo.getCarGroupUserMode())
                 ){
-                    pricePlanExist=pricePlanExist+1;
+                    fourExist=true;
                 }
 
                 //包车时长是否匹配（日租、半日租）
-                if(     rentTime.equals(costConfigDetailInfoVo.getRentType()) &&
+                if(     CarRentTypeEnum.EIGHT_HOURS.getCode().equals(costConfigDetailInfoVo.getRentType()) &&
                         //车队
                         (carGroupInfo_driver.getCarGroupId().equals(costConfigDetailInfoVo.getCarGroupId())) &&
                         //城市
@@ -1096,13 +1107,26 @@ public class DispatchServiceImpl implements IDispatchService {
                         //车队服务模式
                         carGroupServiceMode.equals(costConfigDetailInfoVo.getCarGroupUserMode())
                 ){
-                    pricePlanExist=pricePlanExist+1;
+                    eightExist=true;
                 }
             }
         }
 
-        if(pricePlanExist != 2){
-            return ApiResponse.error("未找到匹配的价格计划");
+        if(rentTime.equals(CarRentTypeEnum.FOUR_HOURS.getCode())){
+            if(!fourExist){
+                return ApiResponse.error("未找到匹配的价格计划。");
+            }
+
+        }
+        if(rentTime.equals(CarRentTypeEnum.EIGHT_HOURS.getCode())){
+            if(!eightExist){
+                return ApiResponse.error("未找到匹配的价格计划。");
+            }
+        }
+        if(rentTime.equals(CarRentTypeEnum.MORE_HOURS.getCode())){
+            if(!(fourExist || eightExist)){
+                return ApiResponse.error("未找到匹配的价格计划。");
+            }
         }
 
         return  ApiResponse.success();

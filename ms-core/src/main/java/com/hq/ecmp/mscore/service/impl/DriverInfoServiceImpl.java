@@ -277,9 +277,10 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     	if (invitationId != null){
 			//如果是邀请的驾驶员，则在DriverNatureInfo表插入 driverId即可
 			DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
-			driverNatureInfo.setDriverId(driverId);
+			driverNatureInfo.setDriverId(driverId == null ? null : Long.valueOf(driverId));
+			driverNatureInfo.setUpdateBy(String.valueOf(driverCreateInfo.getOptUserId()));
 			driverNatureInfo.setInvitationId(driverCreateInfo.getInvitationId());
-			driverNatureInfoMapper.updateDriverNatureInfo(driverNatureInfo);
+			driverNatureInfoMapper.updateDriverNatureInfoByInvatationId(driverNatureInfo);
 		}else {
 			//如果是新增驾驶员，则在驾驶员性质表插入数据
 			addDriverNatureInfo(driverId,driverCreateInfo.getDriverNature(),driverCreateInfo.getHireBeginTime(),driverCreateInfo.getHireEndTime(),
@@ -293,7 +294,8 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	 * 初始化驾驶员状态
 	 * @param driverCreateInfo
 	 */
-	private void initDriverState(DriverCreateInfo driverCreateInfo) {
+	@Override
+	public void initDriverState(DriverCreateInfo driverCreateInfo) {
 		Date nowDate = DateUtils.getNowDate();
 		driverCreateInfo.setState(DriverStateEnum.EFFECTIVE.getCode());
 		if(DriverNatureEnum.OWNER_DRIVER.getKey().equals(driverCreateInfo.getDriverNature())){

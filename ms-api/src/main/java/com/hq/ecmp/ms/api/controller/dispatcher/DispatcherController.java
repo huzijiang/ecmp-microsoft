@@ -56,6 +56,8 @@ public class DispatcherController {
      */
     @PostMapping("/getDispatcherList")
     @ApiOperation(value = "佛山调度列表")
+    @Log(value = "佛山调度列表")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "佛山调度列表",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
     public ApiResponse<Map<String, Object>>  getDispatcherList(@RequestBody ApplyDispatch query){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);

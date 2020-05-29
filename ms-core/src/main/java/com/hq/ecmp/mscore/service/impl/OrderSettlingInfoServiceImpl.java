@@ -198,6 +198,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                     .state(AccountConstant.APPROVE_T001.getKey())
                     .build();
             accountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
+            orderSettlingInfoVo.setBillId(billId);
             if(StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())){
                 String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
                 for (String url:imageUrl){

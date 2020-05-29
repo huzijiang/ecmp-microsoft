@@ -36,7 +36,7 @@
     <select id="queryById" resultMap="EcmpEnterpriseRegisterInfoMap">
         select
           register_id, invitation_id, type, name, gender, job_number, email, mobile, sms_auth_code, reason, id_card, car_group_id, license_type, license_init_issue_date, license_issue_date, license_expire_date, license_number, license_archives_number, license_images, state, auditor, audit_time, create_by, create_time, update_by, update_time,reject_reason
-        from ecmp.ecmp_enterprise_register_info
+        from ecmp_enterprise_register_info
         where register_id = #{registerId}
     </select>
 
@@ -142,8 +142,8 @@
     </insert>
 
     <!--通过主键修改数据-->
-    <update id="update">
-        update ecmp.ecmp_enterprise_register_info
+    <update id="update" parameterType="com.hq.ecmp.mscore.domain.EcmpEnterpriseRegisterInfo">
+        update ecmp_enterprise_register_info
         <set>
             <if test="invitationId != null">
                 invitation_id = #{invitationId},
@@ -378,7 +378,7 @@
             <if test="idCard != null ">#{idCard},</if>
             <if test="licenseType != null ">#{licenseType},</if>
             <if test="licenseNumber != null ">#{licenseNumber},</if>
-            <if test="licenseInitIssueDate != null and licenseInitIssueDate != ''">#{licenseInitIssueDate},</if>
+            <if test="licenseInitIssueDate != null ">#{licenseInitIssueDate},</if>
             <if test="licenseIssueDate != null ">#{licenseIssueDate},</if>
             <if test="licenseExpireDate != null ">#{licenseExpireDate},</if>
             <if test="licenseImages != null ">#{licenseImages},</if>
