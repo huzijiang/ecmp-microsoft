@@ -53,5 +53,10 @@ public class DriverQueryResult {
 	List<Long> carId;//可使用车辆
 
 	List<CarListVO> carList;
+
+	Date hireBeginTime; //外聘开始时间
+	Date hireEndTime;  //外聘结束时间
+	Date borrowBeginTime; //借调开始时间
+	Date borrowEndTime;  //借调结束时间
 	  
 }

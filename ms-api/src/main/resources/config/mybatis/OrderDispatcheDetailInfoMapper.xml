@@ -140,14 +140,14 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="orderId != null ">order_id = #{orderId},</if>
             <if test="itIsUseInnerCarGroup != null  and itIsUseInnerCarGroup != ''">it_is_use_inner_car_group = #{itIsUseInnerCarGroup},</if>
-            <if test="carGroupUserMode != null  and carGroupUserMode != ''">car_group_user_mode = #{carGroupUserMode},</if>
+            car_group_user_mode = #{carGroupUserMode},
             <if test="itIsSelfDriver != null  and itIsSelfDriver != ''">it_is_self_driver = #{itIsSelfDriver},</if>
             <if test="nextCarGroupId != null  and nextCarGroupId != ''">next_car_group_id = #{nextCarGroupId},</if>
             <if test="charterCarType != null  and charterCarType != ''">charter_car_type = #{charterCarType},</if>
-            <if test="carId != null ">car_id = #{carId},</if>
-            <if test="carCgId != null ">car_cg_id = #{carCgId},</if>
-            <if test="driverId != null ">driver_id = #{driverId},</if>
-            <if test="driverCgId != null ">driver_cg_id = #{driverCgId},</if>
+            car_id = #{carId},
+           car_cg_id = #{carCgId},
+           driver_id = #{driverId},
+           driver_cg_id = #{driverCgId},
             <if test="dispatchState != null  and dispatchState != ''">dispatch_state = #{dispatchState},</if>
             <if test="innerDispatcher != null  and innerDispatcher != ''">inner_dispatcher = #{innerDispatcher},</if>
             <if test="outerDispatcher != null  and outerDispatcher != ''">outer_dispatcher = #{outerDispatcher},</if>

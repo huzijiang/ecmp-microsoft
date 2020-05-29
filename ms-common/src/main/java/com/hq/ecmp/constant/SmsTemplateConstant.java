@@ -84,6 +84,22 @@ public class SmsTemplateConstant {
     public static final String INNER_DISPATCH_REJECT_SALESMAN = "inner_dispatch_reject_salesman";
     public static final String INNER_DISPATCH_REJECT_USECARPEOPLE = "inner_dispatch_reject_useCarPeople";
     public static final String OUT_DISPATCH_REJECT_USECARPEOPLE = "out_dispatch_reject_useCarPeople";
+    /**
+     * 车辆+驾驶员调度，内部派车完成给外部调度员发短信模板
+     */
+    public static final String SMS_FOSHAN_SEND_CAR_TO_OUT_DISPATCHER = "sms_foshan_send_car_to_out_dispatcher";
+    public static final String SMS_FOSAN_SEND_CAR_TO_USER_CAR = "sms_fosan_send_car_to_user_car";
+    /**
+     * 派车成功给司机发短信模板
+     */
+    public static final String SMS_FOSAN_SEND_CAR_TO_DRIVER = "sms_fosan_send_car_to_driver";
+    /**
+     * p派车成功自驾给用车人发短信
+     */
+    public static final String SMS_FOSAN_SEND_CAR_NO_SELF_TO_USER_CAR = "sms_fosan_send_car_no_self_to_user_car";
+
+
+
 
     /**用车申请短信集合模块---start*/
     public static final String SMS_FOSHAN_VEHICLE_APPLICANT = "sms_foshan_vehicle_applicant";

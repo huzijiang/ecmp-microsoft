@@ -243,8 +243,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             Long uid = loginUser.getUser().getUserId();*/
             OrderSettlingInfoVo vo = new OrderSettlingInfoVo();
             vo.setOrderId(orderId);//订单Id
-            vo.setTotalMileage(BigDecimal.valueOf(Long.parseLong(mileage)));//订单总里程
-            vo.setTotalTime(Integer.parseInt(travelTime));//订单总时长
+            vo.setTotalMileage(new BigDecimal(mileage==null?"0":mileage));//订单总里程
+            vo.setTotalTime(new BigDecimal(travelTime).intValue());//订单总时长
 
             iorderSettlingInfoService.addExpenseReport(vo, userId,orderInfoOld.getCompanyId());
 

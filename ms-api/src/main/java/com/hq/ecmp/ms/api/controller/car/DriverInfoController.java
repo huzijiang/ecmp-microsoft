@@ -76,7 +76,12 @@ public class DriverInfoController {
 	@ApiOperation(value = "detail", notes = "驾驶员详情", httpMethod = "POST")
 	@PostMapping("/detail")
 	public ApiResponse<DriverQueryResult> detail(@RequestBody Long driverId) {
-		return ApiResponse.success(driverInfoService.queryDriverDetail(driverId));
+		try {
+			return ApiResponse.success(driverInfoService.queryDriverDetail(driverId));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ApiResponse.error("查询驾驶员详情失败");
+		}
 	}
 
 	@Log(title = "驾驶员管理:驾驶员启用/禁用", businessType = BusinessType.UPDATE)

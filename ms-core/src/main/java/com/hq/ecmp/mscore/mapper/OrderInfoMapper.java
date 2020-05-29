@@ -374,6 +374,13 @@ public interface OrderInfoMapper {
     List<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query);
 
     /**
+     * 获取首页动态
+     * @param query
+     * @return
+     */
+    List<DispatchVo> queryHomePageDispatchListCharterCarCounts(ApplyDispatchQuery query);
+
+    /**
      * 获取首页申请调度调度员列表,佛山包车业务
      * @param query
      * @return

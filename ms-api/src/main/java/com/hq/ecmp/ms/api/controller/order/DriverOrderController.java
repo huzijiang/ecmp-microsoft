@@ -229,7 +229,7 @@ public class DriverOrderController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getDriver().getDriverId();
-            Long companyId = loginUser.getUser().getDept().getCompanyId();
+            Long companyId = loginUser.getDriver().getCompanyId();
            int  i = iOrderSettlingInfoService.addExpenseReport(orderSettlingInfoVo,userId,companyId);
            if(i<0){
                return ApiResponse.error("司机端费用上报提交失败");
