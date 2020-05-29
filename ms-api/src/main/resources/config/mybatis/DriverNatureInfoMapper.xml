@@ -71,4 +71,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="select"/>
         where invitation_id = #{invitationId}
     </select>
+    <delete id="updateDriverNatureInfoByInvatationId"  parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">
+        update driver_nature_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="driverId != null  ">driver_id = #{driverId},</if>
+            <if test="driverNature != null  and driverNature != ''">driver_nature = #{driverNature},</if>
+            <if test="hireBeginTime != null ">hire_begin_time = #{hireBeginTime},</if>
+            <if test="hireEndTime != null  ">hire_end_time = #{hireEndTime},</if>
+            <if test="borrowBeginTime != null ">borrow_begin_time = #{borrowBeginTime},</if>
+            <if test="borrowEndTime != null ">borrow_end_time = #{borrowEndTime},</if>
+            update_by = #{updateBy},
+            update_time = now()
+        </trim>
+        where invitation_id = #{invitationId}
+    </delete>
 </mapper>

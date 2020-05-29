@@ -84,7 +84,7 @@ public class EcmpUser extends BaseEntity
     private Date loginDate;
 
     /** 是否司机（0否 1是） */
-    @Excel(name = "是否司机", readConverterExp = "0否 1是")
+    @Excel(name = "是否司机", readConverterExp = "1否 0是")
     private String itIsDriver;
 
     /** 是否车队调度（0否 1是） */
