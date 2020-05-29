@@ -2439,7 +2439,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 出发地址
         oai2.address endAddress,
         -- 到达地址
-        oi.order_number order_number,
+        oi.order_number orderNumber,
         -- 订单编号
         oi.use_car_mode useCarMode,
         -- 用车方式
@@ -2591,7 +2591,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 出发地址
         oai2.address endAddress,
         -- 到达地址
-        oi.order_number order_number,
+        oi.order_number orderNumber,
         -- 订单编号
         oi.use_car_mode useCarMode,
         -- 用车方式
