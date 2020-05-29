@@ -7,6 +7,7 @@ import java.util.*;
 import com.alibaba.fastjson.JSON;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
+import com.hq.ecmp.constant.AccountConstant;
 import com.hq.ecmp.constant.CharterTypeEnum;
 import com.hq.ecmp.constant.CostConfigModeEnum;
 import com.hq.ecmp.constant.OrderServiceType;
@@ -50,6 +51,8 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
     private OrderServiceCostDetailRecordInfoMapper costDetailRecordInfoMapper;
     @Autowired
     private OrderServiceImagesInfoMapper imagesInfoMapper;
+    @Autowired
+    private OrderAccountInfoMapper accountInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -186,6 +189,15 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //判断是否插入主表
         if(isInsertOrderConfing){
             i = orderSettlingInfoMapper.insertOrderSettlingInfoOne(orderSettlingInfoVo);
+            Long billId = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderSettlingInfoVo.getOrderId()).getBillId();
+            OrderAccountInfo orderAccountInfo = OrderAccountInfo.builder()
+                    .orderId(orderSettlingInfoVo.getOrderId())
+                    .billId(billId)
+                    .amount(orderSettlingInfoVo.getAmount())
+                    .companyId(companyId)
+                    .state(AccountConstant.APPROVE_T001.getKey())
+                    .build();
+            accountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
             if(StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())){
                 String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
                 for (String url:imageUrl){
@@ -209,14 +221,14 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         BigDecimal overMileagePrice = BigDecimal.ZERO;
         BigDecimal overtimeLongPrice = BigDecimal.ZERO;
         for (OrderServiceCostDetailRecordInfo recordInfo : recordInfos) {
-            amount.add(CommonUtils.getBigDecimal(recordInfo.getTotalFee()));
-            otherFee.add(CommonUtils.getBigDecimal(recordInfo.getOthersFee()));
-            highSpeedFee.add(CommonUtils.getBigDecimal(recordInfo.getHighwayTollFee()));
-            hotelExpenseFee.add(CommonUtils.getBigDecimal(recordInfo.getAccommodationFee()));
-            parkingRateFee.add(CommonUtils.getBigDecimal(recordInfo.getStopCarFee()));
-            restaurantFee.add(CommonUtils.getBigDecimal(recordInfo.getFoodFee()));
-            overMileagePrice.add(CommonUtils.getBigDecimal(recordInfo.getRoadAndBridgeFee()));
-            overtimeLongPrice.add(CommonUtils.getBigDecimal(recordInfo.getBeyondTimeFee()));
+            amount = amount.add(CommonUtils.getBigDecimal(recordInfo.getTotalFee()));
+            otherFee = otherFee.add(CommonUtils.getBigDecimal(recordInfo.getOthersFee()));
+            highSpeedFee = highSpeedFee.add(CommonUtils.getBigDecimal(recordInfo.getHighwayTollFee()));
+            hotelExpenseFee = hotelExpenseFee.add(CommonUtils.getBigDecimal(recordInfo.getAccommodationFee()));
+            parkingRateFee = parkingRateFee.add(CommonUtils.getBigDecimal(recordInfo.getStopCarFee()));
+            restaurantFee = restaurantFee.add(CommonUtils.getBigDecimal(recordInfo.getFoodFee()));
+            overMileagePrice = overMileagePrice.add(CommonUtils.getBigDecimal(recordInfo.getRoadAndBridgeFee()));
+            overtimeLongPrice = overtimeLongPrice.add(CommonUtils.getBigDecimal(recordInfo.getBeyondTimeFee()));
         }
         String json = costPrice(orderSettlingInfoVo);
         //计算总费用

@@ -26,7 +26,7 @@
         <result property="updateTime"    column="update_time"    />
     </resultMap>
 
-    <resultMap type="com.hq.ecmp.mscore.domain.CostConfigInfo" id="CostConfigInfoDetailResult">
+    <resultMap type="com.hq.ecmp.mscore.vo.CostConfigDetailInfoVo" id="CostConfigInfoDetailResult">
         <result property="costId"    column="cost_id"    />
         <result property="companyId"    column="company_id"    />
         <result property="costConfigName"    column="cost_config_name"    />
@@ -41,6 +41,11 @@
         <result property="waitPriceEreryMinute"    column="wait_price_erery_minute"    />
         <result property="state"    column="state"    />
         <result property="carGroupUserMode"    column="car_group_user_mode"    />
+
+        <result property="carGroupId"    column="car_group_id"/>
+        <result property="cityCode"    column="city_code"/>
+        <result property="carTypeId"    column="city_name"/>
+        <result property="carTypeLevel"    column="level"/>
 
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
@@ -347,9 +352,8 @@
         where c.car_id = #{car_id};
     </select>
 
-    <select id="selectCostConfigDetailInfo" resultType="com.hq.ecmp.mscore.vo.CostConfigDetailInfoVo"  parameterType="com.hq.ecmp.mscore.bo.CarGroupPricePlanInfoBo">
-
-        SELECT  cci.*
+    <select id="selectCostConfigDetailInfo" resultMap="CostConfigInfoDetailResult"  parameterType="com.hq.ecmp.mscore.bo.CarGroupPricePlanInfoBo">
+        SELECT  cci.*,
                 cccg.car_group_id,
                 chc.city_code,
                 chc.city_name,
@@ -364,22 +368,14 @@
         <where>
             1=1
             AND cci.state='Y000'
-            AND cci.rent_type IS NOT NULL
-            AND cci.start_price IS NOT NULL
-            AND cci.combos_price IS NOT NULL
-            AND cci.combos_times IS NOT NULL
-            AND cci.beyond_price_every_km IS NOT NULL
-            AND cci.beyond_price_every_minute IS NOT NULL
-            AND cci.wait_price_erery_minute  IS NOT NULL
-            AND cccg.car_group_id IS NOT NULl
             AND ecti.`status`='S000'
-            <if test="carGroupId != null and carGroupId !=0L">
+            <if test="carGroupId != null">
                 AND cccg.car_group_id = #{carGroupId}
             </if>
             <if test="cityCode != null and cityCode != '' ">
                 AND chc.city_code=#{cityCode}
              </if>
-            <if test="companyId != null  and companyId !=0L ">
+            <if test="companyId != null ">
                 AND cci.company_id=#{companyId}
              </if>
         </where>

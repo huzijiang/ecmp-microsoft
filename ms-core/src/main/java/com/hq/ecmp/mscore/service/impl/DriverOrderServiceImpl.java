@@ -178,7 +178,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             recordInfo.setStartLatitude(BigDecimal.valueOf(null==latitude?00:latitude));//维度
             recordInfo.setStartTime(new Date());
             recordInfo.setOrderId(orderId);
-            int insert = orderServiceCostDetailRecordInfoMapper.insert(recordInfo);
+            orderServiceCostDetailRecordInfoMapper.insert(recordInfo);
 
 
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
@@ -231,9 +231,6 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 //ismsBusiness.sendSmsDriverBeginService(orderId);
                 //司机开始服务发送消息给乘车人和申请人（行程通知）
                 ismsBusiness.sendMessageServiceStart(orderId, userId);
-
-
-
             }
 
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){//服务完成4
@@ -377,6 +374,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             throw new Exception("操作类型有误");
         }
     }
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)

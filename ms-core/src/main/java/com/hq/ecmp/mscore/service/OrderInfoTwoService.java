@@ -2,10 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.common.exception.BaseException;
 import com.hq.core.security.LoginUser;
-import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
-import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.vo.*;
 
@@ -97,7 +94,7 @@ public interface OrderInfoTwoService {
      * @param loginUser
      * @return
      */
-    PageResult<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query, LoginUser loginUser);
+    Map<String,Object>  queryDispatchListCharterCar(ApplyDispatch query, LoginUser loginUser);
 
     /**
      *  佛山后管首页申请单调度列表

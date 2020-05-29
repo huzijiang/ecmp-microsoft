@@ -1439,6 +1439,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if (orderSettlingInfo!=null){
             String amount = orderSettlingInfo.getAmount() == null ? null : orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString();
             vo.setOrderAmount(amount);
+            vo.setTotalMileage(orderSettlingInfo.getTotalMileage()==null?String.valueOf(ZERO):orderSettlingInfo.getTotalMileage().stripTrailingZeros().toPlainString());
+            vo.setTotalTime(orderSettlingInfo.getTotalTime()==null?String.valueOf(ZERO):orderSettlingInfo.getTotalTime().stripTrailingZeros().toPlainString());
             String amountDetail = orderSettlingInfo.getAmountDetail();
             if (StringUtils.isNotEmpty(amountDetail)) {
                 JSONObject jsonObject = JSONObject.parseObject(amountDetail);
@@ -2760,7 +2762,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(null!=list && list.size()>0){
             OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
             orderAccountInfo.setBillId(list.get(0).getBillId());
-            orderAccountInfo.setOrderId(String.valueOf(orderId));
+            orderAccountInfo.setOrderId(orderId);
             orderAccountInfo.setAmount(list.get(0).getAmount());
             orderAccountInfo.setState("S008");
             orderAccountInfo.setCreateBy(String.valueOf(userId));
