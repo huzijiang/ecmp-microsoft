@@ -1885,7 +1885,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         when right (osti.state,3)='921' then '已过期'
         when right (osti.state,3)='930' then '已驳回'
         ELSE '' END state,
-        ELSE '' END state,
         -- 操作时间
         case
         when right (oi.state,3)='100' then (select create_time from order_state_trace_info sti where sti.order_id=oi.order_id and sti.state='S100'  limit 1)
