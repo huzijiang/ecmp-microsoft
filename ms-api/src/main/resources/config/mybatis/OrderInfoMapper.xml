@@ -1218,22 +1218,22 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
                 (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100'))
                 and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277'))  )
-                <if test="companyId!=null">
+                <if test="companyId!=null and companyId!=''" >
                       and  oi.company_id=#{companyId}
                 </if>
-                <if test="applyName!=null">
-                    and  eu.nick_name=#{applyName}
+                <if test="applyName!=null and applyName!=''">
+                    and  eu.nick_name  like concat('%',#{applyName},'%')
                 </if>
-                <if test="applyMobile!=null">
-                    and  eu.phonenumber=#{applyMobile}
+                <if test="applyMobile!=null and applyMobile!=''">
+                    and  eu.phonenumber  like concat('%',#{applyMobile},'%')
                 </if>
-                <if test="cityCode!=null">
+                <if test="cityCode!=null and cityCode!=''">
                     and  cc.SHORT_NAME=#{cityCode}
                 </if>
-                <if test="useCarMode!=null">
+                <if test="useCarMode!=null and useCarMode != ''">
                     and  oi.use_car_mode=#{useCarMode}
                 </if>
-                <if test="dispatchStatus!=null">
+                <if test="dispatchStatus!=null and dispatchStatus !=null">
                     and  oi.state=#{dispatchStatus}
                 </if>
                 <if test="optStartDate!=null  and  optStartDate!='' ">
@@ -1327,10 +1327,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.company_id=#{companyId}
         </if>
         <if test="applyName!=null and applyName!=''">
-            and  eu.nick_name=#{applyName}
+            and  eu.nick_name  like concat('%',#{applyName},'%')
         </if>
         <if test="applyMobile!=null and applyMobile!=''">
-            and  eu.phonenumber=#{applyMobile}
+            and  eu.phonenumber  like concat('%',#{applyMobile},'%')
         </if>
         <if test="cityCode!=null and cityCode!= ''">
             and  cc.SHORT_NAME=#{cityCode}
@@ -1426,19 +1426,19 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         WHERE 1 = 1
         <if test="companyId != null and  companyId!=''"> and  oi.company_id=#{companyId} </if>
         <if test="userId != null and  userId!=''"> and  osti.create_by=#{userId} </if>
-        <if test="applyName!=null">
-            and  eu.nick_name=#{applyName}
+        <if test="applyName!=null and applyName!=''">
+            and  eu.nick_name  like concat('%',#{applyName},'%')
         </if>
-        <if test="applyMobile!=null">
-            and  eu.phonenumber=#{applyMobile}
+        <if test="applyMobile!=null and applyMobile!=''">
+            and  eu.phonenumber  like concat('%',#{applyMobile},'%')
         </if>
-        <if test="cityCode!=null">
+        <if test="cityCode!=null and cityCode !=''">
             and  cc.SHORT_NAME=#{cityCode}
         </if>
-        <if test="useCarMode!=null">
+        <if test="useCarMode!=null and useCarMode !=''">
             and  oi.use_car_mode=#{useCarMode}
         </if>
-        <if test="dispatchStatus!=null">
+        <if test="dispatchStatus!=null and dispatchStatus !=''">
             and  oi.state=#{dispatchStatus}
         </if>
         <if test="optStartDate!=null  and  optStartDate!='' ">
@@ -1524,22 +1524,22 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         and oi.order_id in (select distinct order_id from order_state_trace_info where state in ('S279', 'S277') and create_by=#{userId}
         union (SELECT distinct order_id from order_state_trace_info where order_id in (select distinct order_id from order_state_trace_info where state='S299' and create_by=#{userId}) and state='S270')
         union (SELECT distinct order_id from order_state_trace_info where state='S921')  )
-        <if test="companyId!=null">
+        <if test="companyId!=null and companyId!=''">
             and  oi.company_id=#{companyId}
         </if>
-        <if test="applyName!=null">
-            and  eu.nick_name=#{applyName}
+        <if test="applyName!=null and applyName!=''">
+            and  eu.nick_name  like concat('%',#{applyName},'%')
         </if>
-        <if test="applyMobile!=null">
-            and  eu.phonenumber=#{applyMobile}
+        <if test="applyMobile!=null and applyMobile!=''">
+            and  eu.phonenumber  like concat('%',#{applyMobile},'%')
         </if>
-        <if test="cityCode!=null">
+        <if test="cityCode!=null and cityCode !=''">
             and  cc.SHORT_NAME=#{cityCode}
         </if>
-        <if test="useCarMode!=null">
+        <if test="useCarMode!=null and useCarMode !=''">
             and  oi.use_car_mode=#{useCarMode}
         </if>
-        <if test="dispatchStatus!=null">
+        <if test="dispatchStatus!=null and dispatchStatus !=''">
             and  oi.state=#{dispatchStatus}
         </if>
         <if test="optStartDate!=null  and  optStartDate!='' ">
@@ -1622,22 +1622,22 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
         WHERE 1 = 1
         and oi.order_id in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279', 'S277','S921'))
-        <if test="companyId!=null">
+        <if test="companyId!=null and companyId!=''">
             and  oi.company_id=#{companyId}
         </if>
-        <if test="applyName!=null">
-            and  eu.nick_name=#{applyName}
+        <if test="applyName!=null and applyName!=''">
+            and  eu.nick_name  like concat('%',#{applyName},'%')
         </if>
-        <if test="applyMobile!=null">
-            and  eu.phonenumber=#{applyMobile}
+        <if test="applyMobile!=null and applyMobile!=''">
+            and  eu.phonenumber  like concat('%',#{applyMobile},'%')
         </if>
-        <if test="cityCode!=null">
+        <if test="cityCode!=null and cityCode !=''">
             and  cc.SHORT_NAME=#{cityCode}
         </if>
-        <if test="useCarMode!=null">
+        <if test="useCarMode!=null and useCarMode !=''">
             and  oi.use_car_mode=#{useCarMode}
         </if>
-        <if test="dispatchStatus!=null">
+        <if test="dispatchStatus!=null and dispatchStatus !=''">
             and  oi.state=#{dispatchStatus}
         </if>
         <if test="optStartDate!=null  and  optStartDate!='' ">
@@ -1937,10 +1937,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.company_id=#{companyId}
         </if>
         <if test="applyName!=null and applyName!=''">
-            and  eu.nick_name=#{applyName}
+            and  eu.nick_name  like concat('%',#{applyName},'%')
         </if>
         <if test="applyMobile!=null and applyMobile!=''">
-            and  eu.phonenumber=#{applyMobile}
+            and  eu.phonenumber  like concat('%',#{applyMobile},'%')
         </if>
         <if test="cityCode!=null and cityCode!=''">
             and  cc.SHORT_NAME=#{cityCode}
@@ -2229,10 +2229,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  oi.company_id=#{companyId}
         </if>
         <if test="applyName!=null and applyName!=''">
-            and  eu.nick_name=#{applyName}
+            and  eu.nick_name  like concat('%',#{applyName},'%')
         </if>
         <if test="applyMobile!=null and applyMobile!=''">
-            and  eu.phonenumber=#{applyMobile}
+            and  eu.phonenumber  like concat('%',#{applyMobile},'%')
         </if>
         <if test="cityCode!=null and cityCode!=''">
             and  cc.SHORT_NAME=#{cityCode}
