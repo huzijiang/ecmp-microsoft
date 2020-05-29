@@ -18,7 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @SwaggerDefinition
 @EnableSwaggerBootstrapUI
-//@EnableScheduling
+@EnableScheduling
 @Import({DruidConfig.class,DruidProperties.class})
 @SpringBootApplication(scanBasePackages ={"com.hq.*"},exclude={DataSourceAutoConfiguration.class})
 @EnableAsync

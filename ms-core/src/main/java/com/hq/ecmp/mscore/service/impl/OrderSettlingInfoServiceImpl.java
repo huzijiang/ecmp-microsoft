@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.alibaba.fastjson.JSON;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CharterTypeEnum;
 import com.hq.ecmp.constant.CostConfigModeEnum;
 import com.hq.ecmp.constant.OrderServiceType;
@@ -162,16 +163,16 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             lastRecordInfo.setStopCarFee(CommonUtils.getBigDecimal(orderSettlingInfoVo.getParkingRateFee()));
             lastRecordInfo.setOrderId(orderSettlingInfoVo.getOrderId());
             lastRecordInfo.setMileage(CommonUtils.getBigDecimal(orderSettlingInfoVo.getTotalMileage()));
-//            lastRecordInfo.setSetMealCost(costConfigInfo.getCombosPrice());
-//            lastRecordInfo.setSetMealMileage(costConfigInfo.getCombosMileage());
-//            lastRecordInfo.setSetMealTimes(costConfigInfo.getCombosTimes().intValue());
-//            lastRecordInfo.setBeyondMileage(beyondMileage);
-//            lastRecordInfo.setBeyondTime(beyondTime);
+            lastRecordInfo.setSetMealCost(orderSettlingInfoVo.getSetMealCost());
+            lastRecordInfo.setSetMealMileage(orderSettlingInfoVo.getSetMealMileage());
+            lastRecordInfo.setSetMealTimes((int)orderSettlingInfoVo.getSetMealTimes());
+            lastRecordInfo.setBeyondMileage(orderSettlingInfoVo.getBeyondMileage());
+            lastRecordInfo.setBeyondTime((int)orderSettlingInfoVo.getBeyondTime());
             lastRecordInfo.setTotalFee(orderSettlingInfoVo.getAmount());
             lastRecordInfo.setBeyondMileageFee(orderSettlingInfoVo.getOverMileagePrice());
             lastRecordInfo.setBeyondTimeFee(orderSettlingInfoVo.getOvertimeLongPrice());
             i = costDetailRecordInfoMapper.update(lastRecordInfo);
-            if(!orderSettlingInfoVo.getImageUrl().equals(null) && !orderSettlingInfoVo.getImageUrl().equals("")){
+            if(StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())){
                 String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
                 OrderServiceImagesInfo imagesInfo = OrderServiceImagesInfo.builder()
                         .recordId(lastRecordInfo.getRecordId()).build();
@@ -185,7 +186,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //判断是否插入主表
         if(isInsertOrderConfing){
             i = orderSettlingInfoMapper.insertOrderSettlingInfoOne(orderSettlingInfoVo);
-            if(!orderSettlingInfoVo.getImageUrl().equals(null) && !orderSettlingInfoVo.getImageUrl().equals("")){
+            if(StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())){
                 String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
                 for (String url:imageUrl){
                     orderSettlingInfoVo.setImageUrl(url);
@@ -208,14 +209,14 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         BigDecimal overMileagePrice = BigDecimal.ZERO;
         BigDecimal overtimeLongPrice = BigDecimal.ZERO;
         for (OrderServiceCostDetailRecordInfo recordInfo : recordInfos) {
-            amount.add(recordInfo.getTotalFee());
-            otherFee.add(recordInfo.getOthersFee());
-            highSpeedFee.add(recordInfo.getHighwayTollFee());
-            hotelExpenseFee.add(recordInfo.getAccommodationFee());
-            parkingRateFee.add(recordInfo.getStopCarFee());
-            restaurantFee.add(recordInfo.getFoodFee());
-            overMileagePrice.add(recordInfo.getRoadAndBridgeFee());
-            overtimeLongPrice.add(recordInfo.getBeyondTimeFee());
+            amount.add(CommonUtils.getBigDecimal(recordInfo.getTotalFee()));
+            otherFee.add(CommonUtils.getBigDecimal(recordInfo.getOthersFee()));
+            highSpeedFee.add(CommonUtils.getBigDecimal(recordInfo.getHighwayTollFee()));
+            hotelExpenseFee.add(CommonUtils.getBigDecimal(recordInfo.getAccommodationFee()));
+            parkingRateFee.add(CommonUtils.getBigDecimal(recordInfo.getStopCarFee()));
+            restaurantFee.add(CommonUtils.getBigDecimal(recordInfo.getFoodFee()));
+            overMileagePrice.add(CommonUtils.getBigDecimal(recordInfo.getRoadAndBridgeFee()));
+            overtimeLongPrice.add(CommonUtils.getBigDecimal(recordInfo.getBeyondTimeFee()));
         }
         String json = costPrice(orderSettlingInfoVo);
         //计算总费用
@@ -506,6 +507,11 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             isInsertOrderConfing = true;
             //是否为插入费用子表
             isChartered = false;
+
+
+
+
+
             //服务类型为包车
             if (orderInfo.getServiceType().equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState())) {
                 //服务类型属于包车

@@ -116,5 +116,7 @@ public class DispatchVo {
     @ApiModelProperty(value = "是否自驾 Y000 是  N111 否")
     private String selfDriver;
 
+    @ApiModelProperty(value = "内部调度选的外部车队id")
+    private Long nextCarGroupId;
 
 }
