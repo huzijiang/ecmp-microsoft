@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Service接口
@@ -23,7 +24,7 @@ public interface OrderInfoTwoService {
 
     List<RunningOrderVo> runningOrder(Long orderId);
 
-    PageResult<DispatchVo> queryDispatchList(ApplyDispatchQuery query, LoginUser loginUser);
+    Map<String,Object> queryDispatchList(ApplyDispatchQuery query, LoginUser loginUser);
 
     OrderReassignVO reassignDetail(Long orderNo, Long driverId);
 
@@ -48,7 +49,7 @@ public interface OrderInfoTwoService {
      * @param
      * @return
      */
-    PageResult<DispatchVo> queryDispatchOrder(LoginUser loginUser,ApplyDispatchQuery query);
+    Map<String,Object> queryDispatchOrder(LoginUser loginUser,ApplyDispatchQuery query);
 
     /**
      * 获取调度改派列表
@@ -56,7 +57,7 @@ public interface OrderInfoTwoService {
      * @param loginUser
      * @return
      */
-    PageResult<DispatchVo> queryDispatchReassignmentList(ApplyDispatchQuery query, LoginUser loginUser);
+    Map<String,Object> queryDispatchReassignmentList(ApplyDispatchQuery query, LoginUser loginUser);
 
     /**
      * 用车申请列表
