@@ -389,7 +389,9 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
                     vo.setCostList(value);
                     result.add(vo);
                 }
-                SortListUtil.sort(result,"rentType",SortListUtil.ASC);
+                String[] fileds = {"rentType", "carGroupUserMode"};
+                String[] sort = {SortListUtil.ASC,SortListUtil.ASC};
+                SortListUtil.sort(result,fileds,sort);
             }
         }
        return result;

@@ -492,7 +492,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         g.start_date startDate,
         g.end_date endDate,
 
-        (select state from order_state_trace_info sti where sti.order_id=#{orderId} order by SUBSTRING(sti.state,1) desc limit 1) labelState
+        (select state from order_state_trace_info sti where sti.order_id=#{orderId} order by trace_id desc limit 1) labelState
 	    from order_info a
 	        left join journey_info g on g.journey_id=a.journey_id
             left join order_address_info e on e.order_id=a.order_id and e.type='A000'
