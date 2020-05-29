@@ -271,7 +271,7 @@ public class DriverOrderController {
         //获取登陆用户的信息
         LoginUser loginUser = tokenService.getLoginUser();
         Long userId = loginUser.getDriver().getDriverId();
-        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        Long companyId = loginUser.getDriver().getCompanyId();
         BigDecimal amount = iOrderSettlingInfoService.getAllFeeAmount(orderSettlingInfoVo, userId, companyId);
         return ApiResponse.success(amount.doubleValue());
     }
