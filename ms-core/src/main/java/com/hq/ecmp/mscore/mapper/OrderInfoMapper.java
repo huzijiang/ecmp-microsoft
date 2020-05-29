@@ -315,6 +315,13 @@ public interface OrderInfoMapper {
     List<DispatchVo> queryAdminDispatchList(ApplyDispatchQuery query);
 
     /**
+     * 获取申请调度系统管理员
+     * @param query
+     * @return
+     */
+    List<DispatchVo> queryAdminDispatchList2(ApplyDispatch query);
+
+    /**
      * 改派系统管理员数据
      * @param query
      * @return
@@ -371,7 +378,7 @@ public interface OrderInfoMapper {
      * @param query
      * @return
      */
-    List<DispatchVo> queryDispatchListCharterCar(ApplyDispatchQuery query);
+    List<DispatchVo> queryDispatchListCharterCar(ApplyDispatch  query);
 
     /**
      * 获取首页动态
@@ -396,9 +403,7 @@ public interface OrderInfoMapper {
     /***
      * 当前订单改派订单
      * add by liuzb
-     * @param orderId
-     * @param updateBy
-     * @param updateTime
+     * @param orderInfo
      * @return
      */
     int changeOrder(OrderInfo orderInfo);

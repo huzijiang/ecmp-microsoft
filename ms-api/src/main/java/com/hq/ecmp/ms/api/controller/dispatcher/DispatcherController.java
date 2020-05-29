@@ -10,6 +10,7 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.constant.enumerate.DispatchStrategyEnum;
 import com.hq.ecmp.interceptor.log.Log;
+import com.hq.ecmp.mscore.domain.ApplyDispatch;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
@@ -55,7 +56,7 @@ public class DispatcherController {
      */
     @PostMapping("/getDispatcherList")
     @ApiOperation(value = "佛山调度列表")
-    public ApiResponse<Map<String, Object>>  getDispatcherList(@RequestBody ApplyDispatchQuery query){
+    public ApiResponse<Map<String, Object>>  getDispatcherList(@RequestBody ApplyDispatch query){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
