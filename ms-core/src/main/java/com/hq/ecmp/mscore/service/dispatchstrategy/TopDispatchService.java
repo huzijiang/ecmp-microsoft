@@ -189,7 +189,7 @@ public abstract class TopDispatchService {
         if(dispatchSendCarDto.getInOrOut() == 1){
             EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(dispatchSendCarDto.getUserId());
             //内部调度员姓名和电话
-            String userName = ecmpUser.getUserName();
+            String userName = ecmpUser.getNickName();
             String phoneNumber = ecmpUser.getPhonenumber();
             if(dispatchSendCarDto.getUseCarGroupType().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
                 if(dispatchSendCarDto.getCarGroupUseMode().equals(CarConstant.CAR_GROUP_USER_MODE_CAR)){
@@ -309,7 +309,7 @@ public abstract class TopDispatchService {
 
                     EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(outerDispatcher);
                     //外部调度员姓名和电话
-                    String userName = ecmpUser.getUserName();
+                    String userName = ecmpUser.getNickName();
                     String phoneNumber = ecmpUser.getPhonenumber();
                     CarInfo carInfo = carInfoMapper.selectCarInfoById(dispatchSendCarDto.getCarId());
                     DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(dispatchSendCarDto.getDriverId());
@@ -363,7 +363,7 @@ public abstract class TopDispatchService {
                     CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo2.getCarCgId());
                     EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(dispatchSendCarDto.getUserId());
                     //外部调度员姓名和电话
-                    String userName = ecmpUser.getUserName();
+                    String userName = ecmpUser.getNickName();
                     String phoneNumber = ecmpUser.getPhonenumber();
                     //车队名字
                     carGroupName = carGroupInfo.getCarGroupName();
@@ -391,7 +391,7 @@ public abstract class TopDispatchService {
                 Long innerDispatcher = orderDispatcheDetailInfo2.getInnerDispatcher();
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(innerDispatcher);
                 //内部调度员姓名和电话
-                String userName = ecmpUser.getUserName();
+                String userName = ecmpUser.getNickName();
                 String phoneNumber = ecmpUser.getPhonenumber();
 
                 CarInfo carInfo = carInfoMapper.selectCarInfoById(orderDispatcheDetailInfo2.getCarId());
