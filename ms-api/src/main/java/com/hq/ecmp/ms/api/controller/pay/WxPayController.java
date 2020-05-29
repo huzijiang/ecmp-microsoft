@@ -167,7 +167,7 @@ public class WxPayController {
                 //插入订单财务信息表
                 OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
                 orderAccountInfo.setBillId(orderSettlingInfo.getBillId());
-                orderAccountInfo.setOrderId(orderPayInfoByPayId.getOrderId().toString());
+                orderAccountInfo.setOrderId(orderPayInfoByPayId.getOrderId());
                 orderAccountInfo.setAmount(totalFee);
                 orderAccountInfo.setCreateTime(new Date());
                 orderAccountInfo.setState(CommonConstant.NOT_INVOICED);
