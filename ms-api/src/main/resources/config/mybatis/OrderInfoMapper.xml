@@ -2705,7 +2705,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        where order_id=#{orderId}
     </update>
 
-    <select id="getOrderInfo" parameterType="java.lang.Long" resultType="java.util.Map">
+    <select id="getOrderInfo" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.DriverSmsInfo">
         SELECT DISTINCT
             DATE_FORMAT(cost.start_time, '%Y-%m-%d %H:%i')  startDate,
             DATE_FORMAT(cost.end_time, '%Y-%m-%d')  endDate,

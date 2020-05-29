@@ -248,7 +248,7 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
     @Override
     public List<MessageDto> getRunMessageForDrive(LoginUser loginUser) throws Exception {
         SysDriver driverInfo = loginUser.getDriver();
-        if (driverInfo==null){
+        if (null==driverInfo){
             throw new Exception("该用户不是司机");
         }
 //        DriverInfo driverInfo = driverInfoMapper.selectDriverInfoByUserId(user.getUserId());

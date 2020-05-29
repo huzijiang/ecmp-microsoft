@@ -131,6 +131,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         orderStateTraceInfo.setDriverLatitude(latitude);
         orderStateTraceInfo.setCreateBy(String.valueOf(userId));
 
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfoOld.getJourneyId());
+
         if(DriverBehavior.PICKUP_PASSENGER.getType().equals(type)){
 
             /** xmy1*/
@@ -216,8 +218,11 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 orderAddressInfo.setAddressLong(longAddr);
                 orderAddressInfo.setCreateBy(userId+"");
                 if(setOutOrderAddressId != null){
-                    orderAddressInfo.setOrderAddressId(setOutOrderAddressId);
-                    iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
+                    //多日租不更新
+                    if (null != journeyInfo && !journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){
+                        orderAddressInfo.setOrderAddressId(setOutOrderAddressId);
+                        iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
+                    }
                 }else{
                     iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
                 }
@@ -234,10 +239,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             }
 
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){//服务完成4
-            /*
-            HttpServletRequest request = ServletUtils.getRequest();
-            LoginUser loginUser = tokenService.getLoginUser(request);
-            Long uid = loginUser.getUser().getUserId();*/
+
             OrderSettlingInfoVo vo = new OrderSettlingInfoVo();
             vo.setOrderId(orderId);//订单Id
             vo.setTotalMileage(new BigDecimal(mileage==null?"0":mileage));//订单总里程
@@ -280,9 +282,11 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderAddressInfo.setAddressLong(longAddr);
             orderAddressInfo.setCreateBy(userId+"");
             if(arriveOutOrderAddressId != null){
-                orderAddressInfo.setOrderAddressId(arriveOutOrderAddressId);
+                if (null != journeyInfo && !journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){
+                    orderAddressInfo.setOrderAddressId(arriveOutOrderAddressId);
+                    iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
+                }
 
-                iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
             }else{
                 iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
             }

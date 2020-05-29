@@ -12,6 +12,7 @@ import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
 import com.hq.ecmp.mscore.dto.EcmpMessageDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IsmsBusiness;
+import com.hq.ecmp.mscore.vo.DriverSmsInfo;
 import com.hq.ecmp.mscore.vo.UserVO;
 import com.hq.ecmp.util.DateFormatUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -369,11 +371,14 @@ public class SmsBusinessImpl implements IsmsBusiness{
     public void sendSmsDriverArrivePrivate(Long orderId) {
         log.info("短信开始-订单{},司机开始服务", orderId);
         try {
-            Map<String, String> orderCommonInfo = getOrderinfo(orderId);
+            DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
             //用车人
-            String applyMobile = orderCommonInfo.get("applyMobile");
+            String applyMobile = orderCommonInfo.getApplyMobile();
+
+            Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
+
             //乘车人
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_READY_APPLICANT,orderCommonInfo,applyMobile);
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_READY_APPLICANT,orderCommonInfoMap,applyMobile);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1302,10 +1307,12 @@ public class SmsBusinessImpl implements IsmsBusiness{
     public void sendSmsServiceStart(long orderId) {
         log.info("短信开始-订单{},司机开始服务", orderId);
         try {
-            Map<String, String> orderCommonInfo = getOrderinfo(orderId);
+            DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
             //用车人
-            String applyMobile = orderCommonInfo.get("applyMobile");
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_START_SERVICE,orderCommonInfo,applyMobile);
+            String applyMobile = orderCommonInfo.getApplyMobile();
+
+            Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_START_SERVICE,orderCommonInfoMap,applyMobile);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1313,8 +1320,9 @@ public class SmsBusinessImpl implements IsmsBusiness{
         log.info("短信结束-订单{},司机开始服务", orderId);
     }
 
-    private Map<String,String> getOrderinfo(Long orderId) {
-        Map<String,String> map = orderInfoMapper.getOrderInfo(orderId);
+    private DriverSmsInfo getOrderinfo(Long orderId) {
+        DriverSmsInfo  smsInfo = orderInfoMapper.getOrderInfo(orderId);
+        log.info(smsInfo.toString());
 //        String startDate = map.get("startDate");
 //        String endDate = map.get("endDate");
 //        String sdate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(startDate).getTime());
@@ -1323,7 +1331,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
 //        map.put("endDate",edate);
         //获取开始结束时间 加金额
     ///order_service_cost_detail_record_info表--start_time--end_time---total_fee
-        return  map;
+        return  smsInfo;
     }
 
 
@@ -1332,11 +1340,17 @@ public class SmsBusinessImpl implements IsmsBusiness{
     public void sendSmsDriverServiceEnd(long orderId) {
         log.info("短信开始-订单{},司机结束服务", orderId);
         try {
-            Map<String, String> orderCommonInfo = getOrderinfo(orderId);
+            DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
+
+            Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
+
            //用车人
-            String applyMobile = orderCommonInfo.get("applyMobile");
+            String applyMobile = orderCommonInfo.getApplyMobile();
+
+
+
             log.info("短信已发送用车人电话：{}",applyMobile);
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END,orderCommonInfo,applyMobile);
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END,orderCommonInfoMap,applyMobile);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1344,6 +1358,21 @@ public class SmsBusinessImpl implements IsmsBusiness{
         log.info("短信结束-订单{},司机结束服务", orderId);
     }
 
+    private Map<String, String> objToMap(DriverSmsInfo orderCommonInfo) throws IllegalAccessException {
+        Map<String, String> orderCommonInfoMap = new HashMap();
+        Class<?> clazz = orderCommonInfo.getClass();
+        System.out.println(clazz);
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            String fieldName = field.getName();
+            String value = String.valueOf(field.get(orderCommonInfo));
+            if (value == null){
+                value = "";
+            }
+            orderCommonInfoMap.put(fieldName, value);
+        }
+        return orderCommonInfoMap;
+    }
 
 
 }
