@@ -2760,7 +2760,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(null!=list && list.size()>0){
             OrderAccountInfo orderAccountInfo = new OrderAccountInfo();
             orderAccountInfo.setBillId(list.get(0).getBillId());
-            orderAccountInfo.setOrderId(String.valueOf(orderId));
+            orderAccountInfo.setOrderId(orderId);
             orderAccountInfo.setAmount(list.get(0).getAmount());
             orderAccountInfo.setState("S008");
             orderAccountInfo.setCreateBy(String.valueOf(userId));

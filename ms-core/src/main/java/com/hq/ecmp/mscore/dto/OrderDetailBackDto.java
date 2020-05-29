@@ -80,4 +80,8 @@ public class OrderDetailBackDto extends OrderListBackDto {
     String carGroupName;
     @ApiModelProperty(value = "驾驶员所属")
     String driverGroupName;
+    @ApiModelProperty(value = "超时长价格")
+    BigDecimal beyondPriceEveryMinute;
+    @ApiModelProperty(value = "超公里价格")
+    BigDecimal beyondPriceEveryKm;
 }

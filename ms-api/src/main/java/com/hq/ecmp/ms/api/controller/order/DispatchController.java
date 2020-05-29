@@ -3,6 +3,7 @@ package com.hq.ecmp.ms.api.controller.order;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Resource;
@@ -233,11 +234,11 @@ public class DispatchController {
      */
     @ApiOperation(value = "queryDispatchList", notes = "获取申请调度列表 ", httpMethod = "POST")
     @PostMapping("/queryDispatchList")
-    public ApiResponse<PageResult<DispatchVo>> queryDispatchList(@RequestBody ApplyDispatchQuery query){
+    public ApiResponse<Map<String,Object>> queryDispatchList(@RequestBody ApplyDispatchQuery query){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            PageResult<DispatchVo> list = orderInfoTwoService.queryDispatchList(query,loginUser);
+            Map<String,Object> list = orderInfoTwoService.queryDispatchList(query,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
@@ -252,11 +253,11 @@ public class DispatchController {
      */
     @ApiOperation(value = "queryDispatchReassignmentList", notes = "获取改派调度列表 ", httpMethod = "POST")
     @PostMapping("/queryDispatchReassignmentList")
-    public ApiResponse<PageResult<DispatchVo>> queryDispatchReassignmentList(@RequestBody ApplyDispatchQuery query){
+    public ApiResponse<Map<String,Object>> queryDispatchReassignmentList(@RequestBody ApplyDispatchQuery query){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            PageResult<DispatchVo> list = orderInfoTwoService.queryDispatchReassignmentList(query,loginUser);
+            Map<String,Object> list = orderInfoTwoService.queryDispatchReassignmentList(query,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
@@ -270,11 +271,11 @@ public class DispatchController {
      */
     @ApiOperation(value = "queryStraightDispatchList", notes = "获取直接调度列表 ", httpMethod = "POST")
     @PostMapping("/queryStraightDispatchList")
-    public ApiResponse<PageResult<DispatchVo>> queryStraightDispatchList(@RequestBody ApplyDispatchQuery query){
+    public ApiResponse<Map<String,Object>> queryStraightDispatchList(@RequestBody ApplyDispatchQuery query){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            PageResult<DispatchVo> list = orderInfoTwoService.queryDispatchOrder(loginUser,query);
+            Map<String,Object> list = orderInfoTwoService.queryDispatchOrder(loginUser,query);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();

@@ -2,7 +2,7 @@ package com.hq.ecmp.constant.enumerate;
 
 /**
  * @ClassName
- * @Description TODO
+ * @Description 策略类枚举
  * @Author yj
  * @Date 2020/5/26 12:18
  * @Version 1.0

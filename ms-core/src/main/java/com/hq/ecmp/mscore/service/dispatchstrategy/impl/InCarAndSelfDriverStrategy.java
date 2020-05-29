@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.dispatchstrategy.impl;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.service.dispatchstrategy.DispatchStrategy;
 import com.hq.ecmp.mscore.service.dispatchstrategy.TopDispatchService;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
