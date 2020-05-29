@@ -288,10 +288,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                         o.state,
                         o.order_number as orderNumber,
                         o.order_id as orderId,
-                        o.driver_name as driverName,
-                        o.driver_mobile as driverMobile
+                        d.driver_name as driverName,
+                        d.mobile as driverMobile
                 from car_info c
                 left  join order_info o on o.car_id=c.car_id
+                left  join driver_info d on d.driver_id=o.driver_id
                 left  join
                 (	select d1.* from driver_heartbeat_info d1,
                 (select dd.driver_id,dd.order_id,max(dd.create_time) mtime from driver_heartbeat_info dd
