@@ -9,6 +9,7 @@ import com.hq.ecmp.constant.SmsTemplateConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.mapper.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.scheduling.annotation.Async;
@@ -30,6 +31,7 @@ import java.util.Map;
  * @Version 1.0
  */
 @Service
+@Slf4j
 public abstract class TopDispatchService {
 
     @Resource
@@ -68,7 +70,7 @@ public abstract class TopDispatchService {
     public void disBusiness(DispatchSendCarDto dispatchSendCarDto) throws Exception {
         judgeIsFinish(dispatchSendCarDto);
         ((TopDispatchService)AopContext.currentProxy()).dispatchCommonBusiness(dispatchSendCarDto);
-         sendSms(dispatchSendCarDto);
+        ((TopDispatchService)AopContext.currentProxy()).sendSms(dispatchSendCarDto);
     }
 
 
@@ -158,6 +160,7 @@ public abstract class TopDispatchService {
      */
     @Async
     public  void  sendSms(DispatchSendCarDto dispatchSendCarDto) throws Exception {
+        log.info("调度短信发送开发------------------------------");
         String carGroupName = "";
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(dispatchSendCarDto.getOrderId());
         //订单编号
@@ -278,7 +281,7 @@ public abstract class TopDispatchService {
                     carGroupName = carGroupInfo.getCarGroupName();
                 }
             }
-            if(!dispatchSendCarDto.getCarGroupUseMode().equals(CarConstant.CAR_GROUP_USER_MODE_CAR_DRIVER)){
+            if(dispatchSendCarDto.getOutCarGroupId() != null){
                 Map<String,String> stringStringMap = new HashMap<>(8);
                 stringStringMap.put("carGroupName", carGroupName);
                 stringStringMap.put("userName", userName);
@@ -445,6 +448,7 @@ public abstract class TopDispatchService {
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,driverMobile );
             }
         }
+        log.info("调度短信发送结束------------------------------");
     }
 
     /**
