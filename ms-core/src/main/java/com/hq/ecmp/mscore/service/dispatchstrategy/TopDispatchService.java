@@ -114,6 +114,8 @@ public abstract class TopDispatchService {
                 throw new Exception("车辆id"+dispatchSendCarDto.getCarId()+",对应的车队不存在");
             }
             orderDispatcheDetailInfo.setCarCgId(carInfo.getCarGroupId());
+        }else{
+            orderDispatcheDetailInfo.setCarCgId(null);
         }
         orderDispatcheDetailInfo.setDriverId(dispatchSendCarDto.getDriverId());
         if(dispatchSendCarDto.getDriverId() !=null){
@@ -126,6 +128,8 @@ public abstract class TopDispatchService {
             }else{
                 throw new Exception("司机id"+dispatchSendCarDto.getDriverId()+",对应的车队不存在");
             }
+        }else{
+            orderDispatcheDetailInfo.setDriverCgId(null);
         }
         if(dispatchSendCarDto.getIsFinishDispatch() == 1) {
             orderDispatcheDetailInfo.setDispatchState(CarConstant.DISPATCH_YES_COMPLETE);
@@ -153,7 +157,6 @@ public abstract class TopDispatchService {
      * @param dispatchSendCarDto
      */
     @Async
-    @Transactional(rollbackFor = Exception.class)
     public  void  sendSms(DispatchSendCarDto dispatchSendCarDto) throws Exception {
         String carGroupName = "";
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(dispatchSendCarDto.getOrderId());
