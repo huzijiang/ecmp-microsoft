@@ -83,13 +83,15 @@ public class CostCalculator implements CostCalculation {
 
                 setMealCost = setMealCost.add(packagePrice);
                 setMealMileage = setMealMileage.add(costConfigInfo.getCombosMileage());
-                setMealTimes += (orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue());
+                setMealTimes += costConfigInfo.getCombosTimes().intValue();
 
                 //超里程数小于&&等于1  则不计算他的超里程费用
                 if(orderSettlingInfoVo.getTotalMileage().compareTo(costConfigInfo.getCombosMileage())==1){
                     //超里程价格=（总里程-包含里程）* 超里程单价
-                    beyondMileage = beyondMileage.add(orderSettlingInfoVo.getTotalMileage().subtract(costConfigInfo.getCombosMileage()));
-                    overMileagePrice = overMileagePrice.add(orderSettlingInfoVo.getTotalMileage().subtract(costConfigInfo.getCombosMileage()).multiply(costConfigInfo.getBeyondPriceEveryKm()));
+                    BigDecimal temBeyondMileage = orderSettlingInfoVo.getTotalMileage().subtract(costConfigInfo.getCombosMileage());
+                    temBeyondMileage = temBeyondMileage.doubleValue()<0?BigDecimal.ZERO:temBeyondMileage;
+                    beyondMileage = beyondMileage.add(temBeyondMileage);
+                    overMileagePrice = overMileagePrice.add(temBeyondMileage).multiply(costConfigInfo.getBeyondPriceEveryKm());
                 }else {
                     overMileagePrice=overMileagePrice.add(BigDecimal.ZERO);
                 }
@@ -98,8 +100,10 @@ public class CostCalculator implements CostCalculation {
                     overtimeLongPrice= overtimeLongPrice.add(BigDecimal.ZERO);
                 }else{
                     //超时长价格=(总时长-包含时长)* 超时长单价
-                    beyondTime = beyondTime+orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue();
-                    overtimeLongPrice= overtimeLongPrice.add(new BigDecimal(orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue()).multiply(costConfigInfo.getBeyondPriceEveryMinute().divide(new BigDecimal("60"),2,BigDecimal.ROUND_HALF_UP)));
+                    int temBeyondTime =  orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue();
+                    temBeyondTime = temBeyondTime<0?0:temBeyondTime;
+                    beyondTime = beyondTime+temBeyondTime;
+                    overtimeLongPrice= overtimeLongPrice.add(new BigDecimal(temBeyondTime).multiply(costConfigInfo.getBeyondPriceEveryMinute().divide(new BigDecimal("60"),2,BigDecimal.ROUND_HALF_UP)));
                 }
                 //总价=（等待时长*等待单价）+(起步价)+(超里程价格)+(超时长价格)
                 totalPrice = totalPrice.add(packagePrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
