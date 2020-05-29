@@ -248,15 +248,15 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
         driver.setGender(driverRegisterDTO.getGender());
         driver.setIdCard(driverRegisterDTO.getIdCard());
         driver.setJobNumber(driverRegisterDTO.getJobNumber());
-        String expire = driverRegisterDTO.getLicenseExpireDate();
-        String issue = driverRegisterDTO.getLicenseIssueDate();
-        String initIssue = driverRegisterDTO.getLicenseInitIssueDate();
-        //驾驶证有效截止日期
-        driver.setLicenseExpireDate(DateUtils.parseDate(expire));
-        //初次领驾驶证日期
-        driver.setLicenseInitIssueDate(DateUtils.parseDate(issue));
-        //驾驶证发证日期
-        driver.setLicenseIssueDate(DateUtils.parseDate(initIssue));
+        //驾驶证过期日期
+        Date expire = driverRegisterDTO.getLicenseExpireDate();
+        driver.setLicenseExpireDate(expire);
+        //驾驶证有效开始日期
+        Date issue = driverRegisterDTO.getLicenseIssueDate();
+        driver.setLicenseIssueDate(issue);
+        //初次领证日期
+        Date initIssue = driverRegisterDTO.getLicenseInitIssueDate();
+        driver.setLicenseInitIssueDate(initIssue);
         driver.setInvitationId(driverRegisterDTO.getInvitationId());
         driver.setLicenseImages(driverRegisterDTO.getLicenseImages());
         driver.setName(driverRegisterDTO.getName());
@@ -313,20 +313,21 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
                driverCreate.setHireEndTime(driverNatureInfo.getHireEndTime());
                driverCreate.setBorrowBeginTime(driverCreate.getHireBeginTime());
                driverCreate.setBorrowEndTime(driverCreate.getHireEndTime());
+               driverCreate.setDriverNature(driverNatureInfo.getDriverNature());
             }
             driverCreate.setMobile(registerInfo.getMobile());
             driverCreate.setDriverName(registerInfo.getName());
            // driverCreate.setCarGroupId(registerInfo.getCarGroupId());
             driverCreate.setIdCard(registerInfo.getIdCard());
-            driverCreate.setState(CommonConstant.STATE_ON);
+            //初始化驾驶员状态
+            driverInfoService.initDriverState(driverCreate);
             driverCreate.setLicenseType(registerInfo.getLicenseType());
             driverCreate.setLicenseNumber(registerInfo.getLicenseNumber());
             driverCreate.setLicensePhoto(registerInfo.getLicenseImages());
             driverCreate.setLicenseInitIssueDate(registerInfo.getLicenseInitIssueDate());
             driverCreate.setLicenseIssueDate(registerInfo.getLicenseIssueDate());
             driverCreate.setLicenseExpireDate(registerInfo.getLicenseExpireDate());
-            long jobNum = Long.valueOf(registerInfo.getJobNumber()).longValue();
-            driverCreate.setUserId(jobNum);
+            driverCreate.setJobNumber(registerInfo.getJobNumber());
             driverCreate.setLockState("0000");
             driverCreate.setGender(registerInfo.getGender());
             driverCreate.setCreateTime(new Date());
@@ -336,7 +337,7 @@ public class EcmpEnterpriseRegisterInfoServiceImpl implements EcmpEnterpriseRegi
             driverCreate.setCompanyId(companyId);
             driverCreate.setOptUserId(userId);
             driverCreate.setCarGroupId(registerInfo.getCarGroupId());
-            //5.审核通过驾驶员注册后，新增驾驶员表数据  此处应该走 DriverInfoServiceImpl.createDriver()创建驾驶员逻辑 TODO
+            //5.审核通过驾驶员注册后，新增驾驶员表数据  此处应该走 DriverInfoServiceImpl.createDriver()创建驾驶员逻辑
            driverInfoService.createDriver(driverCreate);
             /*int i= driverInfoMapper.createDriver(driverCreate);
             if(i!=0){
