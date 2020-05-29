@@ -199,7 +199,6 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                     .build();
             accountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
             if(StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())){
-            if(StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())){
                 String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
                 for (String url:imageUrl){
                     orderSettlingInfoVo.setImageUrl(url);
