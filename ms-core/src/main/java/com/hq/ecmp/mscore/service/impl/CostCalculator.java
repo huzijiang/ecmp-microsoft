@@ -72,9 +72,6 @@ public class CostCalculator implements CostCalculation {
         //超里程时长
         long beyondTime = 0l;
 
-
-
-
         if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState())){
             //包车的情况下
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
@@ -92,14 +89,10 @@ public class CostCalculator implements CostCalculation {
                     temBeyondMileage = temBeyondMileage.doubleValue()<0?BigDecimal.ZERO:temBeyondMileage;
                     beyondMileage = beyondMileage.add(temBeyondMileage);
                     overMileagePrice = overMileagePrice.add(temBeyondMileage).multiply(costConfigInfo.getBeyondPriceEveryKm());
-                }else {
-                    overMileagePrice=overMileagePrice.add(BigDecimal.ZERO);
                 }
-                //超时长价格小于&&等于1  则不计算他的超时长费用
-                if(orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue()<1){
-                    overtimeLongPrice= overtimeLongPrice.add(BigDecimal.ZERO);
-                }else{
-                    //超时长价格=(总时长-包含时长)* 超时长单价
+
+                //超时长价格
+                if(orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue()>0){
                     int temBeyondTime =  orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue();
                     temBeyondTime = temBeyondTime<0?0:temBeyondTime;
                     beyondTime = beyondTime+temBeyondTime;

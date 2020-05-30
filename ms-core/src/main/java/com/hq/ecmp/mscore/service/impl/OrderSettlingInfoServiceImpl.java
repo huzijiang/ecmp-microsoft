@@ -460,7 +460,6 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         private List<CostConfigInfo> costConfigInfoList;
         private boolean isInsertOrderConfing;
         private boolean isChartered;
-        private OrderSettlingInfoVo orderSettlingInfo;
 
         public GetAllfee(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) {
             this.orderSettlingInfoVo = orderSettlingInfoVo;
@@ -588,7 +587,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             }
             //计算成本的方法
             CostCalculation calculator = new CostCalculator();
-            orderSettlingInfo = calculator.calculator(costConfigInfoList, orderSettlingInfoVo);
+            calculator.calculator(costConfigInfoList, orderSettlingInfoVo);
             //落库到订单结算信息表
             String json = OrderSettlingInfoServiceImpl.this.costPrice(orderSettlingInfoVo);//成本价详情
             String extraPrice = OrderSettlingInfoServiceImpl.this.extraPrice(orderSettlingInfoVo);//价外费详情
