@@ -2861,8 +2861,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         toData.setEndDate(data.getEndTime());
         List<DriverHeartbeatInfo>  list = driverHeartbeatInfoMapper.equipmentTrajectory(toData);
         if(null!=list && list.size()>0){
+            logger.info("=============================硬件设备轨迹数据源================================");
             return list;
         }
+        logger.info("=============================心跳轨迹数据源================================");
         return driverHeartbeatInfoMapper.getOrderDay(toData);
     }
 
