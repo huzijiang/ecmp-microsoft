@@ -2808,12 +2808,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             list.get(i).setHeartbeatList(getOrderDay(list.get(i)));
             if(null!=list.get(i).getStartLatitude() && null!=list.get(i).getEndLatitude()&& null!=list.get(i).getStartLongitude() && null!=list.get(i).getEndLongitude() ){
                 try{
-                    Map<String,String> map = thirdService.locationByLongitudeAndLatitude(list.get(i).getStartLatitude().toString(),list.get(i).getEndLatitude().toString());
+                   /* Map<String,String> map = thirdService.locationByLongitudeAndLatitude(list.get(i).getStartLatitude().toString(),list.get(i).getEndLatitude().toString());
                     list.get(i).setStartLatitudeAddress(map.get("longAddr").toString());
                     list.get(i).setEndLatitudeAddress(map.get("shortAddr").toString());
                     map = thirdService.locationByLongitudeAndLatitude(list.get(i).getStartLongitude().toString(),list.get(i).getEndLongitude().toString());
                     list.get(i).setStartLongitudeAddress(map.get("longAddr").toString());
-                    list.get(i).setEndLongitudeAddress(map.get("shortAddr").toString());
+                    list.get(i).setEndLongitudeAddress(map.get("shortAddr").toString());*/
                 }catch(Exception e){
                     logger.error("thirdService error",e);
                 }
