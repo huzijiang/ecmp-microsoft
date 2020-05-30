@@ -169,6 +169,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="companyId != null">
                 and c.company_id = #{companyId}
             </if>
+            <if test="userId != null">
+                and c.car_group_id in (select i.car_group_id from car_group_dispatcher_info i where i.user_id = #{userId})
+            </if>
         </where>
              order by c.car_group_name
     </select>
@@ -211,7 +214,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          select car_group_id as deptId,
                car_group_name as deptName
         from   car_group_info
-        where  company_id = #{deptId} and parent_car_group_id = 0 and  state != 'S444'
+        where  company_id = #{deptId} and parent_car_group_id = 0 and  state != 'S444' and car_group_id in (select car_group_id from car_group_dispatcher_info where user_id = #{userId})
     </select>
     <select id="getCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
         select car_group_id as deptId,

@@ -968,12 +968,12 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
 
     /**
      * 外部车队列表
-     * @param companyId
+     * @param deptId
      * @return
      */
     @Override
-    public List<CarGroupInfo> applySingleCarGroupList(Long companyId) {
-        return carGroupInfoMapper.applySingleCarGroupList(CarConstant.START_UP_CAR_GROUP,CarConstant.IT_IS_USE_INNER_CAR_GROUP_OUT,companyId);
+    public List<CarGroupInfo> applySingleCarGroupList(Long deptId) {
+        return carGroupInfoMapper.applySingleCarGroupList(CarConstant.START_UP_CAR_GROUP,CarConstant.IT_IS_USE_INNER_CAR_GROUP_OUT,deptId);
     }
 
     @Override

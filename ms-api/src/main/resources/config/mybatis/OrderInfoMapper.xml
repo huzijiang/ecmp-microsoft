@@ -2038,10 +2038,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and right ( oi.state,3)<![CDATA[ >= ]]>'299' and right (oi.state,3)<![CDATA[ <= ]]>'900'
         </if>
         <if test="homeDynamicBeginTime!=null and '' != homeDynamicBeginTime">
-            and oi. create_time &gt;= #{homeDynamicBeginTime}
+            and oi.create_time &gt;= #{homeDynamicBeginTime}
         </if>
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
-            and oi. create_time &lt;= #{homeDynamicEndTime}
+            and oi.create_time &lt;= #{homeDynamicEndTime}
         </if>
         <if test="isIndex == 2">
             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
@@ -2051,7 +2051,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         </if>
 
         <if test="companyId!=null and companyId!=''">
-            and oi .company_id=#{companyId}
+            and oi.company_id=#{companyId}
         </if>
         <if test="applyName!=null and applyName!=''">
             and eu.nick_name like concat('%',#{applyName},'%')
