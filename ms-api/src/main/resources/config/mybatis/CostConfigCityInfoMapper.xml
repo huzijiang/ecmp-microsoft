@@ -110,7 +110,7 @@
         select DISTINCT city_name cityName from cost_config_city_info where city_code=#{cityCode}
     </select>
 
-    <select id="findGroupByCity" resultType="com.hq.ecmp.mscore.vo.CarGroupCostVO">
+    <select id="findGroupByCity" parameterType="com.hq.ecmp.mscore.dto.cost.CostConfigQueryPriceDto" resultType="com.hq.ecmp.mscore.vo.CarGroupCostVO">
         select distinct
             cci.rent_type rentType,
             cci.car_group_user_mode carGroupUserMode,
@@ -135,6 +135,18 @@
         where
          ccci.city_code=#{cityCode} and cci.service_type=5000
          and  cci.company_id=#{companyId}
+        <if test="carGroupUserMode!=null and carGroupUserMode!=''">
+            and cci.car_group_user_mode=#{carGroupUserMode}
+        </if>
+        <if test="carTypeId!=null">
+            and cccti.car_type_id=#{carTypeId}
+        </if>
+        <if test="rentType!=null and rentType!=''">
+            and cci.rent_type=#{rentType}
+        </if>
+        <if test="carGroupId!=null">
+            and cccgi.car_group_id=#{carGroupId}
+        </if>
     </select>
 
     <select id="getCostCityList" resultType="com.hq.ecmp.mscore.vo.CityInfo">

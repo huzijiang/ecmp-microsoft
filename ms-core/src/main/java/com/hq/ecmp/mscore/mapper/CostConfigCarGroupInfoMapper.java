@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CostConfigCarGroupInfo;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
+import com.hq.ecmp.mscore.dto.cost.CostConfigQueryPriceDto;
 import com.hq.ecmp.mscore.vo.CarGroupCostVO;
 import org.apache.ibatis.annotations.Param;
 
@@ -76,5 +77,5 @@ public interface CostConfigCarGroupInfoMapper
 
     void deleteCostConfigCarGroupInfoByCostId(Long costId);
 
-    List<CarGroupCostVO> selectGroupByCityCode(@Param("cityCode") String cityCode,@Param("companyId") Long companyId);
+    List<CarGroupCostVO> selectGroupByCityCode(CostConfigQueryPriceDto queryPriceDto);
 }

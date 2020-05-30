@@ -160,7 +160,7 @@ public interface ICarGroupInfoService
      */
     Boolean judgeCarGroupName(String carGroupName, Long owneCompany);
 
-    List<CarGroupListVO> getCarGroupList(SysUser userId);
+    List<CarGroupListVO> getCarGroupList(SysUser userId,String cityCode);
 
     /**
      * 联系车队（通用）

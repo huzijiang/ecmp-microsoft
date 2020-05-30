@@ -1309,7 +1309,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     }
 
     @Override
-    public List<CarGroupListVO> getCarGroupList(SysUser user) {
+    public List<CarGroupListVO> getCarGroupList(SysUser user,String cityCode) {
         /**flag 1:调度员,0:系统管理员*/
         int flag=1;
         List<SysRole> roles = user.getRoles();
@@ -1323,7 +1323,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 companyId=user.getOwnerCompany();
             }
         }
-        return carGroupInfoMapper.getCarGroupList(userId,flag,companyId);
+        return carGroupInfoMapper.getCarGroupList(userId,flag,companyId,cityCode);
     }
 
     /* *//**

@@ -357,10 +357,10 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     }
 
     @Override
-    public List<PriceOverviewVO> getGroupPrice(String cityCode,Long companyId) {
+    public List<PriceOverviewVO> getGroupPrice(CostConfigQueryPriceDto queryPriceDto) {
         List<PriceOverviewVO> result=new ArrayList<>();
-        List<CarGroupCostVO> list=costConfigCityInfoMapper.findGroupByCity(cityCode,companyId);
-        List<CarGroupCostVO> grouplist=costConfigCarGroupInfoMapper.selectGroupByCityCode(cityCode,companyId);
+        List<CarGroupCostVO> list=costConfigCityInfoMapper.findGroupByCity(queryPriceDto);
+        List<CarGroupCostVO> grouplist=costConfigCarGroupInfoMapper.selectGroupByCityCode(queryPriceDto);
         result.add(new PriceOverviewVO("0",grouplist));
         result.add(new PriceOverviewVO("1",grouplist));
         if (!CollectionUtils.isEmpty(list)){
@@ -379,7 +379,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
                     PriceOverviewVO vo=new PriceOverviewVO();
                     vo.setRentType(s[0]);
                     vo.setRentTypeStr(CharterTypeEnum.format(s[0]));
-                    vo.setCityCode(cityCode);
+                    vo.setCityCode(queryPriceDto.getCityCode());
                     vo.setCityName(value.get(0).getCityName());
                     vo.setCarGroupUserMode(s[1]);
                     vo.setCarGroupUserModeStr(CostConfigModeEnum.format(s[1]));
