@@ -882,6 +882,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         /**查寻该调度员可用查看的所有申请人*/
         //是首页
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
+        int sum = 0;
         if ("1".equals(user.getItIsDispatcher())) {//是调度员
             dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCar(query);
             CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
@@ -903,12 +904,13 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                     next.setInOrOut(2);
                     if(next.getNextCarGroupId() == null || !dispatcheers.contains(next.getNextCarGroupId())){
                         iterator.remove();
+                        sum ++;
                     }
                 }
             }
         }
         PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
-        PageResult<DispatchVo> dispatchVoPageResult = new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
+        PageResult<DispatchVo> dispatchVoPageResult = new PageResult<>(info.getTotal()-sum, info.getPages(), dispatcherOrderList);
         log.info("首页查询出来的调度列表数据为---------------------------------"+dispatchVoPageResult);
         return dispatchVoPageResult;
     }
@@ -938,6 +940,28 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         /**查寻该调度员可用查看的所有申请人*/
         if ("1".equals(user.getItIsDispatcher())) {//是调度员
             dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCarCounts(query);
+            CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+            CarGroupDispatcherInfo carGroupDispatcherInfo1 = carGroupDispatcherInfo;
+            carGroupDispatcherInfo1.setUserId(query.getUserId());
+            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo1);
+            List<Long> dispatcheers = carGroupDispatcherInfos.stream().map(p ->p.getCarGroupId()).collect(Collectors.toList());
+            Long carGroupId = carGroupDispatcherInfos.get(0).getCarGroupId();
+            CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+            if (carGroupInfo.getItIsInner().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
+                for (DispatchVo dispatchVo:
+                        dispatcherOrderList) {
+                    dispatchVo.setInOrOut(1);
+                }
+            }else{
+                Iterator<DispatchVo> iterator = dispatcherOrderList.iterator();
+                while(iterator.hasNext()){
+                    DispatchVo next = iterator.next();
+                    next.setInOrOut(2);
+                    if(next.getNextCarGroupId() == null || !dispatcheers.contains(next.getNextCarGroupId())){
+                        iterator.remove();
+                    }
+                }
+            }
         }
         return dispatcherOrderList;
     }
