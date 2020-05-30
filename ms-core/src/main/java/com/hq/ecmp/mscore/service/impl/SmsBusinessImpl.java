@@ -1323,12 +1323,12 @@ public class SmsBusinessImpl implements IsmsBusiness{
     private DriverSmsInfo getOrderinfo(Long orderId) {
         DriverSmsInfo  smsInfo = orderInfoMapper.getOrderInfo(orderId);
         log.info(smsInfo.toString());
-//        String startDate = map.get("startDate");
-//        String endDate = map.get("endDate");
-//        String sdate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(startDate).getTime());
-//        String edate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(endDate).getTime());
-//        map.put("startDate",sdate);
-//        map.put("endDate",edate);
+        String startDate = smsInfo.getStartDate();
+        String endDate = smsInfo.getEndDate();
+        String sdate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(startDate).getTime());
+        String edate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(endDate).getTime());
+        smsInfo.setStartDate(sdate);
+        smsInfo.setEndDate(edate);
         //获取开始结束时间 加金额
     ///order_service_cost_detail_record_info表--start_time--end_time---total_fee
         return  smsInfo;

@@ -312,9 +312,11 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             String day = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, new Date());
             //司机终止服务的时间
             Date date = DateUtils.parseDate(day);
-            boolean todayOver = DateUtils.compareDate(date, endDate);
-            if(todayOver){ //行程结束时间是用车结束当天
-             /**xmy2*/
+            /*boolean todayOver = DateUtils.compareDate(date, endDate);
+            if(todayOver && null != journeyInfo && !journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){ //行程结束时间是用车结束当天*/
+            if(date.getTime() >= endDate.getTime() && null != journeyInfo
+                    && !journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){ //行程结束时间是用车结束当天
+             /**xmy2*/   //非多日租走老方法
                 if(orderConfirmStatus == 1){
                     orderInfo.setState(OrderState.STOPSERVICE.getState());
                     orderStateTraceInfo.setState(OrderStateTrace.SERVICEOVER.getState());
@@ -329,7 +331,6 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 orderInfo.setState(OrderState.SERVICE_SUSPEND.getState());//订单状态
                 iOrderInfoService.updateOrderInfo(orderInfo);//更新订单状态
                 orderStateTraceInfo.setState(OrderStateTrace.DRIVER_SERVICE_SUSPEND.getState());//轨迹状态
-
                 //插入轨迹
                 iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
                 orderStateTraceInfo.setTraceId(orderStateTraceInfo.getTraceId()+1);
