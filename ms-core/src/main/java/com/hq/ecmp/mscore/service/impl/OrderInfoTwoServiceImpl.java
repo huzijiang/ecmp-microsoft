@@ -884,6 +884,28 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         if ("1".equals(user.getItIsDispatcher())) {//是调度员
             dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCar(query);
+            CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+            CarGroupDispatcherInfo carGroupDispatcherInfo1 = carGroupDispatcherInfo;
+            carGroupDispatcherInfo1.setUserId(query.getUserId());
+            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo1);
+            List<Long> dispatcheers = carGroupDispatcherInfos.stream().map(p ->p.getCarGroupId()).collect(Collectors.toList());
+            Long carGroupId = carGroupDispatcherInfos.get(0).getCarGroupId();
+            CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+            if (carGroupInfo.getItIsInner().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
+                for (DispatchVo dispatchVo:
+                        dispatcherOrderList) {
+                    dispatchVo.setInOrOut(1);
+                }
+            }else{
+                Iterator<DispatchVo> iterator = dispatcherOrderList.iterator();
+                while(iterator.hasNext()){
+                    DispatchVo next = iterator.next();
+                    next.setInOrOut(2);
+                    if(next.getNextCarGroupId() == null || !dispatcheers.contains(next.getNextCarGroupId())){
+                        iterator.remove();
+                    }
+                }
+            }
         }
         PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
         PageResult<DispatchVo> dispatchVoPageResult = new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
