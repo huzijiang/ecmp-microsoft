@@ -923,9 +923,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     @Override
     public List<CarGroupInfo> dispatcherCarGroupList(Long orderId, LoginUser loginUser) {
         List<CarGroupInfo> carGroupInfos = new ArrayList<>();
-        SysUser user = loginUser.getUser();
-        Long userId = user.getUserId();
-        Long deptId = user.getDeptId();
+        OrderInfo orderInfo1 = orderInfoMapper.selectOrderInfoById(orderId);
+        Long userId = orderInfo1.getUserId();
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(userId);
+        Long deptId = ecmpUser.getDeptId();
         if (deptId != null) {
             carGroupInfos = carGroupInfoMapper.dispatcherCarGroupList(deptId);
         }
