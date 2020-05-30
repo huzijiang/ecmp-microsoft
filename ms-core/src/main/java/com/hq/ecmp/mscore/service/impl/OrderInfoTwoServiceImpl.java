@@ -920,6 +920,16 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         return dispatcherOrderList;
     }
 
+    /**
+     * 外部车队列表
+     * @param companyId
+     * @return
+     */
+    @Override
+    public List<CarGroupInfo> applySingleCarGroupList(Long companyId) {
+        return carGroupInfoMapper.applySingleCarGroupList(CarConstant.START_UP_CAR_GROUP,CarConstant.IT_IS_USE_INNER_CAR_GROUP_OUT,companyId);
+    }
+
     @Override
     public List<CarGroupInfo> dispatcherCarGroupList(Long orderId, LoginUser loginUser) {
         List<CarGroupInfo> carGroupInfos = new ArrayList<>();

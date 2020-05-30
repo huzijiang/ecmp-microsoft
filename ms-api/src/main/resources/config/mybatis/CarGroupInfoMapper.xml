@@ -350,4 +350,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
               car_group_id in
               (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
     </select>
+
+    <select id="applySingleCarGroupList"  resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+
+          select car_group_id carGroupId,car_group_name carGroupName  from car_group_info where state =#{state}  and it_is_inner =#{itIsInner}  and company_id =#{companyId}
+
+    </select>
 </mapper>

@@ -2434,6 +2434,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         di.mobile driverPhone,
         -- 驾驶员归属
         cgiTwo.car_group_name driverCompany,
+        -- 外部车队名称
+        cgiThree.car_group_name outerCarGroupName,
+        -- 是否自驾
+        ai.it_is_self_driver  itIsSelfDriver,
         -- 状态
         oai1.address beginAddress,
         -- 出发地址
@@ -2473,6 +2477,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join  order_settling_info osi on osi.order_id = oi.order_id
         left join
         (select sum(total_fee) amount,order_id orderId from order_service_cost_detail_record_info group by order_id) oscdrio on oscdrio.orderId = oi.order_id
+        LEFT JOIN car_group_info cgiThree ON  cgiThree.car_group_id = ai.outer_car_group_id
         where  oi.service_type='5000'
         <if test="userId!=null and '' != userId">
             and  eu.user_id = #{userId}

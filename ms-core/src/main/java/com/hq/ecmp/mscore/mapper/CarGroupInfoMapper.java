@@ -208,4 +208,11 @@ public interface CarGroupInfoMapper
      * @return
      */
      List<String> getTakeBack(@Param("userId")Long userId,@Param("orderId")Long orderId);
+
+    /**
+     * 外部车队列表
+     * @param companyId
+     * @return
+     */
+    List<CarGroupInfo> applySingleCarGroupList(@Param("state") String state,@Param("itIsInner")String itIsInner,@Param("companyId") Long companyId);
 }
