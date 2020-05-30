@@ -63,7 +63,10 @@ public enum OrderStateTrace {
     public static List<String> getCancelAndOverTime(){
     	return Arrays.asList(CANCEL.getState(),ORDEROVERTIME.getState(),ORDERDENIED.getState());
     }
-    
-   
+
+    public static String manyUseCarState() {
+        return DRIVER_SERVICE_SUSPEND.getState()+","+DRIVER_CONTINUED_SERVICE.getState()+","+SERVICE_SUSPEND.getState();
+    }
+
 
 }

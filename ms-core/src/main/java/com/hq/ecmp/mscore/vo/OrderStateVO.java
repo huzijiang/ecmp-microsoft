@@ -66,5 +66,7 @@ public class OrderStateVO {
     private String startDate;
     private String endDate;
     private Double useTime;//用车天数
+    @ApiModelProperty(name = "isFirstState",value = "多日租的时候是否是第一次的状态")
+    private int isFirstState;
 
 }

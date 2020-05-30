@@ -97,5 +97,7 @@ public class OrderVO {
     private String startAddress;
     @ApiModelProperty(name = "endAddress",value = "目的地")
     private String endAddress;
+    @ApiModelProperty(name = "isFirstState",value = "多日租的时候是否是第一次的状态")
+    private int isFirstState;
 }
 
