@@ -255,7 +255,7 @@ public class UserApplySingleController {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            carGroupInfos = orderInfoTwoService.applySingleCarGroupList(loginUser.getUser().getDept().getCompanyId());
+            carGroupInfos = orderInfoTwoService.applySingleCarGroupList(loginUser.getUser().getDeptId());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("获取车队列表失败");

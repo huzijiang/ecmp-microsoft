@@ -214,5 +214,5 @@ public interface CarGroupInfoMapper
      * @param companyId
      * @return
      */
-    List<CarGroupInfo> applySingleCarGroupList(@Param("state") String state,@Param("itIsInner")String itIsInner,@Param("companyId") Long companyId);
+    List<CarGroupInfo> applySingleCarGroupList(@Param("state") String state,@Param("itIsInner")String itIsInner,@Param("deptId") Long deptId);
 }
