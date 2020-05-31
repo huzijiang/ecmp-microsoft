@@ -242,9 +242,11 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
             return "此手机号已存在请重新输入";
         }
         ecmpUser.setUserName(phonenumber);
-        int b = selectEmailExist(email);
-        if(b>0){
-            return "此邮箱已存在请重新输入";
+        if(email!=null){
+            int b = selectEmailExist(email);
+            if(b>0){
+                return "此邮箱已存在请重新输入";
+            }
         }
         int count=ecmpUserMapper.addEcmpUser(ecmpUser);
         /*保存用车制度 （多个）*/
