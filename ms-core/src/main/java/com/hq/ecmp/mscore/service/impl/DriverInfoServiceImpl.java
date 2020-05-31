@@ -868,6 +868,11 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	private String compareDate(DriverNatureInfo driverNatureInfo)throws Exception{
 		Date date = new Date();
 		if("Z002".equals(driverNatureInfo.getDriverNature())){/**外聘*/
+			//如果日期缺少 则为生效
+			//update by huzj
+			if(( driverNatureInfo.getHireBeginTime()==null)|| (driverNatureInfo.getHireEndTime()==null)){
+				return DriverStateEnum.EFFECTIVE.getCode();/**外聘时间到，生效*/
+			}
 			if(-1==date.compareTo(driverNatureInfo.getHireBeginTime())
 					&& -1==date.compareTo(driverNatureInfo.getHireEndTime()) ){
 				return DriverStateEnum.EFFECTIVE.getCode();/**外聘时间到，生效*/
@@ -876,6 +881,11 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 				return DriverStateEnum.DIMISSION.getCode();/**外聘时间结束，失效*/
 			}
 		}else if("Z003".equals(driverNatureInfo.getDriverNature())){/**借调*/
+			//如果日期缺少 则为生效
+			//update by huzj
+			if(( driverNatureInfo.getBorrowBeginTime()==null)|| (driverNatureInfo.getBorrowEndTime()==null)){
+				return DriverStateEnum.EFFECTIVE.getCode();/**外聘时间到，生效*/
+			}
 			if(-1==date.compareTo(driverNatureInfo.getBorrowBeginTime()) &&
 					-1==date.compareTo(driverNatureInfo.getBorrowEndTime())){
 				return DriverStateEnum.EFFECTIVE.getCode();/**借调时间到，实效*/
