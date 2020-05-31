@@ -96,4 +96,16 @@ public class ApplySingleVO {
      */
     @ApiModelProperty(name = "carTypeId", value = "车型级别")
     private Long carTypeId;
+
+    /**
+     * 是否为自驾
+     */
+    @ApiModelProperty(name = "itIsSelfDriver", value = "是否为自驾")
+    private String itIsSelfDriver;
+
+    /**
+     * 内部车队id
+     */
+    @ApiModelProperty(name = "carGroupId", value = "内部车队id")
+    private Long outerCarGroupId;
 }

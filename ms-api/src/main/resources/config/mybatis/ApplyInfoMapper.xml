@@ -62,6 +62,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="state != null  and state != ''">state,</if>
             <if test="reason != null  and reason != ''">reason,</if>
             <if test="carTypeId != null  and carTypeId != ''">car_type_id,</if>
+            <if test="itIsSelfDriver != null  and itIsSelfDriver != ''">it_is_self_driver,</if>
+            <if test="outerCarGroupId != null  and outerCarGroupId != ''">outer_car_group_id,</if>
             <if test="notes != null  and notes != ''">notes,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
@@ -81,6 +83,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="state != null  and state != ''">#{state},</if>
             <if test="reason != null  and reason != ''">#{reason},</if>
             <if test="carTypeId != null  and carTypeId != ''">#{carTypeId},</if>
+            <if test="itIsSelfDriver != null  and itIsSelfDriver != ''">#{itIsSelfDriver},</if>
+            <if test="outerCarGroupId != null  and outerCarGroupId != ''">#{outerCarGroupId},</if>
             <if test="notes != null  and notes != ''">#{notes},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>

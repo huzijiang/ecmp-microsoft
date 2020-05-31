@@ -265,12 +265,13 @@ public class CostController {
     @Log(value = "价格总览")
     @com.hq.core.aspectj.lang.annotation.Log(title = "价格总览",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
     @PostMapping("/getGroupPrice")
-    public ApiResponse<List<PriceOverviewVO>> getGroupPrice(@RequestParam("cityCode") String cityCode){
+    public ApiResponse<List<PriceOverviewVO>> getGroupPrice(@RequestBody CostConfigQueryPriceDto queryPriceDto){
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long companyId = loginUser.getUser().getOwnerCompany();
-            List<PriceOverviewVO> list=costConfigInfoService.getGroupPrice(cityCode,companyId);
+            queryPriceDto.setCompanyId(companyId);
+            List<PriceOverviewVO> list=costConfigInfoService.getGroupPrice(queryPriceDto);
                 return ApiResponse.success(list);
         } catch (Exception e) {
             return ApiResponse.error("查询异常");
