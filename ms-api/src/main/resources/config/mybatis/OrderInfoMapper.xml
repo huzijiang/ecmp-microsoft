@@ -2438,7 +2438,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 驾驶员姓名
         di.driver_name driverName,
         -- 等待时长
-        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
+        CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime,
         -- 驾驶员手机号
         di.mobile driverPhone,
         -- 驾驶员归属
