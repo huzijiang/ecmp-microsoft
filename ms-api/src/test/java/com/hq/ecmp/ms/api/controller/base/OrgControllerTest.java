@@ -456,7 +456,7 @@ class OrgControllerTest {
     @Test
     public void checkAutoDispatch(){
         try {
-            List<CarGroupListVO> carGroupList = carGroupInfoMapper.getCarGroupList(200562l, 1, null);
+            List<CarGroupListVO> carGroupList = carGroupInfoMapper.getCarGroupList(200562l, 1, null,null);
             System.out.println(JSON.toJSON(carGroupList));
         } catch (Exception e) {
             e.printStackTrace();
