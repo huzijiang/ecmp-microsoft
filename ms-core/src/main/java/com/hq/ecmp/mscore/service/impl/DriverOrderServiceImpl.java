@@ -5,6 +5,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.core.web.domain.server.Sys;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ContactorDto;
@@ -238,7 +239,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 ismsBusiness.sendMessageServiceStart(orderId, userId);
             }
 
-        }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){//服务完成4
+        }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){//----服务完成4---
 
             OrderSettlingInfoVo vo = new OrderSettlingInfoVo();
             vo.setOrderId(orderId);//订单Id
@@ -312,11 +313,13 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             String day = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, new Date());
             //司机终止服务的时间
             Date date = DateUtils.parseDate(day);
-            /*boolean todayOver = DateUtils.compareDate(date, endDate);
-            if(todayOver && null != journeyInfo && !journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){ //行程结束时间是用车结束当天*/
-            if(date.getTime() >= endDate.getTime() && null != journeyInfo
-                    && !journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){ //行程结束时间是用车结束当天
-             /**xmy2*/   //非多日租走老方法
+            //userTime <= 是单日租
+            //用车时间 <=1 && 用车类型不是
+
+            //!journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey()) && null != journeyInfo
+            if( floor <= 1 || date.getTime() >= endDate.getTime()){ //行程结束时间是用车结束当天
+
+                /**xmy2*/   //非多日租走老方法
                 if(orderConfirmStatus == 1){
                     orderInfo.setState(OrderState.STOPSERVICE.getState());
                     orderStateTraceInfo.setState(OrderStateTrace.SERVICEOVER.getState());
@@ -379,7 +382,6 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             throw new Exception("操作类型有误");
         }
     }
-
 
     @Override
     @Transactional(rollbackFor = Exception.class)
