@@ -225,4 +225,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                             apply_id = #{applyId}
 
     </select>
+
+    <select id="getApplyCarTypeIdWithOrderId" parameterType="java.lang.Long" resultType="java.lang.Long">
+                select a.car_type_id  as carTypeId
+                from order_info o
+				left join apply_info a on o.journey_id=a.journey_id
+				where o.order_id=#{orderId}
+
+    </select>
 </mapper>
