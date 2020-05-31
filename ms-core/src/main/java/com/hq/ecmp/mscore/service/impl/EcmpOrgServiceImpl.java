@@ -222,10 +222,11 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.valueOf(leader));
                         if(ecmpUser != null ){
                             tree.get(i).setLeaderName(ecmpUser.getUserName());
+                            //查询公司下的车队树
+                            tree.get(i).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(tree.get(i).getDeptId(),ecmpUser.getUserId()));
                         }
                     }
-                    //查询公司下的车队树
-                    tree.get(i).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(tree.get(i).getDeptId()));
+
                     //递归查询子公司
                     //tree.get(i).setChildrenList(this.selectCompanyCarGroupTree(tree.get(i).getDeptId()));
                 }
@@ -235,7 +236,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     }
 
     @Override
-    public List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId) {
+    public List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId,Long userId) {
        /* if(deptId == null && parentId == null){
             parentId = 0L;
         }
@@ -257,7 +258,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
         //查询公司
         List<CarGroupTreeVO> tree = ecmpOrgMapper.selectNewCompanyCarGroupTree(deptId,parentId);
         //递归查询公司的车队树
-        tree.get(0).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(deptId));
+        tree.get(0).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(deptId,userId));
         return tree;
     }
 

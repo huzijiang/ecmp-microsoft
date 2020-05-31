@@ -18,6 +18,14 @@ public class OrderServiceCostDetailRecordInfo {
 
     Long orderId;
 
+    String startLatitudeAddress;
+
+    String endLatitudeAddress;
+
+    String startLongitudeAddress;
+
+    String endLongitudeAddress;
+
     BigDecimal startLongitude;
 
     BigDecimal startLatitude;

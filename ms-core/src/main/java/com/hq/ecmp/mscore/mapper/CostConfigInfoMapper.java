@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.dto.cost.ValidDoubleDtoResult;
 import com.hq.ecmp.mscore.vo.CostConfigDetailInfoVo;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.Map;
  * @author hqer
  * @date 2020-05-06
  */
+@Repository
 public interface CostConfigInfoMapper 
 {
     /**

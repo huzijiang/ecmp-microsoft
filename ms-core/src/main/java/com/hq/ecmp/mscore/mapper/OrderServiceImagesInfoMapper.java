@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.OrderServiceImagesInfo;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
  * @author crk
  * @since 2020-05-25 09:21:16
  */
+@Repository
 public interface OrderServiceImagesInfoMapper {
 
     /**

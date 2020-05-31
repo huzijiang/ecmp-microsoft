@@ -745,6 +745,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oai2.address endAddress,
         s.service_type serviceType,
         ji.charter_car_type charterCarType,
+        ji.use_time useTime,
         ifnull(ecti.name,s.demand_car_level) carLevel,
         CONVERT(osi.total_mileage,DECIMAL(10,2)) totalMileage,
         osi.total_time totalTime,
@@ -1513,6 +1514,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ai.reason reason,
         -- 成本中心
         eor.dept_name costCenter,
+        -- 外部车队名称
+        ai.it_is_self_driver itIsSelfDriver,
+        -- 是否自驾
+        cgiTwo.car_group_name carGroupName,
         -- 项目编号
         pi.name projectName
         FROM
@@ -1533,6 +1538,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
         LEFT JOIN project_info pi ON pi.project_id = ai.project_id
         LEFT JOIN order_state_trace_info osti on oi.order_id = osti.order_id
+        LEFT JOIN car_group_info cgiTwo on cgiTwo.car_group_id = ai.outer_car_group_id
         WHERE 1 = 1
         <if test="companyId != null and  companyId!=''"> and  oi.company_id=#{companyId} </if>
         <if test="userId != null and  userId!=''"> and  osti.create_by=#{userId} </if>
@@ -1998,6 +2004,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         od.it_is_self_driver selfDriver,
         oai.city_postal_code useCarCityCode,
         od.it_is_use_inner_car_group useCarGroupType,
+        ai.it_is_self_driver itIsSelfDriver,
+        cgi.car_group_name carGroupName,
         ai.reason reason
         FROM
         order_info oi
@@ -2018,6 +2026,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join journey_user_car_power jucp on jucp.node_id=oi.node_id
         left join apply_info ai on ai.apply_id=jucp.apply_id
         left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
+        LEFT JOIN  car_group_info cgi ON cgi.car_group_id = ai.outer_car_group_id
         WHERE 1 = 1
 
         <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
@@ -2030,10 +2039,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and right ( oi.state,3)<![CDATA[ >= ]]>'299' and right (oi.state,3)<![CDATA[ <= ]]>'900'
         </if>
         <if test="homeDynamicBeginTime!=null and '' != homeDynamicBeginTime">
-            and oi. create_time &gt;= #{homeDynamicBeginTime}
+            and oi.create_time &gt;= #{homeDynamicBeginTime}
         </if>
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
-            and oi. create_time &lt;= #{homeDynamicEndTime}
+            and oi.create_time &lt;= #{homeDynamicEndTime}
         </if>
         <if test="isIndex == 2">
             and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
@@ -2043,7 +2052,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         </if>
 
         <if test="companyId!=null and companyId!=''">
-            and oi .company_id=#{companyId}
+            and oi.company_id=#{companyId}
         </if>
         <if test="applyName!=null and applyName!=''">
             and eu.nick_name like concat('%',#{applyName},'%')
