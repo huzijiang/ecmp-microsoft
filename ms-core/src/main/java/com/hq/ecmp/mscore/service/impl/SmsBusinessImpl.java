@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1326,7 +1327,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String startDate = smsInfo.getStartDate();
         String endDate = smsInfo.getEndDate();
         String sdate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(startDate).getTime());
-        String edate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(endDate).getTime());
+        //update by huzj  订单结束时间为当前时间?? 业务是否存在问题,查询前，订单结束时间还未插入
+        String edate = DateUtils.getYearMonthDayHourMinuteSecond(new Date().getTime());
         smsInfo.setStartDate(sdate);
         smsInfo.setEndDate(edate);
         //获取开始结束时间 加金额
