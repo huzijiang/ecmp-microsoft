@@ -122,11 +122,11 @@ schedule:
 #/upload
 app:
   zimg:
-    server: http://zimg.hqzhixing.com
+    server: http://zimg.hqzhixing.com:4869
     access:
-      url: http://zimg.hqzhixing.com/
-  welcome: http://zimg.hqzhixing.com/a866e23b46c351da88e87ede49bce0de
-  background: http://zimg.hqzhixing.com/a866e23b46c351da88e87ede49bce0de
+      url: http://zimg.hqzhixing.com:4869/
+  welcome: http://zimg.hqzhixing.com:4869/a866e23b46c351da88e87ede49bce0de
+  background: http://zimg.hqzhixing.com:4869/a866e23b46c351da88e87ede49bce0de
 
 wx:
 #应用ID
