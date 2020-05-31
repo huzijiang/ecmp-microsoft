@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.dto.cost.CostConfigQueryPriceDto;
 import com.hq.ecmp.mscore.vo.CarGroupCostVO;
 import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
@@ -91,7 +92,7 @@ public interface CostConfigCityInfoMapper
 
     void deleteCostConfigCityInfoByCostId(@Param("costId") Long costId);
 
-    List<CarGroupCostVO> findGroupByCity(@Param("cityCode")String cityCode,@Param("companyId") Long companyId);
+    List<CarGroupCostVO> findGroupByCity(CostConfigQueryPriceDto queryPriceDto);
 
     List<CityInfo> getCostCityList(@Param("companyId") Long companyId);
 }

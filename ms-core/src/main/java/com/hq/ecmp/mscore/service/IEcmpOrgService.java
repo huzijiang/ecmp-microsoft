@@ -258,7 +258,7 @@ public interface IEcmpOrgService
      * @param parentId
      * @return
      */
-    List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId);
+    List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId,Long userId);
 
     EcmpOrg getOrgByDeptId(Long deptId);
 

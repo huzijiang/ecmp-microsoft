@@ -127,4 +127,11 @@ public class UserApplySingleVo extends PageRequest {
 
     @ApiModelProperty(value = "首页订单动态结束时间")
     private String  homeDynamicEndTime;
+
+    @ApiModelProperty(value = "内部车队名称")
+    private String outerCarGroupName;
+
+    @ApiModelProperty(value = "是否自驾")
+    private String itIsSelfDriver;
+
 }

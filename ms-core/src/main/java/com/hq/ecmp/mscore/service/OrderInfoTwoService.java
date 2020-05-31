@@ -132,4 +132,11 @@ public interface OrderInfoTwoService {
     void returnCar(Long userId, Long orderId)throws Exception;
 
     List<DispatchVo> queryDispatchListCharterCars(ApplyDispatchQuery applyDispatchQuery,LoginUser loginUser);
+
+    /**
+     * 外部车队列表
+     * @param companyId
+     * @return
+     */
+    List<CarGroupInfo> applySingleCarGroupList(Long companyId);
 }
