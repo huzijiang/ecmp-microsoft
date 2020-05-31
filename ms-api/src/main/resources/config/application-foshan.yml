@@ -124,7 +124,7 @@ app:
   zimg:
     server: http://zimg.hqzhixing.com
     access:
-      url: http://zimg.hqzhixing.com
+      url: http://zimg.hqzhixing.com/
   welcome: http://zimg.hqzhixing.com/a866e23b46c351da88e87ede49bce0de
   background: http://zimg.hqzhixing.com/a866e23b46c351da88e87ede49bce0de
 
