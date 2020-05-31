@@ -176,7 +176,7 @@ public class CarGroupController {
         try {
             PageResult<CarGroupListVO> list = carGroupInfoService.selectCarGroupInfoByPage(pageRequest.getPageNum(),
                     pageRequest.getPageSize(),pageRequest.getSearch(),
-                    pageRequest.getState(),pageRequest.getDeptId(),pageRequest.getCarGroupId(),companyId,loginUser.getUser().getUserId());
+                    pageRequest.getState(),pageRequest.getDeptId(),pageRequest.getCarGroupId(),companyId,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
