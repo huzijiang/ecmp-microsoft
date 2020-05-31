@@ -370,4 +370,17 @@
         </where>
     </select>
 
+    <select id="selectCostConfigInfosByCondition" resultMap="CostConfigInfoResult">
+                select s.*,a.* from cost_config_info  s
+				left join cost_config_car_group_info a on s.cost_id=a.cost_id
+				left join cost_config_car_type_info c on c.cost_id=s.cost_id
+				left join cost_config_city_info ci on ci.cost_id=s.cost_id
+				where a.car_group_id=#{carGroupId}
+				AND c.car_type_id=#{carTypeId}
+				and s.company_id=#{companyId}
+				and s.rent_type=#{rentType}
+				and s.car_group_user_mode=#{carGroupUserMode}
+				and ci.city_code=#{cityCode}
+    </select>
+
 </mapper>

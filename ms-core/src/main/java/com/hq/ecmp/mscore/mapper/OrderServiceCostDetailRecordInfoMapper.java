@@ -5,6 +5,7 @@ import com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 /**
  * (OrderServiceCostDetailRecordInfo)表数据库访问层
@@ -12,6 +13,7 @@ import org.apache.ibatis.annotations.Param;
  * @author crk
  * @since 2020-05-24 18:23:06
  */
+@Repository
 public interface OrderServiceCostDetailRecordInfoMapper {
 
     /**

@@ -8,6 +8,7 @@ import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.dto.cost.ValidDoubleDtoResult;
 import com.hq.ecmp.mscore.vo.CostConfigDetailInfoVo;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.Map;
  * @author hqer
  * @date 2020-05-06
  */
+@Repository
 public interface CostConfigInfoMapper 
 {
     /**
@@ -125,6 +127,20 @@ public interface CostConfigInfoMapper
      */
     List<CostConfigDetailInfoVo> selectCostConfigDetailInfo(CarGroupPricePlanInfoBo carGroupPricePlanInfoBo);
 
+    /**
+     * 查询指定车队，公司，车型，城市,包车类型,服务模式对应的价格计划
+     * @param companyId
+     * @param carTypeId
+     * @param carGroupId
+     * @param rentType
+     * @param cityCode
+     * @param carGroupUserMode
+     * @return
+     */
+    List<CostConfigInfo> selectCostConfigInfosByCondition(@Param("companyId") Long companyId,@Param("carTypeId") Long carTypeId,
+                                                          @Param("carGroupId") Long carGroupId,@Param("rentType") String rentType,
+                                                          @Param("carGroupUserMode") String carGroupUserMode,
+                                                          @Param("cityCode") String cityCode);
 
 
 }
