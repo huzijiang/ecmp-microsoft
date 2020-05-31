@@ -318,7 +318,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
 
             //!journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey()) && null != journeyInfo
             if( floor <= 1 || date.getTime() >= endDate.getTime()){ //行程结束时间是用车结束当天
-
+                log.info("该订单以结束服务orderNo：{}",orderNo);
                 /**xmy2*/   //非多日租走老方法
                 if(orderConfirmStatus == 1){
                     orderInfo.setState(OrderState.STOPSERVICE.getState());
@@ -330,6 +330,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 iOrderInfoService.updateOrderInfo(orderInfo);
                 iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
             }else {//false的话说明是多日服务 还没有到租车结束当天
+
+                log.info("该订继续服务orderNo：{}",orderNo);
                 /**xmy1*/
                 orderInfo.setState(OrderState.SERVICE_SUSPEND.getState());//订单状态
                 iOrderInfoService.updateOrderInfo(orderInfo);//更新订单状态
