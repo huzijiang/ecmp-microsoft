@@ -64,10 +64,10 @@ public class DriverBackController {
     @Log(title = "驾驶员管理模块",content = "获取当前人权限下的所有车队", businessType = BusinessType.OTHER)
     @ApiOperation(value="getCarGroupList" ,notes="获取当前人权限下的所有车队", httpMethod = "POST")
     @PostMapping("/getCarGroupList")
-    public ApiResponse<List<CarGroupListVO>> getCarGroupList(){
+    public ApiResponse<List<CarGroupListVO>> getCarGroupList(@RequestParam(value = "cityCode" ,required = false) String cityCode){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        List<CarGroupListVO> list=carGroupInfoService.getCarGroupList(loginUser.getUser());
+        List<CarGroupListVO> list=carGroupInfoService.getCarGroupList(loginUser.getUser(),cityCode);
         return ApiResponse.success(list);
     }
 

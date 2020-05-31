@@ -673,9 +673,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @return
      */
     @Override
-    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId,Long companyId) {
+    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId,Long companyId,Long userId) {
         PageHelper.startPage(pageNum,pageSize);
-        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search,state,deptId,carGroupId,companyId);
+        List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search,state,deptId,carGroupId,companyId,userId);
         getCarGroupExtraInfo(list);
         PageInfo<CarGroupListVO> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);
@@ -1154,9 +1154,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
 
     /*根据公司id 查询车队树*/
     @Override
-    public List<CarGroupTreeVO> selectCarGroupTree(Long deptId){
+    public List<CarGroupTreeVO> selectCarGroupTree(Long deptId,Long userId){
         //查询分子公司的一级车队
-        List<CarGroupTreeVO> list = carGroupInfoMapper.selectFirstLevelCarGroupList(deptId);
+        List<CarGroupTreeVO> list = carGroupInfoMapper.selectFirstLevelCarGroupList(deptId,userId);
         int size = list.size();
         if(size>0){
             for (int i = 0; i < size; i++) {
@@ -1309,7 +1309,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     }
 
     @Override
-    public List<CarGroupListVO> getCarGroupList(SysUser user) {
+    public List<CarGroupListVO> getCarGroupList(SysUser user,String cityCode) {
         /**flag 1:调度员,0:系统管理员*/
         int flag=1;
         List<SysRole> roles = user.getRoles();
@@ -1323,7 +1323,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 companyId=user.getOwnerCompany();
             }
         }
-        return carGroupInfoMapper.getCarGroupList(userId,flag,companyId);
+        return carGroupInfoMapper.getCarGroupList(userId,flag,companyId,cityCode);
     }
 
     /* *//**

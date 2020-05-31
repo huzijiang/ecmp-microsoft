@@ -2296,6 +2296,10 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setState(ApplyStateConstant.APPLY_PASS);
         //车型级别编号
         applyInfo.setCarTypeId(applySingleVO.getCarTypeId());
+        //外部车队id
+        applyInfo.setOuterCarGroupId(applySingleVO.getOuterCarGroupId());
+        //是否自驾
+        applyInfo.setItIsSelfDriver(applySingleVO.getItIsSelfDriver());
         //reason 行程原因
         applyInfo.setReason(applySingleVO.getReason());
         //notes  用车注意事项
