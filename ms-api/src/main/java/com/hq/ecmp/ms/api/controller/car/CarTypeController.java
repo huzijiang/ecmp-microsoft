@@ -178,7 +178,7 @@ public class CarTypeController {
         //所有车型图标
         List<CarTypeDTO> ecmpDictDataList = iEcmpDictDataService.selectEcmpDictByCarType(dictType);
         //车型图标中已经用过的图标
-        List<CarTypeDTO> sceneList = enterpriseCarTypeInfoService.selectEnterpriseCarTypeList(companyId);
+        /*List<CarTypeDTO> sceneList = enterpriseCarTypeInfoService.selectEnterpriseCarTypeList(companyId);
         //选出可以使用的制度
         for(int i= 0; i<ecmpDictDataList.size(); i++){
             for(int s =0; s<sceneList.size() ; s++){
@@ -199,7 +199,7 @@ public class CarTypeController {
                     ecmpDictDataList.add(car);
                 }
             }
-        }
+        }*/
         return ApiResponse.success(ecmpDictDataList);
     }
 }

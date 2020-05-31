@@ -23,6 +23,7 @@ import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.Page;
 import com.hq.ecmp.util.PageUtil;
 import com.hq.ecmp.util.RedisUtil;
+import jdk.nashorn.internal.runtime.regexp.joni.encoding.CharacterType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +95,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     private IOrderStateTraceInfoService iOrderStateTraceInfoService;
     @Resource
     private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
+    @Resource
+    private ApplyInfoMapper applyInfoMapper;
+    @Resource
+    private CostConfigInfoMapper costConfigInfoMapper;
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -882,11 +887,35 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         /**查寻该调度员可用查看的所有申请人*/
         //是首页
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
+        int sum = 0;
         if ("1".equals(user.getItIsDispatcher())) {//是调度员
             dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCar(query);
+            CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+            CarGroupDispatcherInfo carGroupDispatcherInfo1 = carGroupDispatcherInfo;
+            carGroupDispatcherInfo1.setUserId(query.getUserId());
+            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo1);
+            List<Long> dispatcheers = carGroupDispatcherInfos.stream().map(p ->p.getCarGroupId()).collect(Collectors.toList());
+            Long carGroupId = carGroupDispatcherInfos.get(0).getCarGroupId();
+            CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+            if (carGroupInfo.getItIsInner().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
+                for (DispatchVo dispatchVo:
+                        dispatcherOrderList) {
+                    dispatchVo.setInOrOut(1);
+                }
+            }else{
+                Iterator<DispatchVo> iterator = dispatcherOrderList.iterator();
+                while(iterator.hasNext()){
+                    DispatchVo next = iterator.next();
+                    next.setInOrOut(2);
+                    if(next.getNextCarGroupId() == null || !dispatcheers.contains(next.getNextCarGroupId())){
+                        iterator.remove();
+                        sum ++;
+                    }
+                }
+            }
         }
         PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
-        PageResult<DispatchVo> dispatchVoPageResult = new PageResult<>(info.getTotal(), info.getPages(), dispatcherOrderList);
+        PageResult<DispatchVo> dispatchVoPageResult = new PageResult<>(info.getTotal()-sum, info.getPages(), dispatcherOrderList);
         log.info("首页查询出来的调度列表数据为---------------------------------"+dispatchVoPageResult);
         return dispatchVoPageResult;
     }
@@ -916,18 +945,104 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         /**查寻该调度员可用查看的所有申请人*/
         if ("1".equals(user.getItIsDispatcher())) {//是调度员
             dispatcherOrderList = orderInfoMapper.queryHomePageDispatchListCharterCarCounts(query);
+            CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+            CarGroupDispatcherInfo carGroupDispatcherInfo1 = carGroupDispatcherInfo;
+            carGroupDispatcherInfo1.setUserId(query.getUserId());
+            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo1);
+            List<Long> dispatcheers = carGroupDispatcherInfos.stream().map(p ->p.getCarGroupId()).collect(Collectors.toList());
+            Long carGroupId = carGroupDispatcherInfos.get(0).getCarGroupId();
+            CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+            if (carGroupInfo.getItIsInner().equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
+                for (DispatchVo dispatchVo:
+                        dispatcherOrderList) {
+                    dispatchVo.setInOrOut(1);
+                }
+            }else{
+                Iterator<DispatchVo> iterator = dispatcherOrderList.iterator();
+                while(iterator.hasNext()){
+                    DispatchVo next = iterator.next();
+                    next.setInOrOut(2);
+                    if(next.getNextCarGroupId() == null || !dispatcheers.contains(next.getNextCarGroupId())){
+                        iterator.remove();
+                    }
+                }
+            }
         }
         return dispatcherOrderList;
     }
 
+    /**
+     * 外部车队列表
+     * @param deptId
+     * @return
+     */
     @Override
-    public List<CarGroupInfo> dispatcherCarGroupList(Long orderId, LoginUser loginUser) {
+    public List<CarGroupInfo> applySingleCarGroupList(Long deptId) {
+        return carGroupInfoMapper.applySingleCarGroupList(CarConstant.START_UP_CAR_GROUP,CarConstant.IT_IS_USE_INNER_CAR_GROUP_OUT,deptId);
+    }
+
+    @Override
+    public List<CarGroupInfo> dispatcherCarGroupList(Long orderId, LoginUser loginUser,String carGroupUserMode) {
         List<CarGroupInfo> carGroupInfos = new ArrayList<>();
-        SysUser user = loginUser.getUser();
-        Long userId = user.getUserId();
-        Long deptId = user.getDeptId();
+        OrderInfo orderInfo1 = orderInfoMapper.selectOrderInfoById(orderId);
+        Long userId = orderInfo1.getUserId();
+        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(userId);
+        Long deptId = ecmpUser.getDeptId();
+        Long companyId = ecmpUser.getOwnerCompany();
+        //获取车型id
+        Long carTypeId = applyInfoMapper.getApplyCarTypeIdWithOrderId(orderId);
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+        //包车类型
+        String charterCarType = journeyInfo.getCharterCarType();
+
+        OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+        orderAddressInfo.setOrderId(orderId);
+        orderAddressInfo.setType("A000");
+        List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(orderAddressInfo);
+        OrderAddressInfo orderAddressInfo1 = orderAddressInfos.get(0);
+        //用车城市
+        String cityCode = orderAddressInfo1.getCityPostalCode();
         if (deptId != null) {
+            //获取车队列表
             carGroupInfos = carGroupInfoMapper.dispatcherCarGroupList(deptId);
+            if(carGroupInfos.size()>0){
+                Iterator<CarGroupInfo> iterator = carGroupInfos.iterator();
+                while(iterator.hasNext()){
+                    CarGroupInfo next = iterator.next();
+                    if (charterCarType.equals(CharterTypeEnum.HALF_DAY_TYPE.getKey())||charterCarType.equals(CharterTypeEnum.OVERALL_RENT_TYPE.getKey())){
+                        List<CostConfigInfo> costConfigInfos = costConfigInfoMapper.selectCostConfigInfosByCondition(companyId, carTypeId, next.getCarGroupId(), charterCarType, carGroupUserMode, cityCode);
+                        if(CollectionUtils.isEmpty(costConfigInfos)){
+                            iterator.remove();
+                        }
+                    }else if(charterCarType.equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){
+                        //包车天数
+                        String useTime = journeyInfo.getUseTime();
+                        double useTimeDouble = Double.parseDouble(useTime);
+                        double v = useTimeDouble % 1;
+                        int flag = 0;
+                        if(!"0.5".equals(useTime) && v == 0.5){
+                            //整日和半日
+                            flag = 1;
+                        }
+                        if(v == 0){
+                            //整日租
+                            flag =2;
+                        }
+                        List<CostConfigInfo> costConfigInfosOverAll = costConfigInfoMapper.selectCostConfigInfosByCondition(companyId, carTypeId, next.getCarGroupId(), CharterTypeEnum.OVERALL_RENT_TYPE.getKey(), carGroupUserMode, cityCode);
+                        if(flag == 1){
+                            List<CostConfigInfo> costConfigInfosHalf = costConfigInfoMapper.selectCostConfigInfosByCondition(companyId, carTypeId, next.getCarGroupId(), CharterTypeEnum.HALF_DAY_TYPE.getKey(), carGroupUserMode, cityCode);
+                            if (CollectionUtils.isEmpty(costConfigInfosHalf) || CollectionUtils.isEmpty(costConfigInfosOverAll)){
+                                iterator.remove();
+                            }
+                        }else if(flag == 2){
+                            if (CollectionUtils.isEmpty(costConfigInfosOverAll)){
+                                iterator.remove();
+                            }
+                        }
+                    }
+                }
+            }
         }
         return carGroupInfos;
     }

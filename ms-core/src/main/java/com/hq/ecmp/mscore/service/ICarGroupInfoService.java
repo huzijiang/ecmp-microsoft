@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.dto.CarGroupDTO;
@@ -104,7 +105,8 @@ public interface ICarGroupInfoService
      * @param pageSize
      * @return
      */
-    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId,Long companyId);
+    PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize, String search, String state, Long deptId,
+                                                        Long carGroupId, Long companyId, LoginUser loginUser);
 
     /**
      * 删除车队
@@ -138,7 +140,7 @@ public interface ICarGroupInfoService
     DispatcherAndFixedLineVO getDispatcherAndFixedLine(Long orderId);
 
     /*根据分子公司id查询车队树*/
-    List<CarGroupTreeVO> selectCarGroupTree(Long deptId);
+    List<CarGroupTreeVO> selectCarGroupTree(Long deptId,Long userId);
 
     /*查询所有车队编号*/
     List<String> selectAllCarGroupCode(Long companyId);
@@ -160,7 +162,7 @@ public interface ICarGroupInfoService
      */
     Boolean judgeCarGroupName(String carGroupName, Long owneCompany);
 
-    List<CarGroupListVO> getCarGroupList(SysUser userId);
+    List<CarGroupListVO> getCarGroupList(SysUser userId,String cityCode);
 
     /**
      * 联系车队（通用）

@@ -93,12 +93,12 @@ public class DispatcherController {
     @ApiOperation(value = "佛山调度可用外部车队列表")
     @Log(value = "佛山调度可用外部车队列表")
     @com.hq.core.aspectj.lang.annotation.Log(title = "佛山调度可用外部车队列表",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
-    public ApiResponse<List<CarGroupInfo>> dispatcherCarGroupList(Long orderId){
+    public ApiResponse<List<CarGroupInfo>> dispatcherCarGroupList(Long orderId,String carGroupUserMode){
         List<CarGroupInfo> carGroupInfos = new ArrayList<>();
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            carGroupInfos = orderInfoTwoService.dispatcherCarGroupList(orderId, loginUser);
+            carGroupInfos = orderInfoTwoService.dispatcherCarGroupList(orderId, loginUser,carGroupUserMode);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("获取车队列表失败");

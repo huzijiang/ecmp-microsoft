@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
+import com.hq.api.system.domain.SysRole;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.MacTools;
@@ -39,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.reflect.Type;
 import java.security.acl.Owner;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.hq.common.core.api.ApiResponse.SUCCESS_CODE;
 import static com.hq.ecmp.constant.CommonConstant.DEPT_TYPE_ORG;
@@ -222,10 +224,11 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                         EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(Long.valueOf(leader));
                         if(ecmpUser != null ){
                             tree.get(i).setLeaderName(ecmpUser.getUserName());
+                            //查询公司下的车队树
+                            tree.get(i).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(tree.get(i).getDeptId(),ecmpUser.getUserId()));
                         }
                     }
-                    //查询公司下的车队树
-                    tree.get(i).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(tree.get(i).getDeptId()));
+
                     //递归查询子公司
                     //tree.get(i).setChildrenList(this.selectCompanyCarGroupTree(tree.get(i).getDeptId()));
                 }
@@ -235,7 +238,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     }
 
     @Override
-    public List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId) {
+    public List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId,LoginUser loginUser) {
        /* if(deptId == null && parentId == null){
             parentId = 0L;
         }
@@ -251,14 +254,35 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                 }
             }
         }*/
+
         if(deptId == null){
             throw new RuntimeException("公司id不能为空");
         }
+        Long userId = loginUser.getUser().getUserId();
+        List<SysRole> roles = loginUser.getUser().getRoles();
+        if(ObjectUtils.isEmpty(roles)){
+            throw new RuntimeException("该用户未赋予任何角色");
+        }
+        List<Long> roleIds = roles.stream().map(r -> r.getRoleId()).collect(Collectors.toList());
+        if(roleIds.contains(1L) || roleIds.contains(7L)){
+            //1.如果是超管 或者管理员能看到全部
+            userId = null;
+        }else {
+            //2.如果不是管理员  判断是否是调度员
+            String itIsDispatcher = loginUser.getUser().getItIsDispatcher();
+            if(!"1".equals(itIsDispatcher)){
+                //3.如果不是管理员也不是调度员 返回空  1是调度员 0 不是调度员
+                log.info("用户:{}不是管理员也不是调度员，不能看车队树结构",userId);
+                return null;
+            }
+        }
+        //3.如果是调度员 只能看调度员所管理的车队（培铭说目前只考虑一级车队）  是调度员为 1 ；不是调度员为 0
         //查询公司
         List<CarGroupTreeVO> tree = ecmpOrgMapper.selectNewCompanyCarGroupTree(deptId,parentId);
         //递归查询公司的车队树
-        tree.get(0).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(deptId));
+        tree.get(0).setCarGroupTreeVO(carGroupInfoService.selectCarGroupTree(deptId,userId));
         return tree;
+
     }
 
 
