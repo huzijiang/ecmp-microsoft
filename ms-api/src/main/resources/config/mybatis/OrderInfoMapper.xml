@@ -2545,7 +2545,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
             and  ai.create_time &lt;= #{homeDynamicEndTime}
         </if>
-        order by orderState desc
+        order by orderState='待派车' DESC ,orderState='已派车' DESC , beginTime ASC
     </select>
 
 
