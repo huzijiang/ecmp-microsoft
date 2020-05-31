@@ -323,7 +323,7 @@ public class CarGroupController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            list = ecmpOrgService.selectNewCompanyCarGroupTree(loginUser.getUser().getOwnerCompany(),null,loginUser.getUser().getUserId());
+            list = ecmpOrgService.selectNewCompanyCarGroupTree(loginUser.getUser().getOwnerCompany(),null,loginUser);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("车队树查询失败,公司id:{}",ecmpOrgDto.getDeptId());

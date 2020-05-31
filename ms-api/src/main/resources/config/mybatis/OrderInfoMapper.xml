@@ -2519,10 +2519,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  ecty.name=#{carLevel}
         </if>
         <if test="beginTime!=null  and  beginTime!='' ">
-            and DATE_FORMAT(ji.start_date,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{beginTime},'%Y-%m-%d %H:%i:%S')
+            and DATE_FORMAT(ji.start_date,'%Y-%m-%d %H:%i') &gt;= DATE_FORMAT(#{beginTime},'%Y-%m-%d %H:%i')
         </if>
         <if test="endTime!=null  and  endTime!='' ">
-            and DATE_FORMAT(ji.end_date,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%S')
+            and DATE_FORMAT(ji.end_date,'%Y-%m-%d %H:%i') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i')
         </if>
         <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
             and  right (z.state,3)='100'
