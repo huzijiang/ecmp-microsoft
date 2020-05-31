@@ -26,6 +26,7 @@ import com.hq.ecmp.mscore.dto.CarGroupDTO;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2020-01-02
  */
 @Service
+@Slf4j
 public class CarGroupInfoServiceImpl implements ICarGroupInfoService
 {
     @Autowired
@@ -673,7 +675,28 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
      * @return
      */
     @Override
-    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId,Long companyId,Long userId) {
+    public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId,Long companyId,LoginUser loginUser) {
+        Long userId = loginUser.getUser().getUserId();
+        if(deptId == null){
+            throw new RuntimeException("公司id不能为空");
+        }
+        List<SysRole> roles = loginUser.getUser().getRoles();
+        if(org.apache.commons.lang3.ObjectUtils.isEmpty(roles)){
+            throw new RuntimeException("该用户未赋予任何角色");
+        }
+        List<Long> roleIds = roles.stream().map(r -> r.getRoleId()).collect(Collectors.toList());
+        if(roleIds.contains(1L) || roleIds.contains(7L)){
+            //1.如果是超管 或者管理员能看到全部
+            userId = null;
+        }else {
+            //2.如果不是管理员  判断是否是调度员
+            String itIsDispatcher = loginUser.getUser().getItIsDispatcher();
+            if(!"1".equals(itIsDispatcher)){
+                //3.如果不是管理员也不是调度员 返回空  1是调度员 0 不是调度员
+                log.info("用户:{}不是管理员也不是调度员，不能看车队列表",userId);
+                return null;
+            }
+        }
         PageHelper.startPage(pageNum,pageSize);
         List<CarGroupListVO> list =  carGroupInfoMapper.selectAllByPage(search,state,deptId,carGroupId,companyId,userId);
         getCarGroupExtraInfo(list);
