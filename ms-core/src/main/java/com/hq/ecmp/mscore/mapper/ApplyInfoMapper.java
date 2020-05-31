@@ -98,4 +98,11 @@ public interface ApplyInfoMapper
      * @return
      */
     UndoSMSTemplate queryApplyUndoList(@Param("applyId") Long applyId);
+
+    /**
+     * 通过订单id查询申请单申请时填写的车型id
+     * @param orderId
+     * @return
+     */
+    Long getApplyCarTypeIdWithOrderId(Long orderId);
 }

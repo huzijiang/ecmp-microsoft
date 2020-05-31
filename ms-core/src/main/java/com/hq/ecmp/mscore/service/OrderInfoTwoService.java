@@ -109,7 +109,7 @@ public interface OrderInfoTwoService {
      *      * @param orderId
      * @return
      */
-    public List<CarGroupInfo> dispatcherCarGroupList(Long orderId, LoginUser loginUser);
+    public List<CarGroupInfo> dispatcherCarGroupList(Long orderId, LoginUser loginUser,String carGroupUserMode);
 
     /**
      * 佛山内外调度派车
