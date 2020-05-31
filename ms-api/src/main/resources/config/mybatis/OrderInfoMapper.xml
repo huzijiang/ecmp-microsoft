@@ -1391,7 +1391,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ji.it_is_return itIsReturn,
         -- 预计等待时长
         ji.wait_time_long waitMinute,
-        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
+        CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime,
         -- 用车城市
         cc.SHORT_NAME useCarCity,
         -- 用车场景
@@ -1973,7 +1973,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         si.`name` userCarScene,
         -- 用车制度
         ri.`name` userCarRegime,
-        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60) waitingTime,
+        CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime,
         -- 服务类型
         ji.charter_car_type serverType,
         -- 状态
@@ -2135,7 +2135,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         si.`name` userCarScene,
         -- 用车制度
         ri.`name` userCarRegime,
-        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
+        CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime,
         -- 服务类型
         ji.charter_car_type serverType,
         -- 状态
@@ -2282,7 +2282,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         si.`name` userCarScene,
         -- 用车制度
         ri.`name` userCarRegime,
-        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
+        CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime,
         -- 服务类型
         ji.charter_car_type serverType,
         -- 状态
@@ -2438,7 +2438,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 驾驶员姓名
         di.driver_name driverName,
         -- 等待时长
-        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
+        CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime,
         -- 驾驶员手机号
         di.mobile driverPhone,
         -- 驾驶员归属
@@ -2545,7 +2545,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
             and  ai.create_time &lt;= #{homeDynamicEndTime}
         </if>
-        order by orderState desc
+        order by orderState='待派车' DESC ,orderState='已派车' DESC , beginTime ASC
     </select>
 
 
