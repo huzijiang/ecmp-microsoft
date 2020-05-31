@@ -55,8 +55,8 @@ public class UserinvitationController {
             Long invitationId = userInvitationDTO.getInvitationId();
             System.out.println("新增邀请链接返回ID："+ invitationId);
             InvitationUrlVO invitationUrlVO = new InvitationUrlVO();
-            String url=urlApi+"/invitePage/"+invitationId;
-            invitationUrlVO.setUrl(urlApi+"/invitePage/"+invitationId);
+            String url=urlApi+"invitePage/"+invitationId;
+            invitationUrlVO.setUrl(urlApi+"invitePage/"+invitationId);
             UserInvitationUrlDTO userUrl= new UserInvitationUrlDTO();
             userUrl.setUrl(url);
             userUrl.setInvitationId(invitationId);
