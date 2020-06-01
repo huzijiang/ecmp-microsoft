@@ -1361,7 +1361,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oi.state,oai.action_time ASC
     </select>
     <select id="queryAdminDispatchList2" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatch" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
-
+        select * from (
         SELECT DISTINCT
         -- 订单id
         oi.order_id orderId,
@@ -1406,7 +1406,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已处理'
         when right (z.state,3)='921' then '已过期'
         when right (z.state,3)='930' then '已驳回'
-        when right (z.state,3)='911' then '已取消'
         ELSE '' END state,
         -- 操作时间
         case
@@ -1442,20 +1441,13 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="applyMobile!=null and applyMobile!=''">
             and  eu.phonenumber  like concat('%',#{applyMobile},'%')
         </if>
-        <if test="cityCode!=null and cityCode!= ''">
-            and  cc.SHORT_NAME=#{cityCode}
-        </if>
+
         <if test="useCarMode!=null and useCarMode!=''">
             and  oi.use_car_mode=#{useCarMode}
         </if>
-        <if test="dispatchStatus!=null and dispatchStatus!=''">
-            and  oi.state=#{dispatchStatus}
-        </if>
-        <if test="optStartDate!=null  and  optStartDate!='' ">
-            and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{optStartDate},'%Y-%m-%d %H:%i:%S')
-        </if>
-        <if test="optEndDate!=null  and  optEndDate!='' ">
-            and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
+
+        <if test="cityCode!=null and cityCode != ''">
+            and oai.city_postal_code=#{cityCode}
         </if>
         and  oi.it_is_supplement='N000'
         <if test="orderIds!=null">
@@ -1467,6 +1459,17 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
         ORDER BY
         oi.state,oai.action_time ASC
+        ) t
+        where 1=1
+        <if test="optStartDate!=null ">
+            and DATE_FORMAT(t.opDate,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{optStartDate},'%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test="optEndDate!=null  ">
+            and DATE_FORMAT(t.opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test="dispatchStatus!=null and dispatchStatus!=''">
+            and t.state=#{dispatchStatus}
+        </if>
     </select>
 
     <select id="queryDispatchOrder" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
@@ -2064,9 +2067,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="useCarMode!=null and useCarMode!=''">
             and oi.use_car_mode=#{useCarMode}
         </if>
-        <if test="dispatchStatus!=null and dispatchStatus!=''">
-            and oi.state=#{dispatchStatus}
-        </if>
 
         <if test="orderId!=null and orderId != ''">
             and oi.order_id=#{orderId}
@@ -2093,6 +2093,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="optEndDate!=null  ">
             and DATE_FORMAT(t.opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
         </if>
+        <if test="dispatchStatus!=null and dispatchStatus!=''">
+            and t.state=#{dispatchStatus}
+        </if>
+
     </select>
 
     <select id="queryHomePageDispatchListCharterCarCounts" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatchQuery" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
