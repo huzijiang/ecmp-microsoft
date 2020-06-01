@@ -169,6 +169,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="companyId != null">
                 and c.company_id = #{companyId}
             </if>
+            <if test="userId != null">
+                and c.car_group_id in (select i.car_group_id from car_group_dispatcher_info i where i.user_id = #{userId})
+            </if>
         </where>
              order by c.car_group_name
     </select>
@@ -212,6 +215,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                car_group_name as deptName
         from   car_group_info
         where  company_id = #{deptId} and parent_car_group_id = 0 and  state != 'S444'
+        <if test="userId != null">
+         and car_group_id in (select car_group_id from car_group_dispatcher_info where user_id = #{userId})
+        </if>
     </select>
     <select id="getCarGroupTree" resultType="com.hq.ecmp.mscore.vo.CarGroupTreeVO">
         select car_group_id as deptId,
@@ -253,6 +259,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
             <if test="flag==0">
             and a.company_id=#{companyId}
+            </if>
+            <if test="cityCode!=null and cityCode!=''">
+                and b.city=#{cityCode}
             </if>
         </where>
 
@@ -320,7 +329,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and ci.allow_outer_dispatch='Y000'
             and ci.state='Y000'
     </select>
-    <select id="queryAllDispatchersByCompanyId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+    <select id="queryAllDispatchersByCompanyId" parameterType="java.lang.Integer" resultType="java.lang.Long">
         select s.user_id from car_group_info c
         left join car_group_dispatcher_info s on c.car_group_id=s.car_group_id
         where c.company_id=#{companyId}
@@ -346,5 +355,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
               and
               car_group_id in
               (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+    </select>
+
+    <select id="applySingleCarGroupList"  resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+
+          select c.car_group_id carGroupId,c.car_group_name carGroupName  from car_group_info c left join car_group_serve_org_relation o on o.car_group_id = c.car_group_id where c.state =#{state}  and c.it_is_inner =#{itIsInner}  and o.dept_id =#{deptId}
+
     </select>
 </mapper>

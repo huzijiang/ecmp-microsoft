@@ -62,6 +62,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="state != null  and state != ''">state,</if>
             <if test="reason != null  and reason != ''">reason,</if>
             <if test="carTypeId != null  and carTypeId != ''">car_type_id,</if>
+            <if test="itIsSelfDriver != null  and itIsSelfDriver != ''">it_is_self_driver,</if>
+            <if test="outerCarGroupId != null  and outerCarGroupId != ''">outer_car_group_id,</if>
             <if test="notes != null  and notes != ''">notes,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
@@ -81,6 +83,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="state != null  and state != ''">#{state},</if>
             <if test="reason != null  and reason != ''">#{reason},</if>
             <if test="carTypeId != null  and carTypeId != ''">#{carTypeId},</if>
+            <if test="itIsSelfDriver != null  and itIsSelfDriver != ''">#{itIsSelfDriver},</if>
+            <if test="outerCarGroupId != null  and outerCarGroupId != ''">#{outerCarGroupId},</if>
             <if test="notes != null  and notes != ''">#{notes},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
@@ -219,6 +223,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                           LEFT JOIN driver_info di ON di.driver_id = oi.driver_id
                         WHERE
                             apply_id = #{applyId}
+
+    </select>
+
+    <select id="getApplyCarTypeIdWithOrderId" parameterType="java.lang.Long" resultType="java.lang.Long">
+                select a.car_type_id  as carTypeId
+                from order_info o
+				left join apply_info a on o.journey_id=a.journey_id
+				where o.order_id=#{orderId}
 
     </select>
 </mapper>

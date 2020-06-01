@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
@@ -258,7 +259,7 @@ public interface IEcmpOrgService
      * @param parentId
      * @return
      */
-    List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId);
+    List<CarGroupTreeVO> selectNewCompanyCarGroupTree(Long deptId, Long parentId, LoginUser loginUser);
 
     EcmpOrg getOrgByDeptId(Long deptId);
 

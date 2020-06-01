@@ -112,7 +112,7 @@ public interface ICostConfigInfoService
 
     List<ValidDoubleDtoResult> checkCharteredCost(CostConfigQueryDoubleValidDto costConfigQueryDto);
 
-    List<PriceOverviewVO> getGroupPrice(String cityCode,Long companyId);
+    List<PriceOverviewVO> getGroupPrice(CostConfigQueryPriceDto queryPriceDto);
 
     List<CityInfo> getCostCityList(Long companyId);
 }

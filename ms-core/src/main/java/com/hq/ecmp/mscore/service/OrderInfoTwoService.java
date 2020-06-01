@@ -109,7 +109,7 @@ public interface OrderInfoTwoService {
      *      * @param orderId
      * @return
      */
-    public List<CarGroupInfo> dispatcherCarGroupList(Long orderId, LoginUser loginUser);
+    public List<CarGroupInfo> dispatcherCarGroupList(Long orderId, LoginUser loginUser,String carGroupUserMode);
 
     /**
      * 佛山内外调度派车
@@ -132,4 +132,11 @@ public interface OrderInfoTwoService {
     void returnCar(Long userId, Long orderId)throws Exception;
 
     List<DispatchVo> queryDispatchListCharterCars(ApplyDispatchQuery applyDispatchQuery,LoginUser loginUser);
+
+    /**
+     * 外部车队列表
+     * @param companyId
+     * @return
+     */
+    List<CarGroupInfo> applySingleCarGroupList(Long companyId);
 }

@@ -13,9 +13,9 @@ import java.util.Date;
 public class DriverSmsInfo {
 
     @ApiModelProperty(name = "startDate",value = "開始時間")
-    private Date startDate;
+    private String startDate;
     @ApiModelProperty(name = "endDate",value = "结束时间")
-    private Date endDate;
+    private String endDate;
     @ApiModelProperty(name = "totalFee",value = "费用结算")
     private BigDecimal totalFee;
     @ApiModelProperty(name = "orderNumber",value = "订单号")

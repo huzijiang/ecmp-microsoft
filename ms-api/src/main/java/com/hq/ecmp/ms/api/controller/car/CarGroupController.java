@@ -176,7 +176,7 @@ public class CarGroupController {
         try {
             PageResult<CarGroupListVO> list = carGroupInfoService.selectCarGroupInfoByPage(pageRequest.getPageNum(),
                     pageRequest.getPageSize(),pageRequest.getSearch(),
-                    pageRequest.getState(),pageRequest.getDeptId(),pageRequest.getCarGroupId(),companyId);
+                    pageRequest.getState(),pageRequest.getDeptId(),pageRequest.getCarGroupId(),companyId,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();
@@ -320,8 +320,10 @@ public class CarGroupController {
             @RequestBody EcmpOrgDto ecmpOrgDto){
         //根据公司id查询车队列表
         List<CarGroupTreeVO>  list = null;
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            list = ecmpOrgService.selectNewCompanyCarGroupTree(ecmpOrgDto.getDeptId(),null);
+            list = ecmpOrgService.selectNewCompanyCarGroupTree(loginUser.getUser().getOwnerCompany(),null,loginUser);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("车队树查询失败,公司id:{}",ecmpOrgDto.getDeptId());

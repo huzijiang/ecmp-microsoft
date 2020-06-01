@@ -73,7 +73,7 @@ public interface CarGroupInfoMapper
      * @param carGroupId
      * @return
      */
-    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId,@Param("companyId") Long companyId);
+    List<CarGroupListVO> selectAllByPage(@Param("search") String search,@Param("state")String state,@Param("deptId")Long deptId,@Param("carGroupId")Long carGroupId,@Param("companyId") Long companyId,@Param("userId") Long userId);
 
     /**
      * 查询该组织下的车队信息
@@ -118,7 +118,7 @@ public interface CarGroupInfoMapper
      * @param deptId
      * @return
      */
-    List<CarGroupTreeVO> selectFirstLevelCarGroupList(Long deptId);
+    List<CarGroupTreeVO> selectFirstLevelCarGroupList(Long deptId,Long userId);
 
     /**
      * 根据车队id查询车队树
@@ -154,7 +154,7 @@ public interface CarGroupInfoMapper
      */
     List<CarGroupInfo> selectEnableCarGroupInfoList(CarGroupInfo carGroupInfo);
 
-    List<CarGroupListVO> getCarGroupList(@Param("userId")Long userId,@Param("flag")int flag,@Param("companyId")Long companyId);
+    List<CarGroupListVO> getCarGroupList(@Param("userId")Long userId,@Param("flag")int flag,@Param("companyId")Long companyId,@Param("cityCode") String cityCode);
 
     List<CarGroupInfo> selectCarGroupInfoByDeptId(@Param("orgComcany") Long orgComcany,@Param("deptId") Long deptId);
 
@@ -208,4 +208,11 @@ public interface CarGroupInfoMapper
      * @return
      */
      List<String> getTakeBack(@Param("userId")Long userId,@Param("orderId")Long orderId);
+
+    /**
+     * 外部车队列表
+     * @param companyId
+     * @return
+     */
+    List<CarGroupInfo> applySingleCarGroupList(@Param("state") String state,@Param("itIsInner")String itIsInner,@Param("deptId") Long deptId);
 }

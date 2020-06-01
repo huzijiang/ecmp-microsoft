@@ -6,11 +6,13 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.ApplyStateConstant;
 import com.hq.ecmp.constant.ApproveStateEnum;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
+import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.service.ChinaCityService;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
@@ -21,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -237,6 +240,27 @@ public class UserApplySingleController {
             ApiResponse.error("分页查询员工订单动态失败");
         }
         return jsonObject;
+    }
+
+    /**
+     *外部车队列表
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "applySingleCarGroupList",notes = "外部车队列表",httpMethod ="POST")
+    @Log(title = "外部车队列表", content = "外部车队列表",businessType = BusinessType.OTHER)
+    @PostMapping("/applySingleCarGroupList")
+    public ApiResponse<List<CarGroupInfo>> applySingleCarGroupList(){
+        List<CarGroupInfo> carGroupInfos = new ArrayList<>();
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            carGroupInfos = orderInfoTwoService.applySingleCarGroupList(loginUser.getUser().getDeptId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("获取车队列表失败");
+        }
+        return  ApiResponse.success(carGroupInfos);
     }
 
 }
