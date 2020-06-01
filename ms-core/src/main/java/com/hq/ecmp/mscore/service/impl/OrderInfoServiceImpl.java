@@ -152,8 +152,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private String licenseContent;
     @Value("${thirdService.apiUrl}")//三方平台的接口前地址
     private String apiUrl;
-    @Value("${company.serviceMobile}")
-    private String serviceMobile;
     @Value("${dispatch.waitIntervalMinutes}")
     private Long waitIntervalMinutes;
 
@@ -1422,7 +1420,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public DriverOrderInfoVO driverOrderDetail(Long orderId) throws Exception{
         DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
         vo.setCustomerServicePhone(thirdService.getCustomerPhone());
-        vo.setCustomerServicePhone(serviceMobile);
         OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
 //        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
         String passengerPhone=null;

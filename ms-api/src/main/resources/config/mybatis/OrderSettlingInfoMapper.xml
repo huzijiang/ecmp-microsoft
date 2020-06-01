@@ -128,7 +128,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null ">#{updateTime},</if>
         </trim>
         ON DUPLICATE KEY UPDATE
-            order_id=#{orderId}
+        <trim suffixOverrides=",">
+            <if test="billId != null ">bill_id = #{billId},</if>
+            <if test="orderId != null ">order_id = #{orderId},</if>
+            <if test="amount != null ">amount = #{amount},</if>
+            <if test="amountDetail != null  and amountDetail != ''">amount_detail=#{amountDetail},</if>
+            <if test="totalMileage != null ">total_mileage = #{totalMileage},</if>
+            <if test="totalTime != null ">total_time=#{totalTime},</if>
+            <if test="outPrice != null ">out_price=#{outPrice},</if>
+            <if test="updateBy != null ">update_by=#{updateBy},</if>
+            <if test="updateTime != null ">update_time=#{updateTime},</if>
+        </trim>
     </insert>
 
     <select id="selectSettingInfoByOrderIds" parameterType="Object" resultMap="OrderSettlingInfoResult">
