@@ -1,8 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -18,7 +16,6 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.vo.*;
-import org.omg.Messaging.SyncScopeHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,34 +194,39 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			ecmpUserService.updateEcmpUserjobNumber(updateEcmpUser);
 			//ecmpUserService.updateEcmpUser(updateEcmpUser);
 			//ecmpUserMapper.updateEcmpUser(updateEcmpUser);
-		}else if(CollectionUtils.isEmpty(selectEcmpUserList) && DriverNatureEnum.OWNER_DRIVER.getKey().equals(driverCreateInfo.getDriverNature())){
-			//如果不是公司已有的员工，而是新来的自有驾驶员（非借调，非外聘）
-			//1. 员工表插入数据
-			EcmpUser newDriverUser = EcmpUser.builder().nickName(driverCreateInfo.getDriverName())
-					.phonenumber(driverCreateInfo.getMobile())
-					.ownerCompany(driverCreateInfo.getCompanyId())
-					//直属公司 不属于部门
-					.deptId(driverCreateInfo.getCompanyId())
-					.sex(driverCreateInfo.getGender())
-					.userName(driverCreateInfo.getMobile())
-					.delFlag("0")
-					.itIsDriver("0")
-					.itIsDispatcher("1")
-					.jobNumber(driverCreateInfo.getJobNumber())
-					.userType("00")
-					.build();
-			newDriverUser.setCreateBy(String.valueOf(driverCreateInfo.getOptUserId()));
-			newDriverUser.setCreateTime(new Date());
-			ecmpUserMapper.insertEcmpUser(newDriverUser);
-			newUserId = newDriverUser.getUserId();
-			//2. 插入用户驾驶员角色表
-			EcmpUserRole build = EcmpUserRole.builder().roleId(6L).userId(newUserId).build();
-			ecmpUserRoleMapper.insertEcmpUserRole(build);
-			//3. 插入用户员工角色表
-			EcmpUserRole employee = EcmpUserRole.builder().roleId(5L).userId(newUserId).build();
-			ecmpUserRoleMapper.insertEcmpUserRole(employee);
-			driverCreateInfo.setUserId(newUserId);
 		}
+		//2020.6.1号新改动，新增驾驶员，不赋予驾驶员员工角色。
+//		else if(CollectionUtils.isEmpty(selectEcmpUserList) && DriverNatureEnum.OWNER_DRIVER.getKey().equals(driverCreateInfo.getDriverNature())){
+//			//如果不是公司已有的员工，而是新来的自有驾驶员（非借调，非外聘）
+//			//1. 员工表插入数据
+//			LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+//			EcmpUser newDriverUser = EcmpUser.builder().nickName(driverCreateInfo.getDriverName())
+//					.phonenumber(driverCreateInfo.getMobile())
+//					.ownerCompany(driverCreateInfo.getCompanyId())
+//					//直属公司 不属于部门
+//					.deptId(driverCreateInfo.getCompanyId())
+//					.sex(driverCreateInfo.getGender())
+//					.userName(driverCreateInfo.getMobile())
+//					.delFlag("0")
+//					.itIsDriver("0")
+//					.itIsDispatcher("1")
+//					.jobNumber(driverCreateInfo.getJobNumber())
+//					.userType("00")
+//					.build();
+//			newDriverUser.setCreateBy(String.valueOf(driverCreateInfo.getOptUserId()));
+//			newDriverUser.setCreateTime(new Date());
+//			ecmpUserMapper.insertEcmpUser(newDriverUser);
+//			newUserId = newDriverUser.getUserId();
+//			//2. 插入用户驾驶员角色表
+//			EcmpUserRole build = EcmpUserRole.builder().roleId(6L).userId(newUserId).build();
+//			ecmpUserRoleMapper.insertEcmpUserRole(build);
+//			//3. 插入用户员工角色表
+//			EcmpUserRole employee = EcmpUserRole.builder().roleId(5L).userId(newUserId).build();
+//			ecmpUserRoleMapper.insertEcmpUserRole(employee);
+//			driverCreateInfo.setUserId(newUserId);
+//		}
+
+
     	//生成驾驶员记录  是否专职
 		//Z000   合同制  (自有驾驶员)
 		//Z001   在编   （暂时不用）
