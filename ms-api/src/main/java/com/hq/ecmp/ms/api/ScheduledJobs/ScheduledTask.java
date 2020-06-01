@@ -28,73 +28,73 @@ import java.util.List;
 @Slf4j
 public class ScheduledTask {
 
-    private static final Logger log = LoggerFactory.getLogger(ScheduledTask.class);
+	private static final Logger log = LoggerFactory.getLogger(ScheduledTask.class);
 
-    @Autowired
-    private IProjectInfoService iProjectInfoService;
+	@Autowired
+	private IProjectInfoService iProjectInfoService;
 
-    @Autowired
-    private IEcmpUserService ecmpUserService;
+	@Autowired
+	private IEcmpUserService ecmpUserService;
 	@Autowired
 	private IEcmpOrgService ecmpOrgService;
-    @Autowired
-    private IApplyInfoService applyInfoService;
-    @Autowired
-    private IOrderInfoService orderInfoService;
-    @Autowired
-    private OrderInfoTwoService orderInfoTwoService;
-    @Autowired
-    private IEcmpConfigService ecmpConfigService;
-    @Autowired
-    private IDispatchService dispatchService;
-    @Autowired
-    private RedisUtil redisUtil;
-    @Autowired
+	@Autowired
+	private IApplyInfoService applyInfoService;
+	@Autowired
+	private IOrderInfoService orderInfoService;
+	@Autowired
+	private OrderInfoTwoService orderInfoTwoService;
+	@Autowired
+	private IEcmpConfigService ecmpConfigService;
+	@Autowired
+	private IDispatchService dispatchService;
+	@Autowired
+	private RedisUtil redisUtil;
+	@Autowired
 	private IRegimeInfoService regimeInfoService;
-    @Autowired
+	@Autowired
 	private ICarInfoService carInfoService;
-    @Autowired
-    private IEcmpNoticeService iEcmpNoticeService;
-    @Autowired
+	@Autowired
+	private IEcmpNoticeService iEcmpNoticeService;
+	@Autowired
 	private IDriverInfoService iDriverInfoService;
 
-    @Value("${schedule.confirmTimeout}")
-    private int timeout;
+	@Value("${schedule.confirmTimeout}")
+	private int timeout;
 
 	@Autowired
 	private IDriverWorkInfoService driverWorkInfoService;
 
-    @Scheduled(cron = "5 * * * * ?")
-    public void testJob(){
-        System.out.println("定时任务:testJob"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-    }
+	@Scheduled(cron = "5 * * * * ?")
+	public void testJob(){
+		System.out.println("定时任务:testJob"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
 
-    //每天0点5分校验项目是否失效
-    @Scheduled(cron = "0 5 0 * * ?")
-    public void checkProject(){
-        System.out.println("定时任务:checkProject:校验项目是否过期"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-        iProjectInfoService.checkProject();
-    }
+	//每天0点5分校验项目是否失效
+	@Scheduled(cron = "0 5 0 * * ?")
+	public void checkProject(){
+		System.out.println("定时任务:checkProject:校验项目是否过期"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		iProjectInfoService.checkProject();
+	}
 
-    //每天0点0分校验员工是否已离职
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void checkDimissionEcmpUser(){
-        System.out.println("定时任务:checkDimissionEcmpUser:校验员工是否离职"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-        ecmpUserService.checkDimissionEcmpUser();
-    }
-    //每10分钟校验申请单是否过期
-    @Scheduled(cron = "0 */10 * * * ?")
-    public void checkApplyExpired(){
-        System.out.println("定时任务:checkApplyExpired:校验申请单是否过期"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-        applyInfoService.checkApplyExpired();
-    }
+	//每天0点0分校验员工是否已离职
+	@Scheduled(cron = "0 0 0 * * ?")
+	public void checkDimissionEcmpUser(){
+		System.out.println("定时任务:checkDimissionEcmpUser:校验员工是否离职"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		ecmpUserService.checkDimissionEcmpUser();
+	}
+	//每10分钟校验申请单是否过期
+	@Scheduled(cron = "0 */10 * * * ?")
+	public void checkApplyExpired(){
+		System.out.println("定时任务:checkApplyExpired:校验申请单是否过期"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		applyInfoService.checkApplyExpired();
+	}
 
 	/**
 	 * 每五分钟判断订单（自有车或者未派车的订单）是否过期,约车中状态不做判断，由云端回调过期来处理
 	 */
 	@Scheduled(cron = "0 0/5 * * * ? ")
-    public void checkOrderIsExpired(){
-        log.info("定时任务:checkOrderIsExpired:校验订单是否过期开始,{}",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	public void checkOrderIsExpired(){
+		log.info("定时任务:checkOrderIsExpired:校验订单是否过期开始,{}",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		try {
 			orderInfoTwoService.checkOrderIsExpired();
 		} catch (Exception e) {
@@ -239,21 +239,21 @@ public class ScheduledTask {
 	}
 
 
-    //后台公告管理通过发布时间与结束时间做状态修改
+	//后台公告管理通过发布时间与结束时间做状态修改
 	@Scheduled(cron = "0 0/1 * * * ? ")
-    public void  announcementManagementTimingTask (){
-        log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-        try {
-            iEcmpNoticeService.announcementTask();
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改EndTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-    }
+	public void  announcementManagementTimingTask (){
+		log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			iEcmpNoticeService.announcementTask();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改EndTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
 
-    //从云端获取一年的节假日修改本地数据的cloud_work_date_info表
+	//从云端获取一年的节假日修改本地数据的cloud_work_date_info表
 	//@Scheduled(cron = "0 0/3 * * * ? ")
-    @Scheduled(cron = "0 0 0 * * ?")
+	@Scheduled(cron = "0 0 0 * * ?")
 	public void  SchedulingTimingTask (){
 		log.info("定时任务:SchedulingTimingTask:通过云端获取的时间修改本地cloud_work_date_info假期StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		try {
@@ -296,29 +296,29 @@ public class ScheduledTask {
 	 */
 	@Scheduled(cron = "0 0/10 * * * ? ")
 	public void unlockCarOrDriver() {
-        log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
-        try {
-            carInfoService.unlockCars();
-        } catch (Exception e) {
-            log.error("车辆自动解锁失败");
-            e.printStackTrace();
-        }
-        log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+		log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+		try {
+			carInfoService.unlockCars();
+		} catch (Exception e) {
+			log.error("车辆自动解锁失败");
+			e.printStackTrace();
+		}
+		log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
 
-        log.info("定时任务:SchedulingIndependentTask:司机自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
-        try {
-            iDriverInfoService.unlockDrivers();
-        } catch (Exception e) {
-            log.error("司机自动解锁失败");
-            e.printStackTrace();
-        }
-        log.info("定时任务:SchedulingIndependentTask:司机自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
-    }
+		log.info("定时任务:SchedulingIndependentTask:司机自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+		try {
+			iDriverInfoService.unlockDrivers();
+		} catch (Exception e) {
+			log.error("司机自动解锁失败");
+			e.printStackTrace();
+		}
+		log.info("定时任务:SchedulingIndependentTask:司机自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+	}
 	/***
 	 *定时更新外聘驾驶员，借调驾驶员状态
 	 * add by liuzb
 	 */
-	@Scheduled(cron = "0 0/1 * * * ? ")
+	@Scheduled(cron = "0 15 0 * * ?  ")
 	public void  scheduUpdateDriverStaeTask (){
 		log.info("定时任务:scheduUpdateDriverStaeTask:定时更新外聘驾驶员，借调驾驶员状态开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		try {
@@ -332,7 +332,7 @@ public class ScheduledTask {
 	 * 定时更新驾驶员失效
 	 * add by liuzb
 	 */
-	@Scheduled(cron = "0 0/1 * * * ? ")
+	@Scheduled(cron = "0 15 0 * * ? ")
 	public void  scheduUpdateDriverInvalidTask (){
 		log.info("定时任务:scheduUpdateDriverInvalidTask:定时更新离职失效驾驶员状态结果开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		try {
@@ -346,7 +346,7 @@ public class ScheduledTask {
 	 * 定时更新离职失效驾驶员接绑驾驶员的车队
 	 * add by liuzb
 	 */
-	@Scheduled(cron = "0 0/1 * * * ? ")
+	@Scheduled(cron = "0 15 0 * * ?  ")
 	public void  scheduUpdateDepartureDriverTask (){
 		log.info("定时任务:scheduUpdateDepartureDriverTask:定时更新解绑驾驶员状态结果开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		try {
