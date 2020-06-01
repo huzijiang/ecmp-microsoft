@@ -1355,10 +1355,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 if(j==realSize-1){
                     orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
                     orderAddressInfo.setActionTime(journeyNodeInfoCh.getPlanArriveTime());
-                    if (!ServiceTypeConstant.CHARTERED.equals(serviceType)) {
-                        orderAddressInfo.setLongitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude()));
-                        orderAddressInfo.setLatitude(Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude()));
-                    }
+                    Double lat=journeyNodeInfoCh.getPlanEndLongitude()==null?null:Double.parseDouble(journeyNodeInfoCh.getPlanEndLongitude());
+                    Double lng=journeyNodeInfoCh.getPlanEndLatitude()==null?null:Double.parseDouble(journeyNodeInfoCh.getPlanEndLatitude());
+                    orderAddressInfo.setLongitude(lat);
+                    orderAddressInfo.setLatitude(lng);
                     orderAddressInfo.setAddress(journeyNodeInfoCh.getPlanEndAddress());
                     orderAddressInfo.setAddressLong(journeyNodeInfoCh.getPlanEndLongAddress());
                     orderAddressInfo.setCityPostalCode(journeyNodeInfoCh.getPlanEndCityCode());
