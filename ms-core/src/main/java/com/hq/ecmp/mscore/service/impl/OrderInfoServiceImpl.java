@@ -1422,7 +1422,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public DriverOrderInfoVO driverOrderDetail(Long orderId) throws Exception{
         DriverOrderInfoVO vo= orderInfoMapper.selectOrderDetail(orderId);
         vo.setCustomerServicePhone(thirdService.getCustomerPhone());
-        vo.setCustomerServicePhone(serviceMobile);
         OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
 //        EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(vo.getUserId());
         String passengerPhone=null;
