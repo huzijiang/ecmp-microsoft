@@ -873,11 +873,10 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			if(( driverNatureInfo.getHireBeginTime()==null)|| (driverNatureInfo.getHireEndTime()==null)){
 				return DriverStateEnum.EFFECTIVE.getCode();/**外聘时间到，生效*/
 			}
-			if(-1==date.compareTo(driverNatureInfo.getHireBeginTime())
-					&& -1==date.compareTo(driverNatureInfo.getHireEndTime()) ){
+			if(-1==driverNatureInfo.getHireBeginTime().compareTo(date) && -1==date.compareTo(driverNatureInfo.getHireEndTime())){
 				return DriverStateEnum.EFFECTIVE.getCode();/**外聘时间到，生效*/
 			}
-			if(-1==date.compareTo(driverNatureInfo.getHireEndTime())){
+			if(-1==driverNatureInfo.getHireEndTime().compareTo(date)){
 				return DriverStateEnum.DIMISSION.getCode();/**外聘时间结束，失效*/
 			}
 		}else if("Z003".equals(driverNatureInfo.getDriverNature())){/**借调*/
@@ -886,11 +885,10 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			if(( driverNatureInfo.getBorrowBeginTime()==null)|| (driverNatureInfo.getBorrowEndTime()==null)){
 				return DriverStateEnum.EFFECTIVE.getCode();/**外聘时间到，生效*/
 			}
-			if(-1==date.compareTo(driverNatureInfo.getBorrowBeginTime()) &&
-					-1==date.compareTo(driverNatureInfo.getBorrowEndTime())){
+			if(-1==driverNatureInfo.getBorrowBeginTime().compareTo(date) && -1==date.compareTo(driverNatureInfo.getBorrowEndTime())){
 				return DriverStateEnum.EFFECTIVE.getCode();/**借调时间到，实效*/
 			}
-			if(-1==date.compareTo(driverNatureInfo.getBorrowEndTime())){
+			if(-1==driverNatureInfo.getBorrowEndTime().compareTo(date)){
 				return DriverStateEnum.DIMISSION.getCode();/**借调时间结束，失效*/
 			}
 		}
