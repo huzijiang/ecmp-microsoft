@@ -152,8 +152,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private String licenseContent;
     @Value("${thirdService.apiUrl}")//三方平台的接口前地址
     private String apiUrl;
-    @Value("${company.serviceMobile}")
-    private String serviceMobile;
     @Value("${dispatch.waitIntervalMinutes}")
     private Long waitIntervalMinutes;
 
