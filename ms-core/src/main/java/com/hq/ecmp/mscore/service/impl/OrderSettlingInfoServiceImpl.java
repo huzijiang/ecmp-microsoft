@@ -1,9 +1,5 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.util.*;
-
 import com.alibaba.fastjson.JSON;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
@@ -14,13 +10,16 @@ import com.hq.ecmp.constant.OrderServiceType;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
-import com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.CostCalculation;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
 import com.hq.ecmp.util.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.*;
 
 
 /**
@@ -571,7 +570,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                 if("T001".equals(carType) ||"T002".equals(carType)||"T009".equals(carType)){
                     isChartered = true;
                     //订单预计结束时间
-                    if(DateUtils.isBeforeNowDate(journeyInfo.getEndDate())){
+                    if(!DateUtils.isBeforeNowDate(journeyInfo.getEndDate())){
                         isInsertOrderConfing = false;
                     }
                 }
