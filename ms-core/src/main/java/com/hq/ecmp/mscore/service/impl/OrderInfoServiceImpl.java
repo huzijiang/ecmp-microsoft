@@ -760,6 +760,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         vo.setRegimeId(journeyInfo.getRegimenId());
         JourneyNodeInfo nodeInfo = journeyNodeInfoMapper.selectJourneyNodeInfoById(orderInfo.getNodeId());
         BeanUtils.copyProperties(orderInfo,vo);
+
+        int count=orderStateTraceInfoMapper.selectCountForAgainStrte(orderId,OrderStateTrace.manyUseCarState());
+        vo.setIsFirstState(count);
         OrderStateTraceInfo orderStateTraceInfo= orderStateTraceInfoMapper.getLatestInfoByOrderId(orderId);
         List<OrderAddressInfo> startOrderAddr = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderId, OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT));
         String useCarTime=null;
@@ -1455,6 +1458,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         JourneyUserCarPower journeyUserCarPower = journeyUserCarPowerMapper.selectJourneyUserCarPowerById(orderInfo.getPowerId());
         ApplyInfo applyInfo = applyInfoMapper.selectApplyInfoById(journeyUserCarPower.getApplyId());
         OrderStateVO orderState = orderInfoMapper.getOrderState(orderId);
+        int count=orderStateTraceInfoMapper.selectCountForAgainStrte(orderId,OrderStateTrace.manyUseCarState());
+        orderState.setIsFirstState(count);
         //判断是否是多日租车
         if(null != orderState &&CharterTypeEnum.MORE_RENT_TYPE.getKey().equals(orderState.getCharterCarType())){
             Date startDate = DateUtils.parseDate(orderState.getStartDate());//租车开始时间

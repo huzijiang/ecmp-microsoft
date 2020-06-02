@@ -332,4 +332,8 @@ AND a.state ='S270' order by a.create_time desc limit 1
     <delete id="deleteOrderStateTrace" parameterType="Long">
         delete from order_state_trace_info where order_id=#{orderId} and state not in ('S000','S100')
     </delete>
+
+    <select id="selectCountForAgainStrte" resultType="int">
+        select  count(0) from order_state_trace_info a where find_in_set(a.state,#{state}) and a.order_id=#{orderId}
+    </select>
 </mapper>

@@ -315,7 +315,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             jn.use_time useTime,
             jn.it_is_return itIsReturn,
             jn.charter_car_type charterCarType,
-            s.action_time useCarTime,
+            -- s.action_time useCarTime,
             s.address startAddr,
             DATE_FORMAT(jn.start_date, '%Y-%m-%d %H:%i') startDate,
             DATE_FORMAT(jn.end_date, '%Y-%m-%d %H:%i') endDate,
