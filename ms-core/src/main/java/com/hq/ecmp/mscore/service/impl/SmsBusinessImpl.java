@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -375,9 +374,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
             //用车人
             String applyMobile = orderCommonInfo.getApplyMobile();
-
             Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
-
             //乘车人
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_READY_APPLICANT,orderCommonInfoMap,applyMobile);
 
@@ -1326,9 +1323,19 @@ public class SmsBusinessImpl implements IsmsBusiness{
         log.info(smsInfo.toString());
         String startDate = smsInfo.getStartDate();
         String endDate = smsInfo.getEndDate();
-        String sdate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(startDate).getTime());
-        //update by huzj  订单结束时间为当前时间?? 业务是否存在问题,查询前，订单结束时间还未插入
-        String edate = DateUtils.getYearMonthDayHourMinuteSecond(new Date().getTime());
+        String sdate;
+        String edate;
+        if(null != startDate && !StringUtils.isEmpty(startDate)){
+            sdate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(startDate).getTime());
+        }else {
+            sdate = "";
+        }
+        if(null != endDate && !StringUtils.isEmpty(endDate)){
+            edate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(endDate).getTime());
+        }else {
+            edate = "";
+        }
+
         smsInfo.setStartDate(sdate);
         smsInfo.setEndDate(edate);
         //获取开始结束时间 加金额

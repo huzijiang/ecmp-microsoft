@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -119,6 +118,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             latitude =  Double.parseDouble(point[1]);
         }
         long orderId = Long.parseLong(orderNo);
+
         //更新前订单信息
         OrderInfo orderInfoOld = iOrderInfoService.selectOrderInfoById(orderId);
         //订单
@@ -319,7 +319,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             //!journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey()) && null != journeyInfo
             if( floor <= 1 || date.getTime() >= endDate.getTime()){ //行程结束时间是用车结束当天
                 log.info("该订单以结束服务orderNo：{}",orderNo);
-                /**xmy2*/   //非多日租走老方法
+                /**xmy2*/  //非多日租走老方法
                 if(orderConfirmStatus == 1){
                     orderInfo.setState(OrderState.STOPSERVICE.getState());
                     orderStateTraceInfo.setState(OrderStateTrace.SERVICEOVER.getState());

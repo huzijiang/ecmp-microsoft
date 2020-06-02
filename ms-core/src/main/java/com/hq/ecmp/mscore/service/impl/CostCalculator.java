@@ -3,12 +3,10 @@ package com.hq.ecmp.mscore.service.impl;
 import com.hq.ecmp.constant.OrderServiceType;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
-import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.service.CostCalculation;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 成本计算器
@@ -211,6 +209,7 @@ public class CostCalculator implements CostCalculation {
         orderSettlingInfoVo.setHotelExpenseFee(hotelExpenseFee);
         orderSettlingInfoVo.setRestaurantFee(restaurantFee);
         orderSettlingInfoVo.setAmount(amount);
+        orderSettlingInfoVo.setOtherFee(otherFee);
 
         orderSettlingInfoVo.setSetMealCost(setMealCost);
         orderSettlingInfoVo.setSetMealMileage(setMealMileage);
