@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @ClassName CarLocationDto
  * @Description TODO
@@ -43,6 +45,11 @@ public class CarLocationDto {
             "S003    已到期\n" +
             "S101    被借调\n")
     private String carState;
+
+    /**
+     * 车队id
+     */
+    private List<Long> carGroupIds;
 
 
 

@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import java.util.List;
 import java.util.Map;
 
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.dto.CarSaveDTO;
@@ -114,7 +115,7 @@ public interface ICarInfoService
      */
     public int queryCompanyCarCount(Long companyId);
 
-    public List<CarLocationVo> locationCars(CarLocationDto carLocationDto);
+    public List<CarLocationVo> locationCars(CarLocationDto carLocationDto, LoginUser loginUser);
 
 
     public CarGroupCarInfo queryCarGroupCarList(Map map);

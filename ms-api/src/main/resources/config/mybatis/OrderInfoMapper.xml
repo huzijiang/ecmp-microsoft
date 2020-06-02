@@ -2009,7 +2009,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         od.it_is_use_inner_car_group useCarGroupType,
         ai.it_is_self_driver itIsSelfDriver,
         cgi.car_group_name carGroupName,
-        ai.reason reason
+        ai.reason reason,
+        ai.safe_remind safeRemind
         FROM
         order_info oi
         left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from

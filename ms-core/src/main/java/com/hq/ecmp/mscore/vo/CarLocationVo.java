@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @ClassName CarLocationVo
  * @Description TODO
@@ -37,4 +39,19 @@ public class CarLocationVo {
     private String orderNumber;
     @ApiModelProperty(value = "车牌")
     private String carLicense;
+
+    /**
+     * 车辆id
+     */
+    private Long carId;
+    /**
+     * 车辆编号
+     */
+    private String carNumber;
+
+    /**
+     * 司机心跳数据的创建时间
+     */
+    private Date createTime;
+
 }

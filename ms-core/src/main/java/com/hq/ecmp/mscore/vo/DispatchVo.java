@@ -124,4 +124,13 @@ public class DispatchVo {
 
     @ApiModelProperty(value = "外部车队名称")
     private String carGroupName;
+    /**
+     * 是否安全提醒
+     * Y000  是，安全提醒已勾选
+     * N111  否，安全提醒未勾选
+     */
+    @ApiModelProperty(value = "是否安全提醒\n" +
+            "      Y000  是，安全提醒已勾选\n" +
+            "      N111  否，安全提醒未勾选")
+    private String safeRemind;
 }

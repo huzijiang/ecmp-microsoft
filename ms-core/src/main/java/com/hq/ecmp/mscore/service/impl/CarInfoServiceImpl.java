@@ -2,11 +2,17 @@ package com.hq.ecmp.mscore.service.impl;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.hq.api.system.domain.SysRole;
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.utils.DateUtils;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.CommonConstant;
+import com.hq.ecmp.mscore.bo.CarTrackInfo;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
 import com.hq.ecmp.mscore.dto.CarSaveDTO;
@@ -21,6 +27,8 @@ import org.apache.poi.ss.formula.functions.Now;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -51,6 +59,11 @@ public class CarInfoServiceImpl implements ICarInfoService
     private OrderInfoMapper orderInfoMapper;
     @Autowired
     private EcmpDictDataMapper ecmpDictDataMapper;
+    @Resource
+    private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
+    @Resource
+    private CarTrackInfoMapper carTrackInfoMapper;
+
 
     /**
      * 查询【请填写功能名称】
@@ -608,8 +621,51 @@ public class CarInfoServiceImpl implements ICarInfoService
     }
 
     @Override
-    public List<CarLocationVo> locationCars(CarLocationDto carLocationDto) {
-        List<CarLocationVo> carLocationVos = carInfoMapper.locationCars(carLocationDto);
+    public List<CarLocationVo> locationCars(CarLocationDto carLocationDto, LoginUser loginUser) {
+        List<CarLocationVo> carLocationVos = new ArrayList<>();
+        SysUser user = loginUser.getUser();
+        String itIsDispatcher = user.getItIsDispatcher();
+        List<SysRole> role = loginUser.getUser().getRoles();
+
+        //是管理员
+        List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
+        if (!org.springframework.util.CollectionUtils.isEmpty(collect)) {
+            carLocationVos = carInfoMapper.locationCars(carLocationDto);
+        }else if ("1".equals(itIsDispatcher)) {
+            CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+            carGroupDispatcherInfo.setUserId(user.getUserId());
+            List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
+            if(CollectionUtils.isNotEmpty(carGroupDispatcherInfos)){
+                List<Long> collect1 = carGroupDispatcherInfos.stream().map(p -> p.getCarGroupId()).collect(Collectors.toList());
+                carLocationDto.setCarGroupIds(collect1);
+                carLocationVos = carInfoMapper.locationCars(carLocationDto);
+            }
+        }
+        if (CollectionUtils.isNotEmpty(carLocationVos)){
+            for (CarLocationVo carLocationVo:
+                 carLocationVos) {
+                String carNumber = carLocationVo.getCarNumber();
+                if(carNumber != null){
+                    CarTrackInfo carTrackInfo = new CarTrackInfo();
+                    carTrackInfo.setVin(carNumber);
+                    CarTrackInfo carTrackInfo1 = carTrackInfoMapper.selectCarTrackInfoListLimit1(carTrackInfo);
+                    if (carTrackInfo1 != null){
+                        Date carTraceCreateDate = carTrackInfo1.getCreateDate();
+                        Date driverHeartCreateTime = carLocationVo.getCreateTime();
+                        if(driverHeartCreateTime != null){
+                            if(carTraceCreateDate.getTime()-driverHeartCreateTime.getTime()>=0){
+                                carLocationVo.setLongitude(carTrackInfo1.getLon()+"");
+                                carLocationVo.setLatitude(carTrackInfo1.getLat()+"");
+                            }
+                        }else{
+                            carLocationVo.setLongitude(carTrackInfo1.getLon()+"");
+                            carLocationVo.setLatitude(carTrackInfo1.getLat()+"");
+                        }
+
+                    }
+                }
+             }
+        }
         return carLocationVos;
     }
 
