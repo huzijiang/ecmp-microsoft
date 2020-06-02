@@ -136,4 +136,9 @@ public class DispatchVo {
             "      Y000  是，安全提醒已勾选\n" +
             "      N111  否，安全提醒未勾选")
     private String safeRemind;
+
+    /**
+     * 排序依赖字段
+     */
+    private String orderByState;
 }
