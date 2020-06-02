@@ -666,7 +666,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         (select  oddi.it_is_self_driver from order_dispatche_detail_info oddi where  oddi.order_id=s.order_id) itIsSelfDriver,
         -- 用车制度
         ri.name regimenName,
-
+        di.driver_name driverName,
+        ci.car_license carLicense,
         s.create_by createBy,
         oodi.it_is_use_inner_car_group itIsUseInnerCarGroup,
         oodi.car_group_user_mode carGroupUserMode,
@@ -683,6 +684,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join order_address_info oai on oai.order_id=s.order_id and oai.type='A000'
         left join order_address_info oai2 on oai2.order_id=s.order_id and oai2.type='A999'
         left join ecmp_org eo on eu.dept_id = eo.dept_id
+        left join driver_info di on di.driver_id=s.driver_id
+        left join car_info ci on ci.car_id =s.car_id
             <where>
                 <if test="applyName != null and  applyName!=''"> and eu.nick_name like concat('%',#{applyName},'%') </if>
                 <if test="applyPhoneNumber != null and  applyPhoneNumber!='' "> and eu.phonenumber like concat('%',#{applyPhoneNumber},'%') </if>
