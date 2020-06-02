@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.AccountConstant;
@@ -549,6 +550,9 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                     //车队id
                     costConfigQueryDto.setCarGroupId(carInfo.getCarGroupId());
                     CostConfigInfo costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
+                    if(costConfigInfo == null){
+                        throw new BaseException("该车队车辆及驾驶员暂未配置价格计划");
+                    }
                     costConfigInfoList.add(costConfigInfo);
                 }else{
                     //仅用车
@@ -557,12 +561,18 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                     costConfigQueryDto.setCarGroupId(Long.parseLong(String.valueOf(carCostInfo.get("carCarGroupId"))));
                     CostConfigInfo costConfigInfo1 = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
                     costConfigInfoList.add(costConfigInfo1);
+                    if(costConfigInfo1 == null){
+                        throw new BaseException("该车队车辆暂未配置价格计划");
+                    }
                     if(driverCostInfo!=null){
                         //仅用驾驶员
                         costConfigQueryDto.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA10.getKey());
                         //车队id
                         costConfigQueryDto.setCarGroupId(Long.parseLong(String.valueOf(driverCostInfo.get("driverCarGroupId"))));
                         CostConfigInfo costConfigInfo2 = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
+                        if(costConfigInfo2 == null){
+                            throw new BaseException("该车队驾驶员暂未配置价格计划");
+                        }
                         costConfigInfoList.add(costConfigInfo2);
                     }
                 }
