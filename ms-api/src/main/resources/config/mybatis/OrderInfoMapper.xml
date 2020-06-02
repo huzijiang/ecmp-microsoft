@@ -643,7 +643,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 实际上车地址
         oai.address  beginAddress,
         -- 实际下车地址
-        oai2.address endAddress,
+        (select  group_concat(address_info)  from journey_address_info where journey_id=s.journey_id) endAddress,
         -- 服务类型 1000预约  2001接机 2002送机 3000包车
         s.service_type serviceType,
         -- 包车类型  T000  非包车 T001 半日租（4小时） T002 整日租（8小时）
