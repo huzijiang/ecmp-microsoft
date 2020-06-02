@@ -2742,7 +2742,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             us.nick_name dispatcherNickName,
             us.phonenumber dispatcherPhoneNumber,
             jo.mobile riderMobile,
-            --eu.phonenumber applyMobile
             pa.mobile applyMobile
             FROM
                 order_info oi
