@@ -1479,6 +1479,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String key = isDispatcher(user);
         if(null==key){
             orderListBackDto.setUserId(user.getUser().getUserId());
+        }else if("admin".equals(key)){
+            orderListBackDto.setUserId(null);
+            orderListBackDto.setUpdateBy(null);
         }else{
             orderListBackDto.setUpdateBy("C000".equals(key)?null:user.getUser().getUserId());
         }
@@ -2669,6 +2672,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @return
      */
     private String isDispatcher(LoginUser user){
+        if(isAdmin(user)){
+            return "admin";
+        }
         List<SysRole> roleList = user.getUser().getRoles();
         for(SysRole data : roleList ){
             /**调度员（区分内部调度，外部调度）*/
@@ -2687,7 +2693,21 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return null;
     }
 
-
+    /***
+     *
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    private boolean  isAdmin(LoginUser user){
+        List<SysRole> roleList = user.getUser().getRoles();
+        for(SysRole data : roleList ) {
+            if("admin".equals(data.getRoleKey()) || "sub_admin".equals(data.getRoleKey())){
+                return true;
+            }
+        }
+        return false;
+    }
     /***
      * 确认订单
      * add by liuzb

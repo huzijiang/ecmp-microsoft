@@ -95,4 +95,8 @@ public class OrderListBackDto extends PageRequest {
     private String itIsSelfDriver;
 
     private boolean takeBack;//是 否
+
+    private String itIsUseInnerCarGroup;
+
+    private String carGroupUserMode;
 }
