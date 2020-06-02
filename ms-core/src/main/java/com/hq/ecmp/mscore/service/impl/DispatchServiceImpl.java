@@ -433,7 +433,8 @@ public class DispatchServiceImpl implements IDispatchService {
         if(journeyPassengerInfoList.isEmpty()){
             return  ApiResponse.error("行程乘客数据异常");
         }
-        int seatNumber=journeyPassengerInfoList.get(0).getPeerNumber()+1;
+        //人数=同行人+1
+        int seatNumber=journeyPassengerInfoList.get(0).getPeerNumber()==null?0:journeyPassengerInfoList.get(0).getPeerNumber()+1;
         //车辆荷载人数
         Iterator<CarInfo> iteratorCarSeatNumber=cars.iterator();
         while (iteratorCarSeatNumber.hasNext()){
