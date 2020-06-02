@@ -20,6 +20,7 @@ import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.PageUtil;
 import com.hq.ecmp.util.RedisUtil;
+import com.hq.ecmp.util.SortListUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -853,6 +854,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
 
         //手动分页
         Map<String,Object> map = new HashMap();
+        SortListUtil.sort(dispatcherOrderList, "orderByState", SortListUtil.ASC);
         List<DispatchVo> page = PageUtil.startPage(dispatcherOrderList,query.getPageN(),query.getPageS());
         Integer count = dispatcherOrderList.size();
         Integer totalPage = count % query.getPageN() == 0 ? count / query.getPageN() : count / query.getPageN() + 1;
