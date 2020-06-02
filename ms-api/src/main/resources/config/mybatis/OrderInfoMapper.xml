@@ -2747,7 +2747,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             FROM
                 order_info oi
                 LEFT JOIN journey_info ji ON oi.journey_id = ji.journey_id
-                --LEFT JOIN ecmp_user eu ON eu.user_id = ji.user_id
+                LEFT JOIN ecmp_user eu ON eu.user_id = ji.user_id
                 LEFT JOIN journey_passenger_info pa on ji.journey_id = pa.journey_id
                 LEFT JOIN ecmp_org eo ON eo.dept_id = eu.dept_id
                 LEFT JOIN car_info ci ON ci.car_id = oi.car_id
