@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CarTrackInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.bo.CarTrackInfo" id="CarTrackInfoResult">
+        <result property="id"    column="id"    />
+        <result property="vin"    column="vin"    />
+        <result property="lon"    column="lon"    />
+        <result property="lat"    column="lat"    />
+        <result property="lastRefreshTime"    column="last_refresh_time"    />
+        <result property="updateDate"    column="update_date"    />
+        <result property="createDate"    column="create_date"    />
+    </resultMap>
+
+    <sql id="selectCarTrackInfoVo">
+        select id, vin, lon, lat, last_refresh_time, update_date, create_date from car_track_info
+    </sql>
+
+    <select id="selectCarTrackInfoList" parameterType="com.hq.ecmp.mscore.bo.CarTrackInfo" resultMap="CarTrackInfoResult">
+        <include refid="selectCarTrackInfoVo"/>
+        <where>
+            <if test="vin != null  and vin != ''"> and vin = #{vin}</if>
+            <if test="lon != null "> and lon = #{lon}</if>
+            <if test="lat != null "> and lat = #{lat}</if>
+            <if test="lastRefreshTime != null "> and last_refresh_time = #{lastRefreshTime}</if>
+            <if test="updateDate != null "> and update_date = #{updateDate}</if>
+            <if test="createDate != null "> and create_date = #{createDate}</if>
+        </where>
+    </select>
+
+    <select id="selectCarTrackInfoById" parameterType="Long" resultMap="CarTrackInfoResult">
+        <include refid="selectCarTrackInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCarTrackInfo" parameterType="com.hq.ecmp.mscore.bo.CarTrackInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into car_track_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="vin != null  and vin != ''">vin,</if>
+            <if test="lon != null ">lon,</if>
+            <if test="lat != null ">lat,</if>
+            <if test="lastRefreshTime != null ">last_refresh_time,</if>
+            <if test="updateDate != null ">update_date,</if>
+            <if test="createDate != null ">create_date,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="vin != null  and vin != ''">#{vin},</if>
+            <if test="lon != null ">#{lon},</if>
+            <if test="lat != null ">#{lat},</if>
+            <if test="lastRefreshTime != null ">#{lastRefreshTime},</if>
+            <if test="updateDate != null ">#{updateDate},</if>
+            <if test="createDate != null ">#{createDate},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCarTrackInfo" parameterType="com.hq.ecmp.mscore.bo.CarTrackInfo">
+        update car_track_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="vin != null  and vin != ''">vin = #{vin},</if>
+            <if test="lon != null ">lon = #{lon},</if>
+            <if test="lat != null ">lat = #{lat},</if>
+            <if test="lastRefreshTime != null ">last_refresh_time = #{lastRefreshTime},</if>
+            <if test="updateDate != null ">update_date = #{updateDate},</if>
+            <if test="createDate != null ">create_date = #{createDate},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCarTrackInfoById" parameterType="Long">
+        delete from car_track_info where id = #{id}
+    </delete>
+
+    <delete id="deleteCarTrackInfoByIds" parameterType="String">
+        delete from car_track_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectCarTrackInfoListLimit1" parameterType="com.hq.ecmp.mscore.bo.CarTrackInfo" resultMap="CarTrackInfoResult">
+        <include refid="selectCarTrackInfoVo"/>
+        <where>
+            <if test="vin != null  and vin != ''"> and vin = #{vin}</if>
+            <if test="lon != null "> and lon = #{lon}</if>
+            <if test="lat != null "> and lat = #{lat}</if>
+            <if test="lastRefreshTime != null "> and last_refresh_time = #{lastRefreshTime}</if>
+            <if test="updateDate != null "> and update_date = #{updateDate}</if>
+            <if test="createDate != null "> and create_date = #{createDate}</if>
+        </where>
+        order by create_date desc limit 1
+    </select>
+
+</mapper>

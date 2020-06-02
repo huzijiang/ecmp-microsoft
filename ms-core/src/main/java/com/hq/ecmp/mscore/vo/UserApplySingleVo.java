@@ -134,4 +134,7 @@ public class UserApplySingleVo extends PageRequest {
     @ApiModelProperty(value = "是否自驾")
     private String itIsSelfDriver;
 
+    @ApiModelProperty(value = "多个下车地点")
+    private String addressInfo;
+
 }

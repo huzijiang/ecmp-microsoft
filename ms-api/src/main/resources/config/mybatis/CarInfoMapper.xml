@@ -281,6 +281,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
                 select dhi.longitude ,
                         dhi.latitude,
+                        dhi.create_time as createTime,
                         ecti.`level`,
                         c.car_type as carType,
                         c.car_color as carColor,
@@ -289,7 +290,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                         o.order_number as orderNumber,
                         o.order_id as orderId,
                         d.driver_name as driverName,
-                        d.mobile as driverMobile
+                        d.mobile as driverMobile,
+                        c.car_id AS carId,
+                        c.car_number AS carNumber
                 from car_info c
                 left  join order_info o on o.car_id=c.car_id
                 left  join driver_info d on d.driver_id=o.driver_id
@@ -302,9 +305,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 left join enterprise_car_type_info ecti on ecti.car_type_id=c.car_type_id
                 left join car_group_info cgi on cgi.car_group_id=c.car_group_id
                 <where>
-                    o.state in(
-                    'S500','S600','S616'
-                    )
+                    1=1
                     <if test="carLevel != null and carLevel != ''">   and ecti.`level`= #{carLevel}</if>
                     <if test="carLicense != null and carLicense != ''">   and c.car_license like CONCAT('%',#{carLicense},'%')</if>
                     <if test="powerType != null and powerType != ''">    and c.power_type=#{powerType}</if>
@@ -312,6 +313,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                     <if test="carSource != null and carSource != '' ">    and c.source=#{carSource}</if>
                     <if test="carState != null and carState != '' ">    and c.state=#{carState}</if>
                     <if test="cityId != null  and cityId != ''">    and cgi.city=#{cityId}</if>
+                    <if test="carGroupIds != null">
+                        and c.car_group_id in
+                        <foreach collection="carGroupIds" item="item" separator="," open="(" close=")">
+                            #{item}
+                        </foreach>
+                    </if>
                 </where>
     </select>
 

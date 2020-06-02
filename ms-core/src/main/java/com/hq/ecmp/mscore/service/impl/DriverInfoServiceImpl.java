@@ -1,20 +1,26 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.StringUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.DriverNatureEnum;
 import com.hq.ecmp.constant.InvitionTypeEnum;
+import com.hq.ecmp.constant.RoleConstant;
 import com.hq.ecmp.constant.enumerate.DriverStateEnum;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
+import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
+import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
+import com.hq.ecmp.mscore.service.IDriverInfoService;
+import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -24,18 +30,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.github.pagehelper.util.StringUtil;
-import com.hq.common.utils.DateUtils;
-import com.hq.common.utils.ServletUtils;
-import com.hq.core.security.LoginUser;
-import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.RoleConstant;
-import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
-import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
-import com.hq.ecmp.mscore.service.IDriverInfoService;
-import com.hq.ecmp.mscore.service.IEcmpUserService;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**

@@ -64,8 +64,6 @@ import static com.hq.ecmp.constant.CommonConstant.ZERO;
 @Slf4j
 public class OrderInfoServiceImpl implements IOrderInfoService
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(OrderInfoServiceImpl.class);
     @Autowired
     private OrderInfoMapper orderInfoMapper;
     @Resource
@@ -2804,7 +2802,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 return returnResult(list);
             }
         }catch(Exception e){
-            logger.error("getOrderCostGroup error",e);
+            log.error("getOrderCostGroup error",e);
         }
 
         return null;
@@ -2832,7 +2830,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     list.get(i).setStartLongitudeAddress(map.get("longAddr").toString());
                     list.get(i).setEndLongitudeAddress(map.get("shortAddr").toString());*/
                 }catch(Exception e){
-                    logger.error("thirdService error",e);
+                    log.error("thirdService error",e);
                 }
             }
             if(i==0?dataGrouping(list.get(i).getEndTime(),list.get(i)):dataGrouping(list.get(i-1).getEndTime(),list.get(i))){
@@ -2890,10 +2888,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         toData.setEndDate(data.getEndTime());
         List<DriverHeartbeatInfo>  list = driverHeartbeatInfoMapper.equipmentTrajectory(toData);
         if(null!=list && list.size()>0){
-            logger.info("=============================硬件设备轨迹数据源================================");
+            log.info("=============================硬件设备轨迹数据源================================");
             return list;
         }
-        logger.info("=============================心跳轨迹数据源================================");
+        log.info("=============================心跳轨迹数据源================================");
         return driverHeartbeatInfoMapper.getOrderDay(toData);
     }
 
