@@ -374,9 +374,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
             DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
             //用车人
             String applyMobile = orderCommonInfo.getApplyMobile();
-
             Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
-
             //乘车人
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_READY_APPLICANT,orderCommonInfoMap,applyMobile);
 
