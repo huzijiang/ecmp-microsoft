@@ -1159,8 +1159,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
     public void sendRevokeUndelivered(UndoSMSTemplate undoSMSTemplate) throws Exception{
         log.info("短信开始-撤销未派单短信");
         String subscribeTime= DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,undoSMSTemplate.getStartDate());
-        String vehicleUser =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber();
-        String salesman = undoSMSTemplate.getVehicleUser()+ " "+undoSMSTemplate.getVehicleUserMobile();
+        String salesman =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber(); //申请人
+        String vehicleUser = undoSMSTemplate.getVehicleUser()+ " "+undoSMSTemplate.getVehicleUserMobile(); //用车人
         String applyDays = undoSMSTemplate.getUseTime();
         Map<String,String> map=Maps.newHashMap();
         map.put("subscribeTime", subscribeTime );//用车时间
@@ -1195,8 +1195,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
     public void sendRevokealSentList(UndoSMSTemplate undoSMSTemplate) throws Exception{
         log.info("短信开始-撤销已派单短信");
         String subscribeTime= DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,undoSMSTemplate.getStartDate());
-        String vehicleUser =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber();
-        String salesman = undoSMSTemplate.getVehicleUser()+ " "+undoSMSTemplate.getVehicleUserMobile();
+        String salesman =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber();
+        String vehicleUser = undoSMSTemplate.getVehicleUser()+ " "+undoSMSTemplate.getVehicleUserMobile();
         String applyDays = undoSMSTemplate.getUseTime();
         Map<String,String> map=Maps.newHashMap();
         map.put("subscribeTime", subscribeTime );//用车时间
@@ -1236,12 +1236,12 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String driverMobile = undoSMSTemplate.getDriverMobile();
         String innerPhonenumber = undoSMSTemplate.getInnerPhonenumber();
         String outerPhonenumber = undoSMSTemplate.getOuterPhonenumber();
-        String vehicleUser =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber();
-        String salesman = undoSMSTemplate.getVehicleUser()+ " "+undoSMSTemplate.getVehicleUserMobile();
+        String salesman =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber();
+        String vehicleUser = undoSMSTemplate.getVehicleUser()+ " "+undoSMSTemplate.getVehicleUserMobile();
         String applyDays = undoSMSTemplate.getUseTime();
         Map<String,String> map=Maps.newHashMap();
         map.put("subscribeTime", subscribeTime );//用车时间
-        map.put("vehicleUser", vehicleUser ); //业务员
+        map.put("vehicleUser", vehicleUser ); //用车人
         map.put("orderNumber", orderNumber ); //订单号
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
