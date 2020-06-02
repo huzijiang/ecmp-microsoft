@@ -108,4 +108,18 @@ public class ApplySingleVO {
      */
     @ApiModelProperty(name = "carGroupId", value = "内部车队id")
     private Long outerCarGroupId;
+
+    /**
+     * 是否安全提醒
+     *  Y000  是，安全提醒已勾选
+     *  N111  否，安全提醒未勾选
+     */
+    @ApiModelProperty(name = "safeRemind", value = "是否安全提醒")
+    private String safeRemind;
+
+    /**
+     * 多个下车地址
+     */
+    @ApiModelProperty(name = "multipleDropAddress", value = "多个下车地址")
+    private List<AddressVO>  multipleDropAddress;
 }

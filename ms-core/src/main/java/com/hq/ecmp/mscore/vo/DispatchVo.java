@@ -124,4 +124,7 @@ public class DispatchVo {
 
     @ApiModelProperty(value = "外部车队名称")
     private String carGroupName;
+
+    @ApiModelProperty(value = "多个下车地址")
+    private String addressInfo;
 }

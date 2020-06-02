@@ -65,6 +65,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="itIsSelfDriver != null  and itIsSelfDriver != ''">it_is_self_driver,</if>
             <if test="outerCarGroupId != null  and outerCarGroupId != ''">outer_car_group_id,</if>
             <if test="notes != null  and notes != ''">notes,</if>
+            <if test="safeRemind != null  and safeRemind != ''">safe_remind,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -86,6 +87,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="itIsSelfDriver != null  and itIsSelfDriver != ''">#{itIsSelfDriver},</if>
             <if test="outerCarGroupId != null  and outerCarGroupId != ''">#{outerCarGroupId},</if>
             <if test="notes != null  and notes != ''">#{notes},</if>
+            <if test="safeRemind != null  and safeRemind != ''">#{safeRemind},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
@@ -233,4 +235,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 				where o.order_id=#{orderId}
 
     </select>
+
+    <insert id="insertJourneyAddressInfo" parameterType="com.hq.ecmp.mscore.dto.JourneyAddressInfoDto">
+
+        insert into journey_address_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="journeyId != null ">journey_id,</if>
+            <if test="addressInfo != null ">address_info,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="journeyId != null ">#{journeyId},</if>
+            <if test="addressInfo != null ">#{addressInfo},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+        </trim>
+
+    </insert>
 </mapper>
