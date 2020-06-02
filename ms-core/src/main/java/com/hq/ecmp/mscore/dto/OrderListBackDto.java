@@ -99,4 +99,6 @@ public class OrderListBackDto extends PageRequest {
     private String itIsUseInnerCarGroup;
 
     private String carGroupUserMode;
+
+    private String newEndAddress;
 }
