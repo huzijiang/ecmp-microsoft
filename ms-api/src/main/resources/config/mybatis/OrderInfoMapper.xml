@@ -1507,7 +1507,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 上车地址
         oai.address startSite,
         -- 下车地址
-        oaitwo.address endSite,
+        -- oaitwo.address endSite,
+        if (GROUP_CONCAT(jai.address_info) is null,oaitwo.address,GROUP_CONCAT(jai.address_info,',' ,oaitwo.address)) endSite,
         -- 是否往返
         ji.it_is_return itIsReturn,
         -- 预计等待时长
@@ -1532,7 +1533,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ai.it_is_self_driver itIsSelfDriver,
         -- 是否自驾
         cgiTwo.car_group_name carGroupName,
-        GROUP_CONCAT(jai.address_info) addressInfo,
+        -- GROUP_CONCAT(jai.address_info) addressInfo,
         -- 项目编号
         pi.name projectName
         FROM
@@ -1979,7 +1980,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 上车地址
         oai.address startSite,
         -- 下车地址
-        oaitwo.address endSite,
+        -- oaitwo.address endSite,
+        if (GROUP_CONCAT(jai.address_info) is null,oaitwo.address,GROUP_CONCAT(jai.address_info,',' ,oaitwo.address)) endSite,
         -- 是否往返
         ji.it_is_return itIsReturn,
         -- 预计等待时长
@@ -2023,8 +2025,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         od.it_is_use_inner_car_group useCarGroupType,
         ai.it_is_self_driver itIsSelfDriver,
         cgi.car_group_name carGroupName,
-        GROUP_CONCAT(jai.address_info) addressInfo,
-        ai.reason reason
+        -- GROUP_CONCAT(jai.address_info) addressInfo,
+        ai.reason reason,
         ai.safe_remind safeRemind
         FROM
         order_info oi
