@@ -2472,7 +2472,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 状态
         oai1.address beginAddress,
         -- 出发地址
-        oai2.address endAddress,
+        -- oai2.address endAddress,
+        if (GROUP_CONCAT(jai.address_info) is null,oai2.address,GROUP_CONCAT(jai.address_info,',' ,oai2.address)) endAddress,
         -- 到达地址
         oi.order_number orderNumber,
         -- 订单编号
@@ -2480,7 +2481,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 用车方式
         oscdrio.amount amount,
         oi.order_id orderId,
-        GROUP_CONCAT(jai.address_info) addressInfo,
+        -- GROUP_CONCAT(jai.address_info) addressInfo,
         -- 费用合计
         case
         when right (z.state,3)='100' then '待派车'
