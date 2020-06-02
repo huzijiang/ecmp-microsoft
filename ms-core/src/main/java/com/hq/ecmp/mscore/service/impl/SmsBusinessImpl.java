@@ -1323,8 +1323,19 @@ public class SmsBusinessImpl implements IsmsBusiness{
         log.info(smsInfo.toString());
         String startDate = smsInfo.getStartDate();
         String endDate = smsInfo.getEndDate();
-        String sdate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(startDate).getTime());
-        String edate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(endDate).getTime());
+        String sdate;
+        String edate;
+        if(null != startDate && !StringUtils.isEmpty(startDate)){
+            sdate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(startDate).getTime());
+        }else {
+            sdate = "";
+        }
+        if(null != endDate && !StringUtils.isEmpty(endDate)){
+            edate = DateUtils.getYearMonthDayHourMinuteSecond(DateUtils.parseDate(endDate).getTime());
+        }else {
+            edate = "";
+        }
+
         smsInfo.setStartDate(sdate);
         smsInfo.setEndDate(edate);
         //获取开始结束时间 加金额
