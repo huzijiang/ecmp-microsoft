@@ -667,8 +667,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ri.name regimenName,
 
         s.create_by createBy,
+        oodi.it_is_use_inner_car_group itIsUseInnerCarGroup,
+        oodi.car_group_user_mode carGroupUserMode,
         s.it_is_supplement itIsSupplement
         from order_info s
+        left join order_dispatche_detail_info oodi on oodi.order_id = s.order_id
         LEFT join journey_user_car_power jucp on jucp.power_id=s.power_id
         LEFT join apply_info a on a.apply_id=jucp.apply_id
         LEFT join ecmp_user eu on eu.user_id=a.create_by
@@ -683,7 +686,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="applyName != null and  applyName!=''"> and eu.nick_name like concat('%',#{applyName},'%') </if>
                 <if test="applyPhoneNumber != null and  applyPhoneNumber!='' "> and eu.phonenumber like concat('%',#{applyPhoneNumber},'%') </if>
                 <if test="passengerName != null and  passengerName!='' "> and  jpi.name = #{passengerName}</if>
-                <if test="orderNumber != null and  orderNumber!='' "> and  s.order_number = #{orderNumber}</if>
+                <if test="orderNumber != null and  orderNumber!='' "> and  s.order_number like concat('%',#{orderNumber},'%')</if>
                 <if test="serviceType != null and  serviceType!='' "> and ji.service_type = #{serviceType}</if>
                 <if test="charterCarType != null and  charterCarType!='' "> and ji.charter_car_type = #{charterCarType}</if>
                 <if test="useCarMode != null and  useCarMode!=''"> and s.use_car_mode = #{useCarMode}</if>
