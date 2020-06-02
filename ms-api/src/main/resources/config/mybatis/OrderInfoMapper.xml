@@ -644,6 +644,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oai.address  beginAddress,
         -- 实际下车地址
         oai2.address endAddress,
+        (select  group_concat(address_info)  from journey_address_info where journey_id=s.journey_id) newEndAddress,
         -- 服务类型 1000预约  2001接机 2002送机 3000包车
         s.service_type serviceType,
         -- 包车类型  T000  非包车 T001 半日租（4小时） T002 整日租（8小时）
@@ -667,8 +668,11 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ri.name regimenName,
 
         s.create_by createBy,
+        oodi.it_is_use_inner_car_group itIsUseInnerCarGroup,
+        oodi.car_group_user_mode carGroupUserMode,
         s.it_is_supplement itIsSupplement
         from order_info s
+        left join order_dispatche_detail_info oodi on oodi.order_id = s.order_id
         LEFT join journey_user_car_power jucp on jucp.power_id=s.power_id
         LEFT join apply_info a on a.apply_id=jucp.apply_id
         LEFT join ecmp_user eu on eu.user_id=a.create_by
@@ -683,7 +687,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="applyName != null and  applyName!=''"> and eu.nick_name like concat('%',#{applyName},'%') </if>
                 <if test="applyPhoneNumber != null and  applyPhoneNumber!='' "> and eu.phonenumber like concat('%',#{applyPhoneNumber},'%') </if>
                 <if test="passengerName != null and  passengerName!='' "> and  jpi.name = #{passengerName}</if>
-                <if test="orderNumber != null and  orderNumber!='' "> and  s.order_number = #{orderNumber}</if>
+                <if test="orderNumber != null and  orderNumber!='' "> and  s.order_number like concat('%',#{orderNumber},'%')</if>
                 <if test="serviceType != null and  serviceType!='' "> and ji.service_type = #{serviceType}</if>
                 <if test="charterCarType != null and  charterCarType!='' "> and ji.charter_car_type = #{charterCarType}</if>
                 <if test="useCarMode != null and  useCarMode!=''"> and s.use_car_mode = #{useCarMode}</if>
@@ -1400,6 +1404,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ri.`name` userCarRegime,
         -- 服务类型
         oi.service_type serverType,
+        GROUP_CONCAT(jai.address_info) addressInfo,
         -- 状态
         case
         when right (z.state,3)='100' then '待派车'
@@ -1428,6 +1433,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN order_address_info oaitwo ON (oaitwo.order_id = oi.order_id and oaitwo.type='A999')
         LEFT JOIN china_city cc ON cc.CITY_CODE = oai.city_postal_code
         LEFT JOIN (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=oi.order_id
+        LEFT JOIN  journey_address_info jai ON jai.journey_id = ji.journey_id
         WHERE 1 = 1
         and oi.order_id in (select distinct order_id from order_state_trace_info where order_id in
         (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100'))
@@ -1456,7 +1462,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 #{orderId}
             </foreach>
         </if>
-
+        GROUP BY  oi.journey_id
         ORDER BY
         oi.state,oai.action_time ASC
         ) t
@@ -1521,6 +1527,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ai.it_is_self_driver itIsSelfDriver,
         -- 是否自驾
         cgiTwo.car_group_name carGroupName,
+        GROUP_CONCAT(jai.address_info) addressInfo,
         -- 项目编号
         pi.name projectName
         FROM
@@ -1542,6 +1549,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN project_info pi ON pi.project_id = ai.project_id
         LEFT JOIN order_state_trace_info osti on oi.order_id = osti.order_id
         LEFT JOIN car_group_info cgiTwo on cgiTwo.car_group_id = ai.outer_car_group_id
+        LEFT JOIN  journey_address_info jai ON jai.journey_id = ji.journey_id
         WHERE 1 = 1
         <if test="companyId != null and  companyId!=''"> and  oi.company_id=#{companyId} </if>
         <if test="userId != null and  userId!=''"> and  osti.create_by=#{userId} </if>
@@ -1567,6 +1575,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and DATE_FORMAT(opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
         </if>
         and oi.it_is_supplement = 'D000'
+        GROUP BY  oi.journey_id
         ORDER BY
         oi.state,oai.action_time ASC
     </select>
@@ -2009,7 +2018,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         od.it_is_use_inner_car_group useCarGroupType,
         ai.it_is_self_driver itIsSelfDriver,
         cgi.car_group_name carGroupName,
-        ai.reason reason,
+        GROUP_CONCAT(jai.address_info) addressInfo,
+        ai.reason reason
         ai.safe_remind safeRemind
         FROM
         order_info oi
@@ -2031,6 +2041,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join apply_info ai on ai.apply_id=jucp.apply_id
         left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
         LEFT JOIN  car_group_info cgi ON cgi.car_group_id = ai.outer_car_group_id
+        LEFT JOIN  journey_address_info jai ON jai.journey_id = ji.journey_id
         WHERE 1 = 1
 
         <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
@@ -2084,6 +2095,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         SELECT city FROM car_group_serve_scope_info WHERE car_group_id IN ( SELECT car_group_id FROM
         car_group_dispatcher_info WHERE user_id = #{userId} )
         )
+        GROUP BY  oi.journey_id
         ORDER BY
         oi.state,oai.action_time ASC
         ) t
@@ -2463,6 +2475,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 用车方式
         oscdrio.amount amount,
         oi.order_id orderId,
+        GROUP_CONCAT(jai.address_info) addressInfo,
         -- 费用合计
         case
         when right (z.state,3)='100' then '待派车'
@@ -2492,6 +2505,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join
         (select sum(total_fee) amount,order_id orderId from order_service_cost_detail_record_info group by order_id) oscdrio on oscdrio.orderId = oi.order_id
         LEFT JOIN car_group_info cgiThree ON  cgiThree.car_group_id = ai.outer_car_group_id
+        LEFT JOIN  journey_address_info jai ON jai.journey_id = ji.journey_id
         where  oi.service_type='5000'
         <if test="userId!=null and '' != userId">
             and  eu.user_id = #{userId}
@@ -2550,6 +2564,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
             and  ai.create_time &lt;= #{homeDynamicEndTime}
         </if>
+        GROUP BY  ai.journey_id
         order by orderState='待派车' DESC ,orderState='已派车' DESC , beginTime ASC
     </select>
 
@@ -2739,11 +2754,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             us.nick_name dispatcherNickName,
             us.phonenumber dispatcherPhoneNumber,
             jo.mobile riderMobile,
-            eu.phonenumber applyMobile
+            pa.mobile applyMobile
             FROM
                 order_info oi
                 LEFT JOIN journey_info ji ON oi.journey_id = ji.journey_id
                 LEFT JOIN ecmp_user eu ON eu.user_id = ji.user_id
+                LEFT JOIN journey_passenger_info pa on ji.journey_id = pa.journey_id
                 LEFT JOIN ecmp_org eo ON eo.dept_id = eu.dept_id
                 LEFT JOIN car_info ci ON ci.car_id = oi.car_id
                 LEFT JOIN car_group_info cgi ON cgi.car_group_id = ci.car_group_id

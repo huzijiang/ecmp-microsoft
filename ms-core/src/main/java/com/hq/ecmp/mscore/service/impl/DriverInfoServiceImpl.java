@@ -1,20 +1,26 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.StringUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.DriverNatureEnum;
 import com.hq.ecmp.constant.InvitionTypeEnum;
+import com.hq.ecmp.constant.RoleConstant;
 import com.hq.ecmp.constant.enumerate.DriverStateEnum;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
+import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
+import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
+import com.hq.ecmp.mscore.service.IDriverInfoService;
+import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -24,18 +30,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.github.pagehelper.util.StringUtil;
-import com.hq.common.utils.DateUtils;
-import com.hq.common.utils.ServletUtils;
-import com.hq.core.security.LoginUser;
-import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.RoleConstant;
-import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
-import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
-import com.hq.ecmp.mscore.service.IDriverInfoService;
-import com.hq.ecmp.mscore.service.IEcmpUserService;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -870,13 +868,23 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	private String compareDate(DriverNatureInfo driverNatureInfo)throws Exception{
 		Date date = new Date();
 		if("Z002".equals(driverNatureInfo.getDriverNature())){/**外聘*/
-			if(-1==driverNatureInfo.getHireBeginTime().compareTo(date) && -1==date.compareTo(driverNatureInfo.getHireEndTime()) ){
+			//如果日期缺少 则为生效
+			//update by huzj
+			if(( driverNatureInfo.getHireBeginTime()==null)|| (driverNatureInfo.getHireEndTime()==null)){
+				return DriverStateEnum.EFFECTIVE.getCode();/**外聘时间到，生效*/
+			}
+			if(-1==driverNatureInfo.getHireBeginTime().compareTo(date) && -1==date.compareTo(driverNatureInfo.getHireEndTime())){
 				return DriverStateEnum.EFFECTIVE.getCode();/**外聘时间到，生效*/
 			}
 			if(-1==driverNatureInfo.getHireEndTime().compareTo(date)){
 				return DriverStateEnum.DIMISSION.getCode();/**外聘时间结束，失效*/
 			}
 		}else if("Z003".equals(driverNatureInfo.getDriverNature())){/**借调*/
+			//如果日期缺少 则为生效
+			//update by huzj
+			if(( driverNatureInfo.getBorrowBeginTime()==null)|| (driverNatureInfo.getBorrowEndTime()==null)){
+				return DriverStateEnum.EFFECTIVE.getCode();/**外聘时间到，生效*/
+			}
 			if(-1==driverNatureInfo.getBorrowBeginTime().compareTo(date) && -1==date.compareTo(driverNatureInfo.getBorrowEndTime())){
 				return DriverStateEnum.EFFECTIVE.getCode();/**借调时间到，实效*/
 			}

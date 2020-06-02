@@ -40,15 +40,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         order by create_time
     </select>
     <select id="equipmentTrajectory" parameterType="com.hq.ecmp.mscore.domain.DriverHeartbeatInfo" resultMap="DriverHeartbeatInfoResult">
-        select lon as longitude, lat as latitude from car_track_info
-         where vin in
-               (
-                  select car_number from car_info where car_id in
-                      (select car_id from order_info where order_id=#{orderId})
-              )
-        <![CDATA[ and last_refresh_time >= #{beginDate}]]>
-        <![CDATA[ and last_refresh_time <= #{endDate}]]>
-        order by last_refresh_time
+       select cti.lon as longitude, cti.lat as latitude
+         from car_track_info cti
+         left join car_info ci on ci.car_number = cti.vin
+         left join order_info oi on ci.car_id = oi.car_id
+         where oi.order_id= #{orderId}
+            <![CDATA[ and cti.last_refresh_time >= #{beginDate}]]>
+            <![CDATA[ and cti.last_refresh_time <= #{endDate}]]>
+        order by cti.last_refresh_time
     </select>
     <select id="selectDriverHeartbeatInfoById" parameterType="Long" resultMap="DriverHeartbeatInfoResult">
         <include refid="selectDriverHeartbeatInfoVo"/>

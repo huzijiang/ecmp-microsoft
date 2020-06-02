@@ -2136,6 +2136,18 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         // 6.行程预算价表
         JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
         submitJourneyPlanPriceInfoCommit(applySingleVO,journeyInfo.getJourneyId(),journeyNodeInfo.getNodeId(),journeyPlanPriceInfo,orderIds.get(0));
+        //新增下车多个地址表数据
+        JourneyAddressInfoDto journeyAddressInfoDto = new JourneyAddressInfoDto();
+        if(!applySingleVO.getMultipleDropAddress().isEmpty()) {
+            List<AddressVO> addressInfo = applySingleVO.getMultipleDropAddress();
+            for (AddressVO addressVO : addressInfo) {
+                journeyAddressInfoDto.setJourneyId(journeyInfo.getJourneyId());
+                journeyAddressInfoDto.setAddressInfo(addressVO.getLongAddress());
+                journeyAddressInfoDto.setCreateBy(String.valueOf(applySingleVO.getUserId()));
+                journeyAddressInfoDto.setCreateTime(DateUtils.getNowDate());
+                int f  = applyInfoMapper.insertJourneyAddressInfo(journeyAddressInfoDto);
+            }
+        }
         //7.包车调度详情  order_dispatche_detail_info
         OrderDispatcheDetailInfo orderDispatcheDetailInfo = new OrderDispatcheDetailInfo();
         orderDispatcheDetailInfo.setOrderId(orderIds.get(0));
@@ -2143,7 +2155,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         orderDispatcheDetailInfo.setDispatchState(CarConstant.DISPATCH_NOT_COMPLETED);
         orderDispatcheDetailInfo.setCreateBy(String.valueOf(applySingleVO.getUserId()));
         orderDispatcheDetailInfo.setCreateTime(DateUtils.getNowDate());
-         int i = orderDispatcheDetailInfoMapper.insertOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
+        int i = orderDispatcheDetailInfoMapper.insertOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
         if(i == 1){
             apiResponse.setMsg("提交申请单成功");
         }else {
@@ -2304,6 +2316,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setReason(applySingleVO.getReason());
         //notes  用车注意事项
         applyInfo.setNotes(applySingleVO.getNotes());
+        //是否安全提醒  Y000  是，安全提醒已勾选      N111  否，安全提醒未勾选
+        applyInfo.setSafeRemind(applySingleVO.getSafeRemind());
         // create_by 创建者
         applyInfo.setCreateBy(applySingleVO.getUserId().toString());
         //create_time 创建时间

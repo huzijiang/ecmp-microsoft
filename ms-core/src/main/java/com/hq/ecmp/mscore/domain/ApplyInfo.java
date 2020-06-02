@@ -78,6 +78,9 @@ public class ApplyInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsSelfDriver;
 
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String safeRemind;
+
     public ApplyInfo(Long applyId, String state) {
         this.applyId = applyId;
         this.state = state;

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.AccountConstant;
@@ -183,7 +184,10 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                     imagesInfoMapper.insert(imagesInfo);
                 }
             }
-            settlement(orderSettlingInfoVo, recordInfos);
+            //计算所有子行程的和
+            if(isInsertOrderConfing){
+                settlement(orderSettlingInfoVo, recordInfos);
+            }
         }
         //判断是否插入主表
         if(isInsertOrderConfing){
@@ -220,6 +224,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         BigDecimal restaurantFee = BigDecimal.ZERO;
         BigDecimal overMileagePrice = BigDecimal.ZERO;
         BigDecimal overtimeLongPrice = BigDecimal.ZERO;
+        BigDecimal roadAndBridgeFee = BigDecimal.ZERO;
         for (OrderServiceCostDetailRecordInfo recordInfo : recordInfos) {
             amount = amount.add(CommonUtils.getBigDecimal(recordInfo.getTotalFee()));
             otherFee = otherFee.add(CommonUtils.getBigDecimal(recordInfo.getOthersFee()));
@@ -227,12 +232,12 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             hotelExpenseFee = hotelExpenseFee.add(CommonUtils.getBigDecimal(recordInfo.getAccommodationFee()));
             parkingRateFee = parkingRateFee.add(CommonUtils.getBigDecimal(recordInfo.getStopCarFee()));
             restaurantFee = restaurantFee.add(CommonUtils.getBigDecimal(recordInfo.getFoodFee()));
-            overMileagePrice = overMileagePrice.add(CommonUtils.getBigDecimal(recordInfo.getRoadAndBridgeFee()));
+            roadAndBridgeFee = roadAndBridgeFee.add(CommonUtils.getBigDecimal(recordInfo.getRoadAndBridgeFee()));
+            overMileagePrice = overMileagePrice.add(CommonUtils.getBigDecimal(recordInfo.getBeyondMileageFee()));
             overtimeLongPrice = overtimeLongPrice.add(CommonUtils.getBigDecimal(recordInfo.getBeyondTimeFee()));
         }
-        String json = costPrice(orderSettlingInfoVo);
+
         //计算总费用
-        orderSettlingInfoVo.setAmountDetail(json);
         orderSettlingInfoVo.setAmount(amount);
         orderSettlingInfoVo.setOtherFee(otherFee);
         orderSettlingInfoVo.setHighSpeedFee(highSpeedFee);
@@ -241,6 +246,12 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         orderSettlingInfoVo.setRestaurantFee(restaurantFee);
         orderSettlingInfoVo.setOverMileagePrice(overMileagePrice);
         orderSettlingInfoVo.setOvertimeLongPrice(overtimeLongPrice);
+        orderSettlingInfoVo.setRoadBridgeFee(roadAndBridgeFee);
+
+        String json = costPrice(orderSettlingInfoVo);
+        String extraPrice = extraPrice(orderSettlingInfoVo);
+        orderSettlingInfoVo.setAmountDetail(json);
+        orderSettlingInfoVo.setOutPrice(extraPrice);
     }
 
     @Override
@@ -409,6 +420,12 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         restaurantFee.put("cost",orderSettlingInfoVo.getRestaurantFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
         restaurantFee.put("typeName","餐饮费");
         list.add(restaurantFee);
+        //其他费用
+        //OrderSettling.setRestaurantFee(orderSettlingInfoVo.getRestaurantFee());
+        Map otherFee = new HashMap();
+        otherFee.put("cost",orderSettlingInfoVo.getOtherFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
+        otherFee.put("typeName","其他费用");
+        list.add(otherFee);
         //超里程价格
         //OrderSettling.setOverMileagePrice(orderSettlingInfoVo.getOverMileagePrice());
         //Map overMileagePrice = new HashMap();
@@ -456,7 +473,6 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         private OrderSettlingInfoVo orderSettlingInfoVo;
         private Long userId;
         private Long companyId;
-        private List<CostConfigInfo> costConfigInfoList;
         private boolean isInsertOrderConfing;
         private boolean isChartered;
 
@@ -468,10 +484,6 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
 
         boolean is() {
             return myResult;
-        }
-
-        public List<CostConfigInfo> getCostConfigInfo() {
-            return costConfigInfoList;
         }
 
         public boolean isInsertOrderConfing() {
@@ -513,7 +525,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             //车型级别
             costConfigQueryDto.setCarTypeId(carInfo.getCarTypeId());
 
-            costConfigInfoList = new ArrayList<>();
+            List costConfigInfoList = new ArrayList<>();
             //是否插入总表
             isInsertOrderConfing = true;
             //是否为插入费用子表
@@ -549,6 +561,9 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                     //车队id
                     costConfigQueryDto.setCarGroupId(carInfo.getCarGroupId());
                     CostConfigInfo costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
+                    if(costConfigInfo == null){
+                        throw new BaseException("该车队车辆及驾驶员暂未配置价格计划");
+                    }
                     costConfigInfoList.add(costConfigInfo);
                 }else{
                     //仅用车
@@ -557,12 +572,18 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                     costConfigQueryDto.setCarGroupId(Long.parseLong(String.valueOf(carCostInfo.get("carCarGroupId"))));
                     CostConfigInfo costConfigInfo1 = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
                     costConfigInfoList.add(costConfigInfo1);
+                    if(costConfigInfo1 == null){
+                        throw new BaseException("该车队车辆暂未配置价格计划");
+                    }
                     if(driverCostInfo!=null){
                         //仅用驾驶员
                         costConfigQueryDto.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA10.getKey());
                         //车队id
                         costConfigQueryDto.setCarGroupId(Long.parseLong(String.valueOf(driverCostInfo.get("driverCarGroupId"))));
                         CostConfigInfo costConfigInfo2 = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
+                        if(costConfigInfo2 == null){
+                            throw new BaseException("该车队驾驶员暂未配置价格计划");
+                        }
                         costConfigInfoList.add(costConfigInfo2);
                     }
                 }
