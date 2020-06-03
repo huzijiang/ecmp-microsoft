@@ -1978,9 +1978,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 预计结束时间
         oaitwo.action_time endDate,
         -- 上车地址
-        oai.address startSite,
+        oai.address_long startSite,
         -- 下车地址
-        oaitwo.address endSite,
+        oaitwo.address_long endSite,
         -- if (GROUP_CONCAT(jai.address_info) is null,oaitwo.address,GROUP_CONCAT(jai.address_info,',' ,oaitwo.address)) endSite,
         -- 是否往返
         ji.it_is_return itIsReturn,
@@ -2471,9 +2471,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 是否自驾
         ai.it_is_self_driver  itIsSelfDriver,
         -- 状态
-        oai1.address beginAddress,
+        oai1.address_long beginAddress,
         -- 出发地址
-         oai2.address endAddress,
+         oai2.address_long endAddress,
         -- if (GROUP_CONCAT(jai.address_info) is null,oai2.address,GROUP_CONCAT(jai.address_info,',' ,oai2.address)) endAddress,
         -- 到达地址
         oi.order_number orderNumber,
