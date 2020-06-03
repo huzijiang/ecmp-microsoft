@@ -36,10 +36,10 @@ public class CostCalculator implements CostCalculation {
         BigDecimal amount ;
         //订单里程的总价格
         BigDecimal totalPrice = BigDecimal.ZERO;
-        //起步价
+        //起步价&&套餐價格
         BigDecimal startingPrice = BigDecimal.ZERO;
-        //套餐价
-        BigDecimal  packagePrice ;
+//        //套餐价
+//        BigDecimal  packagePrice ;
         //超里程价格
         BigDecimal  overMileagePrice  = BigDecimal.ZERO;
         //超时长价格
@@ -74,9 +74,9 @@ public class CostCalculator implements CostCalculation {
             //包车的情况下
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
                 //套餐价
-                packagePrice = costConfigInfo.getCombosPrice();
+                startingPrice = costConfigInfo.getCombosPrice();
 
-                setMealCost = setMealCost.add(packagePrice);
+                setMealCost = setMealCost.add(startingPrice);
                 setMealMileage = setMealMileage.add(costConfigInfo.getCombosMileage());
                 setMealTimes += costConfigInfo.getCombosTimes().intValue();
 
@@ -97,7 +97,7 @@ public class CostCalculator implements CostCalculation {
                     overtimeLongPrice= overtimeLongPrice.add(new BigDecimal(temBeyondTime).multiply(costConfigInfo.getBeyondPriceEveryMinute().divide(new BigDecimal("60"),2,BigDecimal.ROUND_HALF_UP)));
                 }
                 //总价=（等待时长*等待单价）+(起步价)+(超里程价格)+(超时长价格)
-                totalPrice = totalPrice.add(packagePrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
+                totalPrice = totalPrice.add(startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
             }
             setMealMileage = setMealMileage.divide(new BigDecimal(costConfigInfoList.size()));
             setMealTimes = setMealTimes/costConfigInfoList.size();
