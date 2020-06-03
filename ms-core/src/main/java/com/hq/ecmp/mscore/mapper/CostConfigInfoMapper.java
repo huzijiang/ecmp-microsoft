@@ -115,7 +115,7 @@ public interface CostConfigInfoMapper
     List<CostConfigInfo> selectCostConfigList(CostConfigInfo costConfigInfo);
 
     List<ValidDoubleDtoResult> checkCharteredCost(@Param("carGroupId") Long carGroupId,@Param("carGroupUserMode")  String carGroupUserMode
-            ,@Param("rentType")  String rentType,@Param("companyId") Long companyId);
+            ,@Param("rentType")  String rentType,@Param("companyId") Long companyId,@Param("serviceType") String serviceType);
 
     Map<String,String> getDriverInfo(long driverId);
     Map<String,String> getCarInfo(long carId);
