@@ -1440,16 +1440,27 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
         vo.setUserName(passengerName);
         vo.setUserPhone(passengerPhone);
+        List<OtherCostBean> otherCostBeans=new ArrayList<>();
         if (orderSettlingInfo!=null){
             String amount = orderSettlingInfo.getAmount() == null ? null : orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString();
             vo.setOrderAmount(amount);
             vo.setTotalMileage(orderSettlingInfo.getTotalMileage()==null?String.valueOf(ZERO):orderSettlingInfo.getTotalMileage().stripTrailingZeros().toPlainString());
             vo.setTotalTime(orderSettlingInfo.getTotalTime()==null?String.valueOf(ZERO):orderSettlingInfo.getTotalTime().stripTrailingZeros().toPlainString());
             String amountDetail = orderSettlingInfo.getAmountDetail();
+            String outPrice = orderSettlingInfo.getOutPrice();
             if (StringUtils.isNotEmpty(amountDetail)) {
                 JSONObject jsonObject = JSONObject.parseObject(amountDetail);
                 String otherCostJson = jsonObject.getString("otherCost");
-                List<OtherCostBean> otherCostBeans = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
+                List<OtherCostBean> amountDetailList = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
+                otherCostBeans.addAll(amountDetailList);
+            }
+            if (StringUtils.isNotEmpty(outPrice)) {
+                JSONObject jsonObject = JSONObject.parseObject(outPrice);
+                String otherCostJson = jsonObject.getString("otherCost");
+                List<OtherCostBean> outPriceList = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
+                otherCostBeans.addAll(outPriceList);
+            }
+            if (!CollectionUtils.isEmpty(otherCostBeans)){
                 vo.setOrderFees(otherCostBeans);
             }
         }
