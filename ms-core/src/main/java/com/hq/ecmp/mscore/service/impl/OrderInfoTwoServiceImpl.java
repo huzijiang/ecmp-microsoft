@@ -738,6 +738,14 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         userApplySingleVo.setUserId(loginUser.getUser().getUserId());
         PageHelper.startPage(userApplySingleVo.getPageNum(), userApplySingleVo.getPageSize());
         List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplySearchList(userApplySingleVo);
+        for (UserApplySingleVo userApplySingle : useApplyList){
+            if(StringUtils.isNotBlank(userApplySingle.getEndAddress()) && StringUtils.isNotBlank(userApplySingle.getAddressInfo())){
+                 String endAddress = userApplySingle.getEndAddress()+","+userApplySingle.getAddressInfo();
+                userApplySingle.setEndAddress(endAddress);
+            }else{
+                userApplySingle.setEndAddress(userApplySingle.getEndAddress());
+            }
+        }
         PageInfo<UserApplySingleVo> info = new PageInfo<>(useApplyList);
         return new PageResult<>(info.getTotal(), info.getPages(), useApplyList);
     }
@@ -854,6 +862,14 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
 
         //手动分页
         Map<String,Object> map = new HashMap();
+        for(DispatchVo dispatchVo : dispatcherOrderList){
+            if(StringUtils.isNotBlank(dispatchVo.getEndSite()) && StringUtils.isNotBlank(dispatchVo.getAddressInfo())){
+                String endAddress = dispatchVo.getEndSite()+","+dispatchVo.getAddressInfo();
+                dispatchVo.setEndSite(endAddress);
+            }else{
+                dispatchVo.setEndSite(dispatchVo.getEndSite());
+            }
+        }
         SortListUtil.sort(dispatcherOrderList, "orderByState", SortListUtil.ASC);
         List<DispatchVo> page = PageUtil.startPage(dispatcherOrderList,query.getPageN(),query.getPageS());
         Integer count = dispatcherOrderList.size();

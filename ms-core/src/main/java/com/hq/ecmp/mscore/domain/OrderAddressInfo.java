@@ -81,12 +81,20 @@ public class OrderAddressInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String type;
 
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String addressInfo;
 
     public OrderAddressInfo (){};
 
     public OrderAddressInfo(String type,Long orderId){
     	this.orderId=orderId;
     	this.type=type;
+    }
+
+    public OrderAddressInfo(String type,Long orderId,Long journeyId){
+        this.orderId=orderId;
+        this.type=type;
+        this.journeyId=journeyId;
     }
 
     public OrderAddressInfo(Long orderId, String type) {
@@ -118,6 +126,7 @@ public class OrderAddressInfo extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
+            .append("addressInfo", getAddressInfo())
             .toString();
     }
 }

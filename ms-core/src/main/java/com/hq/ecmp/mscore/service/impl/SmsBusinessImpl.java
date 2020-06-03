@@ -1243,7 +1243,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String applyDays = undoSMSTemplate.getUseTime();
         Map<String,String> map=Maps.newHashMap();
         map.put("subscribeTime", subscribeTime );//用车时间
-        map.put("vehicleUser", vehicleUser ); //用车人
+        map.put("vehicleUser", vehicleUser ); //业务员
         map.put("orderNumber", orderNumber ); //订单号
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
