@@ -325,7 +325,18 @@
         left join cost_config_car_group_info b on b.cost_id=a.cost_id
         left join cost_config_city_info c on c.cost_id=a.cost_id
         where b.car_group_id=#{carGroupId}
-        and a.rent_type=#{rentType} and a.car_group_user_mode=#{carGroupUserMode}
+        <if test="carGroupUserMode!=null">
+        and a.car_group_user_mode=#{carGroupUserMode}
+        </if>
+        <if test="rentType!=null">
+        and a.rent_type=#{rentType}
+        </if>
+        <if test="serviceType!=null and serviceType!=''">
+            and a.service_type = #{serviceType}
+        </if>
+        <if test="companyId!=null ">
+            and a.company_id = #{companyId}
+        </if>
     </select>
     <select id="getDriverInfo" resultType="map" parameterType="long">
         SELECT c.it_is_inner driverIsInner,c.car_group_id driverCarGroupId
