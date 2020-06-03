@@ -414,9 +414,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                      jn.use_time useTime,
                      jn.start_date startDate,
                      jn.end_date endDate,
-
 					 jn.charter_car_type charterCarType,
-					 s.action_time useCarTime,
+                     DATE_FORMAT(s.action_time,'%Y-%m-%d %H:%i:%s') useCarTime,
 					 s.address startAddr,
                      t.address endAddr,
                     (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
