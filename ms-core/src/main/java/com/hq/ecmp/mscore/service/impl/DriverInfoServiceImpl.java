@@ -678,14 +678,28 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	}
 
 	@Override
-	public boolean checkMobile(String mobile) {
+	public ApiResponse checkMobile(String mobile) {
+		ApiResponse  apiResponse = new ApiResponse();
 		DriverInfo driverInfo = new DriverInfo();
 		driverInfo.setMobile(mobile);
 		List<DriverInfo> selectDriverInfoList = driverInfoMapper.selectDriverInfoList(driverInfo);
-		if(null !=selectDriverInfoList && selectDriverInfoList.size()>0){
-			return true;
+		if(!selectDriverInfoList.isEmpty()){
+			if(StringUtils.isNotBlank(selectDriverInfoList.get(0).getMobile())){
+				apiResponse.setCode(ApiResponse.ERROR_CODE);
+				apiResponse.setMsg("该手机号驾驶员已存在");
+			}
+		}else{
+			String phonenumber =mobile;
+			EcmpUser ecmpUser = ecmpUserMapper.getUserByPhone(phonenumber);
+			if (ecmpUser==null){
+				apiResponse.setCode(ApiResponse.ERROR_CODE);
+				apiResponse.setMsg("无此用户");
+			}else if(StringUtils.isNotBlank(ecmpUser.getPhonenumber())) {
+				apiResponse.setCode(ApiResponse.SUCCESS_CODE);
+				apiResponse.setData(ecmpUser);
+			}
 		}
-		return false;
+		return apiResponse;
 	}
 
 	@Override
