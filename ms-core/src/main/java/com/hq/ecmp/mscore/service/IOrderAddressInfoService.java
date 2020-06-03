@@ -73,4 +73,6 @@ public interface IOrderAddressInfoService
      * @return  true-超时    false-未超时
      */
     public boolean checkOrderOverTime(Long orderId);
+
+    OrderAddressInfo getOrderEndAddresses(OrderAddressInfo a999);
 }

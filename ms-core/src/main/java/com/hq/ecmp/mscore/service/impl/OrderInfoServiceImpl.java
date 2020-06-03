@@ -510,9 +510,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
 		OrderAddressInfo endOrderAddressInfo = iOrderAddressInfoService
-				.queryOrderStartAndEndInfo(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId()));
+				.getOrderEndAddresses(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId(),dispatchOrderInfo.getJourneyId()));
+
 		if (null != endOrderAddressInfo) {
-			dispatchOrderInfo.setEndSite(endOrderAddressInfo.getAddress());
+            if(StringUtils.isNotBlank(endOrderAddressInfo.getAddress()) && StringUtils.isNotBlank(endOrderAddressInfo.getAddressInfo())){
+                String endAddress = endOrderAddressInfo.getAddress()+","+endOrderAddressInfo.getAddressInfo();
+                dispatchOrderInfo.setEndSite(endAddress);
+            }else{
+                dispatchOrderInfo.setEndSite(endOrderAddressInfo.getAddress());
+            }
 			dispatchOrderInfo.setEndDate(endOrderAddressInfo.getActionTime());
 		}else{//如果是差旅则 从形成节点表去拿预计的结束时间
             OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(dispatchOrderInfo.getOrderId());
@@ -2205,6 +2211,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			//查询上下车地点 时间
 			DispatchOrderInfo dispatchOrderInfo = new DispatchOrderInfo();
 			dispatchOrderInfo.setOrderId(orderId);
+            dispatchOrderInfo.setJourneyId(journeyInfo.getJourneyId());
 			buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 			dispatchSendCarPageInfo.setSetOutAderess(dispatchOrderInfo.getStartSite());
 			dispatchSendCarPageInfo.setStartDate(dispatchOrderInfo.getUseCarDate());

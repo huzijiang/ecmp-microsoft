@@ -99,9 +99,14 @@ public class OrderAddressInfoServiceImpl implements IOrderAddressInfoService
     }
 
 	@Override
-	public OrderAddressInfo queryOrderStartAndEndInfo(OrderAddressInfo orderAddressInfo) {
-		return orderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfo);
+	public OrderAddressInfo getOrderEndAddresses(OrderAddressInfo orderAddressInfo) {
+		return orderAddressInfoMapper.getOrderEndAddresses(orderAddressInfo);
 	}
+
+    @Override
+    public OrderAddressInfo queryOrderStartAndEndInfo(OrderAddressInfo orderAddressInfo) {
+        return orderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfo);
+    }
 
 	@Override
 	public boolean

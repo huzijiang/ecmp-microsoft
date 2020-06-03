@@ -1981,8 +1981,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 上车地址
         oai.address startSite,
         -- 下车地址
-        -- oaitwo.address endSite,
-        if (GROUP_CONCAT(jai.address_info) is null,oaitwo.address,GROUP_CONCAT(jai.address_info,',' ,oaitwo.address)) endSite,
+        oaitwo.address endSite,
+        -- if (GROUP_CONCAT(jai.address_info) is null,oaitwo.address,GROUP_CONCAT(jai.address_info,',' ,oaitwo.address)) endSite,
         -- 是否往返
         ji.it_is_return itIsReturn,
         -- 预计等待时长
@@ -2026,7 +2026,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         od.it_is_use_inner_car_group useCarGroupType,
         ai.it_is_self_driver itIsSelfDriver,
         cgi.car_group_name carGroupName,
-       -- GROUP_CONCAT(jai.address_info) addressInfo,
+       GROUP_CONCAT(jai.address_info) addressInfo,
         ai.reason reason,
         ai.safe_remind safeRemind,
         osti.state orderByState
@@ -2474,8 +2474,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 状态
         oai1.address beginAddress,
         -- 出发地址
-        -- oai2.address endAddress,
-        if (GROUP_CONCAT(jai.address_info) is null,oai2.address,GROUP_CONCAT(jai.address_info,',' ,oai2.address)) endAddress,
+         oai2.address endAddress,
+        -- if (GROUP_CONCAT(jai.address_info) is null,oai2.address,GROUP_CONCAT(jai.address_info,',' ,oai2.address)) endAddress,
         -- 到达地址
         oi.order_number orderNumber,
         -- 订单编号
@@ -2483,7 +2483,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 用车方式
         oscdrio.amount amount,
         oi.order_id orderId,
-        -- GROUP_CONCAT(jai.address_info) addressInfo,
+        GROUP_CONCAT(jai.address_info) addressInfo,
         -- 费用合计
         case
         when right (z.state,3)='100' then '待派车'
