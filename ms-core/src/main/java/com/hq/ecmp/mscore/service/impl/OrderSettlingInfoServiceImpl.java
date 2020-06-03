@@ -591,7 +591,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                 if("T001".equals(carType) ||"T002".equals(carType)||"T009".equals(carType)){
                     isChartered = true;
                     //订单预计结束时间
-                    if(!DateUtils.isBeforeNowDate(journeyInfo.getEndDate())){
+                    if(DateUtils.isBeforeNowDate(journeyInfo.getEndDate())){
                         isInsertOrderConfing = false;
                     }
                 }
