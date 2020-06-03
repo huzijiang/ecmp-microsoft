@@ -9,10 +9,7 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.CommonConstant;
-import com.hq.ecmp.constant.DriverNatureEnum;
-import com.hq.ecmp.constant.InvitionTypeEnum;
-import com.hq.ecmp.constant.RoleConstant;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.constant.enumerate.DriverStateEnum;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
@@ -22,6 +19,7 @@ import com.hq.ecmp.mscore.service.IDriverCarRelationInfoService;
 import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.DateFormatUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +72,10 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	private DriverNatureInfoMapper driverNatureInfoMapper;
 	@Autowired
 	private EcmpUserMapper ecmpUserMapper;
+	@Autowired
+	private OrderInfoMapper orderInfoMapper;
+	@Autowired
+	private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
 	@Autowired
 	private CarGroupDriverRelationMapper carGroupDriverRelationMapper;
 
@@ -732,6 +734,28 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	public PageResult driverWorkOrderList(PageRequest pageRequest) {
     	PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
 		List<DriverOrderVo> driverOrderVos =driverInfoMapper.driverWorkOrderList(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
+		if (CollectionUtils.isNotEmpty(driverOrderVos)){
+			for (DriverOrderVo driverOrderVo:driverOrderVos){
+				List<OrderDetailVO> orderDetailVOS = driverOrderVo.getOrderDetailVOS();
+				if (CollectionUtils.isNotEmpty(orderDetailVOS)){
+					String state= OrderState.INSERVICE.getState()+","+OrderState.STOPSERVICE.getState();
+					for (OrderDetailVO orderDetailVO:orderDetailVOS){
+						List<OrderStateTraceInfo> list=orderStateTraceInfoMapper.selectListByOrderState(orderDetailVO.getOrderId(),state,pageRequest.getDate());
+					    if (CollectionUtils.isNotEmpty(list)){
+					        for (OrderStateTraceInfo stateTraceInfo:list){
+					            if (OrderState.INSERVICE.getState().equals(stateTraceInfo.getState())){
+                                    orderDetailVO.setOrderStartTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,stateTraceInfo.getCreateTime()));
+                                }
+					            if (OrderState.STOPSERVICE.getState().equals(stateTraceInfo.getState())){
+                                    orderDetailVO.setOrderEndTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,stateTraceInfo.getCreateTime()));
+                                }
+                            }
+
+                        }
+					}
+				}
+			}
+		}
 		Long count=driverInfoMapper.driverWorkOrderListCount(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
 		Collections.sort(driverOrderVos);
 		return new PageResult(count,driverOrderVos);

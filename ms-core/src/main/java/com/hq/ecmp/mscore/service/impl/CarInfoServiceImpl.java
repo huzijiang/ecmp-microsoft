@@ -12,6 +12,7 @@ import com.hq.common.utils.DateUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.constant.CommonConstant;
+import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.mscore.bo.CarTrackInfo;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
@@ -20,6 +21,7 @@ import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.ICarInfoService;
 import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.util.DateFormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -63,6 +65,8 @@ public class CarInfoServiceImpl implements ICarInfoService
     private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
     @Resource
     private CarTrackInfoMapper carTrackInfoMapper;
+    @Resource
+    private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
 
 
     /**
@@ -781,6 +785,28 @@ public class CarInfoServiceImpl implements ICarInfoService
     public PageResult carWorkOrderList(PageRequest pageRequest) {
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         List<DriverOrderVo> driverOrderVos =carInfoMapper.carWorkOrderList(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
+        if (CollectionUtils.isNotEmpty(driverOrderVos)){
+            for (DriverOrderVo driverOrderVo:driverOrderVos){
+                List<OrderDetailVO> orderDetailVOS = driverOrderVo.getOrderDetailVOS();
+                if (CollectionUtils.isNotEmpty(orderDetailVOS)){
+                    String state= OrderState.INSERVICE.getState()+","+OrderState.STOPSERVICE.getState();
+                    for (OrderDetailVO orderDetailVO:orderDetailVOS){
+                        List<OrderStateTraceInfo> list=orderStateTraceInfoMapper.selectListByOrderState(orderDetailVO.getOrderId(),state,pageRequest.getDate());
+                        if (CollectionUtils.isNotEmpty(list)){
+                            for (OrderStateTraceInfo stateTraceInfo:list){
+                                if (OrderState.INSERVICE.getState().equals(stateTraceInfo.getState())){
+                                    orderDetailVO.setOrderStartTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,stateTraceInfo.getCreateTime()));
+                                }
+                                if (OrderState.STOPSERVICE.getState().equals(stateTraceInfo.getState())){
+                                    orderDetailVO.setOrderEndTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,stateTraceInfo.getCreateTime()));
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
         Long count=carInfoMapper.carWorkOrderListCount(pageRequest.getCarGroupId(),pageRequest.getDate(),pageRequest.getSearch());
         Collections.sort(driverOrderVos);
         return new PageResult(count,driverOrderVos);
