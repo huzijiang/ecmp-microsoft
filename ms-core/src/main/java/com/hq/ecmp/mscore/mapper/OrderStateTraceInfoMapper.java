@@ -155,4 +155,6 @@ public interface OrderStateTraceInfoMapper
     int deleteOrderStateTrace(@Param("orderId") Long orderId)throws Exception;
 
     int selectCountForAgainStrte(@Param("orderId") Long orderId,@Param("state")  String state);
+
+    List<OrderStateTraceInfo> selectListByOrderState(@Param("orderId")Long orderId, @Param("state") String state, @Param("date") String date);
 }

@@ -186,7 +186,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="getOrderEndAddresses" resultMap="OrderAddressInfoResult">
         SELECT
-                    oai.address address,
+                    oai.address_long address,
                     oai.action_time actionTime,
                     GROUP_CONCAT( jai.address_info ) addressInfo
                 FROM
