@@ -1356,13 +1356,12 @@ public class SmsBusinessImpl implements IsmsBusiness{
                 BigDecimal totalFee = orderCommonInfo.getTotalFee();
                 BigDecimal totalFee2 = totalFee.setScale(2, RoundingMode.HALF_UP);//保留两位小数
                 orderCommonInfo.setTotalFee(totalFee2);
+            }else {
+                orderCommonInfo.setTotalFee(new BigDecimal(0.00));
             }
             Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
            //用车人
             String applyMobile = orderCommonInfo.getApplyMobile();
-
-
-
             log.info("短信已发送用车人电话：{}",applyMobile);
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END,orderCommonInfoMap,applyMobile);
 
