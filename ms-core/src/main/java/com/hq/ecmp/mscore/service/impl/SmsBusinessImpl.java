@@ -1243,7 +1243,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String applyDays = undoSMSTemplate.getUseTime();
         Map<String,String> map=Maps.newHashMap();
         map.put("subscribeTime", subscribeTime );//用车时间
-        map.put("vehicleUser", vehicleUser ); //用车人
+        map.put("vehicleUser", vehicleUser ); //业务员
         map.put("orderNumber", orderNumber ); //订单号
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
@@ -1356,13 +1356,12 @@ public class SmsBusinessImpl implements IsmsBusiness{
                 BigDecimal totalFee = orderCommonInfo.getTotalFee();
                 BigDecimal totalFee2 = totalFee.setScale(2, RoundingMode.HALF_UP);//保留两位小数
                 orderCommonInfo.setTotalFee(totalFee2);
+            }else {
+                orderCommonInfo.setTotalFee(new BigDecimal(0.00));
             }
             Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
            //用车人
             String applyMobile = orderCommonInfo.getApplyMobile();
-
-
-
             log.info("短信已发送用车人电话：{}",applyMobile);
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END,orderCommonInfoMap,applyMobile);
 

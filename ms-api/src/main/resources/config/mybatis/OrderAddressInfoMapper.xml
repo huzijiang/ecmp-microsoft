@@ -184,4 +184,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         order by id desc
     </select>
 
+    <select id="getOrderEndAddresses" resultMap="OrderAddressInfoResult">
+        SELECT
+                    oai.address address,
+                    oai.action_time actionTime,
+                    GROUP_CONCAT( jai.address_info ) addressInfo
+                FROM
+                    order_address_info oai
+                    LEFT JOIN journey_address_info jai ON oai.journey_id = jai.journey_id
+                WHERE
+                    oai.type = #{type}
+                    AND oai.order_id = #{orderId}
+                    AND oai.journey_id = #{journeyId}
+                ORDER BY
+                    jai.journey_id
+    </select>
+
 </mapper>
