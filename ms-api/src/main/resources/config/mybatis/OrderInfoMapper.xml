@@ -752,6 +752,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oai2.action_time endTime,
         oai.address beginAddress,
         oai2.address endAddress,
+        (select  group_concat(address_info)  from journey_address_info where journey_id=s.journey_id) newEndAddress,
         s.service_type serviceType,
         ji.charter_car_type charterCarType,
         ji.use_time useTime,
