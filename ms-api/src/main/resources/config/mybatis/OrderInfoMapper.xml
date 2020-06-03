@@ -335,7 +335,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ))
         <if test="flag==1">
             and (o.state='S299' or o.state='S500' or o.state='S600' or o.state='S616' or o.state='S635'  )
-            order by useCarTime asc
+            order by s.action_time asc
         </if>
         <if test="flag==0">
             and (o.state='S299' or o.state='S500' or o.state='S600' or o.state='S616' or o.state='S699' or o.state='S635' or
@@ -343,7 +343,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             ORDER BY
             o.state = 'S900' asc, labelState = 'S279' asc,
             CASE WHEN  (o.state = 'S900' or  labelState = 'S279')  THEN o.update_time END DESC,
-            useCarTime ASC
+            s.action_time ASC
         </if>
     </select>
 
