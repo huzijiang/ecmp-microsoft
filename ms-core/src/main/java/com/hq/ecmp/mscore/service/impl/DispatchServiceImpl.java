@@ -460,6 +460,7 @@ public class DispatchServiceImpl implements IDispatchService {
             waitSelectedCarBo.setCarModelName(carInfo.getCarType());
             EnterpriseCarTypeInfo enterpriseCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(carInfo.getCarTypeId());
             waitSelectedCarBo.setCarType(enterpriseCarTypeInfo.getName());
+            waitSelectedCarBo.setLevel(enterpriseCarTypeInfo.getLevel());
 
             waitSelectedCarBo.setColor(carInfo.getCarColor());
             waitSelectedCarBo.setPlateLicence(carInfo.getCarLicense());

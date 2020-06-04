@@ -12,7 +12,7 @@
     <select id="queryById" resultMap="CarGroupServeOrgRelationMap" parameterType="long">
         select
           car_group_id, dept_id, type
-        from ecmp.car_group_serve_org_relation
+        from car_group_serve_org_relation
         where car_group_id = #{carGroupId}
     </select>
 
@@ -20,7 +20,7 @@
     <select id="queryAllByLimit" resultMap="CarGroupServeOrgRelationMap">
         select
           car_group_id, dept_id, type
-        from ecmp.car_group_serve_org_relation
+        from car_group_serve_org_relation
         limit #{offset}, #{limit}
     </select>
 
@@ -28,7 +28,7 @@
     <select id="queryAll" resultMap="CarGroupServeOrgRelationMap">
         select
           car_group_id, dept_id, type
-        from ecmp.car_group_serve_org_relation
+        from car_group_serve_org_relation
         <where>
             <if test="carGroupId != null">
                 and car_group_id = #{carGroupId}
@@ -50,7 +50,7 @@
 
     <!--通过主键修改数据-->
     <update id="update">
-        update ecmp.car_group_serve_org_relation
+        update car_group_serve_org_relation
         <set>
             <if test="carGroupId != null">
                 car_group_id = #{carGroupId},

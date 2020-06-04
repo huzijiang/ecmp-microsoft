@@ -146,7 +146,7 @@ public interface IDriverInfoService
      * @param mobile
      * @return  true - 已经存在
      */
-    public boolean checkMobile(String mobile);
+    public ApiResponse checkMobile(String mobile);
 
 	/**
 	 * 新增驾驶员时输入工号 校验正确性

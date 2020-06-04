@@ -333,7 +333,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
             carTypeId = carTypes.stream().map(p -> p.getCarTypeId().toString()).collect(Collectors.toList());
         }
         List<ValidDoubleDtoResult> list=costConfigInfoMapper.checkCharteredCost(costConfigQueryDto.getCarGroupId(),costConfigQueryDto.getCarGroupUserMode()
-                ,costConfigQueryDto.getRentType(),costConfigQueryDto.getCompanyId());
+                ,costConfigQueryDto.getRentType(),costConfigQueryDto.getCompanyId(),costConfigQueryDto.getServiceType());
         if (CollectionUtils.isEmpty(list)){
             return null;
         }

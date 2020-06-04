@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -1241,7 +1243,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String applyDays = undoSMSTemplate.getUseTime();
         Map<String,String> map=Maps.newHashMap();
         map.put("subscribeTime", subscribeTime );//用车时间
-        map.put("vehicleUser", vehicleUser ); //用车人
+        map.put("vehicleUser", vehicleUser ); //业务员
         map.put("orderNumber", orderNumber ); //订单号
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
@@ -1350,14 +1352,16 @@ public class SmsBusinessImpl implements IsmsBusiness{
         log.info("短信开始-订单{},司机结束服务", orderId);
         try {
             DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
-
+            if(null != orderCommonInfo.getTotalFee()){
+                BigDecimal totalFee = orderCommonInfo.getTotalFee();
+                BigDecimal totalFee2 = totalFee.setScale(2, RoundingMode.HALF_UP);//保留两位小数
+                orderCommonInfo.setTotalFee(totalFee2);
+            }else {
+                orderCommonInfo.setTotalFee(new BigDecimal(0.00));
+            }
             Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
-
            //用车人
             String applyMobile = orderCommonInfo.getApplyMobile();
-
-
-
             log.info("短信已发送用车人电话：{}",applyMobile);
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END,orderCommonInfoMap,applyMobile);
 

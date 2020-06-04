@@ -107,11 +107,8 @@ public class DriverInfoController {
 	@ApiOperation(value = "checkMobile", notes = "校验驾驶员手机号是否已经存在", httpMethod = "POST")
 	@PostMapping("/checkMobile")
 	public ApiResponse checkMobile(@RequestBody String mobile) {
-		boolean checkMobile = driverInfoService.checkMobile(mobile);
-		if(checkMobile){
-			return ApiResponse.error("该手机号已存在,不可重复录入!");
-		}
-		return ApiResponse.success();
+		ApiResponse checkMobile = driverInfoService.checkMobile(mobile);
+		return checkMobile;
 	}
 
 	@Log(title = "驾驶员管理:校验驾驶员用户的工号", businessType = BusinessType.OTHER)

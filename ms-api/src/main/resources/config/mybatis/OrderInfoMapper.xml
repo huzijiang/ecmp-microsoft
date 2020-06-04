@@ -315,7 +315,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             jn.use_time useTime,
             jn.it_is_return itIsReturn,
             jn.charter_car_type charterCarType,
-            -- s.action_time useCarTime,
+            s.action_time useCarTime,
             s.address startAddr,
             DATE_FORMAT(jn.start_date, '%Y-%m-%d %H:%i') startDate,
             DATE_FORMAT(jn.end_date, '%Y-%m-%d %H:%i') endDate,
@@ -335,7 +335,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ))
         <if test="flag==1">
             and (o.state='S299' or o.state='S500' or o.state='S600' or o.state='S616' or o.state='S635'  )
-            order by useCarTime asc
+            order by s.action_time asc
         </if>
         <if test="flag==0">
             and (o.state='S299' or o.state='S500' or o.state='S600' or o.state='S616' or o.state='S699' or o.state='S635' or
@@ -343,7 +343,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             ORDER BY
             o.state = 'S900' asc, labelState = 'S279' asc,
             CASE WHEN  (o.state = 'S900' or  labelState = 'S279')  THEN o.update_time END DESC,
-            useCarTime ASC
+            s.action_time ASC
         </if>
     </select>
 
@@ -414,9 +414,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                      jn.use_time useTime,
                      jn.start_date startDate,
                      jn.end_date endDate,
-
 					 jn.charter_car_type charterCarType,
-					 s.action_time useCarTime,
+                     DATE_FORMAT(s.action_time,'%Y-%m-%d %H:%i:%s') useCarTime,
 					 s.address startAddr,
                      t.address endAddr,
                     (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
@@ -1386,7 +1385,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 申请人手机号
         eu.phonenumber applyUserTel,
         -- 乘车人
-        eu.nick_name  useCarUserName,
+        jpi.name  useCarUserName,
         -- 同行人数量
         jpi.peer_number travelPartnerCount,
         -- 开始时间
@@ -1410,7 +1409,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ri.`name` userCarRegime,
         -- 服务类型
         oi.service_type serverType,
-        GROUP_CONCAT(jai.address_info) addressInfo,
+        GROUP_CONCAT(DISTINCT jai.address_info) addressInfo,
         -- 状态
         case
         when right (z.state,3)='100' then '待派车'
@@ -1981,8 +1980,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 上车地址
         oai.address startSite,
         -- 下车地址
-        -- oaitwo.address endSite,
-        if (GROUP_CONCAT(jai.address_info) is null,oaitwo.address,GROUP_CONCAT(jai.address_info,',' ,oaitwo.address)) endSite,
+        oaitwo.address endSite,
+        -- if (GROUP_CONCAT(jai.address_info) is null,oaitwo.address,GROUP_CONCAT(jai.address_info,',' ,oaitwo.address)) endSite,
         -- 是否往返
         ji.it_is_return itIsReturn,
         -- 预计等待时长
@@ -2026,7 +2025,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         od.it_is_use_inner_car_group useCarGroupType,
         ai.it_is_self_driver itIsSelfDriver,
         cgi.car_group_name carGroupName,
-       -- GROUP_CONCAT(jai.address_info) addressInfo,
+       GROUP_CONCAT( DISTINCT jai.address_info) addressInfo,
         ai.reason reason,
         ai.safe_remind safeRemind,
         osti.state orderByState
@@ -2474,8 +2473,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 状态
         oai1.address beginAddress,
         -- 出发地址
-        -- oai2.address endAddress,
-        if (GROUP_CONCAT(jai.address_info) is null,oai2.address,GROUP_CONCAT(jai.address_info,',' ,oai2.address)) endAddress,
+         oai2.address endAddress,
+        -- if (GROUP_CONCAT(jai.address_info) is null,oai2.address,GROUP_CONCAT(jai.address_info,',' ,oai2.address)) endAddress,
         -- 到达地址
         oi.order_number orderNumber,
         -- 订单编号
@@ -2483,7 +2482,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 用车方式
         oscdrio.amount amount,
         oi.order_id orderId,
-        -- GROUP_CONCAT(jai.address_info) addressInfo,
+        GROUP_CONCAT( DISTINCT jai.address_info) addressInfo,
         -- 费用合计
         case
         when right (z.state,3)='100' then '待派车'

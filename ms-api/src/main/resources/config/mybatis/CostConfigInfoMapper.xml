@@ -318,14 +318,25 @@
     <select id="checkCharteredCost" resultType="com.hq.ecmp.mscore.dto.cost.ValidDoubleDtoResult">
         select a.cost_id costId,c.city_code cityCode,c.city_name cityName,
                 a.rent_type charterCarType,a.car_group_user_mode carGroupUserMode,
-                b.car_group_id carGroupId ,
+                b.car_group_id carGroupId ,a.service_type serviceType,
                 (select car_group_name from car_group_info z where z.car_group_id=b.car_group_id) carGroupName,
                 (select group_concat(distinct car_type_id) from cost_config_car_type_info zz where zz.cost_id=a.cost_id) carTypeIds
         from cost_config_info a
         left join cost_config_car_group_info b on b.cost_id=a.cost_id
         left join cost_config_city_info c on c.cost_id=a.cost_id
         where b.car_group_id=#{carGroupId}
-        and a.rent_type=#{rentType} and a.car_group_user_mode=#{carGroupUserMode}
+        <if test="carGroupUserMode!=null">
+        and a.car_group_user_mode=#{carGroupUserMode}
+        </if>
+        <if test="rentType!=null">
+        and a.rent_type=#{rentType}
+        </if>
+        <if test="serviceType!=null and serviceType!=''">
+            and a.service_type = #{serviceType}
+        </if>
+        <if test="companyId!=null ">
+            and a.company_id = #{companyId}
+        </if>
     </select>
     <select id="getDriverInfo" resultType="map" parameterType="long">
         SELECT c.it_is_inner driverIsInner,c.car_group_id driverCarGroupId

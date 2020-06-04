@@ -510,9 +510,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             }
         }
 		OrderAddressInfo endOrderAddressInfo = iOrderAddressInfoService
-				.queryOrderStartAndEndInfo(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId()));
+				.getOrderEndAddresses(new OrderAddressInfo("A999", dispatchOrderInfo.getOrderId(),dispatchOrderInfo.getJourneyId()));
+
 		if (null != endOrderAddressInfo) {
-			dispatchOrderInfo.setEndSite(endOrderAddressInfo.getAddress());
+            if(StringUtils.isNotBlank(endOrderAddressInfo.getAddress()) && StringUtils.isNotBlank(endOrderAddressInfo.getAddressInfo())){
+                String endAddress = endOrderAddressInfo.getAddress()+","+endOrderAddressInfo.getAddressInfo();
+                dispatchOrderInfo.setEndSite(endAddress);
+            }else{
+                dispatchOrderInfo.setEndSite(endOrderAddressInfo.getAddress());
+            }
 			dispatchOrderInfo.setEndDate(endOrderAddressInfo.getActionTime());
 		}else{//如果是差旅则 从形成节点表去拿预计的结束时间
             OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(dispatchOrderInfo.getOrderId());
@@ -1434,16 +1440,27 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
         vo.setUserName(passengerName);
         vo.setUserPhone(passengerPhone);
+        List<OtherCostBean> otherCostBeans=new ArrayList<>();
         if (orderSettlingInfo!=null){
             String amount = orderSettlingInfo.getAmount() == null ? null : orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString();
             vo.setOrderAmount(amount);
             vo.setTotalMileage(orderSettlingInfo.getTotalMileage()==null?String.valueOf(ZERO):orderSettlingInfo.getTotalMileage().stripTrailingZeros().toPlainString());
             vo.setTotalTime(orderSettlingInfo.getTotalTime()==null?String.valueOf(ZERO):orderSettlingInfo.getTotalTime().stripTrailingZeros().toPlainString());
             String amountDetail = orderSettlingInfo.getAmountDetail();
+            String outPrice = orderSettlingInfo.getOutPrice();
             if (StringUtils.isNotEmpty(amountDetail)) {
                 JSONObject jsonObject = JSONObject.parseObject(amountDetail);
                 String otherCostJson = jsonObject.getString("otherCost");
-                List<OtherCostBean> otherCostBeans = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
+                List<OtherCostBean> amountDetailList = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
+                otherCostBeans.addAll(amountDetailList);
+            }
+            if (StringUtils.isNotEmpty(outPrice)) {
+                JSONObject jsonObject = JSONObject.parseObject(outPrice);
+                String otherCostJson = jsonObject.getString("otherCost");
+                List<OtherCostBean> outPriceList = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
+                otherCostBeans.addAll(outPriceList);
+            }
+            if (!CollectionUtils.isEmpty(otherCostBeans)){
                 vo.setOrderFees(otherCostBeans);
             }
         }
@@ -2205,6 +2222,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 			//查询上下车地点 时间
 			DispatchOrderInfo dispatchOrderInfo = new DispatchOrderInfo();
 			dispatchOrderInfo.setOrderId(orderId);
+            dispatchOrderInfo.setJourneyId(journeyInfo.getJourneyId());
 			buildOrderStartAndEndSiteAndTime(dispatchOrderInfo);
 			dispatchSendCarPageInfo.setSetOutAderess(dispatchOrderInfo.getStartSite());
 			dispatchSendCarPageInfo.setStartDate(dispatchOrderInfo.getUseCarDate());
