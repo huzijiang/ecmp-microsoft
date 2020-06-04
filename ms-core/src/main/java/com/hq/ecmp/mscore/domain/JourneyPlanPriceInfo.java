@@ -77,6 +77,15 @@ public class JourneyPlanPriceInfo extends BaseEntity
         this.orderId = orderId;
     }
 
+    public JourneyPlanPriceInfo(Long journeyId, Long orderId, Long powerId) {
+        this.journeyId = journeyId;
+        this.orderId = orderId;
+        this.powerId = powerId;
+    }
+    public JourneyPlanPriceInfo(Long journeyId, Long orderId) {
+        this.journeyId = journeyId;
+        this.orderId = orderId;
+    }
 
     public Long getPowerId() {
 		return powerId;
