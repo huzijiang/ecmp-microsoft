@@ -33,5 +33,5 @@ public class CarTypeVO {
 
     private String  imageUrl; //车型图标
 
-    private String sort;
+    private Integer sort;
 }

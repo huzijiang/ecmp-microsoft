@@ -14,6 +14,7 @@ import com.hq.ecmp.mscore.dto.CarTypeDTO;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
 import com.hq.ecmp.mscore.vo.CarTypeVO;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -159,9 +160,9 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
         enterpriseCarTypeInfo.setName(carDto.getName());
         //增加車型級別
         String Level = enterpriseCarTypeInfoMapper.getCarTypeDTOById(carDto.getCompanyId());
-        String sort = enterpriseCarTypeInfoMapper.getCarTypeDTOSortById(carDto.getCompanyId());
+        Integer sort = enterpriseCarTypeInfoMapper.getCarTypeDTOSortById(carDto.getCompanyId());
         String carLevelType= "P001";
-        String defaultSort= "1";
+        Integer defaultSort= 1;
         if(Level!=null && Level !=""){
             String carLevel = Level.substring(1);
             String newEquipmentNo = String.format("P" + "%03d", Integer.parseInt(carLevel.substring(1))+1);
@@ -240,9 +241,9 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
     @Override
     public void sortCarType(Long mainCarTypeId, Long targetCarTypeId,Long userId) throws Exception {
         EnterpriseCarTypeInfo mainCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(mainCarTypeId);
-        String minSort = mainCarTypeInfo.getSort();
+        Integer minSort = mainCarTypeInfo.getSort();
         EnterpriseCarTypeInfo targetCarTypeInfo = enterpriseCarTypeInfoMapper.selectEnterpriseCarTypeInfoById(targetCarTypeId);
-        String targetSort = targetCarTypeInfo.getSort();
+        Integer targetSort = targetCarTypeInfo.getSort();
         mainCarTypeInfo.setSort(targetSort);
         mainCarTypeInfo.setUpdateTime(new Date());
         mainCarTypeInfo.setUpdateBy(String.valueOf(userId));
