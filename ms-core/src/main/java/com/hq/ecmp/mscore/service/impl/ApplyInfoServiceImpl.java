@@ -2142,7 +2142,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             List<AddressVO> addressInfo = applySingleVO.getMultipleDropAddress();
             for (AddressVO addressVO : addressInfo) {
                 journeyAddressInfoDto.setJourneyId(journeyInfo.getJourneyId());
-                journeyAddressInfoDto.setAddressInfo(addressVO.getLongAddress());
+                journeyAddressInfoDto.setAddressInfo(addressVO.getAddress());
                 journeyAddressInfoDto.setCreateBy(String.valueOf(applySingleVO.getUserId()));
                 journeyAddressInfoDto.setCreateTime(DateUtils.getNowDate());
                 int f  = applyInfoMapper.insertJourneyAddressInfo(journeyAddressInfoDto);
