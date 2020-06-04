@@ -180,6 +180,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             recordInfo.setStartLatitude(BigDecimal.valueOf(null==latitude?00:latitude));//维度
             recordInfo.setStartTime(new Date());
             recordInfo.setOrderId(orderId);
+            recordInfo.setCreateTime(new Date());
             orderServiceCostDetailRecordInfoMapper.insert(recordInfo);
 
 
@@ -370,7 +371,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             recordInfo.setOrderId(orderId);
             recordInfo.setRecordId(recorId);
             recordInfo.setEndTime(new Date());
-
+            recordInfo.setUpdateTime(new Date());
             orderServiceCostDetailRecordInfoMapper.update(recordInfo);
 
             /**xmy2*/
