@@ -9,6 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="journeyId"    column="journey_id"    />
         <result property="name"    column="name"    />
         <result property="mobile"    column="mobile"    />
+        <result property="peerNumber" column="peer_number" />
         <result property="itIsPeer"    column="it_is_peer"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
@@ -17,7 +18,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectJourneyPassengerInfoVo">
-        select journey_passenger_id, journey_id, name, mobile, it_is_peer, create_by, create_time, update_by, update_time from journey_passenger_info
+        select journey_passenger_id, journey_id, name, mobile, it_is_peer,peer_number,create_by, create_time, update_by, update_time from journey_passenger_info
     </sql>
 
     <select id="selectJourneyPassengerInfoList" parameterType="com.hq.ecmp.mscore.domain.JourneyPassengerInfo" resultMap="JourneyPassengerInfoResult">
