@@ -704,7 +704,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                     and s.state  in ('S911','S900','S699','S616','S600','S500','S299','S635')
                 </if>
                 <if test="state == 2">
-                    and s.state  in ('S699','S616','S600','S500','S299')
+                    and s.state  in ('S699','S616','S600','S500','S299','S635')
                 </if>
                 <if test="null != companyId and companyId !=''">
                     and s.company_id = #{companyId}
