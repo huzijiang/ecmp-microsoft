@@ -299,7 +299,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
             }
             int orderConfirmStatus = iEcmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderInfoOld.getUseCarMode(),orderInfoOld.getCompanyId());
-            if (orderAddressInfoOld.getActionTime()!=null&&i==0){//最后一天时间任一服务类型的订单都只能结束一次
+            if (orderAddressInfoOld.getActionTime()!=null&&i>=0){//最后一天时间任一服务类型的订单都只能结束一次
                 log.info("该最后结束日期订单以结束服务orderNo：{}",orderNo);
                 /**xmy2*/
                 this.updateEndOrderServerState(orderConfirmStatus,orderInfo,orderStateTraceInfo,"endServer");
