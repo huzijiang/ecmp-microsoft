@@ -54,7 +54,7 @@ public class EnterpriseCarTypeInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String sort;
+    private Integer sort;
 
     @Override
     public String toString() {

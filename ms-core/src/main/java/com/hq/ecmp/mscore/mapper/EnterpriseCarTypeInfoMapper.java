@@ -116,5 +116,5 @@ public interface EnterpriseCarTypeInfoMapper
      * @param companyId
      * @return
      */
-    String getCarTypeDTOSortById(Long companyId);
+    Integer getCarTypeDTOSortById(Long companyId);
 }
