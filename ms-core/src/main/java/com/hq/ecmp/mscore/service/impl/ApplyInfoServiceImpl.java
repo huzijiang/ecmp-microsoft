@@ -2193,7 +2193,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         calendar.set(Calendar.SECOND, 59);
         journeyPlanPriceInfo.setPlannedArrivalTime(calendar.getTime());
         //预计用时-分钟
-        journeyPlanPriceInfo.setDuration((day.intValue()-1)*24*60);
+        journeyPlanPriceInfo.setDuration(day.intValue()*24*60);
         //预算价来源平台
         journeyPlanPriceInfo.setSource("无");
         //创建者
