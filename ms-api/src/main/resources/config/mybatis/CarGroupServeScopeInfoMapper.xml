@@ -19,7 +19,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryById" resultMap="CarGroupServeScopeInfoMap">
         select
           id, car_group_id, province, city, create_by, create_time, update_by, update_time
-        from ecmp.car_group_serve_scope_info
+        from car_group_serve_scope_info
         where id = #{id}
     </select>
 
@@ -27,7 +27,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryAllByLimit" resultMap="CarGroupServeScopeInfoMap">
         select
           id, car_group_id, province, city, create_by, create_time, update_by, update_time
-        from ecmp.car_group_serve_scope_info
+        from
+        car_group_serve_scope_info
         limit #{offset}, #{limit}
     </select>
 
@@ -35,7 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryAll" resultMap="CarGroupServeScopeInfoMap">
         select
         id, car_group_id, province, city, create_by, create_time, update_by, update_time
-        from ecmp.car_group_serve_scope_info
+        from car_group_serve_scope_info
         <where>
             <if test="id != null">
                 and id = #{id}
@@ -66,13 +67,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into ecmp.car_group_serve_scope_info(car_group_id, province, city, create_by, create_time, update_by, update_time)
+        insert into car_group_serve_scope_info(car_group_id, province, city, create_by, create_time, update_by, update_time)
         values (#{carGroupId}, #{province}, #{city}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
     </insert>
 
     <!--通过主键修改数据-->
     <update id="update">
-        update ecmp.car_group_serve_scope_info
+        update car_group_serve_scope_info
         <set>
             <if test="carGroupId != null">
                 car_group_id = #{carGroupId},
@@ -101,14 +102,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!--通过主键删除-->
     <delete id="deleteById">
-        delete from ecmp.car_group_serve_scope_info where id = #{id}
+        delete from car_group_serve_scope_info where id = #{id}
     </delete>
 
     <select id="queryCarGroupByCity" parameterType="string" resultType="java.lang.Long">
   	  select car_group_id from car_group_serve_scope_info where city=#{city}
     </select>
     <update id="updateInfo" parameterType="com.hq.ecmp.mscore.domain.CarGroupServeScopeInfo">
-        update ecmp.car_group_serve_scope_info
+        update car_group_serve_scope_info
         <set>
             <if test="province != null and province != ''">
                 province = #{province},
@@ -134,7 +135,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!--通过车队ID删除-->
     <delete id="deleteByCarGroupId">
-        delete from ecmp.car_group_serve_scope_info where car_group_id = #{carGroupId}
+        delete from car_group_serve_scope_info where car_group_id = #{carGroupId}
     </delete>
 
     <select id="findByCityAndGroupId" parameterType="Object" resultMap="CarGroupServeScopeInfoMap">
