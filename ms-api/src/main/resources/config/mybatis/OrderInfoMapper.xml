@@ -2025,7 +2025,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         od.it_is_use_inner_car_group useCarGroupType,
         ai.it_is_self_driver itIsSelfDriver,
         cgi.car_group_name carGroupName,
-       GROUP_CONCAT(jai.address_info) addressInfo,
+       GROUP_CONCAT( DISTINCT jai.address_info) addressInfo,
         ai.reason reason,
         ai.safe_remind safeRemind,
         osti.state orderByState
@@ -2482,7 +2482,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 用车方式
         oscdrio.amount amount,
         oi.order_id orderId,
-        GROUP_CONCAT(jai.address_info) addressInfo,
+        GROUP_CONCAT( DISTINCT jai.address_info) addressInfo,
         -- 费用合计
         case
         when right (z.state,3)='100' then '待派车'

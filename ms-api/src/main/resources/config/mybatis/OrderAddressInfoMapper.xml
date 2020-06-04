@@ -188,7 +188,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SELECT
                     oai.address_long address,
                     oai.action_time actionTime,
-                    GROUP_CONCAT( jai.address_info ) addressInfo
+                    GROUP_CONCAT( DISTINCT jai.address_info ) addressInfo
                 FROM
                     order_address_info oai
                     LEFT JOIN journey_address_info jai ON oai.journey_id = jai.journey_id
