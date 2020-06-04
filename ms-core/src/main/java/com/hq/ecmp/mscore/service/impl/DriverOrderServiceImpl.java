@@ -11,10 +11,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ContactorDto;
 import com.hq.ecmp.mscore.dto.IsContinueReDto;
 import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
-import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
-import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderServiceCostDetailRecordInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.util.DateFormatUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +45,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     private OrderInfoMapper orderInfoMapper;
 
     @Resource
-    IOrderStateTraceInfoService iOrderStateTraceInfoService;
+    OrderStateTraceInfoMapper orderStateTraceInfoMapper;
 
     @Resource
     IOrderWaitTraceInfoService iOrderWaitTraceInfoService;
@@ -58,6 +55,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
 
     @Resource
     IJourneyPassengerInfoService iJourneyPassengerInfoService;
+    @Resource
+    JourneyPlanPriceInfoMapper journeyPlanPriceInfoMapper;
 
     @Autowired
     private TokenService tokenService;
@@ -120,7 +119,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         long orderId = Long.parseLong(orderNo);
 
         //更新前订单信息
-        OrderInfo orderInfoOld = iOrderInfoService.selectOrderInfoById(orderId);
+        OrderInfo orderInfoOld = orderInfoMapper.selectOrderInfoById(orderId);
         //订单
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setOrderId(orderId);
@@ -144,11 +143,11 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 iOrderInfoService.updateOrderInfo(orderInfo);
                 //3轨迹插入-- S639司机继续服务
                 orderStateTraceInfo.setState(OrderStateTrace.DRIVER_CONTINUED_SERVICE.getState());
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+                orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
                 //4轨迹插入--"S500","前往出发地"
                 orderStateTraceInfo.setTraceId(orderStateTraceInfo.getTraceId() +1);
                 orderStateTraceInfo.setState(OrderStateTrace.ALREADY_SET_OUT.getState());
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+                orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
             /** xmy2*/
 
             }else {//第一次服务原逻辑
@@ -157,7 +156,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 iOrderInfoService.updateOrderInfo(orderInfo);
                 //订单轨迹状态
                 orderStateTraceInfo.setState(OrderStateTrace.ALREADY_SET_OUT.getState());
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+                orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
             }
 
             //司机--出发去接乘客--短信-给乘车人和申请人（行程通知）
@@ -170,7 +169,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             iOrderInfoService.updateOrderInfo(orderInfo);
             //订单轨迹状态
             orderStateTraceInfo.setState(OrderStateTrace.PRESERVICE.getState());
-            iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+            orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
             //司机到-达发上车地点-送短信
             ismsBusiness.sendSmsDriverArrivePrivate(orderId);
             log.info("司机到-达发上车地点-送短信orderId：{}",orderId);
@@ -199,6 +198,11 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderAddressInfoOld.setOrderId(orderId);
             orderAddressInfoOld.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
             List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfoOld);
+            List<OrderStateTraceInfo> orderStateTraceInfos = orderStateTraceInfoMapper.selectOrderStateTraceInfoList(new OrderStateTraceInfo(orderId, OrderState.INSERVICE.getState()));
+            if (CollectionUtils.isEmpty(orderStateTraceInfos)){
+                /**第一次插服务中状态的记录 更新行程预计价格表的真实开始用车时间*/
+                this.updateOrderPlanPrice(userId,orderInfoOld,1);
+            }
             if(null != orderAddressInfos && orderAddressInfos.size() > 0){
                 OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
                 setOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
@@ -219,8 +223,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 orderAddressInfo.setAddressLong(longAddr);
                 orderAddressInfo.setCreateBy(userId+"");
                 if(setOutOrderAddressId != null){
-                    //多日租不更新
-                    if (null != journeyInfo && !journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){
+                    if (CollectionUtils.isEmpty(orderStateTraceInfos)){
+                        /**第一次插服务中状态的记录 更新行程预计价格表的真实开始用车时间*/
                         orderAddressInfo.setOrderAddressId(setOutOrderAddressId);
                         iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
                     }
@@ -232,7 +236,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 iOrderInfoService.updateOrderInfo(orderInfo);
                 //订单轨迹状态
                 orderStateTraceInfo.setState(OrderStateTrace.SERVICE.getState());
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
+                orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
                 //司机开始服务发送短信
                 //ismsBusiness.sendSmsDriverBeginService(orderId);
                 //司机开始服务发送消息给乘车人和申请人（行程通知）
@@ -263,9 +267,10 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderAddressInfoOld.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
             List<OrderAddressInfo> orderAddressInfos = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfoOld);
             if(CollectionUtils.isNotEmpty(orderAddressInfos)){
-                OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
-                arriveOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
+                 orderAddressInfoOld = orderAddressInfos.get(0);
+                arriveOutOrderAddressId = orderAddressInfoOld.getOrderAddressId();
             }
+            int i = DateFormatUtils.compareDay(new Date(),orderAddressInfoOld.getActionTime());
             OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
             orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
             orderAddressInfo.setOrderId(orderId);
@@ -283,66 +288,78 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderAddressInfo.setAddressLong(longAddr);
             orderAddressInfo.setCreateBy(userId+"");
             if(arriveOutOrderAddressId != null){
-                if (null != journeyInfo && !journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){
+                if (orderAddressInfoOld.getActionTime()!=null&&i==0){
                     orderAddressInfo.setOrderAddressId(arriveOutOrderAddressId);
                     iOrderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
+                    log.info("该最后结束日期订单更新预计价格表结束时间：{}",orderInfoOld);
+                    this.updateOrderPlanPrice(userId,orderInfoOld,0);
                 }
-
             }else{
                 iOrderAddressInfoService.insertOrderAddressInfo(orderAddressInfo);
             }
             int orderConfirmStatus = iEcmpConfigService.getOrderConfirmStatus(ConfigTypeEnum.ORDER_CONFIRM_INFO.getConfigKey(),orderInfoOld.getUseCarMode(),orderInfoOld.getCompanyId());
-            //订单轨迹状态 和订单状态
-            //确认行程展示
-
+            if (orderAddressInfoOld.getActionTime()!=null&&i==0){//最后一天时间任一服务类型的订单都只能结束一次
+                log.info("该最后结束日期订单以结束服务orderNo：{}",orderNo);
+                /**xmy2*/
+                this.updateEndOrderServerState(orderConfirmStatus,orderInfo,orderStateTraceInfo,"endServer");
+            }else if(orderAddressInfoOld.getActionTime()!=null&&i==1){//小于预计结束时间--包车多日租可以继续服务
+                /**xmy1*/
+                if (ServiceTypeConstant.CHARTERED.equals(orderInfoOld.getServiceType())){//包车
+                    log.info("该多日租包车订单继续服务orderNo：{}",orderNo);
+                    this.updateEndOrderServerState(orderConfirmStatus,orderInfo,orderStateTraceInfo,"continueServer");
+                }else{
+                    log.info("该订单提前结束服务orderNo：{}",orderNo);
+                    this.updateEndOrderServerState(orderConfirmStatus,orderInfo,orderStateTraceInfo,"endServer");
+                }
+            }
             /**xmy1*/
-            OrderInfoDate userAndActionTime = orderInfoMapper.getUserTimeAndActionTime(Long.parseLong(orderNo));
-            String useTime = userAndActionTime.getUseTime();//用车总天数
-            Date useCarTime = userAndActionTime.getUseCarTime();
-            String s = DateUtils.formatDate(useCarTime, DateUtils.YYYY_MM_DD_HH_MM_SS);
-            Date startDate = DateUtils.parseDate(s);//用车开始时间
-            //用车天数3.5转成4天
-            double floor = Math.floor(Double.parseDouble(useTime));
-            int tmp = Integer.parseInt(new DecimalFormat("0").format(floor));
-            String dateNum = String.valueOf(tmp);
-            //Date startDate = DateUtils.parseDate(useCarTime);//用车开始时间
-            //结束用车时间
-            Date futureDate = DateUtils.getFutureDate(startDate, Integer.parseInt(dateNum));
-            String dateStr= DateUtils.parseDateToStr(DateUtils.YYYYMMDD, futureDate);
-            Date endDate = DateUtils.parseDate(dateStr);
-            String day = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, new Date());
-            //司机终止服务的时间
-            Date date = DateUtils.parseDate(day);
+//            OrderInfoDate userAndActionTime = orderInfoMapper.getUserTimeAndActionTime(Long.parseLong(orderNo));
+//            String useTime = userAndActionTime.getUseTime();//用车总天数
+//            Date useCarTime = userAndActionTime.getUseCarTime();
+//            String s = DateUtils.formatDate(useCarTime, DateUtils.YYYY_MM_DD_HH_MM_SS);
+//            Date startDate = DateUtils.parseDate(s);//用车开始时间
+//            //用车天数3.5转成4天
+//            double floor = Math.floor(Double.parseDouble(useTime));
+//            int tmp = Integer.parseInt(new DecimalFormat("0").format(floor));
+//            String dateNum = String.valueOf(tmp);
+//            //Date startDate = DateUtils.parseDate(useCarTime);//用车开始时间
+//            //结束用车时间
+//            Date futureDate = DateUtils.getFutureDate(startDate, Integer.parseInt(dateNum));
+//            String dateStr= DateUtils.parseDateToStr(DateUtils.YYYYMMDD, futureDate);
+//            Date endDate = DateUtils.parseDate(dateStr);
+//            String day = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, new Date());
+//            //司机终止服务的时间
+//            Date date = DateUtils.parseDate(day);
             //userTime <= 是单日租
             //用车时间 <=1 && 用车类型不是
 
             //!journeyInfo.getCharterCarType().equals(CharterTypeEnum.MORE_RENT_TYPE.getKey()) && null != journeyInfo
-            if( floor <= 1 || date.getTime() >= endDate.getTime()){ //行程结束时间是用车结束当天
-                log.info("该订单以结束服务orderNo：{}",orderNo);
-                /**xmy2*/  //非多日租走老方法
-                if(orderConfirmStatus == 1){
-                    orderInfo.setState(OrderState.STOPSERVICE.getState());
-                    orderStateTraceInfo.setState(OrderStateTrace.SERVICEOVER.getState());
-                }else{//确认行程不展示
-                    orderInfo.setState(OrderState.ORDERCLOSE.getState());
-                    orderStateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
-                }
-                iOrderInfoService.updateOrderInfo(orderInfo);
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-            }else {//false的话说明是多日服务 还没有到租车结束当天
-
-                log.info("该订继续服务orderNo：{}",orderNo);
-                /**xmy1*/
-                orderInfo.setState(OrderState.SERVICE_SUSPEND.getState());//订单状态
-                iOrderInfoService.updateOrderInfo(orderInfo);//更新订单状态
-                orderStateTraceInfo.setState(OrderStateTrace.DRIVER_SERVICE_SUSPEND.getState());//轨迹状态
-                //插入轨迹
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-                orderStateTraceInfo.setTraceId(orderStateTraceInfo.getTraceId()+1);
-                orderStateTraceInfo.setState(OrderStateTrace.SERVICE_SUSPEND.getState());//轨迹状态
-                //插入轨迹
-                iOrderStateTraceInfoService.insertOrderStateTraceInfo(orderStateTraceInfo);
-            }
+//            if( floor <= 1 || date.getTime() >= endDate.getTime()){ //行程结束时间是用车结束当天
+//                log.info("该订单以结束服务orderNo：{}",orderNo);
+//                /**xmy2*/  //非多日租走老方法
+//                if(orderConfirmStatus == 1){
+//                    orderInfo.setState(OrderState.STOPSERVICE.getState());
+//                    orderStateTraceInfo.setState(OrderStateTrace.SERVICEOVER.getState());
+//                }else{//确认行程不展示
+//                    orderInfo.setState(OrderState.ORDERCLOSE.getState());
+//                    orderStateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
+//                }
+//                iOrderInfoService.updateOrderInfo(orderInfo);
+//                orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+//            }else {//false的话说明是多日服务 还没有到租车结束当天
+//
+//                log.info("该订继续服务orderNo：{}",orderNo);
+//                /**xmy1*/
+//                orderInfo.setState(OrderState.SERVICE_SUSPEND.getState());//订单状态
+//                iOrderInfoService.updateOrderInfo(orderInfo);//更新订单状态
+//                orderStateTraceInfo.setState(OrderStateTrace.DRIVER_SERVICE_SUSPEND.getState());//轨迹状态
+//                //插入轨迹
+//                orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+//                orderStateTraceInfo.setTraceId(orderStateTraceInfo.getTraceId()+1);
+//                orderStateTraceInfo.setState(OrderStateTrace.SERVICE_SUSPEND.getState());//轨迹状态
+//                //插入轨迹
+//                orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+//            }
             //存储行车结束经纬度
             OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
 
@@ -502,7 +519,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
         orderStateTraceInfo.setOrderId(Long.parseLong(orderId));
         orderStateTraceInfo.setState(OrderStateTrace.SENDCAR.getState());
-        List<OrderStateTraceInfo> orderStateTraceInfos = iOrderStateTraceInfoService.selectOrderStateTraceInfoList(orderStateTraceInfo);
+        List<OrderStateTraceInfo> orderStateTraceInfos = orderStateTraceInfoMapper.selectOrderStateTraceInfoList(orderStateTraceInfo);
         if (CollectionUtils.isNotEmpty(orderStateTraceInfos)){
             OrderStateTraceInfo orderStateTraceInfoSc = orderStateTraceInfos.get(0);
             String createBy = orderStateTraceInfoSc.getCreateBy();
@@ -541,5 +558,45 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             orderViaInfoDtos.add(orderViaInfoDto);
         }
         return orderViaInfoDtos;
+    }
+
+    private void updateOrderPlanPrice(Long userId,OrderInfo orderInfoOld,int flag){
+        List<JourneyPlanPriceInfo> journeyPlanPriceInfos = journeyPlanPriceInfoMapper.selectJourneyPlanPriceInfoList(new JourneyPlanPriceInfo(orderInfoOld.getJourneyId(),orderInfoOld.getOrderId()));
+        if (CollectionUtils.isNotEmpty(journeyPlanPriceInfos)){
+            JourneyPlanPriceInfo journeyPlanPriceInfo = journeyPlanPriceInfos.get(0);
+            if (flag==0){
+                journeyPlanPriceInfo.setPlannedArrivalTime(DateUtils.getNowDate());
+            }else{
+                journeyPlanPriceInfo.setPlannedDepartureTime(DateUtils.getNowDate());
+            }
+            journeyPlanPriceInfo.setUpdateBy(String.valueOf(userId));
+            journeyPlanPriceInfo.setUpdateTime(DateUtils.getNowDate());
+            journeyPlanPriceInfoMapper.updateJourneyPlanPriceInfo(journeyPlanPriceInfo);
+        }
+    }
+
+    private void updateEndOrderServerState(int orderConfirmStatus,OrderInfo orderInfo,OrderStateTraceInfo orderStateTraceInfo,String flag){
+
+        if ("continueServer".equals(flag)){
+            orderInfo.setState(OrderState.SERVICE_SUSPEND.getState());//订单状态
+            iOrderInfoService.updateOrderInfo(orderInfo);//更新订单状态
+            orderStateTraceInfo.setState(OrderStateTrace.DRIVER_SERVICE_SUSPEND.getState());//轨迹状态
+            //插入轨迹
+            orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+            orderStateTraceInfo.setTraceId(orderStateTraceInfo.getTraceId()+1);
+            orderStateTraceInfo.setState(OrderStateTrace.SERVICE_SUSPEND.getState());//轨迹状态
+            //插入轨迹
+            orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+        }else if ("endServer".equals(flag)){
+            if(orderConfirmStatus == 1){
+                orderInfo.setState(OrderState.STOPSERVICE.getState());
+                orderStateTraceInfo.setState(OrderStateTrace.SERVICEOVER.getState());
+            }else{//确认行程不展示
+                orderInfo.setState(OrderState.ORDERCLOSE.getState());
+                orderStateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
+            }
+            iOrderInfoService.updateOrderInfo(orderInfo);
+            orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+        }
     }
 }
