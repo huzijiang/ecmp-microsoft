@@ -1385,7 +1385,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 申请人手机号
         eu.phonenumber applyUserTel,
         -- 乘车人
-        eu.nick_name  useCarUserName,
+        jpi.name  useCarUserName,
         -- 同行人数量
         jpi.peer_number travelPartnerCount,
         -- 开始时间
@@ -1395,7 +1395,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 上车地址
         oai.address startSite,
         -- 下车地址
-        oaitwo.address endSite,
+        oaitwo.address_long endSite,
         -- 是否往返
         ji.it_is_return itIsReturn,
         -- 预计等待时长
@@ -1409,7 +1409,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ri.`name` userCarRegime,
         -- 服务类型
         oi.service_type serverType,
-        GROUP_CONCAT(jai.address_info) addressInfo,
+        GROUP_CONCAT(DISTINCT jai.address_info) addressInfo,
         -- 状态
         case
         when right (z.state,3)='100' then '待派车'
