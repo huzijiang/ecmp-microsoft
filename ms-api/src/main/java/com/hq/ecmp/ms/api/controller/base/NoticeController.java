@@ -407,16 +407,11 @@ public class NoticeController {
     @PostMapping("/queryCompanyInfo")
     public ApiResponse<ConfigInfoDTO> query() {
         HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        if (null!=loginUser.getUser().getDept().getCompanyId()){
-            Long companyId = loginUser.getUser().getDept().getCompanyId();
-            System.out.println("==========="+companyId);
-            ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
-            return ApiResponse.success(configInfoDTO);
-        }else{
-            return ApiResponse.error();
-        }
-
+        //LoginUser loginUser = tokenService.getLoginUser(request);
+        //针对目前只有一家 而且每家都自己一个数据库  先写死
+        Long companyId = 100L;
+        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
+        return ApiResponse.success(configInfoDTO);
     }
 
     /**
