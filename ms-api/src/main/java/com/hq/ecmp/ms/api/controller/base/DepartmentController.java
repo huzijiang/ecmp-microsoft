@@ -197,9 +197,9 @@ public class DepartmentController {
     @PostMapping("/selectDeptByDeptNameOrCode")
     public ApiResponse<PageResult<EcmpOrgDto>> selectDeptByDeptNameOrCode(@RequestBody PageRequest pageRequest){
         String deptNameOrCode=pageRequest.getSearch();
-        if("".equals(deptNameOrCode.trim())){
+        /*if("".equals(deptNameOrCode.trim())){
             return ApiResponse.error("请输入有效的公司名称或编号！");
-        }
+        }*/
         PageResult<EcmpOrgDto> companyList = orgService.selectDeptByDeptNameOrCode(pageRequest,deptNameOrCode);
         return ApiResponse.success(companyList);
         /*if(companyList.getItems().size()>0){
