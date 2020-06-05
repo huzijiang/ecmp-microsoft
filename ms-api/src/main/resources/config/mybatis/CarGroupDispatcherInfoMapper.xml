@@ -151,4 +151,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         company_id = #{companyId}
         AND it_is_inner = 'C111'
     </select>
+    <select id="getAllUserIdByDispatchUserId" resultType="java.lang.Long">
+                    SELECT
+                user_id
+            FROM
+                ecmp_user
+            WHERE
+                dept_id IN (
+            SELECT
+                dept_id
+            FROM
+                car_group_serve_org_relation
+            WHERE
+                car_group_id IN (
+            SELECT
+                car_group_id
+            FROM
+                car_group_dispatcher_info
+            WHERE
+                dispatcher_id = #{userId}))
+
+    </select>
 </mapper>

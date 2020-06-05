@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.DispatchVo;
 import com.hq.ecmp.mscore.vo.JourneyVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -140,4 +141,11 @@ public interface JourneyInfoMapper
      * @return
      */
     List<InvoiceAbleItineraryData> getInvoiceAbleItineraryHistoryKey(Long accountId)throws Exception;
+
+    /**
+     * 通过行程信息查询调度相关的行程信息
+     * @param journeyId
+     * @return
+     */
+    DispatchVo getDispatchJourneyInfoByJourneyId( @Param("journeyId") Long journeyId);
 }

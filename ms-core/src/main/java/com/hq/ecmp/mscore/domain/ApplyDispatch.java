@@ -65,4 +65,33 @@ public class ApplyDispatch{
         private Long orderId;
         private int inOrOut;
         private String rejectReason;
+
+
+        /**
+         * 车队id
+         */
+        private  Long carGroupId;
+        /**
+         * 部门id
+         */
+        private String deptId;
+        /**
+         * 城市编码
+         */
+        private String city;
+
+        /**
+         *  1 系统管理员  2 系统管理员+调度员  3 调度员
+         */
+        private int roleData;
+
+        /**
+         *  1 内部调度员  2 外部调度员
+         */
+        private int isInnerDispatch;
+
+        /**
+         * 当前登录人的车队列表
+         */
+        String carGroupIds;
 }

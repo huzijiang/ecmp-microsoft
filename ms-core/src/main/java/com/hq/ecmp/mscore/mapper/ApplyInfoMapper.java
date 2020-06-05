@@ -5,6 +5,7 @@ import com.hq.ecmp.mscore.domain.UndoSMSTemplate;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.JourneyAddressInfoDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.DispatchVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -112,4 +113,10 @@ public interface ApplyInfoMapper
      * @param journeyAddressInfoDto
      */
     int insertJourneyAddressInfo(JourneyAddressInfoDto journeyAddressInfoDto);
+
+    /**
+     * 通过行程id查询申请相关信息
+     * @return
+     */
+    DispatchVo getDispatchApplyInfoByJourneyId(@Param("journeyId") Long journeyId);
 }
