@@ -6,6 +6,7 @@ import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.mscore.domain.ApplyDispatch;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.DispatchSendCarPageInfo;
 import com.hq.ecmp.mscore.dto.dispatch.*;
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -237,11 +239,13 @@ public class DispatchController {
      */
     @ApiOperation(value = "queryDispatchReassignmentList", notes = "获取改派调度列表 ", httpMethod = "POST")
     @PostMapping("/queryDispatchReassignmentList")
-    public ApiResponse<Map<String,Object>> queryDispatchReassignmentList(@RequestBody ApplyDispatchQuery query){
+    public ApiResponse<Map<String,Object>> queryDispatchReassignmentList(@RequestBody ApplyDispatch query){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            Map<String,Object> list = orderInfoTwoService.queryDispatchReassignmentList(query,loginUser);
+//            Map<String,Object> list = orderInfoTwoService.queryDispatchReassignmentList(query,loginUser);
+            Map<String,Object> list=new HashMap<>();
+            list= orderInfoTwoService.getDispatcherReassignOrderlist(query,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
             e.printStackTrace();

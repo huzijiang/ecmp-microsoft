@@ -47,6 +47,7 @@ public class ApplyDispatchQuery  extends PageResult {
         private String  homeDynamicEndTime;
 
         Long companyId;
+        private String detpId;
         String dispatchType;
         List<Long> orderIds;
         String serverDepts;
@@ -62,4 +63,8 @@ public class ApplyDispatchQuery  extends PageResult {
         private Long orderId;
         private int inOrOut;
         private String rejectReason;
+        private String carGroupIds;
+        private int isInnerDispatch;
+        private int roleData;
+
 }

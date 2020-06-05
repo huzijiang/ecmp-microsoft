@@ -417,5 +417,7 @@ public interface OrderInfoMapper {
      * @return
      */
     List<DispatchVo> getOrderInfoByCityAndDept(ApplyDispatch query);
+
+    List<DispatchVo> getReassignOrderInfoByCityAndDept(ApplyDispatch query);
 }
 

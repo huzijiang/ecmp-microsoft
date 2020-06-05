@@ -147,4 +147,6 @@ public interface OrderInfoTwoService {
      */
     Map<String,Object> dispatchListCharterCarWithDispatcher(ApplyDispatch query,LoginUser loginUser);
 
+
+    Map<String,Object> getDispatcherReassignOrderlist(ApplyDispatch query, LoginUser loginUser);
 }

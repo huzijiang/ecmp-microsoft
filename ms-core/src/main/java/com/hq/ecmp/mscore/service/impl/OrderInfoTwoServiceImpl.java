@@ -1268,9 +1268,9 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         if (!CollectionUtils.isEmpty(disCarGroupInfos)){
              String collect1 = disCarGroupInfos.stream().map(p -> p.getDeptId().toString()).collect(Collectors.joining(",", "", ""));
              query.setDeptId(collect1);
-             PageHelper.startPage(query.getPageN(), query.getPageS());
-             dispatcherOrderList = getDispatchOrderInfos(query);
         }
+        PageHelper.startPage(query.getPageN(), query.getPageS());
+        dispatcherOrderList = getDispatchOrderInfos(query);
         PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
         Map<String,Object> map = new HashMap<>();
         map.put("totalPage", info.getTotal());
@@ -1316,6 +1316,33 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     }
 
     /**
+     * 通过城市code 和部门id查询对应的订单信息
+     * @param query
+     * @return
+     */
+    public List<DispatchVo> getDispatchReassignOrderInfos(ApplyDispatch query){
+
+        List<DispatchVo> orderInfos = orderInfoMapper.getReassignOrderInfoByCityAndDept(query);
+        if(!CollectionUtils.isEmpty(orderInfos)){
+            Iterator<DispatchVo> iterator = orderInfos.iterator();
+            while(iterator.hasNext()){
+                DispatchVo dispatchVo = iterator.next();
+                if(query.getRoleData() == 2){
+                    if(query.getUserId().equals(dispatchVo.getCanDispatcherUserId())){
+                        dispatchVo.setOperationPermission("0");
+                    }else{
+                        dispatchVo.setOperationPermission("1");
+                    }
+                }
+                //行程相关信息
+                getDispatchOrderJourneyInfos(dispatchVo);
+            }
+        }
+        return orderInfos;
+    }
+
+
+    /**
      * 包装行程相关信息
      */
     public void getDispatchOrderJourneyInfos(DispatchVo dispatchVo){
@@ -1333,9 +1360,6 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         List<JourneyAddressInfo> journeyAddressInfos = journeyAddressInfoMapper.selectJourneyAddressInfoList(journeyAddressInfo);
         if (!CollectionUtils.isEmpty(journeyAddressInfos)){
             String endSite = dispatchVo.getEndSite();
-            if(endSite == null){
-                System.out.println("aaaaaaaaaaaa");
-            }
             StringBuilder sb = new StringBuilder(endSite);
             for (JourneyAddressInfo journeyAddressInfo1:
                  journeyAddressInfos) {
@@ -1352,6 +1376,59 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     public void getSceneAndRegimeInfo(DispatchVo dispatchVo){
         DispatchVo dispatchReAndSceneInfo = regimeInfoMapper.getDispatchReAndSceneInfo(dispatchVo.getRegimeId());
         BeanUtils.copyProperties(dispatchReAndSceneInfo, dispatchVo,BeauUtilsCommon.getNullField(dispatchReAndSceneInfo));
+    }
+
+
+    @Override
+    public Map<String,Object> getDispatcherReassignOrderlist(ApplyDispatch query, LoginUser loginUser) {
+        SysUser user = loginUser.getUser();
+        List<SysRole> role = loginUser.getUser().getRoles();
+        Long companyId = user.getOwnerCompany();
+        query.setCompanyId(companyId);
+        query.setUserId(user.getUserId());
+        //<调度员身份>
+        List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
+        /**查寻该调度员可用查看的所有申请人*/
+        Boolean isAdmin = false;
+        Boolean isDispatcher = false;
+        //查询当前调度员所在的车队，以及车队的服务城市和服务部门
+        List<DispatchCarGroupDto> disCarGroupInfos = carGroupInfoMapper.getDisCarGroupInfoByUserId(query.getUserId(), query.getCompanyId());
+        String carGroupIds = disCarGroupInfos.stream().map(p -> p.getCarGroupId().toString()).collect(Collectors.joining(",", "", ""));
+        query.setCarGroupIds(carGroupIds);
+        if ("1".equals(user.getItIsDispatcher())) {
+            isDispatcher = true;
+            if (!CollectionUtils.isEmpty(disCarGroupInfos)) {
+                String itIsInner = disCarGroupInfos.get(0).getItIsInner();
+                if (itIsInner.equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)) {
+                    query.setIsInnerDispatch(1);
+                } else {
+                    query.setIsInnerDispatch(2);
+                }
+            }
+        }
+        List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(collect)) {//是管理员
+            isAdmin = true;
+        }
+        if (isAdmin && isDispatcher) {
+            query.setRoleData(2);
+        } else if (isAdmin && !isDispatcher) {
+            query.setRoleData(1);
+        } else if (!isAdmin && isDispatcher) {
+            query.setRoleData(3);
+        }
+        //根据车队的服务城市和服务部门来查询对应的订单信息
+        if (!CollectionUtils.isEmpty(disCarGroupInfos)) {
+            String collect1 = disCarGroupInfos.stream().map(p -> p.getDeptId().toString()).collect(Collectors.joining(",", "", ""));
+            query.setDeptId(collect1);
+        }
+        PageHelper.startPage(query.getPageN(), query.getPageS());
+        dispatcherOrderList = getDispatchReassignOrderInfos(query);
+        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
+        Map<String, Object> map = new HashMap<>();
+        map.put("total", info.getTotal());
+        map.put("list", dispatcherOrderList);
+        return map;
     }
 
 }

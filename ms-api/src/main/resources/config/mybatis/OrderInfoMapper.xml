@@ -2793,6 +2793,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
            select oddi.next_car_group_id as nextCarGroupId,
             o.order_id as orderId,
             o.user_id userId,
+            o.service_type serviceType,
             eo.dept_name as deptName,
             eoc.dept_name as companyName,
         <if test="roleData ==1 ">
@@ -2881,7 +2882,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 and oaib.city_postal_code=#{cityCode}
             </if>
             <if test="orderId!=null and orderId != ''">
-                and oi.order_id=#{orderId}
+                and o.order_id=#{orderId}
             </if>
           ) t
         where 1=1
@@ -2896,4 +2897,111 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         </if>
         order by state='待派车' DESC ,state='已派车' DESC , useCarDate ASC
     </select>
+
+    <select id="getReassignOrderInfoByCityAndDept" resultType="com.hq.ecmp.mscore.vo.DispatchVo" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatch">
+    select t.*  from(
+           select
+            o.order_id as orderId,
+            o.user_id userId,
+            o.service_type serviceType,
+            eo.dept_name as deptName,
+            eoc.dept_name as companyName,
+        <if test="roleData ==1 ">
+            '1' as operationPermission,
+        </if>
+        <if test="roleData ==3 ">
+            '0' as operationPermission,
+        </if>
+            di.driver_name as applyUserName,
+            di.mobile as applyUserTel,
+            oaib.action_time as useCarDate,
+            oaie.action_time as endDate,
+            oaib.address as startSite,
+            oaie.address as endSite,
+            cc.short_name useCarCity,
+            oddi.car_group_user_mode carGroupUserMode,
+            oddi.it_is_self_driver selfDriver,
+            oddi.it_is_use_inner_car_group useCarGroupType,
+            o.journey_id journeyId,
+            (select create_by from order_state_trace_info z where z.order_id=o.order_id and state='S299') canDispatcherUserId,
+            case
+            when right (osti.state,3)='270' then '待改派'
+            when right (osti.state,3)='277' then '已驳回'
+            when right (osti.state,3)='279' then '已处理'
+            when right (osti.state,3)='921' then '已过期'
+            ELSE '' END state,
+            osti.state orderByState ,
+            -- 操作时间
+            case
+            when right (o.state,3)='270' then (select create_time from order_state_trace_info sti where
+            sti.order_id=o.order_id and sti.state='S270' limit 1)
+            when right (o.state,3)='277' or right (o.state,3)='279' then (select create_time from order_state_trace_info sti where
+            sti.order_id=o.order_id and sti.state in ('S277','S279' ) limit 1)
+            when right (o.state,3)= '921' then (select create_time from order_state_trace_info sti where
+            sti.order_id=o.order_id and sti.state ='S921' limit 1)
+            ELSE now() END opDate
+            from order_info o
+            left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+            order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=o.order_id
+            left join ecmp_user eu on eu.user_id=o.user_id
+            left join ecmp_org eo on eo.dept_id=eu.dept_id
+            left join order_dispatche_detail_info oddi on oddi.order_id=o.order_id
+            left join ecmp_org eoc on eoc.dept_id=eu.owner_company
+            left join order_address_info oaib  on oaib.order_id=o.order_id and oaib.type='A000'
+            left join order_address_info oaie  on oaie.order_id=o.order_id and oaie.type='A999'
+            left join china_city cc on cc.city_code=oaib.city_postal_code
+            left join driver_info di on di.driver_id=o.driver_id
+            where  o.it_is_supplement='N000'
+
+
+            <if test="roleData ==1">
+                and o.order_id in
+                (select distinct order_id from order_state_trace_info where state in ('S270', 'S279','S277','S921')
+                )
+                -- 系统管理员
+                and o.company_id=#{companyId}
+            </if>
+            <if test="roleData ==2 ">
+                and o.order_id in
+                (select distinct order_id from order_state_trace_info where state in ('S270', 'S279','S277','S921')
+                )
+                and o.company_id=#{companyId}
+                -- 系统管理员+内部调度员
+                and (o.company_id=#{companyId} or   (o.company_id=#{companyId} and find_in_set(eu.dept_id,#{deptId})))
+            </if>
+
+            <if test="roleData ==3">
+                -- 调度员
+                and o.order_id in
+                (select distinct order_id from order_state_trace_info where state in ('S270', 'S279','S277','S921')
+                and order_id in(select distinct order_id from order_state_trace_info where state='S299' and
+                create_by=#{userId}))
+                and o.company_id=#{companyId}
+            </if>
+
+            <if test="driverName!=null and driverName!=''">
+                and di.driver_name like concat('%',#{driverName},'%')
+            </if>
+            <if test="driverMobile!=null and driverMobile!=''">
+                and di.mobile like concat('%',#{driverMobile},'%')
+            </if>
+            <if test="cityCode!=null and cityCode != ''">
+                and oaib.city_postal_code=#{cityCode}
+            </if>
+            <if test="orderId!=null and orderId != ''">
+                and o.order_id=#{orderId}
+            </if>
+          ) t
+        where 1=1
+        <if test="optStartDate!=null ">
+            and DATE_FORMAT(t.opDate,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{optStartDate},'%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test="optEndDate!=null  ">
+            and DATE_FORMAT(t.opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test="dispatchStatus!=null and dispatchStatus!=''">
+            and t.state=#{dispatchStatus}
+        </if>
+        order by orderByState ASC , useCarDate ASC
+</select>
 </mapper>

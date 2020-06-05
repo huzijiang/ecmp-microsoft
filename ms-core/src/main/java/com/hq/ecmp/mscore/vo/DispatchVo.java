@@ -62,8 +62,10 @@ public class DispatchVo {
     @ApiModelProperty(value="用车制度")
     private String userCarRegime;
 
-    @ApiModelProperty(value="服务类型")
+    @ApiModelProperty(value="包车类型")
     private String serverType;
+    @ApiModelProperty(value="服务类型")
+    private String serviceType;
 
     @ApiModelProperty(value="状态")
     private String state;
@@ -87,7 +89,7 @@ public class DispatchVo {
     private String waitingTime;
 
     @ApiModelProperty(value = "跳内部派车还是外部派车，1 内部  2 外部")
-    private int inOrOut;
+    private Integer inOrOut;
 
     @ApiModelProperty(value = "车队类型 C000   内部车队  C111   外部车队")
     private String  useCarGroupType;
@@ -154,4 +156,6 @@ public class DispatchVo {
      * 订单的申请人id
      */
     private Long userId;
+
+    private Long canDispatcherUserId;
 }
