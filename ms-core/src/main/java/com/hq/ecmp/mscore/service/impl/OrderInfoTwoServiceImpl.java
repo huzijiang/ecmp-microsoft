@@ -1268,9 +1268,9 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         if (!CollectionUtils.isEmpty(disCarGroupInfos)){
              String collect1 = disCarGroupInfos.stream().map(p -> p.getDeptId().toString()).collect(Collectors.joining(",", "", ""));
              query.setDeptId(collect1);
-             PageHelper.startPage(query.getPageN(), query.getPageS());
-             dispatcherOrderList = getDispatchOrderInfos(query);
         }
+        PageHelper.startPage(query.getPageN(), query.getPageS());
+        dispatcherOrderList = getDispatchOrderInfos(query);
         PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
         Map<String,Object> map = new HashMap<>();
         map.put("totalPage", info.getTotal());
