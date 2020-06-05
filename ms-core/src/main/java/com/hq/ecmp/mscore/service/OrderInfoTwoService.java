@@ -139,4 +139,12 @@ public interface OrderInfoTwoService {
      * @return
      */
     List<CarGroupInfo> applySingleCarGroupList(Long companyId);
+
+    /**
+     * 调度员可看的调度列表（佛山调度列表优化）--优化中，暂未使用
+     * @param query
+     * @return
+     */
+    Map<String,Object> dispatchListCharterCarWithDispatcher(ApplyDispatch query,LoginUser loginUser);
+
 }

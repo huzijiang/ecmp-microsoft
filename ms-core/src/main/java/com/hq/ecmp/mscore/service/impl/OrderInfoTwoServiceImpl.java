@@ -14,15 +14,15 @@ import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.dto.DriverCloudDto;
+import com.hq.ecmp.mscore.dto.JourneyAddressInfoDto;
+import com.hq.ecmp.mscore.dto.dispatch.DispatchCarGroupDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.DateFormatUtils;
-import com.hq.ecmp.util.PageUtil;
-import com.hq.ecmp.util.RedisUtil;
-import com.hq.ecmp.util.SortListUtil;
+import com.hq.ecmp.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -95,6 +95,11 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     private ApplyInfoMapper applyInfoMapper;
     @Resource
     private CostConfigInfoMapper costConfigInfoMapper;
+    @Resource
+    private RegimeInfoMapper regimeInfoMapper;
+    @Resource
+    private JourneyAddressInfoMapper journeyAddressInfoMapper;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -1211,6 +1216,142 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         stateTraceInfo.setCreateTime(new Date());
         stateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
+    }
+
+    /**
+     * 调度列表大sql优化，暂未使用
+     * 1.通过调度员用户id，查询调度员所在车队可以服务的部门
+     * 2.查询这些部门的人所需要服务的订单
+     * @param query
+     * @return
+     */
+    @Override
+    public  Map<String,Object>  dispatchListCharterCarWithDispatcher(ApplyDispatch query,LoginUser loginUser) {
+        //判断登录人的身份来显示他看到的不同权限的数据
+        SysUser user = loginUser.getUser();
+        List<SysRole> role = loginUser.getUser().getRoles();
+        Long companyId = user.getOwnerCompany();
+        query.setCompanyId(companyId);
+        query.setUserId(user.getUserId());
+        //<调度员身份>
+        List<DispatchVo> dispatcherOrderList = new ArrayList<DispatchVo>();
+        /**查寻该调度员可用查看的所有申请人*/
+        Boolean isAdmin = false;
+        Boolean isDispatcher = false;
+        //查询当前调度员所在的车队，以及车队的服务城市和服务部门
+        List<DispatchCarGroupDto> disCarGroupInfos= carGroupInfoMapper.getDisCarGroupInfoByUserId(query.getUserId(),query.getCompanyId());
+        String carGroupIds = disCarGroupInfos.stream().map(p -> p.getCarGroupId().toString()).collect(Collectors.joining(",", "", ""));
+        query.setCarGroupIds(carGroupIds);
+        if ("1".equals(user.getItIsDispatcher())) {
+            isDispatcher = true;
+            if (!CollectionUtils.isEmpty(disCarGroupInfos)){
+                String itIsInner = disCarGroupInfos.get(0).getItIsInner();
+                if (itIsInner.equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
+                    query.setIsInnerDispatch(1);
+                }else{
+                    query.setIsInnerDispatch(2);
+                }
+            }
+        }
+        List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(collect)) {//是管理员
+            isAdmin = true;
+        }
+        if(isAdmin && isDispatcher){
+            query.setRoleData(2);
+        }else if (isAdmin && !isDispatcher){
+            query.setRoleData(1);
+        }else if(!isAdmin && isDispatcher){
+            query.setRoleData(3);
+        }
+        //根据车队的服务城市和服务部门来查询对应的订单信息
+        if (!CollectionUtils.isEmpty(disCarGroupInfos)){
+             String collect1 = disCarGroupInfos.stream().map(p -> p.getDeptId().toString()).collect(Collectors.joining(",", "", ""));
+             query.setDeptId(collect1);
+             PageHelper.startPage(query.getPageN(), query.getPageS());
+             dispatcherOrderList = getDispatchOrderInfos(query);
+        }
+        PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
+        Map<String,Object> map = new HashMap<>();
+        map.put("totalPage", info.getTotal());
+        map.put("page", info.getTotal());
+        map.put("list", dispatcherOrderList);
+        return map;
+    }
+
+    /**
+     * 通过城市code 和部门id查询对应的订单信息
+     * @param query
+     * @return
+     */
+    public List<DispatchVo> getDispatchOrderInfos(ApplyDispatch query){
+
+        List<DispatchVo> orderInfos = orderInfoMapper.getOrderInfoByCityAndDept(query);
+        if(!CollectionUtils.isEmpty(orderInfos)){
+            Iterator<DispatchVo> iterator = orderInfos.iterator();
+            while(iterator.hasNext()){
+                DispatchVo dispatchVo = iterator.next();
+                if(query.getRoleData() == 2){
+                    List<Long> allUserIdByDispatchUserId = carGroupDispatcherInfoMapper.getAllUserIdByDispatchUserId(query.getUserId());
+                        if(allUserIdByDispatchUserId.contains(dispatchVo.getUserId())){
+                            dispatchVo.setOperationPermission("0");
+                            if (query.getIsInnerDispatch() == 1){
+                                dispatchVo.setInOrOut(1);
+                            }else{
+                                dispatchVo.setInOrOut(2);
+                            }
+                        }else{
+                            dispatchVo.setOperationPermission("1");
+                        }
+                }
+                //行程相关信息
+                getDispatchOrderJourneyInfos(dispatchVo);
+                //申请相关信息
+                getDispatchOrderApplyInfos(dispatchVo);
+                //场景和制度相关信息
+                getSceneAndRegimeInfo(dispatchVo);
+            }
+        }
+        return orderInfos;
+    }
+
+    /**
+     * 包装行程相关信息
+     */
+    public void getDispatchOrderJourneyInfos(DispatchVo dispatchVo){
+        DispatchVo dispatchJourneyInfoByJourneyId = journeyInfoMapper.getDispatchJourneyInfoByJourneyId(dispatchVo.getJourneyId());
+        BeanUtils.copyProperties(dispatchJourneyInfoByJourneyId, dispatchVo,BeauUtilsCommon.getNullField(dispatchJourneyInfoByJourneyId));
+    }
+
+    /**
+     * 包装申请相关的信息
+     */
+    public void getDispatchOrderApplyInfos(DispatchVo dispatchVo){
+        DispatchVo dispatchApplyInfoByJourneyId = applyInfoMapper.getDispatchApplyInfoByJourneyId(dispatchVo.getJourneyId());
+        JourneyAddressInfo journeyAddressInfo = new JourneyAddressInfo();
+        journeyAddressInfo.setJourneyId(dispatchVo.getJourneyId());
+        List<JourneyAddressInfo> journeyAddressInfos = journeyAddressInfoMapper.selectJourneyAddressInfoList(journeyAddressInfo);
+        if (!CollectionUtils.isEmpty(journeyAddressInfos)){
+            String endSite = dispatchVo.getEndSite();
+            if(endSite == null){
+                System.out.println("aaaaaaaaaaaa");
+            }
+            StringBuilder sb = new StringBuilder(endSite);
+            for (JourneyAddressInfo journeyAddressInfo1:
+                 journeyAddressInfos) {
+               sb.append(journeyAddressInfo1.getAddressInfo());
+            }
+            dispatchVo.setEndSite(sb.toString());
+        }
+        BeanUtils.copyProperties(dispatchApplyInfoByJourneyId, dispatchVo, BeauUtilsCommon.getNullField(dispatchApplyInfoByJourneyId));
+
+    }
+    /**
+     * 包装场景和制度信息
+     */
+    public void getSceneAndRegimeInfo(DispatchVo dispatchVo){
+        DispatchVo dispatchReAndSceneInfo = regimeInfoMapper.getDispatchReAndSceneInfo(dispatchVo.getRegimeId());
+        BeanUtils.copyProperties(dispatchReAndSceneInfo, dispatchVo,BeauUtilsCommon.getNullField(dispatchReAndSceneInfo));
     }
 
 }

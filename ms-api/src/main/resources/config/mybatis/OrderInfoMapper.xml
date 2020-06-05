@@ -2782,4 +2782,109 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 				    ) cost on oi.order_id = cost.order_id
 				WHERE oi.order_id =  #{orderId}
     </select>
+    <select id="getOrderInfoByCityAndDept" resultType="com.hq.ecmp.mscore.vo.DispatchVo" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatch">
+           select t.*  from(
+           select oddi.next_car_group_id as nextCarGroupId,
+            o.order_id as orderId,
+            o.user_id userId,
+            eo.dept_name as deptName,
+            eoc.dept_name as companyName,
+        <if test="roleData ==1 ">
+            '1' as operationPermission,
+        </if>
+        <if test="roleData ==3 ">
+            '0' as operationPermission,
+        </if>
+        <if test="roleData ==3 and isInnerDispatch==2">
+            2 as inOrOut,
+        </if>
+        <if test="roleData ==3 and isInnerDispatch==1">
+            1 as inOrOut,
+        </if>
+            eu.nick_name as applyUserName,
+            eu.phonenumber as applyUserTel,
+            oaib.action_time as useCarDate,
+            oaie.action_time as endDate,
+            oaib.address as startSite,
+            oaie.address as endSite,
+            cc.short_name useCarCity,
+            oddi.car_group_user_mode carGroupUserMode,
+            oddi.it_is_self_driver selfDriver,
+            oddi.it_is_use_inner_car_group useCarGroupType,
+            o.journey_id journeyId,
+            case
+            when right (osti.state,3)='100' then '待派车'
+            when right (osti.state,3)<![CDATA[ >= ]]>'299' and right (osti.state,3)<![CDATA[ <= ]]>'900' then '已处理'
+            when right (osti.state,3)='921' then '已过期'
+            when right (osti.state,3)='930' then '已驳回'
+            ELSE '' END state,
+            -- 操作时间
+            case
+            when right (o.state,3)='100' then (select create_time from order_state_trace_info sti where
+            sti.order_id=o.order_id and sti.state='S100' limit 1)
+            when right (o.state,3) <![CDATA[ >= ]]> '299' and right (o.state,3) <![CDATA[ < ]]> '900' then (select create_time from order_state_trace_info sti where
+            sti.order_id=o.order_id and sti.state='S299' limit 1)
+            when right (o.state,3)= '900' then (select create_time from order_state_trace_info sti where
+            sti.order_id=o.order_id and sti.state in('S921','S930','S299') limit 1)
+            ELSE now() END opDate
+            from order_info o
+            left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+            order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=o.order_id
+            left join ecmp_user eu on eu.user_id=o.user_id
+            left join order_dispatche_detail_info oddi on oddi.order_id=o.order_id
+            left join ecmp_org eo on eo.dept_id=eu.dept_id
+            left join ecmp_org eoc on eoc.dept_id=eu.owner_company
+            left join order_address_info oaib  on oaib.order_id=o.order_id and oaib.type='A000'
+            left join order_address_info oaie  on oaie.order_id=o.order_id and oaie.type='A999'
+            left join china_city cc on cc.city_code=oaib.city_postal_code
+            where
+            1=1
+            and o.order_id in (select distinct order_id from order_state_trace_info where order_id in
+          (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100','S930'))
+          and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279',
+          'S277','S911')) )
+            and  o.it_is_supplement='N000'
+            <if test="roleData ==1">
+                -- 系统管理员
+                and o.company_id=#{companyId}
+            </if>
+            <if test="roleData ==2 and isInnerDispatch==1">
+                -- 系统管理员+内部调度员
+                and (o.company_id=#{companyId} or   (o.company_id=#{companyId} and find_in_set(eu.dept_id,#{deptId})))
+            </if>
+            <if test="roleData ==2 and isInnerDispatch==2">
+                -- 系统管理员+外部调度员
+                and (o.company_id=#{companyId} or   ( o.company_id=#{companyId} and find_in_set(eu.dept_id,#{deptId}) and FIND_IN_SET(oddi.next_car_group_id,#{carGroupIds})))
+            </if>
+           <if test="roleData ==3 and isInnerDispatch==2 ">
+               --  外部调度员
+                and o.company_id=#{companyId} and  find_in_set(eu.dept_id,#{deptId}) and FIND_IN_SET(oddi.next_car_group_id,#{carGroupIds})
+           </if>
+            <if test="roleData ==3 and isInnerDispatch==1 ">
+                -- 内部调度员
+                and o.company_id=#{companyId} and    (find_in_set(eu.dept_id,#{deptId}))
+            </if>
+
+            <if test="applyName!=null and applyName!=''">
+                and eu.nick_name like concat('%',#{applyName},'%')
+            </if>
+            <if test="applyMobile!=null and applyMobile!=''">
+                and eu.phonenumber like concat('%',#{applyMobile},'%')
+            </if>
+            <if test="cityCode!=null and cityCode != ''">
+                and oaib.city_postal_code=#{cityCode}
+            </if>
+          ) t
+        where 1=1
+        <if test="optStartDate!=null ">
+            and DATE_FORMAT(t.opDate,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{optStartDate},'%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test="optEndDate!=null  ">
+            and DATE_FORMAT(t.opDate,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{optEndDate},'%Y-%m-%d %H:%i:%S')
+        </if>
+        <if test="dispatchStatus!=null and dispatchStatus!=''">
+            and t.state=#{dispatchStatus}
+        </if>
+        order by state='待派车' DESC ,state='已派车' DESC , useCarDate ASC
+    </select>
 </mapper>

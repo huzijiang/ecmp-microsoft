@@ -141,4 +141,17 @@ public class DispatchVo {
      * 排序依赖字段
      */
     private String orderByState;
+
+    /**
+     * 制度id
+     */
+    private Long regimeId;
+    /**
+     * 行程id
+     */
+    private Long journeyId;
+    /**
+     * 订单的申请人id
+     */
+    private Long userId;
 }
