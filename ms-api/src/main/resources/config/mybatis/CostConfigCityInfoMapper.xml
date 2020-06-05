@@ -125,15 +125,17 @@
             (select it_is_inner from car_group_info z where z.car_group_id=cccgi.car_group_id) itIsInner,
             cci.combos_price combosPrice,
             cci.combos_mileage combosMileage,
-            cci.combos_times/60 combosTimes,
+            if(cci.service_type=5000,cci.combos_times/60,cci.combos_times) combosTimes,
             cci.beyond_price_every_km beyondPriceEveryKm,
-            cci.beyond_price_every_minute beyondPriceEveryMinute
+            cci.beyond_price_every_minute beyondPriceEveryMinute,
+            cci.service_type serviceType,
+            cci.wait_price_erery_minute waitPriceEreryMinute
         from cost_config_city_info ccci
         left join cost_config_car_group_info cccgi on cccgi.cost_id=ccci.cost_id
         left join cost_config_car_type_info cccti on cccti.cost_id=ccci.cost_id
         left join cost_config_info cci on cci.cost_id=ccci.cost_id
         where
-         ccci.city_code=#{cityCode} and cci.service_type=5000
+         ccci.city_code=#{cityCode}
          and  cci.company_id=#{companyId}
         <if test="carGroupUserMode!=null and carGroupUserMode!=''">
             and cci.car_group_user_mode=#{carGroupUserMode}
@@ -143,6 +145,9 @@
         </if>
         <if test="rentType!=null and rentType!=''">
             and cci.rent_type=#{rentType}
+        </if>
+        <if test="serviceType!=null and serviceType!=''">
+            and cci.service_type=#{serviceType}
         </if>
         <if test="carGroupId!=null">
             and cccgi.car_group_id=#{carGroupId}

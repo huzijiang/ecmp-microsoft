@@ -2,11 +2,13 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CharterTypeEnum;
 import com.hq.ecmp.constant.CostConfigModeEnum;
 import com.hq.ecmp.constant.OrderServiceType;
+import com.hq.ecmp.constant.ServiceTypeConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.mapper.*;
@@ -361,37 +363,65 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         List<PriceOverviewVO> result=new ArrayList<>();
         List<CarGroupCostVO> list=costConfigCityInfoMapper.findGroupByCity(queryPriceDto);
         List<CarGroupCostVO> grouplist=costConfigCarGroupInfoMapper.selectGroupByCityCode(queryPriceDto);
-        result.add(new PriceOverviewVO("0",grouplist));
-        result.add(new PriceOverviewVO("1",grouplist));
+        result.add(new PriceOverviewVO("0","-1",grouplist));
+        result.add(new PriceOverviewVO("1","0",grouplist));
         if (!CollectionUtils.isEmpty(list)){
-            Map<String, List<CarGroupCostVO>> collect = list.stream().collect(Collectors.groupingBy(o -> o.getRentType() + "_" + o.getCarGroupUserMode() + "_" + o.getCarTypeId(), Collectors.toList()));
+            Map<String, List<CarGroupCostVO>> collect= Maps.newHashMap();
+            if (ServiceTypeConstant.CHARTERED.equals(queryPriceDto.getServiceType())){
+                collect = list.stream().collect(Collectors.groupingBy(o -> o.getRentType() + "_" + o.getCarGroupUserMode() + "_" + o.getCarTypeId(), Collectors.toList()));
+            }else{
+                collect = list.stream().collect(Collectors.groupingBy(o -> o.getServiceType() +  "_" + o.getCarTypeId(), Collectors.toList()));
+            }
             if (!CollectionUtils.isEmpty(collect)){
                 for(Map.Entry<String,List<CarGroupCostVO>> map:collect.entrySet()){
                     String key = map.getKey();
+                    List<CarGroupCostVO> value = map.getValue();
+                    PriceOverviewVO vo=new PriceOverviewVO();
+                    vo.setCityCode(queryPriceDto.getCityCode());
+                    vo.setCityName(list.get(0).getCityName());
+                    vo.setServiceType(queryPriceDto.getServiceType());
+                    vo.setServiceTypeStr(OrderServiceType.format(queryPriceDto.getServiceType()));
+                    String rentType="";
+                    String carGroupUserMode="";
+                    String carTypeId="";
+                    String carTypeName="";
                     if (StringUtils.isEmpty(key)){
                         continue;
                     }
                     String[] s = key.split("_");
-                    if (StringUtils.isEmpty(s[0])&&StringUtils.isEmpty(s[1])&&StringUtils.isEmpty(s[2])){
-                        continue;
+                    if (ServiceTypeConstant.CHARTERED.equals(queryPriceDto.getServiceType())){
+                        if (StringUtils.isEmpty(s[0])&&StringUtils.isEmpty(s[1])&&StringUtils.isEmpty(s[2])){
+                            continue;
+                        }
+                        rentType=s[0];
+                        carGroupUserMode=s[1];
+                        carTypeId=s[2];
+                        carTypeName=CollectionUtils.isEmpty(value)?"":value.get(0).getCarTypeName();
+                    }else{
+                        if (StringUtils.isEmpty(s[0])&&StringUtils.isEmpty(s[1])){
+                            continue;
+                        }
+                        carTypeId=s[1];
+                        carTypeName=CollectionUtils.isEmpty(value)?"":value.get(0).getCarTypeName();
                     }
-                    List<CarGroupCostVO> value = map.getValue();
-                    PriceOverviewVO vo=new PriceOverviewVO();
-                    vo.setRentType(s[0]);
-                    vo.setRentTypeStr(CharterTypeEnum.format(s[0]));
-                    vo.setCityCode(queryPriceDto.getCityCode());
-                    vo.setCityName(value.get(0).getCityName());
-                    vo.setCarGroupUserMode(s[1]);
-                    vo.setCarGroupUserModeStr(CostConfigModeEnum.format(s[1]));
-                    vo.setCarTypeId(s[2]);
-                    vo.setCarTypeName(value.get(0).getCarTypeName());
+                    vo.setRentType(rentType);
+                    vo.setRentTypeStr(CharterTypeEnum.format(rentType));
+                    vo.setCarGroupUserMode(carGroupUserMode);
+                    vo.setCarGroupUserModeStr(CostConfigModeEnum.format(carGroupUserMode));
+                    vo.setCarTypeId(carTypeId);
+                    vo.setCarTypeName(carTypeName);
                     SortListUtil.sort(value,"itIsInner",SortListUtil.ASC);
                     vo.setCostList(value);
                     result.add(vo);
                 }
-                String[] fileds = {"rentType", "carGroupUserMode"};
-                String[] sort = {SortListUtil.ASC,SortListUtil.ASC};
-                SortListUtil.sort(result,fileds,sort);
+                if(ServiceTypeConstant.CHARTERED.equals(queryPriceDto.getServiceType())){
+                    String[] fileds = {"rentType", "carGroupUserMode"};
+                    String[] sort = {SortListUtil.ASC,SortListUtil.ASC};
+                    SortListUtil.sort(result,fileds,sort);
+                }else{
+                    SortListUtil.sort(result,"carTypeId",SortListUtil.ASC);
+                }
+
             }
         }
        return result;

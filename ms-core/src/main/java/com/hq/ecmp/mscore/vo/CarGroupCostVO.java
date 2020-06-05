@@ -24,6 +24,7 @@ public class CarGroupCostVO {
     private String cityName;
     private String carGroupUserMode;
     private String rentType;
+    private String serviceType;
     private String carTypeId;
     private String carTypeName;
     private String carGroupName;
@@ -37,5 +38,7 @@ public class CarGroupCostVO {
     private BigDecimal beyondPriceEveryKm;
     @ApiModelProperty(name = "beyondPriceEveryMinute",value = "超时费用（单位：每分钟)")
     private BigDecimal beyondPriceEveryMinute;
+    @ApiModelProperty(name = "waitPriceEreryMinute",value = "等待费用（单位：每分钟)")
+    private BigDecimal waitPriceEreryMinute;
 
 }

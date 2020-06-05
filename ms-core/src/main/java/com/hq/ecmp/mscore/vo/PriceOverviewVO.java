@@ -20,6 +20,8 @@ public class PriceOverviewVO {
     private String cityCode;  //TODO 新增
     @ApiModelProperty(name = "serviceType",value = "服务类型")
     private String serviceType;
+    @ApiModelProperty(name = "serviceType",value = "服务类型")
+    private String serviceTypeStr;
     @ApiModelProperty(name = "carGroupUserMode",value = "服务模式")
     private String carGroupUserMode;
     @ApiModelProperty(name = "carGroupUserModeStr",value = "服务模式")
@@ -39,6 +41,12 @@ public class PriceOverviewVO {
 
     public PriceOverviewVO(String rentType, List<CarGroupCostVO> costList) {
         this.rentType = rentType;
+        this.costList = costList;
+    }
+
+    public PriceOverviewVO(String rentType, String carTypeId, List<CarGroupCostVO> costList) {
+        this.rentType = rentType;
+        this.carTypeId = carTypeId;
         this.costList = costList;
     }
 
