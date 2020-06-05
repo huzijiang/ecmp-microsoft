@@ -410,5 +410,12 @@ public interface OrderInfoMapper {
 
 
     DriverSmsInfo getOrderInfo(@Param("orderId") Long orderId);
+
+    /**
+     * 通过 城市code和部门id来查询对应的订单信息
+     * @param query
+     * @return
+     */
+    List<DispatchVo> getOrderInfoByCityAndDept(ApplyDispatch query);
 }
 

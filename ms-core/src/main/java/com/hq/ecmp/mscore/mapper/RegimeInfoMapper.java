@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import java.util.List;
 
+import com.hq.ecmp.mscore.vo.DispatchVo;
 import com.hq.ecmp.mscore.vo.RegimenVO;
 import com.hq.ecmp.mscore.vo.UseCarTypeVO;
 import org.apache.ibatis.annotations.Param;
@@ -143,4 +144,11 @@ public interface RegimeInfoMapper
      * @return
      */
     List<UseCarTypeVO> getCanUseCarTypes(@Param("regimenId") Long regimenId,@Param("companyId") Long companyId);
+
+    /**
+     * 通过制度id查询场景名称和制度名称
+     * @param regimeId
+     * @return
+     */
+    DispatchVo getDispatchReAndSceneInfo(Long regimeId);
 }

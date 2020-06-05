@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
+import com.hq.ecmp.mscore.dto.dispatch.DispatchCarGroupDto;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -215,4 +216,11 @@ public interface CarGroupInfoMapper
      * @return
      */
     List<CarGroupInfo> applySingleCarGroupList(@Param("state") String state,@Param("itIsInner")String itIsInner,@Param("deptId") Long deptId);
+
+    /**
+     * 获取调度员的车队信息
+     * @param userId
+     * @return
+     */
+    List<DispatchCarGroupDto> getDisCarGroupInfoByUserId(@Param("userId") Long userId,@Param("companyId") Long companyId);
 }

@@ -1,31 +1,5 @@
 package com.hq.ecmp.ms.api.controller.order;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
-import com.hq.ecmp.constant.enumerate.DispatchExceptionEnum;
-import com.hq.ecmp.mscore.bo.WaitSelectedCarBo;
-import com.hq.ecmp.mscore.bo.WaitSelectedDriverBo;
-import com.hq.ecmp.mscore.domain.EcmpNotice;
-import com.hq.ecmp.mscore.dto.dispatch.*;
-import com.hq.ecmp.mscore.service.OrderInfoTwoService;
-import com.hq.ecmp.mscore.vo.*;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
-
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
@@ -33,13 +7,23 @@ import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
 import com.hq.ecmp.mscore.domain.DispatchSendCarPageInfo;
-import com.hq.ecmp.mscore.dto.DispatchInfoDto;
+import com.hq.ecmp.mscore.dto.dispatch.*;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
-
+import com.hq.ecmp.mscore.service.OrderInfoTwoService;
+import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
+import com.hq.ecmp.mscore.vo.DispatchResultVo;
+import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 后管-调度控制器

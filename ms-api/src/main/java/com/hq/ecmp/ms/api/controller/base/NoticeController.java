@@ -401,25 +401,6 @@ public class NoticeController {
     }
 
     /**
-     * 获取企业配置信息
-     */
-    @ApiOperation(value = "queryCompanyInfo ", notes = "获取企业配置信息")
-    @PostMapping("/queryCompanyInfo")
-    public ApiResponse<ConfigInfoDTO> query() {
-        HttpServletRequest request = ServletUtils.getRequest();
-        LoginUser loginUser = tokenService.getLoginUser(request);
-        if (null!=loginUser.getUser().getDept().getCompanyId()){
-            Long companyId = loginUser.getUser().getDept().getCompanyId();
-            System.out.println("==========="+companyId);
-            ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
-            return ApiResponse.success(configInfoDTO);
-        }else{
-            return ApiResponse.error();
-        }
-
-    }
-
-    /**
      * 排班日期落库数据库
      * @param
      * @return

@@ -301,4 +301,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             where oai.account_id in
              (select account_id from order_invoice_info where invoice_id=#{invoiceId}) order by action_time desc
     </select>
+    <select id="getDispatchJourneyInfoByJourneyId" resultType="com.hq.ecmp.mscore.vo.DispatchVo" parameterType="java.lang.Long">
+        select
+        ji.regimen_id regimeId,
+        jpi.name as useCarUserName,
+        jpi.mobile as userCarUserMobile,
+        jpi.peer_number travelPartnerCount,
+        ji.it_is_return as itIsReturn,
+        ji.wait_time_long as waitMinute,
+        ji.charter_car_type serverType,
+        ji.use_time charterCarDaysCount,
+        CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime
+        from journey_info ji
+        left join journey_passenger_info jpi on ji.journey_id=jpi.journey_id
+        where  ji.journey_id=#{journeyId}
+
+    </select>
 </mapper>

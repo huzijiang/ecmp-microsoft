@@ -501,4 +501,14 @@ LIMIT 1
         select  use_car_mode_owner_level ownerCarType from regime_info where company_id =#{companyId}  and regimen_id = #{regimenId}  ORDER BY regimen_id DESC   limit 1
 
     </select>
+    <select id="getDispatchReAndSceneInfo" resultType="com.hq.ecmp.mscore.vo.DispatchVo">
+        SELECT
+        si.`name` userCarScene ,
+        r.`name` userCarRegime
+        FROM  regime_info r
+        left join scene_regime_relation srr on  r.regimen_id=srr.regimen_id
+        left join scene_info si on si.scene_id=srr.scene_id
+        where r.regimen_id=#{regimeId}
+
+    </select>
 </mapper>
