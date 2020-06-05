@@ -144,30 +144,21 @@ public class CompanyConfigController {
         return ApiResponse.success();
     }
 
-    /**
-     * 获取启动页开屏图（无token）
-     * @return
-     */
-    /*@ApiOperation(value = "getStartupChart ", notes = "获取启动页开屏图（无token）")
-    @PostMapping("/getStartupChart")
-    public ApiResponse getStartupChart() {
-        ConfigInfoDTO onfigInfoDTO= ecmpConfigService.getStartupChart();
-        return ApiResponse.success(onfigInfoDTO);
-    }*/
-
-    /**
-     * 获取首页背景图
-     * @return
-     */
-    /*@ApiOperation(value = "getHomeChart ", notes = "获取首页背景图")
-    @PostMapping("/getHomeChart")
-    public ApiResponse getHomeChart() {
-        ConfigInfoDTO onfigInfoDTO= ecmpConfigService.getHomeChart();
-        return ApiResponse.success(onfigInfoDTO);
-    }*/
     private Long getCurrentUserCompany(){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         return loginUser.getUser().getOwnerCompany();
+    }
+    /**
+     * 获取企业配置信息
+     */
+    @ApiOperation(value = "queryAppCompanyInfo ", notes = "获取企业配置信息")
+    @PostMapping("/queryAppCompanyInfo")
+    public ApiResponse<ConfigInfoDTO> queryAppCompanyInfo() {
+        HttpServletRequest request = ServletUtils.getRequest();
+        //针对目前只有一家 而且每家都自己一个数据库  先写死
+        Long companyId = 100L;
+        ConfigInfoDTO configInfoDTO = ecmpConfigService.selectConfigInfo(companyId);
+        return ApiResponse.success(configInfoDTO);
     }
 }

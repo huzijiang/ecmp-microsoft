@@ -68,5 +68,16 @@ public enum OrderStateTrace {
         return DRIVER_SERVICE_SUSPEND.getState()+","+DRIVER_CONTINUED_SERVICE.getState()+","+SERVICE_SUSPEND.getState();
     }
 
+    public static OrderStateTrace getStateEnum(String stateCode){
+        OrderStateTrace[] values = OrderStateTrace.values();
+        for (OrderStateTrace orderStateTrace:
+             values) {
+            if(orderStateTrace.getState().equals(stateCode)){
+                return orderStateTrace;
+            }
+        }
+        return null;
+    }
+
 
 }

@@ -114,4 +114,10 @@ public interface CarGroupDispatcherInfoMapper
      * @return
      */
     List<EcmpUser> getCarGroupDispatcherExternalList(ApplyOfficialRequest applyOfficialRequest);
+
+    /**
+     * 查询所有的用户id通过调度员id
+     * @return
+     */
+    List<Long> getAllUserIdByDispatchUserId(@Param("userId") Long dispatchUserId);
 }
