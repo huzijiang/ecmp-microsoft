@@ -2880,6 +2880,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             <if test="cityCode!=null and cityCode != ''">
                 and oaib.city_postal_code=#{cityCode}
             </if>
+            <if test="orderId!=null and orderId != ''">
+                and oi.order_id=#{orderId}
+            </if>
           ) t
         where 1=1
         <if test="optStartDate!=null ">
