@@ -62,8 +62,8 @@ public class DispatcherController {
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
-            Map<String, Object> list = orderInfoTwoService.queryDispatchListCharterCar(query, loginUser);
-//            Map<String, Object> list = orderInfoTwoService.dispatchListCharterCarWithDispatcher(query, loginUser);
+//            Map<String, Object> list = orderInfoTwoService.queryDispatchListCharterCar(query, loginUser);
+            Map<String, Object> list = orderInfoTwoService.dispatchListCharterCarWithDispatcher(query, loginUser);
 
             return ApiResponse.success(list);
         } catch (Exception e) {
