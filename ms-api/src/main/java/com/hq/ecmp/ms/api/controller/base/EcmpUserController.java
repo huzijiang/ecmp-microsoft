@@ -102,7 +102,7 @@ public class EcmpUserController {
     @ApiOperation(value = "查询员工列表",notes = "查询员工列表",httpMethod ="POST")
     @PostMapping("/getEcmpUserList")
     public ApiResponse<PageResult<EcmpUserDto>> getEcmpUserList(@RequestBody PageRequest pageRequest){
-        PageResult<EcmpUserDto> ecmpUserList = ecmpUserService.getEcmpUserPage(pageRequest);
+        PageResult<EcmpUserDto> ecmpUserList = ecmpUserService.getEcmpUserPage(pageRequest,tokenService.getLoginUser(ServletUtils.getRequest()));
         return ApiResponse.success(ecmpUserList);
     }
 

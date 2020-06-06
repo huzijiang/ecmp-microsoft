@@ -2896,4 +2896,70 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         </if>
         order by state='待派车' DESC ,state='已派车' DESC , useCarDate ASC
     </select>
+    <select id="downloadOrderData" parameterType="java.lang.Long" resultType="java.util.Map">
+       select
+       -- 订单编号
+       oi.order_number orderNumber,
+       -- 用车单位
+       eo.dept_name  deptName,
+       -- 联系人
+       eu.nick_name  nickName,
+       -- 联系电话
+       eu.phonenumber phoneNumber,
+       -- 车辆类型
+       ecti.name,
+       -- 乘车人数
+       jpi.peer_number peerName,
+       -- 目的地
+       cc.short_name shortName,
+       -- 用车天数
+       ji.use_time useTime,
+        -- 预约用车时间
+       ji.start_date startDate,
+        -- 出发地点
+       oai.address_long addressLong,
+        -- 驾驶员姓名
+       di.driver_name driverName,
+       -- 驾驶员电话
+       di.mobile mobile,
+       -- 用车备注
+       ai.reason reason,
+       -- 取钥匙时间，实际用车时间
+       oaie.action_time actionBeginTime,
+       -- 还钥匙时间，实际还车时间
+       oai.action_time actionEndTime,
+       -- 车牌号
+       ci.car_number carNumber,
+       -- 套餐价
+       (select  distinct set_meal_cost from order_service_cost_detail_record_info where order_id=#{orderId}) setMealCost,
+       -- 超里程费用
+       (select  sum(beyond_mileage_fee) from order_service_cost_detail_record_info where order_id=#{orderId}) beyondMileageFee,
+       -- 超时长费用
+       (select  sum(beyond_time_fee) from order_service_cost_detail_record_info where order_id=#{orderId}) beyondTimeFee,
+       -- 路桥费用
+       (select  sum(road_and_bridge_fee) from order_service_cost_detail_record_info where order_id=#{orderId}) roadAndBridgeFee,
+       -- 高速费用
+       (select  sum(highway_toll_fee) from order_service_cost_detail_record_info where order_id=#{orderId}) highwayTollFee,
+       -- 停车费用
+       (select  sum(stop_car_fee) from order_service_cost_detail_record_info where order_id=#{orderId}) stopCarFee,
+       -- 住宿费用
+       (select  sum(accommodation_fee) from order_service_cost_detail_record_info where order_id=#{orderId}) accommodationFee,
+       -- 餐饮费用
+       (select  sum(food_fee) from order_service_cost_detail_record_info where order_id=#{orderId}) foodFee,
+       -- 其它费用
+       (select  sum(others_fee) from order_service_cost_detail_record_info where order_id=#{orderId}) othersFee
+       from order_info oi
+       left join ecmp_user eu on oi.user_id = eu.user_id
+       left join ecmp_org eo on eu.dept_id = eo.dept_id
+       left join car_info ci on ci.car_id = oi.car_id
+       left join enterprise_car_type_info ecti on ecti.car_type_id=ci.car_type_id
+       left join journey_info ji on ji.journey_id = oi.journey_id
+       left join journey_passenger_info jpi on jpi.journey_id = ji.journey_id
+       left join order_address_info oai on oai.order_id=oi.order_id and oai.type='A999'
+       left join order_address_info oaie on oaie.order_id=oi.order_id and oaie.type='A000'
+       left join china_city cc on cc.city_code = oai.city_postal_code
+       left join driver_info di on di.driver_id=oi.driver_id
+       left join apply_info ai on ai.journey_id = oi.journey_id
+       where oi.order_id=#{orderId}
+    </select>
 </mapper>

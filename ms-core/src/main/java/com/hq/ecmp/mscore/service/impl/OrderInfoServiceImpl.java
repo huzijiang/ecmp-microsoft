@@ -2952,4 +2952,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         return null;
     }
+
+    /***
+     *
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Map<String,String> downloadOrderData(Long orderId) throws Exception {
+        return orderInfoMapper.downloadOrderData(orderId);
+    }
 }

@@ -3,10 +3,16 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.github.pagehelper.PageInfo;
 
+import com.hq.api.system.domain.SysDept;
+import com.hq.api.system.mapper.SysDeptMapper;
 import com.hq.api.system.mapper.SysUserMapper;
+import com.hq.api.system.service.ISysDeptService;
+import com.hq.core.security.LoginUser;
+import com.hq.core.web.domain.TreeSelect;
 import com.hq.ecmp.constant.OrgConstant;
 import com.hq.ecmp.constant.RoleConstant;
 import com.hq.ecmp.mscore.domain.*;
@@ -65,6 +71,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     private IEcmpOrgService ecmpOrgService;
     @Autowired(required = false)
     private SysUserMapper userMapper;
+
+    @Autowired(required = false)
+    private SysDeptMapper deptMapper;
 
 
     /**
@@ -504,7 +513,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     @Override
     public PageResult<EcmpUserDto> selectDimissionList(PageRequest pageRequest){
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
-        List<EcmpUserDto> list=ecmpUserMapper.getEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(),CommonConstant.ONE);
+        List<Long> longs = new ArrayList<>();
+        longs.add(pageRequest.getDeptId());
+        List<EcmpUserDto> list=ecmpUserMapper.getEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(),CommonConstant.ONE,longs);
         Long ecmpUserPageCount = ecmpUserMapper.getEcmpUserPageCount(pageRequest.getSearch(), pageRequest.getDeptId(),CommonConstant.ONE);
         return new PageResult<>(ecmpUserPageCount,list);
     }
@@ -616,22 +627,34 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 
     //员工分页
     @Override
-    public PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest) {
+    public PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest, LoginUser loginUser) {
         List<EcmpUserDto> list=new ArrayList<>();
         EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(pageRequest.getDeptId());
         String deptType = ecmpOrg.getDeptType();
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
+        List<SysDept> depts = new ArrayList<>();
+        SysDept sysDept = deptMapper.selectDeptById(loginUser.getUser().getOwnerCompany());
+        depts.add(sysDept);
+        buildTreeDept(sysDept,depts);
+        List<Long> longs = StringUtils.isBlank(pageRequest.getSearch())?new ArrayList<>():depts.stream().map(SysDept::getDeptId).collect(Collectors.toList());
         if(OrgConstant.DEPT_TYPE_1.equals(deptType)){
-            list=ecmpUserMapper.getCompanyEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO);
+            list=ecmpUserMapper.getCompanyEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO,longs);
             for (EcmpUserDto ecmpUserDto:list){
                 ecmpUserDto.setSubDept("无");
             }
         }
         if(OrgConstant.DEPT_TYPE_2.equals(deptType)){
-            list=ecmpUserMapper.getEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO);
+            list=ecmpUserMapper.getEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO,longs);
         }
         PageInfo<EcmpUserDto> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);
+    }
+    void buildTreeDept(SysDept sysDept,List<SysDept> list){
+        List<SysDept>  depts = deptMapper.selectChildrenDeptByParentId(sysDept.getDeptId());
+        if(!org.springframework.util.CollectionUtils.isEmpty(depts)){
+            depts.forEach(x->buildTreeDept(x,list));
+        }
+        list.addAll(depts);
     }
 
     /**
