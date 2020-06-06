@@ -158,4 +158,8 @@ public class DispatchVo {
     private Long userId;
 
     private Long canDispatcherUserId;
+    /**
+     * 用车方式
+     */
+    private String useCarMode;
 }

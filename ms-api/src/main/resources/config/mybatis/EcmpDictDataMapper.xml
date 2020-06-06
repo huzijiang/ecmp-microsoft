@@ -111,7 +111,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--根据数据字典类型dictType查询数据字典信息-->
    <select id="selectEcmpDictDataByType" parameterType="Object" resultMap="EcmpDictDataResult">
        <include refid="selectEcmpDictDataVo"/>
-        where dict_type = #{dictType}
+        where dict_type = #{dictType} and status =0
    </select>
 
     <select id="selectEcmpDictByType" parameterType="Object" resultType="com.hq.ecmp.mscore.vo.SceneListVO">

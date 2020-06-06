@@ -2793,7 +2793,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
            select oddi.next_car_group_id as nextCarGroupId,
             o.order_id as orderId,
             o.user_id userId,
-        o.service_type serviceType,
+            o.service_type serviceType,
+            o.use_car_mode useCarMode,
             eo.dept_name as deptName,
             eoc.dept_name as companyName,
         <if test="roleData ==1 ">

@@ -239,6 +239,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          select
          ecti.name carTypeName,
          ai.car_type_id carTypeId,
+         ai.journey_id journeyId,
          ai.notes,
          ai.it_is_self_driver itIsSelfDriver,
          ai.reason reason,

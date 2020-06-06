@@ -91,7 +91,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SELECT
         eufi.feedback_id feedbackId,
         eufi.order_id orderId,
-        oi.orderNumber orderNumber,
+        oi.order_number orderNumber,
         oi.service_type serviceType,
         oi.use_car_mode useCarMode,
         eu.nick_name nickName,
