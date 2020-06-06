@@ -57,7 +57,7 @@ spring:
             multi-statement-allow: true
   redis:
     cluster:
-      nodes: 10.117.1.223:6379,10.117.1.223:6380,10.117.1.224:6379,10.117.1.224:6380,10.117.1.225:6379,10.117.1.225:6380
+      nodes: zhongxing-test-redis.hqzhixing.com:6381
       max-redirects: 5
       timeout: 6000ms
     lettuce:
@@ -123,7 +123,7 @@ schedule:
 #/upload
 app:
   zimg:
-    server: http://10.117.1.232:4869
+    server: http://zhongxing-test-zimg.hqzhixing.com
     access:
       #url: http://123.127.89.218:4869/
       url: https://test-inside-service-image.hqzhixing.com/
