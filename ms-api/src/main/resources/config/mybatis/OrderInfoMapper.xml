@@ -2793,6 +2793,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
            select oddi.next_car_group_id as nextCarGroupId,
             o.order_id as orderId,
             o.user_id userId,
+        o.service_type serviceType,
             eo.dept_name as deptName,
             eoc.dept_name as companyName,
         <if test="roleData ==1 ">
@@ -2883,6 +2884,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             <if test="orderId!=null and orderId != ''">
                 and o.order_id=#{orderId}
             </if>
+        <if test="orderId!=null and orderId != ''">
+            and o.order_id=#{orderId}
+        </if>
           ) t
         where 1=1
         <if test="optStartDate!=null ">
