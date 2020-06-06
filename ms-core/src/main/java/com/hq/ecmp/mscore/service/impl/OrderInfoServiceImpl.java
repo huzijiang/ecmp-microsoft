@@ -2932,8 +2932,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         data.setUpdateBy(String.valueOf(userId));
         data.setUpdateTime(new Date());
         orderInfoMapper.changeOrder(data);
-        orderStateTraceInfoMapper.deleteOrderStateTrace(orderId);
-        orderDispatcheDetailInfoMapper.deleteOrderId(orderId);
+        //7.订单调度数据还原
+        orderDispatcheDetailInfoMapper.revertOrderDispatcheDetailInfoByOrderId(orderId, userId, DateUtils.getNowDate());
         return "改派成功";
     }
 
