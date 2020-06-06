@@ -1336,6 +1336,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 }
                 //行程相关信息
                 getDispatchOrderJourneyInfos(dispatchVo);
+                //上下车地点+车型
+                getDispatchOrderApplyInfos(dispatchVo);
             }
         }
         return orderInfos;

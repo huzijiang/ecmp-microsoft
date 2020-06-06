@@ -2923,7 +2923,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             oddi.it_is_self_driver selfDriver,
             oddi.it_is_use_inner_car_group useCarGroupType,
             o.journey_id journeyId,
-            (select create_by from order_state_trace_info z where z.order_id=o.order_id and state='S299') canDispatcherUserId,
+            (select DISTINCT create_by from order_state_trace_info z where z.order_id=o.order_id and state='S299') canDispatcherUserId,
             case
             when right (osti.state,3)='270' then '待改派'
             when right (osti.state,3)='277' then '已驳回'
