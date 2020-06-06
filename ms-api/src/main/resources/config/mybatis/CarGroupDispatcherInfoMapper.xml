@@ -169,7 +169,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             FROM
                 car_group_dispatcher_info
             WHERE
-                dispatcher_id = #{userId}))
+                user_id = #{userId}))
 
     </select>
 </mapper>
