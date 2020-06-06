@@ -8,7 +8,6 @@ import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
-import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
@@ -17,7 +16,6 @@ import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.constant.enumerate.DispatcherFrontState;
-import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
@@ -26,16 +24,11 @@ import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.*;
-import com.hq.ecmp.util.Page;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.MapUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -2960,7 +2953,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @throws Exception
      */
     @Override
-    public Map<String,String> downloadOrderData(Long orderId) throws Exception {
+    public Map downloadOrderData(Long orderId) throws Exception {
         return orderInfoMapper.downloadOrderData(orderId);
     }
 }

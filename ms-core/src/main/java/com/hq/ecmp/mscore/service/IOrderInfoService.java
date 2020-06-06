@@ -5,10 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
+import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.vo.*;
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -340,7 +342,7 @@ public interface IOrderInfoService {
      * @return
      * @throws Exception
      */
-    Map<String,String> downloadOrderData(Long orderId)throws Exception;
+    Map downloadOrderData(Long orderId)throws Exception;
 
 }
 
