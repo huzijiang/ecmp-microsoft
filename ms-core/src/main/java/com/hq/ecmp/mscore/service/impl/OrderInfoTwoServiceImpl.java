@@ -1268,9 +1268,9 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         if (!CollectionUtils.isEmpty(disCarGroupInfos)){
              String collect1 = disCarGroupInfos.stream().map(p -> p.getDeptId().toString()).collect(Collectors.joining(",", "", ""));
              query.setDeptId(collect1);
-             PageHelper.startPage(query.getPageN(), query.getPageS());
-             dispatcherOrderList = getDispatchOrderInfos(query);
         }
+        PageHelper.startPage(query.getPageN(), query.getPageS());
+        dispatcherOrderList = getDispatchOrderInfos(query);
         PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
         Map<String,Object> map = new HashMap<>();
         map.put("totalPage", info.getTotal());
@@ -1333,13 +1333,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         List<JourneyAddressInfo> journeyAddressInfos = journeyAddressInfoMapper.selectJourneyAddressInfoList(journeyAddressInfo);
         if (!CollectionUtils.isEmpty(journeyAddressInfos)){
             String endSite = dispatchVo.getEndSite();
-            if(endSite == null){
-                System.out.println("aaaaaaaaaaaa");
-            }
             StringBuilder sb = new StringBuilder(endSite);
             for (JourneyAddressInfo journeyAddressInfo1:
                  journeyAddressInfos) {
-               sb.append(journeyAddressInfo1.getAddressInfo());
+               sb.append(",").append(journeyAddressInfo1.getAddressInfo());
             }
             dispatchVo.setEndSite(sb.toString());
         }

@@ -87,7 +87,7 @@ public class DispatchVo {
     private String waitingTime;
 
     @ApiModelProperty(value = "跳内部派车还是外部派车，1 内部  2 外部")
-    private int inOrOut;
+    private Integer inOrOut;
 
     @ApiModelProperty(value = "车队类型 C000   内部车队  C111   外部车队")
     private String  useCarGroupType;
