@@ -1333,13 +1333,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         List<JourneyAddressInfo> journeyAddressInfos = journeyAddressInfoMapper.selectJourneyAddressInfoList(journeyAddressInfo);
         if (!CollectionUtils.isEmpty(journeyAddressInfos)){
             String endSite = dispatchVo.getEndSite();
-            if(endSite == null){
-                System.out.println("aaaaaaaaaaaa");
-            }
             StringBuilder sb = new StringBuilder(endSite);
             for (JourneyAddressInfo journeyAddressInfo1:
                  journeyAddressInfos) {
-               sb.append(journeyAddressInfo1.getAddressInfo());
+               sb.append(",").append(journeyAddressInfo1.getAddressInfo());
             }
             dispatchVo.setEndSite(sb.toString());
         }
