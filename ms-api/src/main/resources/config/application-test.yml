@@ -93,7 +93,7 @@ token:
 thirdService:
   enterpriseId: 100000
   licenseContent: AAAAAAAA
-  apiUrl: http://10.117.1.231:51002
+  apiUrl: http://10.123.208.8:51002/
 
 #行程分享路径
 order:
@@ -123,12 +123,12 @@ schedule:
 #/upload
 app:
   zimg:
-    server: http://zhongxing-test-zimg.hqzhixing.com
+    server: https://zhongxing-test-zimg.hqzhixing.com
     access:
       #url: http://123.127.89.218:4869/
       url: https://test-inside-service-image.hqzhixing.com/
-  welcome: http://10.117.1.232:4869/7641d1dcf64d4d082e061d6e65f37a51
-  background: http://10.117.1.232:4869/7641d1dcf64d4d082e061d6e65f37a51
+  welcome: https://zhongxing-test-zimg.hqzhixing.com/e3b051c33217ef4df6973517fce6f8bb
+  background:  https://zhongxing-test-zimg.hqzhixing.com/e3b051c33217ef4df6973517fce6f8bb
 
 wx:
 #应用ID
