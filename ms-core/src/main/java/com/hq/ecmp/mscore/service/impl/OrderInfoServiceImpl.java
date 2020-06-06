@@ -2932,8 +2932,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         data.setUpdateBy(String.valueOf(userId));
         data.setUpdateTime(new Date());
         orderInfoMapper.changeOrder(data);
-        orderStateTraceInfoMapper.deleteOrderStateTrace(orderId);
-        orderDispatcheDetailInfoMapper.deleteOrderId(orderId);
+        //7.订单调度数据还原
+        orderDispatcheDetailInfoMapper.revertOrderDispatcheDetailInfoByOrderId(orderId, userId, DateUtils.getNowDate());
         return "改派成功";
     }
 
@@ -2951,5 +2951,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             return data.getNickName()+":"+data.getUserName();
         }
         return null;
+    }
+
+    /***
+     *
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Map<String,String> downloadOrderData(Long orderId) throws Exception {
+        return orderInfoMapper.downloadOrderData(orderId);
     }
 }

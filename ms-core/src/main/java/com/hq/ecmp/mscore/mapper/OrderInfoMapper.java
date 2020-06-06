@@ -419,5 +419,12 @@ public interface OrderInfoMapper {
     List<DispatchVo> getOrderInfoByCityAndDept(ApplyDispatch query);
 
     List<DispatchVo> getReassignOrderInfoByCityAndDept(ApplyDispatch query);
+
+    /***
+     *
+     * @param orderId
+     * @return
+     */
+    Map<String,String> downloadOrderData(@Param("orderId") Long orderId);
 }
 

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
@@ -216,7 +217,7 @@ public interface IEcmpUserService {
      * @return*/
     EcmpUserDto selectEcmpUser(EcmpUserVo ecmpUser);
 
-    PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest);
+    PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest, LoginUser loginUser);
 
     /**
      * 根据分子公司+员工姓名或电话查询所有员工

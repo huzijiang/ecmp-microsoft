@@ -14,7 +14,6 @@ import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.dto.DriverCloudDto;
-import com.hq.ecmp.mscore.dto.JourneyAddressInfoDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchCarGroupDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;

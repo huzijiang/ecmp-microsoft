@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.OrderDispatcheDetailInfo;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -75,4 +76,12 @@ public interface OrderDispatcheDetailInfoMapper
      * @return
      */
     int deleteOrderId(@Param("orderId")Long orderId);
+
+    /**
+     * 还原订单调度表的信息为最初申请时的状态
+     * @param orderId
+     * @param updateBy
+     * @param updateTime
+     */
+    void revertOrderDispatcheDetailInfoByOrderId(@Param("orderId") Long orderId, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
 }
