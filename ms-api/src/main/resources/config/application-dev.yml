@@ -57,7 +57,7 @@ spring:
             multi-statement-allow: true
   redis:
     cluster:
-      nodes: 10.7.106.64:6379,10.7.106.64:6380,10.7.106.65:6379,10.7.106.65:6380,10.7.106.66:6379,10.7.106.66:6380
+      nodes: zhongxing-test-redis.hqzhixing.com:6381
       max-redirects: 5
       timeout: 6000ms
     lettuce:
@@ -107,7 +107,7 @@ file:
 #/upload
 app:
   zimg:
-    server: http://10.7.106.66:4869
+    server: http://zhongxing-test-zimg.hqzhixing.com
     access:
       url: http://10.7.106.66:4869/
   welcome: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
