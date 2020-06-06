@@ -1365,7 +1365,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
             StringBuilder sb = new StringBuilder(endSite);
             for (JourneyAddressInfo journeyAddressInfo1:
                  journeyAddressInfos) {
-               sb.append(journeyAddressInfo1.getAddressInfo());
+                sb.append(",").append(journeyAddressInfo1.getAddressInfo());
             }
             dispatchVo.setEndSite(sb.toString());
         }
