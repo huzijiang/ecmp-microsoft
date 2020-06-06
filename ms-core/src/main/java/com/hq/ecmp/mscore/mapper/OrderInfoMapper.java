@@ -417,5 +417,12 @@ public interface OrderInfoMapper {
      * @return
      */
     List<DispatchVo> getOrderInfoByCityAndDept(ApplyDispatch query);
+
+    /***
+     *
+     * @param orderId
+     * @return
+     */
+    Map<String,String> downloadOrderData(@Param("orderId") Long orderId);
 }
 

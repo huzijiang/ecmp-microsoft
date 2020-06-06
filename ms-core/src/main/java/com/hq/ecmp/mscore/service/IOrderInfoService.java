@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.vo.*;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Service接口
@@ -331,6 +332,15 @@ public interface IOrderInfoService {
      * @throws Exception
      */
     String dispatcherPhone(Long orderId)throws Exception;
+
+
+    /***
+     * 
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
+    Map<String,String> downloadOrderData(Long orderId)throws Exception;
 
 }
 

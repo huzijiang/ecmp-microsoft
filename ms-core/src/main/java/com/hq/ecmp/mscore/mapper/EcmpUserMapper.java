@@ -345,9 +345,9 @@ public interface EcmpUserMapper
      * @return*/
     EcmpUserDto selectEcmpUser(EcmpUserVo ecmpUser);
 
-    List<EcmpUserDto> getEcmpUserPage(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
+    List<EcmpUserDto> getEcmpUserPage(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status,@Param("ids")List<Long> longs);
 
-    List<EcmpUserDto> getCompanyEcmpUserPage(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
+    List<EcmpUserDto> getCompanyEcmpUserPage(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status,@Param("ids")List<Long> longs);
 
     Long getEcmpUserPageCount(@Param("search")String search,@Param("deptId") Long deptId,@Param("status") int status);
 
