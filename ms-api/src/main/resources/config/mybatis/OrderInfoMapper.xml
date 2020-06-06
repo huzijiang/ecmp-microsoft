@@ -2947,7 +2947,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        -- 餐饮费用
        (select  sum(food_fee) from order_service_cost_detail_record_info where order_id=#{orderId}) foodFee,
        -- 其它费用
-       (select  sum(others_fee) from order_service_cost_detail_record_info where order_id=#{orderId}) othersFee
+       (select  sum(others_fee) from order_service_cost_detail_record_info where order_id=#{orderId}) othersFee,
+       -- 总额
+       osi.amount amount
        from order_info oi
        left join ecmp_user eu on oi.user_id = eu.user_id
        left join ecmp_org eo on eu.dept_id = eo.dept_id
@@ -2960,6 +2962,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        left join china_city cc on cc.city_code = oai.city_postal_code
        left join driver_info di on di.driver_id=oi.driver_id
        left join apply_info ai on ai.journey_id = oi.journey_id
+       left join order_settling_info osi on osi.order_id=oi.order_id
        where oi.order_id=#{orderId}
     </select>
 </mapper>
