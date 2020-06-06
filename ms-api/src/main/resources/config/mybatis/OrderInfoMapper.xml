@@ -1116,7 +1116,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             left join order_address_info d on (d.order_id=a.order_id and d.type='A999')
         where a.user_id=#{userId}  and find_in_set(a.state,#{states})
     </select>
-    <select id="getAlreadyUsingOrderIdByPowerId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    <select id="getAlreadyUsingOrderIdByPowerId" parameterType="java.lang.Long" resultType="java.lang.Long">
         select o.order_id from  journey_user_car_power jucp
         left join order_info o on o.power_id=jucp.power_id
         left join order_state_trace_info osti on osti.order_id=o.order_id
