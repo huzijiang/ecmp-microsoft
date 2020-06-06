@@ -701,10 +701,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="carLicense != null and  carLicense!=''"> and ci.car_license  like concat('%',#{carLicense},'%') </if>
                 <if test="driverName != null and  driverName!=''"> and di.driver_name  like concat('%',#{driverName},'%') </if>
                 <if test="state == 1">
-                    and s.state  in ('S911','S900','S699','S616','S600','S500','S299','S635')
+                    and s.state  in ('S911','S900','S699','S616','S600','S500','S299')
                 </if>
                 <if test="state == 2">
-                    and s.state  in ('S699','S616','S600','S500','S299','S635')
+                    and s.state  in ('S699','S616','S600','S500','S299')
                 </if>
                 <if test="null != companyId and companyId !=''">
                     and s.company_id = #{companyId}
