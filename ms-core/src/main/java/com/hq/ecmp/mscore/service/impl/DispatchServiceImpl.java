@@ -834,6 +834,13 @@ public class DispatchServiceImpl implements IDispatchService {
     public ApiResponse checkCarOwnCarGroupPricePlanInfo(DispatchLockCarDto dispatchLockCarDto) {
         //包车时长  半日 整日  多日
         String rentTime = dispatchLockCarDto.getRentTime();
+        if(StringUtils.isEmpty(rentTime)){
+            return ApiResponse.success("非包车业务不传递该参数");
+        }
+        if(Double.parseDouble(rentTime) == 0.0){
+            return ApiResponse.success("非包车业务传递该参数无效");
+        }
+
         if (Double.parseDouble(rentTime) >= 1) {
 
             if (((int) (Double.parseDouble(rentTime) * 10) / 10) != 0) {

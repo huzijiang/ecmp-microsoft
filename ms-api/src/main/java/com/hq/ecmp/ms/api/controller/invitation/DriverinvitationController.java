@@ -85,7 +85,7 @@ public class DriverinvitationController {
             //3.插入邀请驾驶员性质表信息
             addDriverNatureInfo(invitationId,driverInvitationDTO.getDriverNature(),
                     driverInvitationDTO.getHireBeginTime(),
-                    driverInvitationDTO.getHireBeginTime(),
+                    driverInvitationDTO.getHireEndTime(),
                     driverInvitationDTO.getBorrowBeginTime(),
                     driverInvitationDTO.getBorrowEndTime());
 
