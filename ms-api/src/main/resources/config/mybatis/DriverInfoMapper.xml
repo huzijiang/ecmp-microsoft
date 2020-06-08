@@ -526,6 +526,7 @@ WHERE
             LEFT JOIN  car_group_driver_relation cgd ON cgd.driver_id=dri.driver_id
         <where>
             1=1
+            AND dri.state='V000'
             AND dcr.car_id IS NOT NULL
             AND cgd.car_group_id IS NOT NULL
             AND dwi.leave_status='X999'
@@ -546,6 +547,7 @@ WHERE
         LEFT JOIN  car_group_driver_relation cgd ON cgd.driver_id=dri.driver_id
         <where>
             1=1
+            AND dri.state='V000'
             AND dcr.car_id IS NOT NULL
             AND cgd.car_group_id IS NOT NULL
             AND dwi.leave_status='X999'
@@ -567,6 +569,7 @@ WHERE
         LEFT JOIN  car_group_driver_relation cgd ON cgd.driver_id=dri.driver_id
         <where>
             1=1
+            AND dri.state='V000'
             AND dcr.car_id IS NOT NULL
             AND cgd.car_group_id IS NOT NULL
             AND dwi.leave_status='X999'
