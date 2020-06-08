@@ -440,6 +440,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 	<select id="queryCompleteDispatchOrder" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
 		 SELECT
             a.order_id AS orderId,
+            h.journey_id journeyId,
             a.state,
             a.demand_car_level as demandCarLevel,
             d.apply_type AS applyType,
