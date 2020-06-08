@@ -677,9 +677,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     @Override
     public PageResult<CarGroupListVO> selectCarGroupInfoByPage(Integer pageNum, Integer pageSize,String search,String state,Long deptId,Long carGroupId,Long companyId,LoginUser loginUser) {
         Long userId = loginUser.getUser().getUserId();
-        if(deptId == null){
+        /*if(deptId == null){
             throw new RuntimeException("公司id不能为空");
-        }
+        }*/
         List<SysRole> roles = loginUser.getUser().getRoles();
         if(org.apache.commons.lang3.ObjectUtils.isEmpty(roles)){
             throw new RuntimeException("该用户未赋予任何角色");

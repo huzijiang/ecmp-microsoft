@@ -161,7 +161,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 and c.state = #{state}
             </if>
             <if test="deptId != null">
-                and c.company_id = #{deptId} and c.parent_car_group_id = 0
+                and c.company_id = #{deptId}   -- and c.parent_car_group_id = 0
             </if>
             <if test="carGroupId != null">
                 and c.parent_car_group_id = #{carGroupId}

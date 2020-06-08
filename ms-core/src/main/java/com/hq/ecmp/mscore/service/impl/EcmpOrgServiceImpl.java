@@ -38,11 +38,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Type;
-import java.security.acl.Owner;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.hq.common.core.api.ApiResponse.SUCCESS_CODE;
 import static com.hq.ecmp.constant.CommonConstant.DEPT_TYPE_ORG;
 import static com.hq.ecmp.constant.CommonConstant.SWITCH_ON;
 
