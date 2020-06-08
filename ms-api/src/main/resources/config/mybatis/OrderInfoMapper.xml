@@ -48,6 +48,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	c.plan_begin_address AS useCarCity,
 	e.nick_name AS applyUserName,
 	e.nick_name AS useCarUserName,
+	e.phonenumber applyUserTel,
 <!-- 	a.actual_setout_address AS startSite,
 	a.actual_setout_time AS useCarDate,
 	a.actual_arrive_address AS endSite,
@@ -64,7 +65,7 @@ FROM
 LEFT JOIN journey_user_car_power b ON a.power_id = b.power_id
 LEFT JOIN journey_node_info c ON a.node_id = c.node_id
 LEFT JOIN apply_info d ON b.apply_id = d.apply_id
-LEFT JOIN ecmp_user e ON e.user_id = c.user_id
+LEFT JOIN ecmp_user e ON e.user_id = a.user_id
 LEFT JOIN car_info f  ON a.car_id=f.car_id
 LEFT JOIN journey_info h on a.journey_id=h.journey_id
     </sql>
@@ -528,7 +529,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN journey_node_info c ON a.node_id = c.node_id
         LEFT JOIN journey_info h ON h.journey_id=a.journey_id
         LEFT JOIN apply_info d ON b.apply_id = d.apply_id
-        LEFT JOIN ecmp_user e ON e.user_id = c.user_id
+        LEFT JOIN ecmp_user e ON e.user_id = a.user_id
          where a.order_id=#{orderId}
     </select>
 
