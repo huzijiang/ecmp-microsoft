@@ -272,8 +272,16 @@ public class DriverOrderController {
         LoginUser loginUser = tokenService.getLoginUser();
         Long userId = loginUser.getDriver().getDriverId();
         Long companyId = loginUser.getDriver().getCompanyId();
-        BigDecimal amount = iOrderSettlingInfoService.getAllFeeAmount(orderSettlingInfoVo, userId, companyId);
-        return ApiResponse.success(amount.doubleValue());
+        try{
+            BigDecimal amount = iOrderSettlingInfoService.getAllFeeAmount(orderSettlingInfoVo, userId, companyId);
+            if (amount!=null){
+                return ApiResponse.success(amount.doubleValue());
+            }else{
+                return ApiResponse.success(BigDecimal.ZERO);
+            }
+        }catch (Exception e){
+            return ApiResponse.success("系统异常!");
+        }
     }
 
     /**
