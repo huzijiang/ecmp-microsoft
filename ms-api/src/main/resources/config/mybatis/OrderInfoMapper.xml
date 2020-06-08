@@ -267,6 +267,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
     <select id="queryOrderRelateInfo" parameterType="com.hq.ecmp.mscore.domain.OrderInfo" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
     SELECT
 	a.order_id AS orderId,
+    h.journey_id journeyId,
 	a.state,
 	a.create_time as createTime,
 	a.driver_name as driverName,
