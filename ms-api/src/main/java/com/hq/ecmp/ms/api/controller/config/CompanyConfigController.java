@@ -147,7 +147,7 @@ public class CompanyConfigController {
     private Long getCurrentUserCompany(){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        return loginUser.getUser().getOwnerCompany();
+        return loginUser.getUser().getDept().getCompanyId();
     }
     /**
      * 获取企业配置信息
