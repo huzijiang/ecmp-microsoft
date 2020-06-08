@@ -124,6 +124,7 @@
             (select telephone from car_group_info z where z.car_group_id=cccgi.car_group_id) telephone,
             (select it_is_inner from car_group_info z where z.car_group_id=cccgi.car_group_id) itIsInner,
             cci.combos_price combosPrice,
+            cci.start_price startPrice,
             cci.combos_mileage combosMileage,
             if(cci.service_type=5000,cci.combos_times/60,cci.combos_times) combosTimes,
             cci.beyond_price_every_km beyondPriceEveryKm,
