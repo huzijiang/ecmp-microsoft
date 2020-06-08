@@ -28,7 +28,7 @@
         <repository>
             <id>nexus-snapshots</id>
             <name>im20 Snapshots Repository</name>
-            <url>http://nexus.hqzhuanche.com:9000/content/repositories/public</url>
+            <url>http://nexus.hqzhuanche.com:9000/content/repositories/snapshots</url>
         </repository>
     </repositories>
     <distributionManagement>
