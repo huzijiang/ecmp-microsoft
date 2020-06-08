@@ -99,6 +99,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     private RegimeInfoMapper regimeInfoMapper;
     @Resource
     private JourneyAddressInfoMapper journeyAddressInfoMapper;
+    @Resource
+    private EcmpOrgMapper ecmpOrgMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -1349,6 +1351,16 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     public void getSceneAndRegimeInfo(DispatchVo dispatchVo){
         DispatchVo dispatchReAndSceneInfo = regimeInfoMapper.getDispatchReAndSceneInfo(dispatchVo.getRegimeId());
         BeanUtils.copyProperties(dispatchReAndSceneInfo, dispatchVo,BeauUtilsCommon.getNullField(dispatchReAndSceneInfo));
+    }
+
+    /**
+     * 佛山后管申请单调度-获取用车单位列表
+     * @return
+     */
+    @Override
+    public List<EcmpOrg> getUseCarOrgList(Long companyId) {
+        List<EcmpOrg>  useCarOrgList = ecmpOrgMapper.getUseCarOrgList(companyId);
+        return useCarOrgList;
     }
 
 }

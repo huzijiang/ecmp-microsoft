@@ -147,4 +147,11 @@ public interface OrderInfoTwoService {
      */
     Map<String,Object> dispatchListCharterCarWithDispatcher(ApplyDispatch query,LoginUser loginUser);
 
+    /**
+     * 佛山后管申请单调度-获取用车单位列表
+     * @param companyId
+     * @return
+     */
+    List<EcmpOrg> getUseCarOrgList(Long companyId);
+
 }
