@@ -28,6 +28,8 @@ public class CarGroupCostVO {
     private String carTypeId;
     private String carTypeName;
     private String carGroupName;
+    @ApiModelProperty(name = "startPrice",value = "起步价")
+    private BigDecimal startPrice;
     @ApiModelProperty(name = "combosPrice",value = "套餐价")
     private BigDecimal combosPrice;
     @ApiModelProperty(name = "combosMileage",value = "套餐里程")
