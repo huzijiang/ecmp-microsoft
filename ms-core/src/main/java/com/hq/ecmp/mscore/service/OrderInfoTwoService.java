@@ -149,4 +149,6 @@ public interface OrderInfoTwoService {
 
 
     Map<String,Object> getDispatcherReassignOrderlist(ApplyDispatch query, LoginUser loginUser);
+
+    void updatePickupCarState();
 }

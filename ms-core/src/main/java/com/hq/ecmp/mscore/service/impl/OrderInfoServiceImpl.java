@@ -1486,7 +1486,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             orderState.setWhole(carType);
         }
         orderState.setApplyType(applyInfo.getApplyType());
-        orderState.setCharterCarType(CharterTypeEnum.format(orderState.getCharterCarType()));
+        if (CharterTypeEnum.NON_CHARTER.getKey().equals(orderState.getCharterCarType())){
+            orderState.setCharterCarType(null);
+        }else{
+            orderState.setCharterCarType(CharterTypeEnum.format(orderState.getCharterCarType()));
+        }
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos = journeyPlanPriceInfoMapper.selectJourneyPlanPriceInfoList(new JourneyPlanPriceInfo(orderId));
         if(!CollectionUtils.isEmpty(journeyPlanPriceInfos)){
             orderState.setPlanPrice(journeyPlanPriceInfos.get(0).getPrice().toPlainString());

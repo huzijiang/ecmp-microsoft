@@ -352,4 +352,10 @@ AND a.state ='S270' order by a.create_time desc limit 1
        )
 
     </select>
+
+    <select id="selectOrderListByState" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
+    select * from order_info
+
+    where order_id in (select order_id from order_state_trace_info )
+</select>
 </mapper>
