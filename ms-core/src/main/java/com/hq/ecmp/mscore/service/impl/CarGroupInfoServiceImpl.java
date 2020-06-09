@@ -282,7 +282,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //初始化可用
         carGroupInfo.setState("Y000");
         carGroupInfo.setItIsInner(carGroupDTO.getItIsInner());
-        //银行账号
+        //开户人
         carGroupInfo.setAccountName(carGroupDTO.getAccountName());
         //开户行
         carGroupInfo.setBankName(carGroupDTO.getBankName());
@@ -575,6 +575,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
         //车队座机
         carGroupInfo.setTelephone(carGroupDTO.getTelephone());
+        //开户人
+        carGroupInfo.setAccountName(carGroupDTO.getAccountName());
+        //开户行
+        carGroupInfo.setBankName(carGroupDTO.getBankName());
+        //银行账号
+        carGroupInfo.setBankAccount(carGroupDTO.getBankAccount());
         //1.修改车队
         int i = updateCarGroupInfo(carGroupInfo);
         if(i != 1){

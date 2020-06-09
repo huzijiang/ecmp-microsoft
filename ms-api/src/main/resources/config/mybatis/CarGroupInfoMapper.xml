@@ -19,6 +19,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="longitude"    column="longitude"    />
         <result property="state"    column="state"    />
         <result property="itIsInner"    column="it_is_inner"    />
+        <result property="accountName"    column="account_name"    />
+        <result property="bankName"    column="bank_name"    />
+        <result property="bankAccount"    column="bank_account"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -27,8 +30,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCarGroupInfoVo">
-        select car_group_id,parent_car_group_id,car_group_name,car_group_code, city,full_address,short_address,company_id,
-         leader,telephone,it_is_inner,create_by,province,latitude,longitude,state, create_time, update_by, update_time from car_group_info
+        select car_group_id,parent_car_group_id,car_group_name,car_group_code,
+        city,full_address,short_address,company_id,account_name,bank_name,bank_account,
+         leader,telephone,it_is_inner,create_by,province,latitude,longitude,state,
+         create_time, update_by, update_time from car_group_info
     </sql>
 
     <select id="selectCarGroupInfoList" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo" resultMap="CarGroupInfoResult">
@@ -123,6 +128,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="state != null ">state = #{state},</if>
             <if test="allowOuterDispatch != null ">allow_outer_dispatch = #{allowOuterDispatch},</if>
             <if test="itIsInner != null ">it_is_inner = #{itIsInner},</if>
+            <if test="bankAccount != null ">bank_account = #{bankAccount},</if>
+            <if test="bankName != null ">bank_name = #{bankName},</if>
+            <if test="accountName != null ">account_name = #{accountName},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
