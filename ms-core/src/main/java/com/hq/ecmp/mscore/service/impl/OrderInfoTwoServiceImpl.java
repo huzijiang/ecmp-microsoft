@@ -1221,7 +1221,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     }
 
     /**
-     * 调度列表大sql优化，暂未使用
+     * 调度列表大sql优化
      * 1.通过调度员用户id，查询调度员所在车队可以服务的部门
      * 2.查询这些部门的人所需要服务的订单
      * @param query

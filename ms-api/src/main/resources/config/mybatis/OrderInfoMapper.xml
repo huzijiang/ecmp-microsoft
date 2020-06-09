@@ -2897,7 +2897,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="dispatchStatus!=null and dispatchStatus!=''">
             and t.state=#{dispatchStatus}
         </if>
-        order by state='待派车' DESC ,state='已派车' DESC , useCarDate ASC
+        order by state='待派车' DESC ,state='已处理' DESC , useCarDate ASC
     </select>
     <select id="downloadOrderData" parameterType="java.lang.Long" resultType="java.util.Map">
        select
