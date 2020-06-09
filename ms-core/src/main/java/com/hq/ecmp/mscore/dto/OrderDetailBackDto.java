@@ -57,6 +57,9 @@ public class OrderDetailBackDto extends OrderListBackDto {
     @ApiModelProperty(value ="费用详情",notes = "网约车需要")
     private String amountDetail;
 
+    @ApiModelProperty(value ="费用详情",notes = "价外费")
+    private String outPriceDetail;
+
     @ApiModelProperty(value ="乘车人姓名",notes = "乘车人姓名")
     private String passengerName;
 

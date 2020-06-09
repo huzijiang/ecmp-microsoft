@@ -762,6 +762,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         CONVERT(osi.total_mileage,DECIMAL(10,2)) totalMileage,
         osi.total_time totalTime,
         osi.amount_detail amountDetail,
+        osi.out_price outPriceDetail,
         CONVERT(osi.amount,DECIMAL(10,2)) amount,
         dhi.longitude currentLongitude,
         dhi.latitude currentLatitude,
