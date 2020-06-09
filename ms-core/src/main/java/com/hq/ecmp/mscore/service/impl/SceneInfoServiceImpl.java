@@ -21,7 +21,7 @@ import com.hq.ecmp.mscore.service.ISceneInfoService;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.SceneDetailVO;
 import com.hq.ecmp.mscore.vo.SceneListVO;
-import javafx.scene.Scene;
+//import javafx.scene.Scene;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
