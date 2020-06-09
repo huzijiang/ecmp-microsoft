@@ -72,6 +72,12 @@ spring:
         max-wait: -1ms
         max-idle: 8
         min-idle: 0
+    jedis:
+      pool:
+        max-active: 1000
+        max-wait: 2
+        max-idle: 50
+        min-idle: 5
 
 # 开发环境配置
 server:
