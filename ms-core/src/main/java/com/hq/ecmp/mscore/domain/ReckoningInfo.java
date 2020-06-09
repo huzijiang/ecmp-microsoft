@@ -12,30 +12,31 @@ public class ReckoningInfo implements Serializable {
     private static final long serialVersionUID = 1472963895939550637L;
 
     /** 结算单标识 */
-    private String offId;
-
+    private String companyId;
     /** 用车单位 */
-    private Long ecmpId;
-
+    private Long carGroupId;
     /** 开始年月 */
-    private Date startDate;
-
+    private Date beginDate;
     /** 结束年月 */
-    private Date  endDate;
-
-    /** 付款截止日期 */
-    private Date  offDate;
-
-    /** 创建时间 */
-    private Date CreatDate;
-
+    private Date endDate;
     /** 状态 */
-    private int status;
-
+    private int state;
+    /** 付款截止日期 */
+    private Date collectionEndTime;
+    /** 创建时间 */
+    private Date createTime;
     /** 确认人 */
-    private Long sureUser;
-
+    private Long verifier;
     /** 申请人id */
-    private Long applyUserId;
+    private Long applicant;
+    /** 创建人id */
+    private Long createBy;
+    /** 修改人id */
+    private Long updateBy;
+    /** 更新时间 */
+    private Date updateTime;
+
+
+
 
 }

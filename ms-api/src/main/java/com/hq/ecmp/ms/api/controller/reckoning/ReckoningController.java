@@ -2,9 +2,12 @@ package com.hq.ecmp.ms.api.controller.reckoning;
 
 
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.http.ApiResponse;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.domain.ReckoningInfo;
 import com.hq.ecmp.mscore.dto.ReckoningDto;
 import com.hq.ecmp.mscore.service.CollectionQuittanceInfoService;
@@ -26,6 +29,9 @@ public class ReckoningController {
     @Resource
     private CollectionQuittanceInfoService collectionService;
 
+    @Resource
+    private TokenService tokenService;
+
     /**
      * @author ghb
      * @description  添加收款
@@ -35,14 +41,18 @@ public class ReckoningController {
     @ApiOperation(value = "添加收款",notes = "添加收款")
     @RequestMapping(value = "/addReckoning", method = RequestMethod.POST)
     @Log(title = "添加收款", content = "添加收款成功",businessType = BusinessType.OTHER)
-    public ApiResponse addReckoning(@RequestBody ReckoningDto param, @RequestHeader String token, HttpServletRequest request) {
+    public ApiResponse addReckoning(@RequestBody ReckoningDto param, @RequestHeader String token) {
         log.info("添加收款，传来的参数为："+param);
         try {
             ReckoningInfo reckoningInfo = new ReckoningInfo();
-            reckoningInfo.setEcmpId(param.getEcmpId());
-            reckoningInfo.setStartDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            reckoningInfo.setCreateBy(userId);
+            reckoningInfo.setCarGroupId(param.getEcmpId());
+            reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
-            reckoningInfo.setOffDate(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             collectionService.addReckoning(reckoningInfo);
             return ApiResponse.success("添加成功");
         } catch (Exception e) {
