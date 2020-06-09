@@ -709,9 +709,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="null != companyId and companyId !=''">
                     and s.company_id = #{companyId}
                 </if>
-                <if test="null != userId and userId !=''">
+               <!-- <if test="null != userId and userId !=''">
                     and s.create_by = #{userId}
-                </if>
+                </if>-->
                 <if test="null != updateBy and updateBy !=''">
                     and s.car_id in (
                         select car_id  from car_info where car_group_id in
@@ -2964,5 +2964,78 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        left join apply_info ai on ai.journey_id = oi.journey_id
        left join order_settling_info osi on osi.order_id =oi.order_id
        where oi.order_id=#{orderId}
+    </select>
+
+    <select id="orderServiceCategory" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+             count(oi.order_id) as toBeServed,
+	         count(oia.order_id) as waitingToLeave,
+	         count(oib.order_id) as toBePickedUp,
+	         (select count(oic.order_id) from order_info oic where oic.state ='S500') as takingOver,
+	         (select count(oid.order_id) from order_info oid where oid.state ='S600') as etcUpperCar,
+	         (select count(oie.order_id) from order_info oie where oie.state ='S616') as inService,
+	         (select count(oif.order_id) from order_info oif where oif.state ='S635') as serviceSuspension,
+	         (select count(oig.order_id) from order_info oig where oig.state ='S699') as toBeConfirmed,
+	         (select count(oih.order_id) from order_info oih where oih.state ='S900') as completed,
+	         (select count(oii.order_id) from order_info oii where oii.state ='S911') as cancelled
+	   from order_info  oi
+            left join order_dispatche_detail_info oia on oia.order_id = oi.order_id and oia.it_is_self_driver ='Y000' and oi.state='S299'
+	        left join order_dispatche_detail_info oib on oib.order_id = oi.order_id and oib.it_is_self_driver ='Y000' and oi.state='S616'
+       where oi.state ='S299'
+        <if test="null != companyId and companyId !=''">
+            and oi.company_id = #{companyId}
+        </if>
+        <if test="null != userId and userId !=''">
+            and oi.car_id in (
+            select car_id  from car_info where car_group_id in
+            (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+            )
+        </if>
+    </select>
+
+    <select id="getUseTheCar" resultType="java.lang.String">
+       select eo.dept_name as deptName from ecmp_org eo
+    </select>
+    <select id="getOrderInfoList" parameterType="com.hq.ecmp.mscore.dto.OrderInfoFSDto" resultType="com.hq.ecmp.mscore.dto.OrderInfoFSDto">
+        select
+            oi.order_id orderId,
+            eo.dept_name deptName,
+            eu.nick_name nickName,
+            jpi.name name,
+            di.driver_name DriverName,
+            ci.car_license carLicense,
+            oaia.action_time beginActionTime,
+            oaib.action_time endActionTime,
+            ji.charter_car_type charterCarType
+        from order_info oi
+             left join ecmp_org eo on eo.company_id = oi.company_id
+             left join apply_info ai on ai.journey_id = oi.journey_id
+             left join ecmp_user eu on eu.user_id = ai.create_by
+             left join journey_passenger_info jpi on jpi.journey_id = oi.journey_id
+             left join driver_info di on di.driver_id = oi.driver_id
+             left join car_info ci on ci.car_id = oi.car_id
+             left join order_address_info oaia on oaia.order_id = oi.order_id and oaia.type = 'A000'
+             left join order_address_info oaib on oaib.order_id = oi.order_id and oaib.type = 'A999'
+             left join journey_info ji on ji.journey_id = oi.journey_id
+        where oi.state=#{state}
+            <if test="orderNumber != null and  orderNumber!='' "> and  oi.order_number like concat('%',#{orderNumber},'%')</if>
+            <if test="driverName != null and  driverName!=''"> and di.driver_name  like concat('%',#{driverName},'%') </if>
+            <if test="mobile != null and  mobile!='' "> and jpi.mobile like concat('%',#{mobile},'%') </if>
+            <if test="name != null and  name!=''"> and jpi.name  like concat('%',#{name},'%') </if>
+            <if test="carLicense != null and  carLicense!=''"> and ci.car_license  like concat('%',#{carLicense},'%') </if>
+            <if test="charterCarType != null and  charterCarType!='' "> and ji.charter_car_type = #{charterCarType}</if>
+            <if test="deptName != null and  deptName!='' "> and eo.dept_name = #{deptName}</if>
+            <if test="beginActionTime != null and  beginActionTime!='' "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{beginActionTime},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="endActionTime != null and  endActionTime!='' "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{endActionTime},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="null != companyId and companyId !=''">
+                and oi.company_id = #{companyId}
+            </if>
+            <if test="null != userId and userId !=''">
+                and oi.car_id in (
+                     select car_id  from car_info where car_group_id in
+                     (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+                )
+           </if>
+        order by ai.create_time desc
     </select>
 </mapper>
