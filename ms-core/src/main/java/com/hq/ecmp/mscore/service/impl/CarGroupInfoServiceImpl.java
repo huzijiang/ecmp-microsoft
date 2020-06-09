@@ -282,6 +282,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         //初始化可用
         carGroupInfo.setState("Y000");
         carGroupInfo.setItIsInner(carGroupDTO.getItIsInner());
+        //银行账号
+        carGroupInfo.setAccountName(carGroupDTO.getAccountName());
+        //开户行
+        carGroupInfo.setBankName(carGroupDTO.getBankName());
+        //银行账号
+        carGroupInfo.setBankAccount(carGroupDTO.getBankAccount());
         //1.保存车队
         int i = insertCarGroupInfo(carGroupInfo);
         if(i != 1){

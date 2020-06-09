@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.CarOptLogInfoMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.CarOptLogInfo" id="CarOptLogInfoResult">
+        <result property="logId"    column="log_id"    />
+        <result property="carId"    column="car_id"    />
+        <result property="log"    column="log"    />
+        <result property="optTpe"    column="opt_tpe"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCarOptLogInfoVo">
+        select log_id, car_id, log, opt_tpe, create_by, create_time, update_by, update_time from car_opt_log_info
+    </sql>
+
+    <select id="selectCarOptLogInfoList" parameterType="com.hq.ecmp.mscore.domain.CarOptLogInfo" resultMap="CarOptLogInfoResult">
+        <include refid="selectCarOptLogInfoVo"/>
+        <where>
+            <if test="carId != null "> and car_id = #{carId}</if>
+            <if test="log != null  and log != ''"> and log = #{log}</if>
+            <if test="optTpe != null  and optTpe != ''"> and opt_tpe = #{optTpe}</if>
+        </where>
+    </select>
+
+    <select id="selectCarOptLogInfoById" parameterType="Long" resultMap="CarOptLogInfoResult">
+        <include refid="selectCarOptLogInfoVo"/>
+        where log_id = #{logId}
+    </select>
+
+    <insert id="insertCarOptLogInfo" parameterType="com.hq.ecmp.mscore.domain.CarOptLogInfo" useGeneratedKeys="true" keyProperty="logId">
+        insert into car_opt_log_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="carId != null ">car_id,</if>
+            <if test="log != null  and log != ''">log,</if>
+            <if test="optTpe != null  and optTpe != ''">opt_tpe,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="carId != null ">#{carId},</if>
+            <if test="log != null  and log != ''">#{log},</if>
+            <if test="optTpe != null  and optTpe != ''">#{optTpe},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCarOptLogInfo" parameterType="com.hq.ecmp.mscore.domain.CarOptLogInfo">
+        update car_opt_log_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="carId != null ">car_id = #{carId},</if>
+            <if test="log != null  and log != ''">log = #{log},</if>
+            <if test="optTpe != null  and optTpe != ''">opt_tpe = #{optTpe},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where log_id = #{logId}
+    </update>
+
+    <delete id="deleteCarOptLogInfoById" parameterType="Long">
+        delete from car_opt_log_info where log_id = #{logId}
+    </delete>
+
+    <delete id="deleteCarOptLogInfoByIds" parameterType="String">
+        delete from car_opt_log_info where log_id in
+        <foreach item="logId" collection="array" open="(" separator="," close=")">
+            #{logId}
+        </foreach>
+    </delete>
+
+</mapper>

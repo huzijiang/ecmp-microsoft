@@ -70,6 +70,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="state != null ">state,</if>
             <if test="allowOuterDispatch != null ">allow_outer_dispatch,</if>
             <if test="itIsInner != null ">it_is_inner,</if>
+            <if test="bankAccount != null ">bank_account,</if>
+            <if test="bankName != null ">bank_name,</if>
+            <if test="accountName != null ">account_name,</if>
             <if test="createBy != null ">create_by,</if>
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
@@ -93,6 +96,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="state != null ">#{state},</if>
             <if test="allowOuterDispatch != null ">#{allowOuterDispatch},</if>
             <if test="itIsInner != null ">#{itIsInner},</if>
+            <if test="bankAccount != null ">#{bankAccount},</if>
+            <if test="bankName != null ">#{bankName},</if>
+            <if test="accountName != null ">#{accountName},</if>
             <if test="createBy != null ">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>

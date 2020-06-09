@@ -56,38 +56,47 @@ public class CarGroupInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String carGroupCode;   //TODO 新增
+    private String carGroupCode;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String shortAddress;   //TODO 新增
+    private String shortAddress;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String fullAddress;   //TODO 新增
+    private String fullAddress;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String province;   //TODO 新增  所属省份代码：110000  北京
+    private String province;   // 所属省份代码：110000  北京
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Float longitude;   //TODO 新增
+    private Float longitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Float latitude;   //TODO 新增
+    private Float latitude;
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Long companyId;   //TODO 新增 所属公司id
+    private Long companyId;   // 所属公司id
 
 
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private String allowOuterDispatch;   //TODO 新增 是否允许外部调度
+    private String allowOuterDispatch;   // 是否允许外部调度
 
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String itIsInner;  // 是否是内部车队  C000   内部车队      C111   外部车队
+
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String accountName;  //TODO 佛山二期新增字段 账户名
+
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String bankName;  //TODO 佛山二期新增字段 开户行
+
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String bankAccount;  //TODO 佛山二期新增字段 银行账号
 
 
 
