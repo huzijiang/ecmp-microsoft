@@ -268,6 +268,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
     <select id="queryOrderRelateInfo" parameterType="com.hq.ecmp.mscore.domain.OrderInfo" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
     SELECT
 	a.order_id AS orderId,
+    d.reason AS reason,
     h.journey_id journeyId,
 	a.state,
 	a.create_time as createTime,
@@ -441,6 +442,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		 SELECT
             a.order_id AS orderId,
             h.journey_id journeyId,
+            d.reason AS reason,
             a.state,
             a.demand_car_level as demandCarLevel,
             d.apply_type AS applyType,
@@ -762,6 +764,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         CONVERT(osi.total_mileage,DECIMAL(10,2)) totalMileage,
         osi.total_time totalTime,
         osi.amount_detail amountDetail,
+        osi.out_price outPriceDetail,
         CONVERT(osi.amount,DECIMAL(10,2)) amount,
         dhi.longitude currentLongitude,
         dhi.latitude currentLatitude,

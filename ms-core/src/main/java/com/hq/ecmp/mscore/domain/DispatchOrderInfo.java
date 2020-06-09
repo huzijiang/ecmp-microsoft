@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -212,4 +213,11 @@ public class DispatchOrderInfo {
 	 *操作权限  0：有权限  1:没有权限
 	 */
 	String  operationPermission;
+
+	/**
+	 * 申请原因
+	 */
+	@ApiModelProperty(value = "申请原因")
+	String reason;
+
 }
