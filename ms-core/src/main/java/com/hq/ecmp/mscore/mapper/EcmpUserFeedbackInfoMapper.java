@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo;
+import com.hq.ecmp.mscore.domain.EcmpUserFeedbackVo;
 
 import java.util.List;
 
@@ -74,4 +75,8 @@ public interface EcmpUserFeedbackInfoMapper
      * @return
      */
     int updateFeedbackInfo(EcmpUserFeedbackInfoVo feedbackInfoVo);
+
+    int updateFeedback(EcmpUserFeedbackInfoVo feedBackDto);
+
+    List<EcmpUserFeedbackVo> findFeedback(EcmpUserFeedbackInfo ecmpUserFeedbackInfo);
 }

@@ -134,4 +134,49 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         where feedback_id = #{feedbackId}
     </update>
+
+    <update id="updateFeedback" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo">
+        update ecmp_user_feedback_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="result != null  and result != ''">result = #{result},</if>
+            <if test="state != null  and state != ''">state = #{state},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where feedback_id = #{feedbackId}
+    </update>
+
+
+    <select id="findFeedback" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo" resultType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackVo">
+        SELECT
+        eufi.feedback_id feedbackId,
+        CASE eufi.state
+            WHEN '0000' THEN '已处理'
+            WHEN '1111' THEN '未处理'
+        end as status,
+        o.dept_name ecmpName,
+        eufi.title title,
+        eufi.type type,
+        eufi.create_time createDate,
+        eufi.update_time replyDate,
+        eufi.content content,
+        eufi.result result
+        FROM
+        ecmp_user_feedback_info eufi
+        LEFT JOIN order_info oi ON eufi.order_id = oi.order_id
+        LEFT JOIN ecmp_user eu ON eufi.user_id = eu.user_id
+        LEFT JOIN ecmp_org o on eu.dept_id = o.dept_id
+        <where>
+            eufi.state = #{status}
+            <if test="feedbackId != null and feedbackId!='' "> and eufi.feedback_id = #{feedbackId}</if>
+            <if test="type != null  and type != '' "> and eufi.type = #{type}</if>
+            <if test="type != null  and type != '' "> and eufi.content like '%#{content}%' </if>
+
+            <if test="isAdmin != null  and isAdmin != '1' ">
+             and eufi.user_id  ='%#{userId}%'
+            </if>
+        </where>
+        limit #{pageIndex},#{pagesize}
+
+
+    </select>
 </mapper>
