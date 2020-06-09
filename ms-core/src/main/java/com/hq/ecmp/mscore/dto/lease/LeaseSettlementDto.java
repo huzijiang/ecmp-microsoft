@@ -21,4 +21,6 @@ public class LeaseSettlementDto {
 
     Date createTim;
 
+    Long createBy;
+
 }

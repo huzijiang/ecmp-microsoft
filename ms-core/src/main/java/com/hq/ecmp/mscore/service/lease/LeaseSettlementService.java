@@ -31,7 +31,7 @@ public interface LeaseSettlementService {
      * @return
      * @throws Exception
      */
-    int ordinaryUserConfirmCost(Long collectionId)throws Exception;
+    int ordinaryUserConfirmCost(Long collectionId,Long userId)throws Exception;
 
 
 }

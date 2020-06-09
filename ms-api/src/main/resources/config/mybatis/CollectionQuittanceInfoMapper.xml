@@ -60,7 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="deptName!=null and deptName!=''" >
             and  eo.dept_name  like concat('%',#{deptName},'%')
         </if>
-        <if test="deptName!=null and deptName!=''" >
+        <if test="state!=null and state!=''" >
             and  cqi.state =#{state}
         </if>
     </select>
