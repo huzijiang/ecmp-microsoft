@@ -6,16 +6,16 @@ spring:
     druid:
       # 主库数据源
       master:
-        url: jdbc:mysql://10.117.1.221:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
-        username: root
-        password: hqzc@2019
+        url: jdbc:mysql://10.123.208.2:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+        username: hqzc_online
+        password: HSXnO3k0EBbyFRxb
       # 从库数据源
       slave:
         # 从数据源开关/默认关闭
         enabled: false
-        url: jdbc:mysql://10.117.1.222:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
-        username: root
-        password: hqzc@2019
+        url: jdbc:mysql://10.123.208.3:3306/ecmp?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+        username: hqzc_online
+        password: HSXnO3k0EBbyFRxb
       # 初始连接数
       initialSize: 5
       # 最小连接池数量
@@ -43,8 +43,8 @@ spring:
         allow:
         url-pattern: /druid/*
         # 控制台管理用户名和密码
-        login-username: admin
-        login-password: admin123
+        login-username:
+        login-password:
       filter:
         stat:
           enabled: true
@@ -57,15 +57,15 @@ spring:
             multi-statement-allow: true
   redis:
     cluster:
-      nodes: 10.117.1.223:6379,10.117.1.223:6380,10.117.1.224:6379,10.117.1.224:6380,10.117.1.225:6379,10.117.1.225:6380
+      nodes: 10.123.208.4:6379,10.123.208.5:6380,10.123.208.5:6379,10.123.208.13:6380,10.123.208.13:6379,10.123.208.4:6380
       max-redirects: 5
       timeout: 6000ms
     lettuce:
       pool:
-        max-active: 8
-        max-wait: -1ms
-        max-idle: 8
-        min-idle: 0
+        max-active: 1000
+        max-wait: 2
+        max-idle: 50
+        min-idle: 5
 
 # 开发环境配置
 server:
@@ -81,6 +81,19 @@ server:
     max-threads: 800
     # Tomcat启动初始化的线程数，默认值25
     min-spare-threads: 30
+
+file:
+  config:
+    savepath: d://
+  path:
+    feedback: /feedback
+  url:
+    feedback: https://app.hqzhixing.com
+
+#行程分享路径
+order:
+  shareUrl: https://app.hqzhixing.com?
+
 # token配置
 token:
   # 令牌自定义标识
@@ -159,3 +172,16 @@ dispatch:
   noCarDeniedMinutes: 30
   #外部公司可展示内部公司调度单的时间间隔
   waitIntervalMinutes: 10
+
+#/upload
+app:
+  zimg:
+    server: https://inside-service-image.hqzhixing.com
+    access:
+      url: https://service-image.hqzhixing.com/
+  welcome: https://service-image.hqzhixing.com/7641d1dcf64d4d082e061d6e65f37a51
+  background: https://service-image.hqzhixing.com/7641d1dcf64d4d082e061d6e65f37a51
+
+#调度行程确认的时间间隔
+schedule:
+  confirmTimeout: 12
