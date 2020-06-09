@@ -103,25 +103,6 @@ token:
   # 令牌有效期（默认30分钟）
   expireTime: 30
 
-#/upload
-app:
-  zimg:
-    server: http://10.117.1.232:4869
-    access:
-      url: http://123.127.89.218:4869/
-  welcome: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
-  background: http://10.117.1.232:4869/a866e23b46c351da88e87ede49bce0de
-
-#行程分享路径
-order:
-  shareUrl: https://www.baidu.com?
-file:
-  config:
-    savepath: d://
-  path:
-    feedback: /feedback
-  url:
-    feedback: http://10.117.1.231
 
 #调度行程确认的时间间隔
 schedule:
@@ -181,7 +162,3 @@ app:
       url: https://service-image.hqzhixing.com/
   welcome: https://service-image.hqzhixing.com/7641d1dcf64d4d082e061d6e65f37a51
   background: https://service-image.hqzhixing.com/7641d1dcf64d4d082e061d6e65f37a51
-
-#调度行程确认的时间间隔
-schedule:
-  confirmTimeout: 12
