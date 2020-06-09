@@ -57,13 +57,7 @@ spring:
             multi-statement-allow: true
   redis:
     cluster:
-      nodes:
-        - 10.117.1.223:6379
-        - 10.117.1.223:6380
-        - 10.117.1.224:6379
-        - 10.117.1.224:6380
-        - 10.117.1.225:6379
-        - 10.117.1.225:6380
+      nodes: 10.117.1.223:6379,10.117.1.223:6380,10.117.1.224:6379,10.117.1.224:6380,10.117.1.225:6379,10.117.1.225:6380
       max-redirects: 5
       timeout: 6000ms
     lettuce:
@@ -150,3 +144,18 @@ ali:
  format: "json"
  sign_type: "RSA2"
  refund_notify_url: "https://app-api.hqzhixing.com/pay/ali/v2/callback"
+
+thirdService:
+  enterpriseId: 100000
+  licenseContent: AAAAAAAA
+  apiUrl: https://inside-serivce-enterprise.hqzhixing.com
+
+dispatch:
+  #不回车队驻地缓冲时间: 60分钟
+  notBackCarGroup: 60
+  #回车队驻地缓冲时间: 90分钟
+  backCarGroup: 90
+  #无车驳回的可操作最小时间限制 30分钟
+  noCarDeniedMinutes: 30
+  #外部公司可展示内部公司调度单的时间间隔
+  waitIntervalMinutes: 10
