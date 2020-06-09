@@ -45,4 +45,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where company_id = #{companyId}
     </update>
 
+    <select id="getOrdinaryUserList" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
+       select
+            cqi.collection_id collectionId,
+            eo.dept_name deptName,
+            cqi.begin_date beginData,
+            cqi.end_date endData,
+		    cqi.state state,
+		    cqi.verifier verifier,
+            cqi.create_time createTime
+       from collection_quittance_info cqi
+       left join  ecmp_org eo ON eo.company_id = cqi.company_id
+       where cqi.company_id=#{companyId}
+        <if test="deptName!=null and deptName!=''" >
+            and  eo.dept_name  like concat('%',#{deptName},'%')
+        </if>
+        <if test="deptName!=null and deptName!=''" >
+            and  cqi.state =#{state}
+        </if>
+    </select>
+    <update id="ordinaryUserConfirmCost" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
+         update collection_quittance_info set state=#{state},create_by=#{createBy} where collection_id=#{collectionId}
+    </update>
 </mapper>
