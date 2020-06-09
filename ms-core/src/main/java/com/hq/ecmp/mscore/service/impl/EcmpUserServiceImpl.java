@@ -628,15 +628,15 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
     //员工分页
     @Override
     public PageResult<EcmpUserDto> getEcmpUserPage(PageRequest pageRequest, LoginUser loginUser) {
-        List<EcmpUserDto> list=new ArrayList<>();
-        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(pageRequest.getDeptId());
-        String deptType = ecmpOrg.getDeptType();
-        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         List<SysDept> depts = new ArrayList<>();
         SysDept sysDept = deptMapper.selectDeptById(loginUser.getUser().getOwnerCompany());
         depts.add(sysDept);
         buildTreeDept(sysDept,depts);
         List<Long> longs = StringUtils.isBlank(pageRequest.getSearch())?new ArrayList<>():depts.stream().map(SysDept::getDeptId).collect(Collectors.toList());
+        List<EcmpUserDto> list=new ArrayList<>();
+        EcmpOrg ecmpOrg = ecmpOrgMapper.selectEcmpOrgById(pageRequest.getDeptId());
+        String deptType = ecmpOrg.getDeptType();
+        PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         if(OrgConstant.DEPT_TYPE_1.equals(deptType)){
             list=ecmpUserMapper.getCompanyEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO,longs);
             for (EcmpUserDto ecmpUserDto:list){

@@ -115,4 +115,11 @@ public interface ICostConfigInfoService
     List<PriceOverviewVO> getGroupPrice(CostConfigQueryPriceDto queryPriceDto);
 
     List<CityInfo> getCostCityList(Long companyId);
+
+    /**
+     * 获取价格计划详情
+     * @param applyPriceDetails
+     * @return
+     */
+    List<ApplyPriceDetails> applySinglePriceDetails(ApplyPriceDetails applyPriceDetails);
 }

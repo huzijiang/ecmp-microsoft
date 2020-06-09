@@ -8,7 +8,6 @@ import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
-import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
@@ -17,7 +16,6 @@ import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.constant.enumerate.DispatcherFrontState;
-import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
@@ -26,16 +24,11 @@ import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.*;
-import com.hq.ecmp.util.Page;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.MapUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -2960,7 +2953,133 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @throws Exception
      */
     @Override
-    public Map<String,String> downloadOrderData(Long orderId) throws Exception {
+    public Map downloadOrderData(Long orderId) throws Exception {
         return orderInfoMapper.downloadOrderData(orderId);
+    }
+
+    /***
+     *订单列表的tale页签的数据模型
+     * add by liuzb
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Map<String,Object> orderServiceCategory(LoginUser user)throws Exception{
+        //String key = isDispatcher(user);
+        Map<String, Object> map = orderInfoMapper.orderServiceCategory();
+        if(null!=map){
+            JSONObject json = new JSONObject(addDataTable(map));
+            return json;
+        }
+        return null;
+    }
+
+
+    /***
+     * 拼接来自数据库模型的table参数
+     * add by liuzb
+     * @param map
+     * @return
+     * @throws Exception
+     */
+    private Map<String,Object> addDataTable(Map<String,Object> map)throws Exception{
+        Map<String,Object> data = new HashMap<>();
+        Map<String,Object> dataMap = new HashMap<>();
+
+        dataMap.put("msg","待服务");
+        dataMap.put("value",map.get("toBeServed").toString());
+        dataMap.put("code","S299");
+        data.put("toBeServed",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待出车");
+        dataMap.put("value",map.get("waitingToLeave").toString());
+        dataMap.put("code","S300");
+        data.put("waitingToLeave",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待还车");
+        dataMap.put("value",map.get("toBePickedUp").toString());
+        dataMap.put("code","S301");
+        data.put("toBePickedUp",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","接驾中");
+        dataMap.put("value",map.get("takingOver").toString());
+        dataMap.put("code","S500");
+        data.put("takingOver",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待上车");
+        dataMap.put("value",map.get("etcUpperCar").toString());
+        dataMap.put("code","S600");
+        data.put("etcUpperCar",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","服务中");
+        dataMap.put("value",map.get("inService").toString());
+        dataMap.put("code","S616");
+        data.put("inService",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","服务中止");
+        dataMap.put("value",map.get("serviceSuspension").toString());
+        dataMap.put("code","S635");
+        data.put("serviceSuspension",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待确认");
+        dataMap.put("value",map.get("toBeConfirmed").toString());
+        dataMap.put("code","S699");
+        data.put("toBeConfirmed",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","已完成");
+        dataMap.put("value",map.get("completed").toString());
+        dataMap.put("code","S900");
+        data.put("completed",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","已取消");
+        dataMap.put("value",map.get("cancelled").toString());
+        dataMap.put("code","S911");
+        data.put("cancelled",dataMap);
+
+        return data;
+    }
+
+
+    /***
+     *
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<String> getUseTheCar(LoginUser user)throws Exception{
+        String role = isDispatcher(user);
+        return orderInfoMapper.getUseTheCar("C111".equals(role)?user.getUser().getUserId():null,null==role?user.getUser().getOwnerCompany():null);
+    }
+
+
+    /***
+     *
+     * @param orderInfoFSDto
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public PageResult<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto orderInfoFSDto, LoginUser user)throws Exception{
+        String role = isDispatcher(user);
+        if(null==role){/**员工看本部门*/
+            orderInfoFSDto.setCompanyId(user.getUser().getOwnerCompany());
+        }else if ("C111".equals(role)){/**外部调度员*/
+            orderInfoFSDto.setUserId(user.getUser().getUserId());
+        }
+        List<OrderInfoFSDto> list = orderInfoMapper.getOrderInfoList(orderInfoFSDto);
+        PageInfo<OrderInfoFSDto> info = new PageInfo<>(list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
 }

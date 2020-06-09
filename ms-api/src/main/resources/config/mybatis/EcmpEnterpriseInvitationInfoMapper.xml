@@ -330,4 +330,6 @@ a.state as state,a.rose_id as roseId,f.role_name as roseName,
         </set>
         where invitation_id = #{invitationId}
     </update>
+
+
 </mapper>

@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
-import com.hq.ecmp.constant.CharterTypeEnum;
-import com.hq.ecmp.constant.CostConfigModeEnum;
-import com.hq.ecmp.constant.OrderServiceType;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.mapper.*;
@@ -26,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -402,4 +401,44 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         return costConfigCityInfoMapper.getCostCityList(companyId);
     }
 
+    /**
+     * 获取价格计划详情
+     * @param applyPriceDetails
+     * @return
+     */
+    @Override
+    public List<ApplyPriceDetails> applySinglePriceDetails(ApplyPriceDetails applyPriceDetails) {
+        String rentType ="";
+        String carGroupUserMode ="";
+       if(isInteger(applyPriceDetails.getApplyDays())){
+           //只有整日租
+           rentType =CharterTypeEnum.OVERALL_RENT_TYPE.getKey();
+           applyPriceDetails.setRentType(rentType);
+       }else{
+           //有半日租 也有 整日租
+           rentType =CharterTypeEnum.OVERALL_RENT_TYPE.getKey()+","+CharterTypeEnum.HALF_DAY_TYPE.getKey();
+           applyPriceDetails.setRentType(rentType);
+       }
+       //判断用车方式
+       if(CarConstant.SELFDRIVER_YES.equals(applyPriceDetails.getItIsSelfDriver())){
+           carGroupUserMode=CarConstant.CAR_GROUP_USER_MODE_CAR;
+           applyPriceDetails.setCarGroupUserMode(carGroupUserMode);
+       }else{
+           carGroupUserMode=CarConstant.CAR_GROUP_USER_MODE_CAR_DRIVER;
+           applyPriceDetails.setCarGroupUserMode(carGroupUserMode);
+       }
+        applyPriceDetails.setServiceType(ServiceTypeConstant.CHARTERED);
+        List<ApplyPriceDetails> list =  costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
+        return list;
+    }
+
+    /*
+     * 判断是否为整数
+     * @param str 传入的字符串
+     * @return 是整数返回true,否则返回false
+     */
+    public static boolean isInteger(String str) {
+         Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
+        return pattern.matcher(str).matches();
+    }
 }

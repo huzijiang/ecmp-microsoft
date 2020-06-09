@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Type;
-import java.security.acl.Owner;
+//import java.security.acl.Owner;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -1130,5 +1130,11 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                 e.printStackTrace();
             }
         });
+    }
+
+
+    @Override
+    public List<Map> getEcmpName() {
+        return ecmpOrgMapper.selectIdAndName();
     }
 }

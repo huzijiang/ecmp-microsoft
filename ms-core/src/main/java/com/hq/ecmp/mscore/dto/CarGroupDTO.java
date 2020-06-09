@@ -95,5 +95,14 @@ public class CarGroupDTO {
     @ApiModelProperty(name = "itIsInner", value = "是否是内部车队   C000   内部车队   C111   外部车队")
     private String itIsInner;
 
+    @ApiModelProperty(name = "accountName", value = "账户名")
+    private String accountName;  //TODO 佛山二期新增字段 账户名
+
+    @ApiModelProperty(name = "bankName", value = "开户行")
+    private String bankName;  //TODO 佛山二期新增字段 开户行
+
+    @ApiModelProperty(name = "bankAccount", value = "银行账号")
+    private String bankAccount;  //TODO 佛山二期新增字段 银行账号
+
 
 }

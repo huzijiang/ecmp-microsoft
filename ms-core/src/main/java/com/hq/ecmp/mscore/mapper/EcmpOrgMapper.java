@@ -297,4 +297,7 @@ public interface EcmpOrgMapper {
      * @return
      */
     List<EcmpOrg> getUseCarOrgList(@Param("companyId")Long companyId);
+
+    /** 查询所有公司名称 - id */
+    List<Map> selectIdAndName();
 }

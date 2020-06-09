@@ -5,12 +5,12 @@ import com.hq.ecmp.mscore.bo.OrderTaskClashBo;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
+import com.hq.ecmp.mscore.dto.OrderInfoFSDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -429,7 +429,26 @@ public interface OrderInfoMapper {
      * @param orderId
      * @return
      */
-    Map<String,String> downloadOrderData(@Param("orderId") Long orderId);
+    Map downloadOrderData(@Param("orderId") Long orderId);
+
+    /**
+     *
+     * @return
+     */
+    Map<String,Object> orderServiceCategory();
+
+    /***
+     * s
+     * @return
+     */
+    List<String> getUseTheCar(@Param("userId") Long userId,@Param("companyId") Long companyId);
+
+    /***
+     *
+     * @param data
+     * @return
+     */
+    List<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto data);
 
     /**
      * 获取调度工作台对应状态的列表数据

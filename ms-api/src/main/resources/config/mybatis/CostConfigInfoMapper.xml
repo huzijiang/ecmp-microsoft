@@ -394,4 +394,55 @@
 				and ci.city_code=#{cityCode}
     </select>
 
+    <select id="applySinglePriceDetails" parameterType="com.hq.ecmp.mscore.dto.cost.ApplyPriceDetails" resultType="com.hq.ecmp.mscore.dto.cost.ApplyPriceDetails">
+
+        select c.cost_id as costId,
+        c.company_id as companyId,
+        c.cost_config_name as costConfigName,
+        cc.city_code as cityCode,
+        cc.city_name as cityName,
+        c.service_type as serviceType,
+        c.car_group_user_mode as carGroupUserMode,
+        cgi.car_group_name AS  carGroupName,
+        ct.car_type_name AS carTypeName,
+        c.rent_type as rentType,
+        c.start_price as startPrice,
+        c.combos_price as combosPrice,
+        c.combos_times as combosTimes,
+        c.combos_mileage as combosMileage,
+        c.beyond_price_every_km as beyondPriceEveryKm,
+        c.beyond_price_every_minute as beyondPriceEveryMinute,
+        c.wait_price_erery_minute as waitPriceEreryMinute
+        from cost_config_info c
+        left join cost_config_city_info  cc on cc.cost_id=c.cost_id
+        left join cost_config_car_type_info ct on ct.cost_id=c.cost_id
+        LEFT JOIN cost_config_car_group_info cccg ON cccg.cost_id = c.cost_id
+        LEFT  JOIN  car_group_info cgi ON  cgi.car_group_id = ct.car_type_id
+        <where>
+            <if test="costId != null and costId!=''">
+                and c.cost_id =#{costId}
+            </if>
+            <if test="cityCode != null and cityCode!=''">
+                and cc.city_code=#{cityCode}
+            </if>
+            <if test="serviceType != null and serviceType!='' ">
+                and c.service_type=#{serviceType}
+            </if>
+            <if test="companyId != null and companyId!=''">
+                and c.company_id=#{companyId}
+            </if>
+            <if test="rentType != null and rentType!=''">
+                and find_in_set(c.rent_type,#{rentType})
+            </if>
+            <if test="carTypeId != null and carTypeId!=''">
+                and ct.car_type_id=#{carTypeId}
+            </if>
+            <if test="carGroupUserMode != null and carGroupUserMode!=''">
+                and c.car_group_user_mode=#{carGroupUserMode}
+            </if>
+            <if test="carGroupId != null and carGroupId!=''">
+                and cccg.car_group_id=#{carGroupId}
+            </if>
+        </where>
+    </select>
 </mapper>

@@ -8,7 +8,6 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.*;
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -340,7 +339,36 @@ public interface IOrderInfoService {
      * @return
      * @throws Exception
      */
-    Map<String,String> downloadOrderData(Long orderId)throws Exception;
+    Map downloadOrderData(Long orderId)throws Exception;
+
+
+    /***
+     *
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    Map<String,Object> orderServiceCategory(LoginUser user)throws Exception;
+
+
+    /***
+     *
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    List<String> getUseTheCar(LoginUser user)throws Exception;
+
+
+    /***
+     *
+     * @param orderInfoFSDto
+     * @param user
+     * @return
+     */
+    PageResult<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto orderInfoFSDto, LoginUser user)throws Exception;
+
+
 
 }
 

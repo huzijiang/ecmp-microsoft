@@ -19,12 +19,8 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.mapper.CarInfoMapper;
-import com.hq.ecmp.mscore.mapper.EnterpriseCarTypeInfoMapper;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -37,6 +33,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: zj.hu
@@ -717,6 +714,18 @@ public class OrderController {
 
             List<RunningOrderVo> runningOrders = orderInfoTwoService.runningOrder(loginUser.getUser().getUserId());
             return ApiResponse.success(runningOrders);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("查询失败");
+        }
+    }
+
+    @ApiOperation(value = "获取订单下载信息",httpMethod = "POST")
+    @RequestMapping("/getDownOrderInfo")
+    public ApiResponse<Map> getDownOrderInfo(Long orderId){
+        try {
+            Map<String,String> orderInfo = iOrderInfoService.downloadOrderData(orderId);
+            return ApiResponse.success(orderInfo);
         }catch (Exception e){
             e.printStackTrace();
             return  ApiResponse.error("查询失败");
