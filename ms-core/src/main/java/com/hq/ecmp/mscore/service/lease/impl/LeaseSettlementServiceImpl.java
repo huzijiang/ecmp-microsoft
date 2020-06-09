@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service.lease.impl;
 
 import com.github.pagehelper.PageInfo;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.dto.OrderInfoFSDto;
 import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
 import com.hq.ecmp.mscore.mapper.CollectionQuittanceInfoMapper;
@@ -30,7 +31,8 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
      * @throws Exception
      */
     @Override
-    public PageResult<LeaseSettlementDto> getOrdinaryUserList(LeaseSettlementDto data) throws Exception {
+    public PageResult<LeaseSettlementDto> getOrdinaryUserList(LeaseSettlementDto data, LoginUser user) throws Exception {
+        data.setCompanyId(user.getUser().getOwnerCompany());
         List<LeaseSettlementDto> list = collectionQuittanceInfoMapper.getOrdinaryUserList(data);
         PageInfo<LeaseSettlementDto> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);
@@ -65,5 +67,16 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
             return  collectionQuittanceInfoMapper.ordinaryUserConfirmCost(data);
         }
         return 0;
+    }
+
+
+    /***
+     *
+     * @param collectionId
+     * @throws Exception
+     */
+    @Override
+    public void downloadOrdinaryUserDetail(Long collectionId) throws Exception {
+
     }
 }

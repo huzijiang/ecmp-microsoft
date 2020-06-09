@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.lease;
 
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
 import com.hq.ecmp.mscore.vo.PageResult;
 
@@ -13,7 +14,7 @@ public interface LeaseSettlementService {
      * @return
      * @throws Exception
      */
-    PageResult<LeaseSettlementDto> getOrdinaryUserList(LeaseSettlementDto data)throws Exception;
+    PageResult<LeaseSettlementDto> getOrdinaryUserList(LeaseSettlementDto data, LoginUser user)throws Exception;
 
 
     /***
@@ -32,6 +33,14 @@ public interface LeaseSettlementService {
      * @throws Exception
      */
     int ordinaryUserConfirmCost(Long collectionId,Long userId)throws Exception;
+
+
+    /***
+     *
+     * @param collectionId
+     * @throws Exception
+     */
+    void downloadOrdinaryUserDetail(Long collectionId)throws Exception;
 
 
 }

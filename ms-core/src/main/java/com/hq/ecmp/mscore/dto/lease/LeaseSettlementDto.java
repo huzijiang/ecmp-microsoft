@@ -23,4 +23,6 @@ public class LeaseSettlementDto {
 
     Long createBy;
 
+    Long companyId;
+
 }

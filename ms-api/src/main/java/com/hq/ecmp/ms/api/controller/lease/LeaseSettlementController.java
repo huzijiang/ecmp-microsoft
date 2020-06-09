@@ -41,7 +41,7 @@ public class LeaseSettlementController {
     @Log(title = "普通用户租赁列表", content = "普通用户租赁列表", businessType = BusinessType.OTHER)
     public ApiResponse<PageResult<LeaseSettlementDto>> getOrdinaryUserList(@RequestBody LeaseSettlementDto data){
         try {
-            return ApiResponse.success(leaseSettlementService.getOrdinaryUserList(data));
+            return ApiResponse.success(leaseSettlementService.getOrdinaryUserList(data,tokenService.getLoginUser(ServletUtils.getRequest())));
         } catch (Exception e) {
             log.error("getOrdinaryUserList error",e);
         }
@@ -92,12 +92,12 @@ public class LeaseSettlementController {
     @Log(title = "租赁普通用户下载pdf详情", content = "租赁普通用户下载pdf详情", businessType = BusinessType.OTHER)
     public ApiResponse downloadOrdinaryUserDetail(Long collectionId){
         try {
-
+            leaseSettlementService.downloadOrdinaryUserDetail(collectionId);
+            return ApiResponse.success();
         } catch (Exception e) {
             log.error("downloadOrdinaryUserDetail error",e);
         }
         return ApiResponse.error();
-
     }
 
 
