@@ -539,4 +539,36 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="unlockCars">
         update car_info c set c.lock_state='0000' where c.lock_state='1111'
     </update>
+
+    <select id="getCarByState" parameterType="java.lang.String" resultType="com.hq.ecmp.mscore.vo.DisWorkBenchCar">
+        select
+        ecti.`name`  AS carTypeName,
+        c.seat_num AS seatNum,
+        count(1) AS num
+        from  car_info c
+        left join order_info s on c.car_id=s.car_id and  s.use_car_mode='W100' and FIND_IN_SET(s.state,'S500,S600,S616,S635')
+        left join enterprise_car_type_info ecti on ecti.car_type_id=c.car_type_id
+        where  c.state='S000'
+        <if test="state =='在外车辆'.toString">
+            and s.order_id is not null
+        </if>
+        <if test="state =='可用车辆'.toString">
+            and s.order_id is  null
+        </if>
+        group by ecti.`name`,c.seat_num
+        order by num desc
+
+    </select>
+
+    <select id="getCarByStateCount" resultType="com.hq.ecmp.mscore.vo.DisOrderStateCount">
+        select
+		case when s.order_id is not null then '在外车辆'
+		else '可用车辆' end state,
+        count(1) AS count
+        from  car_info c
+        left join order_info s on c.car_id=s.car_id and  s.use_car_mode='W100' and FIND_IN_SET(s.state,'S500,S600,S616,S635')
+        left join enterprise_car_type_info ecti on ecti.car_type_id=c.car_type_id
+        where  c.state='S000'
+		group by state
+    </select>
 </mapper>

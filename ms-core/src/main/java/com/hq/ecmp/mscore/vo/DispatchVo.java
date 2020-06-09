@@ -7,6 +7,12 @@ import lombok.Data;
 import java.util.Date;
 import java.util.List;
 
+/**
+*   @author yj
+*   @date 15:36 2020/6/9
+*   @Param  
+*   @return 
+**/
 @Data
 @ApiModel(value="调度管理")
 public class DispatchVo {

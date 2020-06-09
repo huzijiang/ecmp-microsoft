@@ -1273,11 +1273,14 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         }
         PageHelper.startPage(query.getPageN(), query.getPageS());
         dispatcherOrderList = getDispatchOrderInfos(query);
+        //获取各个状态的数量
+        List<DisOrderStateCount> orderStateCount = orderInfoMapper.getOrderStateCount(query);
         PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
         Map<String,Object> map = new HashMap<>();
         map.put("totalPage", info.getTotal());
         map.put("page", info.getTotal());
         map.put("list", dispatcherOrderList);
+        map.put("stateCount", orderStateCount);
         return map;
     }
 

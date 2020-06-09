@@ -1,6 +1,6 @@
 package com.hq.ecmp.mscore.domain;
 
-import com.hq.ecmp.mscore.vo.AddressVO;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -48,6 +48,7 @@ public class OrderListInfo {
     /**
      *    订单编号
      */
+    @ApiModelProperty(value = "订单号")
     private String orderNumber;
     /**
      *    轨迹表状态
@@ -63,4 +64,24 @@ public class OrderListInfo {
      * 支付状态
      */
     private String payState;
+
+    @ApiModelProperty(value = "车型")
+    private String carTypeName;
+
+    @ApiModelProperty(value = "用车天数")
+    private Integer useTime;
+
+    @ApiModelProperty(value = "是否自驾 \n" +
+            "Y000  是\n" +
+            "N111  否")
+    private String  selfDriver;
+
+    @ApiModelProperty(value = "用车人")
+    private String useCarName;
+
+    @ApiModelProperty(value = "用车时间")
+    private  String useCarDate;
+
+    @ApiModelProperty(value = "出发地")
+    private String beginAddress;
 }
