@@ -35,4 +35,9 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
     public void findReckoning(ReckoningDto param) {
 
     }
+
+    @Override
+    public void updateReckoningStatus(ReckoningDto param) {
+        collectionService.updateReckoningStatus(param);
+    }
 }

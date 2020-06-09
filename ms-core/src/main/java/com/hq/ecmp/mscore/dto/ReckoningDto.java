@@ -32,7 +32,7 @@ public class ReckoningDto implements Serializable {
     private String status;
 
     /** 结算标识 */
-    private String fruitFlag;
+    private String companyId;
 
     /** 收款状态 */
     private String pageIndex;

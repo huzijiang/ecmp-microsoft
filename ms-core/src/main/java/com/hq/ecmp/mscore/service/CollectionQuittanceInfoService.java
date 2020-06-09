@@ -10,4 +10,6 @@ public interface CollectionQuittanceInfoService {
     void addReckoning(ReckoningInfo param);
 
     void findReckoning(ReckoningDto param);
+
+    void updateReckoningStatus(ReckoningDto param);
 }
