@@ -2173,6 +2173,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime,
         -- 服务类型
         ji.charter_car_type serverType,
+        oi.service_type serviceType,
         -- 状态
         case
         when right (osti.state,3)='100' then '待派车'
@@ -2341,6 +2342,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ecti.name carTypeName,
         -- 用车备注
         ai.notes,
+        oi.service_type serviceType,
         od.car_group_user_mode carGroupUserMode,
         od.it_is_self_driver selfDriver,
         oai.city_postal_code useCarCityCode,
