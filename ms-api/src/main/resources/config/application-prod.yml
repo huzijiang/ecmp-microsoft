@@ -64,12 +64,14 @@ spring:
         - 10.117.1.224:6380
         - 10.117.1.225:6379
         - 10.117.1.225:6380
-    jedis:
+      max-redirects: 5
+      timeout: 6000ms
+    lettuce:
       pool:
-        max-active: 1000
-        max-wait: 2
-        max-idle: 50
-        min-idle: 5
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
 
 # 开发环境配置
 server:
