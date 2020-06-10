@@ -13,6 +13,7 @@ import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.ApplyDispatch;
 import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
+import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
 import com.hq.ecmp.mscore.service.OrderInfoTwoService;
@@ -204,4 +205,26 @@ public class DispatcherController {
         return jsonObject;
     }
 
+    /**
+     * 申请单调度-获取用车单位列表
+     * @return
+     */
+    @ApiOperation(value = "调度获取用车单位列表")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "用车单位类别", content = "调度获取用车单位列表",businessType = BusinessType.OTHER)
+    @Log(value = "调度获取用车单位列表")
+    @PostMapping(value = "/getUseCarOrgList")
+    public ApiResponse<List<EcmpOrg>> getUseCarOrgList(){
+        List<EcmpOrg> useCarOrgList = new ArrayList<>();
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long companyId = loginUser.getUser().getOwnerCompany();
+            useCarOrgList = orderInfoTwoService.getUseCarOrgList(companyId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse.error("获取用车单位列表失败");
+        }
+        return ApiResponse.success(useCarOrgList);
+    }
 }
+

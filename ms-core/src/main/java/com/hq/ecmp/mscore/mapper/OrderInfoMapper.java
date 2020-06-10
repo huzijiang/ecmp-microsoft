@@ -419,6 +419,12 @@ public interface OrderInfoMapper {
      * @return
      */
     List<DispatchVo> getOrderInfoByCityAndDept(ApplyDispatch query);
+    /**
+     * 获取各状态调度单的数量
+     * @param query
+     * @return
+     */
+    List<DisOrderStateCount> getOrderStateCount(ApplyDispatch query);
 
     /***
      *
@@ -473,5 +479,18 @@ public interface OrderInfoMapper {
      */
     List<String> getStatementsList(LeaseSettlementDto data);
 
+
+    /**
+     * 获取调度工作台对应状态的列表数据
+     * @param state
+     * @return
+     */
+    List<DisWorkBenchOrder> getDispatchOrderListWorkBench(@Param("state") String state);
+
+    /**
+     * 获取调度工作台订单的统计数量信息
+     * @return
+     */
+    List<DisOrderStateCount> getDispatchOrderListWorkBenchCount();
 }
 

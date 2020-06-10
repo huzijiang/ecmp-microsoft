@@ -2207,6 +2207,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				dispatchSendCarPageInfo.setServiceType(journeyInfo.getServiceType());
 				dispatchSendCarPageInfo.setUseCarMode(journeyInfo.getUseCarMode());
 				dispatchSendCarPageInfo.setItIsReturn(journeyInfo.getItIsReturn());
+                dispatchSendCarPageInfo.setCharterCarDaysCount(journeyInfo.getUseTime());
 				Long applyUserId = journeyInfo.getUserId();
 				if(null !=applyUserId){
 					//申请人手机名字
