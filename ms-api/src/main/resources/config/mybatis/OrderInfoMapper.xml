@@ -401,7 +401,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             left join driver_info u  on o.driver_id = u.driver_id
             left join journey_passenger_info p on jn.journey_id = p.journey_id
 			left join enterprise_car_type_info e on  c.car_type_id = e.car_type_id
-			left join (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=o.order_id
+			left join (select order_id,state,create_time,content from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=o.order_id
             where o.order_id=#{orderId}
     </select>
 
