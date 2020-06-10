@@ -583,6 +583,27 @@ public class OrderController {
             return ApiResponse.error(e.getMessage());
         }
     }
+
+    /**
+     *   @author caobj
+     *   @Description 乘客端佛山订单详情辅助页面
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "乘客端获取订单详情",httpMethod = "POST")
+    @RequestMapping("/getOrderInfoDetail")
+    public ApiResponse<UserApplySingleVo> getOrderInfoDetail(Long orderId) {
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            UserApplySingleVo orderVO = orderInfoTwoService.getOrderInfoDetail(orderId,loginUser.getUser());
+            return ApiResponse.success(orderVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+    }
     /**
      *   @author caobj
      *   @Description 获取订单状态

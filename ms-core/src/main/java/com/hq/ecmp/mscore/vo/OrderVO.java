@@ -52,6 +52,8 @@ public class OrderVO {
     private String customerServicePhone;
     @ApiModelProperty(name = "useCarTime",value = "用车时间")
     private String useCarTime;
+    @ApiModelProperty(name = "useTime",value = "包车天数")
+    private String useTime;
     @ApiModelProperty(name = "createTimestamp",value = "下单时间")
     private Long createTimestamp;
     @ApiModelProperty(name = "useCarTimestamp",value = "下单时间")

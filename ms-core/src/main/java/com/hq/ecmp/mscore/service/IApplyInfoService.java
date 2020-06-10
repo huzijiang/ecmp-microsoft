@@ -12,6 +12,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Service接口
@@ -141,4 +142,8 @@ public interface IApplyInfoService
      * @return
      */
     ApiResponse submitApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO);
+
+    List<Map<String,String>> getApplyStateCount( LoginUser loginUser);
+
+
 }

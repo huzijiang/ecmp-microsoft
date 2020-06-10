@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.domain.EcmpEnterpriseInfo;
@@ -288,7 +289,7 @@ public class EnterpriseCarTypeInfoServiceImpl implements IEnterpriseCarTypeInfoS
     @Override
     public List<CarTypeVO> queryCarTypeList(Long companyId) {
         String useCarModeOwnerLevel = regimeInfoMapper.queryRegimeLevelByCompanyId(companyId);
-        if(!useCarModeOwnerLevel.isEmpty()){
+        if(StringUtils.isNotEmpty(useCarModeOwnerLevel)){
             List<CarTypeVO> list = enterpriseCarTypeInfoMapper.queryCarTypeList(useCarModeOwnerLevel,companyId);
             return list;
         }
