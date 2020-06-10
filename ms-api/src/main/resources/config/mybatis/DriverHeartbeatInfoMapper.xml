@@ -27,6 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="orderId != null "> and order_id = #{orderId}</if>
             <if test="longitude != null "> and longitude = #{longitude}</if>
             <if test="latitude != null "> and latitude = #{latitude}</if>
+            <if test="createTime != null "> and DATE_FORMAT(create_time,'%Y-%m-%d') = DATE_FORMAT(#{createTime},'%Y-%m-%d')</if>
         </where>
         order by create_time
     </select>

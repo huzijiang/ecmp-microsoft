@@ -298,6 +298,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     SELECT DISTINCT
         -- 申请id
         ai.apply_id applyId,
+        ai.safe_remind safeRemind,
         -- 申请人姓名
         eu.nick_name applyName,
         -- 申请人手机号
@@ -349,6 +350,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         oi.order_number orderNumber,
         -- 订单编号
         oi.use_car_mode useCarMode,
+        oi.state,
+        z.state labelState,
         -- 用车方式
         oi.order_id orderId,
         -- 费用合计

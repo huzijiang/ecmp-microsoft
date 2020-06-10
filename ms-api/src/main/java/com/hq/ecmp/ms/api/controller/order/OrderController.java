@@ -594,7 +594,7 @@ public class OrderController {
      **/
     @ApiOperation(value = "乘客端获取订单详情",httpMethod = "POST")
     @RequestMapping("/getOrderInfoDetail")
-    public ApiResponse<UserApplySingleVo> getOrderInfoDetail(@RequestParam("orderId") Long orderId,@RequestParam("applyId") Long applyId) {
+    public ApiResponse<UserApplySingleVo> getOrderInfoDetail(@RequestParam(value = "orderId",required = false) Long orderId,@RequestParam(value = "applyId",required = false) Long applyId) {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
