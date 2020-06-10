@@ -2751,7 +2751,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  right (z.state,3)='100'
         </if>
         <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
-            and (ai.state='S004' OR z.state='S911')
+            and (right (z.state,3) BETWEEN '299' and '900')
         </if>
         <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
             and (ai.state='S005' OR z.state='S921')
