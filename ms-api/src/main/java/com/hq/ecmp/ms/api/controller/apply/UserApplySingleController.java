@@ -13,10 +13,9 @@ import com.hq.ecmp.constant.ApplyStateConstant;
 import com.hq.ecmp.constant.ApproveStateEnum;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.service.ChinaCityService;
-import com.hq.ecmp.mscore.service.IApplyInfoService;
-import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
-import com.hq.ecmp.mscore.service.OrderInfoTwoService;
+import com.hq.ecmp.mscore.dto.cost.ApplyPriceDetails;
+import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
+import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用车申请
@@ -48,6 +48,9 @@ public class UserApplySingleController {
     @Autowired
     private IEnterpriseCarTypeInfoService enterpriseCarTypeInfoService;
 
+    @Autowired
+    private ICostConfigInfoService costConfigInfoService;
+
     /**
      * 分页查询用车申请列表
      * @param userApplySingleVo
@@ -62,6 +65,25 @@ public class UserApplySingleController {
         try {
             PageResult<UserApplySingleVo> list = orderInfoTwoService.getUseApplySearchList(userApplySingleVo,loginUser);
             return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("分页查询用车申请列表失败");
+        }
+    }
+
+    /**
+     * 获取各种状态的申请单数量
+     * @return
+     */
+    @ApiOperation(value = "getApplyStateCount",notes = "分页查询用车申请列表",httpMethod ="POST")
+    @Log(title = "用车申请", content = "用车申请列表",businessType = BusinessType.OTHER)
+    @PostMapping("/getApplyStateCount")
+    public ApiResponse<List<Map<String,String>>> getApplyStateCount(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            List<Map<String,String>> vo = applyInfoService.getApplyStateCount(loginUser);
+            return ApiResponse.success(vo);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("分页查询用车申请列表失败");
@@ -263,4 +285,24 @@ public class UserApplySingleController {
         return  ApiResponse.success(carGroupInfos);
     }
 
+    /**
+     * 获取价格计划详情
+     * @return
+     */
+    @ApiOperation(value = "applySinglePriceDetails",notes = "获取价格计划详情",httpMethod ="POST")
+    @Log(title = "获取价格计划详情", content = "获取价格计划详情",businessType = BusinessType.OTHER)
+    @PostMapping("/applySinglePriceDetails")
+    public ApiResponse<List<ApplyPriceDetails>> applySinglePriceDetails(@RequestBody ApplyPriceDetails applyPriceDetail){
+            List<ApplyPriceDetails> applyPriceDetails = new ArrayList<>();
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            applyPriceDetail.setCompanyId(loginUser.getUser().getDept().getCompanyId());
+            applyPriceDetails = costConfigInfoService.applySinglePriceDetails(applyPriceDetail);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("获取价格计划详情失败");
+        }
+        return  ApiResponse.success(applyPriceDetails);
+    }
 }

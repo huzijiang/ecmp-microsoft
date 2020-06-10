@@ -2957,6 +2957,139 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return orderInfoMapper.downloadOrderData(orderId);
     }
 
+    /***
+     *订单列表的tale页签的数据模型
+     * add by liuzb
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Map<String,Object> orderServiceCategory(LoginUser user)throws Exception{
+        //String key = isDispatcher(user);
+        Map<String, Object> map = orderInfoMapper.orderServiceCategory();
+        if(null!=map){
+            JSONObject json = new JSONObject(addDataTable(map));
+            return json;
+        }
+        return null;
+    }
+
+
+    /***
+     * 拼接来自数据库模型的table参数
+     * add by liuzb
+     * @param map
+     * @return
+     * @throws Exception
+     */
+    private Map<String,Object> addDataTable(Map<String,Object> map)throws Exception{
+        Map<String,Object> data = new HashMap<>();
+        Map<String,Object> dataMap = new HashMap<>();
+
+        dataMap.put("msg","待服务");
+        dataMap.put("value",map.get("toBeServed").toString());
+        dataMap.put("code","S299");
+        data.put("toBeServed",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待出车");
+        dataMap.put("value",map.get("waitingToLeave").toString());
+        dataMap.put("code","S300");
+        data.put("waitingToLeave",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待还车");
+        dataMap.put("value",map.get("toBePickedUp").toString());
+        dataMap.put("code","S301");
+        data.put("toBePickedUp",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","接驾中");
+        dataMap.put("value",map.get("takingOver").toString());
+        dataMap.put("code","S500");
+        data.put("takingOver",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待上车");
+        dataMap.put("value",map.get("etcUpperCar").toString());
+        dataMap.put("code","S600");
+        data.put("etcUpperCar",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","服务中");
+        dataMap.put("value",map.get("inService").toString());
+        dataMap.put("code","S616");
+        data.put("inService",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","服务中止");
+        dataMap.put("value",map.get("serviceSuspension").toString());
+        dataMap.put("code","S635");
+        data.put("serviceSuspension",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待确认");
+        dataMap.put("value",map.get("toBeConfirmed").toString());
+        dataMap.put("code","S699");
+        data.put("toBeConfirmed",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","已完成");
+        dataMap.put("value",map.get("completed").toString());
+        dataMap.put("code","S900");
+        data.put("completed",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","已取消");
+        dataMap.put("value",map.get("cancelled").toString());
+        dataMap.put("code","S911");
+        data.put("cancelled",dataMap);
+
+        return data;
+    }
+
+
+    /***
+     *
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<String> getUseTheCar(LoginUser user)throws Exception{
+        String role = isDispatcher(user);
+        return orderInfoMapper.getUseTheCar("C111".equals(role)?user.getUser().getUserId():null,null==role?user.getUser().getOwnerCompany():null);
+    }
+
+
+    /***
+     *
+     * @param orderInfoFSDto
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public PageResult<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto orderInfoFSDto, LoginUser user)throws Exception{
+        String role = isDispatcher(user);
+        if(null==role){/**员工看本部门*/
+            orderInfoFSDto.setCompanyId(user.getUser().getOwnerCompany());
+        }else if ("C111".equals(role)){/**外部调度员*/
+            orderInfoFSDto.setUserId(user.getUser().getUserId());
+        }
+        List<OrderInfoFSDto> list = orderInfoMapper.getOrderInfoList(orderInfoFSDto);
+        PageInfo<OrderInfoFSDto> info = new PageInfo<>(list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
+    }
+
+    @Override
+    public List<Map<String,String>> getMoneyList(ReckoningDto param) {
+
+        return orderInfoMapper.getMoneyList(param);
+
+    }
+
     @Override
     public Map<String, Map<String, Integer>> selectOrderCarGroup(Long companyId) {
         String startDate = DateFormatUtils.formatDate(DateFormatUtils.DATE_FORMAT,DateFormatUtils.getPastDate(6));

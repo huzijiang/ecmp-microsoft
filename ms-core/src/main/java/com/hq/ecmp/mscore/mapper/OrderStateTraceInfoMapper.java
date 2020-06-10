@@ -1,10 +1,8 @@
 package com.hq.ecmp.mscore.mapper;
 
-import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
-import com.hq.ecmp.mscore.domain.DispatchOptRecord;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-import com.hq.ecmp.mscore.domain.SendCarInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.PiclUpCarOrderVO;
 import com.hq.ecmp.mscore.vo.RejectDispatcherUserVO;
 import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
@@ -157,4 +155,6 @@ public interface OrderStateTraceInfoMapper
     int selectCountForAgainStrte(@Param("orderId") Long orderId,@Param("state")  String state);
 
     List<OrderStateTraceInfo> selectListByOrderState(@Param("orderId")Long orderId, @Param("state") String state, @Param("date") String date);
+
+    List<PiclUpCarOrderVO> selectOrderListByState(String state);
 }

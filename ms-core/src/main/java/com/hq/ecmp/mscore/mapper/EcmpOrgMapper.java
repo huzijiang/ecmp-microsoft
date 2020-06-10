@@ -290,4 +290,7 @@ public interface EcmpOrgMapper {
     List<EcmpOrg> selectCompanyDeptList(EcmpOrg ecmpOrg);
 
     List<Map> selectOrgTreeByDeptId(@Param("orgIds")String orgIds);
+
+    /** 查询所有公司名称 - id */
+    List<Map> selectIdAndName();
 }

@@ -14,10 +14,7 @@ import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo;
-import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
-import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
-import com.hq.ecmp.mscore.dto.OrderInfoDTO;
-import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
@@ -91,6 +88,26 @@ public class OrderBackController {
             return ApiResponse.error();
         }
     }
+
+
+    /***
+     *
+     * @param orderInfoFSDto
+     * @return
+     */
+    @ApiOperation(value = "订单列表查询")
+    @PostMapping(value = "/getOrderInfoList")
+    @Log(title = "订单管理", content = "订单列表", businessType = BusinessType.OTHER)
+    public ApiResponse<PageResult<OrderInfoFSDto>> getOrderInfoList(@RequestBody OrderInfoFSDto orderInfoFSDto){
+        try {
+            PageResult<OrderInfoFSDto> data  = iOrderInfoService.getOrderInfoList(orderInfoFSDto,tokenService.getLoginUser(ServletUtils.getRequest()));
+            return ApiResponse.success(data);
+        } catch (Exception e) {
+            logger.error("getOrderInfoList error",e);
+        }
+        return ApiResponse.error();
+    }
+
 
     @ApiOperation(value = "订单详情查询")
     @ApiImplicitParams(value = {
@@ -296,6 +313,39 @@ public class OrderBackController {
             }
             return ApiResponse.error("还车失败");
         }
+    }
+
+
+    /***
+     * add by liuzb
+     * @return
+     */
+    @ApiOperation(value = "订单服务类别总数", notes = "订单服务类别总数 ", httpMethod = "POST")
+    @PostMapping(value = "/orderServiceCategory")
+    public ApiResponse orderServiceCategory(){
+        try{
+            LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+            return ApiResponse.success(iOrderInfoService.orderServiceCategory(loginUser));
+        }catch(Exception e){
+            logger.error("orderServiceCategory error",e);
+        }
+        return ApiResponse.error("订单服务类别总数失败");
+    }
+
+    /***
+     * add by liuzb
+     * @return
+     */
+    @ApiOperation(value = "订单列表用车单位", notes = "订单列表用车单位 ", httpMethod = "POST")
+    @PostMapping(value = "/getUseTheCar")
+    public ApiResponse getUseTheCar(){
+        try{
+            LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+            return ApiResponse.success(iOrderInfoService.getUseTheCar(loginUser));
+        }catch(Exception e){
+            logger.error("getUseTheCar error",e);
+        }
+        return ApiResponse.error("订单列表用车单位异常");
     }
 
 }

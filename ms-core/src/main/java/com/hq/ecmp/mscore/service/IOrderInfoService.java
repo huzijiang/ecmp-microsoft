@@ -5,10 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
-import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
-import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
-import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
@@ -344,6 +341,35 @@ public interface IOrderInfoService {
      */
     Map downloadOrderData(Long orderId)throws Exception;
 
+
+    /***
+     *
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    Map<String,Object> orderServiceCategory(LoginUser user)throws Exception;
+
+
+    /***
+     *
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    List<String> getUseTheCar(LoginUser user)throws Exception;
+
+
+    /***
+     *
+     * @param orderInfoFSDto
+     * @param user
+     * @return
+     */
+    PageResult<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto orderInfoFSDto, LoginUser user)throws Exception;
+
+
+    List<Map<String,String>> getMoneyList(ReckoningDto param);
     Map<String, Map<String,Integer>> selectOrderCarGroup(Long companyId);
 
     Map<String,Integer> selectNormalOrderReserveTime(Long companyId,String beginDate,String endDate);
