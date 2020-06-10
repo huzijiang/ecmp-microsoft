@@ -681,6 +681,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oodi.it_is_use_inner_car_group itIsUseInnerCarGroup,
         oodi.car_group_user_mode carGroupUserMode,
         oodi.next_car_group_id nextCarGroupId,
+        cgi.car_group_name carGroupName,
         s.it_is_supplement itIsSupplement
         from order_info s
         left join order_dispatche_detail_info oodi on oodi.order_id = s.order_id
@@ -696,7 +697,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join ecmp_org eo on eu.dept_id = eo.dept_id
         left join driver_info di on di.driver_id=s.driver_id
         left join car_info ci on ci.car_id =s.car_id
-            <where>
+        left join car_group_info cgi on cgi.car_group_id = ci.car_group_id
+        <where>
                 <if test="applyName != null and  applyName!=''"> and eu.nick_name like concat('%',#{applyName},'%') </if>
                 <if test="applyPhoneNumber != null and  applyPhoneNumber!='' "> and eu.phonenumber like concat('%',#{applyPhoneNumber},'%') </if>
                 <if test="passengerName != null and  passengerName!='' "> and  jpi.name = #{passengerName}</if>
