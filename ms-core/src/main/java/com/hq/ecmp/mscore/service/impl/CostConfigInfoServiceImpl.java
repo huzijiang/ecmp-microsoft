@@ -426,11 +426,10 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
        //判断用车方式
        if(CarConstant.SELFDRIVER_YES.equals(applyPriceDetails.getItIsSelfDriver())){
            carGroupUserMode=CarConstant.CAR_GROUP_USER_MODE_CAR;
-           applyPriceDetails.setCarGroupUserMode(carGroupUserMode);
        }else{
            carGroupUserMode=CarConstant.CAR_GROUP_USER_MODE_CAR_DRIVER;
-           applyPriceDetails.setCarGroupUserMode(carGroupUserMode);
        }
+        applyPriceDetails.setCarGroupUserMode(carGroupUserMode);
         applyPriceDetails.setServiceType(ServiceTypeConstant.CHARTERED);
         List<ApplyPriceDetails> list =  costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
         return list;
