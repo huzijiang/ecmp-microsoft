@@ -593,11 +593,11 @@ public class OrderController {
      **/
     @ApiOperation(value = "乘客端获取订单详情",httpMethod = "POST")
     @RequestMapping("/getOrderInfoDetail")
-    public ApiResponse<UserApplySingleVo> getOrderInfoDetail(Long orderId) {
+    public ApiResponse<UserApplySingleVo> getOrderInfoDetail(@RequestParam("orderId") Long orderId,@RequestParam("applyId") Long applyId) {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            UserApplySingleVo orderVO = orderInfoTwoService.getOrderInfoDetail(orderId,loginUser.getUser());
+            UserApplySingleVo orderVO = orderInfoTwoService.getOrderInfoDetail(orderId,loginUser.getUser(),applyId);
             return ApiResponse.success(orderVO);
         } catch (Exception e) {
             e.printStackTrace();

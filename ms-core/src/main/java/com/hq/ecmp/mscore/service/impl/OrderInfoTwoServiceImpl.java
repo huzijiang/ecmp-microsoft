@@ -1305,18 +1305,22 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     }
 
     @Override
-    public UserApplySingleVo getOrderInfoDetail(Long orderId,SysUser user) throws Exception{
+    public UserApplySingleVo getOrderInfoDetail(Long orderId,SysUser user,Long applyId) throws Exception{
         UserApplySingleVo userApplySingleVo = new UserApplySingleVo();
         userApplySingleVo.setDeptId(user.getDeptId());
-        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
-        if (orderInfo==null) {
-            throw new BaseException("该订单为空:"+orderId);
+        Long applyIdOrderId=applyId;
+        if (applyId==null){
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            if (orderInfo==null) {
+                throw new BaseException("该订单为空:"+orderId);
+            }
+            List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
+            if (CollectionUtils.isEmpty(applyInfos)){
+                throw new BaseException("该申请单为空对应行程id:"+orderInfo.getJourneyId());
+            }
+            applyIdOrderId=applyInfos.get(0).getApplyId();
         }
-        List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
-        if (CollectionUtils.isEmpty(applyInfos)){
-            throw new BaseException("该申请单为空对应行程id:"+orderInfo.getJourneyId());
-        }
-        List<UserApplySingleVo> useApplyList = applyInfoMapper.getApplyListPage(null,applyInfos.get(0).getApplyId());
+        List<UserApplySingleVo> useApplyList = applyInfoMapper.getApplyListPage(null,applyIdOrderId);
         if (CollectionUtils.isEmpty(useApplyList)){
         return null;
         }

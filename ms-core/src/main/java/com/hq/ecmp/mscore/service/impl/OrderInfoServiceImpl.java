@@ -757,6 +757,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         vo.setRegimeId(journeyInfo.getRegimenId());
+        vo.setUseTime(journeyInfo.getUseTime());
         JourneyNodeInfo nodeInfo = journeyNodeInfoMapper.selectJourneyNodeInfoById(orderInfo.getNodeId());
         BeanUtils.copyProperties(orderInfo,vo);
 

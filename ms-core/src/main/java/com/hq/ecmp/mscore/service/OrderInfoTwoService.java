@@ -150,5 +150,5 @@ public interface OrderInfoTwoService {
 
     void updatePickupCarState();
 
-    UserApplySingleVo getOrderInfoDetail(Long orderId, SysUser user)throws Exception;
+    UserApplySingleVo getOrderInfoDetail(Long orderId, SysUser user,Long applyId)throws Exception;
 }
