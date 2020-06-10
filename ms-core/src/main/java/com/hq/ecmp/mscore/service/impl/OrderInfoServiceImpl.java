@@ -3082,4 +3082,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         PageInfo<OrderInfoFSDto> info = new PageInfo<>(list);
         return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
+
+    @Override
+    public List<Map<String,String>> getMoneyList(ReckoningDto param) {
+
+        return orderInfoMapper.getMoneyList(param);
+
+    }
 }

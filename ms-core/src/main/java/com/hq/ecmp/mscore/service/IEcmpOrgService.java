@@ -9,6 +9,7 @@ import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 部门Service接口
@@ -271,4 +272,6 @@ public interface IEcmpOrgService
     EcmpUserInfoDto getUserLatestDeptInfoByUserId(Long userId);
 
     void selectIndependentCompanyApplyState() throws Exception;
+
+    List<Map> getEcmpName();
 }

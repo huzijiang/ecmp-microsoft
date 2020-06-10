@@ -369,6 +369,6 @@ public interface IOrderInfoService {
     PageResult<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto orderInfoFSDto, LoginUser user)throws Exception;
 
 
-
+    List<Map<String,String>> getMoneyList(ReckoningDto param);
 }
 

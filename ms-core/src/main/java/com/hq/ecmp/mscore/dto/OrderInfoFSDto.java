@@ -36,4 +36,9 @@ public class OrderInfoFSDto extends Page{
 
     String mobile;
 
+    String phoneNumber;
+
+    String driverMobile;
+
+
 }

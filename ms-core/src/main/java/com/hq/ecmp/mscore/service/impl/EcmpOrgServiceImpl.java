@@ -1131,4 +1131,10 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             }
         });
     }
+
+
+    @Override
+    public List<Map> getEcmpName() {
+        return ecmpOrgMapper.selectIdAndName();
+    }
 }

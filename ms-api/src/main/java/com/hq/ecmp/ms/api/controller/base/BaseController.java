@@ -11,6 +11,7 @@ import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackVo;
+import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackImageService;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
 import com.hq.ecmp.util.HqAdmin;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: zj.hu
@@ -41,6 +43,10 @@ public class BaseController {
 
     @Autowired
     private TokenService tokenService;
+
+
+    @Autowired
+    private IEcmpOrgService iecmpOrgService;
     /**
      * 获取短信验证码
      * @param  userDto
@@ -172,6 +178,22 @@ public class BaseController {
             return ApiResponse.success("查询投诉建议成功");
         }else {
             return ApiResponse.success("查询投诉建议失败");
+        }
+    }
+
+    /**
+     * 回复投诉
+     * @return
+     */
+    @ApiOperation(value = "getEcmpName",notes = "获取所有未删除的公司名称和id",httpMethod ="POST")
+    @PostMapping("/getEcmpName")
+    public ApiResponse getEcmpName(){
+
+        List<Map> ecmpList = iecmpOrgService.getEcmpName();
+        if (null != ecmpList){
+            return ApiResponse.success(ecmpList);
+        }else {
+            return ApiResponse.success("获取所有未删除的公司名称和id失败");
         }
     }
 }
