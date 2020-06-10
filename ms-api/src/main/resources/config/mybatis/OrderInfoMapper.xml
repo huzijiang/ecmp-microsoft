@@ -674,6 +674,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         s.create_by createBy,
         oodi.it_is_use_inner_car_group itIsUseInnerCarGroup,
         oodi.car_group_user_mode carGroupUserMode,
+        oodi.next_car_group_id nextCarGroupId,
         s.it_is_supplement itIsSupplement
         from order_info s
         left join order_dispatche_detail_info oodi on oodi.order_id = s.order_id
