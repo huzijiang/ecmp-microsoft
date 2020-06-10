@@ -3,6 +3,11 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.bo.OrderTaskClashBo;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
+import com.hq.ecmp.mscore.dto.OrderInfoFSDto;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
@@ -459,5 +464,14 @@ public interface OrderInfoMapper {
     List<Map> selectNormalOrderReserveTime(@Param("companyId")Long companyId,@Param("beginDate")String beginDate,@Param("endDate")String endDate);
 
     Long selectOrderIdByJourneyId(Long journeyId);
+
+
+    /***
+     * 结算单（当前车队结算单的所有已完成订单）
+     * @param data
+     * @return
+     */
+    List<String> getStatementsList(LeaseSettlementDto data);
+
 }
 

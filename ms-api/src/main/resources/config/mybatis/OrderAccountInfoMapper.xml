@@ -125,7 +125,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join order_account_info c on c.account_id = b.account_id
         where c.state='S008' and c.company_id = #{companyId}
     </select>
-
-
-
+    <update id="updateStatementsState" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update order_account_info
+            <set>
+                state ='S005',
+                update_by=#{item.updateBy},
+                update_time=now()
+            </set>
+            where order_id = #{item.orderId}
+        </foreach>
+    </update>
 </mapper>

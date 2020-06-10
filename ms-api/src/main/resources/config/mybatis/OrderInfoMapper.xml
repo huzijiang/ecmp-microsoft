@@ -669,6 +669,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 用车制度
         ri.name regimenName,
         di.driver_name driverName,
+        di.mobile driverMobile,
         ci.car_license carLicense,
         s.create_by createBy,
         oodi.it_is_use_inner_car_group itIsUseInnerCarGroup,
@@ -703,6 +704,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="orderId != null and  orderId!=''"> and s.order_id  like concat('%',#{orderId},'%') </if>
                 <if test="carLicense != null and  carLicense!=''"> and ci.car_license  like concat('%',#{carLicense},'%') </if>
                 <if test="driverName != null and  driverName!=''"> and di.driver_name  like concat('%',#{driverName},'%') </if>
+                <if test="deptName != null and  deptName!='' "> and eo.dept_name = #{deptName}</if>
                 <if test="state == 1">
                     and s.state  in ('S911','S900','S699','S616','S600','S500','S299','S635')
                 </if>
@@ -3078,6 +3080,17 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 )
            </if>
         order by ai.create_time desc
+    </select>
+    <select id="getStatementsList" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto" resultType="java.lang.String">
+        select
+              oi.order_id
+        from order_info oi
+            where oi.state='S900'
+            <![CDATA[ and oi.create_time >= #{beginDate}]]>
+            <![CDATA[ and oi.create_time <= #{endDate}]]>
+            and oi.car_id in (
+                select  ci.car_id from car_info ci where ci.car_group_id=#{carGroupId}
+            )
     </select>
 
 

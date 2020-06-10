@@ -409,4 +409,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
        AND  <![CDATA[ adr.action_time <= DATE_FORMAT(#{endDate}, '%Y-%m-%d') ]]>
        and  acc.state != 'S005'
    </select>
+    <select id="getCarGroupAllName" resultType="String">
+	    select  car_group_name from car_group_info
+    </select>
 </mapper>

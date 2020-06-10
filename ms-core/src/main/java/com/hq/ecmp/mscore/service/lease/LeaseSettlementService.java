@@ -4,6 +4,7 @@ import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
 import com.hq.ecmp.mscore.vo.PageResult;
 
+import java.util.List;
 import java.util.Map;
 
 public interface LeaseSettlementService {
@@ -41,6 +42,15 @@ public interface LeaseSettlementService {
      * @throws Exception
      */
     void downloadOrdinaryUserDetail(Long collectionId)throws Exception;
+
+
+    /***
+     *
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    List<String> getUseCarUnit(LoginUser user)throws Exception;
 
 
 }

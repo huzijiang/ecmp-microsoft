@@ -8,7 +8,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="add" parameterType="com.hq.ecmp.mscore.domain.ReckoningInfo">
         insert into collection_quittance_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="collection_id != null ">,</if>
             <if test="car_group_id != null ">,</if>
             <if test="company_id != null ">,</if>
             <if test="begin_date != null ">,</if>
@@ -23,7 +22,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="update_time != null ">,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test=" != null ">#{collectionId},</if>
             <if test=" != null ">#{carGroupId},</if>
             <if test=" != null ">#{companyId},</if>
             <if test=" != null ">#{beginDate},</if>
@@ -40,34 +38,46 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <update id="updateReckoningStatus" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
-        update
-          collection_quittance_info
+        update collection_quittance_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="status != null ">state = #{status},</if>
-            <if test="verifier != null ">verifier = #{verifier},</if>
+            <if test="state != null ">update_time = #{status},</if>
         </trim>
-        where
-          company_id = #{companyId}
+        where company_id = #{companyId}
     </update>
 
     <select id="getOrdinaryUserList" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
        select
             cqi.collection_id collectionId,
-            eo.dept_name deptName,
-            cqi.begin_date beginData,
-            cqi.end_date endData,
+            cgi.car_group_name deptName,
+            cqi.begin_date beginDate,
+            cqi.end_date endDate,
 		    cqi.state state,
-		    cqi.verifier verifier,
+            eu.nick_name verifier,
             cqi.create_time createTime
        from collection_quittance_info cqi
-       left join  ecmp_org eo ON eo.company_id = cqi.company_id
-       where cqi.company_id=#{companyId}
+        left join car_group_info cgi on cgi.car_group_id = cqi.car_group_id
+        left join ecmp_user eu on eu.user_id = cqi.verifier
+        where 1=1
+        <if test="companyId!=null and companyId!=''" >
+            cqi.company_id=#{companyId}
+        </if>
         <if test="deptName!=null and deptName!=''" >
-            and  eo.dept_name  like concat('%',#{deptName},'%')
+            and  cgi.car_group_name  like concat('%',#{deptName},'%')
         </if>
         <if test="state!=null and state!=''" >
             and  cqi.state =#{state}
         </if>
+    </select>
+    <select id="getOrdinaryUserById" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
+        select
+        cqi.collection_id collectionId,
+        cqi.car_group_id carGroupId,
+        cqi.begin_date beginDate,
+        cqi.end_date endDate,
+        cqi.state state,
+        cqi.verifier verifier,
+        cqi.create_time createTime
+        from collection_quittance_info cqi where cqi.collection_id = #{collectionId}
     </select>
     <update id="ordinaryUserConfirmCost" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
          update collection_quittance_info set state=#{state},create_by=#{createBy} where collection_id=#{collectionId}
@@ -86,4 +96,5 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         WHERE
             g.company_id = #{companyId}
     </select>
+
 </mapper>
