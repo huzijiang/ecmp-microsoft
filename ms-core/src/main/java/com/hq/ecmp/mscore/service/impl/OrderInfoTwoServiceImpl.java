@@ -1000,6 +1000,11 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     }
 
     @Override
+    public List<CarGroupInfo> userDeptCarGroupList(Long deptId){
+        return carGroupInfoMapper.userDeptCarGroupList(CarConstant.START_UP_CAR_GROUP,deptId);
+    }
+
+    @Override
     public List<CarGroupInfo> dispatcherCarGroupList(Long orderId, LoginUser loginUser,String carGroupUserMode) {
         List<CarGroupInfo> carGroupInfos = new ArrayList<>();
         OrderInfo orderInfo1 = orderInfoMapper.selectOrderInfoById(orderId);

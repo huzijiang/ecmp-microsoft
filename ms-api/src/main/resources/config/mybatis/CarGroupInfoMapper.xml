@@ -373,7 +373,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="applySingleCarGroupList"  resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
 
-          select c.car_group_id carGroupId,c.car_group_name carGroupName  from car_group_info c left join car_group_serve_org_relation o on o.car_group_id = c.car_group_id where c.state =#{state}  and c.it_is_inner =#{itIsInner}  and o.dept_id =#{deptId}
+          select c.car_group_id carGroupId,c.car_group_name carGroupName
+          from car_group_info c
+          left join car_group_serve_org_relation o on o.car_group_id = c.car_group_id
+          where c.state =#{state}  and c.it_is_inner =#{itIsInner}  and o.dept_id =#{deptId}
 
     </select>
     <select id="getDisCarGroupInfoByUserId" resultType="com.hq.ecmp.mscore.dto.dispatch.DispatchCarGroupDto" >
@@ -387,5 +390,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join car_group_dispatcher_info cgdi on cgdi.car_group_id=ci.car_group_id
         where  cgdi.user_id=#{userId}
         and ci.company_id=#{companyId}
+    </select>
+    <select id="userDeptCarGroupList" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
+         select c.car_group_id carGroupId,c.car_group_name carGroupName
+          from car_group_info c
+          left join car_group_serve_org_relation o on o.car_group_id = c.car_group_id
+          where c.state =#{state}   and o.dept_id =#{deptId}
     </select>
 </mapper>

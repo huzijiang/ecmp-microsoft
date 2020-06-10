@@ -1,9 +1,21 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.hq.core.security.LoginUser;
+import com.hq.ecmp.mscore.dto.UseCarDataByGroupDto;
+import com.hq.ecmp.mscore.dto.UseCarDataDto;
+import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.UseCarDataVo;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -264,5 +276,43 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 	@Override
 	public OrderStateTraceInfo queryRecentlyDispatchInfo(Long orderId) {
 		return orderStateTraceInfoMapper.queryRecentlyDispatchInfo(orderId);
+	}
+
+	@Override
+	public UseCarDataVo selectDeptUseCarData(UseCarDataDto useCarDataDto, LoginUser loginUser) throws ParseException {
+		Date beginDate = useCarDataDto.getBeginDate();
+		Date endDate = useCarDataDto.getEndDate();
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String begin = simpleDateFormat.format(beginDate);
+		String end = simpleDateFormat.format(endDate);
+		UseCarDataVo useCarDataVo = orderStateTraceInfoMapper.selectDeptUseCarData(begin,end, loginUser.getUser().getDept().getDeptId());
+		useCarDataVo.setDeptName(loginUser.getUser().getDept().getDeptName());
+		return useCarDataVo;
+	}
+
+	@Override
+	public PageResult<UseCarDataVo> userDeptUseCarDataByCarGroup(UseCarDataByGroupDto useCarDataByGroupDto, LoginUser loginUser) {
+		Integer pageNum = useCarDataByGroupDto.getPageNum();
+		Integer pageSize = useCarDataByGroupDto.getPageSize();
+		Long carGroupId = useCarDataByGroupDto.getCarGroupId();
+		Date beginDate = useCarDataByGroupDto.getBeginDate();
+		Date endDate = useCarDataByGroupDto.getEndDate();
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String begin = simpleDateFormat.format(beginDate);
+		String end = simpleDateFormat.format(endDate);
+		PageHelper.startPage(pageNum,pageSize);
+		List<UseCarDataVo> list = orderStateTraceInfoMapper.userDeptUseCarDataByCarGroup(carGroupId,begin,end,loginUser.getUser().getDept().getDeptId());
+		Iterator<UseCarDataVo> iterator = list.iterator();
+		while (iterator.hasNext()){
+			UseCarDataVo next = iterator.next();
+			if(next == null){
+				iterator.remove();
+			}
+		}
+		if(CollectionUtils.isEmpty(list)){
+			return new PageResult<UseCarDataVo>(0L,0,null);
+		}
+		PageInfo<UseCarDataVo> info = new PageInfo<>(list);
+		return new PageResult<UseCarDataVo>(info.getTotal(),info.getPages(),list);
 	}
 }
