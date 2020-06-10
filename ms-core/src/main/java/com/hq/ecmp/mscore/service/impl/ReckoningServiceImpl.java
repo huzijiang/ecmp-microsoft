@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
@@ -161,11 +162,24 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
         return resultMap;
     }
 
+    /**
+     * 收款下载
+     * @param param
+     */
+    @Override
+    public void downloadReckoning(ReckoningInfo param) {
+        ReckoningDto reckoningDto = new ReckoningDto();
+        reckoningDto.setStartDate(DateUtils.formatDate(param.getBeginDate(),DateUtils.YYYY_MM));
+        reckoningDto.setEndDate(DateUtils.formatDate(param.getEndDate(),DateUtils.YYYY_MM));
+        reckoningDto.setEcmpId(Long.parseLong(param.getCompanyId()));
+        String collectionEndTime = DateUtils.formatDate(param.getCollectionEndTime(), DateUtils.YYYY_MM_DD_HH_MM_SS);
+        Map<String, Object> stringObjectMap = reckoningDetail(reckoningDto);
+        stringObjectMap.put("collectionEndTime",collectionEndTime);
+        stringObjectMap.remove("moneyList");
 
 
 
-
-
+    }
 
 
     //年月日加四位随机数

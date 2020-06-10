@@ -39,7 +39,6 @@ public class ReckoningController {
      * @author ghb
      * @description  添加收款
      */
-
     @ResponseBody
     @ApiOperation(value = "添加收款",notes = "添加收款")
     @RequestMapping(value = "/addReckoning", method = RequestMethod.POST)
@@ -57,6 +56,8 @@ public class ReckoningController {
             reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            reckoningInfo.setCollectionId(param.getCollectionId());
+
             collectionService.addReckoning(reckoningInfo);
             return ApiResponse.success("添加成功");
         } catch (Exception e) {
@@ -66,6 +67,38 @@ public class ReckoningController {
         }
     }
 
+
+
+    /**
+     * @author ghb
+     * @description  添加收款
+     */
+    @ResponseBody
+    @ApiOperation(value = "下载收款",notes = "下载收款")
+    @RequestMapping(value = "/downloadReckoning", method = RequestMethod.POST)
+    @Log(title = "下载收款", content = "下载收款",businessType = BusinessType.OTHER)
+    public ApiResponse downloadReckoning(@RequestBody ReckoningDto param, @RequestHeader String token) {
+        log.info("下载收款，传来的参数为："+param);
+        try {
+            ReckoningInfo reckoningInfo = new ReckoningInfo();
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            reckoningInfo.setCreateBy(userId);
+            reckoningInfo.setState(CollectionQuittanceEnum.COLLECTION_WAIT.getKey());
+            reckoningInfo.setCarGroupId(param.getEcmpId());
+            reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            reckoningInfo.setCollectionId(param.getCollectionId());
+
+            collectionService.downloadReckoning(reckoningInfo);
+            return ApiResponse.success("下载收款");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("下载收款异常");
+        }
+    }
 
     /**
      * @author ghb
@@ -114,8 +147,6 @@ public class ReckoningController {
         }
 
     }
-
-
 
 
 
