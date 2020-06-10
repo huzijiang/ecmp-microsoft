@@ -468,7 +468,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN car_info f  ON a.car_id=f.car_id
         LEFT JOIN journey_info h on a.journey_id=h.journey_id
         LEFT JOIN order_state_trace_info m on a.order_id=m.order_id
-        where a.state in ('S200','S299','S600','S616','S699','S900')  and m.state in ('S299','S279','S200')
+        where a.state in ('S200','S299','S600','S616','S699','S900')  and m.state in ('S299','S279','S200','S930')
         GROUP BY a.order_id
 	</select>
 
@@ -2173,6 +2173,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime,
         -- 服务类型
         ji.charter_car_type serverType,
+        oi.service_type serviceType,
         -- 状态
         case
         when right (osti.state,3)='100' then '待派车'
@@ -2341,6 +2342,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ecti.name carTypeName,
         -- 用车备注
         ai.notes,
+        oi.service_type serviceType,
         od.car_group_user_mode carGroupUserMode,
         od.it_is_self_driver selfDriver,
         oai.city_postal_code useCarCityCode,
