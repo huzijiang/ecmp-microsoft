@@ -596,6 +596,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                     }
                 }
             } else {
+                costConfigQueryDto.setCarGroupId(carInfo.getCarGroupId());
                 List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
                 if(costConfigListResult.isEmpty()){
                     myResult = true;

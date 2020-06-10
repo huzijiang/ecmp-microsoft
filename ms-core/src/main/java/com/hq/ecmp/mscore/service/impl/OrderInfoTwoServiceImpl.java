@@ -1171,7 +1171,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         stateTraceInfo.setContent("用车人已取车");
         stateTraceInfo.setCreateBy(String.valueOf(userId));
         stateTraceInfo.setCreateTime(new Date());
-        stateTraceInfo.setState(OrderStateTrace.SERVICE.getState());
+        stateTraceInfo.setState(OrderStateTrace.PICKUPCAR.getState());
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
 
     }
@@ -1430,6 +1430,13 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         map.put("total", info.getTotal());
         map.put("list", dispatcherOrderList);
         return map;
+    }
+
+    @Override
+    public void updatePickupCarState() {
+        //获取已取车的所有订单
+//        List<OrderInfo> orderList=orderStateTraceInfoMapper.selectOrderListByState(OrderStateTrace.PICKUPCAR.getState());
+
     }
 
 }
