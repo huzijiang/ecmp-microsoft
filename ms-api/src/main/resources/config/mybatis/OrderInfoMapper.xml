@@ -3072,14 +3072,14 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="getMoneyList" resultType="java.util.Map" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
         SELECT
-        o.order_number orderNumber,#订单号
-        pa.NAME userName,#用车人
-        ct.NAME carType,#用车类型名
+        o.order_number orderNumber,--#订单号
+        pa.NAME userName,--#用车人
+        ct.NAME carType,--#用车类型名
         ct.LEVEL carLevel,
-        adr.action_time,#用车时间
-        jo.use_time useTime,#用车天数
-        se.amount amount,#用车费用
-        se.amount_detail amountDetai #其他费用
+        adr.action_time,--#用车时间
+        jo.use_time useTime,--#用车天数
+        se.amount amount,--#用车费用
+        se.amount_detail amountDetai --#其他费用
         FROM
         order_info o
         LEFT JOIN order_address_info addr ON o.order_id = addr.order_id
@@ -3097,5 +3097,21 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= addr.action_time ]]>
         <![CDATA[ AND adr.action_time <= DATE_FORMAT( #{endDate}, '%Y-%m-%d' ) ]]>
         GROUP BY o.order_id
+    </select>
+    <select id="selectOrderCarGroup" resultType="map">
+        select DATE_FORMAT(order_info.create_time,'%Y-%m-%d')date,car_group_info.it_is_inner,car_group_info.car_group_id,order_info.* from order_info
+        left join car_group_driver_relation on order_info.driver_id=car_group_driver_relation.driver_id
+        left join car_group_info on car_group_info.car_group_id=car_group_driver_relation.car_group_id
+        where order_info.driver_id is NOT null
+        and order_info.company_id = #{companyId}
+        and date(order_info.create_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    </select>
+    <select id="selectNormalOrderReserveTime" resultType="map">
+        select start_date,GROUP_CONCAT(order_state_trace_info.state)states,order_info.* from order_info
+        left join order_state_trace_info on order_info.order_id=order_state_trace_info.order_id
+        left join journey_info on journey_info.journey_id = order_info.journey_id
+        where date(start_date) &gt;= #{beginDate} and date(start_date) &lt;= #{endDate}
+        and order_info.company_id = #{companyId}
+        group by order_info.order_id
     </select>
 </mapper>

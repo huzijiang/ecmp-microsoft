@@ -8,6 +8,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="add" parameterType="com.hq.ecmp.mscore.domain.ReckoningInfo">
         insert into collection_quittance_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="collection_id != null ">,</if>
             <if test="car_group_id != null ">,</if>
             <if test="company_id != null ">,</if>
             <if test="begin_date != null ">,</if>
@@ -22,6 +23,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="update_time != null ">,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test=" != null ">#{collectionId},</if>
             <if test=" != null ">#{carGroupId},</if>
             <if test=" != null ">#{companyId},</if>
             <if test=" != null ">#{beginDate},</if>

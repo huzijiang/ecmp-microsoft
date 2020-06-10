@@ -16,4 +16,6 @@ public interface CollectionQuittanceInfoService {
     void updateReckoningStatus(ReckoningDto param);
 
     Map reckoningDetail(ReckoningDto param);
+
+    void downloadReckoning(ReckoningInfo reckoningInfo);
 }

@@ -442,5 +442,20 @@ public interface OrderInfoMapper {
     List<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto data);
 
     List<Map<String,String>> getMoneyList(ReckoningDto param);
+
+    /**
+     * 查询订单司机的所属车队和车队性质，用于首页统计
+     * @return
+     */
+    List<Map> selectOrderCarGroup(@Param("companyId")Long companyId);
+
+    /**
+     * 查询用车开始时间段之内的订单
+     * @param companyId 当前登录人所属公司
+     * @param beginDate 开始时间
+     * @param endDate 结束时间
+     * @return
+     */
+    List<Map> selectNormalOrderReserveTime(@Param("companyId")Long companyId,@Param("beginDate")String beginDate,@Param("endDate")String endDate);
 }
 
