@@ -79,6 +79,7 @@ public class JourneyController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
             int i = applyInfoService.updateApplyState(journeyApplyDto.getApplyId(), ApplyStateConstant.CANCEL_APPLY,ApproveStateEnum.CANCEL_APPROVE_STATE.getKey(),userId);
+
             if(i == 1){
                 return ApiResponse.success("撤销成功");
             }else {

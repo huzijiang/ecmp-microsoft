@@ -87,12 +87,12 @@ public class ApplyInfoBackServiceImpl implements ApplyInfoBackService
         UserApplySingleVo userApplySingleVo = list.get(0);
         vo.setApplyInfoDetail(userApplySingleVo);
         List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(userApplySingleVo.getOrderId()));
+        approveList.add(new ApprovalDispatcherVO(applyId,userApplySingleVo.getOrderNumber(),userApplySingleVo.getApplyName(),userApplySingleVo.getApplyPhoneNumber(),"发起申请",userApplySingleVo.getCreateTime()));
         if (CollectionUtils.isEmpty(orderDispatcheDetailInfos)){
-            log.error("该调度详情单不存在:",userApplySingleVo.getOrderId());
-            throw new BaseException("该调度详情单不存在!");
+            vo.setApproveList(approveList);
+            return vo;
         }
         OrderDispatcheDetailInfo dispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
-        approveList.add(new ApprovalDispatcherVO(applyId,userApplySingleVo.getOrderNumber(),userApplySingleVo.getApplyName(),userApplySingleVo.getApplyPhoneNumber(),"发起申请",userApplySingleVo.getCreateTime()));
         //获取内部车队
         List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.applySingleCarGroupList(IS_RETURN, "C000", loginUser.getUser().getDeptId());
         if (CollectionUtils.isEmpty(carGroupInfos)){
@@ -118,7 +118,6 @@ public class ApplyInfoBackServiceImpl implements ApplyInfoBackService
         }else{
             if (OrderState.ORDEROVERTIME.getState().equals(driverOrderInfoVO.getLabelState())){
                 approveList.add(new ApprovalDispatcherVO(applyId,userApplySingleVo.getOrderNumber(),carGroupInfo.getCarGroupName(),carGroupInfo.getTelephone(),"未操作,已过期",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,driverOrderInfoVO.getLabelStateOptTime())));
-
             }
         }
         vo.setApproveList(approveList);

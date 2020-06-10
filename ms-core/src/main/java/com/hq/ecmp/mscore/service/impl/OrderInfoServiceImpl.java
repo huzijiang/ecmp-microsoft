@@ -758,6 +758,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         vo.setRegimeId(journeyInfo.getRegimenId());
         vo.setUseTime(journeyInfo.getUseTime());
+        vo.setBeginTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,journeyInfo.getUseCarTime()));
         JourneyNodeInfo nodeInfo = journeyNodeInfoMapper.selectJourneyNodeInfoById(orderInfo.getNodeId());
         BeanUtils.copyProperties(orderInfo,vo);
 
@@ -847,8 +848,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 //服务结束后获取里程用车时长
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
-                    vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
-                    vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime().intValue()));
+                    OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
+                    vo.setDistance(orderSettlingInfo.getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
+                    vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfo.getTotalTime().intValue()));
+                    OrderCostDetailVO orderCost =new OrderCostDetailVO(orderSettlingInfo.getAmount().toPlainString(),orderSettlingInfo.getTotalMileage().toPlainString(),orderSettlingInfo.getTotalTime().toPlainString());
+                    String amountDetail = orderSettlingInfo.getAmountDetail();
+                    String outPrice = orderSettlingInfo.getOutPrice();
+//                    vo.set
                 }
             }
         }else{
@@ -1920,6 +1926,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
             DriverHeartbeatInfo driverHeartbeatInfo = new DriverHeartbeatInfo();
             driverHeartbeatInfo.setOrderId(orderId);
+            driverHeartbeatInfo.setCreateTime(orderInfo.getUpdateTime());
             List<DriverHeartbeatInfo> driverHeartbeatInfos = driverHeartbeatInfoMapper.selectDriverHeartbeatInfoList(driverHeartbeatInfo);
             for (DriverHeartbeatInfo driverHeartbeatInfo1:
             driverHeartbeatInfos) {
