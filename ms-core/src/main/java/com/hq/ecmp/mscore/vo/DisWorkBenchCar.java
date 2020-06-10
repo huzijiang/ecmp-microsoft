@@ -23,4 +23,7 @@ public class DisWorkBenchCar {
 
     @ApiModelProperty(value = "数量")
     private Integer num;
+
+    @ApiModelProperty(value = "车型图片路径")
+    private String carTypeImageUrl;
 }

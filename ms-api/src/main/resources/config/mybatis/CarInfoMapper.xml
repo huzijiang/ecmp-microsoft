@@ -543,6 +543,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getCarByState" parameterType="java.lang.String" resultType="com.hq.ecmp.mscore.vo.DisWorkBenchCar">
         select
         ecti.`name`  AS carTypeName,
+        ecti.image_url carTypeImageUrl,
         c.seat_num AS seatNum,
         count(1) AS num
         from  car_info c

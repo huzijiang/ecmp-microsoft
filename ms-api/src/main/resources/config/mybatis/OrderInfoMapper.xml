@@ -239,8 +239,10 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             select
             (select ecti1.`name` from enterprise_car_type_info ecti1 where ecti1.car_type_id=ai.car_type_id) carTypeName,
             jn.use_time useTime,
+            o.order_number orderNumber,
             ai.it_is_self_driver selfDriver,
             jpi.`name` useCarName,
+            jpi.mobile useCarMobile,
             oai.action_time useCarDate,
             oai.address beginAddress,
             o.order_id orderId,
@@ -3105,7 +3107,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         )
         AND o.it_is_supplement = 'N000'
         AND o.company_id =100
-        and   date(oaib.action_time) = curdate()
+        -- and   date(oaib.action_time) = curdate()
         )t
         where t.state= #{state}
         order by useCarDate

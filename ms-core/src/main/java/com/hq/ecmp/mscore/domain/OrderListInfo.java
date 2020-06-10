@@ -79,6 +79,9 @@ public class OrderListInfo {
     @ApiModelProperty(value = "用车人")
     private String useCarName;
 
+    @ApiModelProperty(value = "用车人手机号")
+    private String useCarMobile;
+
     @ApiModelProperty(value = "用车时间")
     private  String useCarDate;
 

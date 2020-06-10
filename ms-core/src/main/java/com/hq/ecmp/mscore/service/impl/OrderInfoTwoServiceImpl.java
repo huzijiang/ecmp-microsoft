@@ -1274,7 +1274,29 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         PageHelper.startPage(query.getPageN(), query.getPageS());
         dispatcherOrderList = getDispatchOrderInfos(query);
         //获取各个状态的数量
-        List<DisOrderStateCount> orderStateCount = orderInfoMapper.getOrderStateCount(query);
+        List<DisOrderStateCount> orderStateCount = new ArrayList<>(4);
+        orderStateCount = orderInfoMapper.getOrderStateCount(query);
+        if (CollectionUtils.isEmpty(orderStateCount)){
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.WAITINGLIST.getStateName(),0));
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ALREADYSENDING.getStateName(),0));
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDERDENIED.getStateName(),0));
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDEROVERTIME.getStateName(),0));
+        }else{
+            List<String> collect1 = orderStateCount.stream().map(DisOrderStateCount::getState).collect(Collectors.toList());
+            if(!collect1.contains(DispatchOrderStateTraceEnum.WAITINGLIST.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.WAITINGLIST.getStateName(),0));
+            }
+            if(!collect1.contains(DispatchOrderStateTraceEnum.ALREADYSENDING.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ALREADYSENDING.getStateName(),0));
+            }
+            if(!collect1.contains(DispatchOrderStateTraceEnum.ORDERDENIED.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDERDENIED.getStateName(),0));
+            }
+            if(!collect1.contains(DispatchOrderStateTraceEnum.ORDEROVERTIME.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDEROVERTIME.getStateName(),0));
+            }
+            Collections.sort(orderStateCount);
+        }
         PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
         Map<String,Object> map = new HashMap<>();
         map.put("totalPage", info.getTotal());
