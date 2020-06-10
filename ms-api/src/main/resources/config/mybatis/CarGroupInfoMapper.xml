@@ -373,10 +373,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="applySingleCarGroupList"  resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
 
-          select c.car_group_id carGroupId,c.car_group_name carGroupName
-          from car_group_info c
-          left join car_group_serve_org_relation o on o.car_group_id = c.car_group_id
-          where c.state =#{state}  and c.it_is_inner =#{itIsInner}  and o.dept_id =#{deptId}
+          select c.car_group_id carGroupId,c.car_group_name carGroupName  from car_group_info c left join car_group_serve_org_relation o on o.car_group_id = c.car_group_id where c.state =#{state}  and c.it_is_inner =#{itIsInner}  and o.dept_id =#{deptId}
 
     </select>
     <select id="getDisCarGroupInfoByUserId" resultType="com.hq.ecmp.mscore.dto.dispatch.DispatchCarGroupDto" >
@@ -397,4 +394,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           left join car_group_serve_org_relation o on o.car_group_id = c.car_group_id
           where c.state =#{state}   and o.dept_id =#{deptId}
     </select>
+
+   <select id="reckoningDetail" resultType="java.lang.String" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
+       SELECT
+       DISTINCT DATE_FORMAT(addr.action_time, '%Y-%m') carDate
+       FROM
+       order_info o
+       left join order_address_info addr on o.order_id = addr.order_id and addr.type = 'A000'
+       left join order_address_info adr on o.order_id = adr.order_id and adr.type = 'A999'
+       left join order_account_info acc on  o.order_id  = acc.order_id
+       WHERE
+       o.company_id = #{ecmpId}
+       AND  <![CDATA[ DATE_FORMAT(#{startDate}, '%Y-%m-%d') <= addr.action_time ]]>
+       AND  <![CDATA[ adr.action_time <= DATE_FORMAT(#{endDate}, '%Y-%m-%d') ]]>
+       and  acc.state != 'S005'
+   </select>
 </mapper>

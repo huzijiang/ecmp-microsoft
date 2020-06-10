@@ -19,6 +19,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.dto.statistics.StatisticsParam;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
@@ -583,6 +584,27 @@ public class OrderController {
             return ApiResponse.error(e.getMessage());
         }
     }
+
+    /**
+     *   @author caobj
+     *   @Description 乘客端佛山订单详情辅助页面
+     *   @Date 10:11 2020/3/4
+     *   @Param  []
+     *   @return com.hq.common.core.api.ApiResponse
+     **/
+    @ApiOperation(value = "乘客端获取订单详情",httpMethod = "POST")
+    @RequestMapping("/getOrderInfoDetail")
+    public ApiResponse<UserApplySingleVo> getOrderInfoDetail(@RequestParam("orderId") Long orderId,@RequestParam("applyId") Long applyId) {
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            UserApplySingleVo orderVO = orderInfoTwoService.getOrderInfoDetail(orderId,loginUser.getUser(),applyId);
+            return ApiResponse.success(orderVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error(e.getMessage());
+        }
+    }
     /**
      *   @author caobj
      *   @Description 获取订单状态
@@ -726,6 +748,31 @@ public class OrderController {
         try {
             Map<String,String> orderInfo = iOrderInfoService.downloadOrderData(orderId);
             return ApiResponse.success(orderInfo);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("查询失败");
+        }
+    }
+
+    @ApiOperation(value = "统计内外部车队订单数",httpMethod = "POST")
+    @PostMapping(value = "/selectOrderCarGroup")
+    public ApiResponse<Map> selectOrderCarGroup(){
+        Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
+        try {
+            Map map = iOrderInfoService.selectOrderCarGroup(companyId);
+            return ApiResponse.success(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("查询失败");
+        }
+    }
+    @ApiOperation(value = "订单预约时段统计",httpMethod = "POST")
+    @PostMapping(value = "/selectNormalOrderReserveTime")
+    public ApiResponse<Map> selectNormalOrderReserveTime(@RequestBody StatisticsParam statisticsParam){
+        try {
+            Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
+            Map map = iOrderInfoService.selectNormalOrderReserveTime(companyId,statisticsParam.getBeginDate(),statisticsParam.getEndDate());
+            return ApiResponse.success(map);
         }catch (Exception e){
             e.printStackTrace();
             return  ApiResponse.error("查询失败");

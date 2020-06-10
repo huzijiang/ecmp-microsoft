@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
+import com.hq.ecmp.mscore.dto.ReckoningDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchCarGroupDto;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
@@ -231,4 +232,6 @@ public interface CarGroupInfoMapper
      * @return
      */
     List<DispatchCarGroupDto> getDisCarGroupInfoByUserId(@Param("userId") Long userId,@Param("companyId") Long companyId);
+
+    List<String> reckoningDetail(ReckoningDto param);
 }

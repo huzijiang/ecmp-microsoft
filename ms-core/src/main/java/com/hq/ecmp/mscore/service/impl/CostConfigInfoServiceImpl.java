@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
-import com.hq.ecmp.constant.CharterTypeEnum;
-import com.hq.ecmp.constant.CostConfigModeEnum;
-import com.hq.ecmp.constant.OrderServiceType;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.mapper.*;
@@ -26,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -402,4 +401,37 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         return costConfigCityInfoMapper.getCostCityList(companyId);
     }
 
+    /**
+     * 获取价格计划详情
+     * @param applyPriceDetails
+     * @return
+     */
+    @Override
+    public List<ApplyPriceDetails> applySinglePriceDetails(ApplyPriceDetails applyPriceDetails) {
+        String rentType ="";
+        String carGroupUserMode ="";
+        //包车类型
+        String  halfDayRent = "0.5";  //半日租
+        String  fullDayRent = "1";    //整日租
+        if(CarConstant.RETURN_ZERO_CODE.equals(applyPriceDetails.getApplyDays().compareTo(halfDayRent))){
+            //半日
+            rentType =CharterTypeEnum.HALF_DAY_TYPE.getKey();
+        }else if(CarConstant.RETURN_ZERO_CODE.equals(applyPriceDetails.getApplyDays().compareTo(fullDayRent))){
+            //整日
+            rentType =CharterTypeEnum.OVERALL_RENT_TYPE.getKey();
+        }else{
+            rentType =CharterTypeEnum.OVERALL_RENT_TYPE.getKey()+","+CharterTypeEnum.HALF_DAY_TYPE.getKey();
+        }
+        applyPriceDetails.setRentType(rentType);
+       //判断用车方式
+       if(CarConstant.SELFDRIVER_YES.equals(applyPriceDetails.getItIsSelfDriver())){
+           carGroupUserMode=CarConstant.CAR_GROUP_USER_MODE_CAR;
+       }else{
+           carGroupUserMode=CarConstant.CAR_GROUP_USER_MODE_CAR_DRIVER;
+       }
+        applyPriceDetails.setCarGroupUserMode(carGroupUserMode);
+        applyPriceDetails.setServiceType(ServiceTypeConstant.CHARTERED);
+        List<ApplyPriceDetails> list =  costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
+        return list;
+    }
 }

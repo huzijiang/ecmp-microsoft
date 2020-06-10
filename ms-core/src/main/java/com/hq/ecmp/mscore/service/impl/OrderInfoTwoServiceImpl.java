@@ -22,6 +22,7 @@ import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -740,7 +741,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     public PageResult<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
         userApplySingleVo.setCompanyId(companyId);
-        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+//        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+        userApplySingleVo.setDeptId(loginUser.getUser().getDeptId());
         PageHelper.startPage(userApplySingleVo.getPageNum(), userApplySingleVo.getPageSize());
         List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplySearchList(userApplySingleVo);
         for (UserApplySingleVo userApplySingle : useApplyList){
@@ -1124,6 +1126,15 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
             orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
             orderStateTraceInfo.setContent(query.getRejectReason());
             orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+            //修改申请单状态为驳回
+            List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
+            if (!CollectionUtils.isEmpty(applyInfos)){
+                ApplyInfo applyInfo = applyInfos.get(0);
+                applyInfo.setState(ApplyStateConstant.REJECT_APPLY);
+                applyInfo.setUpdateBy(user.getUserId().toString());
+                applyInfo.setUpdateTime(DateUtils.getNowDate());
+                applyInfoMapper.updateApplyInfo(applyInfo);
+            }
             ismsBusiness.sendSmsInnerDispatcherReject(orderInfo,query.getRejectReason());
         } else {
             /**订单状态不变,给内部调度员发短信通知**/
@@ -1282,6 +1293,55 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         map.put("page", info.getTotal());
         map.put("list", dispatcherOrderList);
         return map;
+    }
+
+    @Override
+    public void updatePickupCarState() {
+        //获取已取车的所有订单
+        List<PiclUpCarOrderVO> orderList=orderStateTraceInfoMapper.selectOrderListByState(OrderStateTrace.PICKUPCAR.getState());
+        if (CollectionUtils.isEmpty(orderList)){
+            for (PiclUpCarOrderVO vo:orderList){
+                int i = DateFormatUtils.compareDayAndTime(vo.getUseCarTime(), new Date());
+                if (i==0){
+                    ((OrderInfoTwoServiceImpl) AopContext.currentProxy()).updateOrderState(vo);
+                }
+            }
+        }
+    }
+
+    @Override
+    public UserApplySingleVo getOrderInfoDetail(Long orderId,SysUser user,Long applyId) throws Exception{
+        UserApplySingleVo userApplySingleVo = new UserApplySingleVo();
+        userApplySingleVo.setDeptId(user.getDeptId());
+        Long applyIdOrderId=applyId;
+        if (applyId==null){
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            if (orderInfo==null) {
+                throw new BaseException("该订单为空:"+orderId);
+            }
+            List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
+            if (CollectionUtils.isEmpty(applyInfos)){
+                throw new BaseException("该申请单为空对应行程id:"+orderInfo.getJourneyId());
+            }
+            applyIdOrderId=applyInfos.get(0).getApplyId();
+        }
+        List<UserApplySingleVo> useApplyList = applyInfoMapper.getApplyListPage(null,applyIdOrderId);
+        if (CollectionUtils.isEmpty(useApplyList)){
+        return null;
+        }
+        return useApplyList.get(0);
+    }
+
+    @Transactional
+    public void updateOrderState(PiclUpCarOrderVO vo){
+        OrderInfo orderInfo = new OrderInfo(vo.getOrderId(), OrderState.INSERVICE.getState());
+        orderInfo.setUpdateTime(DateUtils.getNowDate());
+        orderInfoMapper.updateOrderInfo(orderInfo);
+        OrderStateTraceInfo stateTraceInfo = new OrderStateTraceInfo(vo.getOrderId(), OrderState.INSERVICE.getState());
+        stateTraceInfo.setCreateTime(DateUtils.getNowDate());
+        stateTraceInfo.setContent("自驾取车开始服务");
+        stateTraceInfo.setCreateBy(CommonConstant.START);
+        orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
     }
 
     /**

@@ -27,10 +27,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -49,6 +46,8 @@ public class ApplyContoller {
 
     @Autowired
     private IApplyInfoService applyInfoService;
+    @Autowired
+    private ApplyInfoBackService applyInfoBackService;
     @Autowired
     private IJourneyInfoService journeyInfoService;
     @Autowired
@@ -232,6 +231,42 @@ public class ApplyContoller {
         PageResult<ApplyInfoDTO> applyInfoList = applyInfoService.selectApplyInfoListByPage(loginUser.getUser()
                 .getUserId(),applyPage.getPageNum(),applyPage.getPageSize());
         return ApiResponse.success(applyInfoList);
+    }
+
+    /**
+     * 佛山用车申请列表
+     * @param
+     * @return
+     */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "申请模块:申请列表", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getApplyListPage",notes = "获取乘客自身 行程申请列表 ",httpMethod ="POST")
+    @PostMapping("/getApplyListPage")
+    public ApiResponse<PageResult<UserApplySingleVo>>  getApplyListPage(@RequestBody PageRequest applyPage){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        //分页查询乘客申请列表
+        PageResult<UserApplySingleVo> applyInfoList = applyInfoBackService.getApplyListPage(loginUser.getUser(),applyPage.getPageNum(),applyPage.getPageSize());
+        return ApiResponse.success(applyInfoList);
+    }
+
+    /**
+     * 佛山用车申请详情
+     * @param
+     * @return
+     */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "申请模块:申请详情", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getApplyInfoDetail",notes = "获取乘客自身 行程申请详情 ",httpMethod ="POST")
+    @PostMapping("/getApplyInfoDetail")
+    public ApiResponse<ApplyInfoDetailVO>  getApplyInfoDetail(@RequestParam("applyId") Long applyId){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            ApplyInfoDetailVO vo=applyInfoBackService.getApplyInfoDetail(applyId,loginUser);
+            return ApiResponse.success(vo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询异常");
+        }
     }
 
     /**
