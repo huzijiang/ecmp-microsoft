@@ -410,15 +410,19 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     public List<ApplyPriceDetails> applySinglePriceDetails(ApplyPriceDetails applyPriceDetails) {
         String rentType ="";
         String carGroupUserMode ="";
-       if(isInteger(applyPriceDetails.getApplyDays())){
-           //只有整日租
-           rentType =CharterTypeEnum.OVERALL_RENT_TYPE.getKey();
-           applyPriceDetails.setRentType(rentType);
-       }else{
-           //有半日租 也有 整日租
-           rentType =CharterTypeEnum.OVERALL_RENT_TYPE.getKey()+","+CharterTypeEnum.HALF_DAY_TYPE.getKey();
-           applyPriceDetails.setRentType(rentType);
-       }
+        //包车类型
+        String  halfDayRent = "0.5";  //半日租
+        String  fullDayRent = "1";    //整日租
+        if(CarConstant.RETURN_ZERO_CODE.equals(applyPriceDetails.getApplyDays().compareTo(halfDayRent))){
+            //半日
+            rentType =CharterTypeEnum.HALF_DAY_TYPE.getKey();
+        }else if(CarConstant.RETURN_ZERO_CODE.equals(applyPriceDetails.getApplyDays().compareTo(fullDayRent))){
+            //整日
+            rentType =CharterTypeEnum.OVERALL_RENT_TYPE.getKey();
+        }else{
+            rentType =CharterTypeEnum.OVERALL_RENT_TYPE.getKey()+","+CharterTypeEnum.HALF_DAY_TYPE.getKey();
+        }
+        applyPriceDetails.setRentType(rentType);
        //判断用车方式
        if(CarConstant.SELFDRIVER_YES.equals(applyPriceDetails.getItIsSelfDriver())){
            carGroupUserMode=CarConstant.CAR_GROUP_USER_MODE_CAR;
@@ -430,15 +434,5 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         applyPriceDetails.setServiceType(ServiceTypeConstant.CHARTERED);
         List<ApplyPriceDetails> list =  costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
         return list;
-    }
-
-    /*
-     * 判断是否为整数
-     * @param str 传入的字符串
-     * @return 是整数返回true,否则返回false
-     */
-    public static boolean isInteger(String str) {
-         Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");
-        return pattern.matcher(str).matches();
     }
 }
