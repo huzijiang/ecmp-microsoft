@@ -20,7 +20,7 @@ public class ReckoningInfo implements Serializable {
     /** 结束年月 */
     private Date endDate;
     /** 状态 */
-    private int state;
+    private String state;
     /** 付款截止日期 */
     private Date collectionEndTime;
     /** 创建时间 */

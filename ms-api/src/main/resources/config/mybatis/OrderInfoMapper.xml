@@ -3041,4 +3041,34 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
            </if>
         order by ai.create_time desc
     </select>
+
+
+    <select id="getMoneyList" resultType="java.util.Map" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
+        SELECT
+        o.order_number orderNumber,#订单号
+        pa.NAME userName,#用车人
+        ct.NAME carType,#用车类型名
+        ct.LEVEL carLevel,
+        adr.action_time,#用车时间
+        jo.use_time useTime,#用车天数
+        se.amount amount,#用车费用
+        se.amount_detail amountDetai #其他费用
+        FROM
+        order_info o
+        LEFT JOIN order_address_info addr ON o.order_id = addr.order_id
+        AND addr.type = 'A000'
+        LEFT JOIN order_address_info adr ON o.order_id = adr.order_id
+        AND adr.type = 'A999'
+        LEFT JOIN order_account_info acc ON o.order_id = acc.order_id
+        AND acc.state != 'S005'
+        LEFT JOIN journey_info jo ON o.journey_id = jo.journey_id
+        LEFT JOIN enterprise_car_type_info ct ON jo.company_id = ct.company_id
+        LEFT JOIN order_settling_info se ON o.order_id = se.order_id
+        LEFT JOIN journey_passenger_info pa ON o.journey_id = pa.journey_id
+        WHERE
+        o.company_id = #{companyId}
+        <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= addr.action_time ]]>
+        <![CDATA[ AND adr.action_time <= DATE_FORMAT( #{endDate}, '%Y-%m-%d' ) ]]>
+        GROUP BY o.order_id
+    </select>
 </mapper>

@@ -3,10 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.bo.OrderTaskClashBo;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
-import com.hq.ecmp.mscore.dto.OrderInfoFSDto;
-import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -443,5 +440,7 @@ public interface OrderInfoMapper {
      * @return
      */
     List<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto data);
+
+    List<Map<String,String>> getMoneyList(ReckoningDto param);
 }
 
