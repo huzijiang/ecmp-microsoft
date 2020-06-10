@@ -1,13 +1,19 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.common.core.api.ApiResponse;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.domain.ReassignInfo;
 import com.hq.ecmp.mscore.domain.SendCarInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.UseCarDataByGroupDto;
+import com.hq.ecmp.mscore.dto.UseCarDataDto;
+import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.UseCarDataVo;
 import com.hq.ecmp.mscore.vo.UserVO;
 
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -124,4 +130,8 @@ public interface IOrderStateTraceInfoService
     public OrderStateTraceInfo queryFirstDispatchIndo(Long orderId);
     
     public OrderStateTraceInfo queryRecentlyDispatchInfo(Long orderId);
+
+    UseCarDataVo selectDeptUseCarData(UseCarDataDto useCarDataDto, LoginUser loginUser) throws ParseException;
+
+    PageResult<UseCarDataVo> userDeptUseCarDataByCarGroup(UseCarDataByGroupDto useCarDataByGroupDto, LoginUser loginUser);
 }

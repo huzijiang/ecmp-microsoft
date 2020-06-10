@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 
 import com.hq.ecmp.mscore.domain.CarOptLogInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -60,4 +61,6 @@ public interface CarOptLogInfoMapper
      * @return 结果
      */
     public int deleteCarOptLogInfoByIds(Long[] logIds);
+
+    CarOptLogInfo selectCarOptLogInfoByCarIdAndLogType(@Param("carId") Long carId,@Param("optTpe") String logType);
 }

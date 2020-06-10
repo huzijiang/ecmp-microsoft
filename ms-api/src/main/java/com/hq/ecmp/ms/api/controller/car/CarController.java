@@ -274,7 +274,7 @@ public class CarController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
-            int i = carInfoService.disableCar(carDto.getCarId(),userId);
+            int i = carInfoService.disableCar(carDto.getCarId(),userId,carDto.getContent());
             /*if(i == 0){
                 return ApiResponse.error("车辆在使用中，无法禁用");
             }*/
@@ -299,7 +299,7 @@ public class CarController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
-            carInfoService.maintainCar(carDto.getCarId(),userId);
+            carInfoService.maintainCar(carDto.getCarId(),userId,carDto.getContent());
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("修改维保状态失败");
@@ -426,5 +426,24 @@ public class CarController {
             e.printStackTrace();
             return ApiResponse.error("查询失败");
         }
+    }
+
+    /**
+     * 查询车辆维保/禁用日志信息
+     * @param  carDto  车辆信息
+     * @return
+     */
+    @Log(title = "车辆管理", content = "查询车辆维保/禁用日志信息",businessType = BusinessType.OTHER)
+    @ApiOperation(value = "getCarLogInfo",notes = "查询车辆维保/禁用日志信息",httpMethod ="POST")
+    @PostMapping("/getCarLogInfo")
+    public ApiResponse getCarLogInfo(@RequestBody CarDto carDto){
+        try {
+            String logInfo = carInfoService.getCarLogInfo(carDto.getCarId(),carDto.getLogType());
+            return ApiResponse.success("查询车辆日志信息成功",logInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询车辆日志信息失败");
+        }
+
     }
 }

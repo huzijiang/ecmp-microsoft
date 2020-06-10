@@ -67,6 +67,8 @@ public class CarInfoServiceImpl implements ICarInfoService
     private CarTrackInfoMapper carTrackInfoMapper;
     @Resource
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
+    @Resource
+    private CarOptLogInfoMapper carOptLogInfoMapper;
 
 
     /**
@@ -374,7 +376,7 @@ public class CarInfoServiceImpl implements ICarInfoService
      * @return
      */
     @Override
-    public int disableCar(Long carId, Long userId) throws Exception {
+    public int disableCar(Long carId, Long userId,String content) throws Exception {
         //查询车辆是否在使用中  两种情况  1. 车辆被锁定 2.车辆有未结束的订单  （暂不考虑 未作要求）
        /* CarInfo car = carInfoMapper.selectCarInfoById(carId);
         if("1111".equals(car.getLockState())){
@@ -384,7 +386,8 @@ public class CarInfoServiceImpl implements ICarInfoService
         if(CollectionUtils.isNotEmpty(orderInfos)){
             return 0;
         }*/
-        CarInfo carInfo = new CarInfo();
+
+       CarInfo carInfo = new CarInfo();
         carInfo.setState(CarConstant.DISABLE_CAR);
         carInfo.setUpdateBy(String.valueOf(userId));
         carInfo.setUpdateTime(new Date());
@@ -393,6 +396,14 @@ public class CarInfoServiceImpl implements ICarInfoService
         if(row != 1){
             throw new Exception("禁用失败");
         }
+        //插入车辆禁用日志信息  T001   维保   T002   禁用
+        CarOptLogInfo carOptLogInfo = new CarOptLogInfo();
+        carOptLogInfo.setLog(content);
+        carOptLogInfo.setOptTpe("T002");
+        carOptLogInfo.setCarId(carId);
+        carOptLogInfo.setCreateBy(String.valueOf(userId));
+        carOptLogInfo.setCreateTime(DateUtils.getNowDate());
+        carOptLogInfoMapper.insertCarOptLogInfo(carOptLogInfo);
         return row;
     }
 
@@ -403,7 +414,7 @@ public class CarInfoServiceImpl implements ICarInfoService
      * @throws Exception
      */
     @Override
-    public void maintainCar(Long carId, Long userId) throws Exception {
+    public void maintainCar(Long carId, Long userId,String content) throws Exception {
 
         CarInfo carInfo = new CarInfo();
         carInfo.setState(CarConstant.MAINTENANCE_CAR);
@@ -414,6 +425,14 @@ public class CarInfoServiceImpl implements ICarInfoService
         if(i!= 1){
             throw new Exception();
         }
+        //插入车辆禁用日志信息  T001   维保   T002   禁用
+        CarOptLogInfo carOptLogInfo = new CarOptLogInfo();
+        carOptLogInfo.setLog(content);
+        carOptLogInfo.setOptTpe("T001");
+        carOptLogInfo.setCarId(carId);
+        carOptLogInfo.setCreateBy(String.valueOf(userId));
+        carOptLogInfo.setCreateTime(DateUtils.getNowDate());
+        carOptLogInfoMapper.insertCarOptLogInfo(carOptLogInfo);
     }
 
     /**
@@ -915,5 +934,11 @@ public class CarInfoServiceImpl implements ICarInfoService
     @Override
     public void unlockCars(){
         carInfoMapper.unlockCars();
+    }
+
+    @Override
+    public String getCarLogInfo(Long carId, String logType) {
+        CarOptLogInfo carOptLogInfo = carOptLogInfoMapper.selectCarOptLogInfoByCarIdAndLogType(carId,logType);
+        return carOptLogInfo ==  null ? null : carOptLogInfo.getLog();
     }
 }

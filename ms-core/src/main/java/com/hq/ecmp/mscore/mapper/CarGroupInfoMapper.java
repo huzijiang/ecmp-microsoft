@@ -219,6 +219,14 @@ public interface CarGroupInfoMapper
     List<CarGroupInfo> applySingleCarGroupList(@Param("state") String state,@Param("itIsInner")String itIsInner,@Param("deptId") Long deptId);
 
     /**
+     * 用户服务部门车队列表(包含内外部车队）
+     * @param state
+     * @param deptId
+     * @return
+     */
+    List<CarGroupInfo> userDeptCarGroupList(@Param("state") String state,@Param("deptId") Long deptId);
+
+    /**
      * 获取调度员的车队信息
      * @param userId
      * @return

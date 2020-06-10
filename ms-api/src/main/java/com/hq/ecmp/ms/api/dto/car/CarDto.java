@@ -20,6 +20,10 @@ public class CarDto {
 
     private Long driverId;  //驾驶员id
 
-   // private Long userId;  //驾驶员员工编号
+   //禁用、维保说明
+    private String content;
+
+    //T001   维保  T002   禁用
+    private String logType;
 
 }
