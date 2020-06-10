@@ -3125,4 +3125,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         and order_info.company_id = #{companyId}
         group by order_info.order_id
     </select>
+
+    <select id="selectOrderIdByJourneyId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        select order_id from order_info where journey_id = #{journeyId}
+        order By order_id desc
+        limit 1
+    </select>
 </mapper>

@@ -116,4 +116,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		AND it_is_peer = '00'
 	</select>
 
+
+    <select id="queryJourneyPassengerInfoByJourneyId" parameterType="java.lang.Long" resultMap="JourneyPassengerInfoResult" >
+        SELECT name,
+               mobile
+        FROM journey_passenger_info
+        WHERE journey_id = #{journeyId}
+        limit 1
+    </select>
+
 </mapper>

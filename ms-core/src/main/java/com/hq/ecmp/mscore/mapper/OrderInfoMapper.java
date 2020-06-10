@@ -457,5 +457,7 @@ public interface OrderInfoMapper {
      * @return
      */
     List<Map> selectNormalOrderReserveTime(@Param("companyId")Long companyId,@Param("beginDate")String beginDate,@Param("endDate")String endDate);
+
+    Long selectOrderIdByJourneyId(Long journeyId);
 }
 
