@@ -79,5 +79,13 @@
             #{logId}
         </foreach>
     </delete>
+    <select id="selectCarOptLogInfoByCarIdAndLogType" resultMap="CarOptLogInfoResult">
+        <include refid="selectCarOptLogInfoVo"/>
+        <where>
+            <if test="carId != null "> and car_id = #{carId}</if>
+            <if test="optTpe != null  and optTpe != ''"> and opt_tpe = #{optTpe}</if>
+        </where>
+        order by log_id desc limit 1
+    </select>
 
 </mapper>

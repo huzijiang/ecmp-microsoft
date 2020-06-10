@@ -14,6 +14,8 @@ public class UserApplySingleVo extends PageRequest {
 
     @ApiModelProperty(value = "当前用户id")
     private Long userId;
+    @ApiModelProperty(value = "当前用户id")
+    private Long deptId;
 
     @ApiModelProperty(value = "订单id")
     private Long orderId;
@@ -43,6 +45,8 @@ public class UserApplySingleVo extends PageRequest {
 
     @ApiModelProperty(value = "订单编号")
     private String orderNumber;
+    @ApiModelProperty(value = "订单编号")
+    private String applyNumber;
 
     @ApiModelProperty(value = "费用合计")
     private String amount;
@@ -53,6 +57,8 @@ public class UserApplySingleVo extends PageRequest {
     @ApiModelProperty(value = "服务车型")
     private String carLevel;
 
+    @ApiModelProperty(value = "下单时间")
+    private String createTime;
     @ApiModelProperty(value = "用车开始时间")
     private String beginTime;
 
@@ -133,8 +139,16 @@ public class UserApplySingleVo extends PageRequest {
 
     @ApiModelProperty(value = "是否自驾")
     private String itIsSelfDriver;
+    @ApiModelProperty(value = "是否可以修改")
+    private String canUpdateDetail;
 
     @ApiModelProperty(value = "多个下车地点")
     private String addressInfo;
+    private String safeRemind;
+    private String labelState;
+    private String state;
+    private int stateFlag;
+    @ApiModelProperty(value = "自驾的费用详情")
+    private OrderCostDetailVO  orderCostDetailVO;
 
 }

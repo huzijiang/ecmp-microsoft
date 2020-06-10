@@ -2164,6 +2164,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         return apiResponse;
     }
 
+    @Override
+    public List<Map<String,String>> getApplyStateCount( LoginUser loginUser) {
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        List<Map<String,String>> list= applyInfoMapper.getApplyStateCount(companyId,loginUser.getUser().getDeptId());
+        return list;
+    }
+
     /**
      *  申请单行程预算价表
      * @param applySingleVO

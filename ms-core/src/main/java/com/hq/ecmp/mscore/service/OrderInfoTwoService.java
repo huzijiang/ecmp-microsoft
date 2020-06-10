@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.exception.BaseException;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.*;
@@ -140,6 +141,8 @@ public interface OrderInfoTwoService {
      */
     List<CarGroupInfo> applySingleCarGroupList(Long companyId);
 
+    List<CarGroupInfo> userDeptCarGroupList(Long deptId);
+
     /**
      * 调度员可看的调度列表（佛山调度列表优化）--优化中，暂未使用
      * @param query
@@ -147,6 +150,9 @@ public interface OrderInfoTwoService {
      */
     Map<String,Object> dispatchListCharterCarWithDispatcher(ApplyDispatch query,LoginUser loginUser);
 
+    void updatePickupCarState();
+
+    UserApplySingleVo getOrderInfoDetail(Long orderId, SysUser user,Long applyId)throws Exception;
     /**
      * 佛山后管申请单调度-获取用车单位列表
      * @param companyId

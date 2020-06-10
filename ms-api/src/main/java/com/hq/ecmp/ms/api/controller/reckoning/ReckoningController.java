@@ -3,12 +3,13 @@ package com.hq.ecmp.ms.api.controller.reckoning;
 
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.common.utils.http.ApiResponse;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.ms.api.util.CommonUtils;
+import com.hq.ecmp.constant.CollectionQuittanceEnum;
 import com.hq.ecmp.mscore.domain.ReckoningInfo;
 import com.hq.ecmp.mscore.dto.ReckoningDto;
 import com.hq.ecmp.mscore.service.CollectionQuittanceInfoService;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -37,7 +39,6 @@ public class ReckoningController {
      * @author ghb
      * @description  添加收款
      */
-
     @ResponseBody
     @ApiOperation(value = "添加收款",notes = "添加收款")
     @RequestMapping(value = "/addReckoning", method = RequestMethod.POST)
@@ -49,13 +50,13 @@ public class ReckoningController {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
-
-            reckoningInfo.setCompanyId(CommonUtils.getRandomFileName());
             reckoningInfo.setCreateBy(userId);
+            reckoningInfo.setState(CollectionQuittanceEnum.COLLECTION_WAIT.getKey());
             reckoningInfo.setCarGroupId(param.getEcmpId());
             reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            reckoningInfo.setCollectionId(param.getCollectionId());
 
             collectionService.addReckoning(reckoningInfo);
             return ApiResponse.success("添加成功");
@@ -66,6 +67,38 @@ public class ReckoningController {
         }
     }
 
+
+
+    /**
+     * @author ghb
+     * @description  添加收款
+     */
+    @ResponseBody
+    @ApiOperation(value = "下载收款",notes = "下载收款")
+    @RequestMapping(value = "/downloadReckoning", method = RequestMethod.POST)
+    @Log(title = "下载收款", content = "下载收款",businessType = BusinessType.OTHER)
+    public ApiResponse downloadReckoning(@RequestBody ReckoningDto param, @RequestHeader String token) {
+        log.info("下载收款，传来的参数为："+param);
+        try {
+            ReckoningInfo reckoningInfo = new ReckoningInfo();
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            reckoningInfo.setCreateBy(userId);
+            reckoningInfo.setState(CollectionQuittanceEnum.COLLECTION_WAIT.getKey());
+            reckoningInfo.setCarGroupId(param.getEcmpId());
+            reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            reckoningInfo.setCollectionId(param.getCollectionId());
+
+            collectionService.downloadReckoning(reckoningInfo);
+            return ApiResponse.success("下载收款");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("下载收款异常");
+        }
+    }
 
     /**
      * @author ghb
@@ -79,8 +112,14 @@ public class ReckoningController {
     public ApiResponse updateReckoningStatus(@RequestBody ReckoningDto param, @RequestHeader String token, HttpServletRequest request) {
         log.info("条件查询收款，传来的参数为："+param);
         try {
-            collectionService.updateReckoningStatus(param);
-            return ApiResponse.success("改变收款状态收款成功");
+
+            if(null != param && !StringUtils.isEmpty(param.getStatus()) && param.getCompanyId() > 0){
+                collectionService.updateReckoningStatus(param);
+                return ApiResponse.success("改变收款状态收款成功！");
+            }else {
+                return ApiResponse.success("改变收款状态缺失参数！");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("改变收款状态异常");
@@ -92,6 +131,22 @@ public class ReckoningController {
 
 
 
+    @ResponseBody
+    @ApiOperation(value = "收款详情",notes = "收款详情")
+    @RequestMapping(value = "/reckoningDetail", method = RequestMethod.POST)
+    @Log(title = "收款详情", content = "收款详情",businessType = BusinessType.OTHER)
+    public ApiResponse<Map<String, Object>> reckoningDetail(@RequestBody ReckoningDto param, @RequestHeader String token, HttpServletRequest request) {
+        log.info("条件查询收款，传来的参数为："+param);
+        try {
+
+               Map<String, Object> detailMap = collectionService.reckoningDetail(param);
+                return ApiResponse.success(detailMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("收款详情异常");
+        }
+
+    }
 
 
 

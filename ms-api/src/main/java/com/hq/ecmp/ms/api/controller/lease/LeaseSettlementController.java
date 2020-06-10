@@ -4,7 +4,6 @@ package com.hq.ecmp.ms.api.controller.lease;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
-import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.service.lease.LeaseSettlementService;
 import com.hq.ecmp.mscore.vo.PageResult;
@@ -16,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 
 
 @Slf4j
@@ -41,7 +39,7 @@ public class LeaseSettlementController {
     @Log(title = "普通用户租赁列表", content = "普通用户租赁列表", businessType = BusinessType.OTHER)
     public ApiResponse<PageResult<LeaseSettlementDto>> getOrdinaryUserList(@RequestBody LeaseSettlementDto data){
         try {
-            return ApiResponse.success(leaseSettlementService.getOrdinaryUserList(data));
+            return ApiResponse.success(leaseSettlementService.getOrdinaryUserList(data,tokenService.getLoginUser(ServletUtils.getRequest())));
         } catch (Exception e) {
             log.error("getOrdinaryUserList error",e);
         }
@@ -56,7 +54,7 @@ public class LeaseSettlementController {
     @Log(title = "普通用户租赁详情", content = "普通用户租赁详情", businessType = BusinessType.OTHER)
     public ApiResponse getOrdinaryUserDetail(Long collectionId){
         try {
-            ApiResponse.success(leaseSettlementService.getOrdinaryUserDetail(collectionId));
+            return ApiResponse.success(leaseSettlementService.getOrdinaryUserDetail(collectionId));
         } catch (Exception e) {
             log.error("getOrdinaryUserDetail error",e);
         }
@@ -74,7 +72,7 @@ public class LeaseSettlementController {
     @Log(title = "租赁普通用户确认费用", content = "租赁普通用户确认费用", businessType = BusinessType.OTHER)
     public ApiResponse ordinaryUserConfirmCost(Long collectionId){
         try {
-            ApiResponse.success(leaseSettlementService.ordinaryUserConfirmCost(collectionId,tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId()));
+            return ApiResponse.success(leaseSettlementService.ordinaryUserConfirmCost(collectionId,tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getUserId()));
         } catch (Exception e) {
             log.error("ordinaryUserConfirmCost error",e);
         }
@@ -92,12 +90,30 @@ public class LeaseSettlementController {
     @Log(title = "租赁普通用户下载pdf详情", content = "租赁普通用户下载pdf详情", businessType = BusinessType.OTHER)
     public ApiResponse downloadOrdinaryUserDetail(Long collectionId){
         try {
-
+            leaseSettlementService.downloadOrdinaryUserDetail(collectionId);
+            return ApiResponse.success();
         } catch (Exception e) {
             log.error("downloadOrdinaryUserDetail error",e);
         }
         return ApiResponse.error();
+    }
 
+
+    /***
+     * 租赁结算用车单位列表
+     * add by liuzb
+     * @return
+     */
+    @ApiOperation(value = "租赁结算用车单位列表")
+    @PostMapping(value = "/getUseCarUnit")
+    @Log(title = "getUseCarUnit", content = "getUseCarUnit", businessType = BusinessType.OTHER)
+    public ApiResponse getUseCarUnit(){
+        try{
+            return ApiResponse.success(leaseSettlementService.getUseCarUnit(tokenService.getLoginUser(ServletUtils.getRequest())));
+        }catch(Exception e){
+            log.error("getUseCarUnit error",e);
+        }
+        return ApiResponse.error();
     }
 
 

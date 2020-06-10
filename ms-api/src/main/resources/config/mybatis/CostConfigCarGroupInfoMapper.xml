@@ -100,5 +100,5 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and car_group_id=#{carGroupId}
         </if>
     </select>
-    
+
 </mapper>

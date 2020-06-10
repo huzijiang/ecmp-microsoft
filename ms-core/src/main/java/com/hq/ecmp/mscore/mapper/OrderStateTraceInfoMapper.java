@@ -1,15 +1,15 @@
 package com.hq.ecmp.mscore.mapper;
 
-import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
-import com.hq.ecmp.mscore.domain.DispatchOptRecord;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-import com.hq.ecmp.mscore.domain.SendCarInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.vo.PiclUpCarOrderVO;
 import com.hq.ecmp.mscore.vo.RejectDispatcherUserVO;
+import com.hq.ecmp.mscore.vo.UseCarDataVo;
 import com.hq.ecmp.mscore.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -157,4 +157,10 @@ public interface OrderStateTraceInfoMapper
     int selectCountForAgainStrte(@Param("orderId") Long orderId,@Param("state")  String state);
 
     List<OrderStateTraceInfo> selectListByOrderState(@Param("orderId")Long orderId, @Param("state") String state, @Param("date") String date);
+
+    UseCarDataVo selectDeptUseCarData(@Param("beginDate") String beginDate,@Param("endDate") String endDate,@Param("deptId") Long deptId);
+
+    List<UseCarDataVo> userDeptUseCarDataByCarGroup(@Param("carGroupId") Long carGroupId,@Param("beginDate") String beginDate,@Param("endDate") String endDate,@Param("deptId")Long deptId);
+
+    List<PiclUpCarOrderVO> selectOrderListByState(String state);
 }

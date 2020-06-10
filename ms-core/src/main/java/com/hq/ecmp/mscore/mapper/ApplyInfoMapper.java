@@ -6,10 +6,12 @@ import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.JourneyAddressInfoDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.DispatchVo;
+import com.hq.ecmp.mscore.vo.UserApplySingleVo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -119,4 +121,8 @@ public interface ApplyInfoMapper
      * @return
      */
     DispatchVo getDispatchApplyInfoByJourneyId(@Param("journeyId") Long journeyId);
+
+    List<Map<String, String>> getApplyStateCount(@Param("companyId") Long companyId,@Param("deptId") Long deptId);
+
+    List<UserApplySingleVo> getApplyListPage(@Param("deptId") Long deptId,@Param("applyId") Long applyId);
 }

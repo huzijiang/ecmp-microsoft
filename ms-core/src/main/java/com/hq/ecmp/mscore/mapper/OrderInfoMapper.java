@@ -7,6 +7,8 @@ import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
 import com.hq.ecmp.mscore.dto.OrderInfoFSDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -449,6 +451,34 @@ public interface OrderInfoMapper {
      * @return
      */
     List<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto data);
+
+    List<Map<String,String>> getMoneyList(ReckoningDto param);
+
+    /**
+     * 查询订单司机的所属车队和车队性质，用于首页统计
+     * @return
+     */
+    List<Map> selectOrderCarGroup(@Param("companyId")Long companyId);
+
+    /**
+     * 查询用车开始时间段之内的订单
+     * @param companyId 当前登录人所属公司
+     * @param beginDate 开始时间
+     * @param endDate 结束时间
+     * @return
+     */
+    List<Map> selectNormalOrderReserveTime(@Param("companyId")Long companyId,@Param("beginDate")String beginDate,@Param("endDate")String endDate);
+
+    Long selectOrderIdByJourneyId(Long journeyId);
+
+
+    /***
+     * 结算单（当前车队结算单的所有已完成订单）
+     * @param data
+     * @return
+     */
+    List<String> getStatementsList(LeaseSettlementDto data);
+
 
     /**
      * 获取调度工作台对应状态的列表数据

@@ -13,9 +13,8 @@ public class ReckoningDto implements Serializable {
 
     private static final long serialVersionUID = 6417025431759105175L;
 
-
-
-
+    //收账标识
+    private Long collectionId;
     /** 用车单位 */
     private Long ecmpId;
 
@@ -32,13 +31,16 @@ public class ReckoningDto implements Serializable {
     private String status;
 
     /** 结算标识 */
-    private String companyId;
+    private Long companyId;
 
-    /** 收款状态 */
+    /** 起始页 */
     private String pageIndex;
 
     /** 收款状态 */
     private String pageSize;
+
+    /** 确认人 */
+    private String verifier;
 
 
 

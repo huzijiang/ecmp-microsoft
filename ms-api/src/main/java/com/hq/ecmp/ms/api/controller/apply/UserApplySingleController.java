@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用车申请
@@ -64,6 +65,25 @@ public class UserApplySingleController {
         try {
             PageResult<UserApplySingleVo> list = orderInfoTwoService.getUseApplySearchList(userApplySingleVo,loginUser);
             return ApiResponse.success(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("分页查询用车申请列表失败");
+        }
+    }
+
+    /**
+     * 获取各种状态的申请单数量
+     * @return
+     */
+    @ApiOperation(value = "getApplyStateCount",notes = "分页查询用车申请列表",httpMethod ="POST")
+    @Log(title = "用车申请", content = "用车申请列表",businessType = BusinessType.OTHER)
+    @PostMapping("/getApplyStateCount")
+    public ApiResponse<List<Map<String,String>>> getApplyStateCount(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            List<Map<String,String>> vo = applyInfoService.getApplyStateCount(loginUser);
+            return ApiResponse.success(vo);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("分页查询用车申请列表失败");
@@ -285,4 +305,5 @@ public class UserApplySingleController {
         }
         return  ApiResponse.success(applyPriceDetails);
     }
+
 }

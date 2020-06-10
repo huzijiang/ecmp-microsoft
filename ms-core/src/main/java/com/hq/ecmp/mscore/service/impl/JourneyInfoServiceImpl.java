@@ -1,38 +1,29 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.io.Console;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.util.StringUtil;
+import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
 import com.hq.ecmp.mscore.bo.JourneyBeingEndDate;
 import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
-import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.JourneyDetailVO;
+import com.hq.ecmp.mscore.vo.JourneyVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.SortListUtil;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import com.github.pagehelper.util.StringUtil;
-import com.hq.common.utils.DateUtils;
-import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
-import com.hq.ecmp.mscore.vo.JourneyVO;
-
 import javax.annotation.Resource;
+import java.util.*;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -71,7 +62,12 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
     @Resource
     private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
 
-    
+    @Autowired
+    private JourneyPassengerInfoMapper journeyPassengerInfoMapper;
+    @Autowired
+    private OrderDispatcheDetailInfoMapper dispatcheDetailInfoMapper;
+
+
 
     /**
      * 查询【请填写功能名称】
@@ -149,114 +145,138 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
 
     @Override
 	public List<CarAuthorityInfo> getUserCarAuthorityList(Long userId) {
-		List<CarAuthorityInfo> carAuthorityInfoList=new ArrayList<>();
-		//获取申请人的用车权限
-		List<JourneyInfo> journeyInfoList =journeyInfoMapper.queryPassJourneyList(userId);
-		if(null !=journeyInfoList && journeyInfoList.size()>0){
-			for (JourneyInfo journeyInfo : journeyInfoList) {
-				//获取是差旅还是公务
-				RegimeInfo regimeInfo = regimeInfoService.queryRegimeType(journeyInfo.getRegimenId());
-				if(null !=regimeInfo){
-					if(CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getRegimenType())){
-						if(journeyUserCarPowerService.checkJourneyNoteAllComplete(journeyInfo.getJourneyId())){
-							//表示该行程下面所有订单都已完成了  则首页不显示这条行程
-							continue;
-						}
-						CarAuthorityInfo carAuthorityInfo = new CarAuthorityInfo();
-						carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
-						carAuthorityInfo.setType(regimeInfo.getRegimenType());
-						//公务用车时间
-						//TODO  .toString() 适应性添加， zc
-						carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());
-						//差旅类型
-						Map<String, Integer> countMap = journeyUserCarPowerService.selectStatusCount(journeyInfo.getJourneyId());
-						//统计差旅类型的几种用车类型的剩余次数
-						carAuthorityInfo.setJoinCount(null==countMap.get(CarConstant.USE_CAR_AIRPORT_PICKUP)?0:countMap.get(CarConstant.USE_CAR_AIRPORT_PICKUP));
-						carAuthorityInfo.setGiveCount(null==countMap.get(CarConstant.USE_CAR_AIRPORT_DROP_OFF)?0:countMap.get(CarConstant.USE_CAR_AIRPORT_DROP_OFF));
-						carAuthorityInfo.setCityCount(null==countMap.get(CarConstant.CITY_USE_CAR)?0:countMap.get(CarConstant.CITY_USE_CAR));
-						//获取差旅的所有出差城市
-						carAuthorityInfo.setCityName(journeyNodeInfoService.selectAllCity(journeyInfo.getJourneyId()));
-						//获取行程的起止时间
-						JourneyNodeInfo journeyNodeInfo = journeyNodeInfoService.selectMaxAndMinDate(journeyInfo.getJourneyId());
-						if(null !=journeyNodeInfo){
-							carAuthorityInfo.setStartDate(journeyNodeInfo.getPlanSetoutTime());
-							carAuthorityInfo.setEndDate(journeyNodeInfo.getPlanArriveTime());
-						}
-						carAuthorityInfoList.add(carAuthorityInfo);
-					}
-					
-					if(CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimeInfo.getRegimenType())){
-						//查询公务用车行程下面的用车权限
-						List<CarAuthorityInfo> journeyUserCarPowerList = journeyUserCarPowerService.queryJourneyAllUserAuthority(journeyInfo.getJourneyId());
-						if(null !=journeyUserCarPowerList && journeyUserCarPowerList.size()>0){
-							for (CarAuthorityInfo carAuthorityInfo : journeyUserCarPowerList) {
-								//根据权限Id查询对应行程节点中的起止目的地
-								JourneyNodeInfo queryJourneyNodeInfoByPowerId = journeyNodeInfoService.queryJourneyNodeInfoByPowerId(carAuthorityInfo.getTicketId());
-								String returnIsType = carAuthorityInfo.getReturnIsType();
-								carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanEndAddress());
-								//查询该权限对应的用车城市
-								String cityCode = journeyUserCarPowerService.queryOfficialPowerUseCity(carAuthorityInfo.getTicketId());
-								carAuthorityInfo.setCityCode(cityCode);
-								carAuthorityInfo.setRegimenId(journeyInfo.getRegimenId());
-								carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
-								carAuthorityInfo.setType(regimeInfo.getRegimenType());
-								carAuthorityInfo.setServiceType(journeyInfo.getServiceType());
-								//公务用车时间
-								carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());
-								//公务类型
-								ApplyInfo applyInfo = new ApplyInfo();
-								//查询对应的公务出差理由
-								applyInfo.setJourneyId(journeyInfo.getJourneyId());
-								List<ApplyInfo> applyInfoList = applyInfoService.selectApplyInfoList(applyInfo);
-								if(null !=applyInfoList && applyInfoList.size()>0){
-									carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
-								}
-								//公务用车用车方式(取制度里面的)
-								carAuthorityInfo.setCarType(journeyInfo.getUseCarMode());
-								//查询改权限是否需要走调度   true-不走调度  走网约    false-走调度
-								boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(applyInfoList.get(0).getApplyId(), cityCode);
-								// 返给前端是跳转到自有车页面还是网约车页面 carType   先从订单表里取  如果没有则取是否走调度的
-								String carType;
-								Long orderId = carAuthorityInfo.getOrderId();
-								if (null != orderId) {
-									OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
-									carAuthorityInfo.setCanUseCarMode(orderInfo.getUseCarMode());
-									String useCarMode = orderInfo.getUseCarMode();
-									if (StringUtil.isNotEmpty(useCarMode)) {
-										carType = useCarMode;
-									} else {
-										if (judgeNotDispatch) {
-											carType = CarConstant.USR_CARD_MODE_NET;
-										} else {
-											carType = CarConstant.USR_CARD_MODE_HAVE;
-										}
-									}
-								} else {
-									if (judgeNotDispatch) {
-										carType = CarConstant.USR_CARD_MODE_NET;
-									} else {
-										carType = CarConstant.USR_CARD_MODE_HAVE;
-									}
-								}
-								carAuthorityInfo.setCarType(carType);
-								//查询公务用车的前端状态
-                                String state = journeyUserCarPowerService.buildUserAuthorityPowerStatus(judgeNotDispatch, carAuthorityInfo.getTicketId(),regimeInfo.getCompanyId());
-                                carAuthorityInfo.setStatus(state);
-                                if(state.equals(OrderState.ORDERDENIED.getState())){
-                                    OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(carAuthorityInfo.getTicketId());
-                                    carAuthorityInfo.setRejectReason(orderStateTraceInfo.getContent());
-                                }
-								carAuthorityInfoList.add(carAuthorityInfo);
-							}
-						}
-						
-						
-					}
-				}
-			}
-		}
-		return carAuthorityInfoList;
-	}
+        List<CarAuthorityInfo> carAuthorityInfoList = new ArrayList<>();
+        //获取申请人的用车权限（已通过）
+        List<JourneyInfo> journeyInfoList = journeyInfoMapper.queryPassJourneyList(userId);
+        if (CollectionUtils.isEmpty(journeyInfoList)) {
+            return carAuthorityInfoList;
+        }
+        for (JourneyInfo journeyInfo : journeyInfoList) {
+            //获取是差旅还是公务
+            RegimeInfo regimeInfo = regimeInfoService.queryRegimeType(journeyInfo.getRegimenId());
+            if (regimeInfo == null) {
+                continue;
+            }
+            //差旅
+            if (CarConstant.USE_CAR_TYPE_TRAVEL.equals(regimeInfo.getRegimenType())) {
+                if (journeyUserCarPowerService.checkJourneyNoteAllComplete(journeyInfo.getJourneyId())) {
+                    //表示该行程下面所有订单都已完成了  则首页不显示这条行程
+                    continue;
+                }
+                CarAuthorityInfo carAuthorityInfo = new CarAuthorityInfo();
+                carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
+                carAuthorityInfo.setUseTime(journeyInfo.getUseTime());
+                carAuthorityInfo.setType(regimeInfo.getRegimenType());
+                //公务用车时间
+                //TODO  .toString() 适应性添加， zc
+                carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());
+                //差旅类型
+                Map<String, Integer> countMap = journeyUserCarPowerService.selectStatusCount(journeyInfo.getJourneyId());
+                //统计差旅类型的几种用车类型的剩余次数
+                carAuthorityInfo.setJoinCount(null == countMap.get(CarConstant.USE_CAR_AIRPORT_PICKUP) ? 0 : countMap.get(CarConstant.USE_CAR_AIRPORT_PICKUP));
+                carAuthorityInfo.setGiveCount(null == countMap.get(CarConstant.USE_CAR_AIRPORT_DROP_OFF) ? 0 : countMap.get(CarConstant.USE_CAR_AIRPORT_DROP_OFF));
+                carAuthorityInfo.setCityCount(null == countMap.get(CarConstant.CITY_USE_CAR) ? 0 : countMap.get(CarConstant.CITY_USE_CAR));
+                //获取差旅的所有出差城市
+                carAuthorityInfo.setCityName(journeyNodeInfoService.selectAllCity(journeyInfo.getJourneyId()));
+                //获取行程的起止时间
+                JourneyNodeInfo journeyNodeInfo = journeyNodeInfoService.selectMaxAndMinDate(journeyInfo.getJourneyId());
+                if (null != journeyNodeInfo) {
+                    carAuthorityInfo.setStartDate(journeyNodeInfo.getPlanSetoutTime());
+                    carAuthorityInfo.setEndDate(journeyNodeInfo.getPlanArriveTime());
+                }
+                JourneyPassengerInfo passengerInfo = journeyPassengerInfoMapper.queryJourneyPassengerInfoByJourneyId(journeyInfo.getJourneyId());
+                if (passengerInfo != null) {
+                    carAuthorityInfo.setPassengerName(passengerInfo.getName());
+                    carAuthorityInfo.setUserMobile(passengerInfo.getMobile());
+                }
+                Long orderId = orderInfoMapper.selectOrderIdByJourneyId(journeyInfo.getJourneyId());
+                if (orderId != null) {
+                    OrderDispatcheDetailInfo dispatcheDetailInfo = dispatcheDetailInfoMapper.selectDispatcheInfo(orderId);
+                    carAuthorityInfo.setItIsSelfDriver(dispatcheDetailInfo.getItIsSelfDriver());
+                }
+                carAuthorityInfoList.add(carAuthorityInfo);
+            }
+            //公务
+            if (CarConstant.USE_CAR_TYPE_OFFICIAL.equals(regimeInfo.getRegimenType())) {
+                //查询公务用车行程下面的用车权限
+                List<CarAuthorityInfo> journeyUserCarPowerList = journeyUserCarPowerService.queryJourneyAllUserAuthority(journeyInfo.getJourneyId());
+                if (CollectionUtils.isEmpty(journeyUserCarPowerList)) {
+                    return carAuthorityInfoList;
+                }
+                for (CarAuthorityInfo carAuthorityInfo : journeyUserCarPowerList) {
+                    //根据权限Id查询对应行程节点中的起止目的地
+                    JourneyNodeInfo queryJourneyNodeInfoByPowerId = journeyNodeInfoService.queryJourneyNodeInfoByPowerId(carAuthorityInfo.getTicketId());
+                    String returnIsType = carAuthorityInfo.getReturnIsType();
+                    carAuthorityInfo.setEndAddress(queryJourneyNodeInfoByPowerId.getPlanEndAddress());
+                    carAuthorityInfo.setUseTime(journeyInfo.getUseTime());
+                    //查询该权限对应的用车城市
+                    String cityCode = journeyUserCarPowerService.queryOfficialPowerUseCity(carAuthorityInfo.getTicketId());
+                    carAuthorityInfo.setCityCode(cityCode);
+                    carAuthorityInfo.setRegimenId(journeyInfo.getRegimenId());
+                    carAuthorityInfo.setJourneyId(journeyInfo.getJourneyId());
+                    carAuthorityInfo.setType(regimeInfo.getRegimenType());
+                    carAuthorityInfo.setServiceType(journeyInfo.getServiceType());
+                    //公务用车时间
+                    carAuthorityInfo.setUseDate(journeyInfo.getUseCarTime());
+                    //公务类型
+                    ApplyInfo applyInfo = new ApplyInfo();
+                    //查询对应的公务出差理由
+                    applyInfo.setJourneyId(journeyInfo.getJourneyId());
+                    List<ApplyInfo> applyInfoList = applyInfoService.selectApplyInfoList(applyInfo);
+                    if (null != applyInfoList && applyInfoList.size() > 0) {
+                        carAuthorityInfo.setApplyName(applyInfoList.get(0).getReason());
+                    }
+                    //公务用车用车方式(取制度里面的)
+                    carAuthorityInfo.setCarType(journeyInfo.getUseCarMode());
+                    //查询改权限是否需要走调度   true-不走调度  走网约    false-走调度
+                    boolean judgeNotDispatch = regimeInfoService.judgeNotDispatch(applyInfoList.get(0).getApplyId(), cityCode);
+                    // 返给前端是跳转到自有车页面还是网约车页面 carType   先从订单表里取  如果没有则取是否走调度的
+                    String carType;
+                    Long orderId = carAuthorityInfo.getOrderId();
+                    if (null != orderId) {
+                        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+                        carAuthorityInfo.setCanUseCarMode(orderInfo.getUseCarMode());
+                        String useCarMode = orderInfo.getUseCarMode();
+                        if (StringUtil.isNotEmpty(useCarMode)) {
+                            carType = useCarMode;
+                        } else {
+                            if (judgeNotDispatch) {
+                                carType = CarConstant.USR_CARD_MODE_NET;
+                            } else {
+                                carType = CarConstant.USR_CARD_MODE_HAVE;
+                            }
+                        }
+                    } else {
+                        if (judgeNotDispatch) {
+                            carType = CarConstant.USR_CARD_MODE_NET;
+                        } else {
+                            carType = CarConstant.USR_CARD_MODE_HAVE;
+                        }
+                    }
+                    carAuthorityInfo.setCarType(carType);
+                    //查询公务用车的前端状态
+                    String state = journeyUserCarPowerService.buildUserAuthorityPowerStatus(judgeNotDispatch, carAuthorityInfo.getTicketId(), regimeInfo.getCompanyId());
+                    carAuthorityInfo.setStatus(state);
+                    if (Objects.equals(state, OrderState.ORDERDENIED.getState())) {
+                        OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryPowerCloseOrderIsCanle(carAuthorityInfo.getTicketId());
+                        carAuthorityInfo.setRejectReason(orderStateTraceInfo.getContent());
+                    }
+
+                    JourneyPassengerInfo passengerInfo = journeyPassengerInfoMapper.queryJourneyPassengerInfoByJourneyId(journeyInfo.getJourneyId());
+                    if (passengerInfo != null) {
+                        carAuthorityInfo.setPassengerName(passengerInfo.getName());
+                        carAuthorityInfo.setUserMobile(passengerInfo.getMobile());
+                    }
+                    if (orderId != null) {
+                        OrderDispatcheDetailInfo dispatcheDetailInfo = dispatcheDetailInfoMapper.selectDispatcheInfo(orderId);
+                        carAuthorityInfo.setItIsSelfDriver(dispatcheDetailInfo.getItIsSelfDriver());
+                    }
+                    carAuthorityInfoList.add(carAuthorityInfo);
+                }
+            }
+        }
+        return carAuthorityInfoList;
+    }
 
 	@Override
 public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {

@@ -266,6 +266,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
     <select id="selectCountGroupCarByGroupId" resultType="int" parameterType="long">
         select count(1) from car_info where car_group_id = #{carGroupId} and state != 'S444'
+        and car_group_id in(
+		    SELECT car_group_id FROM car_group_info WHERE it_is_inner = 'C000'
+	    )
     </select>
 
     <select id="queryCompanyCar" parameterType="java.lang.Long" resultType="java.lang.Integer">

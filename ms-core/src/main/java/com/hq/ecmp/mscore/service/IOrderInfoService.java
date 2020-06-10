@@ -369,6 +369,10 @@ public interface IOrderInfoService {
     PageResult<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto orderInfoFSDto, LoginUser user)throws Exception;
 
 
+    List<Map<String,String>> getMoneyList(ReckoningDto param);
+    Map<String, Map<String,Integer>> selectOrderCarGroup(Long companyId);
+
+    Map<String,Integer> selectNormalOrderReserveTime(Long companyId,String beginDate,String endDate);
 
 }
 

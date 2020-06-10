@@ -40,5 +40,7 @@ public class OrderInfoFSDto extends Page{
 
     String driverMobile;
 
+    String carGroupId;
 
+    Long updateBy;
 }
