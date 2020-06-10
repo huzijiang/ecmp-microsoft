@@ -2965,4 +2965,20 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        left join order_settling_info osi on osi.order_id =oi.order_id
        where oi.order_id=#{orderId}
     </select>
+    <select id="selectOrderCarGroup" resultType="map">
+        select DATE_FORMAT(order_info.create_time,'%Y-%m-%d')date,car_group_info.it_is_inner,car_group_info.car_group_id,order_info.* from order_info
+        left join car_group_driver_relation on order_info.driver_id=car_group_driver_relation.driver_id
+        left join car_group_info on car_group_info.car_group_id=car_group_driver_relation.car_group_id
+        where order_info.driver_id is NOT null
+        and order_info.company_id = #{companyId}
+        and date(order_info.create_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    </select>
+    <select id="selectNormalOrderReserveTime" resultType="map">
+        select start_date,GROUP_CONCAT(order_state_trace_info.state)states,order_info.* from order_info
+        left join order_state_trace_info on order_info.order_id=order_state_trace_info.order_id
+        left join journey_info on journey_info.journey_id = order_info.journey_id
+        where date(start_date) &gt;= #{beginDate} and date(start_date) &lt;= #{endDate}
+        and order_info.company_id = #{companyId}
+        group by order_info.order_id
+    </select>
 </mapper>

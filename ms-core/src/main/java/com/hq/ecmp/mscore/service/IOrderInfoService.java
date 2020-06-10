@@ -344,5 +344,9 @@ public interface IOrderInfoService {
      */
     Map downloadOrderData(Long orderId)throws Exception;
 
+    Map<String, Map<String,Integer>> selectOrderCarGroup(Long companyId);
+
+    Map<String,Integer> selectNormalOrderReserveTime(Long companyId,String beginDate,String endDate);
+
 }
 

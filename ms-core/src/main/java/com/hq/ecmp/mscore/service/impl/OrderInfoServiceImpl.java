@@ -2956,4 +2956,83 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public Map downloadOrderData(Long orderId) throws Exception {
         return orderInfoMapper.downloadOrderData(orderId);
     }
+
+    @Override
+    public Map<String, Map<String, Integer>> selectOrderCarGroup(Long companyId) {
+        String startDate = DateFormatUtils.formatDate(DateFormatUtils.DATE_FORMAT,DateFormatUtils.getPastDate(6));
+        String endDate = DateFormatUtils.formatDate(DateFormatUtils.DATE_FORMAT,new Date());
+        Map<String,Map<String,Integer>> map = DateFormatUtils.sliceUpDateRange(startDate,endDate).stream()
+                .collect(Collectors.toMap(x->x,x->new LinkedHashMap(){{
+                    put("all",0);
+                    put("in",0);
+                    put("out",0);
+                }},(k1,k2)->k2,LinkedHashMap::new));
+        orderInfoMapper.selectOrderCarGroup(companyId).stream().forEach(x->{
+            map.get(x.get("date")).put("all",map.get(x.get("date")).get("all")+1);
+            if(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN.equals(x.get("it_is_inner"))){
+                map.get(x.get("date")).put("in",map.get(x.get("date")).get("in")+1);
+            }
+            if(CarConstant.IT_IS_USE_INNER_CAR_GROUP_OUT.equals(x.get("it_is_inner"))){
+                map.get(x.get("date")).put("out",map.get(x.get("date")).get("out")+1);
+            }
+        });
+        return map;
+    }
+
+    @Override
+    public Map<String, Integer> selectNormalOrderReserveTime(Long companyId,String beginDate, String endDate) {
+        List<Map>list = orderInfoMapper.selectNormalOrderReserveTime(companyId,beginDate,endDate);
+        Map<String,Integer> map = new LinkedHashMap(){{
+            put("8-9",0);
+            put("9-10",0);
+            put("10-11",0);
+            put("11-12",0);
+            put("12-14",0);
+            put("14-15",0);
+            put("15-16",0);
+            put("16-17",0);
+            put("17-18",0);
+            put("18时-次日八时",0);
+        }};
+        list.stream()
+                .filter(x->x.get("states").toString().indexOf(OrderStateTrace.CANCEL.getState())==-1)//过滤取消
+                .filter(x->x.get("states").toString().indexOf(OrderStateTrace.ORDEROVERTIME.getState())==-1)//过滤超时
+                .filter(x->x.get("states").toString().indexOf(OrderStateTrace.ORDERDENIED.getState())==-1)//过滤驳回
+                .forEach(x->{
+                    int dateGroup = Integer.parseInt(DateFormatUtils.formatDate(DateFormatUtils.TIME_FORMAT_1,DateFormatUtils.parseDate(DateFormatUtils.DATE_TIME_FORMAT,x.get("start_date").toString())));
+                    if(dateGroup==8){
+                        map.put("8-9",map.get("8-9")+1);
+                    }
+                    if(dateGroup==9){
+                        map.put("9-10",map.get("9-10")+1);
+                    }
+                    if(dateGroup==10){
+                        map.put("10-11",map.get("10-11")+1);
+                    }
+                    if(dateGroup==11){
+                        map.put("11-12",map.get("11-12")+1);
+                    }
+                    if(dateGroup>=12 && dateGroup<14){
+                        map.put("12-14",map.get("12-14")+1);
+                    }
+                    if(dateGroup==14){
+                        map.put("14-15",map.get("14-15")+1);
+                    }
+                    if(dateGroup==15){
+                        map.put("15-16",map.get("15-16")+1);
+                    }
+                    if(dateGroup==16){
+                        map.put("16-17",map.get("16-17")+1);
+                    }
+                    if(dateGroup==18){
+                        map.put("17-18",map.get("17-18")+1);
+                    }
+                    if(dateGroup>=18 || dateGroup<8){
+                        map.put("18时-次日八时",map.get("18时-次日八时")+1);
+                    }
+                });
+        return map;
+    }
+
+
 }

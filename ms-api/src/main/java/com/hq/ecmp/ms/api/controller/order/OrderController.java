@@ -19,6 +19,7 @@ import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.dto.statistics.StatisticsParam;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
@@ -726,6 +727,31 @@ public class OrderController {
         try {
             Map<String,String> orderInfo = iOrderInfoService.downloadOrderData(orderId);
             return ApiResponse.success(orderInfo);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("查询失败");
+        }
+    }
+
+    @ApiOperation(value = "统计内外部车队订单数",httpMethod = "POST")
+    @PostMapping(value = "/selectOrderCarGroup")
+    public ApiResponse<Map> selectOrderCarGroup(){
+        Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
+        try {
+            Map map = iOrderInfoService.selectOrderCarGroup(companyId);
+            return ApiResponse.success(map);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ApiResponse.error("查询失败");
+        }
+    }
+    @ApiOperation(value = "订单预约时段统计",httpMethod = "POST")
+    @PostMapping(value = "/selectNormalOrderReserveTime")
+    public ApiResponse<Map> selectNormalOrderReserveTime(@RequestBody StatisticsParam statisticsParam){
+        try {
+            Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
+            Map map = iOrderInfoService.selectNormalOrderReserveTime(companyId,statisticsParam.getBeginDate(),statisticsParam.getEndDate());
+            return ApiResponse.success(map);
         }catch (Exception e){
             e.printStackTrace();
             return  ApiResponse.error("查询失败");
