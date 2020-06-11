@@ -73,17 +73,15 @@ public interface OrderAddressInfoMapper
 
     /**
      * 上车id
-     * @param type
      * @param applySingleIdVO
      * @return
      */
-    Long selectOrderAddressInfo(@Param("type") String type, ApplySingleIdVO applySingleIdVO);
+    Long selectOrderAddressInfo(ApplySingleIdVO applySingleIdVO);
 
     /**
      * 下车id
-     * @param type
      * @param applySingleIdVO
      * @return
      */
-    Long selectOrderAddressInfoTwo(@Param("type") String type, ApplySingleIdVO applySingleIdVO);
+    Long selectOrderAddressInfoTwo(ApplySingleIdVO applySingleIdVO);
 }
