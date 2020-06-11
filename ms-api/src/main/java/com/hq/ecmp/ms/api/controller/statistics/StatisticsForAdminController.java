@@ -27,17 +27,17 @@ public class StatisticsForAdminController {
     @Autowired
     private StatisticsForAdminService statisticsForAdminService;
 
-    @ApiOperation(value = "driverOutranking",notes = "出车次数，用车费用排行",httpMethod = "POST")
+    @ApiOperation(value = "driverOutranking",notes = "出车次数排行",httpMethod = "POST")
     @PostMapping("/driverOutranking")
     public ApiResponse driverOutranking(@RequestHeader("Authorization") String token, @RequestBody StatisticsForAdmin statisticsParam){
-        log.info("出车次数，用车费用排行，前端传过来的参数为："+statisticsParam);
+        log.info("出车次数排行，前端传过来的参数为："+statisticsParam);
             return statisticsForAdminService.driverOutranking(statisticsParam);
     }
 
-    @ApiOperation(value = "vehicleExpenses",notes = "出车次数，用车费用排行",httpMethod = "POST")
+    @ApiOperation(value = "vehicleExpenses",notes = "用车费用排行",httpMethod = "POST")
     @PostMapping("/vehicleExpenses")
     public ApiResponse vehicleExpenses(@RequestHeader("Authorization") String token, @RequestBody StatisticsForAdmin statisticsParam){
-        log.info("出车次数，用车费用排行，前端传过来的参数为："+statisticsParam);
+        log.info("用车费用排行，前端传过来的参数为："+statisticsParam);
         return statisticsForAdminService.vehicleExpenses(statisticsParam);
     }
 

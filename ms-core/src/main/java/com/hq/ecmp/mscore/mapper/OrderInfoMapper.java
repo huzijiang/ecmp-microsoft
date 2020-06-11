@@ -84,9 +84,10 @@ public interface OrderInfoMapper {
      * 获取乘客端我的行程订单列表
      *
      * @param userId
+     * @param isConfirmState
      * @return
      */
-    public List<OrderListInfo> getOrderList(Long userId);
+    public List<OrderListInfo> getOrderList(@Param("userId") Long userId,@Param("isConfirmState") int isConfirmState);
 
 
     public List<DispatchOrderInfo> queryOrderRelateInfo(OrderInfo orderInfo);

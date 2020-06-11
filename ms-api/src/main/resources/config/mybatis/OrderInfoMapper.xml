@@ -234,7 +234,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
         </foreach>
     </delete>
 
-    <select id="getOrderList" parameterType="Long"  resultType="com.hq.ecmp.mscore.domain.OrderListInfo">
+    <select id="getOrderList" resultType="com.hq.ecmp.mscore.domain.OrderListInfo">
           select * from (
             select
             (select ecti1.`name` from enterprise_car_type_info ecti1 where ecti1.car_type_id=ai.car_type_id) carTypeName,
@@ -246,6 +246,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             oai.action_time useCarDate,
             oai.address beginAddress,
             o.order_id orderId,
+            o.create_time,
             o.it_is_supplement  itIsSupplement,
             opi.state payState,
             ecti.`level`,
@@ -265,8 +266,12 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
 			left join journey_passenger_info jpi on jpi.journey_id=o.journey_id
             where jn.user_id=#{userId}
             and o.state in('S200','S299','S500','S600','S616','S699','S900')
-        order by o.create_time  desc
-         )cc1 where cc1.labelState not in ('S930','S921','S911')
+         )cc1
+         where cc1.labelState not in ('S930','S921','S911')
+         <if test="isConfirmState ==1 ">
+             and cc1.state='S699'
+         </if>
+        order by cc1.create_time  desc
     </select>
 
 
@@ -3150,7 +3155,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         )
         AND o.it_is_supplement = 'N000'
         AND o.company_id =100
-        -- and   date(oaib.action_time) = curdate()
+        and   date(oaib.action_time) = curdate()
         )t
         where t.state= #{state}
         order by useCarDate
