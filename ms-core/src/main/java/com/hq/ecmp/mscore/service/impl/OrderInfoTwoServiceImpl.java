@@ -12,10 +12,12 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
+import com.hq.ecmp.constant.enumerate.CarUserSelfDrivingEnum;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.dto.DriverCloudDto;
 import com.hq.ecmp.mscore.dto.JourneyAddressInfoDto;
+import com.hq.ecmp.mscore.dto.cost.ApplyPriceDetails;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchCarGroupDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
@@ -1217,10 +1219,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         if (journeyInfo==null){
             throw new BaseException("该行程不存在");
         }
-        int day = DateFormatUtils.compareDay(journeyInfo.getEndDate(), new Date());
-        if (day==-1){
-            throw new BaseException("当前时间不可还车");
-        }
+//        int day = DateFormatUtils.compareDay(journeyInfo.getEndDate(), new Date());
+//        if (day==-1){
+//            throw new BaseException("当前时间不可还车");
+//        }
         if (!OrderState.INSERVICE.getState().equals(orderInfo.getState())){
             throw new BaseException("当前状态不可还车");
         }
@@ -1235,6 +1237,79 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         stateTraceInfo.setCreateTime(new Date());
         stateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
+        /**计算自驾的费用*/
+        CarInfo carInfo = carInfoMapper.selectCarInfoById(orderDispatcheDetailInfo.getCarId());
+        if (carInfo==null){
+            throw new BaseException("该订单车辆不存在!");
+        }
+        String charterCarType = journeyInfo.getCharterCarType();
+        CharterTypeEnum charterTypeEnum = CharterTypeEnum.getCharterTypeEnum(charterCarType);
+        Long carGroupId = orderDispatcheDetailInfo.getCarCgId();
+        BigDecimal useTime = StringUtils.isNotEmpty(journeyInfo.getUseTime())?new BigDecimal(journeyInfo.getUseTime()):BigDecimal.ZERO;
+        ApplyPriceDetails applyPriceDetails=new ApplyPriceDetails();
+        applyPriceDetails.setCarGroupId(carGroupId);
+        applyPriceDetails.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA01.getKey());
+        applyPriceDetails.setCarTypeId(carInfo.getCarTypeId());
+        BigDecimal amount=BigDecimal.ZERO;
+        if (useTime.compareTo(BigDecimal.ONE)==0){//整日租
+            applyPriceDetails.setRentType(charterTypeEnum.OVERALL_RENT_TYPE.getKey());
+            List<ApplyPriceDetails> applyPriceDetails1 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
+            if (!CollectionUtils.isEmpty(applyPriceDetails1)){
+                if (applyPriceDetails1.get(0).getCombosPrice()!=null){
+                    amount=applyPriceDetails1.get(0).getCombosPrice();
+                }
+                OrderSettlingInfoVo orderSettlingInfoVo=new OrderSettlingInfoVo();
+                orderSettlingInfoVo.setOrderId(orderId);
+                orderSettlingInfoVo.setAmount(amount);
+                orderSettlingInfoService.selfDriverCostPrice(orderSettlingInfoVo,userId,orderInfo.getCompanyId(),null);
+            }
+        }else if (useTime.compareTo(BigDecimal.ZERO)==1&&useTime.compareTo(BigDecimal.ONE)<0){//半日租
+            applyPriceDetails.setRentType(charterTypeEnum.HALF_DAY_TYPE.getKey());
+            List<ApplyPriceDetails> applyPriceDetails2 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
+            if (!CollectionUtils.isEmpty(applyPriceDetails2)){
+                if (applyPriceDetails2.get(0).getCombosPrice()!=null){
+                    amount=applyPriceDetails2.get(0).getCombosPrice();
+                }
+                OrderSettlingInfoVo orderSettlingInfoVo=new OrderSettlingInfoVo();
+                orderSettlingInfoVo.setOrderId(orderId);
+                orderSettlingInfoVo.setAmount(amount);
+                orderSettlingInfoService.selfDriverCostPrice(orderSettlingInfoVo,userId,orderInfo.getCompanyId(),null);
+            }
+        }else if (useTime.compareTo(BigDecimal.ONE)==1){//多日租
+            if (journeyInfo.getUseTime().contains(".5")){//包含半天的多日租
+                applyPriceDetails.setRentType(charterTypeEnum.HALF_DAY_TYPE.getKey()+","+charterTypeEnum.OVERALL_RENT_TYPE.getKey());
+                List<ApplyPriceDetails> applyPriceDetails1 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
+                BigDecimal number = new  BigDecimal(journeyInfo.getUseTime()).subtract(new BigDecimal("0.5"));
+                if (!CollectionUtils.isEmpty(applyPriceDetails1)){
+                    for (ApplyPriceDetails applyPrice:applyPriceDetails1){
+                        if (charterTypeEnum.OVERALL_RENT_TYPE.getKey().equals(applyPrice.getRentType())){
+                            amount=amount.add(applyPrice.getCombosPrice().multiply(number));
+                        }else {
+                            amount=amount.add(applyPrice.getCombosPrice());
+                        }
+                    }
+                    OrderSettlingInfoVo orderSettlingInfoVo=new OrderSettlingInfoVo();
+                    orderSettlingInfoVo.setOrderId(orderId);
+                    orderSettlingInfoVo.setAmount(amount);
+                    orderSettlingInfoService.selfDriverCostPrice(orderSettlingInfoVo,userId,orderInfo.getCompanyId(),null);
+                }
+            }else{
+                applyPriceDetails.setRentType(charterTypeEnum.OVERALL_RENT_TYPE.getKey());
+                List<ApplyPriceDetails> applyPriceDetails1 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
+                if (!CollectionUtils.isEmpty(applyPriceDetails1)){
+                    if (applyPriceDetails1.get(0).getCombosPrice()!=null){
+                        amount=applyPriceDetails1.get(0).getCombosPrice();
+                    }
+                    OrderSettlingInfoVo orderSettlingInfoVo=new OrderSettlingInfoVo();
+                    orderSettlingInfoVo.setOrderId(orderId);
+                    orderSettlingInfoVo.setAmount(amount.multiply(new BigDecimal(journeyInfo.getUseTime())));
+                    orderSettlingInfoService.selfDriverCostPrice(orderSettlingInfoVo,userId,orderInfo.getCompanyId(),null);
+                }
+            }
+        }
+
+
+
     }
 
     /**
@@ -1340,8 +1415,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     @Override
     public UserApplySingleVo getOrderInfoDetail(Long orderId,SysUser user,Long applyId) throws Exception{
         UserApplySingleVo userApplySingleVo = new UserApplySingleVo();
-        userApplySingleVo.setDeptId(user.getDeptId());
         Long applyIdOrderId=applyId;
+        ApplyInfo applyInfo=null;
         if (applyId==null){
             OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
             if (orderInfo==null) {
@@ -1351,13 +1426,22 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
             if (CollectionUtils.isEmpty(applyInfos)){
                 throw new BaseException("该申请单为空对应行程id:"+orderInfo.getJourneyId());
             }
+            applyInfo = applyInfos.get(0);
             applyIdOrderId=applyInfos.get(0).getApplyId();
         }
         List<UserApplySingleVo> useApplyList = applyInfoMapper.getApplyListPage(null,applyIdOrderId);
         if (CollectionUtils.isEmpty(useApplyList)){
             return null;
         }
-        return useApplyList.get(0);
+        userApplySingleVo=useApplyList.get(0);
+        userApplySingleVo.setDeptId(user.getDeptId());
+        if (CarUserSelfDrivingEnum.ONE_SELF.getCode().equals(applyInfo.getItIsSelfDriver())){//自驾
+            OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
+            Map<String, Object> orderFee = orderSettlingInfoService.getOrderFee(orderSettlingInfo);
+            userApplySingleVo.setAmount(orderFee.get("amount").toString());
+            userApplySingleVo.setOrderFees((List<OtherCostBean>)orderFee.get("otherCostBeans"));
+        }
+        return userApplySingleVo;
     }
 
     @Transactional

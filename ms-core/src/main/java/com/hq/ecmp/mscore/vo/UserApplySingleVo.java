@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 用车申请
  */
@@ -149,6 +151,6 @@ public class UserApplySingleVo extends PageRequest {
     private String state;
     private int stateFlag;
     @ApiModelProperty(value = "自驾的费用详情")
-    private OrderCostDetailVO  orderCostDetailVO;
+    private List<OtherCostBean> orderFees;
 
 }

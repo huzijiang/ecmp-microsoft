@@ -50,6 +50,18 @@ public enum CharterTypeEnum {
 		return param.get(key);
 	}
 
+	public static CharterTypeEnum getCharterTypeEnum(String key){
+		if (StringUtils.isBlank(key)){
+			return null;
+		}
+		CharterTypeEnum[] hintEnums = CharterTypeEnum.values();
+		for (CharterTypeEnum hintEnum : hintEnums) {
+			if (hintEnum.key.equals(key)){
+				return hintEnum;
+			}
+		}
+		return null;
+	}
 
 
 
