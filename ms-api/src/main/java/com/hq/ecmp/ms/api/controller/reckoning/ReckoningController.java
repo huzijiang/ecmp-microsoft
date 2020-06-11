@@ -10,12 +10,9 @@ import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CollectionQuittanceEnum;
-import com.hq.ecmp.mscore.domain.CarGroupDriverRelation;
 import com.hq.ecmp.mscore.domain.ReckoningInfo;
 import com.hq.ecmp.mscore.dto.ReckoningDto;
-import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
 import com.hq.ecmp.mscore.service.CollectionQuittanceInfoService;
-import com.hq.ecmp.mscore.service.ICarGroupDriverRelationService;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -98,13 +95,14 @@ public class ReckoningController {
             reckoningInfo.setCreateBy(userId);
             reckoningInfo.setState(CollectionQuittanceEnum.COLLECTION_WAIT.getKey());
             reckoningInfo.setCarGroupId(param.getCarGroupId());
-            reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
-            reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
-            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD));
+            reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD));
+            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD));
             reckoningInfo.setCollectionId(param.getCollectionId());
+            reckoningInfo.setCompanyId(param.getCompanyId());
 
-            collectionService.downloadReckoning(reckoningInfo);
-            return ApiResponse.success("下载收款");
+            Map<String, Object> map = collectionService.downloadReckoning(reckoningInfo);
+            return ApiResponse.success(map);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("下载收款异常");
