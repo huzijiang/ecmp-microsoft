@@ -16,6 +16,6 @@ public class MoneyListDto {
     private String useTime;// #用车天数
     private Double amount;// #用车费用
     private String amountDetai; // #其他费用
-
+    private Long orderId;
     private Double totalMoney;
 }

@@ -3310,6 +3310,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="getMoneyList" resultType="com.hq.ecmp.mscore.dto.MoneyListDto" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
         SELECT
+        o.order_id orderId,
         o.order_number orderNumber,-- #订单号
         pa.NAME userName,-- #用车人
         ct.NAME carType,-- #用车类型名
