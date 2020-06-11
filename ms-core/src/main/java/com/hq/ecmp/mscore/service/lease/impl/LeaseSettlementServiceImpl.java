@@ -207,14 +207,17 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
     /***
      * 调度员更新结算单状态
      * add by liuzb
-     * @param data
+     * @param
      * @param user
      * @return
      */
     @Override
-    public int updateLeaseSettlementState(LeaseSettlementDto data, LoginUser user) {
+    public int updateLeaseSettlementState(Long collectionId,String state, LoginUser user) {
+        LeaseSettlementDto data = new LeaseSettlementDto();
+        data.setCollectionId(collectionId);
         data.setUpdateBy(user.getUser().getUserId());
         data.setUpdateTime(new Date());
+        data.setState(state);
         return  collectionQuittanceInfoMapper.ordinaryUserConfirmCost(data);
     }
 }
