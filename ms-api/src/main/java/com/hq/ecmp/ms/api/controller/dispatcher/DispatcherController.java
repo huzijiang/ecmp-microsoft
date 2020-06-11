@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.controller.dispatcher;
 
 import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.exception.BaseException;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.aspectj.lang.enums.OperatorType;
@@ -148,7 +149,9 @@ public class DispatcherController {
                             .dispatch(dispatchSendCarDto);
                 }
             }
-        } catch (Exception e) {
+        } catch (BaseException e){
+            return ApiResponse.error(e.getMessage());
+        }catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("派车失败");
         }
