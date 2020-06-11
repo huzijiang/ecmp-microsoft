@@ -1134,7 +1134,14 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String vehicleUser =officialCommitApply.getPassenger().getUserName()+" "+officialCommitApply.getPassenger().getUserPhone();
         String salesman = officialCommitApply.getApplyUser().getUserName()+ " "+officialCommitApply.getApplyUser().getUserPhone();
         String applyDays = officialCommitApply.getApplyDays();
+        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.getUndoSMSTemplate(applyId);
+        String deptName =undoSMSTemplate.getDeptName();
+        String orderNumber =undoSMSTemplate.getOrderNumber();
+        String carTypeName =undoSMSTemplate.getCarTypeName();
         Map<String,String> map=Maps.newHashMap();
+        map.put("deptName", deptName );//申请人单位名称
+        map.put("orderNumber", orderNumber );//订单编号
+        map.put("carTypeName", carTypeName );//服务车型
         map.put("subscribeTime", subscribeTime );//用车时间
         map.put("vehicleUser", vehicleUser );//用车人
         map.put("salesman", salesman ); //业务员
@@ -1164,11 +1171,17 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String salesman =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber(); //申请人
         String vehicleUser = undoSMSTemplate.getVehicleUser()+ " "+undoSMSTemplate.getVehicleUserMobile(); //用车人
         String applyDays = undoSMSTemplate.getUseTime();
+        String deptName = undoSMSTemplate.getDeptName();
+        String orderNumber = undoSMSTemplate.getOrderNumber();
+        String carTypeName = undoSMSTemplate.getCarTypeName();
         Map<String,String> map=Maps.newHashMap();
         map.put("subscribeTime", subscribeTime );//用车时间
         map.put("salesman", salesman ); //业务员
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_VEHICLE_APPLICANT_NOT, map, undoSMSTemplate.getVehicleUserMobile());
         Map<String,String> mapTwo=Maps.newHashMap();
+        mapTwo.put("deptName", deptName );//部门名称
+        mapTwo.put("orderNumber", orderNumber );//订单编号
+        mapTwo.put("carTypeName", carTypeName );//服务车型
         mapTwo.put("subscribeTime", subscribeTime );//用车时间
         mapTwo.put("salesman", salesman ); //业务员
         mapTwo.put("vehicleUser", vehicleUser );//用车人
@@ -1183,7 +1196,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherList(applyOfficialRequest);
         if(!ecmpUser.isEmpty()) {
             for (EcmpUser user : ecmpUser) {
-                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_INTERNAL_DISPATCHER_NOT, map, user.getPhonenumber());
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_INTERNAL_DISPATCHER_NOT, mapTwo, user.getPhonenumber());
             }
         }
         log.info("短信结束-撤销未派单短信", JSON.toJSON(map));
@@ -1200,11 +1213,15 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String salesman =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber();
         String vehicleUser = undoSMSTemplate.getVehicleUser()+ " "+undoSMSTemplate.getVehicleUserMobile();
         String applyDays = undoSMSTemplate.getUseTime();
+        String orderNumber = undoSMSTemplate.getOrderNumber();
+        String carTypeName = undoSMSTemplate.getCarTypeName();
         Map<String,String> map=Maps.newHashMap();
         map.put("subscribeTime", subscribeTime );//用车时间
         map.put("salesman", salesman ); //业务员
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_EXTERNAL_VEHICLE_USER_YES, map, undoSMSTemplate.getVehicleUserMobile());
         Map<String,String> mapTwo=Maps.newHashMap();
+        mapTwo.put("orderNumber", orderNumber );//订单编号
+        mapTwo.put("carTypeName", carTypeName );//服务车型
         mapTwo.put("subscribeTime", subscribeTime );//用车时间
         mapTwo.put("salesman", salesman ); //业务员
         mapTwo.put("vehicleUser", vehicleUser );//用车人
@@ -1219,7 +1236,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherExternalList(applyOfficialRequest);
         if(!ecmpUser.isEmpty()) {
             for (EcmpUser user : ecmpUser) {
-                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_EXTERNAL_DISPATCHER_YES, map, user.getPhonenumber());
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_EXTERNAL_DISPATCHER_YES, mapTwo, user.getPhonenumber());
             }
         }
         log.info("短信结束-撤销已派单短信", JSON.toJSON(map));
@@ -1241,6 +1258,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String salesman =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber();
         String vehicleUser = undoSMSTemplate.getVehicleUser()+ " "+undoSMSTemplate.getVehicleUserMobile();
         String applyDays = undoSMSTemplate.getUseTime();
+        String deptName = undoSMSTemplate.getDeptName();
         Map<String,String> map=Maps.newHashMap();
         map.put("subscribeTime", subscribeTime );//用车时间
         map.put("vehicleUser", vehicleUser ); //业务员
@@ -1253,12 +1271,67 @@ public class SmsBusinessImpl implements IsmsBusiness{
         log.info("短信开始-撤销待服务短信:驾驶员短信结束",JSON.toJSON(map));
         log.info("短信开始-撤销待服务短信:用车人短信开始");
         Map<String,String> mapTwo=Maps.newHashMap();
+
         mapTwo.put("subscribeTime", subscribeTime );//用车时间
         mapTwo.put("salesman", salesman ); //业务员
-        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_VEHICLE_USER, map, undoSMSTemplate.getVehicleUserMobile());
+        mapTwo.put("orderNumber", orderNumber );//订单编号
+        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_VEHICLE_USER, mapTwo, undoSMSTemplate.getVehicleUserMobile());
         log.info("短信开始-撤销待服务短信:用车人短信结束",JSON.toJSON(mapTwo));
         log.info("短信开始-撤销待服务短信:调度员短信开始");
         Map<String,String> mapThree=Maps.newHashMap();
+        mapThree.put("subscribeTime", subscribeTime );//用车时间
+        mapThree.put("salesman", salesman ); //业务员
+        mapThree.put("vehicleUser", vehicleUser );//用车人
+        mapThree.put("applyDays", applyDays ); //预约天数
+        mapThree.put("orderNumber", orderNumber ); //订单号
+        mapThree.put("deptName", deptName ); //用车单位
+        if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
+            String reason= undoSMSTemplate.getNotes();
+            mapThree.put("reason", "预约备注："+reason ); //预约备注
+        }
+        if(StringUtils.isNotBlank(innerPhonenumber)) {
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DISPATCHER, mapThree, innerPhonenumber);
+        }
+        if(StringUtils.isNotBlank(outerPhonenumber)) {
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DISPATCHER, mapThree, outerPhonenumber);
+        }
+        log.info("短信开始-撤销待服务短信:调度员短信结束");
+        log.info("短信结束-撤销待服务短信");
+    }
+
+    /**
+     * 修改申请单发送短信  用车人撤销  用车人申请  调度员
+     * @param undoSMSTemplate
+     */
+    @Override
+    public void sendUpdateApplyInfoSms(UndoSMSTemplate undoSMSTemplate)  throws Exception{
+        log.info("短信开始-撤销用车人短信:撤销用车人短信开始");
+        String subscribeTime= DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,undoSMSTemplate.getStartDate());
+        String orderNumber = undoSMSTemplate.getOrderNumber();
+        String salesman =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber();//申请人
+        String vehicleUser = undoSMSTemplate.getVehicleUser()+ " "+undoSMSTemplate.getVehicleUserMobile();//用车人
+        String applyDays = undoSMSTemplate.getUseTime();
+        String carTypeName = undoSMSTemplate.getCarTypeName();
+        String deptName = undoSMSTemplate.getDeptName();
+        Map<String,String> map=Maps.newHashMap();
+        map.put("subscribeTime", subscribeTime );//用车时间
+        map.put("salesman", salesman ); //申请人
+        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_VEHICLE_APPLICANT_NOT, map, undoSMSTemplate.getVehicleUserMobile());
+        log.info("短信结束-撤销用车人短信:撤销用车人短信结束");
+        //--------------------------------------------------------
+        log.info("短信开始-用车人申请短信:用车人申请短信开始");
+        Map<String,String> mapTwo=Maps.newHashMap();
+        mapTwo.put("subscribeTime", subscribeTime );//用车时间
+        mapTwo.put("salesman", salesman ); //业务员
+        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_VEHICLE_APPLICANT, mapTwo, undoSMSTemplate.getVehicleUserMobile());
+        log.info("短信结束-用车人申请短信:用车人申请短信结束",JSON.toJSON(mapTwo));
+        //------------------------------------------------------------
+        log.info("短信开始-调度员短信:调度员短信开始");
+        Map<String,String> mapThree=Maps.newHashMap();
+        //①申请人单位名称；②业务员信息；③订单编号；④用车人信息；⑤预约天数；⑥用车时间；⑦服务车型；⑧预约备注
+        mapThree.put("deptName", deptName );//申请人单位名称
+        mapThree.put("carTypeName", carTypeName );//服务车型
+        mapThree.put("orderNumber", orderNumber );//订单编号
         mapThree.put("subscribeTime", subscribeTime );//用车时间
         mapThree.put("salesman", salesman ); //业务员
         mapThree.put("vehicleUser", vehicleUser );//用车人
@@ -1267,14 +1340,16 @@ public class SmsBusinessImpl implements IsmsBusiness{
             String reason= undoSMSTemplate.getNotes();
             mapThree.put("reason", "预约备注："+reason ); //预约备注
         }
-        if(StringUtils.isNotBlank(innerPhonenumber)) {
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DISPATCHER, map, innerPhonenumber);
+        //发给内部车队所有调度员
+        ApplyOfficialRequest applyOfficialRequest = new ApplyOfficialRequest();
+        applyOfficialRequest.setCompanyId(undoSMSTemplate.getCompanyId());
+        List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherList(applyOfficialRequest);
+        if(!ecmpUser.isEmpty()) {
+            for (EcmpUser user : ecmpUser) {
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_INTERNAL_DISPATCHER, mapThree, user.getPhonenumber());
+            }
         }
-        if(StringUtils.isNotBlank(outerPhonenumber)) {
-            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DISPATCHER, map, outerPhonenumber);
-        }
-        log.info("短信开始-撤销待服务短信:调度员短信结束");
-        log.info("短信结束-撤销待服务短信");
+        log.info("短信开始-调度员短信:调度员短信结束");
     }
 
     private Long getApplyIdByOrderId(Long orderId,Long journeryId){

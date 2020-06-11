@@ -156,4 +156,10 @@ public interface IsmsBusiness {
      * @param undoSMSTemplate
      */
     void sendRevokeToBeServed(UndoSMSTemplate undoSMSTemplate) throws Exception;
+
+    /**
+     * 修改申请单
+     * @param undoSMSTemplate
+     */
+    void sendUpdateApplyInfoSms(UndoSMSTemplate undoSMSTemplate) throws Exception;
 }
