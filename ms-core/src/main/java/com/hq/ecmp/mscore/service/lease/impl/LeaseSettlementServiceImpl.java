@@ -171,7 +171,7 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
         if(null!=userId && !"".equals(userId) && null!=collectionId && !"".equals(collectionId)){
             LeaseSettlementDto data = new LeaseSettlementDto();
             data.setCollectionId(collectionId);
-            data.setCreateBy(userId);
+            data.setVerifier(userId);
             data.setCreateTime(new Date());
             data.setState("S100");
             return  collectionQuittanceInfoMapper.ordinaryUserConfirmCost(data);
@@ -201,5 +201,20 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
     @Override
     public List<String> getUseCarUnit(LoginUser user) throws Exception {
         return carGroupInfoMapper.getCarGroupAllName();
+    }
+
+
+    /***
+     * 调度员更新结算单状态
+     * add by liuzb
+     * @param data
+     * @param user
+     * @return
+     */
+    @Override
+    public int updateLeaseSettlementState(LeaseSettlementDto data, LoginUser user) {
+        data.setUpdateBy(user.getUser().getUserId());
+        data.setUpdateTime(new Date());
+        return  collectionQuittanceInfoMapper.ordinaryUserConfirmCost(data);
     }
 }
