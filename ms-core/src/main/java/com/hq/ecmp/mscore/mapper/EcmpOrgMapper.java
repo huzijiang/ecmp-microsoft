@@ -291,6 +291,13 @@ public interface EcmpOrgMapper {
 
     List<Map> selectOrgTreeByDeptId(@Param("orgIds")String orgIds);
 
+    /**
+     * 获取公司下所有的存在有效用车申请的用车单位信息
+     * @param companyId
+     * @return
+     */
+    List<EcmpOrg> getUseCarOrgList(@Param("companyId")Long companyId);
+
     /** 查询所有公司名称 - id */
     List<Map> selectIdAndName();
 }

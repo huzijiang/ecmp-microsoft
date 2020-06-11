@@ -91,7 +91,6 @@ public class ReckoningController {
             reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setCollectionId(param.getCollectionId());
-
             collectionService.downloadReckoning(reckoningInfo);
             return ApiResponse.success("下载收款");
         } catch (Exception e) {

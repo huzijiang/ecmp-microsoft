@@ -100,6 +100,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     private RegimeInfoMapper regimeInfoMapper;
     @Resource
     private JourneyAddressInfoMapper journeyAddressInfoMapper;
+    @Resource
+    private EcmpOrgMapper ecmpOrgMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -1235,7 +1237,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     }
 
     /**
-     * 调度列表大sql优化，暂未使用
+     * 调度列表大sql优化
      * 1.通过调度员用户id，查询调度员所在车队可以服务的部门
      * 2.查询这些部门的人所需要服务的订单
      * @param query
@@ -1287,11 +1289,36 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         }
         PageHelper.startPage(query.getPageN(), query.getPageS());
         dispatcherOrderList = getDispatchOrderInfos(query);
+        //获取各个状态的数量
+        List<DisOrderStateCount> orderStateCount = new ArrayList<>(4);
+        orderStateCount = orderInfoMapper.getOrderStateCount(query);
+        if (CollectionUtils.isEmpty(orderStateCount)){
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.WAITINGLIST.getStateName(),0));
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ALREADYSENDING.getStateName(),0));
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDERDENIED.getStateName(),0));
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDEROVERTIME.getStateName(),0));
+        }else{
+            List<String> collect1 = orderStateCount.stream().map(DisOrderStateCount::getState).collect(Collectors.toList());
+            if(!collect1.contains(DispatchOrderStateTraceEnum.WAITINGLIST.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.WAITINGLIST.getStateName(),0));
+            }
+            if(!collect1.contains(DispatchOrderStateTraceEnum.ALREADYSENDING.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ALREADYSENDING.getStateName(),0));
+            }
+            if(!collect1.contains(DispatchOrderStateTraceEnum.ORDERDENIED.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDERDENIED.getStateName(),0));
+            }
+            if(!collect1.contains(DispatchOrderStateTraceEnum.ORDEROVERTIME.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDEROVERTIME.getStateName(),0));
+            }
+            Collections.sort(orderStateCount);
+        }
         PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
         Map<String,Object> map = new HashMap<>();
         map.put("totalPage", info.getTotal());
         map.put("page", info.getTotal());
         map.put("list", dispatcherOrderList);
+        map.put("stateCount", orderStateCount);
         return map;
     }
 
@@ -1414,6 +1441,16 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     public void getSceneAndRegimeInfo(DispatchVo dispatchVo){
         DispatchVo dispatchReAndSceneInfo = regimeInfoMapper.getDispatchReAndSceneInfo(dispatchVo.getRegimeId());
         BeanUtils.copyProperties(dispatchReAndSceneInfo, dispatchVo,BeauUtilsCommon.getNullField(dispatchReAndSceneInfo));
+    }
+
+    /**
+     * 佛山后管申请单调度-获取用车单位列表
+     * @return
+     */
+    @Override
+    public List<EcmpOrg> getUseCarOrgList(Long companyId) {
+        List<EcmpOrg>  useCarOrgList = ecmpOrgMapper.getUseCarOrgList(companyId);
+        return useCarOrgList;
     }
 
 }

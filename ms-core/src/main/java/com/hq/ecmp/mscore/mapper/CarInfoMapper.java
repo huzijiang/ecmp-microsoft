@@ -4,10 +4,7 @@ import com.hq.ecmp.mscore.bo.SelectCarConditionBo;
 import com.hq.ecmp.mscore.bo.WaitSelectedCarBo;
 import com.hq.ecmp.mscore.domain.CarInfo;
 import com.hq.ecmp.mscore.dto.CarLocationDto;
-import com.hq.ecmp.mscore.vo.CarListVO;
-import com.hq.ecmp.mscore.vo.CarLocationVo;
-import com.hq.ecmp.mscore.vo.DriverOrderVo;
-import com.hq.ecmp.mscore.vo.OnLineCarTypeVO;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
@@ -201,4 +198,17 @@ public interface CarInfoMapper
      * 调度选车以后，未解锁车辆自动解锁
      */
     void unlockCars();
+
+    /**
+     * 根据状态获取车辆的统计信息
+     * @param state
+     * @return
+     */
+    List<DisWorkBenchCar> getCarByState(@Param("state") String state);
+
+    /**
+     * 更好状态获取车辆的数量统计信息
+     * @return
+     */
+    List<DisOrderStateCount> getCarByStateCount();
 }

@@ -94,4 +94,9 @@ public class ApplyDispatch{
          * 当前登录人的车队列表
          */
         String carGroupIds;
+        /**
+         * 用车单位
+         */
+        @ApiModelProperty(value = "用车单位")
+        private Long useCarDeptId;
 }

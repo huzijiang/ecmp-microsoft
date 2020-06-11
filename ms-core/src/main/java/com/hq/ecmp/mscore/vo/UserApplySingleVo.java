@@ -139,10 +139,16 @@ public class UserApplySingleVo extends PageRequest {
 
     @ApiModelProperty(value = "是否自驾")
     private String itIsSelfDriver;
+    @ApiModelProperty(value = "是否可以修改")
+    private String canUpdateDetail;
 
     @ApiModelProperty(value = "多个下车地点")
     private String addressInfo;
-
+    private String safeRemind;
+    private String labelState;
+    private String state;
     private int stateFlag;
+    @ApiModelProperty(value = "自驾的费用详情")
+    private OrderCostDetailVO  orderCostDetailVO;
 
 }
