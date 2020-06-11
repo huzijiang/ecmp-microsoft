@@ -7,7 +7,6 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.core.web.domain.server.Sys;
 import com.hq.ecmp.constant.CollectionQuittanceEnum;
 import com.hq.ecmp.mscore.domain.ReckoningInfo;
 import com.hq.ecmp.mscore.dto.MoneyListDto;
@@ -23,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -177,20 +175,19 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
     /**
      * 收款下载
      * @param param
+     * @return
      */
     @Override
-    public void downloadReckoning(ReckoningInfo param) {
+    public Map<String, Object> downloadReckoning(ReckoningInfo param) {
         ReckoningDto reckoningDto = new ReckoningDto();
-        reckoningDto.setStartDate(DateUtils.formatDate(param.getBeginDate(),DateUtils.YYYY_MM));
-        reckoningDto.setEndDate(DateUtils.formatDate(param.getEndDate(),DateUtils.YYYY_MM));
+        reckoningDto.setStartDate(DateUtils.formatDate(param.getBeginDate(),DateUtils.YYYY_MM_DD));
+        reckoningDto.setEndDate(DateUtils.formatDate(param.getEndDate(),DateUtils.YYYY_MM_DD));
         reckoningDto.setCompanyId(param.getCompanyId());
         String collectionEndTime = DateUtils.formatDate(param.getCollectionEndTime(), DateUtils.YYYY_MM_DD_HH_MM_SS);
         Map<String, Object> stringObjectMap = reckoningDetail(reckoningDto);
         stringObjectMap.put("collectionEndTime",collectionEndTime);
         stringObjectMap.remove("moneyList");
-
-
-
+        return stringObjectMap;
     }
 
 

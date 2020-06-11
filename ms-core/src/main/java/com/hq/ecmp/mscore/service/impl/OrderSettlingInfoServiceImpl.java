@@ -6,10 +6,7 @@ import com.google.common.collect.Maps;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
-import com.hq.ecmp.constant.AccountConstant;
-import com.hq.ecmp.constant.CharterTypeEnum;
-import com.hq.ecmp.constant.CostConfigModeEnum;
-import com.hq.ecmp.constant.OrderServiceType;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
@@ -17,9 +14,11 @@ import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.CostCalculation;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
 import com.hq.ecmp.mscore.vo.OtherCostBean;
+import com.hq.ecmp.mscore.vo.OtherCostVO;
 import com.hq.ecmp.util.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -41,7 +40,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
 
     @Autowired
-    private OrderAddressInfoMapper OrderAddressInfoMapper;
+    private OrderAddressInfoMapper orderAddressInfoMapper;
     @Autowired
     private OrderInfoMapper orderInfoMapper;
     @Autowired
@@ -515,7 +514,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             //查询所在的城市
             OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
             orderAddressInfo.setOrderId(orderSettlingInfoVo.getOrderId());
-            OrderAddressInfo addressStartInfo = OrderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfo);
+            OrderAddressInfo addressStartInfo = orderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfo);
 
             //车型级别
             CarInfo carInfo = carInfoMapper.selectCarInfoById(orderInfo.getCarId());
@@ -630,9 +629,9 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
     public Map<String,Object> getOrderFee(OrderSettlingInfo orderSettlingInfo){
         Map<String,Object> result= Maps.newHashMap();
         List<OtherCostBean> otherCostBeans=new ArrayList<>();
-        String amount=null;
-        String totalMileage=null;
-        String totalTime=null;
+        String amount="";
+        String totalMileage="";
+        String totalTime="";
         if (orderSettlingInfo!=null){
             amount = orderSettlingInfo.getAmount() == null ? null : orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString();
             totalMileage=orderSettlingInfo.getTotalMileage()==null?String.valueOf(ZERO):orderSettlingInfo.getTotalMileage().stripTrailingZeros().toPlainString();
@@ -657,5 +656,52 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         result.put("totalTime",totalTime);
         result.put("otherCostBeans",otherCostBeans);
         return result;
+    }
+
+    @Override
+    public void selfDriverCostPrice(OrderSettlingInfoVo orderSettlingInfoVo,Long userId,Long companyId,Long costCenter){
+        OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
+        String json = costPrice(orderSettlingInfoVo);
+        String extraPrice = extraPrice(orderSettlingInfoVo);
+        orderSettlingInfo.setAmountDetail(json);
+        orderSettlingInfo.setOutPrice(extraPrice);
+        orderSettlingInfo.setAmount(orderSettlingInfoVo.getAmount());
+        orderSettlingInfo.setOrderId(orderSettlingInfoVo.getOrderId());
+        orderSettlingInfo.setCreateBy(userId+"");
+        orderSettlingInfo.setCreateTime(DateUtils.getNowDate());
+        orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
+        //插入账务表
+        OrderAccountInfo accountInfo=new OrderAccountInfo();
+        accountInfo.setBillId(orderSettlingInfo.getBillId());
+        accountInfo.setAmount(orderSettlingInfoVo.getAmount());
+        accountInfo.setOrderId(orderSettlingInfoVo.getOrderId());
+        accountInfo.setCompanyId(companyId);
+        accountInfo.setCostCenter(costCenter);
+        accountInfo.setState(CarConstant.START_CAR);
+        accountInfo.setCreateBy(userId+"");
+        accountInfo.setCreateTime(DateUtils.getNowDate());
+        accountInfoMapper.insertOrderAccountInfo(accountInfo);
+        List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderSettlingInfoVo.getOrderId()));
+        OrderServiceCostDetailRecordInfo costDetailRecordInfo=new OrderServiceCostDetailRecordInfo();
+        costDetailRecordInfo.setOrderId(orderSettlingInfoVo.getOrderId());
+        costDetailRecordInfo.setCreateBy(userId);
+        costDetailRecordInfo.setCreateTime(DateUtils.getNowDate());
+        costDetailRecordInfo.setSetMealCost(orderSettlingInfoVo.getAmount());
+        if (!CollectionUtils.isEmpty(orderAddressInfos)){
+            for (OrderAddressInfo info:orderAddressInfos){
+                if ("A000".equals(info.getType())){
+                    costDetailRecordInfo.setStartAddress(info.getAddress());
+                    costDetailRecordInfo.setStartLongitude(BigDecimal.valueOf(info.getLongitude()));
+                    costDetailRecordInfo.setStartLatitude(BigDecimal.valueOf(info.getLatitude()));
+                    costDetailRecordInfo.setStartTime(info.getActionTime());
+                }else{
+                    costDetailRecordInfo.setEndAddress(info.getAddress());
+                    costDetailRecordInfo.setEndLongitude(BigDecimal.valueOf(info.getLongitude()));
+                    costDetailRecordInfo.setEndLatitude(BigDecimal.valueOf(info.getLatitude()));
+                    costDetailRecordInfo.setEndTime(info.getActionTime());
+                }
+            }
+        }
+        costDetailRecordInfoMapper.insert(costDetailRecordInfo);
     }
 }

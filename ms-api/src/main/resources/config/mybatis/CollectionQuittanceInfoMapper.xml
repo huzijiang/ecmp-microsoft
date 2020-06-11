@@ -51,11 +51,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getOrdinaryUserList" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
        select
             cqi.collection_id collectionId,
+            cqi.company_id companyId,
+            cqi.collection_number collectionNumber,
+            cqi.collection_end_time collectionEndTime,
             cgi.car_group_name deptName,
+            cgi.car_group_id carGroupId,
             cqi.begin_date beginDate,
             cqi.end_date endDate,
 		    cqi.state state,
-            eu.nick_name verifier,
+            eu.nick_name verifierName,
             cqi.create_time createTime
        from collection_quittance_info cqi
         left join car_group_info cgi on cgi.car_group_id = cqi.car_group_id
@@ -67,8 +71,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="deptName!=null and deptName!=''" >
             and  cgi.car_group_name  like concat('%',#{deptName},'%')
         </if>
-        <if test="collectionId!=null and collectionId!=''" >
-            and  cqi.collection_id like concat('%',#{collectionId},'%')
+        <if test="collectionNumber!=null and collectionNumber!=''" >
+            and  cqi.collection_number like concat('%',#{collectionNumber},'%')
         </if>
         <if test="state!=null and state!=''" >
             and  cqi.state =#{state}
@@ -86,7 +90,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from collection_quittance_info cqi where cqi.collection_id = #{collectionId}
     </select>
     <update id="ordinaryUserConfirmCost" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
-         update collection_quittance_info set state=#{state},create_by=#{createBy} where collection_id=#{collectionId}
+        update collection_quittance_info
+            <trim prefix="SET" suffixOverrides=",">
+                <if test="state != null ">state = #{state},</if>
+                <if test="verifier != null ">verifier = #{verifier},</if>
+                <if test="createBy != null ">create_by = #{createBy},</if>
+                <if test="createTime != null ">create_time = #{createTime},</if>
+                <if test="updateBy != null ">update_by = #{updateBy},</if>
+                <if test="updateTime != null ">update_time = #{updateTime},</if>
+            </trim>
+        where collection_id=#{collectionId}
     </update>
     <select id="getPayeeInfo" resultType="com.hq.ecmp.mscore.dto.PayeeInfoDto" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
         SELECT

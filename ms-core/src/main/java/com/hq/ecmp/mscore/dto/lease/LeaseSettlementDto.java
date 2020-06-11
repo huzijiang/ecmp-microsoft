@@ -18,14 +18,23 @@ public class LeaseSettlementDto extends Page {
 
     String state;
 
-    String verifier;
+    Long verifier;
+
+    String verifierName;
 
     Date createTime;
 
+    Date updateTime;
+
     Long createBy;
+
+    Long updateBy;
 
     Long companyId;
 
     String carGroupId;
 
+    Date collectionEndTime;
+
+    Long collectionNumber;
 }
