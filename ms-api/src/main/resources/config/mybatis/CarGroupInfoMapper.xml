@@ -404,12 +404,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
        left join order_address_info adr on o.order_id = adr.order_id and adr.type = 'A999'
        left join order_account_info acc on  o.order_id  = acc.order_id
        WHERE
-       o.company_id = #{ecmpId}
+       o.company_id = #{companyId}
        AND  <![CDATA[ DATE_FORMAT(#{startDate}, '%Y-%m-%d') <= addr.action_time ]]>
        AND  <![CDATA[ adr.action_time <= DATE_FORMAT(#{endDate}, '%Y-%m-%d') ]]>
        and  acc.state != 'S005'
    </select>
     <select id="getCarGroupAllName" resultType="String">
 	    select  car_group_name from car_group_info where it_is_inner='C111'
+    </select>
+
+    <select id="findgroupIdByUserId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        SELECT car_group_id from car_group_dispatcher_info where user_id = #{userId}
     </select>
 </mapper>

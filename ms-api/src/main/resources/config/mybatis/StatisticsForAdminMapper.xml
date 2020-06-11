@@ -283,19 +283,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         (select order_id,type,address,address_long from order_address_info where type = 'A999') oai2 on  oai2.order_id = oi.order_id
 		where osti.state in ('S699','S900')
 		and oi.company_id = #{companyId}
+		<if test="beginDate!=null and '' != beginDate">
+			and  ji.end_date &gt;= #{beginDate}
+		</if>
+		<if test="endDate!=null and '' != endDate">
+			and  ji.end_date &lt;= #{endDate}
+		</if>
         <if test="deptName!=null and '' != deptName">
+			and cgi.it_is_inner in ('C000','C111')
             and  eo.dept_name = #{deptName}
         </if>
         <if test="carLicense!=null and '' != carLicense">
+			and cgi.it_is_inner = 'C000'
             and  ci.car_license = #{carLicense}
         </if>
         <if test="driverName!=null and '' != driverName">
+			and cgi.it_is_inner = 'C000'
             and  di.driver_name = #{driverName}
         </if>
         <if test="carName!=null and '' != carName">
+			and cgi.it_is_inner = 'C000'
             and  ecti.name = #{carName}
         </if>
         <if test="carGroupName!=null and '' != carGroupName">
+			and cgi.it_is_inner = 'C111'
             and  cgi.car_group_name = #{carGroupName}
         </if>
     </select>

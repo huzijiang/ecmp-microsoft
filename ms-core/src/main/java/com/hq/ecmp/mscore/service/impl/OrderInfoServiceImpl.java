@@ -856,7 +856,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfo.getTotalTime().intValue()));
                     vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
                     Map<String, Object> orderFee = orderSettlingInfoService.getOrderFee(orderSettlingInfo);
-                    vo.setOrderFees((List<OtherCostBean>)orderFee.get("otherCostBeans"));
+                    vo.setOrderFees((List<OtherCostVO>)orderFee.get("otherCostBeans"));
                 }
             }
         }else{
@@ -3094,7 +3094,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    public List<Map<String,String>> getMoneyList(ReckoningDto param) {
+    public List<MoneyListDto> getMoneyList(ReckoningDto param) {
 
         return orderInfoMapper.getMoneyList(param);
 

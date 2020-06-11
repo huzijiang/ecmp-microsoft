@@ -17,7 +17,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-05-06
  */
-public interface ICostConfigInfoService 
+public interface ICostConfigInfoService
 {
     /**
      * 查询【请填写功能名称】
@@ -121,9 +121,10 @@ public interface ICostConfigInfoService
     /**
      * 获取价格计划详情
      * @param applyPriceDetails
+     * @param loginUser
      * @return
      */
-    CarGroupInfoVo applySinglePriceDetails(ApplyPriceDetails applyPriceDetails);
+    List<CarGroupInfoVo> applySinglePriceDetails(ApplyPriceDetails applyPriceDetails, LoginUser loginUser);
 
     List<CarGroupCostVO> getCarGroupListForCost(CostConfigQueryPriceDto queryPriceDto, LoginUser loginUser);
 }

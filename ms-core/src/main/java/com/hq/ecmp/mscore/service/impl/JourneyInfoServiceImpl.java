@@ -192,7 +192,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
                 Long orderId = orderInfoMapper.selectOrderIdByJourneyId(journeyInfo.getJourneyId());
                 if (orderId != null) {
                     OrderDispatcheDetailInfo dispatcheDetailInfo = dispatcheDetailInfoMapper.selectDispatcheInfo(orderId);
-                    carAuthorityInfo.setItIsSelfDriver(dispatcheDetailInfo.getItIsSelfDriver());
+					carAuthorityInfo.setItIsSelfDriver(dispatcheDetailInfo!=null?dispatcheDetailInfo.getItIsSelfDriver():null);
                 }
                 carAuthorityInfoList.add(carAuthorityInfo);
             }

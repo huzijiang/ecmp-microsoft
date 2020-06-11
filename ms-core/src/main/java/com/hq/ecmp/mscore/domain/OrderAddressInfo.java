@@ -86,7 +86,11 @@ public class OrderAddressInfo extends BaseEntity
 
     public OrderAddressInfo (){};
 
-    public OrderAddressInfo(String type,Long orderId){
+    public OrderAddressInfo(Long orderId) {
+        this.orderId = orderId;
+    }
+
+    public OrderAddressInfo(String type, Long orderId){
     	this.orderId=orderId;
     	this.type=type;
     }

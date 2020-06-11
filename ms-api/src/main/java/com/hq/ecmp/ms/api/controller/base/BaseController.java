@@ -14,12 +14,14 @@ import com.hq.ecmp.mscore.domain.EcmpUserFeedbackVo;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackImageService;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
+import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.util.HqAdmin;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -115,7 +117,7 @@ public class BaseController {
      */
     @ApiOperation(value = "addFeedback",notes = "新增投诉建议",httpMethod ="POST")
     @PostMapping("/addFeedback")
-    public ApiResponse addFeedback(FeedBackDto feedBackDto){
+    public ApiResponse addFeedback(@RequestBody FeedBackDto feedBackDto){
 
         EcmpUserFeedbackInfo ecmpUserFeedbackInfo = new EcmpUserFeedbackInfo();
         ecmpUserFeedbackInfo.setType(FeedBackTypeEnum.COMPLAIN_TYPE.getType());//标注为投诉建议
@@ -124,6 +126,8 @@ public class BaseController {
         int admin = HqAdmin.isAdmin(loginUser);
         ecmpUserFeedbackInfo.setIsAdmin(admin);
         ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
+        ecmpUserFeedbackInfo.setContent(feedBackDto.getContent());
+        ecmpUserFeedbackInfo.setTitle(feedBackDto.getTitle());
         int i = iEcmpUserFeedbackInfoService.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
         if (i == 1){
             return ApiResponse.success("新增投诉建议成功");
@@ -139,7 +143,7 @@ public class BaseController {
      */
     @ApiOperation(value = "findFeedback",notes = "查询投诉建议",httpMethod ="POST")
     @PostMapping("/findFeedback")
-    public ApiResponse<List<EcmpUserFeedbackVo>> findFeedback(FeedBackDto feedBackDto){
+    public ApiResponse<PageResult<EcmpUserFeedbackVo>> findFeedback(@RequestBody FeedBackDto feedBackDto){
 
         EcmpUserFeedbackInfo ecmpUserFeedbackInfo = new EcmpUserFeedbackInfo();
         ecmpUserFeedbackInfo.setType(FeedBackTypeEnum.COMPLAIN_TYPE.getType());
@@ -147,12 +151,10 @@ public class BaseController {
         ecmpUserFeedbackInfo.setStatus(feedBackDto.getStatus());
         ecmpUserFeedbackInfo.setTitle(feedBackDto.getTitle());
         ecmpUserFeedbackInfo.setPageIndex(feedBackDto.getPageIndex());
-        ecmpUserFeedbackInfo.setPagesize(feedBackDto.getPagesize());
-        List<EcmpUserFeedbackVo> info = iEcmpUserFeedbackInfoService.findFeedback(ecmpUserFeedbackInfo);
+        ecmpUserFeedbackInfo.setPageSize(feedBackDto.getPagesize());
+        PageResult<EcmpUserFeedbackVo> info = iEcmpUserFeedbackInfoService.findFeedback(ecmpUserFeedbackInfo);
         if (null != info){
-
             return ApiResponse.success(info);
-
         }else {
             return ApiResponse.success("查询投诉建议失败");
         }
@@ -165,7 +167,7 @@ public class BaseController {
      */
     @ApiOperation(value = "replyFeedback",notes = "回复投诉",httpMethod ="POST")
     @PostMapping("/replyFeedback")
-    public ApiResponse updateFeedback(FeedBackDto feedBackDto){
+    public ApiResponse updateFeedback(@RequestBody FeedBackDto feedBackDto){
 
         if(null != feedBackDto && !StringUtils.isEmpty(feedBackDto.getResultContent())){
             return ApiResponse.error("回复投诉，缺失参数");
@@ -189,7 +191,10 @@ public class BaseController {
     @PostMapping("/getEcmpName")
     public ApiResponse getEcmpName(){
 
-        List<Map> ecmpList = iecmpOrgService.getEcmpName();
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        List<Map> ecmpList = iecmpOrgService.getEcmpName(userId);
         if (null != ecmpList){
             return ApiResponse.success(ecmpList);
         }else {

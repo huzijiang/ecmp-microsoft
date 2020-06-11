@@ -240,4 +240,6 @@ public interface CarGroupInfoMapper
      * @return
      */
     List<String> getCarGroupAllName();
+
+    Long findgroupIdByUserId(@Param("userId") Long userId);
 }

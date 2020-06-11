@@ -83,4 +83,6 @@ public interface IOrderSettlingInfoService
 
     BigDecimal getAllFeeAmount(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) throws ParseException;
     Map<String,Object> getOrderFee(OrderSettlingInfo orderSettlingInfo);
+    /**自驾还车添加费用*/
+    void selfDriverCostPrice(OrderSettlingInfoVo orderSettlingInfoVo,Long userId,Long companyId,Long costCenter);
 }
