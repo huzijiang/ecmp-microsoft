@@ -126,7 +126,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="regimenId != null ">regimen_id = #{regimenId},</if>
             <if test="serviceType != null  and serviceType != ''">service_type = #{serviceType},</if>
             <if test="useCarMode != null  and useCarMode != ''">use_car_mode = #{useCarMode},</if>
-            <if test="useCarTime != null  and useCarTime != ''">use_car_time = #{useCarTime},</if>
+            <if test="useCarTime != null">use_car_time = #{useCarTime},</if>
             <if test="itIsReturn != null  and itIsReturn != ''">it_is_return = #{itIsReturn},</if>
             <if test="estimatePrice != null  and estimatePrice != ''">estimate_price = #{estimatePrice},</if>
             <if test="projectId != null ">project_id = #{projectId},</if>

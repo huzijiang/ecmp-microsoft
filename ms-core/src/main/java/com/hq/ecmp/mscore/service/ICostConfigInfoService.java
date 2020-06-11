@@ -121,5 +121,5 @@ public interface ICostConfigInfoService
      * @param applyPriceDetails
      * @return
      */
-    List<ApplyPriceDetails> applySinglePriceDetails(ApplyPriceDetails applyPriceDetails);
+    CarGroupInfoVo applySinglePriceDetails(ApplyPriceDetails applyPriceDetails);
 }

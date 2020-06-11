@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.OrderAddressInfo;
+import com.hq.ecmp.mscore.vo.ApplySingleIdVO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -68,4 +70,20 @@ public interface OrderAddressInfoMapper
     List<OrderAddressInfo> queryOrderStartAndEndInfo2(OrderAddressInfo orderAddressInfo);
 
     OrderAddressInfo getOrderEndAddresses(OrderAddressInfo orderAddressInfo);
+
+    /**
+     * 上车id
+     * @param type
+     * @param applySingleIdVO
+     * @return
+     */
+    Long selectOrderAddressInfo(@Param("type") String type, ApplySingleIdVO applySingleIdVO);
+
+    /**
+     * 下车id
+     * @param type
+     * @param applySingleIdVO
+     * @return
+     */
+    Long selectOrderAddressInfoTwo(@Param("type") String type, ApplySingleIdVO applySingleIdVO);
 }
