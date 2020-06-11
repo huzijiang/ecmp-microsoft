@@ -136,6 +136,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private OrderAccountInfoMapper orderAccountInfoMapper;
     @Resource
     private OrderDispatcheDetailInfoMapper orderDispatcheDetailInfoMapper;
+    @Resource
+    private IOrderSettlingInfoService orderSettlingInfoService;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -851,10 +854,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                     OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
                     vo.setDistance(orderSettlingInfo.getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
                     vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfo.getTotalTime().intValue()));
-                    OrderCostDetailVO orderCost =new OrderCostDetailVO(orderSettlingInfo.getAmount().toPlainString(),orderSettlingInfo.getTotalMileage().toPlainString(),orderSettlingInfo.getTotalTime().toPlainString());
-                    String amountDetail = orderSettlingInfo.getAmountDetail();
-                    String outPrice = orderSettlingInfo.getOutPrice();
-//                    vo.set
+                    vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
+                    Map<String, Object> orderFee = orderSettlingInfoService.getOrderFee(orderSettlingInfo);
+                    vo.setOrderFees((List<OtherCostBean>)orderFee.get("otherCostBeans"));
                 }
             }
         }else{
@@ -1928,8 +1930,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             driverHeartbeatInfo.setOrderId(orderId);
             driverHeartbeatInfo.setCreateTime(orderInfo.getUpdateTime());
             List<DriverHeartbeatInfo> driverHeartbeatInfos = driverHeartbeatInfoMapper.selectDriverHeartbeatInfoList(driverHeartbeatInfo);
-            for (DriverHeartbeatInfo driverHeartbeatInfo1:
-            driverHeartbeatInfos) {
+            for (DriverHeartbeatInfo driverHeartbeatInfo1:driverHeartbeatInfos) {
                 OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();
                 //BeanUtils.copyProperties(driverHeartbeatInfo1,orderHistoryTraceDto);
                 orderHistoryTraceDto.setOrderId(driverHeartbeatInfo1.getOrderId().toString());
@@ -3093,7 +3094,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    public List<Map<String,String>> getMoneyList(ReckoningDto param) {
+    public List<MoneyListDto> getMoneyList(ReckoningDto param) {
 
         return orderInfoMapper.getMoneyList(param);
 

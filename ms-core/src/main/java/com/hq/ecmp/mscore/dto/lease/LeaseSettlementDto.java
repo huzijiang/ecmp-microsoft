@@ -1,11 +1,12 @@
 package com.hq.ecmp.mscore.dto.lease;
 
+import com.hq.ecmp.mscore.dto.Page;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class LeaseSettlementDto {
+public class LeaseSettlementDto extends Page {
 
     Long collectionId;
 

@@ -79,4 +79,6 @@ public interface EcmpUserFeedbackInfoMapper
     int updateFeedback(EcmpUserFeedbackInfoVo feedBackDto);
 
     List<EcmpUserFeedbackVo> findFeedback(EcmpUserFeedbackInfo ecmpUserFeedbackInfo);
+
+    Integer findCountFeedback(EcmpUserFeedbackInfo ecmpUserFeedbackInfo);
 }

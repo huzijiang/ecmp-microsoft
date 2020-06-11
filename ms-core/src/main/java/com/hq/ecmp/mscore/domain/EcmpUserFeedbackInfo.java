@@ -52,7 +52,7 @@ public class EcmpUserFeedbackInfo extends BaseEntity
     //起始页
     private int pageIndex;
     //显示条数
-    private int pagesize;
+    private Integer pageSize;
 
     //显示条数
     private int isAdmin;

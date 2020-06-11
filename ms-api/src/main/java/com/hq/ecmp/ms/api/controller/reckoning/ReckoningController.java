@@ -43,7 +43,7 @@ public class ReckoningController {
     @ApiOperation(value = "添加收款",notes = "添加收款")
     @RequestMapping(value = "/addReckoning", method = RequestMethod.POST)
     @Log(title = "添加收款", content = "添加收款成功",businessType = BusinessType.OTHER)
-    public ApiResponse addReckoning(@RequestBody ReckoningDto param, @RequestHeader String token) {
+    public ApiResponse addReckoning(@RequestBody ReckoningDto param) {
         log.info("添加收款，传来的参数为："+param);
         try {
             ReckoningInfo reckoningInfo = new ReckoningInfo();
@@ -52,10 +52,10 @@ public class ReckoningController {
             Long userId = loginUser.getUser().getUserId();
             reckoningInfo.setCreateBy(userId);
             reckoningInfo.setState(CollectionQuittanceEnum.COLLECTION_WAIT.getKey());
-            reckoningInfo.setCarGroupId(param.getEcmpId());
-            reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
-            reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
-            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+            reckoningInfo.setCarGroupId(param.getCompanyId());
+            reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM));
+            reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM));
+            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM));
             reckoningInfo.setCollectionId(param.getCollectionId());
 
             collectionService.addReckoning(reckoningInfo);
@@ -71,13 +71,13 @@ public class ReckoningController {
 
     /**
      * @author ghb
-     * @description  添加收款
+     * @description  下载收款
      */
     @ResponseBody
     @ApiOperation(value = "下载收款",notes = "下载收款")
     @RequestMapping(value = "/downloadReckoning", method = RequestMethod.POST)
     @Log(title = "下载收款", content = "下载收款",businessType = BusinessType.OTHER)
-    public ApiResponse downloadReckoning(@RequestBody ReckoningDto param, @RequestHeader String token) {
+    public ApiResponse downloadReckoning(@RequestBody ReckoningDto param) {
         log.info("下载收款，传来的参数为："+param);
         try {
             ReckoningInfo reckoningInfo = new ReckoningInfo();
@@ -86,11 +86,12 @@ public class ReckoningController {
             Long userId = loginUser.getUser().getUserId();
             reckoningInfo.setCreateBy(userId);
             reckoningInfo.setState(CollectionQuittanceEnum.COLLECTION_WAIT.getKey());
-            reckoningInfo.setCarGroupId(param.getEcmpId());
+            reckoningInfo.setCarGroupId(param.getCarGroupId());
             reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setCollectionId(param.getCollectionId());
+
             collectionService.downloadReckoning(reckoningInfo);
             return ApiResponse.success("下载收款");
         } catch (Exception e) {
@@ -130,16 +131,19 @@ public class ReckoningController {
 
 
 
-    @ResponseBody
+
     @ApiOperation(value = "收款详情",notes = "收款详情")
     @RequestMapping(value = "/reckoningDetail", method = RequestMethod.POST)
     @Log(title = "收款详情", content = "收款详情",businessType = BusinessType.OTHER)
-    public ApiResponse<Map<String, Object>> reckoningDetail(@RequestBody ReckoningDto param, @RequestHeader String token, HttpServletRequest request) {
+    public ApiResponse<Map<String, Object>> reckoningDetail(@RequestBody ReckoningDto param) {
         log.info("条件查询收款，传来的参数为："+param);
         try {
-
-               Map<String, Object> detailMap = collectionService.reckoningDetail(param);
-                return ApiResponse.success(detailMap);
+           Map<String, Object> detailMap = collectionService.reckoningDetail(param);
+           if(null != detailMap){
+               return ApiResponse.success(detailMap);
+           }else {
+               return ApiResponse.error("收款详情异常");
+           }
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("收款详情异常");
