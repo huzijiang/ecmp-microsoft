@@ -72,7 +72,7 @@ public interface IOrderInfoService {
      * @param userId
      * @return
      */
-    public PageResult<OrderListInfo> getOrderList(Long userId, int pageNum, int pageSize);
+    public PageResult<OrderListInfo> getOrderList(Long userId, int pageNum, int pageSize,int isConfirmState);
 
     /**
      * 订单轨迹表添加通用方法

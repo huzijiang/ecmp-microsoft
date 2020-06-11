@@ -227,9 +227,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @return
      */
     @Override
-    public PageResult<OrderListInfo>  getOrderList(Long userId, int pageNum, int pageSize) {
+    public PageResult<OrderListInfo>  getOrderList(Long userId, int pageNum, int pageSize,int isConfirmState) {
         PageHelper.startPage(pageNum,pageSize);
-        List<OrderListInfo> orderList = orderInfoMapper.getOrderList(userId);
+        List<OrderListInfo> orderList = orderInfoMapper.getOrderList(userId,isConfirmState);
         PageInfo<OrderListInfo> pageInfo = new PageInfo<>(orderList);
         PageResult<OrderListInfo> pageResult = new PageResult<>(pageInfo.getTotal(),pageInfo.getPages(),orderList);
         return pageResult;

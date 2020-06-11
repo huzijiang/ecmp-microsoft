@@ -60,5 +60,8 @@ public class PageRequest {
 
     private Long companyId;
 
+    @ApiModelProperty(value = "是否查询待确认订单  1 是 2 否")
+    private Integer  isConfirmState;
+
 
 }
