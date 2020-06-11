@@ -151,10 +151,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="findFeedback" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo" resultType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackVo">
         SELECT
         eufi.feedback_id feedbackId,
-        CASE eufi.state
-            WHEN '0000' THEN '已处理'
-            WHEN '1111' THEN '未处理'
-        end as status,
+        eufi.state status,
         o.dept_name ecmpName,
         eufi.title title,
         eufi.type type,
