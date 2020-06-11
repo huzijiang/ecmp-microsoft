@@ -201,7 +201,8 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
                 //查询公务用车行程下面的用车权限
                 List<CarAuthorityInfo> journeyUserCarPowerList = journeyUserCarPowerService.queryJourneyAllUserAuthority(journeyInfo.getJourneyId());
                 if (CollectionUtils.isEmpty(journeyUserCarPowerList)) {
-                    return carAuthorityInfoList;
+                    //return carAuthorityInfoList;
+					continue;
                 }
                 for (CarAuthorityInfo carAuthorityInfo : journeyUserCarPowerList) {
                     //根据权限Id查询对应行程节点中的起止目的地
@@ -269,7 +270,7 @@ public class JourneyInfoServiceImpl implements IJourneyInfoService
                     }
                     if (orderId != null) {
                         OrderDispatcheDetailInfo dispatcheDetailInfo = dispatcheDetailInfoMapper.selectDispatcheInfo(orderId);
-                        carAuthorityInfo.setItIsSelfDriver(dispatcheDetailInfo.getItIsSelfDriver());
+                        carAuthorityInfo.setItIsSelfDriver(dispatcheDetailInfo!=null?dispatcheDetailInfo.getItIsSelfDriver():null);
                     }
                     carAuthorityInfoList.add(carAuthorityInfo);
                 }
