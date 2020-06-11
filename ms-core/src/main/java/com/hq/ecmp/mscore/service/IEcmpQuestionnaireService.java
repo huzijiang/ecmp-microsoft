@@ -1,7 +1,14 @@
 package com.hq.ecmp.mscore.service;
 
 
+import com.hq.core.security.LoginUser;
+import com.hq.ecmp.mscore.domain.CarInfo;
+import com.hq.ecmp.mscore.domain.DriverQueryResult;
 import com.hq.ecmp.mscore.domain.EcmpQuestionnaire;
+import com.hq.ecmp.mscore.dto.DriverAppraiseDto;
+import com.hq.ecmp.mscore.vo.CarListVO;
+import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.QuestionnaireVo;
 
 import java.util.List;
 
@@ -60,4 +67,10 @@ public interface IEcmpQuestionnaireService
      * @return 结果
      */
     public int deleteEcmpQuestionnaireById(Long id);
+
+    List<DriverQueryResult> dispatcherDriverList(LoginUser loginUser);
+
+    List<CarInfo> dispatcherCarList(LoginUser loginUser);
+
+    PageResult<QuestionnaireVo> dispatcherDriverAppraiseList(LoginUser loginUser, DriverAppraiseDto driverAppraiseDto);
 }

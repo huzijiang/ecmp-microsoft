@@ -24,7 +24,9 @@
     </resultMap>
 
     <sql id="selectEcmpQuestionnaireVo">
-        select id, driver_id, car_id, it_is_on_time, it_is_help, it_is_calm, it_is_know_traffic, it_is_smooth, it_is_clean, it_is_odor, use_car_time, phone, create_by, create_time, update_by, update_time from ecmp_questionnaire
+        select id, driver_id, car_id, it_is_on_time, it_is_help, it_is_calm, it_is_know_traffic,
+        it_is_smooth, it_is_clean, it_is_odor, use_car_time, phone,
+        create_by, create_time, update_by, update_time from ecmp_questionnaire
     </sql>
 
     <select id="selectEcmpQuestionnaireList" parameterType="com.hq.ecmp.mscore.domain.EcmpQuestionnaire" resultMap="EcmpQuestionnaireResult">
@@ -119,5 +121,31 @@
             #{id}
         </foreach>
     </delete>
+    <select id="selectEcmpQuestionnaireListByCarGroup" resultType="com.hq.ecmp.mscore.vo.QuestionnaireVo">
+        select
+        eq.id,
+        eq.driver_id AS driverId,
+        eq.car_id AS carId,
+        eq.it_is_on_time AS itIsOnTime,  -- 是否按时到达出发地
+        eq.it_is_help AS itIsHelp,   -- 是否主动开门拿行李
+        eq.it_Is_calm AS itIsCalm,   -- 是否不接私人电话，不主动攀谈
+        eq.it_is_know_traffic AS itIsKnowTraffic,  -- 是否熟悉路况
+        eq.it_is_smooth AS itIsSmooth,  -- 是否平稳驾驶
+        eq.it_is_clean AS itIsClean,   -- 是否干净
+        eq.it_is_odor AS itIsOdor,   -- 是否有异味
+        eq.use_car_time AS useCarTime,
+        eq.phone,                      -- 意见建议，乘客电话
+        eq.create_time AS createTime,  -- 评价日期
+        ci.car_license AS carLicense,  -- 车牌号
+        di.driver_name AS driverName  -- 司机
+        from ecmp_questionnaire eq
+        LEFT JOIN car_group_driver_relation cgdr ON cgdr.driver_id = eq.driver_id
+        LEFT JOIN car_info ci on ci.car_id = eq.car_id
+        LEFT JOIN driver_info di on di.driver_id = eq.driver_id
+        WHERE cgdr.car_group_id = #{carGroupId}
+        <if test="driverId != null ">and eq.driver_id = #{driverId}</if>
+        <if test="carId != null ">and eq.car_id = #{carId}</if>
+        order by eq.create_time desc
+    </select>
 
 </mapper>

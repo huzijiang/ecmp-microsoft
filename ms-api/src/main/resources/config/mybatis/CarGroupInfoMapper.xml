@@ -412,4 +412,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getCarGroupAllName" resultType="String">
 	    select  car_group_name from car_group_info where it_is_inner='C111'
     </select>
+
+    <select id="findgroupIdByUserId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        SELECT car_group_id from car_group_dispatcher_info where user_id = #{userId}
+    </select>
 </mapper>

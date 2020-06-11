@@ -8,32 +8,35 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="add" parameterType="com.hq.ecmp.mscore.domain.ReckoningInfo">
         insert into collection_quittance_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="car_group_id != null ">,</if>
-            <if test="company_id != null ">,</if>
-            <if test="begin_date != null ">,</if>
-            <if test="end_date != null ">,</if>
-            <if test="collection_end_time != null ">,</if>
-            <if test="state != null ">,</if>
-            <if test="applicant != null ">,</if>
-            <if test="verifier != null ">,</if>
-            <if test="create_by != null ">,</if>
-            <if test="create_time != null ">,</if>
-            <if test="update_by != null ">,</if>
-            <if test="update_time != null ">,</if>
+
+            <if test="collectionNumber != null ">collection_number,</if>
+            <if test="carGroupId != null ">car_group_id,</if>
+            <if test="companyId != null ">company_id,</if>
+            <if test="beginDate != null ">begin_date,</if>
+            <if test="endDate != null ">end_date,</if>
+            <if test="collectionEndTime != null ">collection_end_time,</if>
+            <if test="state != null ">state,</if>
+            <if test="applicant != null ">applicant,</if>
+            <if test="verifier !=null ">verifier,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime!= null ">update_time,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test=" != null ">#{carGroupId},</if>
-            <if test=" != null ">#{companyId},</if>
-            <if test=" != null ">#{beginDate},</if>
-            <if test=" != null ">#{endDate},</if>
-            <if test=" != null ">#{collectionEndTime},</if>
-            <if test=" != null ">#{state},</if>
-            <if test=" != null ">#{applicant},</if>
-            <if test=" != null ">#{verifier},</if>
-            <if test=" != null ">#{createBy},</if>
-            <if test=" != null ">#{createTime},</if>
-            <if test=" != null ">#{updateBy},</if>
-            <if test=" != null ">#{updateTime},</if>
+            <if test="collectionNumber != null ">#{collectionNumber},</if>
+            <if test="carGroupId != null ">#{carGroupId},</if>
+            <if test="companyId != null ">#{companyId},</if>
+            <if test="beginDate != null ">#{beginDate},</if>
+            <if test="endDate != null ">#{endDate},</if>
+            <if test="collectionEndTime != null ">#{collectionEndTime},</if>
+            <if test="state != null ">#{state},</if>
+            <if test="applicant != null ">#{applicant},</if>
+            <if test="verifier != null ">#{verifier},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
         </trim>
     </insert>
 

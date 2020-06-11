@@ -2,6 +2,8 @@ package com.hq.ecmp.mscore.mapper;
 
 
 import com.hq.ecmp.mscore.domain.EcmpQuestionnaire;
+import com.hq.ecmp.mscore.vo.QuestionnaireVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -60,4 +62,9 @@ public interface EcmpQuestionnaireMapper
      * @return 结果
      */
     public int deleteEcmpQuestionnaireByIds(Long[] ids);
+
+    List<QuestionnaireVo> selectEcmpQuestionnaireListByCarGroup(@Param("carGroupId") Long carGroupId,
+                                                                @Param("driverId") Long driverId,
+                                                                @Param("carId") Long carId);
+
 }
