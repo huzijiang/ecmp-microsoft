@@ -141,7 +141,7 @@ public class UserApplySingleVo extends PageRequest {
 
     @ApiModelProperty(value = "是否自驾")
     private String itIsSelfDriver;
-    @ApiModelProperty(value = "是否可以修改")
+    @ApiModelProperty(value = "是否可以修改---0可修改,1不可修改")
     private int canUpdateDetail;
 
     @ApiModelProperty(value = "多个下车地点")
