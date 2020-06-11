@@ -2594,7 +2594,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  right (ai.state,3)='005' OR right (z.state,3)='921'
         </if>
         <if test="homePageRejectState!=null and homePageRejectState != ''">
-            or ( eu.user_id = #{userId} and oi.service_type='5000' and right (z.state,3)='930' and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.create_time))
+            or ( eu.dept_id = #{deptId} and oi.service_type='5000' and right (z.state,3)='930' and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.create_time))
         </if>
         <if test="homePageToBeConfirmedState!=null and '' != homePageToBeConfirmedState">
             and  oi.state = #{homePageToBeConfirmedState}
@@ -2729,6 +2729,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         where  oi.service_type='5000'
         <if test="userId!=null and '' != userId">
             and  eu.user_id = #{userId}
+        </if>
+        <if test="deptId!=null ">
+            and  eu.dept_id = #{deptId}
         </if>
         <if test="companyId!=null">
             and  ai.company_id = #{companyId}

@@ -765,7 +765,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     @Override
     public PageResult<UserApplySingleVo> getUseApplyList(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
-        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+//        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+        userApplySingleVo.setDeptId(loginUser.getUser().getDeptId());
         userApplySingleVo.setCompanyId(companyId);
         PageHelper.startPage(userApplySingleVo.getPageNum(), userApplySingleVo.getPageSize());
         List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplySearchList(userApplySingleVo);
@@ -776,7 +777,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     @Override
     public List<UserApplySingleVo> getUseApplyCounts(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
-        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+//        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+        userApplySingleVo.setDeptId(loginUser.getUser().getDeptId());
         userApplySingleVo.setCompanyId(companyId);
         userApplySingleVo.setHomeDynamicBeginTime(userApplySingleVo.getHomeDynamicBeginTime().substring(0, 10)+" 00:00:00");
         userApplySingleVo.setHomeDynamicEndTime(userApplySingleVo.getHomeDynamicEndTime().substring(0, 10)+ " 23:59:59");
@@ -788,7 +790,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     public PageResult<UserApplySingleVo> getToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
         userApplySingleVo.setCompanyId(companyId);
-        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+//        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+        userApplySingleVo.setDeptId(loginUser.getUser().getDeptId());
         PageHelper.startPage(userApplySingleVo.getPageNum(), userApplySingleVo.getPageSize());
         List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplyCounts(userApplySingleVo);
         PageInfo<UserApplySingleVo> info = new PageInfo<>(useApplyList);
