@@ -146,4 +146,16 @@ public interface IApplyInfoService
     List<Map<String,String>> getApplyStateCount( LoginUser loginUser);
 
 
+
+    /**
+     * 修改申请单
+     * @param loginUser
+     * @param applySingleVO
+     * @return
+     */
+    ApiResponse updateApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO);
+    /**
+     * 获取申请单详情
+     */
+    ApplySingleVO getApplyInfoDetail(Long applyId);
 }

@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.EcmpMessage;
 import com.hq.ecmp.mscore.domain.OrderAccountInfo;
+import com.hq.ecmp.mscore.dto.OrderInfoFSDto;
 import com.hq.ecmp.mscore.vo.OrderAccountVO;
 import com.hq.ecmp.mscore.vo.OrderAccountViewVO;
 import org.apache.ibatis.annotations.Param;
@@ -70,4 +72,6 @@ public interface OrderAccountInfoMapper
     List<OrderAccountViewVO> getAccountViewList(@Param("companyId") Long companyId);
 
     Long getAccountViewListCount();
+
+    int updateStatementsState(@Param("list") List<OrderInfoFSDto> list);
 }

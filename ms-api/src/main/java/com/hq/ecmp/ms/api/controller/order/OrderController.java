@@ -22,6 +22,7 @@ import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.statistics.StatisticsParam;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
+import io.netty.handler.codec.compression.FastLzFrameEncoder;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -425,7 +426,7 @@ public class OrderController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
-            return ApiResponse.success(iOrderInfoService.getOrderList(userId, orderPage.getPageNum(), orderPage.getPageSize()));
+            return ApiResponse.success(iOrderInfoService.getOrderList(userId, orderPage.getPageNum(), orderPage.getPageSize(),orderPage.getIsConfirmState()));
         } catch (Exception e) {
             e.printStackTrace();
         }

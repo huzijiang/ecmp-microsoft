@@ -87,5 +87,5 @@ public interface OrderDispatcheDetailInfoMapper
      */
     void revertOrderDispatcheDetailInfoByOrderId(@Param("orderId") Long orderId, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
 
-    OrderDispatcheDetailInfo selectDispatcheInfo(Long orderId);
+    OrderDispatcheDetailInfo selectDispatcheInfo(@Param("orderId") Long orderId);
 }

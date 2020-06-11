@@ -52,9 +52,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		eo.dept_name deptName,
 		GROUP_CONCAT(DISTINCT cgi.it_is_inner),
 		osti.state state,
-		count(oi.order_id) orders,
-		sum(ji.use_time) useTimes,
-		sum(osi.amount) amount
+		count(oi.order_id) ordersByIn,
+		sum(ji.use_time) useTimesByIn,
+		sum(osi.amount) amountByIn
 		from order_info oi
 		left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
 		order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
@@ -72,8 +72,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="endDate!=null and '' != endDate">
 			and  ji.end_date &lt;= #{endDate}
 		</if>
+		<if test="deptName!=null and '' != deptName">
+			and  eo.dept_name = #{deptName}
+		</if>
 		group by eo.dept_id
-		order by orders desc
+		order by ordersByIn desc
 
     </select>
 
@@ -82,9 +85,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		eo.dept_name deptName,
 		GROUP_CONCAT(DISTINCT cgi.it_is_inner),
 		osti.state state,
-		count(oi.order_id) orders,
-		sum(ji.use_time) useTimes,
-		sum(osi.amount) amount
+		count(oi.order_id) ordersByOut,
+		sum(ji.use_time) useTimesByOut,
+		sum(osi.amount) amountByOut
 		from order_info oi
 		left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
 		order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
@@ -102,8 +105,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="endDate!=null and '' != endDate">
 			and  ji.end_date &lt;= #{endDate}
 		</if>
+		<if test="deptName!=null and '' != deptName">
+			and  eo.dept_name = #{deptName}
+		</if>
 		group by eo.dept_id
-		order by orders desc
+		order by ordersByOut desc
 
     </select>
 
@@ -111,6 +117,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       	select
 		ci.car_license carLicense,
 		ecti.name carName,
+		ci.seat_num seatNum,
 		osti.state state,
 		count(oi.order_id) orders,
 		sum(ji.use_time) useTimes,
@@ -131,6 +138,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		</if>
 		<if test="endDate!=null and '' != endDate">
 			and  ji.end_date &lt;= #{endDate}
+		</if>
+		<if test="carLicense!=null and '' != carLicense">
+			and  ci.car_license = #{carLicense}
 		</if>
 		group by ci.car_license
 		order by orders desc
@@ -159,6 +169,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="endDate!=null and '' != endDate">
 			and  ji.end_date &lt;= #{endDate}
 		</if>
+		<if test="driverName!=null and '' != driverName">
+			and  di.driver_name = #{driverName}
+		</if>
 		group by di.driver_id
 		order by orders desc
 
@@ -170,7 +183,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id = "modelUse" parameterType="com.hq.ecmp.mscore.dto.statistics.StatisticsForAdmin" resultType="com.hq.ecmp.mscore.vo.StatisticsForAdminVo">
-        select
 		select
 		ecti.name carName,
 		osti.state state,
@@ -193,6 +205,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		</if>
 		<if test="endDate!=null and '' != endDate">
 			and  ji.end_date &lt;= #{endDate}
+		</if>
+		<if test="carName!=null and '' != carName">
+			and  ecti.name = #{carName}
 		</if>
 		group by ecti.name
 		order by orders desc
@@ -221,12 +236,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="endDate!=null and '' != endDate">
 			and  ji.end_date &lt;= #{endDate}
 		</if>
+		<if test="carGroupName!=null and '' != carGroupName">
+			and  cgi.car_group_name = #{carGroupName}
+		</if>
 		group by cgi.car_group_name
 		order by orders desc
 
     </select>
 
-    <select id = "details" parameterType="com.hq.ecmp.mscore.dto.statistics.StatisticsForAdmin" resultType="com.hq.ecmp.mscore.vo.StatisticsForAdminVo">
+    <select id = "details" parameterType="com.hq.ecmp.mscore.dto.statistics.StatisticsForAdmin" resultType="com.hq.ecmp.mscore.vo.StatisticsForAdminDetailVo">
 
         select
 		oi.order_id orderId,
@@ -256,14 +274,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join
         (select order_id,type,address,address_long from order_address_info where type = 'A999') oai2 on  oai2.order_id = oi.order_id
 		where osti.state in ('S699','S900')
-        <if test="deptId!=null and '' != deptId">
-            and  eo.dept_id = #{deptId}
+        <if test="deptName!=null and '' != deptName">
+            and  eo.dept_name = #{deptName}
         </if>
         <if test="carLicense!=null and '' != carLicense">
             and  ci.car_license = #{carLicense}
         </if>
-        <if test="driverId!=null and '' != driverId">
-            and  di.driver_id = #{driverId}
+        <if test="driverName!=null and '' != driverName">
+            and  di.driver_name = #{driverName}
         </if>
         <if test="carName!=null and '' != carName">
             and  ecti.name = #{carName}
@@ -272,4 +290,84 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and  cgi.car_group_name = #{carGroupName}
         </if>
     </select>
+
+	<select id="getDeptNames" resultType="String">
+		select
+		eo.dept_name deptName
+		from order_info oi
+		left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+		order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
+		LEFT JOIN  journey_info ji ON oi.journey_id = ji.journey_id
+		LEFT JOIN  order_settling_info osi ON osi.order_id = oi.order_id
+		LEFT JOIN  ecmp_user eu  ON eu.user_id = oi.user_id
+		LEFT JOIN  ecmp_org eo   ON eo.dept_id  = eu.dept_id
+		LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id
+		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
+		where osti.state in ('S699','S900')
+		group by eo.dept_id
+	</select>
+
+	<select id="getCarLicenses" resultType="String">
+		select
+		ci.car_license carLicense
+		from order_info oi
+		left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+		order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
+		LEFT JOIN  journey_info ji ON oi.journey_id = ji.journey_id
+		LEFT JOIN  order_settling_info osi ON osi.order_id = oi.order_id
+		LEFT JOIN  car_info ci ON ci.car_id = oi.car_id
+		LEFT JOIN  enterprise_car_type_info ecti ON ecti.car_type_id = ci.car_type_id
+		LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id
+		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
+		where osti.state in ('S699','S900')
+		and cgi.it_is_inner = 'C000'
+		group by ci.car_license
+	</select>
+
+	<select id="getDriverNames" resultType="String">
+		  select
+		di.driver_name driverName
+		from order_info oi
+		left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+		order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
+		LEFT JOIN  journey_info ji ON oi.journey_id = ji.journey_id
+		LEFT JOIN  driver_info di ON di.driver_id = oi.driver_id
+		LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id
+		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
+		where osti.state in ('S699','S900')
+		and cgi.it_is_inner = 'C000'
+		group by di.driver_id
+	</select>
+
+	<select id="getCarNames" resultType="String">
+		select
+		ecti.name carNames
+		from order_info oi
+		left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+		order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
+		LEFT JOIN  journey_info ji ON oi.journey_id = ji.journey_id
+		LEFT JOIN  order_settling_info osi ON osi.order_id = oi.order_id
+		LEFT JOIN  car_info ci ON ci.car_id = oi.car_id
+		LEFT JOIN  enterprise_car_type_info ecti ON ecti.car_type_id = ci.car_type_id
+		LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id
+		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
+		where osti.state in ('S699','S900')
+		and cgi.it_is_inner = 'C000'
+		group by ecti.name
+	</select>
+
+	<select id="getCarGroupNames" resultType="String">
+		select
+		cgi.car_group_name carGroupName
+		from order_info oi
+		left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+		order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
+		LEFT JOIN  journey_info ji ON oi.journey_id = ji.journey_id
+		LEFT JOIN  order_settling_info osi ON osi.order_id = oi.order_id
+		LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id
+		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
+		where osti.state in ('S699','S900')
+		and cgi.it_is_inner = 'C111'
+		group by cgi.car_group_name
+	</select>
 </mapper>

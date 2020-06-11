@@ -234,4 +234,10 @@ public interface CarGroupInfoMapper
     List<DispatchCarGroupDto> getDisCarGroupInfoByUserId(@Param("userId") Long userId,@Param("companyId") Long companyId);
 
     List<String> reckoningDetail(ReckoningDto param);
+
+    /**
+     *
+     * @return
+     */
+    List<String> getCarGroupAllName();
 }

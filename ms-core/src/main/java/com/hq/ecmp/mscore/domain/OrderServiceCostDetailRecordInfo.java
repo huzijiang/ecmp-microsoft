@@ -1,13 +1,16 @@
 package com.hq.ecmp.mscore.domain;
 
+import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -83,7 +86,13 @@ public class OrderServiceCostDetailRecordInfo {
     List<OrderServiceImagesInfo> imageList;
 
     List<DriverHeartbeatInfo> heartbeatList;
+    @Autowired
+    private OrderInfoMapper orderInfoMapper;
 
     public OrderServiceCostDetailRecordInfo() {
+    }
+
+    public Map<String, Object> orderServiceCategory() {
+        return orderInfoMapper.orderServiceCategory();
     }
 }

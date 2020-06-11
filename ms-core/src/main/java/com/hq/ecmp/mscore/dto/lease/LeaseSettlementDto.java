@@ -11,7 +11,7 @@ public class LeaseSettlementDto {
 
     String deptName;
 
-    Date beginData;
+    Date beginDate;
 
     Date endDate;
 
@@ -19,10 +19,12 @@ public class LeaseSettlementDto {
 
     String verifier;
 
-    Date createTim;
+    Date createTime;
 
     Long createBy;
 
     Long companyId;
+
+    String carGroupId;
 
 }

@@ -409,7 +409,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
      * @return
      */
     @Override
-    public List<ApplyPriceDetails> applySinglePriceDetails(ApplyPriceDetails applyPriceDetails) {
+    public CarGroupInfoVo  applySinglePriceDetails(ApplyPriceDetails applyPriceDetails) {
         String rentType ="";
         String carGroupUserMode ="";
         //包车类型
@@ -434,7 +434,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         applyPriceDetails.setCarGroupUserMode(carGroupUserMode);
         applyPriceDetails.setServiceType(ServiceTypeConstant.CHARTERED);
         List<ApplyPriceDetails> list =  costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
-        return list;
+        return null;
     }
 
     @Override

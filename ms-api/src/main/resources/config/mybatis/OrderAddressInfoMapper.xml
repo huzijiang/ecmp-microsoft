@@ -200,4 +200,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                     jai.journey_id
     </select>
 
+    <select id="selectOrderAddressInfo" resultType="java.lang.Long">
+
+        select  order_address_id  startId from order_address_info where type =#{type} and order_id =#{orderId} and journey_id =#{journeyId}
+    </select>
+
+    <select id="selectOrderAddressInfoTwo" resultType="java.lang.Long">
+
+        select  order_address_id  endId from order_address_info where type =#{type} and order_id =#{orderId} and journey_id =#{journeyId}
+    </select>
 </mapper>

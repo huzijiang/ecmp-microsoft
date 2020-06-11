@@ -110,5 +110,5 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and car_group_id in (select car_group_id from car_group_serve_org_relation where car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode}) and dept_id=#{deptId})
         </if>
     </select>
-    
+
 </mapper>

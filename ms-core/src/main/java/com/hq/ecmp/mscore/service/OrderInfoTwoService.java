@@ -153,4 +153,11 @@ public interface OrderInfoTwoService {
     void updatePickupCarState();
 
     UserApplySingleVo getOrderInfoDetail(Long orderId, SysUser user,Long applyId)throws Exception;
+    /**
+     * 佛山后管申请单调度-获取用车单位列表
+     * @param companyId
+     * @return
+     */
+    List<EcmpOrg> getUseCarOrgList(Long companyId);
+
 }

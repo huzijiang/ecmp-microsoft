@@ -3,6 +3,11 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.bo.OrderTaskClashBo;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.MessageDto;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
+import com.hq.ecmp.mscore.dto.OrderInfoFSDto;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
@@ -79,9 +84,10 @@ public interface OrderInfoMapper {
      * 获取乘客端我的行程订单列表
      *
      * @param userId
+     * @param isConfirmState
      * @return
      */
-    public List<OrderListInfo> getOrderList(Long userId);
+    public List<OrderListInfo> getOrderList(@Param("userId") Long userId,@Param("isConfirmState") int isConfirmState);
 
 
     public List<DispatchOrderInfo> queryOrderRelateInfo(OrderInfo orderInfo);
@@ -414,6 +420,12 @@ public interface OrderInfoMapper {
      * @return
      */
     List<DispatchVo> getOrderInfoByCityAndDept(ApplyDispatch query);
+    /**
+     * 获取各状态调度单的数量
+     * @param query
+     * @return
+     */
+    List<DisOrderStateCount> getOrderStateCount(ApplyDispatch query);
 
     /***
      *
@@ -459,5 +471,27 @@ public interface OrderInfoMapper {
     List<Map> selectNormalOrderReserveTime(@Param("companyId")Long companyId,@Param("beginDate")String beginDate,@Param("endDate")String endDate);
 
     Long selectOrderIdByJourneyId(Long journeyId);
+
+
+    /***
+     * 结算单（当前车队结算单的所有已完成订单）
+     * @param data
+     * @return
+     */
+    List<String> getStatementsList(LeaseSettlementDto data);
+
+
+    /**
+     * 获取调度工作台对应状态的列表数据
+     * @param state
+     * @return
+     */
+    List<DisWorkBenchOrder> getDispatchOrderListWorkBench(@Param("state") String state);
+
+    /**
+     * 获取调度工作台订单的统计数量信息
+     * @return
+     */
+    List<DisOrderStateCount> getDispatchOrderListWorkBenchCount();
 }
 
