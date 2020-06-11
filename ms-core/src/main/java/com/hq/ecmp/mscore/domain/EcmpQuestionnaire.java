@@ -63,7 +63,17 @@ public class EcmpQuestionnaire extends BaseEntity
     @Excel(name = "联系电话")
     private String phone;
 
-    public void setId(Long id) 
+    private String carLicense;
+
+    public String getCarLicense() {
+        return carLicense;
+    }
+
+    public void setCarLicense(String carLicense) {
+        this.carLicense = carLicense;
+    }
+
+    public void setId(Long id)
     {
         this.id = id;
     }
