@@ -481,8 +481,10 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
                             //整日租
                             flag =2;
                         }
+                        applyPriceDetails.setRentType(CharterTypeEnum.OVERALL_RENT_TYPE.getKey());
                         ApplyPriceDetails costConfigInfosOverAll = costConfigInfoMapper.selectCostInfosWithApplyCarGroup(applyPriceDetails);
                         if(flag == 1){
+                            applyPriceDetails.setRentType(CharterTypeEnum.HALF_DAY_TYPE.getKey());
                             ApplyPriceDetails costConfigInfosHalf = costConfigInfoMapper.selectCostInfosWithApplyCarGroup(applyPriceDetails);
                             if (costConfigInfosHalf == null || costConfigInfosOverAll == null){
                                 iterator.remove();
