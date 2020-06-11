@@ -171,7 +171,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="status != null and status!= 0 ">eufi.state = #{status} </if>
             <if test="feedbackId != null and feedbackId!='' "> and eufi.feedback_id = #{feedbackId}</if>
             <if test="type != null  and type != '' "> and eufi.type = #{type}</if>
-            <if test="content != null  and content != '' "> and eufi.content like '%#{content}%' </if>
+            <if test="content != null  and content != '' ">
+                and eufi.content like '%#{content}%'
+                or eufi.title like '%#{content}%'
+            </if>
 
             <if test="isAdmin != null  and isAdmin != '1' ">
              and eufi.user_id  = #{userId}

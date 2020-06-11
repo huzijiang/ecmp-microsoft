@@ -184,4 +184,6 @@ public interface ICarGroupInfoService
      * @return
      */
     List<CostConfigCityInfo> getCitysBycarGroupId(Long carGroupId);
+
+    Long findgroupIdByUserId(Long userId);
 }
