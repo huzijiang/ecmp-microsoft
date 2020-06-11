@@ -353,15 +353,17 @@ AND a.state ='S270' order by a.create_time desc limit 1
 
     </select>
     <select id="selectDeptUseCarData" resultType="com.hq.ecmp.mscore.vo.UseCarDataVo">
-         SELECT COUNT(1) totalTimes,SUM(
+         SELECT COUNT(1) totalTimes,
+            ifnull(SUM(
             CASE
-                       WHEN ji.use_time IS NULL     THEN 0
-                       ELSE  CONVERT(ji.use_time,SIGNED)
-                    END
-                ) AS totalDays,SUM(
-              CASE WHEN osi.amount IS NULL THEN 0
-              ELSE osi.amount END
-                )  AS totalFee
+                WHEN ji.use_time IS NULL     THEN 0
+                ELSE  CONVERT(ji.use_time,SIGNED)
+             END
+            ),0) AS totalDays,
+            ifnull(SUM(
+            CASE WHEN osi.amount IS NULL THEN 0
+            ELSE osi.amount END
+            ),0)  AS totalFee
             FROM order_state_trace_info  os
             LEFT JOIN order_info oi ON os.order_id = oi.order_id
             LEFT JOIN journey_info ji ON ji.journey_id = oi.journey_id
