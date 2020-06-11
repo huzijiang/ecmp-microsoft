@@ -106,4 +106,8 @@ public class OrderListBackDto extends PageRequest {
     private String driverName;
 
     private String driverMobile;
+
+    private String nextCarGroupId;
+
+    private String carGroupName;
 }

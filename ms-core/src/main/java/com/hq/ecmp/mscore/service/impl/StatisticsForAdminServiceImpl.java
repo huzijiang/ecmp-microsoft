@@ -2,11 +2,13 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
-import com.google.gson.JsonObject;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.dto.statistics.StatisticsForAdmin;
 import com.hq.ecmp.mscore.mapper.StatisticsForAdminMapper;
 import com.hq.ecmp.mscore.service.StatisticsForAdminService;
+import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.StatisticsForAdminDetailVo;
 import com.hq.ecmp.mscore.vo.StatisticsForAdminVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author ghb
@@ -32,27 +36,47 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
     private StatisticsForAdminMapper statisticsForAdminMapper;
 
     @Override
-    public ApiResponse ranking(StatisticsForAdmin statisticsForAdmin) {
+    public ApiResponse driverOutranking(StatisticsForAdmin statisticsForAdmin) {
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
-        PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
+        statisticsForAdmin.setBeginDate(statisticsForAdmin.getBeginDate().substring(0, 10)+" 00:00:00");
+        statisticsForAdmin.setEndDate(statisticsForAdmin.getEndDate().substring(0, 10)+" 23:59:59");
         try {
             //出车次数排行
+            PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
             List<StatisticsForAdminVo> driverOutranking = statisticsForAdminMapper.driverOutranking(statisticsForAdmin);
             Long orders = 0L;
             for (StatisticsForAdminVo statisticsForAdminVo : driverOutranking){
-                orders = statisticsForAdminVo.getOrders();
-                orders++;
+                orders = orders+ statisticsForAdminVo.getOrders();
             }
+            jsonObject.put("driverOutranking",driverOutranking);
+            jsonObject.put("sumOrder",orders);
+            apiResponse.setCode(0);
+            apiResponse.setData(jsonObject);
+            apiResponse.setMsg("success");
+        }catch (Exception e){
+            apiResponse.setCode(1);
+            apiResponse.setData(jsonObject);
+            apiResponse.setMsg("error");
+        }
+        return apiResponse;
+    }
+
+    @Override
+    public ApiResponse vehicleExpenses(StatisticsForAdmin statisticsForAdmin) {
+        ApiResponse apiResponse = new ApiResponse();
+        JSONObject jsonObject = new JSONObject();
+        statisticsForAdmin.setBeginDate(statisticsForAdmin.getBeginDate().substring(0, 10)+" 00:00:00");
+        statisticsForAdmin.setEndDate(statisticsForAdmin.getEndDate().substring(0, 10)+" 23:59:59");
+        try {
             //用车费用排行
+            PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
             List<StatisticsForAdminVo> vehicleExpenses = statisticsForAdminMapper.vehicleExpenses(statisticsForAdmin);
             BigDecimal sumAmount = new BigDecimal(0);
             for (StatisticsForAdminVo statisticsForAdminVo : vehicleExpenses){
                 sumAmount = sumAmount.add(statisticsForAdminVo.getAmount());
             }
-            jsonObject.put("driverOutranking",driverOutranking);
             jsonObject.put("vehicleExpenses",vehicleExpenses);
-            jsonObject.put("sumOrder",orders);
             jsonObject.put("sumAmount",sumAmount);
             apiResponse.setCode(0);
             apiResponse.setData(jsonObject);
@@ -71,17 +95,28 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
         PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
-
         try {
-            List<String> carUseDepts = new ArrayList<>();
+            List<String> carUseDepts = statisticsForAdminMapper.getDeptNames();
+            List<StatisticsForAdminVo> list = new ArrayList<>();
+            PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
             List<StatisticsForAdminVo> unitVehicleByIn = statisticsForAdminMapper.unitVehicleByIn(statisticsForAdmin);
             for(StatisticsForAdminVo statisticsForAdminVo : unitVehicleByIn){
-                carUseDepts.add(statisticsForAdminVo.getDeptName());
+                list.add(statisticsForAdminVo);
             }
+            PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
             List<StatisticsForAdminVo> unitVehicleByOut = statisticsForAdminMapper.unitVehicleByOut(statisticsForAdmin);
-            jsonObject.put("unitVehicleByIn",unitVehicleByIn);
-            jsonObject.put("unitVehicleByOut",unitVehicleByOut);
+            for(StatisticsForAdminVo statistics : list){
+                for(StatisticsForAdminVo statisticsForAdminVo : unitVehicleByOut){
+                    if(statistics.getDeptName().equals(statisticsForAdminVo.getDeptName())){
+                        statistics.setAmountByOut(statisticsForAdminVo.getAmountByOut());
+                        statistics.setUseTimesByOut(statisticsForAdminVo.getUseTimesByOut());
+                        statistics.setOrdersByOut(statisticsForAdminVo.getOrdersByOut());
+                    }
+                }
+            }
+            PageInfo<StatisticsForAdminVo> info = new PageInfo<>(list);
             jsonObject.put("carUseDepts",carUseDepts);
+            jsonObject.put("list",new PageResult<>(info.getTotal(), info.getPages(), list));
             apiResponse.setCode(0);
             apiResponse.setData(jsonObject);
             apiResponse.setMsg("success");
@@ -98,15 +133,12 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
 
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
-        PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
-
         try {
-            List<String> carLicenses = new ArrayList<>();
+            List<String> carLicenses = statisticsForAdminMapper.getCarLicenses();
+            PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
             List<StatisticsForAdminVo> useOfMechanismVehicles = statisticsForAdminMapper.useOfMechanismVehicles(statisticsForAdmin);
-            for(StatisticsForAdminVo statisticsForAdminVo : useOfMechanismVehicles){
-                carLicenses.add(statisticsForAdminVo.getCarLicense());
-            }
-            jsonObject.put("useOfMechanismVehicles",useOfMechanismVehicles);
+            PageInfo<StatisticsForAdminVo> info = new PageInfo<>(useOfMechanismVehicles);
+            jsonObject.put("useOfMechanismVehicles",new PageResult<>(info.getTotal(), info.getPages(), useOfMechanismVehicles));
             jsonObject.put("carLicenses",carLicenses);
             apiResponse.setCode(0);
             apiResponse.setData(jsonObject);
@@ -126,14 +158,11 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
         PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
-
         try {
-            List<String> driverNames = new ArrayList<>();
+            List<String> driverNames = statisticsForAdminMapper.getDriverNames();
             List<StatisticsForAdminVo> driverOut = statisticsForAdminMapper.driverOut(statisticsForAdmin);
-            for (StatisticsForAdminVo statisticsForAdminVo : driverOut){
-                driverNames.add(statisticsForAdminVo.getDriverName());
-            }
-            jsonObject.put("driverOut",driverOut);
+            PageInfo<StatisticsForAdminVo> info = new PageInfo<>(driverOut);
+            jsonObject.put("driverOut",new PageResult<>(info.getTotal(), info.getPages(), driverOut));
             jsonObject.put("driverNames",driverNames);
             apiResponse.setCode(0);
             apiResponse.setData(jsonObject);
@@ -161,12 +190,10 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
 
         try {
-            List<String> carNames = new ArrayList<>();
+            List<String> carNames = statisticsForAdminMapper.getCarNames();
             List<StatisticsForAdminVo> modelUse = statisticsForAdminMapper.modelUse(statisticsForAdmin);
-            for(StatisticsForAdminVo statisticsForAdminVo : modelUse){
-                carNames.add(statisticsForAdminVo.getCarName());
-            }
-            jsonObject.put("modelUse",modelUse);
+            PageInfo<StatisticsForAdminVo> info = new PageInfo<>(modelUse);
+            jsonObject.put("modelUse",new PageResult<>(info.getTotal(), info.getPages(), modelUse));
             jsonObject.put("carNames",carNames);
             apiResponse.setCode(0);
             apiResponse.setData(jsonObject);
@@ -184,11 +211,13 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
 
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
-        PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
-
         try {
+            List<String> carGroupNames = statisticsForAdminMapper.getCarGroupNames();
+            PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
             List<StatisticsForAdminVo> leasing = statisticsForAdminMapper.leasing(statisticsForAdmin);
-            jsonObject.put("leasing",leasing);
+            PageInfo<StatisticsForAdminVo> info = new PageInfo<>(leasing);
+            jsonObject.put("leasing",new PageResult<>(info.getTotal(), info.getPages(), leasing));
+            jsonObject.put("carGroupNames",carGroupNames);
             apiResponse.setCode(0);
             apiResponse.setData(jsonObject);
             apiResponse.setMsg("success");
@@ -206,10 +235,10 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
         PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
-
         try {
-            List<StatisticsForAdminVo> details = statisticsForAdminMapper.details(statisticsForAdmin);
-            jsonObject.put("details",details);
+            List<StatisticsForAdminDetailVo> details = statisticsForAdminMapper.details(statisticsForAdmin);
+            PageInfo<StatisticsForAdminDetailVo> info = new PageInfo<>(details);
+            jsonObject.put("details",new PageResult<>(info.getTotal(), info.getPages(), details));
             apiResponse.setCode(0);
             apiResponse.setData(jsonObject);
             apiResponse.setMsg("success");

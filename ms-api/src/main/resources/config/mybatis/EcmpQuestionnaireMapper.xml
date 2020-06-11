@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.EcmpQuestionnaireMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.EcmpQuestionnaire" id="EcmpQuestionnaireResult">
+        <result property="id"    column="id"    />
+        <result property="driverId"    column="driver_id"    />
+        <result property="carId"    column="car_id"    />
+        <result property="itIsOnTime"    column="it_is_on_time"    />
+        <result property="itIsHelp"    column="it_is_help"    />
+        <result property="itIsCalm"    column="it_is_calm"    />
+        <result property="itIsKnowTraffic"    column="it_is_know_traffic"    />
+        <result property="itIsSmooth"    column="it_is_smooth"    />
+        <result property="itIsClean"    column="it_is_clean"    />
+        <result property="itIsOdor"    column="it_is_odor"    />
+        <result property="useCarTime"    column="use_car_time"    />
+        <result property="phone"    column="phone"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEcmpQuestionnaireVo">
+        select id, driver_id, car_id, it_is_on_time, it_is_help, it_is_calm, it_is_know_traffic, it_is_smooth, it_is_clean, it_is_odor, use_car_time, phone, create_by, create_time, update_by, update_time from ecmp_questionnaire
+    </sql>
+
+    <select id="selectEcmpQuestionnaireList" parameterType="com.hq.ecmp.mscore.domain.EcmpQuestionnaire" resultMap="EcmpQuestionnaireResult">
+        <include refid="selectEcmpQuestionnaireVo"/>
+        <where>
+            <if test="driverId != null "> and driver_id = #{driverId}</if>
+            <if test="carId != null "> and car_id = #{carId}</if>
+            <if test="itIsOnTime != null  and itIsOnTime != ''"> and it_is_on_time = #{itIsOnTime}</if>
+            <if test="itIsHelp != null  and itIsHelp != ''"> and it_is_help = #{itIsHelp}</if>
+            <if test="itIsCalm != null  and itIsCalm != ''"> and it_is_calm = #{itIsCalm}</if>
+            <if test="itIsKnowTraffic != null  and itIsKnowTraffic != ''"> and it_is_know_traffic = #{itIsKnowTraffic}</if>
+            <if test="itIsSmooth != null  and itIsSmooth != ''"> and it_is_smooth = #{itIsSmooth}</if>
+            <if test="itIsClean != null  and itIsClean != ''"> and it_is_clean = #{itIsClean}</if>
+            <if test="itIsOdor != null  and itIsOdor != ''"> and it_is_odor = #{itIsOdor}</if>
+            <if test="useCarTime != null "> and use_car_time = #{useCarTime}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+        </where>
+    </select>
+
+    <select id="selectEcmpQuestionnaireById" parameterType="Long" resultMap="EcmpQuestionnaireResult">
+        <include refid="selectEcmpQuestionnaireVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertEcmpQuestionnaire" parameterType="com.hq.ecmp.mscore.domain.EcmpQuestionnaire" useGeneratedKeys="true" keyProperty="id">
+        insert into ecmp_questionnaire
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="driverId != null ">driver_id,</if>
+            <if test="carId != null ">car_id,</if>
+            <if test="itIsOnTime != null  and itIsOnTime != ''">it_is_on_time,</if>
+            <if test="itIsHelp != null  and itIsHelp != ''">it_is_help,</if>
+            <if test="itIsCalm != null  and itIsCalm != ''">it_is_calm,</if>
+            <if test="itIsKnowTraffic != null  and itIsKnowTraffic != ''">it_is_know_traffic,</if>
+            <if test="itIsSmooth != null  and itIsSmooth != ''">it_is_smooth,</if>
+            <if test="itIsClean != null  and itIsClean != ''">it_is_clean,</if>
+            <if test="itIsOdor != null  and itIsOdor != ''">it_is_odor,</if>
+            <if test="useCarTime != null ">use_car_time,</if>
+            <if test="phone != null  and phone != ''">phone,</if>
+            <if test="createBy != null ">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null ">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="driverId != null ">#{driverId},</if>
+            <if test="carId != null ">#{carId},</if>
+            <if test="itIsOnTime != null  and itIsOnTime != ''">#{itIsOnTime},</if>
+            <if test="itIsHelp != null  and itIsHelp != ''">#{itIsHelp},</if>
+            <if test="itIsCalm != null  and itIsCalm != ''">#{itIsCalm},</if>
+            <if test="itIsKnowTraffic != null  and itIsKnowTraffic != ''">#{itIsKnowTraffic},</if>
+            <if test="itIsSmooth != null  and itIsSmooth != ''">#{itIsSmooth},</if>
+            <if test="itIsClean != null  and itIsClean != ''">#{itIsClean},</if>
+            <if test="itIsOdor != null  and itIsOdor != ''">#{itIsOdor},</if>
+            <if test="useCarTime != null ">#{useCarTime},</if>
+            <if test="phone != null  and phone != ''">#{phone},</if>
+            <if test="createBy != null ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null ">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEcmpQuestionnaire" parameterType="com.hq.ecmp.mscore.domain.EcmpQuestionnaire">
+        update ecmp_questionnaire
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="driverId != null ">driver_id = #{driverId},</if>
+            <if test="carId != null ">car_id = #{carId},</if>
+            <if test="itIsOnTime != null  and itIsOnTime != ''">it_is_on_time = #{itIsOnTime},</if>
+            <if test="itIsHelp != null  and itIsHelp != ''">it_is_help = #{itIsHelp},</if>
+            <if test="itIsCalm != null  and itIsCalm != ''">it_is_calm = #{itIsCalm},</if>
+            <if test="itIsKnowTraffic != null  and itIsKnowTraffic != ''">it_is_know_traffic = #{itIsKnowTraffic},</if>
+            <if test="itIsSmooth != null  and itIsSmooth != ''">it_is_smooth = #{itIsSmooth},</if>
+            <if test="itIsClean != null  and itIsClean != ''">it_is_clean = #{itIsClean},</if>
+            <if test="itIsOdor != null  and itIsOdor != ''">it_is_odor = #{itIsOdor},</if>
+            <if test="useCarTime != null ">use_car_time = #{useCarTime},</if>
+            <if test="phone != null  and phone != ''">phone = #{phone},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEcmpQuestionnaireById" parameterType="Long">
+        delete from ecmp_questionnaire where id = #{id}
+    </delete>
+
+    <delete id="deleteEcmpQuestionnaireByIds" parameterType="String">
+        delete from ecmp_questionnaire where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

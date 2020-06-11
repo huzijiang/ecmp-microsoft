@@ -410,6 +410,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
        and  acc.state != 'S005'
    </select>
     <select id="getCarGroupAllName" resultType="String">
-	    select  car_group_name from car_group_info
+	    select  car_group_name from car_group_info where it_is_inner='C111'
     </select>
 </mapper>
