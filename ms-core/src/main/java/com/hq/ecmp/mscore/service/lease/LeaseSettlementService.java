@@ -53,4 +53,13 @@ public interface LeaseSettlementService {
     List<String> getUseCarUnit(LoginUser user)throws Exception;
 
 
+    /***
+     *
+     * @param
+     * @param user
+     * @return
+     */
+    int updateLeaseSettlementState(Long collectionId,String state, LoginUser user);
+
+
 }

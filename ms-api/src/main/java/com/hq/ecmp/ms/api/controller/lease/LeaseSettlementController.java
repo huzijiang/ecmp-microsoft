@@ -106,12 +106,26 @@ public class LeaseSettlementController {
      */
     @ApiOperation(value = "租赁结算用车单位列表")
     @PostMapping(value = "/getUseCarUnit")
-    @Log(title = "getUseCarUnit", content = "getUseCarUnit", businessType = BusinessType.OTHER)
+    @Log(title = "租赁结算用车单位列表", content = "租赁结算用车单位列表", businessType = BusinessType.OTHER)
     public ApiResponse getUseCarUnit(){
         try{
             return ApiResponse.success(leaseSettlementService.getUseCarUnit(tokenService.getLoginUser(ServletUtils.getRequest())));
         }catch(Exception e){
             log.error("getUseCarUnit error",e);
+        }
+        return ApiResponse.error();
+    }
+
+    @ApiOperation(value = "租赁结算调度员更改结算状态")
+    @PostMapping(value = "/updateLeaseSettlementState")
+    @Log(title = "租赁结算调度员更改结算状态", content = "租赁结算调度员更改结算状态", businessType = BusinessType.OTHER)
+    public ApiResponse updateLeaseSettlementState(Long collectionId,String state){
+        try{
+            if(leaseSettlementService.updateLeaseSettlementState(collectionId,state,tokenService.getLoginUser(ServletUtils.getRequest()))>0){
+                return ApiResponse.success();
+            }
+        }catch(Exception e){
+            log.error("updateLeaseSettlementState error",e);
         }
         return ApiResponse.error();
     }
