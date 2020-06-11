@@ -273,5 +273,5 @@ public interface IEcmpOrgService
 
     void selectIndependentCompanyApplyState() throws Exception;
 
-    List<Map> getEcmpName();
+    List<Map> getEcmpName(Long groupId);
 }

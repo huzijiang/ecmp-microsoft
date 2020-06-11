@@ -3094,7 +3094,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     }
 
     @Override
-    public List<Map<String,String>> getMoneyList(ReckoningDto param) {
+    public List<MoneyListDto> getMoneyList(ReckoningDto param) {
 
         return orderInfoMapper.getMoneyList(param);
 

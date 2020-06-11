@@ -404,7 +404,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
        left join order_address_info adr on o.order_id = adr.order_id and adr.type = 'A999'
        left join order_account_info acc on  o.order_id  = acc.order_id
        WHERE
-       o.company_id = #{ecmpId}
+       o.company_id = #{companyId}
        AND  <![CDATA[ DATE_FORMAT(#{startDate}, '%Y-%m-%d') <= addr.action_time ]]>
        AND  <![CDATA[ adr.action_time <= DATE_FORMAT(#{endDate}, '%Y-%m-%d') ]]>
        and  acc.state != 'S005'

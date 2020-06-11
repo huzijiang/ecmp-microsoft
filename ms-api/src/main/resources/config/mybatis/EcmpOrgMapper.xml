@@ -594,13 +594,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectIdAndName" resultType="java.util.Map">
+    <select id="selectIdAndName" resultType="java.util.Map" parameterType="java.lang.Long">
         select
-            dept_id as deptId,
-            dept_name as deptName
+        DISTINCT g.dept_id as deptId,
+        g.dept_name as deptName
         from
-          ecmp_org
-        where
-          del_flag = 0
+        car_group_serve_org_relation o
+        left join ecmp_org g on o.dept_id = g.dept_id and del_flag = 0
+        left join car_group_dispatcher_info c on  c.car_group_id = o.car_group_id
+        where 1 = 1
+        <if test="userId != null ">
+            and c.user_id = #{userId}
+        </if>
     </select>
 
 </mapper>

@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ReckoningInfo;
+import com.hq.ecmp.mscore.dto.PayeeInfoDto;
 import com.hq.ecmp.mscore.dto.ReckoningDto;
 import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
 import org.apache.ibatis.annotations.Param;
@@ -13,7 +14,7 @@ import java.util.Map;
 @Repository
 public interface CollectionQuittanceInfoMapper {
 
-    Map getPayeeInfo(Long companyId);
+    PayeeInfoDto getPayeeInfo(ReckoningDto param);
 
     void add(ReckoningInfo param);
 

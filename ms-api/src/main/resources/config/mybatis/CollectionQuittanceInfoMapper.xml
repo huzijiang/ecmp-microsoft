@@ -85,19 +85,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="ordinaryUserConfirmCost" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
          update collection_quittance_info set state=#{state},create_by=#{createBy} where collection_id=#{collectionId}
     </update>
-    <select id="getPayeeInfo" resultType="java.util.Map" parameterType="java.lang.Long">
+    <select id="getPayeeInfo" resultType="com.hq.ecmp.mscore.dto.PayeeInfoDto" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
         SELECT
+            c.user_id userId,
+            g.company_id companyId,
+            g.car_group_id carGroupId,
             g.car_group_name carGroupName,
-            g.telephone telephone,        --#客服电话：租赁公司电话
-            g.account_name accountName,  --#租赁公司开户名称
-            g.bank_name bankName,        --#开户行
-            g.bank_account bankAccount,  --#银行账号
-            o.dept_name deptName         --#所选用车单位
+            g.telephone telephone,
+            g.account_name accountName,
+            g.bank_name bankName,
+            g.bank_account bankAccount ,
+            o.dept_name deptName
         FROM
             car_group_info g
-            LEFT JOIN ecmp_org o ON g.company_id = o.company_id
-        WHERE
-            g.company_id = #{companyId}
+            LEFT JOIN ecmp_org o ON g.company_id = o.dept_id
+			left join car_group_dispatcher_info c on g.car_group_id = c.car_group_id
+      where
+           c.user_id = #{userId}
+             and
+           g.company_id = #{companyId}
+		limit 1
     </select>
 
 </mapper>
