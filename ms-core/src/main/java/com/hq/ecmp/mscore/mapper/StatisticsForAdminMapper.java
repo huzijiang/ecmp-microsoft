@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.dto.statistics.StatisticsForAdmin;
+import com.hq.ecmp.mscore.vo.StatisticsForAdminDetailVo;
 import com.hq.ecmp.mscore.vo.StatisticsForAdminVo;
 import org.springframework.stereotype.Repository;
 
@@ -29,5 +30,16 @@ public interface StatisticsForAdminMapper {
 
     List<StatisticsForAdminVo> leasing(StatisticsForAdmin statisticsForAdmin);
 
-    List<StatisticsForAdminVo> details(StatisticsForAdmin statisticsForAdmin);
+    List<StatisticsForAdminDetailVo> details(StatisticsForAdmin statisticsForAdmin);
+
+    List<String> getDeptNames();
+
+    List<String> getCarLicenses();
+
+    List<String> getDriverNames();
+
+    List<String> getCarNames();
+
+    List<String> getCarGroupNames();
+
 }

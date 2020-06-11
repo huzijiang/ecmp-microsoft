@@ -5,7 +5,9 @@ import com.hq.ecmp.mscore.dto.statistics.StatisticsForAdmin;
 
 public interface StatisticsForAdminService {
 
-    ApiResponse ranking(StatisticsForAdmin statisticsForAdmin);
+    ApiResponse driverOutranking(StatisticsForAdmin statisticsForAdmin);
+
+    ApiResponse vehicleExpenses(StatisticsForAdmin statisticsForAdmin);
 
     ApiResponse unitVehicle(StatisticsForAdmin statisticsForAdmin);
 
