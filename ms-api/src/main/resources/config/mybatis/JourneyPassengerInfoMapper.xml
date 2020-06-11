@@ -71,6 +71,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null  and name != ''">name = #{name},</if>
             <if test="mobile != null  and mobile != ''">mobile = #{mobile},</if>
             <if test="itIsPeer != null  and itIsPeer != ''">it_is_peer = #{itIsPeer},</if>
+            <if test="peerNumber != null ">peer_number = #{peerNumber},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -115,5 +116,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		journey_id = #{journeyId}
 		AND it_is_peer = '00'
 	</select>
+
+
+    <select id="queryJourneyPassengerInfoByJourneyId" parameterType="java.lang.Long" resultMap="JourneyPassengerInfoResult" >
+        SELECT name,
+               mobile
+        FROM journey_passenger_info
+        WHERE journey_id = #{journeyId}
+        limit 1
+    </select>
 
 </mapper>

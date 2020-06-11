@@ -94,11 +94,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectGroupByCityCode" parameterType="com.hq.ecmp.mscore.dto.cost.CostConfigQueryPriceDto" resultType="com.hq.ecmp.mscore.vo.CarGroupCostVO">
         select distinct car_group_id carGroupId,car_group_name carGroupName,it_is_inner itIsInner,telephone
         from car_group_info
-        where car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode})
-        and  company_id=#{companyId}
+        where 1=1
+        and company_id=#{companyId}
         <if test="carGroupId!=null">
             and car_group_id=#{carGroupId}
         </if>
+        <if test="flag==3">
+            and car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode})
+        </if>
+        <if test="flag==2">
+            and (car_group_id in (select car_group_id from car_group_dispatcher_info where car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode}) and user_id=#{userId})
+            or car_group_id in (select car_group_id from car_group_serve_org_relation where car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode}) and dept_id=#{deptId}))
+        </if>
+        <if test="flag==1">
+            and car_group_id in (select car_group_id from car_group_serve_org_relation where car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode}) and dept_id=#{deptId})
+        </if>
     </select>
-    
+
 </mapper>

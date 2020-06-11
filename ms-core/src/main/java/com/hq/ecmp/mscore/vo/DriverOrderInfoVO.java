@@ -90,6 +90,8 @@ public class DriverOrderInfoVO {
     private String totalMileage;
     @ApiModelProperty(name = "totalTime",value = "总时长")
     private String totalTime;
+    private Date labelStateOptTime;
+    private String labelStateContent;
 
 
 

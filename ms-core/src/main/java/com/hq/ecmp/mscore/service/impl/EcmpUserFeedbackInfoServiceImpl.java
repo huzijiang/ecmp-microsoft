@@ -9,13 +9,18 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.ServletUtils;
+import com.hq.core.security.LoginUser;
+import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
 import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
 import com.hq.ecmp.mscore.dto.OrderInfoDTO;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
 import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.util.HqAdmin;
 import com.hq.ecmp.util.OrderUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -26,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -49,6 +55,8 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
     private OrderAddressInfoMapper orderAddressInfoMapper;
     @Resource
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
+    @Resource
+    private TokenService tokenService;
 
     /**
      * 查询【请填写功能名称】
@@ -368,5 +376,31 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         }
         return apiResponse;
     }
+
+    @Override
+    public int updateFeedback(EcmpUserFeedbackInfoVo feedBackDto) {
+        feedBackDto.setUpdateTime(new Date());
+        feedBackDto.setState(ReplyObjectionEnum.YES_REPLY.getKey());
+        return ecmpUserFeedbackInfoMapper.updateFeedback(feedBackDto);
+    }
+
+
+    @Override
+    public PageResult<EcmpUserFeedbackVo> findFeedback(EcmpUserFeedbackInfo ecmpUserFeedbackInfo) {
+
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        int admin = HqAdmin.isAdmin(loginUser);
+        ecmpUserFeedbackInfo.setIsAdmin(admin);
+        ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
+        Integer count = ecmpUserFeedbackInfoMapper.findCountFeedback(ecmpUserFeedbackInfo);
+        List<EcmpUserFeedbackVo> backInfoList =  ecmpUserFeedbackInfoMapper.findFeedback(ecmpUserFeedbackInfo);
+        PageHelper.startPage(ecmpUserFeedbackInfo.getPageIndex(),ecmpUserFeedbackInfo.getPageSize());
+        PageInfo<EcmpUserFeedbackVo> info = new PageInfo<>(backInfoList);
+        return new PageResult<>(info.getTotal(),info.getPages(),backInfoList);
+    }
+
+
+
 
 }

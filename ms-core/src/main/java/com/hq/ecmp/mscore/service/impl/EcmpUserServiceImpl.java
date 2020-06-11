@@ -639,9 +639,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         if(OrgConstant.DEPT_TYPE_1.equals(deptType)){
             list=ecmpUserMapper.getCompanyEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO,longs);
-            for (EcmpUserDto ecmpUserDto:list){
+            /*for (EcmpUserDto ecmpUserDto:list){
                 ecmpUserDto.setSubDept("无");
-            }
+            }*/
         }
         if(OrgConstant.DEPT_TYPE_2.equals(deptType)){
             list=ecmpUserMapper.getEcmpUserPage(pageRequest.getSearch(),pageRequest.getDeptId(), CommonConstant.ZERO,longs);

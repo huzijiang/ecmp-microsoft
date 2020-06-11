@@ -50,8 +50,12 @@ public class OrderVO {
     private String driverType;
     @ApiModelProperty(name = "customerServicePhone",value = "客服电话")
     private String customerServicePhone;
-    @ApiModelProperty(name = "useCarTime",value = "用车时间")
+    @ApiModelProperty(name = "useCarTime",value = "实际用车时间")
     private String useCarTime;
+    @ApiModelProperty(name = "beginTime",value = "实际用车时间")
+    private String beginTime;
+    @ApiModelProperty(name = "useTime",value = "包车天数")
+    private String useTime;
     @ApiModelProperty(name = "createTimestamp",value = "下单时间")
     private Long createTimestamp;
     @ApiModelProperty(name = "useCarTimestamp",value = "下单时间")
@@ -80,6 +84,7 @@ public class OrderVO {
     private String carPhoto;
     @ApiModelProperty(name = "orderCostDetailVO",value = "费用对象")
     private OrderCostDetailVO   orderCostDetailVO;
+    private List<OtherCostBean> orderFees;
     @ApiModelProperty(name = "isExcess",value = "是否超额:0否1超额")
     private Integer isExcess;
     @ApiModelProperty(name = "excessMoney",value = "超额金额")

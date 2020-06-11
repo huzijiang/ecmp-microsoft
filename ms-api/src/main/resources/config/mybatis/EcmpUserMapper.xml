@@ -106,7 +106,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="jobNumber != null and jobNumber != ''">#{jobNumber},</if>
             <if test="createBy != null  and createBy != ''">#{createBy},</if>
             <if test="createTime != null ">#{createTime},</if>
-            <if test="remark != null  and remark != ''">#{remark}</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
             <if test="itIsDriver != null  and itIsDriver != ''">#{itIsDriver}</if>
          </trim>
     </insert>
@@ -446,6 +446,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         user_name as userName,
         user_id as userId,
         dept_id as deptId,
+        (select dept_name from ecmp_org where dept_id=a.dept_id and dept_type='2') as subDept,
         (select dept_name from ecmp_org where dept_id= a.dept_id and dept_type='1') as subCompany,
         <if test="status==1">
             DATE_FORMAT(dimission_time,'%Y-%m-%d') dimissionTimeStr,

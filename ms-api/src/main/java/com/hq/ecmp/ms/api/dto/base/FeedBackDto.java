@@ -26,10 +26,28 @@ public class FeedBackDto {
     /**
      * 反馈内容
      */
-    private String Content;
+    private String content;
 
     private String orderId;
 
 
+    /** 投诉id */
+    private Long feedId;
+    /** 用车单位 */
+    private Long ecmpId;
+
+    /** 用车状态 */
+    private int status;
+
+    /** 标题或内容 */
+    private String title;
+
+    /** 回复内容 */
+    private String resultContent;
+
+    //起始页
+    private int pageIndex;
+    //显示条数
+    private int pagesize;
 
 }

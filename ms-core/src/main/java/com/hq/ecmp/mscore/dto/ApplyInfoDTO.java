@@ -36,6 +36,7 @@ public class ApplyInfoDTO {
      * 申请用车日期
      */
     private Date startDate; //TODO applyDate改動
+    private String useTime; //TODO applyDate改動
 
     /**
      * 结束日期

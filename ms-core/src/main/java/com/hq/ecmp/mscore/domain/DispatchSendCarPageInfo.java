@@ -44,4 +44,9 @@ public class DispatchSendCarPageInfo {
 	DispatchOptRecord  currentDispatchOptRecord;//当前调度信息
 	
 	String carLevel;//网约车车型
+
+	/**
+	 * 用车天数
+	 */
+	String charterCarDaysCount;
 }

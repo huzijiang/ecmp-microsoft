@@ -5,11 +5,12 @@ import com.hq.ecmp.mscore.domain.UndoSMSTemplate;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
 import com.hq.ecmp.mscore.dto.JourneyAddressInfoDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
-import com.hq.ecmp.mscore.vo.DispatchVo;
+import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -119,4 +120,35 @@ public interface ApplyInfoMapper
      * @return
      */
     DispatchVo getDispatchApplyInfoByJourneyId(@Param("journeyId") Long journeyId);
+
+    /**
+     * 查询所需要的id
+     * @param applyId
+     * @return
+     */
+    ApplySingleIdVO getApplySingleIdVO(@Param("applyId") Long applyId);
+
+    /**
+     * 删除多个下车地点
+     * @param journeyId
+     */
+    void deleteJourneyAddressInfo(@Param("journeyId")Long journeyId);
+
+    List<Map<String, String>> getApplyStateCount(@Param("companyId") Long companyId,@Param("deptId") Long deptId);
+
+    List<UserApplySingleVo> getApplyListPage(@Param("deptId") Long deptId,@Param("applyId") Long applyId);
+
+    /**
+     * 申请单详情
+     * @param applyId
+     * @return
+     */
+    ApplySingleVO getApplyInfoDetail(@Param("applyId") Long applyId);
+
+    /**
+     * 通过行程id查询多个下车地址
+     * @param journeyId
+     * @return
+     */
+    List<AddressVO> getJourneyAddressInfoByJourneyId(@Param("journeyId")Long journeyId);
 }

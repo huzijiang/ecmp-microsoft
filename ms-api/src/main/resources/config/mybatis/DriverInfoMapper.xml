@@ -365,6 +365,14 @@ WHERE
           where company_id = #{companyId}
            <![CDATA[ AND SYSDATE() <= IFNULL(dimission_time,SYSDATE()) ]]>
           and state != 'S444'
+          AND driver_id IN (
+                SELECT DISTINCT
+                    driver_id
+                FROM
+                    car_group_driver_relation
+                WHERE
+                car_group_id IN ( SELECT car_group_id FROM car_group_info WHERE it_is_inner = 'C000' )
+          )
     </select>
 
     <!--根据deptId查询归属驾驶员数量-->

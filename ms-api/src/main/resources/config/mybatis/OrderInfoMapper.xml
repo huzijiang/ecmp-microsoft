@@ -234,20 +234,25 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
         </foreach>
     </delete>
 
-    <select id="getOrderList" parameterType="Long"  resultType="com.hq.ecmp.mscore.domain.OrderListInfo">
-        select * from (
-        select
+    <select id="getOrderList" resultType="com.hq.ecmp.mscore.domain.OrderListInfo">
+          select * from (
+            select
+            (select ecti1.`name` from enterprise_car_type_info ecti1 where ecti1.car_type_id=ai.car_type_id) carTypeName,
+            jn.use_time useTime,
+            o.order_number orderNumber,
+            ai.it_is_self_driver selfDriver,
+            jpi.`name` useCarName,
+            jpi.mobile useCarMobile,
+            oai.action_time useCarDate,
+            oai.address beginAddress,
             o.order_id orderId,
+            o.create_time,
             o.it_is_supplement  itIsSupplement,
             opi.state payState,
             ecti.`level`,
             o.use_car_mode useCarMode,
             o.state,
             jn.service_type serviceType,
-            IFNULL(oai.action_time,jni.plan_setout_time) setOutTime,
-            IFNULL(oai.address,jni.plan_begin_address) setOutAddress,
-            IFNULL(oai2.address,jni.plan_end_address) arriveAddress,
-            o.order_number orderNumber,
             (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
             from order_info o
             left join journey_info jn on o.journey_id=jn.journey_id
@@ -255,12 +260,18 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
             left join journey_node_info jni on  jni.node_id=o.node_id
             left join car_info ci on ci.car_id=o.car_id
             left join enterprise_car_type_info ecti on ecti.car_type_id=ci.car_type_id
-						left join order_address_info oai on oai.order_id=o.order_id and oai.type='A000'
-						left join order_address_info oai2 on oai2.order_id=o.order_id and oai2.type='A999'
+			left join order_address_info oai on oai.order_id=o.order_id and oai.type='A000'
+			left join order_address_info oai2 on oai2.order_id=o.order_id and oai2.type='A999'
+			left join apply_info ai on ai.journey_id=o.journey_id
+			left join journey_passenger_info jpi on jpi.journey_id=o.journey_id
             where jn.user_id=#{userId}
             and o.state in('S200','S299','S500','S600','S616','S699','S900')
-        order by o.create_time  desc
-         )cc1 where cc1.labelState not in ('S930','S921')
+         )cc1
+         where cc1.labelState not in ('S930','S921','S911')
+         <if test="isConfirmState ==1 ">
+             and cc1.state='S699'
+         </if>
+        order by cc1.create_time  desc
     </select>
 
 
@@ -385,7 +396,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
              c.car_color carColor,
              c.car_type carType,
              o.user_id userId,
-             (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState,
+             z.state labelState,
+             z.create_time labelStateOptTime,
+             z.content labelStateContent,
              (select group_concat(short_address) from order_via_info f where f.order_id=o.order_id) halfway,
              (select count(*) from journey_passenger_info where journey_id=o.journey_id) peopleCount
             from order_info o
@@ -399,6 +412,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             left join driver_info u  on o.driver_id = u.driver_id
             left join journey_passenger_info p on jn.journey_id = p.journey_id
 			left join enterprise_car_type_info e on  c.car_type_id = e.car_type_id
+			left join (select order_id,state,create_time,content from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=o.order_id
             where o.order_id=#{orderId}
     </select>
 
@@ -666,10 +680,13 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 用车制度
         ri.name regimenName,
         di.driver_name driverName,
+        di.mobile driverMobile,
         ci.car_license carLicense,
         s.create_by createBy,
         oodi.it_is_use_inner_car_group itIsUseInnerCarGroup,
         oodi.car_group_user_mode carGroupUserMode,
+        oodi.next_car_group_id nextCarGroupId,
+        cgi.car_group_name carGroupName,
         s.it_is_supplement itIsSupplement
         from order_info s
         left join order_dispatche_detail_info oodi on oodi.order_id = s.order_id
@@ -685,7 +702,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join ecmp_org eo on eu.dept_id = eo.dept_id
         left join driver_info di on di.driver_id=s.driver_id
         left join car_info ci on ci.car_id =s.car_id
-            <where>
+        left join car_group_info cgi on cgi.car_group_id = ci.car_group_id
+        <where>
                 <if test="applyName != null and  applyName!=''"> and eu.nick_name like concat('%',#{applyName},'%') </if>
                 <if test="applyPhoneNumber != null and  applyPhoneNumber!='' "> and eu.phonenumber like concat('%',#{applyPhoneNumber},'%') </if>
                 <if test="passengerName != null and  passengerName!='' "> and  jpi.name = #{passengerName}</if>
@@ -700,6 +718,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="orderId != null and  orderId!=''"> and s.order_id  like concat('%',#{orderId},'%') </if>
                 <if test="carLicense != null and  carLicense!=''"> and ci.car_license  like concat('%',#{carLicense},'%') </if>
                 <if test="driverName != null and  driverName!=''"> and di.driver_name  like concat('%',#{driverName},'%') </if>
+                <if test="deptName != null and  deptName!='' "> and eo.dept_name = #{deptName}</if>
                 <if test="state == 1">
                     and s.state  in ('S911','S900','S699','S616','S600','S500','S299','S635')
                 </if>
@@ -709,9 +728,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="null != companyId and companyId !=''">
                     and s.company_id = #{companyId}
                 </if>
-                <if test="null != userId and userId !=''">
+               <!-- <if test="null != userId and userId !=''">
                     and s.create_by = #{userId}
-                </if>
+                </if>-->
                 <if test="null != updateBy and updateBy !=''">
                     and s.car_id in (
                         select car_id  from car_info where car_group_id in
@@ -2462,6 +2481,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ai.reason vehicleUseReason,
         -- 用车备注
         ai.notes vehicleRemarks,
+
+        DATE_FORMAT(ai.create_time, '%Y-%m-%d %H:%i') createTime,
         -- 车辆归属
         cgi.car_group_name carCompany,
         -- 驾驶员姓名
@@ -2491,14 +2512,15 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         GROUP_CONCAT( DISTINCT jai.address_info) addressInfo,
         -- 费用合计
         case
-        when right (z.state,3)='100' then '待派车'
+        when z.state='S100' then '待派车'
         when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已派车'
-        when right (ai.state,3)='004' OR right (z.state,3)='911' then '已撤销'
-        when right (ai.state,3)='005' OR right (z.state,3)='921' then '已过期'
-        when right (z.state,3)='930' then '已驳回'
+        when ai.state='S004' OR z.state='S911' then '已撤销'
+        when ai.state='S005' OR z.state='S921' then '已过期'
+        when z.state='S930' then '已驳回'
         ELSE '' END orderState
         FROM
-        apply_info ai  LEFT JOIN  journey_info ji ON ai.journey_id = ji.journey_id
+        apply_info ai
+        LEFT JOIN  journey_info ji ON ai.journey_id = ji.journey_id
         LEFT JOIN  ecmp_user eu    ON eu.user_id = ji.user_id
         LEFT JOIN  journey_passenger_info jpi ON jpi.journey_id = ji.journey_id and jpi.it_is_peer = '00'
         LEFT JOIN  ecmp_org eo     ON eo.dept_id  = eu.dept_id
@@ -2522,6 +2544,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         where  oi.service_type='5000'
         <if test="userId!=null and '' != userId">
             and  eu.user_id = #{userId}
+        </if>
+        <if test="deptId!=null ">
+            and  eu.dept_id = #{deptId}
+        </if>
+        <if test="applyId!=null and '' != applyId">
+            and  ai.apply_id = #{applyId}
         </if>
         <if test="companyId!=null">
             and  ai.company_id = #{companyId}
@@ -2566,7 +2594,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  right (ai.state,3)='005' OR right (z.state,3)='921'
         </if>
         <if test="homePageRejectState!=null and homePageRejectState != ''">
-            or ( eu.user_id = #{userId} and oi.service_type='5000' and right (z.state,3)='930' and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.create_time))
+            or ( eu.dept_id = #{deptId} and oi.service_type='5000' and right (z.state,3)='930' and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.create_time))
         </if>
         <if test="homePageToBeConfirmedState!=null and '' != homePageToBeConfirmedState">
             and  oi.state = #{homePageToBeConfirmedState}
@@ -2576,6 +2604,21 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         </if>
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
             and  ai.create_time &lt;= #{homeDynamicEndTime}
+        </if>
+        <if test="stateFlag==1">
+            and z.state='S100'
+        </if>
+        <if test="stateFlag==2">
+            and (right (z.state,3) BETWEEN '299' and '900')
+        </if>
+        <if test="stateFlag==4">
+            and (ai.state='S004' OR z.state='S911')
+        </if>
+        <if test="stateFlag==5">
+            and (ai.state='S005' OR z.state='S921')
+        </if>
+        <if test="stateFlag==3">
+            and z.state='S930'
         </if>
         GROUP BY  ai.journey_id
         order by orderState='待派车' DESC ,orderState='已派车' DESC , beginTime ASC
@@ -2623,20 +2666,27 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ai.reason vehicleUseReason,
         -- 用车备注
         ai.notes vehicleRemarks,
+
+        DATE_FORMAT(ai.create_time, '%Y-%m-%d %H:%i') createTime,
         -- 车辆归属
         cgi.car_group_name carCompany,
         -- 驾驶员姓名
         di.driver_name driverName,
         -- 等待时长
-        round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(oi.create_time))/60)   waitingTime,
+        CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime,
         -- 驾驶员手机号
         di.mobile driverPhone,
         -- 驾驶员归属
         cgiTwo.car_group_name driverCompany,
+        -- 外部车队名称
+        cgiThree.car_group_name outerCarGroupName,
+        -- 是否自驾
+        ai.it_is_self_driver  itIsSelfDriver,
         -- 状态
         oai1.address beginAddress,
         -- 出发地址
         oai2.address endAddress,
+        -- if (GROUP_CONCAT(jai.address_info) is null,oai2.address,GROUP_CONCAT(jai.address_info,',' ,oai2.address)) endAddress,
         -- 到达地址
         oi.order_number orderNumber,
         -- 订单编号
@@ -2644,17 +2694,18 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 用车方式
         oscdrio.amount amount,
         oi.order_id orderId,
+        GROUP_CONCAT( DISTINCT jai.address_info) addressInfo,
         -- 费用合计
         case
-        when right (z.state,3)='100' then '待派车'
-        when right (z.state,3)='699' then '待确认'
-        -- when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已派车'
-        when right (ai.state,3)='004' OR right (z.state,3)='911' then '已撤销'
-        when right (ai.state,3)='005' OR right (z.state,3)='921' then '已过期'
-        when right (z.state,3)='930' then '已驳回'
+        when z.state='S100' then '待派车'
+        when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已派车'
+        when ai.state='S004' OR z.state='S911' then '已撤销'
+        when ai.state='S005' OR z.state='S921' then '已过期'
+        when z.state='S930' then '已驳回'
         ELSE '' END orderState
         FROM
-        apply_info ai  LEFT JOIN  journey_info ji ON ai.journey_id = ji.journey_id
+        apply_info ai
+        LEFT JOIN  journey_info ji ON ai.journey_id = ji.journey_id
         LEFT JOIN  ecmp_user eu    ON eu.user_id = ji.user_id
         LEFT JOIN  journey_passenger_info jpi ON jpi.journey_id = ji.journey_id and jpi.it_is_peer = '00'
         LEFT JOIN  ecmp_org eo     ON eo.dept_id  = eu.dept_id
@@ -2673,9 +2724,14 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join  order_settling_info osi on osi.order_id = oi.order_id
         left join
         (select sum(total_fee) amount,order_id orderId from order_service_cost_detail_record_info group by order_id) oscdrio on oscdrio.orderId = oi.order_id
+        LEFT JOIN car_group_info cgiThree ON  cgiThree.car_group_id = ai.outer_car_group_id
+        LEFT JOIN  journey_address_info jai ON jai.journey_id = ji.journey_id
         where  oi.service_type='5000'
         <if test="userId!=null and '' != userId">
             and  eu.user_id = #{userId}
+        </if>
+        <if test="deptId!=null ">
+            and  eu.dept_id = #{deptId}
         </if>
         <if test="companyId!=null">
             and  ai.company_id = #{companyId}
@@ -2714,10 +2770,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  right (z.state,3)='100'
         </if>
         <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
-            and  right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'
+            and (right (z.state,3) BETWEEN '299' and '900')
         </if>
         <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
-            and ( oi.service_type='5000' and  eu.user_id = #{userId} and right (ai.state,3)='005' OR right (z.state,3)='921')
+            and (ai.state='S005' OR z.state='S921')
         </if>
         <if test="homePageRejectState!=null and homePageRejectState != ''">
             or   right (z.state,3)='930'
@@ -2731,7 +2787,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="homeDynamicEndTime!=null and '' != homeDynamicEndTime">
             and  ai.create_time &lt;= #{homeDynamicEndTime}
         </if>
-        order by orderState desc
+        GROUP BY  ai.journey_id
+        order by orderState='待派车' DESC ,orderState='已派车' DESC , beginTime ASC
     </select>
 
     <update id="changeOrder" parameterType="com.hq.ecmp.mscore.domain.OrderInfo">
@@ -2883,6 +2940,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             <if test="orderId!=null and orderId != ''">
                 and o.order_id=#{orderId}
             </if>
+            <if test="useCarDeptId !=null">
+                and eu.dept_id=#{useCarDeptId}
+            </if>
           ) t
         where 1=1
         <if test="optStartDate!=null ">
@@ -2894,7 +2954,84 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="dispatchStatus!=null and dispatchStatus!=''">
             and t.state=#{dispatchStatus}
         </if>
-        order by state='待派车' DESC ,state='已派车' DESC , useCarDate ASC
+        order by state='待派车' DESC ,state='已处理' DESC , useCarDate ASC
+    </select>
+    <select id="getOrderStateCount" resultType="com.hq.ecmp.mscore.vo.DisOrderStateCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatch">
+        select t.state, count(1) as  count  from(
+        select oddi.next_car_group_id as nextCarGroupId,
+        o.order_id as orderId,
+        o.user_id userId,
+        eo.dept_name as deptName,
+        eoc.dept_name as companyName,
+        <if test="roleData ==1 ">
+            '1' as operationPermission,
+        </if>
+        <if test="roleData ==3 ">
+            '0' as operationPermission,
+        </if>
+        <if test="roleData ==3 and isInnerDispatch==2">
+            2 as inOrOut,
+        </if>
+        <if test="roleData ==3 and isInnerDispatch==1">
+            1 as inOrOut,
+        </if>
+        eu.nick_name as applyUserName,
+        eu.phonenumber as applyUserTel,
+        oaib.action_time as useCarDate,
+        oaie.action_time as endDate,
+        oaib.address as startSite,
+        oaie.address as endSite,
+        cc.short_name useCarCity,
+        oddi.car_group_user_mode carGroupUserMode,
+        oddi.it_is_self_driver selfDriver,
+        oddi.it_is_use_inner_car_group useCarGroupType,
+        o.journey_id journeyId,
+        case
+        when right (osti.state,3)='100' then '待派车'
+        when right (osti.state,3)<![CDATA[ >= ]]>'299' and right (osti.state,3)<![CDATA[ <= ]]>'900' then '已处理'
+        when right (osti.state,3)='921' then '已过期'
+        when right (osti.state,3)='930' then '已驳回'
+        ELSE '' END state
+        from order_info o
+        left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+        order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=o.order_id
+        left join ecmp_user eu on eu.user_id=o.user_id
+        left join order_dispatche_detail_info oddi on oddi.order_id=o.order_id
+        left join ecmp_org eo on eo.dept_id=eu.dept_id
+        left join ecmp_org eoc on eoc.dept_id=eu.owner_company
+        left join order_address_info oaib  on oaib.order_id=o.order_id and oaib.type='A000'
+        left join order_address_info oaie  on oaie.order_id=o.order_id and oaie.type='A999'
+        left join china_city cc on cc.city_code=oaib.city_postal_code
+        where
+        1=1
+        and o.order_id in (select distinct order_id from order_state_trace_info where order_id in
+        (select distinct order_id from order_state_trace_info where state in ('S299', 'S921', 'S100','S930'))
+        and order_id not in (select distinct order_id from order_state_trace_info where state in ('S270', 'S279',
+        'S277','S911')) )
+        and  o.it_is_supplement='N000'
+        <if test="roleData ==1">
+            -- 系统管理员
+            and o.company_id=#{companyId}
+        </if>
+        <if test="roleData ==2 and isInnerDispatch==1">
+            -- 系统管理员+内部调度员
+            and (o.company_id=#{companyId} or   (o.company_id=#{companyId} and find_in_set(eu.dept_id,#{deptId})))
+        </if>
+        <if test="roleData ==2 and isInnerDispatch==2">
+            -- 系统管理员+外部调度员
+            and (o.company_id=#{companyId} or   ( o.company_id=#{companyId} and find_in_set(eu.dept_id,#{deptId}) and FIND_IN_SET(oddi.next_car_group_id,#{carGroupIds})))
+        </if>
+        <if test="roleData ==3 and isInnerDispatch==2 ">
+            --  外部调度员
+            and o.company_id=#{companyId} and  find_in_set(eu.dept_id,#{deptId}) and FIND_IN_SET(oddi.next_car_group_id,#{carGroupIds})
+        </if>
+        <if test="roleData ==3 and isInnerDispatch==1 ">
+            -- 内部调度员
+            and o.company_id=#{companyId} and    (find_in_set(eu.dept_id,#{deptId}))
+        </if>
+        ) t
+        group by t.state
+
     </select>
     <select id="downloadOrderData" parameterType="java.lang.Long" resultType="java.util.Map">
        select
@@ -2964,5 +3101,273 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        left join apply_info ai on ai.journey_id = oi.journey_id
        left join order_settling_info osi on osi.order_id =oi.order_id
        where oi.order_id=#{orderId}
+    </select>
+
+    <select id="getDispatchOrderListWorkBench" resultType="com.hq.ecmp.mscore.vo.DisWorkBenchOrder" parameterType="java.lang.String">
+        select t.* from (
+        SELECT
+        o.order_number AS orderNum,
+        o.order_id AS orderId,
+        eo.dept_name AS deptName,
+        eoc.dept_name AS companyName,
+        oaib.action_time AS useCarDate,
+        oaie.address AS endSite,
+        o.journey_id AS journeyId,
+        jpi.name AS useCarName,
+        ecti.`name` AS  carTypeName,
+        ji.use_time AS useTime,
+        CASE
+
+        WHEN RIGHT ( osti.state, 3 ) = '100' THEN
+        '待派车'
+        WHEN RIGHT ( osti.state, 3 ) in('380','299') and ai.it_is_self_driver='Y000' THEN
+        '待出车'
+        WHEN RIGHT ( osti.state, 3 ) &gt;= '299'
+        AND RIGHT ( osti.state, 3 ) &lt;= '900' and ai.it_is_self_driver='N111'   THEN
+        '已派车'
+        WHEN RIGHT ( osti.state, 3 ) in('900','699')  and ai.it_is_self_driver='Y000'   THEN
+        '已派车'
+        WHEN  RIGHT ( osti.state, 3 ) = '616' and ai.it_is_self_driver='Y000' THEN
+        '待还车'
+        ELSE ''
+        END state
+        FROM
+        order_info o
+        LEFT JOIN ( SELECT state, order_id FROM `order_state_trace_info` WHERE trace_id IN ( SELECT max( trace_id ) FROM order_state_trace_info GROUP BY order_id ) ) osti ON osti.order_id = o.order_id
+        LEFT JOIN ecmp_user eu ON eu.user_id = o.user_id
+        LEFT JOIN ecmp_org eo ON eo.dept_id = eu.dept_id
+        LEFT JOIN ecmp_org eoc ON eoc.dept_id = eu.owner_company
+        LEFT JOIN order_address_info oaib ON oaib.order_id = o.order_id
+        AND oaib.type = 'A000'
+        LEFT JOIN order_address_info oaie ON oaie.order_id = o.order_id
+        AND oaie.type = 'A999'
+        left join apply_info ai on ai.journey_id=o.journey_id
+        left join journey_passenger_info jpi on jpi.journey_id=o.journey_id
+        left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
+        left join journey_info ji on ji.journey_id=o.journey_id
+        WHERE
+        1 = 1
+        AND o.order_id IN (
+        SELECT DISTINCT
+        order_id
+        FROM
+        order_state_trace_info
+        WHERE
+        order_id IN ( SELECT DISTINCT order_id FROM order_state_trace_info WHERE state IN ( 'S299', 'S100' ) )
+        AND order_id NOT IN ( SELECT DISTINCT order_id FROM order_state_trace_info WHERE state IN ( 'S270', 'S279', 'S277', 'S911', 'S921', 'S930' ) )
+        )
+        AND o.it_is_supplement = 'N000'
+        AND o.company_id =100
+        and   date(oaib.action_time) = curdate()
+        )t
+        where t.state= #{state}
+        order by useCarDate
+    </select>
+    <select id="getDispatchOrderListWorkBenchCount" resultType="com.hq.ecmp.mscore.vo.DisOrderStateCount">
+        select t.state,count(1) AS count from (
+        SELECT
+        o.order_number AS orderNum,
+        o.order_id AS orderId,
+        eo.dept_name AS deptName,
+        eoc.dept_name AS companyName,
+        oaib.action_time AS useCarDate,
+        oaie.address AS endSite,
+        o.journey_id AS journeyId,
+        jpi.name AS useCarName,
+        ecti.`name` AS  carTypeName,
+        ji.use_time AS useTime,
+        CASE
+
+        WHEN RIGHT ( osti.state, 3 ) = '100' THEN
+        '待派车'
+        WHEN RIGHT ( osti.state, 3 ) in('380','299') and ai.it_is_self_driver='Y000' THEN
+        '待出车'
+        WHEN RIGHT ( osti.state, 3 ) &gt;= '299'
+        AND RIGHT ( osti.state, 3 ) &lt;= '900' and ai.it_is_self_driver='N111'   THEN
+        '已派车'
+        WHEN RIGHT ( osti.state, 3 ) in('900','699')  and ai.it_is_self_driver='Y000'   THEN
+        '已派车'
+        WHEN  RIGHT ( osti.state, 3 ) = '616' and ai.it_is_self_driver='Y000' THEN
+        '待还车'
+        ELSE ''
+        END state
+        FROM
+        order_info o
+        LEFT JOIN ( SELECT state, order_id FROM `order_state_trace_info` WHERE trace_id IN ( SELECT max( trace_id ) FROM order_state_trace_info GROUP BY order_id ) ) osti ON osti.order_id = o.order_id
+        LEFT JOIN ecmp_user eu ON eu.user_id = o.user_id
+        LEFT JOIN ecmp_org eo ON eo.dept_id = eu.dept_id
+        LEFT JOIN ecmp_org eoc ON eoc.dept_id = eu.owner_company
+        LEFT JOIN order_address_info oaib ON oaib.order_id = o.order_id
+        AND oaib.type = 'A000'
+        LEFT JOIN order_address_info oaie ON oaie.order_id = o.order_id
+        AND oaie.type = 'A999'
+        left join apply_info ai on ai.journey_id=o.journey_id
+        left join journey_passenger_info jpi on jpi.journey_id=o.journey_id
+        left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
+        left join journey_info ji on ji.journey_id=o.journey_id
+        WHERE
+        1 = 1
+        AND o.order_id IN (
+        SELECT DISTINCT
+        order_id
+        FROM
+        order_state_trace_info
+        WHERE
+        order_id IN ( SELECT DISTINCT order_id FROM order_state_trace_info WHERE state IN ( 'S299', 'S100' ) )
+        AND order_id NOT IN ( SELECT DISTINCT order_id FROM order_state_trace_info WHERE state IN ( 'S270', 'S279', 'S277', 'S911', 'S921', 'S930' ) )
+        )
+        AND o.it_is_supplement = 'N000'
+        AND o.company_id =100
+        and   date(oaib.action_time) = curdate()
+        )t
+       group by t.state
+    </select>
+
+    <select id="orderServiceCategory" parameterType="java.lang.Long" resultType="java.util.Map">
+        select
+             count(oi.order_id) as toBeServed,
+	         count(oia.order_id) as waitingToLeave,
+	         count(oib.order_id) as toBePickedUp,
+	         (select count(oic.order_id) from order_info oic where oic.state ='S500') as takingOver,
+	         (select count(oid.order_id) from order_info oid where oid.state ='S600') as etcUpperCar,
+	         (select count(oie.order_id) from order_info oie where oie.state ='S616') as inService,
+	         (select count(oif.order_id) from order_info oif where oif.state ='S635') as serviceSuspension,
+	         (select count(oig.order_id) from order_info oig where oig.state ='S699') as toBeConfirmed,
+	         (select count(oih.order_id) from order_info oih where oih.state ='S900') as completed,
+	         (select count(oii.order_id) from order_info oii where oii.state ='S911') as cancelled
+	   from order_info  oi
+            left join order_dispatche_detail_info oia on oia.order_id = oi.order_id and oia.it_is_self_driver ='Y000' and oi.state='S299'
+	        left join order_dispatche_detail_info oib on oib.order_id = oi.order_id and oib.it_is_self_driver ='Y000' and oi.state='S616'
+       where oi.state ='S299'
+        <if test="null != companyId and companyId !=''">
+            and oi.company_id = #{companyId}
+        </if>
+        <if test="null != userId and userId !=''">
+            and oi.car_id in (
+            select car_id  from car_info where car_group_id in
+            (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+            )
+        </if>
+    </select>
+
+    <select id="getUseTheCar" resultType="java.lang.String">
+       select eo.dept_name as deptName from ecmp_org eo
+    </select>
+    <select id="getOrderInfoList" parameterType="com.hq.ecmp.mscore.dto.OrderInfoFSDto" resultType="com.hq.ecmp.mscore.dto.OrderInfoFSDto">
+        select
+            oi.order_id orderId,
+            eo.dept_name deptName,
+            eu.nick_name nickName,
+            eu.phonenumber phoneNumber,
+            jpi.name name,
+            jpi.mobile mobile,
+            di.driver_name DriverName,
+            di.mobile driverMobile,
+            ci.car_license carLicense,
+            oaia.action_time beginActionTime,
+            oaib.action_time endActionTime,
+            ji.charter_car_type charterCarType
+        from order_info oi
+             left join ecmp_org eo on eo.company_id = oi.company_id
+             left join apply_info ai on ai.journey_id = oi.journey_id
+             left join ecmp_user eu on eu.user_id = ai.create_by
+             left join journey_passenger_info jpi on jpi.journey_id = oi.journey_id
+             left join driver_info di on di.driver_id = oi.driver_id
+             left join car_info ci on ci.car_id = oi.car_id
+             left join order_address_info oaia on oaia.order_id = oi.order_id and oaia.type = 'A000'
+             left join order_address_info oaib on oaib.order_id = oi.order_id and oaib.type = 'A999'
+             left join journey_info ji on ji.journey_id = oi.journey_id
+        where oi.state=#{state}
+            <if test="orderNumber != null and  orderNumber!='' "> and  oi.order_number like concat('%',#{orderNumber},'%')</if>
+            <if test="driverName != null and  driverName!=''"> and di.driver_name  like concat('%',#{driverName},'%') </if>
+            <if test="mobile != null and  mobile!='' "> and jpi.mobile like concat('%',#{mobile},'%') </if>
+            <if test="name != null and  name!=''"> and jpi.name  like concat('%',#{name},'%') </if>
+            <if test="carLicense != null and  carLicense!=''"> and ci.car_license  like concat('%',#{carLicense},'%') </if>
+            <if test="charterCarType != null and  charterCarType!='' "> and ji.charter_car_type = #{charterCarType}</if>
+            <if test="deptName != null and  deptName!='' "> and eo.dept_name = #{deptName}</if>
+            <if test="beginActionTime != null and  beginActionTime!='' "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{beginActionTime},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="endActionTime != null and  endActionTime!='' "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{endActionTime},'%Y-%m-%d %H:%i:%S')</if>
+            <if test="null != companyId and companyId !=''">
+                and oi.company_id = #{companyId}
+            </if>
+            <if test="null != userId and userId !=''">
+                and oi.car_id in (
+                     select car_id  from car_info where car_group_id in
+                     (select car_group_id from car_group_dispatcher_info where user_id=#{userId})
+                )
+           </if>
+        order by ai.create_time desc
+    </select>
+    <select id="getStatementsList" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto" resultType="java.lang.String">
+        select
+              oi.order_id
+        from order_info oi
+            where oi.state='S900'
+            <![CDATA[ and oi.create_time >= #{beginDate}]]>
+            <![CDATA[ and oi.create_time <= #{endDate}]]>
+            and oi.car_id in (
+                select  ci.car_id from car_info ci where ci.car_group_id=#{carGroupId}
+            )
+    </select>
+
+
+    <select id="getMoneyList" resultType="com.hq.ecmp.mscore.dto.MoneyListDto" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
+        SELECT
+        o.order_id orderId,
+        o.order_number orderNumber,-- #订单号
+        pa.NAME userName,-- #用车人
+        ct.NAME carType,-- #用车类型名
+        ct.LEVEL carLevel,
+        adr.action_time actionTime,-- #用车时间
+        jo.use_time useTime,-- #用车天数
+        se.amount amount,-- #用车费用
+        se.amount_detail amountDetai -- #其他费用
+        FROM
+        order_info o
+        LEFT JOIN order_address_info addr ON o.order_id = addr.order_id
+        AND addr.type = 'A000'
+        LEFT JOIN order_address_info adr ON o.order_id = adr.order_id
+        AND adr.type = 'A999'
+        LEFT JOIN order_account_info acc ON o.order_id = acc.order_id
+        AND acc.state != 'S005'
+        LEFT JOIN journey_info jo ON o.journey_id = jo.journey_id
+        LEFT JOIN enterprise_car_type_info ct ON jo.company_id = ct.company_id
+        LEFT JOIN order_settling_info se ON o.order_id = se.order_id
+        LEFT JOIN journey_passenger_info pa ON o.journey_id = pa.journey_id
+		LEFT JOIN car_group_driver_relation r on o.driver_id = r.driver_id
+		LEFT JOIN car_group_info g ON r.car_group_id = g.car_group_id
+        WHERE
+        o.company_id = #{companyId}
+         and
+         g.car_group_id = #{carGroupId}
+
+        <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= addr.action_time ]]>
+        <![CDATA[ AND adr.action_time <= DATE_FORMAT( #{endDate}, '%Y-%m-%d' ) ]]>
+        GROUP BY o.order_id
+    </select>
+    <select id="selectOrderCarGroup" resultType="map">
+        select DATE_FORMAT(order_info.create_time,'%Y-%m-%d')date,car_group_info.it_is_inner,car_group_info.car_group_id,
+				car_info.source,
+				order_info.* from order_info
+				left join car_info on order_info.car_id = car_info.car_id
+        left join car_group_driver_relation on order_info.driver_id=car_group_driver_relation.driver_id
+        left join car_group_info on car_group_info.car_group_id=car_group_driver_relation.car_group_id
+        where order_info.driver_id is NOT null
+        and order_info.company_id = #{companyId}
+        and date(order_info.create_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    </select>
+    <select id="selectNormalOrderReserveTime" resultType="map">
+        select start_date,GROUP_CONCAT(order_state_trace_info.state)states,order_info.* from order_info
+        left join order_state_trace_info on order_info.order_id=order_state_trace_info.order_id
+        left join journey_info on journey_info.journey_id = order_info.journey_id
+        where date(start_date) &gt;= #{beginDate} and date(start_date) &lt;= #{endDate}
+        and order_info.company_id = #{companyId}
+        group by order_info.order_id
+    </select>
+
+    <select id="selectOrderIdByJourneyId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        select order_id from order_info where journey_id = #{journeyId}
+        order By order_id desc
+        limit 1
     </select>
 </mapper>

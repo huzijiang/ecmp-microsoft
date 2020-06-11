@@ -105,6 +105,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="costCenter != null ">cost_center = #{costCenter},</if>
             <if test="state != null  and state != ''">state = #{state},</if>
             <if test="reason != null  and reason != ''">reason = #{reason},</if>
+            <if test="carTypeId != null  and carTypeId != ''">car_type_id = #{carTypeId},</if>
+            <if test="itIsSelfDriver != null  and itIsSelfDriver != ''">it_is_self_driver = #{itIsSelfDriver},</if>
+            <if test="outerCarGroupId != null  and outerCarGroupId != ''">outer_car_group_id = #{outerCarGroupId},</if>
+            <if test="notes != null  and notes != ''">notes = #{notes},</if>
+            <if test="safeRemind != null  and safeRemind != ''">safe_remind = #{safeRemind},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -271,4 +276,180 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
 
     </insert>
+    <select id="getApplyStateCount" resultType="Map">
+    select t.orderState,count(*) counts from (SELECT
+        case
+        when z.state='S100' then '待派车'
+        when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已派车'
+        when ai.state='S004' OR z.state='S911' then '已撤销'
+        when ai.state='S005' OR z.state='S921' then '已过期'
+        when z.state='S930' then '已驳回'
+        ELSE '' END orderState
+        FROM
+        apply_info ai
+        LEFT JOIN  journey_info ji ON ai.journey_id = ji.journey_id
+        LEFT JOIN  ecmp_user eu    ON eu.user_id = ji.user_id
+        LEFT JOIN  order_info  oi  ON oi.journey_id = ji.journey_id
+        LEFT JOIN (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=oi.order_id
+        where  ji.service_type='5000'
+        <if test="deptId!=null ">
+            and  eu.dept_id = #{deptId}
+        </if>
+        and (z.state='S100' or z.state='S911' OR z.state='S921' OR z.state='S930' or (right (z.state,3) BETWEEN '299' and '900') )
+        ) t group by t.orderState
+    </select>
+
+    <select id="getApplyListPage" resultType="com.hq.ecmp.mscore.vo.UserApplySingleVo">
+    SELECT DISTINCT
+        -- 申请id
+        ai.apply_id applyId,
+        ai.safe_remind safeRemind,
+        -- 申请人姓名
+        eu.nick_name applyName,
+        -- 申请人手机号
+        eu.phonenumber applyPhoneNumber,
+        -- 用车人姓名
+        jpi.name vehicleUserName,
+        -- 用车人手机号
+        jpi.mobile	vehicleUserPhoneNumber,
+        -- 同行人数
+        jpi.peer_number  peerNumber,
+        -- 用车单位
+        eo.dept_name vehicleUserCompany,
+        -- 服务类型
+        case
+        when right (ji.charter_car_type,3)='001' then '半日租(4小时)'
+        when right (ji.charter_car_type,3)='002' then '整日租(8小时)'
+        when right (ji.charter_car_type,3)='009' then  CONCAT('多日租','(',ji.use_time,'日',')')
+        ELSE '' END charterCarType,
+        -- 服务车型
+        ecty.name carLevel,
+        -- 车辆类型
+        ci.car_type carType,
+        -- 车辆车牌号
+        ci.car_license carLicense,
+        -- 车辆颜色
+        ci.car_color  carColor,
+        -- 用车时间
+        ji.use_time useTime,
+        -- 用车开始时间
+        ji.start_date beginTime,
+        -- 用车结束时间
+        ji.end_date endTime,
+        -- 申请事由
+        ai.reason vehicleUseReason,
+        -- 用车备注
+        ai.notes vehicleRemarks,
+        DATE_FORMAT(ai.create_time, '%Y年%m月%d日 %H:%i') createTime,
+        -- 车辆归属
+        cgi.car_group_name carCompany,
+        -- 外部车队名称
+        cgiThree.car_group_name outerCarGroupName,
+        -- 是否自驾
+        ai.it_is_self_driver  itIsSelfDriver,
+        -- 状态
+        oai1.address beginAddress,
+        -- 出发地址
+        if (jai.address_info is null,oai2.address,GROUP_CONCAT(oai2.address,',',jai.address_info)) endAddress,
+        -- 到达地址
+        oi.order_number orderNumber,
+        -- 订单编号
+        oi.use_car_mode useCarMode,
+        oi.state,
+        z.state labelState,
+        -- 用车方式
+        oi.order_id orderId,
+        -- 费用合计
+        case
+        when z.state='S100' then '待派车'
+        when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已派车'
+        when ai.state='S005' OR z.state='S921' then '已过期'
+        when z.state='S930' then '已驳回'
+        ELSE '' END orderState
+        FROM
+        apply_info ai
+        LEFT JOIN  journey_info ji ON ai.journey_id = ji.journey_id
+        LEFT JOIN  ecmp_user eu    ON eu.user_id = ji.user_id
+        LEFT JOIN  journey_passenger_info jpi ON jpi.journey_id = ji.journey_id and jpi.it_is_peer = '00'
+        LEFT JOIN  ecmp_org eo     ON eo.dept_id  = eu.dept_id
+        LEFT JOIN  order_info  oi  ON oi.journey_id = ji.journey_id
+        LEFT JOIN  car_info    ci  ON ci.car_id = oi.car_id
+        LEFT JOIN  enterprise_car_type_info  ecty ON ecty.car_type_id = ai.car_type_id
+        LEFT JOIN  car_group_info cgi ON cgi.car_group_id = ci.car_group_id
+        LEFT JOIN  driver_info di  ON di.driver_id = oi.driver_id
+        LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = di.driver_id
+        LEFT JOIN  car_group_info cgiTwo ON cgiTwo.car_group_id = cgdr.car_group_id
+        LEFT JOIN (select order_id,state from order_state_trace_info where trace_id in (select Max(trace_id) traceId from order_state_trace_info  group by order_id))  z on z.order_id=oi.order_id
+        left join
+        (select order_id,type,address,address_long from order_address_info where type = 'A000') oai1 on  oai1.order_id = oi.order_id
+        left join
+        (select order_id,type,address,address_long from order_address_info where type = 'A999') oai2 on  oai2.order_id = oi.order_id
+        left join  order_settling_info osi on osi.order_id = oi.order_id
+        LEFT JOIN car_group_info cgiThree ON  cgiThree.car_group_id = ai.outer_car_group_id
+        LEFT JOIN  (select journey_id,group_concat(address_info) address_info from journey_address_info group by journey_id ) jai ON jai.journey_id = ji.journey_id
+        where  oi.service_type='5000'
+        <if test="deptId!=null ">
+            and  eu.dept_id = #{deptId}
+        </if>
+        <if test="applyId!=null">
+            and ai.apply_id=#{applyId}
+        </if>
+        and (z.state='S100' or (right (z.state,3) BETWEEN '299' and '900')
+            or  z.state='S921'  or  z.state='S930')
+        GROUP BY  ai.journey_id
+        order by orderState='待派车' DESC ,orderState='已派车' DESC , beginTime ASC
+</select>
+
+    <select id="getApplySingleIdVO" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.ApplySingleIdVO">
+
+        SELECT
+                ai.apply_id applyId,
+                ai.journey_id journeyId,
+                jucp.node_id nodeId,
+                jpi.journey_passenger_id journeyPassengerId,
+                jppi.price_id priceId,
+                jucp.power_id powerId,
+                oddi.dispatch_id   dispatchId,
+                jppi.order_id orderId
+            FROM
+                apply_info ai LEFT JOIN journey_user_car_power jucp ON ai.apply_id = jucp.apply_id
+                LEFT JOIN journey_plan_price_info jppi ON jppi.journey_id = ai.journey_id
+                LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = ai.journey_id
+                LEFT JOIN order_dispatche_detail_info oddi ON oddi.order_id = jppi.order_id
+                where ai.apply_id = #{applyId}
+
+    </select>
+
+    <delete id="deleteJourneyAddressInfo" parameterType="java.lang.Long">
+
+        delete from journey_address_info where journey_id = #{journeyId}
+    </delete>
+    <select id="getApplyInfoDetail" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.ApplySingleVO">
+
+        SELECT
+            ai.apply_id AS applyId,
+            ai.journey_id AS journeyId,
+            ji.start_date AS applyDate,
+            ji.use_time   AS applyDays,
+            jpi.`name` AS userName,
+            jpi.mobile AS userPhone,
+            ai.reason AS reason,
+            ai.notes  AS notes,
+            jpi.peer_number AS peerNumber,
+            ai.car_type_id AS carTypeId,
+            ai.it_is_self_driver AS itIsSelfDriver,
+            ai.outer_car_group_id AS outerCarGroupId,
+            ai.safe_remind AS safeRemind
+        FROM
+            apply_info ai
+            LEFT JOIN journey_info ji ON ai.journey_id = ji.journey_id
+            LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = ai.journey_id
+            WHERE ai.apply_id = #{applyId}
+    </select>
+
+    <select id="getJourneyAddressInfoByJourneyId" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.AddressVO">
+
+        select address_info address from journey_address_info  where  journey_id =#{journeyId}
+
+    </select>
 </mapper>

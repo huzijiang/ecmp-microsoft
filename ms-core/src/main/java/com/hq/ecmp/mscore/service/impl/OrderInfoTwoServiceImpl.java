@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
 import com.hq.api.system.domain.SysUser;
@@ -11,10 +12,12 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
+import com.hq.ecmp.constant.enumerate.CarUserSelfDrivingEnum;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.dto.DriverCloudDto;
 import com.hq.ecmp.mscore.dto.JourneyAddressInfoDto;
+import com.hq.ecmp.mscore.dto.cost.ApplyPriceDetails;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchCarGroupDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.*;
@@ -22,6 +25,7 @@ import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -99,6 +103,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     private RegimeInfoMapper regimeInfoMapper;
     @Resource
     private JourneyAddressInfoMapper journeyAddressInfoMapper;
+    @Resource
+    private EcmpOrgMapper ecmpOrgMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -740,7 +746,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     public PageResult<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
         userApplySingleVo.setCompanyId(companyId);
-        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+//        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+        userApplySingleVo.setDeptId(loginUser.getUser().getDeptId());
         PageHelper.startPage(userApplySingleVo.getPageNum(), userApplySingleVo.getPageSize());
         List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplySearchList(userApplySingleVo);
         for (UserApplySingleVo userApplySingle : useApplyList){
@@ -758,7 +765,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     @Override
     public PageResult<UserApplySingleVo> getUseApplyList(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
-        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+//        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+        userApplySingleVo.setDeptId(loginUser.getUser().getDeptId());
         userApplySingleVo.setCompanyId(companyId);
         PageHelper.startPage(userApplySingleVo.getPageNum(), userApplySingleVo.getPageSize());
         List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplySearchList(userApplySingleVo);
@@ -769,7 +777,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     @Override
     public List<UserApplySingleVo> getUseApplyCounts(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
-        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+//        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+        userApplySingleVo.setDeptId(loginUser.getUser().getDeptId());
         userApplySingleVo.setCompanyId(companyId);
         userApplySingleVo.setHomeDynamicBeginTime(userApplySingleVo.getHomeDynamicBeginTime().substring(0, 10)+" 00:00:00");
         userApplySingleVo.setHomeDynamicEndTime(userApplySingleVo.getHomeDynamicEndTime().substring(0, 10)+ " 23:59:59");
@@ -781,7 +790,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     public PageResult<UserApplySingleVo> getToBeConfirmedOrder(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
         Long companyId = loginUser.getUser().getDept().getCompanyId();
         userApplySingleVo.setCompanyId(companyId);
-        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+//        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
+        userApplySingleVo.setDeptId(loginUser.getUser().getDeptId());
         PageHelper.startPage(userApplySingleVo.getPageNum(), userApplySingleVo.getPageSize());
         List<UserApplySingleVo> useApplyList = orderInfoMapper.getUseApplyCounts(userApplySingleVo);
         PageInfo<UserApplySingleVo> info = new PageInfo<>(useApplyList);
@@ -1000,6 +1010,11 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     }
 
     @Override
+    public List<CarGroupInfo> userDeptCarGroupList(Long deptId){
+        return carGroupInfoMapper.userDeptCarGroupList(CarConstant.START_UP_CAR_GROUP,deptId);
+    }
+
+    @Override
     public List<CarGroupInfo> dispatcherCarGroupList(Long orderId, LoginUser loginUser,String carGroupUserMode) {
         List<CarGroupInfo> carGroupInfos = new ArrayList<>();
         OrderInfo orderInfo1 = orderInfoMapper.selectOrderInfoById(orderId);
@@ -1119,6 +1134,15 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
             orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
             orderStateTraceInfo.setContent(query.getRejectReason());
             orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+            //修改申请单状态为驳回
+            List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
+            if (!CollectionUtils.isEmpty(applyInfos)){
+                ApplyInfo applyInfo = applyInfos.get(0);
+                applyInfo.setState(ApplyStateConstant.REJECT_APPLY);
+                applyInfo.setUpdateBy(user.getUserId().toString());
+                applyInfo.setUpdateTime(DateUtils.getNowDate());
+                applyInfoMapper.updateApplyInfo(applyInfo);
+            }
             ismsBusiness.sendSmsInnerDispatcherReject(orderInfo,query.getRejectReason());
         } else {
             /**订单状态不变,给内部调度员发短信通知**/
@@ -1198,10 +1222,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         if (journeyInfo==null){
             throw new BaseException("该行程不存在");
         }
-        int day = DateFormatUtils.compareDay(journeyInfo.getEndDate(), new Date());
-        if (day==-1){
-            throw new BaseException("当前时间不可还车");
-        }
+//        int day = DateFormatUtils.compareDay(journeyInfo.getEndDate(), new Date());
+//        if (day==-1){
+//            throw new BaseException("当前时间不可还车");
+//        }
         if (!OrderState.INSERVICE.getState().equals(orderInfo.getState())){
             throw new BaseException("当前状态不可还车");
         }
@@ -1216,10 +1240,83 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         stateTraceInfo.setCreateTime(new Date());
         stateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
+        /**计算自驾的费用*/
+        CarInfo carInfo = carInfoMapper.selectCarInfoById(orderDispatcheDetailInfo.getCarId());
+        if (carInfo==null){
+            throw new BaseException("该订单车辆不存在!");
+        }
+        String charterCarType = journeyInfo.getCharterCarType();
+        CharterTypeEnum charterTypeEnum = CharterTypeEnum.getCharterTypeEnum(charterCarType);
+        Long carGroupId = orderDispatcheDetailInfo.getCarCgId();
+        BigDecimal useTime = StringUtils.isNotEmpty(journeyInfo.getUseTime())?new BigDecimal(journeyInfo.getUseTime()):BigDecimal.ZERO;
+        ApplyPriceDetails applyPriceDetails=new ApplyPriceDetails();
+        applyPriceDetails.setCarGroupId(carGroupId);
+        applyPriceDetails.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA01.getKey());
+        applyPriceDetails.setCarTypeId(carInfo.getCarTypeId());
+        BigDecimal amount=BigDecimal.ZERO;
+        if (useTime.compareTo(BigDecimal.ONE)==0){//整日租
+            applyPriceDetails.setRentType(charterTypeEnum.OVERALL_RENT_TYPE.getKey());
+            List<ApplyPriceDetails> applyPriceDetails1 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
+            if (!CollectionUtils.isEmpty(applyPriceDetails1)){
+                if (applyPriceDetails1.get(0).getCombosPrice()!=null){
+                    amount=applyPriceDetails1.get(0).getCombosPrice();
+                }
+                OrderSettlingInfoVo orderSettlingInfoVo=new OrderSettlingInfoVo();
+                orderSettlingInfoVo.setOrderId(orderId);
+                orderSettlingInfoVo.setAmount(amount);
+                orderSettlingInfoService.selfDriverCostPrice(orderSettlingInfoVo,userId,orderInfo.getCompanyId(),null);
+            }
+        }else if (useTime.compareTo(BigDecimal.ZERO)==1&&useTime.compareTo(BigDecimal.ONE)<0){//半日租
+            applyPriceDetails.setRentType(charterTypeEnum.HALF_DAY_TYPE.getKey());
+            List<ApplyPriceDetails> applyPriceDetails2 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
+            if (!CollectionUtils.isEmpty(applyPriceDetails2)){
+                if (applyPriceDetails2.get(0).getCombosPrice()!=null){
+                    amount=applyPriceDetails2.get(0).getCombosPrice();
+                }
+                OrderSettlingInfoVo orderSettlingInfoVo=new OrderSettlingInfoVo();
+                orderSettlingInfoVo.setOrderId(orderId);
+                orderSettlingInfoVo.setAmount(amount);
+                orderSettlingInfoService.selfDriverCostPrice(orderSettlingInfoVo,userId,orderInfo.getCompanyId(),null);
+            }
+        }else if (useTime.compareTo(BigDecimal.ONE)==1){//多日租
+            if (journeyInfo.getUseTime().contains(".5")){//包含半天的多日租
+                applyPriceDetails.setRentType(charterTypeEnum.HALF_DAY_TYPE.getKey()+","+charterTypeEnum.OVERALL_RENT_TYPE.getKey());
+                List<ApplyPriceDetails> applyPriceDetails1 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
+                BigDecimal number = new  BigDecimal(journeyInfo.getUseTime()).subtract(new BigDecimal("0.5"));
+                if (!CollectionUtils.isEmpty(applyPriceDetails1)){
+                    for (ApplyPriceDetails applyPrice:applyPriceDetails1){
+                        if (charterTypeEnum.OVERALL_RENT_TYPE.getKey().equals(applyPrice.getRentType())){
+                            amount=amount.add(applyPrice.getCombosPrice().multiply(number));
+                        }else {
+                            amount=amount.add(applyPrice.getCombosPrice());
+                        }
+                    }
+                    OrderSettlingInfoVo orderSettlingInfoVo=new OrderSettlingInfoVo();
+                    orderSettlingInfoVo.setOrderId(orderId);
+                    orderSettlingInfoVo.setAmount(amount);
+                    orderSettlingInfoService.selfDriverCostPrice(orderSettlingInfoVo,userId,orderInfo.getCompanyId(),null);
+                }
+            }else{
+                applyPriceDetails.setRentType(charterTypeEnum.OVERALL_RENT_TYPE.getKey());
+                List<ApplyPriceDetails> applyPriceDetails1 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
+                if (!CollectionUtils.isEmpty(applyPriceDetails1)){
+                    if (applyPriceDetails1.get(0).getCombosPrice()!=null){
+                        amount=applyPriceDetails1.get(0).getCombosPrice();
+                    }
+                    OrderSettlingInfoVo orderSettlingInfoVo=new OrderSettlingInfoVo();
+                    orderSettlingInfoVo.setOrderId(orderId);
+                    orderSettlingInfoVo.setAmount(amount.multiply(new BigDecimal(journeyInfo.getUseTime())));
+                    orderSettlingInfoService.selfDriverCostPrice(orderSettlingInfoVo,userId,orderInfo.getCompanyId(),null);
+                }
+            }
+        }
+
+
+
     }
 
     /**
-     * 调度列表大sql优化，暂未使用
+     * 调度列表大sql优化
      * 1.通过调度员用户id，查询调度员所在车队可以服务的部门
      * 2.查询这些部门的人所需要服务的订单
      * @param query
@@ -1271,12 +1368,95 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         }
         PageHelper.startPage(query.getPageN(), query.getPageS());
         dispatcherOrderList = getDispatchOrderInfos(query);
+        //获取各个状态的数量
+        List<DisOrderStateCount> orderStateCount = new ArrayList<>(4);
+        orderStateCount = orderInfoMapper.getOrderStateCount(query);
+        if (CollectionUtils.isEmpty(orderStateCount)){
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.WAITINGLIST.getStateName(),0));
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ALREADYSENDING.getStateName(),0));
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDERDENIED.getStateName(),0));
+            orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDEROVERTIME.getStateName(),0));
+        }else{
+            List<String> collect1 = orderStateCount.stream().map(DisOrderStateCount::getState).collect(Collectors.toList());
+            if(!collect1.contains(DispatchOrderStateTraceEnum.WAITINGLIST.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.WAITINGLIST.getStateName(),0));
+            }
+            if(!collect1.contains(DispatchOrderStateTraceEnum.ALREADYSENDING.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ALREADYSENDING.getStateName(),0));
+            }
+            if(!collect1.contains(DispatchOrderStateTraceEnum.ORDERDENIED.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDERDENIED.getStateName(),0));
+            }
+            if(!collect1.contains(DispatchOrderStateTraceEnum.ORDEROVERTIME.getStateName())){
+                orderStateCount.add(new DisOrderStateCount(DispatchOrderStateTraceEnum.ORDEROVERTIME.getStateName(),0));
+            }
+            Collections.sort(orderStateCount);
+        }
         PageInfo<DispatchVo> info = new PageInfo<>(dispatcherOrderList);
         Map<String,Object> map = new HashMap<>();
         map.put("totalPage", info.getTotal());
         map.put("page", info.getTotal());
         map.put("list", dispatcherOrderList);
+        map.put("stateCount", orderStateCount);
         return map;
+    }
+
+    @Override
+    public void updatePickupCarState() {
+        //获取已取车的所有订单
+        List<PiclUpCarOrderVO> orderList=orderStateTraceInfoMapper.selectOrderListByState(OrderStateTrace.PICKUPCAR.getState());
+        if (CollectionUtils.isEmpty(orderList)){
+            for (PiclUpCarOrderVO vo:orderList){
+                int i = DateFormatUtils.compareDayAndTime(vo.getUseCarTime(), new Date());
+                if (i==0){
+                    ((OrderInfoTwoServiceImpl) AopContext.currentProxy()).updateOrderState(vo);
+                }
+            }
+        }
+    }
+
+    @Override
+    public UserApplySingleVo getOrderInfoDetail(Long orderId,SysUser user,Long applyId) throws Exception{
+        UserApplySingleVo userApplySingleVo = new UserApplySingleVo();
+        Long applyIdOrderId=applyId;
+        ApplyInfo applyInfo=null;
+        if (applyId==null){
+            OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+            if (orderInfo==null) {
+                throw new BaseException("该订单为空:"+orderId);
+            }
+            List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
+            if (CollectionUtils.isEmpty(applyInfos)){
+                throw new BaseException("该申请单为空对应行程id:"+orderInfo.getJourneyId());
+            }
+            applyInfo = applyInfos.get(0);
+            applyIdOrderId=applyInfos.get(0).getApplyId();
+        }
+        List<UserApplySingleVo> useApplyList = applyInfoMapper.getApplyListPage(null,applyIdOrderId);
+        if (CollectionUtils.isEmpty(useApplyList)){
+            return null;
+        }
+        userApplySingleVo=useApplyList.get(0);
+        userApplySingleVo.setDeptId(user.getDeptId());
+        if (CarUserSelfDrivingEnum.ONE_SELF.getCode().equals(applyInfo.getItIsSelfDriver())){//自驾
+            OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderId);
+            Map<String, Object> orderFee = orderSettlingInfoService.getOrderFee(orderSettlingInfo);
+            userApplySingleVo.setAmount(orderFee.get("amount").toString());
+            userApplySingleVo.setOrderFees((List<OtherCostBean>)orderFee.get("otherCostBeans"));
+        }
+        return userApplySingleVo;
+    }
+
+    @Transactional
+    public void updateOrderState(PiclUpCarOrderVO vo){
+        OrderInfo orderInfo = new OrderInfo(vo.getOrderId(), OrderState.INSERVICE.getState());
+        orderInfo.setUpdateTime(DateUtils.getNowDate());
+        orderInfoMapper.updateOrderInfo(orderInfo);
+        OrderStateTraceInfo stateTraceInfo = new OrderStateTraceInfo(vo.getOrderId(), OrderState.INSERVICE.getState());
+        stateTraceInfo.setCreateTime(DateUtils.getNowDate());
+        stateTraceInfo.setContent("自驾取车开始服务");
+        stateTraceInfo.setCreateBy(CommonConstant.START);
+        orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
     }
 
     /**
@@ -1349,6 +1529,16 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     public void getSceneAndRegimeInfo(DispatchVo dispatchVo){
         DispatchVo dispatchReAndSceneInfo = regimeInfoMapper.getDispatchReAndSceneInfo(dispatchVo.getRegimeId());
         BeanUtils.copyProperties(dispatchReAndSceneInfo, dispatchVo,BeauUtilsCommon.getNullField(dispatchReAndSceneInfo));
+    }
+
+    /**
+     * 佛山后管申请单调度-获取用车单位列表
+     * @return
+     */
+    @Override
+    public List<EcmpOrg> getUseCarOrgList(Long companyId) {
+        List<EcmpOrg>  useCarOrgList = ecmpOrgMapper.getUseCarOrgList(companyId);
+        return useCarOrgList;
     }
 
 }

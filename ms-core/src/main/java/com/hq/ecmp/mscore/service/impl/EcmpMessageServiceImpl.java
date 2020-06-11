@@ -238,7 +238,9 @@ public class EcmpMessageServiceImpl implements EcmpMessageService {
                 messageDto.setMessageTypeStr(despByType.replaceFirst("1",messageDto.getMessageCount()+""));
                 if (MsgConstant.MESSAGE_T006.getType().equals(messageDto.getMessageType())||MsgConstant.MESSAGE_T015.getType().equals(messageDto.getMessageType())){
                     OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(messageDto.getMessageId());
-                    messageDto.setUseCarMode(orderInfo.getUseCarMode());
+                    if(orderInfo!=null){
+                        messageDto.setUseCarMode(orderInfo.getUseCarMode());
+                    }
                 }
             }
         }

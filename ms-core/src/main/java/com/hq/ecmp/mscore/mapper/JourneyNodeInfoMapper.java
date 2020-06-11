@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -71,4 +72,11 @@ public interface JourneyNodeInfoMapper
     public List<JourneyNodeInfo> queryJourneyNodeInfoOrderByNumber(Long journeyId);
     
     public JourneyNodeInfo queryJourneyNodeInfoByPowerId(Long powerId);
+
+    /**
+     * 通过行程id查询单条数据
+     * @param journeyId
+     * @return
+     */
+    JourneyNodeInfo selectJourneyNodeInfoByJourneyId(@Param("journeyId") Long journeyId);
 }

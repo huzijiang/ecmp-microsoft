@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.OrderDispatcheDetailInfo;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * @author hqer
  * @date 2020-05-25
  */
+@Repository
 public interface OrderDispatcheDetailInfoMapper 
 {
     /**
@@ -84,4 +86,6 @@ public interface OrderDispatcheDetailInfoMapper
      * @param updateTime
      */
     void revertOrderDispatcheDetailInfoByOrderId(@Param("orderId") Long orderId, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
+
+    OrderDispatcheDetailInfo selectDispatcheInfo(@Param("orderId") Long orderId);
 }

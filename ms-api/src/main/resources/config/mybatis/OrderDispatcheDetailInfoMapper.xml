@@ -178,4 +178,9 @@
                  where order_id = #{orderId}
     </update>
 
+    <select id="selectDispatcheInfo" parameterType="long" resultMap="OrderDispatcheDetailInfoResult">
+        <include refid="selectOrderDispatcheDetailInfoVo"/>
+         where order_id = #{orderId}
+        limit 1
+    </select>
 </mapper>

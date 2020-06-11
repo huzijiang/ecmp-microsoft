@@ -1,11 +1,9 @@
 package com.hq.ecmp.mscore.service.dispatchstrategy;
 
+import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.core.sms.service.ISmsTemplateInfoService;
-import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.constant.OrderStateTrace;
-import com.hq.ecmp.constant.SmsTemplateConstant;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.mapper.*;
@@ -68,9 +66,47 @@ public abstract class TopDispatchService {
      * @param dispatchSendCarDto
      */
     public void disBusiness(DispatchSendCarDto dispatchSendCarDto) throws Exception {
+        validIsSendCar(dispatchSendCarDto);
         judgeIsFinish(dispatchSendCarDto);
         ((TopDispatchService)AopContext.currentProxy()).dispatchCommonBusiness(dispatchSendCarDto);
         ((TopDispatchService)AopContext.currentProxy()).sendSms(dispatchSendCarDto);
+    }
+
+    /**
+     * 校验是否可以派车
+     *  1. 内部调度员选了车队A，车队A操作选人选司机时，内部调度员派给了车队B，此时车队A提交派车，验证，调度表的车队id是否是当前提交申请的车队，如果不是，则不能派车成功。
+     *  2. 内部调度员选了车队A，车队A已经完成派车和派司机，内部调度员在派给车队B，此时验证是否完成调度，已经完成，则不能派车成功。
+     * @param dispatchSendCarDto
+     * @return  1 外部调度已经完成，不可在派给其他外部车队
+     *           2 内部调度已经派给其他外部车队，此外部车队不可在提交派车
+     *           3 可以正常往下走逻辑
+     */
+    protected  void validIsSendCar(DispatchSendCarDto dispatchSendCarDto){
+        int inOrOut = dispatchSendCarDto.getInOrOut();
+        OrderDispatcheDetailInfo orderDispatcheDetailInfo = orderDispatcheDetailInfoMapper.selectDispatcheInfo(dispatchSendCarDto.getOrderId());
+        if(inOrOut == 1){
+            if(orderDispatcheDetailInfo.getDispatchState().equals(CarConstant.DISPATCH_YES_COMPLETE)){
+                Long outerDispatcher = orderDispatcheDetailInfo.getOuterDispatcher();
+                CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+                carGroupDispatcherInfo.setUserId(outerDispatcher);
+                List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
+                Long carGroupId = carGroupDispatcherInfos.get(0).getCarGroupId();
+                CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
+                String carGroupName = carGroupInfo.getCarGroupName();
+                String msg = "您好，此订单"+carGroupName+"车队已完成派车，若您想重新调度，请改派订单。";
+                throw new BaseException(msg);
+            }
+        }else if(inOrOut == 2){
+            if(orderDispatcheDetailInfo.getNextCarGroupId().longValue() != dispatchSendCarDto.getOutCarGroupId().longValue()){
+                Long innerDispatcher = orderDispatcheDetailInfo.getInnerDispatcher();
+                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(innerDispatcher);
+                String nickName = ecmpUser.getNickName();
+                CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
+                String carGroupName = carGroupInfo.getCarGroupName();
+                String msg = "您好，此订单已由机关车队调度员"+nickName+"另行指派给"+carGroupName+"车队提供服务，请知悉。";
+                throw new BaseException(msg);
+            }
+        }
     }
 
 

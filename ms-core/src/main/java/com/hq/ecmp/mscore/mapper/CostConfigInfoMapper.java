@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.bo.CarGroupPricePlanInfoBo;
 import com.hq.ecmp.mscore.domain.CostConfigCarTypeInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
+import com.hq.ecmp.mscore.dto.cost.ApplyPriceDetails;
 import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.dto.cost.ValidDoubleDtoResult;
@@ -142,5 +143,17 @@ public interface CostConfigInfoMapper
                                                           @Param("carGroupUserMode") String carGroupUserMode,
                                                           @Param("cityCode") String cityCode);
 
+    /**
+     * 获取价格计划详情
+      * @param applyPriceDetails
+     * @return
+     */
+    List<ApplyPriceDetails> applySinglePriceDetails(ApplyPriceDetails applyPriceDetails);
 
+     /**
+     * 后管申请页面-查询车队用车计划
+     * @param applyPriceDetails
+     * @return
+     */
+    ApplyPriceDetails selectCostInfosWithApplyCarGroup(ApplyPriceDetails applyPriceDetails);
 }

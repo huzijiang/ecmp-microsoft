@@ -389,6 +389,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 //详细地址
                 .fullAddress(carGroupInfo.getFullAddress())
                 .itIsInner(carGroupInfo.getItIsInner())
+                .accountName(carGroupInfo.getAccountName())
+                .bankAccount(carGroupInfo.getBankAccount())
+                .bankName(carGroupInfo.getBankName())
                 //短地址
                 .shortAddress(carGroupInfo.getShortAddress())
                 .build();
@@ -1007,6 +1010,12 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         return citysBycarGroupId;
     }
 
+    @Override
+    public Long findgroupIdByUserId(Long userId) {
+
+        return carGroupInfoMapper.findgroupIdByUserId(userId);
+    }
+
     /**
      * 查询指定城市所有车队调度员及车队座机
      * @param
@@ -1285,6 +1294,9 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                     .fullAddress(carGroupInfo.getFullAddress())
                     .companyIds(companyIds.toArray(new Long[]{}))
                     .deptIds(deptIds.toArray(new Long[]{}))
+                    .accountName(carGroupInfo.getAccountName())
+                    .bankAccount(carGroupInfo.getBankAccount())
+                    .bankName(carGroupInfo.getBankName())
                     .build();
             return vo;
         }

@@ -477,6 +477,19 @@ public class DateFormatUtils {
         return x;
     }
 
+    /**
+     * 获取过去第几天的日期
+     *
+     * @param past
+     * @return
+     */
+    public static Date getPastDate(int past) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - past);
+        Date today = calendar.getTime();
+        return today;
+    }
+
 
      public  static void main(String[] args){
 //         Date date = parseDate(DATE_TIME_FORMAT, "2020-04-10 22:22:22");
@@ -498,3 +511,7 @@ public class DateFormatUtils {
 
      }
 }
+
+
+
+

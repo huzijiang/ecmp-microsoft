@@ -27,4 +27,12 @@ public class OrderCostDetailVO {
     private String min;
     private List<OtherCostVO> otherCost;
 
+    public OrderCostDetailVO() {
+    }
+
+    public OrderCostDetailVO(String customerPayPrice, String mileage, String min) {
+        this.customerPayPrice = customerPayPrice;
+        this.mileage = mileage;
+        this.min = min;
+    }
 }

@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfoVo;
+import com.hq.ecmp.mscore.domain.EcmpUserFeedbackVo;
 import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
 import com.hq.ecmp.mscore.dto.OrderInfoDTO;
 import com.hq.ecmp.mscore.vo.PageResult;
@@ -86,4 +87,10 @@ public interface IEcmpUserFeedbackInfoService
      * @return
      */
     ApiResponse supplementSubmit(OrderInfoDTO orderInfoDTO);
+
+    int updateFeedback(EcmpUserFeedbackInfoVo feedBackDto);
+
+    PageResult<EcmpUserFeedbackVo> findFeedback(EcmpUserFeedbackInfo ecmpUserFeedbackInfo);
+
+
 }

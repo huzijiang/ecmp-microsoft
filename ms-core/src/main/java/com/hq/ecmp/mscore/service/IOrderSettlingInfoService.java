@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.domain.OrderSettlingInfoVo;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Service接口
@@ -81,4 +82,7 @@ public interface IOrderSettlingInfoService
     String formatCostFee(OrderSettlingInfoVo orderSettlingInfoVo, BigDecimal personalCancellationFee, BigDecimal enterpriseCancellationFee);
 
     BigDecimal getAllFeeAmount(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) throws ParseException;
+    Map<String,Object> getOrderFee(OrderSettlingInfo orderSettlingInfo);
+    /**自驾还车添加费用*/
+    void selfDriverCostPrice(OrderSettlingInfoVo orderSettlingInfoVo,Long userId,Long companyId,Long costCenter);
 }

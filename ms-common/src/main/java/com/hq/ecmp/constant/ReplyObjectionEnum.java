@@ -9,6 +9,8 @@ public enum ReplyObjectionEnum {
 
     YES_REPLY("0000","已回复"),
     NO_REPLY("1111","未回复"),
+
+
     ;
 
     private String key;

@@ -136,6 +136,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     private OrderAccountInfoMapper orderAccountInfoMapper;
     @Resource
     private OrderDispatcheDetailInfoMapper orderDispatcheDetailInfoMapper;
+    @Resource
+    private IOrderSettlingInfoService orderSettlingInfoService;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -227,9 +230,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      * @return
      */
     @Override
-    public PageResult<OrderListInfo>  getOrderList(Long userId, int pageNum, int pageSize) {
+    public PageResult<OrderListInfo>  getOrderList(Long userId, int pageNum, int pageSize,int isConfirmState) {
         PageHelper.startPage(pageNum,pageSize);
-        List<OrderListInfo> orderList = orderInfoMapper.getOrderList(userId);
+        List<OrderListInfo> orderList = orderInfoMapper.getOrderList(userId,isConfirmState);
         PageInfo<OrderListInfo> pageInfo = new PageInfo<>(orderList);
         PageResult<OrderListInfo> pageResult = new PageResult<>(pageInfo.getTotal(),pageInfo.getPages(),orderList);
         return pageResult;
@@ -757,6 +760,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         }
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         vo.setRegimeId(journeyInfo.getRegimenId());
+        vo.setUseTime(journeyInfo.getUseTime());
+        vo.setBeginTime(DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,journeyInfo.getUseCarTime()));
         JourneyNodeInfo nodeInfo = journeyNodeInfoMapper.selectJourneyNodeInfoById(orderInfo.getNodeId());
         BeanUtils.copyProperties(orderInfo,vo);
 
@@ -846,8 +851,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
                 //服务结束后获取里程用车时长
                 List<OrderSettlingInfo> orderSettlingInfos = orderSettlingInfoMapper.selectOrderSettlingInfoList(new OrderSettlingInfo(orderId));
                 if (!CollectionUtils.isEmpty(orderSettlingInfos)){
-                    vo.setDistance(orderSettlingInfos.get(0).getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
-                    vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfos.get(0).getTotalTime().intValue()));
+                    OrderSettlingInfo orderSettlingInfo = orderSettlingInfos.get(0);
+                    vo.setDistance(orderSettlingInfo.getTotalMileage().stripTrailingZeros().toPlainString()+"公里");
+                    vo.setDuration(DateFormatUtils.formatMinute(orderSettlingInfo.getTotalTime().intValue()));
+                    vo.setAmount(orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString());
+                    Map<String, Object> orderFee = orderSettlingInfoService.getOrderFee(orderSettlingInfo);
+                    vo.setOrderFees((List<OtherCostVO>)orderFee.get("otherCostBeans"));
                 }
             }
         }else{
@@ -1919,9 +1928,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         if(useCarMode.equals(CarConstant.USR_CARD_MODE_HAVE)){
             DriverHeartbeatInfo driverHeartbeatInfo = new DriverHeartbeatInfo();
             driverHeartbeatInfo.setOrderId(orderId);
+            driverHeartbeatInfo.setCreateTime(orderInfo.getUpdateTime());
             List<DriverHeartbeatInfo> driverHeartbeatInfos = driverHeartbeatInfoMapper.selectDriverHeartbeatInfoList(driverHeartbeatInfo);
-            for (DriverHeartbeatInfo driverHeartbeatInfo1:
-            driverHeartbeatInfos) {
+            for (DriverHeartbeatInfo driverHeartbeatInfo1:driverHeartbeatInfos) {
                 OrderHistoryTraceDto orderHistoryTraceDto = new OrderHistoryTraceDto();
                 //BeanUtils.copyProperties(driverHeartbeatInfo1,orderHistoryTraceDto);
                 orderHistoryTraceDto.setOrderId(driverHeartbeatInfo1.getOrderId().toString());
@@ -2199,6 +2208,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 				dispatchSendCarPageInfo.setServiceType(journeyInfo.getServiceType());
 				dispatchSendCarPageInfo.setUseCarMode(journeyInfo.getUseCarMode());
 				dispatchSendCarPageInfo.setItIsReturn(journeyInfo.getItIsReturn());
+                dispatchSendCarPageInfo.setCharterCarDaysCount(journeyInfo.getUseTime());
 				Long applyUserId = journeyInfo.getUserId();
 				if(null !=applyUserId){
 					//申请人手机名字
@@ -2956,4 +2966,221 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public Map downloadOrderData(Long orderId) throws Exception {
         return orderInfoMapper.downloadOrderData(orderId);
     }
+
+    /***
+     *订单列表的tale页签的数据模型
+     * add by liuzb
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public Map<String,Object> orderServiceCategory(LoginUser user)throws Exception{
+        //String key = isDispatcher(user);
+        Map<String, Object> map = orderInfoMapper.orderServiceCategory();
+        if(null!=map){
+            JSONObject json = new JSONObject(addDataTable(map));
+            return json;
+        }
+        return null;
+    }
+
+
+    /***
+     * 拼接来自数据库模型的table参数
+     * add by liuzb
+     * @param map
+     * @return
+     * @throws Exception
+     */
+    private Map<String,Object> addDataTable(Map<String,Object> map)throws Exception{
+        Map<String,Object> data = new HashMap<>();
+        Map<String,Object> dataMap = new HashMap<>();
+
+        dataMap.put("msg","待服务");
+        dataMap.put("value",map.get("toBeServed").toString());
+        dataMap.put("code","S299");
+        data.put("toBeServed",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待出车");
+        dataMap.put("value",map.get("waitingToLeave").toString());
+        dataMap.put("code","S300");
+        data.put("waitingToLeave",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待还车");
+        dataMap.put("value",map.get("toBePickedUp").toString());
+        dataMap.put("code","S301");
+        data.put("toBePickedUp",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","接驾中");
+        dataMap.put("value",map.get("takingOver").toString());
+        dataMap.put("code","S500");
+        data.put("takingOver",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待上车");
+        dataMap.put("value",map.get("etcUpperCar").toString());
+        dataMap.put("code","S600");
+        data.put("etcUpperCar",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","服务中");
+        dataMap.put("value",map.get("inService").toString());
+        dataMap.put("code","S616");
+        data.put("inService",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","服务中止");
+        dataMap.put("value",map.get("serviceSuspension").toString());
+        dataMap.put("code","S635");
+        data.put("serviceSuspension",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","待确认");
+        dataMap.put("value",map.get("toBeConfirmed").toString());
+        dataMap.put("code","S699");
+        data.put("toBeConfirmed",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","已完成");
+        dataMap.put("value",map.get("completed").toString());
+        dataMap.put("code","S900");
+        data.put("completed",dataMap);
+
+        dataMap = new HashMap<>();
+        dataMap.put("msg","已取消");
+        dataMap.put("value",map.get("cancelled").toString());
+        dataMap.put("code","S911");
+        data.put("cancelled",dataMap);
+
+        return data;
+    }
+
+
+    /***
+     *
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<String> getUseTheCar(LoginUser user)throws Exception{
+        String role = isDispatcher(user);
+        return orderInfoMapper.getUseTheCar("C111".equals(role)?user.getUser().getUserId():null,null==role?user.getUser().getOwnerCompany():null);
+    }
+
+
+    /***
+     *
+     * @param orderInfoFSDto
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public PageResult<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto orderInfoFSDto, LoginUser user)throws Exception{
+        String role = isDispatcher(user);
+        if(null==role){/**员工看本部门*/
+            orderInfoFSDto.setCompanyId(user.getUser().getOwnerCompany());
+        }else if ("C111".equals(role)){/**外部调度员*/
+            orderInfoFSDto.setUserId(user.getUser().getUserId());
+        }
+        List<OrderInfoFSDto> list = orderInfoMapper.getOrderInfoList(orderInfoFSDto);
+        PageInfo<OrderInfoFSDto> info = new PageInfo<>(list);
+        return new PageResult<>(info.getTotal(),info.getPages(),list);
+    }
+
+    @Override
+    public List<MoneyListDto> getMoneyList(ReckoningDto param) {
+
+        return orderInfoMapper.getMoneyList(param);
+
+    }
+
+    @Override
+    public Map<String, Map<String, Integer>> selectOrderCarGroup(Long companyId) {
+        String startDate = DateFormatUtils.formatDate(DateFormatUtils.DATE_FORMAT,DateFormatUtils.getPastDate(6));
+        String endDate = DateFormatUtils.formatDate(DateFormatUtils.DATE_FORMAT,new Date());
+        Map<String,Map<String,Integer>> map = DateFormatUtils.sliceUpDateRange(startDate,endDate).stream()
+                .collect(Collectors.toMap(x->x,x->new LinkedHashMap(){{
+                    put("in_have",0);
+                    put("in_rent",0);
+                    put("out",0);
+                }},(k1,k2)->k2,LinkedHashMap::new));
+        orderInfoMapper.selectOrderCarGroup(companyId).stream().forEach(x->{
+            //map.get(x.get("date")).put("all",map.get(x.get("date")).get("all")+1);
+            if(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN.equals(x.get("it_is_inner"))){
+                if("S001".equals(map.get("source"))){
+                    map.get(x.get("date")).put("in_have",map.get(x.get("date")).get("in_have")+1);
+                }
+                if("S002".equals(map.get("source"))|| "S003".equals(map.get("source"))){
+                    map.get(x.get("date")).put("in_rent",map.get(x.get("date")).get("in_rent")+1);
+                }
+            }
+            if(CarConstant.IT_IS_USE_INNER_CAR_GROUP_OUT.equals(x.get("it_is_inner"))){
+                map.get(x.get("date")).put("out",map.get(x.get("date")).get("out")+1);
+            }
+        });
+        return map;
+    }
+
+    @Override
+    public Map<String, Integer> selectNormalOrderReserveTime(Long companyId,String beginDate, String endDate) {
+        List<Map>list = orderInfoMapper.selectNormalOrderReserveTime(companyId,beginDate,endDate);
+        Map<String,Integer> map = new LinkedHashMap(){{
+            put("8-9",0);
+            put("9-10",0);
+            put("10-11",0);
+            put("11-12",0);
+            put("12-14",0);
+            put("14-15",0);
+            put("15-16",0);
+            put("16-17",0);
+            put("17-18",0);
+            put("18时-次日八时",0);
+        }};
+        list.stream()
+                .filter(x->x.get("states").toString().indexOf(OrderStateTrace.CANCEL.getState())==-1)//过滤取消
+                .filter(x->x.get("states").toString().indexOf(OrderStateTrace.ORDEROVERTIME.getState())==-1)//过滤超时
+                .filter(x->x.get("states").toString().indexOf(OrderStateTrace.ORDERDENIED.getState())==-1)//过滤驳回
+                .forEach(x->{
+                    int dateGroup = Integer.parseInt(DateFormatUtils.formatDate(DateFormatUtils.TIME_FORMAT_1,DateFormatUtils.parseDate(DateFormatUtils.DATE_TIME_FORMAT,x.get("start_date").toString())));
+                    if(dateGroup==8){
+                        map.put("8-9",map.get("8-9")+1);
+                    }
+                    if(dateGroup==9){
+                        map.put("9-10",map.get("9-10")+1);
+                    }
+                    if(dateGroup==10){
+                        map.put("10-11",map.get("10-11")+1);
+                    }
+                    if(dateGroup==11){
+                        map.put("11-12",map.get("11-12")+1);
+                    }
+                    if(dateGroup>=12 && dateGroup<14){
+                        map.put("12-14",map.get("12-14")+1);
+                    }
+                    if(dateGroup==14){
+                        map.put("14-15",map.get("14-15")+1);
+                    }
+                    if(dateGroup==15){
+                        map.put("15-16",map.get("15-16")+1);
+                    }
+                    if(dateGroup==16){
+                        map.put("16-17",map.get("16-17")+1);
+                    }
+                    if(dateGroup==18){
+                        map.put("17-18",map.get("17-18")+1);
+                    }
+                    if(dateGroup>=18 || dateGroup<8){
+                        map.put("18时-次日八时",map.get("18时-次日八时")+1);
+                    }
+                });
+        return map;
+    }
+
+
 }

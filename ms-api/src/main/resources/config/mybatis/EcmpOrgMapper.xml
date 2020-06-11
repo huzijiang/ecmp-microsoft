@@ -577,4 +577,34 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where  find_in_set(dept_id,(select group_concat(distinct ancestors) from ecmp_org  where find_in_set(dept_id,#{orgIds})) ) OR
             find_in_set(dept_id,#{orgIds})
     </select>
+
+    <select id="getUseCarOrgList" resultMap="EcmpOrgResult">
+        select  distinct eo.dept_name,eo.dept_id from order_info o
+        left join
+        (select * from order_state_trace_info where trace_id in (
+        select max(trace_id) from order_state_trace_info group by order_id)
+        )osti on osti.order_id=o.order_id
+        left join ecmp_user eu on eu.user_id=o.user_id
+        left join ecmp_org eo on eo.dept_id=eu.dept_id
+        where osti.state in (
+        'S100','S299','S500','S600','S616','S630','S639','S635','S699','S900','S930','S921'
+        )
+        and eu.owner_company=#{companyId}
+
+    </select>
+
+    <select id="selectIdAndName" resultType="java.util.Map" parameterType="java.lang.Long">
+        select
+        DISTINCT g.dept_id as deptId,
+        g.dept_name as deptName
+        from
+        car_group_serve_org_relation o
+        left join ecmp_org g on o.dept_id = g.dept_id and del_flag = 0
+        left join car_group_dispatcher_info c on  c.car_group_id = o.car_group_id
+        where 1 = 1
+        <if test="userId != null ">
+            and c.user_id = #{userId}
+        </if>
+    </select>
+
 </mapper>

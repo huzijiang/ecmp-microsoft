@@ -11,8 +11,17 @@ import java.util.List;
  * 后台提交申请单
  */
 @Data
-@ApiModel(description = "申请单添加对象")
+@ApiModel(description = "申请单添加与修改对象")
 public class ApplySingleVO {
+
+    /**
+     * 申请id
+     */
+    @ApiModelProperty(name = "applyId", value = "申请id", required = true, position = 4)
+    private Long applyId;
+
+    @ApiModelProperty(name = "journeyId", value = "行程id", required = true, position = 4)
+    private Long journeyId;
 
     /**
      * 用车时间
@@ -122,4 +131,9 @@ public class ApplySingleVO {
      */
     @ApiModelProperty(name = "multipleDropAddress", value = "多个下车地址")
     private List<AddressVO>  multipleDropAddress;
+
+
+    private String userName;
+
+    private String userPhone;
 }

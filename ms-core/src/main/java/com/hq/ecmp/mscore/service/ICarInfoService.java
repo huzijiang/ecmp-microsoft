@@ -80,14 +80,14 @@ public interface ICarInfoService
 
     int startCar(Long carId, Long userId) throws Exception;
 
-    int disableCar(Long carId, Long userId) throws Exception;
+    int disableCar(Long carId, Long userId,String content) throws Exception;
 
     /**
      * 维保车辆
      * @param carId
      * @param userId
      */
-    void maintainCar(Long carId, Long userId) throws Exception;
+    void maintainCar(Long carId, Long userId,String content) throws Exception;
 
     /**
      * 分页查询车队的车辆列表信息
@@ -147,4 +147,6 @@ public interface ICarInfoService
      * 调度选车以后，未解锁车辆自动解锁
      */
     public void unlockCars();
+
+    String getCarLogInfo(Long carId, String logType);
 }

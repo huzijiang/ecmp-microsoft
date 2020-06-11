@@ -5,7 +5,10 @@ import com.hq.ecmp.mscore.bo.OrderTaskClashBo;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
+import com.hq.ecmp.mscore.dto.OrderInfoFSDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
+import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -81,9 +84,10 @@ public interface OrderInfoMapper {
      * 获取乘客端我的行程订单列表
      *
      * @param userId
+     * @param isConfirmState
      * @return
      */
-    public List<OrderListInfo> getOrderList(Long userId);
+    public List<OrderListInfo> getOrderList(@Param("userId") Long userId,@Param("isConfirmState") int isConfirmState);
 
 
     public List<DispatchOrderInfo> queryOrderRelateInfo(OrderInfo orderInfo);
@@ -416,6 +420,12 @@ public interface OrderInfoMapper {
      * @return
      */
     List<DispatchVo> getOrderInfoByCityAndDept(ApplyDispatch query);
+    /**
+     * 获取各状态调度单的数量
+     * @param query
+     * @return
+     */
+    List<DisOrderStateCount> getOrderStateCount(ApplyDispatch query);
 
     /***
      *
@@ -423,5 +433,65 @@ public interface OrderInfoMapper {
      * @return
      */
     Map downloadOrderData(@Param("orderId") Long orderId);
+
+    /**
+     *
+     * @return
+     */
+    Map<String,Object> orderServiceCategory();
+
+    /***
+     * s
+     * @return
+     */
+    List<String> getUseTheCar(@Param("userId") Long userId,@Param("companyId") Long companyId);
+
+    /***
+     *
+     * @param data
+     * @return
+     */
+    List<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto data);
+
+    List<MoneyListDto> getMoneyList(ReckoningDto param);
+
+    /**
+     * 查询订单司机的所属车队和车队性质，用于首页统计
+     * @return
+     */
+    List<Map> selectOrderCarGroup(@Param("companyId")Long companyId);
+
+    /**
+     * 查询用车开始时间段之内的订单
+     * @param companyId 当前登录人所属公司
+     * @param beginDate 开始时间
+     * @param endDate 结束时间
+     * @return
+     */
+    List<Map> selectNormalOrderReserveTime(@Param("companyId")Long companyId,@Param("beginDate")String beginDate,@Param("endDate")String endDate);
+
+    Long selectOrderIdByJourneyId(Long journeyId);
+
+
+    /***
+     * 结算单（当前车队结算单的所有已完成订单）
+     * @param data
+     * @return
+     */
+    List<String> getStatementsList(LeaseSettlementDto data);
+
+
+    /**
+     * 获取调度工作台对应状态的列表数据
+     * @param state
+     * @return
+     */
+    List<DisWorkBenchOrder> getDispatchOrderListWorkBench(@Param("state") String state);
+
+    /**
+     * 获取调度工作台订单的统计数量信息
+     * @return
+     */
+    List<DisOrderStateCount> getDispatchOrderListWorkBenchCount();
 }
 
