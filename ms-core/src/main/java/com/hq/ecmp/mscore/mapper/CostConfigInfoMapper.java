@@ -149,4 +149,11 @@ public interface CostConfigInfoMapper
      * @return
      */
     List<ApplyPriceDetails> applySinglePriceDetails(ApplyPriceDetails applyPriceDetails);
+
+     /**
+     * 后管申请页面-查询车队用车计划
+     * @param applyPriceDetails
+     * @return
+     */
+    ApplyPriceDetails selectCostInfosWithApplyCarGroup(ApplyPriceDetails applyPriceDetails);
 }

@@ -6,7 +6,6 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
-import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.ApplyStateConstant;
@@ -15,7 +14,6 @@ import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.dto.cost.ApplyPriceDetails;
 import com.hq.ecmp.mscore.dto.cost.CarGroupInfoVo;
-import com.hq.ecmp.mscore.dto.cost.CostConfigListResult;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
@@ -293,13 +291,13 @@ public class UserApplySingleController {
     @ApiOperation(value = "applySinglePriceDetails",notes = "获取价格计划详情",httpMethod ="POST")
     @Log(title = "获取价格计划详情", content = "获取价格计划详情",businessType = BusinessType.OTHER)
     @PostMapping("/applySinglePriceDetails")
-    public ApiResponse<CarGroupInfoVo> applySinglePriceDetails(@RequestBody ApplyPriceDetails applyPriceDetail){
-        CarGroupInfoVo applyPriceDetails = new CarGroupInfoVo();
+    public ApiResponse<List<CarGroupInfoVo>> applySinglePriceDetails(@RequestBody ApplyPriceDetails applyPriceDetail){
+        List<CarGroupInfoVo> applyPriceDetails = new ArrayList<>();
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             applyPriceDetail.setCompanyId(loginUser.getUser().getDept().getCompanyId());
-            applyPriceDetails = costConfigInfoService.applySinglePriceDetails(applyPriceDetail);
+            applyPriceDetails = costConfigInfoService.applySinglePriceDetails(applyPriceDetail,loginUser);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("获取价格计划详情失败");
