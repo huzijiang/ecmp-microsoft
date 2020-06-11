@@ -2510,6 +2510,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oscdrio.amount amount,
         oi.order_id orderId,
         GROUP_CONCAT( DISTINCT jai.address_info) addressInfo,
+        if(oddi.it_is_use_inner_car_group is null,0,1) canUpdateDetail,
         -- 费用合计
         case
         when z.state='S100' then '待派车'
@@ -2525,6 +2526,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN  journey_passenger_info jpi ON jpi.journey_id = ji.journey_id and jpi.it_is_peer = '00'
         LEFT JOIN  ecmp_org eo     ON eo.dept_id  = eu.dept_id
         LEFT JOIN  order_info  oi  ON oi.journey_id = ji.journey_id
+        LEFT JOIN  order_dispatche_detail_info oddi  ON oi.order_id = oddi.order_id
         LEFT JOIN  car_info    ci  ON ci.car_id = oi.car_id
         LEFT JOIN  enterprise_car_type_info  ecty ON ecty.car_type_id = ai.car_type_id
         LEFT JOIN  car_group_info cgi ON cgi.car_group_id = ci.car_group_id
