@@ -13,6 +13,7 @@ import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
+import com.hq.ecmp.mscore.vo.CarGroupCostVO;
 import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.vo.PriceOverviewVO;
 import com.hq.ecmp.mscore.vo.SupplementVO;
@@ -271,8 +272,27 @@ public class CostController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long companyId = loginUser.getUser().getOwnerCompany();
             queryPriceDto.setCompanyId(companyId);
-            List<PriceOverviewVO> list=costConfigInfoService.getGroupPrice(queryPriceDto);
+            List<PriceOverviewVO> list=costConfigInfoService.getGroupPrice(queryPriceDto,loginUser);
                 return ApiResponse.success(list);
+        } catch (Exception e) {
+            return ApiResponse.error("查询异常");
+        }
+    }
+
+    /**
+     *  价格总览根据角色获取车队列表
+     */
+    @Log(value = "价格总览根据角色获取车队列表")
+    @com.hq.core.aspectj.lang.annotation.Log(title = "价格总览根据角色获取车队列表",businessType = BusinessType.OTHER,operatorType = OperatorType.MANAGE)
+    @PostMapping("/getCarGroupListForCost")
+    public ApiResponse<List<CarGroupCostVO>> getCarGroupListForCost(@RequestBody CostConfigQueryPriceDto queryPriceDto){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long companyId = loginUser.getUser().getOwnerCompany();
+            queryPriceDto.setCompanyId(companyId);
+            List<CarGroupCostVO> list=costConfigInfoService.getCarGroupListForCost(queryPriceDto,loginUser);
+            return ApiResponse.success(list);
         } catch (Exception e) {
             return ApiResponse.error("查询异常");
         }

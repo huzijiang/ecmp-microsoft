@@ -41,10 +41,13 @@ public class CostConfigQueryPriceDto {
 
     @ApiModelProperty(value = "公司Id")
     private Long companyId;
+    private Long deptId;
+    private Long userId;
 
     @ApiModelProperty(value = "包车类型")
     private String rentType;
     @ApiModelProperty(value = "服务模式(车+驾驶员,仅驾驶员,仅车)")
     private String carGroupUserMode;
+    private int flag;
 
 }

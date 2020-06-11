@@ -84,6 +84,7 @@ public class OrderVO {
     private String carPhoto;
     @ApiModelProperty(name = "orderCostDetailVO",value = "费用对象")
     private OrderCostDetailVO   orderCostDetailVO;
+    private List<OtherCostBean> orderFees;
     @ApiModelProperty(name = "isExcess",value = "是否超额:0否1超额")
     private Integer isExcess;
     @ApiModelProperty(name = "excessMoney",value = "超额金额")
