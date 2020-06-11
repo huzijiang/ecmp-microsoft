@@ -50,4 +50,7 @@ public class ApplySingleIdVO {
 
     @ApiModelProperty(name = "dispatchId", value = "dispatchId", required = true, position = 4)
     private Long dispatchId;
+
+    @ApiModelProperty(name = "Type", value = "Type", required = true, position = 4)
+    private String Type;
 }

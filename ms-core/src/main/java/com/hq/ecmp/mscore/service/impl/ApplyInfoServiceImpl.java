@@ -2317,9 +2317,11 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      */
     private void updateOrderAddressInfo(ApplySingleVO applySingleVO, ApplySingleIdVO applySingleIdVO, OrderAddressInfo   orderAddressInfo) {
         //上车数据
-        Long startId =orderAddressInfoMapper.selectOrderAddressInfo(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT,applySingleIdVO);
+        applySingleIdVO.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+        Long startId =orderAddressInfoMapper.selectOrderAddressInfo(applySingleIdVO);
         //下车数据
-        Long endId   =orderAddressInfoMapper.selectOrderAddressInfoTwo(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE,applySingleIdVO);
+        applySingleIdVO.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+        Long endId   =orderAddressInfoMapper.selectOrderAddressInfoTwo(applySingleIdVO);
         //修改上车数据
         OrderAddressInfo   orderAddressInfoStart = new OrderAddressInfo();
         orderAddressInfoStart.setOrderAddressId(startId);
@@ -2622,11 +2624,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             //修改创建时间
             journeyPassengerInfo.setUpdateTime(DateUtils.getNowDate());
             journeyPassengerInfoMapper.updateJourneyPassengerInfo(journeyPassengerInfo);
+        }else {
+            //创建者
+            journeyPassengerInfo.setCreateBy(applySingleVO.getUserId().toString());
+            //创建时间
+            journeyPassengerInfo.setCreateTime(DateUtils.getNowDate());
+            journeyPassengerInfoMapper.insertJourneyPassengerInfo(journeyPassengerInfo);
         }
-        //创建者
-        journeyPassengerInfo.setCreateBy(applySingleVO.getUserId().toString());
-        //创建时间
-        journeyPassengerInfo.setCreateTime(DateUtils.getNowDate());
-        journeyPassengerInfoMapper.insertJourneyPassengerInfo(journeyPassengerInfo);
     }
 }

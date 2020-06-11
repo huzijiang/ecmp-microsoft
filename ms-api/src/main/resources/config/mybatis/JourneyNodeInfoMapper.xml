@@ -143,10 +143,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="planBeginLatitude != null  and planBeginLatitude != ''">plan_begin_latitude = #{planBeginLatitude},</if>
             <if test="planEndLongitude != null ">plan_end_longitude = #{planEndLongitude},</if>
             <if test="planEndLatitude != null  and planEndLatitude != ''">plan_end_latitude = #{planEndLatitude},</if>
-            <if test="planBeginLongAddress != null  and planBeginLongAddress != ''">planBeginLongAddress = #{plan_begin_long_address},</if>
-            <if test="planBeginCityCode != null  and planBeginCityCode != ''">planBeginCityCode = #{plan_begin_city_code},</if>
-            <if test="planEndLongAddress != null  and planEndLongAddress != ''">planEndLongAddress = #{plan_end_long_address},</if>
-            <if test="planEndCityCode != null  and planEndCityCode != ''">planEndCityCode = #{plan_end_city_code},</if>
+            <if test="planBeginLongAddress != null  and planBeginLongAddress != ''">plan_begin_long_address = #{planBeginLongAddress},</if>
+            <if test="planBeginCityCode != null  and planBeginCityCode != ''">plan_begin_city_code = #{planBeginCityCode},</if>
+            <if test="planEndLongAddress != null  and planEndLongAddress != ''">plan_end_long_address = #{planEndLongAddress},</if>
+            <if test="planEndCityCode != null  and planEndCityCode != ''">plan_end_city_code = #{planEndCityCode},</if>
             <if test="itIsViaPoint != null  and itIsViaPoint != ''">it_is_via_point = #{itIsViaPoint},</if>
             <if test="vehicle != null  and vehicle != ''">vehicle = #{vehicle},</if>
             <if test="duration != null  and duration != ''">duration = #{duration},</if>
