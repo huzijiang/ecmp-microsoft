@@ -123,7 +123,7 @@ public interface ICostConfigInfoService
      * @param applyPriceDetails
      * @return
      */
-    List<ApplyPriceDetails> applySinglePriceDetails(ApplyPriceDetails applyPriceDetails);
+    CarGroupInfoVo applySinglePriceDetails(ApplyPriceDetails applyPriceDetails);
 
     List<CarGroupCostVO> getCarGroupListForCost(CostConfigQueryPriceDto queryPriceDto, LoginUser loginUser);
 }

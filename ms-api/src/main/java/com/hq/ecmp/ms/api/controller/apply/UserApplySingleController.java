@@ -294,7 +294,7 @@ public class UserApplySingleController {
     @Log(title = "获取价格计划详情", content = "获取价格计划详情",businessType = BusinessType.OTHER)
     @PostMapping("/applySinglePriceDetails")
     public ApiResponse<CarGroupInfoVo> applySinglePriceDetails(@RequestBody ApplyPriceDetails applyPriceDetail){
-        CarGroupInfoVo applyPriceDetails = new CarGroupInfoVo();
+        CarGroupInfoVo applyPriceDetails = null;
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
