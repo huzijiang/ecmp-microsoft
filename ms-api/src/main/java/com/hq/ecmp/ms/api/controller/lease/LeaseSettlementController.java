@@ -119,9 +119,9 @@ public class LeaseSettlementController {
     @ApiOperation(value = "租赁结算调度员更改结算状态")
     @PostMapping(value = "/updateLeaseSettlementState")
     @Log(title = "租赁结算调度员更改结算状态", content = "租赁结算调度员更改结算状态", businessType = BusinessType.OTHER)
-    public ApiResponse updateLeaseSettlementState(@RequestBody LeaseSettlementDto data){
+    public ApiResponse updateLeaseSettlementState(Long collectionId,String state){
         try{
-            if(leaseSettlementService.updateLeaseSettlementState(data,tokenService.getLoginUser(ServletUtils.getRequest()))>0){
+            if(leaseSettlementService.updateLeaseSettlementState(collectionId,state,tokenService.getLoginUser(ServletUtils.getRequest()))>0){
                 return ApiResponse.success();
             }
         }catch(Exception e){

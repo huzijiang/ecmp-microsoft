@@ -55,11 +55,11 @@ public interface LeaseSettlementService {
 
     /***
      *
-     * @param data
+     * @param
      * @param user
      * @return
      */
-    int updateLeaseSettlementState(LeaseSettlementDto data, LoginUser user);
+    int updateLeaseSettlementState(Long collectionId,String state, LoginUser user);
 
 
 }
