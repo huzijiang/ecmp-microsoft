@@ -3105,14 +3105,19 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String endDate = DateFormatUtils.formatDate(DateFormatUtils.DATE_FORMAT,new Date());
         Map<String,Map<String,Integer>> map = DateFormatUtils.sliceUpDateRange(startDate,endDate).stream()
                 .collect(Collectors.toMap(x->x,x->new LinkedHashMap(){{
-                    put("all",0);
-                    put("in",0);
+                    put("in_have",0);
+                    put("in_rent",0);
                     put("out",0);
                 }},(k1,k2)->k2,LinkedHashMap::new));
         orderInfoMapper.selectOrderCarGroup(companyId).stream().forEach(x->{
-            map.get(x.get("date")).put("all",map.get(x.get("date")).get("all")+1);
+            //map.get(x.get("date")).put("all",map.get(x.get("date")).get("all")+1);
             if(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN.equals(x.get("it_is_inner"))){
-                map.get(x.get("date")).put("in",map.get(x.get("date")).get("in")+1);
+                if("S001".equals(map.get("source"))){
+                    map.get(x.get("date")).put("in_have",map.get(x.get("date")).get("in_have")+1);
+                }
+                if("S002".equals(map.get("source"))|| "S003".equals(map.get("source"))){
+                    map.get(x.get("date")).put("in_rent",map.get(x.get("date")).get("in_rent")+1);
+                }
             }
             if(CarConstant.IT_IS_USE_INNER_CAR_GROUP_OUT.equals(x.get("it_is_inner"))){
                 map.get(x.get("date")).put("out",map.get(x.get("date")).get("out")+1);
