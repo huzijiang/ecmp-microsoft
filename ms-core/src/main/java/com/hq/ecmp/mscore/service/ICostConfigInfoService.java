@@ -1,8 +1,10 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
 import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.*;
+import com.hq.ecmp.mscore.vo.CarGroupCostVO;
 import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.vo.PriceOverviewVO;
 import com.hq.ecmp.mscore.vo.SupplementVO;
@@ -112,7 +114,7 @@ public interface ICostConfigInfoService
 
     List<ValidDoubleDtoResult> checkCharteredCost(CostConfigQueryDoubleValidDto costConfigQueryDto);
 
-    List<PriceOverviewVO> getGroupPrice(CostConfigQueryPriceDto queryPriceDto);
+    List<PriceOverviewVO> getGroupPrice(CostConfigQueryPriceDto queryPriceDto, LoginUser loginUser);
 
     List<CityInfo> getCostCityList(Long companyId);
 
@@ -122,4 +124,6 @@ public interface ICostConfigInfoService
      * @return
      */
     CarGroupInfoVo applySinglePriceDetails(ApplyPriceDetails applyPriceDetails);
+
+    List<CarGroupCostVO> getCarGroupListForCost(CostConfigQueryPriceDto queryPriceDto, LoginUser loginUser);
 }

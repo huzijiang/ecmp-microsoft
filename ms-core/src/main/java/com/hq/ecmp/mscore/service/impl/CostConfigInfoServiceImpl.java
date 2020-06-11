@@ -2,8 +2,10 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
+import com.hq.api.system.domain.SysRole;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.cost.*;
@@ -356,10 +358,10 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     }
 
     @Override
-    public List<PriceOverviewVO> getGroupPrice(CostConfigQueryPriceDto queryPriceDto) {
+    public List<PriceOverviewVO> getGroupPrice(CostConfigQueryPriceDto queryPriceDto, LoginUser loginUser) {
         List<PriceOverviewVO> result=new ArrayList<>();
         List<CarGroupCostVO> list=costConfigCityInfoMapper.findGroupByCity(queryPriceDto);
-        List<CarGroupCostVO> grouplist=costConfigCarGroupInfoMapper.selectGroupByCityCode(queryPriceDto);
+        List<CarGroupCostVO> grouplist =this.getCarGroupListForCost(queryPriceDto,loginUser);
         result.add(new PriceOverviewVO("0",grouplist));
         result.add(new PriceOverviewVO("1",grouplist));
         if (!CollectionUtils.isEmpty(list)){
@@ -433,5 +435,24 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
         applyPriceDetails.setServiceType(ServiceTypeConstant.CHARTERED);
         List<ApplyPriceDetails> list =  costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
         return null;
+    }
+
+    @Override
+    public List<CarGroupCostVO> getCarGroupListForCost(CostConfigQueryPriceDto queryPriceDto, LoginUser loginUser) {
+        List<SysRole> roles = loginUser.getUser().getRoles();
+        List<SysRole> dispatcherRole = roles.stream().filter(p -> RoleConstant.DISPATCHER.equals(p.getRoleKey())).collect(Collectors.toList());
+        List<SysRole> adminRole = roles.stream().filter(p -> RoleConstant.ADMIN.equals(p.getRoleKey())||RoleConstant.SUB_ADMIN.equals(p.getRoleKey())).collect(Collectors.toList());
+        int flag=1;
+        if (!CollectionUtils.isEmpty(dispatcherRole)){
+            flag=2;
+        }
+        if (!CollectionUtils.isEmpty(adminRole)){
+            flag=3;
+        }
+        queryPriceDto.setFlag(flag);
+        queryPriceDto.setUserId(loginUser.getUser().getUserId());
+        queryPriceDto.setDeptId(loginUser.getUser().getDeptId());
+        List<CarGroupCostVO> grouplist=costConfigCarGroupInfoMapper.selectGroupByCityCode(queryPriceDto);
+        return grouplist;
     }
 }

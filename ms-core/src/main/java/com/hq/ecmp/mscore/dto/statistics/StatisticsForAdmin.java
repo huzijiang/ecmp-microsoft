@@ -37,5 +37,8 @@ public class StatisticsForAdmin {
     //车队名字
     @ApiModelProperty(value = "车队名字")
     private String carGroupName;
+    //公司id
+    @ApiModelProperty(value = "公司id")
+    private Long companyId;
 
 }

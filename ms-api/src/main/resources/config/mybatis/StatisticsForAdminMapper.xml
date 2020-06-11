@@ -16,6 +16,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  ecmp_user eu  ON eu.user_id = oi.user_id
 		LEFT JOIN  ecmp_org eo   ON eo.dept_id  = eu.dept_id
 		where osti.state in ('S699','S900')
+		and oi.company_id = #{companyId}
         <if test="beginDate!=null and '' != beginDate">
             and  ji.end_date &gt;= #{beginDate}
         </if>
@@ -38,6 +39,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         LEFT JOIN  ecmp_user eu  ON eu.user_id = oi.user_id
         LEFT JOIN  ecmp_org eo   ON eo.dept_id  = eu.dept_id
         where osti.state in ('S699','S900')
+		and oi.company_id = #{companyId}
 		<if test="beginDate!=null and '' != beginDate">
 			and  ji.end_date &gt;= #{beginDate}
 		</if>
@@ -66,6 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
 		where osti.state in ('S699','S900')
 		and cgi.it_is_inner = 'C000'
+		and oi.company_id = #{companyId}
 		<if test="beginDate!=null and '' != beginDate">
 			and  ji.end_date &gt;= #{beginDate}
 		</if>
@@ -99,6 +102,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
 		where osti.state in ('S699','S900')
 		and cgi.it_is_inner = 'C111'
+		and oi.company_id = #{companyId}
 		<if test="beginDate!=null and '' != beginDate">
 			and  ji.end_date &gt;= #{beginDate}
 		</if>
@@ -133,6 +137,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
 		where osti.state in ('S699','S900')
 		and cgi.it_is_inner = 'C000'
+		and oi.company_id = #{companyId}
 		<if test="beginDate!=null and '' != beginDate">
 			and  ji.end_date &gt;= #{beginDate}
 		</if>
@@ -163,6 +168,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
 		where osti.state in ('S699','S900')
 		and cgi.it_is_inner = 'C000'
+		and oi.company_id = #{companyId}
 		<if test="beginDate!=null and '' != beginDate">
 			and  ji.end_date &gt;= #{beginDate}
 		</if>
@@ -200,6 +206,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
 		where osti.state in ('S699','S900')
 		and cgi.it_is_inner = 'C000'
+		and oi.company_id = #{companyId}
 		<if test="beginDate!=null and '' != beginDate">
 			and  ji.end_date &gt;= #{beginDate}
 		</if>
@@ -230,6 +237,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
 		where osti.state in ('S699','S900')
 		and cgi.it_is_inner = 'C111'
+		and oi.company_id = #{companyId}
 		<if test="beginDate!=null and '' != beginDate">
 			and  ji.end_date &gt;= #{beginDate}
 		</if>
@@ -274,6 +282,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join
         (select order_id,type,address,address_long from order_address_info where type = 'A999') oai2 on  oai2.order_id = oi.order_id
 		where osti.state in ('S699','S900')
+		and oi.company_id = #{companyId}
         <if test="deptName!=null and '' != deptName">
             and  eo.dept_name = #{deptName}
         </if>
@@ -304,6 +313,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id
 		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
 		where osti.state in ('S699','S900')
+		and oi.company_id = #{companyId}
 		group by eo.dept_id
 	</select>
 
@@ -321,6 +331,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
 		where osti.state in ('S699','S900')
 		and cgi.it_is_inner = 'C000'
+		and oi.company_id = #{companyId}
 		group by ci.car_license
 	</select>
 
@@ -336,6 +347,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
 		where osti.state in ('S699','S900')
 		and cgi.it_is_inner = 'C000'
+		and oi.company_id = #{companyId}
 		group by di.driver_id
 	</select>
 
@@ -353,6 +365,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
 		where osti.state in ('S699','S900')
 		and cgi.it_is_inner = 'C000'
+		and oi.company_id = #{companyId}
 		group by ecti.name
 	</select>
 
@@ -368,6 +381,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
 		where osti.state in ('S699','S900')
 		and cgi.it_is_inner = 'C111'
+		and oi.company_id = #{companyId}
 		group by cgi.car_group_name
 	</select>
 </mapper>

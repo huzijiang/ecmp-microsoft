@@ -96,13 +96,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="plannedDepartureTime != null ">planned_departure_time = #{plannedDepartureTime},</if>
             <if test="duration != null ">duration = #{duration},</if>
             <if test="plannedArrivalTime != null ">planned_arrival_Time = #{plannedArrivalTime},</if>
-            <if test="powerId != null ">powerId = #{power_id},</if>
+            <if test="powerId != null ">power_id = #{powerId},</if>
             <if test="source != null ">source = #{source},</if>
-            <if test="createBy != null ">createBy = #{create_by},</if>
-            <if test="createTime != null ">createTime = #{create_time},</if>
-            <if test="updateBy != null ">updateBy = #{update_by},</if>
-            <if test="updateTime != null ">updateTime = #{update_time},</if>
-            <if test="useCarMode != null ">useCarMode = #{use_car_mode},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null "> update_time= #{updateTime},</if>
+            <if test="useCarMode != null "> use_car_mode= #{useCarMode},</if>
         </trim>
         where price_id = #{priceId}
     </update>
