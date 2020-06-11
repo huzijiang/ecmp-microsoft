@@ -111,6 +111,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Resource
     private IsmsBusiness ismsBusiness;
 
+    @Autowired
+    private OrderAddressInfoMapper orderAddressInfoMapper;
+
     private ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("apply-pool-%d").build();
     private ExecutorService executor = new ThreadPoolExecutor(5, 200,
             0L, TimeUnit.MILLISECONDS,
@@ -2080,7 +2083,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     }
 
     /**
-     *
+     * 提交申请单
      * @param loginUser
      * @param applySingleVO
      * @return
@@ -2172,6 +2175,189 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     }
 
     /**
+     * 修改申请单
+     * @param loginUser
+     * @param applySingleVO
+     * @return
+     */
+    @Override
+    public ApiResponse updateApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) {
+        ApiResponse apiResponse = new ApiResponse();
+        //判断上下车地点的城市是否至少有一个在服务城市集范围内
+        String startCode = applySingleVO.getStartAddr().getCityCode();
+        String endCode = applySingleVO.getEndAddr().getCityCode();
+        List<CarGroupInfo> list = carGroupServeScopeInfoMapper.getGroupIdByCode(startCode,endCode,loginUser.getUser().getDept().getCompanyId());
+        if(list.isEmpty()){
+            apiResponse.setCode(1);
+            apiResponse.setMsg("非常抱歉，您的用车申请无可服务车队，申请失败，如有问题，请联系管理员！");
+            return apiResponse;
+        }
+        //申请人id
+        applySingleVO.setUserId(loginUser.getUser().getUserId());
+        //申请人公司
+        applySingleVO.setCompanyId(loginUser.getUser().getDept().getCompanyId());
+        //获取当前申请单的制度Id
+        Long regimenId = regimeInfoMapper.queryRegimeInfoByCompanyId(loginUser.getUser().getDept().getCompanyId());
+        applySingleVO.setRegimenId(regimenId);
+        //查询所需要的id
+        ApplySingleIdVO applySingleIdVO = applyInfoMapper.getApplySingleIdVO(applySingleVO.getApplyId());
+        //1.修改乘客行程信息 journey_info表
+        JourneyInfo journeyInfo = new JourneyInfo();
+        journeyInfo.setJourneyId(applySingleIdVO.getJourneyId());
+        submitJourneyInfoCommit(applySingleVO,journeyInfo);
+        //2.保存申请信息 apply_info表
+        ApplyInfo applyInfo = new ApplyInfo();
+        applyInfo.setApplyId(applySingleVO.getApplyId());
+        submitApplyInfoCommit(applySingleVO, journeyInfo.getJourneyId(), applyInfo);
+        //3.保存行程节点信息 journey_node_info表
+        JourneyNodeInfo journeyNodeInfo = new JourneyNodeInfo();
+        journeyNodeInfo.setNodeId(applySingleIdVO.getNodeId());
+        submitJourneyNodeInfoCommit(applySingleVO, journeyInfo.getJourneyId(), journeyNodeInfo);
+        //4.保存行程乘客信息 journey_passenger_info表
+        JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
+        journeyPassengerInfo.setJourneyPassengerId(applySingleIdVO.getJourneyPassengerId());
+        submitJourneyPassengerInfoCommit(applySingleVO, journeyInfo.getJourneyId(), journeyPassengerInfo);
+        //5.新增可用车型表信息
+        List<UseCarTypeVO> canUseCarTypes = regimeInfoMapper.getCanUseCarTypes(regimenId,loginUser.getUser().getDept().getCompanyId());
+        for (UseCarTypeVO useCarTypeVO :canUseCarTypes){
+            useCarTypeVO.setCityCode(applySingleVO.getStartAddr().getCityCode());
+        }
+        //-----先删除后增加
+        applyUseCarTypeMapper.deleteApplyUseCarTypeById(applySingleVO.getApplyId());
+        saveCanUseCarTypeInfo(applyInfo.getApplyId(), canUseCarTypes);
+        //修改订单地址表
+        OrderAddressInfo   orderAddressInfo = new OrderAddressInfo();
+        updateOrderAddressInfo(applySingleVO,applySingleIdVO , orderAddressInfo);
+        // 6.行程预算价表
+        JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+        journeyPlanPriceInfo.setPriceId(applySingleIdVO.getPriceId());
+        submitJourneyPlanPriceInfoCommit(applySingleVO,journeyInfo.getJourneyId(),journeyNodeInfo.getNodeId(),journeyPlanPriceInfo,applySingleIdVO.getOrderId());
+        //新增下车多个地址表数据
+        //先做删除在做新增
+        applyInfoMapper.deleteJourneyAddressInfo(applySingleIdVO.getJourneyId());
+        JourneyAddressInfoDto journeyAddressInfoDto = new JourneyAddressInfoDto();
+        if(!applySingleVO.getMultipleDropAddress().isEmpty()) {
+            List<AddressVO> addressInfo = applySingleVO.getMultipleDropAddress();
+            for (AddressVO addressVO : addressInfo) {
+                journeyAddressInfoDto.setJourneyId(journeyInfo.getJourneyId());
+                journeyAddressInfoDto.setAddressInfo(addressVO.getAddress());
+                journeyAddressInfoDto.setCreateBy(String.valueOf(applySingleVO.getUserId()));
+                journeyAddressInfoDto.setCreateTime(DateUtils.getNowDate());
+                int f  = applyInfoMapper.insertJourneyAddressInfo(journeyAddressInfoDto);
+            }
+        }
+        //7.修改包车调度详情  order_dispatche_detail_info
+        OrderDispatcheDetailInfo orderDispatcheDetailInfo = new OrderDispatcheDetailInfo();
+        orderDispatcheDetailInfo.setOrderId(applySingleIdVO.getOrderId());
+        //包车类型
+        String  halfDayRent = "0.5";  //半日租
+        String  fullDayRent = "1";    //整日租
+        if(CarConstant.RETURN_ZERO_CODE.equals(applySingleVO.getApplyDays().compareTo(halfDayRent))){
+            //半日
+            orderDispatcheDetailInfo.setCharterCarType(CharterTypeEnum.HALF_DAY_TYPE.getKey());
+        }else if(CarConstant.RETURN_ZERO_CODE.equals(applySingleVO.getApplyDays().compareTo(fullDayRent))){
+            //整日
+            orderDispatcheDetailInfo.setCharterCarType(CharterTypeEnum.OVERALL_RENT_TYPE.getKey());
+        }else{
+            //多日
+            orderDispatcheDetailInfo.setCharterCarType(CharterTypeEnum.MORE_RENT_TYPE.getKey());
+        }
+        //orderDispatcheDetailInfo.setCharterCarType(journeyInfo.getCharterCarType());
+        orderDispatcheDetailInfo.setCreateBy(String.valueOf(applySingleVO.getUserId()));
+        orderDispatcheDetailInfo.setCreateTime(DateUtils.getNowDate());
+        orderDispatcheDetailInfo.setDispatchId(applySingleIdVO.getDispatchId().intValue());
+        int i = orderDispatcheDetailInfoMapper.updateOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
+        if(i == 1){
+            apiResponse.setMsg("修改申请单成功");
+        }else {
+            apiResponse.setMsg("修改申请单失败");
+        }
+        return apiResponse;
+    }
+
+    /**
+     * 申请单详情
+     * @param applyId
+     * @return
+     */
+    @Override
+    public ApplySingleVO getApplyInfoDetail(Long applyId) {
+        ApplySingleVO  applySingleVO=applyInfoMapper.getApplyInfoDetail(applyId);
+        if(applySingleVO!=null){
+            JourneyNodeInfo journeyNodeInfo = journeyNodeInfoMapper.selectJourneyNodeInfoByJourneyId(applySingleVO.getJourneyId());
+            AddressVO startAddr = new AddressVO();
+            startAddr.setAddress(journeyNodeInfo.getPlanBeginAddress());
+            startAddr.setCityCode(journeyNodeInfo.getPlanBeginCityCode());
+            startAddr.setLatitude(journeyNodeInfo.getPlanBeginLatitude());
+            startAddr.setLongAddress(journeyNodeInfo.getPlanBeginLongAddress());
+            startAddr.setLongitude(journeyNodeInfo.getPlanBeginLongitude());
+            applySingleVO.setStartAddr(startAddr);
+            AddressVO endAddr = new AddressVO();
+            endAddr.setAddress(journeyNodeInfo.getPlanEndAddress());
+            endAddr.setCityCode(journeyNodeInfo.getPlanEndCityCode());
+            endAddr.setLatitude(journeyNodeInfo.getPlanEndLatitude());
+            endAddr.setLongAddress(journeyNodeInfo.getPlanEndLongAddress());
+            endAddr.setLongitude(journeyNodeInfo.getPlanEndLongitude());
+            applySingleVO.setEndAddr(endAddr);
+            UserVO userVO =new UserVO();
+            userVO.setUserName(applySingleVO.getUserName());
+            userVO.setUserPhone(applySingleVO.getUserPhone());
+            applySingleVO.setPassenger(userVO);
+            List<AddressVO> list = applyInfoMapper.getJourneyAddressInfoByJourneyId(applySingleVO.getJourneyId());
+            applySingleVO.setMultipleDropAddress(list);
+        }
+        return applySingleVO;
+    }
+
+    /**
+     * 修改订单地址表数据
+     * @param applySingleVO
+     * @param applySingleIdVO
+     * @param orderAddressInfo
+     */
+    private void updateOrderAddressInfo(ApplySingleVO applySingleVO, ApplySingleIdVO applySingleIdVO, OrderAddressInfo   orderAddressInfo) {
+        //上车数据
+        applySingleIdVO.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+        Long startId =orderAddressInfoMapper.selectOrderAddressInfo(applySingleIdVO);
+        //下车数据
+        applySingleIdVO.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+        Long endId   =orderAddressInfoMapper.selectOrderAddressInfoTwo(applySingleIdVO);
+        //修改上车数据
+        OrderAddressInfo   orderAddressInfoStart = new OrderAddressInfo();
+        orderAddressInfoStart.setOrderAddressId(startId);
+        orderAddressInfoStart.setUserId(applySingleVO.getUserId().toString());
+        orderAddressInfoStart.setCityPostalCode(applySingleVO.getStartAddr().getCityCode());
+        orderAddressInfoStart.setActionTime(applySingleVO.getApplyDate());
+        orderAddressInfoStart.setAddress(applySingleVO.getStartAddr().getAddress());
+        orderAddressInfoStart.setAddressLong(applySingleVO.getStartAddr().getLongAddress());
+        orderAddressInfoStart.setLatitude(Double.valueOf(applySingleVO.getStartAddr().getLatitude()));
+        orderAddressInfoStart.setLongitude(Double.valueOf(applySingleVO.getStartAddr().getLongitude()));
+        orderAddressInfoStart.setUpdateBy(applySingleVO.getUserId().toString());
+        orderAddressInfoStart.setUpdateTime(DateUtils.getNowDate());
+        orderAddressInfoMapper.updateOrderAddressInfo(orderAddressInfoStart);
+        //修改下车数据
+        OrderAddressInfo   orderAddressInfoEnd   = new OrderAddressInfo();
+        orderAddressInfoEnd.setOrderAddressId(endId);
+        orderAddressInfoEnd.setUserId(applySingleVO.getUserId().toString());
+        orderAddressInfoEnd.setCityPostalCode(applySingleVO.getEndAddr().getCityCode());
+        Long day = Math.round(Double.valueOf(applySingleVO.getApplyDays()));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(applySingleVO.getApplyDate());
+        calendar.add(Calendar.DATE, day.intValue()-1);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        orderAddressInfoEnd.setActionTime(calendar.getTime());
+        orderAddressInfoEnd.setAddress(applySingleVO.getEndAddr().getAddress());
+        orderAddressInfoEnd.setAddressLong(applySingleVO.getEndAddr().getLongAddress());
+        orderAddressInfoEnd.setLatitude(Double.valueOf(applySingleVO.getEndAddr().getLatitude()));
+        orderAddressInfoEnd.setLongitude(Double.valueOf(applySingleVO.getEndAddr().getLongitude()));
+        orderAddressInfoEnd.setUpdateBy(applySingleVO.getUserId().toString());
+        orderAddressInfoEnd.setUpdateTime(DateUtils.getNowDate());
+        orderAddressInfoMapper.updateOrderAddressInfo(orderAddressInfoEnd);
+    }
+
+    /**
      *  申请单行程预算价表
      * @param applySingleVO
      * @param journeyId
@@ -2203,11 +2389,19 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyPlanPriceInfo.setDuration(day.intValue()*24*60);
         //预算价来源平台
         journeyPlanPriceInfo.setSource("无");
-        //创建者
-        journeyPlanPriceInfo.setCreateBy(applySingleVO.getUserId().toString());
-        //创建时间
-        journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
-        journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+        if (null != journeyPlanPriceInfo.getPriceId()){
+            //修改创建者
+            journeyPlanPriceInfo.setUpdateBy(applySingleVO.getUserId().toString());
+            //修改创建时间
+            journeyPlanPriceInfo.setUpdateTime(DateUtils.getNowDate());
+            journeyPlanPriceInfoMapper.updateJourneyPlanPriceInfo(journeyPlanPriceInfo);
+        }else{
+            //创建者
+            journeyPlanPriceInfo.setCreateBy(applySingleVO.getUserId().toString());
+            //创建时间
+            journeyPlanPriceInfo.setCreateTime(DateUtils.getNowDate());
+            journeyPlanPriceInfoMapper.insertJourneyPlanPriceInfo(journeyPlanPriceInfo);
+        }
     }
 
     /**
@@ -2287,11 +2481,19 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyInfo.setEndDate(calendar.getTime());
         //行程标题
         journeyInfo.setTitle("包车申请单");
-        //创建者
-        journeyInfo.setCreateBy(applySingleVO.getUserId().toString());
-        //创建时间
-        journeyInfo.setCreateTime(DateUtils.getNowDate());
-        journeyInfoMapper.insertJourneyInfo(journeyInfo);
+        if(null != journeyInfo.getJourneyId()){
+            //修改者
+            journeyInfo.setCreateBy(applySingleVO.getUserId().toString());
+            //修改时间
+            journeyInfo.setCreateTime(DateUtils.getNowDate());
+            journeyInfoMapper.updateJourneyInfo(journeyInfo);
+        }else{
+            //创建者
+            journeyInfo.setCreateBy(applySingleVO.getUserId().toString());
+            //创建时间
+            journeyInfo.setCreateTime(DateUtils.getNowDate());
+            journeyInfoMapper.insertJourneyInfo(journeyInfo);
+        }
     }
 
     /**
@@ -2325,11 +2527,19 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setNotes(applySingleVO.getNotes());
         //是否安全提醒  Y000  是，安全提醒已勾选      N111  否，安全提醒未勾选
         applyInfo.setSafeRemind(applySingleVO.getSafeRemind());
-        // create_by 创建者
-        applyInfo.setCreateBy(applySingleVO.getUserId().toString());
-        //create_time 创建时间
-        applyInfo.setCreateTime(DateUtils.getNowDate());
-        applyInfoMapper.insertApplyInfo(applyInfo);
+        if (null != applyInfo.getApplyId()){
+            // update_by 修改创建者
+            applyInfo.setUpdateBy(applySingleVO.getUserId().toString());
+            //update_time 修改创建时间
+            applyInfo.setUpdateTime(DateUtils.getNowDate());
+            applyInfoMapper.updateApplyInfo(applyInfo);
+        }else {
+            // create_by 创建者
+            applyInfo.setCreateBy(applySingleVO.getUserId().toString());
+            //create_time 创建时间
+            applyInfo.setCreateTime(DateUtils.getNowDate());
+            applyInfoMapper.insertApplyInfo(applyInfo);
+        }
     }
 
     /**
@@ -2376,11 +2586,19 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyNodeInfo.setNodeState(CommonConstant.VALID_NODE);
         ///节点在 在整个行程 中的顺序编号 从  1  开始   节点编号单独判断
         journeyNodeInfo.setNumber(CarConstant.RETURN_ONE_CODE);
-        //创建者
-        journeyNodeInfo.setCreateBy(applySingleVO.getUserId().toString());
-        //创建时间
-        journeyNodeInfo.setCreateTime(DateUtils.getNowDate());
-        journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
+        if (null != journeyNodeInfo.getNodeId()){
+            //修改创建者
+            journeyNodeInfo.setUpdateBy(applySingleVO.getUserId().toString());
+            //修改创建时间
+            journeyNodeInfo.setUpdateTime(DateUtils.getNowDate());
+            journeyNodeInfoMapper.updateJourneyNodeInfo(journeyNodeInfo);
+        }else {
+            //创建者
+            journeyNodeInfo.setCreateBy(applySingleVO.getUserId().toString());
+            //创建时间
+            journeyNodeInfo.setCreateTime(DateUtils.getNowDate());
+            journeyNodeInfoMapper.insertJourneyNodeInfo(journeyNodeInfo);
+        }
         }
 
     /**
@@ -2400,10 +2618,18 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         journeyPassengerInfo.setItIsPeer(CommonConstant.IS_PEER);
         //同行人数
         journeyPassengerInfo.setPeerNumber(applySingleVO.getPeerNumber());
-        //创建者
-        journeyPassengerInfo.setCreateBy(applySingleVO.getUserId().toString());
-        //创建时间
-        journeyPassengerInfo.setCreateTime(DateUtils.getNowDate());
-        journeyPassengerInfoMapper.insertJourneyPassengerInfo(journeyPassengerInfo);
+        if (null != journeyPassengerInfo.getJourneyPassengerId()){
+            //修改创建者
+            journeyPassengerInfo.setUpdateBy(applySingleVO.getUserId().toString());
+            //修改创建时间
+            journeyPassengerInfo.setUpdateTime(DateUtils.getNowDate());
+            journeyPassengerInfoMapper.updateJourneyPassengerInfo(journeyPassengerInfo);
+        }else {
+            //创建者
+            journeyPassengerInfo.setCreateBy(applySingleVO.getUserId().toString());
+            //创建时间
+            journeyPassengerInfo.setCreateTime(DateUtils.getNowDate());
+            journeyPassengerInfoMapper.insertJourneyPassengerInfo(journeyPassengerInfo);
+        }
     }
 }

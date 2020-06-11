@@ -23,7 +23,7 @@
     <select id="queryById" resultMap="EcmpMessageMap">
         select
           id, config_type, ecmp_id,category_id,apply_id, type, status,content, category, url, create_by, create_time, update_by, update_time
-        from ecmp.ecmp_message
+        from ecmp_message
         where id = #{id}
     </select>
 
@@ -31,7 +31,7 @@
     <select id="queryAllByLimit" resultMap="EcmpMessageMap">
         select
           id, config_type, ecmp_id, category_id,apply_id,type, status, category, url, create_by, create_time, update_by, update_time,content
-        from ecmp.ecmp_message
+        from ecmp_message
         limit #{offset}, #{limit}
     </select>
 
@@ -39,7 +39,7 @@
     <select id="queryAll" resultMap="EcmpMessageMap">
         select
           id, config_type, ecmp_id,category_id, type, status, category, url, create_by, create_time, update_by, update_time,content
-        from ecmp.ecmp_message
+        from ecmp_message
         <where>
             <if test="id != null">
                 and id = #{id}
@@ -121,7 +121,7 @@
 
     <!--通过主键修改数据-->
     <update id="update">
-        update ecmp.ecmp_message
+        update ecmp_message
         <set>
             <if test="configType != null">
                 config_type = #{configType},
@@ -168,13 +168,13 @@
 
     <!--通过主键删除-->
     <delete id="deleteById">
-        delete from ecmp.ecmp_message where id = #{id}
+        delete from ecmp_message where id = #{id}
     </delete>
 
     <select id="queryMessageList" parameterType="Object" resultMap="EcmpMessageMap">
         select
           id, config_type, ecmp_id,category_id,apply_id, type, status,content, category, url, create_by, create_time, update_by, update_time
-        from ecmp.ecmp_message
+        from ecmp_message
         where ecmp_id = #{ecmpId}
         <if test="configTypeList!=null">
             and

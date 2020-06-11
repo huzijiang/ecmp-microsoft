@@ -53,9 +53,9 @@ public class ReckoningController {
             reckoningInfo.setCreateBy(userId);
             reckoningInfo.setState(CollectionQuittanceEnum.COLLECTION_WAIT.getKey());
             reckoningInfo.setCarGroupId(param.getEcmpId());
-            reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
-            reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
-            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+//            reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+//            reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+//            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setCollectionId(param.getCollectionId());
 
             collectionService.addReckoning(reckoningInfo);
@@ -87,9 +87,9 @@ public class ReckoningController {
             reckoningInfo.setCreateBy(userId);
             reckoningInfo.setState(CollectionQuittanceEnum.COLLECTION_WAIT.getKey());
             reckoningInfo.setCarGroupId(param.getEcmpId());
-            reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
-            reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
-            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+//            reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+//            reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
+//            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setCollectionId(param.getCollectionId());
             collectionService.downloadReckoning(reckoningInfo);
             return ApiResponse.success("下载收款");

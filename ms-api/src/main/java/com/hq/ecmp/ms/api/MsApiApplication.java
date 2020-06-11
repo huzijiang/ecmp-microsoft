@@ -26,7 +26,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class MsApiApplication<author> {
 
     public static void main(String[] args) {
-
         SpringApplication.run(MsApiApplication.class, args);
     }
 

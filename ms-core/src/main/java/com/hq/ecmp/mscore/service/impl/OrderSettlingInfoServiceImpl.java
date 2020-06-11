@@ -1,6 +1,8 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Maps;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
@@ -14,6 +16,7 @@ import com.hq.ecmp.mscore.dto.cost.CostConfigQueryDto;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.CostCalculation;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
+import com.hq.ecmp.mscore.vo.OtherCostBean;
 import com.hq.ecmp.util.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
+
+import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
 
 /**
@@ -619,5 +624,38 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             myResult = false;
             return this;
         }
+    }
+
+    @Override
+    public Map<String,Object> getOrderFee(OrderSettlingInfo orderSettlingInfo){
+        Map<String,Object> result= Maps.newHashMap();
+        List<OtherCostBean> otherCostBeans=new ArrayList<>();
+        String amount=null;
+        String totalMileage=null;
+        String totalTime=null;
+        if (orderSettlingInfo!=null){
+            amount = orderSettlingInfo.getAmount() == null ? null : orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString();
+            totalMileage=orderSettlingInfo.getTotalMileage()==null?String.valueOf(ZERO):orderSettlingInfo.getTotalMileage().stripTrailingZeros().toPlainString();
+            totalTime=orderSettlingInfo.getTotalTime()==null?String.valueOf(ZERO):orderSettlingInfo.getTotalTime().stripTrailingZeros().toPlainString();
+            String amountDetail = orderSettlingInfo.getAmountDetail();
+            String outPrice = orderSettlingInfo.getOutPrice();
+            if (StringUtils.isNotEmpty(amountDetail)) {
+                JSONObject jsonObject = JSONObject.parseObject(amountDetail);
+                String otherCostJson = jsonObject.getString("otherCost");
+                List<OtherCostBean> amountDetailList = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
+                otherCostBeans.addAll(amountDetailList);
+            }
+            if (StringUtils.isNotEmpty(outPrice)) {
+                JSONObject jsonObject = JSONObject.parseObject(outPrice);
+                String otherCostJson = jsonObject.getString("otherCost");
+                List<OtherCostBean> outPriceList = JSONObject.parseArray(otherCostJson, OtherCostBean.class);
+                otherCostBeans.addAll(outPriceList);
+            }
+        }
+        result.put("amount",amount);
+        result.put("totalMileage",totalMileage);
+        result.put("totalTime",totalTime);
+        result.put("otherCostBeans",otherCostBeans);
+        return result;
     }
 }

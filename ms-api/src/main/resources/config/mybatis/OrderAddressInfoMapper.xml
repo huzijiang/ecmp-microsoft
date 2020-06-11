@@ -106,7 +106,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateOrderAddressInfo" parameterType="com.hq.ecmp.mscore.domain.OrderAddressInfo">
         update order_address_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="orderId != null ">order_id = #{orderId},</if>
+            <if test="orderId != null and orderId != '' ">order_id = #{orderId},</if>
             <if test="journeyId != null ">journey_id = #{journeyId},</if>
             <if test="nodeId != null ">node_id = #{nodeId},</if>
             <if test="powerId != null ">power_id = #{powerId},</if>
@@ -200,4 +200,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                     jai.journey_id
     </select>
 
+    <select id="selectOrderAddressInfo" parameterType="com.hq.ecmp.mscore.vo.ApplySingleIdVO" resultType="java.lang.Long">
+
+        select  order_address_id  startId from order_address_info where type =#{type} and order_id =#{orderId} and journey_id =#{journeyId}
+    </select>
+
+    <select id="selectOrderAddressInfoTwo" parameterType="com.hq.ecmp.mscore.vo.ApplySingleIdVO" resultType="java.lang.Long">
+
+        select  order_address_id  endId from order_address_info where type =#{type} and order_id =#{orderId} and journey_id =#{journeyId}
+    </select>
 </mapper>
