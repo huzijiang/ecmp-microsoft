@@ -17,9 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author ghb
@@ -35,6 +33,7 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
     @Autowired
     private StatisticsForAdminMapper statisticsForAdminMapper;
 
+    //出车次数排行
     @Override
     public ApiResponse driverOutranking(StatisticsForAdmin statisticsForAdmin) {
         ApiResponse apiResponse = new ApiResponse();
@@ -62,6 +61,8 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         return apiResponse;
     }
 
+
+    //用车费用排行
     @Override
     public ApiResponse vehicleExpenses(StatisticsForAdmin statisticsForAdmin) {
         ApiResponse apiResponse = new ApiResponse();
@@ -89,6 +90,7 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         return apiResponse;
     }
 
+    //单位用车统计
     @Override
     public ApiResponse unitVehicle(StatisticsForAdmin statisticsForAdmin) {
 
@@ -107,7 +109,7 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
             List<StatisticsForAdminVo> unitVehicleByOut = statisticsForAdminMapper.unitVehicleByOut(statisticsForAdmin);
             for(StatisticsForAdminVo statistics : list){
                 for(StatisticsForAdminVo statisticsForAdminVo : unitVehicleByOut){
-                    if(statistics.getDeptName().equals(statisticsForAdminVo.getDeptName())){
+                    if(null != statisticsForAdminVo && statistics.getDeptName().equals(statisticsForAdminVo.getDeptName())){
                         statistics.setAmountByOut(statisticsForAdminVo.getAmountByOut());
                         statistics.setUseTimesByOut(statisticsForAdminVo.getUseTimesByOut());
                         statistics.setOrdersByOut(statisticsForAdminVo.getOrdersByOut());
@@ -128,6 +130,8 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         return apiResponse;
     }
 
+
+    //机关车辆使用统计
     @Override
     public ApiResponse useOfMechanismVehicles(StatisticsForAdmin statisticsForAdmin) {
 
@@ -152,6 +156,7 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
 
     }
 
+    //驾驶员出车统计
     @Override
     public ApiResponse driverOut(StatisticsForAdmin statisticsForAdmin) {
 
@@ -182,6 +187,7 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         return null;
     }
 
+    //车型使用统计
     @Override
     public ApiResponse modelUse(StatisticsForAdmin statisticsForAdmin) {
 
@@ -206,6 +212,7 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         return apiResponse;
     }
 
+    //租赁情况统计
     @Override
     public ApiResponse leasing(StatisticsForAdmin statisticsForAdmin) {
 
@@ -229,6 +236,7 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         return apiResponse;
     }
 
+    //详情统计
     @Override
     public ApiResponse details(StatisticsForAdmin statisticsForAdmin) {
 
