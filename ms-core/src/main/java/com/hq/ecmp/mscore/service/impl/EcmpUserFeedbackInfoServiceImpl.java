@@ -14,6 +14,7 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
+import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
 import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
 import com.hq.ecmp.mscore.dto.OrderInfoDTO;
 import com.hq.ecmp.mscore.mapper.*;
@@ -385,15 +386,21 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
 
 
     @Override
-    public List<EcmpUserFeedbackVo> findFeedback(EcmpUserFeedbackInfo ecmpUserFeedbackInfo) {
+    public PageResult<EcmpUserFeedbackVo> findFeedback(EcmpUserFeedbackInfo ecmpUserFeedbackInfo) {
+
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         int admin = HqAdmin.isAdmin(loginUser);
         ecmpUserFeedbackInfo.setIsAdmin(admin);
         ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
+        Integer count = ecmpUserFeedbackInfoMapper.findCountFeedback(ecmpUserFeedbackInfo);
         List<EcmpUserFeedbackVo> backInfoList =  ecmpUserFeedbackInfoMapper.findFeedback(ecmpUserFeedbackInfo);
-        return backInfoList;
+        PageHelper.startPage(ecmpUserFeedbackInfo.getPageIndex(),ecmpUserFeedbackInfo.getPageSize());
+        PageInfo<EcmpUserFeedbackVo> info = new PageInfo<>(backInfoList);
+        return new PageResult<>(info.getTotal(),info.getPages(),backInfoList);
     }
+
+
 
 
 }

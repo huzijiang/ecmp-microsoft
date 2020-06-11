@@ -65,4 +65,6 @@ public class ApplyPriceDetails {
     private String itIsSelfDriver;
     @ApiModelProperty(value = "车型id")
     private  Long carTypeId;
+    @ApiModelProperty(value = "部门id")
+    private Long deptId;
 }

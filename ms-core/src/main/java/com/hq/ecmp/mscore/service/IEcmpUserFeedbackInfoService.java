@@ -90,5 +90,7 @@ public interface IEcmpUserFeedbackInfoService
 
     int updateFeedback(EcmpUserFeedbackInfoVo feedBackDto);
 
-    List<EcmpUserFeedbackVo> findFeedback(EcmpUserFeedbackInfo ecmpUserFeedbackInfo);
+    PageResult<EcmpUserFeedbackVo> findFeedback(EcmpUserFeedbackInfo ecmpUserFeedbackInfo);
+
+
 }

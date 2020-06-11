@@ -2,8 +2,10 @@ package com.hq.ecmp.mscore.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
+import com.hq.api.system.domain.SysRole;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.cost.*;
@@ -46,6 +48,8 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     private CostConfigCarGroupInfoMapper costConfigCarGroupInfoMapper;
     @Resource
     private EnterpriseCarTypeInfoMapper enterpriseCarTypeInfoMapper;
+    @Resource
+    private CarGroupInfoMapper carGroupInfoMapper;
 
     /**
      * 通过id查询成本配置信息
@@ -356,10 +360,10 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     }
 
     @Override
-    public List<PriceOverviewVO> getGroupPrice(CostConfigQueryPriceDto queryPriceDto) {
+    public List<PriceOverviewVO> getGroupPrice(CostConfigQueryPriceDto queryPriceDto, LoginUser loginUser) {
         List<PriceOverviewVO> result=new ArrayList<>();
         List<CarGroupCostVO> list=costConfigCityInfoMapper.findGroupByCity(queryPriceDto);
-        List<CarGroupCostVO> grouplist=costConfigCarGroupInfoMapper.selectGroupByCityCode(queryPriceDto);
+        List<CarGroupCostVO> grouplist =this.getCarGroupListForCost(queryPriceDto,loginUser);
         result.add(new PriceOverviewVO("0",grouplist));
         result.add(new PriceOverviewVO("1",grouplist));
         if (!CollectionUtils.isEmpty(list)){
@@ -404,10 +408,15 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
     /**
      * 获取价格计划详情
      * @param applyPriceDetails
+     * @param loginUser 
      * @return
      */
     @Override
-    public List<ApplyPriceDetails> applySinglePriceDetails(ApplyPriceDetails applyPriceDetails) {
+    public List<CarGroupInfoVo>  applySinglePriceDetails(ApplyPriceDetails applyPriceDetails, LoginUser loginUser) {
+        Long companyId = loginUser.getUser().getOwnerCompany();
+        applyPriceDetails.setCompanyId(companyId);
+        Long deptId = loginUser.getUser().getDeptId();
+        applyPriceDetails.setDeptId(deptId);
         String rentType ="";
         String carGroupUserMode ="";
         //包车类型
@@ -420,7 +429,7 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
             //整日
             rentType =CharterTypeEnum.OVERALL_RENT_TYPE.getKey();
         }else{
-            rentType =CharterTypeEnum.OVERALL_RENT_TYPE.getKey()+","+CharterTypeEnum.HALF_DAY_TYPE.getKey();
+            rentType =CharterTypeEnum.MORE_RENT_TYPE.getKey();
         }
         applyPriceDetails.setRentType(rentType);
        //判断用车方式
@@ -430,8 +439,91 @@ public class CostConfigInfoServiceImpl implements ICostConfigInfoService
            carGroupUserMode=CarConstant.CAR_GROUP_USER_MODE_CAR_DRIVER;
        }
         applyPriceDetails.setCarGroupUserMode(carGroupUserMode);
-        applyPriceDetails.setServiceType(ServiceTypeConstant.CHARTERED);
-        List<ApplyPriceDetails> list =  costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
-        return list;
+        List<CarGroupInfoVo> carGroups = getCarGroups(applyPriceDetails);
+        return carGroups;
+    }
+
+    public List<CarGroupInfoVo>  getCarGroups(ApplyPriceDetails applyPriceDetails){
+        List<CarGroupInfo> carGroupInfos = new ArrayList<>();
+        List<CarGroupInfoVo> carGroupInfoVos = new ArrayList<>();
+        Long deptId = applyPriceDetails.getDeptId();
+        String charterCarType = applyPriceDetails.getRentType();
+        String useTime = applyPriceDetails.getApplyDays();
+        if (deptId != null) {
+            //获取车队列表
+            carGroupInfos = carGroupInfoMapper.dispatcherCarGroupList(deptId);
+            if(carGroupInfos.size()>0){
+                Iterator<CarGroupInfo> iterator = carGroupInfos.iterator();
+                while(iterator.hasNext()){
+                    CarGroupInfoVo carGroupInfoVo = new CarGroupInfoVo();
+                    CarGroupInfo next = iterator.next();
+                    carGroupInfoVo.setCarGroupId(next.getCarGroupId());
+                    carGroupInfoVo.setCarGroupName(next.getCarGroupName());
+                    applyPriceDetails.setCarGroupId(next.getCarGroupId());
+                    List<ApplyPriceDetails> applyPriceDetails1 = new ArrayList<>();
+                    if (charterCarType.equals(CharterTypeEnum.HALF_DAY_TYPE.getKey())||charterCarType.equals(CharterTypeEnum.OVERALL_RENT_TYPE.getKey())){
+                        ApplyPriceDetails costConfigInfos = costConfigInfoMapper.selectCostInfosWithApplyCarGroup(applyPriceDetails);
+                        if(costConfigInfos == null){
+                            iterator.remove();
+                        }else{
+                            applyPriceDetails1.add(costConfigInfos);
+                        }
+                    }else if(charterCarType.equals(CharterTypeEnum.MORE_RENT_TYPE.getKey())){
+                        //包车天数
+                        double useTimeDouble = Double.parseDouble(useTime);
+                        double v = useTimeDouble % 1;
+                        int flag = 0;
+                        if(!"0.5".equals(useTime) && v == 0.5){
+                            //整日和半日
+                            flag = 1;
+                        }
+                        if(v == 0){
+                            //整日租
+                            flag =2;
+                        }
+                        ApplyPriceDetails costConfigInfosOverAll = costConfigInfoMapper.selectCostInfosWithApplyCarGroup(applyPriceDetails);
+                        if(flag == 1){
+                            ApplyPriceDetails costConfigInfosHalf = costConfigInfoMapper.selectCostInfosWithApplyCarGroup(applyPriceDetails);
+                            if (costConfigInfosHalf == null || costConfigInfosOverAll == null){
+                                iterator.remove();
+                            }else{
+                                applyPriceDetails1.add(costConfigInfosOverAll);
+                                applyPriceDetails1.add(costConfigInfosHalf);
+                            }
+                        }else if(flag == 2){
+                            if (costConfigInfosOverAll == null){
+                                iterator.remove();
+                            }else{
+                                applyPriceDetails1.add(costConfigInfosOverAll);
+                            }
+                        }
+                    }
+                    if(!CollectionUtils.isEmpty(applyPriceDetails1)){
+                        carGroupInfoVo.setPriceDetails(applyPriceDetails1);
+                        carGroupInfoVos.add(carGroupInfoVo);
+                    }
+                }
+            }
+        }
+        return carGroupInfoVos;
+    }
+
+    @Override
+    public List<CarGroupCostVO> getCarGroupListForCost(CostConfigQueryPriceDto queryPriceDto, LoginUser loginUser) {
+        List<SysRole> roles = loginUser.getUser().getRoles();
+        List<SysRole> dispatcherRole = roles.stream().filter(p -> RoleConstant.DISPATCHER.equals(p.getRoleKey())).collect(Collectors.toList());
+        List<SysRole> adminRole = roles.stream().filter(p -> RoleConstant.ADMIN.equals(p.getRoleKey())||RoleConstant.SUB_ADMIN.equals(p.getRoleKey())).collect(Collectors.toList());
+        int flag=1;
+        if (!CollectionUtils.isEmpty(dispatcherRole)){
+            flag=2;
+        }
+        if (!CollectionUtils.isEmpty(adminRole)){
+            flag=3;
+        }
+        queryPriceDto.setFlag(flag);
+        queryPriceDto.setUserId(loginUser.getUser().getUserId());
+        queryPriceDto.setDeptId(loginUser.getUser().getDeptId());
+        List<CarGroupCostVO> grouplist=costConfigCarGroupInfoMapper.selectGroupByCityCode(queryPriceDto);
+        return grouplist;
     }
 }

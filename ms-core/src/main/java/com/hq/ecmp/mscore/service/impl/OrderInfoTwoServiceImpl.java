@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
 import com.hq.api.system.domain.SysUser;
@@ -1354,7 +1355,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         }
         List<UserApplySingleVo> useApplyList = applyInfoMapper.getApplyListPage(null,applyIdOrderId);
         if (CollectionUtils.isEmpty(useApplyList)){
-        return null;
+            return null;
         }
         return useApplyList.get(0);
     }

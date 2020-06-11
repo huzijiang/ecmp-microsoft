@@ -453,7 +453,7 @@ public interface OrderInfoMapper {
      */
     List<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto data);
 
-    List<Map<String,String>> getMoneyList(ReckoningDto param);
+    List<MoneyListDto> getMoneyList(ReckoningDto param);
 
     /**
      * 查询订单司机的所属车队和车队性质，用于首页统计

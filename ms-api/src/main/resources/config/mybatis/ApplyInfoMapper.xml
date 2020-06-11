@@ -105,6 +105,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="costCenter != null ">cost_center = #{costCenter},</if>
             <if test="state != null  and state != ''">state = #{state},</if>
             <if test="reason != null  and reason != ''">reason = #{reason},</if>
+            <if test="carTypeId != null  and carTypeId != ''">car_type_id = #{carTypeId},</if>
+            <if test="itIsSelfDriver != null  and itIsSelfDriver != ''">it_is_self_driver = #{itIsSelfDriver},</if>
+            <if test="outerCarGroupId != null  and outerCarGroupId != ''">outer_car_group_id = #{outerCarGroupId},</if>
+            <if test="notes != null  and notes != ''">notes = #{notes},</if>
+            <if test="safeRemind != null  and safeRemind != ''">safe_remind = #{safeRemind},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>
@@ -394,4 +399,57 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         GROUP BY  ai.journey_id
         order by orderState='待派车' DESC ,orderState='已派车' DESC , beginTime ASC
 </select>
+
+    <select id="getApplySingleIdVO" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.ApplySingleIdVO">
+
+        SELECT
+                ai.apply_id applyId,
+                ai.journey_id journeyId,
+                jucp.node_id nodeId,
+                jpi.journey_passenger_id journeyPassengerId,
+                jppi.price_id priceId,
+                jucp.power_id powerId,
+                oddi.dispatch_id   dispatchId,
+                jppi.order_id orderId
+            FROM
+                apply_info ai LEFT JOIN journey_user_car_power jucp ON ai.apply_id = jucp.apply_id
+                LEFT JOIN journey_plan_price_info jppi ON jppi.journey_id = ai.journey_id
+                LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = ai.journey_id
+                LEFT JOIN order_dispatche_detail_info oddi ON oddi.order_id = jppi.order_id
+                where ai.apply_id = #{applyId}
+
+    </select>
+
+    <delete id="deleteJourneyAddressInfo" parameterType="java.lang.Long">
+
+        delete from journey_address_info where journey_id = #{journeyId}
+    </delete>
+    <select id="getApplyInfoDetail" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.ApplySingleVO">
+
+        SELECT
+            ai.apply_id AS applyId,
+            ai.journey_id AS journeyId,
+            ji.start_date AS applyDate,
+            ji.use_time   AS applyDays,
+            jpi.`name` AS userName,
+            jpi.mobile AS userPhone,
+            ai.reason AS reason,
+            ai.notes  AS notes,
+            jpi.peer_number AS peerNumber,
+            ai.car_type_id AS carTypeId,
+            ai.it_is_self_driver AS itIsSelfDriver,
+            ai.outer_car_group_id AS outerCarGroupId,
+            ai.safe_remind AS safeRemind
+        FROM
+            apply_info ai
+            LEFT JOIN journey_info ji ON ai.journey_id = ji.journey_id
+            LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = ai.journey_id
+            WHERE ai.apply_id = #{applyId}
+    </select>
+
+    <select id="getJourneyAddressInfoByJourneyId" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.AddressVO">
+
+        select address_info address from journey_address_info  where  journey_id =#{journeyId}
+
+    </select>
 </mapper>

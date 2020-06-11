@@ -15,8 +15,6 @@ public class ReckoningDto implements Serializable {
 
     //收账标识
     private Long collectionId;
-    /** 用车单位 */
-    private Long ecmpId;
 
     /** 开始年月 */
     private String startDate;
@@ -30,18 +28,23 @@ public class ReckoningDto implements Serializable {
     /** 收款状态 */
     private String status;
 
-    /** 结算标识 */
+    private Long userId;
+
+    /** 公司id */
     private Long companyId;
 
     /** 起始页 */
     private String pageIndex;
 
-    /** 收款状态 */
+    /** 显示页数 */
     private String pageSize;
 
     /** 确认人 */
     private String verifier;
 
-
+    /** 车队id*/
+    private Long carGroupId;
+    //收账标识
+    private Long collectionNumber;
 
 }

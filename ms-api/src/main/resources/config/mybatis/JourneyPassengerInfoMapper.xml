@@ -71,6 +71,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null  and name != ''">name = #{name},</if>
             <if test="mobile != null  and mobile != ''">mobile = #{mobile},</if>
             <if test="itIsPeer != null  and itIsPeer != ''">it_is_peer = #{itIsPeer},</if>
+            <if test="peerNumber != null ">peer_number = #{peerNumber},</if>
             <if test="createBy != null ">create_by = #{createBy},</if>
             <if test="createTime != null ">create_time = #{createTime},</if>
             <if test="updateBy != null ">update_by = #{updateBy},</if>

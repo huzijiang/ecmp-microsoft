@@ -38,6 +38,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertEcmpUserFeedbackInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo" useGeneratedKeys="true" keyProperty="feedbackId">
         insert into ecmp_user_feedback_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null ">title,</if>
             <if test="feedbackId != null ">feedback_id,</if>
             <if test="userId != null ">user_id,</if>
             <if test="orderId != null ">order_id,</if>
@@ -49,6 +50,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null ">update_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null ">#{title},</if>
             <if test="feedbackId != null ">#{feedbackId},</if>
             <if test="userId != null ">#{userId},</if>
             <if test="orderId != null ">#{orderId},</if>
@@ -166,17 +168,37 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         LEFT JOIN ecmp_user eu ON eufi.user_id = eu.user_id
         LEFT JOIN ecmp_org o on eu.dept_id = o.dept_id
         <where>
-            eufi.state = #{status}
+            <if test="status != null and status!= 0 ">eufi.state = #{status} </if>
             <if test="feedbackId != null and feedbackId!='' "> and eufi.feedback_id = #{feedbackId}</if>
             <if test="type != null  and type != '' "> and eufi.type = #{type}</if>
-            <if test="type != null  and type != '' "> and eufi.content like '%#{content}%' </if>
+            <if test="content != null  and content != '' ">
+                and eufi.content like '%#{content}%'
+                or eufi.title like '%#{content}%'
+            </if>
 
             <if test="isAdmin != null  and isAdmin != '1' ">
-             and eufi.user_id  ='%#{userId}%'
+             and eufi.user_id  = #{userId}
             </if>
         </where>
-        limit #{pageIndex},#{pagesize}
+    </select>
 
+    <select id="findCountFeedback" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo" resultType="java.lang.Integer">
+        SELECT
+          count(*)
+        FROM
+        ecmp_user_feedback_info eufi
+        LEFT JOIN order_info oi ON eufi.order_id = oi.order_id
+        LEFT JOIN ecmp_user eu ON eufi.user_id = eu.user_id
+        LEFT JOIN ecmp_org o on eu.dept_id = o.dept_id
+        <where>
+            <if test="status != null and status!= 0 ">eufi.state = #{status} </if>
+            <if test="feedbackId != null and feedbackId!='' "> and eufi.feedback_id = #{feedbackId}</if>
+            <if test="type != null  and type != '' "> and eufi.type = #{type}</if>
+            <if test="content != null  and content != '' "> and eufi.content like '%#{content}%' </if>
 
+            <if test="isAdmin != null  and isAdmin != '1' ">
+                and eufi.user_id  = #{userId}
+            </if>
+        </where>
     </select>
 </mapper>
