@@ -27,11 +27,18 @@ public class StatisticsForAdminController {
     @Autowired
     private StatisticsForAdminService statisticsForAdminService;
 
-    @ApiOperation(value = "ranking",notes = "出车次数，用车费用排行",httpMethod = "POST")
-    @PostMapping("/ranking")
-    public ApiResponse ranking(@RequestHeader("Authorization") String token, @RequestBody StatisticsForAdmin statisticsParam){
+    @ApiOperation(value = "driverOutranking",notes = "出车次数，用车费用排行",httpMethod = "POST")
+    @PostMapping("/driverOutranking")
+    public ApiResponse driverOutranking(@RequestHeader("Authorization") String token, @RequestBody StatisticsForAdmin statisticsParam){
         log.info("出车次数，用车费用排行，前端传过来的参数为："+statisticsParam);
-            return statisticsForAdminService.ranking(statisticsParam);
+            return statisticsForAdminService.driverOutranking(statisticsParam);
+    }
+
+    @ApiOperation(value = "vehicleExpenses",notes = "出车次数，用车费用排行",httpMethod = "POST")
+    @PostMapping("/vehicleExpenses")
+    public ApiResponse vehicleExpenses(@RequestHeader("Authorization") String token, @RequestBody StatisticsForAdmin statisticsParam){
+        log.info("出车次数，用车费用排行，前端传过来的参数为："+statisticsParam);
+        return statisticsForAdminService.vehicleExpenses(statisticsParam);
     }
 
     @ApiOperation(value = "unitVehicle",notes = "单位用车统计",httpMethod = "POST")
@@ -66,7 +73,7 @@ public class StatisticsForAdminController {
     @PostMapping("/modelUse")
     public ApiResponse modelUse(@RequestHeader("Authorization") String token, @RequestBody StatisticsForAdmin statisticsParam){
         log.info("车型使用统计，前端传过来的参数为："+statisticsParam);
-            return statisticsForAdminService.appointmentTime(statisticsParam);
+            return statisticsForAdminService.modelUse(statisticsParam);
     }
 
     @ApiOperation(value = "Leasing",notes = "租赁情况统计",httpMethod = "POST")

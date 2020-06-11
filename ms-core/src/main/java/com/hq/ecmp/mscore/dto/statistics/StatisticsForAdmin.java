@@ -7,6 +7,9 @@ import lombok.Data;
 @Data
 public class StatisticsForAdmin {
 
+    //分页区分
+    @ApiModelProperty(value = "分页区分")
+    private String type;
     //开始时间
     @ApiModelProperty(value = "开始时间")
     private String beginDate;
@@ -20,14 +23,14 @@ public class StatisticsForAdmin {
     @ApiModelProperty(name = "pageSize", value = "每页显示条数",required = false)
     private Integer pageSize;
     //部门id
-    @ApiModelProperty(value = "部门id")
-    private Long deptId;
+    @ApiModelProperty(value = "部门名称")
+    private String deptName;
     //车牌号
     @ApiModelProperty(value = "车牌号")
     private String carLicense;
     //驾驶员id
-    @ApiModelProperty(value = "驾驶员id")
-    private String driverId;
+    @ApiModelProperty(value = "驾驶员名字")
+    private String driverName;
     //车型名字
     @ApiModelProperty(value = "车型名字")
     private String carName;
