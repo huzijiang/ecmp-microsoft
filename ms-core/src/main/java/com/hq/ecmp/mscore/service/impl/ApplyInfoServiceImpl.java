@@ -2181,7 +2181,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @return
      */
     @Override
-    public ApiResponse updateApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) {
+    public ApiResponse updateApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) throws Exception{
         ApiResponse apiResponse = new ApiResponse();
         //判断上下车地点的城市是否至少有一个在服务城市集范围内
         String startCode = applySingleVO.getStartAddr().getCityCode();
@@ -2267,6 +2267,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         orderDispatcheDetailInfo.setCreateTime(DateUtils.getNowDate());
         orderDispatcheDetailInfo.setDispatchId(applySingleIdVO.getDispatchId().intValue());
         int i = orderDispatcheDetailInfoMapper.updateOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
+        //发送短信 --- 用车人撤销  用车人申请短信  内部所有调度员
+        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applySingleIdVO.getApplyId());
+        ismsBusiness.sendUpdateApplyInfoSms(undoSMSTemplate);
         if(i == 1){
             apiResponse.setMsg("修改申请单成功");
         }else {
