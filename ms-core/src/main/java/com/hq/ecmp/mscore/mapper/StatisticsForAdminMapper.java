@@ -32,14 +32,14 @@ public interface StatisticsForAdminMapper {
 
     List<StatisticsForAdminDetailVo> details(StatisticsForAdmin statisticsForAdmin);
 
-    List<String> getDeptNames();
+    List<String> getDeptNames(StatisticsForAdmin statisticsForAdmin);
 
-    List<String> getCarLicenses();
+    List<String> getCarLicenses(StatisticsForAdmin statisticsForAdmin);
 
-    List<String> getDriverNames();
+    List<String> getDriverNames(StatisticsForAdmin statisticsForAdmin);
 
-    List<String> getCarNames();
+    List<String> getCarNames(StatisticsForAdmin statisticsForAdmin);
 
-    List<String> getCarGroupNames();
+    List<String> getCarGroupNames(StatisticsForAdmin statisticsForAdmin);
 
 }

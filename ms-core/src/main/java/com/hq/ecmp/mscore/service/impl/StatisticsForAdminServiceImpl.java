@@ -103,12 +103,14 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
     @Override
     public ApiResponse unitVehicle(StatisticsForAdmin statisticsForAdmin) {
         Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
+        StatisticsForAdmin statisticsForAdminQuery = new StatisticsForAdmin();
+        statisticsForAdminQuery.setCompanyId(companyId);
         statisticsForAdmin.setCompanyId(companyId);
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
         PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
         try {
-            List<String> carUseDepts = statisticsForAdminMapper.getDeptNames();
+            List<String> carUseDepts = statisticsForAdminMapper.getDeptNames(statisticsForAdminQuery);
             List<StatisticsForAdminVo> list = new ArrayList<>();
             PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
             List<StatisticsForAdminVo> unitVehicleByIn = statisticsForAdminMapper.unitVehicleByIn(statisticsForAdmin);
@@ -145,11 +147,13 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
     @Override
     public ApiResponse useOfMechanismVehicles(StatisticsForAdmin statisticsForAdmin) {
         Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
+        StatisticsForAdmin statisticsForAdminQuery = new StatisticsForAdmin();
+        statisticsForAdminQuery.setCompanyId(companyId);
         statisticsForAdmin.setCompanyId(companyId);
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
         try {
-            List<String> carLicenses = statisticsForAdminMapper.getCarLicenses();
+            List<String> carLicenses = statisticsForAdminMapper.getCarLicenses(statisticsForAdminQuery);
             PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
             List<StatisticsForAdminVo> useOfMechanismVehicles = statisticsForAdminMapper.useOfMechanismVehicles(statisticsForAdmin);
             PageInfo<StatisticsForAdminVo> info = new PageInfo<>(useOfMechanismVehicles);
@@ -171,12 +175,14 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
     @Override
     public ApiResponse driverOut(StatisticsForAdmin statisticsForAdmin) {
         Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
+        StatisticsForAdmin statisticsForAdminQuery = new StatisticsForAdmin();
+        statisticsForAdminQuery.setCompanyId(companyId);
         statisticsForAdmin.setCompanyId(companyId);
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
         PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
         try {
-            List<String> driverNames = statisticsForAdminMapper.getDriverNames();
+            List<String> driverNames = statisticsForAdminMapper.getDriverNames(statisticsForAdminQuery);
             List<StatisticsForAdminVo> driverOut = statisticsForAdminMapper.driverOut(statisticsForAdmin);
             PageInfo<StatisticsForAdminVo> info = new PageInfo<>(driverOut);
             jsonObject.put("driverOut",new PageResult<>(info.getTotal(), info.getPages(), driverOut));
@@ -203,13 +209,15 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
     @Override
     public ApiResponse modelUse(StatisticsForAdmin statisticsForAdmin) {
         Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
+        StatisticsForAdmin statisticsForAdminQuery = new StatisticsForAdmin();
+        statisticsForAdminQuery.setCompanyId(companyId);
         statisticsForAdmin.setCompanyId(companyId);
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
         PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
 
         try {
-            List<String> carNames = statisticsForAdminMapper.getCarNames();
+            List<String> carNames = statisticsForAdminMapper.getCarNames(statisticsForAdminQuery);
             List<StatisticsForAdminVo> modelUse = statisticsForAdminMapper.modelUse(statisticsForAdmin);
             PageInfo<StatisticsForAdminVo> info = new PageInfo<>(modelUse);
             jsonObject.put("modelUse",new PageResult<>(info.getTotal(), info.getPages(), modelUse));
@@ -229,11 +237,13 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
     @Override
     public ApiResponse leasing(StatisticsForAdmin statisticsForAdmin) {
         Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
+        StatisticsForAdmin statisticsForAdminQuery = new StatisticsForAdmin();
+        statisticsForAdminQuery.setCompanyId(companyId);
         statisticsForAdmin.setCompanyId(companyId);
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
         try {
-            List<String> carGroupNames = statisticsForAdminMapper.getCarGroupNames();
+            List<String> carGroupNames = statisticsForAdminMapper.getCarGroupNames(statisticsForAdminQuery);
             PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
             List<StatisticsForAdminVo> leasing = statisticsForAdminMapper.leasing(statisticsForAdmin);
             PageInfo<StatisticsForAdminVo> info = new PageInfo<>(leasing);
