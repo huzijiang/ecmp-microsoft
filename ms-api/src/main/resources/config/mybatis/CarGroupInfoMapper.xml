@@ -396,18 +396,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
    <select id="reckoningDetail" resultType="java.lang.String" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
-       SELECT
-       DISTINCT DATE_FORMAT(addr.action_time, '%Y-%m') carDate
+       -- SELECT
+       -- DISTINCT DATE_FORMAT(addr.action_time, '%Y-%m') carDate
+       -- FROM
+       -- order_info o
+       -- left join order_address_info addr on o.order_id = addr.order_id and addr.type = 'A000'
+       -- left join order_address_info adr on o.order_id = adr.order_id and adr.type = 'A999'
+       -- left join order_account_info acc on  o.order_id  = acc.order_id AND acc.state != 'S005'
+       -- WHERE
+
+
+       SELECT DISTINCT
+          DISTINCT DATE_FORMAT( addr.action_time, '%Y-%m' ) carDate
        FROM
        order_info o
-       left join order_address_info addr on o.order_id = addr.order_id and addr.type = 'A000'
-       left join order_address_info adr on o.order_id = adr.order_id and adr.type = 'A999'
-       left join order_account_info acc on  o.order_id  = acc.order_id
+       LEFT JOIN order_address_info addr ON o.order_id = addr.order_id
+       AND addr.type = 'A000'
+       LEFT JOIN order_address_info adr ON o.order_id = adr.order_id
+       AND adr.type = 'A999'
+       LEFT JOIN order_account_info acc ON o.order_id = acc.order_id
+       AND acc.state != 'S005'
+       LEFT JOIN journey_info jo ON o.journey_id = jo.journey_id
+       LEFT JOIN enterprise_car_type_info ct ON jo.company_id = ct.company_id
+       LEFT JOIN order_settling_info se ON o.order_id = se.order_id
+       LEFT JOIN car_group_driver_relation r ON o.driver_id = r.driver_id
+       LEFT JOIN car_group_info g ON r.car_group_id = g.car_group_id
        WHERE
        o.company_id = #{companyId}
        AND  <![CDATA[ DATE_FORMAT(#{startDate}, '%Y-%m-%d') <= addr.action_time ]]>
        AND  <![CDATA[ adr.action_time <= DATE_FORMAT(#{endDate}, '%Y-%m-%d') ]]>
-       and  acc.state != 'S005'
+       AND g.car_group_id = #{carGroupId}
+       GROUP BY
+       o.order_id
+
+
+
+
    </select>
     <select id="getCarGroupAllName" resultType="String">
 	    select  car_group_name from car_group_info where it_is_inner='C111'
@@ -416,4 +440,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="findgroupIdByUserId" resultType="java.lang.Long" parameterType="java.lang.Long">
         SELECT car_group_id from car_group_dispatcher_info where user_id = #{userId}
     </select>
+
+
 </mapper>

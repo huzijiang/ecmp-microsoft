@@ -453,7 +453,7 @@ public interface OrderInfoMapper {
      */
     List<OrderInfoFSDto> getOrderInfoList(OrderInfoFSDto data);
 
-    List<MoneyListDto> getMoneyList(ReckoningDto param);
+
 
     /**
      * 查询订单司机的所属车队和车队性质，用于首页统计
@@ -494,11 +494,20 @@ public interface OrderInfoMapper {
      */
     List<DisOrderStateCount> getDispatchOrderListWorkBenchCount();
 
+    PayeeInfoDto getPayeeInfo(ReckoningDto param);
+
+    List<MoneyListDto> getMoneyList(ReckoningDto param);
+
     /***
      *
      * @param data
      * @return
      */
     List<OrderListBackDto> getCount(OrderListBackDto data);
+
+    List<StatisticsForAdminDetailVo> userDeptUseCarDetail(@Param("beginDate") String beginDate,
+                                                          @Param("endDate") String endDate,
+                                                          @Param("carGroupName")String carGroupName,
+                                                          @Param("deptId")Long deptId);
 }
 

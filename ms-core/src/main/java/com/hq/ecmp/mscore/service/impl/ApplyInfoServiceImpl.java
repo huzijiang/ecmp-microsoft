@@ -114,6 +114,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Autowired
     private OrderAddressInfoMapper orderAddressInfoMapper;
 
+    @Autowired
+    private OrderDispatcheDetailInfoMapper dispatcheDetailInfoMapper;
+
     private ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("apply-pool-%d").build();
     private ExecutorService executor = new ThreadPoolExecutor(5, 200,
             0L, TimeUnit.MILLISECONDS,
@@ -2201,6 +2204,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applySingleVO.setRegimenId(regimenId);
         //查询所需要的id
         ApplySingleIdVO applySingleIdVO = applyInfoMapper.getApplySingleIdVO(applySingleVO.getApplyId());
+        List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(applySingleIdVO.getOrderId()));
+        OrderDispatcheDetailInfo dispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
+        if (StringUtils.isBlank(dispatcheDetailInfo.getItIsUseInnerCarGroup())){
+            apiResponse.setCode(1);
+            apiResponse.setMsg("您所修改的订单已经属于派车中或服务中，不可以修改了");
+            return  apiResponse;
+        }
         //1.修改乘客行程信息 journey_info表
         JourneyInfo journeyInfo = new JourneyInfo();
         journeyInfo.setJourneyId(applySingleIdVO.getJourneyId());

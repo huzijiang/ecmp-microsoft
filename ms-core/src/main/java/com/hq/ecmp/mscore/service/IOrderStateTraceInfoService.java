@@ -9,7 +9,9 @@ import com.hq.ecmp.mscore.domain.SendCarInfo;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.dto.UseCarDataByGroupDto;
 import com.hq.ecmp.mscore.dto.UseCarDataDto;
+import com.hq.ecmp.mscore.dto.UserDeptUseCarDetailDto;
 import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.StatisticsForAdminDetailVo;
 import com.hq.ecmp.mscore.vo.UseCarDataVo;
 import com.hq.ecmp.mscore.vo.UserVO;
 
@@ -134,4 +136,6 @@ public interface IOrderStateTraceInfoService
     UseCarDataVo selectDeptUseCarData(UseCarDataDto useCarDataDto, LoginUser loginUser) throws ParseException;
 
     PageResult<UseCarDataVo> userDeptUseCarDataByCarGroup(UseCarDataByGroupDto useCarDataByGroupDto, LoginUser loginUser);
+
+    PageResult<StatisticsForAdminDetailVo> userDeptUseCarDetail(UserDeptUseCarDetailDto userDeptUseCarDetailDto, LoginUser loginUser);
 }
