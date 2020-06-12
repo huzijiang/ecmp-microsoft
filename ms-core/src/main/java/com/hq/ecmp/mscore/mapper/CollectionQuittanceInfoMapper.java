@@ -38,6 +38,10 @@ public interface CollectionQuittanceInfoMapper {
      */
     LeaseSettlementDto getOrdinaryUserById(@Param("collectionId") Long collectionId);
 
+
+    /** 通过收款唯一标识查询数据*/
+    LeaseSettlementDto getCollectionNumber(@Param("collectionNumber") Long collectionNumber);
+
     /***
      * 更新结算单状态
      * add by liuzb

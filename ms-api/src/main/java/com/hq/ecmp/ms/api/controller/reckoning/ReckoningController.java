@@ -97,7 +97,7 @@ public class ReckoningController {
             reckoningInfo.setCarGroupId(param.getCarGroupId());
             reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD));
             reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD));
-            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD));
+            //reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD));
             reckoningInfo.setCollectionId(param.getCollectionId());
             reckoningInfo.setCompanyId(param.getCompanyId());
 

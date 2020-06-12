@@ -169,7 +169,7 @@ public class BaseController {
     @PostMapping("/replyFeedback")
     public ApiResponse updateFeedback(@RequestBody FeedBackDto feedBackDto){
 
-        if(null != feedBackDto && !StringUtils.isEmpty(feedBackDto.getResultContent())){
+        if(null != feedBackDto && StringUtils.isEmpty(feedBackDto.getResultContent())){
             return ApiResponse.error("回复投诉，缺失参数");
         }
         EcmpUserFeedbackInfoVo backInfo = new EcmpUserFeedbackInfoVo();
@@ -195,6 +195,23 @@ public class BaseController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         List<Map> ecmpList = iecmpOrgService.getEcmpName(userId);
+        if (null != ecmpList){
+            return ApiResponse.success(ecmpList);
+        }else {
+            return ApiResponse.success("获取所有未删除的公司名称和id失败");
+        }
+    }
+
+    /**
+     * 获取所有未删除的公司名称和id  所有
+     * @return
+     */
+    @ApiOperation(value = "getEcmpNameAll",notes = "获取所有未删除的公司名称和id",httpMethod ="POST")
+    @PostMapping("/getEcmpNameAll")
+    public ApiResponse getEcmpNameAll(){
+
+
+        List<Map> ecmpList = iecmpOrgService.getEcmpNameAll();
         if (null != ecmpList){
             return ApiResponse.success(ecmpList);
         }else {

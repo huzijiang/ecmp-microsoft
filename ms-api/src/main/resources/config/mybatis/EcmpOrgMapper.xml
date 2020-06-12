@@ -607,4 +607,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
     </select>
 
+    <select id="getEcmpNameAll" resultType="java.util.Map" parameterType="java.lang.Long">
+        select
+        DISTINCT g.dept_id as deptId,
+        g.dept_name as deptName
+        from
+        car_group_serve_org_relation o
+        left join ecmp_org g on o.dept_id = g.dept_id and del_flag = 0
+        left join car_group_dispatcher_info c on  c.car_group_id = o.car_group_id
+    </select>
+
+
 </mapper>

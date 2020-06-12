@@ -47,4 +47,7 @@ public class ReckoningDto implements Serializable {
     //收账标识
     private Long collectionNumber;
 
+    /** 1:详情 0：预览*/
+    private int type;
+
 }

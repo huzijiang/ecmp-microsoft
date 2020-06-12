@@ -34,7 +34,8 @@ public class EcmpUserFeedbackVo {
     @ApiModelProperty(value="建议内容")
     private String content;
 
-
+    @ApiModelProperty(value="回复内容")
+    private String result;
 
 
 }
