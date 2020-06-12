@@ -2509,7 +2509,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         -- 费用合计
         case
         when z.state='S100' then '待派车'
-        when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已派车'
+        when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'901'   then '已派车'
         when ai.state='S004' OR z.state='S911' then '已撤销'
         when ai.state='S005' OR z.state='S921' then '已过期'
         when z.state='S930' then '已驳回'
@@ -2582,16 +2582,16 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and DATE_FORMAT(ji.end_date,'%Y-%m-%d %H:%i') &lt;= DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i')
         </if>
         <if test="homePageWaitingCarState!=null and homePageWaitingCarState != ''">
-            and  right (z.state,3)='100'
+            and  z.state='S100'
         </if>
         <if test="homePageUsingCarState!=null and homePageUsingCarState != ''">
-            and  right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'
+            and  (right (z.state,3) BETWEEN '299' and '901')
         </if>
         <if test="homePageExpireCarState!=null and homePageExpireCarState != ''">
-            and  right (ai.state,3)='005' OR right (z.state,3)='921'
+            and  ai.state='S005' OR z.state='S921'
         </if>
         <if test="homePageRejectState!=null and homePageRejectState != ''">
-            or ( eu.dept_id = #{deptId} and oi.service_type='5000' and right (z.state,3)='930' and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.create_time))
+            or ( eu.dept_id = #{deptId} and oi.service_type='5000' and z.state='S930' and DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(ai.create_time))
         </if>
         <if test="homePageToBeConfirmedState!=null and '' != homePageToBeConfirmedState">
             and  oi.state = #{homePageToBeConfirmedState}
@@ -2606,7 +2606,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and z.state='S100'
         </if>
         <if test="stateFlag==2">
-            and (right (z.state,3) BETWEEN '299' and '900')
+            and (right (z.state,3) BETWEEN '299' and '901')
         </if>
         <if test="stateFlag==4">
             and (ai.state='S004' OR z.state='S911')

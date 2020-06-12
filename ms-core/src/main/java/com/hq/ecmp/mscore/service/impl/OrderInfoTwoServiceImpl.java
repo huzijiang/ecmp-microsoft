@@ -744,7 +744,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      */
     @Override
     public PageResult<UserApplySingleVo> getUseApplySearchList(UserApplySingleVo userApplySingleVo, LoginUser loginUser) {
-        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        Long companyId = loginUser.getUser().getOwnerCompany();
         userApplySingleVo.setCompanyId(companyId);
 //        userApplySingleVo.setUserId(loginUser.getUser().getUserId());
         userApplySingleVo.setDeptId(loginUser.getUser().getDeptId());
