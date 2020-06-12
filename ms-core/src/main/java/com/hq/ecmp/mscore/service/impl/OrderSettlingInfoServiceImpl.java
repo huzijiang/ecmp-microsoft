@@ -146,14 +146,11 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
             List<OrderServiceCostDetailRecordInfo> recordInfos = costDetailRecordInfoMapper.getList(lastRecordInfo);
             lastRecordInfo = recordInfos.get(recordInfos.size() - 1);
 
+            //recordId如果不为空，则该操作为修改订单
             if (orderSettlingInfoVo.getRecordId() != null) {
-                //如果为更改子订单数据
+                //需要重新插入主表
                 isInsertOrderConfing = true;
-                for (OrderServiceCostDetailRecordInfo recordInfo : recordInfos) {
-                    if (recordInfo.getRecordId().equals(orderSettlingInfoVo.getRecordId()))
-                        lastRecordInfo = recordInfo;
-                    break;
-                }
+                lastRecordInfo = recordInfos.stream().filter(o->o.getRecordId().equals(orderSettlingInfoVo.getRecordId())).findAny().get();
             }
             lastRecordInfo.setAccommodationFee(CommonUtils.getBigDecimal(orderSettlingInfoVo.getHotelExpenseFee()));
             lastRecordInfo.setFoodFee(CommonUtils.getBigDecimal(orderSettlingInfo.getRestaurantFee()));
