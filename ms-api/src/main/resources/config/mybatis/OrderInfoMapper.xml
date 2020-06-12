@@ -3372,4 +3372,47 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         order By order_id desc
         limit 1
     </select>
+    <select id="userDeptUseCarDetail" resultType="com.hq.ecmp.mscore.vo.StatisticsForAdminDetailVo">
+        select
+        oi.order_id orderId,
+        osti.state state,
+        eo.dept_name deptName,
+        ji.start_date beginTime,
+        jpi.name vehicleUserName,
+        ecti.name carName,
+        ci.car_license carLicense,
+        oai1.address beginAddress,
+        oai2.address endAddress,
+        ji.use_time useTime
+        from order_info oi
+        left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+        order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
+        LEFT JOIN  journey_info ji ON oi.journey_id = ji.journey_id
+        LEFT JOIN  driver_info di ON di.driver_id = oi.driver_id
+        LEFT JOIN  journey_passenger_info jpi ON jpi.journey_id = ji.journey_id
+        LEFT JOIN  ecmp_user eu  ON eu.user_id = oi.user_id
+        LEFT JOIN  ecmp_org eo   ON eo.dept_id  = eu.dept_id
+        LEFT JOIN  car_info ci ON ci.car_id = oi.car_id
+        LEFT JOIN  enterprise_car_type_info ecti ON ecti.car_type_id = ci.car_type_id
+        LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id
+        LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
+        left join
+        (select order_id,type,address,address_long from order_address_info where type = 'A000') oai1 on  oai1.order_id = oi.order_id
+        left join
+        (select order_id,type,address,address_long from order_address_info where type = 'A999') oai2 on  oai2.order_id = oi.order_id
+        where osti.state in ('S699','S900')
+        <if test="deptId!=null and '' != deptId">
+            and eu.dept_id = #{deptId}
+        </if>
+        <if test="beginDate!=null and '' != beginDate">
+            and  ji.end_date &gt;= #{beginDate}
+        </if>
+        <if test="endDate!=null and '' != endDate">
+            and  ji.end_date &lt;= #{endDate}
+        </if>
+        <if test="carGroupName!=null and '' != carGroupName">
+            and cgi.it_is_inner in ('C000','C111')
+            and  cgi.car_group_name = #{carGroupName}
+        </if>
+    </select>
 </mapper>
