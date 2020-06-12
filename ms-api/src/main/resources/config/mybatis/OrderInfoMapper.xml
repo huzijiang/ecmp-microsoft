@@ -731,6 +731,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="null != itIsSelfDriver and itIsSelfDriver !=''">
                     and oodi.it_is_self_driver='Y000'
                 </if>
+                <if test="null != updateBy and updateBy !=''">
+                    and s.car_id in (
+                    select car_id  from car_info where car_group_id in
+                    (select car_group_id from car_group_dispatcher_info where user_id=#{updateBy})
+                    )
+                </if>
                <!-- <if test="null != userId and userId !=''">
                     and s.create_by = #{userId}
                 </if>-->
