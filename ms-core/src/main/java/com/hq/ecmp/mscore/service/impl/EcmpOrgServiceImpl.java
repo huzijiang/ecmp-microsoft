@@ -12,8 +12,10 @@ import com.hq.common.utils.MacTools;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.constant.OrgConstant;
+import com.hq.ecmp.constant.enumerate.CarGroupSourceEnum;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.*;
@@ -72,6 +74,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
     private EcmpUserRoleMapper ecmpUserRoleMapper;
     @Autowired
     private CarGroupDriverRelationMapper carGroupDriverRelationMapper;
+    @Autowired
+    private CarGroupServeOrgRelationMapper carGroupServeOrgRelationMapper;
     @Autowired
     private ICarGroupInfoService carGroupInfoService;
     @Autowired
@@ -591,6 +595,16 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                 }
             }
         }
+        //查询所有内部车队，添加到车队服务部门
+        CarGroupInfo carGroupInfo = new CarGroupInfo();
+        carGroupInfo.setItIsInner(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN);
+        carGroupInfoMapper.selectCarGroupInfoList(carGroupInfo).stream().forEach(x->{
+            CarGroupServeOrgRelation carGroupServeOrgRelation = new CarGroupServeOrgRelation();
+            carGroupServeOrgRelation.setCarGroupId(x.getCarGroupId());
+            carGroupServeOrgRelation.setDeptId(ecmpOrgVo.getDeptId());
+            carGroupServeOrgRelation.setType(OrgConstant.INNER_ORG);
+            carGroupServeOrgRelationMapper.insert(carGroupServeOrgRelation);
+        });
         return iz;
     }
 

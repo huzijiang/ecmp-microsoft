@@ -106,6 +106,8 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         StatisticsForAdmin statisticsForAdminQuery = new StatisticsForAdmin();
         statisticsForAdminQuery.setCompanyId(companyId);
         statisticsForAdmin.setCompanyId(companyId);
+        statisticsForAdmin.setBeginDate(statisticsForAdmin.getBeginDate().substring(0, 10)+" 00:00:00");
+        statisticsForAdmin.setEndDate(statisticsForAdmin.getEndDate().substring(0, 10)+" 23:59:59");
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
         PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
@@ -148,6 +150,8 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
     public ApiResponse useOfMechanismVehicles(StatisticsForAdmin statisticsForAdmin) {
         Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
         StatisticsForAdmin statisticsForAdminQuery = new StatisticsForAdmin();
+        statisticsForAdmin.setBeginDate(statisticsForAdmin.getBeginDate().substring(0, 10)+" 00:00:00");
+        statisticsForAdmin.setEndDate(statisticsForAdmin.getEndDate().substring(0, 10)+" 23:59:59");
         statisticsForAdminQuery.setCompanyId(companyId);
         statisticsForAdmin.setCompanyId(companyId);
         ApiResponse apiResponse = new ApiResponse();
@@ -176,6 +180,8 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
     public ApiResponse driverOut(StatisticsForAdmin statisticsForAdmin) {
         Long companyId = tokenService.getLoginUser(ServletUtils.getRequest()).getUser().getOwnerCompany();
         StatisticsForAdmin statisticsForAdminQuery = new StatisticsForAdmin();
+        statisticsForAdmin.setBeginDate(statisticsForAdmin.getBeginDate().substring(0, 10)+" 00:00:00");
+        statisticsForAdmin.setEndDate(statisticsForAdmin.getEndDate().substring(0, 10)+" 23:59:59");
         statisticsForAdminQuery.setCompanyId(companyId);
         statisticsForAdmin.setCompanyId(companyId);
         ApiResponse apiResponse = new ApiResponse();
@@ -215,7 +221,8 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
         PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
-
+        statisticsForAdmin.setBeginDate(statisticsForAdmin.getBeginDate().substring(0, 10)+" 00:00:00");
+        statisticsForAdmin.setEndDate(statisticsForAdmin.getEndDate().substring(0, 10)+" 23:59:59");
         try {
             List<String> carNames = statisticsForAdminMapper.getCarNames(statisticsForAdminQuery);
             List<StatisticsForAdminVo> modelUse = statisticsForAdminMapper.modelUse(statisticsForAdmin);
@@ -242,6 +249,8 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         statisticsForAdmin.setCompanyId(companyId);
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
+        statisticsForAdmin.setBeginDate(statisticsForAdmin.getBeginDate().substring(0, 10)+" 00:00:00");
+        statisticsForAdmin.setEndDate(statisticsForAdmin.getEndDate().substring(0, 10)+" 23:59:59");
         try {
             List<String> carGroupNames = statisticsForAdminMapper.getCarGroupNames(statisticsForAdminQuery);
             PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
@@ -268,6 +277,8 @@ public class StatisticsForAdminServiceImpl implements StatisticsForAdminService 
         ApiResponse apiResponse = new ApiResponse();
         JSONObject jsonObject = new JSONObject();
         PageHelper.startPage(statisticsForAdmin.getPageNum(),statisticsForAdmin.getPageSize());
+        statisticsForAdmin.setBeginDate(statisticsForAdmin.getBeginDate().substring(0, 10)+" 00:00:00");
+        statisticsForAdmin.setEndDate(statisticsForAdmin.getEndDate().substring(0, 10)+" 23:59:59");
         try {
             List<StatisticsForAdminDetailVo> details = statisticsForAdminMapper.details(statisticsForAdmin);
             PageInfo<StatisticsForAdminDetailVo> info = new PageInfo<>(details);

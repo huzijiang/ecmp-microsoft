@@ -69,7 +69,7 @@ public class OrderListInfo {
     private String carTypeName;
 
     @ApiModelProperty(value = "用车天数")
-    private Integer useTime;
+    private String useTime;
 
     @ApiModelProperty(value = "是否自驾 \n" +
             "Y000  是\n" +
