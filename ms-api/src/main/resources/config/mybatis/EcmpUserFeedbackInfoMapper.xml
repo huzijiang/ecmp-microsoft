@@ -175,7 +175,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 and ( eufi.content like CONCAT('%',#{title},'%')
                 or  eufi.title like CONCAT('%',#{title},'%') )
             </if>
-            <if test="isAdmin != null  and isAdmin != '1' ">
+            <if test="isAdmin != null  and isAdmin != 1 ">
              and eufi.user_id  = #{userId}
             </if>
         </where>
