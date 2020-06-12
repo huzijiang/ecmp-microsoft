@@ -52,16 +52,9 @@ public class ReckoningController {
         log.info("添加收款，传来的参数为："+param);
         try {
             ReckoningInfo reckoningInfo = new ReckoningInfo();
-            HttpServletRequest request = ServletUtils.getRequest();
-            LoginUser loginUser = tokenService.getLoginUser(request);
-            Long userId = loginUser.getUser().getUserId();
-            reckoningInfo.setCreateBy(userId);
-            Long carGroupId = icarGroupInfoService.findgroupIdByUserId(userId);
-            reckoningInfo.setCarGroupId(carGroupId);
             reckoningInfo.setState(CollectionQuittanceEnum.COLLECTION_WAIT.getKey());
-            reckoningInfo.setApplicant(userId);
             reckoningInfo.setCreateTime(new Date());
-            reckoningInfo.setCompanyId(param.getCompanyId());
+            reckoningInfo.setServiceOrg(param.getCompanyId());
             reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD));

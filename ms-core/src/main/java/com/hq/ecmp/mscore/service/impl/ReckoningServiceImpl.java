@@ -17,6 +17,7 @@ import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
 import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
 import com.hq.ecmp.mscore.mapper.CollectionQuittanceInfoMapper;
 import com.hq.ecmp.mscore.service.CollectionQuittanceInfoService;
+import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -41,12 +42,25 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
 
     @Autowired
     private IOrderInfoService orderInfoService;
+
+
+    @Autowired
+    private ICarGroupInfoService icarGroupInfoService;
     /**
      * 添加收款信息
      * @param param
      */
     @Override
     public void addReckoning(ReckoningInfo param) {
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        param.setCreateBy(userId);
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        param.setCompanyId(companyId);
+        Long carGroupId = icarGroupInfoService.findgroupIdByUserId(userId);
+        param.setCarGroupId(carGroupId);
+        param.setApplicant(userId);
         collectionService.add(param);
     }
 
@@ -86,18 +100,20 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
         param.setUserId(loginUser.getUser().getUserId());
         Map<String, Object>  resultMap = new HashMap<>();
         Map<Object, Object> allMap = new HashMap<>();
-        //返回没有 收款 的月份集合
-        List<String> dateList = carGroupInfoMapper.reckoningDetail(param);
-        //返回收款详情
-        PayeeInfoDto  payeeInfo = collectionService.getPayeeInfo(param);
+        /**返回收款详情 */
+        //PayeeInfoDto  payeeInfo = collectionService.getPayeeInfo(param);
+        PayeeInfoDto  payeeInfo = orderInfoService.getPayeeInfo(param);
         if(null != payeeInfo){
             param.setCarGroupId(payeeInfo.getCarGroupId());
             payeeInfo.setCollectionId(getRandomFileName());
         }
-        List<MoneyListDto> moneyList = orderInfoService.getMoneyList(param);//用车费用详情列表
+        /** 用车费用详情列表 */
+        List<MoneyListDto> moneyList = orderInfoService.getMoneyList(param);
         if(null == moneyList){
             return null;
         }
+        /** 返回没有 收款 的月份集合 */
+        List<String> dateList = carGroupInfoMapper.reckoningDetail(param);
         List<Map<String,Object>> carTypeMapList = new ArrayList<>();//根据车类型统计用车天数 费用
         if(null != moneyList && moneyList.size() > 0){
             for (int i = 0; i < moneyList.size(); i++) {
