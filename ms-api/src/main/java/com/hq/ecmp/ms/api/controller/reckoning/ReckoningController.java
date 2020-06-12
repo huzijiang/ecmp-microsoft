@@ -115,7 +115,7 @@ public class ReckoningController {
         log.info("条件查询收款，传来的参数为："+param);
         try {
 
-            if(null != param && !StringUtils.isEmpty(param.getStatus()) && param.getCompanyId() > 0){
+            if(null != param && !StringUtils.isEmpty(param.getStatus()) && param.getCollectionNumber() > 0){
                 collectionService.updateReckoningStatus(param);
                 return ApiResponse.success("改变收款状态收款成功！");
             }else {
