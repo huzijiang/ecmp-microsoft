@@ -13,9 +13,11 @@ import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
 import com.hq.ecmp.mscore.dto.UseCarDataByGroupDto;
 import com.hq.ecmp.mscore.dto.UseCarDataDto;
+import com.hq.ecmp.mscore.dto.UserDeptUseCarDetailDto;
 import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.service.OrderInfoTwoService;
 import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.StatisticsForAdminDetailVo;
 import com.hq.ecmp.mscore.vo.UseCarDataVo;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -95,6 +97,22 @@ public class UseCarStatisticsController {
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.error("微服务查询用户部门用车统计数据失败");
+        }
+    }
+
+
+    @ApiOperation(value = "userDeptUseCarDetail",notes = "按车队分页查询用户部门用车统计数据",httpMethod ="POST")
+    @Log(title = "按车队分页查询用户部门用车统计数据", content = "按车队分页查询用户部门用车统计数据",businessType = BusinessType.OTHER)
+    @PostMapping("/userDeptUseCarDetail")
+    public ApiResponse<PageResult<StatisticsForAdminDetailVo>> userDeptUseCarDetail(@RequestBody UserDeptUseCarDetailDto userDeptUseCarDetailDto){
+        try {
+            LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+            //log.info("请求参数：{}，请求用户：{}", JSONArray.toJSON(useCarDataByGroupDto).toString(),loginUser.getUser().getPhonenumber());
+            PageResult<StatisticsForAdminDetailVo> result =  orderStateTraceInfoService.userDeptUseCarDetail(userDeptUseCarDetailDto,loginUser);
+            return ApiResponse.success("查询成功",result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("微服务查询用户部门用车详情数据失败");
         }
     }
 
