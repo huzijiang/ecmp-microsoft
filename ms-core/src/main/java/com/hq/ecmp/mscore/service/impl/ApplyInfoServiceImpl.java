@@ -2064,13 +2064,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             apiResponse.setMsg("您所撤销的订单已经属于服务中或完成状态，不可以撤销了");
             return  apiResponse;
         }
-        List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(undoSMSTemplate.getOrderId()));
-        OrderDispatcheDetailInfo dispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
-        if (StringUtils.isBlank(dispatcheDetailInfo.getItIsUseInnerCarGroup())){
-            apiResponse.setCode(1);
-            apiResponse.setMsg("您所撤销的订单已经属于派车中或服务中，不可以撤销了");
-            return  apiResponse;
-        }
         int i=0;
         if (StringUtils.isNotBlank(applyState)){
             i = applyInfoMapper.updateApplyInfo(applyInfo);
