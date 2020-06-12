@@ -357,7 +357,7 @@ AND a.state ='S270' order by a.create_time desc limit 1
             ifnull(SUM(
             CASE
                 WHEN ji.use_time IS NULL     THEN 0
-                ELSE  CONVERT(ji.use_time,SIGNED)
+                ELSE  ji.use_time
              END
             ),0) AS totalDays,
             ifnull(SUM(
