@@ -91,7 +91,7 @@ token:
   expireTime: 30
 
 thirdService:
-  enterpriseId: 100000
+  enterpriseId: 200000
   licenseContent: AAAAAAAA
   apiUrl: http://10.117.1.231:51002
 
