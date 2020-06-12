@@ -184,7 +184,7 @@ public class BaseController {
     }
 
     /**
-     * 回复投诉
+     * 获取所有未删除的公司名称和id
      * @return
      */
     @ApiOperation(value = "getEcmpName",notes = "获取所有未删除的公司名称和id",httpMethod ="POST")

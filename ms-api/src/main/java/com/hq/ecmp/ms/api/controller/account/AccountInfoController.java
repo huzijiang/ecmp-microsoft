@@ -7,11 +7,7 @@ import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.mscore.domain.InvoiceInfo;
-import com.hq.ecmp.mscore.domain.OrderAccountInfo;
 import com.hq.ecmp.mscore.dto.PageRequest;
-import com.hq.ecmp.mscore.service.IEcmpOrgService;
-import com.hq.ecmp.mscore.service.IInvoiceInfoService;
 import com.hq.ecmp.mscore.service.IOrderAccountInfoService;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
 import com.hq.ecmp.mscore.vo.OrderAccountVO;
@@ -21,12 +17,12 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import jxl.Workbook;
-import jxl.format.*;
 import jxl.format.Alignment;
 import jxl.format.Border;
 import jxl.format.BorderLineStyle;
 import jxl.format.Colour;
 import jxl.format.VerticalAlignment;
+import jxl.format.*;
 import jxl.write.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -52,11 +48,7 @@ import java.util.List;
 public class AccountInfoController {
 
     @Autowired
-    private IEcmpOrgService iEcmpOrgService;
-    @Autowired
     private IOrderAccountInfoService iOrderAccountInfoService;
-    @Autowired
-    private IOrderSettlingInfoService OrderSettlingInfoService;
 
     @Autowired
     private TokenService tokenService;

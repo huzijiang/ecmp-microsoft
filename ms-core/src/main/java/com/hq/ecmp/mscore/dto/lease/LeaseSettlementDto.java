@@ -37,4 +37,6 @@ public class LeaseSettlementDto extends Page {
     Date collectionEndTime;
 
     Long collectionNumber;
+
+    String carGroupName;
 }
