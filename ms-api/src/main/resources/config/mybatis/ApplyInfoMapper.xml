@@ -217,6 +217,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                         ji.use_time useTime,
                         ji.start_date startDate,
                         oi.state state,
+                        oi.order_id orderId,
                         euOne.phonenumber innerPhonenumber,
                         euTwo.phonenumber outerPhonenumber,
                         di.mobile driverMobile,
