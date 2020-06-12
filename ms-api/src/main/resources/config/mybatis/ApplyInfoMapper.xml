@@ -359,7 +359,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         z.state labelState,
         -- 用车方式
         oi.order_id orderId,
-        -- 费用合计
+        di.mobile driverPhone,
+        di.driver_name driverName,
+        cgdr.car_group_name driverCompany,
         case
         when z.state='S100' then '待派车'
         when right (z.state,3)<![CDATA[ >= ]]>'299' and right (z.state,3)<![CDATA[ <= ]]>'900'   then '已派车'

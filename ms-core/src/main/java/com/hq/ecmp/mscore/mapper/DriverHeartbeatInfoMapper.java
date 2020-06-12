@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.DriverHeartbeatInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -60,7 +61,7 @@ public interface DriverHeartbeatInfoMapper
      */
     public int deleteDriverHeartbeatInfoByIds(Long[] heartIds);
 
-    DriverHeartbeatInfo findNowLocation(Long driverId, Long orderId);
+    DriverHeartbeatInfo findNowLocation(@Param("driverId") Long driverId, @Param("orderId") Long orderId);
 
     /**
      * 一个订单多日租当前单的订单轨迹点
