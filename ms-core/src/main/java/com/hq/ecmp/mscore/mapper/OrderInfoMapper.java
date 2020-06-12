@@ -493,5 +493,12 @@ public interface OrderInfoMapper {
      * @return
      */
     List<DisOrderStateCount> getDispatchOrderListWorkBenchCount();
+
+    /***
+     *
+     * @param data
+     * @return
+     */
+    List<OrderListBackDto> getCount(OrderListBackDto data);
 }
 
