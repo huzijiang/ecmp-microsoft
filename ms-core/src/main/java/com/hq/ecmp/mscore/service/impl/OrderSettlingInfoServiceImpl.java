@@ -178,6 +178,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             lastRecordInfo.setTotalFee(orderSettlingInfoVo.getAmount());
             lastRecordInfo.setBeyondMileageFee(orderSettlingInfoVo.getOverMileagePrice());
             lastRecordInfo.setBeyondTimeFee(orderSettlingInfoVo.getOvertimeLongPrice());
+            lastRecordInfo.setWaitFee(orderSettlingInfoVo.getWaitingFee());
             i = costDetailRecordInfoMapper.update(lastRecordInfo);
             if(StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())){
                 String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");

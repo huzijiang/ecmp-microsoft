@@ -89,6 +89,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         cqi.create_time createTime
         from collection_quittance_info cqi where cqi.collection_id = #{collectionId}
     </select>
+
+    <select id="getCollectionNumber" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
+        select
+        cqi.car_group_id carGroupId,
+        cqi.begin_date beginDate,
+        cqi.end_date endDate,
+        cqi.company_id companyId,
+        cqi.state state,
+        cqi.verifier verifier,
+        cqi.create_time createTime
+        from collection_quittance_info cqi where cqi.collection_number = #{collectionNumber}
+    </select>
+
     <update id="ordinaryUserConfirmCost" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
         update collection_quittance_info
             <trim prefix="SET" suffixOverrides=",">
