@@ -146,14 +146,11 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
             List<OrderServiceCostDetailRecordInfo> recordInfos = costDetailRecordInfoMapper.getList(lastRecordInfo);
             lastRecordInfo = recordInfos.get(recordInfos.size() - 1);
 
+            //recordId如果不为空，则该操作为修改订单
             if (orderSettlingInfoVo.getRecordId() != null) {
-                //如果为更改子订单数据
+                //需要重新插入主表
                 isInsertOrderConfing = true;
-                for (OrderServiceCostDetailRecordInfo recordInfo : recordInfos) {
-                    if (recordInfo.getRecordId().equals(orderSettlingInfoVo.getRecordId()))
-                        lastRecordInfo = recordInfo;
-                    break;
-                }
+                lastRecordInfo = recordInfos.stream().filter(o->o.getRecordId().equals(orderSettlingInfoVo.getRecordId())).findAny().get();
             }
             lastRecordInfo.setAccommodationFee(CommonUtils.getBigDecimal(orderSettlingInfoVo.getHotelExpenseFee()));
             lastRecordInfo.setFoodFee(CommonUtils.getBigDecimal(orderSettlingInfo.getRestaurantFee()));
@@ -223,6 +220,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
         BigDecimal overMileagePrice = BigDecimal.ZERO;
         BigDecimal overtimeLongPrice = BigDecimal.ZERO;
         BigDecimal roadAndBridgeFee = BigDecimal.ZERO;
+        BigDecimal waitFee = BigDecimal.ZERO;
         for (OrderServiceCostDetailRecordInfo recordInfo : recordInfos) {
             amount = amount.add(CommonUtils.getBigDecimal(recordInfo.getTotalFee()));
             otherFee = otherFee.add(CommonUtils.getBigDecimal(recordInfo.getOthersFee()));
@@ -233,6 +231,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
             roadAndBridgeFee = roadAndBridgeFee.add(CommonUtils.getBigDecimal(recordInfo.getRoadAndBridgeFee()));
             overMileagePrice = overMileagePrice.add(CommonUtils.getBigDecimal(recordInfo.getBeyondMileageFee()));
             overtimeLongPrice = overtimeLongPrice.add(CommonUtils.getBigDecimal(recordInfo.getBeyondTimeFee()));
+            waitFee = waitFee.add(CommonUtils.getBigDecimal(recordInfo.getWaitFee()));
         }
 
         //计算总费用
@@ -245,6 +244,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
         orderSettlingInfoVo.setOverMileagePrice(overMileagePrice);
         orderSettlingInfoVo.setOvertimeLongPrice(overtimeLongPrice);
         orderSettlingInfoVo.setRoadBridgeFee(roadAndBridgeFee);
+        orderSettlingInfoVo.setWaitingFee(waitFee);
 
         String json = costPrice(orderSettlingInfoVo);
         String extraPrice = extraPrice(orderSettlingInfoVo);
