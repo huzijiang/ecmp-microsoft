@@ -34,7 +34,7 @@ public class ThirdPartServiceController {
     private String licenseContent;
     @Value("${thirdService.apiUrl}") // 三方平台的接口前地址
     private String apiUrl;
-    @Value("${cloud.service.url}")
+    @Value("${thirdService.apiUrl}")
     private String httpurl;
 
     @ApiOperation(value = "location", notes = "根据用户输入的短地址，调用第三方接口返回可用的地址列表及相应的坐标", httpMethod = "POST")
