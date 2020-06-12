@@ -22,6 +22,7 @@
         <result property="stopCarFee" column="stop_car_fee" jdbcType="NUMERIC"/>
         <result property="accommodationFee" column="accommodation_fee" jdbcType="NUMERIC"/>
         <result property="foodFee" column="food_fee" jdbcType="NUMERIC"/>
+        <result property="waitFee" column="wait_fee" jdbcType="NUMERIC"/>
         <result property="othersFee" column="others_fee" jdbcType="NUMERIC"/>
         <result property="totalFee" column="total_fee" jdbcType="NUMERIC"/>
         <result property="beyondMileageFee" column="beyond_mileage_fee" jdbcType="NUMERIC"/>
@@ -146,8 +147,8 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="recordId" useGeneratedKeys="true">
-        insert into order_service_cost_detail_record_info(beyond_mileage_fee,beyond_time_fee,total_fee,order_id, start_longitude, start_latitude, end_longitude, end_latitude, start_time, end_time, mileage, set_meal_cost, set_meal_mileage, set_meal_times, beyond_mileage, beyond_time, road_and_bridge_fee, highway_toll_fee, stop_car_fee, accommodation_fee, food_fee, others_fee, create_by, create_time, update_by, update_time)
-        values (#{beyondMileageFee},#{beyondTimeFee},#{totalFee},#{orderId}, #{startLongitude}, #{startLatitude}, #{endLongitude}, #{endLatitude}, #{startTime}, #{endTime}, #{mileage}, #{setMealCost}, #{setMealMileage}, #{setMealTimes}, #{beyondMileage}, #{beyondTime}, #{roadAndBridgeFee}, #{highwayTollFee}, #{stopCarFee}, #{accommodationFee}, #{foodFee}, #{othersFee}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
+        insert into order_service_cost_detail_record_info(beyond_mileage_fee,beyond_time_fee,total_fee,wait_fee,order_id, start_longitude, start_latitude, end_longitude, end_latitude, start_time, end_time, mileage, set_meal_cost, set_meal_mileage, set_meal_times, beyond_mileage, beyond_time, road_and_bridge_fee, highway_toll_fee, stop_car_fee, accommodation_fee, food_fee, others_fee, create_by, create_time, update_by, update_time)
+        values (#{beyondMileageFee},#{beyondTimeFee},#{totalFee},#{waitFee},#{orderId}, #{startLongitude}, #{startLatitude}, #{endLongitude}, #{endLatitude}, #{startTime}, #{endTime}, #{mileage}, #{setMealCost}, #{setMealMileage}, #{setMealTimes}, #{beyondMileage}, #{beyondTime}, #{roadAndBridgeFee}, #{highwayTollFee}, #{stopCarFee}, #{accommodationFee}, #{foodFee}, #{othersFee}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
     </insert>
 
     <!--通过主键修改数据-->
@@ -207,6 +208,9 @@
             </if>
             <if test="foodFee != null">
                 food_fee = #{foodFee},
+            </if>
+            <if test="waitFee != null">
+                wait_fee = #{waitFee},
             </if>
             <if test="othersFee != null">
                 others_fee = #{othersFee},
