@@ -14,7 +14,6 @@ import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.CostCalculation;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
 import com.hq.ecmp.mscore.vo.OtherCostBean;
-import com.hq.ecmp.mscore.vo.OtherCostVO;
 import com.hq.ecmp.util.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,8 +33,7 @@ import static com.hq.ecmp.constant.CommonConstant.ZERO;
  * @date 2020-01-02
  */
 @Service
-public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
-{
+public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
     @Autowired
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
 
@@ -65,8 +63,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
      * @return 【请填写功能名称】
      */
     @Override
-    public OrderSettlingInfo selectOrderSettlingInfoById(Long billId)
-    {
+    public OrderSettlingInfo selectOrderSettlingInfoById(Long billId) {
         return orderSettlingInfoMapper.selectOrderSettlingInfoById(billId);
     }
 
@@ -77,8 +74,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
      * @return 【请填写功能名称】
      */
     @Override
-    public List<OrderSettlingInfo> selectOrderSettlingInfoList(OrderSettlingInfo orderSettlingInfo)
-    {
+    public List<OrderSettlingInfo> selectOrderSettlingInfoList(OrderSettlingInfo orderSettlingInfo) {
         return orderSettlingInfoMapper.selectOrderSettlingInfoList(orderSettlingInfo);
     }
 
@@ -89,8 +85,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
      * @return 结果
      */
     @Override
-    public int insertOrderSettlingInfo(OrderSettlingInfo orderSettlingInfo)
-    {
+    public int insertOrderSettlingInfo(OrderSettlingInfo orderSettlingInfo) {
         orderSettlingInfo.setCreateTime(DateUtils.getNowDate());
         return orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
     }
@@ -102,8 +97,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
      * @return 结果
      */
     @Override
-    public int updateOrderSettlingInfo(OrderSettlingInfo orderSettlingInfo)
-    {
+    public int updateOrderSettlingInfo(OrderSettlingInfo orderSettlingInfo) {
         orderSettlingInfo.setUpdateTime(DateUtils.getNowDate());
         return orderSettlingInfoMapper.updateOrderSettlingInfo(orderSettlingInfo);
     }
@@ -115,8 +109,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
      * @return 结果
      */
     @Override
-    public int deleteOrderSettlingInfoByIds(Long[] billIds)
-    {
+    public int deleteOrderSettlingInfoByIds(Long[] billIds) {
         return orderSettlingInfoMapper.deleteOrderSettlingInfoByIds(billIds);
     }
 
@@ -127,13 +120,13 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
      * @return 结果
      */
     @Override
-    public int deleteOrderSettlingInfoById(Long billId)
-    {
+    public int deleteOrderSettlingInfoById(Long billId) {
         return orderSettlingInfoMapper.deleteOrderSettlingInfoById(billId);
     }
 
     /**
      * 司机端费用上报提交
+     *
      * @param orderSettlingInfoVo
      * @param userId
      * @param companyId
@@ -148,19 +141,16 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
 
         int i = 0;
         //是否为多日组，如果为多日租，则记录费用子表
-        if(isMoreDay){
-            OrderServiceCostDetailRecordInfo lastRecordInfo =  OrderServiceCostDetailRecordInfo.builder().orderId(orderSettlingInfoVo.getOrderId()).build();
+        if (isMoreDay) {
+            OrderServiceCostDetailRecordInfo lastRecordInfo = OrderServiceCostDetailRecordInfo.builder().orderId(orderSettlingInfoVo.getOrderId()).build();
             List<OrderServiceCostDetailRecordInfo> recordInfos = costDetailRecordInfoMapper.getList(lastRecordInfo);
-            lastRecordInfo = recordInfos.get(recordInfos.size()-1);
+            lastRecordInfo = recordInfos.get(recordInfos.size() - 1);
 
-            if(orderSettlingInfoVo.getRecordId()!=null){
-                //如果为更改子订单数据
+            //recordId如果不为空，则该操作为修改订单
+            if (orderSettlingInfoVo.getRecordId() != null) {
+                //需要重新插入主表
                 isInsertOrderConfing = true;
-                for (OrderServiceCostDetailRecordInfo recordInfo : recordInfos) {
-                    if(recordInfo.getRecordId().equals(orderSettlingInfoVo.getRecordId()))
-                    lastRecordInfo = recordInfo;
-                    break;
-                }
+                lastRecordInfo = recordInfos.stream().filter(o->o.getRecordId().equals(orderSettlingInfoVo.getRecordId())).findAny().get();
             }
             lastRecordInfo.setAccommodationFee(CommonUtils.getBigDecimal(orderSettlingInfoVo.getHotelExpenseFee()));
             lastRecordInfo.setFoodFee(CommonUtils.getBigDecimal(orderSettlingInfo.getRestaurantFee()));
@@ -172,29 +162,30 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             lastRecordInfo.setMileage(CommonUtils.getBigDecimal(orderSettlingInfoVo.getTotalMileage()));
             lastRecordInfo.setSetMealCost(orderSettlingInfoVo.getSetMealCost());
             lastRecordInfo.setSetMealMileage(orderSettlingInfoVo.getSetMealMileage());
-            lastRecordInfo.setSetMealTimes((int)orderSettlingInfoVo.getSetMealTimes());
+            lastRecordInfo.setSetMealTimes((int) orderSettlingInfoVo.getSetMealTimes());
             lastRecordInfo.setBeyondMileage(orderSettlingInfoVo.getBeyondMileage());
-            lastRecordInfo.setBeyondTime((int)orderSettlingInfoVo.getBeyondTime());
+            lastRecordInfo.setBeyondTime((int) orderSettlingInfoVo.getBeyondTime());
             lastRecordInfo.setTotalFee(orderSettlingInfoVo.getAmount());
             lastRecordInfo.setBeyondMileageFee(orderSettlingInfoVo.getOverMileagePrice());
             lastRecordInfo.setBeyondTimeFee(orderSettlingInfoVo.getOvertimeLongPrice());
+            lastRecordInfo.setWaitFee(orderSettlingInfoVo.getWaitingFee());
             i = costDetailRecordInfoMapper.update(lastRecordInfo);
-            if(StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())){
-                String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
+            if (StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())) {
+                String[] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
                 OrderServiceImagesInfo imagesInfo = OrderServiceImagesInfo.builder()
                         .recordId(lastRecordInfo.getRecordId()).build();
-                for (String url:imageUrl){
+                for (String url : imageUrl) {
                     imagesInfo.setImageUrl(url);
                     imagesInfoMapper.insert(imagesInfo);
                 }
             }
             //计算所有子行程的和
-            if(isInsertOrderConfing){
+            if (isInsertOrderConfing) {
                 settlement(orderSettlingInfoVo, recordInfos);
             }
         }
         //判断是否插入主表
-        if(isInsertOrderConfing){
+        if (isInsertOrderConfing) {
             i = orderSettlingInfoMapper.insertOrderSettlingInfoOne(orderSettlingInfoVo);
             Long billId = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(orderSettlingInfoVo.getOrderId()).getBillId();
             OrderAccountInfo orderAccountInfo = OrderAccountInfo.builder()
@@ -206,9 +197,9 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                     .build();
             accountInfoMapper.insertOrderAccountInfo(orderAccountInfo);
             orderSettlingInfoVo.setBillId(billId);
-            if(StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())){
-                String [] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
-                for (String url:imageUrl){
+            if (StringUtils.isNotEmpty(orderSettlingInfoVo.getImageUrl())) {
+                String[] imageUrl = orderSettlingInfoVo.getImageUrl().split(",");
+                for (String url : imageUrl) {
                     orderSettlingInfoVo.setImageUrl(url);
                     orderSettlingInfoMapper.insertOrderSettlingImageInfo(orderSettlingInfoVo);
                 }
@@ -229,6 +220,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         BigDecimal overMileagePrice = BigDecimal.ZERO;
         BigDecimal overtimeLongPrice = BigDecimal.ZERO;
         BigDecimal roadAndBridgeFee = BigDecimal.ZERO;
+        BigDecimal waitFee = BigDecimal.ZERO;
         for (OrderServiceCostDetailRecordInfo recordInfo : recordInfos) {
             amount = amount.add(CommonUtils.getBigDecimal(recordInfo.getTotalFee()));
             otherFee = otherFee.add(CommonUtils.getBigDecimal(recordInfo.getOthersFee()));
@@ -239,6 +231,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             roadAndBridgeFee = roadAndBridgeFee.add(CommonUtils.getBigDecimal(recordInfo.getRoadAndBridgeFee()));
             overMileagePrice = overMileagePrice.add(CommonUtils.getBigDecimal(recordInfo.getBeyondMileageFee()));
             overtimeLongPrice = overtimeLongPrice.add(CommonUtils.getBigDecimal(recordInfo.getBeyondTimeFee()));
+            waitFee = waitFee.add(CommonUtils.getBigDecimal(recordInfo.getWaitFee()));
         }
 
         //计算总费用
@@ -251,6 +244,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         orderSettlingInfoVo.setOverMileagePrice(overMileagePrice);
         orderSettlingInfoVo.setOvertimeLongPrice(overtimeLongPrice);
         orderSettlingInfoVo.setRoadBridgeFee(roadAndBridgeFee);
+        orderSettlingInfoVo.setWaitingFee(waitFee);
 
         String json = costPrice(orderSettlingInfoVo);
         String extraPrice = extraPrice(orderSettlingInfoVo);
@@ -260,10 +254,12 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
 
     @Override
     public BigDecimal getAllFeeAmount(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId) throws ParseException {
-        return  new GetAllfee(orderSettlingInfoVo, userId, companyId).invoke().getOrderSettlingInfo().getAmount();
+        return new GetAllfee(orderSettlingInfoVo, userId, companyId).invoke().getOrderSettlingInfo().getAmount();
     }
+
     /**
      * 取消费格式化
+     *
      * @param orderSettlingInfoVo
      * @param personalCancellationFee
      * @param enterpriseCancellationFee
@@ -272,7 +268,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
     @Override
     public String formatCostFee(OrderSettlingInfoVo orderSettlingInfoVo, BigDecimal personalCancellationFee, BigDecimal enterpriseCancellationFee) {
         Map map = new HashMap();
-        List list= new ArrayList();
+        List list = new ArrayList();
         //默认个人取消费用为0
         //BigDecimal personalCancellationFee = BigDecimal.ZERO;
         //默认个人取消费用为0
@@ -280,30 +276,30 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //个人取消费
         //OrderSettling.setPersonalCancellationFee(personalCancellationFee);
         Map personalCancellation = new HashMap();
-        personalCancellation.put("cost",personalCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        personalCancellation.put("typeName","personalAmount");
+        personalCancellation.put("cost", personalCancellationFee.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        personalCancellation.put("typeName", "personalAmount");
         list.add(personalCancellation);
         //企业取消费
         //OrderSettling.setEnterpriseCancellationFee(enterpriseCancellationFee);
         Map enterpriseCancellation = new HashMap();
-        enterpriseCancellation.put("cost",enterpriseCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        enterpriseCancellation.put("typeName","ownerAmount");
+        enterpriseCancellation.put("cost", enterpriseCancellationFee.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        enterpriseCancellation.put("typeName", "ownerAmount");
         list.add(enterpriseCancellation);
-        map.put("otherCost",list);
-        String json= JSON.toJSONString(map);
+        map.put("otherCost", list);
+        String json = JSON.toJSONString(map);
         return json;
     }
 
 
-
     /**
      * 成本价详情
+     *
      * @param orderSettlingInfoVo
      * @return
      */
-    public String costPrice(OrderSettlingInfoVo orderSettlingInfoVo){
+    public String costPrice(OrderSettlingInfoVo orderSettlingInfoVo) {
         Map map = new HashMap();
-        List list= new ArrayList();
+        List list = new ArrayList();
         String serviceType = orderSettlingInfoVo.getServiceType();
         //默认个人取消费用为0
 //        BigDecimal personalCancellationFee = BigDecimal.ZERO;
@@ -342,20 +338,20 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //超里程价格
         //OrderSettling.setOverMileagePrice(orderSettlingInfoVo.getOverMileagePrice());
         Map overMileagePrice = new HashMap();
-        overMileagePrice.put("cost",orderSettlingInfoVo.getOverMileagePrice().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        overMileagePrice.put("typeName","超里程价格");
+        overMileagePrice.put("cost", orderSettlingInfoVo.getOverMileagePrice().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        overMileagePrice.put("typeName", "超里程价格");
         list.add(overMileagePrice);
         //超时长价格
         //OrderSettling.setOvertimeLongPrice(orderSettlingInfoVo.getOvertimeLongPrice());
         Map overtimeLongPrice = new HashMap();
-        overtimeLongPrice.put("cost",orderSettlingInfoVo.getOvertimeLongPrice().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        overtimeLongPrice.put("typeName","超时长价格");
+        overtimeLongPrice.put("cost", orderSettlingInfoVo.getOvertimeLongPrice().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        overtimeLongPrice.put("typeName", "超时长价格");
         list.add(overtimeLongPrice);
         //起步价
         //OrderSettling.setStartingPrice(orderSettlingInfoVo.getStartingPrice());
         Map startingPrice = new HashMap();
-        startingPrice.put("cost",orderSettlingInfoVo.getStartingPrice().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        startingPrice.put("typeName","起步价");
+        startingPrice.put("cost", orderSettlingInfoVo.getStartingPrice().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        startingPrice.put("typeName", "起步价");
         list.add(startingPrice);
         //等待费
         //OrderSettling.setWaitingFee(orderSettlingInfoVo.getWaitingFee());
@@ -377,19 +373,20 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //enterpriseCancellation.put("cost",enterpriseCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
         //enterpriseCancellation.put("typeName","企业取消费");
         //list.add(enterpriseCancellation);
-        map.put("otherCost",list);
-        String json= JSON.toJSONString(map);
+        map.put("otherCost", list);
+        String json = JSON.toJSONString(map);
         return json;
     }
 
     /**
      * 价外费详情
+     *
      * @param orderSettlingInfoVo
      * @return
      */
-    public String extraPrice(OrderSettlingInfoVo orderSettlingInfoVo){
+    public String extraPrice(OrderSettlingInfoVo orderSettlingInfoVo) {
         Map map = new HashMap();
-        List list= new ArrayList();
+        List list = new ArrayList();
         //默认个人取消费用为0
 //        BigDecimal personalCancellationFee = BigDecimal.ZERO;
         //默认个人取消费用为0
@@ -397,38 +394,38 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //路桥费
         //OrderSettling.setRoadBridgeFee(orderSettlingInfoVo.getRoadBridgeFee());
         Map roadBridgeFee = new HashMap();
-        roadBridgeFee.put("cost",orderSettlingInfoVo.getRoadBridgeFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        roadBridgeFee.put("typeName","路桥费");
+        roadBridgeFee.put("cost", orderSettlingInfoVo.getRoadBridgeFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        roadBridgeFee.put("typeName", "路桥费");
         list.add(roadBridgeFee);
         //高速费
         //OrderSettling.setHighSpeedFee(orderSettlingInfoVo.getHighSpeedFee());
         Map highSpeedFee = new HashMap();
-        highSpeedFee.put("cost",orderSettlingInfoVo.getHighSpeedFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        highSpeedFee.put("typeName","高速费");
+        highSpeedFee.put("cost", orderSettlingInfoVo.getHighSpeedFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        highSpeedFee.put("typeName", "高速费");
         list.add(highSpeedFee);
         //停车费
         //OrderSettling.setParkingRateFee(orderSettlingInfoVo.getParkingRateFee());
         Map parkingRateFee = new HashMap();
-        parkingRateFee.put("cost",orderSettlingInfoVo.getParkingRateFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        parkingRateFee.put("typeName","停车费");
+        parkingRateFee.put("cost", orderSettlingInfoVo.getParkingRateFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        parkingRateFee.put("typeName", "停车费");
         list.add(parkingRateFee);
         //住宿费
         //OrderSettling.setHotelExpenseFee(orderSettlingInfoVo.getHotelExpenseFee());
         Map hotelExpenseFee = new HashMap();
-        hotelExpenseFee.put("cost",orderSettlingInfoVo.getHotelExpenseFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        hotelExpenseFee.put("typeName","住宿费");
+        hotelExpenseFee.put("cost", orderSettlingInfoVo.getHotelExpenseFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        hotelExpenseFee.put("typeName", "住宿费");
         list.add(hotelExpenseFee);
         //餐饮费
         //OrderSettling.setRestaurantFee(orderSettlingInfoVo.getRestaurantFee());
         Map restaurantFee = new HashMap();
-        restaurantFee.put("cost",orderSettlingInfoVo.getRestaurantFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        restaurantFee.put("typeName","餐饮费");
+        restaurantFee.put("cost", orderSettlingInfoVo.getRestaurantFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        restaurantFee.put("typeName", "餐饮费");
         list.add(restaurantFee);
         //其他费用
         //OrderSettling.setRestaurantFee(orderSettlingInfoVo.getRestaurantFee());
         Map otherFee = new HashMap();
-        otherFee.put("cost",orderSettlingInfoVo.getOtherFee().setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
-        otherFee.put("typeName","其他费用");
+        otherFee.put("cost", orderSettlingInfoVo.getOtherFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        otherFee.put("typeName", "其他费用");
         list.add(otherFee);
         //超里程价格
         //OrderSettling.setOverMileagePrice(orderSettlingInfoVo.getOverMileagePrice());
@@ -466,8 +463,8 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         //enterpriseCancellation.put("cost",enterpriseCancellationFee.setScale(2,BigDecimal.ROUND_HALF_UP).toPlainString());
         //enterpriseCancellation.put("typeName","企业取消费");
         //list.add(enterpriseCancellation);
-        map.put("otherCost",list);
-        String json= JSON.toJSONString(map);
+        map.put("otherCost", list);
+        String json = JSON.toJSONString(map);
         return json;
     }
 
@@ -505,7 +502,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         public GetAllfee invoke() throws ParseException {
             //计算等待时长
             BigDecimal waitingTime = orderWaitTraceInfoMapper.selectOrderWaitingTimeById(orderSettlingInfoVo.getOrderId());
-            orderSettlingInfoVo.setWaitingTime(waitingTime == null?BigDecimal.ZERO:waitingTime);
+            orderSettlingInfoVo.setWaitingTime(waitingTime == null ? BigDecimal.ZERO : waitingTime);
 
             //查询该订单的记录  城市  服务类型  车型级别  包车类型 公司id
             OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderSettlingInfoVo.getOrderId());
@@ -536,9 +533,6 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             isChartered = false;
 
 
-
-
-
             //服务类型为包车
             if (orderInfo.getServiceType().equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState())) {
                 //服务类型属于包车
@@ -548,10 +542,10 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                 //T000  非包车 T001 半日租（4小时） T002 整日租（8小时） T009多日租
                 String carType = journeyInfo.getCharterCarType();
                 //判断多日租中当天是为半日组还是整日租
-                if(CharterTypeEnum.MORE_RENT_TYPE.getKey().equals(carType)){
+                if (CharterTypeEnum.MORE_RENT_TYPE.getKey().equals(carType)) {
                     Date startDate = journeyInfo.getStartDate();
                     Date endDate = journeyInfo.getEndDate();
-                    carType = CommonUtils.getCarType(startDate,endDate,Double.parseDouble(journeyInfo.getUseTime()));
+                    carType = CommonUtils.getCarType(startDate, endDate, Double.parseDouble(journeyInfo.getUseTime()));
                 }
                 //包车类型
                 costConfigQueryDto.setRentType(carType);
@@ -559,49 +553,49 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                 Map driverCostInfo = costConfigInfoMapper.getDriverInfo(orderInfo.getDriverId());
                 Map carCostInfo = costConfigInfoMapper.getCarInfo(orderInfo.getCarId());
                 //判断是否为
-                if(String.valueOf(driverCostInfo.get("driverCarGroupId")).equals(String.valueOf(carCostInfo.get("carCarGroupId")))){
+                if (String.valueOf(driverCostInfo.get("driverCarGroupId")).equals(String.valueOf(carCostInfo.get("carCarGroupId")))) {
                     //车队使用模式
                     costConfigQueryDto.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA00.getKey());
                     //车队id
                     costConfigQueryDto.setCarGroupId(carInfo.getCarGroupId());
                     CostConfigInfo costConfigInfo = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
-                    if(costConfigInfo == null){
+                    if (costConfigInfo == null) {
                         throw new BaseException("该车队车辆及驾驶员暂未配置价格计划");
                     }
                     costConfigInfoList.add(costConfigInfo);
-                }else{
+                } else {
                     //仅用车
                     costConfigQueryDto.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA01.getKey());
                     //车队id
                     costConfigQueryDto.setCarGroupId(Long.parseLong(String.valueOf(carCostInfo.get("carCarGroupId"))));
                     CostConfigInfo costConfigInfo1 = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
                     costConfigInfoList.add(costConfigInfo1);
-                    if(costConfigInfo1 == null){
+                    if (costConfigInfo1 == null) {
                         throw new BaseException("该车队车辆暂未配置价格计划");
                     }
-                    if(driverCostInfo!=null){
+                    if (driverCostInfo != null) {
                         //仅用驾驶员
                         costConfigQueryDto.setCarGroupUserMode(CostConfigModeEnum.Config_mode_CA10.getKey());
                         //车队id
                         costConfigQueryDto.setCarGroupId(Long.parseLong(String.valueOf(driverCostInfo.get("driverCarGroupId"))));
                         CostConfigInfo costConfigInfo2 = costConfigInfoMapper.selectCostConfigInfo(costConfigQueryDto);
-                        if(costConfigInfo2 == null){
+                        if (costConfigInfo2 == null) {
                             throw new BaseException("该车队驾驶员暂未配置价格计划");
                         }
                         costConfigInfoList.add(costConfigInfo2);
                     }
                 }
                 //判断是需要插入订单信息子表
-                if("T001".equals(carType) ||"T002".equals(carType)||"T009".equals(carType)){
+                if ("T001".equals(carType) || "T002".equals(carType) || "T009".equals(carType)) {
                     isChartered = true;
                     //订单预计结束时间
-                    if(!DateUtils.isBeforeNowDate(journeyInfo.getEndDate())){
+                    if (!DateUtils.isBeforeNowDate(journeyInfo.getEndDate())) {
                         isInsertOrderConfing = false;
                     }
                 }
             } else {
                 List<CostConfigListResult> costConfigListResult = costConfigInfoMapper.selectCostConfigInfoList(costConfigQueryDto);
-                if(costConfigListResult.isEmpty()){
+                if (costConfigListResult.isEmpty()) {
                     myResult = true;
                     return this;
                 }
@@ -619,23 +613,23 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
             orderSettlingInfoVo.setCreateBy(userId.toString());
             orderSettlingInfoVo.setAmountDetail(json);
             orderSettlingInfoVo.setOutPrice(extraPrice);
-            orderSettlingInfoVo.setAmount(orderSettlingInfoVo.getAmount().setScale(2,BigDecimal.ROUND_HALF_UP));
+            orderSettlingInfoVo.setAmount(orderSettlingInfoVo.getAmount().setScale(2, BigDecimal.ROUND_HALF_UP));
             myResult = false;
             return this;
         }
     }
 
     @Override
-    public Map<String,Object> getOrderFee(OrderSettlingInfo orderSettlingInfo){
-        Map<String,Object> result= Maps.newHashMap();
-        List<OtherCostBean> otherCostBeans=new ArrayList<>();
-        String amount="";
-        String totalMileage="";
-        String totalTime="";
-        if (orderSettlingInfo!=null){
+    public Map<String, Object> getOrderFee(OrderSettlingInfo orderSettlingInfo) {
+        Map<String, Object> result = Maps.newHashMap();
+        List<OtherCostBean> otherCostBeans = new ArrayList<>();
+        String amount = "";
+        String totalMileage = "";
+        String totalTime = "";
+        if (orderSettlingInfo != null) {
             amount = orderSettlingInfo.getAmount() == null ? null : orderSettlingInfo.getAmount().stripTrailingZeros().toPlainString();
-            totalMileage=orderSettlingInfo.getTotalMileage()==null?String.valueOf(ZERO):orderSettlingInfo.getTotalMileage().stripTrailingZeros().toPlainString();
-            totalTime=orderSettlingInfo.getTotalTime()==null?String.valueOf(ZERO):orderSettlingInfo.getTotalTime().stripTrailingZeros().toPlainString();
+            totalMileage = orderSettlingInfo.getTotalMileage() == null ? String.valueOf(ZERO) : orderSettlingInfo.getTotalMileage().stripTrailingZeros().toPlainString();
+            totalTime = orderSettlingInfo.getTotalTime() == null ? String.valueOf(ZERO) : orderSettlingInfo.getTotalTime().stripTrailingZeros().toPlainString();
             String amountDetail = orderSettlingInfo.getAmountDetail();
             String outPrice = orderSettlingInfo.getOutPrice();
             if (StringUtils.isNotEmpty(amountDetail)) {
@@ -651,15 +645,15 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
                 otherCostBeans.addAll(outPriceList);
             }
         }
-        result.put("amount",amount);
-        result.put("totalMileage",totalMileage);
-        result.put("totalTime",totalTime);
-        result.put("otherCostBeans",otherCostBeans);
+        result.put("amount", amount);
+        result.put("totalMileage", totalMileage);
+        result.put("totalTime", totalTime);
+        result.put("otherCostBeans", otherCostBeans);
         return result;
     }
 
     @Override
-    public void selfDriverCostPrice(OrderSettlingInfoVo orderSettlingInfoVo,Long userId,Long companyId,Long costCenter){
+    public void selfDriverCostPrice(OrderSettlingInfoVo orderSettlingInfoVo, Long userId, Long companyId, Long costCenter) {
         OrderSettlingInfo orderSettlingInfo = new OrderSettlingInfo();
         String json = costPrice(orderSettlingInfoVo);
         String extraPrice = extraPrice(orderSettlingInfoVo);
@@ -667,34 +661,34 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService
         orderSettlingInfo.setOutPrice(extraPrice);
         orderSettlingInfo.setAmount(orderSettlingInfoVo.getAmount());
         orderSettlingInfo.setOrderId(orderSettlingInfoVo.getOrderId());
-        orderSettlingInfo.setCreateBy(userId+"");
+        orderSettlingInfo.setCreateBy(userId + "");
         orderSettlingInfo.setCreateTime(DateUtils.getNowDate());
         orderSettlingInfoMapper.insertOrderSettlingInfo(orderSettlingInfo);
         //插入账务表
-        OrderAccountInfo accountInfo=new OrderAccountInfo();
+        OrderAccountInfo accountInfo = new OrderAccountInfo();
         accountInfo.setBillId(orderSettlingInfo.getBillId());
         accountInfo.setAmount(orderSettlingInfoVo.getAmount());
         accountInfo.setOrderId(orderSettlingInfoVo.getOrderId());
         accountInfo.setCompanyId(companyId);
         accountInfo.setCostCenter(costCenter);
         accountInfo.setState(CarConstant.START_CAR);
-        accountInfo.setCreateBy(userId+"");
+        accountInfo.setCreateBy(userId + "");
         accountInfo.setCreateTime(DateUtils.getNowDate());
         accountInfoMapper.insertOrderAccountInfo(accountInfo);
         List<OrderAddressInfo> orderAddressInfos = orderAddressInfoMapper.selectOrderAddressInfoList(new OrderAddressInfo(orderSettlingInfoVo.getOrderId()));
-        OrderServiceCostDetailRecordInfo costDetailRecordInfo=new OrderServiceCostDetailRecordInfo();
+        OrderServiceCostDetailRecordInfo costDetailRecordInfo = new OrderServiceCostDetailRecordInfo();
         costDetailRecordInfo.setOrderId(orderSettlingInfoVo.getOrderId());
         costDetailRecordInfo.setCreateBy(userId);
         costDetailRecordInfo.setCreateTime(DateUtils.getNowDate());
         costDetailRecordInfo.setSetMealCost(orderSettlingInfoVo.getAmount());
-        if (!CollectionUtils.isEmpty(orderAddressInfos)){
-            for (OrderAddressInfo info:orderAddressInfos){
-                if ("A000".equals(info.getType())){
+        if (!CollectionUtils.isEmpty(orderAddressInfos)) {
+            for (OrderAddressInfo info : orderAddressInfos) {
+                if ("A000".equals(info.getType())) {
                     costDetailRecordInfo.setStartAddress(info.getAddress());
                     costDetailRecordInfo.setStartLongitude(BigDecimal.valueOf(info.getLongitude()));
                     costDetailRecordInfo.setStartLatitude(BigDecimal.valueOf(info.getLatitude()));
                     costDetailRecordInfo.setStartTime(info.getActionTime());
-                }else{
+                } else {
                     costDetailRecordInfo.setEndAddress(info.getAddress());
                     costDetailRecordInfo.setEndLongitude(BigDecimal.valueOf(info.getLongitude()));
                     costDetailRecordInfo.setEndLatitude(BigDecimal.valueOf(info.getLatitude()));

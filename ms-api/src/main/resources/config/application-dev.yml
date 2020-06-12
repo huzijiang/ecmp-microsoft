@@ -161,4 +161,4 @@ ali:
 
 cloud:
   service:
-    url: http://10.7.106.112:51002/
+    url: http://10.7.106.112:51002

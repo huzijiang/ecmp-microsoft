@@ -206,29 +206,35 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryApplyUndoList" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.UndoSMSTemplate">
 
             SELECT
-                          eu.nick_name nickName,
-                          eu.phonenumber phonenumber,
-                          jpi.name   vehicleUser ,
-                          jpi.mobile   vehicleUserMobile,
-                          ai.notes notes,
-                          ji.use_time  useTime,
-                          ji.start_date startDate,
-                          oi.state  state,
-                          euOne.phonenumber  innerPhonenumber,
-                          euTwo.phonenumber outerPhonenumber,
-                          di.mobile  driverMobile,
-	                      oi.order_number orderNumber
-                        FROM
-                          apply_info ai
-                          LEFT JOIN journey_info ji ON ai.journey_id = ji.journey_id
-                          LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = ji.journey_id
-                          LEFT JOIN ecmp_user eu ON ai.create_by = eu.user_id
-                          LEFT JOIN order_info oi ON oi.journey_id = ai.journey_id
-                          LEFT JOIN order_dispatche_detail_info oddi ON  oi.order_id = oddi.order_id
-                          LEFT JOIN ecmp_user euOne ON oddi.inner_dispatcher = euOne.user_id
-                          LEFT JOIN ecmp_user euTwo ON oddi.outer_dispatcher = euTwo.user_id
-                          LEFT JOIN driver_info di ON di.driver_id = oi.driver_id
-                        WHERE
+                        eu.owner_company companyId,
+                        eu.nick_name nickName,
+                        eo.dept_name deptName,
+                        ecti.`name` carTypeName,
+                        eu.phonenumber phonenumber,
+                        jpi.NAME vehicleUser,
+                        jpi.mobile vehicleUserMobile,
+                        ai.notes notes,
+                        ji.use_time useTime,
+                        ji.start_date startDate,
+                        oi.state state,
+                        oi.order_id orderId,
+                        euOne.phonenumber innerPhonenumber,
+                        euTwo.phonenumber outerPhonenumber,
+                        di.mobile driverMobile,
+                        oi.order_number orderNumber
+                    FROM
+                        apply_info ai
+                        LEFT JOIN journey_info ji ON ai.journey_id = ji.journey_id
+                        LEFT JOIN journey_passenger_info jpi ON jpi.journey_id = ji.journey_id
+                        LEFT JOIN ecmp_user eu ON ai.create_by = eu.user_id
+                        LEFT JOIN ecmp_org eo ON eu.dept_id = eo.dept_id
+                        LEFT JOIN order_info oi ON oi.journey_id = ai.journey_id
+                        LEFT JOIN order_dispatche_detail_info oddi ON oi.order_id = oddi.order_id
+                        LEFT JOIN ecmp_user euOne ON oddi.inner_dispatcher = euOne.user_id
+                        LEFT JOIN ecmp_user euTwo ON oddi.outer_dispatcher = euTwo.user_id
+                        LEFT JOIN driver_info di ON di.driver_id = oi.driver_id
+                        LEFT JOIN enterprise_car_type_info ecti ON ecti.car_type_id = ai.car_type_id
+                    WHERE
                             apply_id = #{applyId}
 
     </select>
@@ -452,6 +458,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="getJourneyAddressInfoByJourneyId" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.vo.AddressVO">
 
         select address_info address from journey_address_info  where  journey_id =#{journeyId}
+
+    </select>
+
+    <select id="getUndoSMSTemplate" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.domain.UndoSMSTemplate">
+
+        SELECT
+                ecty.NAME carTypeName,
+                oi.order_number orderNumber,
+                eo.dept_name deptName
+            FROM
+                apply_info ai
+                LEFT JOIN order_info oi ON ai.journey_id = oi.journey_id
+                LEFT JOIN ecmp_user eu ON eu.user_id = oi.user_id
+                LEFT JOIN ecmp_org eo ON eo.dept_id = eu.dept_id
+                LEFT JOIN enterprise_car_type_info ecty ON ecty.car_type_id = ai.car_type_id
+            WHERE
+                ai.apply_id = #{applyId}
 
     </select>
 </mapper>

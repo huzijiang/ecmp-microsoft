@@ -1500,7 +1500,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto,LoginUser user) {
         String key = isDispatcher(user);
         if(null==key){
-            orderListBackDto.setUserId(user.getUser().getUserId());
+            //orderListBackDto.setUserId(user.getUser().getUserId());
         }else if("admin".equals(key)){
             orderListBackDto.setUserId(null);
             orderListBackDto.setUpdateBy(null);
@@ -2976,87 +2976,120 @@ public class OrderInfoServiceImpl implements IOrderInfoService
      */
     @Override
     public Map<String,Object> orderServiceCategory(LoginUser user)throws Exception{
-        //String key = isDispatcher(user);
-        Map<String, Object> map = orderInfoMapper.orderServiceCategory();
-        if(null!=map){
-            JSONObject json = new JSONObject(addDataTable(map));
-            return json;
+        String key = isDispatcher(user);
+        OrderListBackDto orderListBackDto = new OrderListBackDto();
+        if(null==key){
+            //orderListBackDto.setUserId(user.getUser().getUserId());
+        }else if("admin".equals(key)){
+            orderListBackDto.setUserId(null);
+            orderListBackDto.setUpdateBy(null);
+        }else{
+            orderListBackDto.setUpdateBy("C000".equals(key)?null:user.getUser().getUserId());
         }
-        return null;
+        JSONObject json = new JSONObject(addDataTable(orderListBackDto));
+        return json;
     }
 
 
     /***
-     * 拼接来自数据库模型的table参数
      * add by liuzb
-     * @param map
+     * @param data
      * @return
      * @throws Exception
      */
-    private Map<String,Object> addDataTable(Map<String,Object> map)throws Exception{
-        Map<String,Object> data = new HashMap<>();
+    private Map<String,Object> addDataTable(OrderListBackDto data)throws Exception{
         Map<String,Object> dataMap = new HashMap<>();
+        Map<String,Object> map = new HashMap<>();
 
+        data.setState("S299");
+        List<OrderListBackDto> toBeServed= orderInfoMapper.getCount(data);
         dataMap.put("msg","待服务");
-        dataMap.put("value",map.get("toBeServed").toString());
+        dataMap.put("value",null==toBeServed ?0:toBeServed.size());
         dataMap.put("code","S299");
-        data.put("toBeServed",dataMap);
+        dataMap.put("sort","1");
+        map.put("toBeServed",dataMap);
 
         dataMap = new HashMap<>();
         dataMap.put("msg","待出车");
-        dataMap.put("value",map.get("waitingToLeave").toString());
+        data.setState("S300");
+        List<OrderListBackDto> waitingToLeave = orderInfoMapper.getCount(data);
+        dataMap.put("value",null==waitingToLeave ?0:waitingToLeave.size());
         dataMap.put("code","S300");
-        data.put("waitingToLeave",dataMap);
+        dataMap.put("sort","2");
+        map.put("waitingToLeave",dataMap);
 
         dataMap = new HashMap<>();
+        data.setState("S301");
+        List<OrderListBackDto> toBePickedUp= orderInfoMapper.getCount(data);
         dataMap.put("msg","待还车");
-        dataMap.put("value",map.get("toBePickedUp").toString());
+        dataMap.put("value",null==toBePickedUp ?0:toBePickedUp.size());
         dataMap.put("code","S301");
-        data.put("toBePickedUp",dataMap);
+        dataMap.put("sort","3");
+        map.put("toBePickedUp",dataMap);
 
         dataMap = new HashMap<>();
+        data.setState("S500");
+        List<OrderListBackDto> takingOver= orderInfoMapper.getCount(data);
         dataMap.put("msg","接驾中");
-        dataMap.put("value",map.get("takingOver").toString());
+        dataMap.put("value",null==takingOver ?0:takingOver.size());
         dataMap.put("code","S500");
-        data.put("takingOver",dataMap);
+        dataMap.put("sort","4");
+        map.put("takingOver",dataMap);
 
         dataMap = new HashMap<>();
+        data.setState("S600");
+        List<OrderListBackDto> etcUpperCar= orderInfoMapper.getCount(data);
         dataMap.put("msg","待上车");
-        dataMap.put("value",map.get("etcUpperCar").toString());
+        dataMap.put("value",null==etcUpperCar ?0:etcUpperCar.size());
         dataMap.put("code","S600");
-        data.put("etcUpperCar",dataMap);
+        dataMap.put("sort","5");
+        map.put("etcUpperCar",dataMap);
 
         dataMap = new HashMap<>();
+        data.setState("S616");
+        List<OrderListBackDto> inService= orderInfoMapper.getCount(data);
         dataMap.put("msg","服务中");
-        dataMap.put("value",map.get("inService").toString());
+        dataMap.put("value",null==inService ?0:inService.size());
         dataMap.put("code","S616");
-        data.put("inService",dataMap);
+        dataMap.put("sort","6");
+        map.put("inService",dataMap);
 
         dataMap = new HashMap<>();
+        data.setState("S635");
+        List<OrderListBackDto> serviceSuspension= orderInfoMapper.getCount(data);
         dataMap.put("msg","服务中止");
-        dataMap.put("value",map.get("serviceSuspension").toString());
+        dataMap.put("value",null==serviceSuspension ?0:serviceSuspension.size());
         dataMap.put("code","S635");
-        data.put("serviceSuspension",dataMap);
+        dataMap.put("sort","7");
+        map.put("serviceSuspension",dataMap);
 
         dataMap = new HashMap<>();
+        data.setState("S699");
+        List<OrderListBackDto> toBeConfirmed= orderInfoMapper.getCount(data);
         dataMap.put("msg","待确认");
-        dataMap.put("value",map.get("toBeConfirmed").toString());
+        dataMap.put("value",null==toBeConfirmed ?0:toBeConfirmed.size());
         dataMap.put("code","S699");
-        data.put("toBeConfirmed",dataMap);
+        dataMap.put("sort","8");
+        map.put("toBeConfirmed",dataMap);
 
         dataMap = new HashMap<>();
+        data.setState("S900");
+        List<OrderListBackDto> completed= orderInfoMapper.getCount(data);
         dataMap.put("msg","已完成");
-        dataMap.put("value",map.get("completed").toString());
+        dataMap.put("value",null==completed ?0:completed.size());
         dataMap.put("code","S900");
-        data.put("completed",dataMap);
+        dataMap.put("sort","9");
+        map.put("completed",dataMap);
 
         dataMap = new HashMap<>();
+        data.setState("S911");
+        List<OrderListBackDto> cancelled= orderInfoMapper.getCount(data);
         dataMap.put("msg","已取消");
-        dataMap.put("value",map.get("cancelled").toString());
+        dataMap.put("value",null==cancelled ?0:cancelled.size());
         dataMap.put("code","S911");
-        data.put("cancelled",dataMap);
-
-        return data;
+        dataMap.put("sort","10");
+        map.put("cancelled",dataMap);
+        return map;
     }
 
 
@@ -3093,12 +3126,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
 
-    @Override
-    public List<MoneyListDto> getMoneyList(ReckoningDto param) {
 
-        return orderInfoMapper.getMoneyList(param);
-
-    }
 
     @Override
     public Map<String, Map<String, Integer>> selectOrderCarGroup(Long companyId) {
@@ -3113,10 +3141,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfoMapper.selectOrderCarGroup(companyId).stream().forEach(x->{
             //map.get(x.get("date")).put("all",map.get(x.get("date")).get("all")+1);
             if(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN.equals(x.get("it_is_inner"))){
-                if("S001".equals(map.get("source"))){
+                if("S001".equals(x.get("source"))){
                     map.get(x.get("date")).put("in_have",map.get(x.get("date")).get("in_have")+1);
                 }
-                if("S002".equals(map.get("source"))|| "S003".equals(map.get("source"))){
+                if("S002".equals(x.get("source"))|| "S003".equals(x.get("source"))){
                     map.get(x.get("date")).put("in_rent",map.get(x.get("date")).get("in_rent")+1);
                 }
             }
@@ -3182,5 +3210,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return map;
     }
 
+    @Override
+    public PayeeInfoDto getPayeeInfo(ReckoningDto param) {
+        return orderInfoMapper.getPayeeInfo(param);
+    }
+    @Override
+    public List<MoneyListDto> getMoneyList(ReckoningDto param) {
+
+        return orderInfoMapper.getMoneyList(param);
+
+    }
 
 }

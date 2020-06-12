@@ -47,10 +47,10 @@ public class UndoSMSTemplate {
     @ApiModelProperty(name = "companyId", value = "公司id")
     private Long companyId;
 
-    @ApiModelProperty(name = "companyId", value = "内部调度员手机号")
+    @ApiModelProperty(name = "innerPhonenumber", value = "内部调度员手机号")
     private String innerPhonenumber;
 
-    @ApiModelProperty(name = "companyId", value = "外部调度员手机号")
+    @ApiModelProperty(name = "outerPhonenumber", value = "外部调度员手机号")
     private String outerPhonenumber;
 
     @ApiModelProperty(name = "driverMobile", value = "驾驶员手机号")
@@ -58,4 +58,13 @@ public class UndoSMSTemplate {
 
     @ApiModelProperty(name = "orderNumber", value = "订单编号")
     private String orderNumber;
+
+    @ApiModelProperty(name = "deptName", value = "申请人单位名称")
+    private String deptName;
+
+    @ApiModelProperty(name = "carTypeName", value = "服务车型")
+    private String carTypeName;
+
+    @ApiModelProperty(name = "orderId", value = "订单id")
+    private Long orderId;
 }

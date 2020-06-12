@@ -153,7 +153,7 @@ public interface IApplyInfoService
      * @param applySingleVO
      * @return
      */
-    ApiResponse updateApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO);
+    ApiResponse updateApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) throws Exception;
     /**
      * 获取申请单详情
      */

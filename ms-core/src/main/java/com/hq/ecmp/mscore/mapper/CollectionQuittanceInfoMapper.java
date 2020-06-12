@@ -14,8 +14,6 @@ import java.util.Map;
 @Repository
 public interface CollectionQuittanceInfoMapper {
 
-    PayeeInfoDto getPayeeInfo(ReckoningDto param);
-
     void add(ReckoningInfo param);
 
     void updateReckoningStatus(ReckoningDto param);
@@ -37,6 +35,10 @@ public interface CollectionQuittanceInfoMapper {
      * @return
      */
     LeaseSettlementDto getOrdinaryUserById(@Param("collectionId") Long collectionId);
+
+
+    /** 通过收款唯一标识查询数据*/
+    LeaseSettlementDto getCollectionNumber(@Param("collectionNumber") Long collectionNumber);
 
     /***
      * 更新结算单状态

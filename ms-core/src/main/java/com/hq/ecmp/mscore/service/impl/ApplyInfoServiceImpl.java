@@ -114,6 +114,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Autowired
     private OrderAddressInfoMapper orderAddressInfoMapper;
 
+    @Autowired
+    private OrderDispatcheDetailInfoMapper dispatcheDetailInfoMapper;
+
     private ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("apply-pool-%d").build();
     private ExecutorService executor = new ThreadPoolExecutor(5, 200,
             0L, TimeUnit.MILLISECONDS,
@@ -2181,7 +2184,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @return
      */
     @Override
-    public ApiResponse updateApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) {
+    public ApiResponse updateApplySingle(LoginUser loginUser, ApplySingleVO applySingleVO) throws Exception{
         ApiResponse apiResponse = new ApiResponse();
         //判断上下车地点的城市是否至少有一个在服务城市集范围内
         String startCode = applySingleVO.getStartAddr().getCityCode();
@@ -2201,6 +2204,13 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applySingleVO.setRegimenId(regimenId);
         //查询所需要的id
         ApplySingleIdVO applySingleIdVO = applyInfoMapper.getApplySingleIdVO(applySingleVO.getApplyId());
+        List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(applySingleIdVO.getOrderId()));
+        OrderDispatcheDetailInfo dispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
+        if (StringUtils.isNotBlank(dispatcheDetailInfo.getItIsUseInnerCarGroup())){
+            apiResponse.setCode(1);
+            apiResponse.setMsg("您所修改的订单已经属于派车中或服务中，不可以修改了");
+            return  apiResponse;
+        }
         //1.修改乘客行程信息 journey_info表
         JourneyInfo journeyInfo = new JourneyInfo();
         journeyInfo.setJourneyId(applySingleIdVO.getJourneyId());
@@ -2267,6 +2277,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         orderDispatcheDetailInfo.setCreateTime(DateUtils.getNowDate());
         orderDispatcheDetailInfo.setDispatchId(applySingleIdVO.getDispatchId().intValue());
         int i = orderDispatcheDetailInfoMapper.updateOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
+        //发送短信 --- 用车人撤销  用车人申请短信  内部所有调度员
+        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applySingleIdVO.getApplyId());
+        ismsBusiness.sendUpdateApplyInfoSms(undoSMSTemplate);
         if(i == 1){
             apiResponse.setMsg("修改申请单成功");
         }else {

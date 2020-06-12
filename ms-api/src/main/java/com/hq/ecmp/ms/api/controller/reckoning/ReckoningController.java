@@ -52,16 +52,9 @@ public class ReckoningController {
         log.info("添加收款，传来的参数为："+param);
         try {
             ReckoningInfo reckoningInfo = new ReckoningInfo();
-            HttpServletRequest request = ServletUtils.getRequest();
-            LoginUser loginUser = tokenService.getLoginUser(request);
-            Long userId = loginUser.getUser().getUserId();
-            reckoningInfo.setCreateBy(userId);
-            Long carGroupId = icarGroupInfoService.findgroupIdByUserId(userId);
-            reckoningInfo.setCarGroupId(carGroupId);
             reckoningInfo.setState(CollectionQuittanceEnum.COLLECTION_WAIT.getKey());
-            reckoningInfo.setApplicant(userId);
             reckoningInfo.setCreateTime(new Date());
-            reckoningInfo.setCompanyId(param.getCompanyId());
+            reckoningInfo.setServiceOrg(param.getCompanyId());
             reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD));
@@ -97,7 +90,7 @@ public class ReckoningController {
             reckoningInfo.setCarGroupId(param.getCarGroupId());
             reckoningInfo.setBeginDate(DateUtils.strToDate(param.getStartDate(),DateUtils.YYYY_MM_DD));
             reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD));
-            reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD));
+            //reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD));
             reckoningInfo.setCollectionId(param.getCollectionId());
             reckoningInfo.setCompanyId(param.getCompanyId());
 
@@ -122,7 +115,7 @@ public class ReckoningController {
         log.info("条件查询收款，传来的参数为："+param);
         try {
 
-            if(null != param && !StringUtils.isEmpty(param.getStatus()) && param.getCompanyId() > 0){
+            if(null != param && !StringUtils.isEmpty(param.getStatus()) && param.getCollectionNumber() > 0){
                 collectionService.updateReckoningStatus(param);
                 return ApiResponse.success("改变收款状态收款成功！");
             }else {

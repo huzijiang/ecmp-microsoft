@@ -151,4 +151,11 @@ public interface ApplyInfoMapper
      * @return
      */
     List<AddressVO> getJourneyAddressInfoByJourneyId(@Param("journeyId")Long journeyId);
+
+    /**
+     * 查询申请单调度员所需要的短信内容
+     * @param applyId
+     * @return
+     */
+    UndoSMSTemplate getUndoSMSTemplate(@Param("applyId") Long applyId);
 }

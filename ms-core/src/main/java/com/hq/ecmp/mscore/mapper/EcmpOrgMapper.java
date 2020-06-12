@@ -300,4 +300,6 @@ public interface EcmpOrgMapper {
 
     /** 查询所有公司名称 - id */
     List<Map> selectIdAndName(@Param("userId") Long userId);
+
+    List<Map> getEcmpNameAll();
 }

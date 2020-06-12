@@ -28,7 +28,7 @@ public class StatisticsForAdminVo {
 
     //累计用车天数
     @ApiModelProperty(value = "累计用车天数")
-    private Long useTimes;
+    private String useTimes;
 
     //内部总次数
     @ApiModelProperty(value = "内部总次数")
@@ -40,7 +40,7 @@ public class StatisticsForAdminVo {
 
     //内部累计用车天数
     @ApiModelProperty(value = "内部累计用车天数")
-    private Long useTimesByIn;
+    private String useTimesByIn;
 
     //外部车队总次数
     @ApiModelProperty(value = "外部车队总次数")
@@ -52,7 +52,7 @@ public class StatisticsForAdminVo {
 
     //外部车队累计用车天数
     @ApiModelProperty(value = "外部车队累计用车天数")
-    private Long useTimesByOut;
+    private String useTimesByOut;
 
     //车牌号
     @ApiModelProperty(value = "车牌号")

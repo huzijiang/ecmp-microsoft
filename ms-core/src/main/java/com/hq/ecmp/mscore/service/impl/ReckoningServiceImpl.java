@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CollectionQuittanceEnum;
@@ -12,9 +13,11 @@ import com.hq.ecmp.mscore.domain.ReckoningInfo;
 import com.hq.ecmp.mscore.dto.MoneyListDto;
 import com.hq.ecmp.mscore.dto.PayeeInfoDto;
 import com.hq.ecmp.mscore.dto.ReckoningDto;
+import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
 import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
 import com.hq.ecmp.mscore.mapper.CollectionQuittanceInfoMapper;
 import com.hq.ecmp.mscore.service.CollectionQuittanceInfoService;
+import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -39,12 +42,25 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
 
     @Autowired
     private IOrderInfoService orderInfoService;
+
+
+    @Autowired
+    private ICarGroupInfoService icarGroupInfoService;
     /**
      * 添加收款信息
      * @param param
      */
     @Override
     public void addReckoning(ReckoningInfo param) {
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        param.setCreateBy(userId);
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        param.setCompanyId(companyId);
+        Long carGroupId = icarGroupInfoService.findgroupIdByUserId(userId);
+        param.setCarGroupId(carGroupId);
+        param.setApplicant(userId);
         collectionService.add(param);
     }
 
@@ -79,24 +95,25 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
      */
     public Map<String, Object> reckoningDetail(ReckoningDto param) {
 
-
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         param.setUserId(loginUser.getUser().getUserId());
         Map<String, Object>  resultMap = new HashMap<>();
         Map<Object, Object> allMap = new HashMap<>();
-        //返回没有 收款 的月份集合
-        List<String> dateList = carGroupInfoMapper.reckoningDetail(param);
-        //返回收款详情
-        PayeeInfoDto  payeeInfo = collectionService.getPayeeInfo(param);
-        param.setCarGroupId(payeeInfo.getCarGroupId());
+        /**返回收款详情 */
+        //PayeeInfoDto  payeeInfo = collectionService.getPayeeInfo(param);
+        PayeeInfoDto  payeeInfo = orderInfoService.getPayeeInfo(param);
         if(null != payeeInfo){
+            param.setCarGroupId(payeeInfo.getCarGroupId());
             payeeInfo.setCollectionId(getRandomFileName());
         }
-        List<MoneyListDto> moneyList = orderInfoService.getMoneyList(param);//用车费用详情列表
+        /** 用车费用详情列表 */
+        List<MoneyListDto> moneyList = orderInfoService.getMoneyList(param);
         if(null == moneyList){
             return null;
         }
+        /** 返回没有 收款 的月份集合 */
+        List<String> dateList = carGroupInfoMapper.reckoningDetail(param);
         List<Map<String,Object>> carTypeMapList = new ArrayList<>();//根据车类型统计用车天数 费用
         if(null != moneyList && moneyList.size() > 0){
             for (int i = 0; i < moneyList.size(); i++) {
@@ -183,9 +200,9 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
         reckoningDto.setStartDate(DateUtils.formatDate(param.getBeginDate(),DateUtils.YYYY_MM_DD));
         reckoningDto.setEndDate(DateUtils.formatDate(param.getEndDate(),DateUtils.YYYY_MM_DD));
         reckoningDto.setCompanyId(param.getCompanyId());
-        String collectionEndTime = DateUtils.formatDate(param.getCollectionEndTime(), DateUtils.YYYY_MM_DD_HH_MM_SS);
+//        String collectionEndTime = DateUtils.formatDate(param.getCollectionEndTime(), DateUtils.YYYY_MM_DD_HH_MM_SS);
         Map<String, Object> stringObjectMap = reckoningDetail(reckoningDto);
-        stringObjectMap.put("collectionEndTime",collectionEndTime);
+//        stringObjectMap.put("collectionEndTime",collectionEndTime);
         stringObjectMap.remove("moneyList");
         return stringObjectMap;
     }

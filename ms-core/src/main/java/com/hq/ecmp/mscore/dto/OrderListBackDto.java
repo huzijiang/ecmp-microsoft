@@ -24,6 +24,8 @@ public class OrderListBackDto extends PageRequest {
     @ApiModelProperty(value = "乘车人")
     private String passengerName;
 
+    private String passengerMobile;
+
     @ApiModelProperty(value = "同行人")
     private String peerName;
 
