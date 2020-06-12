@@ -13,7 +13,10 @@ import com.github.pagehelper.PageInfo;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.dto.UseCarDataByGroupDto;
 import com.hq.ecmp.mscore.dto.UseCarDataDto;
+import com.hq.ecmp.mscore.dto.UserDeptUseCarDetailDto;
+import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.StatisticsForAdminDetailVo;
 import com.hq.ecmp.mscore.vo.UseCarDataVo;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +61,8 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 	private EcmpMessageMapper ecmpMessageMapper;
 	@Autowired
 	private EcmpUserMapper ecmpUserMapper;
+	@Autowired
+	private OrderInfoMapper orderInfoMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -314,5 +319,20 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 		}
 		PageInfo<UseCarDataVo> info = new PageInfo<>(list);
 		return new PageResult<UseCarDataVo>(info.getTotal(),info.getPages(),list);
+	}
+
+	@Override
+	public PageResult<StatisticsForAdminDetailVo> userDeptUseCarDetail(UserDeptUseCarDetailDto userDeptUseCarDetailDto, LoginUser loginUser) {
+		//用户部门
+		Long deptId = loginUser.getUser().getDept().getDeptId();
+		Integer pageNum = userDeptUseCarDetailDto.getPageNum();
+		Integer pageSize = userDeptUseCarDetailDto.getPageSize();
+		String beginDate = userDeptUseCarDetailDto.getBeginDate();
+		String endDate = userDeptUseCarDetailDto.getEndDate();
+		String carGroupName = userDeptUseCarDetailDto.getCarGroupName();
+		PageHelper.startPage(pageNum,pageSize);
+		List<StatisticsForAdminDetailVo> list = orderInfoMapper.userDeptUseCarDetail(beginDate,endDate,carGroupName,deptId);
+		PageInfo<StatisticsForAdminDetailVo> info = new PageInfo<>(list);
+		return new PageResult<>(info.getTotal(),info.getPages(),list);
 	}
 }

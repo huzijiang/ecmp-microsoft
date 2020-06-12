@@ -3146,10 +3146,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfoMapper.selectOrderCarGroup(companyId).stream().forEach(x->{
             //map.get(x.get("date")).put("all",map.get(x.get("date")).get("all")+1);
             if(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN.equals(x.get("it_is_inner"))){
-                if("S001".equals(map.get("source"))){
+                if("S001".equals(x.get("source"))){
                     map.get(x.get("date")).put("in_have",map.get(x.get("date")).get("in_have")+1);
                 }
-                if("S002".equals(map.get("source"))|| "S003".equals(map.get("source"))){
+                if("S002".equals(x.get("source"))|| "S003".equals(x.get("source"))){
                     map.get(x.get("date")).put("in_rent",map.get(x.get("date")).get("in_rent")+1);
                 }
             }
