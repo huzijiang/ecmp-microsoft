@@ -93,4 +93,5 @@ public interface IEcmpUserFeedbackInfoService
     PageResult<EcmpUserFeedbackVo> findFeedback(EcmpUserFeedbackInfo ecmpUserFeedbackInfo);
 
 
+    int insertUserFeedbackInfo(EcmpUserFeedbackInfo ecmpUserFeedbackInfo);
 }

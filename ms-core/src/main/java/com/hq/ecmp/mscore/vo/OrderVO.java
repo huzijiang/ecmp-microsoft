@@ -44,6 +44,10 @@ public class OrderVO {
     private String carGroupPhone;
     @ApiModelProperty(name = "carGroupName",value = "车队电话")
     private String carGroupName;
+    @ApiModelProperty(name = "dispatcherPhone",value = "调度员电话")
+    private String dispatcherPhone;
+    @ApiModelProperty(name = "dispatcherName",value = "调度员电话")
+    private String dispatcherName;
     @ApiModelProperty(name = "isAddContact",value = "是否添加联系人(1是0否)")
     private String isAddContact;
     @ApiModelProperty(name = "driverType",value = "司机类型(企业驾驶员/网约驾驶员)")
