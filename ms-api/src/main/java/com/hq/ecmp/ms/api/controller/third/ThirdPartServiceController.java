@@ -42,7 +42,7 @@ public class ThirdPartServiceController {
 
     @ApiOperation(value = "location", notes = "根据用户输入的短地址，调用第三方接口返回可用的地址列表及相应的坐标", httpMethod = "POST")
     @PostMapping(value = "/location")
-    public ApiResponse<List<LocationVO>> location( LocationDTO locationDTO) {
+    public ApiResponse<List<LocationVO>> location( @RequestBody LocationDTO locationDTO) {
 
         try {
             // MAC地址
