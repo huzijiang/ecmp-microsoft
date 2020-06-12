@@ -64,4 +64,7 @@ public class UndoSMSTemplate {
 
     @ApiModelProperty(name = "carTypeName", value = "服务车型")
     private String carTypeName;
+
+    @ApiModelProperty(name = "orderId", value = "订单id")
+    private Long orderId;
 }
