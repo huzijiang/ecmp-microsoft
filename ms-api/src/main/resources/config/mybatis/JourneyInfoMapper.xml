@@ -221,13 +221,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		a.journey_id AS journeyId,
 		a.use_car_time AS useCarTime,
 		a.service_type AS serviceType,
-		a.use_car_mode AS useCarMode
+		a.use_car_mode AS useCarMode,
+		a.use_time AS useTime
 		FROM
 		journey_info a
 		LEFT JOIN apply_info b ON a.journey_id = b.journey_id
 		WHERE
 		b.state = 'S002'
-		AND b.create_by = #{userId} ORDER BY b.update_time desc
+		AND b.create_by
+		in (
+		select user_id from ecmp_user where dept_id=(SELECT dept_id FROM ecmp_user where user_id=#{userId})
+		)
+		ORDER BY b.update_time desc
 	</select>
     <select id="selectTitleById" resultType="java.lang.String">
         select title from journey_info where journey_id = #{journeyId}

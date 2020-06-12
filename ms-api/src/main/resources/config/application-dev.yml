@@ -158,7 +158,3 @@ ali:
   format: "json"
   sign_type: "RSA2"
   refund_notify_url: "https://dev-app-api.hqzhixing.com/pay/ali/v2/callback"
-
-cloud:
-  service:
-    url: http://10.7.106.112:51002

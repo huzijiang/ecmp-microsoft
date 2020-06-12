@@ -37,8 +37,6 @@ public class ThirdPartServiceController {
     private String licenseContent;
     @Value("${thirdService.apiUrl}") // 三方平台的接口前地址
     private String apiUrl;
-    @Value("${cloud.service.url}")
-    private String httpurl;
 
     @ApiOperation(value = "location", notes = "根据用户输入的短地址，调用第三方接口返回可用的地址列表及相应的坐标", httpMethod = "POST")
     @PostMapping(value = "/location")
@@ -79,7 +77,7 @@ public class ThirdPartServiceController {
             map.put("enterpriseId", enterpriseId);
             map.put("licenseContent", licenseContent);
             String postJson = OkHttpUtil
-                .postForm(httpurl + "/service/enterpriseOrderGetCalculatePrice", map);
+                .postForm(apiUrl + "/service/enterpriseOrderGetCalculatePrice", map);
             JSONObject parseObject = JSONObject.parseObject(postJson);
             if (!"0".equals(parseObject.getString("code"))) {
                 return ApiResponse.error("调用云端接口获取预付价格失败!");
@@ -103,7 +101,7 @@ public class ThirdPartServiceController {
             map.put("mac", macAddress);
             map.put("enterpriseId", enterpriseId);
             map.put("licenseContent", licenseContent);
-            String postJson = OkHttpUtil.postForm(httpurl + "/service/getFlightInfo", map);
+            String postJson = OkHttpUtil.postForm(apiUrl + "/service/getFlightInfo", map);
             if (StringUtils.isEmpty(postJson)) {
                 return ApiResponse.success("航班信息未更新");
             }
@@ -133,7 +131,7 @@ public class ThirdPartServiceController {
             map.put("licenseContent", licenseContent);
             //必须传个空的，不然报错
             map.put("year", "");
-            String postJson = OkHttpUtil.postForm(httpurl + "/basic/holidays", map);
+            String postJson = OkHttpUtil.postForm(apiUrl + "/basic/holidays", map);
 
             if (StringUtils.isEmpty(postJson)) {
                 return ApiResponse.success("未查询到法定节假日信息");
@@ -162,7 +160,7 @@ public class ThirdPartServiceController {
             map.put("enterpriseId", enterpriseId);
             map.put("licenseContent", licenseContent);
             map.put("mac", MacTools.getMacList().get(0));
-            String postJson = OkHttpUtil.postForm(httpurl + "/basic/400110", map);
+            String postJson = OkHttpUtil.postForm(apiUrl + "/basic/400110", map);
             if (StringUtils.isEmpty(postJson)) {
                 return ApiResponse.success("未查询到云端电话");
             }
@@ -192,7 +190,7 @@ public class ThirdPartServiceController {
             queryOrderStateMap.put("licenseContent", licenseContent);
             queryOrderStateMap.put("mac", macAdd);
             queryOrderStateMap.put("enterpriseOrderId", orderNo);
-            String resultQuery = OkHttpUtil.postForm(httpurl + "/service/orderCount",
+            String resultQuery = OkHttpUtil.postForm(apiUrl + "/service/orderCount",
                 queryOrderStateMap);
             JSONObject parseObject = JSONObject.parseObject(resultQuery);
             if (!"0".equals(parseObject.getString("code"))) {

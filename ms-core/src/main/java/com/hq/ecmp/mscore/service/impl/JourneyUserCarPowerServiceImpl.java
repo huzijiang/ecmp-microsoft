@@ -527,7 +527,7 @@ public class JourneyUserCarPowerServiceImpl implements IJourneyUserCarPowerServi
 			return OrderState.ALREADYSENDING.getState();
 		}
 		
-		if(OrderState.INSERVICE.getState().equals(vaildOrdetrState)){
+		if(OrderState.INSERVICE.getState().equals(vaildOrdetrState) || OrderState.SERVICE_SUSPEND.getState().equals(vaildOrdetrState)){
 			//订单状态为服务中  则对应前端状态为进行中
 			return OrderState.INSERVICE.getState();
 		}
