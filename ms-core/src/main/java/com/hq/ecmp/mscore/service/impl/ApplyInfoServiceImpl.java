@@ -2206,7 +2206,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         ApplySingleIdVO applySingleIdVO = applyInfoMapper.getApplySingleIdVO(applySingleVO.getApplyId());
         List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(applySingleIdVO.getOrderId()));
         OrderDispatcheDetailInfo dispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
-        if (StringUtils.isBlank(dispatcheDetailInfo.getItIsUseInnerCarGroup())){
+        if (StringUtils.isNotBlank(dispatcheDetailInfo.getItIsUseInnerCarGroup())){
             apiResponse.setCode(1);
             apiResponse.setMsg("您所修改的订单已经属于派车中或服务中，不可以修改了");
             return  apiResponse;
