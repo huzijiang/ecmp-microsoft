@@ -44,9 +44,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateReckoningStatus" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
         update collection_quittance_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="state != null ">update_time = #{status},</if>
+            <if test="status != null ">state = #{status},</if>
         </trim>
-        where company_id = #{companyId}
+        where collection_number = #{collectionNumber}
     </update>
 
     <select id="getOrdinaryUserList" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
