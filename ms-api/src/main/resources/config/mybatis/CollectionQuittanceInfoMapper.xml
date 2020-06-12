@@ -54,7 +54,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             cqi.company_id companyId,
             cqi.collection_number collectionNumber,
             cqi.collection_end_time collectionEndTime,
-            cgi.car_group_name deptName,
+            eo.dept_name deptName,
+            cgi.car_group_name carGroupName,
             cgi.car_group_id carGroupId,
             cqi.begin_date beginDate,
             cqi.end_date endDate,
@@ -64,12 +65,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
        from collection_quittance_info cqi
         left join car_group_info cgi on cgi.car_group_id = cqi.car_group_id
         left join ecmp_user eu on eu.user_id = cqi.verifier
+        left join ecmp_org eo on eo.dept_id = cqi.service_org
         where 1=1
         <if test="companyId!=null and companyId!=''" >
             cqi.company_id=#{companyId}
         </if>
         <if test="deptName!=null and deptName!=''" >
-            and  cgi.car_group_name  like concat('%',#{deptName},'%')
+            and  eo.dept_name  like concat('%',#{deptName},'%')
+        </if>
+        <if test="carGroupName!=null and carGroupName!=''" >
+            and  cgi.car_group_name  like concat('%',#{carGroupName},'%')
         </if>
         <if test="collectionNumber!=null and collectionNumber!=''" >
             and  cqi.collection_number like concat('%',#{collectionNumber},'%')
