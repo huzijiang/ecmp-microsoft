@@ -398,6 +398,7 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         List<EcmpUserFeedbackVo> backInfoList =  ecmpUserFeedbackInfoMapper.findFeedback(ecmpUserFeedbackInfo);
         PageInfo<EcmpUserFeedbackVo> info = new PageInfo<>(backInfoList);
         return new PageResult<>(info.getTotal(),info.getPages(),backInfoList);
+
     }
 
 
