@@ -728,6 +728,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="null != companyId and companyId !=''">
                     and s.company_id = #{companyId}
                 </if>
+                <if test="null != itIsSelfDriver and itIsSelfDriver !=''">
+                    and oodi.it_is_self_driver='Y000'
+                </if>
                <!-- <if test="null != userId and userId !=''">
                     and s.create_by = #{userId}
                 </if>-->
@@ -3417,6 +3420,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join car_group_info cgi on cgi.car_group_id = ci.car_group_id
         <where>
             and s.state = 	(select state from order_state_trace_info sti where sti.order_id=s.order_id and s.state = #{state} order by trace_id desc limit 1)
+            <if test="null != itIsSelfDriver and itIsSelfDriver !=''">
+                and oodi.it_is_self_driver='Y000'
+            </if>
             <if test="null != companyId and companyId !=''">
                 and s.company_id = #{companyId}
             </if>
