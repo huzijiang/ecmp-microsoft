@@ -715,7 +715,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="charterCarType != null and  charterCarType!='' "> and  ji.charter_car_type = #{charterCarType}</if>
                 <if test="useCarTimeBegin != null and  useCarTimeBegin!='' "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &gt;= DATE_FORMAT(#{useCarTimeBegin},'%Y-%m-%d %H:%i:%S')</if>
                 <if test="useCarTimeEnd != null and  useCarTimeEnd!='' "> and DATE_FORMAT(ji.use_car_time,'%Y-%m-%d %H:%i:%S') &lt;= DATE_FORMAT(#{useCarTimeEnd},'%Y-%m-%d %H:%i:%S')</if>
-                <if test="orderState != null and  orderState!='' "> and s.state = #{orderState}</if>
                 <if test="orderId != null and  orderId!=''"> and s.order_id  like concat('%',#{orderId},'%') </if>
                 <if test="carLicense != null and  carLicense!=''"> and ci.car_license  like concat('%',#{carLicense},'%') </if>
                 <if test="driverName != null and  driverName!=''"> and di.driver_name  like concat('%',#{driverName},'%') </if>
@@ -732,12 +731,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                <!-- <if test="null != userId and userId !=''">
                     and s.create_by = #{userId}
                 </if>-->
-                <if test="null != updateBy and updateBy !=''">
-                    and s.car_id in (
-                        select car_id  from car_info where car_group_id in
-                        (select car_group_id from car_group_dispatcher_info where user_id=#{updateBy})
-                    )
-                </if>
+                and s.state = 	(select state from order_state_trace_info sti where sti.order_id=s.order_id and s.state = #{orderState} order by trace_id desc limit 1)
             </where>
             group by s.order_id
             order by a.create_time desc
@@ -3390,7 +3384,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         left join car_info ci on ci.car_id =s.car_id
         left join car_group_info cgi on cgi.car_group_id = ci.car_group_id
         <where>
-            <if test="state != null and  state!='' "> and s.state = #{state}</if>
+            and s.state = 	(select state from order_state_trace_info sti where sti.order_id=s.order_id and s.state = #{state} order by trace_id desc limit 1)
             <if test="null != companyId and companyId !=''">
                 and s.company_id = #{companyId}
             </if>
