@@ -44,13 +44,13 @@ public class EcmpUserFeedbackInfo extends BaseEntity
     private String result;
 
     //单位id
-    private Long ecmpId;
+    private Long deptId;
     //投诉标题
     private String title;
     //状态
-    private int status;
+    private String status;
     //起始页
-    private int pageIndex;
+    private int pageNum;
     //显示条数
     private Integer pageSize;
 
