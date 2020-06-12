@@ -69,7 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join ecmp_org eo on eo.dept_id = cqi.service_org
         where 1=1
         <if test="companyId!=null and companyId!=''" >
-            cqi.company_id=#{companyId}
+            and cqi.company_id=#{companyId}
         </if>
         <if test="deptName!=null and deptName!=''" >
             and  eo.dept_name  like concat('%',#{deptName},'%')
@@ -82,6 +82,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
         <if test="state!=null and state!=''" >
             and  cqi.state =#{state}
+        </if>
+        <if test="createBy!=null and createBy!=''" >
+            and  cqi.create_by =#{createBy}
         </if>
     </select>
     <select id="getOrdinaryUserById" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
