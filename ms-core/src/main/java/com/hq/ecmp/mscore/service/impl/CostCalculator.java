@@ -69,7 +69,7 @@ public class CostCalculator implements CostCalculation {
             //包车的情况下
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
                 //套餐价
-                startingPrice = startingPrice.add(costConfigInfo.getStartPrice());
+                startingPrice = startingPrice.add(costConfigInfo.getCombosPrice());
                 setMealMileage = setMealMileage.add(costConfigInfo.getCombosMileage());
                 setMealTimes += costConfigInfo.getCombosTimes().intValue();
 

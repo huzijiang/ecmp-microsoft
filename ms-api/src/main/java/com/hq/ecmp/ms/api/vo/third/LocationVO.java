@@ -1,4 +1,4 @@
-package com.hq.ecmp.mscore.vo;
+package com.hq.ecmp.ms.api.vo.third;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
