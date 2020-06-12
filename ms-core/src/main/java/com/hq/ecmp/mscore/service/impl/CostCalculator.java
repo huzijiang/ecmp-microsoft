@@ -31,7 +31,7 @@ public class CostCalculator implements CostCalculation {
         //服务类型
         String serviceType = orderSettlingInfoVo.getServiceType();
         //实际行程时间= 总时长 - 等待时长
-        BigDecimal  waitingTime = new BigDecimal(orderSettlingInfoVo.getTotalTime()).subtract(orderSettlingInfoVo.getWaitingTime());
+        BigDecimal  waitingTime = orderSettlingInfoVo.getWaitingTime();
         //所有的费用
         BigDecimal amount ;
         //订单里程的总价格
@@ -96,9 +96,11 @@ public class CostCalculator implements CostCalculation {
                     beyondTime = beyondTime+temBeyondTime;
                     overtimeLongPrice= overtimeLongPrice.add(new BigDecimal(temBeyondTime).multiply(costConfigInfo.getBeyondPriceEveryMinute().divide(new BigDecimal("60"),2,BigDecimal.ROUND_HALF_UP)));
                 }
-                //总价=（等待时长*等待单价）+(起步价)+(超里程价格)+(超时长价格)
-                totalPrice = totalPrice.add(startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
+                //等待费用
+                waitingFee = waitingFee.add(costConfigInfo.getWaitPriceEreryMinute().multiply(waitingTime));
             }
+            //总价=（等待时长*等待单价）+(起步价)+(超里程价格)+(超时长价格)
+            totalPrice = setMealCost.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice);
             setMealMileage = setMealMileage.divide(new BigDecimal(costConfigInfoList.size()));
             setMealTimes = setMealTimes/costConfigInfoList.size();
             beyondMileage = beyondMileage.divide(new BigDecimal(costConfigInfoList.size()));
@@ -108,8 +110,6 @@ public class CostCalculator implements CostCalculation {
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
                 //起步价
                 startingPrice=costConfigInfo.getStartPrice();
-                // 等待费=（等待时长*等待单价）
-                waitingFee=orderSettlingInfoVo.getWaitingTime().multiply(costConfigInfo.getWaitPriceEreryMinute());
                 //超里程数小于&&等于1  则不计算他的超里程费用
                 if(orderSettlingInfoVo.getTotalMileage().compareTo(costConfigInfo.getCombosMileage())==1){
                     //超里程价格=（总里程-包含里程）* 超里程单价
@@ -124,15 +124,15 @@ public class CostCalculator implements CostCalculation {
                     //超时长价格=(总时长-包含时长)* 超时长单价
                     overtimeLongPrice=overtimeLongPrice.add(new BigDecimal(orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue()).multiply(costConfigInfo.getBeyondPriceEveryMinute()));
                 }
-                totalPrice = totalPrice.add(startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
+                //等待费用
+                waitingFee = waitingFee.add(costConfigInfo.getWaitPriceEreryMinute().multiply(waitingTime));
             }
+            totalPrice = startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice);
         }else if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_PICK_UP.getBcState())){
             //接机
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
                 //起步价
                 startingPrice=costConfigInfo.getStartPrice();
-                // 等待费=（等待时长*等待单价）
-                waitingFee=orderSettlingInfoVo.getWaitingTime().multiply(costConfigInfo.getWaitPriceEreryMinute());
                 //超里程数小于&&等于1  则不计算他的超里程费用
                 if(orderSettlingInfoVo.getTotalMileage().compareTo(costConfigInfo.getCombosMileage())==1){
                     //超里程价格=（总里程-包含里程）* 超里程单价
@@ -147,15 +147,16 @@ public class CostCalculator implements CostCalculation {
                     //超时长价格=(总时长-包含时长)* 超时长单价
                     overtimeLongPrice=overtimeLongPrice.add(new BigDecimal(orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue()).multiply(costConfigInfo.getBeyondPriceEveryMinute()));
                 }
-                totalPrice = totalPrice.add(startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
+                //等待费用
+                waitingFee = waitingFee.add(costConfigInfo.getWaitPriceEreryMinute().multiply(waitingTime));
             }
+            totalPrice = startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice);
         }else if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_SEND.getBcState())){
             //送机
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
                 //起步价
                 startingPrice=costConfigInfo.getStartPrice();
                 // 等待费=（等待时长*等待单价）
-                waitingFee=orderSettlingInfoVo.getWaitingTime().multiply(costConfigInfo.getWaitPriceEreryMinute());
                 //超里程数小于&&等于1  则不计算他的超里程费用
                 if(orderSettlingInfoVo.getTotalMileage().compareTo(costConfigInfo.getCombosMileage())==1){
                     //超里程价格=（总里程-包含里程）* 超里程单价
@@ -166,15 +167,15 @@ public class CostCalculator implements CostCalculation {
                     //超时长价格=(总时长-包含时长)* 超时长单价
                     overtimeLongPrice=overtimeLongPrice.add(new BigDecimal(orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue()).multiply(costConfigInfo.getBeyondPriceEveryMinute()));
                 }
-                totalPrice = totalPrice.add(startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
+                //等待费用
+                waitingFee = waitingFee.add(costConfigInfo.getWaitPriceEreryMinute().multiply(waitingTime));
             }
+            totalPrice = startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice);
         }else if(serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_NOW.getBcState())){
             //即时用车
             for (CostConfigInfo costConfigInfo : costConfigInfoList) {
                 //起步价
                 startingPrice=costConfigInfo.getStartPrice();
-                // 等待费=（等待时长*等待单价）
-                waitingFee=orderSettlingInfoVo.getWaitingTime().multiply(costConfigInfo.getWaitPriceEreryMinute());
                 //超里程数小于&&等于1  则不计算他的超里程费用
                 if(orderSettlingInfoVo.getTotalMileage().compareTo(costConfigInfo.getCombosMileage())==1){
                     //超里程价格=（总里程-包含里程）* 超里程单价
@@ -185,8 +186,10 @@ public class CostCalculator implements CostCalculation {
                     //超时长价格=(总时长-包含时长)* 超时长单价
                     overtimeLongPrice=overtimeLongPrice.add(new BigDecimal(orderSettlingInfoVo.getTotalTime()-costConfigInfo.getCombosTimes().intValue()).multiply(costConfigInfo.getBeyondPriceEveryMinute()));
                 }
-                totalPrice = totalPrice.add(startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice));
+                //等待费用
+                waitingFee = waitingFee.add(costConfigInfo.getWaitPriceEreryMinute().multiply(waitingTime));
             }
+            totalPrice = startingPrice.add(waitingFee).add(overMileagePrice).add(overtimeLongPrice);
         }
 
         //订单各项费用科目和对应费用
