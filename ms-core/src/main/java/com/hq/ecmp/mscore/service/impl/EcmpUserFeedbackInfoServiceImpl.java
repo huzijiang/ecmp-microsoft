@@ -394,8 +394,8 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         ecmpUserFeedbackInfo.setIsAdmin(admin);
         ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
         //Integer count = ecmpUserFeedbackInfoMapper.findCountFeedback(ecmpUserFeedbackInfo);
-        List<EcmpUserFeedbackVo> backInfoList =  ecmpUserFeedbackInfoMapper.findFeedback(ecmpUserFeedbackInfo);
         PageHelper.startPage(ecmpUserFeedbackInfo.getPageIndex(),ecmpUserFeedbackInfo.getPageSize());
+        List<EcmpUserFeedbackVo> backInfoList =  ecmpUserFeedbackInfoMapper.findFeedback(ecmpUserFeedbackInfo);
         PageInfo<EcmpUserFeedbackVo> info = new PageInfo<>(backInfoList);
         return new PageResult<>(info.getTotal(),info.getPages(),backInfoList);
     }
