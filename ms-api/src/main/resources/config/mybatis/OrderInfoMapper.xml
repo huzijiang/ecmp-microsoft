@@ -265,7 +265,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
 			left join apply_info ai on ai.journey_id=o.journey_id
 			left join journey_passenger_info jpi on jpi.journey_id=o.journey_id
             where jn.user_id=#{userId}
-            and o.state in('S200','S299','S500','S600','S616','S699','S900')
+            and o.state in('S200','S299','S500','S600','S616','S699','S900','S635')
          )cc1
          where cc1.labelState not in ('S930','S921','S911')
          <if test="isConfirmState ==1 ">

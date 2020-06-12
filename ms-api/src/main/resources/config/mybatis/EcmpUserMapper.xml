@@ -808,7 +808,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          and owner_company = #{ownerCompany}
     </select>
     <select id="dispatcherPhone" resultType="com.hq.ecmp.mscore.dto.EcmpUserDto" parameterType="Long">
-        select eu.user_name as userName, eu.nick_name as nickName from ecmp_user eu,order_dispatche_detail_info od
-        where eu.user_id =od.create_by and od.order_id=#{orderId}
+        select
+            c.user_name AS userName,
+            c.nick_name AS nickName
+            from order_dispatche_detail_info a
+            left join car_group_info b on b.car_group_id=a.car_cg_id
+            left join ecmp_user c on c.user_id=a.inner_dispatcher
+         where order_id=#{orderId}
     </select>
 </mapper>
