@@ -15,6 +15,10 @@ public class ReckoningInfo implements Serializable {
 
     /** 公司标识 */
     private Long companyId;
+
+    /** 公司父级 */
+    private Long serviceOrg;
+
     /** 用车单位 */
     private Long carGroupId;
     /** 开始年月 */

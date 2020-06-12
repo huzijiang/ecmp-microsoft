@@ -3308,6 +3308,14 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </select>
 
 
+
+
+
+
+
+
+
+
     <select id="getMoneyList" resultType="com.hq.ecmp.mscore.dto.MoneyListDto" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
         SELECT
         o.order_id orderId,
@@ -3334,10 +3342,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN car_group_driver_relation r on o.driver_id = r.driver_id
 		LEFT JOIN car_group_info g ON r.car_group_id = g.car_group_id
         WHERE
-        o.company_id = #{companyId}
-         and
-         g.car_group_id = #{carGroupId}
-
+          o.company_id = #{companyId}
+        and
+          g.car_group_id = #{carGroupId}
         <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= addr.action_time ]]>
         <![CDATA[ AND adr.action_time <= DATE_FORMAT( #{endDate}, '%Y-%m-%d' ) ]]>
         GROUP BY o.order_id
@@ -3352,6 +3359,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         and order_info.company_id = #{companyId}
         and date(order_info.create_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
     </select>
+
     <select id="selectNormalOrderReserveTime" resultType="map">
         select start_date,GROUP_CONCAT(order_state_trace_info.state)states,order_info.* from order_info
         left join order_state_trace_info on order_info.order_id=order_state_trace_info.order_id
@@ -3361,11 +3369,35 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         group by order_info.order_id
     </select>
 
+
+    <select id="getPayeeInfo" resultType="com.hq.ecmp.mscore.dto.PayeeInfoDto" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
+        SELECT
+            c.user_id userId,
+            g.company_id companyId,
+            g.car_group_id carGroupId,
+            g.car_group_name carGroupName,
+            g.telephone telephone,
+            g.account_name accountName,
+            g.bank_name bankName,
+            g.bank_account bankAccount ,
+            o.dept_name deptName
+        FROM
+            car_group_info g
+            LEFT JOIN ecmp_org o ON g.company_id = o.dept_id
+			left join car_group_dispatcher_info c on g.car_group_id = c.car_group_id
+      where
+           c.user_id = #{userId}
+             and
+           g.company_id = #{companyId}
+		limit 1
+    </select>
     <select id="selectOrderIdByJourneyId" resultType="java.lang.Long" parameterType="java.lang.Long">
         select order_id from order_info where journey_id = #{journeyId}
         order By order_id desc
         limit 1
     </select>
+
+
     <select id="getCount" parameterType="com.hq.ecmp.mscore.dto.OrderListBackDto" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
         select s.company_id
         from order_info s

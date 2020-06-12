@@ -3126,12 +3126,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
 
-    @Override
-    public List<MoneyListDto> getMoneyList(ReckoningDto param) {
 
-        return orderInfoMapper.getMoneyList(param);
-
-    }
 
     @Override
     public Map<String, Map<String, Integer>> selectOrderCarGroup(Long companyId) {
@@ -3215,5 +3210,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return map;
     }
 
+    @Override
+    public PayeeInfoDto getPayeeInfo(ReckoningDto param) {
+        return orderInfoMapper.getPayeeInfo(param);
+    }
+    @Override
+    public List<MoneyListDto> getMoneyList(ReckoningDto param) {
+
+        return orderInfoMapper.getMoneyList(param);
+
+    }
 
 }

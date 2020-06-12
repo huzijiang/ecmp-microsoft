@@ -8,7 +8,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="add" parameterType="com.hq.ecmp.mscore.domain.ReckoningInfo">
         insert into collection_quittance_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
             <if test="collectionNumber != null ">collection_number,</if>
             <if test="carGroupId != null ">car_group_id,</if>
             <if test="companyId != null ">company_id,</if>
@@ -22,6 +21,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
             <if test="updateTime!= null ">update_time,</if>
+            <if test="serviceOrg != null ">service_org,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="collectionNumber != null ">#{collectionNumber},</if>
@@ -37,15 +37,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
+            <if test="serviceOrg != null ">#{serviceOrg},</if>
         </trim>
     </insert>
 
     <update id="updateReckoningStatus" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
         update collection_quittance_info
         <trim prefix="SET" suffixOverrides=",">
-            <if test="state != null ">update_time = #{status},</if>
+            <if test="status != null ">state = #{status},</if>
         </trim>
-        where company_id = #{companyId}
+        where collection_number = #{collectionNumber}
     </update>
 
     <select id="getOrdinaryUserList" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
@@ -119,26 +120,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </trim>
         where collection_id=#{collectionId}
     </update>
-    <select id="getPayeeInfo" resultType="com.hq.ecmp.mscore.dto.PayeeInfoDto" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
-        SELECT
-            c.user_id userId,
-            g.company_id companyId,
-            g.car_group_id carGroupId,
-            g.car_group_name carGroupName,
-            g.telephone telephone,
-            g.account_name accountName,
-            g.bank_name bankName,
-            g.bank_account bankAccount ,
-            o.dept_name deptName
-        FROM
-            car_group_info g
-            LEFT JOIN ecmp_org o ON g.company_id = o.dept_id
-			left join car_group_dispatcher_info c on g.car_group_id = c.car_group_id
-      where
-           c.user_id = #{userId}
-             and
-           g.company_id = #{companyId}
-		limit 1
-    </select>
+
 
 </mapper>
