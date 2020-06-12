@@ -2764,7 +2764,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         SELECT DISTINCT
             DATE_FORMAT(cost.start_time, '%Y-%m-%d %H:%i')  startDate,
             DATE_FORMAT(cost.end_time, '%Y-%m-%d')  endDate,
-            CONVERT(osi.amount,DECIMAL(10,2)) totalFee,
+            -- CONVERT(osi.amount,DECIMAL(10,2)) totalFee,
             oi.order_number orderNumber,
             ci.car_license carLicense,
             ci.car_type carType,

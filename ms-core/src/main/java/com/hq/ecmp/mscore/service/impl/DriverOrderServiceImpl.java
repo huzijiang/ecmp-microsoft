@@ -243,16 +243,12 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 //司机开始服务发送消息给乘车人和申请人（行程通知）
                 ismsBusiness.sendMessageServiceStart(orderId, userId);
             }
-
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){//----服务完成4---
-
             OrderSettlingInfoVo vo = new OrderSettlingInfoVo();
             vo.setOrderId(orderId);//订单Id
             vo.setTotalMileage(new BigDecimal(mileage==null?"0":mileage));//订单总里程
             vo.setTotalTime(new BigDecimal(travelTime).intValue());//订单总时长
-
             iorderSettlingInfoService.addExpenseReport(vo, userId,orderInfoOld.getCompanyId());
-
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             String longAddr = "";
             String shortAddr ="";
@@ -389,10 +385,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 orderSettlingInfo.setTotalTime(new BigDecimal("0"));
             }
             orderSettlingInfo.setCreateBy(String.valueOf(userId));
-
-
             iOrderSettlingInfoService.insertOrderSettlingInfo(orderSettlingInfo);
-
             //司机服务-结束发送短信
             //ismsBusiness.sendSmsDriverServiceComplete(orderId);
             ismsBusiness.sendSmsDriverServiceEnd(orderId);
@@ -402,6 +395,17 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             throw new Exception("操作类型有误");
         }
     }
+
+
+
+
+
+   /* *//** 用车结束 短信 *//*
+    public void orderOverSMS(Long orderNo) {
+        ismsBusiness.sendSmsDriverServiceEnd(orderNo);
+    }*/
+
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
