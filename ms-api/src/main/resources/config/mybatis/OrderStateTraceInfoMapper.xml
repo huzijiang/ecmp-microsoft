@@ -409,4 +409,7 @@ AND a.state ='S270' order by a.create_time desc limit 1
     where order_id in (select order_id from order_state_trace_info where state=#{state})
     and oi.state='S299'
 </select>
+    <delete id="deleteInfoByState" >
+        delete from order_state_trace_info where state=#{state} AND order_id=#{orderId}
+    </delete>
 </mapper>

@@ -2937,6 +2937,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfoMapper.changeOrder(data);
         //7.订单调度数据还原
         orderDispatcheDetailInfoMapper.revertOrderDispatcheDetailInfoByOrderId(orderId, userId, DateUtils.getNowDate());
+        orderStateTraceInfoMapper.deleteInfoByState(OrderStateTrace.SENDCAR.getState(),orderId);
         return "改派成功";
     }
 
