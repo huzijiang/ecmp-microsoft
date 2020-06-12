@@ -295,4 +295,23 @@ public class DriverOrderController {
 //        Long driverId = loginUser.getDriver().getDriverId();
         return ApiResponse.success(orderInfoTwoService.reassignDetail(orderNo,null));
     }
+
+
+    /**
+     *用车结束短信-乘客
+     *//*
+    @ApiOperation(value = "orderOverSMS",notes = "用车结束短信-乘客",httpMethod ="POST")
+    @PostMapping("/orderOverSMS")
+    public ApiResponse orderOverSMS(@RequestBody String orderNo){
+        try {
+            Long orderId = Long.parseLong(orderNo);
+            iDriverOrderService.orderOverSMS(orderId);
+            return ApiResponse.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error();
+        }
+
+    }*/
+
 }

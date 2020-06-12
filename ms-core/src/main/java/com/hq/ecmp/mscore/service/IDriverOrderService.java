@@ -59,4 +59,8 @@ public interface IDriverOrderService {
      */
     public List<OrderViaInfoDto> getOrderViaInfos(String orderId);
 
+
+  /*  *//** 用车结束短信*//*
+   void orderOverSMS(Long orderId);*/
+
 }
