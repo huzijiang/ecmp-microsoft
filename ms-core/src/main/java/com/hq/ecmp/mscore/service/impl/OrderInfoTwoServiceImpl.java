@@ -1528,7 +1528,9 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      */
     public void getSceneAndRegimeInfo(DispatchVo dispatchVo){
         DispatchVo dispatchReAndSceneInfo = regimeInfoMapper.getDispatchReAndSceneInfo(dispatchVo.getRegimeId());
-        BeanUtils.copyProperties(dispatchReAndSceneInfo, dispatchVo,BeauUtilsCommon.getNullField(dispatchReAndSceneInfo));
+        if (dispatchReAndSceneInfo != null){
+            BeanUtils.copyProperties(dispatchReAndSceneInfo, dispatchVo,BeauUtilsCommon.getNullField(dispatchReAndSceneInfo));
+        }
     }
 
     /**
