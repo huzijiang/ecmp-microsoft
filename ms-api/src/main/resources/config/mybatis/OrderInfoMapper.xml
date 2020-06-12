@@ -706,7 +706,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <where>
                 <if test="applyName != null and  applyName!=''"> and eu.nick_name like concat('%',#{applyName},'%') </if>
                 <if test="applyPhoneNumber != null and  applyPhoneNumber!='' "> and eu.phonenumber like concat('%',#{applyPhoneNumber},'%') </if>
-                <if test="passengerName != null and  passengerName!='' "> and  jpi.name = #{passengerName}</if>
+                <if test="passengerName != null and  passengerName!='' "> and  jpi.name like concat('%',#{passengerName},'%')</if>
+                <if test="passengerMobile != null and  passengerMobile!='' "> and  jpi.mobile like concat('%',#{passengerMobile},'%')</if>
                 <if test="orderNumber != null and  orderNumber!='' "> and  s.order_number like concat('%',#{orderNumber},'%')</if>
                 <if test="serviceType != null and  serviceType!='' "> and ji.service_type = #{serviceType}</if>
                 <if test="charterCarType != null and  charterCarType!='' "> and ji.charter_car_type = #{charterCarType}</if>
