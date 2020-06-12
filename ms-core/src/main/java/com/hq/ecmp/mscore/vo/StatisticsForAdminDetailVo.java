@@ -48,5 +48,5 @@ public class StatisticsForAdminDetailVo {
 
     //用车天数
     @ApiModelProperty(value = "用车天数")
-    private Long useTime;
+    private String useTime;
 }
