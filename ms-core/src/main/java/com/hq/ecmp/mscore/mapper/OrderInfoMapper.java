@@ -494,6 +494,13 @@ public interface OrderInfoMapper {
      */
     List<DisOrderStateCount> getDispatchOrderListWorkBenchCount();
 
+    /***
+     *
+     * @param data
+     * @return
+     */
+    List<OrderListBackDto> getCount(OrderListBackDto data);
+
     List<StatisticsForAdminDetailVo> userDeptUseCarDetail(@Param("beginDate") String beginDate,
                                                           @Param("endDate") String endDate,
                                                           @Param("carGroupName")String carGroupName,

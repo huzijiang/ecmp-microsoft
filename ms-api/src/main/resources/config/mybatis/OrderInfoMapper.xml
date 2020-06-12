@@ -3372,6 +3372,36 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         order By order_id desc
         limit 1
     </select>
+    <select id="getCount" parameterType="com.hq.ecmp.mscore.dto.OrderListBackDto" resultType="com.hq.ecmp.mscore.dto.OrderListBackDto">
+        select s.company_id
+        from order_info s
+        left join order_dispatche_detail_info oodi on oodi.order_id = s.order_id
+        LEFT join journey_user_car_power jucp on jucp.power_id=s.power_id
+        LEFT join apply_info a on a.apply_id=jucp.apply_id
+        LEFT join ecmp_user eu on eu.user_id=a.create_by
+        LEFT join journey_info ji on ji.journey_id=s.journey_id
+        LEFT join regime_info ri on ri.regimen_id=ji.regimen_id
+        LEFT join journey_passenger_info jpi on jpi.journey_id=s.journey_id
+        LEFT join order_settling_info osi on osi.order_id=s.order_id
+        left join order_address_info oai on oai.order_id=s.order_id and oai.type='A000'
+        left join order_address_info oai2 on oai2.order_id=s.order_id and oai2.type='A999'
+        left join ecmp_org eo on eu.dept_id = eo.dept_id
+        left join driver_info di on di.driver_id=s.driver_id
+        left join car_info ci on ci.car_id =s.car_id
+        left join car_group_info cgi on cgi.car_group_id = ci.car_group_id
+        <where>
+            <if test="state != null and  state!='' "> and s.state = #{state}</if>
+            <if test="null != companyId and companyId !=''">
+                and s.company_id = #{companyId}
+            </if>
+            <if test="null != updateBy and updateBy !=''">
+                and s.car_id in (
+                select car_id  from car_info where car_group_id in
+                (select car_group_id from car_group_dispatcher_info where user_id=#{updateBy})
+                )
+            </if>
+       </where>
+    </select>
     <select id="userDeptUseCarDetail" resultType="com.hq.ecmp.mscore.vo.StatisticsForAdminDetailVo">
         select
         oi.order_id orderId,
