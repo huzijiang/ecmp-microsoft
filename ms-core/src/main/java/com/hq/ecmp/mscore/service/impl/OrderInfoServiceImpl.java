@@ -3019,12 +3019,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         map.put("waitingToLeave",dataMap);
 
         dataMap = new HashMap<>();
-        data.setState("S699");
+        data.setState("S616");
         data.setItIsSelfDriver("1");
         List<OrderListBackDto> toBePickedUp= orderInfoMapper.getCount(data);
         dataMap.put("msg","待还车");
         dataMap.put("value",null==toBePickedUp ?0:toBePickedUp.size());
-        dataMap.put("code","S699");
+        dataMap.put("code","S616");
         dataMap.put("sort","3");
         map.put("toBePickedUp",dataMap);
 
