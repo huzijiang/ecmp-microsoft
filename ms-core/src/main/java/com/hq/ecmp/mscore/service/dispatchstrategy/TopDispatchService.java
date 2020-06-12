@@ -16,10 +16,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @ClassName
@@ -97,7 +94,11 @@ public abstract class TopDispatchService {
                 throw new BaseException(msg);
             }
         }else if(inOrOut == 2){
-            if(orderDispatcheDetailInfo.getNextCarGroupId().longValue() != dispatchSendCarDto.getOutCarGroupId().longValue()){
+            Long userId = dispatchSendCarDto.getUserId();
+            String carGroupIdsStr = carGroupDispatcherInfoMapper.selectCarGroupDispatcherAllId(userId);
+            String[] split = carGroupIdsStr.split(",");
+            List<String> carGroupIds = Arrays.asList(split);
+            if(!carGroupIds.contains(orderDispatcheDetailInfo.getNextCarGroupId().toString())){
                 Long innerDispatcher = orderDispatcheDetailInfo.getInnerDispatcher();
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(innerDispatcher);
                 String nickName = ecmpUser.getNickName();

@@ -15,10 +15,12 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DriverCanUseCarsDTO;
+import com.hq.ecmp.mscore.dto.EcmpUserInfoDto;
 import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
 import com.hq.ecmp.mscore.dto.OrderInfoDTO;
 import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
+import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.util.HqAdmin;
 import com.hq.ecmp.util.OrderUtils;
@@ -57,6 +59,8 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
     private OrderSettlingInfoMapper orderSettlingInfoMapper;
     @Resource
     private TokenService tokenService;
+    @Autowired
+    private IEcmpUserService iecmpUserService;
 
     /**
      * 查询【请填写功能名称】
@@ -94,6 +98,26 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         ecmpUserFeedbackInfo.setCreateTime(DateUtils.getNowDate());
         return ecmpUserFeedbackInfoMapper.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
     }
+
+
+    /**
+     * 新增投诉建议
+     *
+     * @param ecmpUserFeedbackInfo 【请填写功能名称】
+     * @return 结果
+     */
+
+    public int insertUserFeedbackInfo(EcmpUserFeedbackInfo ecmpUserFeedbackInfo)
+    {
+        ecmpUserFeedbackInfo.setCreateTime(DateUtils.getNowDate());
+        EcmpUser ecmpUser = iecmpUserService.selectEcmpUserById(ecmpUserFeedbackInfo.getUserId());
+        ecmpUserFeedbackInfo.setDeptId(ecmpUser.getDeptId());
+        return ecmpUserFeedbackInfoMapper.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
+    }
+
+
+
+
 
     /**
      * 修改【请填写功能名称】
@@ -393,12 +417,10 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         int admin = HqAdmin.isAdmin(loginUser);
         ecmpUserFeedbackInfo.setIsAdmin(admin);
         ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
-        //Integer count = ecmpUserFeedbackInfoMapper.findCountFeedback(ecmpUserFeedbackInfo);
-        PageHelper.startPage(ecmpUserFeedbackInfo.getPageIndex(),ecmpUserFeedbackInfo.getPageSize());
+        PageHelper.startPage(ecmpUserFeedbackInfo.getPageNum(),ecmpUserFeedbackInfo.getPageSize());
         List<EcmpUserFeedbackVo> backInfoList =  ecmpUserFeedbackInfoMapper.findFeedback(ecmpUserFeedbackInfo);
         PageInfo<EcmpUserFeedbackVo> info = new PageInfo<>(backInfoList);
         return new PageResult<>(info.getTotal(),info.getPages(),backInfoList);
-
     }
 
 

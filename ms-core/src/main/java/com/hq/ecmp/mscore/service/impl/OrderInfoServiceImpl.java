@@ -801,11 +801,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             this.checkIsOverMoney(orderInfo, vo, 2);
             return vo;
         }
-        String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
-        UserVO str= orderStateTraceInfoMapper.getOrderDispatcher(orderId,states);
-        if (str!=null){
-            vo.setCarGroupPhone(str.getUserPhone());
-            vo.setCarGroupName(str.getUserName());
+//        String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
+//        UserVO str= orderStateTraceInfoMapper.getOrderDispatcher(orderId,states);
+//        if (str!=null){
+//            vo.setDispatcherPhone(str.getUserPhone());
+//            vo.setDispatcherName(str.getUserName());
+//        }
+        Map<String, String> map = orderDispatcheDetailInfoMapper.selectGroupInfo(orderId);
+        if(!CollectionUtils.isEmpty(map)){
+            vo.setDispatcherPhone(map.get("dispatcherPhone"));
+            vo.setDispatcherName(map.get("dispatcherName"));
+            vo.setCarGroupPhone(map.get("carGroupPhone"));
+            vo.setCarGroupName(map.get("carGroupName"));
         }
         //服务结束时间
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
@@ -2937,6 +2944,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfoMapper.changeOrder(data);
         //7.订单调度数据还原
         orderDispatcheDetailInfoMapper.revertOrderDispatcheDetailInfoByOrderId(orderId, userId, DateUtils.getNowDate());
+        orderStateTraceInfoMapper.deleteInfoByState(OrderStateTrace.SENDCAR.getState(),orderId);
         return "改派成功";
     }
 

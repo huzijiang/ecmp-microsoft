@@ -183,4 +183,14 @@
          where order_id = #{orderId}
         limit 1
     </select>
+
+    <select id="selectGroupInfo" resultType="Map">
+    select
+     b.car_group_name carGroupName,b.telephone carGroupPhone,
+     c.nick_name dispatcherName,c.phonenumber dispatcherPhone
+    from order_dispatche_detail_info a
+    left join car_group_info b on b.car_group_id=a.car_cg_id
+    left join ecmp_user c on c.user_id=a.inner_dispatcher
+    where order_id = #{orderId}
+</select>
 </mapper>
