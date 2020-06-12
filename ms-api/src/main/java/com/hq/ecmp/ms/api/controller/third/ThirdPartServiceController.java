@@ -34,8 +34,6 @@ public class ThirdPartServiceController {
     private String licenseContent;
     @Value("${thirdService.apiUrl}") // 三方平台的接口前地址
     private String apiUrl;
-    @Value("${thirdService.apiUrl}")
-    private String httpurl;
 
     @ApiOperation(value = "location", notes = "根据用户输入的短地址，调用第三方接口返回可用的地址列表及相应的坐标", httpMethod = "POST")
     @PostMapping(value = "/location")
@@ -76,7 +74,7 @@ public class ThirdPartServiceController {
             map.put("enterpriseId", enterpriseId);
             map.put("licenseContent", licenseContent);
             String postJson = OkHttpUtil
-                .postForm(httpurl + "/service/enterpriseOrderGetCalculatePrice", map);
+                .postForm(apiUrl + "/service/enterpriseOrderGetCalculatePrice", map);
             JSONObject parseObject = JSONObject.parseObject(postJson);
             if (!"0".equals(parseObject.getString("code"))) {
                 return ApiResponse.error("调用云端接口获取预付价格失败!");
@@ -100,7 +98,7 @@ public class ThirdPartServiceController {
             map.put("mac", macAddress);
             map.put("enterpriseId", enterpriseId);
             map.put("licenseContent", licenseContent);
-            String postJson = OkHttpUtil.postForm(httpurl + "/service/getFlightInfo", map);
+            String postJson = OkHttpUtil.postForm(apiUrl + "/service/getFlightInfo", map);
             if (StringUtils.isEmpty(postJson)) {
                 return ApiResponse.success("航班信息未更新");
             }
