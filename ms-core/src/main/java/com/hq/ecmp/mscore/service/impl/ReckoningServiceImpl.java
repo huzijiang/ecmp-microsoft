@@ -159,7 +159,7 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
                         }
                     }
                 }
-                money.setOtherTotalMoney(outPrice + amountDetai);
+                money.setOtherTotalMoney(outPrice /*+ amountDetai*/);
                 money.setAmount(money.getCarTotalMoney() + money.getOtherTotalMoney());
 
                 if(null == carTypeMapList || carTypeMapList.size() == 0){
