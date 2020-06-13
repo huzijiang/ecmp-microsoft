@@ -103,8 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode})
         </if>
         <if test="flag==2">
-            and (car_group_id in (select car_group_id from car_group_dispatcher_info where car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode}) and user_id=#{userId})
-            or car_group_id in (select car_group_id from car_group_serve_org_relation where car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode}) and dept_id=#{deptId}))
+            and car_group_id in (select car_group_id from car_group_dispatcher_info where car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode}) and user_id=#{userId})
         </if>
         <if test="flag==1">
             and car_group_id in (select car_group_id from car_group_serve_org_relation where car_group_id in (select car_group_id from car_group_serve_scope_info where city=#{cityCode}) and dept_id=#{deptId})
