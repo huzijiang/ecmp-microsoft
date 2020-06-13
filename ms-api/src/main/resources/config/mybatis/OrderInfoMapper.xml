@@ -3072,7 +3072,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        -- 还钥匙时间，实际还车时间
        ifnull(oai.action_time, '无')  actionEndTime,
        -- 车牌号
-       ifnull(ci.car_number, '无')    carNumber,
+       ifnull(ci.car_license, '无')    carNumber,
        -- 套餐价
        ifnull((select  distinct set_meal_cost from order_service_cost_detail_record_info where order_id=#{orderId}), 0) setMealCost,
        -- 超里程费用
