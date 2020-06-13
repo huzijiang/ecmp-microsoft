@@ -731,6 +731,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="null != itIsSelfDriver and itIsSelfDriver !=''">
                     and oodi.it_is_self_driver='Y000'
                 </if>
+                <if test="null != updateBy and updateBy !=''">
+                    and s.car_id in (
+                    select car_id  from car_info where car_group_id in
+                    (select car_group_id from car_group_dispatcher_info where user_id=#{updateBy})
+                    )
+                </if>
                <!-- <if test="null != userId and userId !=''">
                     and s.create_by = #{userId}
                 </if>-->
@@ -2848,6 +2854,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     <select id="getOrderInfoByCityAndDept" resultType="com.hq.ecmp.mscore.vo.DispatchVo" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatch">
            select t.*  from(
            select oddi.next_car_group_id as nextCarGroupId,
+        (select  concat(ui.nick_name,ui.phonenumber)  from ecmp_user ui where ui.user_id=oddi.inner_dispatcher) innerDisNameAndPhone,
             o.order_id as orderId,
             o.user_id userId,
             eo.dept_name as deptName,
@@ -3310,15 +3317,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             )
     </select>
 
-
-
-
-
-
-
-
-
-
     <select id="getMoneyList" resultType="com.hq.ecmp.mscore.dto.MoneyListDto" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
         SELECT
         o.order_id orderId,
@@ -3332,8 +3330,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         se.amount_detail amountDetai -- #其他费用
         FROM
         order_info o
-        LEFT JOIN order_address_info addr ON o.order_id = addr.order_id
-        AND addr.type = 'A000'
         LEFT JOIN order_address_info adr ON o.order_id = adr.order_id
         AND adr.type = 'A999'
         LEFT JOIN order_account_info acc ON o.order_id = acc.order_id
@@ -3348,7 +3344,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
           o.company_id = #{companyId}
         and
           g.car_group_id = #{carGroupId}
-        <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= addr.action_time ]]>
+        <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= adr.action_time ]]>
         <![CDATA[ AND adr.action_time <= DATE_FORMAT( #{endDate}, '%Y-%m-%d' ) ]]>
         GROUP BY o.order_id
     </select>
@@ -3435,45 +3431,55 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        </where>
     </select>
     <select id="userDeptUseCarDetail" resultType="com.hq.ecmp.mscore.vo.StatisticsForAdminDetailVo">
-        select
-        oi.order_id orderId,
-        osti.state state,
-        eo.dept_name deptName,
-        ji.start_date beginTime,
-        jpi.name vehicleUserName,
-        ecti.name carName,
-        ci.car_license carLicense,
-        oai1.address beginAddress,
-        oai2.address endAddress,
-        ji.use_time useTime
-        from order_info oi
-        left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
-        order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
-        LEFT JOIN  journey_info ji ON oi.journey_id = ji.journey_id
-        LEFT JOIN  driver_info di ON di.driver_id = oi.driver_id
-        LEFT JOIN  journey_passenger_info jpi ON jpi.journey_id = ji.journey_id
-        LEFT JOIN  ecmp_user eu  ON eu.user_id = oi.user_id
-        LEFT JOIN  ecmp_org eo   ON eo.dept_id  = eu.dept_id
-        LEFT JOIN  car_info ci ON ci.car_id = oi.car_id
-        LEFT JOIN  enterprise_car_type_info ecti ON ecti.car_type_id = ci.car_type_id
-        LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id
-        LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
-        left join
-        (select order_id,type,address,address_long from order_address_info where type = 'A000') oai1 on  oai1.order_id = oi.order_id
-        left join
-        (select order_id,type,address,address_long from order_address_info where type = 'A999') oai2 on  oai2.order_id = oi.order_id
-        where osti.state in ('S699','S900')
+        SELECT
+        oi.order_id orderId,     -- 订单id
+        osti.state state,         -- 订单状态轨迹表的状态
+        eo.dept_name deptName,    -- 部门表的部门
+        ji.start_date beginTime,   -- 行程表的开始时间  用车时间
+        jpi.name vehicleUserName,  -- 乘客信息表的 用车人
+        ecti.name carName,         -- 企业车型表的 车型名字
+        ci.car_license carLicense,   -- 车辆表的  车牌号
+        oai1.address beginAddress,    -- 订单地址信息表的 出发地址
+        oai2.address endAddress,      -- 订单地址信息表的 到达地址
+        ji.use_time useTime           -- 行程表的用车天数
+        FROM order_info oi    -- 订单表
+        LEFT JOIN (SELECT state,order_id,create_time         -- 状态，订单id
+        FROM `order_state_trace_info`   -- 订单轨迹表
+        WHERE trace_id IN (
+        SELECT MAX(trace_id) FROM  order_state_trace_info GROUP BY order_id   -- 按订单id查询最大的订单轨迹 id
+        )
+        )                                                               -- 在轨迹表中查询所有订单最大的轨迹 id 数据列表中的
+                                              -- 轨迹状态 和 订单id
+        osti ON osti.order_id=oi.order_id
+        LEFT JOIN  journey_info ji ON oi.journey_id = ji.journey_id   -- 行程表 行程id = 订单表 行程id
+        LEFT JOIN  driver_info di ON di.driver_id = oi.driver_id      -- 驾驶员表的 司机id  = 订单表的 司机id
+        LEFT JOIN  journey_passenger_info jpi ON jpi.journey_id = ji.journey_id  -- 乘客信息表的 行程id = 行程表的 行程id
+        LEFT JOIN  ecmp_user eu  ON eu.user_id = oi.user_id      -- 用户表的 用户id = 订单标的 用户id
+        LEFT JOIN  ecmp_org eo   ON eo.dept_id  = eu.dept_id     -- 部门表的 部门id = 用户表的 部门id
+        LEFT JOIN  car_info ci ON ci.car_id = oi.car_id          -- 车辆表的 车辆id = 订单表的 车辆id
+        LEFT JOIN  enterprise_car_type_info ecti ON ecti.car_type_id = ci.car_type_id   -- 车型标表的 车型id = 车辆表的 车型id
+        LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id      -- 车队司机关联表的 司机id = 订单吧表的 司机id
+        LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id           -- 车队表的 车队id = 车队司机关联表的 车队id
+        LEFT JOIN
+        (SELECT order_id,TYPE,address,address_long
+        FROM order_address_info WHERE TYPE = 'A000') oai1  -- 从订单地址信息表查询 订单id，A000,真实出发地址，真实出发长地址
+        ON  oai1.order_id = oi.order_id
+        LEFT JOIN
+        (SELECT order_id,TYPE,address,address_long
+        FROM order_address_info WHERE TYPE = 'A999') oai2    -- 从订单地址信息表查询 订单id，A999,真实到达地址，真实到达长地址
+        ON  oai2.order_id = oi.order_id
+        WHERE osti.state IN ('S900','S901')                  -- 订单状态轨迹表的状态为  S901,S900
         <if test="deptId!=null and '' != deptId">
             and eu.dept_id = #{deptId}
         </if>
         <if test="beginDate!=null and '' != beginDate">
-            and  ji.end_date &gt;= #{beginDate}
+            and  osti.create_time &gt;= #{beginDate}
         </if>
         <if test="endDate!=null and '' != endDate">
-            and  ji.end_date &lt;= #{endDate}
+            and  osti.create_time &lt;= #{endDate}
         </if>
         <if test="carGroupName!=null and '' != carGroupName">
-            and cgi.it_is_inner in ('C000','C111')
+          --  and cgi.it_is_inner in ('C000','C111')
             and  cgi.car_group_name = #{carGroupName}
         </if>
     </select>

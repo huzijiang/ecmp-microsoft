@@ -160,4 +160,9 @@ public class DispatchVo {
      * 订单的申请人id
      */
     private Long userId;
+
+    /**
+     * 内部调度员的 姓名和电话，用逗号分隔
+     */
+    private String innerDisNameAndPhone;
 }

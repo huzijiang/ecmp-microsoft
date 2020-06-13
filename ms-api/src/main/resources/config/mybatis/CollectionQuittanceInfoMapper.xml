@@ -69,7 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join ecmp_org eo on eo.dept_id = cqi.service_org
         where 1=1
         <if test="companyId!=null and companyId!=''" >
-            cqi.company_id=#{companyId}
+            and cqi.company_id=#{companyId}
         </if>
         <if test="deptName!=null and deptName!=''" >
             and  eo.dept_name  like concat('%',#{deptName},'%')
@@ -82,6 +82,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </if>
         <if test="state!=null and state!=''" >
             and  cqi.state =#{state}
+        </if>
+        <if test="createBy!=null and createBy!=''" >
+            and  cqi.create_by =#{createBy}
         </if>
     </select>
     <select id="getOrdinaryUserById" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
@@ -121,5 +124,34 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where collection_id=#{collectionId}
     </update>
 
+    <select id="findByCollectionNumber" resultType="java.lang.Long" parameterType="java.lang.Long">
+        select
+          count(*)
+        from
+          collection_quittance_info
+        where
+          collection_number = #{collectionNumber}
+    </select>
+
+    <update id="updateByCollectionId" parameterType="com.hq.ecmp.mscore.domain.ReckoningInfo">
+        update collection_quittance_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="collectionNumber != null ">collection_number = #{collectionNumber},</if>
+            <if test="carGroupId != null ">car_group_id = #{carGroupId},</if>
+            <if test="companyId != null ">company_id = #{companyId},</if>
+            <if test="beginDate != null ">begin_date = #{beginDate},</if>
+            <if test="endDate != null ">end_date = #{endDate},</if>
+            <if test="collectionEndTime != null ">collection_end_time = #{collectionEndTime},</if>
+            <if test="state != null ">state = #{state},</if>
+            <if test="applicant != null ">applicant = #{applicant},</if>
+            <if test="verifier != null ">verifier = #{verifier},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="serviceOrg != null ">service_org = #{serviceOrg},</if>
+        </trim>
+        where collection_number = #{collectionNumber}
+    </update>
 
 </mapper>

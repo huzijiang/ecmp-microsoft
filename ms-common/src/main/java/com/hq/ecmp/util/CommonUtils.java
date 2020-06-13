@@ -28,7 +28,8 @@ public class CommonUtils {
             //包含0.5天
             //判断当天是否为起始时间
             if (DateUtils.isSameDay(startDate, nowDate)) {
-                if (startDate.compareTo(DateUtils.parseDate(DateUtils.formatDate(startDate, DateUtils.YYYY_MM_DD) + " 12:00:00")) > -1) {
+                Date date12 = DateUtils.parseDate(DateUtils.formatDate(startDate, DateUtils.YYYY_MM_DD) + " 12:00:00");
+                if (startDate.compareTo(date12) == -1) {
                     carType = CharterTypeEnum.OVERALL_RENT_TYPE.getKey();
                 } else {
                     carType = CharterTypeEnum.HALF_DAY_TYPE.getKey();

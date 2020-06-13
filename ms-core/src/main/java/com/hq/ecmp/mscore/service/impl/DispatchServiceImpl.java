@@ -4,6 +4,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.constant.OrderConstant;
 import com.hq.ecmp.constant.OrderState;
 import com.hq.ecmp.constant.OrderStateTrace;
@@ -433,9 +434,18 @@ public class DispatchServiceImpl implements IDispatchService {
         if(journeyPassengerInfoList.isEmpty()){
             return  ApiResponse.error("行程乘客数据异常");
         }
-        //人数=同行人+1
-        int seatNumber=journeyPassengerInfoList.get(0).getPeerNumber()==null?0:journeyPassengerInfoList.get(0).getPeerNumber()+1;
-        //车辆荷载人数
+
+        int seatNumber=0;
+        if(CarConstant.SELFDRIVER_YES.equals(selectCarConditionBo.getItIsSelfDriver())){
+            //人数=同行人+1
+             seatNumber=journeyPassengerInfoList.get(0).getPeerNumber()==null?0:journeyPassengerInfoList.get(0).getPeerNumber();
+        }else{
+            //人数=同行人+1
+             seatNumber=journeyPassengerInfoList.get(0).getPeerNumber()==null?0:journeyPassengerInfoList.get(0).getPeerNumber()+1;
+        }
+
+
+        //车辆荷载人数 筛选
         Iterator<CarInfo> iteratorCarSeatNumber=cars.iterator();
         while (iteratorCarSeatNumber.hasNext()){
             CarInfo carInfo=iteratorCarSeatNumber.next();

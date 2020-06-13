@@ -154,23 +154,6 @@ public class ReckoningController {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * @author ghb
      * @description  添加收款

@@ -3068,7 +3068,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         dataMap = new HashMap<>();
         data.setState("S635");
         List<OrderListBackDto> serviceSuspension= orderInfoMapper.getCount(data);
-        dataMap.put("msg","服务中止");
+        dataMap.put("msg","服务暂停");
         dataMap.put("value",null==serviceSuspension ?0:serviceSuspension.size());
         dataMap.put("code","S635");
         dataMap.put("sort","7");
@@ -3092,14 +3092,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         dataMap.put("sort","9");
         map.put("completed",dataMap);
 
-        dataMap = new HashMap<>();
+       /* dataMap = new HashMap<>();
         data.setState("S911");
         List<OrderListBackDto> cancelled= orderInfoMapper.getCount(data);
         dataMap.put("msg","已取消");
         dataMap.put("value",null==cancelled ?0:cancelled.size());
         dataMap.put("code","S911");
         dataMap.put("sort","10");
-        map.put("cancelled",dataMap);
+        map.put("cancelled",dataMap);*/
         return map;
     }
 

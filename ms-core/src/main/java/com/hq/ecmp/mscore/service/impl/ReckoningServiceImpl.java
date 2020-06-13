@@ -61,7 +61,14 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
         Long carGroupId = icarGroupInfoService.findgroupIdByUserId(userId);
         param.setCarGroupId(carGroupId);
         param.setApplicant(userId);
-        collectionService.add(param);
+        Long count = collectionService.findByCollectionNumber(param.getCollectionNumber());
+        if(count == 0){
+            collectionService.add(param);
+        }else {
+            log.info("数据存在改为更新CollectionNumber为：{}",param.getCollectionNumber());
+            collectionService.updateByCollectionId(param);
+        }
+
     }
 
     /**
