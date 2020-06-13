@@ -264,7 +264,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
 			left join order_address_info oai2 on oai2.order_id=o.order_id and oai2.type='A999'
 			left join apply_info ai on ai.journey_id=o.journey_id
 			left join journey_passenger_info jpi on jpi.journey_id=o.journey_id
-            where jn.user_id=#{userId}
+            where o.user_id in (select user_id from ecmp_user where dept_id=#{deptId} and status='0' and del_flag='0' )
             and o.state in('S200','S299','S500','S600','S616','S699','S900','S635')
          )cc1
          where cc1.labelState not in ('S930','S921','S911')
@@ -740,7 +740,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                <!-- <if test="null != userId and userId !=''">
                     and s.create_by = #{userId}
                 </if>-->
-                and s.state = 	(select state from order_state_trace_info sti where sti.order_id=s.order_id and s.state = #{orderState} order by trace_id desc limit 1)
+                <if test="state == 1">
+                    and s.state = 	(select state from order_state_trace_info sti where sti.order_id=s.order_id and s.state = #{orderState} order by trace_id desc limit 1)
+                </if>
             </where>
             group by s.order_id
             order by a.create_time desc
@@ -2854,6 +2856,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     <select id="getOrderInfoByCityAndDept" resultType="com.hq.ecmp.mscore.vo.DispatchVo" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatch">
            select t.*  from(
            select oddi.next_car_group_id as nextCarGroupId,
+        (select  concat(ui.nick_name,ui.phonenumber)  from ecmp_user ui where ui.user_id=oddi.inner_dispatcher) innerDisNameAndPhone,
             o.order_id as orderId,
             o.user_id userId,
             eo.dept_name as deptName,

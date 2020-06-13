@@ -420,7 +420,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         eo.dept_id as deptId,
         eo.dept_name as deptName,
         if(isnull(eo.dept_code),'',eo.dept_code) as deptCode,eu.nick_name leader,
-        (select count(1) from ecmp_user where dept_id in (select dept_id from  ecmp_org where ancestors like concat('%', #{ancestors}, '%' ) or dept_id=#{deptId} )  and del_flag=0) as numOfSub
+        (select count(1) from ecmp_user where  del_flag !='2' and
+        <![CDATA[  SYSDATE() <= IFNULL(dimission_time,SYSDATE()) ]]>
+         and owner_company = #{ownerCompany}) as numOfSub
         from ecmp_org  eo LEFT JOIN ecmp_user eu  ON eo.leader=eu.user_id
         where
         eo.dept_id = #{deptId}

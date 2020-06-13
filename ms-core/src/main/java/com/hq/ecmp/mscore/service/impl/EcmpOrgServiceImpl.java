@@ -157,8 +157,8 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
      * @return ecmpOrg
      */
     @Override
-    public EcmpOrgDto selectCurrentDeptInformation(Long deptId){
-        return ecmpOrgMapper.selectCurrentDeptInformation(deptId,deptId.toString());
+    public EcmpOrgDto selectCurrentDeptInformation(Long deptId, Long ownerCompany){
+        return ecmpOrgMapper.selectCurrentDeptInformation(deptId,deptId.toString(),ownerCompany);
     }
 
     /**
