@@ -16,6 +16,7 @@ import com.hq.ecmp.mscore.vo.PageResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -131,9 +132,12 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
      * @throws Exception
      */
     public int ordinaryUserConfirmCost(Long collectionId,Long userId) throws Exception {
-        orderAccountInfoMapper.updateStatementsState(getSettlementOrder(collectionId,userId));
-        if(updateSettlementState(collectionId,userId)>0){
-           return 1;
+        List<OrderInfoFSDto> settlementOrder = getSettlementOrder(collectionId, userId);
+        if (!CollectionUtils.isEmpty(settlementOrder)){
+            orderAccountInfoMapper.updateStatementsState(settlementOrder);
+            if(updateSettlementState(collectionId,userId)>0){
+               return 1;
+            }
         }
         return 0;
     }

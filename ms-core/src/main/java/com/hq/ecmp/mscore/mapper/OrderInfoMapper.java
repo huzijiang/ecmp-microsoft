@@ -509,5 +509,7 @@ public interface OrderInfoMapper {
                                                           @Param("endDate") String endDate,
                                                           @Param("carGroupName")String carGroupName,
                                                           @Param("deptId")Long deptId);
+
+    PayeeInfoDto getCarGroupInfo(@Param("carGroupId")String carGroupId);
 }
 

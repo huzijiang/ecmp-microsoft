@@ -93,7 +93,7 @@ public class ReckoningController {
             //reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD));
             reckoningInfo.setCollectionId(param.getCollectionId());
             reckoningInfo.setCompanyId(param.getCompanyId());
-
+            reckoningInfo.setCollectionNumber(param.getCollectionNumber());
             Map<String, Object> map = collectionService.downloadReckoning(reckoningInfo);
             return ApiResponse.success(map);
         } catch (Exception e) {

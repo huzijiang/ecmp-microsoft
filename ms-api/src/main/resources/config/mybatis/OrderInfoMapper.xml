@@ -2628,6 +2628,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="stateFlag==3">
             and z.state='S930'
         </if>
+        <if test="orderNumber!=null and orderNumber!=''">
+            and oi.order_number= like concat('%', #{orderNumber}, '%')
+        </if>
         GROUP BY  ai.journey_id
         order by orderState='待派车' DESC ,orderState='已派车' DESC , beginTime ASC
     </select>
@@ -3392,10 +3395,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 				g.car_group_id in (
 				  SELECT car_group_id from car_group_dispatcher_info where user_id =#{userId}
 				)
-
 		limit 1
-
-
     </select>
     <select id="selectOrderIdByJourneyId" resultType="java.lang.Long" parameterType="java.lang.Long">
         select order_id from order_info where journey_id = #{journeyId}
@@ -3489,5 +3489,24 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
           --  and cgi.it_is_inner in ('C000','C111')
             and  cgi.car_group_name = #{carGroupName}
         </if>
+    </select>
+
+
+    <select id="getCarGroupInfo" resultType="com.hq.ecmp.mscore.dto.PayeeInfoDto" parameterType="java.lang.String">
+		SELECT
+            g.company_id companyId,
+            g.car_group_id carGroupId,
+            g.car_group_name carGroupName,
+            g.telephone telephone,
+            g.account_name accountName,
+            g.bank_name bankName,
+            g.bank_account bankAccount ,
+            o.dept_name deptName
+        FROM
+            car_group_info g
+            LEFT JOIN ecmp_org o ON g.company_id = o.dept_id
+      where
+				g.car_group_id = #{carGroupId}
+		limit 1
     </select>
 </mapper>

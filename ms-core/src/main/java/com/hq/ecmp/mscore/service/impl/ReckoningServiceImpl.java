@@ -108,12 +108,21 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
         Map<String, Object>  resultMap = new HashMap<>();
         Map<Object, Object> allMap = new HashMap<>();
         /**车队详情 */
-        //PayeeInfoDto  payeeInfo = collectionService.getPayeeInfo(param);
-        PayeeInfoDto  payeeInfo = orderInfoService.getPayeeInfo(param);
-        payeeInfo.setUserId(loginUser.getUser().getUserId());
-        if(null != payeeInfo){
-            param.setCarGroupId(payeeInfo.getCarGroupId());
-            payeeInfo.setCollectionId(getRandomFileName());
+
+        PayeeInfoDto payeeInfo;
+        if(null != param.getCollectionNumber() && param.getCollectionNumber() > 0){
+                LeaseSettlementDto collectionNumber = collectionService.getCollectionNumber(param.getCollectionNumber());
+                payeeInfo =  orderInfoService.getCarGroupInfo(collectionNumber.getCarGroupId());
+                param.setCarGroupId(Long.parseLong(collectionNumber.getCarGroupId()));
+                payeeInfo.setCollectionId(String.valueOf(collectionNumber.getCollectionNumber()));
+                payeeInfo.setUserId(loginUser.getUser().getUserId());
+        }else {
+                payeeInfo = orderInfoService.getPayeeInfo(param);
+                if(null != payeeInfo) {
+                    payeeInfo.setUserId(loginUser.getUser().getUserId());
+                    param.setCarGroupId(payeeInfo.getCarGroupId());
+                    payeeInfo.setCollectionId(getRandomFileName());
+                }
         }
         /** 用车费用 详情列表 */
         List<MoneyListDto> moneyList = orderInfoService.getMoneyList(param);
@@ -159,7 +168,7 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
                         }
                     }
                 }
-                money.setOtherTotalMoney(outPrice /*+ amountDetai*/);
+                money.setOtherTotalMoney(outPrice);
                 money.setAmount(money.getCarTotalMoney() + money.getOtherTotalMoney());
 
                 if(null == carTypeMapList || carTypeMapList.size() == 0){
@@ -235,6 +244,7 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
         reckoningDto.setStartDate(DateUtils.formatDate(param.getBeginDate(),DateUtils.YYYY_MM_DD));
         reckoningDto.setEndDate(DateUtils.formatDate(param.getEndDate(),DateUtils.YYYY_MM_DD));
         reckoningDto.setCompanyId(param.getCompanyId());
+        reckoningDto.setCollectionNumber(param.getCollectionNumber());
 //        String collectionEndTime = DateUtils.formatDate(param.getCollectionEndTime(), DateUtils.YYYY_MM_DD_HH_MM_SS);
         Map<String, Object> stringObjectMap = reckoningDetail(reckoningDto);
 //        stringObjectMap.put("collectionEndTime",collectionEndTime);
