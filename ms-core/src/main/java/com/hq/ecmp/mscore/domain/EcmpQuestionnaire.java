@@ -24,14 +24,14 @@ public class EcmpQuestionnaire extends BaseEntity
     private Long driverId;
 
     @Excel(name = "订单id")
-    private Long orderId;
+    private String orderNumber;
 
-    public Long getOrderId() {
-        return orderId;
+    public String getOrderNumber() {
+        return orderNumber;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
     }
 
     /** 车辆id */
