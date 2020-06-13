@@ -43,10 +43,6 @@ public class EcmpQuestionnaireController {
     @PostMapping("/submit")
     public ApiResponse ranking(@RequestBody EcmpQuestionnaire ecmpQuestionnaire){
         try {
-            LoginUser user = tokenService.getLoginUser(ServletUtils.getRequest());
-            if(user.getUser()!=null){
-                ecmpQuestionnaire.setCreateBy(user.getUser().getUserId().toString());
-            }
             //车牌号查询车辆id
             CarInfo carInfo = new CarInfo();
             carInfo.setCarLicense(ecmpQuestionnaire.getCarLicense());
