@@ -3067,7 +3067,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         dataMap = new HashMap<>();
         data.setState("S635");
         List<OrderListBackDto> serviceSuspension= orderInfoMapper.getCount(data);
-        dataMap.put("msg","服务中止");
+        dataMap.put("msg","服务暂停");
         dataMap.put("value",null==serviceSuspension ?0:serviceSuspension.size());
         dataMap.put("code","S635");
         dataMap.put("sort","7");
