@@ -51,7 +51,7 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
     public PageResult<LeaseSettlementDto> getOrdinaryUserList(LeaseSettlementDto data, LoginUser user) throws Exception {
         String roleKey = isRole(user);
         if(!("admin".equals(roleKey) || "C000".equals(roleKey))){
-            data.setCompanyId(user.getUser().getOwnerCompany());
+            data.setCreateBy(user.getUser().getUserId());
         }
         List<LeaseSettlementDto> list = collectionQuittanceInfoMapper.getOrdinaryUserList(data);
         PageInfo<LeaseSettlementDto> info = new PageInfo<>(list);
