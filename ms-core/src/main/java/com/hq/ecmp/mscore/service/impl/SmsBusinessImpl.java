@@ -1102,7 +1102,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
     @Async
     public void sendVehicleUserApply(Long journeyId, Long applyId, ApplyOfficialRequest officialCommitApply) throws Exception  {
         log.info("短信开始-业务员提交申请单{},成功", applyId);
-        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.getUndoSMSTemplate(applyId);
+        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
         String drivingTime= DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,undoSMSTemplate.getStartDate());
         String vehicleUser =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber();
         Map<String,String> map=Maps.newHashMap();
@@ -1126,7 +1126,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String vehicleUser =officialCommitApply.getPassenger().getUserName()+" "+officialCommitApply.getPassenger().getUserPhone();
         String salesman = officialCommitApply.getApplyUser().getUserName()+ " "+officialCommitApply.getApplyUser().getUserPhone();
         String applyDays = officialCommitApply.getApplyDays();
-        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.getUndoSMSTemplate(applyId);
+        UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
         String deptName =undoSMSTemplate.getDeptName();
         String orderNumber =undoSMSTemplate.getOrderNumber();
         String carTypeName =undoSMSTemplate.getCarTypeName();

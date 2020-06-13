@@ -20,4 +20,13 @@ public class UserVO {
 
     @ApiModelProperty(name = "userPhone",value = "用户手机")
     private String userPhone;
+
+    public UserVO() {
+    }
+
+    public UserVO(Long userId, String userName, String userPhone) {
+        this.userId = userId;
+        this.userName = userName;
+        this.userPhone = userPhone;
+    }
 }
