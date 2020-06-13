@@ -881,16 +881,16 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
                 throw new RuntimeException("员工无所属公司信息");
             }
             if(orderId == null){
-                //如果没传订单id，则查询所在公司所有车队座机
+                //如果没传订单id，则查询所在公司所有车队座机    ( 佛山版本 只需要查询内部车队座机)
                 getCompanyCarGroupPhones(phones, companyId);
 
             }else {
                 //如果传了订单id，则查询订单对应的调度员（如果有改派，改派和第一次调度员都是同一个人）及调度员所在车队电话
-                // TODO 有订单不一定有调度员 那么联系哪个车队呢
+                //  有订单不一定有调度员 那么联系哪个车队呢
                 //根据订单id查询调度员的userId(调度员是有)
                 String userId  = orderStateTraceInfoMapper.selectDispatcherUserId(orderId);
                 if(userId == null || "1".equals(userId)){
-                    //如果订单没被调度 或者走的是自动调度 那么还是查询所在公司所有车队座机
+                    //如果订单没被调度 或者走的是自动调度 那么还是查询所在公司所有车队座机    ( 佛山版本 只需要查询内部车队座机)
                     getCompanyCarGroupPhones(phones, companyId);
                 }else {
                     //查询调度员所在车队及车队座机
@@ -958,7 +958,7 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
     }
 
     /**
-     * 查询公司所有车队座机
+     * 查询公司所有车队座机   ( 佛山版本 只需要查询内部车队座机)
      * @param phones
      * @param companyId
      */
@@ -974,6 +974,11 @@ public class CarGroupInfoServiceImpl implements ICarGroupInfoService
         }
         //（1）查询车队所有座机电话
         for (CarGroupInfo groupInfo : carGroupInfos) {
+            //过滤外部车队 只需要内部车队座机
+            String itIsInner = groupInfo.getItIsInner();
+            if("C111".equals(itIsInner)){
+                continue;
+            }
             contactCarGroupVO = ContactCarGroupVO.builder()
             .name(groupInfo.getCarGroupName())
             .phone(groupInfo.getTelephone())

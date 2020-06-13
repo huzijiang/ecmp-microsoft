@@ -23,6 +23,17 @@ public class EcmpQuestionnaire extends BaseEntity
     @Excel(name = "司机id")
     private Long driverId;
 
+    @Excel(name = "订单id")
+    private String orderNumber;
+
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
     /** 车辆id */
     @Excel(name = "车辆id")
     private Long carId;

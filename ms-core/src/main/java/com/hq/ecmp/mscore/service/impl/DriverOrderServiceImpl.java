@@ -130,6 +130,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         orderStateTraceInfo.setDriverLongitude(longitude);
         orderStateTraceInfo.setDriverLatitude(latitude);
         orderStateTraceInfo.setCreateBy(String.valueOf(userId));
+        orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
 
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfoOld.getJourneyId());
 

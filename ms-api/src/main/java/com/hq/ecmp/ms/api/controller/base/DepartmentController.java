@@ -1,15 +1,11 @@
 package com.hq.ecmp.ms.api.controller.base;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.core.web.domain.server.Sys;
 import com.hq.ecmp.constant.CommonConstant;
-import com.hq.ecmp.mscore.domain.EcmpNotice;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
@@ -234,10 +230,13 @@ public class DepartmentController {
     @PostMapping("/selectCurrentDeptInformation")
     public ApiResponse<EcmpOrgDto> selectCurrentDeptInformation(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long ownerCompany = loginUser.getUser().getOwnerCompany();
         if(deptId==null){
             return ApiResponse.error("组织id不能为空！");
         }
-        EcmpOrgDto ecmpOrgDto = orgService.selectCurrentDeptInformation(deptId);
+        EcmpOrgDto ecmpOrgDto = orgService.selectCurrentDeptInformation(deptId,ownerCompany);
         return ApiResponse.success(ecmpOrgDto);
     }
 

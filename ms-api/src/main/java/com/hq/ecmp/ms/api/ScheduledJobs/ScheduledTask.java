@@ -355,4 +355,20 @@ public class ScheduledTask {
 		}
 		log.info("定时任务:scheduUpdateDepartureDriverTask:定时更新解绑驾驶员状态结果结束："+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 	}
+
+	/***
+	 * 自驾包车定时任务去更新状态
+	 * add by liuzb
+	 */
+	@Scheduled(cron = "0 0/5 0 * * ?")
+	public void  updatePickupCarState(){
+		log.info("定时任务:updatePickupCarState:自驾包车定时任务去更新状态:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		try {
+			orderInfoTwoService.updatePickupCarState();
+		}catch (Exception e) {
+			log.error("updatePickupCarState error",e);
+		}
+		log.info("定时任务:updatePickupCarState:自驾包车定时任务去更新状态结束结果："+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+	}
+
 }
