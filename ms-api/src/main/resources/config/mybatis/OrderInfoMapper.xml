@@ -2862,6 +2862,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         (select  concat(ui.nick_name,ui.phonenumber)  from ecmp_user ui where ui.user_id=oddi.inner_dispatcher) innerDisNameAndPhone,
             o.order_id as orderId,
             o.user_id userId,
+            o.order_number orderNum,
             eo.dept_name as deptName,
             eoc.dept_name as companyName,
         <if test="roleData ==1 ">

@@ -165,4 +165,8 @@ public class DispatchVo {
      * 内部调度员的 姓名和电话，用逗号分隔
      */
     private String innerDisNameAndPhone;
+    /**
+     * 订单号
+     */
+    private String orderNum;
 }

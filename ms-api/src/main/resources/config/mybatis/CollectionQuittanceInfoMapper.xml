@@ -86,6 +86,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="createBy!=null and createBy!=''" >
             and  cqi.create_by =#{createBy}
         </if>
+        <if test="serviceOrg!=null and serviceOrg!=''" >
+            and  cqi.service_org =#{serviceOrg}
+        </if>
     </select>
     <select id="getOrdinaryUserById" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
         select
