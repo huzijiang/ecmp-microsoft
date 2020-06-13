@@ -163,4 +163,6 @@ public interface OrderStateTraceInfoMapper
     List<UseCarDataVo> userDeptUseCarDataByCarGroup(@Param("carGroupId") Long carGroupId,@Param("beginDate") String beginDate,@Param("endDate") String endDate,@Param("deptId")Long deptId);
 
     List<PiclUpCarOrderVO> selectOrderListByState(String state);
+
+    void deleteInfoByState(@Param("state") String state,@Param("orderId") Long orderId);
 }

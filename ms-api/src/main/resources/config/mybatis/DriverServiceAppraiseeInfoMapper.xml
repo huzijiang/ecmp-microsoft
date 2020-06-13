@@ -21,7 +21,7 @@
     <select id="queryById" resultMap="DriverServiceAppraiseeInfoMap">
         select
           appraise_id, order_id, item, score, content, driver_id, car_id, car_license, create_by, create_time, update_by, update_time
-        from ecmp.driver_service_appraisee_info
+        from driver_service_appraisee_info
         where appraise_id = #{appraiseId}
     </select>
 
@@ -29,7 +29,7 @@
     <select id="queryAllByLimit" resultMap="DriverServiceAppraiseeInfoMap">
         select
           appraise_id, order_id, item, score, content, driver_id, car_id, car_license, create_by, create_time, update_by, update_time
-        from ecmp.driver_service_appraisee_info
+        from driver_service_appraisee_info
         limit #{offset}, #{limit}
     </select>
 
@@ -80,14 +80,14 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="appraiseId" useGeneratedKeys="true">
-        insert into ecmp.driver_service_appraisee_info(order_id, item, score, content, driver_id, car_id, car_license, create_by, create_time, update_by, update_time)
+        insert into driver_service_appraisee_info(order_id, item, score, content, driver_id, car_id, car_license, create_by, create_time, update_by, update_time)
         values (#{orderId}, #{item}, #{score}, #{content}, #{driverId}, #{carId}, #{carLicense}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
 
 </insert>
 
     <!--通过主键修改数据-->
     <update id="update">
-        update ecmp.driver_service_appraisee_info
+        update driver_service_appraisee_info
         <set>
             <if test="orderId != null">
                 order_id = #{orderId},
@@ -128,13 +128,13 @@
 
     <!--通过主键删除-->
     <delete id="deleteById">
-        delete from ecmp.driver_service_appraisee_info where appraise_id = #{appraiseId}
+        delete from driver_service_appraisee_info where appraise_id = #{appraiseId}
     </delete>
 
     <select id="queryByOrderId" resultMap="DriverServiceAppraiseeInfoMap">
         select
           appraise_id, order_id, item, score, content, driver_id, car_id, car_license, create_by, create_time, update_by, update_time
-        from ecmp.driver_service_appraisee_info
+        from driver_service_appraisee_info
         where order_id=#{orderId} limit 1
     </select>
 

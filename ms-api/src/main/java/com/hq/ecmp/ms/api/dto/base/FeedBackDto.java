@@ -34,10 +34,10 @@ public class FeedBackDto {
     /** 投诉id */
     private Long feedId;
     /** 用车单位 */
-    private Long ecmpId;
+    private Long deptId;
 
     /** 用车状态 */
-    private int status;
+    private String status;
 
     /** 标题或内容 */
     private String title;
@@ -46,7 +46,7 @@ public class FeedBackDto {
     private String resultContent;
 
     //起始页
-    private int pageIndex;
+    private int pageNum;
     //显示条数
     private int pagesize;
 

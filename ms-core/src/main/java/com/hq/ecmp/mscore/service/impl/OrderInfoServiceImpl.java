@@ -801,11 +801,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService
             this.checkIsOverMoney(orderInfo, vo, 2);
             return vo;
         }
-        String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
-        UserVO str= orderStateTraceInfoMapper.getOrderDispatcher(orderId,states);
-        if (str!=null){
-            vo.setCarGroupPhone(str.getUserPhone());
-            vo.setCarGroupName(str.getUserName());
+//        String states=OrderState.ALREADYSENDING.getState()+","+ OrderState.REASSIGNPASS.getState();
+//        UserVO str= orderStateTraceInfoMapper.getOrderDispatcher(orderId,states);
+//        if (str!=null){
+//            vo.setDispatcherPhone(str.getUserPhone());
+//            vo.setDispatcherName(str.getUserName());
+//        }
+        Map<String, String> map = orderDispatcheDetailInfoMapper.selectGroupInfo(orderId);
+        if(!CollectionUtils.isEmpty(map)){
+            vo.setDispatcherPhone(map.get("dispatcherPhone"));
+            vo.setDispatcherName(map.get("dispatcherName"));
+            vo.setCarGroupPhone(map.get("carGroupPhone"));
+            vo.setCarGroupName(map.get("carGroupName"));
         }
         //服务结束时间
         if(orderStateTraceInfo!=null||OrderStateTrace.SERVICEOVER.getState().equals(orderStateTraceInfo.getState())){
@@ -2937,6 +2944,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         orderInfoMapper.changeOrder(data);
         //7.订单调度数据还原
         orderDispatcheDetailInfoMapper.revertOrderDispatcheDetailInfoByOrderId(orderId, userId, DateUtils.getNowDate());
+        orderStateTraceInfoMapper.deleteInfoByState(OrderStateTrace.SENDCAR.getState(),orderId);
         return "改派成功";
     }
 
@@ -3011,24 +3019,26 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
         dataMap = new HashMap<>();
         dataMap.put("msg","待出车");
-        data.setState("S300");
+        data.setState("S380");
         List<OrderListBackDto> waitingToLeave = orderInfoMapper.getCount(data);
         dataMap.put("value",null==waitingToLeave ?0:waitingToLeave.size());
-        dataMap.put("code","S300");
+        dataMap.put("code","S380");
         dataMap.put("sort","2");
         map.put("waitingToLeave",dataMap);
 
         dataMap = new HashMap<>();
-        data.setState("S301");
+        data.setState("S616");
+        data.setItIsSelfDriver("1");
         List<OrderListBackDto> toBePickedUp= orderInfoMapper.getCount(data);
         dataMap.put("msg","待还车");
         dataMap.put("value",null==toBePickedUp ?0:toBePickedUp.size());
-        dataMap.put("code","S301");
+        dataMap.put("code","S616");
         dataMap.put("sort","3");
         map.put("toBePickedUp",dataMap);
 
         dataMap = new HashMap<>();
         data.setState("S500");
+        data.setItIsSelfDriver(null);
         List<OrderListBackDto> takingOver= orderInfoMapper.getCount(data);
         dataMap.put("msg","接驾中");
         dataMap.put("value",null==takingOver ?0:takingOver.size());
@@ -3057,7 +3067,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         dataMap = new HashMap<>();
         data.setState("S635");
         List<OrderListBackDto> serviceSuspension= orderInfoMapper.getCount(data);
-        dataMap.put("msg","服务中止");
+        dataMap.put("msg","服务暂停");
         dataMap.put("value",null==serviceSuspension ?0:serviceSuspension.size());
         dataMap.put("code","S635");
         dataMap.put("sort","7");
@@ -3081,14 +3091,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         dataMap.put("sort","9");
         map.put("completed",dataMap);
 
-        dataMap = new HashMap<>();
+       /* dataMap = new HashMap<>();
         data.setState("S911");
         List<OrderListBackDto> cancelled= orderInfoMapper.getCount(data);
         dataMap.put("msg","已取消");
         dataMap.put("value",null==cancelled ?0:cancelled.size());
         dataMap.put("code","S911");
         dataMap.put("sort","10");
-        map.put("cancelled",dataMap);
+        map.put("cancelled",dataMap);*/
         return map;
     }
 
@@ -3126,12 +3136,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return new PageResult<>(info.getTotal(),info.getPages(),list);
     }
 
-    @Override
-    public List<MoneyListDto> getMoneyList(ReckoningDto param) {
 
-        return orderInfoMapper.getMoneyList(param);
-
-    }
 
     @Override
     public Map<String, Map<String, Integer>> selectOrderCarGroup(Long companyId) {
@@ -3215,5 +3220,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         return map;
     }
 
+    @Override
+    public PayeeInfoDto getPayeeInfo(ReckoningDto param) {
+        return orderInfoMapper.getPayeeInfo(param);
+    }
+    @Override
+    public List<MoneyListDto> getMoneyList(ReckoningDto param) {
+
+        return orderInfoMapper.getMoneyList(param);
+
+    }
 
 }

@@ -174,6 +174,8 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             ismsBusiness.sendSmsDriverArrivePrivate(orderId);
             log.info("司机到-达发上车地点-送短信orderId：{}",orderId);
         }else if((DriverBehavior.START_SERVICE.getType().equals(type))){
+            log.info("司机开始服务订单号orderId:{}",orderId);
+
             //存储出发点行车经纬度
             OrderServiceCostDetailRecordInfo recordInfo = new OrderServiceCostDetailRecordInfo();
             recordInfo.setStartLongitude(BigDecimal.valueOf(null==longitude?00:longitude));//精度
@@ -245,14 +247,12 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             }
 
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){//----服务完成4---
-
+            log.info("司机服务完成订单号orderId:{}",orderId);
             OrderSettlingInfoVo vo = new OrderSettlingInfoVo();
             vo.setOrderId(orderId);//订单Id
             vo.setTotalMileage(new BigDecimal(mileage==null?"0":mileage));//订单总里程
             vo.setTotalTime(new BigDecimal(travelTime).intValue());//订单总时长
-
             iorderSettlingInfoService.addExpenseReport(vo, userId,orderInfoOld.getCompanyId());
-
             //TODO 此处需要根据经纬度去云端的接口获取长地址和短地址存入订单表
             String longAddr = "";
             String shortAddr ="";

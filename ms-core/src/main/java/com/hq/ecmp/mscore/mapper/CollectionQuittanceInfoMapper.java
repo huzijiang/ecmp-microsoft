@@ -1,7 +1,6 @@
 package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.ReckoningInfo;
-import com.hq.ecmp.mscore.dto.PayeeInfoDto;
 import com.hq.ecmp.mscore.dto.ReckoningDto;
 import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
 import org.apache.ibatis.annotations.Param;
@@ -9,12 +8,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import java.util.Map;
-
 @Repository
 public interface CollectionQuittanceInfoMapper {
-
-    PayeeInfoDto getPayeeInfo(ReckoningDto param);
 
     void add(ReckoningInfo param);
 
@@ -50,4 +45,8 @@ public interface CollectionQuittanceInfoMapper {
      * @return
      */
     int ordinaryUserConfirmCost(LeaseSettlementDto data);
+
+    Long findByCollectionNumber(@Param("collectionNumber") Long collectionNumber);
+
+    int updateByCollectionId(ReckoningInfo param);
 }

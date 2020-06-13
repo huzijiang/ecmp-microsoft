@@ -1,11 +1,13 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.OrderDispatcheDetailInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 【请填写功能名称】Mapper接口
@@ -88,4 +90,6 @@ public interface OrderDispatcheDetailInfoMapper
     void revertOrderDispatcheDetailInfoByOrderId(@Param("orderId") Long orderId, @Param("updateBy") Long updateBy, @Param("updateTime") Date updateTime);
 
     OrderDispatcheDetailInfo selectDispatcheInfo(@Param("orderId") Long orderId);
+
+    Map<String,String> selectGroupInfo(@Param("orderId") Long orderId);
 }

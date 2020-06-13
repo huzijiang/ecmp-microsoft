@@ -128,7 +128,7 @@ public class BaseController {
         ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
         ecmpUserFeedbackInfo.setContent(feedBackDto.getContent());
         ecmpUserFeedbackInfo.setTitle(feedBackDto.getTitle());
-        int i = iEcmpUserFeedbackInfoService.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
+        int i = iEcmpUserFeedbackInfoService.insertUserFeedbackInfo(ecmpUserFeedbackInfo);
         if (i == 1){
             return ApiResponse.success("新增投诉建议成功");
         }else {
@@ -147,10 +147,10 @@ public class BaseController {
 
         EcmpUserFeedbackInfo ecmpUserFeedbackInfo = new EcmpUserFeedbackInfo();
         ecmpUserFeedbackInfo.setType(FeedBackTypeEnum.COMPLAIN_TYPE.getType());
-        ecmpUserFeedbackInfo.setEcmpId(feedBackDto.getEcmpId());
+        ecmpUserFeedbackInfo.setDeptId(feedBackDto.getDeptId());
         ecmpUserFeedbackInfo.setStatus(feedBackDto.getStatus());
         ecmpUserFeedbackInfo.setTitle(feedBackDto.getTitle());
-        ecmpUserFeedbackInfo.setPageIndex(feedBackDto.getPageIndex());
+        ecmpUserFeedbackInfo.setPageNum(feedBackDto.getPageNum());
         ecmpUserFeedbackInfo.setPageSize(feedBackDto.getPagesize());
         PageResult<EcmpUserFeedbackVo> info = iEcmpUserFeedbackInfoService.findFeedback(ecmpUserFeedbackInfo);
         if (null != info){
@@ -184,7 +184,7 @@ public class BaseController {
     }
 
     /**
-     * 回复投诉
+     * 获取所有未删除的公司名称和id
      * @return
      */
     @ApiOperation(value = "getEcmpName",notes = "获取所有未删除的公司名称和id",httpMethod ="POST")
