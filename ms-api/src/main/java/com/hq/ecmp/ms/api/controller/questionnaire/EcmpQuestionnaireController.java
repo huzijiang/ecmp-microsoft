@@ -61,8 +61,8 @@ public class EcmpQuestionnaireController {
             List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoList(orderInfo);
             //时间倒叙，理论上最新的车辆相关订单就是当前评价的订单
             //orderInfos.sort(Comparator.comparing(OrderInfo::getCreateTime).reversed());
-            AtomicReference<OrderInfo> info = null;
-            orderInfos.stream().forEach(x->{
+            OrderInfo info = null;
+            for(OrderInfo x:orderInfos){
                 Map map = new HashMap();
                 map.put("orderId",x.getOrderId());
                 //查询行程
@@ -88,11 +88,14 @@ public class EcmpQuestionnaireController {
                 if (ecmpQuestionnaire.getUseCarTime().after((Date)map.get("begin"))
                         && ecmpQuestionnaire.getUseCarTime().before((Date)map.get("end"))
                 ){
-                    info.set(x);
+                    info = x;
                 }
-            });
-            ecmpQuestionnaire.setOrderId(info.get().getOrderId());
-            ecmpQuestionnaire.setDriverId(info.get().getDriverId());
+            };
+            if(info==null){
+                return ApiResponse.error("无匹配订单");
+            }
+            ecmpQuestionnaire.setOrderId(info.getOrderId());
+            ecmpQuestionnaire.setDriverId(info.getDriverId());
             int temp = ecmpQuestionnaireService.insertEcmpQuestionnaire(ecmpQuestionnaire);
             if(temp>0){
                 return ApiResponse.success("提交成功，感谢您的反馈");
