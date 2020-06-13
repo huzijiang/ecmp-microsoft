@@ -62,6 +62,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             cqi.end_date endDate,
 		    cqi.state state,
             eu.nick_name verifierName,
+            cqi.service_org serviceOrg,
             cqi.create_time createTime
        from collection_quittance_info cqi
         left join car_group_info cgi on cgi.car_group_id = cqi.car_group_id
