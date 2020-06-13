@@ -87,7 +87,7 @@ public interface OrderInfoMapper {
      * @param isConfirmState
      * @return
      */
-    public List<OrderListInfo> getOrderList(@Param("userId") Long userId,@Param("isConfirmState") int isConfirmState);
+    public List<OrderListInfo> getOrderList(@Param("deptId") Long deptId,@Param("isConfirmState") int isConfirmState);
 
 
     public List<DispatchOrderInfo> queryOrderRelateInfo(OrderInfo orderInfo);

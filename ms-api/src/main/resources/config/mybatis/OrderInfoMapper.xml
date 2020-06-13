@@ -264,7 +264,7 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
 			left join order_address_info oai2 on oai2.order_id=o.order_id and oai2.type='A999'
 			left join apply_info ai on ai.journey_id=o.journey_id
 			left join journey_passenger_info jpi on jpi.journey_id=o.journey_id
-            where jn.user_id=#{userId}
+            where o.user_id in (select user_id from ecmp_user where dept_id=#{deptId} and status='0' and del_flag='0' )
             and o.state in('S200','S299','S500','S600','S616','S699','S900')
          )cc1
          where cc1.labelState not in ('S930','S921','S911')

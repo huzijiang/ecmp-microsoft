@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.mapper;
 
+import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.dto.ReckoningDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchCarGroupDto;
@@ -243,4 +244,5 @@ public interface CarGroupInfoMapper
 
     Long findgroupIdByUserId(@Param("userId") Long userId);
 
+    List<CarGroupInfo> selectListByDispatcherId(Long userId);
 }

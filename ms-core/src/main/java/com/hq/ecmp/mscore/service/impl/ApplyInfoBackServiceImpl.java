@@ -96,6 +96,7 @@ public class ApplyInfoBackServiceImpl implements ApplyInfoBackService
         if (StringUtils.isNotBlank(dispatcheDetailInfo.getItIsUseInnerCarGroup())){
             userApplySingleVo.setCanUpdateDetail(1);
         }
+        vo.setApplyInfoDetail(userApplySingleVo);
         //获取内部车队
         List<CarGroupInfo> carGroupInfos = carGroupInfoMapper.applySingleCarGroupList(IS_RETURN, "C000", loginUser.getUser().getDeptId());
         if (CollectionUtils.isEmpty(carGroupInfos)){
@@ -110,11 +111,14 @@ public class ApplyInfoBackServiceImpl implements ApplyInfoBackService
         }
         if (StringUtils.isNotBlank(dispatcheDetailInfo.getItIsUseInnerCarGroup())){
             approveList.add(new ApprovalDispatcherVO(applyId,userApplySingleVo.getOrderNumber(),carGroupInfo.getCarGroupName(),carGroupInfo.getTelephone(),"已处理",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,dispatcheDetailInfo.getUpdateTime())));
+            CarGroupInfo otherCarGroup = carGroupInfoMapper.selectCarGroupInfoById(dispatcheDetailInfo.getNextCarGroupId());
             if (OrderState.ORDEROVERTIME.getState().equals(driverOrderInfoVO.getLabelState())){
-                approveList.add(new ApprovalDispatcherVO(applyId,userApplySingleVo.getOrderNumber(),carGroupInfo.getCarGroupName(),carGroupInfo.getTelephone(),"未操作,已过期",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,driverOrderInfoVO.getLabelStateOptTime())));
-            }else {
-                if (dispatcheDetailInfo.getNextCarGroupId()!=null&&StringUtils.isNotBlank(dispatcheDetailInfo.getOuterCarGroupRefuseInfo())){
-                    CarGroupInfo otherCarGroup = carGroupInfoMapper.selectCarGroupInfoById(dispatcheDetailInfo.getNextCarGroupId());
+                if(otherCarGroup!=null){
+                    approveList.add(new ApprovalDispatcherVO(applyId,userApplySingleVo.getOrderNumber(),otherCarGroup.getCarGroupName(),otherCarGroup.getTelephone(),"未操作,已过期",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,driverOrderInfoVO.getLabelStateOptTime())));
+                }
+            }else if (Integer.parseInt(driverOrderInfoVO.getLabelState().substring(1))>=299&&Integer.parseInt(driverOrderInfoVO.getLabelState().substring(1))<=901){
+                if (dispatcheDetailInfo.getNextCarGroupId()!=null&&dispatcheDetailInfo.getOuterDispatcher()!=null){
+//                    CarGroupInfo otherCarGroup = carGroupInfoMapper.selectCarGroupInfoById(dispatcheDetailInfo.getNextCarGroupId());
                     approveList.add(new ApprovalDispatcherVO(applyId,userApplySingleVo.getOrderNumber(),otherCarGroup.getCarGroupName(),otherCarGroup.getTelephone(),"已处理",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,driverOrderInfoVO.getLabelStateOptTime())));
                 }
             }
@@ -123,7 +127,6 @@ public class ApplyInfoBackServiceImpl implements ApplyInfoBackService
                 approveList.add(new ApprovalDispatcherVO(applyId,userApplySingleVo.getOrderNumber(),carGroupInfo.getCarGroupName(),carGroupInfo.getTelephone(),"未操作,已过期",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_1,driverOrderInfoVO.getLabelStateOptTime())));
             }
         }
-        vo.setApplyInfoDetail(userApplySingleVo);
         vo.setApproveList(approveList);
         return vo;
     }
