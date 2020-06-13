@@ -6,36 +6,21 @@ import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.OrderStateTrace;
-import com.hq.ecmp.mscore.domain.CarInfo;
-import com.hq.common.utils.ServletUtils;
-import com.hq.core.security.LoginUser;
-import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.mscore.domain.CarInfo;
-import com.hq.ecmp.mscore.domain.DriverQueryResult;
-import com.hq.ecmp.mscore.domain.EcmpQuestionnaire;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DriverAppraiseDto;
-import com.hq.ecmp.mscore.dto.statistics.StatisticsParam;
 import com.hq.ecmp.mscore.mapper.CarInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
 import com.hq.ecmp.mscore.service.IEcmpQuestionnaireService;
-import com.hq.ecmp.mscore.service.StatisticsRankingService;
-import com.hq.ecmp.util.DateFormatUtils;
-import com.hq.ecmp.mscore.vo.CarListVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.QuestionnaireVo;
 import io.swagger.annotations.ApiOperation;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -50,7 +35,7 @@ public class EcmpQuestionnaireController {
     @Autowired
     private OrderInfoMapper orderInfoMapper;
     @Autowired
-    private OrderStateTraceInfoMapper orderStateTraceInfoMapper;
+    private JourneyInfoMapper journeyInfoMapper;
     @Autowired
     private TokenService tokenService;
 
@@ -75,29 +60,42 @@ public class EcmpQuestionnaireController {
             orderInfo.setCarId(ecmpQuestionnaire.getCarId());
             List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoList(orderInfo);
             //时间倒叙，理论上最新的车辆相关订单就是当前评价的订单
-            orderInfos.sort(Comparator.comparing(OrderInfo::getCreateTime).reversed());
-            /*orderInfos.stream().forEach(x->{
+            //orderInfos.sort(Comparator.comparing(OrderInfo::getCreateTime).reversed());
+            OrderInfo info = null;
+            for(OrderInfo x:orderInfos){
                 Map map = new HashMap();
                 map.put("orderId",x.getOrderId());
                 //查询行程
-                OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo();
-                orderStateTraceInfo.setOrderId(x.getOrderId());
-                List<OrderStateTraceInfo> orderStateTraceInfos = orderStateTraceInfoMapper.selectOrderStateTraceInfoList(orderStateTraceInfo);
-                orderStateTraceInfos.stream().forEach(y->{
-                    //上车时间
-                    if(OrderStateTrace.SERVICE.getState().equals(y.getState())){
-                        map.put("begin",y.getCreateTime());
-                    }
-                    //服务结束时间
-                    if(OrderStateTrace.SERVICEOVER.getState().equals(y.getState())){
-                        map.put("end",y.getCreateTime());
-                    }
-                });
-                if(map.containsKey("end")){
-
+                JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(x.getJourneyId());
+                map.put("begin",journeyInfo.getUseCarTime());
+                Calendar calendar  =   Calendar.getInstance();
+                calendar.setTime(journeyInfo.getUseCarTime());
+                //半日租
+                if(journeyInfo.getCharterCarType().equals("T001")){
+                    calendar.add(calendar.HOUR_OF_DAY,4);
+                    map.put("end",calendar.getTime());
                 }
-            });*/
-            ecmpQuestionnaire.setDriverId(orderInfos.get(0).getDriverId());
+                //整日租
+                if(journeyInfo.getCharterCarType().equals("T002")){
+                    calendar.add(calendar.HOUR_OF_DAY,8);
+                    map.put("end",calendar.getTime());
+                }
+                //多日租
+                if(journeyInfo.getCharterCarType().equals("T009")){
+                    calendar.add(calendar.DATE, Integer.parseInt(journeyInfo.getUseTime()));//把日期往后增加n天.正数往后推,负数往前移动
+                    map.put("end",calendar.getTime());
+                }
+                if (ecmpQuestionnaire.getUseCarTime().after((Date)map.get("begin"))
+                        && ecmpQuestionnaire.getUseCarTime().before((Date)map.get("end"))
+                ){
+                    info = x;
+                }
+            };
+            if(info==null){
+                return ApiResponse.error("无匹配订单");
+            }
+            ecmpQuestionnaire.setOrderId(info.getOrderId());
+            ecmpQuestionnaire.setDriverId(info.getDriverId());
             int temp = ecmpQuestionnaireService.insertEcmpQuestionnaire(ecmpQuestionnaire);
             if(temp>0){
                 return ApiResponse.success("提交成功，感谢您的反馈");
