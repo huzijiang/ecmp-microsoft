@@ -198,7 +198,7 @@ public interface IEcmpOrgService
      * @param deptId 部门ID
      * @return
      */
-    public EcmpOrgDto selectCurrentDeptInformation(Long deptId);
+    public EcmpOrgDto selectCurrentDeptInformation(Long deptId, Long ownerCompany);
 
     /**
      * 按照部门名称或编号模糊查询匹配的列表
