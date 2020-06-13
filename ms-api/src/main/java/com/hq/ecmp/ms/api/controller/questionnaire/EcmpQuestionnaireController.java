@@ -94,7 +94,7 @@ public class EcmpQuestionnaireController {
             if(info==null){
                 return ApiResponse.error("无匹配订单");
             }
-            ecmpQuestionnaire.setOrderId(info.getOrderId());
+            ecmpQuestionnaire.setOrderNumber(info.getOrderNumber());
             ecmpQuestionnaire.setDriverId(info.getDriverId());
             int temp = ecmpQuestionnaireService.insertEcmpQuestionnaire(ecmpQuestionnaire);
             if(temp>0){

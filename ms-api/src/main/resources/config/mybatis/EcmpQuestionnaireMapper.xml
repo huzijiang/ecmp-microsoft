@@ -7,7 +7,7 @@
     <resultMap type="com.hq.ecmp.mscore.domain.EcmpQuestionnaire" id="EcmpQuestionnaireResult">
         <result property="id"    column="id"    />
         <result property="driverId"    column="driver_id"    />
-        <result property="orderId" column="order_id"/>
+        <result property="orderNumber" column="order_number"/>
         <result property="carId"    column="car_id"    />
         <result property="itIsOnTime"    column="it_is_on_time"    />
         <result property="itIsHelp"    column="it_is_help"    />
@@ -25,7 +25,7 @@
     </resultMap>
 
     <sql id="selectEcmpQuestionnaireVo">
-        select id, driver_id, car_id, order_id,it_is_on_time, it_is_help, it_is_calm, it_is_know_traffic,
+        select id, driver_id, car_id, order_number,it_is_on_time, it_is_help, it_is_calm, it_is_know_traffic,
         it_is_smooth, it_is_clean, it_is_odor, use_car_time, phone,
         create_by, create_time, update_by, update_time from ecmp_questionnaire
     </sql>
@@ -35,7 +35,7 @@
         <where>
             <if test="driverId != null "> and driver_id = #{driverId}</if>
             <if test="carId != null "> and car_id = #{carId}</if>
-            <if test="orderId != null "> and order_id = #{orderId}</if>
+            <if test="orderNumber != null "> and order_number = #{orderNumber}</if>
             <if test="itIsOnTime != null  and itIsOnTime != ''"> and it_is_on_time = #{itIsOnTime}</if>
             <if test="itIsHelp != null  and itIsHelp != ''"> and it_is_help = #{itIsHelp}</if>
             <if test="itIsCalm != null  and itIsCalm != ''"> and it_is_calm = #{itIsCalm}</if>
@@ -58,7 +58,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="driverId != null ">driver_id,</if>
             <if test="carId != null ">car_id,</if>
-            <if test="orderId != null ">order_id,</if>
+            <if test="orderNumber != null ">order_number,</if>
             <if test="itIsOnTime != null  and itIsOnTime != ''">it_is_on_time,</if>
             <if test="itIsHelp != null  and itIsHelp != ''">it_is_help,</if>
             <if test="itIsCalm != null  and itIsCalm != ''">it_is_calm,</if>
@@ -76,7 +76,7 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="driverId != null ">#{driverId},</if>
             <if test="carId != null ">#{carId},</if>
-            <if test="orderId != null ">#{orderId},</if>
+            <if test="orderNumber != null ">#{orderNumber},</if>
             <if test="itIsOnTime != null  and itIsOnTime != ''">#{itIsOnTime},</if>
             <if test="itIsHelp != null  and itIsHelp != ''">#{itIsHelp},</if>
             <if test="itIsCalm != null  and itIsCalm != ''">#{itIsCalm},</if>
@@ -98,7 +98,7 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="driverId != null ">driver_id = #{driverId},</if>
             <if test="carId != null ">car_id = #{carId},</if>
-            <if test="orderId != null ">order_id = #{orderId},</if>
+            <if test="orderNumber != null ">order_number = #{orderNumber},</if>
             <if test="itIsOnTime != null  and itIsOnTime != ''">it_is_on_time = #{itIsOnTime},</if>
             <if test="itIsHelp != null  and itIsHelp != ''">it_is_help = #{itIsHelp},</if>
             <if test="itIsCalm != null  and itIsCalm != ''">it_is_calm = #{itIsCalm},</if>
@@ -142,7 +142,8 @@
         eq.phone,                      -- 意见建议，乘客电话
         eq.create_time AS createTime,  -- 评价日期
         ci.car_license AS carLicense,  -- 车牌号
-        di.driver_name AS driverName  -- 司机
+        di.driver_name AS driverName,  -- 司机
+        eq.order_number AS orderNum
         from ecmp_questionnaire eq
         LEFT JOIN car_group_driver_relation cgdr ON cgdr.driver_id = eq.driver_id
         LEFT JOIN car_info ci on ci.car_id = eq.car_id
@@ -150,6 +151,7 @@
         WHERE cgdr.car_group_id = #{carGroupId}
         <if test="driverId != null ">and eq.driver_id = #{driverId}</if>
         <if test="carId != null ">and eq.car_id = #{carId}</if>
+        <if test="orderNum != null and orderNum != ''">and eq.order_number like concat('%',#{orderNum},'%') </if>
         order by eq.create_time desc
     </select>
 
