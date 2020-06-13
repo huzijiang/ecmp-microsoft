@@ -110,6 +110,7 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
         /**车队详情 */
         //PayeeInfoDto  payeeInfo = collectionService.getPayeeInfo(param);
         PayeeInfoDto  payeeInfo = orderInfoService.getPayeeInfo(param);
+        payeeInfo.setUserId(loginUser.getUser().getUserId());
         if(null != payeeInfo){
             param.setCarGroupId(payeeInfo.getCarGroupId());
             payeeInfo.setCollectionId(getRandomFileName());
