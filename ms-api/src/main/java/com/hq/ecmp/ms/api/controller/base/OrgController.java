@@ -165,7 +165,10 @@ public class OrgController {
         if(deptId==null){
             return ApiResponse.error("组织id不能为空！");
         }
-        EcmpOrgDto ecmpOrgDto = orgService.selectCurrentDeptInformation(deptId);
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long ownerCompany = loginUser.getUser().getOwnerCompany();
+        EcmpOrgDto ecmpOrgDto = orgService.selectCurrentDeptInformation(deptId,ownerCompany);
         return ApiResponse.success(ecmpOrgDto);
     }
 
