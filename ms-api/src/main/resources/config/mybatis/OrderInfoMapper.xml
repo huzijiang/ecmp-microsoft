@@ -3328,8 +3328,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ct.LEVEL carLevel,
         adr.action_time actionTime,-- #用车时间
         jo.use_time useTime,-- #用车天数
-        se.amount amount,-- #用车费用
-        se.amount_detail amountDetai -- #其他费用
+        se.amount amount,-- #总费用
+        se.amount_detail amountDetai, -- #用车费用
+		se.out_price outPrice -- 其他费用
         FROM
         order_info o
         LEFT JOIN order_address_info adr ON o.order_id = adr.order_id

@@ -13,4 +13,5 @@ public class DriverAppraiseDto {
     private Integer pageSize;
     private Long carId;
     private Long driverId;
+    private String orderNum;
 }

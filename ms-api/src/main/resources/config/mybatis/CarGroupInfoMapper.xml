@@ -407,7 +407,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
        -- left join order_address_info adr on o.order_id = adr.order_id and adr.type = 'A999'
        -- left join order_account_info acc on  o.order_id  = acc.order_id AND acc.state != 'S005'
        -- WHERE
-       SELECT DISTINCT
+       SELECT
           DISTINCT DATE_FORMAT( adr.action_time, '%Y-%m' ) carDate
        FROM
        order_info o
