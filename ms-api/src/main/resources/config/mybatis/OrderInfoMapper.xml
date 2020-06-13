@@ -3316,15 +3316,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             )
     </select>
 
-
-
-
-
-
-
-
-
-
     <select id="getMoneyList" resultType="com.hq.ecmp.mscore.dto.MoneyListDto" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
         SELECT
         o.order_id orderId,
@@ -3338,8 +3329,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         se.amount_detail amountDetai -- #其他费用
         FROM
         order_info o
-        LEFT JOIN order_address_info addr ON o.order_id = addr.order_id
-        AND addr.type = 'A000'
         LEFT JOIN order_address_info adr ON o.order_id = adr.order_id
         AND adr.type = 'A999'
         LEFT JOIN order_account_info acc ON o.order_id = acc.order_id
@@ -3354,7 +3343,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
           o.company_id = #{companyId}
         and
           g.car_group_id = #{carGroupId}
-        <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= addr.action_time ]]>
+        <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= adr.action_time ]]>
         <![CDATA[ AND adr.action_time <= DATE_FORMAT( #{endDate}, '%Y-%m-%d' ) ]]>
         GROUP BY o.order_id
     </select>
