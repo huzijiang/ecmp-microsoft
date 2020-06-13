@@ -376,5 +376,7 @@ public interface IOrderInfoService {
     Map<String,Integer> selectNormalOrderReserveTime(Long companyId,String beginDate,String endDate);
 
     PayeeInfoDto getPayeeInfo(ReckoningDto param);
+
+    PayeeInfoDto getCarGroupInfo(String carGroupId);
 }
 

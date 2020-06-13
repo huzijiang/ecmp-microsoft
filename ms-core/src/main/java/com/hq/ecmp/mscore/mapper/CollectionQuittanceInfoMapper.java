@@ -49,4 +49,5 @@ public interface CollectionQuittanceInfoMapper {
     Long findByCollectionNumber(@Param("collectionNumber") Long collectionNumber);
 
     int updateByCollectionId(ReckoningInfo param);
+
 }
