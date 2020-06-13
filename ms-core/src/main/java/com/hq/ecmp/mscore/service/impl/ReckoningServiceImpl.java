@@ -244,6 +244,7 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
         reckoningDto.setStartDate(DateUtils.formatDate(param.getBeginDate(),DateUtils.YYYY_MM_DD));
         reckoningDto.setEndDate(DateUtils.formatDate(param.getEndDate(),DateUtils.YYYY_MM_DD));
         reckoningDto.setCompanyId(param.getCompanyId());
+        reckoningDto.setCollectionNumber(param.getCollectionNumber());
 //        String collectionEndTime = DateUtils.formatDate(param.getCollectionEndTime(), DateUtils.YYYY_MM_DD_HH_MM_SS);
         Map<String, Object> stringObjectMap = reckoningDetail(reckoningDto);
 //        stringObjectMap.put("collectionEndTime",collectionEndTime);
