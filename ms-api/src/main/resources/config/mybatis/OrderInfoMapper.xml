@@ -2628,6 +2628,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="stateFlag==3">
             and z.state='S930'
         </if>
+        <if test="orderNumber!=null and orderNumber!=''">
+            and oi.order_number= like concat('%', #{orderNumber}, '%')
+        </if>
         GROUP BY  ai.journey_id
         order by orderState='待派车' DESC ,orderState='已派车' DESC , beginTime ASC
     </select>
