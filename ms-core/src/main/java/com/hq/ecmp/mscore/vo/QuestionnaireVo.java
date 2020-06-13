@@ -58,4 +58,6 @@ public class QuestionnaireVo {
 
     private String carLicense; //车牌号
 
+    private String orderNum; //订单编号
+
 }

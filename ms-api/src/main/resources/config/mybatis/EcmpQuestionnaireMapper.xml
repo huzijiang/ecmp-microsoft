@@ -142,7 +142,8 @@
         eq.phone,                      -- 意见建议，乘客电话
         eq.create_time AS createTime,  -- 评价日期
         ci.car_license AS carLicense,  -- 车牌号
-        di.driver_name AS driverName  -- 司机
+        di.driver_name AS driverName,  -- 司机
+        eq.order_number AS orderNum
         from ecmp_questionnaire eq
         LEFT JOIN car_group_driver_relation cgdr ON cgdr.driver_id = eq.driver_id
         LEFT JOIN car_info ci on ci.car_id = eq.car_id
@@ -150,6 +151,7 @@
         WHERE cgdr.car_group_id = #{carGroupId}
         <if test="driverId != null ">and eq.driver_id = #{driverId}</if>
         <if test="carId != null ">and eq.car_id = #{carId}</if>
+        <if test="orderNum != null and orderNum != ''">and eq.order_number like concat('%',#{orderNum},'%') </if>
         order by eq.create_time desc
     </select>
 
