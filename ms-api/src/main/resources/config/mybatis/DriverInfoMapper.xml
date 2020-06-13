@@ -537,6 +537,7 @@ WHERE
             AND dcr.car_id IS NOT NULL
             AND cgd.car_group_id IS NOT NULL
             AND dwi.leave_status='X999'
+            AND dri.state='V000'
             <if test="workDay != null  "> and dwi.caledar_date=#{workDay}</if>
             <if test="driverId != null  and driverId!= '' "> and dri.driver_id=#{driverId}</if>
             <if test="carId != null  and carId!= '' "> and dcr.car_id=#{carId}</if>
@@ -556,6 +557,7 @@ WHERE
             1=1
             AND dcr.car_id IS NOT NULL
             AND cgd.car_group_id IS NOT NULL
+            AND dri.state='V000'
             AND dwi.leave_status='X999'
             <if test="driverNameOrPhone != null  and driverNameOrPhone!= '' "> and dri.driver_name like CONCAT('%',#{driverNameOrPhone},'%')</if>
             <if test="workDay != null  "> and dwi.caledar_date=#{workDay}</if>
@@ -577,6 +579,7 @@ WHERE
             1=1
             AND dcr.car_id IS NOT NULL
             AND cgd.car_group_id IS NOT NULL
+            AND dri.state='V000'
             AND dwi.leave_status='X999'
             <if test="driverNameOrPhone != null  and driverNameOrPhone!= '' "> and dri.mobile like CONCAT('%',#{driverNameOrPhone},'%')</if>
             <if test="workDay != null "> and dwi.caledar_date=#{workDay}</if>
