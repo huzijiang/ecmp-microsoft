@@ -65,6 +65,7 @@ public interface EcmpQuestionnaireMapper
 
     List<QuestionnaireVo> selectEcmpQuestionnaireListByCarGroup(@Param("carGroupId") Long carGroupId,
                                                                 @Param("driverId") Long driverId,
-                                                                @Param("carId") Long carId);
+                                                                @Param("carId") Long carId,
+                                                                @Param("orderNum")String orderNum);
 
 }

@@ -153,8 +153,9 @@ public class EcmpQuestionnaireServiceImpl implements IEcmpQuestionnaireService
         //分页查询评价列表
         Integer pageNum = driverAppraiseDto.getPageNum();
         Integer pageSize = driverAppraiseDto.getPageSize();
+        String orderNum = driverAppraiseDto.getOrderNum();
         PageHelper.startPage(pageNum,pageSize);
-        List<QuestionnaireVo> list = ecmpQuestionnaireMapper.selectEcmpQuestionnaireListByCarGroup(carGroupId,driverAppraiseDto.getDriverId(),driverAppraiseDto.getCarId());
+        List<QuestionnaireVo> list = ecmpQuestionnaireMapper.selectEcmpQuestionnaireListByCarGroup(carGroupId,driverAppraiseDto.getDriverId(),driverAppraiseDto.getCarId(),orderNum);
         PageInfo<EcmpQuestionnaire> pageInfo = new PageInfo(list);
         return new PageResult<QuestionnaireVo>(pageInfo.getTotal(),pageInfo.getPages(),list);
     }

@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.controller.apply;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
@@ -161,6 +162,9 @@ public class UserApplySingleController {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
+            SysUser user = loginUser.getUser();
+            UserVO applyUser=new UserVO(user.getUserId(),user.getNickName(),user.getPhonenumber());
+            applySingleVO.setApplyUser(applyUser);
             ApiResponse apiResponse = applyInfoService.submitApplySingle(loginUser,applySingleVO);
             return apiResponse;
         } catch (Exception e) {

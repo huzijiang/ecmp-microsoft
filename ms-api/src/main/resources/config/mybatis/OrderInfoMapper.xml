@@ -3076,7 +3076,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        -- 还钥匙时间，实际还车时间
        ifnull(oai.action_time, '无')  actionEndTime,
        -- 车牌号
-       ifnull(ci.car_number, '无')    carNumber,
+       ifnull(ci.car_license, '无')    carNumber,
        -- 套餐价
        ifnull((select  distinct set_meal_cost from order_service_cost_detail_record_info where order_id=#{orderId}), 0) setMealCost,
        -- 超里程费用
@@ -3329,8 +3329,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ct.LEVEL carLevel,
         adr.action_time actionTime,-- #用车时间
         jo.use_time useTime,-- #用车天数
-        se.amount amount,-- #用车费用
-        se.amount_detail amountDetai -- #其他费用
+        se.amount amount,-- #总费用
+        se.amount_detail amountDetai, -- #用车费用
+		se.out_price outPrice -- 其他费用
         FROM
         order_info o
         LEFT JOIN order_address_info adr ON o.order_id = adr.order_id
@@ -3344,7 +3345,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 		LEFT JOIN car_group_driver_relation r on o.driver_id = r.driver_id
 		LEFT JOIN car_group_info g ON r.car_group_id = g.car_group_id
         WHERE
-          o.company_id = #{companyId}
+            o.user_id in (
+                SELECT user.user_id from ecmp_user user where  user.dept_id = #{companyId}
+              )
         and
           g.car_group_id = #{carGroupId}
         <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= adr.action_time ]]>
@@ -3373,8 +3376,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
 
     <select id="getPayeeInfo" resultType="com.hq.ecmp.mscore.dto.PayeeInfoDto" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
-        SELECT
-            c.user_id userId,
+		SELECT
             g.company_id companyId,
             g.car_group_id carGroupId,
             g.car_group_name carGroupName,
@@ -3386,12 +3388,14 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         FROM
             car_group_info g
             LEFT JOIN ecmp_org o ON g.company_id = o.dept_id
-			left join car_group_dispatcher_info c on g.car_group_id = c.car_group_id
       where
-           c.user_id = #{userId}
-             and
-           g.company_id = #{companyId}
+				g.car_group_id in (
+				  SELECT car_group_id from car_group_dispatcher_info where user_id =#{userId}
+				)
+
 		limit 1
+
+
     </select>
     <select id="selectOrderIdByJourneyId" resultType="java.lang.Long" parameterType="java.lang.Long">
         select order_id from order_info where journey_id = #{journeyId}
