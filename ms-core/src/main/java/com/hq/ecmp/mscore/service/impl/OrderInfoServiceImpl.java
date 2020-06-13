@@ -8,6 +8,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
@@ -226,13 +227,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     /**
      * 获取乘客订单列表
-     * @param userId
+     * @param user
      * @return
      */
     @Override
-    public PageResult<OrderListInfo>  getOrderList(Long userId, int pageNum, int pageSize,int isConfirmState) {
+    public PageResult<OrderListInfo>  getOrderList(SysUser user, int pageNum, int pageSize, int isConfirmState) {
         PageHelper.startPage(pageNum,pageSize);
-        List<OrderListInfo> orderList = orderInfoMapper.getOrderList(userId,isConfirmState);
+        List<OrderListInfo> orderList = orderInfoMapper.getOrderList(user.getDeptId(),isConfirmState);
         PageInfo<OrderListInfo> pageInfo = new PageInfo<>(orderList);
         PageResult<OrderListInfo> pageResult = new PageResult<>(pageInfo.getTotal(),pageInfo.getPages(),orderList);
         return pageResult;

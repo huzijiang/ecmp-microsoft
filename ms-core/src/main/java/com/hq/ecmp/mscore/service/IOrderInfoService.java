@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.service;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.*;
@@ -69,10 +70,10 @@ public interface IOrderInfoService {
     /**
      * 我的行程订单列表
      *
-     * @param userId
+     * @param user
      * @return
      */
-    public PageResult<OrderListInfo> getOrderList(Long userId, int pageNum, int pageSize,int isConfirmState);
+    public PageResult<OrderListInfo> getOrderList(SysUser user, int pageNum, int pageSize, int isConfirmState);
 
     /**
      * 订单轨迹表添加通用方法

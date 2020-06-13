@@ -17,15 +17,15 @@ public enum CarSourceEnum {
     /**
      *车况良好
      */
-    OWN("S001","可用"),
+    OWN("S001","自有"),
     /**
      *禁用中
      */
-    RENT("S002","禁用中"),
+    RENT("S002","租赁"),
     /**
      *维护中
      */
-    BORROWED("S003","维护中");
+    BORROWED("S003","借调");
 
     @Setter
     @Getter

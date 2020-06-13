@@ -377,18 +377,18 @@ AND a.state ='S270' order by a.create_time desc limit 1
         SELECT totalDays,totalFee,deptName,IF(totalDays IS NULL AND deptName IS NULL
         AND totalFee IS NULL AND totalTimes = 0,NULL,totalTimes) totalTimes
         FROM
-        (SELECT COUNT(1) totalTimes,       &#45;&#45; 累计用车次数
+        (SELECT COUNT(1) totalTimes,      -- 累计用车次数
             SUM(
                CASE
                WHEN ji.use_time IS NULL     THEN 0
                ELSE   ji.use_time   -- CONVERT(ji.use_time,SIGNED)
                END
-            ) AS totalDays,               &#45;&#45;  累计用车天数
+            ) AS totalDays,               --  累计用车天数
             SUM(
 	          CASE WHEN osi.amount IS NULL THEN 0
 	          ELSE osi.amount END
-            )  AS totalFee,                &#45;&#45; 累计用车费用
-            cgi.car_group_name AS deptName &#45;&#45; 车队名字
+            )  AS totalFee,                -- 累计用车费用
+            cgi.car_group_name AS deptName -- 车队名字
         FROM order_state_trace_info  os
         LEFT JOIN order_info oi ON os.order_id = oi.order_id
         LEFT JOIN journey_info ji ON ji.journey_id = oi.journey_id
@@ -396,10 +396,11 @@ AND a.state ='S270' order by a.create_time desc limit 1
         LEFT JOIN order_settling_info osi ON osi.order_id = os.order_id
         LEFT JOIN car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id
         LEFT JOIN car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
-        WHERE os.state = 'S900'  AND eu.dept_id = #{deptId}
+        WHERE os.state in ('S900','S901')  AND eu.dept_id = #{deptId}
         AND (DATE_FORMAT(os.create_time, '%Y-%m-%d') BETWEEN DATE_FORMAT(#{beginDate}, '%Y-%m-%d') AND DATE_FORMAT(#{endDate}, '%Y-%m-%d'))
         <if test="carGroupId != null "> and cgi.car_group_id = #{carGroupId}</if>
-        ORDER BY deptName) a
+        GROUP BY cgi.car_group_name
+        ORDER BY totalTimes DESC) a
     </select>
 
     <select id="selectOrderListByState" resultType="com.hq.ecmp.mscore.vo.PiclUpCarOrderVO">

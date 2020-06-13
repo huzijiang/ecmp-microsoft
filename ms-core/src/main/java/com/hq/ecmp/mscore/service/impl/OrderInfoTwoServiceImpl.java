@@ -3,7 +3,6 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Maps;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
 import com.hq.api.system.domain.SysUser;
@@ -16,7 +15,6 @@ import com.hq.ecmp.constant.enumerate.CarUserSelfDrivingEnum;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.dto.DriverCloudDto;
-import com.hq.ecmp.mscore.dto.JourneyAddressInfoDto;
 import com.hq.ecmp.mscore.dto.cost.ApplyPriceDetails;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchCarGroupDto;
 import com.hq.ecmp.mscore.mapper.*;
@@ -28,7 +26,6 @@ import org.apache.commons.collections.MapUtils;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -106,13 +103,6 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     @Resource
     private EcmpOrgMapper ecmpOrgMapper;
 
-
-    @Value("${thirdService.enterpriseId}") //企业编号
-    private String enterpriseId;
-    @Value("${thirdService.licenseContent}") //企业证书信息
-    private String licenseContent;
-    @Value("${thirdService.apiUrl}")//三方平台的接口前地址
-    private String apiUrl;
 
     /**
      * 公务取消订单

@@ -38,6 +38,10 @@ public class CarGroupDispatcherInfo extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$\ncolumn.readConverterExp()")
     private String name;
 
+    public CarGroupDispatcherInfo(Long userId) {
+        this.userId = userId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
