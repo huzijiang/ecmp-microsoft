@@ -230,11 +230,13 @@ public class DepartmentController {
     @PostMapping("/selectCurrentDeptInformation")
     public ApiResponse<EcmpOrgDto> selectCurrentDeptInformation(@RequestBody EcmpOrgVo ecmpOrgVo){
         Long deptId=ecmpOrgVo.getDeptId();
-        Long company = ecmpOrgVo.getCompanyId();
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long ownerCompany = loginUser.getUser().getOwnerCompany();
         if(deptId==null){
             return ApiResponse.error("组织id不能为空！");
         }
-        EcmpOrgDto ecmpOrgDto = orgService.selectCurrentDeptInformation(deptId,company);
+        EcmpOrgDto ecmpOrgDto = orgService.selectCurrentDeptInformation(deptId,ownerCompany);
         return ApiResponse.success(ecmpOrgDto);
     }
 
