@@ -104,6 +104,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="getCollectionNumber" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
         select
+        cqi.collection_number collectionNumber,
         cqi.car_group_id carGroupId,
         cqi.begin_date beginDate,
         cqi.end_date endDate,
@@ -156,5 +157,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         where collection_number = #{collectionNumber}
     </update>
+
+
 
 </mapper>
