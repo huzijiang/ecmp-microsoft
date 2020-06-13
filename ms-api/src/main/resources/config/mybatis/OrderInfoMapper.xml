@@ -2854,6 +2854,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     <select id="getOrderInfoByCityAndDept" resultType="com.hq.ecmp.mscore.vo.DispatchVo" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatch">
            select t.*  from(
            select oddi.next_car_group_id as nextCarGroupId,
+        (select  concat(ui.nick_name,ui.phonenumber)  from ecmp_user ui where ui.user_id=oddi.inner_dispatcher) innerDisNameAndPhone,
             o.order_id as orderId,
             o.user_id userId,
             eo.dept_name as deptName,
