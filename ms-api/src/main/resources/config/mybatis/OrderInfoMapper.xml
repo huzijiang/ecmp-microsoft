@@ -740,7 +740,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                <!-- <if test="null != userId and userId !=''">
                     and s.create_by = #{userId}
                 </if>-->
-                and s.state = 	(select state from order_state_trace_info sti where sti.order_id=s.order_id and s.state = #{orderState} order by trace_id desc limit 1)
+                <if test="state == 1">
+                    and s.state = 	(select state from order_state_trace_info sti where sti.order_id=s.order_id and s.state = #{orderState} order by trace_id desc limit 1)
+                </if>
             </where>
             group by s.order_id
             order by a.create_time desc

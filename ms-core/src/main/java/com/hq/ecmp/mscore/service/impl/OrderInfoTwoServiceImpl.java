@@ -1177,16 +1177,16 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
             log.error("订单:"+orderId+"的状态为"+orderInfo.getState()+",服务模式不是自驾");
             throw new BaseException("当前状态不可取车");
         }
-        orderInfo.setState(OrderState.INSERVICE.getState());
-        orderInfo.setUpdateBy(userId.toString());
-        orderInfo.setUpdateTime(DateUtils.getNowDate());
-        orderInfoMapper.updateOrderInfo(orderInfo);
+//        orderInfo.setState(OrderState.PICKUPCAR.getState());
+//        orderInfo.setUpdateBy(userId.toString());
+//        orderInfo.setUpdateTime(DateUtils.getNowDate());
+//        orderInfoMapper.updateOrderInfo(orderInfo);
         OrderStateTraceInfo stateTraceInfo=new OrderStateTraceInfo();
         stateTraceInfo.setOrderId(orderId);
         stateTraceInfo.setContent("用车人已取车");
         stateTraceInfo.setCreateBy(String.valueOf(userId));
         stateTraceInfo.setCreateTime(new Date());
-        stateTraceInfo.setState(OrderStateTrace.SERVICE.getState());
+        stateTraceInfo.setState(OrderStateTrace.PICKUPCAR.getState());
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
 
     }
