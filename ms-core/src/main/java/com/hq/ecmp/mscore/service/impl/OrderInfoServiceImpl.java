@@ -3225,6 +3225,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public PayeeInfoDto getPayeeInfo(ReckoningDto param) {
         return orderInfoMapper.getPayeeInfo(param);
     }
+
+    @Override
+    public PayeeInfoDto getCarGroupInfo(String carGroupId) {
+        return orderInfoMapper.getCarGroupInfo(carGroupId);
+    }
+
     @Override
     public List<MoneyListDto> getMoneyList(ReckoningDto param) {
 
