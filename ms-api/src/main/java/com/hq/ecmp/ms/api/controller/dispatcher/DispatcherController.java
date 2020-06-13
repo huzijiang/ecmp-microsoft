@@ -17,9 +17,11 @@ import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
 import com.hq.ecmp.mscore.mapper.CostConfigInfoMapper;
+import com.hq.ecmp.mscore.service.DispatchOrderService;
 import com.hq.ecmp.mscore.service.OrderInfoTwoService;
 import com.hq.ecmp.mscore.service.dispatchstrategy.DispatchStrategyEngineFactory;
 import com.hq.ecmp.mscore.vo.DispatchVo;
+import com.hq.ecmp.mscore.vo.OrderDispatcherVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,6 +54,8 @@ public class DispatcherController {
     private CostConfigInfoMapper costConfigInfoMapper;
     @Resource
     private DispatchStrategyEngineFactory dispatchStrategyEngineFactory;
+    @Resource
+    private DispatchOrderService dispatchOrderService;
 
     /**
      * 获取调度列表数据
@@ -156,6 +160,22 @@ public class DispatcherController {
             return ApiResponse.error("派车失败");
         }
         return ApiResponse.success("派车成功");
+    }
+
+    /**
+     * 获取订单对应的调度员电话
+     */
+    @PostMapping("/getOrderDispatcher")
+    public ApiResponse<OrderDispatcherVO>  getOrderDispatcher(Long orderId){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            OrderDispatcherVO vo=dispatchOrderService.getOrderDispatcher(orderId,loginUser);
+            return ApiResponse.success(vo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.error("查询失败!");
+        }
     }
 
 

@@ -426,7 +426,7 @@ public class  OrderController {
         LoginUser loginUser = tokenService.getLoginUser(request);
         Long userId = loginUser.getUser().getUserId();
         try {
-            return ApiResponse.success(iOrderInfoService.getOrderList(userId, orderPage.getPageNum(), orderPage.getPageSize(),orderPage.getIsConfirmState()));
+            return ApiResponse.success(iOrderInfoService.getOrderList(loginUser.getUser(), orderPage.getPageNum(), orderPage.getPageSize(),orderPage.getIsConfirmState()));
         } catch (Exception e) {
             e.printStackTrace();
         }

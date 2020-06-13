@@ -253,7 +253,7 @@ public interface EcmpOrgMapper {
      * @param deptId
      * @return 结果
      */
-    public EcmpOrgDto selectCurrentDeptInformation(@Param("deptId")Long deptId,@Param("ancestors") String ancestors);
+    public EcmpOrgDto selectCurrentDeptInformation(@Param("deptId")Long deptId,@Param("ancestors") String ancestors, @Param("ownerCompany") Long ownerCompany);
 
     /**
      * 部门树

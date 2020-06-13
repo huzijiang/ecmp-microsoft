@@ -3,8 +3,6 @@ package com.hq.ecmp.ms.api.controller.third;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.hq.common.core.api.ApiResponse;
-import com.hq.common.utils.MacTools;
-import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.ecmp.ms.api.vo.third.HolidaysVO;
 import com.hq.ecmp.ms.api.vo.third.LocationVO;
@@ -13,9 +11,10 @@ import com.hq.ecmp.mscore.dto.FlightInfoDTO;
 import com.hq.ecmp.mscore.dto.LocationDTO;
 import com.hq.ecmp.mscore.vo.CarCostVO;
 import com.hq.ecmp.mscore.vo.FlightInfoVo;
+import com.hq.ecmp.util.MyOkHttpUtil;
 import com.hq.ecmp.util.ObjectUtils;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -31,28 +30,19 @@ import java.util.Map;
 @RequestMapping("/third")
 public class ThirdPartServiceController {
 
-    @Value("${thirdService.enterpriseId}") // 企业编号
-    private String enterpriseId;
-    @Value("${thirdService.licenseContent}") // 企业证书信息
-    private String licenseContent;
-    @Value("${thirdService.apiUrl}") // 三方平台的接口前地址
-    private String apiUrl;
+    @Autowired
+    private MyOkHttpUtil okHttpUtil;
 
     @ApiOperation(value = "location", notes = "根据用户输入的短地址，调用第三方接口返回可用的地址列表及相应的坐标", httpMethod = "POST")
     @PostMapping(value = "/location")
-    public ApiResponse<List<LocationVO>> location( @RequestBody LocationDTO locationDTO) {
+    public ApiResponse<List<LocationVO>> location(@RequestBody LocationDTO locationDTO) {
 
         try {
-            // MAC地址
-            String macAdd = MacTools.getMacList().get(0);
             // 调用云端接口 通过短地址反查地址详情
             Map<String, Object> queryOrderStateMap = ObjectUtils.objectToMap(locationDTO);
-            queryOrderStateMap.put("enterpriseId", enterpriseId);
-            queryOrderStateMap.put("licenseContent", licenseContent);
-            queryOrderStateMap.put("mac", macAdd);
+            String url = "/service/locateSearchByShortName";
+            String resultQuery = okHttpUtil.thirdInterface(url, queryOrderStateMap);
 
-            String resultQuery = OkHttpUtil.postForm(apiUrl + "/service/locateSearchByShortName",
-                queryOrderStateMap);
             JSONObject parseObject = JSONObject.parseObject(resultQuery);
             if (!"0".equals(parseObject.getString("code"))) {
                 return ApiResponse.error("调用云端接口地址反查失败!");
@@ -71,13 +61,11 @@ public class ThirdPartServiceController {
     @RequestMapping(value = "/applyCalculateOrderPrice", method = RequestMethod.POST)
     public ApiResponse<List<CarCostVO>> estimate(@RequestBody CarLevelAndPriceDTO carLevelAndPriceDTO) {
         try {
-            String macAddress = MacTools.getMacList().get(0);
             Map<String, Object> map = ObjectUtils.objectToMap(carLevelAndPriceDTO);
-            map.put("mac", macAddress);
-            map.put("enterpriseId", enterpriseId);
-            map.put("licenseContent", licenseContent);
-            String postJson = OkHttpUtil
-                .postForm(apiUrl + "/service/enterpriseOrderGetCalculatePrice", map);
+
+            String url = "/service/enterpriseOrderGetCalculatePrice";
+            String postJson = okHttpUtil.thirdInterface(url, map);
+
             JSONObject parseObject = JSONObject.parseObject(postJson);
             if (!"0".equals(parseObject.getString("code"))) {
                 return ApiResponse.error("调用云端接口获取预付价格失败!");
@@ -96,12 +84,10 @@ public class ThirdPartServiceController {
     public ApiResponse<List<FlightInfoVo>> loadDepartment(@RequestBody FlightInfoDTO flightInfoDTO) {
         //查询航班、具体返回值需根据第三方接口定义
         try {
-            String macAddress = MacTools.getMacList().get(0);
             Map<String, Object> map = ObjectUtils.objectToMap(flightInfoDTO);
-            map.put("mac", macAddress);
-            map.put("enterpriseId", enterpriseId);
-            map.put("licenseContent", licenseContent);
-            String postJson = OkHttpUtil.postForm(apiUrl + "/service/getFlightInfo", map);
+
+            String url = "/service/getFlightInfo";
+            String postJson = okHttpUtil.thirdInterface(url, map);
             if (StringUtils.isEmpty(postJson)) {
                 return ApiResponse.success("航班信息未更新");
             }
@@ -123,15 +109,11 @@ public class ThirdPartServiceController {
     @RequestMapping(value = "/loadHolidays", method = RequestMethod.POST)
     public ApiResponse<HolidaysVO> loadHolidays() {
         try {
-
-            String macAddress = MacTools.getMacList().get(0);
             Map<String, Object> map = Maps.newHashMap();
-            map.put("mac", macAddress);
-            map.put("enterpriseId", enterpriseId);
-            map.put("licenseContent", licenseContent);
             //必须传个空的，不然报错
             map.put("year", "");
-            String postJson = OkHttpUtil.postForm(apiUrl + "/basic/holidays", map);
+            String url = "/basic/holidays";
+            String postJson = okHttpUtil.thirdInterface(url, map);
 
             if (StringUtils.isEmpty(postJson)) {
                 return ApiResponse.success("未查询到法定节假日信息");
@@ -157,10 +139,9 @@ public class ThirdPartServiceController {
     public ApiResponse<String> getCloudsPhone() {
         try {
             Map<String, Object> map = new HashMap<>();
-            map.put("enterpriseId", enterpriseId);
-            map.put("licenseContent", licenseContent);
-            map.put("mac", MacTools.getMacList().get(0));
-            String postJson = OkHttpUtil.postForm(apiUrl + "/basic/400110", map);
+
+            String url = "/basic/400110";
+            String postJson = okHttpUtil.thirdInterface(url, map);
             if (StringUtils.isEmpty(postJson)) {
                 return ApiResponse.success("未查询到云端电话");
             }
@@ -184,14 +165,11 @@ public class ThirdPartServiceController {
         Integer count = 0;
         try {
             // MAC地址
-            String macAdd = MacTools.getMacList().get(0);
             Map<String, Object> queryOrderStateMap = new HashMap<>();
-            queryOrderStateMap.put("enterpriseId", enterpriseId);
-            queryOrderStateMap.put("licenseContent", licenseContent);
-            queryOrderStateMap.put("mac", macAdd);
             queryOrderStateMap.put("enterpriseOrderId", orderNo);
-            String resultQuery = OkHttpUtil.postForm(apiUrl + "/service/orderCount",
-                queryOrderStateMap);
+            String url = "/service/orderCount";
+            String resultQuery = okHttpUtil.thirdInterface(url, queryOrderStateMap);
+
             JSONObject parseObject = JSONObject.parseObject(resultQuery);
             if (!"0".equals(parseObject.getString("code"))) {
                 return ApiResponse.error("调用云端获取约车次数失败!");

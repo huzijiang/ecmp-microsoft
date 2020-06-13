@@ -8,6 +8,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
 import com.hq.api.system.domain.SysDriver;
 import com.hq.api.system.domain.SysRole;
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
@@ -226,13 +227,13 @@ public class OrderInfoServiceImpl implements IOrderInfoService
 
     /**
      * 获取乘客订单列表
-     * @param userId
+     * @param user
      * @return
      */
     @Override
-    public PageResult<OrderListInfo>  getOrderList(Long userId, int pageNum, int pageSize,int isConfirmState) {
+    public PageResult<OrderListInfo>  getOrderList(SysUser user, int pageNum, int pageSize, int isConfirmState) {
         PageHelper.startPage(pageNum,pageSize);
-        List<OrderListInfo> orderList = orderInfoMapper.getOrderList(userId,isConfirmState);
+        List<OrderListInfo> orderList = orderInfoMapper.getOrderList(user.getDeptId(),isConfirmState);
         PageInfo<OrderListInfo> pageInfo = new PageInfo<>(orderList);
         PageResult<OrderListInfo> pageResult = new PageResult<>(pageInfo.getTotal(),pageInfo.getPages(),orderList);
         return pageResult;
@@ -3067,7 +3068,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         dataMap = new HashMap<>();
         data.setState("S635");
         List<OrderListBackDto> serviceSuspension= orderInfoMapper.getCount(data);
-        dataMap.put("msg","服务中止");
+        dataMap.put("msg","服务暂停");
         dataMap.put("value",null==serviceSuspension ?0:serviceSuspension.size());
         dataMap.put("code","S635");
         dataMap.put("sort","7");
@@ -3091,14 +3092,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         dataMap.put("sort","9");
         map.put("completed",dataMap);
 
-        dataMap = new HashMap<>();
+       /* dataMap = new HashMap<>();
         data.setState("S911");
         List<OrderListBackDto> cancelled= orderInfoMapper.getCount(data);
         dataMap.put("msg","已取消");
         dataMap.put("value",null==cancelled ?0:cancelled.size());
         dataMap.put("code","S911");
         dataMap.put("sort","10");
-        map.put("cancelled",dataMap);
+        map.put("cancelled",dataMap);*/
         return map;
     }
 
