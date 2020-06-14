@@ -272,7 +272,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="queryCompanyCar" parameterType="java.lang.Long" resultType="java.lang.Integer">
-          -- select count(1) from car_info where  state != 'S444' and company_id = #{companyId}
           SELECT
                 count( ci.car_id )
             FROM

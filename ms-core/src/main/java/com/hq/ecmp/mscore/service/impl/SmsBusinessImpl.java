@@ -1105,9 +1105,11 @@ public class SmsBusinessImpl implements IsmsBusiness{
         UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
         String drivingTime= DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,undoSMSTemplate.getStartDate());
         String vehicleUser =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber();
+        String telephone = undoSMSTemplate.getTelephone();
         Map<String,String> map=Maps.newHashMap();
         map.put("drivingTime", drivingTime ); // 用车时间
         map.put("vehicleUser",vehicleUser);//业务员信息
+        map.put("telephone",telephone);//内部车队电话
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_VEHICLE_APPLICANT, map, undoSMSTemplate.getVehicleUserMobile());
         log.info("业务员提交申请单短信结束", JSON.toJSON(map));
     }
@@ -1316,6 +1318,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String applyDays = undoSMSTemplate.getUseTime();
         String carTypeName = undoSMSTemplate.getCarTypeName();
         String deptName = undoSMSTemplate.getDeptName();
+        String telephone = undoSMSTemplate.getTelephone();
         Map<String,String> map=Maps.newHashMap();
         map.put("subscribeTime", subscribeTime );//用车时间
         map.put("salesman", salesman ); //申请人
@@ -1326,6 +1329,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         Map<String,String> mapTwo=Maps.newHashMap();
         mapTwo.put("drivingTime", subscribeTime );//用车时间
         mapTwo.put("vehicleUser", salesman ); //业务员
+        mapTwo.put("telephone", telephone ); //内部车队座机
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_VEHICLE_APPLICANT, mapTwo, undoSMSTemplate.getVehicleUserMobile());
         log.info("短信结束-用车人申请短信:用车人申请短信结束",JSON.toJSON(mapTwo));
         //------------------------------------------------------------

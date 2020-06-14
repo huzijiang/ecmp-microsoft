@@ -135,7 +135,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                         LEFT JOIN ecmp_user eu ON eu.user_id = cgdi.user_id
                     WHERE
                         company_id = #{companyId}
-                        AND it_is_inner = 'C000'
+                        AND cgi.it_is_inner = 'C000' and cgi.state ='Y000'
     </select>
 
     <select id="getCarGroupDispatcherExternalList" parameterType="com.hq.ecmp.mscore.dto.ApplyOfficialRequest" resultType="com.hq.ecmp.mscore.domain.EcmpUser">
@@ -148,8 +148,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         LEFT JOIN car_group_info cgi ON cgi.car_group_id = cgdi.car_group_id
         LEFT JOIN ecmp_user eu ON eu.user_id = cgdi.user_id
         WHERE
-        company_id = #{companyId}
-        AND it_is_inner = 'C111'
+        cgi.company_id = #{companyId}
+        AND cgi.it_is_inner = 'C111' and cgi.state ='Y000'
     </select>
     <select id="getAllUserIdByDispatchUserId" resultType="java.lang.Long">
                     SELECT

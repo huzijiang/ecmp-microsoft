@@ -1508,7 +1508,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
     public PageResult<OrderListBackDto> getOrderListBackDto(OrderListBackDto orderListBackDto,LoginUser user) {
         String key = isDispatcher(user);
         if(null==key){
-            //orderListBackDto.setUserId(user.getUser().getUserId());
+            orderListBackDto.setDeptId(user.getUser().getDeptId());
         }else if("admin".equals(key)){
             orderListBackDto.setUserId(null);
             orderListBackDto.setUpdateBy(null);
@@ -2988,7 +2988,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService
         String key = isDispatcher(user);
         OrderListBackDto orderListBackDto = new OrderListBackDto();
         if(null==key){
-            //orderListBackDto.setUserId(user.getUser().getUserId());
+            orderListBackDto.setDeptId(user.getUser().getDeptId());
         }else if("admin".equals(key)){
             orderListBackDto.setUserId(null);
             orderListBackDto.setUpdateBy(null);
