@@ -3175,7 +3175,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         )
         AND o.it_is_supplement = 'N000'
         AND o.company_id =100
-        and   date(oaib.action_time) = curdate()
         )t
         where t.state= #{state}
         order by useCarDate
@@ -3235,7 +3234,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         )
         AND o.it_is_supplement = 'N000'
         AND o.company_id =100
-        and   date(oaib.action_time) = curdate()
         )t
        group by t.state
     </select>

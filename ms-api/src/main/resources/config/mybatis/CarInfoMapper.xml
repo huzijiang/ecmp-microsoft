@@ -568,7 +568,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from  car_info c
         left join order_info s on c.car_id=s.car_id and  s.use_car_mode='W100' and FIND_IN_SET(s.state,'S500,S600,S616,S635')
         left join enterprise_car_type_info ecti on ecti.car_type_id=c.car_type_id
-        where  c.state='S000'
+        left join car_group_info g on g.car_group_id = c.car_group_id
+        where  c.state='S000' and g.it_is_inner = 'C000'
         <if test="state =='在外车辆'.toString">
             and s.order_id is not null
         </if>
@@ -588,7 +589,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from  car_info c
         left join order_info s on c.car_id=s.car_id and  s.use_car_mode='W100' and FIND_IN_SET(s.state,'S500,S600,S616,S635')
         left join enterprise_car_type_info ecti on ecti.car_type_id=c.car_type_id
-        where  c.state='S000'
+        left join car_group_info g on g.car_group_id = c.car_group_id
+        where  c.state='S000' and g.it_is_inner = 'C000'
 		group by state
     </select>
 </mapper>
