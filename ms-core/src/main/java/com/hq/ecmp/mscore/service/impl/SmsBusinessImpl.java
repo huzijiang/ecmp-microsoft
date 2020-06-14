@@ -1121,7 +1121,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
     @Override
     @Async
     public void sendDispatcherApply(Long journeyId, Long applyId, ApplyOfficialRequest officialCommitApply)  throws Exception{
-        log.info("短信开始-业务员提交申请单{},成功", applyId);
+        log.info("短信开始-业务员提交申请单给调度员发短信{},开始", applyId);
         String subscribeTime= DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,officialCommitApply.getApplyDate());
         String vehicleUser =officialCommitApply.getPassenger().getUserName()+" "+officialCommitApply.getPassenger().getUserPhone();
         String salesman = officialCommitApply.getApplyUser().getUserName()+ " "+officialCommitApply.getApplyUser().getUserPhone();
@@ -1141,6 +1141,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if(StringUtils.isNotBlank(officialCommitApply.getReason())){
             String reason= officialCommitApply.getReason();
             map.put("reason", "预约备注："+reason ); // 预约备注
+        }else{
+            map.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherList(officialCommitApply);
