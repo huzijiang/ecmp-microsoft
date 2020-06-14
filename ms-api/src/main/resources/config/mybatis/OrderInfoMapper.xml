@@ -2913,6 +2913,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             left join order_address_info oaib  on oaib.order_id=o.order_id and oaib.type='A000'
             left join order_address_info oaie  on oaie.order_id=o.order_id and oaie.type='A999'
             left join china_city cc on cc.city_code=oaib.city_postal_code
+            LEFT JOIN journey_passenger_info jpi ON  jpi.journey_id = o.journey_id
             where
             1=1
             and o.order_id in (select distinct order_id from order_state_trace_info where order_id in
@@ -2942,10 +2943,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             </if>
 
             <if test="applyName!=null and applyName!=''">
-                and eu.nick_name like concat('%',#{applyName},'%')
+                and jpi.name like concat('%',#{applyName},'%')
             </if>
             <if test="applyMobile!=null and applyMobile!=''">
-                and eu.phonenumber like concat('%',#{applyMobile},'%')
+                and jpi.mobile like concat('%',#{applyMobile},'%')
             </if>
             <if test="cityCode!=null and cityCode != ''">
                 and oaib.city_postal_code=#{cityCode}
