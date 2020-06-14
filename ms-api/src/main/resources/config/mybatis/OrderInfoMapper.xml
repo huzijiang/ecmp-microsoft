@@ -2968,7 +2968,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <if test="dispatchStatus!=null and dispatchStatus!=''">
             and t.state=#{dispatchStatus}
         </if>
-        order by state='待派车' DESC ,state='已处理' DESC , useCarDate ASC
+        order by state='待派车' DESC ,state='已处理' DESC , if(state='待派车' ,useCarDate ASC,opDate DESC )
     </select>
     <select id="getOrderStateCount" resultType="com.hq.ecmp.mscore.vo.DisOrderStateCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatch">
         select t.state, count(1) as  count  from(
