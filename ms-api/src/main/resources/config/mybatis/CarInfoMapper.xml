@@ -456,7 +456,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="carWorkOrderList" parameterType="Object" resultMap="carWorkOrderMap">
-        select car_id,car_license,car_type_id,car_type,#{date} date from car_info
+        select car_id,car_license,car_type_id,car_type,#{date} date,
+        (select count(*) from order_info o
+        left join order_address_info s on  (s.order_id=o.order_id and s.type='A000')
+        left join order_address_info t on  (t.order_id=o.order_id and t.type='A999')
+        where  o.car_id=a.car_id
+        <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') <= DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>
+        <![CDATA[AND DATE_FORMAT(t.action_time, '%Y-%m-%d') >= DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>) orderAcount
+        from car_info a
         where state='S000'
         and car_group_id = #{carGroupId}
         <if test="search!=null and search!=''">
