@@ -15,6 +15,9 @@ import lombok.Data;
 @ApiModel("调度工作台订单相关model")
 public class DisWorkBenchOrder {
 
+    @ApiModelProperty(value = "订单id")
+    private Long orderId;
+
     @ApiModelProperty(value = "订单号")
     private String orderNum;
 
