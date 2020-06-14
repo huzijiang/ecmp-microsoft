@@ -272,7 +272,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="queryCompanyCar" parameterType="java.lang.Long" resultType="java.lang.Integer">
-          select count(1) from car_info where  state != 'S444' and company_id = #{companyId}
+          -- select count(1) from car_info where  state != 'S444' and company_id = #{companyId}
+          SELECT
+                count( ci.car_id )
+            FROM
+                car_info ci
+                LEFT JOIN car_group_info cgi  ON ci.car_group_id = cgi.car_group_id
+            WHERE
+                ci.state != 'S444'
+                AND cgi.it_is_inner = 'C000'
+                AND ci.company_id = #{companyId}
     </select>
 
     <!--根据组织id查询归属车辆信息-->
@@ -456,12 +465,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="carWorkOrderList" parameterType="Object" resultMap="carWorkOrderMap">
-        select car_id,car_license,car_type_id,car_type,#{date} date from car_info
+        select car_id,car_license,car_type_id,car_type,#{date} date,
+        (select count(*) from order_info o
+        left join order_address_info s on  (s.order_id=o.order_id and s.type='A000')
+        left join order_address_info t on  (t.order_id=o.order_id and t.type='A999')
+        where  o.car_id=a.car_id
+        <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') <= DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>
+        <![CDATA[AND DATE_FORMAT(t.action_time, '%Y-%m-%d') >= DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>) orderAcount
+        from car_info a
         where state='S000'
         and car_group_id = #{carGroupId}
         <if test="search!=null and search!=''">
             and  (car_license like concat('%', #{search}, '%') or car_type like concat('%', #{search}, '%')  )
         </if>
+        order by orderAcount desc
     </select>
     <select id="carWorkOrderListCount" parameterType="Object" resultType="Long">
         select count(*) from car_info

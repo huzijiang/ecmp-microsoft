@@ -660,7 +660,14 @@ WHERE
     </select>
 
     <select id="driverWorkOrderList" parameterType="Object" resultMap="driverWorkOrderMap">
-        select driver_id,driver_name,mobile,#{date} date from driver_info
+        select driver_id,driver_name,mobile,#{date} date ,
+        (select count(*) from order_info o
+        left join order_address_info s on  (s.order_id=o.order_id and s.type='A000')
+        left join order_address_info t on  (t.order_id=o.order_id and t.type='A999')
+        where  o.driver_id=a.driver_id
+        <![CDATA[AND DATE_FORMAT(s.action_time, '%Y-%m-%d') <= DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>
+        <![CDATA[AND DATE_FORMAT(t.action_time, '%Y-%m-%d') >= DATE_FORMAT(#{date}, '%Y-%m-%d') ]]>) orderAcount
+        from driver_info a
         where state='V000'
         and driver_id in (select driver_id from car_group_driver_relation
         where car_group_id=#{carGroupId}
@@ -668,6 +675,7 @@ WHERE
             and driver_id in (select driver_id from driver_info where driver_name like concat('%', #{search}, '%') or mobile like concat('%', #{search}, '%')  )
         </if>
         )
+        order by orderAcount desc
     </select>
     <select id="driverWorkOrderListCount" parameterType="Object" resultType="Long">
         select count(*) from driver_info
