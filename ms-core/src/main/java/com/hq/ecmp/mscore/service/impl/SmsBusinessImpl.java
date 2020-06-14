@@ -1183,6 +1183,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapTwo.put("reason", "预约备注："+reason ); // 预约备注
+        }else{
+            mapTwo.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         ApplyOfficialRequest applyOfficialRequest  = new ApplyOfficialRequest();
@@ -1223,6 +1225,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapTwo.put("reason", "预约备注："+reason ); // 预约备注
+        }else{
+            mapTwo.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         ApplyOfficialRequest applyOfficialRequest  = new ApplyOfficialRequest();
@@ -1260,6 +1264,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             map.put("reason", "预约备注："+reason ); //用车备注
+        }else{
+            map.put("reason", "预约备注：无");
         }
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DRIVER, map, driverMobile);
         log.info("短信开始-撤销待服务短信:驾驶员短信结束",JSON.toJSON(map));
@@ -1282,6 +1288,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapThree.put("reason", "预约备注："+reason ); //预约备注
+        }else{
+            mapThree.put("reason", "预约备注：无");
         }
         if(StringUtils.isNotBlank(innerPhonenumber)) {
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DISPATCHER, mapThree, innerPhonenumber);
@@ -1334,6 +1342,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapThree.put("reason", "预约备注："+reason ); //预约备注
+        }else{
+            mapThree.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         ApplyOfficialRequest applyOfficialRequest = new ApplyOfficialRequest();
