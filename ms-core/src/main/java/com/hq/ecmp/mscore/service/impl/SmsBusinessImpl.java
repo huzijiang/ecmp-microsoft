@@ -1121,7 +1121,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
     @Override
     @Async
     public void sendDispatcherApply(Long journeyId, Long applyId, ApplyOfficialRequest officialCommitApply)  throws Exception{
-        log.info("短信开始-业务员提交申请单{},成功", applyId);
+        log.info("短信开始-业务员提交申请单给调度员发短信{},开始", applyId);
         String subscribeTime= DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,officialCommitApply.getApplyDate());
         String vehicleUser =officialCommitApply.getPassenger().getUserName()+" "+officialCommitApply.getPassenger().getUserPhone();
         String salesman = officialCommitApply.getApplyUser().getUserName()+ " "+officialCommitApply.getApplyUser().getUserPhone();
@@ -1141,6 +1141,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if(StringUtils.isNotBlank(officialCommitApply.getReason())){
             String reason= officialCommitApply.getReason();
             map.put("reason", "预约备注："+reason ); // 预约备注
+        }else{
+            map.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherList(officialCommitApply);
@@ -1181,6 +1183,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapTwo.put("reason", "预约备注："+reason ); // 预约备注
+        }else{
+            mapTwo.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         ApplyOfficialRequest applyOfficialRequest  = new ApplyOfficialRequest();
@@ -1221,6 +1225,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapTwo.put("reason", "预约备注："+reason ); // 预约备注
+        }else{
+            mapTwo.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         ApplyOfficialRequest applyOfficialRequest  = new ApplyOfficialRequest();
@@ -1258,6 +1264,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             map.put("reason", "预约备注："+reason ); //用车备注
+        }else{
+            map.put("reason", "预约备注：无");
         }
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DRIVER, map, driverMobile);
         log.info("短信开始-撤销待服务短信:驾驶员短信结束",JSON.toJSON(map));
@@ -1280,6 +1288,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapThree.put("reason", "预约备注："+reason ); //预约备注
+        }else{
+            mapThree.put("reason", "预约备注：无");
         }
         if(StringUtils.isNotBlank(innerPhonenumber)) {
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DISPATCHER, mapThree, innerPhonenumber);
@@ -1332,6 +1342,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapThree.put("reason", "预约备注："+reason ); //预约备注
+        }else{
+            mapThree.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         ApplyOfficialRequest applyOfficialRequest = new ApplyOfficialRequest();
