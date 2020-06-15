@@ -459,7 +459,7 @@ public interface OrderInfoMapper {
      * 查询订单司机的所属车队和车队性质，用于首页统计
      * @return
      */
-    List<Map> selectOrderCarGroup(@Param("companyId")Long companyId);
+    List<Map<String,String>> selectOrderCarGroup(@Param("companyId")Long companyId);
 
     /**
      * 查询用车开始时间段之内的订单
