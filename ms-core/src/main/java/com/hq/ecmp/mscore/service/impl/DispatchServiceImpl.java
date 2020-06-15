@@ -1,13 +1,12 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.hq.api.system.domain.SysRole;
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.CarConstant;
-import com.hq.ecmp.constant.OrderConstant;
-import com.hq.ecmp.constant.OrderState;
-import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.constant.*;
 import com.hq.ecmp.constant.enumerate.*;
 import com.hq.ecmp.mscore.bo.*;
 import com.hq.ecmp.mscore.domain.*;
@@ -23,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
@@ -380,11 +380,46 @@ public class DispatchServiceImpl implements IDispatchService {
     }
 
     @Override
-    public OrderStateCountVO getOrderStateCount(Long orgComcany) {
-        List<Long> users = ecmpUserMapper.getUserListByOrgId(orgComcany);
-        Long dispatchedCount = orderInfoMapper.getCountForDispatched(orgComcany, users);
-        Long reassignedCount = orderInfoMapper.getCountForReassigned(orgComcany, users);
-        OrderStateCountVO vo = new OrderStateCountVO(dispatchedCount, reassignedCount);
+    public OrderStateCountVO getOrderStateCount(SysUser sysUser) {
+//        List<Long> users = ecmpUserMapper.getUserListByOrgId(orgComcany);
+        List<SysRole> role = sysUser.getRoles();
+        List<SysRole> collect = role.stream().filter(p -> CommonConstant.ADMIN_ROLE.equals(p.getRoleKey()) || CommonConstant.SUB_ADMIN_ROLE.equals(p.getRoleKey())).collect(Collectors.toList());
+        Boolean isAdmin = false;
+        Boolean isDispatcher = false;
+        ApplyDispatch query=new ApplyDispatch();
+        query.setCompanyId(sysUser.getOwnerCompany());
+        query.setUserId(sysUser.getUserId());
+        List<DispatchCarGroupDto> disCarGroupInfos= carGroupInfoMapper.getDisCarGroupInfoByUserId(query.getUserId(),query.getCompanyId());
+        String carGroupIds = disCarGroupInfos.stream().map(p -> p.getCarGroupId().toString()).collect(Collectors.joining(",", "", ""));
+        query.setCarGroupIds(carGroupIds);
+        if ("1".equals(sysUser.getItIsDispatcher())) {
+            isDispatcher = true;
+            if (!CollectionUtils.isEmpty(disCarGroupInfos)){
+                String itIsInner = disCarGroupInfos.get(0).getItIsInner();
+                if (itIsInner.equals(CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN)){
+                    query.setIsInnerDispatch(1);
+                }else{
+                    query.setIsInnerDispatch(2);
+                }
+            }
+        }
+        if (!CollectionUtils.isEmpty(collect)) {//是管理员
+            isAdmin = true;
+        }
+        if(isAdmin && isDispatcher){
+            query.setRoleData(2);
+        }else if (isAdmin && !isDispatcher){
+            query.setRoleData(1);
+        }else if(!isAdmin && isDispatcher){
+            query.setRoleData(3);
+        }
+        if (!CollectionUtils.isEmpty(disCarGroupInfos)){
+            String collect1 = disCarGroupInfos.stream().map(p -> p.getDeptId().toString()).collect(Collectors.joining(",", "", ""));
+            query.setDeptId(collect1);
+        }
+        Long dispatchedCount = orderInfoMapper.getCountForDispatched(query);
+//        Long reassignedCount = orderInfoMapper.getCountForReassigned(orgComcany, users);
+        OrderStateCountVO vo = new OrderStateCountVO(dispatchedCount, 0L);
         return vo;
     }
 

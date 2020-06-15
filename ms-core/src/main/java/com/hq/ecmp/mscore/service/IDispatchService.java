@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.dto.dispatch.*;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
@@ -66,10 +67,10 @@ public interface IDispatchService {
 
     /**
      * 调度看板待派车.待改派订单统计
-     * @param orgComcany
+     * @param sysUser
      * @return
      */
-    OrderStateCountVO getOrderStateCount(Long orgComcany);
+    OrderStateCountVO getOrderStateCount(SysUser sysUser);
 
     /**
      * 调度员无车驳回操作

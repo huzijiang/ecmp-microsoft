@@ -1096,11 +1096,32 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </select>
 
     <select id="getCountForDispatched" parameterType="Object" resultType="java.lang.Long">
-         SELECT count(*) FROM order_info where state='S100'
-          and user_id in
-        <foreach item="userId" collection="users" open="(" separator="," close=")">
-            #{userId}
-        </foreach>
+         SELECT count(*)
+         FROM order_info o
+        left join ecmp_user eu on eu.user_id=o.user_id
+        left join order_dispatche_detail_info oddi on oddi.order_id=o.order_id
+        where o.state='S100'
+        and  o.it_is_supplement='N000'
+        <if test="roleData ==1">
+            -- 系统管理员
+            and o.company_id=#{companyId}
+        </if>
+        <if test="roleData ==2 and isInnerDispatch==1">
+            -- 系统管理员+内部调度员
+            and (o.company_id=#{companyId} or   (o.company_id=#{companyId} and find_in_set(eu.dept_id,#{deptId})))
+        </if>
+        <if test="roleData ==2 and isInnerDispatch==2">
+            -- 系统管理员+外部调度员
+            and (o.company_id=#{companyId} or   ( o.company_id=#{companyId} and find_in_set(eu.dept_id,#{deptId}) and FIND_IN_SET(oddi.next_car_group_id,#{carGroupIds})))
+        </if>
+        <if test="roleData ==3 and isInnerDispatch==2 ">
+            --  外部调度员
+            and o.company_id=#{companyId} and  find_in_set(eu.dept_id,#{deptId}) and FIND_IN_SET(oddi.next_car_group_id,#{carGroupIds})
+        </if>
+        <if test="roleData ==3 and isInnerDispatch==1 ">
+            -- 内部调度员
+            and o.company_id=#{companyId} and    (find_in_set(eu.dept_id,#{deptId}))
+        </if>
     </select>
     <select id="getCountForReassigned" parameterType="Object" resultType="java.lang.Long">
          SELECT count(*) FROM order_info
@@ -2971,34 +2992,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
     </select>
     <select id="getOrderStateCount" resultType="com.hq.ecmp.mscore.vo.DisOrderStateCount" parameterType="com.hq.ecmp.mscore.domain.ApplyDispatch">
         select t.state, count(1) as  count  from(
-        select oddi.next_car_group_id as nextCarGroupId,
-        o.order_id as orderId,
-        o.user_id userId,
-        eo.dept_name as deptName,
-        eoc.dept_name as companyName,
-        <if test="roleData ==1 ">
-            '1' as operationPermission,
-        </if>
-        <if test="roleData ==3 ">
-            '0' as operationPermission,
-        </if>
-        <if test="roleData ==3 and isInnerDispatch==2">
-            2 as inOrOut,
-        </if>
-        <if test="roleData ==3 and isInnerDispatch==1">
-            1 as inOrOut,
-        </if>
-        eu.nick_name as applyUserName,
-        eu.phonenumber as applyUserTel,
-        oaib.action_time as useCarDate,
-        oaie.action_time as endDate,
-        oaib.address as startSite,
-        oaie.address as endSite,
-        cc.short_name useCarCity,
-        oddi.car_group_user_mode carGroupUserMode,
-        oddi.it_is_self_driver selfDriver,
-        oddi.it_is_use_inner_car_group useCarGroupType,
-        o.journey_id journeyId,
+        select
         case
         when right (osti.state,3)='100' then '待派车'
         when right (osti.state,3)<![CDATA[ >= ]]>'299' and right (osti.state,3)<![CDATA[ <= ]]>'900' then '已处理'
