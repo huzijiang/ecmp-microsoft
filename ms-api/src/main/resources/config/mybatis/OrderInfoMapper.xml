@@ -3381,7 +3381,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 				left join order_state_trace_info on order_info.order_id = order_state_trace_info.order_id
         where order_info.car_id is NOT null
         and order_info.company_id = #{companyId}
-        and date(add1.action_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        and (date(add1.action_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) or date(add2.action_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY))
 				GROUP BY order_info.order_id
     </select>
 

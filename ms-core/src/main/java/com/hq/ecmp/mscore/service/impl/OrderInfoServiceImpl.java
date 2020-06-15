@@ -3155,7 +3155,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
                 .filter(x -> x.get("states").indexOf(OrderStateTrace.ORDERDENIED.getState()) == -1)//过滤驳回
                 .forEach(x -> {
                     //S299之后的所有单子
-                    if (Integer.parseInt(x.get("state").substring(1)) > 299) {
+                    if (Integer.parseInt(x.get("state").substring(1)) >= 299) {
                         //map.get(x.get("date")).put("all",map.get(x.get("date")).get("all")+1);
                         if (CarConstant.IT_IS_USE_INNER_CAR_GROUP_IN.equals(x.get("it_is_inner"))) {
                             if ("S001".equals(x.get("source"))) {
