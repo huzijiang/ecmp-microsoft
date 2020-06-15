@@ -3175,12 +3175,14 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         )
         AND o.it_is_supplement = 'N000'
         AND o.company_id =100
-        and   date(oaib.action_time) = curdate()
+        <if test="state == '已派车'">
+          and   date(oaib.action_time) = curdate()
+        </if>
         )t
         where t.state= #{state}
         order by useCarDate
     </select>
-    <select id="getDispatchOrderListWorkBenchCount" resultType="com.hq.ecmp.mscore.vo.DisOrderStateCount">
+    <select id="getDispatchOrderListWorkBenchCount" resultType="com.hq.ecmp.mscore.vo.DisOrderStateCount" parameterType="java.lang.String">
         select t.state,count(1) AS count from (
         SELECT
         o.order_number AS orderNum,
@@ -3235,8 +3237,16 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         )
         AND o.it_is_supplement = 'N000'
         AND o.company_id =100
-        and   date(oaib.action_time) = curdate()
+        <if test="state == '已派车'">
+            and   date(oaib.action_time) = curdate()
+        </if>
         )t
+        <if test="state == '已派车'">
+            where t.state='已派车'
+        </if>
+        <if test="state != '已派车'">
+            where t.state!='已派车'
+        </if>
        group by t.state
     </select>
 

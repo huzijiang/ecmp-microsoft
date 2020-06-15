@@ -490,9 +490,10 @@ public interface OrderInfoMapper {
 
     /**
      * 获取调度工作台订单的统计数量信息
+     * @param state
      * @return
      */
-    List<DisOrderStateCount> getDispatchOrderListWorkBenchCount();
+    List<DisOrderStateCount> getDispatchOrderListWorkBenchCount(@Param("state") String state);
 
     PayeeInfoDto getPayeeInfo(ReckoningDto param);
 
