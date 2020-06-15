@@ -1105,9 +1105,11 @@ public class SmsBusinessImpl implements IsmsBusiness{
         UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
         String drivingTime= DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,undoSMSTemplate.getStartDate());
         String vehicleUser =undoSMSTemplate.getNickName()+" "+undoSMSTemplate.getPhonenumber();
+        String telephone = undoSMSTemplate.getTelephone();
         Map<String,String> map=Maps.newHashMap();
         map.put("drivingTime", drivingTime ); // 用车时间
         map.put("vehicleUser",vehicleUser);//业务员信息
+        map.put("telephone",telephone);//内部车队电话
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_VEHICLE_APPLICANT, map, undoSMSTemplate.getVehicleUserMobile());
         log.info("业务员提交申请单短信结束", JSON.toJSON(map));
     }
@@ -1121,7 +1123,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
     @Override
     @Async
     public void sendDispatcherApply(Long journeyId, Long applyId, ApplyOfficialRequest officialCommitApply)  throws Exception{
-        log.info("短信开始-业务员提交申请单{},成功", applyId);
+        log.info("短信开始-业务员提交申请单给调度员发短信{},开始", applyId);
         String subscribeTime= DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN,officialCommitApply.getApplyDate());
         String vehicleUser =officialCommitApply.getPassenger().getUserName()+" "+officialCommitApply.getPassenger().getUserPhone();
         String salesman = officialCommitApply.getApplyUser().getUserName()+ " "+officialCommitApply.getApplyUser().getUserPhone();
@@ -1141,6 +1143,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if(StringUtils.isNotBlank(officialCommitApply.getReason())){
             String reason= officialCommitApply.getReason();
             map.put("reason", "预约备注："+reason ); // 预约备注
+        }else{
+            map.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherList(officialCommitApply);
@@ -1181,6 +1185,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapTwo.put("reason", "预约备注："+reason ); // 预约备注
+        }else{
+            mapTwo.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         ApplyOfficialRequest applyOfficialRequest  = new ApplyOfficialRequest();
@@ -1221,6 +1227,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapTwo.put("reason", "预约备注："+reason ); // 预约备注
+        }else{
+            mapTwo.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         ApplyOfficialRequest applyOfficialRequest  = new ApplyOfficialRequest();
@@ -1258,6 +1266,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             map.put("reason", "预约备注："+reason ); //用车备注
+        }else{
+            map.put("reason", "预约备注：无");
         }
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DRIVER, map, driverMobile);
         log.info("短信开始-撤销待服务短信:驾驶员短信结束",JSON.toJSON(map));
@@ -1280,6 +1290,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapThree.put("reason", "预约备注："+reason ); //预约备注
+        }else{
+            mapThree.put("reason", "预约备注：无");
         }
         if(StringUtils.isNotBlank(innerPhonenumber)) {
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_REVOKE_DISPATCHER, mapThree, innerPhonenumber);
@@ -1306,6 +1318,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         String applyDays = undoSMSTemplate.getUseTime();
         String carTypeName = undoSMSTemplate.getCarTypeName();
         String deptName = undoSMSTemplate.getDeptName();
+        String telephone = undoSMSTemplate.getTelephone();
         Map<String,String> map=Maps.newHashMap();
         map.put("subscribeTime", subscribeTime );//用车时间
         map.put("salesman", salesman ); //申请人
@@ -1316,6 +1329,7 @@ public class SmsBusinessImpl implements IsmsBusiness{
         Map<String,String> mapTwo=Maps.newHashMap();
         mapTwo.put("drivingTime", subscribeTime );//用车时间
         mapTwo.put("vehicleUser", salesman ); //业务员
+        mapTwo.put("telephone", telephone ); //内部车队座机
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_VEHICLE_APPLICANT, mapTwo, undoSMSTemplate.getVehicleUserMobile());
         log.info("短信结束-用车人申请短信:用车人申请短信结束",JSON.toJSON(mapTwo));
         //------------------------------------------------------------
@@ -1332,6 +1346,8 @@ public class SmsBusinessImpl implements IsmsBusiness{
         if (StringUtils.isNotBlank(undoSMSTemplate.getNotes())){
             String reason= undoSMSTemplate.getNotes();
             mapThree.put("reason", "预约备注："+reason ); //预约备注
+        }else{
+            mapThree.put("reason", "预约备注：无");
         }
         //发给内部车队所有调度员
         ApplyOfficialRequest applyOfficialRequest = new ApplyOfficialRequest();
