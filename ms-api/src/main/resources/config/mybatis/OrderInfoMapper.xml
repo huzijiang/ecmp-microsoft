@@ -734,10 +734,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                     and oodi.it_is_self_driver='Y000'
                 </if>
                 <if test="null != updateBy and updateBy !=''">
-                    and s.car_id in (
+                    and (s.car_id in (
                     select car_id  from car_info where car_group_id in
                     (select car_group_id from car_group_dispatcher_info where user_id=#{updateBy})
-                    )
+                    ) or s.driver_id in ( select driver_id  from car_group_driver_relation where car_group_id in
+                    (select car_group_id from car_group_dispatcher_info where user_id=#{updateBy})
+                    ))
                 </if>
                 <if test="state == 1">
                     <if test="orderState!=null and orderState!='S299'">
@@ -3381,7 +3383,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 				left join order_state_trace_info on order_info.order_id = order_state_trace_info.order_id
         where order_info.car_id is NOT null
         and order_info.company_id = #{companyId}
-        and date(add1.action_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        and (date(add1.action_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) or date(add2.action_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY))
 				GROUP BY order_info.order_id
     </select>
 
@@ -3444,10 +3446,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 and eu.dept_id = #{deptId}
             </if>
             <if test="null != updateBy and updateBy !=''">
-                and s.car_id in (
+                and (s.car_id in (
                 select car_id  from car_info where car_group_id in
                 (select car_group_id from car_group_dispatcher_info where user_id=#{updateBy})
-                )
+                ) or s.driver_id in ( select driver_id  from car_group_driver_relation where car_group_id in
+                (select car_group_id from car_group_dispatcher_info where user_id=#{updateBy})
+                ))
             </if>
        </where>
     </select>
